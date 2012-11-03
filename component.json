@@ -1,6 +1,6 @@
 {
   "name"        : "ember",
-  "version"     : "1.0.0-pre",
+  "version"     : "1.0.0-pre.2",
   "main"        : ["./ember.js", "./ember.min.js"],
   "dependencies": {
     "jquery"     : "~1.8.0",
