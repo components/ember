@@ -1,7 +1,21 @@
 {
   "name"        : "ember",
   "version"     : "1.0.0-rc.1",
-  "main"        : ["./ember.js", "./ember.min.js"],
+  "main"        : [
+    "./ember-data.js",
+    "./ember-data.min.js",
+    "./ember-data.prod.js",
+    "./ember-runtime.js",
+    "./ember-runtime.min.js",
+    "./ember-runtime.prod.js",
+    "./ember-spade.js",
+    "./ember-template-compiler.js",
+    "./ember-template-compiler.min.js",
+    "./ember-template-compiler.prod.js",
+    "./ember.js",
+    "./ember.min.js",
+    "./ember.prod.js"
+  ],
   "dependencies": {
     "jquery"     : "~1.9.0",
     "handlebars" : "~1.0.0"
