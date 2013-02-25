@@ -18,6 +18,6 @@
   ],
   "dependencies": {
     "jquery"     : "~1.9.0",
-    "handlebars" : "~1.0.0-rc.3"
+    "handlebars" : "git://github.com/Costent/handlebars.js#~1.0.0-rc.3"
   }
 }
