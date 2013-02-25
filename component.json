@@ -1,6 +1,6 @@
 {
-  "name"        : "ember",
-  "version"     : "1.0.0-rc.1",
+  "name"        : "ember.js",
+  "version"     : "1.0.0-rc.1-68-g0756836",
   "main"        : [
     "./ember-data.js",
     "./ember-data.min.js",
