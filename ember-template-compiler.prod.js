@@ -1,7 +1,7 @@
 (function() {
 /**
 @module ember
-@submodule ember-handlebars
+@submodule ember-handlebars-compiler
 */
 
 // Eliminate dependency on any Ember to simplify precompilation workflow

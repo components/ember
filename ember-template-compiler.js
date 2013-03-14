@@ -1,13 +1,13 @@
 (function() {
 var Ember = { assert: function() {} };
-// Version: v1.0.0-rc.1-96-g3b6cf05
-// Last commit: 3b6cf05 (2013-03-02 23:05:02 -0800)
+// Version: v1.0.0-rc.1-177-gb22618f
+// Last commit: b22618f (2013-03-13 23:08:29 -0700)
 
 
 (function() {
 /**
 @module ember
-@submodule ember-handlebars
+@submodule ember-handlebars-compiler
 */
 
 // Eliminate dependency on any Ember to simplify precompilation workflow
