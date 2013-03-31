@@ -1,0 +1,9 @@
+(function() {
+/**
+Ember
+
+@module ember
+*/
+
+})();
+
