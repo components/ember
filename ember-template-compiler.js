@@ -1,7 +1,7 @@
 (function() {
 var Ember = { assert: function() {} };
-// Version: v1.0.0-rc.1-177-gb22618f
-// Last commit: b22618f (2013-03-13 23:08:29 -0700)
+// Version: v1.0.0-rc.2-22-g25db7f8
+// Last commit: 25db7f8 (2013-03-31 02:13:52 -0700)
 
 
 (function() {
@@ -22,7 +22,7 @@ if(!Handlebars && typeof require === 'function') {
   Handlebars = require('handlebars');
 }
 
-Ember.assert("Ember Handlebars requires Handlebars 1.0.0-rc.3 or greater", Handlebars && Handlebars.VERSION.match(/^1\.0\.[0-9](\.rc\.[23456789]+)?/));
+Ember.assert("Ember Handlebars requires Handlebars 1.0.0-rc.3 or greater. Include a SCRIPT tag in the HTML HEAD linking to the Handlebars file before you link to Ember.", Handlebars && Handlebars.COMPILER_REVISION === 2);
 
 /**
   Prepares the Handlebars templating library for use inside Ember's view
@@ -39,6 +39,17 @@ Ember.assert("Ember Handlebars requires Handlebars 1.0.0-rc.3 or greater", Handl
   @namespace Ember
 */
 Ember.Handlebars = objectCreate(Handlebars);
+
+Ember.Handlebars.helper = function(name, value) {
+  if (Ember.View.detect(value)) {
+    Ember.Handlebars.registerHelper(name, function(name, options) {
+      Ember.assert("You can only pass attributes as parameters to a application-defined helper", arguments.length < 3);
+      return Ember.Handlebars.helpers.view.call(this, value, options);
+    });
+  } else {
+    Ember.Handlebars.registerBoundHelper.apply(null, arguments);
+  }
+}
 
 /**
 @class helpers

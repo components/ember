@@ -1,6 +1,3 @@
-// Last commit: 1032a75 (2013-03-12 17:11:25 -0700)
-
-
 (function() {
 window.DS = Ember.Namespace.create({
   // this one goes past 11
@@ -749,7 +746,7 @@ var classify = Ember.String.classify, get = Ember.get;
   For example, the DS.Adapter class can behave like a map, with
   more semantic API, via the `map` API:
 
-    DS.Adapter.map('App.Person', { firstName: { keyName: 'FIRST' } });
+    DS.Adapter.map('App.Person', { firstName: { key: 'FIRST' } });
 
   Class configuration via a map-like API has a few common requirements
   that differentiate it from the standard Ember.Map implementation.
@@ -2761,7 +2758,7 @@ DS.Store.reopenClass({
 
 
 (function() {
-var get = Ember.get, set = Ember.set, guidFor = Ember.guidFor,
+var get = Ember.get, set = Ember.set,
     once = Ember.run.once, arrayMap = Ember.ArrayPolyfills.map;
 
 /**
@@ -2922,14 +2919,6 @@ var stateProperty = Ember.computed(function(key) {
   }
 }).property();
 
-var isEmptyObject = function(object) {
-  for (var name in object) {
-    if (object.hasOwnProperty(name)) { return false; }
-  }
-
-  return true;
-};
-
 var hasDefinedProperties = function(object) {
   for (var name in object) {
     if (object.hasOwnProperty(name) && object[name]) { return true; }
@@ -2954,12 +2943,6 @@ var didSetProperty = function(manager, context) {
   var change = get(manager, 'record')._changesToSync[context.attributeName];
   change.value = get(get(manager, 'record'), context.name);
   change.sync();
-};
-
-// Whenever a property is set, recompute all dependent filters
-var updateRecordArrays = function(manager) {
-  var record = manager.get('record');
-  record.updateRecordArraysLater();
 };
 
 DS.State = Ember.State.extend({
@@ -3306,7 +3289,7 @@ var states = {
           exit: function(manager) {
             var record = get(manager, 'record');
 
-            Ember.run.once(function() {
+            once(function() {
               record.trigger('didLoad');
             });
           }
@@ -3542,14 +3525,11 @@ DS.StateManager = Ember.StateManager.extend({
 (function() {
 var LoadPromise = DS.LoadPromise; // system/mixins/load_promise
 
-var get = Ember.get, set = Ember.set, none = Ember.isNone, map = Ember.EnumerableUtils.map;
+var get = Ember.get, set = Ember.set, map = Ember.EnumerableUtils.map;
 
 var retrieveFromCurrentState = Ember.computed(function(key, value) {
-  if (arguments.length > 1) {
-    throw new Error('Cannot Set: ' + key + ' on: ' + this.toString() );
-  }
   return get(get(this, 'stateManager.currentState'), key);
-}).property('stateManager.currentState');
+}).property('stateManager.currentState').readOnly();
 
 DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   isLoaded: retrieveFromCurrentState,
@@ -3584,9 +3564,9 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     return store.serialize(this, options);
   },
 
-  toJSON: function() {
+  toJSON: function(options) {
     var serializer = DS.JSONSerializer.create();
-    return serializer.serialize(this);
+    return serializer.serialize(this, options);
   },
 
   didLoad: Ember.K,
@@ -3681,6 +3661,9 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
 
   clearRelationships: function() {
     this.eachRelationship(function(name, relationship) {
+      // if the relationship is unmaterialized, move on
+      if (this.cacheFor(name) === undefined) { return; }
+
       if (relationship.kind === 'belongsTo') {
         set(this, name, null);
       } else if (relationship.kind === 'hasMany') {
@@ -3996,8 +3979,6 @@ DS.attr = function(type, options) {
   };
 
   return Ember.computed(function(key, value, oldValue) {
-    var data;
-
     if (arguments.length > 1) {
       Ember.assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + this.constructor.toString(), key !== 'id');
     } else {
@@ -5178,7 +5159,7 @@ Ember.onLoad('Ember.Application', function(Application) {
       name: "store",
 
       initialize: function(container, application) {
-        container.register('store', 'main', application.Store);
+        application.register('store:main', application.Store);
 
         // Eagerly generate the store so defaultStore is populated.
         // TODO: Do this in a finisher hook
@@ -5189,9 +5170,9 @@ Ember.onLoad('Ember.Application', function(Application) {
     Application.initializer({
       name: "injectStore",
 
-      initialize: function(container) {
-        container.typeInjection('controller', 'store', 'store:main');
-        container.typeInjection('route', 'store', 'store:main');
+      initialize: function(container, application) {
+        application.inject('controller', 'store', 'store:main');
+        application.inject('route', 'store', 'store:main');
       }
     });
   }
@@ -5266,17 +5247,26 @@ function mustImplement(name) {
   by implementing `keyForAttributeName`:
 
   ```javascript
-    keyForAttributeName: function(type, name) {
-      return name.underscore.toUpperCase();
-    }
+  keyForAttributeName: function(type, name) {
+    return name.underscore.toUpperCase();
+  }
   ```
 
   If your attribute names are not predictable, you can re-map them
-  one-by-one using the `map` API:
+  one-by-one using the adapter's `map` API:
 
   ```javascript
-  App.Person.map('App.Person', {
+  App.Adapter.map('App.Person', {
     firstName: { key: '*API_USER_FIRST_NAME*' }
+  });
+  ```
+
+  This API will also work for relationships and primary keys. For
+  example:
+
+  ```javascript
+  App.Adapter.map('App.Person', {
+    primaryKey: '_id'
   });
   ```
 
@@ -6368,8 +6358,6 @@ DS.JSONTransforms = {
 
         return dayOfWeek + ", " + dayOfMonth + " " + month + " " + utcYear + " " +
                pad(utcHours) + ":" + pad(utcMinutes) + ":" + pad(utcSeconds) + " GMT";
-      } else if (date === undefined) {
-        return undefined;
       } else {
         return null;
       }
@@ -7565,7 +7553,8 @@ DS.FixtureSerializer = DS.Serializer.extend({
 
 
 (function() {
-var get = Ember.get, fmt = Ember.String.fmt;
+var get = Ember.get, fmt = Ember.String.fmt,
+    dump = Ember.get(window, 'JSON.stringify') || function(object) { return object.toString(); };
 
 /**
   `DS.FixtureAdapter` is an adapter that loads records from memory.
@@ -7593,7 +7582,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
       var fixtures = Ember.A(type.FIXTURES);
       return fixtures.map(function(fixture){
         if(!fixture.id){
-          throw new Error(fmt('the id property must be defined for fixture %@', [fixture]));
+          throw new Error(fmt('the id property must be defined for fixture %@', [dump(fixture)]));
         }
         fixture.id = fixture.id + '';
         return fixture;
@@ -8335,18 +8324,20 @@ function hasManyProcessorFactory(store, record, relationship) {
   };
 }
 
-function CreateProcessor(record, store, type) {
+function SaveProcessor(record, store, type, includeId) {
   this.record = record;
-  ObjectProcessor.call(this, record.toJSON(), type, store);
+  ObjectProcessor.call(this, record.toJSON({ includeId: includeId }), type, store);
 }
 
-CreateProcessor.prototype = Ember.create(ObjectProcessor.prototype);
+SaveProcessor.prototype = Ember.create(ObjectProcessor.prototype);
 
-CreateProcessor.prototype.save = function() {};
+SaveProcessor.prototype.save = function(callback) {
+  callback(this.json);
+};
 
-function createProcessorFactory(store, type) {
+function saveProcessorFactory(store, type, includeId) {
   return function(record) {
-    return new CreateProcessor(record, store, type);
+    return new SaveProcessor(record, store, type, includeId);
   };
 }
 
@@ -8390,8 +8381,17 @@ DS.BasicAdapter = DS.Adapter.extend({
 
   createRecord: function(store, type, record) {
     var sync = type.sync;
+    sync.createRecord(record, saveProcessorFactory(store, type));
+  },
 
-    sync.createRecord(record, createProcessorFactory(store, type));
+  updateRecord: function(store, type, record) {
+    var sync = type.sync;
+    sync.updateRecord(record, saveProcessorFactory(store, type, true));
+  },
+
+  deleteRecord: function(store, type, record) {
+    var sync = type.sync;
+    sync.deleteRecord(record, saveProcessorFactory(store, type, true));
   }
 });
 
