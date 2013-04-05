@@ -2,12 +2,6 @@
     "name": "components/ember",
     "description": "A framework for creating ambitious web applications.",
     "license": "MIT",
-    "authors": [
-        {
-            "name": "Rob Loach",
-            "email": "robloach@gmail.com"
-        }
-    ],
     "require": {
         "components/jquery": ">=1.9",
         "components/handlebars.js": "1.*"
