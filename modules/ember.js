@@ -1,9 +1,0 @@
-(function() {
-/**
-Ember
-
-@module ember
-*/
-
-})();
-
