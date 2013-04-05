@@ -1,0 +1,31 @@
+{
+    "name": "components/ember",
+    "description": "A framework for creating ambitious web applications",
+    "type": "component",
+    "homepage": "http://emberjs.com",
+    "license": "MIT",
+    "support": {
+        "irc": "irc://irc.freenode.org/emberjs",
+        "issues": "https://github.com/emberjs/ember.js/issues",
+        "forum": "http://discuss.emberjs.com/",
+        "source": "https://github.com/emberjs/ember.js/"
+    },
+    "authors": [
+        {
+            "name": "Yehuda Katz",
+            "email": "wycats@gmail.com"
+        },
+        {
+            "name": "Tom Dale"
+        },
+        {
+            "name": "Charles Jolley"
+        }
+    ],
+    "require": {
+        "robloach/component-installer": "*"
+    },
+    "extra": {
+        "js": "ember.js"
+    }
+}
