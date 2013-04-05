@@ -1,6 +1,7 @@
 {
     "name": "components/ember",
     "description": "A framework for creating ambitious web applications.",
+    "type": "component",
     "license": "MIT",
     "require": {
         "components/jquery": ">=1.9",
