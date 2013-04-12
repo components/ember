@@ -1,16 +1,16 @@
-all: node_modules ember.min.js
+all: ember.js ember.min.js
+	@du -bh $^
 
-node_modules:
-	@npm install
+ember.js: dist/dist
+	@cp $</$@ $@
 
-ember.min.js: ember.js
-	@uglifyjs --no-mangle $< > $@ && du -bh $< $@
+ember.min.js: dist/dist
+	@cp $</$@ $@
 
-ember.js: data
-	@cd $< && git pull
-	@cp -f $</packages/ember/lib/main.js $@
+dist/dist: dist
+	@cd $< && git pull && bundle && bundle exec rake dist
 
-data:
-	@git clone https://github.com/emberjs/data.git $@
+dist:
+	@git clone https://github.com/emberjs/ember.js.git $@
 
-.PHONY: ember.js ember.min.js
+.PHONY: default
