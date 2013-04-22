@@ -12,6 +12,9 @@
             "scripts": [
                 "ember.js"
             ],
+            "files": [
+                "ember.min.js"
+            ],
             "shim": {
                 "exports": "Ember",
                 "deps": [

@@ -1,4 +1,4 @@
-VERSION=master
+VERSION=v1.0.0-rc.3
 
 default: emberjs
 	@cd $< && git pull && git checkout $(VERSION) && bundle install && rake dist
