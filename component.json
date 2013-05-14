@@ -1,6 +1,7 @@
 {
   "name"        : "ember",
   "version"     : "1.0.0-rc.3",
+  "main": "ember.js",
   "scripts": [
     "ember.js"
   ],
