@@ -1,6 +1,6 @@
 {
   "name": "components-ember",
-  "version": "1.0.0-rc.4",
+  "version": "1.0.0-rc.5",
   "description": "Ember Application Framework",
   "keywords": ["ember"],
   "main": "./ember.js",
