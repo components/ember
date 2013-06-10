@@ -6,6 +6,6 @@
   ],
   "dependencies": {
     "jquery": "~1.9.1",
-    "handlebars": "~1.0.0-rc.5"
+    "handlebars": "1.0.0-rc.4"
   }
 }
