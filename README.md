@@ -9,4 +9,3 @@ Package Managers
 ----------------
 
 * [Bower](http://bower.io): `ember`
-* [Composer](http://packagist.org/packages/components/ember): `components/ember`
