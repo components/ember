@@ -1,6 +1,6 @@
 {
   "name": "ember-shim",
-  "version": "1.0.0-rc.6.1",
+  "version": "1.0.0-rc6.1",
   "main": [
     "./ember.js"
   ],
