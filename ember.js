@@ -1,5 +1,5 @@
-// Version: v1.0.0-rc.6-235-g3459d64
-// Last commit: 3459d64 (2013-07-31 18:57:02 -0700)
+// Version: v1.0.0-rc.6-246-g5766659
+// Last commit: 5766659 (2013-08-01 14:24:44 -0700)
 
 
 (function() {
@@ -156,8 +156,8 @@ Ember.deprecateFunc = function(message, func) {
 
 })();
 
-// Version: v1.0.0-rc.6-235-g3459d64
-// Last commit: 3459d64 (2013-07-31 18:57:02 -0700)
+// Version: v1.0.0-rc.6-246-g5766659
+// Last commit: 5766659 (2013-08-01 14:24:44 -0700)
 
 
 (function() {
@@ -6754,26 +6754,32 @@ Ember.immediateObserver = function() {
 };
 
 /**
-  When observers fire, they are called with the arguments `obj`, `keyName`
-  and `value`. In a typical observer, value is the new, post-change value.
+  When observers fire, they are called with the arguments `obj`, `keyName`.
 
-  A `beforeObserver` fires before a property changes. The `value` argument contains
-  the pre-change value.
+  Note, `@each.property` observer is called per each add or replace of an element
+  and it's not called with a specific enumeration item.
+
+  A `beforeObserver` fires before a property changes.
 
   A `beforeObserver` is an alternative form of `.observesBefore()`.
 
   ```javascript
   App.PersonView = Ember.View.extend({
-    valueWillChange: function (obj, keyName, value) {
-      this.changingFrom = value;
+    friends: [{ name: 'Tom' }, { name: 'Stefan' }, { name: 'Kris' }],
+    valueWillChange: function (obj, keyName) {
+      this.changingFrom = obj.get(keyName);
     }.observesBefore('content.value'),
-    valueDidChange: function(obj, keyName, value) {
+    valueDidChange: function(obj, keyName) {
         // only run if updating a value already in the DOM
         if (this.get('state') === 'inDOM') {
-            var color = value > this.changingFrom ? 'green' : 'red';
+            var color = obj.get(keyName) > this.changingFrom ? 'green' : 'red';
             // logic
         }
-    }.observes('content.value')
+    }.observes('content.value'),
+    friendsDidChange: function(obj, keyName) {
+      // some logic
+      // obj.get(keyName) returns friends array
+    }.observes('friends.@each.name')
   });
   ```
 
@@ -15668,6 +15674,10 @@ Ember.CoreView = Ember.Object.extend(Ember.Evented, {
     }
   }).property('_parentView'),
 
+  _viewForYield: Ember.computed(function(){
+    return this;
+  }).property(),
+
   state: null,
 
   _parentView: null,
@@ -19320,6 +19330,10 @@ Ember.Component = Ember.View.extend(Ember.TargetActionSupport, {
   targetObject: Ember.computed(function(key) {
     var parentView = get(this, '_parentView');
     return parentView ? get(parentView, 'controller') : null;
+  }).property('_parentView'),
+
+  _viewForYield: Ember.computed(function(){
+    return get(this, '_parentView') || this;
   }).property('_parentView'),
 
   /**
@@ -22982,7 +22996,7 @@ var get = Ember.get, set = Ember.set;
   @return {String} HTML string
 */
 Ember.Handlebars.registerHelper('yield', function(options) {
-  var currentView = options.data.view, view = currentView, template;
+  var currentView = options.data.view, view = currentView;
 
   while (view && !get(view, 'layout')) {
     view = get(view, 'parentView');
@@ -22990,16 +23004,16 @@ Ember.Handlebars.registerHelper('yield', function(options) {
 
   Ember.assert("You called yield in a template that was not a layout", !!view);
 
-  template = get(view, 'template');
-
-  var keywords = view._parentView.cloneKeywords();
+  var template    = get(view, 'template'),
+    contextView   = get(view, '_viewForYield'),
+    keywords      = contextView.cloneKeywords();
 
   currentView.appendChild(Ember.View, {
-    isVirtual: true,
-    tagName: '',
-    template: template,
-    context: get(view._parentView, 'context'),
-    controller: get(view._parentView, 'controller'),
+    isVirtual:    true,
+    tagName:      '',
+    template:     template,
+    context:      get(contextView, 'context'),
+    controller:   get(contextView, 'controller'),
     templateData: {keywords: keywords}
   });
 });
@@ -24362,21 +24376,16 @@ function registerComponent(container, name) {
 */
 
 Ember.onLoad('Ember.Application', function(Application) {
-  if (Application.initializer) {
-    Application.initializer({
-      name: 'domTemplates',
-      initialize: bootstrap
-    });
+  Application.initializer({
+    name: 'domTemplates',
+    initialize: bootstrap
+  });
 
-    Application.initializer({
-      name: 'registerComponents',
-      after: 'domTemplates',
-      initialize: registerComponents
-    });
-  } else {
-    // for ember-old-router
-    Ember.onLoad('application', bootstrap);
-  }
+  Application.initializer({
+    name: 'registerComponents',
+    after: 'domTemplates',
+    initialize: registerComponents
+  });
 });
 
 })();
@@ -30184,6 +30193,7 @@ Ember.Application.reopenClass({
     container.normalize = normalize;
     container.resolver = resolverFor(namespace);
     container.describe = container.resolver.describe;
+    container.optionsForType('component', { singleton: false });
     container.optionsForType('view', { singleton: false });
     container.optionsForType('template', { instantiate: false });
     container.register('application:main', namespace, { instantiate: false });
