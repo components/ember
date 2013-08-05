@@ -1,5 +1,5 @@
-// Version: v1.0.0-rc.6-246-g5766659
-// Last commit: 5766659 (2013-08-01 14:24:44 -0700)
+// Version: v1.0.0-rc.6-242-g15a358a
+// Last commit: 15a358a (2013-08-01 07:09:51 -0700)
 
 
 (function() {
@@ -156,8 +156,8 @@ Ember.deprecateFunc = function(message, func) {
 
 })();
 
-// Version: v1.0.0-rc.6-246-g5766659
-// Last commit: 5766659 (2013-08-01 14:24:44 -0700)
+// Version: v1.0.0-rc.6-242-g15a358a
+// Last commit: 15a358a (2013-08-01 07:09:51 -0700)
 
 
 (function() {
@@ -15674,10 +15674,6 @@ Ember.CoreView = Ember.Object.extend(Ember.Evented, {
     }
   }).property('_parentView'),
 
-  _viewForYield: Ember.computed(function(){
-    return this;
-  }).property(),
-
   state: null,
 
   _parentView: null,
@@ -19330,10 +19326,6 @@ Ember.Component = Ember.View.extend(Ember.TargetActionSupport, {
   targetObject: Ember.computed(function(key) {
     var parentView = get(this, '_parentView');
     return parentView ? get(parentView, 'controller') : null;
-  }).property('_parentView'),
-
-  _viewForYield: Ember.computed(function(){
-    return get(this, '_parentView') || this;
   }).property('_parentView'),
 
   /**
@@ -22996,7 +22988,7 @@ var get = Ember.get, set = Ember.set;
   @return {String} HTML string
 */
 Ember.Handlebars.registerHelper('yield', function(options) {
-  var currentView = options.data.view, view = currentView;
+  var currentView = options.data.view, view = currentView, template, contextObject;
 
   while (view && !get(view, 'layout')) {
     view = get(view, 'parentView');
@@ -23004,16 +22996,19 @@ Ember.Handlebars.registerHelper('yield', function(options) {
 
   Ember.assert("You called yield in a template that was not a layout", !!view);
 
-  var template    = get(view, 'template'),
-    contextView   = get(view, '_viewForYield'),
-    keywords      = contextView.cloneKeywords();
+  template = get(view, 'template');
+
+  contextObject = Ember.Component.detectInstance(view) ?
+    (view._parentView || view) : view;
+
+  var keywords = contextObject.cloneKeywords();
 
   currentView.appendChild(Ember.View, {
-    isVirtual:    true,
-    tagName:      '',
-    template:     template,
-    context:      get(contextView, 'context'),
-    controller:   get(contextView, 'controller'),
+    isVirtual: true,
+    tagName: '',
+    template: template,
+    context: get(contextObject, 'context'),
+    controller: get(contextObject, 'controller'),
     templateData: {keywords: keywords}
   });
 });
@@ -30193,7 +30188,6 @@ Ember.Application.reopenClass({
     container.normalize = normalize;
     container.resolver = resolverFor(namespace);
     container.describe = container.resolver.describe;
-    container.optionsForType('component', { singleton: false });
     container.optionsForType('view', { singleton: false });
     container.optionsForType('template', { instantiate: false });
     container.register('application:main', namespace, { instantiate: false });
