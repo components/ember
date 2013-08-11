@@ -1,4 +1,4 @@
-VERSION=v1.0.0-rc.6
+VERSION=v1.0.0-rc.6.1
 
 default: emberjs
 	@cd $< && git pull && git checkout $(VERSION) && bundle install && rake dist
