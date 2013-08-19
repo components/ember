@@ -1,9 +1,10 @@
-VERSION=v1.0.0-rc.6.1
+VERSION=v1.0.0-rc.7
 
 default: emberjs
-	@cd $< && git pull && git checkout $(VERSION) && bundle install && rake dist
+	@cd $< && git checkout master -f && git pull && git checkout $(VERSION) && bundle install && rake dist
 	@cp -f $</dist/ember.js .
 	@cp -f $</dist/ember.min.js .
+	@cp -f $</dist/ember.prod.js .
 	@du -bh ember.*
 
 emberjs:
