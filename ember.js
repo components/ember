@@ -1,5 +1,5 @@
-// Version: v1.1.0-beta.1
-// Last commit: acbe11e (2013-09-13 11:18:07 -0700)
+// Version: v1.1.0-beta.2
+// Last commit: a186eff (2013-09-27 22:53:46 -0700)
 
 
 (function() {
@@ -170,8 +170,8 @@ if (!Ember.testing) {
 
 })();
 
-// Version: v1.1.0-beta.1
-// Last commit: acbe11e (2013-09-13 11:18:07 -0700)
+// Version: v1.1.0-beta.2
+// Last commit: a186eff (2013-09-27 22:53:46 -0700)
 
 
 (function() {
@@ -2272,6 +2272,7 @@ function suspendListeners(obj, eventNames, target, method, callback) {
   }
 
   var suspendedActions = [],
+      actionsList = [],
       eventName, actions, i, l;
 
   for (i=0, l=eventNames.length; i<l; i++) {
@@ -2282,6 +2283,7 @@ function suspendListeners(obj, eventNames, target, method, callback) {
     if (actionIndex !== -1) {
       actions[actionIndex+2] |= SUSPENDED;
       suspendedActions.push(actionIndex);
+      actionsList.push(actions);
     }
   }
 
@@ -2290,7 +2292,7 @@ function suspendListeners(obj, eventNames, target, method, callback) {
   function finalizer() {
     for (var i = 0, l = suspendedActions.length; i < l; i++) {
       var actionIndex = suspendedActions[i];
-      actions[actionIndex+2] &= ~SUSPENDED;
+      actionsList[i][actionIndex+2] &= ~SUSPENDED;
     }
   }
 
@@ -10944,6 +10946,8 @@ var get = Ember.get,
     set = Ember.set,
     guidFor = Ember.guidFor,
     metaFor = Ember.meta,
+    propertyWillChange = Ember.propertyWillChange,
+    propertyDidChange = Ember.propertyDidChange,
     addBeforeObserver = Ember.addBeforeObserver,
     removeBeforeObserver = Ember.removeBeforeObserver,
     addObserver = Ember.addObserver,
@@ -11004,7 +11008,7 @@ function ItemPropertyObserverContext (dependentArray, index, trackedArray) {
 
 DependentArraysObserver.prototype = {
   setValue: function (newValue) {
-    this.instanceMeta.setValue(newValue);
+    this.instanceMeta.setValue(newValue, true);
   },
   getValue: function () {
     return this.instanceMeta.getValue();
@@ -11217,7 +11221,7 @@ DependentArraysObserver.prototype = {
   },
 
   itemPropertyDidChange: function(obj, keyName, array, observerContext) {
-    Ember.run.once(this, 'flushChanges');
+    this.flushChanges();
   },
 
   flushChanges: function() {
@@ -11299,11 +11303,21 @@ ReduceComputedPropertyInstanceMeta.prototype = {
     }
   },
 
-  setValue: function(newValue) {
+  setValue: function(newValue, triggerObservers) {
     // This lets sugars force a recomputation, handy for very simple
     // implementations of eg max.
     if (newValue !== undefined) {
+      var fireObservers = triggerObservers && (newValue !== this.cache[this.propertyName]);
+
+      if (fireObservers) {
+        propertyWillChange(this.context, this.propertyName);
+      }
+
       this.cache[this.propertyName] = newValue;
+
+      if (fireObservers) {
+        propertyDidChange(this.context, this.propertyName);
+      }
     } else {
       delete this.cache[this.propertyName];
     }
@@ -11488,7 +11502,7 @@ ReduceComputedProperty.prototype.property = function () {
   If there are more than one arguments the first arguments are
   considered to be dependent property keys. The last argument is
   required to be an options object. The options object can have the
-  following four properties.
+  following four properties:
 
   `initialValue` - A value or function that will be used as the initial
   value for the computed. If this property is a function the result of calling
@@ -11568,6 +11582,12 @@ ReduceComputedProperty.prototype.property = function () {
   value. It is acceptable to not return anything (ie return undefined)
   to invalidate the computation. This is generally not a good idea for
   arrayComputed but it's used in eg max and min.
+
+  Note that observers will be fired if either of these functions return a value
+  that differs from the accumulated value.  When returning an object that
+  mutates in response to array changes, for example an array that maps
+  everything from some other array (see `Ember.computed.map`), it is usually
+  important that the *same* array be returned to avoid accidentally triggering observers.
 
   Example
 
@@ -15257,6 +15277,7 @@ Ember.SubArray.prototype = {
       if (otherOp.type === op.type) {
         op.count += otherOp.count;
         this._operations.splice(index-1, 1);
+        --index;
       }
     }
 
@@ -15682,6 +15703,86 @@ var ClassMixin = Mixin.create({
 
   isMethod: false,
 
+  /**
+    Creates a new subclass.
+
+    ```javascript
+    App.Person = Ember.Object.extend({
+      say: function(thing) {
+        alert(thing);
+       }
+    });
+    ```
+
+    This defines a new subclass of Ember.Object: `App.Person`. It contains one method: `say()`.
+
+    You can also create a subclass from any existing class by calling its `extend()`  method. For example, you might want to create a subclass of Ember's built-in `Ember.View` class:
+
+    ```javascript
+    App.PersonView = Ember.View.extend({
+      tagName: 'li',
+      classNameBindings: ['isAdministrator']
+    });
+    ```
+
+    When defining a subclass, you can override methods but still access the implementation of your parent class by calling the special `_super()` method:
+
+    ```javascript
+    App.Person = Ember.Object.extend({
+      say: function(thing) {
+        var name = this.get('name');
+        alert(name + ' says: ' + thing);
+      }
+    });
+
+    App.Soldier = App.Person.extend({
+      say: function(thing) {
+        this._super(thing + ", sir!");
+      },
+      march: function(numberOfHours) {
+        alert(this.get('name') + ' marches for ' + numberOfHours + ' hours.')
+      }
+    });
+
+    var yehuda = App.Soldier.create({
+      name: "Yehuda Katz"
+    });
+
+    yehuda.say("Yes");  // alerts "Yehuda Katz says: Yes, sir!"
+    ```
+
+    The `create()` on line #17 creates an *instance* of the `App.Soldier` class. The `extend()` on line #8 creates a *subclass* of `App.Person`. Any instance of the `App.Person` class will *not* have the `march()` method.
+
+    You can also pass `Ember.Mixin` classes to add additional properties to the subclass.
+
+    ```javascript
+    App.Person = Ember.Object.extend({
+      say: function(thing) {
+        alert(this.get('name') + ' says: ' + thing);
+      }
+    });
+
+    App.SingingMixin = Ember.Mixin.create({
+      sing: function(thing){
+        alert(this.get('name') + ' sings: la la la ' + thing);
+      }
+    });
+
+    App.BroadwayStar = App.Person.extend(App.SingingMixin, {
+      dance: function() {
+        alert(this.get('name') + ' dances: tap tap tap tap ');
+      }
+    });
+    ```
+
+    The `App.BroadwayStar` class contains three methods: `say()`, `sing()`, and `dance()`.
+
+    @method extend
+    @static
+
+    @param {Ember.Mixin} [mixins]* One or more Ember.Mixin classes
+    @param {Object} [arguments]* Object containing values to use within the new class
+  */
   extend: function() {
     var Class = makeCtor(), proto;
     Class.ClassMixin = Mixin.create(this.ClassMixin);
@@ -19210,6 +19311,7 @@ var get = Ember.get, set = Ember.set;
 var guidFor = Ember.guidFor;
 var a_forEach = Ember.EnumerableUtils.forEach;
 var a_addObject = Ember.EnumerableUtils.addObject;
+var meta = Ember.meta;
 
 var childViewsProperty = Ember.computed(function() {
   var childViews = this._childViews, ret = Ember.A(), view = this;
@@ -20958,12 +21060,6 @@ Ember.View = Ember.CoreView.extend(
     return viewCollection;
   },
 
-  _elementWillChange: Ember.beforeObserver(function() {
-    this.forEachChildView(function(view) {
-      Ember.propertyWillChange(view, 'element');
-    });
-  }, 'element'),
-
   /**
     @private
 
@@ -20975,7 +21071,7 @@ Ember.View = Ember.CoreView.extend(
   */
   _elementDidChange: Ember.observer(function() {
     this.forEachChildView(function(view) {
-      Ember.propertyDidChange(view, 'element');
+      delete meta(view).cache.element;
     });
   }, 'element'),
 
@@ -21423,6 +21519,7 @@ Ember.View = Ember.CoreView.extend(
 
     if (priorState && priorState.exit) { priorState.exit(this); }
     if (currentState.enter) { currentState.enter(this); }
+    if (state === 'inDOM') { delete Ember.meta(this).cache.element; }
 
     if (children !== false) {
       this.forEachChildView(function(view) {
@@ -21770,10 +21867,18 @@ Ember.merge(preRender, {
     var viewCollection = view.viewHierarchyCollection();
 
     viewCollection.trigger('willInsertElement');
-    // after createElement, the view will be in the hasElement state.
+
     fn.call(view);
-    viewCollection.transitionTo('inDOM', false);
-    viewCollection.trigger('didInsertElement');
+
+    // We transition to `inDOM` if the element exists in the DOM
+    var element = view.get('element');
+    while (element = element.parentNode) {
+      if (element === document) {
+        viewCollection.transitionTo('inDOM', false);
+        viewCollection.trigger('didInsertElement');
+      }
+    }
+
   },
 
   renderToBufferIfNeeded: function(view, buffer) {
@@ -27922,8 +28027,9 @@ function program7(depth0,data) {
   groupedContent: Ember.computed(function() {
     var groupPath = get(this, 'optionGroupPath');
     var groupedContent = Ember.A();
+    var content = get(this, 'content') || [];
 
-    forEach(get(this, 'content'), function(item) {
+    forEach(content, function(item) {
       var label = get(item, groupPath);
 
       if (get(groupedContent, 'lastObject.label') !== label) {
@@ -35188,8 +35294,8 @@ Ember.Application.reopenClass({
     var initializers = get(this, 'initializers');
 
     Ember.assert("The initializer '" + initializer.name + "' has already been registered", !initializers.findBy('name', initializers.name));
-    Ember.assert("An injection cannot be registered with both a before and an after", !(initializer.before && initializer.after));
-    Ember.assert("An injection cannot be registered without an injection function", Ember.canInvoke(initializer, 'initialize'));
+    Ember.assert("An initializer cannot be registered with both a before and an after", !(initializer.before && initializer.after));
+    Ember.assert("An initializer cannot be registered without an initialize function", Ember.canInvoke(initializer, 'initialize'));
 
     initializers.push(initializer);
   },
