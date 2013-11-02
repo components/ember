@@ -7,7 +7,7 @@
     "ember.js"
   ],
   "dependencies": {
-    "component/jquery": ">= 1.7",
+    "component/jquery": "*",
     "components/handlebars.js": "1.0.0"
   }
 }
