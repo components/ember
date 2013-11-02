@@ -8,7 +8,7 @@
 // ==========================================================================
 
 
- // Version: 1.2.0-beta.2
+ // Version: 1.2.0-beta.3
 
 (function() {
 var define, requireModule;
@@ -73,7 +73,7 @@ var define, requireModule;
 
   @class Ember
   @static
-  @version 1.2.0-beta.2
+  @version 1.2.0-beta.3
 */
 
 if ('undefined' === typeof Ember) {
@@ -100,10 +100,10 @@ Ember.toString = function() { return "Ember"; };
 /**
   @property VERSION
   @type String
-  @default '1.2.0-beta.2'
+  @default '1.2.0-beta.3'
   @final
 */
-Ember.VERSION = '1.2.0-beta.2';
+Ember.VERSION = '1.2.0-beta.3';
 
 /**
   Standard environmental variables. You can define these in a global `ENV`
@@ -351,7 +351,7 @@ var platform = Ember.platform = {};
 */
 Ember.create = Object.create;
 
-// IE8 has Object.create but it couldn't treat property descripters.
+// IE8 has Object.create but it couldn't treat property descriptors.
 if (Ember.create) {
   if (Ember.create({a: 1}, {a: {value: 2}}).a !== 2) {
     Ember.create = null;
@@ -15606,7 +15606,6 @@ CoreObject.PrototypeMixin = Mixin.create({
     ```javascript
     App.Person = Ember.Object.extend({
       init: function() {
-        this._super();
         alert('Name is ' + this.get('name'));
       }
     });
@@ -17224,7 +17223,7 @@ Ember.NativeArray = NativeArray;
   Does not modify the original object. Ember.A is not needed if
   `Ember.EXTEND_PROTOTYPES` is `true` (the default value). However,
   it is recommended that you use Ember.A when creating addons for
-  ember or when you can not garentee that `Ember.EXTEND_PROTOTYPES`
+  ember or when you can not guarantee that `Ember.EXTEND_PROTOTYPES`
   will be `true`.
 
   Example
@@ -20332,9 +20331,8 @@ Ember.View = Ember.CoreView.extend(
   /**
     The name of the template to lookup if no template is provided.
 
-    `Ember.View` will look for a template with this name in this view's
-    `templates` object. By default, this will be a global object
-    shared in `Ember.TEMPLATES`.
+    By default `Ember.View` will lookup a template with this name in
+    `Ember.TEMPLATES` (a shared global object).
 
     @property templateName
     @type String
@@ -20345,24 +20343,14 @@ Ember.View = Ember.CoreView.extend(
   /**
     The name of the layout to lookup if no layout is provided.
 
-    `Ember.View` will look for a template with this name in this view's
-    `templates` object. By default, this will be a global object
-    shared in `Ember.TEMPLATES`.
+    By default `Ember.View` will lookup a template with this name in
+    `Ember.TEMPLATES` (a shared global object).
 
     @property layoutName
     @type String
     @default null
   */
   layoutName: null,
-
-  /**
-    The hash in which to look for `templateName`.
-
-    @property templates
-    @type Ember.Object
-    @default Ember.TEMPLATES
-  */
-  templates: Ember.TEMPLATES,
 
   /**
     The template used to render the view. This should be a function that
@@ -29212,7 +29200,7 @@ define("route-recognizer",
       return states.sort(function(a, b) {
         if (a.types.stars !== b.types.stars) { return a.types.stars - b.types.stars; }
         if (a.types.dynamics !== b.types.dynamics) { return a.types.dynamics - b.types.dynamics; }
-        if (a.types.statics !== b.types.statics) { return a.types.statics - b.types.statics; }
+        if (a.types.statics !== b.types.statics) { return b.types.statics - a.types.statics; }
 
         return 0;
       });
@@ -29578,8 +29566,8 @@ define("route-recognizer",
 
 (function() {
 define("router",
-  ["route-recognizer","rsvp"],
-  function(RouteRecognizer, RSVP) {
+  ["route-recognizer","rsvp","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     /**
       @private
@@ -29599,6 +29587,8 @@ define("router",
       * `{Object} context`: the active context for the handler
     */
 
+    var RouteRecognizer = __dependency1__;
+    var RSVP = __dependency2__;
 
     var slice = Array.prototype.slice;
 
@@ -29753,6 +29743,7 @@ define("router",
     // TODO: separate into module?
     Router.Transition = Transition;
 
+    __exports__['default'] = Router;
 
 
     /**
@@ -30108,7 +30099,7 @@ define("router",
     }
 
     function isParam(object) {
-      return (typeof object === "string" || object instanceof String || !isNaN(object));
+      return (typeof object === "string" || object instanceof String || typeof object === "number" || object instanceof Number);
     }
 
 
@@ -30281,7 +30272,7 @@ define("router",
         // Make sure this route is actually accessible by URL.
         for (i = 0, len = results.length; i < len; ++i) {
 
-          if (router.getHandler(results[i].handler).inaccessiblyByURL) {
+          if (router.getHandler(results[i].handler).inaccessibleByURL) {
             results = null;
             break;
           }
@@ -30648,14 +30639,7 @@ define("router",
         checkAbort(transition);
 
         try {
-          log(router, transition.sequence, "Validation succeeded, finalizing transition;");
-
-          // Don't overwrite contexts / update URL if this was a noop transition.
-          if (!currentHandlerInfos || !currentHandlerInfos.length ||
-              !router.recognizer.hasRoute(currentHandlerInfos[currentHandlerInfos.length - 1].name) ||
-              currentHandlerInfos.length !== matchPointResults.matchPoint) {
-            finalizeTransition(transition, handlerInfos);
-          }
+          finalizeTransition(transition, handlerInfos);
 
           // currentHandlerInfos was updated in finalizeTransition
           trigger(router, router.currentHandlerInfos, true, ['didTransition']);
@@ -30740,6 +30724,8 @@ define("router",
      */
     function finalizeTransition(transition, handlerInfos) {
 
+      log(transition.router, transition.sequence, "Validation succeeded, finalizing transition;");
+
       var router = transition.router,
           seq = transition.sequence,
           handlerName = handlerInfos[handlerInfos.length - 1].name,
@@ -30755,7 +30741,7 @@ define("router",
           objects.unshift(isParam(providedModel) ? providedModel.toString() : handlerInfo.context);
         }
 
-        if (handlerInfo.handler.inaccessiblyByURL) {
+        if (handlerInfo.handler.inaccessibleByURL) {
           urlMethod = null;
         }
       }
@@ -30842,7 +30828,7 @@ define("router",
       }
 
       function handleError(reason) {
-        if (reason instanceof Router.TransitionAborted) {
+        if (reason instanceof Router.TransitionAborted || transition.isAborted) {
           // if the transition was aborted and *no additional* error was thrown,
           // reject with the Router.TransitionAborted instance
           return RSVP.reject(reason);
@@ -31029,9 +31015,6 @@ define("router",
       }
       return object;
     }
-
-
-    return Router;
   });
 
 })();
@@ -31066,13 +31049,14 @@ DSL.prototype = {
 
     if (callback) {
       var dsl = new DSL(name);
-      dsl.route('loading');
-      dsl.route('error', { path: "/_unused_dummy_error_path/:error" });
+      route(dsl, 'loading');
+      route(dsl, 'error', { path: "/_unused_dummy_error_path_route_" + name + "/:error" });
       callback.call(dsl);
       this.push(options.path, name, dsl.generate(), options.queryParams);
     } else {
       this.push(options.path, name, null, options.queryParams);
     }
+
   },
 
   push: function(url, name, callback, queryParams) {
@@ -31083,19 +31067,7 @@ DSL.prototype = {
   },
 
   route: function(name, options) {
-
-
-    options = options || {};
-
-    if (typeof options.path !== 'string') {
-      options.path = "/" + name;
-    }
-
-    if (this.parent && this.parent !== 'application') {
-      name = this.parent + "." + name;
-    }
-
-    this.push(options.path, name, null, options.queryParams);
+    route(this, name, options);
   },
 
   generate: function() {
@@ -31113,6 +31085,22 @@ DSL.prototype = {
     };
   }
 };
+
+function route(dsl, name, options) {
+
+
+  options = options || {};
+
+  if (typeof options.path !== 'string') {
+    options.path = "/" + name;
+  }
+
+  if (dsl.parent && dsl.parent !== 'application') {
+    name = dsl.parent + "." + name;
+  }
+
+  dsl.push(options.path, name, null, options.queryParams);
+}
 
 DSL.map = function(callback) {
   var dsl = new DSL();
@@ -31199,7 +31187,7 @@ Ember.generateController = function(container, controllerName, context) {
 @submodule ember-routing
 */
 
-var Router = requireModule("router");
+var Router = requireModule("router")['default'];
 var get = Ember.get, set = Ember.set;
 var defineProperty = Ember.defineProperty;
 
@@ -31474,17 +31462,135 @@ Ember.Router = Ember.Object.extend(Ember.Evented, {
   }
 });
 
+/**
+  @private
+
+  Helper function for iterating root-ward, starting
+  from (but not including) the provided `originRoute`.
+
+  Returns true if the last callback fired requested
+  to bubble upward.
+ */
+function forEachRouteAbove(originRoute, transition, callback) {
+  var handlerInfos = transition.handlerInfos,
+      originRouteFound = false;
+
+  for (var i = handlerInfos.length - 1; i >= 0; --i) {
+    var handlerInfo = handlerInfos[i],
+        route = handlerInfo.handler;
+
+    if (!originRouteFound) {
+      if (originRoute === route) {
+        originRouteFound = true;
+      }
+      continue;
+    }
+
+    if (callback(route, handlerInfos[i + 1].handler) !== true) {
+      return false;
+    }
+  }
+  return true;
+}
+
+// These get invoked when an action bubbles above ApplicationRoute
+// and are not meant to be overridable.
+var defaultActionHandlers = {
+
+  willResolveModel: function(transition, originRoute) {
+    originRoute.router._scheduleLoadingEvent(transition, originRoute);
+  },
+
+  error: function(error, transition, originRoute) {
+    
+
+      // Attempt to find an appropriate error substate to enter.
+      var router = originRoute.router;
+
+      var tryTopLevel = forEachRouteAbove(originRoute, transition, function(route, childRoute) {
+        var childErrorRouteName = findChildRouteName(route, childRoute, 'error');
+        if (childErrorRouteName) {
+          router.intermediateTransitionTo(childErrorRouteName, error);
+          return;
+        }
+        return true;
+      });
+
+      if (tryTopLevel) {
+        // Check for top-level error state to enter.
+        if (routeHasBeenDefined(originRoute.router, 'application_error')) {
+          router.intermediateTransitionTo('application_error', error);
+          return;
+        }
+      } else {
+        // Don't fire an assertion if we found an error substate.
+        return;
+      }
+    
+
+    Ember.Logger.assert(false, 'Error while loading route: ' + Ember.inspect(error));
+  },
+
+  loading: function(transition, originRoute) {
+    
+
+      // Attempt to find an appropriate loading substate to enter.
+      var router = originRoute.router;
+
+      var tryTopLevel = forEachRouteAbove(originRoute, transition, function(route, childRoute) {
+        var childLoadingRouteName = findChildRouteName(route, childRoute, 'loading');
+
+        if (childLoadingRouteName) {
+          router.intermediateTransitionTo(childLoadingRouteName);
+          return;
+        }
+
+        // Don't bubble above pivot route.
+        if (transition.pivotHandler !== route) {
+          return true;
+        }
+      });
+
+      if (tryTopLevel) {
+        // Check for top-level loading state to enter.
+        if (routeHasBeenDefined(originRoute.router, 'application_loading')) {
+          router.intermediateTransitionTo('application_loading');
+          return;
+        }
+      }
+    
+  }
+};
+
+function findChildRouteName(parentRoute, originatingChildRoute, name) {
+  var router = parentRoute.router,
+      childName,
+      targetChildRouteName = originatingChildRoute.routeName.split('.').pop(),
+      namespace = parentRoute.routeName === 'application' ? '' : parentRoute.routeName + '.';
+
+  childName = namespace + name;
+  if (routeHasBeenDefined(router, childName)) {
+    return childName;
+  }
+}
+
+function routeHasBeenDefined(router, name) {
+  var container = router.container;
+  return router.hasRoute(name) &&
+         (container.has('template:' + name) || container.has('route:' + name));
+}
+
 function triggerEvent(handlerInfos, ignoreFailure, args) {
   var name = args.shift();
 
   if (!handlerInfos) {
     if (ignoreFailure) { return; }
-    throw new Ember.Error("Could not trigger event '" + name + "'. There are no active handlers");
+    throw new Ember.Error("Can't trigger action '" + name + "' because your app hasn't finished transitioning into its first route. To trigger an action on destination routes during a transition, you can call `.send()` on the `Transition` object passed to the `model/beforeModel/afterModel` hooks.");
   }
 
   var eventWasHandled = false;
 
-  for (var i=handlerInfos.length-1; i>=0; i--) {
+  for (var i = handlerInfos.length - 1; i >= 0; i--) {
     var handlerInfo = handlerInfos[i],
         handler = handlerInfo.handler;
 
@@ -31497,14 +31603,27 @@ function triggerEvent(handlerInfos, ignoreFailure, args) {
     }
   }
 
+  if (defaultActionHandlers[name]) {
+    defaultActionHandlers[name].apply(null, args);
+    return;
+  }
+
   if (!eventWasHandled && !ignoreFailure) {
-    throw new Ember.Error("Nothing handled the action '" + name + "'. If you did handle the action, this error can be caused by returning true from an action handler, causing the action to bubble.");
+    throw new Ember.Error("Nothing handled the action '" + name + "'.");
   }
 }
 
 function updatePaths(router) {
-  var appController = router.container.lookup('controller:application'),
-      infos = router.router.currentHandlerInfos,
+  var appController = router.container.lookup('controller:application');
+
+  if (!appController) {
+    // appController might not exist when top-level loading/error
+    // substates have been entered since ApplicationRoute hasn't
+    // actually been entered at that point.
+    return;
+  }
+
+  var infos = router.router.currentHandlerInfos,
       path = Ember.Router._routePath(infos);
 
   if (!('currentPath' in appController)) {
@@ -31619,47 +31738,6 @@ var get = Ember.get, set = Ember.set,
     a_forEach = Ember.EnumerableUtils.forEach,
     a_replace = Ember.EnumerableUtils.replace;
 
-var defaultActionHandlers = {
-
-  willResolveModel: function(transition, originRoute) {
-    this.router._scheduleLoadingEvent(transition, originRoute);
-  },
-
-  error: function(error, transition, originRoute) {
-    
-      if (this !== originRoute) {
-        var childErrorRouteName = findChildRouteName(this, 'error');
-        if (childErrorRouteName) {
-          this.intermediateTransitionTo(childErrorRouteName, error);
-          return;
-        }
-      }
-    
-
-    if (this.routeName === 'application') {
-      Ember.Logger.assert(false, 'Error while loading route: ' + Ember.inspect(error));
-    }
-
-    return true;
-  },
-
-  loading: function(transition, originRoute) {
-    
-      if (this === originRoute) {
-        // This is the route with the error; just bubble
-        // so that the parent route can look up its child loading route.
-        return true;
-      }
-
-      var childLoadingRouteName = findChildRouteName(this, 'loading');
-      if (childLoadingRouteName) {
-        this.intermediateTransitionTo(childLoadingRouteName);
-      } else if (transition.pivotHandler !== this) {
-        return true;
-      }
-    
-  }
-};
 
 /**
   The `Ember.Route` class is used to define individual routes. Refer to
@@ -31905,15 +31983,13 @@ Ember.Route = Ember.Object.extend(Ember.ActionHandler, {
   */
   actions: null,
 
-  _actions: defaultActionHandlers,
-
   /**
     @deprecated
 
     Please use `actions` instead.
     @method events
   */
-  events: defaultActionHandlers,
+  events: null,
 
   mergedProperties: ['events'],
 
@@ -31926,8 +32002,8 @@ Ember.Route = Ember.Object.extend(Ember.ActionHandler, {
   deactivate: Ember.K,
 
   /**
-    This hook is executed when the router enters the route for the first time.
-    It is not executed when the model for the route changes.
+    This hook is executed when the router enters the route. It is not executed
+    when the model for the route changes.
 
     @method activate
   */
@@ -32453,7 +32529,7 @@ Ember.Route = Ember.Object.extend(Ember.ActionHandler, {
     instance would be used.
 
     Example
-    
+
     ```js
     App.PostRoute = Ember.Route.extend({
       setupController: function(controller, model) {
@@ -32879,17 +32955,6 @@ function generateOutletTeardown(parentView, outlet) {
   return function() { parentView.disconnectOutlet(outlet); };
 }
 
-function findChildRouteName(route, name) {
-  var container = route.container;
-
-  var childName = route.routeName === 'application' ? name : route.routeName + '.' + name;
-
-  var hasChild = route.router.hasRoute(childName) &&
-                 (container.has('template:' + childName) ||
-                  container.has('route:' + childName));
-
-  return hasChild && childName;
-}
 
 
 })();
