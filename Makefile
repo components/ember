@@ -1,12 +1,8 @@
-VERSION=v1.1.2
+VERSION=v1.2.0-beta.3
 
-default: emberjs
-	@cd $< && git checkout master -f && git pull && git checkout $(VERSION) && bundle install && rake dist
-	@cp -f $</dist/ember.js .
-	@cp -f $</dist/ember.min.js .
-	@cp -f $</dist/ember.prod.js .
-
-emberjs:
-	@git clone https://github.com/emberjs/ember.js.git $@
+default:
+	@curl -O http://builds.emberjs.com/tags/$(VERSION)/ember.js
+	@curl -O http://builds.emberjs.com/tags/$(VERSION)/ember.min.js
+	@curl -O http://builds.emberjs.com/tags/$(VERSION)/ember.prod.js
 
 .PHONY: default
