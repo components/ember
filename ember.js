@@ -8,7 +8,7 @@
 // ==========================================================================
 
 
- // Version: 1.2.0-beta.4
+ // Version: 1.2.0
 
 (function() {
 /*global __fail__*/
@@ -194,7 +194,7 @@ if (!Ember.testing) {
 // ==========================================================================
 
 
- // Version: 1.2.0-beta.4
+ // Version: 1.2.0
 
 (function() {
 var define, requireModule;
@@ -259,7 +259,7 @@ var define, requireModule;
 
   @class Ember
   @static
-  @version 1.2.0-beta.4
+  @version 1.2.0
 */
 
 if ('undefined' === typeof Ember) {
@@ -286,10 +286,10 @@ Ember.toString = function() { return "Ember"; };
 /**
   @property VERSION
   @type String
-  @default '1.2.0-beta.4'
+  @default '1.2.0'
   @final
 */
-Ember.VERSION = '1.2.0-beta.4';
+Ember.VERSION = '1.2.0';
 
 /**
   Standard environmental variables. You can define these in a global `ENV`
@@ -1665,6 +1665,8 @@ Ember.Instrumentation.instrument = function(name, payload, callback, binding) {
 
   @param {String} [pattern] Namespaced event name.
   @param {Object} [object] Before and After hooks.
+
+  @return {Subscriber}
 */
 Ember.Instrumentation.subscribe = function(pattern, object) {
   var paths = pattern.split("."), path, regex = [];
@@ -2615,6 +2617,7 @@ Ember.overrideChains = function(obj, keyName, m) {
 /**
   @method beginPropertyChanges
   @chainable
+  @private
 */
 function beginPropertyChanges() {
   deferred++;
@@ -2624,6 +2627,7 @@ Ember.beginPropertyChanges = beginPropertyChanges;
 
 /**
   @method endPropertyChanges
+  @private
 */
 function endPropertyChanges() {
   deferred--;
@@ -4688,7 +4692,7 @@ Ember.computed = function(func) {
   @param {Object} obj the object whose property you want to check
   @param {String} key the name of the property whose cached value you want
     to return
-  @return {*} the cached value
+  @return {Object} the cached value
 */
 Ember.cacheFor = function cacheFor(obj, key) {
   var cache = metaFor(obj, false).cache;
@@ -4894,7 +4898,7 @@ registerComputed('bool', function(dependentKey) {
 */
 registerComputed('match', function(dependentKey, regexp) {
   var value = get(this, dependentKey);
-  return typeof value === 'string' ? !!value.match(regexp) : false;
+  return typeof value === 'string' ? regexp.test(value) : false;
 });
 
 /**
@@ -5046,7 +5050,6 @@ registerComputed('lte', function(dependentKey, value) {
   A computed property that performs a logical `and` on the
   original values for the provided dependent properties.
 
-
   Example
 
   ```javascript
@@ -5063,7 +5066,7 @@ registerComputed('lte', function(dependentKey, value) {
 
   @method computed.and
   @for Ember
-  @param {String} dependentKey, [dependentKey...]
+  @param {String} dependentKey*
   @return {Ember.ComputedProperty} computed property which performs
   a logical `and` on the values of all the original values for properties.
 */
@@ -5094,7 +5097,7 @@ registerComputedWithProperties('and', function(properties) {
 
   @method computed.or
   @for Ember
-  @param {String} dependentKey, [dependentKey...]
+  @param {String} dependentKey*
   @return {Ember.ComputedProperty} computed property which performs
   a logical `or` on the values of all the original values for properties.
 */
@@ -5125,7 +5128,7 @@ registerComputedWithProperties('or', function(properties) {
 
   @method computed.any
   @for Ember
-  @param {String} dependentKey, [dependentKey...]
+  @param {String} dependentKey*
   @return {Ember.ComputedProperty} computed property which returns
   the first truthy value of given list of properties.
 */
@@ -5157,7 +5160,7 @@ registerComputedWithProperties('any', function(properties) {
 
   @method computed.map
   @for Ember
-  @param {String} dependentKey, [dependentKey...]
+  @param {String} dependentKey*
   @return {Ember.ComputedProperty} computed property which maps
   values of all passed properties in to an array.
 */
@@ -5286,7 +5289,6 @@ Ember.computed.defaultTo = function(defaultPath) {
     return newValue != null ? newValue : get(this, defaultPath);
   });
 };
-
 
 
 })();
@@ -15184,7 +15186,7 @@ var get = Ember.get, set = Ember.set;
 
   });
 
-  c = Context.create({ firstName: "John", lastName: "Doe" });
+  c = Contact.create({ firstName: "John", lastName: "Doe" });
   c.swapNames();  // returns c
   c.freeze();
   c.swapNames();  // EXCEPTION
@@ -23520,54 +23522,79 @@ Ember.Component = Ember.View.extend(Ember.TargetActionSupport, {
   }).property('_parentView'),
 
   /**
-    Sends an action to component's controller. A component inherits its
-    controller from the context in which it is used.
+    Triggers a named action on the controller context where the component is used if
+    this controller has registered for notifications of the action.
 
-    By default, calling `sendAction()` will send an action with the name
-    of the component's `action` property.
+    For example a component for playing or pausing music may translate click events
+    into action notifications of "play" or "stop" depending on some internal state
+    of the component:
 
-    For example, if the component had a property `action` with the value
-    `"addItem"`, calling `sendAction()` would send the `addItem` action
-    to the component's controller.
-
-    If you provide the `action` argument to `sendAction()`, that key will
-    be used to look up the action name.
-
-    For example, if the component had a property `playing` with the value
-    `didStartPlaying`, calling `sendAction('playing')` would send the
-    `didStartPlaying` action to the component's controller.
-
-    Whether or not you are using the default action or a named action, if
-    the action name is not defined on the component, calling `sendAction()`
-    does not have any effect.
-
-    For example, if you call `sendAction()` on a component that does not have
-    an `action` property defined, no action will be sent to the controller,
-    nor will an exception be raised.
-
-    You can send a context object with the action by supplying the `context`
-    argument. The context will be supplied as the first argument in the
-    target's action method. Example:
 
     ```javascript
-    App.MyTreeComponent = Ember.Component.extend({
-      click: function() {
-        this.sendAction('didClickTreeNode', this.get('node'));
-      }
-    });
-
-    App.CategoriesController = Ember.Controller.extend({
-      actions: {
-        didClickCategory: function(category) {
-          //Do something with the node/category that was clicked
+    App.PlayButtonComponent = Ember.Component.extend({
+      click: function(){
+        if (this.get('isPlaying')) {
+          this.triggerAction('play');
+        } else {
+          this.triggerAction('stop');
         }
       }
     });
     ```
 
+    When used inside a template these component actions are configured to
+    trigger actions in the outer application context:
+
     ```handlebars
-    {{! categories.hbs}}
-    {{my-tree didClickTreeNode='didClickCategory'}}
+    {{! application.hbs }}
+    {{play-button play="musicStarted" stop="musicStopped"}}
+    ```
+
+    When the component receives a browser `click` event it translate this
+    interaction into application-specific semantics ("play" or "stop") and
+    triggers the specified action name on the controller for the template
+    where the component is used: 
+
+
+    ```javascript
+    App.ApplicationController = Ember.Controller.extend({
+      actions: {
+        musicStarted: function(){
+          // called when the play button is clicked
+          // and the music started playing
+        },
+        musicStopped: function(){
+          // called when the play button is clicked
+          // and the music stopped playing
+        }
+      }
+    });
+    ```
+
+    If no action name is passed to `sendAction` a default name of "action"
+    is assumed.
+
+    ```javascript
+    App.NextButtonComponent = Ember.Component.extend({
+      click: function(){
+        this.sendAction();
+      }
+    });
+    ```
+
+    ```handlebars
+    {{! application.hbs }}
+    {{next-button action="playNextSongInAlbum"}}
+    ```
+
+    ```javascript
+    App.ApplicationController = Ember.Controller.extend({
+      actions: {
+        playNextSongInAlbum: function(){
+          ...
+        }
+      }
+    });
     ```
 
     @method sendAction
@@ -24632,6 +24659,8 @@ Ember.Handlebars.registerHelper('blockHelperMissing', function(path) {
 
   
 
+    Ember.assert("`blockHelperMissing` was invoked without a helper name, which is most likely due to a mismatch between the version of Ember.js you're running now and the one used to precompile your templates. Please make sure the version of `ember-handlebars-compiler` you're using is up to date.", path);
+
     var helper = Ember.Handlebars.resolveHelper(options.data.view.container, path);
 
     if (helper) {
@@ -25564,6 +25593,8 @@ function bind(property, options, preserveContext, shouldDisplay, valueNormalizer
     data.buffer.push(handlebarsGet(currentContext, property, options));
   }
 }
+
+EmberHandlebars.bind = bind;
 
 function simpleBind(currentContext, property, options) {
   var data = options.data,
@@ -27330,24 +27361,48 @@ Ember.Handlebars.registerHelper('template', function(name, options) {
 */
 
 /**
-  `partial` renders a template directly using the current context.
-  If needed the context can be set using the `{{#with foo}}` helper.
+  The `partial` helper renders another template without
+  changing the template context:
 
-  ```html
-  <script type="text/x-handlebars" data-template-name="header_bar">
-    {{#with currentUser}}
-      {{partial user_info}}
-    {{/with}}
-  </script>
+  ```handlebars
+  {{foo}}
+  {{partial "nav"}}
   ```
 
-  The `data-template-name` attribute of a partial template
-  is prefixed with an underscore.
+  The above example template will render a template named
+  "_nav", which has the same context as the parent template
+  it's rendered into, so if the "_nav" template also referenced
+  `{{foo}}`, it would print the same thing as the `{{foo}}`
+  in the above example.
 
-  ```html
-  <script type="text/x-handlebars" data-template-name="_user_info">
-    <span>Hello {{username}}!</span>
-  </script>
+  If a "_nav" template isn't found, the `partial` helper will
+  fall back to a template named "nav".
+
+  ## Bound template names
+
+  The parameter supplied to `partial` can also be a path
+  to a property containing a template name, e.g.:
+
+  ```handlebars
+  {{partial someTemplateName}}
+  ```
+
+  The above example will look up the value of `someTemplateName`
+  on the template context (e.g. a controller) and use that
+  value as the name of the template to render. If the resolved
+  value is falsy, nothing will be rendered. If `someTemplateName`
+  changes, the partial will be re-rendered using the new template
+  name.
+
+  ## Setting the partial's context with `with`
+
+  The `partial` helper can be used in conjunction with the `with`
+  helper to set a context that will be used by the partial:
+
+  ```handlebars
+  {{#with currentUser}}
+    {{partial "user_info"}}
+  {{/with}}
   ```
 
   @method partial
@@ -27356,6 +27411,30 @@ Ember.Handlebars.registerHelper('template', function(name, options) {
 */
 
 Ember.Handlebars.registerHelper('partial', function(name, options) {
+
+  var context = (options.contexts && options.contexts.length) ? options.contexts[0] : this;
+
+  if (options.types[0] === "ID") {
+    // Helper was passed a property path; we need to
+    // create a binding that will re-render whenever
+    // this property changes.
+    options.fn = function(context, fnOptions) {
+      var partialName = Ember.Handlebars.get(context, name, fnOptions);
+      renderPartial(context, partialName, fnOptions);
+    };
+
+    return Ember.Handlebars.bind.call(context, name, options, true, exists);
+  } else {
+    // Render the partial right into parent template.
+    renderPartial(context, name, options);
+  }
+});
+
+function exists(value) {
+  return !Ember.isNone(value);
+}
+
+function renderPartial(context, name, options) {
   var nameParts = name.split("/"),
       lastPart = nameParts[nameParts.length - 1];
 
@@ -27370,8 +27449,8 @@ Ember.Handlebars.registerHelper('partial', function(name, options) {
 
   template = template || deprecatedTemplate;
 
-  template(this, { data: options.data });
-});
+  template(context, { data: options.data });
+}
 
 })();
 
@@ -32275,6 +32354,24 @@ Ember.Route = Ember.Object.extend(Ember.ActionHandler, {
       }
     });
     ```
+
+   Transition to a nested route
+
+   ```javascript
+   App.Router.map(function() {
+     this.resource('articles', { path: '/articles' }, function() {
+       this.route('new');
+     });
+   });
+
+   App.IndexRoute = Ember.Route.extend({
+     actions: {
+       transitionToNewArticle: function() {
+         this.transitionTo('articles.new');
+       }
+     }
+   });
+   ```
 
     Multiple Models Example
 

@@ -10,7 +10,7 @@ var Ember = { assert: function() {}, FEATURES: { isEnabled: function() {} } };
 // ==========================================================================
 
 
- // Version: 1.2.0-beta.4
+ // Version: 1.2.0
 
 (function() {
 /**
