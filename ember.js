@@ -8,7 +8,7 @@
 // ==========================================================================
 
 
- // Version: 1.3.0-beta.1
+ // Version: 1.3.0-beta.2
 
 (function() {
 /*global __fail__*/
@@ -194,7 +194,7 @@ if (!Ember.testing) {
 // ==========================================================================
 
 
- // Version: 1.3.0-beta.1
+ // Version: 1.3.0-beta.2
 
 (function() {
 var define, requireModule;
@@ -259,7 +259,7 @@ var define, requireModule;
 
   @class Ember
   @static
-  @version 1.3.0-beta.1
+  @version 1.3.0-beta.2
 */
 
 if ('undefined' === typeof Ember) {
@@ -286,10 +286,10 @@ Ember.toString = function() { return "Ember"; };
 /**
   @property VERSION
   @type String
-  @default '1.3.0-beta.1'
+  @default '1.3.0-beta.2'
   @final
 */
-Ember.VERSION = '1.3.0-beta.1';
+Ember.VERSION = '1.3.0-beta.2';
 
 /**
   Standard environmental variables. You can define these in a global `ENV`
@@ -5393,7 +5393,7 @@ Ember.removeBeforeObserver = function(obj, _path, target, method) {
 
 
 (function() {
-define("backburner/queue",
+define("backburner/queue", 
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -5500,11 +5500,10 @@ define("backburner/queue",
       }
     };
 
-
     __exports__.Queue = Queue;
   });
 
-define("backburner/deferred_action_queues",
+define("backburner/deferred_action_queues", 
   ["backburner/queue","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -5603,11 +5602,10 @@ define("backburner/deferred_action_queues",
       return -1;
     }
 
-
     __exports__.DeferredActionQueues = DeferredActionQueues;
   });
 
-define("backburner",
+define("backburner", 
   ["backburner/deferred_action_queues","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -5803,18 +5801,7 @@ define("backburner",
 
         timers.splice(i, 0, executeAt, fn);
 
-        if (laterTimer && laterTimerExpiresAt < executeAt) { return fn; }
-
-        if (laterTimer) {
-          clearTimeout(laterTimer);
-          laterTimer = null;
-        }
-        laterTimer = global.setTimeout(function() {
-          executeTimers(self);
-          laterTimer = null;
-          laterTimerExpiresAt = null;
-        }, wait);
-        laterTimerExpiresAt = executeAt;
+        updateLaterTimer(self, executeAt, wait);
 
         return fn;
       },
@@ -5823,30 +5810,25 @@ define("backburner",
         var self = this,
             args = arguments,
             wait = parseInt(pop.call(args), 10),
-            throttler;
+            throttler,
+            index,
+            timer;
 
-        for (var i = 0, l = throttlers.length; i < l; i++) {
-          throttler = throttlers[i];
-          if (throttler[0] === target && throttler[1] === method) { return; } // do nothing
-        }
+        index = findThrottler(target, method);
+        if (index > -1) { return throttlers[index]; } // throttled
 
-        var timer = global.setTimeout(function() {
+        timer = global.setTimeout(function() {
           self.run.apply(self, args);
 
-          // remove throttler
-          var index = -1;
-          for (var i = 0, l = throttlers.length; i < l; i++) {
-            throttler = throttlers[i];
-            if (throttler[0] === target && throttler[1] === method) {
-              index = i;
-              break;
-            }
-          }
-
+          var index = findThrottler(target, method);
           if (index > -1) { throttlers.splice(index, 1); }
         }, wait);
 
-        throttlers.push([target, method, timer]);
+        throttler = [target, method, timer];
+
+        throttlers.push(throttler);
+
+        return throttler;
       },
 
       debounce: function(target, method /* , args, wait, [immediate] */) {
@@ -5855,7 +5837,8 @@ define("backburner",
             immediate = pop.call(args),
             wait,
             index,
-            debouncee;
+            debouncee,
+            timer;
 
         if (typeof immediate === "number" || typeof immediate === "string") {
           wait = immediate;
@@ -5868,18 +5851,18 @@ define("backburner",
         // Remove debouncee
         index = findDebouncee(target, method);
 
-        if (index !== -1) {
+        if (index > -1) {
           debouncee = debouncees[index];
           debouncees.splice(index, 1);
           clearTimeout(debouncee[2]);
         }
 
-        var timer = global.setTimeout(function() {
+        timer = global.setTimeout(function() {
           if (!immediate) {
             self.run.apply(self, args);
           }
-          index = findDebouncee(target, method);
-          if (index) {
+          var index = findDebouncee(target, method);
+          if (index > -1) {
             debouncees.splice(index, 1);
           }
         }, wait);
@@ -5888,7 +5871,11 @@ define("backburner",
           self.run.apply(self, args);
         }
 
-        debouncees.push([target, method, timer]);
+        debouncee = [target, method, timer];
+
+        debouncees.push(debouncee);
+
+        return debouncee;
       },
 
       cancelTimers: function() {
@@ -5921,19 +5908,47 @@ define("backburner",
       },
 
       cancel: function(timer) {
-        if (timer && typeof timer === 'object' && timer.queue && timer.method) { // we're cancelling a deferOnce
+        var timerType = typeof timer;
+
+        if (timer && timerType === 'object' && timer.queue && timer.method) { // we're cancelling a deferOnce
           return timer.queue.cancel(timer);
-        } else if (typeof timer === 'function') { // we're cancelling a setTimeout
+        } else if (timerType === 'function') { // we're cancelling a setTimeout
           for (var i = 0, l = timers.length; i < l; i += 2) {
             if (timers[i + 1] === timer) {
               timers.splice(i, 2); // remove the two elements
               return true;
             }
           }
+        } else if (window.toString.call(timer) === "[object Array]"){ // we're cancelling a throttle or debounce
+          return this._cancelItem(findThrottler, throttlers, timer) || 
+                   this._cancelItem(findDebouncee, debouncees, timer);
         } else {
           return; // timer was null or not a timer
         }
+      },
+
+      _cancelItem: function(findMethod, array, timer){
+        var item,
+            index;
+
+        if (timer.length < 3) { return false; }
+
+        index = findMethod(timer[0], timer[1]);
+
+        if(index > -1) {
+
+          item = array[index];
+
+          if(item[2] === timer[2]){
+            array.splice(index, 1);
+            clearTimeout(timer[2]);
+            return true;
+          }
+        }
+
+        return false;
       }
+
     };
 
     Backburner.prototype.schedule = Backburner.prototype.defer;
@@ -5946,6 +5961,20 @@ define("backburner",
         autorun = null;
         backburner.end();
       });
+    }
+
+    function updateLaterTimer(self, executeAt, wait) {
+      if (!laterTimer || executeAt < laterTimerExpiresAt) {
+        if (laterTimer) {
+          clearTimeout(laterTimer);
+        }
+        laterTimer = global.setTimeout(function() {
+          laterTimer = null;
+          laterTimerExpiresAt = null;
+          executeTimers(self);
+        }, wait);
+        laterTimerExpiresAt = executeAt;
+      }
     }
 
     function executeTimers(self) {
@@ -5967,12 +5996,7 @@ define("backburner",
       });
 
       if (timers.length) {
-        laterTimer = global.setTimeout(function() {
-          executeTimers(self);
-          laterTimer = null;
-          laterTimerExpiresAt = null;
-        }, timers[0] - now);
-        laterTimerExpiresAt = timers[0];
+        updateLaterTimer(self, timers[0], timers[0] - now);
       }
     }
 
@@ -5991,6 +6015,20 @@ define("backburner",
       return index;
     }
 
+    function findThrottler(target, method) {
+      var throttler,
+          index = -1;
+
+      for (var i = 0, l = throttlers.length; i < l; i++) {
+        throttler = throttlers[i];
+        if (throttler[0] === target && throttler[1] === method) {
+          index = i;
+          break;
+        }
+      }
+
+      return index;
+    }
 
     __exports__.Backburner = Backburner;
   });
@@ -9019,7 +9057,7 @@ define("container",
           return true;
         }
 
-        return !!factoryFor(this, fullName);
+        return !!this.resolve(fullName);
       },
 
       /**
@@ -20395,6 +20433,22 @@ var EMPTY_ARRAY = [];
   });
   ```
 
+  If you have nested resources, your Handlebars template will look like this:
+
+  ```html
+  <script type='text/x-handlebars' data-template-name='posts/new'>
+    <h1>New Post</h1>
+  </script>
+  ```
+
+  And `templateName` property:
+
+  ```javascript
+  AView = Ember.View.extend({
+    templateName: 'posts/new'
+  });
+  ```
+
   Using a value for `templateName` that does not have a Handlebars template
   with a matching `data-template-name` attribute will throw an error.
 
@@ -23537,7 +23591,7 @@ var get = Ember.get, set = Ember.set, isNone = Ember.isNone,
   to the view object and actions are targeted at
   the view object. There is no access to the
   surrounding context or outer controller; all
-  contextual information is passed in.
+  contextual information must be passed in.
 
   The easiest way to create an `Ember.Component` is via
   a template. If you name a template
@@ -23556,19 +23610,23 @@ var get = Ember.get, set = Ember.set, isNone = Ember.isNone,
   <p class='signature'>{{person.signature}}</p>
   ```
 
-  You can also use `yield` inside a template to
-  include the **contents** of the custom tag:
+  You can use `yield` inside a template to
+  include the **contents** of any block attached to
+  the component. The block will be executed in the
+  context of the surrounding context or outer controller:
 
-  ```html
+  ```handlebars
   {{#app-profile person=currentUser}}
     <p>Admin mode</p>
+    {{! Executed in the controllers context. }}
   {{/app-profile}}
   ```
 
-  ```html
+  ```handlebars
   <!-- app-profile template -->
   <h1>{{person.title}}</h1>
-  {{yield}} <!-- block contents -->
+  {{! Executed in the components context. }}
+  {{yield}} {{! block contents }}
   ```
 
   If you want to customize the component, in order to
@@ -23617,6 +23675,11 @@ Ember.Component = Ember.View.extend(Ember.TargetActionSupport, {
     this._super();
     set(this, 'context', this);
     set(this, 'controller', this);
+  },
+
+  defaultLayout: function(options){
+    options.data = {view: options._context};
+    Ember.Handlebars.helpers['yield'].apply(this, [options]);
   },
 
   // during render, isolate keywords
@@ -24434,7 +24497,7 @@ Ember.Handlebars.helper = function(name, value) {
 */
 Ember.Handlebars.makeViewHelper = function(ViewClass) {
   return function(options) {
-    Ember.assert("You can only pass attributes (such as name=value) not bare values to a helper for a View", arguments.length < 2);
+    Ember.assert("You can only pass attributes (such as name=value) not bare values to a helper for a View found in '" + ViewClass.toString() + "'", arguments.length < 2);
     return Ember.Handlebars.helpers.view.call(this, ViewClass, options);
   };
 };
@@ -25644,6 +25707,7 @@ Ember._HandlebarsBoundView = Ember._MetamorphView.extend({
 var get = Ember.get, set = Ember.set, fmt = Ember.String.fmt;
 var handlebarsGet = Ember.Handlebars.get, normalizePath = Ember.Handlebars.normalizePath;
 var forEach = Ember.ArrayPolyfills.forEach;
+var o_create = Ember.create;
 
 var EmberHandlebars = Ember.Handlebars, helpers = EmberHandlebars.helpers;
 
@@ -25903,7 +25967,7 @@ EmberHandlebars.registerHelper('boundIf', function(property, fn) {
 */
 EmberHandlebars.registerHelper('with', function(context, options) {
   if (arguments.length === 4) {
-    var keywordName, path, rootPath, normalized;
+    var keywordName, path, rootPath, normalized, contextPath;
 
     Ember.assert("If you pass more than one argument to the with helper, it must be in the form #with foo as bar", arguments[1] === "as");
     options = arguments[3];
@@ -25912,8 +25976,12 @@ EmberHandlebars.registerHelper('with', function(context, options) {
 
     Ember.assert("You must pass a block to the with helper", options.fn && options.fn !== Handlebars.VM.noop);
 
+    var localizedOptions = o_create(options);
+    localizedOptions.data = o_create(options.data);
+    localizedOptions.data.keywords = o_create(options.data.keywords || {});
+
     if (Ember.isGlobalPath(path)) {
-      Ember.bind(options.data.keywords, keywordName, path);
+      contextPath = path;
     } else {
       normalized = normalizePath(this, path, options.data);
       path = normalized.path;
@@ -25922,14 +25990,14 @@ EmberHandlebars.registerHelper('with', function(context, options) {
       // This is a workaround for the fact that you cannot bind separate objects
       // together. When we implement that functionality, we should use it here.
       var contextKey = Ember.$.expando + Ember.guidFor(rootPath);
-      options.data.keywords[contextKey] = rootPath;
-
+      localizedOptions.data.keywords[contextKey] = rootPath;
       // if the path is '' ("this"), just bind directly to the current context
-      var contextPath = path ? contextKey + '.' + path : contextKey;
-      Ember.bind(options.data.keywords, keywordName, contextPath);
+      contextPath = path ? contextKey + '.' + path : contextKey;
     }
 
-    return bind.call(this, path, options, true, exists);
+    Ember.bind(localizedOptions.data.keywords, keywordName, contextPath);
+
+    return bind.call(this, path, localizedOptions, true, exists);
   } else {
     Ember.assert("You must pass exactly one argument to the with helper", arguments.length === 2);
     Ember.assert("You must pass a block to the with helper", options.fn && options.fn !== Handlebars.VM.noop);
@@ -26455,7 +26523,7 @@ EmberHandlebars.ViewHelper = Ember.Object.create({
       return 'templateData.keywords.' + path;
     } else if (Ember.isGlobalPath(path)) {
       return null;
-    } else if (path === 'this') {
+    } else if (path === 'this' || path === '') {
       return '_parentView.context';
     } else {
       return '_parentView.context.' + path;
@@ -26972,7 +27040,7 @@ Ember.Handlebars.registerHelper('unbound', function(property, fn) {
 @submodule ember-handlebars
 */
 
-var handlebarsGet = Ember.Handlebars.get, normalizePath = Ember.Handlebars.normalizePath;
+var get = Ember.get, handlebarsGet = Ember.Handlebars.get, normalizePath = Ember.Handlebars.normalizePath;
 
 /**
   `log` allows you to output the value of a variable in the current rendering
@@ -27002,13 +27070,44 @@ Ember.Handlebars.registerHelper('log', function(property, options) {
   {{debugger}}
   ```
 
+  Before invoking the `debugger` statement, there
+  are a few helpful variables defined in the
+  body of this helper that you can inspect while
+  debugging that describe how and where this
+  helper was invoked:
+
+  - templateContext: this is most likely a controller
+    from which this template looks up / displays properties
+  - typeOfTemplateContext: a string that describes the
+    type of object templateContext is, e.g.
+    "controller:people"
+
+  For example, if you're wondering why a value `{{foo}}`
+  isn't rendering as expected within a template, you
+  could place a `{{debugger}}` statement, and when
+  the `debugger;` breakpoint is hit, you can inspect
+  `templateContext`, determine if it's the object you
+  expect, and/or evaluate expressions in the console
+  to perform property lookups on the `templateContext`:
+
+  ```
+    > templateContext.get('foo') // -> "<value of foo>"
+  ```
+
   @method debugger
   @for Ember.Handlebars.helpers
   @param {String} property
 */
 Ember.Handlebars.registerHelper('debugger', function(options) {
+
+  // These are helpful values you can inspect while debugging.
+  var templateContext = this;
+  var typeOfTemplateContext = this ? get(this, '_debugContainerKey') : 'none';
+
   debugger;
 });
+
+
 
 })();
 
@@ -31614,6 +31713,10 @@ Ember.Router = Ember.Object.extend(Ember.Evented, {
     this.router = this.constructor.router || this.constructor.map(Ember.K);
     this._activeViews = {};
     this._setupLocation();
+
+    if (get(this, 'namespace.LOG_TRANSITIONS_INTERNAL')) {
+      this.router.log = Ember.Logger.debug;
+    }
   },
 
   url: Ember.computed(function() {
@@ -32048,10 +32151,6 @@ Ember.Router.reopenClass({
       router.callbacks = [];
       router.triggerEvent = triggerEvent;
       this.reopenClass({ router: router });
-    }
-
-    if (get(this, 'namespace.LOG_TRANSITIONS_INTERNAL')) {
-      router.log = Ember.Logger.debug;
     }
 
     var dsl = Ember.RouterDSL.map(function() {
@@ -33725,7 +33824,7 @@ Ember.onLoad('Ember.Handlebars', function(Handlebars) {
     _invoke: function(event) {
       if (!isSimpleClick(event)) { return true; }
 
-      event.preventDefault();
+      if (this.preventDefault !== false) { event.preventDefault(); }
       if (this.bubbles === false) { event.stopPropagation(); }
 
       if (get(this, '_isDisabled')) { return false; }
@@ -34057,6 +34156,22 @@ Ember.onLoad('Ember.Handlebars', function(Handlebars) {
 
     When transitioning into the linked route, the `model` hook will
     be triggered with parameters including this passed identifier.
+
+    ### Allowing Default Action
+
+   By default the `{{link-to}}` helper prevents the default browser action
+   by calling `preventDefault()` as this sort of action bubbling is normally
+   handled internally and we do not want to take the browser to a new URL (for
+   example).
+
+   If you need to override this behavior specify `preventDefault=false` in
+   your template:
+
+    ```handlebars
+    {{#link-to 'photoGallery' aPhotoId preventDefault=false}}
+      {{aPhotoId.title}}
+    {{/link-to}}
+    ```
 
     ### Overriding attributes
     You can override any given property of the Ember.LinkView
@@ -34469,7 +34584,9 @@ Ember.onLoad('Ember.Handlebars', function(Handlebars) {
       handler: function(event) {
         if (!isAllowedEvent(event, allowedKeys)) { return true; }
 
-        event.preventDefault();
+        if (options.preventDefault !== false) {
+          event.preventDefault();
+        }
 
         if (options.bubbles === false) {
           event.stopPropagation();
@@ -34558,9 +34675,17 @@ Ember.onLoad('Ember.Handlebars', function(Handlebars) {
 
     Events triggered through the action helper will automatically have
     `.preventDefault()` called on them. You do not need to do so in your event
-    handlers.
+    handlers. If you need to allow event propagation (to handle file inputs for
+    example) you can supply the `preventDefault=false` option to the `{{action}}` helper:
 
-    To also disable bubbling, pass `bubbles=false` to the helper:
+    ```handlebars
+    <div {{action "sayHello" preventDefault=false}}>
+      <input type="file" />
+      <input type="checkbox" />
+    </div>
+    ```
+
+    To disable bubbling, pass `bubbles=false` to the helper:
 
     ```handlebars
     <button {{action 'edit' post bubbles=false}}>Edit</button>
@@ -34693,6 +34818,7 @@ Ember.onLoad('Ember.Handlebars', function(Handlebars) {
 
     action.target = { root: root, target: target, options: options };
     action.bubbles = hash.bubbles;
+    action.preventDefault = hash.preventDefault;
 
     var actionId = ActionHelper.registerAction(actionName, action, hash.allowedKeys);
     return new SafeString('data-ember-action="' + actionId + '"');
@@ -36848,6 +36974,27 @@ Ember.ControllerMixin.reopen({
     this.get('controllers.post'); // instance of App.PostController
     ```
 
+    Given that you have a nested controller (nested resource):
+
+    ```javascript
+    App.CommentsNewController = Ember.ObjectController.extend({
+    });
+    ```
+
+    When you define a controller that requires access to a nested one:
+
+    ```javascript
+    App.IndexController = Ember.ObjectController.extend({
+      needs: ['commentsNew']
+    });
+    ```
+
+    You will be able to get access to it:
+
+    ```javascript
+    this.get('controllers.commentsNew'); // instance of App.CommentsNewController
+    ```
+
     This is only available for singleton controllers.
 
     @property {Array} needs
@@ -37389,7 +37536,6 @@ Ember Extension Support
  */
 var slice = [].slice,
     helpers = {},
-    originalMethods = {},
     injectHelpersCallbacks = [];
 
 /**
@@ -37499,10 +37645,6 @@ Ember.Test = {
   */
   unregisterHelper: function(name) {
     delete helpers[name];
-    if (originalMethods[name]) {
-      this.helperContainer[name] = originalMethods[name];
-    }
-    delete originalMethods[name];
     delete Ember.Test.Promise.prototype[name];
   },
 
@@ -37697,6 +37839,21 @@ Ember.Application.reopen({
   testHelpers: {},
 
   /**
+   This property will contain the original methods that were registered
+   on the `helperContainer` before `injectTestHelpers` is called.
+
+   When `removeTestHelpers` is called, these methods are restored to the
+   `helperContainer`.
+
+    @property originalMethods
+    @type {Object}
+    @default {}
+    @private
+  */
+  originalMethods: {},
+
+
+  /**
   This property indicates whether or not this application is currently in
   testing mode. This is set when `setupForTesting` is called on the current
   application.
@@ -37770,7 +37927,7 @@ Ember.Application.reopen({
 
     this.testHelpers = {};
     for (var name in helpers) {
-      originalMethods[name] = this.helperContainer[name];
+      this.originalMethods[name] = this.helperContainer[name];
       this.testHelpers[name] = this.helperContainer[name] = helper(this, name);
       protoWrap(Ember.Test.Promise.prototype, name, helper(this, name), helpers[name].meta.wait);
     }
@@ -37797,9 +37954,9 @@ Ember.Application.reopen({
   */
   removeTestHelpers: function() {
     for (var name in helpers) {
-      this.helperContainer[name] = originalMethods[name];
+      this.helperContainer[name] = this.originalMethods[name];
       delete this.testHelpers[name];
-      delete originalMethods[name];
+      delete this.originalMethods[name];
     }
     Ember.RSVP.off('error', onerror);
     Ember.RSVP.on('error', Ember.RSVP.onerrorDefault);
