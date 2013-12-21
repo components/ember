@@ -10,7 +10,7 @@ var Ember = { assert: function() {}, FEATURES: { isEnabled: function() {} } };
 // ==========================================================================
 
 
- // Version: 1.3.0-beta.2
+ // Version: 1.3.0-beta.3
 
 (function() {
 /**
@@ -25,7 +25,7 @@ var objectCreate = Object.create || function(parent) {
   return new F();
 };
 
-var Handlebars = this.Handlebars || (Ember.imports && Ember.imports.Handlebars);
+var Handlebars = (Ember.imports && Ember.imports.Handlebars) || (this && this.Handlebars);
 if (!Handlebars && typeof require === 'function') {
   Handlebars = require('handlebars');
 }
@@ -277,7 +277,7 @@ Ember.Handlebars.precompile = function(string) {
     knownHelpers: {
       action: true,
       unbound: true,
-      bindAttr: true,
+      'bind-attr': true,
       template: true,
       view: true,
       _triageMustache: true
