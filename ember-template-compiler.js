@@ -2,12 +2,12 @@
 var Ember = { assert: function() {}, FEATURES: { isEnabled: function() {} } };
 /*!
  * @overview  Ember - JavaScript Application Framework
- * @copyright Copyright 2011-2013 Tilde Inc. and contributors
+ * @copyright Copyright 2011-2014 Tilde Inc. and contributors
  *            Portions Copyright 2006-2011 Strobe Inc.
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.3.0-beta.4
+ * @version   1.3.0
  */
 
 
@@ -29,8 +29,14 @@ if (!Handlebars && typeof require === 'function') {
   Handlebars = require('handlebars');
 }
 
-Ember.assert("Ember Handlebars requires Handlebars version 1.0 or 1.1. Include a SCRIPT tag in the HTML HEAD linking to the Handlebars file before you link to Ember.", Handlebars);
-Ember.assert("Ember Handlebars requires Handlebars version 1.0 or 1.1, COMPILER_REVISION expected: 4, got: " +  Handlebars.COMPILER_REVISION + " - Please note: Builds of master may have other COMPILER_REVISION values.", Handlebars.COMPILER_REVISION === 4);
+Ember.assert("Ember Handlebars requires Handlebars version 1.0 or 1.1. Include " +
+             "a SCRIPT tag in the HTML HEAD linking to the Handlebars file " +
+             "before you link to Ember.", Handlebars);
+
+Ember.assert("Ember Handlebars requires Handlebars version 1.0 or 1.1, " +
+             "COMPILER_REVISION expected: 4, got: " +  Handlebars.COMPILER_REVISION +
+             " - Please note: Builds of master may have other COMPILER_REVISION values.",
+             Handlebars.COMPILER_REVISION === 4);
 
 /**
   Prepares the Handlebars templating library for use inside Ember's view
@@ -112,13 +118,12 @@ Ember.Handlebars.helper = function(name, value) {
 };
 
 /**
-  @private
-
   Returns a helper function that renders the provided ViewClass.
 
   Used internally by Ember.Handlebars.helper and other methods
   involving helper/component registration.
 
+  @private
   @method helper
   @for Ember.Handlebars
   @param {Function} ViewClass view class constructor
@@ -175,12 +180,11 @@ Ember.Handlebars.JavaScriptCompiler.prototype.initializeBuffer = function() {
 };
 
 /**
-  @private
-
   Override the default buffer for Ember Handlebars. By default, Handlebars
   creates an empty String at the beginning of each invocation and appends to
   it. Ember's Handlebars overrides this to append to a single shared buffer.
 
+  @private
   @method appendToBuffer
   @param string {String}
 */
@@ -228,12 +232,11 @@ Ember.Handlebars.JavaScriptCompiler.prototype.ambiguousBlockValue = function() {
 var prefix = "ember" + (+new Date()), incr = 1;
 
 /**
-  @private
-
   Rewrite simple mustaches from `{{foo}}` to `{{bind "foo"}}`. This means that
   all simple mustaches in Ember's Handlebars will also set up an observer to
   keep the DOM up to date when the underlying property changes.
 
+  @private
   @method mustache
   @for Ember.Handlebars.Compiler
   @param mustache
