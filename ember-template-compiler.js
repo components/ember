@@ -1,6 +1,16 @@
 (function() {
 var Ember = { assert: function() {}, FEATURES: { isEnabled: function() {} } };
- // Version: 1.1.3
+// ==========================================================================
+// Project:   Ember - JavaScript Application Framework
+// Copyright: Copyright 2011-2013 Tilde Inc. and contributors
+//            Portions Copyright 2006-2011 Strobe Inc.
+//            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
+// License:   Licensed under MIT license
+//            See https://raw.github.com/emberjs/ember.js/master/LICENSE
+// ==========================================================================
+
+
+ // Version: 1.2.1
 
 (function() {
 /**
@@ -20,8 +30,8 @@ if (!Handlebars && typeof require === 'function') {
   Handlebars = require('handlebars');
 }
 
-Ember.assert("Ember Handlebars requires Handlebars version 1.0.0. Include a SCRIPT tag in the HTML HEAD linking to the Handlebars file before you link to Ember.", Handlebars);
-Ember.assert("Ember Handlebars requires Handlebars version 1.0.0, COMPILER_REVISION expected: 4, got: " +  Handlebars.COMPILER_REVISION + " - Please note: Builds of master may have other COMPILER_REVISION values.", Handlebars.COMPILER_REVISION === 4);
+Ember.assert("Ember Handlebars requires Handlebars version 1.0 or 1.1. Include a SCRIPT tag in the HTML HEAD linking to the Handlebars file before you link to Ember.", Handlebars);
+Ember.assert("Ember Handlebars requires Handlebars version 1.0 or 1.1, COMPILER_REVISION expected: 4, got: " +  Handlebars.COMPILER_REVISION + " - Please note: Builds of master may have other COMPILER_REVISION values.", Handlebars.COMPILER_REVISION === 4);
 
 /**
   Prepares the Handlebars templating library for use inside Ember's view
@@ -96,13 +106,29 @@ Ember.Handlebars.helper = function(name, value) {
   Ember.assert("You tried to register a component named '" + name + "', but component names must include a '-'", !Ember.Component.detect(value) || name.match(/-/));
 
   if (Ember.View.detect(value)) {
-    Ember.Handlebars.registerHelper(name, function(options) {
-      Ember.assert("You can only pass attributes (such as name=value) not bare values to a helper for a View", arguments.length < 2);
-      return Ember.Handlebars.helpers.view.call(this, value, options);
-    });
+    Ember.Handlebars.registerHelper(name, Ember.Handlebars.makeViewHelper(value));
   } else {
     Ember.Handlebars.registerBoundHelper.apply(null, arguments);
   }
+};
+
+/**
+  @private
+
+  Returns a helper function that renders the provided ViewClass.
+
+  Used internally by Ember.Handlebars.helper and other methods
+  involving helper/component registration.
+
+  @method helper
+  @for Ember.Handlebars
+  @param {Function} ViewClass view class constructor
+*/
+Ember.Handlebars.makeViewHelper = function(ViewClass) {
+  return function(options) {
+    Ember.assert("You can only pass attributes (such as name=value) not bare values to a helper for a View", arguments.length < 2);
+    return Ember.Handlebars.helpers.view.call(this, ViewClass, options);
+  };
 };
 
 /**
@@ -161,6 +187,43 @@ Ember.Handlebars.JavaScriptCompiler.prototype.initializeBuffer = function() {
 */
 Ember.Handlebars.JavaScriptCompiler.prototype.appendToBuffer = function(string) {
   return "data.buffer.push("+string+");";
+};
+
+// Hacks ahead:
+// Handlebars presently has a bug where the `blockHelperMissing` hook
+// doesn't get passed the name of the missing helper name, but rather
+// gets passed the value of that missing helper evaluated on the current
+// context, which is most likely `undefined` and totally useless.
+//
+// So we alter the compiled template function to pass the name of the helper
+// instead, as expected.
+//
+// This can go away once the following is closed:
+// https://github.com/wycats/handlebars.js/issues/617
+
+var DOT_LOOKUP_REGEX = /helpers\.(.*?)\)/,
+    BRACKET_STRING_LOOKUP_REGEX = /helpers\['(.*?)'/,
+    INVOCATION_SPLITTING_REGEX = /(.*blockHelperMissing\.call\(.*)(stack[0-9]+)(,.*)/;
+
+Ember.Handlebars.JavaScriptCompiler.stringifyLastBlockHelperMissingInvocation = function(source) {
+  var helperInvocation = source[source.length - 1],
+      helperName = (DOT_LOOKUP_REGEX.exec(helperInvocation) || BRACKET_STRING_LOOKUP_REGEX.exec(helperInvocation))[1],
+      matches = INVOCATION_SPLITTING_REGEX.exec(helperInvocation);
+
+  source[source.length - 1] = matches[1] + "'" + helperName + "'" + matches[3];
+}
+var stringifyBlockHelperMissing = Ember.Handlebars.JavaScriptCompiler.stringifyLastBlockHelperMissingInvocation;
+
+var originalBlockValue = Ember.Handlebars.JavaScriptCompiler.prototype.blockValue;
+Ember.Handlebars.JavaScriptCompiler.prototype.blockValue = function() {
+  originalBlockValue.apply(this, arguments);
+  stringifyBlockHelperMissing(this.source);
+};
+
+var originalAmbiguousBlockValue = Ember.Handlebars.JavaScriptCompiler.prototype.ambiguousBlockValue;
+Ember.Handlebars.JavaScriptCompiler.prototype.ambiguousBlockValue = function() {
+  originalAmbiguousBlockValue.apply(this, arguments);
+  stringifyBlockHelperMissing(this.source);
 };
 
 var prefix = "ember" + (+new Date()), incr = 1;
