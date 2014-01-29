@@ -5,7 +5,7 @@
     "./ember.js"
   ],
   "dependencies": {
-    "jquery": ">= 1.7",
+    "jquery": ">= 1.7 < 2.1",
     "handlebars": ">= 1.0.0"
   }
 }
