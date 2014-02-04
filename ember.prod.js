@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.4.0-beta.4
+ * @version   1.4.0-beta.5
  */
 
 
@@ -88,7 +88,7 @@ var define, requireModule, require, requirejs;
 
   @class Ember
   @static
-  @version 1.4.0-beta.4
+  @version 1.4.0-beta.5
 */
 
 if ('undefined' === typeof Ember) {
@@ -115,10 +115,10 @@ Ember.toString = function() { return "Ember"; };
 /**
   @property VERSION
   @type String
-  @default '1.4.0-beta.4'
+  @default '1.4.0-beta.5'
   @static
 */
-Ember.VERSION = '1.4.0-beta.4';
+Ember.VERSION = '1.4.0-beta.5';
 
 /**
   Standard environmental variables. You can define these in a global `EmberENV`
@@ -20581,7 +20581,7 @@ var get = Ember.get, set = Ember.set, forEach = Ember.EnumerableUtils.forEach,
   ```
 
   The itemController instances will have a `parentController` property set to
-  to the `ArrayController` instance.
+  the `ArrayController` instance.
 
   @class ArrayController
   @namespace Ember
@@ -21030,7 +21030,7 @@ function escapeAttribute(value) {
   return string.replace(BAD_CHARS_REGEXP, escapeChar);
 }
 
-// IE 6/7 have bugs arond setting names on inputs during creation.
+// IE 6/7 have bugs around setting names on inputs during creation.
 // From http://msdn.microsoft.com/en-us/library/ie/ms536389(v=vs.85).aspx:
 // "To include the NAME attribute at run time on objects created with the createElement method, use the eTag."
 var canSetNameOnInputs = (function() {
@@ -21208,7 +21208,11 @@ Ember._RenderBuffer.prototype = {
   },
 
   setClasses: function(classNames) {
-    this.classes = classNames;
+    this.elementClasses = null;
+    var len = classNames.length, i;
+    for (i = 0; i < len; i++) {
+      this.addClass(classNames[i]);
+    }
   },
 
   /**
@@ -21262,7 +21266,7 @@ Ember._RenderBuffer.prototype = {
   },
 
   /**
-    Adds an property which will be rendered to the element.
+    Adds a property which will be rendered to the element.
 
     @method prop
     @param {String} name The name of the property
@@ -21342,6 +21346,7 @@ Ember._RenderBuffer.prototype = {
     if (classes) {
       buffer += ' class="' + escapeAttribute(classes.join(' ')) + '"';
       this.classes = null;
+      this.elementClasses = null;
     }
 
     if (style) {
@@ -21424,6 +21429,7 @@ Ember._RenderBuffer.prototype = {
     if (classes) {
       $element.attr('class', classes.join(' '));
       this.classes = null;
+      this.elementClasses = null;
     }
 
     if (style) {
@@ -37331,6 +37337,9 @@ Ember.onLoad('Ember.Handlebars', function(Handlebars) {
           target = target.root;
         }
 
+        if (options.boundProperty) {
+                  }
+
         Ember.run(function runRegisteredAction() {
           if (target.send) {
             target.send.apply(target, args(options.parameters, actionName));
@@ -37548,6 +37557,7 @@ Ember.onLoad('Ember.Handlebars', function(Handlebars) {
     action.target = { root: root, target: target, options: options };
     action.bubbles = hash.bubbles;
     action.preventDefault = hash.preventDefault;
+    action.boundProperty =  options.types[0] === "ID";
 
     var actionId = ActionHelper.registerAction(actionName, action, hash.allowedKeys);
     return new SafeString('data-ember-action="' + actionId + '"');
@@ -39525,6 +39535,8 @@ var Application = Ember.Application = Ember.Namespace.extend(Ember.DeferredMixin
 
   willDestroy: function() {
     Ember.BOOTED = false;
+    // Ensure deactivation of routes before objects are destroyed
+    this.__container__.lookup('router:main').reset();
 
     this.__container__.destroy();
   },
