@@ -7,7 +7,7 @@ var Ember = { assert: function() {}, FEATURES: { isEnabled: function() {} } };
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.4.0
+ * @version   1.5.0-beta.1
  */
 
 
@@ -229,8 +229,6 @@ Ember.Handlebars.JavaScriptCompiler.prototype.ambiguousBlockValue = function() {
   stringifyBlockHelperMissing(this.source);
 };
 
-var prefix = "ember" + (+new Date()), incr = 1;
-
 /**
   Rewrite simple mustaches from `{{foo}}` to `{{bind "foo"}}`. This means that
   all simple mustaches in Ember's Handlebars will also set up an observer to
@@ -242,12 +240,7 @@ var prefix = "ember" + (+new Date()), incr = 1;
   @param mustache
 */
 Ember.Handlebars.Compiler.prototype.mustache = function(mustache) {
-  if (mustache.isHelper && mustache.id.string === 'control') {
-    mustache.hash = mustache.hash || new Handlebars.AST.HashNode([]);
-    mustache.hash.pairs.push(["controlID", new Handlebars.AST.StringNode(prefix + incr++)]);
-  } else if (mustache.params.length || mustache.hash) {
-    // no changes required
-  } else {
+  if (!(mustache.params.length || mustache.hash)) {
     var id = new Handlebars.AST.IdNode([{ part: '_triageMustache' }]);
 
     // Update the mustache node to include a hash value indicating whether the original node
