@@ -6,6 +6,6 @@
   "main": "./ember.js",
   "dependencies": {
     "jquery": "*",
-    "handlebars": "*"
+    "handlebars": ">= 1.0.0 < 2.0.0"
   }
 }
