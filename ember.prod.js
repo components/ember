@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.5.0-beta.2
+ * @version   1.5.0-beta.3
  */
 
 
@@ -88,7 +88,7 @@ var define, requireModule, require, requirejs;
 
   @class Ember
   @static
-  @version 1.5.0-beta.2
+  @version 1.5.0-beta.3
 */
 
 if ('undefined' === typeof Ember) {
@@ -115,10 +115,10 @@ Ember.toString = function() { return "Ember"; };
 /**
   @property VERSION
   @type String
-  @default '1.5.0-beta.2'
+  @default '1.5.0-beta.3'
   @static
 */
-Ember.VERSION = '1.5.0-beta.2';
+Ember.VERSION = '1.5.0-beta.3';
 
 /**
   Standard environmental variables. You can define these in a global `EmberENV`
@@ -11936,8 +11936,6 @@ Ember.String = {
   }
 };
 
-
-
 })();
 
 
@@ -11959,7 +11957,6 @@ var fmt = Ember.String.fmt,
     underscore = Ember.String.underscore,
     capitalize = Ember.String.capitalize,
     classify = Ember.String.classify;
-
 
 if (Ember.EXTEND_PROTOTYPES === true || Ember.EXTEND_PROTOTYPES.String) {
 
@@ -12052,10 +12049,7 @@ if (Ember.EXTEND_PROTOTYPES === true || Ember.EXTEND_PROTOTYPES.String) {
   String.prototype.capitalize = function() {
     return capitalize(this);
   };
-
-  
 }
-
 
 })();
 
@@ -14731,9 +14725,14 @@ var get = Ember.get, set = Ember.set, isNone = Ember.isNone, map = Ember.Enumera
 // ARRAY
 //
 /**
-  This module implements Observer-friendly Array-like behavior. This mixin is
-  picked up by the Array class as well as other controllers, etc. that want to
-  appear to be arrays.
+  This mixin implements Observer-friendly Array-like behavior. It is not a
+  concrete implementation, but it can be used up by other classes that want
+  to appear like arrays.
+
+  For example, ArrayProxy and ArrayController are both concrete classes that can
+  be instantiated to implement array-like behavior. Both of these classes use
+  the Array Mixin by way of the MutableArray mixin, which allows observable
+  changes to be made to the underlying array.
 
   Unlike `Ember.Enumerable,` this mixin defines methods specifically for
   collections that provide index-ordered access to their contents. When you
@@ -17490,6 +17489,12 @@ var get = Ember.get, set = Ember.set;
 /**
   This mixin defines the API for modifying array-like objects. These methods
   can be applied only to a collection that keeps its items in an ordered set.
+  It builds upon the Array mixin and adds methods to modify the array.
+  Concrete implementations of this class include ArrayProxy and ArrayController.
+
+  It is important to use the methods in this class to modify arrays so that
+  changes are observable. This allows the binding system in Ember to function
+  correctly.
 
   Note that an Array can change even if it does not implement this mixin.
   For example, one might implement a SparseArray that cannot be directly
@@ -18418,6 +18423,9 @@ var set = Ember.set, get = Ember.get,
  */
 
 function tap(proxy, promise) {
+  set(proxy, 'isFulfilled', false);
+  set(proxy, 'isRejected', false);
+
   return promise.then(function(value) {
     set(proxy, 'isFulfilled', true);
     set(proxy, 'content', value);
@@ -28348,6 +28356,10 @@ EmberHandlebars.registerHelper('unboundIf', function unboundIfHelper(property, f
 
   Without the `as` operator, it would be impossible to reference `user.name` in the example above.
 
+  NOTE: The alias should not reuse a name from the bound property path.
+  For example: `{{#with foo.bar as foo}}` is not supported because it attempts to alias using
+  the first part of the property path, `foo`. Instead, use `{{#with foo.bar as baz}}`.
+
   ### `controller` option
 
   Adding `controller='something'` instructs the `{{with}}` helper to create and use an instance of
@@ -36195,6 +36207,26 @@ Ember.Route = Ember.Object.extend(Ember.ActionHandler, {
     By default, the `setupController` hook sets the `content` property of
     the controller to the `model`.
 
+    If you implement the `setupController` hook in your Route, it will
+    prevent this default behavior. If you want to preserve that behavior
+    when implementing your `setupController` function, make sure to call
+    `_super`:
+
+    ```js
+    App.PhotosRoute = Ember.Route.extend({
+      model: function() {
+        return App.Photo.find();
+      },
+
+      setupController: function (controller, model) {
+        // Call _super for default behavior
+        this._super(controller, model);
+        // Implement your custom setup after
+        this.controllerFor('application').set('showingPhotos', true);
+      }
+    });
+    ```
+
     This means that your template will get a proxy for the model as its
     context, and you can act as though the model itself was the context.
 
@@ -40227,7 +40259,7 @@ var Application = Ember.Application = Ember.Namespace.extend(Ember.DeferredMixin
     @method register
     @param  fullName {String} type:name (e.g., 'model:user')
     @param  factory {Function} (e.g., App.Person)
-    @param  options {String} (optional)
+    @param  options {Object} (optional)
   **/
   register: function() {
     var container = this.__container__;
@@ -40243,9 +40275,9 @@ var Application = Ember.Application = Ember.Namespace.extend(Ember.DeferredMixin
     App.inject('controller:application', 'email', 'model:email')
     App.inject('controller', 'source', 'source:main')
     ```
-    Please note that injections on models are currently disabled. 
+    Please note that injections on models are currently disabled.
     This was done because ember-data was not ready for fully a container aware ecosystem.
-    
+
     You can enable injections on models by setting `Ember.MODEL_FACTORY_INJECTIONS` flag to `true`
     If model factory injections are enabled, models should not be
     accessed globally (only through `container.lookupFactory('model:modelName'))`);
@@ -40578,7 +40610,7 @@ Ember.Application.reopenClass({
     
       container.register('location:auto', Ember.AutoLocation);
     
-    
+
     container.register('location:hash', Ember.HashLocation);
     container.register('location:history', Ember.HistoryLocation);
     container.register('location:none', Ember.NoneLocation);
