@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.6.0-beta.1+canary.afe8b47d
+ * @version   1.6.0-beta.1+canary.62ddfaef
  */
 
 
@@ -24,8 +24,7 @@ var define, requireModule, require, requirejs, Ember;
     };
 
     requirejs = require = requireModule = function(name) {
-
-      if (seen[name]) { return seen[name]; }
+      if (seen.hasOwnProperty(name)) { return seen[name]; }
       seen[name] = {};
 
       if (!registry[name]) {
@@ -2314,7 +2313,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.6.0-beta.1+canary.afe8b47d
+      @version 1.6.0-beta.1+canary.62ddfaef
     */
 
     if ('undefined' === typeof Ember) {
@@ -2341,10 +2340,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.6.0-beta.1+canary.afe8b47d'
+      @default '1.6.0-beta.1+canary.62ddfaef'
       @static
     */
-    Ember.VERSION = '1.6.0-beta.1+canary.afe8b47d';
+    Ember.VERSION = '1.6.0-beta.1+canary.62ddfaef';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -14528,8 +14527,6 @@ define("ember-runtime/ext/rsvp",
 
     RSVP.on('error', RSVP.onerrorDefault);
 
-    Ember.RSVP = RSVP;
-
     __exports__["default"] = RSVP;
   });
 define("ember-runtime/ext/string", 
@@ -14798,6 +14795,8 @@ define("ember-runtime",
     Ember.ObjectController = __dependency39__["default"];
     Ember.Controller = __dependency40__.Controller;
     Ember.ControllerMixin = __dependency40__.ControllerMixin;
+
+    Ember.RSVP = __dependency41__["default"];
     // END EXPORTS
 
     __exports__["default"] = Ember;
@@ -22849,8 +22848,6 @@ define("container/container",
     };
 
     RSVP.on('error', RSVP.onerrorDefault);
-
-    Ember.RSVP = RSVP;
 
     __exports__["default"] = RSVP;
   });define("ember-runtime/system/container", 
