@@ -1,3 +1,5 @@
+(function() {
+var Ember = { assert: function() {}, FEATURES: { isEnabled: function() {} } };
 /*!
  * @overview  Ember - JavaScript Application Framework
  * @copyright Copyright 2011-2014 Tilde Inc. and contributors
@@ -5,34 +7,23 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.6.0-beta.1+canary.62ddfaef
+ * @version   1.5.0-beta.5+pre.7af8beb0
  */
 
 
 (function() {
-var Ember = { assert: function() {}, FEATURES: { isEnabled: function() {} } };
 /**
 @module ember
 @submodule ember-handlebars-compiler
 */
 
-
-
-// ES6Todo: you'll need to import debugger once debugger is es6'd.
-if (typeof Ember.assert === 'undefined')   { Ember.assert = function(){}; };
-if (typeof Ember.FEATURES === 'undefined') { Ember.FEATURES = { isEnabled: function(){} }; };
-
+// Eliminate dependency on any Ember to simplify precompilation workflow
 var objectCreate = Object.create || function(parent) {
   function F() {}
   F.prototype = parent;
   return new F();
 };
 
-// set up for circular references later
-var View, Component;
-
-// ES6Todo: when ember-debug is es6'ed import this.
-// var emberAssert = Ember.assert;
 var Handlebars = (Ember.imports && Ember.imports.Handlebars) || (this && this.Handlebars);
 if (!Handlebars && typeof require === 'function') {
   Handlebars = require('handlebars');
@@ -61,7 +52,7 @@ Ember.assert("Ember Handlebars requires Handlebars version 1.0 or 1.1, " +
   @class Handlebars
   @namespace Ember
 */
-var EmberHandlebars = Ember.Handlebars = objectCreate(Handlebars);
+Ember.Handlebars = objectCreate(Handlebars);
 
 /**
   Register a bound helper or custom view helper.
@@ -116,16 +107,13 @@ var EmberHandlebars = Ember.Handlebars = objectCreate(Handlebars);
   @param {Function|Ember.View} function or view class constructor
   @param {String} dependentKeys*
 */
-EmberHandlebars.helper = function(name, value) {
-  if (!View) { View = requireModule('ember-views/views/view')['View']; } // ES6TODO: stupid circular dep
-  if (!Component) { Component = requireModule('ember-views/views/component')['default']; } // ES6TODO: stupid circular dep
+Ember.Handlebars.helper = function(name, value) {
+  Ember.assert("You tried to register a component named '" + name + "', but component names must include a '-'", !Ember.Component.detect(value) || name.match(/-/));
 
-  Ember.assert("You tried to register a component named '" + name + "', but component names must include a '-'", !Component.detect(value) || name.match(/-/));
-
-  if (View.detect(value)) {
-    EmberHandlebars.registerHelper(name, EmberHandlebars.makeViewHelper(value));
+  if (Ember.View.detect(value)) {
+    Ember.Handlebars.registerHelper(name, Ember.Handlebars.makeViewHelper(value));
   } else {
-    EmberHandlebars.registerBoundHelper.apply(null, arguments);
+    Ember.Handlebars.registerBoundHelper.apply(null, arguments);
   }
 };
 
@@ -140,10 +128,10 @@ EmberHandlebars.helper = function(name, value) {
   @for Ember.Handlebars
   @param {Function} ViewClass view class constructor
 */
-EmberHandlebars.makeViewHelper = function(ViewClass) {
+Ember.Handlebars.makeViewHelper = function(ViewClass) {
   return function(options) {
     Ember.assert("You can only pass attributes (such as name=value) not bare values to a helper for a View found in '" + ViewClass.toString() + "'", arguments.length < 2);
-    return EmberHandlebars.helpers.view.call(this, ViewClass, options);
+    return Ember.Handlebars.helpers.view.call(this, ViewClass, options);
   };
 };
 
@@ -151,7 +139,7 @@ EmberHandlebars.makeViewHelper = function(ViewClass) {
 @class helpers
 @namespace Ember.Handlebars
 */
-EmberHandlebars.helpers = objectCreate(Handlebars.helpers);
+Ember.Handlebars.helpers = objectCreate(Handlebars.helpers);
 
 /**
   Override the the opcode compiler and JavaScript compiler for Handlebars.
@@ -161,14 +149,14 @@ EmberHandlebars.helpers = objectCreate(Handlebars.helpers);
   @private
   @constructor
 */
-EmberHandlebars.Compiler = function() {};
+Ember.Handlebars.Compiler = function() {};
 
 // Handlebars.Compiler doesn't exist in runtime-only
 if (Handlebars.Compiler) {
-  EmberHandlebars.Compiler.prototype = objectCreate(Handlebars.Compiler.prototype);
+  Ember.Handlebars.Compiler.prototype = objectCreate(Handlebars.Compiler.prototype);
 }
 
-EmberHandlebars.Compiler.prototype.compiler = EmberHandlebars.Compiler;
+Ember.Handlebars.Compiler.prototype.compiler = Ember.Handlebars.Compiler;
 
 /**
   @class JavaScriptCompiler
@@ -176,18 +164,18 @@ EmberHandlebars.Compiler.prototype.compiler = EmberHandlebars.Compiler;
   @private
   @constructor
 */
-EmberHandlebars.JavaScriptCompiler = function() {};
+Ember.Handlebars.JavaScriptCompiler = function() {};
 
 // Handlebars.JavaScriptCompiler doesn't exist in runtime-only
 if (Handlebars.JavaScriptCompiler) {
-  EmberHandlebars.JavaScriptCompiler.prototype = objectCreate(Handlebars.JavaScriptCompiler.prototype);
-  EmberHandlebars.JavaScriptCompiler.prototype.compiler = EmberHandlebars.JavaScriptCompiler;
+  Ember.Handlebars.JavaScriptCompiler.prototype = objectCreate(Handlebars.JavaScriptCompiler.prototype);
+  Ember.Handlebars.JavaScriptCompiler.prototype.compiler = Ember.Handlebars.JavaScriptCompiler;
 }
 
 
-EmberHandlebars.JavaScriptCompiler.prototype.namespace = "Ember.Handlebars";
+Ember.Handlebars.JavaScriptCompiler.prototype.namespace = "Ember.Handlebars";
 
-EmberHandlebars.JavaScriptCompiler.prototype.initializeBuffer = function() {
+Ember.Handlebars.JavaScriptCompiler.prototype.initializeBuffer = function() {
   return "''";
 };
 
@@ -200,7 +188,7 @@ EmberHandlebars.JavaScriptCompiler.prototype.initializeBuffer = function() {
   @method appendToBuffer
   @param string {String}
 */
-EmberHandlebars.JavaScriptCompiler.prototype.appendToBuffer = function(string) {
+Ember.Handlebars.JavaScriptCompiler.prototype.appendToBuffer = function(string) {
   return "data.buffer.push("+string+");";
 };
 
@@ -220,24 +208,23 @@ var DOT_LOOKUP_REGEX = /helpers\.(.*?)\)/,
     BRACKET_STRING_LOOKUP_REGEX = /helpers\['(.*?)'/,
     INVOCATION_SPLITTING_REGEX = /(.*blockHelperMissing\.call\(.*)(stack[0-9]+)(,.*)/;
 
-EmberHandlebars.JavaScriptCompiler.stringifyLastBlockHelperMissingInvocation = function(source) {
+Ember.Handlebars.JavaScriptCompiler.stringifyLastBlockHelperMissingInvocation = function(source) {
   var helperInvocation = source[source.length - 1],
       helperName = (DOT_LOOKUP_REGEX.exec(helperInvocation) || BRACKET_STRING_LOOKUP_REGEX.exec(helperInvocation))[1],
       matches = INVOCATION_SPLITTING_REGEX.exec(helperInvocation);
 
   source[source.length - 1] = matches[1] + "'" + helperName + "'" + matches[3];
 };
+var stringifyBlockHelperMissing = Ember.Handlebars.JavaScriptCompiler.stringifyLastBlockHelperMissingInvocation;
 
-var stringifyBlockHelperMissing = EmberHandlebars.JavaScriptCompiler.stringifyLastBlockHelperMissingInvocation;
-
-var originalBlockValue = EmberHandlebars.JavaScriptCompiler.prototype.blockValue;
-EmberHandlebars.JavaScriptCompiler.prototype.blockValue = function() {
+var originalBlockValue = Ember.Handlebars.JavaScriptCompiler.prototype.blockValue;
+Ember.Handlebars.JavaScriptCompiler.prototype.blockValue = function() {
   originalBlockValue.apply(this, arguments);
   stringifyBlockHelperMissing(this.source);
 };
 
-var originalAmbiguousBlockValue = EmberHandlebars.JavaScriptCompiler.prototype.ambiguousBlockValue;
-EmberHandlebars.JavaScriptCompiler.prototype.ambiguousBlockValue = function() {
+var originalAmbiguousBlockValue = Ember.Handlebars.JavaScriptCompiler.prototype.ambiguousBlockValue;
+Ember.Handlebars.JavaScriptCompiler.prototype.ambiguousBlockValue = function() {
   originalAmbiguousBlockValue.apply(this, arguments);
   stringifyBlockHelperMissing(this.source);
 };
@@ -252,7 +239,7 @@ EmberHandlebars.JavaScriptCompiler.prototype.ambiguousBlockValue = function() {
   @for Ember.Handlebars.Compiler
   @param mustache
 */
-EmberHandlebars.Compiler.prototype.mustache = function(mustache) {
+Ember.Handlebars.Compiler.prototype.mustache = function(mustache) {
   if (!(mustache.params.length || mustache.hash)) {
     var id = new Handlebars.AST.IdNode([{ part: '_triageMustache' }]);
 
@@ -277,10 +264,8 @@ EmberHandlebars.Compiler.prototype.mustache = function(mustache) {
   @for Ember.Handlebars
   @static
   @param {String} string The template to precompile
-  @param {Boolean} asObject optional parameter, defaulting to true, of whether or not the 
-                            compiled template should be returned as an Object or a String
 */
-EmberHandlebars.precompile = function(string, asObject) {
+Ember.Handlebars.precompile = function(string) {
   var ast = Handlebars.parse(string);
 
   var options = {
@@ -296,10 +281,8 @@ EmberHandlebars.precompile = function(string, asObject) {
     stringParams: true
   };
 
-  asObject = asObject === undefined ? true : asObject;
-
-  var environment = new EmberHandlebars.Compiler().compile(ast, options);
-  return new EmberHandlebars.JavaScriptCompiler().compile(environment, options, undefined, asObject);
+  var environment = new Ember.Handlebars.Compiler().compile(ast, options);
+  return new Ember.Handlebars.JavaScriptCompiler().compile(environment, options, undefined, true);
 };
 
 // We don't support this for Handlebars runtime-only
@@ -315,13 +298,13 @@ if (Handlebars.compile) {
     @param {String} string The template to compile
     @return {Function}
   */
-  EmberHandlebars.compile = function(string) {
+  Ember.Handlebars.compile = function(string) {
     var ast = Handlebars.parse(string);
     var options = { data: true, stringParams: true };
-    var environment = new EmberHandlebars.Compiler().compile(ast, options);
-    var templateSpec = new EmberHandlebars.JavaScriptCompiler().compile(environment, options, undefined, true);
+    var environment = new Ember.Handlebars.Compiler().compile(ast, options);
+    var templateSpec = new Ember.Handlebars.JavaScriptCompiler().compile(environment, options, undefined, true);
 
-    var template = EmberHandlebars.template(templateSpec);
+    var template = Ember.Handlebars.template(templateSpec);
     template.isMethod = false; //Make sure we don't wrap templates with ._super
 
     return template;
@@ -329,7 +312,9 @@ if (Handlebars.compile) {
 }
 
 
+})();
 
-exports.precompile = EmberHandlebars.precompile;
-exports.EmberHandlebars = EmberHandlebars;
+
+exports.precompile = Ember.Handlebars.precompile;
+exports.EmberHandlebars = Ember.Handlebars;
 })();
