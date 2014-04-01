@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.6.0-beta.1+canary.99f8610f
+ * @version   1.6.0-beta.1
  */
 
 
@@ -1579,7 +1579,7 @@ define("ember-metal/computed",
       // the cached value set by the setter
       if (this._cacheable && this._suspended !== obj) {
         var meta = metaFor(obj);
-        if (meta.cache !== undefined) {
+        if (meta.cache[keyName] !== undefined) {
           meta.cache[keyName] = undefined;
           removeDependentKeys(this, obj, keyName, meta);
         }
@@ -2394,7 +2394,6 @@ define("ember-metal/computed",
       computed.reads = computed.oneWay;
     }
 
-    
     /**
       Where `computed.oneWay` provides oneWay bindings, `computed.readOnly` provides
       a readOnly one way binding. Very often when using `computed.oneWay` one does
@@ -2438,7 +2437,6 @@ define("ember-metal/computed",
         return get(this, dependentKey);
       }).readOnly();
     };
-    
     /**
       A computed property that acts like a standard getter and setter,
       but returns the value at the provided `defaultPath` if the
@@ -2505,7 +2503,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.6.0-beta.1+canary.99f8610f
+      @version 1.6.0-beta.1
     */
 
     if ('undefined' === typeof Ember) {
@@ -2532,10 +2530,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.6.0-beta.1+canary.99f8610f'
+      @default '1.6.0-beta.1'
       @static
     */
-    Ember.VERSION = '1.6.0-beta.1+canary.99f8610f';
+    Ember.VERSION = '1.6.0-beta.1';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -3705,35 +3703,31 @@ define("ember-metal/is_blank",
     // deprecateFunc
     var isEmpty = __dependency2__["default"];
 
-    var isBlank;
+    /**
+      A value is blank if it is empty or a whitespace string.
 
-    
-      /**
-        A value is blank if it is empty or a whitespace string.
+      ```javascript
+      Ember.isBlank();                // true
+      Ember.isBlank(null);            // true
+      Ember.isBlank(undefined);       // true
+      Ember.isBlank('');              // true
+      Ember.isBlank([]);              // true
+      Ember.isBlank('\n\t');          // true
+      Ember.isBlank('  ');            // true
+      Ember.isBlank({});              // false
+      Ember.isBlank('\n\t Hello');    // false
+      Ember.isBlank('Hello world');   // false
+      Ember.isBlank([1,2,3]);         // false
+      ```
 
-        ```javascript
-        Ember.isBlank();                // true
-        Ember.isBlank(null);            // true
-        Ember.isBlank(undefined);       // true
-        Ember.isBlank('');              // true
-        Ember.isBlank([]);              // true
-        Ember.isBlank('\n\t');          // true
-        Ember.isBlank('  ');            // true
-        Ember.isBlank({});              // false
-        Ember.isBlank('\n\t Hello');    // false
-        Ember.isBlank('Hello world');   // false
-        Ember.isBlank([1,2,3]);         // false
-        ```
-
-        @method isBlank
-        @for Ember
-        @param {Object} obj Value to test
-        @return {Boolean}
+      @method isBlank
+      @for Ember
+      @param {Object} obj Value to test
+      @return {Boolean}
       */
-      isBlank = function(obj) {
-        return isEmpty(obj) || (typeof obj === 'string' && obj.match(/\S/) === null);
-      };
-    
+    function isBlank(obj) {
+      return isEmpty(obj) || (typeof obj === 'string' && obj.match(/\S/) === null);
+    };
 
     __exports__["default"] = isBlank;
   });
@@ -15283,8 +15277,7 @@ define("ember-runtime/mixins/array",
 
       You can use the methods defined in this module to access and modify array
       contents in a KVO-friendly way. You can also be notified whenever the
-      membership of an array changes by changing the syntax of the property to
-      `.observes('*myProperty.[]')`.
+      membership of an array changes by using `.observes('myArray.[]')`.
 
       To support `Ember.Array` in your own class, you must override two
       primitives to use it: `replace()` and `objectAt()`.
@@ -17231,7 +17224,7 @@ define("ember-runtime/mixins/mutable_array",
     // CONSTANTS
     //
 
-    var OUT_OF_RANGE_EXCEPTION = "Index out of range" ;
+    var OUT_OF_RANGE_EXCEPTION = "Index out of range";
     var EMPTY = [];
 
     // ..........................................................
@@ -17287,7 +17280,7 @@ define("ember-runtime/mixins/mutable_array",
       replace: required(),
 
       /**
-        Remove all elements from self. This is useful if you
+        Remove all elements from the array. This is useful if you
         want to reuse an existing array without having to recreate it.
 
         ```javascript
@@ -17320,12 +17313,12 @@ define("ember-runtime/mixins/mutable_array",
         @method insertAt
         @param {Number} idx index of insert the object at.
         @param {Object} object object to insert
-        @return this
+        @return {Ember.Array} receiver
       */
       insertAt: function(idx, object) {
-        if (idx > get(this, 'length')) throw new EmberError(OUT_OF_RANGE_EXCEPTION) ;
-        this.replace(idx, 0, [object]) ;
-        return this ;
+        if (idx > get(this, 'length')) throw new EmberError(OUT_OF_RANGE_EXCEPTION);
+        this.replace(idx, 0, [object]);
+        return this;
       },
 
       /**
@@ -17345,7 +17338,7 @@ define("ember-runtime/mixins/mutable_array",
         @method removeAt
         @param {Number} start index, start of range
         @param {Number} len length of passing range
-        @return {Object} receiver
+        @return {Ember.Array} receiver
       */
       removeAt: function(start, len) {
         if ('number' === typeof start) {
@@ -17359,7 +17352,7 @@ define("ember-runtime/mixins/mutable_array",
           this.replace(start, len, EMPTY);
         }
 
-        return this ;
+        return this;
       },
 
       /**
@@ -17374,10 +17367,10 @@ define("ember-runtime/mixins/mutable_array",
 
         @method pushObject
         @param {*} obj object to push
-        @return The same obj passed as param
+        @return object same object passed as a param
       */
       pushObject: function(obj) {
-        this.insertAt(get(this, 'length'), obj) ;
+        this.insertAt(get(this, 'length'), obj);
         return obj;
       },
 
@@ -17416,12 +17409,12 @@ define("ember-runtime/mixins/mutable_array",
         @return object
       */
       popObject: function() {
-        var len = get(this, 'length') ;
-        if (len === 0) return null ;
+        var len = get(this, 'length');
+        if (len === 0) return null;
 
-        var ret = this.objectAt(len-1) ;
-        this.removeAt(len-1, 1) ;
-        return ret ;
+        var ret = this.objectAt(len-1);
+        this.removeAt(len-1, 1);
+        return ret;
       },
 
       /**
@@ -17438,10 +17431,10 @@ define("ember-runtime/mixins/mutable_array",
         @return object
       */
       shiftObject: function() {
-        if (get(this, 'length') === 0) return null ;
-        var ret = this.objectAt(0) ;
-        this.removeAt(0) ;
-        return ret ;
+        if (get(this, 'length') === 0) return null;
+        var ret = this.objectAt(0);
+        this.removeAt(0);
+        return ret;
       },
 
       /**
@@ -17456,11 +17449,11 @@ define("ember-runtime/mixins/mutable_array",
 
         @method unshiftObject
         @param {*} obj object to unshift
-        @return The same obj passed as param
+        @return object same object passed as a param
       */
       unshiftObject: function(obj) {
-        this.insertAt(0, obj) ;
-        return obj ;
+        this.insertAt(0, obj);
+        return obj;
       },
 
       /**
@@ -17524,18 +17517,46 @@ define("ember-runtime/mixins/mutable_array",
       // IMPLEMENT Ember.MutableEnumerable
       //
 
+      /**
+        Remove all occurances of an object in the array.
+
+        ```javascript
+        var cities = ["Chicago", "Berlin", "Lima", "Chicago"];
+        cities.removeObject("Chicago");  // ["Berlin", "Lima"]
+        cities.removeObject("Lima");     // ["Berlin"]
+        cities.removeObject("Tokyo")     // ["Berlin"]
+        ```
+
+        @method removeObject
+        @param {*} obj object to remove
+        @return {Ember.Array} receiver
+      */
       removeObject: function(obj) {
         var loc = get(this, 'length') || 0;
         while(--loc >= 0) {
-          var curObject = this.objectAt(loc) ;
-          if (curObject === obj) this.removeAt(loc) ;
+          var curObject = this.objectAt(loc);
+          if (curObject === obj) this.removeAt(loc);
         }
-        return this ;
+        return this;
       },
 
+      /**
+        Push the object onto the end of the array if it is not already
+        present in the array.
+
+        ```javascript
+        var cities = ["Chicago", "Berlin"];
+        cities.addObject("Lima");    // ["Chicago", "Berlin", "Lima"]
+        cities.addObject("Berlin");  // ["Chicago", "Berlin", "Lima"]
+        ```
+
+        @method addObject
+        @param {*} obj object to add, if not already present
+        @return {Ember.Array} receiver
+      */
       addObject: function(obj) {
         if (!this.contains(obj)) this.pushObject(obj);
-        return this ;
+        return this;
       }
 
     });
@@ -28839,7 +28860,7 @@ define("ember-handlebars/controls/checkbox",
       tagName: 'input',
 
       attributeBindings: ['type', 'checked', 'indeterminate', 'disabled', 'tabindex', 'name',
-                          'autofocus', 'form'],
+                          'autofocus', 'required', 'form'],
 
       type: "checkbox",
       checked: false,
@@ -31608,11 +31629,7 @@ define("ember-handlebars/helpers/debug",
           options = arguments[arguments.length - 1],
           logger = Logger.log,
           values = [],
-          allowPrimitives = false;
-
-      
-        allowPrimitives = true;
-      
+          allowPrimitives = true;
 
       for (var i = 0; i < params.length; i++) {
         var type = options.types[i];
@@ -32917,7 +32934,7 @@ define("ember-handlebars/helpers/yield",
       ```html
       <label>
         First name: <input type="text" />
-      <label>
+      </label>
       ```
 
       @method yield
@@ -34197,16 +34214,15 @@ define("ember-routing/helpers/action",
             target = target.root;
           }
 
-          
-            if (options.boundProperty) {
-              actionName = handlebarsGet(target, actionNameOrPath, options.options);
+          if (options.boundProperty) {
+            actionName = handlebarsGet(target, actionNameOrPath, options.options);
 
-              if(typeof actionName === 'undefined' || typeof actionName === 'function') {
-                Ember.assert("You specified a quoteless path to the {{action}} helper '" + actionNameOrPath + "' which did not resolve to an actionName. Perhaps you meant to use a quoted actionName? (e.g. {{action '" + actionNameOrPath + "'}}).", true);
-                actionName = actionNameOrPath;
-              }
+            if(typeof actionName === 'undefined' || typeof actionName === 'function') {
+              Ember.assert("You specified a quoteless path to the {{action}} helper '" + actionNameOrPath + "' which did not resolve to an actionName. Perhaps you meant to use a quoted actionName? (e.g. {{action '" + actionNameOrPath + "'}}).", true);
+              actionName = actionNameOrPath;
             }
-          
+          }
+
           if (!actionName) {
             actionName = actionNameOrPath;
           }
@@ -34889,14 +34905,12 @@ define("ember-routing/helpers/link_to",
 
         // Schedule eager URL update, but after we've given the transition
         // a chance to synchronously redirect.
-        
-          // We need to always generate the URL instead of using the href because
-          // the href will include any rootURL set, but the router expects a URL
-          // without it! Note that we don't use the first level router because it
-          // calls location.formatURL(), which also would add the rootURL!
-          var url = router.router.generate.apply(router.router, routeArgsWithoutDefaultQueryParams(this));
-          run.scheduleOnce('routerTransitions', this, this._eagerUpdateUrl, transition, url);
-        
+        // We need to always generate the URL instead of using the href because
+        // the href will include any rootURL set, but the router expects a URL
+        // without it! Note that we don't use the first level router because it
+        // calls location.formatURL(), which also would add the rootURL!
+        var url = router.router.generate.apply(router.router, routeArgsWithoutDefaultQueryParams(this));
+        run.scheduleOnce('routerTransitions', this, this._eagerUpdateUrl, transition, url);
       },
 
       /**
@@ -35960,359 +35974,357 @@ define("ember-routing/location/auto_location",
     var HashLocation = __dependency6__["default"];
     var NoneLocation = __dependency7__["default"];
 
-    
-      /**
-      @module ember
-      @submodule ember-routing
-      */
+    /**
+    @module ember
+    @submodule ember-routing
+    */
+
+    /**
+      Ember.AutoLocation will select the best location option based off browser
+      support with the priority order: history, hash, none.
+
+      Clean pushState paths accessed by hashchange-only browsers will be redirected
+      to the hash-equivalent and vice versa so future transitions are consistent.
+
+      Keep in mind that since some of your users will use `HistoryLocation`, your
+      server must serve the Ember app at all the routes you define.
+
+      @class AutoLocation
+      @namespace Ember
+      @static
+    */
+    var AutoLocation = {
 
       /**
-        Ember.AutoLocation will select the best location option based off browser
-        support with the priority order: history, hash, none.
+        @private
 
-        Clean pushState paths accessed by hashchange-only browsers will be redirected
-        to the hash-equivalent and vice versa so future transitions are consistent.
+        Will be pre-pended to path upon state change.
 
-        Keep in mind that since some of your users will use `HistoryLocation`, your
-        server must serve the Ember app at all the routes you define.
-
-        @class AutoLocation
-        @namespace Ember
-        @static
+        @property rootURL
+        @default '/'
       */
-      var AutoLocation = {
+      _rootURL: '/',
 
-        /**
-          @private
+      /**
+        @private
 
-          Will be pre-pended to path upon state change.
+        Attached for mocking in tests
 
-          @property rootURL
-          @default '/'
-        */
-        _rootURL: '/',
+        @property _window
+        @default window
+      */
+      _window: window,
 
-        /**
-          @private
+      /**
+        @private
 
-          Attached for mocking in tests
+        Attached for mocking in tests
 
-          @property _window
-          @default window
-        */
-        _window: window,
+        @property location
+        @default window.location
+      */
+      _location: window.location,
 
-        /**
-          @private
+      /**
+        @private
 
-          Attached for mocking in tests
+        Attached for mocking in tests
 
-          @property location
-          @default window.location
-        */
-        _location: window.location,
+        @property _history
+        @default window.history
+      */
+      _history: window.history,
 
-        /**
-          @private
+      /**
+        @private
 
-          Attached for mocking in tests
+        Attached for mocking in tests
 
-          @property _history
-          @default window.history
-        */
-        _history: window.history,
+        @property _HistoryLocation
+        @default Ember.HistoryLocation
+      */
+      _HistoryLocation: HistoryLocation,
 
-        /**
-          @private
+      /**
+        @private
 
-          Attached for mocking in tests
+        Attached for mocking in tests
 
-          @property _HistoryLocation
-          @default Ember.HistoryLocation
-        */
-        _HistoryLocation: HistoryLocation,
+        @property _HashLocation
+        @default Ember.HashLocation
+      */
+      _HashLocation: HashLocation,
 
-        /**
-          @private
+      /**
+        @private
 
-          Attached for mocking in tests
+        Attached for mocking in tests
 
-          @property _HashLocation
-          @default Ember.HashLocation
-        */
-        _HashLocation: HashLocation,
+        @property _NoneLocation
+        @default Ember.NoneLocation
+      */
+      _NoneLocation: NoneLocation,
 
-        /**
-          @private
+      /**
+        @private
 
-          Attached for mocking in tests
+        Returns location.origin or builds it if device doesn't support it.
 
-          @property _NoneLocation
-          @default Ember.NoneLocation
-        */
-        _NoneLocation: NoneLocation,
+        @method _getOrigin
+      */
+      _getOrigin: function () {
+        var location = this._location,
+            origin = location.origin;
 
-        /**
-          @private
-
-          Returns location.origin or builds it if device doesn't support it.
-
-          @method _getOrigin
-        */
-        _getOrigin: function () {
-          var location = this._location,
-              origin = location.origin;
-
-          // Older browsers, especially IE, don't have origin
-          if (!origin) {
-            origin = location.protocol + '//' + location.hostname;
-            
-            if (location.port) {
-              origin += ':' + location.port;
-            }
+        // Older browsers, especially IE, don't have origin
+        if (!origin) {
+          origin = location.protocol + '//' + location.hostname;
+          
+          if (location.port) {
+            origin += ':' + location.port;
           }
-
-          return origin;
-        },
-
-        /**
-          @private
-
-          We assume that if the history object has a pushState method, the host should
-          support HistoryLocation.
-
-          @method _getSupportsHistory
-        */
-        _getSupportsHistory: function () {
-          // Boosted from Modernizr: https://github.com/Modernizr/Modernizr/blob/master/feature-detects/history.js
-          // The stock browser on Android 2.2 & 2.3 returns positive on history support
-          // Unfortunately support is really buggy and there is no clean way to detect
-          // these bugs, so we fall back to a user agent sniff :(
-          var userAgent = this._window.navigator.userAgent;
-
-          // We only want Android 2, stock browser, and not Chrome which identifies
-          // itself as 'Mobile Safari' as well
-          if (userAgent.indexOf('Android 2') !== -1 &&
-              userAgent.indexOf('Mobile Safari') !== -1 &&
-              userAgent.indexOf('Chrome') === -1) {
-            return false;
-          }
-
-          return !!(this._history && 'pushState' in this._history);
-        },
-
-        /**
-          @private
-
-          IE8 running in IE7 compatibility mode gives false positive, so we must also
-          check documentMode.
-
-          @method _getSupportsHashChange
-        */
-        _getSupportsHashChange: function () {
-          var window = this._window,
-              documentMode = window.document.documentMode;
-
-          return ('onhashchange' in window && (documentMode === undefined || documentMode > 7 ));
-        },
-
-        /**
-          @private
-
-          Redirects the browser using location.replace, prepending the locatin.origin
-          to prevent phishing attempts
-
-          @method _replacePath
-        */
-        _replacePath: function (path) {
-          this._location.replace(this._getOrigin() + path);
-        },
-
-        /**
-          @private
-          @method _getRootURL
-        */
-        _getRootURL: function () {
-          return this._rootURL;
-        },
-
-        /**
-          @private
-
-          Returns the current `location.pathname`, normalized for IE inconsistencies.
-
-          @method _getPath
-        */
-        _getPath: function () {
-          var pathname = this._location.pathname;
-          // Various versions of IE/Opera don't always return a leading slash
-          if (pathname.charAt(0) !== '/') {
-            pathname = '/' + pathname;
-          }
-
-          return pathname;
-        },
-
-        /**
-          @private
-
-          Returns normalized location.hash as an alias to Ember.Location._getHash
-
-          @method _getHash
-        */
-        _getHash: EmberLocation._getHash,
-
-        /**
-          @private
-
-          Returns location.search
-
-          @method _getQuery
-        */
-        _getQuery: function () {
-          return this._location.search;
-        },
-
-        /**
-          @private
-
-          Returns the full pathname including query and hash
-
-          @method _getFullPath
-        */
-        _getFullPath: function () {
-          return this._getPath() + this._getQuery() + this._getHash();
-        },
-
-        /**
-          @private
-
-          Returns the current path as it should appear for HistoryLocation supported
-          browsers. This may very well differ from the real current path (e.g. if it 
-          starts off as a hashed URL)
-
-          @method _getHistoryPath
-        */
-        _getHistoryPath: function () {
-          var rootURL = this._getRootURL(),
-              path = this._getPath(),
-              hash = this._getHash(),
-              query = this._getQuery(),
-              rootURLIndex = path.indexOf(rootURL),
-              routeHash, hashParts;
-
-          Ember.assert('Path ' + path + ' does not start with the provided rootURL ' + rootURL, rootURLIndex === 0);
-
-          // By convention, Ember.js routes using HashLocation are required to start
-          // with `#/`. Anything else should NOT be considered a route and should
-          // be passed straight through, without transformation.
-          if (hash.substr(0, 2) === '#/') {
-            // There could be extra hash segments after the route
-            hashParts = hash.substr(1).split('#');
-            // The first one is always the route url
-            routeHash = hashParts.shift();
-
-            // If the path already has a trailing slash, remove the one
-            // from the hashed route so we don't double up.
-            if (path.slice(-1) === '/') {
-                routeHash = routeHash.substr(1);
-            }
-
-            // This is the "expected" final order
-            path += routeHash;
-            path += query;
-
-            if (hashParts.length) {
-              path += '#' + hashParts.join('#');
-            }
-          } else {
-            path += query;
-            path += hash;
-          }
-
-          return path;
-        },
-
-        /**
-          @private
-
-          Returns the current path as it should appear for HashLocation supported
-          browsers. This may very well differ from the real current path.
-
-          @method _getHashPath
-        */
-        _getHashPath: function () {
-          var rootURL = this._getRootURL(),
-              path = rootURL,
-              historyPath = this._getHistoryPath(),
-              routePath = historyPath.substr(rootURL.length);
-
-          if (routePath !== '') {
-            if (routePath.charAt(0) !== '/') {
-              routePath = '/' + routePath;
-            }
-
-            path += '#' + routePath;
-          }
-
-          return path;
-        },
-
-        /**
-          Selects the best location option based off browser support and returns an
-          instance of that Location class.
-        
-          @see Ember.AutoLocation
-          @method create
-        */
-        create: function (options) {
-          if (options && options.rootURL) {
-            this._rootURL = options.rootURL;
-          }
-
-          var historyPath, hashPath,
-              cancelRouterSetup = false,
-              implementationClass = this._NoneLocation,
-              currentPath = this._getFullPath();
-
-          if (this._getSupportsHistory()) {
-            historyPath = this._getHistoryPath();
-
-            // Since we support history paths, let's be sure we're using them else 
-            // switch the location over to it.
-            if (currentPath === historyPath) {
-              implementationClass = this._HistoryLocation;
-            } else {
-              cancelRouterSetup = true;
-              this._replacePath(historyPath);
-            }
-
-          } else if (this._getSupportsHashChange()) {
-            hashPath = this._getHashPath();
-
-            // Be sure we're using a hashed path, otherwise let's switch over it to so
-            // we start off clean and consistent. We'll count an index path with no
-            // hash as "good enough" as well.
-            if (currentPath === hashPath || (currentPath === '/' && hashPath === '/#/')) {
-              implementationClass = this._HashLocation;
-            } else {
-              // Our URL isn't in the expected hash-supported format, so we want to
-              // cancel the router setup and replace the URL to start off clean
-              cancelRouterSetup = true;
-              this._replacePath(hashPath);
-            }
-          }
-
-          var implementation = implementationClass.create.apply(implementationClass, arguments);
-
-          if (cancelRouterSetup) {
-            set(implementation, 'cancelRouterSetup', true);
-          }
-
-          return implementation;
         }
-      };
-    
+
+        return origin;
+      },
+
+      /**
+        @private
+
+        We assume that if the history object has a pushState method, the host should
+        support HistoryLocation.
+
+        @method _getSupportsHistory
+      */
+      _getSupportsHistory: function () {
+        // Boosted from Modernizr: https://github.com/Modernizr/Modernizr/blob/master/feature-detects/history.js
+        // The stock browser on Android 2.2 & 2.3 returns positive on history support
+        // Unfortunately support is really buggy and there is no clean way to detect
+        // these bugs, so we fall back to a user agent sniff :(
+        var userAgent = this._window.navigator.userAgent;
+
+        // We only want Android 2, stock browser, and not Chrome which identifies
+        // itself as 'Mobile Safari' as well
+        if (userAgent.indexOf('Android 2') !== -1 &&
+            userAgent.indexOf('Mobile Safari') !== -1 &&
+            userAgent.indexOf('Chrome') === -1) {
+          return false;
+        }
+
+        return !!(this._history && 'pushState' in this._history);
+      },
+
+      /**
+        @private
+
+        IE8 running in IE7 compatibility mode gives false positive, so we must also
+        check documentMode.
+
+        @method _getSupportsHashChange
+      */
+      _getSupportsHashChange: function () {
+        var window = this._window,
+            documentMode = window.document.documentMode;
+
+        return ('onhashchange' in window && (documentMode === undefined || documentMode > 7 ));
+      },
+
+      /**
+        @private
+
+        Redirects the browser using location.replace, prepending the locatin.origin
+        to prevent phishing attempts
+
+        @method _replacePath
+      */
+      _replacePath: function (path) {
+        this._location.replace(this._getOrigin() + path);
+      },
+
+      /**
+        @private
+        @method _getRootURL
+      */
+      _getRootURL: function () {
+        return this._rootURL;
+      },
+
+      /**
+        @private
+
+        Returns the current `location.pathname`, normalized for IE inconsistencies.
+
+        @method _getPath
+      */
+      _getPath: function () {
+        var pathname = this._location.pathname;
+        // Various versions of IE/Opera don't always return a leading slash
+        if (pathname.charAt(0) !== '/') {
+          pathname = '/' + pathname;
+        }
+
+        return pathname;
+      },
+
+      /**
+        @private
+
+        Returns normalized location.hash as an alias to Ember.Location._getHash
+
+        @method _getHash
+      */
+      _getHash: EmberLocation._getHash,
+
+      /**
+        @private
+
+        Returns location.search
+
+        @method _getQuery
+      */
+      _getQuery: function () {
+        return this._location.search;
+      },
+
+      /**
+        @private
+
+        Returns the full pathname including query and hash
+
+        @method _getFullPath
+      */
+      _getFullPath: function () {
+        return this._getPath() + this._getQuery() + this._getHash();
+      },
+
+      /**
+        @private
+
+        Returns the current path as it should appear for HistoryLocation supported
+        browsers. This may very well differ from the real current path (e.g. if it 
+        starts off as a hashed URL)
+
+        @method _getHistoryPath
+      */
+      _getHistoryPath: function () {
+        var rootURL = this._getRootURL(),
+            path = this._getPath(),
+            hash = this._getHash(),
+            query = this._getQuery(),
+            rootURLIndex = path.indexOf(rootURL),
+            routeHash, hashParts;
+
+        Ember.assert('Path ' + path + ' does not start with the provided rootURL ' + rootURL, rootURLIndex === 0);
+
+        // By convention, Ember.js routes using HashLocation are required to start
+        // with `#/`. Anything else should NOT be considered a route and should
+        // be passed straight through, without transformation.
+        if (hash.substr(0, 2) === '#/') {
+          // There could be extra hash segments after the route
+          hashParts = hash.substr(1).split('#');
+          // The first one is always the route url
+          routeHash = hashParts.shift();
+
+          // If the path already has a trailing slash, remove the one
+          // from the hashed route so we don't double up.
+          if (path.slice(-1) === '/') {
+              routeHash = routeHash.substr(1);
+          }
+
+          // This is the "expected" final order
+          path += routeHash;
+          path += query;
+
+          if (hashParts.length) {
+            path += '#' + hashParts.join('#');
+          }
+        } else {
+          path += query;
+          path += hash;
+        }
+
+        return path;
+      },
+
+      /**
+        @private
+
+        Returns the current path as it should appear for HashLocation supported
+        browsers. This may very well differ from the real current path.
+
+        @method _getHashPath
+      */
+      _getHashPath: function () {
+        var rootURL = this._getRootURL(),
+            path = rootURL,
+            historyPath = this._getHistoryPath(),
+            routePath = historyPath.substr(rootURL.length);
+
+        if (routePath !== '') {
+          if (routePath.charAt(0) !== '/') {
+            routePath = '/' + routePath;
+          }
+
+          path += '#' + routePath;
+        }
+
+        return path;
+      },
+
+      /**
+        Selects the best location option based off browser support and returns an
+        instance of that Location class.
+      
+        @see Ember.AutoLocation
+        @method create
+      */
+      create: function (options) {
+        if (options && options.rootURL) {
+          this._rootURL = options.rootURL;
+        }
+
+        var historyPath, hashPath,
+            cancelRouterSetup = false,
+            implementationClass = this._NoneLocation,
+            currentPath = this._getFullPath();
+
+        if (this._getSupportsHistory()) {
+          historyPath = this._getHistoryPath();
+
+          // Since we support history paths, let's be sure we're using them else 
+          // switch the location over to it.
+          if (currentPath === historyPath) {
+            implementationClass = this._HistoryLocation;
+          } else {
+            cancelRouterSetup = true;
+            this._replacePath(historyPath);
+          }
+
+        } else if (this._getSupportsHashChange()) {
+          hashPath = this._getHashPath();
+
+          // Be sure we're using a hashed path, otherwise let's switch over it to so
+          // we start off clean and consistent. We'll count an index path with no
+          // hash as "good enough" as well.
+          if (currentPath === hashPath || (currentPath === '/' && hashPath === '/#/')) {
+            implementationClass = this._HashLocation;
+          } else {
+            // Our URL isn't in the expected hash-supported format, so we want to
+            // cancel the router setup and replace the URL to start off clean
+            cancelRouterSetup = true;
+            this._replacePath(hashPath);
+          }
+        }
+
+        var implementation = implementationClass.create.apply(implementationClass, arguments);
+
+        if (cancelRouterSetup) {
+          set(implementation, 'cancelRouterSetup', true);
+        }
+
+        return implementation;
+      }
+    };
 
     __exports__["default"] = AutoLocation;
   });
@@ -38019,13 +38031,12 @@ define("ember-routing/system/route",
 
         if (!name && sawParams) { return copy(params); }
         else if (!name) {
-          
-            if (transition.resolveIndex !== transition.state.handlerInfos.length-1) { return; }
+          if (transition.resolveIndex !== transition.state.handlerInfos.length-1) { return; }
 
-            var parentModel = transition.state.handlerInfos[transition.resolveIndex-1].context;
+          var parentModel = transition.state.handlerInfos[transition.resolveIndex-1].context;
 
-            return parentModel;
-                  }
+          return parentModel;
+        }
 
         return this.findModel(name, value);
       },
@@ -38997,13 +39008,11 @@ define("ember-routing/system/router",
             self = this,
             initialURL = get(this, 'initialURL');
 
-        
-          // Allow the Location class to cancel the router setup while it refreshes
-          // the page
-          if (get(location, 'cancelRouterSetup')) {
-            return;
-          }
-        
+        // Allow the Location class to cancel the router setup while it refreshes
+        // the page
+        if (get(location, 'cancelRouterSetup')) {
+          return;
+        }
 
         this._setupRouter(router, location);
 
@@ -43138,10 +43147,7 @@ define("ember-application/system/application",
         container.register('router:main',  Router);
         container.injection('router:main', 'namespace', 'application:main');
 
-        
-          container.register('location:auto', AutoLocation);
-        
-
+        container.register('location:auto', AutoLocation);
         container.register('location:hash', HashLocation);
         container.register('location:history', HistoryLocation);
         container.register('location:none', NoneLocation);
@@ -44714,86 +44720,82 @@ define("ember-testing/helpers",
     asyncHelper('andThen', andThen);
 
 
-    
-      /**
-        Returns the currently active route name.
+    /**
+      Returns the currently active route name.
 
-        Example:
+    Example:
 
-        ```javascript
-        function validateRouteName(){
-          equal(currentRouteName(), 'some.path', "correct route was transitioned into.");
-        }
+    ```javascript
+    function validateRouteName(){
+    equal(currentRouteName(), 'some.path', "correct route was transitioned into.");
+    }
 
-        visit('/some/path').then(validateRouteName)
-        ```
+    visit('/some/path').then(validateRouteName)
+    ```
 
-        @method currentRouteName
-        @return {Object} The name of the currently active route.
-      */
-      helper('currentRouteName', currentRouteName);
+    @method currentRouteName
+    @return {Object} The name of the currently active route.
+    */
+    helper('currentRouteName', currentRouteName);
 
-      /**
-        Returns the current path.
+    /**
+      Returns the current path.
 
-        Example:
+    Example:
 
-        ```javascript
-        function validateURL(){
-          equal(currentPath(), 'some.path.index', "correct path was transitioned into.");
-        }
+    ```javascript
+    function validateURL(){
+    equal(currentPath(), 'some.path.index', "correct path was transitioned into.");
+    }
 
-        click('#some-link-id').then(validateURL);
-        ```
+    click('#some-link-id').then(validateURL);
+    ```
 
-        @method currentPath
-        @return {Object} The currently active path.
-      */
-      helper('currentPath', currentPath);
+    @method currentPath
+    @return {Object} The currently active path.
+    */
+    helper('currentPath', currentPath);
 
-      /**
-        Returns the current URL.
+    /**
+      Returns the current URL.
 
-        Example:
+    Example:
 
-        ```javascript
-        function validateURL(){
-          equal(currentURL(), '/some/path', "correct URL was transitioned into.");
-        }
+    ```javascript
+    function validateURL(){
+    equal(currentURL(), '/some/path', "correct URL was transitioned into.");
+    }
 
-        click('#some-link-id').then(validateURL);
-        ```
+    click('#some-link-id').then(validateURL);
+    ```
 
-        @method currentURL
-        @return {Object} The currently active URL.
-      */
-      helper('currentURL', currentURL);
-    
+    @method currentURL
+    @return {Object} The currently active URL.
+    */
+    helper('currentURL', currentURL);
 
-    
-      /**
-        Triggers the given event on the element identified by the provided selector.
+    /**
+      Triggers the given event on the element identified by the provided selector.
 
-        Example:
+      Example:
 
-        ```javascript
-        triggerEvent('#some-elem-id', 'blur');
-        ```
+      ```javascript
+      triggerEvent('#some-elem-id', 'blur');
+      ```
 
-        This is actually used internally by the `keyEvent` helper like so:
+      This is actually used internally by the `keyEvent` helper like so:
 
-        ```javascript
-        triggerEvent('#some-elem-id', 'keypress', { keyCode: 13 });
-        ```
+      ```javascript
+      triggerEvent('#some-elem-id', 'keypress', { keyCode: 13 });
+      ```
 
-       @method triggerEvent
-       @param {String} selector jQuery selector for finding element on the DOM
-       @param {String} type The event type to be triggered.
-       @param {String} options The options to be passed to jQuery.Event.
-       @return {RSVP.Promise}
-      */
-      asyncHelper('triggerEvent', triggerEvent);
-    
+     @method triggerEvent
+     @param {String} selector jQuery selector for finding element on the DOM
+     @param {String} type The event type to be triggered.
+     @param {String} options The options to be passed to jQuery.Event.
+     @return {RSVP.Promise}
+    */
+    asyncHelper('triggerEvent', triggerEvent);
   });
 define("ember-testing/initializers", 
   ["ember-runtime/system/lazy_load"],
@@ -46390,5 +46392,3 @@ Ember.State = generateRemovedClass("Ember.State");
 
 
 })();
-'test'
-'test'

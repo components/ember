@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.6.0-beta.1+canary.99f8610f
+ * @version   1.6.0-beta.1
  */
 
 
@@ -1387,7 +1387,7 @@ define("ember-metal/computed",
       // the cached value set by the setter
       if (this._cacheable && this._suspended !== obj) {
         var meta = metaFor(obj);
-        if (meta.cache !== undefined) {
+        if (meta.cache[keyName] !== undefined) {
           meta.cache[keyName] = undefined;
           removeDependentKeys(this, obj, keyName, meta);
         }
@@ -2202,7 +2202,6 @@ define("ember-metal/computed",
       computed.reads = computed.oneWay;
     }
 
-    
     /**
       Where `computed.oneWay` provides oneWay bindings, `computed.readOnly` provides
       a readOnly one way binding. Very often when using `computed.oneWay` one does
@@ -2246,7 +2245,6 @@ define("ember-metal/computed",
         return get(this, dependentKey);
       }).readOnly();
     };
-    
     /**
       A computed property that acts like a standard getter and setter,
       but returns the value at the provided `defaultPath` if the
@@ -2313,7 +2311,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.6.0-beta.1+canary.99f8610f
+      @version 1.6.0-beta.1
     */
 
     if ('undefined' === typeof Ember) {
@@ -2340,10 +2338,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.6.0-beta.1+canary.99f8610f'
+      @default '1.6.0-beta.1'
       @static
     */
-    Ember.VERSION = '1.6.0-beta.1+canary.99f8610f';
+    Ember.VERSION = '1.6.0-beta.1';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -3513,35 +3511,31 @@ define("ember-metal/is_blank",
     // deprecateFunc
     var isEmpty = __dependency2__["default"];
 
-    var isBlank;
+    /**
+      A value is blank if it is empty or a whitespace string.
 
-    
-      /**
-        A value is blank if it is empty or a whitespace string.
+      ```javascript
+      Ember.isBlank();                // true
+      Ember.isBlank(null);            // true
+      Ember.isBlank(undefined);       // true
+      Ember.isBlank('');              // true
+      Ember.isBlank([]);              // true
+      Ember.isBlank('\n\t');          // true
+      Ember.isBlank('  ');            // true
+      Ember.isBlank({});              // false
+      Ember.isBlank('\n\t Hello');    // false
+      Ember.isBlank('Hello world');   // false
+      Ember.isBlank([1,2,3]);         // false
+      ```
 
-        ```javascript
-        Ember.isBlank();                // true
-        Ember.isBlank(null);            // true
-        Ember.isBlank(undefined);       // true
-        Ember.isBlank('');              // true
-        Ember.isBlank([]);              // true
-        Ember.isBlank('\n\t');          // true
-        Ember.isBlank('  ');            // true
-        Ember.isBlank({});              // false
-        Ember.isBlank('\n\t Hello');    // false
-        Ember.isBlank('Hello world');   // false
-        Ember.isBlank([1,2,3]);         // false
-        ```
-
-        @method isBlank
-        @for Ember
-        @param {Object} obj Value to test
-        @return {Boolean}
+      @method isBlank
+      @for Ember
+      @param {Object} obj Value to test
+      @return {Boolean}
       */
-      isBlank = function(obj) {
-        return isEmpty(obj) || (typeof obj === 'string' && obj.match(/\S/) === null);
-      };
-    
+    function isBlank(obj) {
+      return isEmpty(obj) || (typeof obj === 'string' && obj.match(/\S/) === null);
+    };
 
     __exports__["default"] = isBlank;
   });
@@ -15091,8 +15085,7 @@ define("ember-runtime/mixins/array",
 
       You can use the methods defined in this module to access and modify array
       contents in a KVO-friendly way. You can also be notified whenever the
-      membership of an array changes by changing the syntax of the property to
-      `.observes('*myProperty.[]')`.
+      membership of an array changes by using `.observes('myArray.[]')`.
 
       To support `Ember.Array` in your own class, you must override two
       primitives to use it: `replace()` and `objectAt()`.
@@ -17039,7 +17032,7 @@ define("ember-runtime/mixins/mutable_array",
     // CONSTANTS
     //
 
-    var OUT_OF_RANGE_EXCEPTION = "Index out of range" ;
+    var OUT_OF_RANGE_EXCEPTION = "Index out of range";
     var EMPTY = [];
 
     // ..........................................................
@@ -17095,7 +17088,7 @@ define("ember-runtime/mixins/mutable_array",
       replace: required(),
 
       /**
-        Remove all elements from self. This is useful if you
+        Remove all elements from the array. This is useful if you
         want to reuse an existing array without having to recreate it.
 
         ```javascript
@@ -17128,12 +17121,12 @@ define("ember-runtime/mixins/mutable_array",
         @method insertAt
         @param {Number} idx index of insert the object at.
         @param {Object} object object to insert
-        @return this
+        @return {Ember.Array} receiver
       */
       insertAt: function(idx, object) {
-        if (idx > get(this, 'length')) throw new EmberError(OUT_OF_RANGE_EXCEPTION) ;
-        this.replace(idx, 0, [object]) ;
-        return this ;
+        if (idx > get(this, 'length')) throw new EmberError(OUT_OF_RANGE_EXCEPTION);
+        this.replace(idx, 0, [object]);
+        return this;
       },
 
       /**
@@ -17153,7 +17146,7 @@ define("ember-runtime/mixins/mutable_array",
         @method removeAt
         @param {Number} start index, start of range
         @param {Number} len length of passing range
-        @return {Object} receiver
+        @return {Ember.Array} receiver
       */
       removeAt: function(start, len) {
         if ('number' === typeof start) {
@@ -17167,7 +17160,7 @@ define("ember-runtime/mixins/mutable_array",
           this.replace(start, len, EMPTY);
         }
 
-        return this ;
+        return this;
       },
 
       /**
@@ -17182,10 +17175,10 @@ define("ember-runtime/mixins/mutable_array",
 
         @method pushObject
         @param {*} obj object to push
-        @return The same obj passed as param
+        @return object same object passed as a param
       */
       pushObject: function(obj) {
-        this.insertAt(get(this, 'length'), obj) ;
+        this.insertAt(get(this, 'length'), obj);
         return obj;
       },
 
@@ -17224,12 +17217,12 @@ define("ember-runtime/mixins/mutable_array",
         @return object
       */
       popObject: function() {
-        var len = get(this, 'length') ;
-        if (len === 0) return null ;
+        var len = get(this, 'length');
+        if (len === 0) return null;
 
-        var ret = this.objectAt(len-1) ;
-        this.removeAt(len-1, 1) ;
-        return ret ;
+        var ret = this.objectAt(len-1);
+        this.removeAt(len-1, 1);
+        return ret;
       },
 
       /**
@@ -17246,10 +17239,10 @@ define("ember-runtime/mixins/mutable_array",
         @return object
       */
       shiftObject: function() {
-        if (get(this, 'length') === 0) return null ;
-        var ret = this.objectAt(0) ;
-        this.removeAt(0) ;
-        return ret ;
+        if (get(this, 'length') === 0) return null;
+        var ret = this.objectAt(0);
+        this.removeAt(0);
+        return ret;
       },
 
       /**
@@ -17264,11 +17257,11 @@ define("ember-runtime/mixins/mutable_array",
 
         @method unshiftObject
         @param {*} obj object to unshift
-        @return The same obj passed as param
+        @return object same object passed as a param
       */
       unshiftObject: function(obj) {
-        this.insertAt(0, obj) ;
-        return obj ;
+        this.insertAt(0, obj);
+        return obj;
       },
 
       /**
@@ -17332,18 +17325,46 @@ define("ember-runtime/mixins/mutable_array",
       // IMPLEMENT Ember.MutableEnumerable
       //
 
+      /**
+        Remove all occurances of an object in the array.
+
+        ```javascript
+        var cities = ["Chicago", "Berlin", "Lima", "Chicago"];
+        cities.removeObject("Chicago");  // ["Berlin", "Lima"]
+        cities.removeObject("Lima");     // ["Berlin"]
+        cities.removeObject("Tokyo")     // ["Berlin"]
+        ```
+
+        @method removeObject
+        @param {*} obj object to remove
+        @return {Ember.Array} receiver
+      */
       removeObject: function(obj) {
         var loc = get(this, 'length') || 0;
         while(--loc >= 0) {
-          var curObject = this.objectAt(loc) ;
-          if (curObject === obj) this.removeAt(loc) ;
+          var curObject = this.objectAt(loc);
+          if (curObject === obj) this.removeAt(loc);
         }
-        return this ;
+        return this;
       },
 
+      /**
+        Push the object onto the end of the array if it is not already
+        present in the array.
+
+        ```javascript
+        var cities = ["Chicago", "Berlin"];
+        cities.addObject("Lima");    // ["Chicago", "Berlin", "Lima"]
+        cities.addObject("Berlin");  // ["Chicago", "Berlin", "Lima"]
+        ```
+
+        @method addObject
+        @param {*} obj object to add, if not already present
+        @return {Ember.Array} receiver
+      */
       addObject: function(obj) {
         if (!this.contains(obj)) this.pushObject(obj);
-        return this ;
+        return this;
       }
 
     });

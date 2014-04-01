@@ -5004,7 +5004,7 @@ if (typeof exports === 'object' && exports)
     // Handle testing feature flags
     window.ENV = window.ENV || {};
 
-    window.ENV.FEATURES = {"ember-metal-computed-empty-array":false,"query-params-new":false,"ember-routing-named-substates":false,"ember-handlebars-caps-lookup":false,"ember-handlebars-log-primitives":true,"ember-testing-routing-helpers":true,"ember-testing-triggerEvent-helper":true,"computed-read-only":true,"composable-computed-properties":null,"ember-routing-drop-deprecated-action-style":null,"ember-metal-is-blank":true,"ember-eager-url-update":true,"ember-routing-auto-location":true,"ember-routing-bound-action-name":true,"ember-runtime-test-friendly-promises":false,"ember-routing-inherits-parent-model":true}
+    window.ENV.FEATURES = {"ember-metal-computed-empty-array":true,"query-params-new":null,"ember-routing-named-substates":null,"ember-handlebars-caps-lookup":null,"ember-routing-drop-deprecated-action-style":null,"ember-runtime-test-friendly-promises":true,"ember-routing-add-model-option":true}
 
     QUnit.config.urlConfig.push({ id: 'enableoptionalfeatures', label: "Enable Opt Features"});
     window.ENV['ENABLE_OPTIONAL_FEATURES'] = !!QUnit.urlParams.enableoptionalfeatures;
@@ -5137,7 +5137,7 @@ if (typeof exports === 'object' && exports)
             minispade.require(moduleName);
           }
 
-          if (EmberDev.jsHint) {
+          if (EmberDev.jsHint && !moduleName.match(/vendor\//)) {
             // JSHint all modules in this package, tests and code
             // (closure to preserve variable values)
             (function() {
