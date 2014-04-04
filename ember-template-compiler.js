@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.6.0-beta.1
+ * @version   1.7.0-beta.1+canary.4e1078e5
  */
 
 
@@ -277,7 +277,7 @@ EmberHandlebars.Compiler.prototype.mustache = function(mustache) {
   @for Ember.Handlebars
   @static
   @param {String} string The template to precompile
-  @param {Boolean} asObject optional parameter, defaulting to true, of whether or not the 
+  @param {Boolean} asObject optional parameter, defaulting to true, of whether or not the
                             compiled template should be returned as an Object or a String
 */
 EmberHandlebars.precompile = function(string, asObject) {
