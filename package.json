@@ -1,8 +1,10 @@
 {
   "name": "components-ember",
-  "version": "1.5.0-beta.4",
+  "version": "1.6.0-beta.2+pre.75ea875e",
   "description": "Ember Application Framework",
-  "keywords": ["ember"],
+  "keywords": [
+    "ember"
+  ],
   "main": "./ember.js",
   "dependencies": {
     "jquery": ">=1.7 <= 2.1",
