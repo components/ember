@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.7.0-beta.1+canary.4e1078e5
+ * @version   1.6.0-beta.2
  */
 
 
@@ -2311,7 +2311,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.7.0-beta.1+canary.4e1078e5
+      @version 1.6.0-beta.2
     */
 
     if ('undefined' === typeof Ember) {
@@ -2338,10 +2338,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.7.0-beta.1+canary.4e1078e5'
+      @default '1.6.0-beta.2'
       @static
     */
-    Ember.VERSION = '1.7.0-beta.1+canary.4e1078e5';
+    Ember.VERSION = '1.6.0-beta.2';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -6237,7 +6237,7 @@ define("ember-metal/property_set",
         desc.set(obj, keyName, value);
       } else {
 
-        if (typeof obj === 'object' && obj !== null && obj[keyName] === value) {
+        if (typeof obj === 'object' && obj !== null && value !== undefined && obj[keyName] === value) {
           return value;
         }
 
@@ -12436,7 +12436,7 @@ define("ember-runtime/computed/reduce_computed",
 
           forEach(itemPropertyKeys, removeObservers, this);
 
-          changeMeta = new ChangeMeta(dependentArray, item, itemIndex, this.instanceMeta.propertyName, this.cp, normalizedRemoveCount);
+          changeMeta = createChangeMeta(dependentArray, item, itemIndex, this.instanceMeta.propertyName, this.cp);
           this.setValue( removedItem.call(
             this.instanceMeta.context, this.getValue(), item, changeMeta, this.instanceMeta.sugarMeta));
         }
@@ -12466,7 +12466,7 @@ define("ember-runtime/computed/reduce_computed",
             }, this);
           }
 
-          changeMeta = new ChangeMeta(dependentArray, item, normalizedIndex + sliceIndex, this.instanceMeta.propertyName, this.cp, addedCount);
+          changeMeta = createChangeMeta(dependentArray, item, normalizedIndex + sliceIndex, this.instanceMeta.propertyName, this.cp);
           this.setValue( addedItem.call(
             this.instanceMeta.context, this.getValue(), item, changeMeta, this.instanceMeta.sugarMeta));
         }, this);
@@ -12502,7 +12502,7 @@ define("ember-runtime/computed/reduce_computed",
 
           this.updateIndexes(c.observerContext.trackedArray, c.observerContext.dependentArray);
 
-          changeMeta = new ChangeMeta(c.array, c.obj, c.observerContext.index, this.instanceMeta.propertyName, this.cp, changedItems.length, c.previousValues);
+          changeMeta = createChangeMeta(c.array, c.obj, c.observerContext.index, this.instanceMeta.propertyName, this.cp, c.previousValues);
           this.setValue(
             this.callbacks.removedItem.call(this.instanceMeta.context, this.getValue(), c.obj, changeMeta, this.instanceMeta.sugarMeta));
           this.setValue(
@@ -12526,24 +12526,27 @@ define("ember-runtime/computed/reduce_computed",
       return Math.min(removedCount, length - index);
     }
 
-    function ChangeMeta(dependentArray, item, index, propertyName, property, changedCount, previousValues){
-      this.arrayChanged = dependentArray;
-      this.index = index;
-      this.item = item;
-      this.propertyName = propertyName;
-      this.property = property;
-      this.changedCount = changedCount;
+    function createChangeMeta(dependentArray, item, index, propertyName, property, previousValues) {
+      var meta = {
+        arrayChanged: dependentArray,
+        index: index,
+        item: item,
+        propertyName: propertyName,
+        property: property
+      };
 
       if (previousValues) {
         // previous values only available for item property changes
-        this.previousValues = previousValues;
+        meta.previousValues = previousValues;
       }
+
+      return meta;
     }
 
     function addItems (dependentArray, callbacks, cp, propertyName, meta) {
       forEach(dependentArray, function (item, index) {
         meta.setValue( callbacks.addedItem.call(
-          this, meta.getValue(), item, new ChangeMeta(dependentArray, item, index, propertyName, cp, dependentArray.length), meta.sugarMeta));
+          this, meta.getValue(), item, createChangeMeta(dependentArray, item, index, propertyName, cp), meta.sugarMeta));
       }, this);
     }
 
@@ -21241,7 +21244,6 @@ define("ember-runtime/system/string",
     */
     var Ember = __dependency1__["default"];
     // Ember.STRINGS, Ember.FEATURES
-    var isArray = __dependency2__.isArray;
     var EmberInspect = __dependency2__.inspect;
 
 
@@ -21253,24 +21255,16 @@ define("ember-runtime/system/string",
     var STRING_UNDERSCORE_REGEXP_2 = (/\-|\s+/g);
 
     function fmt(str, formats) {
-      if (!isArray(formats) || arguments.length > 2) {
-        formats = Array.prototype.slice.call(arguments, 1);
-      }
-
       // first, replace any ORDERED replacements.
       var idx  = 0; // the current index for non-numerical replacements
       return str.replace(/%@([0-9]+)?/g, function(s, argIndex) {
         argIndex = (argIndex) ? parseInt(argIndex, 10) - 1 : idx++;
         s = formats[argIndex];
         return (s === null) ? '(null)' : (s === undefined) ? '' : EmberInspect(s);
-      });
+      }) ;
     }
 
     function loc(str, formats) {
-      if (!isArray(formats) || arguments.length > 2) {
-        formats = Array.prototype.slice.call(arguments, 1);
-      }
-
       str = Ember.STRINGS[str] || str;
       return fmt(str, formats);
     }
