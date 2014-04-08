@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.6.0-beta.1
+ * @version   1.6.0-beta.2
  */
 
 
@@ -73,7 +73,7 @@ var define, requireModule, require, requirejs, Ember;
   }
 })();
 (function() {
-define("ember-metal/array", 
+define("ember-metal/array",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -198,7 +198,7 @@ define("ember-metal/array",
     __exports__.filter = filter;
     __exports__.indexOf = indexOf;
   });
-define("ember-metal/binding", 
+define("ember-metal/binding",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/map","ember-metal/observer","ember-metal/run_loop","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
@@ -682,7 +682,7 @@ define("ember-metal/binding",
     __exports__.oneWay = oneWay;
     __exports__.isGlobalPath = isGlobalPath;
   });
-define("ember-metal/chains", 
+define("ember-metal/chains",
   ["ember-metal/core","ember-metal/property_get","ember-metal/utils","ember-metal/array","ember-metal/watch_key","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
@@ -698,7 +698,7 @@ define("ember-metal/chains",
 
     var metaFor = meta,
         warn = Ember.warn,
-        FIRST_KEY = /^([^\.\*]+)/;
+        FIRST_KEY = /^([^\.]+)/;
 
     function firstKey(path) {
       return path.match(FIRST_KEY)[0];
@@ -1024,7 +1024,7 @@ define("ember-metal/chains",
     __exports__.ChainNode = ChainNode;
     __exports__.finishChains = finishChains;
   });
-define("ember-metal/computed", 
+define("ember-metal/computed",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/enumerable_utils","ember-metal/platform","ember-metal/watching","ember-metal/expand_properties","ember-metal/error","ember-metal/properties","ember-metal/property_events","ember-metal/is_empty","ember-metal/is_none","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __exports__) {
     "use strict";
@@ -2280,7 +2280,7 @@ define("ember-metal/computed",
     __exports__.computed = computed;
     __exports__.cacheFor = cacheFor;
   });
-define("ember-metal/core", 
+define("ember-metal/core",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -2308,7 +2308,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.6.0-beta.1
+      @version 1.6.0-beta.2
     */
 
     if ('undefined' === typeof Ember) {
@@ -2335,10 +2335,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.6.0-beta.1'
+      @default '1.6.0-beta.2'
       @static
     */
-    Ember.VERSION = '1.6.0-beta.1';
+    Ember.VERSION = '1.6.0-beta.2';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -2497,7 +2497,7 @@ define("ember-metal/core",
 
     __exports__["default"] = Ember;
   });
-define("ember-metal/enumerable_utils", 
+define("ember-metal/enumerable_utils",
   ["ember-metal/array","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -2607,7 +2607,7 @@ define("ember-metal/enumerable_utils",
         });
       },
 
-      /** 
+      /**
        * Adds an object to an array. If the array already includes the object this
        * method has no effect.
        *
@@ -2670,7 +2670,7 @@ define("ember-metal/enumerable_utils",
        *   var array = [1,2,3];
        *   Ember.EnumerableUtils.replace(array, 10, 1, [4, 5]); // [1, 2, 3, 4, 5]
        * ```
-       * 
+       *
        * @method replace
        * @param {Array} array The array the objects should be inserted into.
        * @param {Number} idx Starting index in the array to replace. If *idx* >=
@@ -2692,7 +2692,7 @@ define("ember-metal/enumerable_utils",
 
       /**
        * Calculates the intersection of two arrays. This method returns a new array
-       * filled with the records that the two passed arrays share with each other. 
+       * filled with the records that the two passed arrays share with each other.
        * If there is no intersection, an empty array will be returned.
        *
        * ```javascript
@@ -2728,7 +2728,7 @@ define("ember-metal/enumerable_utils",
 
     __exports__["default"] = utils;
   });
-define("ember-metal/error", 
+define("ember-metal/error",
   ["ember-metal/platform","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -2767,7 +2767,7 @@ define("ember-metal/error",
 
     __exports__["default"] = EmberError;
   });
-define("ember-metal/events", 
+define("ember-metal/events",
   ["ember-metal/core","ember-metal/utils","ember-metal/platform","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -3189,7 +3189,7 @@ define("ember-metal/events",
     __exports__.listenersDiff = listenersDiff;
     __exports__.listenersUnion = listenersUnion;
   });
-define("ember-metal/expand_properties", 
+define("ember-metal/expand_properties",
   ["ember-metal/enumerable_utils","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -3242,7 +3242,7 @@ define("ember-metal/expand_properties",
 
     __exports__["default"] = expandProperties;
   });
-define("ember-metal/get_properties", 
+define("ember-metal/get_properties",
   ["ember-metal/property_get","ember-metal/utils","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -3287,7 +3287,7 @@ define("ember-metal/get_properties",
 
     __exports__["default"] = getProperties;
   });
-define("ember-metal/instrumentation", 
+define("ember-metal/instrumentation",
   ["ember-metal/core","ember-metal/utils","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -3498,7 +3498,7 @@ define("ember-metal/instrumentation",
     __exports__.unsubscribe = unsubscribe;
     __exports__.reset = reset;
   });
-define("ember-metal/is_blank", 
+define("ember-metal/is_blank",
   ["ember-metal/core","ember-metal/is_empty","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -3534,7 +3534,7 @@ define("ember-metal/is_blank",
 
     __exports__["default"] = isBlank;
   });
-define("ember-metal/is_empty", 
+define("ember-metal/is_empty",
   ["ember-metal/core","ember-metal/property_get","ember-metal/is_none","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -3574,7 +3574,7 @@ define("ember-metal/is_empty",
     __exports__.isEmpty = isEmpty;
     __exports__.empty = empty;
   });
-define("ember-metal/is_none", 
+define("ember-metal/is_none",
   ["ember-metal/core","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -3609,7 +3609,7 @@ define("ember-metal/is_none",
     __exports__.isNone = isNone;
     __exports__.none = none;
   });
-define("ember-metal/libraries", 
+define("ember-metal/libraries",
   ["ember-metal/enumerable_utils","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -3659,7 +3659,7 @@ define("ember-metal/libraries",
 
     __exports__["default"] = libraries;
   });
-define("ember-metal/logger", 
+define("ember-metal/logger",
   ["ember-metal/core","ember-metal/error","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -3809,7 +3809,7 @@ define("ember-metal/logger",
 
     __exports__["default"] = Logger;
   });
-define("ember-metal", 
+define("ember-metal",
   ["ember-metal/core","ember-metal/merge","ember-metal/instrumentation","ember-metal/utils","ember-metal/error","ember-metal/enumerable_utils","ember-metal/platform","ember-metal/array","ember-metal/logger","ember-metal/property_get","ember-metal/events","ember-metal/observer_set","ember-metal/property_events","ember-metal/properties","ember-metal/property_set","ember-metal/map","ember-metal/get_properties","ember-metal/set_properties","ember-metal/watch_key","ember-metal/chains","ember-metal/watch_path","ember-metal/watching","ember-metal/expand_properties","ember-metal/computed","ember-metal/observer","ember-metal/mixin","ember-metal/binding","ember-metal/run_loop","ember-metal/libraries","ember-metal/is_none","ember-metal/is_empty","ember-metal/is_blank","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __dependency31__, __dependency32__, __exports__) {
     "use strict";
@@ -3998,7 +3998,7 @@ define("ember-metal",
 
     __exports__["default"] = Ember;
   });
-define("ember-metal/map", 
+define("ember-metal/map",
   ["ember-metal/property_set","ember-metal/utils","ember-metal/array","ember-metal/platform","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
@@ -4208,14 +4208,14 @@ define("ember-metal/map",
     Map.prototype = {
       /**
         This property will change as the number of objects in the map changes.
-       
+
         @property length
         @type number
         @default 0
       */
       length: 0,
-        
-        
+
+
       /**
         Retrieve the value associated with a given key.
 
@@ -4381,7 +4381,7 @@ define("ember-metal/map",
     __exports__.Map = Map;
     __exports__.MapWithDefault = MapWithDefault;
   });
-define("ember-metal/merge", 
+define("ember-metal/merge",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -4410,7 +4410,7 @@ define("ember-metal/merge",
 
     __exports__["default"] = merge;
   });
-define("ember-metal/mixin", 
+define("ember-metal/mixin",
   ["ember-metal/core","ember-metal/merge","ember-metal/array","ember-metal/platform","ember-metal/utils","ember-metal/expand_properties","ember-metal/properties","ember-metal/computed","ember-metal/binding","ember-metal/observer","ember-metal/events","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
     "use strict";
@@ -5234,7 +5234,7 @@ define("ember-metal/mixin",
     __exports__.immediateObserver = immediateObserver;
     __exports__.beforeObserver = beforeObserver;
   });
-define("ember-metal/observer", 
+define("ember-metal/observer",
   ["ember-metal/watching","ember-metal/array","ember-metal/events","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -5362,7 +5362,7 @@ define("ember-metal/observer",
     __exports__.beforeObserversFor = beforeObserversFor;
     __exports__.removeBeforeObserver = removeBeforeObserver;
   });
-define("ember-metal/observer_set", 
+define("ember-metal/observer_set",
   ["ember-metal/utils","ember-metal/events","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -5432,7 +5432,7 @@ define("ember-metal/observer_set",
 
     __exports__["default"] = ObserverSet;
   });
-define("ember-metal/platform", 
+define("ember-metal/platform",
   ["ember-metal/core","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -5602,7 +5602,7 @@ define("ember-metal/platform",
     __exports__.create = create;
     __exports__.platform = platform;
   });
-define("ember-metal/properties", 
+define("ember-metal/properties",
   ["ember-metal/core","ember-metal/utils","ember-metal/platform","ember-metal/property_events","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
@@ -5760,7 +5760,7 @@ define("ember-metal/properties",
     __exports__.Descriptor = Descriptor;
     __exports__.defineProperty = defineProperty;
   });
-define("ember-metal/property_events", 
+define("ember-metal/property_events",
   ["ember-metal/utils","ember-metal/events","ember-metal/observer_set","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -5999,7 +5999,7 @@ define("ember-metal/property_events",
     __exports__.endPropertyChanges = endPropertyChanges;
     __exports__.changeProperties = changeProperties;
   });
-define("ember-metal/property_get", 
+define("ember-metal/property_get",
   ["ember-metal/core","ember-metal/utils","ember-metal/error","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -6015,9 +6015,9 @@ define("ember-metal/property_get",
 
     var MANDATORY_SETTER = Ember.ENV.MANDATORY_SETTER;
 
-    var IS_GLOBAL_PATH = /^([A-Z$]|([0-9][A-Z$])).*[\.\*]/;
-    var HAS_THIS  = /^this[\.\*]/;
-    var FIRST_KEY = /^([^\.\*]+)/;
+    var IS_GLOBAL_PATH = /^([A-Z$]|([0-9][A-Z$])).*[\.]/;
+    var HAS_THIS  = 'this.';
+    var FIRST_KEY = /^([^\.]+)/;
 
     // ..........................................................
     // GET AND SET
@@ -6099,7 +6099,7 @@ define("ember-metal/property_get",
       Normalizes a target/path pair to reflect that actual target/path that should
       be observed, etc. This takes into account passing in global property
       paths (i.e. a path beginning with a captial letter not defined on the
-      target) and * separators.
+      target).
 
       @private
       @method normalizeTuple
@@ -6109,7 +6109,7 @@ define("ember-metal/property_get",
       @return {Array} a temporary array with the normalized target/path pair.
     */
     function normalizeTuple(target, path) {
-      var hasThis  = HAS_THIS.test(path),
+      var hasThis  = path.indexOf(HAS_THIS) === 0,
           isGlobal = !hasThis && IS_GLOBAL_PATH.test(path),
           key;
 
@@ -6137,7 +6137,7 @@ define("ember-metal/property_get",
       if (root === null && path.indexOf('.') === -1) { return get(Ember.lookup, path); }
 
       // detect complicated paths and normalize them
-      hasThis  = HAS_THIS.test(path);
+      hasThis = path.indexOf(HAS_THIS) === 0;
 
       if (!root || hasThis) {
         tuple = normalizeTuple(root, path);
@@ -6168,7 +6168,7 @@ define("ember-metal/property_get",
     __exports__.normalizeTuple = normalizeTuple;
     __exports__._getPath = _getPath;
   });
-define("ember-metal/property_set", 
+define("ember-metal/property_set",
   ["ember-metal/core","ember-metal/property_get","ember-metal/utils","ember-metal/property_events","ember-metal/properties","ember-metal/error","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
@@ -6220,7 +6220,7 @@ define("ember-metal/property_set",
         desc.set(obj, keyName, value);
       } else {
 
-        if (typeof obj === 'object' && obj !== null && obj[keyName] === value) {
+        if (typeof obj === 'object' && obj !== null && value !== undefined && obj[keyName] === value) {
           return value;
         }
 
@@ -6313,7 +6313,7 @@ define("ember-metal/property_set",
     __exports__.set = set;
     __exports__.trySet = trySet;
   });
-define("ember-metal/run_loop", 
+define("ember-metal/run_loop",
   ["ember-metal/core","ember-metal/utils","ember-metal/array","ember-metal/property_events","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
@@ -6947,7 +6947,7 @@ define("ember-metal/run_loop",
 
     __exports__["default"] = run
   });
-define("ember-metal/set_properties", 
+define("ember-metal/set_properties",
   ["ember-metal/property_events","ember-metal/property_set","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -6983,7 +6983,7 @@ define("ember-metal/set_properties",
 
     __exports__["default"] = setProperties;
   });
-define("ember-metal/utils", 
+define("ember-metal/utils",
   ["ember-metal/core","ember-metal/platform","ember-metal/array","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -7777,7 +7777,7 @@ define("ember-metal/utils",
     __exports__.applyStr = applyStr;
     __exports__.apply = apply;
   });
-define("backburner/queue", 
+define("backburner/queue",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -7887,7 +7887,7 @@ define("backburner/queue",
     __exports__.Queue = Queue;
   });
 
-define("backburner/deferred_action_queues", 
+define("backburner/deferred_action_queues",
   ["backburner/queue","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -7989,7 +7989,7 @@ define("backburner/deferred_action_queues",
     __exports__.DeferredActionQueues = DeferredActionQueues;
   });
 
-define("backburner", 
+define("backburner",
   ["backburner/deferred_action_queues","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -8432,7 +8432,7 @@ define("backburner",
     __exports__.Backburner = Backburner;
   });
 
-define("ember-metal/watch_key", 
+define("ember-metal/watch_key",
   ["ember-metal/core","ember-metal/utils","ember-metal/platform","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -8508,7 +8508,7 @@ define("ember-metal/watch_key",
     __exports__.watchKey = watchKey;
     __exports__.unwatchKey = unwatchKey;
   });
-define("ember-metal/watch_path", 
+define("ember-metal/watch_path",
   ["ember-metal/utils","ember-metal/chains","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -8559,7 +8559,7 @@ define("ember-metal/watch_path",
     __exports__.watchPath = watchPath;
     __exports__.unwatchPath = unwatchPath;
   });
-define("ember-metal/watching", 
+define("ember-metal/watching",
   ["ember-metal/utils","ember-metal/chains","ember-metal/watch_key","ember-metal/watch_path","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
@@ -8579,12 +8579,11 @@ define("ember-metal/watching",
     var watchPath = __dependency4__.watchPath;
     var unwatchPath = __dependency4__.unwatchPath;
 
-    var metaFor = meta, // utils.js
-        IS_PATH = /[\.\*]/;
+    var metaFor = meta; // utils.js
 
     // returns true if the passed path is just a keyName
     function isKeyName(path) {
-      return path==='*' || !IS_PATH.test(path);
+      return path.indexOf('.') === -1;
     }
 
     /**
@@ -8709,7 +8708,7 @@ define("ember-metal/watching",
   @class RSVP
   @module RSVP
   */
-define("rsvp/all", 
+define("rsvp/all",
   ["./promise","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -8729,7 +8728,7 @@ define("rsvp/all",
       return Promise.all(array, label);
     };
   });
-define("rsvp/all_settled", 
+define("rsvp/all_settled",
   ["./promise","./utils","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -8844,7 +8843,7 @@ define("rsvp/all_settled",
       return { state: 'rejected', reason: reason };
     }
   });
-define("rsvp/config", 
+define("rsvp/config",
   ["./events","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -8875,7 +8874,7 @@ define("rsvp/config",
     __exports__.config = config;
     __exports__.configure = configure;
   });
-define("rsvp/defer", 
+define("rsvp/defer",
   ["./promise","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -8924,7 +8923,7 @@ define("rsvp/defer",
       return deferred;
     };
   });
-define("rsvp/events", 
+define("rsvp/events",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -9128,7 +9127,7 @@ define("rsvp/events",
       }
     };
   });
-define("rsvp/filter", 
+define("rsvp/filter",
   ["./all","./map","./utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -9244,7 +9243,7 @@ define("rsvp/filter",
 
     __exports__["default"] = filter;
   });
-define("rsvp/hash", 
+define("rsvp/hash",
   ["./promise","./utils","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -9382,7 +9381,7 @@ define("rsvp/hash",
       });
     };
   });
-define("rsvp/instrument", 
+define("rsvp/instrument",
   ["./config","./utils","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -9408,7 +9407,7 @@ define("rsvp/instrument",
       }
     };
   });
-define("rsvp/map", 
+define("rsvp/map",
   ["./promise","./all","./utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -9517,7 +9516,7 @@ define("rsvp/map",
       });
     };
   });
-define("rsvp/node", 
+define("rsvp/node",
   ["./promise","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -9630,7 +9629,7 @@ define("rsvp/node",
       };
     };
   });
-define("rsvp/promise", 
+define("rsvp/promise",
   ["./config","./events","./instrument","./utils","./promise/cast","./promise/all","./promise/race","./promise/resolve","./promise/reject","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __exports__) {
     "use strict";
@@ -10259,7 +10258,7 @@ define("rsvp/promise",
       publish(promise, promise._state = REJECTED);
     }
   });
-define("rsvp/promise/all", 
+define("rsvp/promise/all",
   ["../utils","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -10360,7 +10359,7 @@ define("rsvp/promise/all",
       }, label);
     };
   });
-define("rsvp/promise/cast", 
+define("rsvp/promise/cast",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -10444,7 +10443,7 @@ define("rsvp/promise/cast",
       }, label);
     };
   });
-define("rsvp/promise/race", 
+define("rsvp/promise/race",
   ["../utils","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -10547,7 +10546,7 @@ define("rsvp/promise/race",
       }, label);
     };
   });
-define("rsvp/promise/reject", 
+define("rsvp/promise/reject",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -10595,7 +10594,7 @@ define("rsvp/promise/reject",
       }, label);
     };
   });
-define("rsvp/promise/resolve", 
+define("rsvp/promise/resolve",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -10640,7 +10639,7 @@ define("rsvp/promise/resolve",
       }, label);
     };
   });
-define("rsvp/race", 
+define("rsvp/race",
   ["./promise","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -10659,7 +10658,7 @@ define("rsvp/race",
       return Promise.race(array, label);
     };
   });
-define("rsvp/reject", 
+define("rsvp/reject",
   ["./promise","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -10680,7 +10679,7 @@ define("rsvp/reject",
       return Promise.reject(reason, label);
     };
   });
-define("rsvp/resolve", 
+define("rsvp/resolve",
   ["./promise","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -10702,7 +10701,7 @@ define("rsvp/resolve",
       return Promise.resolve(value, label);
     };
   });
-define("rsvp/rethrow", 
+define("rsvp/rethrow",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -10752,7 +10751,7 @@ define("rsvp/rethrow",
       throw reason;
     };
   });
-define("rsvp/utils", 
+define("rsvp/utils",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -10787,7 +10786,7 @@ define("rsvp/utils",
     };
     __exports__.keysOf = keysOf;
   });
-define("rsvp", 
+define("rsvp",
   ["./rsvp/promise","./rsvp/events","./rsvp/node","./rsvp/all","./rsvp/all_settled","./rsvp/race","./rsvp/hash","./rsvp/rethrow","./rsvp/defer","./rsvp/config","./rsvp/map","./rsvp/resolve","./rsvp/reject","./rsvp/filter","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __exports__) {
     "use strict";
@@ -10852,7 +10851,7 @@ define("rsvp",
 })();
 
 (function() {
-define("container/container", 
+define("container/container",
   ["container/inheriting_dict","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -11270,7 +11269,7 @@ define("container/container",
         validateFullName(fullName);
         if (this.parent) { illegalChildOperation('typeInjection'); }
 
-        var fullNameType = fullName.split(':')[0];        
+        var fullNameType = fullName.split(':')[0];
         if(fullNameType === type) {
           throw new Error('Cannot inject a `' + fullName + '` on other ' + type + '(s). Register the `' + fullName + '` as a different type and perform the typeInjection.');
         }
@@ -11668,7 +11667,7 @@ define("container/container",
 
     __exports__["default"] = Container;
   });
-define("container/inheriting_dict", 
+define("container/inheriting_dict",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -11782,7 +11781,7 @@ define("container/inheriting_dict",
 
     __exports__["default"] = InheritingDict;
   });
-define("container", 
+define("container",
   ["container/container","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -11812,7 +11811,7 @@ define("container",
 })();
 
 (function() {
-define("ember-runtime/compare", 
+define("ember-runtime/compare",
   ["ember-metal/core","ember-metal/utils","ember-runtime/mixins/comparable","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -11949,7 +11948,7 @@ define("ember-runtime/compare",
 
     __exports__["default"] = compare;
   });
-define("ember-runtime/computed/array_computed", 
+define("ember-runtime/computed/array_computed",
   ["ember-metal/core","ember-runtime/computed/reduce_computed","ember-metal/enumerable_utils","ember-metal/platform","ember-metal/observer","ember-metal/error","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
@@ -12142,7 +12141,7 @@ define("ember-runtime/computed/array_computed",
     __exports__.arrayComputed = arrayComputed;
     __exports__.ArrayComputedProperty = ArrayComputedProperty;
   });
-define("ember-runtime/computed/reduce_computed", 
+define("ember-runtime/computed/reduce_computed",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/error","ember-metal/property_events","ember-metal/expand_properties","ember-metal/observer","ember-metal/computed","ember-metal/platform","ember-metal/enumerable_utils","ember-runtime/system/tracked_array","ember-runtime/mixins/array","ember-metal/run_loop","ember-runtime/system/set","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __exports__) {
     "use strict";
@@ -12927,6 +12926,10 @@ define("ember-runtime/computed/reduce_computed",
       semantics.  When an item is added or removed from such a dependency, the
       computed property is completely recomputed.
 
+      When the computed property is completely recomputed, the `accumulatedValue`
+      is discarded, it starts with `initialValue` again, and each item is passed
+      to `addedItem` in turn.
+
       Example
 
       ```javascript
@@ -12982,7 +12985,7 @@ define("ember-runtime/computed/reduce_computed",
     __exports__.reduceComputed = reduceComputed;
     __exports__.ReduceComputedProperty = ReduceComputedProperty;
   });
-define("ember-runtime/computed/reduce_computed_macros", 
+define("ember-runtime/computed/reduce_computed_macros",
   ["ember-metal/core","ember-metal/merge","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/error","ember-metal/enumerable_utils","ember-metal/run_loop","ember-metal/observer","ember-runtime/computed/array_computed","ember-runtime/computed/reduce_computed","ember-runtime/system/object_proxy","ember-runtime/system/subarray","ember-runtime/keys","ember-runtime/compare","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __exports__) {
     "use strict";
@@ -13765,7 +13768,7 @@ define("ember-runtime/computed/reduce_computed_macros",
     __exports__.union = union;
     __exports__.intersect = intersect;
   });
-define("ember-runtime/controllers/array_controller", 
+define("ember-runtime/controllers/array_controller",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/enumerable_utils","ember-runtime/system/array_proxy","ember-runtime/mixins/sortable","ember-runtime/controllers/controller","ember-metal/computed","ember-metal/error","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __exports__) {
     "use strict";
@@ -14019,7 +14022,7 @@ define("ember-runtime/controllers/array_controller",
 
     __exports__["default"] = ArrayController;
   });
-define("ember-runtime/controllers/controller", 
+define("ember-runtime/controllers/controller",
   ["ember-metal/core","ember-metal/property_get","ember-runtime/system/object","ember-metal/mixin","ember-metal/computed","ember-runtime/mixins/action_handler","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
@@ -14093,7 +14096,7 @@ define("ember-runtime/controllers/controller",
     __exports__.Controller = Controller;
     __exports__.ControllerMixin = ControllerMixin;
   });
-define("ember-runtime/controllers/object_controller", 
+define("ember-runtime/controllers/object_controller",
   ["ember-runtime/controllers/controller","ember-runtime/system/object_proxy","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -14121,7 +14124,7 @@ define("ember-runtime/controllers/object_controller",
     var ObjectController = ObjectProxy.extend(ControllerMixin);
     __exports__["default"] = ObjectController;
   });
-define("ember-runtime/copy", 
+define("ember-runtime/copy",
   ["ember-metal/enumerable_utils","ember-metal/utils","ember-runtime/system/object","ember-runtime/mixins/copyable","ember-metal/platform","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
@@ -14199,7 +14202,7 @@ define("ember-runtime/copy",
 
     __exports__["default"] = copy;
   });
-define("ember-runtime/core", 
+define("ember-runtime/core",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -14228,12 +14231,15 @@ define("ember-runtime/core",
     */
     function isEqual(a, b) {
       if (a && 'function'===typeof a.isEqual) return a.isEqual(b);
+      if (a instanceof Date && b instanceof Date) {
+        return a.getTime() === b.getTime();
+      } 
       return a === b;
     };
 
     __exports__.isEqual = isEqual;
   });
-define("ember-runtime/ext/function", 
+define("ember-runtime/ext/function",
   ["ember-metal/core","ember-metal/expand_properties","ember-metal/computed"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -14454,7 +14460,7 @@ define("ember-runtime/ext/function",
       };
     }
   });
-define("ember-runtime/ext/rsvp", 
+define("ember-runtime/ext/rsvp",
   ["ember-metal/core","ember-metal/logger","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -14487,7 +14493,7 @@ define("ember-runtime/ext/rsvp",
 
     __exports__["default"] = RSVP;
   });
-define("ember-runtime/ext/string", 
+define("ember-runtime/ext/string",
   ["ember-metal/core","ember-runtime/system/string"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -14602,7 +14608,7 @@ define("ember-runtime/ext/string",
       };
     }
   });
-define("ember-runtime/keys", 
+define("ember-runtime/keys",
   ["ember-metal/enumerable_utils","ember-metal/platform","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -14660,7 +14666,7 @@ define("ember-runtime/keys",
 
     __exports__["default"] = keys;
   });
-define("ember-runtime", 
+define("ember-runtime",
   ["ember-metal","ember-runtime/core","ember-runtime/keys","ember-runtime/compare","ember-runtime/copy","ember-runtime/system/namespace","ember-runtime/system/object","ember-runtime/system/tracked_array","ember-runtime/system/subarray","ember-runtime/system/container","ember-runtime/system/application","ember-runtime/system/array_proxy","ember-runtime/system/object_proxy","ember-runtime/system/core_object","ember-runtime/system/each_proxy","ember-runtime/system/native_array","ember-runtime/system/set","ember-runtime/system/string","ember-runtime/system/deferred","ember-runtime/system/lazy_load","ember-runtime/mixins/array","ember-runtime/mixins/comparable","ember-runtime/mixins/copyable","ember-runtime/mixins/enumerable","ember-runtime/mixins/freezable","ember-runtime/mixins/observable","ember-runtime/mixins/action_handler","ember-runtime/mixins/deferred","ember-runtime/mixins/mutable_enumerable","ember-runtime/mixins/mutable_array","ember-runtime/mixins/target_action_support","ember-runtime/mixins/evented","ember-runtime/mixins/promise_proxy","ember-runtime/mixins/sortable","ember-runtime/computed/array_computed","ember-runtime/computed/reduce_computed","ember-runtime/computed/reduce_computed_macros","ember-runtime/controllers/array_controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/controller","ember-runtime/ext/rsvp","ember-runtime/ext/string","ember-runtime/ext/function","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __dependency31__, __dependency32__, __dependency33__, __dependency34__, __dependency35__, __dependency36__, __dependency37__, __dependency38__, __dependency39__, __dependency40__, __dependency41__, __dependency42__, __dependency43__, __exports__) {
     "use strict";
@@ -14756,7 +14762,7 @@ define("ember-runtime",
 
     __exports__["default"] = Ember;
   });
-define("ember-runtime/mixins/action_handler", 
+define("ember-runtime/mixins/action_handler",
   ["ember-metal/merge","ember-metal/mixin","ember-metal/property_get","ember-metal/utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
@@ -14988,7 +14994,7 @@ define("ember-runtime/mixins/action_handler",
 
     __exports__["default"] = ActionHandler;
   });
-define("ember-runtime/mixins/array", 
+define("ember-runtime/mixins/array",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/computed","ember-metal/is_none","ember-runtime/mixins/enumerable","ember-metal/enumerable_utils","ember-metal/mixin","ember-metal/property_events","ember-metal/events","ember-metal/watching","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
     "use strict";
@@ -15448,7 +15454,7 @@ define("ember-runtime/mixins/array",
 
     __exports__["default"] = EmberArray;
   });
-define("ember-runtime/mixins/comparable", 
+define("ember-runtime/mixins/comparable",
   ["ember-metal/mixin","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -15494,7 +15500,7 @@ define("ember-runtime/mixins/comparable",
 
     __exports__["default"] = Comparable;
   });
-define("ember-runtime/mixins/copyable", 
+define("ember-runtime/mixins/copyable",
   ["ember-metal/property_get","ember-metal/property_set","ember-metal/mixin","ember-runtime/mixins/freezable","ember-runtime/system/string","ember-metal/error","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
@@ -15565,7 +15571,7 @@ define("ember-runtime/mixins/copyable",
 
     __exports__["default"] = Copyable;
   });
-define("ember-runtime/mixins/deferred", 
+define("ember-runtime/mixins/deferred",
   ["ember-metal/core","ember-metal/property_get","ember-metal/mixin","ember-metal/computed","ember-metal/run_loop","ember-runtime/ext/rsvp","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
@@ -15683,7 +15689,7 @@ define("ember-runtime/mixins/deferred",
 
     __exports__["default"] = DeferredMixin;
   });
-define("ember-runtime/mixins/enumerable", 
+define("ember-runtime/mixins/enumerable",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/mixin","ember-metal/enumerable_utils","ember-metal/computed","ember-metal/property_events","ember-metal/events","ember-runtime/compare","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __exports__) {
     "use strict";
@@ -16722,7 +16728,7 @@ define("ember-runtime/mixins/enumerable",
 
     __exports__["default"] = Enumerable;
   });
-define("ember-runtime/mixins/evented", 
+define("ember-runtime/mixins/evented",
   ["ember-metal/mixin","ember-metal/events","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -16878,7 +16884,7 @@ define("ember-runtime/mixins/evented",
 
     __exports__["default"] = Evented;
   });
-define("ember-runtime/mixins/freezable", 
+define("ember-runtime/mixins/freezable",
   ["ember-metal/mixin","ember-metal/property_get","ember-metal/property_set","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -16978,7 +16984,7 @@ define("ember-runtime/mixins/freezable",
     __exports__.Freezable = Freezable;
     __exports__.FROZEN_ERROR = FROZEN_ERROR;
   });
-define("ember-runtime/mixins/mutable_array", 
+define("ember-runtime/mixins/mutable_array",
   ["ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/error","ember-metal/mixin","ember-runtime/mixins/array","ember-runtime/mixins/mutable_enumerable","ember-runtime/mixins/enumerable","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
@@ -17334,7 +17340,7 @@ define("ember-runtime/mixins/mutable_array",
 
     __exports__["default"] = MutableArray;
   });
-define("ember-runtime/mixins/mutable_enumerable", 
+define("ember-runtime/mixins/mutable_enumerable",
   ["ember-metal/enumerable_utils","ember-runtime/mixins/enumerable","ember-metal/mixin","ember-metal/property_events","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
@@ -17457,7 +17463,7 @@ define("ember-runtime/mixins/mutable_enumerable",
 
     __exports__["default"] = MutableEnumerable;
   });
-define("ember-runtime/mixins/observable", 
+define("ember-runtime/mixins/observable",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/get_properties","ember-metal/set_properties","ember-metal/mixin","ember-metal/events","ember-metal/property_events","ember-metal/observer","ember-metal/computed","ember-metal/is_none","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __exports__) {
     "use strict";
@@ -17905,7 +17911,7 @@ define("ember-runtime/mixins/observable",
       */
       incrementProperty: function(keyName, increment) {
         if (isNone(increment)) { increment = 1; }
-                set(this, keyName, (get(this, keyName) || 0) + increment);
+                set(this, keyName, (parseFloat(get(this, keyName)) || 0) + increment);
         return get(this, keyName);
       },
 
@@ -17967,7 +17973,7 @@ define("ember-runtime/mixins/observable",
 
     __exports__["default"] = Observable;
   });
-define("ember-runtime/mixins/promise_proxy", 
+define("ember-runtime/mixins/promise_proxy",
   ["ember-metal/property_get","ember-metal/property_set","ember-metal/computed","ember-metal/mixin","ember-metal/error","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
@@ -18174,7 +18180,7 @@ define("ember-runtime/mixins/promise_proxy",
 
     __exports__["default"] = PromiseProxyMixin;
   });
-define("ember-runtime/mixins/sortable", 
+define("ember-runtime/mixins/sortable",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/enumerable_utils","ember-metal/mixin","ember-runtime/mixins/mutable_enumerable","ember-runtime/compare","ember-metal/observer","ember-metal/computed","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __exports__) {
     "use strict";
@@ -18475,7 +18481,7 @@ define("ember-runtime/mixins/sortable",
 
     __exports__["default"] = SortableMixin;
   });
-define("ember-runtime/mixins/target_action_support", 
+define("ember-runtime/mixins/target_action_support",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/mixin","ember-metal/computed","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
@@ -18624,7 +18630,7 @@ define("ember-runtime/mixins/target_action_support",
 
     __exports__["default"] = TargetActionSupport;
   });
-define("ember-runtime/system/application", 
+define("ember-runtime/system/application",
   ["ember-runtime/system/namespace","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -18633,7 +18639,7 @@ define("ember-runtime/system/application",
     var Application = Namespace.extend();
     __exports__["default"] = Application;
   });
-define("ember-runtime/system/array_proxy", 
+define("ember-runtime/system/array_proxy",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/computed","ember-metal/mixin","ember-metal/property_events","ember-metal/error","ember-runtime/system/object","ember-runtime/mixins/mutable_array","ember-runtime/mixins/enumerable","ember-runtime/system/string","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __exports__) {
     "use strict";
@@ -18978,7 +18984,7 @@ define("ember-runtime/system/array_proxy",
 
     __exports__["default"] = ArrayProxy;
   });
-define("ember-runtime/system/container", 
+define("ember-runtime/system/container",
   ["ember-metal/property_set","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -18989,7 +18995,7 @@ define("ember-runtime/system/container",
 
     __exports__["default"] = Container;
   });
-define("ember-runtime/system/core_object", 
+define("ember-runtime/system/core_object",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/platform","ember-metal/watching","ember-metal/chains","ember-metal/events","ember-metal/mixin","ember-metal/enumerable_utils","ember-metal/error","ember-runtime/keys","ember-runtime/mixins/action_handler","ember-metal/properties","ember-metal/binding","ember-metal/computed","ember-metal/run_loop","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __exports__) {
     "use strict";
@@ -18999,7 +19005,6 @@ define("ember-runtime/system/core_object",
     */
 
     var Ember = __dependency1__["default"];
-
     // Ember.ENV.MANDATORY_SETTER, Ember.assert, Ember.K, Ember.config
 
     // NOTE: this object should never be included directly. Instead use `Ember.Object`.
@@ -19765,7 +19770,7 @@ define("ember-runtime/system/core_object",
 
     __exports__["default"] = CoreObject;
   });
-define("ember-runtime/system/deferred", 
+define("ember-runtime/system/deferred",
   ["ember-runtime/mixins/deferred","ember-metal/property_get","ember-runtime/system/object","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -19785,7 +19790,7 @@ define("ember-runtime/system/deferred",
 
     __exports__["default"] = Deferred;
   });
-define("ember-runtime/system/each_proxy", 
+define("ember-runtime/system/each_proxy",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/enumerable_utils","ember-metal/array","ember-runtime/mixins/array","ember-runtime/system/object","ember-metal/computed","ember-metal/observer","ember-metal/events","ember-metal/properties","ember-metal/property_events","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __exports__) {
     "use strict";
@@ -20015,7 +20020,7 @@ define("ember-runtime/system/each_proxy",
     __exports__.EachArray = EachArray;
     __exports__.EachProxy = EachProxy;
   });
-define("ember-runtime/system/lazy_load", 
+define("ember-runtime/system/lazy_load",
   ["ember-metal/core","ember-metal/array","ember-runtime/system/native_array","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -20090,7 +20095,7 @@ define("ember-runtime/system/lazy_load",
     __exports__.onLoad = onLoad;
     __exports__.runLoadHooks = runLoadHooks;
   });
-define("ember-runtime/system/namespace", 
+define("ember-runtime/system/namespace",
   ["ember-metal/core","ember-metal/property_get","ember-metal/array","ember-metal/utils","ember-metal/mixin","ember-runtime/system/object","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
@@ -20267,7 +20272,7 @@ define("ember-runtime/system/namespace",
       if (this[NAME_KEY]) {
         ret = this[NAME_KEY];
       } else if (this._toString) {
-        ret = this._toString; 
+        ret = this._toString;
       } else {
         var str = superClassString(this);
         if (str) {
@@ -20309,7 +20314,7 @@ define("ember-runtime/system/namespace",
 
     __exports__["default"] = Namespace;
   });
-define("ember-runtime/system/native_array", 
+define("ember-runtime/system/native_array",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/enumerable_utils","ember-metal/mixin","ember-runtime/mixins/array","ember-runtime/mixins/mutable_array","ember-runtime/mixins/observable","ember-runtime/mixins/copyable","ember-runtime/mixins/freezable","ember-runtime/copy","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
     "use strict";
@@ -20509,7 +20514,7 @@ define("ember-runtime/system/native_array",
     __exports__.A = A;
     __exports__.NativeArray = NativeArray;__exports__["default"] = NativeArray;
   });
-define("ember-runtime/system/object", 
+define("ember-runtime/system/object",
   ["ember-runtime/system/core_object","ember-runtime/mixins/observable","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -20536,7 +20541,7 @@ define("ember-runtime/system/object",
 
     __exports__["default"] = EmberObject;
   });
-define("ember-runtime/system/object_proxy", 
+define("ember-runtime/system/object_proxy",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/observer","ember-metal/property_events","ember-metal/computed","ember-metal/properties","ember-metal/mixin","ember-runtime/system/string","ember-runtime/system/object","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
     "use strict";
@@ -20692,7 +20697,7 @@ define("ember-runtime/system/object_proxy",
 
     __exports__["default"] = ObjectProxy;
   });
-define("ember-runtime/system/set", 
+define("ember-runtime/system/set",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/is_none","ember-runtime/system/string","ember-runtime/system/core_object","ember-runtime/mixins/mutable_enumerable","ember-runtime/mixins/enumerable","ember-runtime/mixins/copyable","ember-runtime/mixins/freezable","ember-metal/error","ember-metal/property_events","ember-metal/mixin","ember-metal/computed","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __exports__) {
     "use strict";
@@ -21168,7 +21173,7 @@ define("ember-runtime/system/set",
 
     __exports__["default"] = Set;
   });
-define("ember-runtime/system/string", 
+define("ember-runtime/system/string",
   ["ember-metal/core","ember-metal/utils","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -21456,7 +21461,7 @@ define("ember-runtime/system/string",
     __exports__.underscore = underscore;
     __exports__.capitalize = capitalize;
   });
-define("ember-runtime/system/subarray", 
+define("ember-runtime/system/subarray",
   ["ember-metal/property_get","ember-metal/error","ember-metal/enumerable_utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -21641,7 +21646,7 @@ define("ember-runtime/system/subarray",
 
     __exports__["default"] = SubArray;
   });
-define("ember-runtime/system/tracked_array", 
+define("ember-runtime/system/tracked_array",
   ["ember-metal/property_get","ember-metal/enumerable_utils","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -21985,7 +21990,7 @@ define("ember-runtime/system/tracked_array",
 })();
 
 (function() {
-define("ember-views", 
+define("ember-views",
   ["ember-runtime","ember-views/system/jquery","ember-views/system/utils","ember-views/system/render_buffer","ember-views/system/ext","ember-views/views/states","ember-views/views/view","ember-views/views/container_view","ember-views/views/collection_view","ember-views/views/component","ember-views/system/event_dispatcher","ember-views/mixins/view_target_action_support","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __exports__) {
     "use strict";
@@ -22022,7 +22027,7 @@ define("ember-views",
 
     __exports__["default"] = Ember;
   });
-define("ember-views/mixins/component_template_deprecation", 
+define("ember-views/mixins/component_template_deprecation",
   ["ember-metal/core","ember-metal/property_get","ember-metal/mixin","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -22090,7 +22095,7 @@ define("ember-views/mixins/component_template_deprecation",
 
     __exports__["default"] = ComponentTemplateDeprecation;
   });
-define("ember-views/mixins/view_target_action_support", 
+define("ember-views/mixins/view_target_action_support",
   ["ember-metal/mixin","ember-runtime/mixins/target_action_support","ember-metal/computed","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -22155,7 +22160,7 @@ define("ember-views/mixins/view_target_action_support",
 
     __exports__["default"] = ViewTargetActionSupport;
   });
-define("ember-views/system/event_dispatcher", 
+define("ember-views/system/event_dispatcher",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/is_none","ember-metal/run_loop","ember-metal/utils","ember-runtime/system/string","ember-runtime/system/object","ember-views/system/jquery","ember-views/views/view","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __exports__) {
     "use strict";
@@ -22385,7 +22390,7 @@ define("ember-views/system/event_dispatcher",
 
     __exports__["default"] = EventDispatcher;
   });
-define("ember-views/system/ext", 
+define("ember-views/system/ext",
   ["ember-metal/run_loop"],
   function(__dependency1__) {
     "use strict";
@@ -22403,7 +22408,7 @@ define("ember-views/system/ext",
     run._addQueue('render', 'actions');
     run._addQueue('afterRender', 'render');
   });
-define("ember-views/system/jquery", 
+define("ember-views/system/jquery",
   ["ember-metal/core","ember-runtime/system/string","ember-metal/enumerable_utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -22447,7 +22452,7 @@ define("ember-views/system/jquery",
 
     __exports__["default"] = jQuery;
   });
-define("ember-views/system/render_buffer", 
+define("ember-views/system/render_buffer",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-views/system/utils","ember-views/system/jquery","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
@@ -23000,7 +23005,7 @@ define("ember-views/system/render_buffer",
 
     __exports__["default"] = RenderBuffer;
   });
-define("ember-views/system/utils", 
+define("ember-views/system/utils",
   ["ember-metal/core","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -23141,7 +23146,7 @@ define("ember-views/system/utils",
     __exports__.setInnerHTML = setInnerHTML;
     __exports__.isSimpleClick = isSimpleClick;
   });
-define("ember-views/views/collection_view", 
+define("ember-views/views/collection_view",
   ["ember-metal/core","ember-metal/platform","ember-metal/merge","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/string","ember-views/views/container_view","ember-views/views/view","ember-metal/mixin","ember-runtime/mixins/array","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __exports__) {
     "use strict";
@@ -23578,7 +23583,7 @@ define("ember-views/views/collection_view",
 
     __exports__["default"] = CollectionView;
   });
-define("ember-views/views/component", 
+define("ember-views/views/component",
   ["ember-metal/core","ember-views/mixins/component_template_deprecation","ember-runtime/mixins/target_action_support","ember-views/views/view","ember-metal/property_get","ember-metal/property_set","ember-metal/is_none","ember-metal/computed","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
@@ -23877,7 +23882,7 @@ define("ember-views/views/component",
 
     __exports__["default"] = Component;
   });
-define("ember-views/views/container_view", 
+define("ember-views/views/container_view",
   ["ember-metal/core","ember-metal/merge","ember-runtime/mixins/mutable_array","ember-metal/property_get","ember-metal/property_set","ember-views/views/view","ember-views/views/states","ember-metal/error","ember-metal/enumerable_utils","ember-metal/computed","ember-metal/run_loop","ember-metal/properties","ember-views/system/render_buffer","ember-metal/mixin","ember-runtime/system/native_array","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __exports__) {
     "use strict";
@@ -24300,7 +24305,7 @@ define("ember-views/views/container_view",
 
     __exports__["default"] = ContainerView;
   });
-define("ember-views/views/states", 
+define("ember-views/views/states",
   ["ember-metal/platform","ember-metal/merge","ember-views/views/states/default","ember-views/views/states/pre_render","ember-views/views/states/in_buffer","ember-views/views/states/has_element","ember-views/views/states/in_dom","ember-views/views/states/destroying","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
@@ -24343,7 +24348,7 @@ define("ember-views/views/states",
     __exports__.cloneStates = cloneStates;
     __exports__.states = states;
   });
-define("ember-views/views/states/default", 
+define("ember-views/views/states/default",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
@@ -24395,7 +24400,7 @@ define("ember-views/views/states/default",
 
     __exports__["default"] = _default;
   });
-define("ember-views/views/states/destroying", 
+define("ember-views/views/states/destroying",
   ["ember-metal/merge","ember-metal/platform","ember-runtime/system/string","ember-views/views/states/default","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
@@ -24441,7 +24446,7 @@ define("ember-views/views/states/destroying",
 
     __exports__["default"] = destroying;
   });
-define("ember-views/views/states/has_element", 
+define("ember-views/views/states/has_element",
   ["ember-views/views/states/default","ember-metal/run_loop","ember-metal/merge","ember-metal/platform","ember-views/system/jquery","ember-metal/property_get","ember-metal/property_set","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
@@ -24539,7 +24544,7 @@ define("ember-views/views/states/has_element",
 
     __exports__["default"] = hasElement;
   });
-define("ember-views/views/states/in_buffer", 
+define("ember-views/views/states/in_buffer",
   ["ember-views/views/states/default","ember-metal/error","ember-metal/core","ember-metal/platform","ember-metal/merge","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
@@ -24633,7 +24638,7 @@ define("ember-views/views/states/in_buffer",
 
     __exports__["default"] = inBuffer;
   });
-define("ember-views/views/states/in_dom", 
+define("ember-views/views/states/in_dom",
   ["ember-metal/core","ember-metal/platform","ember-metal/merge","ember-metal/error","ember-views/views/states/has_element","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
@@ -24681,7 +24686,7 @@ define("ember-views/views/states/in_dom",
 
     __exports__["default"] = inDOM;
   });
-define("ember-views/views/states/pre_render", 
+define("ember-views/views/states/pre_render",
   ["ember-views/views/states/default","ember-metal/platform","ember-metal/merge","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -24731,7 +24736,7 @@ define("ember-views/views/states/pre_render",
 
     __exports__["default"] = preRender;
   });
-define("ember-views/views/view", 
+define("ember-views/views/view",
   ["ember-metal/core","ember-metal/error","ember-runtime/system/object","ember-runtime/mixins/evented","ember-runtime/mixins/action_handler","ember-views/system/render_buffer","ember-metal/property_get","ember-metal/property_set","ember-metal/set_properties","ember-metal/run_loop","ember-metal/observer","ember-metal/properties","ember-metal/utils","ember-metal/computed","ember-metal/mixin","ember-metal/is_none","container/container","ember-runtime/system/native_array","ember-metal/instrumentation","ember-runtime/system/string","ember-metal/enumerable_utils","ember-runtime/copy","ember-metal/binding","ember-metal/property_events","ember-views/views/states","ember-views/system/jquery","ember-views/system/ext","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __exports__) {
     "use strict";
@@ -24893,7 +24898,7 @@ define("ember-views/views/view",
       // return the current view, not including virtual views
       concreteView: computed('parentView', function() {
         if (!this.isVirtual) { return this; }
-        else { return get(this, 'parentView'); }
+        else { return get(this, 'parentView.concreteView'); }
       }),
 
       instrumentName: 'core_view',
@@ -27804,7 +27809,7 @@ define("metamorph",
 })();
 
 (function() {
-define("ember-handlebars-compiler", 
+define("ember-handlebars-compiler",
   ["ember-metal/core","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -28065,7 +28070,7 @@ define("ember-handlebars-compiler",
       @for Ember.Handlebars
       @static
       @param {String} string The template to precompile
-      @param {Boolean} asObject optional parameter, defaulting to true, of whether or not the 
+      @param {Boolean} asObject optional parameter, defaulting to true, of whether or not the
                                 compiled template should be returned as an Object or a String
     */
     EmberHandlebars.precompile = function(string, asObject) {
@@ -28121,7 +28126,7 @@ define("ember-handlebars-compiler",
 })();
 
 (function() {
-define("ember-handlebars/component_lookup", 
+define("ember-handlebars/component_lookup",
   ["ember-runtime/system/object","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -28156,7 +28161,7 @@ define("ember-handlebars/component_lookup",
 
     __exports__["default"] = ComponentLookup;
   });
-define("ember-handlebars/controls", 
+define("ember-handlebars/controls",
   ["ember-handlebars/controls/checkbox","ember-handlebars/controls/text_field","ember-handlebars/controls/text_area","ember-metal/core","ember-handlebars-compiler","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
@@ -28507,7 +28512,7 @@ define("ember-handlebars/controls",
     __exports__.inputHelper = inputHelper;
     __exports__.textareaHelper = textareaHelper;
   });
-define("ember-handlebars/controls/checkbox", 
+define("ember-handlebars/controls/checkbox",
   ["ember-metal/property_get","ember-metal/property_set","ember-views/views/view","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -28574,7 +28579,7 @@ define("ember-handlebars/controls/checkbox",
 
     __exports__["default"] = Checkbox;
   });
-define("ember-handlebars/controls/select", 
+define("ember-handlebars/controls/select",
   ["ember-handlebars-compiler","ember-metal/enumerable_utils","ember-metal/property_get","ember-metal/property_set","ember-views/views/view","ember-views/views/collection_view","ember-metal/utils","ember-metal/is_none","ember-metal/computed","ember-runtime/system/native_array","ember-metal/mixin","ember-metal/properties","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __exports__) {
     "use strict";
@@ -29257,7 +29262,7 @@ function program7(depth0,data) {
     __exports__.SelectOption = SelectOption;
     __exports__.SelectOptgroup = SelectOptgroup;
   });
-define("ember-handlebars/controls/text_area", 
+define("ember-handlebars/controls/text_area",
   ["ember-metal/property_get","ember-views/views/component","ember-handlebars/controls/text_support","ember-metal/mixin","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
@@ -29314,7 +29319,7 @@ define("ember-handlebars/controls/text_area",
 
     __exports__["default"] = TextArea;
   });
-define("ember-handlebars/controls/text_field", 
+define("ember-handlebars/controls/text_field",
   ["ember-metal/property_get","ember-metal/property_set","ember-views/views/component","ember-handlebars/controls/text_support","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
@@ -29414,7 +29419,7 @@ define("ember-handlebars/controls/text_field",
 
     __exports__["default"] = TextField;
   });
-define("ember-handlebars/controls/text_support", 
+define("ember-handlebars/controls/text_support",
   ["ember-metal/property_get","ember-metal/property_set","ember-metal/mixin","ember-runtime/mixins/target_action_support","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
@@ -29441,7 +29446,8 @@ define("ember-handlebars/controls/text_support",
       value: "",
 
       attributeBindings: ['placeholder', 'disabled', 'maxlength', 'tabindex', 'readonly',
-                          'autofocus', 'form', 'selectionDirection', 'spellcheck', 'required'],
+                          'autofocus', 'form', 'selectionDirection', 'spellcheck', 'required',
+                          'title'],
       placeholder: null,
       disabled: false,
       maxlength: null,
@@ -29605,7 +29611,7 @@ define("ember-handlebars/controls/text_support",
 
     __exports__["default"] = TextSupport;
   });
-define("ember-handlebars/ext", 
+define("ember-handlebars/ext",
   ["ember-metal/core","ember-runtime/system/string","ember-handlebars-compiler","ember-metal/property_get","ember-metal/binding","ember-metal/error","ember-metal/mixin","ember-metal/is_empty","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
@@ -30170,7 +30176,7 @@ define("ember-handlebars/ext",
     __exports__.helperMissingHelper = helperMissingHelper;
     __exports__.blockHelperMissingHelper = blockHelperMissingHelper;
   });
-define("ember-handlebars/helpers/binding", 
+define("ember-handlebars/helpers/binding",
   ["ember-metal/core","ember-handlebars-compiler","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/string","ember-metal/platform","ember-metal/is_none","ember-metal/enumerable_utils","ember-metal/array","ember-views/views/view","ember-metal/run_loop","ember-handlebars/views/handlebars_bound_view","ember-metal/observer","ember-metal/binding","ember-metal/utils","ember-views/system/jquery","ember-handlebars/ext","ember-runtime/keys","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __exports__) {
     "use strict";
@@ -31002,7 +31008,7 @@ define("ember-handlebars/helpers/binding",
     __exports__.bindAttrHelperDeprecated = bindAttrHelperDeprecated;
     __exports__.bindClasses = bindClasses;
   });
-define("ember-handlebars/helpers/collection", 
+define("ember-handlebars/helpers/collection",
   ["ember-metal/core","ember-metal/utils","ember-handlebars-compiler","ember-runtime/system/string","ember-metal/property_get","ember-handlebars/ext","ember-handlebars/helpers/view","ember-metal/computed","ember-views/views/collection_view","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __exports__) {
     "use strict";
@@ -31243,7 +31249,7 @@ define("ember-handlebars/helpers/collection",
 
     __exports__["default"] = collectionHelper;
   });
-define("ember-handlebars/helpers/debug", 
+define("ember-handlebars/helpers/debug",
   ["ember-metal/core","ember-metal/utils","ember-metal/logger","ember-metal/property_get","ember-handlebars/ext","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
@@ -31349,7 +31355,7 @@ define("ember-handlebars/helpers/debug",
     __exports__.logHelper = logHelper;
     __exports__.debuggerHelper = debuggerHelper;
   });
-define("ember-handlebars/helpers/each", 
+define("ember-handlebars/helpers/each",
   ["ember-metal/core","ember-handlebars-compiler","ember-runtime/system/string","ember-metal/property_get","ember-metal/property_set","ember-handlebars/views/metamorph_view","ember-views/views/collection_view","ember-metal/binding","ember-runtime/controllers/controller","ember-runtime/controllers/array_controller","ember-runtime/mixins/array","ember-runtime/copy","ember-metal/run_loop","ember-metal/observer","ember-metal/events","ember-handlebars/ext","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __exports__) {
     "use strict";
@@ -31799,7 +31805,7 @@ define("ember-handlebars/helpers/each",
     __exports__.GroupedEach = GroupedEach;
     __exports__.eachHelper = eachHelper;
   });
-define("ember-handlebars/helpers/loc", 
+define("ember-handlebars/helpers/loc",
   ["ember-runtime/system/string","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -31837,7 +31843,7 @@ define("ember-handlebars/helpers/loc",
 
     __exports__["default"] = locHelper;
   });
-define("ember-handlebars/helpers/partial", 
+define("ember-handlebars/helpers/partial",
   ["ember-metal/core","ember-metal/is_none","ember-handlebars/ext","ember-handlebars/helpers/binding","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
@@ -31947,7 +31953,7 @@ define("ember-handlebars/helpers/partial",
 
     __exports__["default"] = partialHelper;
   });
-define("ember-handlebars/helpers/shared", 
+define("ember-handlebars/helpers/shared",
   ["ember-handlebars/ext","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -31968,7 +31974,7 @@ define("ember-handlebars/helpers/shared",
 
     __exports__["default"] = resolvePaths;
   });
-define("ember-handlebars/helpers/template", 
+define("ember-handlebars/helpers/template",
   ["ember-metal/core","ember-handlebars-compiler","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -32031,7 +32037,7 @@ define("ember-handlebars/helpers/template",
 
     __exports__["default"] = templateHelper;
   });
-define("ember-handlebars/helpers/unbound", 
+define("ember-handlebars/helpers/unbound",
   ["ember-handlebars-compiler","ember-handlebars/ext","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -32088,7 +32094,7 @@ define("ember-handlebars/helpers/unbound",
 
     __exports__["default"] = unboundHelper;
   });
-define("ember-handlebars/helpers/view", 
+define("ember-handlebars/helpers/view",
   ["ember-metal/core","ember-runtime/system/object","ember-metal/property_get","ember-metal/property_set","ember-metal/mixin","ember-views/system/jquery","ember-views/views/view","ember-metal/binding","ember-handlebars/ext","ember-runtime/system/string","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __exports__) {
     "use strict";
@@ -32472,7 +32478,7 @@ define("ember-handlebars/helpers/view",
     __exports__.ViewHelper = ViewHelper;
     __exports__.viewHelper = viewHelper;
   });
-define("ember-handlebars/helpers/yield", 
+define("ember-handlebars/helpers/yield",
   ["ember-metal/core","ember-metal/property_get","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -32575,7 +32581,7 @@ define("ember-handlebars/helpers/yield",
         if (view._contextView) {
           view = view._contextView;
         } else {
-          view = get(view, 'parentView');
+          view = get(view, '_parentView');
         }
       }
 
@@ -32585,7 +32591,7 @@ define("ember-handlebars/helpers/yield",
 
     __exports__["default"] = yieldHelper;
   });
-define("ember-handlebars/loader", 
+define("ember-handlebars/loader",
   ["ember-handlebars/component_lookup","ember-views/system/jquery","ember-metal/error","ember-runtime/system/lazy_load","ember-handlebars-compiler","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
@@ -32683,7 +32689,7 @@ define("ember-handlebars/loader",
 
     __exports__["default"] = bootstrap;
   });
-define("ember-handlebars", 
+define("ember-handlebars",
   ["ember-handlebars-compiler","ember-metal/core","ember-runtime/system/lazy_load","ember-handlebars/loader","ember-handlebars/ext","ember-handlebars/string","ember-handlebars/helpers/shared","ember-handlebars/helpers/binding","ember-handlebars/helpers/collection","ember-handlebars/helpers/view","ember-handlebars/helpers/unbound","ember-handlebars/helpers/debug","ember-handlebars/helpers/each","ember-handlebars/helpers/template","ember-handlebars/helpers/partial","ember-handlebars/helpers/yield","ember-handlebars/helpers/loc","ember-handlebars/controls/checkbox","ember-handlebars/controls/select","ember-handlebars/controls/text_area","ember-handlebars/controls/text_field","ember-handlebars/controls/text_support","ember-handlebars/controls","ember-handlebars/component_lookup","ember-handlebars/views/handlebars_bound_view","ember-handlebars/views/metamorph_view","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __exports__) {
     "use strict";
@@ -32830,7 +32836,7 @@ define("ember-handlebars",
 
     __exports__["default"] = EmberHandlebars;
   });
-define("ember-handlebars/string", 
+define("ember-handlebars/string",
   ["ember-runtime/system/string","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -32878,7 +32884,7 @@ define("ember-handlebars/string",
 
     __exports__["default"] = htmlSafe;
   });
-define("ember-handlebars/views/handlebars_bound_view", 
+define("ember-handlebars/views/handlebars_bound_view",
   ["ember-handlebars-compiler","ember-metal/core","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/merge","ember-metal/run_loop","ember-views/views/view","ember-views/views/states","ember-handlebars/views/metamorph_view","ember-handlebars/ext","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
     "use strict";
@@ -33239,7 +33245,7 @@ define("ember-handlebars/views/handlebars_bound_view",
     __exports__._HandlebarsBoundView = _HandlebarsBoundView;
     __exports__.SimpleHandlebarsView = SimpleHandlebarsView;
   });
-define("ember-handlebars/views/metamorph_view", 
+define("ember-handlebars/views/metamorph_view",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-views/views/view","ember-metal/mixin","ember-metal/run_loop","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
@@ -33387,7 +33393,7 @@ define("ember-handlebars/views/metamorph_view",
 })();
 
 (function() {
-define("ember-routing/ext/controller", 
+define("ember-routing/ext/controller",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/enumerable_utils","ember-runtime/controllers/controller","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
@@ -33562,7 +33568,7 @@ define("ember-routing/ext/controller",
 
     __exports__["default"] = ControllerMixin;
   });
-define("ember-routing/ext/run_loop", 
+define("ember-routing/ext/run_loop",
   ["ember-metal/run_loop"],
   function(__dependency1__) {
     "use strict";
@@ -33575,13 +33581,13 @@ define("ember-routing/ext/run_loop",
 
     // Add a new named queue after the 'actions' queue (where RSVP promises
     // resolve), which is used in router transitions to prevent unnecessary
-    // loading state entry if all context promises resolve on the 
+    // loading state entry if all context promises resolve on the
     // 'actions' queue first.
 
     var queues = run.queues;
     run._addQueue('routerTransitions', 'actions');
   });
-define("ember-routing/ext/view", 
+define("ember-routing/ext/view",
   ["ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-views/views/view","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
@@ -33738,7 +33744,7 @@ define("ember-routing/ext/view",
 
     __exports__["default"] = EmberView;
   });
-define("ember-routing/helpers/action", 
+define("ember-routing/helpers/action",
   ["ember-metal/core","ember-metal/property_get","ember-metal/array","ember-metal/run_loop","ember-views/system/utils","ember-handlebars","ember-routing/system/router","ember-handlebars/ext","ember-handlebars/helpers/view","ember-routing/helpers/shared","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __exports__) {
     "use strict";
@@ -33828,6 +33834,7 @@ define("ember-routing/helpers/action",
           }
 
           var target = options.target,
+              parameters = options.parameters,
               actionName;
 
           if (target.target) {
@@ -33837,7 +33844,7 @@ define("ember-routing/helpers/action",
           }
 
           if (options.boundProperty) {
-            actionName = handlebarsGet(target, actionNameOrPath, options.options);
+            actionName = resolveParams(parameters.context, [actionNameOrPath], { types: ['ID'], data: parameters.options.data })[0];
 
             if(typeof actionName === 'undefined' || typeof actionName === 'function') {
                             actionName = actionNameOrPath;
@@ -33850,9 +33857,9 @@ define("ember-routing/helpers/action",
 
           run(function runRegisteredAction() {
             if (target.send) {
-              target.send.apply(target, args(options.parameters, actionName));
+              target.send.apply(target, args(parameters, actionName));
             } else {
-                            target[actionName].apply(target, args(options.parameters));
+                            target[actionName].apply(target, args(parameters));
             }
           });
         }
@@ -34070,7 +34077,7 @@ define("ember-routing/helpers/action",
     __exports__.ActionHelper = ActionHelper;
     __exports__.actionHelper = actionHelper;
   });
-define("ember-routing/helpers/link_to", 
+define("ember-routing/helpers/link_to",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/merge","ember-metal/run_loop","ember-metal/computed","ember-runtime/system/lazy_load","ember-runtime/system/string","ember-runtime/system/object","ember-runtime/keys","ember-views/system/utils","ember-views/views/view","ember-handlebars","ember-handlebars/helpers/view","ember-routing/system/router","ember-routing/helpers/shared","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __exports__) {
     "use strict";
@@ -34347,7 +34354,7 @@ define("ember-routing/helpers/link_to",
         this._super.apply(this, arguments);
 
         // Map desired event name to invoke function
-        var eventName = get(this, 'eventName'), i;
+        var eventName = get(this, 'eventName');
         this.on(eventName, this, this._invoke);
       },
 
@@ -35003,7 +35010,7 @@ define("ember-routing/helpers/link_to",
     __exports__.deprecatedLinkToHelper = deprecatedLinkToHelper;
     __exports__.linkToHelper = linkToHelper;
   });
-define("ember-routing/helpers/outlet", 
+define("ember-routing/helpers/outlet",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/lazy_load","ember-views/views/container_view","ember-handlebars/views/metamorph_view","ember-handlebars/helpers/view","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
@@ -35131,7 +35138,7 @@ define("ember-routing/helpers/outlet",
     __exports__.outletHelper = outletHelper;
     __exports__.OutletView = OutletView;
   });
-define("ember-routing/helpers/render", 
+define("ember-routing/helpers/render",
   ["ember-metal/core","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/string","ember-routing/system/controller_for","ember-handlebars/ext","ember-handlebars/helpers/view","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
@@ -35306,7 +35313,7 @@ define("ember-routing/helpers/render",
 
     __exports__["default"] = renderHelper;
   });
-define("ember-routing/helpers/shared", 
+define("ember-routing/helpers/shared",
   ["ember-metal/property_get","ember-metal/array","ember-runtime/system/lazy_load","ember-runtime/controllers/controller","ember-routing/system/router","ember-handlebars/ext","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
@@ -35355,7 +35362,7 @@ define("ember-routing/helpers/shared",
     __exports__.resolveParams = resolveParams;
     __exports__.resolvePaths = resolvePaths;
   });
-define("ember-routing/location/api", 
+define("ember-routing/location/api",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -35543,7 +35550,7 @@ define("ember-routing/location/api",
       /**
         Returns the current `location.hash` by parsing location.href since browsers
         inconsistently URL-decode `location.hash`.
-      
+
         https://bugzilla.mozilla.org/show_bug.cgi?id=483304
 
         @private
@@ -35551,7 +35558,7 @@ define("ember-routing/location/api",
       */
       _getHash: function () {
         // AutoLocation has it at _location, HashLocation at .location.
-        // Being nice and not changing 
+        // Being nice and not changing
         var href = (this._location || this.location).href,
             hashIndex = href.indexOf('#');
 
@@ -35565,7 +35572,7 @@ define("ember-routing/location/api",
 
     __exports__["default"] = EmberLocation;
   });
-define("ember-routing/location/auto_location", 
+define("ember-routing/location/auto_location",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-routing/location/api","ember-routing/location/history_location","ember-routing/location/hash_location","ember-routing/location/none_location","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
@@ -35684,7 +35691,7 @@ define("ember-routing/location/auto_location",
         // Older browsers, especially IE, don't have origin
         if (!origin) {
           origin = location.protocol + '//' + location.hostname;
-          
+
           if (location.port) {
             origin += ':' + location.port;
           }
@@ -35806,7 +35813,7 @@ define("ember-routing/location/auto_location",
         @private
 
         Returns the current path as it should appear for HistoryLocation supported
-        browsers. This may very well differ from the real current path (e.g. if it 
+        browsers. This may very well differ from the real current path (e.g. if it
         starts off as a hashed URL)
 
         @method _getHistoryPath
@@ -35878,7 +35885,7 @@ define("ember-routing/location/auto_location",
       /**
         Selects the best location option based off browser support and returns an
         instance of that Location class.
-      
+
         @see Ember.AutoLocation
         @method create
       */
@@ -35895,7 +35902,7 @@ define("ember-routing/location/auto_location",
         if (this._getSupportsHistory()) {
           historyPath = this._getHistoryPath();
 
-          // Since we support history paths, let's be sure we're using them else 
+          // Since we support history paths, let's be sure we're using them else
           // switch the location over to it.
           if (currentPath === historyPath) {
             implementationClass = this._HistoryLocation;
@@ -35932,7 +35939,7 @@ define("ember-routing/location/auto_location",
 
     __exports__["default"] = AutoLocation;
   });
-define("ember-routing/location/hash_location", 
+define("ember-routing/location/hash_location",
   ["ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-metal/utils","ember-runtime/system/object","ember-routing/location/api","ember-views/system/jquery","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
@@ -36067,7 +36074,7 @@ define("ember-routing/location/hash_location",
 
     __exports__["default"] = HashLocation;
   });
-define("ember-routing/location/history_location", 
+define("ember-routing/location/history_location",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-runtime/system/object","ember-views/system/jquery","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
@@ -36296,7 +36303,7 @@ define("ember-routing/location/history_location",
 
     __exports__["default"] = HistoryLocation;
   });
-define("ember-routing/location/none_location", 
+define("ember-routing/location/none_location",
   ["ember-metal/property_get","ember-metal/property_set","ember-runtime/system/object","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -36393,7 +36400,7 @@ define("ember-routing/location/none_location",
 
     __exports__["default"] = NoneLocation;
   });
-define("ember-routing", 
+define("ember-routing",
   ["ember-handlebars","ember-metal/core","ember-routing/ext/run_loop","ember-routing/ext/controller","ember-routing/ext/view","ember-routing/helpers/shared","ember-routing/helpers/link_to","ember-routing/location/api","ember-routing/location/none_location","ember-routing/location/hash_location","ember-routing/location/history_location","ember-routing/location/auto_location","ember-routing/system/controller_for","ember-routing/system/dsl","ember-routing/system/router","ember-routing/system/route","ember-routing/helpers/outlet","ember-routing/helpers/render","ember-routing/helpers/action","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __exports__) {
     "use strict";
@@ -36469,7 +36476,7 @@ define("ember-routing",
 
     __exports__["default"] = Ember;
   });
-define("ember-routing/system/controller_for", 
+define("ember-routing/system/controller_for",
   ["ember-metal/core","ember-metal/property_get","ember-metal/utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -36564,7 +36571,7 @@ define("ember-routing/system/controller_for",
     __exports__.generateControllerFactory = generateControllerFactory;
     __exports__.generateController = generateController;
   });
-define("ember-routing/system/dsl", 
+define("ember-routing/system/dsl",
   ["ember-metal/core","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -36673,7 +36680,7 @@ define("ember-routing/system/dsl",
 
     __exports__["default"] = DSL;
   });
-define("ember-routing/system/route", 
+define("ember-routing/system/route",
   ["ember-metal/core","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/get_properties","ember-metal/enumerable_utils","ember-metal/is_none","ember-metal/computed","ember-metal/utils","ember-metal/run_loop","ember-runtime/keys","ember-runtime/copy","ember-runtime/system/string","ember-runtime/system/object","ember-runtime/mixins/action_handler","ember-routing/system/controller_for","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __exports__) {
     "use strict";
@@ -38018,7 +38025,7 @@ define("ember-routing/system/route",
       */
       render: function(name, options) {
         
-        var namePassed = !!name;
+        var namePassed = typeof name === 'string' && !!name;
 
         if (typeof name === 'object' && !options) {
           options = name;
@@ -38037,7 +38044,7 @@ define("ember-routing/system/route",
           templateName = this.templateName || name;
         }
 
-        var viewName = options.view || this.viewName || name;
+        var viewName = options.view || namePassed && name || this.viewName || name;
 
         var container = this.container,
             view = container.lookup('view:' + viewName),
@@ -38478,7 +38485,7 @@ define("ember-routing/system/route",
 
     __exports__["default"] = Route;
   });
-define("ember-routing/system/router", 
+define("ember-routing/system/router",
   ["ember-metal/core","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/array","ember-metal/properties","ember-metal/computed","ember-metal/merge","ember-metal/run_loop","ember-metal/enumerable_utils","ember-runtime/system/string","ember-runtime/system/object","ember-runtime/mixins/evented","ember-routing/system/dsl","ember-views/views/view","ember-routing/location/api","ember-handlebars/views/metamorph_view","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __exports__) {
     "use strict";
@@ -39183,7 +39190,7 @@ define("ember-routing/system/router",
 
     __exports__["default"] = EmberRouter;
   });
-define("route-recognizer", 
+define("route-recognizer",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -39813,7 +39820,7 @@ define("route-recognizer",
     };
   });
 
-define("router/handler-info", 
+define("router/handler-info",
   ["./utils","rsvp/promise","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -40038,7 +40045,7 @@ define("router/handler-info",
     __exports__.UnresolvedHandlerInfoByParam = UnresolvedHandlerInfoByParam;
     __exports__.UnresolvedHandlerInfoByObject = UnresolvedHandlerInfoByObject;
   });
-define("router/router", 
+define("router/router",
   ["route-recognizer","rsvp/promise","./utils","./transition-state","./transition","./transition-intent/named-transition-intent","./transition-intent/url-transition-intent","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
@@ -40783,7 +40790,7 @@ define("router/router",
 
     __exports__["default"] = Router;
   });
-define("router/transition-intent", 
+define("router/transition-intent",
   ["./utils","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -40803,7 +40810,7 @@ define("router/transition-intent",
 
     __exports__["default"] = TransitionIntent;
   });
-define("router/transition-intent/named-transition-intent", 
+define("router/transition-intent/named-transition-intent",
   ["../transition-intent","../transition-state","../handler-info","../utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
@@ -40995,7 +41002,7 @@ define("router/transition-intent/named-transition-intent",
 
     __exports__["default"] = NamedTransitionIntent;
   });
-define("router/transition-intent/url-transition-intent", 
+define("router/transition-intent/url-transition-intent",
   ["../transition-intent","../transition-state","../handler-info","../utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
@@ -41063,7 +41070,7 @@ define("router/transition-intent/url-transition-intent",
 
     __exports__["default"] = URLTransitionIntent;
   });
-define("router/transition-state", 
+define("router/transition-state",
   ["./handler-info","./utils","rsvp/promise","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -41176,7 +41183,7 @@ define("router/transition-state",
 
     __exports__["default"] = TransitionState;
   });
-define("router/transition", 
+define("router/transition",
   ["rsvp/promise","./handler-info","./utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -41434,7 +41441,7 @@ define("router/transition",
     __exports__.logAbort = logAbort;
     __exports__.TransitionAborted = TransitionAborted;
   });
-define("router/utils", 
+define("router/utils",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -41658,7 +41665,7 @@ define("router/utils",
     __exports__.isParam = isParam;
     __exports__.coerceQueryParamsToString = coerceQueryParamsToString;
   });
-define("router", 
+define("router",
   ["./router/router","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -41666,10 +41673,11 @@ define("router",
 
     __exports__["default"] = Router;
   });
+
 })();
 
 (function() {
-define("ember-application/ext/controller", 
+define("ember-application/ext/controller",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/error","ember-metal/utils","ember-metal/computed","ember-runtime/controllers/controller","ember-routing/system/controller_for","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
@@ -41842,7 +41850,7 @@ define("ember-application/ext/controller",
 
     __exports__["default"] = ControllerMixin;
   });
-define("ember-application", 
+define("ember-application",
   ["ember-metal/core","ember-runtime/system/lazy_load","ember-application/system/dag","ember-application/system/resolver","ember-application/system/application","ember-application/ext/controller"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
@@ -41869,7 +41877,7 @@ define("ember-application",
 
     runLoadHooks('Ember.Application', Application);
   });
-define("ember-application/system/application", 
+define("ember-application/system/application",
   ["ember-metal","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/lazy_load","ember-application/system/dag","ember-runtime/system/namespace","ember-runtime/mixins/deferred","ember-application/system/resolver","ember-metal/platform","ember-metal/run_loop","ember-metal/utils","container/container","ember-runtime/controllers/controller","ember-runtime/system/native_array","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-views/system/event_dispatcher","ember-extension-support/container_debug_adapter","ember-views/system/jquery","ember-routing/system/route","ember-routing/system/router","ember-routing/location/hash_location","ember-routing/location/history_location","ember-routing/location/auto_location","ember-routing/location/none_location","ember-handlebars-compiler","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __exports__) {
     "use strict";
@@ -42784,7 +42792,7 @@ define("ember-application/system/application",
 
     __exports__["default"] = Application;
   });
-define("ember-application/system/dag", 
+define("ember-application/system/dag",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -42892,9 +42900,9 @@ define("ember-application/system/dag",
 
     __exports__["default"] = DAG;
   });
-define("ember-application/system/resolver", 
-  ["ember-metal/core","ember-metal/property_get","ember-runtime/system/string","ember-runtime/system/object","ember-runtime/system/namespace","ember-handlebars","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+define("ember-application/system/resolver",
+  ["ember-metal/core","ember-metal/property_get","ember-metal/logger","ember-runtime/system/string","ember-runtime/system/object","ember-runtime/system/namespace","ember-handlebars","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -42904,12 +42912,13 @@ define("ember-application/system/resolver",
     var Ember = __dependency1__["default"];
     // Ember.TEMPLATES, Ember.assert
     var get = __dependency2__.get;
-    var classify = __dependency3__.classify;
-    var capitalize = __dependency3__.capitalize;
-    var decamelize = __dependency3__.decamelize;
-    var EmberObject = __dependency4__["default"];
-    var Namespace = __dependency5__["default"];
-    var EmberHandlebars = __dependency6__["default"];
+    var Logger = __dependency3__["default"];
+    var classify = __dependency4__.classify;
+    var capitalize = __dependency4__.capitalize;
+    var decamelize = __dependency4__.decamelize;
+    var EmberObject = __dependency5__["default"];
+    var Namespace = __dependency6__["default"];
+    var EmberHandlebars = __dependency7__["default"];
 
     var Resolver = EmberObject.extend({
       /**
@@ -42936,6 +42945,9 @@ define("ember-application/system/resolver",
       },
       resolveOther: function(parsedName) {
        throw new Error("Invalid call to `resolver.resolveDefault(parsedName)`. Please override the 'resolveDefault' method in subclass of `Ember.AbstractResolver` to prevent falling through to this error.");
+      },
+      _logLookup: function(found, parsedName) {
+       throw new Error("Invalid call to `resolver._logLookup(found, parsedName)`. Please override the '_logLookup' method in subclass of `Ember.AbstractResolver` to prevent falling through to this error.");
       }
     });
 
@@ -43055,17 +43067,26 @@ define("ember-application/system/resolver",
       */
       resolve: function(fullName) {
         var parsedName = this.parseName(fullName),
-            resolveMethodName = parsedName.resolveMethodName;
+            resolveMethodName = parsedName.resolveMethodName,
+            resolved;
 
         if (!(parsedName.name && parsedName.type)) {
           throw new TypeError("Invalid fullName: `" + fullName + "`, must be of the form `type:name` ");
         }
 
         if (this[resolveMethodName]) {
-          var resolved = this[resolveMethodName](parsedName);
-          if (resolved) { return resolved; }
+          resolved = this[resolveMethodName](parsedName);
         }
-        return this.resolveOther(parsedName);
+
+        if (!resolved) {
+          resolved = this.resolveOther(parsedName);
+        }
+
+        if (parsedName.root.LOG_RESOLVER) {
+          this._logLookup(resolved, parsedName);
+        }
+
+        return resolved;
       },
       /**
         Convert the string name of the form "type:name" to
@@ -43238,6 +43259,27 @@ define("ember-application/system/resolver",
         var className = classify(parsedName.name) + classify(parsedName.type),
             factory = get(parsedName.root, className);
         if (factory) { return factory; }
+      },
+
+      /**
+       @method _logLookup
+       @param {Boolean} found
+       @param {Object} parsedName
+       @private
+      */
+      _logLookup: function(found, parsedName) {
+        var symbol, padding;
+
+        if (found) { symbol = '[✓]'; }
+        else          { symbol = '[ ]'; }
+
+        if (parsedName.fullName.length > 60) {
+          padding = '.';
+        } else {
+          padding = new Array(60 - parsedName.fullName.length).join('.');
+        }
+
+        Logger.info(symbol, parsedName.fullName, padding, this.lookupDescription(parsedName.fullName));
       }
     });
 
@@ -43247,7 +43289,7 @@ define("ember-application/system/resolver",
 })();
 
 (function() {
-define("ember-extension-support/container_debug_adapter", 
+define("ember-extension-support/container_debug_adapter",
   ["ember-metal/core","ember-metal/utils","ember-runtime/system/string","ember-runtime/system/namespace","ember-runtime/system/object","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
@@ -43360,7 +43402,7 @@ define("ember-extension-support/container_debug_adapter",
 
     __exports__["default"] = ContainerDebugAdapter;
   });
-define("ember-extension-support/data_adapter", 
+define("ember-extension-support/data_adapter",
   ["ember-metal/core","ember-metal/property_get","ember-metal/run_loop","ember-runtime/system/string","ember-runtime/system/namespace","ember-runtime/system/object","ember-runtime/system/native_array","ember-application/system/application","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
@@ -43841,13 +43883,13 @@ define("ember-extension-support/data_adapter",
 
     __exports__["default"] = DataAdapter;
   });
-define("ember-extension-support/initializers", 
+define("ember-extension-support/initializers",
   [],
   function() {
     "use strict";
 
   });
-define("ember-extension-support", 
+define("ember-extension-support",
   ["ember-metal/core","ember-extension-support/data_adapter","ember-extension-support/container_debug_adapter"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -43869,7 +43911,7 @@ define("ember-extension-support",
 })();
 
 (function() {
-define("ember-testing/adapters/adapter", 
+define("ember-testing/adapters/adapter",
   ["ember-metal/core","ember-metal/utils","ember-runtime/system/object","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -43934,7 +43976,7 @@ define("ember-testing/adapters/adapter",
 
     __exports__["default"] = Adapter;
   });
-define("ember-testing/adapters/qunit", 
+define("ember-testing/adapters/qunit",
   ["ember-testing/adapters/adapter","ember-metal/utils","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -43963,7 +44005,7 @@ define("ember-testing/adapters/qunit",
 
     __exports__["default"] = QUnitAdapter;
   });
-define("ember-testing/helpers", 
+define("ember-testing/helpers",
   ["ember-metal/property_get","ember-metal/error","ember-metal/run_loop","ember-views/system/jquery","ember-testing/test"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -44354,7 +44396,7 @@ define("ember-testing/helpers",
     */
     asyncHelper('triggerEvent', triggerEvent);
   });
-define("ember-testing/initializers", 
+define("ember-testing/initializers",
   ["ember-runtime/system/lazy_load"],
   function(__dependency1__) {
     "use strict";
@@ -44376,7 +44418,7 @@ define("ember-testing/initializers",
       }
     });
   });
-define("ember-testing", 
+define("ember-testing",
   ["ember-metal/core","ember-testing/initializers","ember-testing/support","ember-testing/setup_for_testing","ember-testing/test","ember-testing/adapters/adapter","ember-testing/adapters/qunit","ember-testing/helpers"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
     "use strict";
@@ -44404,7 +44446,7 @@ define("ember-testing",
     Ember.Test.QUnitAdapter = QUnitAdapter;
     Ember.setupForTesting = setupForTesting;
   });
-define("ember-testing/setup_for_testing", 
+define("ember-testing/setup_for_testing",
   ["ember-metal/core","ember-testing/adapters/qunit","ember-views/system/jquery","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -44455,7 +44497,7 @@ define("ember-testing/setup_for_testing",
 
     __exports__["default"] = setupForTesting;
   });
-define("ember-testing/support", 
+define("ember-testing/support",
   ["ember-metal/core","ember-views/system/jquery"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -44514,7 +44556,7 @@ define("ember-testing/support",
               });
     });
   });
-define("ember-testing/test", 
+define("ember-testing/test",
   ["ember-metal/core","ember-metal/run_loop","ember-metal/platform","ember-runtime/compare","ember-runtime/ext/rsvp","ember-testing/setup_for_testing","ember-application/system/application","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
@@ -45025,7 +45067,7 @@ define("ember-testing/test",
   });
 })();
 
-define("container/container", 
+define("container/container",
   ["container/inheriting_dict","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -45443,7 +45485,7 @@ define("container/container",
         validateFullName(fullName);
         if (this.parent) { illegalChildOperation('typeInjection'); }
 
-        var fullNameType = fullName.split(':')[0];        
+        var fullNameType = fullName.split(':')[0];
         if(fullNameType === type) {
           throw new Error('Cannot inject a `' + fullName + '` on other ' + type + '(s). Register the `' + fullName + '` as a different type and perform the typeInjection.');
         }
@@ -45840,7 +45882,7 @@ define("container/container",
     }
 
     __exports__["default"] = Container;
-  });define("ember-runtime/ext/rsvp", 
+  });define("ember-runtime/ext/rsvp",
   ["ember-metal/core","ember-metal/logger","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -45872,7 +45914,7 @@ define("container/container",
     RSVP.on('error', RSVP.onerrorDefault);
 
     __exports__["default"] = RSVP;
-  });define("ember-runtime/system/container", 
+  });define("ember-runtime/system/container",
   ["ember-metal/property_set","exports"],
   function(__dependency1__, __exports__) {
     "use strict";

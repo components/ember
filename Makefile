@@ -1,4 +1,4 @@
-VERSION=v1.6.0-beta.1
+VERSION=v1.6.0-beta.2
 
 default:
 	@curl -O http://builds.emberjs.com/tags/$(VERSION)/ember.js
