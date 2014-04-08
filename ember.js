@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.6.0-beta.2+pre.75ea875e
+ * @version   1.6.0-beta.2
  */
 
 
@@ -2503,7 +2503,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.6.0-beta.2+pre.75ea875e
+      @version 1.6.0-beta.2
     */
 
     if ('undefined' === typeof Ember) {
@@ -2530,10 +2530,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.6.0-beta.2+pre.75ea875e'
+      @default '1.6.0-beta.2'
       @static
     */
-    Ember.VERSION = '1.6.0-beta.2+pre.75ea875e';
+    Ember.VERSION = '1.6.0-beta.2';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -6429,7 +6429,7 @@ define("ember-metal/property_set",
         desc.set(obj, keyName, value);
       } else {
 
-        if (typeof obj === 'object' && obj !== null && obj[keyName] === value) {
+        if (typeof obj === 'object' && obj !== null && value !== undefined && obj[keyName] === value) {
           return value;
         }
 
@@ -34212,6 +34212,7 @@ define("ember-routing/helpers/action",
           }
 
           var target = options.target,
+              parameters = options.parameters,
               actionName;
 
           if (target.target) {
@@ -34221,7 +34222,7 @@ define("ember-routing/helpers/action",
           }
 
           if (options.boundProperty) {
-            actionName = handlebarsGet(target, actionNameOrPath, options.options);
+            actionName = resolveParams(parameters.context, [actionNameOrPath], { types: ['ID'], data: parameters.options.data })[0];
 
             if(typeof actionName === 'undefined' || typeof actionName === 'function') {
               Ember.assert("You specified a quoteless path to the {{action}} helper '" + actionNameOrPath + "' which did not resolve to an actionName. Perhaps you meant to use a quoted actionName? (e.g. {{action '" + actionNameOrPath + "'}}).", true);
@@ -34235,10 +34236,10 @@ define("ember-routing/helpers/action",
 
           run(function runRegisteredAction() {
             if (target.send) {
-              target.send.apply(target, args(options.parameters, actionName));
+              target.send.apply(target, args(parameters, actionName));
             } else {
               Ember.assert("The action '" + actionName + "' did not exist on " + target, typeof target[actionName] === 'function');
-              target[actionName].apply(target, args(options.parameters));
+              target[actionName].apply(target, args(parameters));
             }
           });
         }
