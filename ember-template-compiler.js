@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.6.0-beta.2
+ * @version   1.7.0-beta.1+canary.94b51aed
  */
 
 
@@ -139,6 +139,7 @@ EmberHandlebars.helper = function(name, value) {
   @method makeViewHelper
   @for Ember.Handlebars
   @param {Function} ViewClass view class constructor
+  @since 1.2.0
 */
 EmberHandlebars.makeViewHelper = function(ViewClass) {
   return function(options) {

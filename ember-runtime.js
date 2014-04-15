@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.6.0-beta.2
+ * @version   1.7.0-beta.1+canary.94b51aed
  */
 
 
@@ -1174,11 +1174,11 @@ define("ember-metal/computed",
       });
 
       var tom = Person.create({
-        firstName: "Tom",
-        lastName: "Dale"
+        firstName: 'Tom',
+        lastName: 'Dale'
       });
 
-      tom.get('fullName') // "Tom Dale"
+      tom.get('fullName') // 'Tom Dale'
       ```
 
       You can also define what Ember should do when setting a computed property.
@@ -1214,9 +1214,9 @@ define("ember-metal/computed",
       });
 
       var person = Person.create();
-      person.set('fullName', "Peter Wagenet");
-      person.get('firstName') // Peter
-      person.get('lastName') // Wagenet
+      person.set('fullName', 'Peter Wagenet');
+      person.get('firstName') // 'Peter'
+      person.get('lastName') // 'Wagenet'
       ```
 
       @class ComputedProperty
@@ -1323,7 +1323,8 @@ define("ember-metal/computed",
         firstName: 'Barack',
         lastName: 'Obama',
       });
-      MyApp.president.get('fullName'); // Barack Obama
+
+      MyApp.president.get('fullName'); // 'Barack Obama'
       ```
 
       @method property
@@ -1417,11 +1418,11 @@ define("ember-metal/computed",
 
 
       var tom = Person.create({
-        firstName: "Tom",
-        lastName: "Dale"
+        firstName: 'Tom',
+        lastName: 'Dale'
       });
 
-      tom.get('fullName') // "Tom Dale"
+      tom.get('fullName') // 'Tom Dale'
       ```
 
       @method get
@@ -1565,6 +1566,7 @@ define("ember-metal/computed",
       The function should accept two parameters, key and value. If value is not
       undefined you should set the value first. In either case return the
       current value of the property.
+
       @method computed
       @for Ember
       @param {Function} func The computed property function.
@@ -1671,7 +1673,9 @@ define("ember-metal/computed",
         var ToDoList = Ember.Object.extend({
           done: Ember.computed.empty('todos')
         });
+
         var todoList = ToDoList.create({todos: ['Unit Test', 'Documentation', 'Release']});
+
         todoList.get('done'); // false
         todoList.get('todos').clear();
         todoList.get('done'); // true
@@ -1701,9 +1705,11 @@ define("ember-metal/computed",
 
       ```javascript
       var Hamster = Ember.Object.extend({
-        hasStuff: computed.notEmpty('backpack.[]')
+        hasStuff: Ember.computed.notEmpty('backpack.[]')
       });
+
       var hamster = Hamster.create({backpack: ['Food', 'Sleeping Bag', 'Tent']});
+
       hamster.get('hasStuff'); // true
       hamster.get('backpack').clear(); // []
       hamster.get('hasStuff'); // false
@@ -1728,9 +1734,11 @@ define("ember-metal/computed",
 
       ```javascript
       var Hamster = Ember.Object.extend({
-        isHungry: computed.none('food')
+        isHungry: Ember.computed.none('food')
       });
+
       var hamster = Hamster.create();
+
       hamster.get('isHungry'); // true
       hamster.set('food', 'Banana');
       hamster.get('isHungry'); // false
@@ -1756,9 +1764,11 @@ define("ember-metal/computed",
 
       ```javascript
       var User = Ember.Object.extend({
-        isAnonymous: computed.not('loggedIn')
+        isAnonymous: Ember.computed.not('loggedIn')
       });
+
       var user = User.create({loggedIn: false});
+
       user.get('isAnonymous'); // true
       user.set('loggedIn', true);
       user.get('isAnonymous'); // false
@@ -1780,9 +1790,11 @@ define("ember-metal/computed",
 
       ```javascript
       var Hamster = Ember.Object.extend({
-        hasBananas: computed.bool('numBananas')
+        hasBananas: Ember.computed.bool('numBananas')
       });
+
       var hamster = Hamster.create();
+
       hamster.get('hasBananas'); // false
       hamster.set('numBananas', 0);
       hamster.get('hasBananas'); // false
@@ -1811,9 +1823,11 @@ define("ember-metal/computed",
 
       ```javascript
       var User = Ember.Object.extend({
-        hasValidEmail: computed.match('email', /^.+@.+\..+$/)
+        hasValidEmail: Ember.computed.match('email', /^.+@.+\..+$/)
       });
+
       var user = User.create({loggedIn: false});
+
       user.get('hasValidEmail'); // false
       user.set('email', '');
       user.get('hasValidEmail'); // false
@@ -1841,9 +1855,11 @@ define("ember-metal/computed",
 
       ```javascript
       var Hamster = Ember.Object.extend({
-        napTime: computed.equal('state', 'sleepy')
+        napTime: Ember.computed.equal('state', 'sleepy')
       });
+
       var hamster = Hamster.create();
+
       hamster.get('napTime'); // false
       hamster.set('state', 'sleepy');
       hamster.get('napTime'); // true
@@ -1870,9 +1886,11 @@ define("ember-metal/computed",
 
       ```javascript
       var Hamster = Ember.Object.extend({
-        hasTooManyBananas: computed.gt('numBananas', 10)
+        hasTooManyBananas: Ember.computed.gt('numBananas', 10)
       });
+
       var hamster = Hamster.create();
+
       hamster.get('hasTooManyBananas'); // false
       hamster.set('numBananas', 3);
       hamster.get('hasTooManyBananas'); // false
@@ -1899,9 +1917,11 @@ define("ember-metal/computed",
 
       ```javascript
       var Hamster = Ember.Object.extend({
-        hasTooManyBananas: computed.gte('numBananas', 10)
+        hasTooManyBananas: Ember.computed.gte('numBananas', 10)
       });
+
       var hamster = Hamster.create();
+
       hamster.get('hasTooManyBananas'); // false
       hamster.set('numBananas', 3);
       hamster.get('hasTooManyBananas'); // false
@@ -1928,9 +1948,11 @@ define("ember-metal/computed",
 
       ```javascript
       var Hamster = Ember.Object.extend({
-        needsMoreBananas: computed.lt('numBananas', 3)
+        needsMoreBananas: Ember.computed.lt('numBananas', 3)
       });
+
       var hamster = Hamster.create();
+
       hamster.get('needsMoreBananas'); // true
       hamster.set('numBananas', 3);
       hamster.get('needsMoreBananas'); // false
@@ -1957,9 +1979,11 @@ define("ember-metal/computed",
 
       ```javascript
       var Hamster = Ember.Object.extend({
-        needsMoreBananas: computed.lte('numBananas', 3)
+        needsMoreBananas: Ember.computed.lte('numBananas', 3)
       });
+
       var hamster = Hamster.create();
+
       hamster.get('needsMoreBananas'); // true
       hamster.set('numBananas', 5);
       hamster.get('needsMoreBananas'); // false
@@ -1986,9 +2010,11 @@ define("ember-metal/computed",
 
       ```javascript
       var Hamster = Ember.Object.extend({
-        readyForCamp: computed.and('hasTent', 'hasBackpack')
+        readyForCamp: Ember.computed.and('hasTent', 'hasBackpack')
       });
+
       var hamster = Hamster.create();
+
       hamster.get('readyForCamp'); // false
       hamster.set('hasTent', true);
       hamster.get('readyForCamp'); // false
@@ -2019,9 +2045,11 @@ define("ember-metal/computed",
 
       ```javascript
       var Hamster = Ember.Object.extend({
-        readyForRain: computed.or('hasJacket', 'hasUmbrella')
+        readyForRain: Ember.computed.or('hasJacket', 'hasUmbrella')
       });
+
       var hamster = Hamster.create();
+
       hamster.get('readyForRain'); // false
       hamster.set('hasJacket', true);
       hamster.get('readyForRain'); // true
@@ -2050,9 +2078,11 @@ define("ember-metal/computed",
 
       ```javascript
       var Hamster = Ember.Object.extend({
-        hasClothes: computed.any('hat', 'shirt')
+        hasClothes: Ember.computed.any('hat', 'shirt')
       });
+
       var hamster = Hamster.create();
+
       hamster.get('hasClothes'); // null
       hamster.set('shirt', 'Hawaiian Shirt');
       hamster.get('hasClothes'); // 'Hawaiian Shirt'
@@ -2081,9 +2111,11 @@ define("ember-metal/computed",
 
       ```javascript
       var Hamster = Ember.Object.extend({
-        clothes: computed.collect('hat', 'shirt')
+        clothes: Ember.computed.collect('hat', 'shirt')
       });
+
       var hamster = Hamster.create();
+
       hamster.get('clothes'); // [null, null]
       hamster.set('hat', 'Camp Hat');
       hamster.set('shirt', 'Camp Shirt');
@@ -2118,16 +2150,18 @@ define("ember-metal/computed",
       ```javascript
       Person = Ember.Object.extend({
         name: 'Alex Matchneer',
-        nomen: computed.alias('name')
+        nomen: Ember.computed.alias('name')
       });
 
       alex = Person.create();
+
       alex.get('nomen'); // 'Alex Matchneer'
       alex.get('name');  // 'Alex Matchneer'
 
       alex.set('nomen', '@machty');
       alex.get('name');  // '@machty'
       ```
+
       @method computed.alias
       @for Ember
       @param {String} dependentKey
@@ -2149,31 +2183,26 @@ define("ember-metal/computed",
       Where `computed.alias` aliases `get` and `set`, and allows for bidirectional
       data flow, `computed.oneWay` only provides an aliased `get`. The `set` will
       not mutate the upstream property, rather causes the current property to
-      become the value set. This causes the downstream property to permentantly
+      become the value set. This causes the downstream property to permanently
       diverge from the upstream property.
 
       Example
 
       ```javascript
-      User = Ember.Object.extend({
+      var User = Ember.Object.extend({
         firstName: null,
         lastName: null,
-        nickName: computed.oneWay('firstName')
+        nickName: Ember.computed.oneWay('firstName')
       });
 
-      user = User.create({
+      var teddy = User.create({
         firstName: 'Teddy',
         lastName:  'Zeenny'
       });
 
-      user.get('nickName');
-      # 'Teddy'
-
-      user.set('nickName', 'TeddyBear');
-      # 'TeddyBear'
-
-      user.get('firstName');
-      # 'Teddy'
+      teddy.get('nickName'); // 'Teddy'
+      teddy.set('nickName', 'TeddyBear'); // 'TeddyBear'
+      teddy.get('firstName'); // 'Teddy'
       ```
 
       @method computed.oneWay
@@ -2212,26 +2241,21 @@ define("ember-metal/computed",
       Example
 
       ```javascript
-      User = Ember.Object.extend({
+      var User = Ember.Object.extend({
         firstName: null,
         lastName: null,
-        nickName: computed.readOnly('firstName')
+        nickName: Ember.computed.readOnly('firstName')
       });
 
-      user = User.create({
+      var teddy = User.create({
         firstName: 'Teddy',
         lastName:  'Zeenny'
       });
 
-      user.get('nickName');
-      # 'Teddy'
-
-      user.set('nickName', 'TeddyBear');
-      # throws Exception
-      # throw new Ember.Error('Cannot Set: nickName on: <User:ember27288>' );`
-
-      user.get('firstName');
-      # 'Teddy'
+      teddy.get('nickName'); // 'Teddy'
+      teddy.set('nickName', 'TeddyBear'); // throws Exception
+      // throw new Ember.Error('Cannot Set: nickName on: <User:ember27288>' );`
+      teddy.get('firstName'); // 'Teddy'
       ```
 
       @method computed.readOnly
@@ -2239,6 +2263,7 @@ define("ember-metal/computed",
       @param {String} dependentKey
       @return {Ember.ComputedProperty} computed property which creates a
       one way computed property to the original value for property.
+      @since 1.5.0
     */
     computed.readOnly = function(dependentKey) {
       return computed(dependentKey, function() {
@@ -2254,9 +2279,11 @@ define("ember-metal/computed",
 
       ```javascript
       var Hamster = Ember.Object.extend({
-        wishList: computed.defaultTo('favoriteFood')
+        wishList: Ember.computed.defaultTo('favoriteFood')
       });
+
       var hamster = Hamster.create({favoriteFood: 'Banana'});
+
       hamster.get('wishList'); // 'Banana'
       hamster.set('wishList', 'More Unit Tests');
       hamster.get('wishList'); // 'More Unit Tests'
@@ -2311,7 +2338,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.6.0-beta.2
+      @version 1.7.0-beta.1+canary.94b51aed
     */
 
     if ('undefined' === typeof Ember) {
@@ -2338,10 +2365,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.6.0-beta.2'
+      @default '1.7.0-beta.1+canary.94b51aed'
       @static
     */
-    Ember.VERSION = '1.6.0-beta.2';
+    Ember.VERSION = '1.7.0-beta.1+canary.94b51aed';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -2382,8 +2409,10 @@ define("ember-metal/core",
 
       You can also define `ENV.FEATURES` if you need to enable features flagged at runtime.
 
-      @property FEATURES
-      @type Hash
+      @class FEATURES
+      @namespace Ember
+      @static
+      @since 1.1.0
     */
 
     Ember.FEATURES = Ember.ENV.FEATURES || {};
@@ -2399,7 +2428,10 @@ define("ember-metal/core",
         enabled/disabled.
 
       @method isEnabled
-      @param {string} feature
+      @param {String} feature
+      @return {Boolean}
+      @for Ember.FEATURES
+      @since 1.1.0
     */
 
     Ember.FEATURES.isEnabled = function(feature) {
@@ -2433,6 +2465,7 @@ define("ember-metal/core",
       @property EXTEND_PROTOTYPES
       @type Boolean
       @default true
+      @for Ember
     */
     Ember.EXTEND_PROTOTYPES = Ember.ENV.EXTEND_PROTOTYPES;
 
@@ -2566,6 +2599,7 @@ define("ember-metal/enumerable_utils",
        * @param {Object} thisArg Value to use as this when executing *callback*
        *
        * @return {Array} An array containing the filtered values
+       * @since 1.4.0
        */
       filter: function(obj, callback, thisArg) {
         return obj.filter ? obj.filter.call(obj, callback, thisArg) : filter.call(obj, callback, thisArg);
@@ -3532,6 +3566,7 @@ define("ember-metal/is_blank",
       @for Ember
       @param {Object} obj Value to test
       @return {Boolean}
+      @since 1.5.0
       */
     function isBlank(obj) {
       return isEmpty(obj) || (typeof obj === 'string' && obj.match(/\S/) === null);
@@ -3987,6 +4022,8 @@ define("ember-metal",
         });
       };
       ```
+
+      Internally, `Ember.onerror` is used as Backburner's error handler.
 
       @event onerror
       @for Ember
@@ -6357,7 +6394,9 @@ define("ember-metal/run_loop",
           },
           defaultQueue: 'actions',
           onBegin: onBegin,
-          onEnd: onEnd
+          onEnd: onEnd,
+          onErrorTarget: Ember,
+          onErrorMethod: 'onerror'
         }),
         slice = [].slice,
         concat = [].concat;
@@ -6394,20 +6433,9 @@ define("ember-metal/run_loop",
       @return {Object} return value from invoking the passed function.
     */
     var run = function() {
-      if (Ember.onerror) {
-        return onerror(arguments);
-      } else {
-        return apply(backburner, backburner.run, arguments);
-      }
+      return apply(backburner, backburner.run, arguments);
     };
 
-    function onerror(args) {
-      try {
-        return apply(backburner, backburner.run, args);
-      } catch(error) {
-        Ember.onerror(error);
-      }
-    }
     /**
       If no run-loop is present, it creates a new one. If a run loop is
       present it will queue itself to run on the existing run-loops action
@@ -6494,6 +6522,7 @@ define("ember-metal/run_loop",
       @param {Object} [args*] Any additional arguments you wish to pass to the method.
       @return {Object} return value from invoking the passed function. Please note,
       when called within an existing loop, no return value is possible.
+      @since 1.4.0
     */
     run.bind = function(target, method /* args*/) {
       var args = slice.call(arguments);
@@ -7017,6 +7046,10 @@ define("ember-metal/utils",
     /**
       Prefix used for guids through out Ember.
       @private
+      @property GUID_PREFIX
+      @for Ember
+      @type String
+      @final
     */
     var GUID_PREFIX = 'ember';
 
@@ -7722,6 +7755,7 @@ define("ember-metal/utils",
       @for Ember
       @param {Object} obj The object you want to inspect.
       @return {String} A description of the object
+      @since 1.4.0
     */
     function inspect(obj) {
       var type = typeOf(obj);
@@ -7796,218 +7830,6 @@ define("ember-metal/utils",
     __exports__.applyStr = applyStr;
     __exports__.apply = apply;
   });
-define("backburner/queue",
-  ["exports"],
-  function(__exports__) {
-    "use strict";
-    function Queue(daq, name, options) {
-      this.daq = daq;
-      this.name = name;
-      this.options = options;
-      this._queue = [];
-    }
-
-    Queue.prototype = {
-      daq: null,
-      name: null,
-      options: null,
-      _queue: null,
-
-      push: function(target, method, args, stack) {
-        var queue = this._queue;
-        queue.push(target, method, args, stack);
-        return {queue: this, target: target, method: method};
-      },
-
-      pushUnique: function(target, method, args, stack) {
-        var queue = this._queue, currentTarget, currentMethod, i, l;
-
-        for (i = 0, l = queue.length; i < l; i += 4) {
-          currentTarget = queue[i];
-          currentMethod = queue[i+1];
-
-          if (currentTarget === target && currentMethod === method) {
-            queue[i+2] = args; // replace args
-            queue[i+3] = stack; // replace stack
-            return {queue: this, target: target, method: method}; // TODO: test this code path
-          }
-        }
-
-        this._queue.push(target, method, args, stack);
-        return {queue: this, target: target, method: method};
-      },
-
-      // TODO: remove me, only being used for Ember.run.sync
-      flush: function() {
-        var queue = this._queue,
-            options = this.options,
-            before = options && options.before,
-            after = options && options.after,
-            target, method, args, stack, i, l = queue.length;
-
-        if (l && before) { before(); }
-        for (i = 0; i < l; i += 4) {
-          target = queue[i];
-          method = queue[i+1];
-          args   = queue[i+2];
-          stack  = queue[i+3]; // Debugging assistance
-
-          // TODO: error handling
-          if (args && args.length > 0) {
-            method.apply(target, args);
-          } else {
-            method.call(target);
-          }
-        }
-        if (l && after) { after(); }
-
-        // check if new items have been added
-        if (queue.length > l) {
-          this._queue = queue.slice(l);
-          this.flush();
-        } else {
-          this._queue.length = 0;
-        }
-      },
-
-      cancel: function(actionToCancel) {
-        var queue = this._queue, currentTarget, currentMethod, i, l;
-
-        for (i = 0, l = queue.length; i < l; i += 4) {
-          currentTarget = queue[i];
-          currentMethod = queue[i+1];
-
-          if (currentTarget === actionToCancel.target && currentMethod === actionToCancel.method) {
-            queue.splice(i, 4);
-            return true;
-          }
-        }
-
-        // if not found in current queue
-        // could be in the queue that is being flushed
-        queue = this._queueBeingFlushed;
-        if (!queue) {
-          return;
-        }
-        for (i = 0, l = queue.length; i < l; i += 4) {
-          currentTarget = queue[i];
-          currentMethod = queue[i+1];
-
-          if (currentTarget === actionToCancel.target && currentMethod === actionToCancel.method) {
-            // don't mess with array during flush
-            // just nullify the method
-            queue[i+1] = null;
-            return true;
-          }
-        }
-      }
-    };
-
-    __exports__.Queue = Queue;
-  });
-
-define("backburner/deferred_action_queues",
-  ["backburner/queue","exports"],
-  function(__dependency1__, __exports__) {
-    "use strict";
-    var Queue = __dependency1__.Queue;
-
-    function DeferredActionQueues(queueNames, options) {
-      var queues = this.queues = {};
-      this.queueNames = queueNames = queueNames || [];
-
-      var queueName;
-      for (var i = 0, l = queueNames.length; i < l; i++) {
-        queueName = queueNames[i];
-        queues[queueName] = new Queue(this, queueName, options[queueName]);
-      }
-    }
-
-    DeferredActionQueues.prototype = {
-      queueNames: null,
-      queues: null,
-
-      schedule: function(queueName, target, method, args, onceFlag, stack) {
-        var queues = this.queues,
-            queue = queues[queueName];
-
-        if (!queue) { throw new Error("You attempted to schedule an action in a queue (" + queueName + ") that doesn't exist"); }
-
-        if (onceFlag) {
-          return queue.pushUnique(target, method, args, stack);
-        } else {
-          return queue.push(target, method, args, stack);
-        }
-      },
-
-      flush: function() {
-        var queues = this.queues,
-            queueNames = this.queueNames,
-            queueName, queue, queueItems, priorQueueNameIndex,
-            queueNameIndex = 0, numberOfQueues = queueNames.length;
-
-        outerloop:
-        while (queueNameIndex < numberOfQueues) {
-          queueName = queueNames[queueNameIndex];
-          queue = queues[queueName];
-          queueItems = queue._queueBeingFlushed = queue._queue.slice();
-          queue._queue = [];
-
-          var options = queue.options,
-              before = options && options.before,
-              after = options && options.after,
-              target, method, args, stack,
-              queueIndex = 0, numberOfQueueItems = queueItems.length;
-
-          if (numberOfQueueItems && before) { before(); }
-          while (queueIndex < numberOfQueueItems) {
-            target = queueItems[queueIndex];
-            method = queueItems[queueIndex+1];
-            args   = queueItems[queueIndex+2];
-            stack  = queueItems[queueIndex+3]; // Debugging assistance
-
-            if (typeof method === 'string') { method = target[method]; }
-
-            // method could have been nullified / canceled during flush
-            if (method) {
-              // TODO: error handling
-              if (args && args.length > 0) {
-                method.apply(target, args);
-              } else {
-                method.call(target);
-              }
-            }
-
-            queueIndex += 4;
-          }
-          queue._queueBeingFlushed = null;
-          if (numberOfQueueItems && after) { after(); }
-
-          if ((priorQueueNameIndex = indexOfPriorQueueWithActions(this, queueNameIndex)) !== -1) {
-            queueNameIndex = priorQueueNameIndex;
-            continue outerloop;
-          }
-
-          queueNameIndex++;
-        }
-      }
-    };
-
-    function indexOfPriorQueueWithActions(daq, currentQueueIndex) {
-      var queueName, queue;
-
-      for (var i = 0, l = currentQueueIndex; i <= l; i++) {
-        queueName = daq.queueNames[i];
-        queue = daq.queues[queueName];
-        if (queue._queue.length) { return i; }
-      }
-
-      return -1;
-    }
-
-    __exports__.DeferredActionQueues = DeferredActionQueues;
-  });
-
 define("backburner",
   ["backburner/deferred_action_queues","exports"],
   function(__dependency1__, __exports__) {
@@ -8043,21 +7865,23 @@ define("backburner",
       instanceStack: null,
 
       begin: function() {
-        var onBegin = this.options && this.options.onBegin,
+        var options = this.options,
+            onBegin = options && options.onBegin,
             previousInstance = this.currentInstance;
 
         if (previousInstance) {
           this.instanceStack.push(previousInstance);
         }
 
-        this.currentInstance = new DeferredActionQueues(this.queueNames, this.options);
+        this.currentInstance = new DeferredActionQueues(this.queueNames, options);
         if (onBegin) {
           onBegin(this.currentInstance, previousInstance);
         }
       },
 
       end: function() {
-        var onEnd = this.options && this.options.onEnd,
+        var options = this.options,
+            onEnd = options && options.onEnd,
             currentInstance = this.currentInstance,
             nextInstance = null;
 
@@ -8078,7 +7902,9 @@ define("backburner",
       },
 
       run: function(target, method /*, args */) {
-        var ret;
+        var options = this.options,
+            ret;
+
         this.begin();
 
         if (!method) {
@@ -8090,13 +7916,33 @@ define("backburner",
           method = target[method];
         }
 
+        var onError = options.onError || (options.onErrorTarget && options.onErrorTarget[options.onErrorMethod]);
+
         // Prevent Safari double-finally.
         var finallyAlreadyCalled = false;
         try {
           if (arguments.length > 2) {
-            ret = method.apply(target, slice.call(arguments, 2));
+            if (onError) {
+              // Do we need this double try?
+              try {
+                ret = method.apply(target, slice.call(arguments, 2));
+              } catch (e) {
+                onError(e);
+              }
+            } else {
+              ret = method.apply(target, slice.call(arguments, 2));
+            }
           } else {
-            ret = method.call(target);
+            if (onError) {
+              // Do we need this double try?
+              try {
+                ret = method.call(target);
+              } catch (e) {
+                onError(e);
+              }
+            } else {
+              ret = method.call(target);
+            }
           }
         } finally {
           if (!finallyAlreadyCalled) {
@@ -8145,6 +7991,7 @@ define("backburner",
         var method, wait, target;
         var self = this;
         var methodOrTarget, methodOrWait, methodOrArgs;
+        var options = this.options;
 
         if (length === 0) {
           return;
@@ -8171,6 +8018,8 @@ define("backburner",
 
           if (isCoercableNumber(last)) {
             wait = args.pop();
+          } else {
+            wait = 0;
           }
 
           methodOrTarget = args[0];
@@ -8192,15 +8041,22 @@ define("backburner",
           method = target[method];
         }
 
+        var onError = options.onError || (options.onErrorTarget && options.onErrorTarget[options.onErrorMethod]);
+
         function fn() {
-          method.apply(target, args);
+          if (onError) {
+            try {
+              method.apply(target, args);
+            } catch (e) {
+              onError(e);
+            }
+          } else {
+            method.apply(target, args);
+          }
         }
 
-        // find position to insert - TODO: binary search
-        var i, l;
-        for (i = 0, l = timers.length; i < l; i += 2) {
-          if (executeAt < timers[i]) { break; }
-        }
+        // find position to insert
+        var i = searchTimer(executeAt, timers);
 
         timers.splice(i, 0, executeAt, fn);
 
@@ -8322,7 +8178,7 @@ define("backburner",
       },
 
       hasTimers: function() {
-        return !!timers.length || autorun;
+        return !!timers.length || !!debouncees.length || !!throttlers.length || autorun;
       },
 
       cancel: function(timer) {
@@ -8400,11 +8256,7 @@ define("backburner",
           time, fns, i, l;
 
       self.run(function() {
-        // TODO: binary search
-        for (i = 0, l = timers.length; i < l; i += 2) {
-          time = timers[i];
-          if (time > now) { break; }
-        }
+        i = searchTimer(now, timers);
 
         fns = timers.splice(0, i);
 
@@ -8448,9 +8300,283 @@ define("backburner",
       return index;
     }
 
+    function searchTimer(time, timers) {
+      var start = 0,
+          end = timers.length - 2,
+          middle, l;
+
+      while (start < end) {
+        // since timers is an array of pairs 'l' will always
+        // be an integer
+        l = (end - start) / 2;
+
+        // compensate for the index in case even number
+        // of pairs inside timers
+        middle = start + l - (l % 2);
+
+        if (time >= timers[middle]) {
+          start = middle + 2;
+        } else {
+          end = middle;
+        }
+      }
+
+      return (time >= timers[start]) ? start + 2 : start;
+    }
+
     __exports__.Backburner = Backburner;
   });
+define("backburner/deferred_action_queues",
+  ["backburner/queue","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    var Queue = __dependency1__.Queue;
 
+    function DeferredActionQueues(queueNames, options) {
+      var queues = this.queues = {};
+      this.queueNames = queueNames = queueNames || [];
+
+      this.options = options;
+
+      var queueName;
+      for (var i = 0, l = queueNames.length; i < l; i++) {
+        queueName = queueNames[i];
+        queues[queueName] = new Queue(this, queueName, this.options);
+      }
+    }
+
+    DeferredActionQueues.prototype = {
+      queueNames: null,
+      queues: null,
+      options: null,
+
+      schedule: function(queueName, target, method, args, onceFlag, stack) {
+        var queues = this.queues,
+            queue = queues[queueName];
+
+        if (!queue) { throw new Error("You attempted to schedule an action in a queue (" + queueName + ") that doesn't exist"); }
+
+        if (onceFlag) {
+          return queue.pushUnique(target, method, args, stack);
+        } else {
+          return queue.push(target, method, args, stack);
+        }
+      },
+
+      flush: function() {
+        var queues = this.queues,
+            queueNames = this.queueNames,
+            queueName, queue, queueItems, priorQueueNameIndex,
+            queueNameIndex = 0, numberOfQueues = queueNames.length;
+
+        outerloop:
+        while (queueNameIndex < numberOfQueues) {
+          queueName = queueNames[queueNameIndex];
+          queue = queues[queueName];
+          queueItems = queue._queueBeingFlushed = queue._queue.slice();
+          queue._queue = [];
+
+          var queueOptions = queue.options, // TODO: write a test for this
+              options = this.options,
+              before = queueOptions && queueOptions.before,
+              after = queueOptions && queueOptions.after,
+              onError = options.onError || (options.onErrorTarget && options.onErrorTarget[options.onErrorMethod]),
+              target, method, args, stack,
+              queueIndex = 0, numberOfQueueItems = queueItems.length;
+
+          if (numberOfQueueItems && before) { before(); }
+          while (queueIndex < numberOfQueueItems) {
+            target = queueItems[queueIndex];
+            method = queueItems[queueIndex+1];
+            args   = queueItems[queueIndex+2];
+            stack  = queueItems[queueIndex+3]; // Debugging assistance
+
+            if (typeof method === 'string') { method = target[method]; }
+
+            // method could have been nullified / canceled during flush
+            if (method) {
+              // TODO: error handling
+              if (args && args.length > 0) {
+                if (onError) {
+                  try {
+                    method.apply(target, args);
+                  } catch (e) {
+                    onError(e);
+                  }
+                } else {
+                  method.apply(target, args);
+                }
+              } else {
+                if (onError) {
+                  try {
+                    method.call(target);
+                  } catch(e) {
+                    onError(e);
+                  }
+                } else {
+                  method.call(target);
+                }
+              }
+            }
+
+            queueIndex += 4;
+          }
+          queue._queueBeingFlushed = null;
+          if (numberOfQueueItems && after) { after(); }
+
+          if ((priorQueueNameIndex = indexOfPriorQueueWithActions(this, queueNameIndex)) !== -1) {
+            queueNameIndex = priorQueueNameIndex;
+            continue outerloop;
+          }
+
+          queueNameIndex++;
+        }
+      }
+    };
+
+    function indexOfPriorQueueWithActions(daq, currentQueueIndex) {
+      var queueName, queue;
+
+      for (var i = 0, l = currentQueueIndex; i <= l; i++) {
+        queueName = daq.queueNames[i];
+        queue = daq.queues[queueName];
+        if (queue._queue.length) { return i; }
+      }
+
+      return -1;
+    }
+
+    __exports__.DeferredActionQueues = DeferredActionQueues;
+  });
+define("backburner/queue",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    function Queue(daq, name, options) {
+      this.daq = daq;
+      this.name = name;
+      this.globalOptions = options;
+      this.options = options[name];
+      this._queue = [];
+    }
+
+    Queue.prototype = {
+      daq: null,
+      name: null,
+      options: null,
+      onError: null,
+      _queue: null,
+
+      push: function(target, method, args, stack) {
+        var queue = this._queue;
+        queue.push(target, method, args, stack);
+        return {queue: this, target: target, method: method};
+      },
+
+      pushUnique: function(target, method, args, stack) {
+        var queue = this._queue, currentTarget, currentMethod, i, l;
+
+        for (i = 0, l = queue.length; i < l; i += 4) {
+          currentTarget = queue[i];
+          currentMethod = queue[i+1];
+
+          if (currentTarget === target && currentMethod === method) {
+            queue[i+2] = args; // replace args
+            queue[i+3] = stack; // replace stack
+            return {queue: this, target: target, method: method};
+          }
+        }
+
+        this._queue.push(target, method, args, stack);
+        return {queue: this, target: target, method: method};
+      },
+
+      // TODO: remove me, only being used for Ember.run.sync
+      flush: function() {
+        var queue = this._queue,
+            globalOptions = this.globalOptions,
+            options = this.options,
+            before = options && options.before,
+            after = options && options.after,
+            onError = globalOptions.onError || (globalOptions.onErrorTarget && globalOptions.onErrorTarget[globalOptions.onErrorMethod]),
+            target, method, args, stack, i, l = queue.length;
+
+        if (l && before) { before(); }
+        for (i = 0; i < l; i += 4) {
+          target = queue[i];
+          method = queue[i+1];
+          args   = queue[i+2];
+          stack  = queue[i+3]; // Debugging assistance
+
+          // TODO: error handling
+          if (args && args.length > 0) {
+            if (onError) {
+              try {
+                method.apply(target, args);
+              } catch (e) {
+                onError(e);
+              }
+            } else {
+              method.apply(target, args);
+            }
+          } else {
+            if (onError) {
+              try {
+                method.call(target);
+              } catch(e) {
+                onError(e);
+              }
+            } else {
+              method.call(target);
+            }
+          }
+        }
+        if (l && after) { after(); }
+
+        // check if new items have been added
+        if (queue.length > l) {
+          this._queue = queue.slice(l);
+          this.flush();
+        } else {
+          this._queue.length = 0;
+        }
+      },
+
+      cancel: function(actionToCancel) {
+        var queue = this._queue, currentTarget, currentMethod, i, l;
+
+        for (i = 0, l = queue.length; i < l; i += 4) {
+          currentTarget = queue[i];
+          currentMethod = queue[i+1];
+
+          if (currentTarget === actionToCancel.target && currentMethod === actionToCancel.method) {
+            queue.splice(i, 4);
+            return true;
+          }
+        }
+
+        // if not found in current queue
+        // could be in the queue that is being flushed
+        queue = this._queueBeingFlushed;
+        if (!queue) {
+          return;
+        }
+        for (i = 0, l = queue.length; i < l; i += 4) {
+          currentTarget = queue[i];
+          currentMethod = queue[i+1];
+
+          if (currentTarget === actionToCancel.target && currentMethod === actionToCancel.method) {
+            // don't mess with array during flush
+            // just nullify the method
+            queue[i+1] = null;
+            return true;
+          }
+        }
+      }
+    };
+
+    __exports__.Queue = Queue;
+  });
 define("ember-metal/watch_key",
   ["ember-metal/core","ember-metal/utils","ember-metal/platform","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
@@ -11352,6 +11478,9 @@ define("container/container",
         validateFullName(fullName);
         var normalizedName = this.normalize(fullName);
 
+        if (this.cache.has(normalizedName)) {
+          throw new Error("Attempted to register an injection for a type that has already been looked up. ('" + normalizedName + "', '" + property + "', '" + injectionName + "')");
+        }
         addInjection(this.injections, normalizedName, property, normalizedInjectionName);
       },
 
@@ -11454,6 +11583,9 @@ define("container/container",
 
         validateFullName(fullName);
 
+        if (this.factoryCache.has(normalizedName)) {
+          throw new Error("Attempted to register a factoryInjection for a type that has already been looked up. ('" + normalizedName + "', '" + property + "', '" + injectionName + "')");
+        }
         addInjection(this.factoryInjections, normalizedName, property, normalizedInjectionName);
       },
 
@@ -11804,7 +11936,7 @@ define("container",
   ["container/container","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
-    /**
+    /*
     Public api for the container is still in flux.
     The public api, specified on the application namespace should be considered the stable api.
     // @module container
@@ -12436,7 +12568,7 @@ define("ember-runtime/computed/reduce_computed",
 
           forEach(itemPropertyKeys, removeObservers, this);
 
-          changeMeta = createChangeMeta(dependentArray, item, itemIndex, this.instanceMeta.propertyName, this.cp);
+          changeMeta = new ChangeMeta(dependentArray, item, itemIndex, this.instanceMeta.propertyName, this.cp, normalizedRemoveCount);
           this.setValue( removedItem.call(
             this.instanceMeta.context, this.getValue(), item, changeMeta, this.instanceMeta.sugarMeta));
         }
@@ -12466,7 +12598,7 @@ define("ember-runtime/computed/reduce_computed",
             }, this);
           }
 
-          changeMeta = createChangeMeta(dependentArray, item, normalizedIndex + sliceIndex, this.instanceMeta.propertyName, this.cp);
+          changeMeta = new ChangeMeta(dependentArray, item, normalizedIndex + sliceIndex, this.instanceMeta.propertyName, this.cp, addedCount);
           this.setValue( addedItem.call(
             this.instanceMeta.context, this.getValue(), item, changeMeta, this.instanceMeta.sugarMeta));
         }, this);
@@ -12502,7 +12634,7 @@ define("ember-runtime/computed/reduce_computed",
 
           this.updateIndexes(c.observerContext.trackedArray, c.observerContext.dependentArray);
 
-          changeMeta = createChangeMeta(c.array, c.obj, c.observerContext.index, this.instanceMeta.propertyName, this.cp, c.previousValues);
+          changeMeta = new ChangeMeta(c.array, c.obj, c.observerContext.index, this.instanceMeta.propertyName, this.cp, changedItems.length, c.previousValues);
           this.setValue(
             this.callbacks.removedItem.call(this.instanceMeta.context, this.getValue(), c.obj, changeMeta, this.instanceMeta.sugarMeta));
           this.setValue(
@@ -12526,27 +12658,24 @@ define("ember-runtime/computed/reduce_computed",
       return Math.min(removedCount, length - index);
     }
 
-    function createChangeMeta(dependentArray, item, index, propertyName, property, previousValues) {
-      var meta = {
-        arrayChanged: dependentArray,
-        index: index,
-        item: item,
-        propertyName: propertyName,
-        property: property
-      };
+    function ChangeMeta(dependentArray, item, index, propertyName, property, changedCount, previousValues){
+      this.arrayChanged = dependentArray;
+      this.index = index;
+      this.item = item;
+      this.propertyName = propertyName;
+      this.property = property;
+      this.changedCount = changedCount;
 
       if (previousValues) {
         // previous values only available for item property changes
-        meta.previousValues = previousValues;
+        this.previousValues = previousValues;
       }
-
-      return meta;
     }
 
     function addItems (dependentArray, callbacks, cp, propertyName, meta) {
       forEach(dependentArray, function (item, index) {
         meta.setValue( callbacks.addedItem.call(
-          this, meta.getValue(), item, createChangeMeta(dependentArray, item, index, propertyName, cp), meta.sugarMeta));
+          this, meta.getValue(), item, new ChangeMeta(dependentArray, item, index, propertyName, cp, dependentArray.length), meta.sugarMeta));
       }, this);
     }
 
@@ -13049,6 +13178,7 @@ define("ember-runtime/computed/reduce_computed_macros",
      @for Ember
      @param {String} dependentKey
      @return {Ember.ComputedProperty} computes the sum of all values in the dependentKey's array
+     @since 1.4.0
     */
 
     function sum(dependentKey){
@@ -14000,6 +14130,7 @@ define("ember-runtime/controllers/array_controller",
        * from participating in the parentController hierarchy.
        *
        * @private
+       * @property _isVirtual
        * @type Boolean
        */
       _isVirtual: false,
@@ -14514,6 +14645,8 @@ define("ember-runtime/ext/rsvp",
           } else {
             throw error;
           }
+        } else if (Ember.onerror) {
+          Ember.onerror(error);
         } else {
           Logger.error(error.stack);
           Ember.assert(error, false);
@@ -14658,7 +14791,7 @@ define("ember-runtime/keys",
       @return {Array} Array containing keys of obj
     */
     var keys = Object.keys;
-    if (keys || create.isSimulated) {
+    if (!keys || create.isSimulated) {
       var prototypeProperties = [
         'constructor',
         'hasOwnProperty',
@@ -16326,6 +16459,7 @@ define("ember-runtime/mixins/enumerable",
         @param {String} key the property to test
         @param {String} [value] optional value to test against.
         @return {Boolean}
+        @since 1.3.0
       */
       isEvery: function(key, value) {
         return this.every(apply(this, iter, arguments));
@@ -16428,6 +16562,7 @@ define("ember-runtime/mixins/enumerable",
         @param {String} key the property to test
         @param {String} [value] optional value to test against.
         @return {Boolean} `true` if the passed function returns `true` for any item
+        @since 1.3.0
       */
       isAny: function(key, value) {
         return this.any(apply(this, iter, arguments));
@@ -16746,6 +16881,7 @@ define("ember-runtime/mixins/enumerable",
         @method sortBy
         @param {String} property name(s) to sort on
         @return {Array} The sorted array.
+        @since 1.2.0
         */
       sortBy: function() {
         var sortKeys = arguments;
@@ -16886,10 +17022,13 @@ define("ember-runtime/mixins/evented",
         @param {Object...} args Optional arguments to pass on
       */
       trigger: function(name) {
-        var args = [], i, l;
-        for (i = 1, l = arguments.length; i < l; i++) {
-          args.push(arguments[i]);
+        var length = arguments.length;
+        var args = new Array(length - 1);
+
+        for (var i = 1; i < length; i++) {
+          args[i - 1] = arguments[i];
         }
+
         sendEvent(this, name, args);
       },
 
@@ -17881,7 +18020,6 @@ define("ember-runtime/mixins/observable",
         @param {String} key The key to observer
         @param {Object} target The target object to invoke
         @param {String|Function} method The method to invoke.
-        @return {Ember.Object} self
       */
       addObserver: function(key, target, method) {
         addObserver(this, key, target, method);
@@ -17896,7 +18034,6 @@ define("ember-runtime/mixins/observable",
         @param {String} key The key to observer
         @param {Object} target The target object to invoke
         @param {String|Function} method The method to invoke.
-        @return {Ember.Observable} receiver
       */
       removeObserver: function(key, target, method) {
         removeObserver(this, key, target, method);
@@ -18194,6 +18331,7 @@ define("ember-runtime/mixins/promise_proxy",
         @method catch
         @param {Function} callback
         @return {RSVP.Promise}
+        @since 1.3.0
       */
       'catch': promiseAlias('catch'),
 
@@ -18205,6 +18343,7 @@ define("ember-runtime/mixins/promise_proxy",
         @method finally
         @param {Function} callback
         @return {RSVP.Promise}
+        @since 1.3.0
       */
       'finally': promiseAlias('finally')
 
@@ -21244,6 +21383,7 @@ define("ember-runtime/system/string",
     */
     var Ember = __dependency1__["default"];
     // Ember.STRINGS, Ember.FEATURES
+    var isArray = __dependency2__.isArray;
     var EmberInspect = __dependency2__.inspect;
 
 
@@ -21255,16 +21395,24 @@ define("ember-runtime/system/string",
     var STRING_UNDERSCORE_REGEXP_2 = (/\-|\s+/g);
 
     function fmt(str, formats) {
+      if (!isArray(formats) || arguments.length > 2) {
+        formats = Array.prototype.slice.call(arguments, 1);
+      }
+
       // first, replace any ORDERED replacements.
       var idx  = 0; // the current index for non-numerical replacements
       return str.replace(/%@([0-9]+)?/g, function(s, argIndex) {
         argIndex = (argIndex) ? parseInt(argIndex, 10) - 1 : idx++;
         s = formats[argIndex];
         return (s === null) ? '(null)' : (s === undefined) ? '' : EmberInspect(s);
-      }) ;
+      });
     }
 
     function loc(str, formats) {
+      if (!isArray(formats) || arguments.length > 2) {
+        formats = Array.prototype.slice.call(arguments, 1);
+      }
+
       str = Ember.STRINGS[str] || str;
       return fmt(str, formats);
     }
@@ -22532,6 +22680,9 @@ define("container/container",
         validateFullName(fullName);
         var normalizedName = this.normalize(fullName);
 
+        if (this.cache.has(normalizedName)) {
+          throw new Error("Attempted to register an injection for a type that has already been looked up. ('" + normalizedName + "', '" + property + "', '" + injectionName + "')");
+        }
         addInjection(this.injections, normalizedName, property, normalizedInjectionName);
       },
 
@@ -22634,6 +22785,9 @@ define("container/container",
 
         validateFullName(fullName);
 
+        if (this.factoryCache.has(normalizedName)) {
+          throw new Error("Attempted to register a factoryInjection for a type that has already been looked up. ('" + normalizedName + "', '" + property + "', '" + injectionName + "')");
+        }
         addInjection(this.factoryInjections, normalizedName, property, normalizedInjectionName);
       },
 
@@ -22888,6 +23042,8 @@ define("container/container",
           } else {
             throw error;
           }
+        } else if (Ember.onerror) {
+          Ember.onerror(error);
         } else {
           Logger.error(error.stack);
           Ember.assert(error, false);
