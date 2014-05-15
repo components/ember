@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.6.0-beta.3
+ * @version   1.6.0-beta.4
  */
 
 
@@ -2214,20 +2214,7 @@ define("ember-metal/computed",
       });
     };
 
-    if (Ember.FEATURES.isEnabled('query-params-new')) {
-      /**
-        This is a more semantically meaningful alias of `computed.oneWay`,
-        whose name is somewhat ambiguous as to which direction the data flows.
-
-        @method computed.reads
-        @for Ember
-        @param {String} dependentKey
-        @return {Ember.ComputedProperty} computed property which creates a
-          one way computed property to the original value for property.
-       */
-      computed.reads = computed.oneWay;
-    }
-
+    
     /**
       Where `computed.oneWay` provides oneWay bindings, `computed.readOnly` provides
       a readOnly one way binding. Very often when using `computed.oneWay` one does
@@ -2335,7 +2322,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.6.0-beta.3
+      @version 1.6.0-beta.4
     */
 
     if ('undefined' === typeof Ember) {
@@ -2362,10 +2349,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.6.0-beta.3'
+      @default '1.6.0-beta.4'
       @static
     */
-    Ember.VERSION = '1.6.0-beta.3';
+    Ember.VERSION = '1.6.0-beta.4';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -13989,7 +13976,7 @@ define("ember-runtime/controllers/array_controller",
 
       ```handlebars
         {{#each post in controller}}
-          <li>{{title}} ({{titleLength}} characters)</li>
+          <li>{{post.title}} ({{post.titleLength}} characters)</li>
         {{/each}}
       ```
 
@@ -15268,7 +15255,7 @@ define("ember-runtime/mixins/array",
         @return {*} item at index or undefined
       */
       objectAt: function(idx) {
-        if ((idx < 0) || (idx>=get(this, 'length'))) return undefined ;
+        if ((idx < 0) || (idx >= get(this, 'length'))) return undefined;
         return get(this, idx);
       },
 
@@ -15383,8 +15370,8 @@ define("ember-runtime/mixins/array",
         if (startAt === undefined) startAt = 0;
         if (startAt < 0) startAt += len;
 
-        for(idx=startAt;idx<len;idx++) {
-          if (this.objectAt(idx) === object) return idx ;
+        for(idx = startAt; idx < len; idx++) {
+          if (this.objectAt(idx) === object) return idx;
         }
         return -1;
       },
@@ -15416,8 +15403,8 @@ define("ember-runtime/mixins/array",
         if (startAt === undefined || startAt >= len) startAt = len-1;
         if (startAt < 0) startAt += len;
 
-        for(idx=startAt;idx>=0;idx--) {
-          if (this.objectAt(idx) === object) return idx ;
+        for(idx = startAt; idx >= 0; idx--) {
+          if (this.objectAt(idx) === object) return idx;
         }
         return -1;
       },
@@ -16662,7 +16649,7 @@ define("ember-runtime/mixins/enumerable",
       toArray: function() {
         var ret = Ember.A();
         this.forEach(function(o, idx) { ret[idx] = o; });
-        return ret ;
+        return ret;
       },
 
       /**
@@ -24527,14 +24514,15 @@ define("ember-views/views/states",
     __exports__.states = states;
   });
 define("ember-views/views/states/default",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-metal/error","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.K
     var get = __dependency2__.get;
     var set = __dependency3__.set;
     var run = __dependency4__["default"];
+    var EmberError = __dependency5__["default"];
 
     /**
     @module ember
@@ -24543,7 +24531,7 @@ define("ember-views/views/states/default",
     var _default = {
       // appendChild is only legal while rendering the buffer.
       appendChild: function() {
-        throw "You can't use appendChild outside of the rendering process";
+        throw new EmberError("You can't use appendChild outside of the rendering process");
       },
 
       $: function() {
@@ -24579,13 +24567,14 @@ define("ember-views/views/states/default",
     __exports__["default"] = _default;
   });
 define("ember-views/views/states/destroying",
-  ["ember-metal/merge","ember-metal/platform","ember-runtime/system/string","ember-views/views/states/default","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+  ["ember-metal/merge","ember-metal/platform","ember-runtime/system/string","ember-views/views/states/default","ember-metal/error","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     var merge = __dependency1__["default"];
     var create = __dependency2__.create;
     var fmt = __dependency3__.fmt;
     var _default = __dependency4__["default"];
+    var EmberError = __dependency5__["default"];
     /**
     @module ember
     @submodule ember-views
@@ -24597,20 +24586,20 @@ define("ember-views/views/states/destroying",
 
     merge(destroying, {
       appendChild: function() {
-        throw fmt(destroyingError, ['appendChild']);
+        throw new EmberError(fmt(destroyingError, ['appendChild']));
       },
       rerender: function() {
-        throw fmt(destroyingError, ['rerender']);
+        throw new EmberError(fmt(destroyingError, ['rerender']));
       },
       destroyElement: function() {
-        throw fmt(destroyingError, ['destroyElement']);
+        throw new EmberError(fmt(destroyingError, ['destroyElement']));
       },
       empty: function() {
-        throw fmt(destroyingError, ['empty']);
+        throw new EmberError(fmt(destroyingError, ['empty']));
       },
 
       setElement: function() {
-        throw fmt(destroyingError, ["set('element', ...)"]);
+        throw new EmberError(fmt(destroyingError, ["set('element', ...)"]));
       },
 
       renderToBufferIfNeeded: function() {
@@ -24625,22 +24614,23 @@ define("ember-views/views/states/destroying",
     __exports__["default"] = destroying;
   });
 define("ember-views/views/states/has_element",
-  ["ember-views/views/states/default","ember-metal/run_loop","ember-metal/merge","ember-metal/platform","ember-views/system/jquery","ember-metal/property_get","ember-metal/property_set","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
+  ["ember-views/views/states/default","ember-metal/run_loop","ember-metal/merge","ember-metal/platform","ember-views/system/jquery","ember-metal/error","ember-metal/property_get","ember-metal/property_set","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
     var _default = __dependency1__["default"];
     var run = __dependency2__["default"];
     var merge = __dependency3__["default"];
     var create = __dependency4__.create;
     var jQuery = __dependency5__["default"];
+    var EmberError = __dependency6__["default"];
 
     /**
     @module ember
     @submodule ember-views
     */
 
-    var get = __dependency6__.get;
-    var set = __dependency7__.set;
+    var get = __dependency7__.get;
+    var set = __dependency8__.set;
 
     var hasElement = create(_default);
 
@@ -24661,7 +24651,7 @@ define("ember-views/views/states/has_element",
         if (value === null) {
           view.transitionTo('preRender');
         } else {
-          throw "You cannot set an element to a non-null value when the element is already in the DOM.";
+          throw new EmberError("You cannot set an element to a non-null value when the element is already in the DOM.");
         }
 
         return value;
@@ -24795,7 +24785,7 @@ define("ember-views/views/states/in_buffer",
       // It should be impossible for a rendered view to be scheduled for
       // insertion.
       insertElement: function() {
-        throw "You can't insert an element that has already been rendered";
+        throw new EmberError("You can't insert an element that has already been rendered");
       },
 
       setElement: function(view, value) {
@@ -24858,7 +24848,7 @@ define("ember-views/views/states/in_dom",
       },
 
       insertElement: function(view, fn) {
-        throw "You can't insert an element into the DOM that has already been inserted";
+        throw new EmberError("You can't insert an element into the DOM that has already been inserted");
       }
     });
 
@@ -29899,21 +29889,7 @@ define("ember-handlebars/ext",
           normalizedPath = normalizePath(root, path, data),
           value;
 
-      if (Ember.FEATURES.isEnabled("ember-handlebars-caps-lookup")) {
-
-        // If the path starts with a capital letter, look it up on Ember.lookup,
-        // which defaults to the `window` object in browsers.
-        if (isGlobalPath(path)) {
-          value = get(Ember.lookup, path);
-        } else {
-
-          // In cases where the path begins with a keyword, change the
-          // root to the value represented by that keyword, and ensure
-          // the path is relative to it.
-          value = get(normalizedPath.root, normalizedPath.path);
-        }
-
-      } else {
+      
         root = normalizedPath.root;
         path = normalizedPath.path;
 
@@ -29922,7 +29898,7 @@ define("ember-handlebars/ext",
         if (value === undefined && root !== Ember.lookup && isGlobalPath(path)) {
           value = get(Ember.lookup, path);
         }
-      }
+      
 
       return value;
     }
@@ -33789,15 +33765,7 @@ define("ember-routing/ext/controller",
       }
     });
 
-    if (Ember.FEATURES.isEnabled("query-params-new")) {
-      ControllerMixin.reopen({
-        concatenatedProperties: ['queryParams'],
-        queryParams: null,
-        _finalizingQueryParams: false,
-        _queryParamChangesDuringSuspension: null
-      });
-    }
-
+    
     __exports__["default"] = ControllerMixin;
   });
 define("ember-routing/ext/run_loop",
@@ -34353,10 +34321,7 @@ define("ember-routing/helpers/link_to",
       }
 
       // query params adds an additional context
-      if (Ember.FEATURES.isEnabled("query-params-new")) {
-        req = req + 1;
-      }
-      return req;
+            return req;
     };
 
     var QueryParams = EmberObject.extend({
@@ -34872,10 +34837,7 @@ define("ember-routing/helpers/link_to",
           }
         }
 
-        if (Ember.FEATURES.isEnabled("query-params-new")) {
-          resolvedParams.push({ queryParams: get(this, 'queryParams') });
-        }
-
+        
         return resolvedParams;
       }).property('resolvedParams', 'queryParams'),
 
@@ -34903,10 +34865,7 @@ define("ember-routing/helpers/link_to",
           return get(this, 'loadingHref');
         }
 
-        if (Ember.FEATURES.isEnabled("query-params-new")) {
-          routeArgs = routeArgsWithoutDefaultQueryParams(this);
-        }
-
+        
         return router.generate.apply(router, routeArgs);
       }).property('routeArgs'),
 
@@ -35222,16 +35181,7 @@ define("ember-routing/helpers/link_to",
     };
 
 
-    if (Ember.FEATURES.isEnabled("query-params-new")) {
-      EmberHandlebars.registerHelper('query-params', function queryParamsHelper(options) {
-        
-        return QueryParams.create({
-          values: options.hash,
-          types: options.hashTypes
-        });
-      });
-    }
-
+    
     /**
       See [link-to](/api/classes/Ember.Handlebars.helpers.html#method_link-to)
 
@@ -35519,6 +35469,9 @@ define("ember-routing/helpers/render",
           target: parentController
         });
 
+        view.one('willDestroyElement', function() {
+          controller.destroy();
+        });
       } else {
         controller = container.lookup(controllerFullName) ||
                      generateController(container, controllerName);
@@ -36399,11 +36352,7 @@ define("ember-routing/location/history_location",
         baseURL = baseURL.replace(/\/$/, '');
         var url = path.replace(baseURL, '').replace(rootURL, '');
 
-        if (Ember.FEATURES.isEnabled("query-params-new")) {
-          var search = location.search || '';
-          url += search;
-        }
-
+        
         return url;
       },
 
@@ -36868,15 +36817,7 @@ define("ember-routing/system/dsl",
         }
 
 
-        if (Ember.FEATURES.isEnabled("ember-routing-named-substates")) {
-          // For namespace-preserving nested resource (e.g. resource('foo.bar') within
-          // resource('foo')) we only want to use the last route name segment to determine
-          // the names of the error/loading substates (e.g. 'bar_loading')
-          name = name.split('.').pop();
-          route(this, name + '_loading');
-          route(this, name + '_error', { path: "/_unused_dummy_error_path_route_" + name + "/:error" });
-        }
-      },
+              },
 
       push: function(url, name, callback) {
         var parts = name.split('.');
@@ -36888,11 +36829,7 @@ define("ember-routing/system/dsl",
       route: function(name, options) {
         
         route(this, name, options);
-        if (Ember.FEATURES.isEnabled("ember-routing-named-substates")) {
-          route(this, name + '_loading');
-          route(this, name + '_error', { path: "/_unused_dummy_error_path_route_" + name + "/:error" });
-        }
-      },
+              },
 
       generate: function() {
         var dslMatches = this.matches;
@@ -36982,10 +36919,7 @@ define("ember-routing/system/route",
         @method exit
       */
       exit: function() {
-        if (Ember.FEATURES.isEnabled("query-params-new")) {
-          toggleQueryParamObservers(this, this.controller, false);
-        }
-        this.deactivate();
+                this.deactivate();
         this.teardownViews();
       },
 
@@ -37279,94 +37213,10 @@ define("ember-routing/system/route",
       _actions: {
 
         queryParamsDidChange: function(changed, totalPresent, removed) {
-          if (Ember.FEATURES.isEnabled("query-params-new")) {
-            var totalChanged = keys(changed).concat(keys(removed));
-            for (var i = 0, len = totalChanged.length; i < len; ++i) {
-              var urlKey = totalChanged[i],
-                  options = get(this.queryParams, urlKey) || {};
-              if (get(options, 'refreshModel')) {
-                this.refresh();
-              }
-            }
-            return true;
-          }
-        },
+                  },
 
         finalizeQueryParamChange: function(params, finalParams, transition) {
-          if (Ember.FEATURES.isEnabled("query-params-new")) {
-            // In this hook we receive all the current values of
-            // serialized query params. We need to take these values
-            // and distribute them in their deserialized form into
-            // controllers and remove any that no longer belong in
-            // this route hierarchy.
-
-            var controller = this.controller,
-                changes = controller._queryParamChangesDuringSuspension,
-                qpMeta = get(this, '_qp');
-
-            // Loop through all the query params that
-            // this controller knows about.
-
-            if (qpMeta) {
-              for (var i = 0, len = qpMeta.qps.length; i < len; ++i) {
-                var qp = qpMeta.qps[i],
-                    qpProvided = qp.urlKey in params;
-
-                // Do a reverse lookup to see if the changed query
-                // param URL key corresponds to a QP property on
-                // this controller.
-                var value, svalue;
-                if (changes && qp.urlKey in changes) {
-                  // Controller overrode this value in setupController
-                  svalue = get(controller, qp.prop);
-                  value = this.deserializeQueryParam(svalue, qp.urlKey, qp.type);
-                } else {
-                  if (qpProvided) {
-                    svalue = params[qp.urlKey];
-                    value = this.deserializeQueryParam(svalue, qp.urlKey, qp.type);
-                  } else {
-                    // No QP provided; use default value.
-                    svalue = qp.sdef;
-                    value = qp.def;
                   }
-                }
-
-                // Delete from params so that parent routes
-                // don't also try to respond to changes to
-                // non-fully-qualified query param name changes
-                // (e.g. if two controllers in the same hiearchy
-                // specify a `page` query param)
-                delete params[qp.urlKey];
-
-                // Now check if this value actually changed.
-                if (svalue !== qp.svalue) {
-                  var options = get(this.queryParams, qp.urlKey) || {};
-                  if (get(options, 'replace')) {
-                    transition.method('replace');
-                  }
-
-                  // Update QP cache
-                  qp.svalue = svalue;
-                  qp.value = value;
-
-                  // Update controller without firing QP observers.
-                  controller._finalizingQueryParams = true;
-                  set(controller, qp.prop, qp.value);
-                  controller._finalizingQueryParams = false;
-                }
-
-                finalParams.push({
-                  value: qp.svalue,
-                  visible: qp.svalue !== qp.sdef,
-                  key: qp.urlKey
-                });
-              }
-              controller._queryParamChangesDuringSuspension = null;
-            }
-            // Bubble so that parent routes can claim QPs.
-            return true;
-          }
-        }
       },
 
       /**
@@ -37654,26 +37504,14 @@ define("ember-routing/system/route",
         // referenced in action handlers
         this.controller = controller;
 
-        if (Ember.FEATURES.isEnabled("query-params-new")) {
-          toggleQueryParamObservers(this, controller, true);
-        }
-
+        
         if (this.setupControllers) {
                     this.setupControllers(controller, context);
         } else {
 
-          if (Ember.FEATURES.isEnabled("query-params-new")) {
-            // Prevent updates to query params in setupController
-            // from firing another transition. Updating QPs in
-            // setupController will only affect the final
-            // generated URL.
-            controller._finalizingQueryParams = true;
-            controller._queryParamChangesDuringSuspension = {};
-            this.setupController(controller, context, transition);
-            controller._finalizingQueryParams = false;
-          } else {
+          
             this.setupController(controller, context);
-          }
+          
         }
 
         if (this.renderTemplates) {
@@ -37914,11 +37752,9 @@ define("ember-routing/system/route",
         Router.js hook.
        */
       deserialize: function(params, transition) {
-        if (Ember.FEATURES.isEnabled("query-params-new")) {
-          return this.model(this.paramsFor(this.routeName), transition);
-        } else {
+        
           return this.model(params, transition);
-        }
+        
       },
 
       /**
@@ -38412,212 +38248,7 @@ define("ember-routing/system/route",
     });
 
 
-    if (Ember.FEATURES.isEnabled("query-params-new")) {
-      Route.reopen({
-        /**
-          Configuration hash for this route's queryParams. The possible
-          configuration options and their defaults are as follows
-          (assuming a query param whose URL key is `page`):
-
-          ```js
-          queryParams: {
-            page: {
-              // By default, controller query param properties don't
-              // cause a full transition when they are changed, but
-              // rather only cause the URL to update. Setting
-              // `refreshModel` to true will cause an "in-place"
-              // transition to occur, whereby the model hooks for
-              // this route (and any child routes) will re-fire, allowing
-              // you to reload models (e.g., from the server) using the
-              // updated query param values.
-              refreshModel: false,
-
-              // By default, changes to controller query param properties
-              // cause the URL to update via `pushState`, which means an
-              // item will be added to the browser's history, allowing
-              // you to use the back button to restore the app to the
-              // previous state before the query param property was changed.
-              // Setting `replace` to true will use `replaceState` (or its
-              // hash location equivalent), which causes no browser history
-              // item to be added. This options name and default value are
-              // the same as the `link-to` helper's `replace` option.
-              replace: false
-            }
-          }
-          ```
-
-          @property queryParams
-          @for Ember.Route
-          @type Hash
-        */
-        queryParams: {},
-
-        _qp: computed(function() {
-          var controllerName = this.controllerName || this.routeName,
-              fullName = this.container.normalize('controller:' + controllerName),
-              controllerClass = this.container.lookupFactory(fullName);
-
-          if (!controllerClass) { return; }
-
-          var controllerProto = controllerClass.proto(),
-              queryParams = get(controllerProto, 'queryParams');
-
-          if (!queryParams || queryParams.length === 0) { return; }
-
-          var qps = [], map = {};
-          for (var i = 0, len = queryParams.length; i < len; ++i) {
-            var queryParamMapping = queryParams[i],
-                parts = queryParamMapping.split(':'),
-                propName = parts[0],
-                urlKey = parts[1] || propName,
-                defaultValue = get(controllerProto, propName),
-                type = typeOf(defaultValue),
-                defaultValueSerialized = this.serializeQueryParam(defaultValue, urlKey, type),
-                qp = {
-                  def: defaultValue,
-                  sdef: defaultValueSerialized,
-                  type: type,
-                  urlKey: urlKey,
-                  prop: propName,
-                  ctrl: controllerName,
-                  value: defaultValue,
-                  svalue: defaultValueSerialized,
-                  route: this
-                };
-
-            // Construct all the different ways this query param
-            // can be referenced, either from link-to or transitionTo:
-            // - {{link-to (query-params page=5)}}
-            // - {{link-to (query-params articles:page=5)}}
-            // - {{link-to (query-params articles_page=5)}}
-            // - {{link-to (query-params articles:articles_page=5)}}
-            // - transitionTo({ queryParams: { page: 5 } })
-            // ... etc.
-
-            map[propName] = map[urlKey] = map[controllerName + ':' + propName] = qp;
-            qps.push(qp);
-          }
-
-          return {
-            qps: qps,
-            map: map
-          };
-        }),
-
-        mergedProperties: ['queryParams'],
-
-        paramsFor: function(name) {
-          var route = this.container.lookup('route:' + name);
-
-          if (!route) {
-            return {};
-          }
-
-          var transition = this.router.router.activeTransition,
-              params, queryParams;
-
-          if (transition) {
-            params = transition.params[name] || {};
-            queryParams = transition.queryParams;
-          } else {
-            var state = this.router.router.state;
-            params = state.params[name] || {};
-            queryParams = state.queryParams;
-          }
-
-          var qpMeta = get(route, '_qp');
-
-          if (!qpMeta) {
-            // No query params specified on the controller.
-            return params;
-          }
-
-          var qps = qpMeta.qps, map = qpMeta.map, qp;
-
-          // Loop through all the query params defined on the controller
-          for (var i = 0, len = qps.length; i < len; ++i) {
-            // Put deserialized qp on params hash.
-            qp = qps[i];
-            params[qp.urlKey] = qp.value;
-          }
-
-          // Override params hash values with any input query params
-          // from the transition attempt.
-          for (var urlKey in queryParams) {
-            // Ignore any params not for this route.
-            if (!(urlKey in map)) { continue; }
-
-            var svalue = queryParams[urlKey];
-            qp = map[urlKey];
-            if (svalue === null) {
-              // Query param was removed from address bar.
-              svalue = qp.sdef;
-            }
-
-            // Deserialize and stash on params.
-            params[urlKey] = route.deserializeQueryParam(svalue, urlKey, qp.type);
-          }
-
-          return params;
-        },
-
-        serializeQueryParam: function(value, urlKey, defaultValueType) {
-          // urlKey isn't used here, but anyone overriding
-          // can use it to provide serialization specific
-          // to a certain query param.
-          if (defaultValueType === 'array') {
-            return JSON.stringify(value);
-          }
-          return '' + value;
-        },
-
-        deserializeQueryParam: function(value, urlKey, defaultValueType) {
-          // urlKey isn't used here, but anyone overriding
-          // can use it to provide deserialization specific
-          // to a certain query param.
-
-          // Use the defaultValueType of the default value (the initial value assigned to a
-          // controller query param property), to intelligently deserialize and cast.
-          if (defaultValueType === 'boolean') {
-            return (value === 'true') ? true : false;
-          } else if (defaultValueType === 'number') {
-            return (Number(value)).valueOf();
-          } else if (defaultValueType === 'array') {
-            return Ember.A(JSON.parse(value));
-          }
-          return value;
-        },
-
-        _qpChanged: function(controller, propName) {
-          // Normalize array observer firings.
-          if (propName.slice(propName.length - 3) === '.[]') {
-            propName = propName.substr(0, propName.length-3);
-          }
-
-          var qpMeta = get(this, '_qp'),
-              qp = qpMeta.map[propName];
-
-          if (controller._finalizingQueryParams) {
-            var changes = controller._queryParamChangesDuringSuspension;
-            if (changes) {
-              changes[qp.urlKey] = true;
-            }
-            return;
-          }
-
-          var value = copy(get(controller, propName));
-
-          this.router._queuedQPChanges[qp.prop] = value;
-          run.once(this, this._fireQueryParamTransition);
-        },
-
-        _fireQueryParamTransition: function() {
-          this.transitionTo({ queryParams: this.router._queuedQPChanges });
-          this.router._queuedQPChanges = {};
-        }
-      });
-    }
-
+    
     function parentRoute(route) {
       var handlerInfos = route.router.router.state.handlerInfos;
 
@@ -38995,12 +38626,12 @@ define("ember-routing/system/router",
           existing[0].off('willDestroyElement', this, existing[1]);
         }
 
-        var disconnect = function() {
+        function disconnectActiveView() {
           delete this._activeViews[templateName];
-        };
+        }
 
-        this._activeViews[templateName] = [view, disconnect];
-        view.one('willDestroyElement', this, disconnect);
+        this._activeViews[templateName] = [view, disconnectActiveView];
+        view.one('willDestroyElement', this, disconnectActiveView);
       },
 
       _setupLocation: function() {
@@ -39097,18 +38728,7 @@ define("ember-routing/system/router",
         var name = args[0], self = this,
           isQueryParamsOnly = false, queryParams;
 
-        if (Ember.FEATURES.isEnabled("query-params-new")) {
-
-          var possibleQueryParamArg = args[args.length - 1];
-          if (possibleQueryParamArg && possibleQueryParamArg.hasOwnProperty('queryParams')) {
-            if (args.length === 1) {
-              isQueryParamsOnly = true;
-              name = null;
-            }
-            queryParams = args[args.length - 1].queryParams;
-          }
-        }
-
+        
         if (!isQueryParamsOnly && name.charAt(0) !== '/') {
                   }
 
@@ -39333,14 +38953,7 @@ define("ember-routing/system/router",
           targetChildRouteName = originatingChildRoute.routeName.split('.').pop(),
           namespace = parentRoute.routeName === 'application' ? '' : parentRoute.routeName + '.';
 
-      if (Ember.FEATURES.isEnabled("ember-routing-named-substates")) {
-        // First, try a named loading state, e.g. 'foo_loading'
-        childName = namespace + targetChildRouteName + '_' + name;
-        if (routeHasBeenDefined(router, childName)) {
-          return childName;
-        }
-      }
-
+      
       // Second, try general loading state, e.g. 'loading'
       childName = namespace + name;
       if (routeHasBeenDefined(router, childName)) {
@@ -41521,17 +41134,21 @@ define("router/transition-state",
         }
 
         function proceed(resolvedHandlerInfo) {
+          var wasAlreadyResolved = currentState.handlerInfos[payload.resolveIndex].isResolved;
+
           // Swap the previously unresolved handlerInfo with
           // the resolved handlerInfo
           currentState.handlerInfos[payload.resolveIndex++] = resolvedHandlerInfo;
 
-          // Call the redirect hook. The reason we call it here
-          // vs. afterModel is so that redirects into child
-          // routes don't re-run the model hooks for this
-          // already-resolved route.
-          var handler = resolvedHandlerInfo.handler;
-          if (handler && handler.redirect) {
-            handler.redirect(resolvedHandlerInfo.context, payload);
+          if (!wasAlreadyResolved) {
+            // Call the redirect hook. The reason we call it here
+            // vs. afterModel is so that redirects into child
+            // routes don't re-run the model hooks for this
+            // already-resolved route.
+            var handler = resolvedHandlerInfo.handler;
+            if (handler && handler.redirect) {
+              handler.redirect(resolvedHandlerInfo.context, payload);
+            }
           }
 
           // Proceed after ensuring that the redirect hook
