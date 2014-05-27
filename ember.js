@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.6.0-beta.4
+ * @version   1.6.0-beta.5
  */
 
 
@@ -1874,6 +1874,7 @@ define("ember-metal/computed",
         todoList.get('done'); // true
         ```
 
+        @since 1.6.0
         @method computed.empty
         @for Ember
         @param {String} dependentKey
@@ -2365,7 +2366,7 @@ define("ember-metal/computed",
       return computed(dependentKey, function(key, value) {
         if (arguments.length > 1) {
           set(this, dependentKey, value);
-          return value;
+          return get(this, dependentKey);
         } else {
           return get(this, dependentKey);
         }
@@ -2518,7 +2519,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.6.0-beta.4
+      @version 1.6.0-beta.5
     */
 
     if ('undefined' === typeof Ember) {
@@ -2545,10 +2546,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.6.0-beta.4'
+      @default '1.6.0-beta.5'
       @static
     */
-    Ember.VERSION = '1.6.0-beta.4';
+    Ember.VERSION = '1.6.0-beta.5';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -2633,7 +2634,7 @@ define("ember-metal/core",
     //
 
     /**
-      Determines whether Ember should enhances some built-in object prototypes to
+      Determines whether Ember should enhance some built-in object prototypes to
       provide a more friendly API. If enabled, a few methods will be added to
       `Function`, `String`, and `Array`. `Object.prototype` will not be enhanced,
       which is the one that causes most trouble for people.
@@ -3409,24 +3410,25 @@ define("ember-metal/events",
     __exports__.listenersUnion = listenersUnion;
   });
 define("ember-metal/expand_properties",
-  ["ember-metal/enumerable_utils","exports"],
-  function(__dependency1__, __exports__) {
+  ["ember-metal/error","ember-metal/enumerable_utils","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
-    var EnumerableUtils = __dependency1__["default"];
+    var EmberError = __dependency1__["default"];
+    var EnumerableUtils = __dependency2__["default"];
 
     /**
       @module ember-metal
       */
 
     var forEach = EnumerableUtils.forEach,
-    BRACE_EXPANSION = /^((?:[^\.]*\.)*)\{(.*)\}$/;
+      BRACE_EXPANSION = /^((?:[^\.]*\.)*)\{(.*)\}$/;
 
     /**
       Expands `pattern`, invoking `callback` for each expansion.
 
       The only pattern supported is brace-expansion, anything else will be passed
       once to `callback` directly. Brace expansion can only appear at the end of a
-      pattern, for example as the last item in a chain.
+      pattern, for an example see the last call below.
 
       Example
       ```js
@@ -3447,12 +3449,17 @@ define("ember-metal/expand_properties",
     function expandProperties(pattern, callback) {
       var match, prefix, list;
 
+      if (pattern.indexOf(' ') > -1) {
+        throw new EmberError('Brace expanded properties cannot contain spaces, ' + 
+          'e.g. `user.{firstName, lastName}` should be `user.{firstName,lastName}`');
+      }
+
       if (match = BRACE_EXPANSION.exec(pattern)) {
         prefix = match[1];
         list = match[2];
 
         forEach(list.split(','), function (suffix) {
-          callback(prefix + suffix);
+            callback(prefix + suffix);
         });
       } else {
         callback(pattern);
@@ -7115,7 +7122,7 @@ define("ember-metal/run_loop",
 
     /**
       Ensure that the target method is never called more frequently than
-      the specified spacing period.
+      the specified spacing period. The target method is called immediately.
 
       ```javascript
         var myFunc = function() { console.log(this.name + ' ran.'); };
@@ -7123,6 +7130,7 @@ define("ember-metal/run_loop",
 
         run.throttle(myContext, myFunc, 150);
         // myFunc is invoked with context myContext
+        // console logs 'throttle ran.'
 
         // 50ms passes
         run.throttle(myContext, myFunc, 150);
@@ -7133,7 +7141,7 @@ define("ember-metal/run_loop",
         // 150ms passes
         run.throttle(myContext, myFunc, 150);
         // myFunc is invoked with context myContext
-        // console logs 'throttle ran.' twice, 250ms apart.
+        // console logs 'throttle ran.'
       ```
 
       @method throttle
@@ -7143,6 +7151,8 @@ define("ember-metal/run_loop",
         then it will be looked up on the passed target.
       @param {Object} [args*] Optional arguments to pass to the timeout.
       @param {Number} spacing Number of milliseconds to space out requests.
+      @param {Boolean} immediate Trigger the function on the leading instead
+        of the trailing edge of the wait interval. Defaults to true.
       @return {Array} Timer information for use in cancelling, see `run.cancel`.
     */
     run.throttle = function() {
@@ -7593,7 +7603,7 @@ define("ember-metal/utils",
     */
     // ES6TODO: Move up to runtime? This is only use in ember-metal by concatenatedProperties
     function isArray(obj) {
-      var modulePath;
+      var modulePath, type;
 
       if (typeof EmberArray === "undefined") {
         modulePath = 'ember-runtime/mixins/array';
@@ -7605,7 +7615,10 @@ define("ember-metal/utils",
       if (!obj || obj.setInterval) { return false; }
       if (Array.isArray && Array.isArray(obj)) { return true; }
       if (EmberArray && EmberArray.detect(obj)) { return true; }
-      if ((obj.length !== undefined) && 'object'=== typeOf(obj)) { return true; }
+
+      type = typeOf(obj);
+      if ('array' === type) { return true; }
+      if ((obj.length !== undefined) && 'object' === type) { return true; }
       return false;
     };
 
@@ -8010,18 +8023,20 @@ define("ember-metal/utils",
     __exports__.applyStr = applyStr;
     __exports__.apply = apply;
   });
-define("backburner", 
-  ["backburner/deferred_action_queues","exports"],
-  function(__dependency1__, __exports__) {
+define("backburner",
+  ["backburner/utils","backburner/deferred_action_queues","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
-    var DeferredActionQueues = __dependency1__.DeferredActionQueues;
+    var Utils = __dependency1__["default"];
+    var DeferredActionQueues = __dependency2__.DeferredActionQueues;
 
     var slice = [].slice,
         pop = [].pop,
-        throttlers = [],
-        debouncees = [],
+        each = Utils.each,
+        isString = Utils.isString,
+        isFunction = Utils.isFunction,
+        isNumber = Utils.isNumber,
         timers = [],
-        autorun, laterTimer, laterTimerExpiresAt,
         global = this,
         NUMBER = /\d+/;
 
@@ -8035,7 +8050,7 @@ define("backburner",
     })();
 
     function isCoercableNumber(number) {
-      return typeof number === 'number' || NUMBER.test(number);
+      return isNumber(number) || NUMBER.test(number);
     }
 
     function Backburner(queueNames, options) {
@@ -8045,6 +8060,8 @@ define("backburner",
         this.options.defaultQueue = queueNames[0];
       }
       this.instanceStack = [];
+      this._debouncees = [];
+      this._throttlers = [];
     }
 
     Backburner.prototype = {
@@ -8098,8 +8115,7 @@ define("backburner",
       },
 
       run: function(target, method /*, args */) {
-        var options = this.options,
-            ret, length = arguments.length;
+        var onError = getOnError(this.options);
 
         this.begin();
 
@@ -8108,11 +8124,10 @@ define("backburner",
           target = null;
         }
 
-        if (typeof method === 'string') {
+        if (isString(method)) {
           method = target[method];
         }
 
-        var onError = options.onError || (options.onErrorTarget && options.onErrorTarget[options.onErrorMethod]);
         var args = slice.call(arguments, 2);
 
         // guard against Safari 6's double-finally bug
@@ -8147,7 +8162,7 @@ define("backburner",
           target = null;
         }
 
-        if (typeof method === 'string') {
+        if (isString(method)) {
           method = target[method];
         }
 
@@ -8163,7 +8178,7 @@ define("backburner",
           target = null;
         }
 
-        if (typeof method === 'string') {
+        if (isString(method)) {
           method = target[method];
         }
 
@@ -8174,12 +8189,10 @@ define("backburner",
       },
 
       setTimeout: function() {
-        var args = slice.call(arguments);
-        var length = args.length;
-        var method, wait, target;
-        var self = this;
-        var methodOrTarget, methodOrWait, methodOrArgs;
-        var options = this.options;
+        var args = slice.call(arguments),
+            length = args.length,
+            method, wait, target,
+            methodOrTarget, methodOrWait, methodOrArgs;
 
         if (length === 0) {
           return;
@@ -8190,7 +8203,7 @@ define("backburner",
           methodOrTarget = args[0];
           methodOrWait = args[1];
 
-          if (typeof methodOrWait === 'function' || typeof  methodOrTarget[methodOrWait] === 'function') {
+          if (isFunction(methodOrWait) || isFunction(methodOrTarget[methodOrWait])) {
             target = args.shift();
             method = args.shift();
             wait = 0;
@@ -8213,9 +8226,9 @@ define("backburner",
           methodOrTarget = args[0];
           methodOrArgs = args[1];
 
-          if (typeof methodOrArgs === 'function' || (typeof methodOrArgs === 'string' &&
-                                                     methodOrTarget !== null &&
-                                                     methodOrArgs in methodOrTarget)) {
+          if (isFunction(methodOrArgs) || (isString(methodOrArgs) &&
+                                          methodOrTarget !== null &&
+                                          methodOrArgs in methodOrTarget)) {
             target = args.shift();
             method = args.shift();
           } else {
@@ -8225,11 +8238,11 @@ define("backburner",
 
         var executeAt = (+new Date()) + parseInt(wait, 10);
 
-        if (typeof method === 'string') {
+        if (isString(method)) {
           method = target[method];
         }
 
-        var onError = options.onError || (options.onErrorTarget && options.onErrorTarget[options.onErrorMethod]);
+        var onError = getOnError(this.options);
 
         function fn() {
           if (onError) {
@@ -8248,7 +8261,7 @@ define("backburner",
 
         timers.splice(i, 0, executeAt, fn);
 
-        updateLaterTimer(self, executeAt, wait);
+        updateLaterTimer(this, executeAt, wait);
 
         return fn;
       },
@@ -8262,7 +8275,7 @@ define("backburner",
             index,
             timer;
 
-        if (typeof immediate === "number" || typeof immediate === "string") {
+        if (isNumber(immediate) || isString(immediate)) {
           wait = immediate;
           immediate = true;
         } else {
@@ -8271,15 +8284,17 @@ define("backburner",
 
         wait = parseInt(wait, 10);
 
-        index = findThrottler(target, method);
-        if (index > -1) { return throttlers[index]; } // throttled
+        index = findThrottler(target, method, this._throttlers);
+        if (index > -1) { return this._throttlers[index]; } // throttled
 
         timer = global.setTimeout(function() {
           if (!immediate) {
             self.run.apply(self, args);
           }
-          var index = findThrottler(target, method);
-          if (index > -1) { throttlers.splice(index, 1); }
+          var index = findThrottler(target, method, self._throttlers);
+          if (index > -1) {
+            self._throttlers.splice(index, 1);
+          }
         }, wait);
 
         if (immediate) {
@@ -8288,7 +8303,7 @@ define("backburner",
 
         throttler = [target, method, timer];
 
-        throttlers.push(throttler);
+        this._throttlers.push(throttler);
 
         return throttler;
       },
@@ -8302,7 +8317,7 @@ define("backburner",
             debouncee,
             timer;
 
-        if (typeof immediate === "number" || typeof immediate === "string") {
+        if (isNumber(immediate) || isString(immediate)) {
           wait = immediate;
           immediate = false;
         } else {
@@ -8311,11 +8326,11 @@ define("backburner",
 
         wait = parseInt(wait, 10);
         // Remove debouncee
-        index = findDebouncee(target, method);
+        index = findDebouncee(target, method, this._debouncees);
 
         if (index > -1) {
-          debouncee = debouncees[index];
-          debouncees.splice(index, 1);
+          debouncee = this._debouncees[index];
+          this._debouncees.splice(index, 1);
           clearTimeout(debouncee[2]);
         }
 
@@ -8323,9 +8338,9 @@ define("backburner",
           if (!immediate) {
             self.run.apply(self, args);
           }
-          var index = findDebouncee(target, method);
+          var index = findDebouncee(target, method, self._debouncees);
           if (index > -1) {
-            debouncees.splice(index, 1);
+            self._debouncees.splice(index, 1);
           }
         }, wait);
 
@@ -8335,38 +8350,36 @@ define("backburner",
 
         debouncee = [target, method, timer];
 
-        debouncees.push(debouncee);
+        self._debouncees.push(debouncee);
 
         return debouncee;
       },
 
       cancelTimers: function() {
-        var i, len;
+        var clearItems = function(item) {
+          clearTimeout(item[2]);
+        };
 
-        for (i = 0, len = throttlers.length; i < len; i++) {
-          clearTimeout(throttlers[i][2]);
-        }
-        throttlers = [];
+        each(this._throttlers, clearItems);
+        this._throttlers = [];
 
-        for (i = 0, len = debouncees.length; i < len; i++) {
-          clearTimeout(debouncees[i][2]);
-        }
-        debouncees = [];
+        each(this._debouncees, clearItems);
+        this._debouncees = [];
 
-        if (laterTimer) {
-          clearTimeout(laterTimer);
-          laterTimer = null;
+        if (this._laterTimer) {
+          clearTimeout(this._laterTimer);
+          this._laterTimer = null;
         }
         timers = [];
 
-        if (autorun) {
-          clearTimeout(autorun);
-          autorun = null;
+        if (this._autorun) {
+          clearTimeout(this._autorun);
+          this._autorun = null;
         }
       },
 
       hasTimers: function() {
-        return !!timers.length || !!debouncees.length || !!throttlers.length || autorun;
+        return !!timers.length || !!this._debouncees.length || !!this._throttlers.length || this._autorun;
       },
 
       cancel: function(timer) {
@@ -8382,8 +8395,8 @@ define("backburner",
             }
           }
         } else if (Object.prototype.toString.call(timer) === "[object Array]"){ // we're cancelling a throttle or debounce
-          return this._cancelItem(findThrottler, throttlers, timer) ||
-                   this._cancelItem(findDebouncee, debouncees, timer);
+          return this._cancelItem(findThrottler, this._throttlers, timer) ||
+                   this._cancelItem(findDebouncee, this._debouncees, timer);
         } else {
           return; // timer was null or not a timer
         }
@@ -8395,7 +8408,7 @@ define("backburner",
 
         if (timer.length < 3) { return false; }
 
-        index = findMethod(timer[0], timer[1]);
+        index = findMethod(timer[0], timer[1], array);
 
         if(index > -1) {
 
@@ -8418,44 +8431,43 @@ define("backburner",
 
     if (needsIETryCatchFix) {
       var originalRun = Backburner.prototype.run;
-      Backburner.prototype.run = function() {
-        try {
-          originalRun.apply(this, arguments);
-        } catch (e) {
-          throw e;
-        }
-      };
+      Backburner.prototype.run = wrapInTryCatch(originalRun);
 
       var originalEnd = Backburner.prototype.end;
-      Backburner.prototype.end = function() {
+      Backburner.prototype.end = wrapInTryCatch(originalEnd);
+    }
+
+    function wrapInTryCatch(func) {
+      return function () {
         try {
-          originalEnd.apply(this, arguments);
+          return func.apply(this, arguments);
         } catch (e) {
           throw e;
         }
       };
+    }
+
+    function getOnError(options) {
+      return options.onError || (options.onErrorTarget && options.onErrorTarget[options.onErrorMethod]);
     }
 
 
     function createAutorun(backburner) {
       backburner.begin();
-      autorun = global.setTimeout(function() {
-        autorun = null;
+      backburner._autorun = global.setTimeout(function() {
+        backburner._autorun = null;
         backburner.end();
       });
     }
 
     function updateLaterTimer(self, executeAt, wait) {
-      if (!laterTimer || executeAt < laterTimerExpiresAt) {
-        if (laterTimer) {
-          clearTimeout(laterTimer);
-        }
-        laterTimer = global.setTimeout(function() {
-          laterTimer = null;
-          laterTimerExpiresAt = null;
+      if (!self._laterTimer || executeAt < self._laterTimerExpiresAt) {
+        self._laterTimer = global.setTimeout(function() {
+          self._laterTimer = null;
+          self._laterTimerExpiresAt = null;
           executeTimers(self);
         }, wait);
-        laterTimerExpiresAt = executeAt;
+        self._laterTimerExpiresAt = executeAt;
       }
     }
 
@@ -8478,28 +8490,21 @@ define("backburner",
       }
     }
 
-    function findDebouncee(target, method) {
-      var debouncee,
-          index = -1;
-
-      for (var i = 0, l = debouncees.length; i < l; i++) {
-        debouncee = debouncees[i];
-        if (debouncee[0] === target && debouncee[1] === method) {
-          index = i;
-          break;
-        }
-      }
-
-      return index;
+    function findDebouncee(target, method, debouncees) {
+      return findItem(target, method, debouncees);
     }
 
-    function findThrottler(target, method) {
-      var throttler,
+    function findThrottler(target, method, throttlers) {
+      return findItem(target, method, throttlers);
+    }
+
+    function findItem(target, method, collection) {
+      var item,
           index = -1;
 
-      for (var i = 0, l = throttlers.length; i < l; i++) {
-        throttler = throttlers[i];
-        if (throttler[0] === target && throttler[1] === method) {
+      for (var i = 0, l = collection.length; i < l; i++) {
+        item = collection[i];
+        if (item[0] === target && item[1] === method) {
           index = i;
           break;
         }
@@ -8534,11 +8539,15 @@ define("backburner",
 
     __exports__.Backburner = Backburner;
   });
-define("backburner/deferred_action_queues", 
-  ["backburner/queue","exports"],
-  function(__dependency1__, __exports__) {
+define("backburner/deferred_action_queues",
+  ["backburner/utils","backburner/queue","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
-    var Queue = __dependency1__.Queue;
+    var Utils = __dependency1__["default"];
+    var Queue = __dependency2__.Queue;
+
+    var each = Utils.each,
+        isString = Utils.isString;
 
     function DeferredActionQueues(queueNames, options) {
       var queues = this.queues = {};
@@ -8546,11 +8555,9 @@ define("backburner/deferred_action_queues",
 
       this.options = options;
 
-      var queueName;
-      for (var i = 0, l = queueNames.length; i < l; i++) {
-        queueName = queueNames[i];
-        queues[queueName] = new Queue(this, queueName, this.options);
-      }
+      each(queueNames, function(queueName) {
+        queues[queueName] = new Queue(this, queueName, options);
+      });
     }
 
     DeferredActionQueues.prototype = {
@@ -8621,7 +8628,7 @@ define("backburner/deferred_action_queues",
             args   = queueItems[queueIndex+2];
             stack  = queueItems[queueIndex+3]; // Debugging assistance
 
-            if (typeof method === 'string') { method = target[method]; }
+            if (isString(method)) { method = target[method]; }
 
             // method could have been nullified / canceled during flush
             if (method) {
@@ -8658,7 +8665,7 @@ define("backburner/deferred_action_queues",
 
     __exports__.DeferredActionQueues = DeferredActionQueues;
   });
-define("backburner/queue", 
+define("backburner/queue",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -8697,7 +8704,7 @@ define("backburner/queue",
           }
         }
 
-        this._queue.push(target, method, args, stack);
+        queue.push(target, method, args, stack);
         return {queue: this, target: target, method: method};
       },
 
@@ -8787,6 +8794,31 @@ define("backburner/queue",
 
     __exports__.Queue = Queue;
   });
+define("backburner/utils",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    __exports__["default"] = {
+      each: function(collection, callback) {
+        for (var i = 0; i < collection.length; i++) {
+          callback(collection[i]);
+        }
+      },
+
+      isString: function(suspect) {
+        return typeof suspect === 'string';
+      },
+
+      isFunction: function(suspect) {
+        return typeof suspect === 'function';
+      },
+
+      isNumber: function(suspect) {
+        return typeof suspect === 'number';
+      }
+    };
+  });
+
 define("ember-metal/watch_key",
   ["ember-metal/core","ember-metal/utils","ember-metal/platform","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
@@ -14326,7 +14358,7 @@ define("ember-runtime/controllers/array_controller",
       init: function() {
         this._super();
 
-        this.set('_subControllers', Ember.A());
+        this.set('_subControllers', [ ]);
       },
 
       content: computed(function () {
@@ -14376,13 +14408,23 @@ define("ember-runtime/controllers/array_controller",
 
       _resetSubControllers: function() {
         var subControllers = get(this, '_subControllers');
-        if (subControllers) {
-          forEach(subControllers, function(subController) {
-            if (subController) { subController.destroy(); }
-          });
-        }
+        var controller;
 
-        this.set('_subControllers', Ember.A());
+        if (subControllers.length) {
+          for (var i = 0, length = subControllers.length; length > i; i++) {
+            controller = subControllers[i];
+            if (controller) {
+              controller.destroy();
+            }
+          }
+
+          subControllers.length = 0;
+        }
+      },
+
+      willDestroy: function() {
+        this._resetSubControllers();
+        this._super();
       }
     });
 
@@ -17842,7 +17884,9 @@ define("ember-runtime/mixins/mutable_enumerable",
       */
       removeObjects: function(objects) {
         beginPropertyChanges(this);
-        forEach(objects, function(obj) { this.removeObject(obj); }, this);
+        for (var i = objects.length - 1; i >= 0; i--) {
+          this.removeObject(objects[i]);
+        }
         endPropertyChanges(this);
         return this;
       }
@@ -23002,7 +23046,7 @@ define("ember-views/system/render_buffer",
         @private
         @property elementClasses
         @type Array
-        @default []
+        @default null
       */
       elementClasses: null,
 
@@ -23014,7 +23058,7 @@ define("ember-views/system/render_buffer",
 
         @property classes
         @type Array
-        @default []
+        @default null
       */
       classes: null,
 
@@ -23572,8 +23616,8 @@ define("ember-views/system/utils",
     __exports__.isSimpleClick = isSimpleClick;
   });
 define("ember-views/views/collection_view",
-  ["ember-metal/core","ember-metal/platform","ember-metal/merge","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/string","ember-views/views/container_view","ember-views/views/view","ember-metal/mixin","ember-runtime/mixins/array","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __exports__) {
+  ["ember-metal/core","ember-metal/platform","ember-metal/binding","ember-metal/merge","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/string","ember-views/views/container_view","ember-views/views/view","ember-metal/mixin","ember-runtime/mixins/array","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
     "use strict";
 
     /**
@@ -23584,16 +23628,17 @@ define("ember-views/views/collection_view",
     var Ember = __dependency1__["default"];
     // Ember.assert
     var create = __dependency2__.create;
-    var merge = __dependency3__["default"];
-    var get = __dependency4__.get;
-    var set = __dependency5__.set;
-    var fmt = __dependency6__.fmt;
-    var ContainerView = __dependency7__["default"];
-    var CoreView = __dependency8__.CoreView;
-    var View = __dependency8__.View;
-    var observer = __dependency9__.observer;
-    var beforeObserver = __dependency9__.beforeObserver;
-    var EmberArray = __dependency10__["default"];
+    var isGlobalPath = __dependency3__.isGlobalPath;
+    var merge = __dependency4__["default"];
+    var get = __dependency5__.get;
+    var set = __dependency6__.set;
+    var fmt = __dependency7__.fmt;
+    var ContainerView = __dependency8__["default"];
+    var CoreView = __dependency9__.CoreView;
+    var View = __dependency9__.View;
+    var observer = __dependency10__.observer;
+    var beforeObserver = __dependency10__.beforeObserver;
+    var EmberArray = __dependency11__["default"];
 
     /**
       `Ember.CollectionView` is an `Ember.View` descendent responsible for managing
@@ -23921,7 +23966,7 @@ define("ember-views/views/collection_view",
         if (len) {
           itemViewClass = get(this, 'itemViewClass');
 
-          if ('string' === typeof itemViewClass) {
+          if ('string' === typeof itemViewClass && isGlobalPath(itemViewClass)) {
             itemViewClass = get(itemViewClass) || itemViewClass;
           }
 
@@ -23944,7 +23989,7 @@ define("ember-views/views/collection_view",
 
           if (!emptyView) { return; }
 
-          if ('string' === typeof emptyView) {
+          if ('string' === typeof emptyView && isGlobalPath(emptyView)) {
             emptyView = get(emptyView) || emptyView;
           }
 
@@ -24120,6 +24165,13 @@ define("ember-views/views/component",
       @extends Ember.View
     */
     var Component = View.extend(TargetActionSupport, ComponentTemplateDeprecation, {
+      instrumentName: 'component',
+      instrumentDisplay: computed(function() {
+        if (this._debugContainerKey) {
+          return '{{' + this._debugContainerKey.split(':')[1] + '}}';
+        }
+      }),
+
       init: function() {
         this._super();
         set(this, 'context', this);
@@ -24545,7 +24597,7 @@ define("ember-views/views/container_view",
       replace: function(idx, removedCount, addedViews) {
         var addedCount = addedViews ? get(addedViews, 'length') : 0;
         var self = this;
-        Ember.assert("You can't add a child to a container that is already a child of another view", A(addedViews).every(function(item) { return !get(item, '_parentView') || get(item, '_parentView') === self; }));
+        Ember.assert("You can't add a child to a container - the child is already a child of another view", A(addedViews).every(function(item) { return !get(item, '_parentView') || get(item, '_parentView') === self; }));
 
         this.arrayContentWillChange(idx, removedCount, addedCount);
         this.childViewsWillChange(this._childViews, idx, removedCount);
@@ -25356,6 +25408,8 @@ define("ember-views/views/view",
 
       instrumentDetails: function(hash) {
         hash.object = this.toString();
+        hash.containerKey = this._debugContainerKey;
+        hash.view = this;
       },
 
       /**
@@ -26156,6 +26210,18 @@ define("ember-views/views/view",
         @default null
       */
       layoutName: null,
+
+      /**
+        Used to identify this view during debugging
+
+        @property instrumentDisplay
+        @type String
+      */
+      instrumentDisplay: computed(function() {
+        if (this.helperName) {
+          return '{{' + this.helperName + '}}';
+        }
+      }),
 
       /**
         The template used to render the view. This should be a function that
@@ -28741,8 +28807,8 @@ define("ember-handlebars/controls",
 
       Internally, `{{input type="text"}}` creates an instance of `Ember.TextField`, passing
       arguments from the helper to `Ember.TextField`'s `create` method. You can extend the
-      capablilties of text inputs in your applications by reopening this class. For example,
-      if you are building a Bootstrap 3 project where `data-*` attributes are used, you
+      capabilities of text inputs in your applications by reopening this class. For example,
+      if you are building a Bootstrap project where `data-*` attributes are used, you
       can add one to the `TextField`'s `attributeBindings` property:
 
 
@@ -28979,15 +29045,15 @@ define("ember-handlebars/controls",
       Internally, `{{textarea}}` creates an instance of `Ember.TextArea`, passing
       arguments from the helper to `Ember.TextArea`'s `create` method. You can
       extend the capabilities of text areas in your application by reopening this
-      class. For example, if you are deploying to browsers where the `required`
-      attribute is used, you can globally add support for the `required` attribute
+      class. For example, if you are building a Bootstrap project where `data-*` 
+      attributes are used, you can globally add support for a `data-*` attribute
       on all `{{textarea}}`s' in your app by reopening `Ember.TextArea` or
       `Ember.TextSupport` and adding it to the `attributeBindings` concatenated
       property:
 
       ```javascript
       Ember.TextArea.reopen({
-        attributeBindings: ['required']
+        attributeBindings: ['data-error']
       });
       ```
 
@@ -29051,6 +29117,8 @@ define("ember-handlebars/controls/checkbox",
       @extends Ember.View
     */
     var Checkbox = View.extend({
+      instrumentDisplay: '{{input type="checkbox"}}',
+
       classNames: ['ember-checkbox'],
 
       tagName: 'input',
@@ -29111,6 +29179,8 @@ define("ember-handlebars/controls/select",
         precompileTemplate = EmberHandlebars.compile;
 
     var SelectOption = View.extend({
+      instrumentDisplay: 'Ember.SelectOption',
+
       tagName: 'option',
       attributeBindings: ['value', 'selected'],
 
@@ -29160,6 +29230,8 @@ define("ember-handlebars/controls/select",
     });
 
     var SelectOptgroup = CollectionView.extend({
+      instrumentDisplay: 'Ember.SelectOptgroup',
+
       tagName: 'optgroup',
       attributeBindings: ['label'],
 
@@ -29190,7 +29262,7 @@ define("ember-handlebars/controls/select",
       Example:
 
       ```javascript
-      App.ApplicationController = Ember.Controller.extend({
+      App.ApplicationController = Ember.ObjectController.extend({
         names: ["Yehuda", "Tom"]
       });
       ```
@@ -29212,7 +29284,7 @@ define("ember-handlebars/controls/select",
       `value` property:
 
       ```javascript
-      App.ApplicationController = Ember.Controller.extend({
+      App.ApplicationController = Ember.ObjectController.extend({
         selectedName: 'Tom',
         names: ["Yehuda", "Tom"]
       });
@@ -29252,7 +29324,7 @@ define("ember-handlebars/controls/select",
       element's text. Both paths must reference each object itself as `content`:
 
       ```javascript
-      App.ApplicationController = Ember.Controller.extend({
+      App.ApplicationController = Ember.ObjectController.extend({
         programmers: [
           {firstName: "Yehuda", id: 1},
           {firstName: "Tom",    id: 2}
@@ -29280,7 +29352,7 @@ define("ember-handlebars/controls/select",
       can be bound to a property on another object:
 
       ```javascript
-      App.ApplicationController = Ember.Controller.extend({
+      App.ApplicationController = Ember.ObjectController.extend({
         programmers: [
           {firstName: "Yehuda", id: 1},
           {firstName: "Tom",    id: 2}
@@ -29319,11 +29391,15 @@ define("ember-handlebars/controls/select",
       element:
 
       ```javascript
-      App.ApplicationController = Ember.Controller.extend({
-        selectedPerson: null,
+
+      var yehuda = {firstName: "Yehuda", id: 1, bff4eva: 'tom'}
+      var tom = {firstName: "Tom", id: 2, bff4eva: 'yehuda'};
+
+      App.ApplicationController = Ember.ObjectController.extend({
+        selectedPerson: tom,
         programmers: [
-          {firstName: "Yehuda", id: 1},
-          {firstName: "Tom",    id: 2}
+          yehuda,
+          tom
         ]
       });
       ```
@@ -29356,7 +29432,7 @@ define("ember-handlebars/controls/select",
       results in there being no `<option>` with a `selected` attribute:
 
       ```javascript
-      App.ApplicationController = Ember.Controller.extend({
+      App.ApplicationController = Ember.ObjectController.extend({
         selectedProgrammer: null,
         programmers: [
           "Yehuda",
@@ -29388,7 +29464,7 @@ define("ember-handlebars/controls/select",
       with the `prompt` option:
 
       ```javascript
-      App.ApplicationController = Ember.Controller.extend({
+      App.ApplicationController = Ember.ObjectController.extend({
         selectedProgrammer: null,
         programmers: [
           "Yehuda",
@@ -29420,6 +29496,8 @@ define("ember-handlebars/controls/select",
       @extends Ember.View
     */
     var Select = View.extend({
+      instrumentDisplay: 'Ember.Select',
+
       tagName: 'select',
       classNames: ['ember-select'],
       defaultTemplate: Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
@@ -29796,6 +29874,8 @@ define("ember-handlebars/controls/text_area",
       @uses Ember.TextSupport
     */
     var TextArea = Component.extend(TextSupport, {
+      instrumentDisplay: '{{textarea}}',
+
       classNames: ['ember-text-area'],
 
       tagName: "textarea",
@@ -29854,6 +29934,7 @@ define("ember-handlebars/controls/text_field",
       @uses Ember.TextSupport
     */
     var TextField = Component.extend(TextSupport, {
+      instrumentDisplay: '{{input type="text"}}',
 
       classNames: ['ember-text-field'],
       tagName: "input",
@@ -30674,7 +30755,7 @@ define("ember-handlebars/ext",
     __exports__.blockHelperMissingHelper = blockHelperMissingHelper;
   });
 define("ember-handlebars/helpers/binding",
-  ["ember-metal/core","ember-handlebars-compiler","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/string","ember-metal/platform","ember-metal/is_none","ember-metal/enumerable_utils","ember-metal/array","ember-views/views/view","ember-metal/run_loop","ember-handlebars/views/handlebars_bound_view","ember-metal/observer","ember-metal/binding","ember-metal/utils","ember-views/system/jquery","ember-handlebars/ext","ember-runtime/keys","exports"],
+  ["ember-metal/core","ember-handlebars-compiler","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/string","ember-metal/utils","ember-metal/platform","ember-metal/is_none","ember-metal/enumerable_utils","ember-metal/array","ember-views/views/view","ember-metal/run_loop","ember-handlebars/views/handlebars_bound_view","ember-metal/observer","ember-metal/binding","ember-views/system/jquery","ember-handlebars/ext","ember-runtime/keys","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __exports__) {
     "use strict";
     /**
@@ -30693,21 +30774,22 @@ define("ember-handlebars/helpers/binding",
     var get = __dependency3__.get;
     var set = __dependency4__.set;
     var fmt = __dependency5__.fmt;
-    var o_create = __dependency6__.create;
-    var isNone = __dependency7__["default"];
-    var EnumerableUtils = __dependency8__["default"];
-    var forEach = __dependency9__.forEach;
-    var View = __dependency10__.View;
-    var run = __dependency11__["default"];
-    var _HandlebarsBoundView = __dependency12__._HandlebarsBoundView;
-    var SimpleHandlebarsView = __dependency12__.SimpleHandlebarsView;
-    var removeObserver = __dependency13__.removeObserver;
-    var isGlobalPath = __dependency14__.isGlobalPath;
-    var emberBind = __dependency14__.bind;
-    var guidFor = __dependency15__.guidFor;
-    var typeOf = __dependency15__.typeOf;
+    var apply = __dependency6__.apply;
+    var o_create = __dependency7__.create;
+    var isNone = __dependency8__["default"];
+    var EnumerableUtils = __dependency9__["default"];
+    var forEach = __dependency10__.forEach;
+    var View = __dependency11__.View;
+    var run = __dependency12__["default"];
+    var _HandlebarsBoundView = __dependency13__._HandlebarsBoundView;
+    var SimpleHandlebarsView = __dependency13__.SimpleHandlebarsView;
+    var removeObserver = __dependency14__.removeObserver;
+    var isGlobalPath = __dependency15__.isGlobalPath;
+    var emberBind = __dependency15__.bind;
+    var guidFor = __dependency6__.guidFor;
+    var typeOf = __dependency6__.typeOf;
     var jQuery = __dependency16__["default"];
-    var isArray = __dependency15__.isArray;
+    var isArray = __dependency6__.isArray;
     var normalizePath = __dependency17__.normalizePath;
     var handlebarsGet = __dependency17__.handlebarsGet;
     var getEscaped = __dependency17__.getEscaped;
@@ -30717,6 +30799,56 @@ define("ember-handlebars/helpers/binding",
     function exists(value) {
       return !isNone(value);
     }
+
+    var WithView = _HandlebarsBoundView.extend({
+      init: function() {
+        var controller;
+
+        apply(this, this._super, arguments);
+
+        var keywords        = this.templateData.keywords;
+        var keywordName     = this.templateHash.keywordName;
+        var keywordPath     = this.templateHash.keywordPath;
+        var controllerName  = this.templateHash.controller;
+        var preserveContext = this.preserveContext;
+
+        if (controllerName) {
+          var previousContext = this.previousContext;
+          controller = this.container.lookupFactory('controller:'+controllerName).create({
+            parentController: previousContext,
+            target: previousContext
+          });
+
+          this._generatedController = controller;
+
+          if (!preserveContext) {
+            this.set('controller', controller);
+
+            this.valueNormalizerFunc = function(result) {
+                controller.set('model', result);
+                return controller;
+            };
+          } else {
+            var controllerPath = jQuery.expando + guidFor(controller);
+            keywords[controllerPath] = controller;
+            emberBind(keywords, controllerPath + '.model', keywordPath);
+            keywordPath = controllerPath;
+          }
+        }
+
+        if (preserveContext) {
+          emberBind(keywords, keywordName, keywordPath);
+        }
+
+      },
+      willDestroy: function() {
+        this._super();
+
+        if (this._generatedController) {
+          this._generatedController.destroy();
+        }
+      }
+    });
 
     // Binds a property into the DOM. This will create a hook in DOM that the
     // KVO system will look for and update if the property changes.
@@ -30754,10 +30886,8 @@ define("ember-handlebars/helpers/binding",
 
           template(context, { data: options.data });
         } else {
-          // Create the view that will wrap the output of this template/property
-          // and add it to the nearest view's childViews array.
-          // See the documentation of Ember._HandlebarsBoundView for more.
-          var bindView = view.createChildView(Ember._HandlebarsBoundView, {
+          var viewClass = _HandlebarsBoundView;
+          var viewOptions = {
             preserveContext: preserveContext,
             shouldDisplayFunc: shouldDisplay,
             valueNormalizerFunc: valueNormalizer,
@@ -30767,16 +30897,19 @@ define("ember-handlebars/helpers/binding",
             pathRoot: currentContext,
             previousContext: currentContext,
             isEscaped: !options.hash.unescaped,
-            templateData: options.data
-          });
+            templateData: options.data,
+            templateHash: options.hash,
+            helperName: options.helperName
+          };
 
-          if (options.hash.controller) {
-            bindView.set('_contextController', this.container.lookupFactory('controller:'+options.hash.controller).create({
-              container: currentContext.container,
-              parentController: currentContext,
-              target: currentContext
-            }));
+          if (options.isWithHelper) {
+            viewClass = WithView;
           }
+
+          // Create the view that will wrap the output of this template/property
+          // and add it to the nearest view's childViews array.
+          // See the documentation of Ember._HandlebarsBoundView for more.
+          var bindView = view.createChildView(viewClass, viewOptions);
 
           view.appendChild(bindView);
 
@@ -30958,6 +31091,8 @@ define("ember-handlebars/helpers/binding",
         return simpleBind(context, property, options);
       }
 
+      options.helperName = 'bind';
+
       return bind.call(context, property, options, false, exists);
     }
 
@@ -30980,6 +31115,8 @@ define("ember-handlebars/helpers/binding",
     */
     function boundIfHelper(property, fn) {
       var context = (fn.contexts && fn.contexts.length) ? fn.contexts[0] : this;
+
+      fn.helperName = fn.helperName || 'boundIf';
 
       return bind.call(context, property, fn, true, shouldDisplayIfHelperContent, shouldDisplayIfHelperContent, ['isTruthy', 'length']);
     }
@@ -31099,6 +31236,8 @@ define("ember-handlebars/helpers/binding",
       @return {String} HTML string
     */
     function withHelper(context, options) {
+      var bindContext, preserveContext, controller, helperName = 'with';
+
       if (arguments.length === 4) {
         var keywordName, path, rootPath, normalized, contextPath;
 
@@ -31106,6 +31245,10 @@ define("ember-handlebars/helpers/binding",
         options = arguments[3];
         keywordName = arguments[2];
         path = arguments[0];
+
+        if (path) {
+          helperName += ' ' + path + ' as ' + keywordName;
+        }
 
         Ember.assert("You must pass a block to the with helper", options.fn && options.fn !== Handlebars.VM.noop);
 
@@ -31128,17 +31271,27 @@ define("ember-handlebars/helpers/binding",
           contextPath = path ? contextKey + '.' + path : contextKey;
         }
 
-        emberBind(localizedOptions.data.keywords, keywordName, contextPath);
+        localizedOptions.hash.keywordName = keywordName;
+        localizedOptions.hash.keywordPath = contextPath;
 
-        return bind.call(this, path, localizedOptions, true, exists);
+        bindContext = this;
+        context = path;
+        options = localizedOptions;
+        preserveContext = true;
       } else {
         Ember.assert("You must pass exactly one argument to the with helper", arguments.length === 2);
         Ember.assert("You must pass a block to the with helper", options.fn && options.fn !== Handlebars.VM.noop);
-        return helpers.bind.call(options.contexts[0], context, options);
+
+        helperName += ' ' + context;
+        bindContext = options.contexts[0];
+        preserveContext = false;
       }
+
+      options.helperName = helperName;
+      options.isWithHelper = true;
+
+      return bind.call(bindContext, context, options, preserveContext, exists);
     }
-
-
     /**
       See [boundIf](/api/classes/Ember.Handlebars.helpers.html#method_boundIf)
       and [unboundIf](/api/classes/Ember.Handlebars.helpers.html#method_unboundIf)
@@ -31152,6 +31305,9 @@ define("ember-handlebars/helpers/binding",
     function ifHelper(context, options) {
       Ember.assert("You must pass exactly one argument to the if helper", arguments.length === 2);
       Ember.assert("You must pass a block to the if helper", options.fn && options.fn !== Handlebars.VM.noop);
+
+      options.helperName = options.helperName || ('if ' + context);
+
       if (options.data.isUnbound) {
         return helpers.unboundIf.call(options.contexts[0], context, options);
       } else {
@@ -31170,10 +31326,16 @@ define("ember-handlebars/helpers/binding",
       Ember.assert("You must pass exactly one argument to the unless helper", arguments.length === 2);
       Ember.assert("You must pass a block to the unless helper", options.fn && options.fn !== Handlebars.VM.noop);
 
-      var fn = options.fn, inverse = options.inverse;
+      var fn = options.fn, inverse = options.inverse, helperName = 'unless';
+
+      if (context) {
+        helperName += ' ' + context;
+      }
 
       options.fn = inverse;
       options.inverse = fn;
+
+      options.helperName = options.helperName || helperName;
 
       if (options.data.isUnbound) {
         return helpers.unboundIf.call(options.contexts[0], context, options);
@@ -31791,6 +31953,8 @@ define("ember-handlebars/helpers/collection",
       var viewOptions = ViewHelper.propertiesFromHTMLOptions({ data: data, hash: itemHash }, this);
       hash.itemViewClass = itemViewClass.extend(viewOptions);
 
+      options.helperName = options.helperName || 'collection';
+
       return helpers.view.call(this, collectionClass, options);
     }
 
@@ -31903,8 +32067,8 @@ define("ember-handlebars/helpers/debug",
     __exports__.debuggerHelper = debuggerHelper;
   });
 define("ember-handlebars/helpers/each",
-  ["ember-metal/core","ember-handlebars-compiler","ember-runtime/system/string","ember-metal/property_get","ember-metal/property_set","ember-handlebars/views/metamorph_view","ember-views/views/collection_view","ember-metal/binding","ember-runtime/controllers/controller","ember-runtime/controllers/array_controller","ember-runtime/mixins/array","ember-runtime/copy","ember-metal/run_loop","ember-metal/observer","ember-metal/events","ember-handlebars/ext","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __exports__) {
+  ["ember-metal/core","ember-handlebars-compiler","ember-runtime/system/string","ember-metal/property_get","ember-metal/property_set","ember-handlebars/views/metamorph_view","ember-views/views/collection_view","ember-metal/binding","ember-runtime/controllers/controller","ember-runtime/controllers/array_controller","ember-runtime/mixins/array","ember-runtime/copy","ember-metal/run_loop","ember-metal/observer","ember-metal/events","ember-handlebars/ext","ember-metal/computed","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __exports__) {
     "use strict";
 
     /**
@@ -31936,10 +32100,13 @@ define("ember-handlebars/helpers/each",
     var addBeforeObserver = __dependency14__.addBeforeObserver;
     var removeBeforeObserver = __dependency14__.removeBeforeObserver;
     var on = __dependency15__.on;
+    var handlebarsGet = __dependency16__.handlebarsGet;
+    var computed = __dependency17__.computed;
 
     var handlebarsGet = __dependency16__.handlebarsGet;
 
     var EachView = CollectionView.extend(_Metamorph, {
+
       init: function() {
         var itemController = get(this, 'itemController');
         var binding;
@@ -32332,23 +32499,28 @@ define("ember-handlebars/helpers/each",
       @param [options.groupedRows] {boolean} enable normal item-by-item rendering when inside a `#group` helper
     */
     function eachHelper(path, options) {
-      var ctx;
+      var ctx, helperName = 'each';
 
       if (arguments.length === 4) {
         Ember.assert("If you pass more than one argument to the each helper, it must be in the form #each foo in bar", arguments[1] === "in");
 
         var keywordName = arguments[0];
 
+
         options = arguments[3];
         path = arguments[2];
+
+        helperName += ' ' + keywordName + ' in ' + path;
+
         if (path === '') { path = "this"; }
 
         options.hash.keyword = keywordName;
-      }
 
-      if (arguments.length === 1) {
+      } else if (arguments.length === 1) {
         options = path;
         path = 'this';
+      } else {
+        helperName += ' ' + path;
       }
 
       options.hash.dataSourceBinding = path;
@@ -32357,6 +32529,9 @@ define("ember-handlebars/helpers/each",
 
       // can't rely on this default behavior when use strict
       ctx = this || window;
+
+      options.helperName = options.helperName || helperName;
+
       if (options.data.insideGroup && !options.hash.groupedRows && !options.hash.itemViewClass) {
         new GroupedEach(ctx, path, options).render();
       } else {
@@ -32484,6 +32659,8 @@ define("ember-handlebars/helpers/partial",
 
       var context = (options.contexts && options.contexts.length) ? options.contexts[0] : this;
 
+      options.helperName = options.helperName || 'partial';
+
       if (options.types[0] === "ID") {
         // Helper was passed a property path; we need to
         // create a binding that will re-render whenever
@@ -32604,6 +32781,9 @@ define("ember-handlebars/helpers/template",
     */
     function templateHelper(name, options) {
       Ember.deprecate("The `template` helper has been deprecated in favor of the `partial` helper. Please use `partial` instead, which will work the same way.");
+
+      options.helperName = options.helperName || 'template';
+
       return helpers.partial.apply(this, arguments);
     }
 
@@ -32875,6 +33055,11 @@ define("ember-handlebars/helpers/view",
           viewOptions._context = thisContext;
         }
 
+        // for instrumentation
+        if (options.helperName) {
+          viewOptions.helperName = options.helperName;
+        }
+
         currentView.appendChild(newView, viewOptions);
       }
     });
@@ -33053,6 +33238,8 @@ define("ember-handlebars/helpers/view",
         options = path;
         path = "Ember.View";
       }
+
+      options.helperName = options.helperName || 'view';
 
       return ViewHelper.helper(this, path, options);
     }
@@ -33468,8 +33655,8 @@ define("ember-handlebars/string",
     __exports__["default"] = htmlSafe;
   });
 define("ember-handlebars/views/handlebars_bound_view",
-  ["ember-handlebars-compiler","ember-metal/core","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/merge","ember-metal/run_loop","ember-views/views/view","ember-views/views/states","ember-handlebars/views/metamorph_view","ember-handlebars/ext","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
+  ["ember-handlebars-compiler","ember-metal/core","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/merge","ember-metal/run_loop","ember-metal/computed","ember-views/views/view","ember-views/views/states","ember-handlebars/views/metamorph_view","ember-handlebars/ext","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __exports__) {
     "use strict";
     /*globals Handlebars */
     /*jshint newcap:false*/
@@ -33495,13 +33682,14 @@ define("ember-handlebars/views/handlebars_bound_view",
     var set = __dependency5__.set;
     var merge = __dependency6__["default"];
     var run = __dependency7__["default"];
-    var View = __dependency8__.View;
-    var cloneStates = __dependency9__.cloneStates;
-    var states = __dependency9__.states;
+    var computed = __dependency8__.computed;
+    var View = __dependency9__.View;
+    var cloneStates = __dependency10__.cloneStates;
+    var states = __dependency10__.states;
     var viewStates = states;
 
-    var _MetamorphView = __dependency10__._MetamorphView;
-    var handlebarsGet = __dependency11__.handlebarsGet;
+    var _MetamorphView = __dependency11__._MetamorphView;
+    var handlebarsGet = __dependency12__.handlebarsGet;
 
     function SimpleHandlebarsView(path, pathRoot, isEscaped, templateData) {
       this.path = path;
@@ -33636,8 +33824,8 @@ define("ember-handlebars/views/handlebars_bound_view",
       @private
     */
     var _HandlebarsBoundView = _MetamorphView.extend({
-      instrumentName: 'boundHandlebars',
       states: states,
+      instrumentName: 'boundHandlebars',
 
       /**
         The function used to determine if the `displayTemplate` or
@@ -33769,8 +33957,6 @@ define("ember-handlebars/views/handlebars_bound_view",
             preserveContext = get(this, 'preserveContext'),
             context = get(this, 'previousContext');
 
-        var _contextController = get(this, '_contextController');
-
         var inverseTemplate = get(this, 'inverseTemplate'),
             displayTemplate = get(this, 'displayTemplate');
 
@@ -33790,10 +33976,6 @@ define("ember-handlebars/views/handlebars_bound_view",
           // Otherwise, determine if this is a block bind or not.
           // If so, pass the specified object to the template
             if (displayTemplate) {
-              if (_contextController) {
-                set(_contextController, 'content', result);
-                result = _contextController;
-              }
               set(this, '_context', result);
             } else {
             // This is not a bind block, just push the result of the
@@ -35561,6 +35743,8 @@ define("ember-routing/helpers/link_to",
         params: params
       };
 
+      options.helperName = options.helperName || 'link-to';
+
       return viewHelper.call(this, LinkView, options);
     };
 
@@ -35708,6 +35892,8 @@ define("ember-routing/helpers/outlet",
 
       options.data.view.set('outletSource', outletSource);
       options.hash.currentViewBinding = '_view.outletSource._outlets.' + property;
+
+      options.helperName = options.helperName || 'outlet';
 
       return viewHelper.call(this, viewClass, options);
     };
@@ -35891,6 +36077,8 @@ define("ember-routing/helpers/render",
       if (router && !context) {
         router._connectActiveView(name, view);
       }
+
+      options.helperName = options.helperName || ('render "' + name + '"');
 
       viewHelper.call(this, view, options);
     };
@@ -36201,6 +36389,7 @@ define("ember-routing/location/auto_location",
         This property is used by router:main to know whether to cancel the routing
         setup process, which is needed while we redirect the browser.
 
+        @since 1.5.1
         @property cancelRouterSetup
         @default false
       */
@@ -36211,6 +36400,7 @@ define("ember-routing/location/auto_location",
 
         Will be pre-pended to path upon state change.
 
+        @since 1.5.1
         @property rootURL
         @default '/'
       */
@@ -36221,6 +36411,7 @@ define("ember-routing/location/auto_location",
 
         Attached for mocking in tests
 
+        @since 1.5.1
         @property _window
         @default window
       */
@@ -36241,6 +36432,7 @@ define("ember-routing/location/auto_location",
 
         Attached for mocking in tests
 
+        @since 1.5.1
         @property _history
         @default window.history
       */
@@ -36251,6 +36443,7 @@ define("ember-routing/location/auto_location",
 
         Attached for mocking in tests
 
+        @since 1.5.1
         @property _HistoryLocation
         @default Ember.HistoryLocation
       */
@@ -36261,6 +36454,7 @@ define("ember-routing/location/auto_location",
 
         Attached for mocking in tests
 
+        @since 1.5.1
         @property _HashLocation
         @default Ember.HashLocation
       */
@@ -36271,6 +36465,7 @@ define("ember-routing/location/auto_location",
 
         Attached for mocking in tests
 
+        @since 1.5.1
         @property _NoneLocation
         @default Ember.NoneLocation
       */
@@ -36353,6 +36548,7 @@ define("ember-routing/location/auto_location",
       },
 
       /**
+        @since 1.5.1
         @private
         @method _getRootURL
       */
@@ -36382,6 +36578,7 @@ define("ember-routing/location/auto_location",
 
         Returns normalized location.hash as an alias to Ember.Location._getHash
 
+        @since 1.5.1
         @method _getHash
       */
       _getHash: EmberLocation._getHash,
@@ -36391,6 +36588,7 @@ define("ember-routing/location/auto_location",
 
         Returns location.search
 
+        @since 1.5.1
         @method _getQuery
       */
       _getQuery: function () {
@@ -36579,6 +36777,7 @@ define("ember-routing/location/hash_location",
 
         Returns normalized location.hash
 
+        @since 1.5.1
         @method getHash
       */
       getHash: EmberLocation._getHash,
@@ -37404,127 +37603,6 @@ define("ember-routing/system/route",
       controllerName: null,
 
       /**
-        The collection of functions, keyed by name, available on this route as
-        action targets.
-
-        These functions will be invoked when a matching `{{action}}` is triggered
-        from within a template and the application's current route is this route.
-
-        Actions can also be invoked from other parts of your application via `Route#send`
-        or `Controller#send`.
-
-        The `actions` hash will inherit action handlers from
-        the `actions` hash defined on extended Route parent classes
-        or mixins rather than just replace the entire hash, e.g.:
-
-        ```js
-        App.CanDisplayBanner = Ember.Mixin.create({
-          actions: {
-            displayBanner: function(msg) {
-              // ...
-            }
-          }
-        });
-
-        App.WelcomeRoute = Ember.Route.extend(App.CanDisplayBanner, {
-          actions: {
-            playMusic: function() {
-              // ...
-            }
-          }
-        });
-
-        // `WelcomeRoute`, when active, will be able to respond
-        // to both actions, since the actions hash is merged rather
-        // then replaced when extending mixins / parent classes.
-        this.send('displayBanner');
-        this.send('playMusic');
-        ```
-
-        Within a route's action handler, the value of the `this` context
-        is the Route object:
-
-        ```js
-        App.SongRoute = Ember.Route.extend({
-          actions: {
-            myAction: function() {
-              this.controllerFor("song");
-              this.transitionTo("other.route");
-              ...
-            }
-          }
-        });
-        ```
-
-        It is also possible to call `this._super()` from within an
-        action handler if it overrides a handler defined on a parent
-        class or mixin:
-
-        Take for example the following routes:
-
-        ```js
-        App.DebugRoute = Ember.Mixin.create({
-          actions: {
-            debugRouteInformation: function() {
-              console.debug("trololo");
-            }
-          }
-        });
-
-        App.AnnoyingDebugRoute = Ember.Route.extend(App.DebugRoute, {
-          actions: {
-            debugRouteInformation: function() {
-              // also call the debugRouteInformation of mixed in App.DebugRoute
-              this._super();
-
-              // show additional annoyance
-              window.alert(...);
-            }
-          }
-        });
-        ```
-
-        ## Bubbling
-
-        By default, an action will stop bubbling once a handler defined
-        on the `actions` hash handles it. To continue bubbling the action,
-        you must return `true` from the handler:
-
-        ```js
-        App.Router.map(function() {
-          this.resource("album", function() {
-            this.route("song");
-          });
-        });
-
-        App.AlbumRoute = Ember.Route.extend({
-          actions: {
-            startPlaying: function() {
-            }
-          }
-        });
-
-        App.AlbumSongRoute = Ember.Route.extend({
-          actions: {
-            startPlaying: function() {
-              // ...
-
-              if (actionShouldAlsoBeTriggeredOnParentRoute) {
-                return true;
-              }
-            }
-          }
-        });
-        ```
-
-        ## Built-in actions
-
-        There are a few built-in actions pertaining to transitions that you
-        can use to customize transition behavior: `willTransition` and
-        `error`.
-
-        ### `willTransition`
-
         The `willTransition` action is fired at the beginning of any
         attempted transition with a `Transition` object as the sole
         argument. This action can be used for aborting, redirecting,
@@ -37555,8 +37633,64 @@ define("ember-routing/system/route",
         transition, you must first explicitly call
         `transition.abort()`.
 
-        ### `error`
+        @event willTransition
+        @param {Transition} transition
+      */
 
+      /**
+        The `didTransition` action is fired after a transition has
+        successfully been completed. This occurs after the normal model
+        hooks (`beforeModel`, `model`, `afterModel`, `setupController`)
+        have resolved. The `didTransition` action has no arguments,
+        however, it can be useful for tracking page views or resetting
+        state on the controller.
+
+        ```js
+        App.LoginRoute = Ember.Route.extend({
+          actions: {
+            didTransition: function() {
+              this.controller.get('errors.base').clear();
+              return true; // Bubble the didTransition event
+            }
+          }
+        });
+        ```
+
+        @event didTransition
+        @since 1.2.0
+      */
+
+      /**
+        The `loading` action is fired on the route when a route's `model`
+        hook returns a promise that is not already resolved. The current
+        `Transition` object is the first parameter and the route that
+        triggered the loading event is the second parameter.
+
+        ```js
+        App.ApplicationRoute = Ember.Route.extend({
+          actions: {
+            loading: function(transition, route) {
+              var view = Ember.View.create({
+                classNames: ['app-loading']
+              })
+              .append();
+
+              this.router.one('didTransition', function () {
+                view.destroy();
+              });
+              return true; // Bubble the loading event
+            }
+          }
+        });
+        ```
+
+        @event loading
+        @param {Transition} transition
+        @param {Ember.Route} route The route that triggered the loading event
+        @since 1.2.0
+      */
+
+      /**
         When attempting to transition into a route, any of the hooks
         may return a promise that rejects, at which point an `error`
         action will be fired on the partially-entered routes, allowing
@@ -37605,11 +37739,38 @@ define("ember-routing/system/route",
           }
         });
         ```
-
-        @property actions
-        @type Hash
-        @default null
+        @event error
+        @param {Error} error
+        @param {Transition} transition
       */
+
+      /**
+        The controller associated with this route.
+
+        Example
+
+        ```javascript
+        App.FormRoute = Ember.Route.extend({
+          actions: {
+            willTransition: function(transition) {
+              if (this.controller.get('userHasEnteredData') &&
+                  !confirm("Are you sure you want to abandon progress?")) {
+                transition.abort();
+              } else {
+                // Bubble the `willTransition` action so that
+                // parent routes can decide whether or not to abort.
+                return true;
+              }
+            }
+          }
+        });
+        ```
+
+        @property controller
+        @type Ember.Controller
+        @since 1.6.0
+      */
+
       _actions: {
 
         queryParamsDidChange: function(changed, totalPresent, removed) {
@@ -38011,8 +38172,8 @@ define("ember-routing/system/route",
         ```js
         App.PostsRoute = Ember.Route.extend({
           afterModel: function(posts, transition) {
-            if (posts.length === 1) {
-              this.transitionTo('post.show', posts[0]);
+            if (posts.get('length') === 1) {
+              this.transitionTo('post.show', posts.get('firstObject'));
             }
           }
         });
