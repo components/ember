@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.7.0-beta.1+canary.720e55d2
+ * @version   1.7.0-beta.1+canary.216fcc1b
  */
 
 (function() {
@@ -3641,8 +3641,9 @@ define("ember-debug",
       ```javascript
       // Test for truthiness
       Ember.assert('Must pass a valid object', obj);
+
       // Fail unconditionally
-      Ember.assert('This code path should never be run')
+      Ember.assert('This code path should never be run');
       ```
 
       @method assert
@@ -3679,7 +3680,7 @@ define("ember-debug",
       `Ember.debug()` when doing a production build.
 
       ```javascript
-      Ember.debug("I'm a debug notice!");
+      Ember.debug('I\'m a debug notice!');
       ```
 
       @method debug
@@ -3766,7 +3767,7 @@ define("ember-debug",
       Ember.runInDebug(function() {
         Ember.Handlebars.EachView.reopen({
           didInsertElement: function() {
-            console.log("I'm happy");
+            console.log('I\'m happy');
           }
         });
       });
@@ -4828,9 +4829,11 @@ define("ember-handlebars",
     var ComponentLookup = __dependency24__["default"];
     var _HandlebarsBoundView = __dependency25__._HandlebarsBoundView;
     var SimpleHandlebarsView = __dependency25__.SimpleHandlebarsView;
+    var _wrapMap = __dependency26__._wrapMap;
     var _SimpleMetamorphView = __dependency26__._SimpleMetamorphView;
     var _MetamorphView = __dependency26__._MetamorphView;
     var _Metamorph = __dependency26__._Metamorph;
+
 
     /**
     Ember Handlebars
@@ -4868,6 +4871,7 @@ define("ember-handlebars",
     Ember._SimpleMetamorphView = _SimpleMetamorphView;
     Ember._MetamorphView = _MetamorphView;
     Ember._Metamorph = _Metamorph;
+    Ember._metamorphWrapMap = _wrapMap;
     Ember.TextSupport = TextSupport;
     Ember.Checkbox = Checkbox;
     Ember.Select = Select;
@@ -10222,6 +10226,8 @@ define("ember-handlebars/views/metamorph_view",
       domManager: DOMManager
     });
     __exports__._Metamorph = _Metamorph;
+    var _wrapMap = Metamorph._wrapMap;
+    __exports__._wrapMap = _wrapMap;
     /**
       @class _MetamorphView
       @namespace Ember
@@ -11548,9 +11554,9 @@ define("ember-metal/computed",
 
     // data structure:
     //  meta.deps = {
-    //   'depKey': {
-    //     'keyName': count,
-    //   }
+    //    'depKey': {
+    //      'keyName': count,
+    //    }
     //  }
 
     /*
@@ -11634,7 +11640,7 @@ define("ember-metal/computed",
       values.
 
       ```javascript
-      Person = Ember.Object.extend({
+      var Person = Ember.Object.extend({
         // these will be supplied by `create`
         firstName: null,
         lastName: null,
@@ -11661,8 +11667,7 @@ define("ember-metal/computed",
       third parameter.
 
       ```javascript
-
-     Person = Ember.Object.extend({
+      var Person = Ember.Object.extend({
         // these will be supplied by `create`
         firstName: null,
         lastName: null,
@@ -11677,7 +11682,7 @@ define("ember-metal/computed",
 
           // setter
           } else {
-            var name = value.split(" ");
+            var name = value.split(' ');
 
             this.set('firstName', name[0]);
             this.set('lastName', name[1]);
@@ -11688,9 +11693,10 @@ define("ember-metal/computed",
       });
 
       var person = Person.create();
+
       person.set('fullName', 'Peter Wagenet');
-      person.get('firstName') // 'Peter'
-      person.get('lastName') // 'Wagenet'
+      person.get('firstName'); // 'Peter'
+      person.get('lastName');  // 'Wagenet'
       ```
 
       @class ComputedProperty
@@ -11739,7 +11745,7 @@ define("ember-metal/computed",
       mode the computed property will not automatically cache the return value.
 
       ```javascript
-      MyApp.outsideService = Ember.Object.extend({
+      var outsideService = Ember.Object.extend({
         value: function() {
           return OutsideService.getValue();
         }.property().volatile()
@@ -11759,15 +11765,15 @@ define("ember-metal/computed",
       mode the computed property will throw an error when set.
 
       ```javascript
-      MyApp.Person = Ember.Object.extend({
+      var Person = Ember.Object.extend({
         guid: function() {
           return 'guid-guid-guid';
         }.property().readOnly()
       });
 
-      MyApp.person = MyApp.Person.create();
+      var person = Person.create();
 
-      MyApp.person.set('guid', 'new-guid'); // will throw an exception
+      person.set('guid', 'new-guid'); // will throw an exception
       ```
 
       @method readOnly
@@ -11784,7 +11790,7 @@ define("ember-metal/computed",
       arguments containing key paths that this computed property depends on.
 
       ```javascript
-      MyApp.President = Ember.Object.extend({
+      var President = Ember.Object.extend({
         fullName: computed(function() {
           return this.get('firstName') + ' ' + this.get('lastName');
 
@@ -11793,12 +11799,12 @@ define("ember-metal/computed",
         }).property('firstName', 'lastName')
       });
 
-      MyApp.president = MyApp.President.create({
+      var president = President.create({
         firstName: 'Barack',
         lastName: 'Obama'
       });
 
-      MyApp.president.get('fullName'); // 'Barack Obama'
+      president.get('fullName'); // 'Barack Obama'
       ```
 
       @method property
@@ -11882,10 +11888,9 @@ define("ember-metal/computed",
       Otherwise, call the function passing the property name as an argument.
 
       ```javascript
-      Person = Ember.Object.extend({
+      var Person = Ember.Object.extend({
         fullName: function(keyName) {
           // the keyName parameter is 'fullName' in this case.
-
           return this.get('firstName') + ' ' + this.get('lastName');
         }.property('firstName', 'lastName')
       });
@@ -12147,7 +12152,9 @@ define("ember-metal/computed",
         done: Ember.computed.empty('todos')
       });
 
-      var todoList = ToDoList.create({todos: ['Unit Test', 'Documentation', 'Release']});
+      var todoList = ToDoList.create({
+        todos: ['Unit Test', 'Documentation', 'Release']
+      });
 
       todoList.get('done'); // false
       todoList.get('todos').clear();
@@ -12182,11 +12189,11 @@ define("ember-metal/computed",
         hasStuff: Ember.computed.notEmpty('backpack.[]')
       });
 
-      var hamster = Hamster.create({backpack: ['Food', 'Sleeping Bag', 'Tent']});
+      var hamster = Hamster.create({ backpack: ['Food', 'Sleeping Bag', 'Tent'] });
 
-      hamster.get('hasStuff'); // true
+      hamster.get('hasStuff');         // true
       hamster.get('backpack').clear(); // []
-      hamster.get('hasStuff'); // false
+      hamster.get('hasStuff');         // false
       ```
 
       @method computed.notEmpty
@@ -12622,12 +12629,12 @@ define("ember-metal/computed",
       though they were called on the original property.
 
       ```javascript
-      Person = Ember.Object.extend({
+      var Person = Ember.Object.extend({
         name: 'Alex Matchneer',
         nomen: Ember.computed.alias('name')
       });
 
-      alex = Person.create();
+      var alex = Person.create();
 
       alex.get('nomen'); // 'Alex Matchneer'
       alex.get('name');  // 'Alex Matchneer'
@@ -12673,9 +12680,9 @@ define("ember-metal/computed",
         lastName:  'Zeenny'
       });
 
-      teddy.get('nickName'); // 'Teddy'
+      teddy.get('nickName');              // 'Teddy'
       teddy.set('nickName', 'TeddyBear'); // 'TeddyBear'
-      teddy.get('firstName'); // 'Teddy'
+      teddy.get('firstName');             // 'Teddy'
       ```
 
       @method computed.oneWay
@@ -12725,10 +12732,10 @@ define("ember-metal/computed",
         lastName:  'Zeenny'
       });
 
-      teddy.get('nickName'); // 'Teddy'
+      teddy.get('nickName');              // 'Teddy'
       teddy.set('nickName', 'TeddyBear'); // throws Exception
       // throw new Ember.Error('Cannot Set: nickName on: <User:ember27288>' );`
-      teddy.get('firstName'); // 'Teddy'
+      teddy.get('firstName');             // 'Teddy'
       ```
 
       @method computed.readOnly
@@ -12755,12 +12762,12 @@ define("ember-metal/computed",
         wishList: Ember.computed.defaultTo('favoriteFood')
       });
 
-      var hamster = Hamster.create({favoriteFood: 'Banana'});
+      var hamster = Hamster.create({ favoriteFood: 'Banana' });
 
-      hamster.get('wishList'); // 'Banana'
+      hamster.get('wishList');                     // 'Banana'
       hamster.set('wishList', 'More Unit Tests');
-      hamster.get('wishList'); // 'More Unit Tests'
-      hamster.get('favoriteFood'); // 'Banana'
+      hamster.get('wishList');                     // 'More Unit Tests'
+      hamster.get('favoriteFood');                 // 'Banana'
       ```
 
       @method computed.defaultTo
@@ -12836,7 +12843,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.7.0-beta.1+canary.720e55d2
+      @version 1.7.0-beta.1+canary.216fcc1b
     */
 
     if ('undefined' === typeof Ember) {
@@ -12863,10 +12870,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.7.0-beta.1+canary.720e55d2'
+      @default '1.7.0-beta.1+canary.216fcc1b'
       @static
     */
-    Ember.VERSION = '1.7.0-beta.1+canary.720e55d2';
+    Ember.VERSION = '1.7.0-beta.1+canary.216fcc1b';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -13697,12 +13704,14 @@ define("ember-metal/events",
 
       ``` javascript
       var Job = Ember.Object.extend({
-        logCompleted: Ember.on('completed', function(){
+        logCompleted: Ember.on('completed', function() {
           console.log('Job completed!');
         })
       });
+
       var job = Job.create();
-      Ember.sendEvent(job, 'completed'); // Logs "Job completed!"
+
+      Ember.sendEvent(job, 'completed'); // Logs 'Job completed!'
      ```
 
       @method on
@@ -15395,7 +15404,10 @@ define("ember-metal/mixin",
         moniker: Ember.aliasMethod('name')
       });
 
-      var goodGuy = App.Person.create()
+      var goodGuy = App.Person.create();
+      
+      goodGuy.name();    // 'Tomhuda Katzdale'
+      goodGuy.moniker(); // 'Tomhuda Katzdale'
       ```
 
       @method aliasMethod
@@ -15506,7 +15518,6 @@ define("ember-metal/mixin",
 
       ```javascript
       App.PersonView = Ember.View.extend({
-
         friends: [{ name: 'Tom' }, { name: 'Stefan' }, { name: 'Kris' }],
 
         valueWillChange: Ember.beforeObserver('content.value', function(obj, keyName) {
@@ -17314,11 +17325,13 @@ define("ember-metal/set_properties",
       observers will be buffered.
 
       ```javascript
+      var anObject = Ember.Object.create();
+
       anObject.setProperties({
-        firstName: "Stanley",
-        lastName: "Stuart",
-        age: "21"
-      })
+        firstName: 'Stanley',
+        lastName: 'Stuart',
+        age: 21
+      });
       ```
 
       @method setProperties
@@ -17716,9 +17729,9 @@ define("ember-metal/utils",
       not formally array but appears to be array-like (i.e. implements `Ember.Array`)
 
       ```javascript
-      Ember.isArray();                                            // false
-      Ember.isArray([]);                                          // true
-      Ember.isArray( Ember.ArrayProxy.create({ content: [] }) );  // true
+      Ember.isArray();                                          // false
+      Ember.isArray([]);                                        // true
+      Ember.isArray(Ember.ArrayProxy.create({ content: [] }));  // true
       ```
 
       @method isArray
@@ -17753,13 +17766,14 @@ define("ember-metal/utils",
       an array. If obj is `null` or `undefined`, returns an empty array.
 
       ```javascript
-      Ember.makeArray();                           // []
-      Ember.makeArray(null);                       // []
-      Ember.makeArray(undefined);                  // []
-      Ember.makeArray('lindsay');                  // ['lindsay']
-      Ember.makeArray([1,2,42]);                   // [1,2,42]
+      Ember.makeArray();            // []
+      Ember.makeArray(null);        // []
+      Ember.makeArray(undefined);   // []
+      Ember.makeArray('lindsay');   // ['lindsay']
+      Ember.makeArray([1, 2, 42]);  // [1, 2, 42]
 
       var controller = Ember.ArrayProxy.create({ content: [] });
+
       Ember.makeArray(controller) === controller;  // true
       ```
 
@@ -17777,7 +17791,8 @@ define("ember-metal/utils",
       Checks to see if the `methodName` exists on the `obj`.
 
       ```javascript
-      var foo = {bar: Ember.K, baz: null};
+      var foo = { bar: Ember.K, baz: null };
+
       Ember.canInvoke(foo, 'bar'); // true
       Ember.canInvoke(foo, 'baz'); // false
       Ember.canInvoke(foo, 'bat'); // false
@@ -17799,8 +17814,9 @@ define("ember-metal/utils",
 
       ```javascript
       var d = new Date('03/15/2013');
-      Ember.tryInvoke(d, 'getTime'); // 1363320000000
-      Ember.tryInvoke(d, 'setFullYear', [2014]); // 1394856000000
+
+      Ember.tryInvoke(d, 'getTime');              // 1363320000000
+      Ember.tryInvoke(d, 'setFullYear', [2014]);  // 1394856000000
       Ember.tryInvoke(d, 'noSuchMethod', [2014]); // undefined
       ```
 
@@ -17832,7 +17848,7 @@ define("ember-metal/utils",
     })();
 
     /**
-      Provides try { } finally { } functionality, while working
+      Provides try/finally functionality, while working
       around Safari's double finally bug.
 
       ```javascript
@@ -17840,9 +17856,11 @@ define("ember-metal/utils",
         someResource.lock();
         runCallback(); // May throw error.
       };
+
       var finalizer = function() {
         someResource.unlock();
       };
+
       Ember.tryFinally(tryable, finalizer);
       ```
 
@@ -17894,12 +17912,12 @@ define("ember-metal/utils",
     }
 
     /**
-      Provides try { } catch finally { } functionality, while working
+      Provides try/catch/finally functionality, while working
       around Safari's double finally bug.
 
       ```javascript
       var tryable = function() {
-        for (i=0, l=listeners.length; i<l; i++) {
+        for (i = 0, l = listeners.length; i < l; i++) {
           listener = listeners[i];
           beforeValues[i] = listener.before(name, time(), payload);
         }
@@ -17913,11 +17931,12 @@ define("ember-metal/utils",
       };
 
       var finalizer = function() {
-        for (i=0, l=listeners.length; i<l; i++) {
+        for (i = 0, l = listeners.length; i < l; i++) {
           listener = listeners[i];
           listener.after(name, time(), payload, beforeValues[i]);
         }
       };
+
       Ember.tryCatchFinally(tryable, catchable, finalizer);
       ```
 
@@ -18022,15 +18041,15 @@ define("ember-metal/utils",
       Ember.typeOf(true);                   // 'boolean'
       Ember.typeOf(new Boolean(true));      // 'boolean'
       Ember.typeOf(Ember.makeArray);        // 'function'
-      Ember.typeOf([1,2,90]);               // 'array'
+      Ember.typeOf([1, 2, 90]);             // 'array'
       Ember.typeOf(/abc/);                  // 'regexp'
       Ember.typeOf(new Date());             // 'date'
       Ember.typeOf(Ember.Object.extend());  // 'class'
       Ember.typeOf(Ember.Object.create());  // 'instance'
       Ember.typeOf(new Error('teamocil'));  // 'error'
 
-      // "normal" JavaScript object
-      Ember.typeOf({a: 'b'});              // 'object'
+      // 'normal' JavaScript object
+      Ember.typeOf({ a: 'b' });             // 'object'
       ```
 
       @method typeOf
@@ -25089,7 +25108,7 @@ define("ember-runtime/computed/array_computed",
       The `initialize` function has the following signature:
 
       ```javascript
-       function (array, changeMeta, instanceMeta)
+      function(array, changeMeta, instanceMeta)
       ```
 
       `array` - The initial value of the arrayComputed, an empty array.
@@ -25109,7 +25128,7 @@ define("ember-runtime/computed/array_computed",
       The `removedItem` and `addedItem` functions both have the following signature:
 
       ```javascript
-      function (accumulatedValue, item, changeMeta, instanceMeta)
+      function(accumulatedValue, item, changeMeta, instanceMeta)
       ```
 
       `accumulatedValue` - The value returned from the last time
@@ -25867,7 +25886,7 @@ define("ember-runtime/computed/reduce_computed",
       The `initialize` function has the following signature:
 
       ```javascript
-       function (initialValue, changeMeta, instanceMeta)
+      function(initialValue, changeMeta, instanceMeta)
       ```
 
       `initialValue` - The value of the `initialValue` property from the
@@ -25888,7 +25907,7 @@ define("ember-runtime/computed/reduce_computed",
       The `removedItem` and `addedItem` functions both have the following signature:
 
       ```javascript
-      function (accumulatedValue, item, changeMeta, instanceMeta)
+      function(accumulatedValue, item, changeMeta, instanceMeta)
       ```
 
       `accumulatedValue` - The value returned from the last time
@@ -25938,15 +25957,15 @@ define("ember-runtime/computed/reduce_computed",
       Example
 
       ```javascript
-      Ember.computed.max = function (dependentKey) {
+      Ember.computed.max = function(dependentKey) {
         return Ember.reduceComputed(dependentKey, {
           initialValue: -Infinity,
 
-          addedItem: function (accumulatedValue, item, changeMeta, instanceMeta) {
+          addedItem: function(accumulatedValue, item, changeMeta, instanceMeta) {
             return Math.max(accumulatedValue, item);
           },
 
-          removedItem: function (accumulatedValue, item, changeMeta, instanceMeta) {
+          removedItem: function(accumulatedValue, item, changeMeta, instanceMeta) {
             if (item < accumulatedValue) {
               return accumulatedValue;
             }
@@ -25980,10 +25999,10 @@ define("ember-runtime/computed/reduce_computed",
       });
 
       App.PersonController = Ember.ObjectController.extend({
-        reversedName: function () {
+        reversedName: function() {
           return reverse(get(this, 'name'));
         }.property('name')
-      })
+      });
       ```
 
       Dependent keys whose values are not arrays are treated as regular
@@ -26111,12 +26130,13 @@ define("ember-runtime/computed/reduce_computed_macros",
       array is empty.
 
       ```javascript
-      App.Person = Ember.Object.extend({
+      var Person = Ember.Object.extend({
         childAges: Ember.computed.mapBy('children', 'age'),
         maxChildAge: Ember.computed.max('childAges')
       });
 
-      var lordByron = App.Person.create({children: []});
+      var lordByron = Person.create({ children: [] });
+
       lordByron.get('maxChildAge'); // -Infinity
       lordByron.get('children').pushObject({
         name: 'Augusta Ada Byron', age: 7
@@ -26159,12 +26179,13 @@ define("ember-runtime/computed/reduce_computed_macros",
       array is empty.
 
       ```javascript
-      App.Person = Ember.Object.extend({
+      var Person = Ember.Object.extend({
         childAges: Ember.computed.mapBy('children', 'age'),
         minChildAge: Ember.computed.min('childAges')
       });
 
-      var lordByron = App.Person.create({children: []});
+      var lordByron = Person.create({ children: [] });
+
       lordByron.get('minChildAge'); // Infinity
       lordByron.get('children').pushObject({
         name: 'Augusta Ada Byron', age: 7
@@ -26214,15 +26235,16 @@ define("ember-runtime/computed/reduce_computed_macros",
       Example
 
       ```javascript
-      App.Hamster = Ember.Object.extend({
+      var Hamster = Ember.Object.extend({
         excitingChores: Ember.computed.map('chores', function(chore) {
           return chore.toUpperCase() + '!';
         })
       });
 
-      var hamster = App.Hamster.create({
+      var hamster = Hamster.create({
         chores: ['clean', 'write more unit tests']
       });
+
       hamster.get('excitingChores'); // ['CLEAN!', 'WRITE MORE UNIT TESTS!']
       ```
 
@@ -26252,13 +26274,14 @@ define("ember-runtime/computed/reduce_computed_macros",
       Returns an array mapped to the specified key.
 
       ```javascript
-      App.Person = Ember.Object.extend({
+      var Person = Ember.Object.extend({
         childAges: Ember.computed.mapBy('children', 'age')
       });
 
-      var lordByron = App.Person.create({children: []});
+      var lordByron = Person.create({ children: [] });
+
       lordByron.get('childAges'); // []
-      lordByron.get('children').pushObject({name: 'Augusta Ada Byron', age: 7});
+      lordByron.get('children').pushObject({ name: 'Augusta Ada Byron', age: 7 });
       lordByron.get('childAges'); // [7]
       lordByron.get('children').pushObjects([{
         name: 'Allegra Byron',
@@ -26301,17 +26324,20 @@ define("ember-runtime/computed/reduce_computed_macros",
       ```
 
       ```javascript
-      App.Hamster = Ember.Object.extend({
+      var Hamster = Ember.Object.extend({
         remainingChores: Ember.computed.filter('chores', function(chore) {
           return !chore.done;
         })
       });
 
-      var hamster = App.Hamster.create({chores: [
-        {name: 'cook', done: true},
-        {name: 'clean', done: true},
-        {name: 'write more unit tests', done: false}
-      ]});
+      var hamster = Hamster.create({ 
+        chores: [
+          { name: 'cook', done: true },
+          { name: 'clean', done: true },
+          { name: 'write more unit tests', done: false }
+        ] 
+      });
+
       hamster.get('remainingChores'); // [{name: 'write more unit tests', done: false}]
       ```
 
@@ -26356,16 +26382,19 @@ define("ember-runtime/computed/reduce_computed_macros",
       Filters the array by the property and value
 
       ```javascript
-      App.Hamster = Ember.Object.extend({
+      var Hamster = Ember.Object.extend({
         remainingChores: Ember.computed.filterBy('chores', 'done', false)
       });
 
-      var hamster = App.Hamster.create({chores: [
-        {name: 'cook', done: true},
-        {name: 'clean', done: true},
-        {name: 'write more unit tests', done: false}
-      ]});
-      hamster.get('remainingChores'); // [{name: 'write more unit tests', done: false}]
+      var hamster = Hamster.create({
+        chores: [
+          { name: 'cook', done: true },
+          { name: 'clean', done: true },
+          { name: 'write more unit tests', done: false }
+        ]
+      });
+
+      hamster.get('remainingChores'); // [{ name: 'write more unit tests', done: false }]
       ```
 
       @method computed.filterBy
@@ -26408,16 +26437,19 @@ define("ember-runtime/computed/reduce_computed_macros",
       Example
 
       ```javascript
-      App.Hamster = Ember.Object.extend({
+      var Hamster = Ember.Object.extend({
         uniqueFruits: Ember.computed.uniq('fruits')
       });
 
-      var hamster = App.Hamster.create({fruits: [
-        'banana',
-        'grape',
-        'kale',
-        'banana'
-      ]});
+      var hamster = Hamster.create({
+        fruits: [
+          'banana',
+          'grape',
+          'kale',
+          'banana'
+        ]
+      });
+
       hamster.get('uniqueFruits'); // ['banana', 'grape', 'kale']
       ```
 
@@ -26553,15 +26585,18 @@ define("ember-runtime/computed/reduce_computed_macros",
       Example
 
       ```javascript
-      App.Hamster = Ember.Object.extend({
+      var Hamster = Ember.Object.extend({
         likes: ['banana', 'grape', 'kale'],
         wants: Ember.computed.setDiff('likes', 'fruits')
       });
 
-      var hamster = App.Hamster.create({fruits: [
-        'grape',
-        'kale',
-      ]});
+      var hamster = Hamster.create({
+        fruits: [
+          'grape',
+          'kale',
+        ]
+      });
+
       hamster.get('wants'); // ['banana']
       ```
 
@@ -26693,18 +26728,20 @@ define("ember-runtime/computed/reduce_computed_macros",
           } else if (a.priority < b.priority) {
             return -1;
           }
+
           return 0;
         })
       });
+
       var todoList = ToDoList.create({todos: [
-        {name: 'Unit Test', priority: 2},
-        {name: 'Documentation', priority: 3},
-        {name: 'Release', priority: 1}
+        { name: 'Unit Test', priority: 2 },
+        { name: 'Documentation', priority: 3 },
+        { name: 'Release', priority: 1 }
       ]});
 
-      todoList.get('sortedTodos'); // [{name:'Documentation', priority:3}, {name:'Release', priority:1}, {name:'Unit Test', priority:2}]
-      todoList.get('sortedTodosDesc'); // [{name:'Unit Test', priority:2}, {name:'Release', priority:1}, {name:'Documentation', priority:3}]
-      todoList.get('priorityTodos'); // [{name:'Release', priority:1}, {name:'Unit Test', priority:2}, {name:'Documentation', priority:3}]
+      todoList.get('sortedTodos');      // [{ name:'Documentation', priority:3 }, { name:'Release', priority:1 }, { name:'Unit Test', priority:2 }]
+      todoList.get('sortedTodosDesc');  // [{ name:'Unit Test', priority:2 }, { name:'Release', priority:1 }, { name:'Documentation', priority:3 }]
+      todoList.get('priorityTodos');    // [{ name:'Release', priority:1 }, { name:'Unit Test', priority:2 }, { name:'Documentation', priority:3 }]
       ```
 
       @method computed.sort
@@ -27236,7 +27273,7 @@ define("ember-runtime/core",
       ```javascript
       Ember.isEqual('hello', 'hello');  // true
       Ember.isEqual(1, 2);              // false
-      Ember.isEqual([4,2], [4,2]);      // false
+      Ember.isEqual([4, 2], [4, 2]);    // false
       ```
 
       @method isEqual
@@ -33092,7 +33129,7 @@ define("ember-runtime/system/lazy_load",
       resolved from a string into the object:
 
       ``` javascript
-      Ember.onLoad('Ember.Handlebars' function(hbars){
+      Ember.onLoad('Ember.Handlebars' function(hbars) {
         hbars.registerHelper(...);
       });
       ```
@@ -33504,10 +33541,11 @@ define("ember-runtime/system/native_array",
       var Pagination = Ember.CollectionView.extend({
         tagName: 'ul',
         classNames: ['pagination'],
+
         init: function() {
           this._super();
           if (!this.get('content')) {
-            this.set('content', Ember.A([]));
+            this.set('content', Ember.A());
           }
         }
       });
@@ -41908,7 +41946,7 @@ define("metamorph",
        * that as the key for the wrap map. In our case, we know the parent node, and
        * can use its type as the key for the wrap map.
        **/
-      var wrapMap = {
+      Metamorph._wrapMap = {
         select: [ 1, "<select multiple='multiple'>", "</select>" ],
         fieldset: [ 1, "<fieldset>", "</fieldset>" ],
         table: [ 1, "<table>", "</table>" ],
@@ -41961,6 +41999,7 @@ define("metamorph",
        * We need to do this because innerHTML in IE does not really parse the nodes.
        */
       var firstNodeFor = function(parentNode, html) {
+        var wrapMap = Metamorph._wrapMap;
         var arr = wrapMap[parentNode.tagName.toLowerCase()] || wrapMap._default;
         var depth = arr[0], start = arr[1], end = arr[2];
 
