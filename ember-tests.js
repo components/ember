@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.7.0-beta.1+canary.b1a30f0e
+ * @version   1.7.0-beta.1+canary.b9726b46
  */
 
 (function() {
@@ -33076,6 +33076,12 @@ define("ember-runtime/tests/mixins/sortable_test",
 
       equal(sortedArrayController.get('length'), 4, 'array has 4 items');
       equal(sortedArrayController.objectAt(3).name, 'Scumbag Chavard', 'a new object was inserted in the natural order');
+
+      sortedArrayController.set('sortProperties', []);
+      unsortedArray.pushObject({id: 5, name: 'Scumbag Jackson'});
+
+      equal(sortedArrayController.get('length'), 5, 'array has 5 items');
+      equal(sortedArrayController.objectAt(4).name, 'Scumbag Jackson', 'a new object was inserted in the natural order with empty array as sortProperties');
     });
 
     test("you can change sorted properties", function() {
@@ -33261,7 +33267,7 @@ define("ember-runtime/tests/mixins/sortable_test",
       equal(sortedArrayProxy.get('length'), 1, 'array still has 1 item');
     });
 
-    test("you can change a sort property and the content will rearrenge", function() {
+    test("you can change a sort property and the content will rearrange", function() {
       equal(sortedArrayController.get('length'), 3, 'array has 3 items');
       equal(sortedArrayController.objectAt(0).name, 'Scumbag Bryn', 'bryn is first');
 

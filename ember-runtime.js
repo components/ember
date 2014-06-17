@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.7.0-beta.1+canary.b1a30f0e
+ * @version   1.7.0-beta.1+canary.b9726b46
  */
 
 (function() {
@@ -4434,7 +4434,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.7.0-beta.1+canary.b1a30f0e
+      @version 1.7.0-beta.1+canary.b9726b46
     */
 
     if ('undefined' === typeof Ember) {
@@ -4461,10 +4461,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.7.0-beta.1+canary.b1a30f0e'
+      @default '1.7.0-beta.1+canary.b9726b46'
       @static
     */
-    Ember.VERSION = '1.7.0-beta.1+canary.b1a30f0e';
+    Ember.VERSION = '1.7.0-beta.1+canary.b9726b46';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -16688,7 +16688,7 @@ define("ember-runtime/mixins/sortable",
         return this._super();
       },
 
-      isSorted: computed.bool('sortProperties'),
+      isSorted: computed.notEmpty('sortProperties'),
 
       /**
         Overrides the default arrangedContent from arrayProxy in order to sort by sortFunction.
