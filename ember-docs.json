@@ -2,7 +2,7 @@
     "project": {
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
-        "version": "1.7.0-beta.1+canary.b9726b46",
+        "version": "1.7.0-beta.1+canary.4ce74b7b",
         "url": "http://emberjs.com/"
     },
     "files": {
@@ -3454,7 +3454,7 @@
     "classitems": [
         {
             "file": "../packages/container/lib/container.js",
-            "line": 28,
+            "line": 29,
             "itemtype": "property",
             "name": "parent",
             "type": "Container",
@@ -3463,7 +3463,7 @@
         },
         {
             "file": "../packages/container/lib/container.js",
-            "line": 35,
+            "line": 36,
             "itemtype": "property",
             "name": "children",
             "type": "Array",
@@ -3472,7 +3472,7 @@
         },
         {
             "file": "../packages/container/lib/container.js",
-            "line": 42,
+            "line": 43,
             "itemtype": "property",
             "name": "resolver",
             "type": "function",
@@ -3480,7 +3480,7 @@
         },
         {
             "file": "../packages/container/lib/container.js",
-            "line": 48,
+            "line": 49,
             "itemtype": "property",
             "name": "registry",
             "type": "InheritingDict",
@@ -3488,7 +3488,7 @@
         },
         {
             "file": "../packages/container/lib/container.js",
-            "line": 54,
+            "line": 55,
             "itemtype": "property",
             "name": "cache",
             "type": "InheritingDict",
@@ -3496,7 +3496,7 @@
         },
         {
             "file": "../packages/container/lib/container.js",
-            "line": 60,
+            "line": 61,
             "itemtype": "property",
             "name": "typeInjections",
             "type": "InheritingDict",
@@ -3504,7 +3504,7 @@
         },
         {
             "file": "../packages/container/lib/container.js",
-            "line": 66,
+            "line": 67,
             "itemtype": "property",
             "name": "injections",
             "type": "Object",
@@ -3513,7 +3513,7 @@
         },
         {
             "file": "../packages/container/lib/container.js",
-            "line": 73,
+            "line": 74,
             "access": "private",
             "tagname": "",
             "itemtype": "property",
@@ -3524,7 +3524,7 @@
         },
         {
             "file": "../packages/container/lib/container.js",
-            "line": 82,
+            "line": 83,
             "access": "private",
             "tagname": "",
             "itemtype": "property",
@@ -3534,7 +3534,7 @@
         },
         {
             "file": "../packages/container/lib/container.js",
-            "line": 90,
+            "line": 91,
             "description": "Returns a new child of the current container. These children are configured\nto correctly inherit from the current container.",
             "itemtype": "method",
             "name": "child",
@@ -3546,7 +3546,7 @@
         },
         {
             "file": "../packages/container/lib/container.js",
-            "line": 103,
+            "line": 104,
             "description": "Sets a key-value pair on the current container. If a parent container,\nhas the same key, once set on a child, the parent and child will diverge\nas expected.",
             "itemtype": "method",
             "name": "set",
@@ -3571,7 +3571,7 @@
         },
         {
             "file": "../packages/container/lib/container.js",
-            "line": 117,
+            "line": 118,
             "description": "Registers a factory for later injection.\n\nExample:\n\n```javascript\nvar container = new Container();\n\ncontainer.register('model:user', Person, {singleton: false });\ncontainer.register('fruit:favorite', Orange);\ncontainer.register('communication:main', Email, {singleton: false});\n```",
             "itemtype": "method",
             "name": "register",
@@ -3596,7 +3596,7 @@
         },
         {
             "file": "../packages/container/lib/container.js",
-            "line": 152,
+            "line": 153,
             "description": "Unregister a fullName\n\n```javascript\nvar container = new Container();\ncontainer.register('model:user', User);\n\ncontainer.lookup('model:user') instanceof User //=> true\n\ncontainer.unregister('model:user')\ncontainer.lookup('model:user') === undefined //=> true\n```",
             "itemtype": "method",
             "name": "unregister",
@@ -3611,7 +3611,7 @@
         },
         {
             "file": "../packages/container/lib/container.js",
-            "line": 180,
+            "line": 181,
             "description": "Given a fullName return the corresponding factory.\n\nBy default `resolve` will retrieve the factory from\nits container's registry.\n\n```javascript\nvar container = new Container();\ncontainer.register('api:twitter', Twitter);\n\ncontainer.resolve('api:twitter') // => Twitter\n```\n\nOptionally the container can be provided with a custom resolver.\nIf provided, `resolve` will first provide the custom resolver\nthe oppertunity to resolve the fullName, otherwise it will fallback\nto the registry.\n\n```javascript\nvar container = new Container();\ncontainer.resolver = function(fullName) {\n  // lookup via the module system of choice\n};\n\n// the twitter factory is added to the module system\ncontainer.resolve('api:twitter') // => Twitter\n```",
             "itemtype": "method",
             "name": "resolve",
@@ -3630,7 +3630,7 @@
         },
         {
             "file": "../packages/container/lib/container.js",
-            "line": 227,
+            "line": 228,
             "description": "A hook that can be used to describe how the resolver will\nattempt to find the factory.\n\nFor example, the default Ember `.describe` returns the full\nclass name (including namespace) where Ember's resolver expects\nto find the `fullName`.",
             "itemtype": "method",
             "name": "describe",
@@ -3649,7 +3649,7 @@
         },
         {
             "file": "../packages/container/lib/container.js",
-            "line": 243,
+            "line": 244,
             "description": "A hook to enable custom fullName normalization behaviour",
             "itemtype": "method",
             "name": "normalize",
@@ -3668,7 +3668,7 @@
         },
         {
             "file": "../packages/container/lib/container.js",
-            "line": 254,
+            "line": 255,
             "itemtype": "method",
             "name": "makeToString",
             "params": [
@@ -3691,7 +3691,7 @@
         },
         {
             "file": "../packages/container/lib/container.js",
-            "line": 265,
+            "line": 266,
             "description": "Given a fullName return a corresponding instance.\n\nThe default behaviour is for lookup to return a singleton instance.\nThe singleton is scoped to the container, allowing multiple containers\nto all have their own locally scoped singletons.\n\n```javascript\nvar container = new Container();\ncontainer.register('api:twitter', Twitter);\n\nvar twitter = container.lookup('api:twitter');\n\ntwitter instanceof Twitter; // => true\n\n// by default the container will return singletons\nvar twitter2 = container.lookup('api:twitter');\ntwitter instanceof Twitter; // => true\n\ntwitter === twitter2; //=> true\n```\n\nIf singletons are not wanted an optional flag can be provided at lookup.\n\n```javascript\nvar container = new Container();\ncontainer.register('api:twitter', Twitter);\n\nvar twitter = container.lookup('api:twitter', { singleton: false });\nvar twitter2 = container.lookup('api:twitter', { singleton: false });\n\ntwitter === twitter2; //=> false\n```",
             "itemtype": "method",
             "name": "lookup",
@@ -3715,7 +3715,7 @@
         },
         {
             "file": "../packages/container/lib/container.js",
-            "line": 309,
+            "line": 310,
             "description": "Given a fullName return the corresponding factory.",
             "itemtype": "method",
             "name": "lookupFactory",
@@ -3734,7 +3734,7 @@
         },
         {
             "file": "../packages/container/lib/container.js",
-            "line": 321,
+            "line": 322,
             "description": "Given a fullName check if the container is aware of its factory\nor singleton instance.",
             "itemtype": "method",
             "name": "has",
@@ -3753,7 +3753,7 @@
         },
         {
             "file": "../packages/container/lib/container.js",
-            "line": 334,
+            "line": 335,
             "description": "Allow registering options for all factories of a type.\n\n```javascript\nvar container = new Container();\n\n// if all of type `connection` must not be singletons\ncontainer.optionsForType('connection', { singleton: false });\n\ncontainer.register('connection:twitter', TwitterConnection);\ncontainer.register('connection:facebook', FacebookConnection);\n\nvar twitter = container.lookup('connection:twitter');\nvar twitter2 = container.lookup('connection:twitter');\n\ntwitter === twitter2; // => false\n\nvar facebook = container.lookup('connection:facebook');\nvar facebook2 = container.lookup('connection:facebook');\n\nfacebook === facebook2; // => false\n```",
             "itemtype": "method",
             "name": "optionsForType",
@@ -3773,7 +3773,7 @@
         },
         {
             "file": "../packages/container/lib/container.js",
-            "line": 367,
+            "line": 368,
             "itemtype": "method",
             "name": "options",
             "params": [
@@ -3792,7 +3792,7 @@
         },
         {
             "file": "../packages/container/lib/container.js",
-            "line": 376,
+            "line": 377,
             "description": "Used only via `injection`.\n\nProvides a specialized form of injection, specifically enabling\nall objects of one type to be injected with a reference to another\nobject.\n\nFor example, provided each object of type `controller` needed a `router`.\none would do the following:\n\n```javascript\nvar container = new Container();\n\ncontainer.register('router:main', Router);\ncontainer.register('controller:user', UserController);\ncontainer.register('controller:post', PostController);\n\ncontainer.typeInjection('controller', 'router', 'router:main');\n\nvar user = container.lookup('controller:user');\nvar post = container.lookup('controller:post');\n\nuser.router instanceof Router; //=> true\npost.router instanceof Router; //=> true\n\n// both controllers share the same router\nuser.router === post.router; //=> true\n```",
             "access": "private",
             "tagname": "",
@@ -3819,7 +3819,7 @@
         },
         {
             "file": "../packages/container/lib/container.js",
-            "line": 422,
+            "line": 423,
             "description": "Defines injection rules.\n\nThese rules are used to inject dependencies onto objects when they\nare instantiated.\n\nTwo forms of injections are possible:\n\n* Injecting one fullName on another fullName\n* Injecting one fullName on a type\n\nExample:\n\n```javascript\nvar container = new Container();\n\ncontainer.register('source:main', Source);\ncontainer.register('model:user', User);\ncontainer.register('model:post', Post);\n\n// injecting one fullName on another fullName\n// eg. each user model gets a post model\ncontainer.injection('model:user', 'post', 'model:post');\n\n// injecting one fullName on another type\ncontainer.injection('model', 'source', 'source:main');\n\nvar user = container.lookup('model:user');\nvar post = container.lookup('model:post');\n\nuser.source instanceof Source; //=> true\npost.source instanceof Source; //=> true\n\nuser.post instanceof Post; //=> true\n\n// and both models share the same source\nuser.source === post.source; //=> true\n```",
             "itemtype": "method",
             "name": "injection",
@@ -3844,7 +3844,7 @@
         },
         {
             "file": "../packages/container/lib/container.js",
-            "line": 486,
+            "line": 487,
             "description": "Used only via `factoryInjection`.\n\nProvides a specialized form of injection, specifically enabling\nall factory of one type to be injected with a reference to another\nobject.\n\nFor example, provided each factory of type `model` needed a `store`.\none would do the following:\n\n```javascript\nvar container = new Container();\n\ncontainer.register('store:main', SomeStore);\n\ncontainer.factoryTypeInjection('model', 'store', 'store:main');\n\nvar store = container.lookup('store:main');\nvar UserFactory = container.lookupFactory('model:user');\n\nUserFactory.store instanceof SomeStore; //=> true\n```",
             "access": "private",
             "tagname": "",
@@ -3871,7 +3871,7 @@
         },
         {
             "file": "../packages/container/lib/container.js",
-            "line": 521,
+            "line": 522,
             "description": "Defines factory injection rules.\n\nSimilar to regular injection rules, but are run against factories, via\n`Container#lookupFactory`.\n\nThese rules are used to inject objects onto factories when they\nare looked up.\n\nTwo forms of injections are possible:\n\n  * Injecting one fullName on another fullName\n  * Injecting one fullName on a type\n\nExample:\n\n```javascript\nvar container = new Container();\n\ncontainer.register('store:main', Store);\ncontainer.register('store:secondary', OtherStore);\ncontainer.register('model:user', User);\ncontainer.register('model:post', Post);\n\n// injecting one fullName on another type\ncontainer.factoryInjection('model', 'store', 'store:main');\n\n// injecting one fullName on another fullName\ncontainer.factoryInjection('model:post', 'secondaryStore', 'store:secondary');\n\nvar UserFactory = container.lookupFactory('model:user');\nvar PostFactory = container.lookupFactory('model:post');\nvar store = container.lookup('store:main');\n\nUserFactory.store instanceof Store; //=> true\nUserFactory.secondaryStore instanceof OtherStore; //=> false\n\nPostFactory.store instanceof Store; //=> true\nPostFactory.secondaryStore instanceof OtherStore; //=> true\n\n// and both models share the same source instance\nUserFactory.store === PostFactory.store; //=> true\n```",
             "itemtype": "method",
             "name": "factoryInjection",
@@ -3896,7 +3896,7 @@
         },
         {
             "file": "../packages/container/lib/container.js",
-            "line": 592,
+            "line": 593,
             "description": "A depth first traversal, destroying the container, its descendant containers and all\ntheir managed objects.",
             "itemtype": "method",
             "name": "destroy",
@@ -3904,7 +3904,7 @@
         },
         {
             "file": "../packages/container/lib/container.js",
-            "line": 613,
+            "line": 614,
             "itemtype": "method",
             "name": "reset",
             "class": "Ember.ControllerMixin"

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.7.0-beta.1+canary.b9726b46
+ * @version   1.7.0-beta.1+canary.4ce74b7b
  */
 
 (function() {
@@ -896,10 +896,12 @@ define("container",
     __exports__["default"] = Container;
   });
 define("container/container",
-  ["container/inheriting_dict","exports"],
-  function(__dependency1__, __exports__) {
+  ["container/inheriting_dict","ember-metal/core","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     var InheritingDict = __dependency1__["default"];
+    var Ember = __dependency2__["default"];
+    // Ember.assert
 
     // A lightweight container that helps to assemble and decouple components.
     // Public api for the container is still in flux.
@@ -1034,7 +1036,7 @@ define("container/container",
         @param {Object} options
       */
       register: function(fullName, factory, options) {
-        validateFullName(fullName);
+        Ember.assert('fullName must be a proper full name', validateFullName(fullName));
 
         if (factory === undefined) {
           throw new TypeError('Attempting to register an unknown factory: `' + fullName + '`');
@@ -1067,7 +1069,7 @@ define("container/container",
         @param {String} fullName
        */
       unregister: function(fullName) {
-        validateFullName(fullName);
+        Ember.assert('fullName must be a proper full name', validateFullName(fullName));
 
         var normalizedName = this.normalize(fullName);
 
@@ -1111,7 +1113,7 @@ define("container/container",
         @return {Function} fullName's factory
       */
       resolve: function(fullName) {
-        validateFullName(fullName);
+        Ember.assert('fullName must be a proper full name', validateFullName(fullName));
 
         var normalizedName = this.normalize(fullName);
         var cached = this.resolveCache.get(normalizedName);
@@ -1203,7 +1205,7 @@ define("container/container",
         @return {any}
       */
       lookup: function(fullName, options) {
-        validateFullName(fullName);
+        Ember.assert('fullName must be a proper full name', validateFullName(fullName));
         return lookup(this, this.normalize(fullName), options);
       },
 
@@ -1215,7 +1217,7 @@ define("container/container",
         @return {any}
       */
       lookupFactory: function(fullName) {
-        validateFullName(fullName);
+        Ember.assert('fullName must be a proper full name', validateFullName(fullName));
         return factoryFor(this, this.normalize(fullName));
       },
 
@@ -1228,7 +1230,7 @@ define("container/container",
         @return {Boolean}
       */
       has: function(fullName) {
-        validateFullName(fullName);
+        Ember.assert('fullName must be a proper full name', validateFullName(fullName));
         return has(this, this.normalize(fullName));
       },
 
@@ -1310,7 +1312,7 @@ define("container/container",
         @param {String} fullName
       */
       typeInjection: function(type, property, fullName) {
-        validateFullName(fullName);
+        Ember.assert('fullName must be a proper full name', validateFullName(fullName));
         if (this.parent) { illegalChildOperation('typeInjection'); }
 
         var fullNameType = fullName.split(':')[0];
@@ -1374,7 +1376,7 @@ define("container/container",
           return this.typeInjection(fullName, property, normalizedInjectionName);
         }
 
-        validateFullName(fullName);
+        Ember.assert('fullName must be a proper full name', validateFullName(fullName));
         var normalizedName = this.normalize(fullName);
 
         if (this.cache.has(normalizedName)) {
@@ -1480,7 +1482,7 @@ define("container/container",
           return this.factoryTypeInjection(normalizedName, property, normalizedInjectionName);
         }
 
-        validateFullName(fullName);
+        Ember.assert('fullName must be a proper full name', validateFullName(fullName));
 
         if (this.factoryCache.has(normalizedName)) {
           throw new Error('Attempted to register a factoryInjection for a type that has already ' +
@@ -1715,6 +1717,7 @@ define("container/container",
       if (!VALID_FULL_NAME_REGEXP.test(fullName)) {
         throw new TypeError('Invalid Fullname, expected: `type:name` got: ' + fullName);
       }
+      return true;
     }
 
     function addInjection(rules, factoryName, property, injectionName) {
@@ -4434,7 +4437,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.7.0-beta.1+canary.b9726b46
+      @version 1.7.0-beta.1+canary.4ce74b7b
     */
 
     if ('undefined' === typeof Ember) {
@@ -4461,10 +4464,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.7.0-beta.1+canary.b9726b46'
+      @default '1.7.0-beta.1+canary.4ce74b7b'
       @static
     */
-    Ember.VERSION = '1.7.0-beta.1+canary.b9726b46';
+    Ember.VERSION = '1.7.0-beta.1+canary.4ce74b7b';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
