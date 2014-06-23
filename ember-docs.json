@@ -2,7 +2,7 @@
     "project": {
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
-        "version": "1.7.0-beta.1+canary.4ce74b7b",
+        "version": "1.7.0-beta.1+canary.8b0b41e4",
         "url": "http://emberjs.com/"
     },
     "files": {
