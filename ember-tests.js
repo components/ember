@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.7.0-beta.1+canary.8b0b41e4
+ * @version   1.7.0-beta.1+canary.8ea4a5f3
  */
 
 (function() {
@@ -1918,6 +1918,7 @@ define("ember-application/tests/system/initializers_test",
 
       MyApplication.initializer({
         name: 'second',
+        after: 'first',
         before: 'third',
         initialize: function(container) {
           order.push('second');
@@ -1927,6 +1928,7 @@ define("ember-application/tests/system/initializers_test",
       MyApplication.initializer({
         name: 'fifth',
         after: 'fourth',
+        before: 'sixth',
         initialize: function(container) {
           order.push('fifth');
         }
@@ -1947,6 +1949,13 @@ define("ember-application/tests/system/initializers_test",
         }
       });
 
+      MyApplication.initializer({
+        name: 'sixth',
+        initialize: function(container) {
+          order.push('sixth');
+        }
+      });
+
       run(function() {
         app = MyApplication.create({
           router: false,
@@ -1954,7 +1963,7 @@ define("ember-application/tests/system/initializers_test",
         });
       });
 
-      deepEqual(order, ['first', 'second', 'third', 'fourth', 'fifth']);
+      deepEqual(order, ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']);
     });
 
     test("initializers can have multiple dependencies", function () {
