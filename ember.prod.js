@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.7.0-beta.1+canary.8ea4a5f3
+ * @version   1.7.0-beta.1+canary.edda0fb6
  */
 
 (function() {
@@ -2815,8 +2815,7 @@ define("ember-application/system/application",
 
         * `before` and `after` are used to ensure that this initializer is ran prior
         or after the one identified by the value. This value can be a single string
-        or an array of strings, referencing the `name` of other initializers. Please
-        note that you cannot specify both attributes for the same initializer.
+        or an array of strings, referencing the `name` of other initializers.
 
         An example of ordering initializers, we create an initializer named `first`:
 
@@ -12541,7 +12540,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.7.0-beta.1+canary.8ea4a5f3
+      @version 1.7.0-beta.1+canary.edda0fb6
     */
 
     if ('undefined' === typeof Ember) {
@@ -12568,10 +12567,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.7.0-beta.1+canary.8ea4a5f3'
+      @default '1.7.0-beta.1+canary.edda0fb6'
       @static
     */
-    Ember.VERSION = '1.7.0-beta.1+canary.8ea4a5f3';
+    Ember.VERSION = '1.7.0-beta.1+canary.edda0fb6';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
