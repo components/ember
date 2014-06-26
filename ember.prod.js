@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.7.0-beta.1+canary.edda0fb6
+ * @version   1.7.0-beta.1+canary.6c86a6b4
  */
 
 (function() {
@@ -8027,7 +8027,7 @@ define("ember-handlebars/helpers/debug",
       // These are helpful values you can inspect while debugging.
       var templateContext = this;
       var typeOfTemplateContext = inspect(templateContext);
-
+      
       debugger;
     }
 
@@ -12540,7 +12540,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.7.0-beta.1+canary.edda0fb6
+      @version 1.7.0-beta.1+canary.6c86a6b4
     */
 
     if ('undefined' === typeof Ember) {
@@ -12567,10 +12567,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.7.0-beta.1+canary.edda0fb6'
+      @default '1.7.0-beta.1+canary.6c86a6b4'
       @static
     */
-    Ember.VERSION = '1.7.0-beta.1+canary.edda0fb6';
+    Ember.VERSION = '1.7.0-beta.1+canary.6c86a6b4';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
