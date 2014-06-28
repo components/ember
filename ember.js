@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.7.0-beta.1+canary.7e0a3656
+ * @version   1.7.0-beta.1+canary.cc34de0a
  */
 
 (function() {
@@ -9881,7 +9881,7 @@ define("ember-handlebars/views/handlebars_bound_view",
         this.morph.html(this.render());
       },
 
-      transitionTo: function(state) {
+      _transitionTo: function(state) {
         this.state = state;
       }
     };
@@ -10158,7 +10158,7 @@ define("ember-handlebars/views/metamorph_view",
       replace: function(view) {
         var morph = view.morph;
 
-        view.transitionTo('preRender');
+        view._transitionTo('preRender');
 
         run.schedule('render', this, function renderMetamorphView() {
           if (view.isDestroying) { return; }
@@ -10172,7 +10172,7 @@ define("ember-handlebars/views/metamorph_view",
           view.triggerRecursively('willInsertElement');
 
           morph.replaceWith(buffer.string());
-          view.transitionTo('inDOM');
+          view._transitionTo('inDOM');
 
           view.invokeRecursively(function(view) {
             view.propertyDidChange('element');
@@ -12845,7 +12845,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.7.0-beta.1+canary.7e0a3656
+      @version 1.7.0-beta.1+canary.cc34de0a
     */
 
     if ('undefined' === typeof Ember) {
@@ -12872,10 +12872,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.7.0-beta.1+canary.7e0a3656'
+      @default '1.7.0-beta.1+canary.cc34de0a'
       @static
     */
-    Ember.VERSION = '1.7.0-beta.1+canary.7e0a3656';
+    Ember.VERSION = '1.7.0-beta.1+canary.cc34de0a';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -38594,7 +38594,7 @@ define("ember-views/views/container_view",
       }
 
       viewCollection.forEach(function(v) {
-        v.transitionTo('inDOM');
+        v._transitionTo('inDOM');
         v.propertyDidChange('element');
         v.triggerRecursively('didInsertElement');
       });
@@ -38648,7 +38648,7 @@ define("ember-views/views/core_view",
 
       init: function() {
         this._super();
-        this.transitionTo('preRender');
+        this._transitionTo('preRender');
         this._isVisible = get(this, 'isVisible');
 
         deprecateProperty(this, 'states', '_states');
@@ -38731,7 +38731,7 @@ define("ember-views/views/core_view",
         }
 
         var buffer = this.buffer = _buffer && _buffer.begin(tagName) || renderBuffer(tagName);
-        this.transitionTo('inBuffer', false);
+        this._transitionTo('inBuffer', false);
 
         this.beforeRender(buffer);
         this.render(buffer);
@@ -38792,7 +38792,7 @@ define("ember-views/views/core_view",
         // the DOM again.
         if (parent) { parent.removeChild(this); }
 
-        this.transitionTo('destroying', false);
+        this._transitionTo('destroying', false);
 
         return this;
       },
@@ -38800,7 +38800,7 @@ define("ember-views/views/core_view",
       clearRenderedChildren: Ember.K,
       triggerRecursively: Ember.K,
       invokeRecursively: Ember.K,
-      transitionTo: Ember.K,
+      _transitionTo: Ember.K,
       destroyElement: Ember.K
     });
 
@@ -38981,7 +38981,7 @@ define("ember-views/views/states/has_element",
 
       setElement: function(view, value) {
         if (value === null) {
-          view.transitionTo('preRender');
+          view._transitionTo('preRender');
         } else {
           throw new EmberError("You cannot set an element to a non-null value when the element is already in the DOM.");
         }
@@ -39126,10 +39126,10 @@ define("ember-views/views/states/in_buffer",
 
       setElement: function(view, value) {
         if (value === null) {
-          view.transitionTo('preRender');
+          view._transitionTo('preRender');
         } else {
           view.clearBuffer();
-          view.transitionTo('hasElement');
+          view._transitionTo('hasElement');
         }
 
         return value;
@@ -39233,7 +39233,7 @@ define("ember-views/views/states/pre_render",
 
       setElement: function(view, value) {
         if (value !== null) {
-          view.transitionTo('hasElement');
+          view._transitionTo('hasElement');
         }
         return value;
       }
@@ -41347,10 +41347,14 @@ define("ember-views/views/view",
       clearBuffer: function() {
         this.invokeRecursively(nullViewsBuffer);
       },
-
       transitionTo: function(state, children) {
-        var priorState = this.currentState,
-            currentState = this.currentState = this._states[state];
+        Ember.deprecate("Ember.View#transitionTo has been deprecated, it is for internal use only");
+        this._transitionTo(state, children);
+      },
+      _transitionTo: function(state, children) {
+        var priorState = this.currentState;
+        var currentState = this.currentState = this._states[state];
+
         this._state = state;
 
         if (priorState && priorState.exit) { priorState.exit(this); }
@@ -41359,7 +41363,7 @@ define("ember-views/views/view",
 
         if (children !== false) {
           this.forEachChildView(function(view) {
-            view.transitionTo(state);
+            view._transitionTo(state);
           });
         }
       },
@@ -41684,7 +41688,7 @@ define("ember-views/views/view_collection",
       transitionTo: function(state, children) {
         var views = this.views;
         for (var i = 0, l = views.length; i < l; i++) {
-          views[i].transitionTo(state, children);
+          views[i]._transitionTo(state, children);
         }
       },
 

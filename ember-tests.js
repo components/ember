@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.7.0-beta.1+canary.7e0a3656
+ * @version   1.7.0-beta.1+canary.cc34de0a
  */
 
 (function() {
@@ -48342,7 +48342,6 @@ define("ember-views/tests/views/view/state_deprecation_test",
 
     var view;
 
-
     QUnit.module("views/view/state_deprecation", {
       teardown: function() {
         if (view) {
@@ -48613,6 +48612,52 @@ define("ember-views/tests/views/view/template_test.jshint",
     module('JSHint - ember-views/tests/views/view');
     test('ember-views/tests/views/view/template_test.js should pass jshint', function() { 
       ok(true, 'ember-views/tests/views/view/template_test.js should pass jshint.'); 
+    });
+  });
+define("ember-views/tests/views/view/transition_to_deprecation_test",
+  ["ember-metal/platform","ember-views/views/view","ember-metal/run_loop"],
+  function(__dependency1__, __dependency2__, __dependency3__) {
+    "use strict";
+    var platform = __dependency1__.platform;
+    var EmberView = __dependency2__["default"];
+    var run = __dependency3__["default"];
+
+    var view;
+
+    QUnit.module('views/view/transition_to_deprecation', {
+      setup: function() {
+        view = EmberView.create();
+      },
+      teardown: function() {
+        run(view, 'destroy');
+      }
+    });
+
+    test('deprecates when calling transitionTo', function() {
+      expect(1);
+
+      view = EmberView.create();
+
+      expectDeprecation(function() {
+        view.transitionTo('preRender');
+      }, '');
+    });
+
+    test("doesn't deprecafte when calling _transitionTo", function() {
+      expect(1);
+
+      view = EmberView.create();
+      view._transitionTo('preRender');
+      ok(true);
+    });
+  });
+define("ember-views/tests/views/view/transition_to_deprecation_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/transition_to_deprecation_test.js should pass jshint', function() { 
+      ok(true, 'ember-views/tests/views/view/transition_to_deprecation_test.js should pass jshint.'); 
     });
   });
 define("ember-views/tests/views/view/view_lifecycle_test",

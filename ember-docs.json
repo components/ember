@@ -2,7 +2,7 @@
     "project": {
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
-        "version": "1.7.0-beta.1+canary.7e0a3656",
+        "version": "1.7.0-beta.1+canary.cc34de0a",
         "url": "http://emberjs.com/"
     },
     "files": {
@@ -19036,7 +19036,7 @@
         },
         {
             "file": "../packages/ember-views/lib/views/view.js",
-            "line": 2128,
+            "line": 2132,
             "description": "Handle events from `Ember.EventDispatcher`",
             "itemtype": "method",
             "name": "handleEvent",
@@ -19061,7 +19061,7 @@
         },
         {
             "file": "../packages/ember-views/lib/views/view.js",
-            "line": 2242,
+            "line": 2246,
             "description": "Parse a path and return an object which holds the parsed properties.\n\nFor example a path like \"content.isEnabled:enabled:disabled\" will return the\nfollowing object:\n\n```javascript\n{\n  path: \"content.isEnabled\",\n  className: \"enabled\",\n  falsyClassName: \"disabled\",\n  classNames: \":enabled:disabled\"\n}\n```",
             "itemtype": "method",
             "name": "_parsePropertyPath",
@@ -19075,7 +19075,7 @@
         },
         {
             "file": "../packages/ember-views/lib/views/view.js",
-            "line": 2285,
+            "line": 2289,
             "description": "Get the class name for a given value, based on the path, optional\n`className` and optional `falsyClassName`.\n\n- if a `className` or `falsyClassName` has been specified:\n  - if the value is truthy and `className` has been specified,\n    `className` is returned\n  - if the value is falsy and `falsyClassName` has been specified,\n    `falsyClassName` is returned\n  - otherwise `null` is returned\n- if the value is `true`, the dasherized last part of the supplied path\n  is returned\n- if the value is not `false`, `undefined` or `null`, the `value`\n  is returned\n- if none of the above rules apply, `null` is returned",
             "itemtype": "method",
             "name": "_classStringForValue",
@@ -19107,7 +19107,7 @@
         },
         {
             "file": "../packages/ember-views/lib/views/view.js",
-            "line": 2363,
+            "line": 2367,
             "description": "Global views hash",
             "itemtype": "property",
             "name": "views",
