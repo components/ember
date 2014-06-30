@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.7.0-beta.1+canary.d6e2e6e7
+ * @version   1.7.0-beta.1+canary.37c316c0
  */
 
 (function() {
@@ -1093,7 +1093,7 @@ define("container/container",
 
         Optionally the container can be provided with a custom resolver.
         If provided, `resolve` will first provide the custom resolver
-        the oppertunity to resolve the fullName, otherwise it will fallback
+        the opportunity to resolve the fullName, otherwise it will fallback
         to the registry.
 
         ```javascript
@@ -1179,7 +1179,7 @@ define("container/container",
 
         // by default the container will return singletons
         var twitter2 = container.lookup('api:twitter');
-        twitter instanceof Twitter; // => true
+        twitter2 instanceof Twitter; // => true
 
         twitter === twitter2; //=> true
         ```
@@ -12540,7 +12540,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.7.0-beta.1+canary.d6e2e6e7
+      @version 1.7.0-beta.1+canary.37c316c0
     */
 
     if ('undefined' === typeof Ember) {
@@ -12567,10 +12567,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.7.0-beta.1+canary.d6e2e6e7'
+      @default '1.7.0-beta.1+canary.37c316c0'
       @static
     */
-    Ember.VERSION = '1.7.0-beta.1+canary.d6e2e6e7';
+    Ember.VERSION = '1.7.0-beta.1+canary.37c316c0';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
