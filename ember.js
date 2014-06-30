@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.7.0-beta.1+canary.37c316c0
+ * @version   1.7.0-beta.1+canary.599986c9
  */
 
 (function() {
@@ -1114,17 +1114,7 @@ define("container/container",
       */
       resolve: function(fullName) {
         Ember.assert('fullName must be a proper full name', validateFullName(fullName));
-
-        var normalizedName = this.normalize(fullName);
-        var cached = this.resolveCache.get(normalizedName);
-
-        if (cached) { return cached; }
-
-        var resolved = this.resolver(normalizedName) || this.registry.get(normalizedName);
-
-        this.resolveCache.set(normalizedName, resolved);
-
-        return resolved;
+        return resolve(this, this.normalize(fullName));
       },
 
       /**
@@ -1525,6 +1515,16 @@ define("container/container",
       }
     };
 
+    function resolve(container, normalizedName) {
+      var cached = container.resolveCache.get(normalizedName);
+      if (cached) { return cached; }
+
+      var resolved = container.resolver(normalizedName) || container.registry.get(normalizedName);
+      container.resolveCache.set(normalizedName, resolved);
+
+      return resolved;
+    }
+
     function has(container, fullName){
       if (container.cache.has(fullName)) {
         return true;
@@ -1598,18 +1598,14 @@ define("container/container",
     }
 
     function factoryFor(container, fullName) {
-      var name = fullName;
-      var factory = container.resolve(name);
-      var injectedFactory;
       var cache = container.factoryCache;
-      var type = fullName.split(':')[0];
-
-      if (factory === undefined) { return; }
-
       if (cache.has(fullName)) {
         return cache.get(fullName);
       }
+      var factory = container.resolve(fullName);
+      if (factory === undefined) { return; }
 
+      var type = fullName.split(':')[0];
       if (!factory || typeof factory.extend !== 'function' || (!Ember.MODEL_FACTORY_INJECTIONS && type === 'model')) {
         // TODO: think about a 'safe' merge style extension
         // for now just fallback to create time injection
@@ -1620,7 +1616,7 @@ define("container/container",
 
         factoryInjections._toString = container.makeToString(factory, fullName);
 
-        injectedFactory = factory.extend(injections);
+        var injectedFactory = factory.extend(injections);
         injectedFactory.reopenClass(factoryInjections);
 
         cache.set(fullName, injectedFactory);
@@ -12845,7 +12841,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.7.0-beta.1+canary.37c316c0
+      @version 1.7.0-beta.1+canary.599986c9
     */
 
     if ('undefined' === typeof Ember) {
@@ -12872,10 +12868,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.7.0-beta.1+canary.37c316c0'
+      @default '1.7.0-beta.1+canary.599986c9'
       @static
     */
-    Ember.VERSION = '1.7.0-beta.1+canary.37c316c0';
+    Ember.VERSION = '1.7.0-beta.1+canary.599986c9';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
