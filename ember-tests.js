@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.7.0-beta.1+canary.98723e1e
+ * @version   1.7.0-beta.1+canary.1c5ca103
  */
 
 (function() {
@@ -42926,19 +42926,21 @@ define("ember-views/tests/mixins/view_target_action_support_test.jshint",
     });
   });
 define("ember-views/tests/system/event_dispatcher_test",
-  ["ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-runtime/system/object","ember-views/system/jquery","ember-views/views/view","ember-views/system/event_dispatcher","ember-views/views/container_view"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-runtime/system/object","ember-views/system/jquery","ember-views/views/view","ember-views/system/event_dispatcher","ember-views/views/container_view"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
     "use strict";
-    var get = __dependency1__.get;
-    var set = __dependency2__.set;
-    var run = __dependency3__["default"];
+    var Ember = __dependency1__["default"];
+    // A, FEATURES, assert, TESTING_DEPRECATION
+    var get = __dependency2__.get;
+    var set = __dependency3__.set;
+    var run = __dependency4__["default"];
 
-    var EmberObject = __dependency4__["default"];
+    var EmberObject = __dependency5__["default"];
 
-    var jQuery = __dependency5__["default"];
-    var View = __dependency6__["default"];
-    var EventDispatcher = __dependency7__["default"];
-    var ContainerView = __dependency8__["default"];
+    var jQuery = __dependency6__["default"];
+    var View = __dependency7__["default"];
+    var EventDispatcher = __dependency8__["default"];
+    var ContainerView = __dependency9__["default"];
 
     var view;
     var dispatcher;
@@ -43216,6 +43218,52 @@ define("ember-views/tests/system/event_dispatcher_test",
 
       jQuery('#test-view').trigger('mousedown');
     });
+
+    if (Ember.FEATURES.isEnabled("event-dispatcher-can-disable-event-manager")) {
+
+      test("should not dispatch events to view event Manager when canDispatchToEventManager is false", function () {
+
+        var eventManagerCounter=0,
+            viewCounter=0;
+
+        run(function() {
+          dispatcher.destroy();
+        });
+
+        run(function() {
+          dispatcher = EventDispatcher.create({
+            canDispatchToEventManager: false
+          });
+          dispatcher.setup();
+        });
+
+        view = ContainerView.create({
+          render: function(buffer) {
+            buffer.push('<input id="is-done" type="checkbox">');
+          },
+
+          eventManager: EmberObject.create({
+            mouseDown: function() {
+              eventManagerCounter++;
+            }
+          }),
+
+          mouseDown: function() {
+            viewCounter++;
+          }
+        });
+
+        run(function() {
+          view.append();
+        });
+
+        jQuery('#is-done').trigger('mousedown');
+        equal(viewCounter, 1, "event should go to view");
+        equal(eventManagerCounter, 0, "event should not go to manager");
+
+      });
+
+    }
 
     QUnit.module("EventDispatcher#setup", {
       setup: function() {

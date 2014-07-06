@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.7.0-beta.1+canary.98723e1e
+ * @version   1.7.0-beta.1+canary.1c5ca103
  */
 
 (function() {
@@ -12522,7 +12522,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.7.0-beta.1+canary.98723e1e
+      @version 1.7.0-beta.1+canary.1c5ca103
     */
 
     if ('undefined' === typeof Ember) {
@@ -12549,10 +12549,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.7.0-beta.1+canary.98723e1e'
+      @default '1.7.0-beta.1+canary.1c5ca103'
       @static
     */
-    Ember.VERSION = '1.7.0-beta.1+canary.98723e1e';
+    Ember.VERSION = '1.7.0-beta.1+canary.1c5ca103';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -36108,6 +36108,34 @@ define("ember-views/system/event_dispatcher",
       rootElement: 'body',
 
       /**
+        It enables events to be dispatched to the view `eventManager` which object 
+        when present takes precedence over events of the same name handled through methods 
+        on the view.
+
+        Most of the ember applications does not implement view `eventManagers`, 
+        then disabling this property will provide some performance benefit 
+        because it skips the search for the `eventManager` on the view tree.
+
+        ```javascript
+        var EventDispatcher = Em.EventDispatcher.extend({
+          events: {
+              click       : 'click',
+              focusin     : 'focusIn',
+              focusout    : 'focusOut',
+              change      : 'change'
+          },
+          canDispatchToEventManager: false 
+        });
+        container.register('event_dispatcher:main', EventDispatcher);
+        ```
+
+        @property canDispatchToEventManager
+        @type boolean
+        @default 'true'
+      */
+      canDispatchToEventManager: true,
+
+      /**
         Sets up event listeners for standard browser events.
 
         This will be called after the browser sends a `DOMContentReady` event. By
@@ -36168,9 +36196,9 @@ define("ember-views/system/event_dispatcher",
 
         rootElement.on(event + '.ember', '.ember-view', function(evt, triggeringManager) {
           var view = View.views[this.id],
-              result = true, manager = null;
-
-          manager = self._findNearestEventManager(view, eventName);
+              result = true;
+          
+          var manager = self.canDispatchToEventManager ? self._findNearestEventManager(view, eventName) : null;
 
           if (manager && manager !== triggeringManager) {
             result = self._dispatchEvent(manager, evt, eventName, view);
