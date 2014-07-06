@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.7.0-beta.1+canary.3b467330
+ * @version   1.7.0-beta.1+canary.98723e1e
  */
 
 (function() {
@@ -1979,8 +1979,8 @@ define("ember-application/ext/controller",
       needs: [],
 
       init: function() {
-        var needs = get(this, 'needs'),
-        length = get(needs, 'length');
+        var needs = get(this, 'needs');
+        var length = get(needs, 'length');
 
         if (length > 0) {
           
@@ -2678,11 +2678,11 @@ define("ember-application/system/application",
         @method runInitializers
       */
       runInitializers: function() {
-        var initializers = get(this.constructor, 'initializers'),
-            container = this.__container__,
-            graph = new DAG(),
-            namespace = this,
-            name, initializer;
+        var initializers = get(this.constructor, 'initializers');
+        var container = this.__container__;
+        var graph = new DAG();
+        var namespace = this;
+        var name, initializer;
 
         for (name in initializers) {
           initializer = initializers[name];
@@ -2722,9 +2722,9 @@ define("ember-application/system/application",
         @method setupEventDispatcher
       */
       setupEventDispatcher: function() {
-        var customEvents = get(this, 'customEvents'),
-            rootElement = get(this, 'rootElement'),
-            dispatcher = this.__container__.lookup('event_dispatcher:main');
+        var customEvents = get(this, 'customEvents');
+        var rootElement = get(this, 'rootElement');
+        var dispatcher = this.__container__.lookup('event_dispatcher:main');
 
         set(this, 'eventDispatcher', dispatcher);
         dispatcher.setup(customEvents, rootElement);
@@ -3067,11 +3067,12 @@ define("ember-application/system/dag",
     var EmberError = __dependency1__["default"];
 
     function visit(vertex, fn, visited, path) {
-      var name = vertex.name,
-        vertices = vertex.incoming,
-        names = vertex.incomingNames,
-        len = names.length,
-        i;
+      var name = vertex.name;
+      var vertices = vertex.incoming;
+      var names = vertex.incomingNames;
+      var len = names.length;
+      var i;
+
       if (!visited) {
         visited = {};
       }
@@ -3132,11 +3133,12 @@ define("ember-application/system/dag",
     };
 
     DAG.prototype.topsort = function(fn) {
-      var visited = {},
-        vertices = this.vertices,
-        names = this.names,
-        len = names.length,
-        i, vertex;
+      var visited = {};
+      var vertices = this.vertices;
+      var names = this.names;
+      var len = names.length;
+      var i, vertex;
+
       for (i = 0; i < len; i++) {
         vertex = vertices[names[i]];
         if (!vertex.hasOutgoing) {
@@ -3223,31 +3225,15 @@ define("ember-application/system/resolver",
         @property namespace
       */
       namespace: null,
-      normalize: function(fullName) {
-        throw new Error("Invalid call to `resolver.normalize(fullName)`. Please override the 'normalize' method in subclass of `Ember.Resolver` to prevent falling through to this error.");
-      },
-      resolve: function(fullName) {
-       throw new Error("Invalid call to `resolver.resolve(parsedName)`. Please override the 'resolve' method in subclass of `Ember.Resolver` to prevent falling through to this error.");
-      },
-      parseName: function(parsedName) {
-       throw new Error("Invalid call to `resolver.resolveByType(parsedName)`. Please override the 'resolveByType' method in subclass of `Ember.Resolver` to prevent falling through to this error.");
-      },
-      lookupDescription: function(fullName) {
-        throw new Error("Invalid call to `resolver.lookupDescription(fullName)`. Please override the 'lookupDescription' method in subclass of `Ember.Resolver` to prevent falling through to this error.");
-      },
-      makeToString: function(factory, fullName) {
-        throw new Error("Invalid call to `resolver.makeToString(factory, fullName)`. Please override the 'makeToString' method in subclass of `Ember.Resolver` to prevent falling through to this error.");
-      },
-      resolveOther: function(parsedName) {
-       throw new Error("Invalid call to `resolver.resolveOther(parsedName)`. Please override the 'resolveOther' method in subclass of `Ember.Resolver` to prevent falling through to this error.");
-      },
-      _logLookup: function(found, parsedName) {
-       throw new Error("Invalid call to `resolver._logLookup(found, parsedName)`. Please override the '_logLookup' method in subclass of `Ember.Resolver` to prevent falling through to this error.");
-      }
+      normalize:         Ember.required(Function),
+      resolve:           Ember.required(Function),
+      parseName:         Ember.required(Function),
+      lookupDescription: Ember.required(Function),
+      makeToString:      Ember.required(Function),
+      resolveOther:      Ember.required(Function),
+      _logLookup:        Ember.required(Function)
     });
     __exports__.Resolver = Resolver;
-
-
     /**
       The DefaultResolver defines the default lookup rules to resolve
       container lookups before consulting the container for registered
@@ -3367,7 +3353,7 @@ define("ember-application/system/resolver",
             resolved;
 
         if (!(parsedName.name && parsedName.type)) {
-          throw new TypeError("Invalid fullName: `" + fullName + "`, must be of the form `type:name` ");
+          throw new TypeError('Invalid fullName: `' + fullName + '`, must be of the form `type:name` ');
         }
 
         if (this[resolveMethodName]) {
@@ -3385,7 +3371,7 @@ define("ember-application/system/resolver",
         return resolved;
       },
       /**
-        Convert the string name of the form "type:name" to
+        Convert the string name of the form 'type:name' to
         a Javascript object with the parsed aspects of the name
         broken out.
 
@@ -3394,7 +3380,7 @@ define("ember-application/system/resolver",
         @method parseName
       */
       parseName: function(fullName) {
-        var nameParts = fullName.split(":"),
+        var nameParts = fullName.split(':'),
             type = nameParts[0], fullNameWithoutType = nameParts[1],
             name = fullNameWithoutType,
             namespace = get(this, 'namespace'),
@@ -3414,7 +3400,7 @@ define("ember-application/system/resolver",
           fullNameWithoutType: fullNameWithoutType,
           name: name,
           root: root,
-          resolveMethodName: "resolve" + classify(type)
+          resolveMethodName: 'resolve' + classify(type)
         };
       },
 
@@ -3432,10 +3418,10 @@ define("ember-application/system/resolver",
         var parsedName = this.parseName(fullName);
 
         if (parsedName.type === 'template') {
-          return "template at " + parsedName.fullNameWithoutType.replace(/\./g, '/');
+          return 'template at ' + parsedName.fullNameWithoutType.replace(/\./g, '/');
         }
 
-        var description = parsedName.root + "." + classify(parsedName.name);
+        var description = parsedName.root + '.' + classify(parsedName.name);
         if (parsedName.type !== 'model') { description += classify(parsedName.type); }
 
         return description;
@@ -3525,8 +3511,8 @@ define("ember-application/system/resolver",
         @method resolveModel
       */
       resolveModel: function(parsedName) {
-        var className = classify(parsedName.name),
-            factory = get(parsedName.root, className);
+        var className = classify(parsedName.name);
+        var factory = get(parsedName.root, className);
 
          if (factory) { return factory; }
       },
@@ -3552,8 +3538,8 @@ define("ember-application/system/resolver",
         @method resolveOther
       */
       resolveOther: function(parsedName) {
-        var className = classify(parsedName.name) + classify(parsedName.type),
-            factory = get(parsedName.root, className);
+        var className = classify(parsedName.name) + classify(parsedName.type);
+        var factory = get(parsedName.root, className);
         if (factory) { return factory; }
       },
 
@@ -3567,7 +3553,7 @@ define("ember-application/system/resolver",
         var symbol, padding;
 
         if (found) { symbol = '[✓]'; }
-        else          { symbol = '[ ]'; }
+        else       { symbol = '[ ]'; }
 
         if (parsedName.fullName.length > 60) {
           padding = '.';
@@ -12536,7 +12522,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.7.0-beta.1+canary.3b467330
+      @version 1.7.0-beta.1+canary.98723e1e
     */
 
     if ('undefined' === typeof Ember) {
@@ -12563,10 +12549,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.7.0-beta.1+canary.3b467330'
+      @default '1.7.0-beta.1+canary.98723e1e'
       @static
     */
-    Ember.VERSION = '1.7.0-beta.1+canary.3b467330';
+    Ember.VERSION = '1.7.0-beta.1+canary.98723e1e';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -19941,8 +19927,8 @@ define("ember-routing/ext/controller",
       */
       transitionToRoute: function() {
         // target may be either another controller or a router
-        var target = get(this, 'target'),
-            method = target.transitionToRoute || target.transitionTo;
+        var target = get(this, 'target');
+        var method = target.transitionToRoute || target.transitionTo;
         return method.apply(target, arguments);
       },
 
@@ -20012,8 +19998,8 @@ define("ember-routing/ext/controller",
       */
       replaceRoute: function() {
         // target may be either another controller or a router
-        var target = get(this, 'target'),
-            method = target.replaceRoute || target.replaceWith;
+        var target = get(this, 'target');
+        var method = target.replaceRoute || target.replaceWith;
         return method.apply(target, arguments);
       },
 
@@ -20066,14 +20052,14 @@ define("ember-routing/ext/controller",
             return get(m.proto, '_cacheMeta');
           }
 
-          var cacheMeta = {},
-              qpMap = get(this, '_normalizedQueryParams');
+          var cacheMeta = {};
+          var qpMap = get(this, '_normalizedQueryParams');
           for (var prop in qpMap) {
             if (!qpMap.hasOwnProperty(prop)) { continue; }
 
-            var qp = qpMap[prop],
-                scope = qp.scope,
-                parts;
+            var qp = qpMap[prop];
+            var scope = qp.scope;
+            var parts;
 
             if (scope === 'controller') {
               parts = [];
@@ -20253,10 +20239,10 @@ define("ember-routing/ext/view",
           return;
         }
 
-        var outlets = get(this, '_outlets'),
-            container = get(this, 'container'),
-            router = container && container.lookup('router:main'),
-            renderedName = get(view, 'renderedName');
+        var outlets = get(this, '_outlets');
+        var container = get(this, 'container');
+        var router = container && container.lookup('router:main');
+        var renderedName = get(view, 'renderedName');
 
         set(outlets, outletName, view);
 
@@ -20543,8 +20529,8 @@ define("ember-routing/location/api",
       _getHash: function () {
         // AutoLocation has it at _location, HashLocation at .location.
         // Being nice and not changing
-        var href = (this._location || this.location).href,
-            hashIndex = href.indexOf('#');
+        var href = (this._location || this.location).href;
+        var hashIndex = href.indexOf('#');
 
         if (hashIndex === -1) {
           return '';
@@ -20685,8 +20671,8 @@ define("ember-routing/location/auto_location",
         @method _getOrigin
       */
       _getOrigin: function () {
-        var location = this._location,
-            origin = location.origin;
+        var location = this._location;
+        var origin = location.origin;
 
         // Older browsers, especially IE, don't have origin
         if (!origin) {
@@ -20735,8 +20721,8 @@ define("ember-routing/location/auto_location",
         @method _getSupportsHashChange
       */
       _getSupportsHashChange: function () {
-        var _window = this._window,
-            documentMode = _window.document.documentMode;
+        var _window = this._window;
+        var documentMode = _window.document.documentMode;
 
         return ('onhashchange' in _window && (documentMode === undefined || documentMode > 7 ));
       },
@@ -20822,12 +20808,12 @@ define("ember-routing/location/auto_location",
         @method _getHistoryPath
       */
       _getHistoryPath: function () {
-        var rootURL = this._getRootURL(),
-            path = this._getPath(),
-            hash = this._getHash(),
-            query = this._getQuery(),
-            rootURLIndex = path.indexOf(rootURL),
-            routeHash, hashParts;
+        var rootURL = this._getRootURL();
+        var path = this._getPath();
+        var hash = this._getHash();
+        var query = this._getQuery();
+        var rootURLIndex = path.indexOf(rootURL);
+        var routeHash, hashParts;
 
         
         // By convention, Ember.js routes using HashLocation are required to start
@@ -20869,10 +20855,10 @@ define("ember-routing/location/auto_location",
         @method _getHashPath
       */
       _getHashPath: function () {
-        var rootURL = this._getRootURL(),
-            path = rootURL,
-            historyPath = this._getHistoryPath(),
-            routePath = historyPath.substr(rootURL.length);
+        var rootURL = this._getRootURL();
+        var path = rootURL;
+        var historyPath = this._getHistoryPath();
+        var routePath = historyPath.substr(rootURL.length);
 
         if (routePath !== '') {
           if (routePath.charAt(0) !== '/') {
@@ -20897,10 +20883,10 @@ define("ember-routing/location/auto_location",
                     this.rootURL = options.rootURL;
         }
 
-        var historyPath, hashPath,
-            cancelRouterSetup = false,
-            implementationClass = this._NoneLocation,
-            currentPath = this._getFullPath();
+        var historyPath, hashPath;
+        var cancelRouterSetup = false;
+        var implementationClass = this._NoneLocation;
+        var currentPath = this._getFullPath();
 
         if (this._getSupportsHistory()) {
           historyPath = this._getHistoryPath();
@@ -21058,7 +21044,7 @@ define("ember-routing/location/hash_location",
         @param url {String}
       */
       formatURL: function(url) {
-        return '#'+url;
+        return '#' + url;
       },
 
       /**
@@ -21138,13 +21124,14 @@ define("ember-routing/location/history_location",
         @return url {String}
       */
       getURL: function() {
-        var rootURL = get(this, 'rootURL'),
-            location = get(this, 'location'),
-            path = location.pathname,
-            baseURL = get(this, 'baseURL');
+        var rootURL = get(this, 'rootURL');
+        var location = get(this, 'location');
+        var path = location.pathname;
+        var baseURL = get(this, 'baseURL');
 
         rootURL = rootURL.replace(/\/$/, '');
         baseURL = baseURL.replace(/\/$/, '');
+
         var url = path.replace(baseURL, '').replace(rootURL, '');
 
         
@@ -21253,8 +21240,8 @@ define("ember-routing/location/history_location",
         @param callback {Function}
       */
       onUpdateURL: function(callback) {
-        var guid = guidFor(this),
-            self = this;
+        var guid = guidFor(this);
+        var self = this;
 
         jQuery(window).on('popstate.ember-location-'+guid, function(e) {
           // Ignore initial page load popstate event in Chrome
@@ -21275,8 +21262,8 @@ define("ember-routing/location/history_location",
         @return formatted url {String}
       */
       formatURL: function(url) {
-        var rootURL = get(this, 'rootURL'),
-            baseURL = get(this, 'baseURL');
+        var rootURL = get(this, 'rootURL');
+        var baseURL = get(this, 'baseURL');
 
         if (url !== '') {
           rootURL = rootURL.replace(/\/$/, '');
@@ -22345,8 +22332,9 @@ define("ember-routing/system/route",
         @method setup
       */
       setup: function(context, transition) {
-        var controllerName = this.controllerName || this.routeName,
-            controller = this.controllerFor(controllerName, true);
+        var controllerName = this.controllerName || this.routeName;
+        var controller = this.controllerFor(controllerName, true);
+
         if (!controller) {
           controller =  this.generateController(controllerName, context);
         }
@@ -22806,9 +22794,9 @@ define("ember-routing/system/route",
         @return {Ember.Controller}
       */
       controllerFor: function(name, _skipAssert) {
-        var container = this.container,
-            route = container.lookup('route:'+name),
-            controller;
+        var container = this.container;
+        var route = container.lookup('route:'+name);
+        var controller;
 
         if (route && route.controllerName) {
           name = route.controllerName;
@@ -22882,8 +22870,8 @@ define("ember-routing/system/route",
         @return {Object} the model object
       */
       modelFor: function(name) {
-        var route = this.container.lookup('route:' + name),
-            transition = this.router ? this.router.router.activeTransition : null;
+        var route = this.container.lookup('route:' + name);
+        var transition = this.router ? this.router.router.activeTransition : null;
 
         // If we are mid-transition, we want to try and look up
         // resolved parent contexts on the current transitionEvent.
@@ -23005,9 +22993,9 @@ define("ember-routing/system/route",
 
         var viewName = options.view || namePassed && name || this.viewName || name;
 
-        var container = this.container,
-            view = container.lookup('view:' + viewName),
-            template = view ? view.get('template') : null;
+        var container = this.container;
+        var view = container.lookup('view:' + viewName);
+        var template = view ? view.get('template') : null;
 
         if (!template) {
           template = container.lookup('template:' + templateName);
@@ -23278,9 +23266,9 @@ define("ember-routing/system/route",
             return {};
           }
 
-          var transition = this.router.router.activeTransition,
-              state = transition ? transition.state : this.router.router.state,
-              params = {};
+          var transition = this.router.router.activeTransition;
+          var state = transition ? transition.state : this.router.router.state;
+          var params = {};
 
           merge(params, state.params[name]);
 
@@ -23607,11 +23595,11 @@ define("ember-routing/system/router",
       startRouting: function() {
         this.router = this.router || this.constructor.map(Ember.K);
 
-        var router = this.router,
-            location = get(this, 'location'),
-            container = this.container,
-            self = this,
-            initialURL = get(this, 'initialURL');
+        var router = this.router;
+        var location = get(this, 'location');
+        var container = this.container;
+        var self = this;
+        var initialURL = get(this, 'initialURL');
 
         // Allow the Location class to cancel the router setup while it refreshes
         // the page
@@ -23785,8 +23773,8 @@ define("ember-routing/system/router",
       },
 
       _setupLocation: function() {
-        var location = get(this, 'location'),
-            rootURL = get(this, 'rootURL');
+        var location = get(this, 'location');
+        var rootURL = get(this, 'rootURL');
 
         if (rootURL && !this.container.has('-location-setting:root-url')) {
           this.container.register('-location-setting:root-url', rootURL, { instantiate: false });
@@ -23815,13 +23803,13 @@ define("ember-routing/system/router",
       },
 
       _getHandlerFunction: function() {
-        var seen = {}, container = this.container,
-            DefaultRoute = container.lookupFactory('route:basic'),
-            self = this;
+        var seen = {}, container = this.container;
+        var DefaultRoute = container.lookupFactory('route:basic');
+        var self = this;
 
         return function(name) {
-          var routeName = 'route:' + name,
-              handler = container.lookup(routeName);
+          var routeName = 'route:' + name;
+          var handler = container.lookup(routeName);
 
           if (seen[name]) { return handler; }
 
@@ -23953,9 +23941,9 @@ define("ember-routing/system/router",
             recogHandlerInfos = routerjs.recognizer.handlersFor(leafRouteName);
 
         for (var i = 0, len = recogHandlerInfos.length; i < len; ++i) {
-          var recogHandler = recogHandlerInfos[i],
-              route = routerjs.getHandler(recogHandler.handler),
-              qpMeta = get(route, '_qp');
+          var recogHandler = recogHandlerInfos[i];
+          var route = routerjs.getHandler(recogHandler.handler);
+          var qpMeta = get(route, '_qp');
 
           if (!qpMeta) { continue; }
 
@@ -24053,12 +24041,13 @@ define("ember-routing/system/router",
       @private
      */
     function forEachRouteAbove(originRoute, transition, callback) {
-      var handlerInfos = transition.state.handlerInfos,
-          originRouteFound = false;
+      var handlerInfos = transition.state.handlerInfos;
+      var originRouteFound = false;
+      var handlerInfo, route;
 
       for (var i = handlerInfos.length - 1; i >= 0; --i) {
-        var handlerInfo = handlerInfos[i],
-            route = handlerInfo.handler;
+        handlerInfo = handlerInfos[i];
+        route = handlerInfo.handler;
 
         if (!originRouteFound) {
           if (originRoute === route) {
@@ -24147,10 +24136,10 @@ define("ember-routing/system/router",
     };
 
     function findChildRouteName(parentRoute, originatingChildRoute, name) {
-      var router = parentRoute.router,
-          childName,
-          targetChildRouteName = originatingChildRoute.routeName.split('.').pop(),
-          namespace = parentRoute.routeName === 'application' ? '' : parentRoute.routeName + '.';
+      var router = parentRoute.router;
+      var childName;
+      var targetChildRouteName = originatingChildRoute.routeName.split('.').pop();
+      var namespace = parentRoute.routeName === 'application' ? '' : parentRoute.routeName + '.';
 
       if (Ember.FEATURES.isEnabled("ember-routing-named-substates")) {
         // First, try a named loading state, e.g. 'foo_loading'
@@ -24182,10 +24171,11 @@ define("ember-routing/system/router",
       }
 
       var eventWasHandled = false;
+      var handlerInfo, handler;
 
       for (var i = handlerInfos.length - 1; i >= 0; i--) {
-        var handlerInfo = handlerInfos[i],
-            handler = handlerInfo.handler;
+        handlerInfo = handlerInfos[i];
+        handler = handlerInfo.handler;
 
         if (handler._actions && handler._actions[name]) {
           if (handler._actions[name].apply(handler, args) === true) {
@@ -24297,10 +24287,11 @@ define("ember-routing/system/router",
           return true;
         }
 
+        var name, nameParts, oldNameParts;
         for (var i=1, l=handlerInfos.length; i<l; i++) {
-          var name = handlerInfos[i].name,
-              nameParts = name.split("."),
-              oldNameParts = slice.call(path);
+          name = handlerInfos[i].name;
+          nameParts = name.split(".");
+          oldNameParts = slice.call(path);
 
           while (oldNameParts.length) {
             if (intersectionMatches(oldNameParts, nameParts)) {
