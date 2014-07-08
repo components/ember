@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.20c03508
+ * @version   1.8.0-beta.1+canary.3edd7bde
  */
 
 (function() {
@@ -27998,7 +27998,7 @@ define("ember-runtime/tests/controllers/item_controller_class_test.jshint",
       ok(true, 'ember-runtime/tests/controllers/item_controller_class_test.js should pass jshint.'); 
     });
   });
-define("ember-runtime/tests/controllers/object_controller_tests",
+define("ember-runtime/tests/controllers/object_controller_test",
   ["ember-runtime/controllers/object_controller"],
   function(__dependency1__) {
     "use strict";
@@ -28015,13 +28015,13 @@ define("ember-runtime/tests/controllers/object_controller_tests",
       equal(controller.get('target'), target, "able to set the target property");
     });
   });
-define("ember-runtime/tests/controllers/object_controller_tests.jshint",
+define("ember-runtime/tests/controllers/object_controller_test.jshint",
   [],
   function() {
     "use strict";
     module('JSHint - ember-runtime/tests/controllers');
-    test('ember-runtime/tests/controllers/object_controller_tests.js should pass jshint', function() { 
-      ok(true, 'ember-runtime/tests/controllers/object_controller_tests.js should pass jshint.'); 
+    test('ember-runtime/tests/controllers/object_controller_test.js should pass jshint', function() { 
+      ok(true, 'ember-runtime/tests/controllers/object_controller_test.js should pass jshint.'); 
     });
   });
 define("ember-runtime/tests/core/compare_test",
