@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.6.0-beta.5
+ * @version   1.6.0
  */
 
 
@@ -1061,9 +1061,7 @@ define("ember-metal/computed",
 
     function UNDEFINED() { }
 
-    
-      var lengthPattern = /\.(length|\[\])$/;
-    
+    var lengthPattern = /\.(length|\[\])$/;
 
     // ..........................................................
     // DEPENDENT KEYS
@@ -1071,9 +1069,9 @@ define("ember-metal/computed",
 
     // data structure:
     //  meta.deps = {
-    //   'depKey': {
-    //     'keyName': count,
-    //   }
+    //    'depKey': {
+    //      'keyName': count,
+    //    }
     //  }
 
     /*
@@ -1157,7 +1155,7 @@ define("ember-metal/computed",
       values.
 
       ```javascript
-      Person = Ember.Object.extend({
+      var Person = Ember.Object.extend({
         // these will be supplied by `create`
         firstName: null,
         lastName: null,
@@ -1184,8 +1182,7 @@ define("ember-metal/computed",
       third parameter.
 
       ```javascript
-
-     Person = Ember.Object.extend({
+      var Person = Ember.Object.extend({
         // these will be supplied by `create`
         firstName: null,
         lastName: null,
@@ -1200,7 +1197,7 @@ define("ember-metal/computed",
 
           // setter
           } else {
-            var name = value.split(" ");
+            var name = value.split(' ');
 
             this.set('firstName', name[0]);
             this.set('lastName', name[1]);
@@ -1211,9 +1208,10 @@ define("ember-metal/computed",
       });
 
       var person = Person.create();
+
       person.set('fullName', 'Peter Wagenet');
-      person.get('firstName') // 'Peter'
-      person.get('lastName') // 'Wagenet'
+      person.get('firstName'); // 'Peter'
+      person.get('lastName');  // 'Wagenet'
       ```
 
       @class ComputedProperty
@@ -1262,7 +1260,7 @@ define("ember-metal/computed",
       mode the computed property will not automatically cache the return value.
 
       ```javascript
-      MyApp.outsideService = Ember.Object.extend({
+      var outsideService = Ember.Object.extend({
         value: function() {
           return OutsideService.getValue();
         }.property().volatile()
@@ -1282,15 +1280,15 @@ define("ember-metal/computed",
       mode the computed property will throw an error when set.
 
       ```javascript
-      MyApp.Person = Ember.Object.extend({
+      var Person = Ember.Object.extend({
         guid: function() {
           return 'guid-guid-guid';
         }.property().readOnly()
       });
 
-      MyApp.person = MyApp.Person.create();
+      var person = Person.create();
 
-      MyApp.person.set('guid', 'new-guid'); // will throw an exception
+      person.set('guid', 'new-guid'); // will throw an exception
       ```
 
       @method readOnly
@@ -1307,7 +1305,7 @@ define("ember-metal/computed",
       arguments containing key paths that this computed property depends on.
 
       ```javascript
-      MyApp.President = Ember.Object.extend({
+      var President = Ember.Object.extend({
         fullName: computed(function() {
           return this.get('firstName') + ' ' + this.get('lastName');
 
@@ -1316,12 +1314,12 @@ define("ember-metal/computed",
         }).property('firstName', 'lastName')
       });
 
-      MyApp.president = MyApp.President.create({
+      var president = President.create({
         firstName: 'Barack',
         lastName: 'Obama',
       });
 
-      MyApp.president.get('fullName'); // 'Barack Obama'
+      president.get('fullName'); // 'Barack Obama'
       ```
 
       @method property
@@ -1405,10 +1403,9 @@ define("ember-metal/computed",
       Otherwise, call the function passing the property name as an argument.
 
       ```javascript
-      Person = Ember.Object.extend({
+      var Person = Ember.Object.extend({
         fullName: function(keyName) {
           // the keyName parameter is 'fullName' in this case.
-
           return this.get('firstName') + ' ' + this.get('lastName');
         }.property('firstName', 'lastName')
       });
@@ -1659,38 +1656,39 @@ define("ember-metal/computed",
       };
     };
 
-    
-      /**
-        A computed property that returns true if the value of the dependent
-        property is null, an empty string, empty array, or empty function.
+    /**
+      A computed property that returns true if the value of the dependent
+      property is null, an empty string, empty array, or empty function.
 
-        Example
+      Example
 
-        ```javascript
-        var ToDoList = Ember.Object.extend({
-          done: Ember.computed.empty('todos')
-        });
+      ```javascript
+      var ToDoList = Ember.Object.extend({
+        done: Ember.computed.empty('todos')
+      });
 
-        var todoList = ToDoList.create({todos: ['Unit Test', 'Documentation', 'Release']});
+      var todoList = ToDoList.create({
+        todos: ['Unit Test', 'Documentation', 'Release']
+      });
 
-        todoList.get('done'); // false
-        todoList.get('todos').clear();
-        todoList.get('done'); // true
-        ```
+      todoList.get('done'); // false
+      todoList.get('todos').clear();
+      todoList.get('done'); // true
+      ```
 
-        @since 1.6.0
-        @method computed.empty
-        @for Ember
-        @param {String} dependentKey
-        @return {Ember.ComputedProperty} computed property which negate
-        the original value for property
-      */
-      computed.empty = function (dependentKey) {
-        return computed(dependentKey + '.length', function () {
-          return isEmpty(get(this, dependentKey));
-        });
-      };
-    
+      @since 1.6.0
+      @method computed.empty
+      @for Ember
+      @param {String} dependentKey
+      @return {Ember.ComputedProperty} computed property which negate
+      the original value for property
+    */
+    computed.empty = function (dependentKey) {
+      return computed(dependentKey + '.length', function () {
+        return isEmpty(get(this, dependentKey));
+      });
+    };
+
     /**
       A computed property that returns true if the value of the dependent
       property is NOT null, an empty string, empty array, or empty function.
@@ -1706,11 +1704,11 @@ define("ember-metal/computed",
         hasStuff: Ember.computed.notEmpty('backpack.[]')
       });
 
-      var hamster = Hamster.create({backpack: ['Food', 'Sleeping Bag', 'Tent']});
+      var hamster = Hamster.create({ backpack: ['Food', 'Sleeping Bag', 'Tent'] });
 
-      hamster.get('hasStuff'); // true
+      hamster.get('hasStuff');         // true
       hamster.get('backpack').clear(); // []
-      hamster.get('hasStuff'); // false
+      hamster.get('hasStuff');         // false
       ```
 
       @method computed.notEmpty
@@ -2146,12 +2144,12 @@ define("ember-metal/computed",
       though they were called on the original property.
 
       ```javascript
-      Person = Ember.Object.extend({
+      var Person = Ember.Object.extend({
         name: 'Alex Matchneer',
         nomen: Ember.computed.alias('name')
       });
 
-      alex = Person.create();
+      var alex = Person.create();
 
       alex.get('nomen'); // 'Alex Matchneer'
       alex.get('name');  // 'Alex Matchneer'
@@ -2198,9 +2196,9 @@ define("ember-metal/computed",
         lastName:  'Zeenny'
       });
 
-      teddy.get('nickName'); // 'Teddy'
+      teddy.get('nickName');              // 'Teddy'
       teddy.set('nickName', 'TeddyBear'); // 'TeddyBear'
-      teddy.get('firstName'); // 'Teddy'
+      teddy.get('firstName');             // 'Teddy'
       ```
 
       @method computed.oneWay
@@ -2237,10 +2235,10 @@ define("ember-metal/computed",
         lastName:  'Zeenny'
       });
 
-      teddy.get('nickName'); // 'Teddy'
+      teddy.get('nickName');              // 'Teddy'
       teddy.set('nickName', 'TeddyBear'); // throws Exception
       // throw new Ember.Error('Cannot Set: nickName on: <User:ember27288>' );`
-      teddy.get('firstName'); // 'Teddy'
+      teddy.get('firstName');             // 'Teddy'
       ```
 
       @method computed.readOnly
@@ -2267,12 +2265,12 @@ define("ember-metal/computed",
         wishList: Ember.computed.defaultTo('favoriteFood')
       });
 
-      var hamster = Hamster.create({favoriteFood: 'Banana'});
+      var hamster = Hamster.create({ favoriteFood: 'Banana' });
 
-      hamster.get('wishList'); // 'Banana'
+      hamster.get('wishList');                     // 'Banana'
       hamster.set('wishList', 'More Unit Tests');
-      hamster.get('wishList'); // 'More Unit Tests'
-      hamster.get('favoriteFood'); // 'Banana'
+      hamster.get('wishList');                     // 'More Unit Tests'
+      hamster.get('favoriteFood');                 // 'Banana'
       ```
 
       @method computed.defaultTo
@@ -2323,7 +2321,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.6.0-beta.5
+      @version 1.6.0
     */
 
     if ('undefined' === typeof Ember) {
@@ -2350,10 +2348,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.6.0-beta.5'
+      @default '1.6.0'
       @static
     */
-    Ember.VERSION = '1.6.0-beta.5';
+    Ember.VERSION = '1.6.0';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -3178,12 +3176,14 @@ define("ember-metal/events",
 
       ``` javascript
       var Job = Ember.Object.extend({
-        logCompleted: Ember.on('completed', function(){
+        logCompleted: Ember.on('completed', function() {
           console.log('Job completed!');
         })
       });
+
       var job = Job.create();
-      Ember.sendEvent(job, 'completed'); // Logs "Job completed!"
+
+      Ember.sendEvent(job, 'completed'); // Logs 'Job completed!'
      ```
 
       @method on
@@ -5086,7 +5086,10 @@ define("ember-metal/mixin",
         moniker: Ember.aliasMethod('name')
       });
 
-      var goodGuy = App.Person.create()
+      var goodGuy = App.Person.create();
+      
+      goodGuy.name();    // 'Tomhuda Katzdale'
+      goodGuy.moniker(); // 'Tomhuda Katzdale'
       ```
 
       @method aliasMethod
@@ -5196,7 +5199,6 @@ define("ember-metal/mixin",
 
       ```javascript
       App.PersonView = Ember.View.extend({
-
         friends: [{ name: 'Tom' }, { name: 'Stefan' }, { name: 'Kris' }],
 
         valueWillChange: Ember.beforeObserver('content.value', function(obj, keyName) {
@@ -6890,7 +6892,7 @@ define("ember-metal/run_loop",
         run.debounce(myContext, myFunc, 150, true);
 
         // console logs 'debounce ran.' one time immediately.
-        // 150ms passes and nothing else is logged tot he console and
+        // 150ms passes and nothing else is logged to the console and
         // the debouncee is no longer being watched
 
       ```
@@ -6986,11 +6988,13 @@ define("ember-metal/set_properties",
       observers will be buffered.
 
       ```javascript
+      var anObject = Ember.Object.create();
+
       anObject.setProperties({
-        firstName: "Stanley",
-        lastName: "Stuart",
-        age: "21"
-      })
+        firstName: 'Stanley',
+        lastName: 'Stuart',
+        age: 21
+      });
       ```
 
       @method setProperties
@@ -7379,9 +7383,9 @@ define("ember-metal/utils",
       not formally array but appears to be array-like (i.e. implements `Ember.Array`)
 
       ```javascript
-      Ember.isArray();                                            // false
-      Ember.isArray([]);                                          // true
-      Ember.isArray( Ember.ArrayProxy.create({ content: [] }) );  // true
+      Ember.isArray();                                          // false
+      Ember.isArray([]);                                        // true
+      Ember.isArray(Ember.ArrayProxy.create({ content: [] }));  // true
       ```
 
       @method isArray
@@ -7416,13 +7420,14 @@ define("ember-metal/utils",
       an array. If obj is `null` or `undefined`, returns an empty array.
 
       ```javascript
-      Ember.makeArray();                           // []
-      Ember.makeArray(null);                       // []
-      Ember.makeArray(undefined);                  // []
-      Ember.makeArray('lindsay');                  // ['lindsay']
-      Ember.makeArray([1,2,42]);                   // [1,2,42]
+      Ember.makeArray();            // []
+      Ember.makeArray(null);        // []
+      Ember.makeArray(undefined);   // []
+      Ember.makeArray('lindsay');   // ['lindsay']
+      Ember.makeArray([1, 2, 42]);  // [1, 2, 42]
 
       var controller = Ember.ArrayProxy.create({ content: [] });
+
       Ember.makeArray(controller) === controller;  // true
       ```
 
@@ -7440,7 +7445,8 @@ define("ember-metal/utils",
       Checks to see if the `methodName` exists on the `obj`.
 
       ```javascript
-      var foo = {bar: Ember.K, baz: null};
+      var foo = { bar: Ember.K, baz: null };
+
       Ember.canInvoke(foo, 'bar'); // true
       Ember.canInvoke(foo, 'baz'); // false
       Ember.canInvoke(foo, 'bat'); // false
@@ -7462,8 +7468,9 @@ define("ember-metal/utils",
 
       ```javascript
       var d = new Date('03/15/2013');
-      Ember.tryInvoke(d, 'getTime'); // 1363320000000
-      Ember.tryInvoke(d, 'setFullYear', [2014]); // 1394856000000
+
+      Ember.tryInvoke(d, 'getTime');              // 1363320000000
+      Ember.tryInvoke(d, 'setFullYear', [2014]);  // 1394856000000
       Ember.tryInvoke(d, 'noSuchMethod', [2014]); // undefined
       ```
 
@@ -7495,7 +7502,7 @@ define("ember-metal/utils",
     })();
 
     /**
-      Provides try { } finally { } functionality, while working
+      Provides try/finally functionality, while working
       around Safari's double finally bug.
 
       ```javascript
@@ -7503,9 +7510,11 @@ define("ember-metal/utils",
         someResource.lock();
         runCallback(); // May throw error.
       };
+
       var finalizer = function() {
         someResource.unlock();
       };
+
       Ember.tryFinally(tryable, finalizer);
       ```
 
@@ -7557,12 +7566,12 @@ define("ember-metal/utils",
     }
 
     /**
-      Provides try { } catch finally { } functionality, while working
+      Provides try/catch/finally functionality, while working
       around Safari's double finally bug.
 
       ```javascript
       var tryable = function() {
-        for (i=0, l=listeners.length; i<l; i++) {
+        for (i = 0, l = listeners.length; i < l; i++) {
           listener = listeners[i];
           beforeValues[i] = listener.before(name, time(), payload);
         }
@@ -7576,11 +7585,12 @@ define("ember-metal/utils",
       };
 
       var finalizer = function() {
-        for (i=0, l=listeners.length; i<l; i++) {
+        for (i = 0, l = listeners.length; i < l; i++) {
           listener = listeners[i];
           listener.after(name, time(), payload, beforeValues[i]);
         }
       };
+
       Ember.tryCatchFinally(tryable, catchable, finalizer);
       ```
 
@@ -7685,15 +7695,15 @@ define("ember-metal/utils",
       Ember.typeOf(true);                   // 'boolean'
       Ember.typeOf(new Boolean(true));      // 'boolean'
       Ember.typeOf(Ember.makeArray);        // 'function'
-      Ember.typeOf([1,2,90]);               // 'array'
+      Ember.typeOf([1, 2, 90]);             // 'array'
       Ember.typeOf(/abc/);                  // 'regexp'
       Ember.typeOf(new Date());             // 'date'
       Ember.typeOf(Ember.Object.extend());  // 'class'
       Ember.typeOf(Ember.Object.create());  // 'instance'
       Ember.typeOf(new Error('teamocil'));  // 'error'
 
-      // "normal" JavaScript object
-      Ember.typeOf({a: 'b'});              // 'object'
+      // 'normal' JavaScript object
+      Ember.typeOf({ a: 'b' });             // 'object'
       ```
 
       @method typeOf
@@ -11224,7 +11234,7 @@ define("container/container",
 
         Optionally the container can be provided with a custom resolver.
         If provided, `resolve` will first provide the custom resolver
-        the oppertunity to resolve the fullName, otherwise it will fallback
+        the opportunity to resolve the fullName, otherwise it will fallback
         to the registry.
 
         ```javascript
@@ -11311,7 +11321,7 @@ define("container/container",
 
         // by default the container will return singletons
         var twitter2 = container.lookup('api:twitter');
-        twitter instanceof Twitter; // => true
+        twitter2 instanceof Twitter; // => true
 
         twitter === twitter2; //=> true
         ```
@@ -12205,7 +12215,7 @@ define("ember-runtime/computed/array_computed",
       The `initialize` function has the following signature:
 
       ```javascript
-       function (array, changeMeta, instanceMeta)
+      function(array, changeMeta, instanceMeta)
       ```
 
       `array` - The initial value of the arrayComputed, an empty array.
@@ -12225,7 +12235,7 @@ define("ember-runtime/computed/array_computed",
       The `removedItem` and `addedItem` functions both have the following signature:
 
       ```javascript
-      function (accumulatedValue, item, changeMeta, instanceMeta)
+      function(accumulatedValue, item, changeMeta, instanceMeta)
       ```
 
       `accumulatedValue` - The value returned from the last time
@@ -12398,8 +12408,12 @@ define("ember-runtime/computed/reduce_computed",
       // because we only have the key; instead we make the observers no-ops
       this.suspended = false;
 
-      // This is used to coalesce item changes from property observers.
+      // This is used to coalesce item changes from property observers within a
+      // single item.
       this.changedItems = {};
+      // This is used to coalesce item changes for multiple items that depend on
+      // some shared state.
+      this.changedItemCount = 0;
     }
 
     function ItemPropertyObserverContext (dependentArray, index, trackedArray) {
@@ -12640,12 +12654,15 @@ define("ember-runtime/computed/reduce_computed",
             previousValues:   {}
           };
         }
+        ++this.changedItemCount;
 
         this.changedItems[guid].previousValues[keyName] = get(obj, keyName);
       },
 
       itemPropertyDidChange: function(obj, keyName, array, observerContext) {
-        this.flushChanges();
+        if (--this.changedItemCount === 0) {
+          this.flushChanges();
+        }
       },
 
       flushChanges: function() {
@@ -12976,7 +12993,7 @@ define("ember-runtime/computed/reduce_computed",
       The `initialize` function has the following signature:
 
       ```javascript
-       function (initialValue, changeMeta, instanceMeta)
+      function(initialValue, changeMeta, instanceMeta)
       ```
 
       `initialValue` - The value of the `initialValue` property from the
@@ -12997,7 +13014,7 @@ define("ember-runtime/computed/reduce_computed",
       The `removedItem` and `addedItem` functions both have the following signature:
 
       ```javascript
-      function (accumulatedValue, item, changeMeta, instanceMeta)
+      function(accumulatedValue, item, changeMeta, instanceMeta)
       ```
 
       `accumulatedValue` - The value returned from the last time
@@ -13047,15 +13064,15 @@ define("ember-runtime/computed/reduce_computed",
       Example
 
       ```javascript
-      Ember.computed.max = function (dependentKey) {
+      Ember.computed.max = function(dependentKey) {
         return Ember.reduceComputed(dependentKey, {
           initialValue: -Infinity,
 
-          addedItem: function (accumulatedValue, item, changeMeta, instanceMeta) {
+          addedItem: function(accumulatedValue, item, changeMeta, instanceMeta) {
             return Math.max(accumulatedValue, item);
           },
 
-          removedItem: function (accumulatedValue, item, changeMeta, instanceMeta) {
+          removedItem: function(accumulatedValue, item, changeMeta, instanceMeta) {
             if (item < accumulatedValue) {
               return accumulatedValue;
             }
@@ -13089,10 +13106,10 @@ define("ember-runtime/computed/reduce_computed",
       });
 
       App.PersonController = Ember.ObjectController.extend({
-        reversedName: function () {
+        reversedName: function() {
           return reverse(get(this, 'name'));
         }.property('name')
-      })
+      });
       ```
 
       Dependent keys whose values are not arrays are treated as regular
@@ -13223,12 +13240,13 @@ define("ember-runtime/computed/reduce_computed_macros",
       array is empty.
 
       ```javascript
-      App.Person = Ember.Object.extend({
+      var Person = Ember.Object.extend({
         childAges: Ember.computed.mapBy('children', 'age'),
         maxChildAge: Ember.computed.max('childAges')
       });
 
-      var lordByron = App.Person.create({children: []});
+      var lordByron = Person.create({ children: [] });
+
       lordByron.get('maxChildAge'); // -Infinity
       lordByron.get('children').pushObject({
         name: 'Augusta Ada Byron', age: 7
@@ -13271,12 +13289,13 @@ define("ember-runtime/computed/reduce_computed_macros",
       array is empty.
 
       ```javascript
-      App.Person = Ember.Object.extend({
+      var Person = Ember.Object.extend({
         childAges: Ember.computed.mapBy('children', 'age'),
         minChildAge: Ember.computed.min('childAges')
       });
 
-      var lordByron = App.Person.create({children: []});
+      var lordByron = Person.create({ children: [] });
+
       lordByron.get('minChildAge'); // Infinity
       lordByron.get('children').pushObject({
         name: 'Augusta Ada Byron', age: 7
@@ -13326,15 +13345,16 @@ define("ember-runtime/computed/reduce_computed_macros",
       Example
 
       ```javascript
-      App.Hamster = Ember.Object.extend({
+      var Hamster = Ember.Object.extend({
         excitingChores: Ember.computed.map('chores', function(chore) {
           return chore.toUpperCase() + '!';
         })
       });
 
-      var hamster = App.Hamster.create({
+      var hamster = Hamster.create({
         chores: ['clean', 'write more unit tests']
       });
+
       hamster.get('excitingChores'); // ['CLEAN!', 'WRITE MORE UNIT TESTS!']
       ```
 
@@ -13364,13 +13384,14 @@ define("ember-runtime/computed/reduce_computed_macros",
       Returns an array mapped to the specified key.
 
       ```javascript
-      App.Person = Ember.Object.extend({
+      var Person = Ember.Object.extend({
         childAges: Ember.computed.mapBy('children', 'age')
       });
 
-      var lordByron = App.Person.create({children: []});
+      var lordByron = Person.create({ children: [] });
+
       lordByron.get('childAges'); // []
-      lordByron.get('children').pushObject({name: 'Augusta Ada Byron', age: 7});
+      lordByron.get('children').pushObject({ name: 'Augusta Ada Byron', age: 7 });
       lordByron.get('childAges'); // [7]
       lordByron.get('children').pushObjects([{
         name: 'Allegra Byron',
@@ -13413,17 +13434,20 @@ define("ember-runtime/computed/reduce_computed_macros",
       ```
 
       ```javascript
-      App.Hamster = Ember.Object.extend({
+      var Hamster = Ember.Object.extend({
         remainingChores: Ember.computed.filter('chores', function(chore) {
           return !chore.done;
         })
       });
 
-      var hamster = App.Hamster.create({chores: [
-        {name: 'cook', done: true},
-        {name: 'clean', done: true},
-        {name: 'write more unit tests', done: false}
-      ]});
+      var hamster = Hamster.create({ 
+        chores: [
+          { name: 'cook', done: true },
+          { name: 'clean', done: true },
+          { name: 'write more unit tests', done: false }
+        ] 
+      });
+
       hamster.get('remainingChores'); // [{name: 'write more unit tests', done: false}]
       ```
 
@@ -13468,16 +13492,19 @@ define("ember-runtime/computed/reduce_computed_macros",
       Filters the array by the property and value
 
       ```javascript
-      App.Hamster = Ember.Object.extend({
+      var Hamster = Ember.Object.extend({
         remainingChores: Ember.computed.filterBy('chores', 'done', false)
       });
 
-      var hamster = App.Hamster.create({chores: [
-        {name: 'cook', done: true},
-        {name: 'clean', done: true},
-        {name: 'write more unit tests', done: false}
-      ]});
-      hamster.get('remainingChores'); // [{name: 'write more unit tests', done: false}]
+      var hamster = Hamster.create({
+        chores: [
+          { name: 'cook', done: true },
+          { name: 'clean', done: true },
+          { name: 'write more unit tests', done: false }
+        ]
+      });
+
+      hamster.get('remainingChores'); // [{ name: 'write more unit tests', done: false }]
       ```
 
       @method computed.filterBy
@@ -13520,16 +13547,19 @@ define("ember-runtime/computed/reduce_computed_macros",
       Example
 
       ```javascript
-      App.Hamster = Ember.Object.extend({
+      var Hamster = Ember.Object.extend({
         uniqueFruits: Ember.computed.uniq('fruits')
       });
 
-      var hamster = App.Hamster.create({fruits: [
-        'banana',
-        'grape',
-        'kale',
-        'banana'
-      ]});
+      var hamster = Hamster.create({
+        fruits: [
+          'banana',
+          'grape',
+          'kale',
+          'banana'
+        ]
+      });
+
       hamster.get('uniqueFruits'); // ['banana', 'grape', 'kale']
       ```
 
@@ -13665,15 +13695,18 @@ define("ember-runtime/computed/reduce_computed_macros",
       Example
 
       ```javascript
-      App.Hamster = Ember.Object.extend({
+      var Hamster = Ember.Object.extend({
         likes: ['banana', 'grape', 'kale'],
         wants: Ember.computed.setDiff('likes', 'fruits')
       });
 
-      var hamster = App.Hamster.create({fruits: [
-        'grape',
-        'kale',
-      ]});
+      var hamster = Hamster.create({
+        fruits: [
+          'grape',
+          'kale',
+        ]
+      });
+
       hamster.get('wants'); // ['banana']
       ```
 
@@ -13805,18 +13838,20 @@ define("ember-runtime/computed/reduce_computed_macros",
           } else if (a.priority < b.priority) {
             return -1;
           }
+
           return 0;
         }),
       });
+
       var todoList = ToDoList.create({todos: [
-        {name: 'Unit Test', priority: 2},
-        {name: 'Documentation', priority: 3},
-        {name: 'Release', priority: 1}
+        { name: 'Unit Test', priority: 2 },
+        { name: 'Documentation', priority: 3 },
+        { name: 'Release', priority: 1 }
       ]});
 
-      todoList.get('sortedTodos'); // [{name:'Documentation', priority:3}, {name:'Release', priority:1}, {name:'Unit Test', priority:2}]
-      todoList.get('sortedTodosDesc'); // [{name:'Unit Test', priority:2}, {name:'Release', priority:1}, {name:'Documentation', priority:3}]
-      todoList.get('priorityTodos'); // [{name:'Release', priority:1}, {name:'Unit Test', priority:2}, {name:'Documentation', priority:3}]
+      todoList.get('sortedTodos');      // [{ name:'Documentation', priority:3 }, { name:'Release', priority:1 }, { name:'Unit Test', priority:2 }]
+      todoList.get('sortedTodosDesc');  // [{ name:'Unit Test', priority:2 }, { name:'Release', priority:1 }, { name:'Documentation', priority:3 }]
+      todoList.get('priorityTodos');    // [{ name:'Release', priority:1 }, { name:'Unit Test', priority:2 }, { name:'Documentation', priority:3 }]
       ```
 
       @method computed.sort
@@ -14414,7 +14449,7 @@ define("ember-runtime/core",
       ```javascript
       Ember.isEqual('hello', 'hello');  // true
       Ember.isEqual(1, 2);              // false
-      Ember.isEqual([4,2], [4,2]);      // false
+      Ember.isEqual([4, 2], [4, 2]);    // false
       ```
 
       @method isEqual
@@ -15779,37 +15814,28 @@ define("ember-runtime/mixins/deferred",
     var run = __dependency5__["default"];
     var RSVP = __dependency6__["default"];
 
-    if (Ember.FEATURES['ember-runtime-test-friendly-promises']) {
+    var asyncStart = function() {
+      if (Ember.Test && Ember.Test.adapter) {
+        Ember.Test.adapter.asyncStart();
+      }
+    };
 
-      var asyncStart = function() {
-        if (Ember.Test && Ember.Test.adapter) {
-          Ember.Test.adapter.asyncStart();
-        }
-      };
+    var asyncEnd = function() {
+      if (Ember.Test && Ember.Test.adapter) {
+        Ember.Test.adapter.asyncEnd();
+      }
+    };
 
-      var asyncEnd = function() {
-        if (Ember.Test && Ember.Test.adapter) {
-          Ember.Test.adapter.asyncEnd();
-        }
-      };
+    RSVP.configure('async', function(callback, promise) {
+      var async = !run.currentRunLoop;
 
-      RSVP.configure('async', function(callback, promise) {
-        var async = !run.currentRunLoop;
+      if (Ember.testing && async) { asyncStart(); }
 
-        if (Ember.testing && async) { asyncStart(); }
-
-        run.backburner.schedule('actions', function(){
-          if (Ember.testing && async) { asyncEnd(); }
-          callback(promise);
-        });
+      run.backburner.schedule('actions', function(){
+        if (Ember.testing && async) { asyncEnd(); }
+        callback(promise);
       });
-    } else {
-      RSVP.configure('async', function(callback, promise) {
-        run.backburner.schedule('actions', function(){
-          callback(promise);
-        });
-      });
-    }
+    });
 
     RSVP.Promise.prototype.fail = function(callback, label){
             return this['catch'](callback, label);
@@ -18538,7 +18564,7 @@ define("ember-runtime/mixins/sortable",
         return this._super();
       },
 
-      isSorted: computed.bool('sortProperties'),
+      isSorted: computed.notEmpty('sortProperties'),
 
       /**
         Overrides the default arrangedContent from arrayProxy in order to sort by sortFunction.
@@ -20256,7 +20282,7 @@ define("ember-runtime/system/lazy_load",
       resolved from a string into the object:
 
       ``` javascript
-      Ember.onLoad('Ember.Handlebars' function(hbars){
+      Ember.onLoad('Ember.Handlebars' function(hbars) {
         hbars.registerHelper(...);
       });
       ```
@@ -20671,10 +20697,11 @@ define("ember-runtime/system/native_array",
       var Pagination = Ember.CollectionView.extend({
         tagName: 'ul',
         classNames: ['pagination'],
+
         init: function() {
           this._super();
           if (!this.get('content')) {
-            this.set('content', Ember.A([]));
+            this.set('content', Ember.A());
           }
         }
       });
@@ -22750,7 +22777,7 @@ define("ember-views/system/render_buffer",
     })();
 
     /**
-      `Ember.RenderBuffer` gathers information regarding the a view and generates the
+      `Ember.RenderBuffer` gathers information regarding the view and generates the
       final representation. `Ember.RenderBuffer` will generate HTML which can be pushed
       to the DOM.
 
@@ -32317,15 +32344,15 @@ define("ember-handlebars/helpers/partial",
     }
 
     function renderPartial(context, name, options) {
-      var nameParts = name.split("/"),
-          lastPart = nameParts[nameParts.length - 1];
+      var nameParts = name.split("/");
+      var lastPart = nameParts[nameParts.length - 1];
 
       nameParts[nameParts.length - 1] = "_" + lastPart;
 
-      var view = options.data.view,
-          underscoredName = nameParts.join("/"),
-          template = view.templateForName(underscoredName),
-          deprecatedTemplate = !template && view.templateForName(name);
+      var view = options.data.view;
+      var underscoredName = nameParts.join("/");
+      var template = view.templateForName(underscoredName);
+      var deprecatedTemplate = !template && view.templateForName(name);
 
       
       template = template || deprecatedTemplate;
@@ -36135,10 +36162,10 @@ define("ember-routing/location/auto_location",
         @method _getSupportsHashChange
       */
       _getSupportsHashChange: function () {
-        var window = this._window,
-            documentMode = window.document.documentMode;
+        var _window = this._window,
+            documentMode = _window.document.documentMode;
 
-        return ('onhashchange' in window && (documentMode === undefined || documentMode > 7 ));
+        return ('onhashchange' in _window && (documentMode === undefined || documentMode > 7 ));
       },
 
       /**
@@ -38181,9 +38208,8 @@ define("ember-routing/system/route",
         @return {Object} the model object
       */
       modelFor: function(name) {
-
         var route = this.container.lookup('route:' + name),
-            transition = this.router.router.activeTransition;
+            transition = this.router ? this.router.router.activeTransition : null;
 
         // If we are mid-transition, we want to try and look up
         // resolved parent contexts on the current transitionEvent.
@@ -38465,11 +38491,9 @@ define("ember-routing/system/route",
         }
       }
 
-      
-        if (model) {
-          controller.set('model', model);
-        }
-      
+      if (model) {
+        controller.set('model', model);
+      }
 
       options.controller = controller;
 
@@ -38927,9 +38951,17 @@ define("ember-routing/system/router",
         var transitionPromise = this.router[method].apply(this.router, args);
 
         transitionPromise.then(null, function(error) {
-          if (error && error.name === "UnrecognizedURLError") {
-                      }
-        }, 'Ember: Check for Router unrecognized URL error');
+          if (!error || !error.name) { return; }
+
+          if (error.name === "UnrecognizedURLError") {
+                      } else if (error.name === 'TransitionAborted') {
+            // just ignore TransitionAborted here
+          } else {
+            throw error;
+          }
+
+          return error;
+        }, 'Ember: Process errors from Router');
 
         // We want to return the configurable promise object
         // so that callers of this function can use `.method()` on it,
@@ -39068,7 +39100,7 @@ define("ember-routing/system/router",
           return;
         }
 
-        var errorArgs = ['Error while loading route: ' + transition.targetName];
+        var errorArgs = ['Error while processing route: ' + transition.targetName];
 
         if (error) {
           if (error.message) { errorArgs.push(error.message); }
@@ -42784,6 +42816,127 @@ define("ember-application/system/application",
 
     Application.reopenClass({
       initializers: {},
+
+      /**
+        Initializer receives an object which has the following attributes:
+        `name`, `before`, `after`, `initialize`. The only required attribute is
+        `initialize, all others are optional.
+
+        * `name` allows you to specify under which name the initializer is registered.
+        This must be a unique name, as trying to register two initializers with the
+        same name will result in an error.
+
+        ```javascript
+        Ember.Application.initializer({
+          name: 'namedInitializer',
+          initialize: function(container, application) {
+            Ember.debug("Running namedInitializer!");
+          }
+        });
+        ```
+
+        * `before` and `after` are used to ensure that this initializer is ran prior
+        or after the one identified by the value. This value can be a single string
+        or an array of strings, referencing the `name` of other initializers.
+
+        An example of ordering initializers, we create an initializer named `first`:
+
+        ```javascript
+        Ember.Application.initializer({
+          name: 'first',
+          initialize: function(container, application) {
+            Ember.debug("First initializer!");
+          }
+        });
+
+        // DEBUG: First initializer!
+        ```
+
+        We add another initializer named `second`, specifying that it should run
+        after the initializer named `first`:
+
+        ```javascript
+        Ember.Application.initializer({
+          name: 'second',
+          after: 'first',
+
+          initialize: function(container, application) {
+            Ember.debug("Second initializer!");
+          }
+        });
+
+        // DEBUG: First initializer!
+        // DEBUG: Second initializer!
+        ```
+
+        Afterwards we add a further initializer named `pre`, this time specifying
+        that it should run before the initializer named `first`:
+
+        ```javascript
+        Ember.Application.initializer({
+          name: 'pre',
+          before: 'first',
+
+          initialize: function(container, application) {
+            Ember.debug("Pre initializer!");
+          }
+        });
+
+        // DEBUG: Pre initializer!
+        // DEBUG: First initializer!
+        // DEBUG: Second initializer!
+        ```
+
+        Finally we add an initializer named `post`, specifying it should run after
+        both the `first` and the `second` initializers:
+
+        ```javascript
+        Ember.Application.initializer({
+          name: 'post',
+          after: ['first', 'second'],
+
+          initialize: function(container, application) {
+            Ember.debug("Post initializer!");
+          }
+        });
+
+        // DEBUG: Pre initializer!
+        // DEBUG: First initializer!
+        // DEBUG: Second initializer!
+        // DEBUG: Post initializer!
+        ```
+
+        * `initialize` is a callback function that receives two arguments, `container`
+        and `application` on which you can operate.
+
+        Example of using `container` to preload data into the store:
+
+        ```javascript
+        Ember.Application.initializer({
+          name: "preload-data",
+
+          initialize: function(container, application) {
+            var store = container.lookup('store:main');
+            store.pushPayload(preloadedData);
+          }
+        });
+        ```
+
+        Example of using `application` to register an adapter:
+
+        ```javascript
+        Ember.Application.initializer({
+          name: 'api-adapter',
+
+          initialize: function(container, application) {
+            application.register('api-adapter:main', ApiAdapter);
+          }
+        });
+        ```
+
+        @method initializer
+        @param initializer {Object}
+       */
       initializer: function(initializer) {
         // If this is the first initializer being added to a subclass, we are going to reopen the class
         // to make sure we have a new `initializers` object, which extends from the parent class' using
@@ -42795,7 +42948,7 @@ define("ember-application/system/application",
           });
         }
 
-                        
+                
         this.initializers[initializer.name] = initializer;
       },
 
@@ -43218,7 +43371,7 @@ define("ember-application/system/resolver",
           resolved = this.resolveOther(parsedName);
         }
 
-        if (parsedName.root.LOG_RESOLVER) {
+        if (parsedName.root && parsedName.root.LOG_RESOLVER) {
           this._logLookup(resolved, parsedName);
         }
 
@@ -43890,15 +44043,19 @@ define("ember-extension-support/data_adapter",
         } else {
           types = this._getObjectsOnNamespaces();
         }
+
         // New adapters return strings instead of classes
-        return types.map(function(name) {
+        types = A(types).map(function(name) {
           return {
             klass: self._nameToClass(name),
             name: name
           };
-        }).filter(function(type) {
+        });
+        types = A(types).filter(function(type) {
           return self.detect(type.klass);
         });
+
+        return A(types);
       },
 
       /**
@@ -43910,11 +44067,17 @@ define("ember-extension-support/data_adapter",
         @return {Array} Array of model type strings
       */
       _getObjectsOnNamespaces: function() {
-        var namespaces = A(Namespace.NAMESPACES), types = A();
+        var namespaces = A(Namespace.NAMESPACES),
+            types = A(),
+            self = this;
 
         namespaces.forEach(function(namespace) {
           for (var key in namespace) {
             if (!namespace.hasOwnProperty(key)) { continue; }
+            // Even though we will filter again in `getModelTypes`,
+            // we should not call `lookupContainer` on non-models
+            // (especially when `Ember.MODEL_FACTORY_INJECTIONS` is `true`)
+            if (!self.detect(namespace[key])) { continue; }
             var name = dasherize(key);
             if (!(namespace instanceof Application) && namespace.toString()) {
               name = namespace + '/' + name;
@@ -45420,7 +45583,7 @@ define("container/container",
 
         Optionally the container can be provided with a custom resolver.
         If provided, `resolve` will first provide the custom resolver
-        the oppertunity to resolve the fullName, otherwise it will fallback
+        the opportunity to resolve the fullName, otherwise it will fallback
         to the registry.
 
         ```javascript
@@ -45507,7 +45670,7 @@ define("container/container",
 
         // by default the container will return singletons
         var twitter2 = container.lookup('api:twitter');
-        twitter instanceof Twitter; // => true
+        twitter2 instanceof Twitter; // => true
 
         twitter === twitter2; //=> true
         ```
