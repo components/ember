@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.7.0-beta.1+canary.9faadd5d
+ * @version   1.7.0-beta.1+canary.4118b1c6
  */
 
 (function() {
@@ -12827,7 +12827,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.7.0-beta.1+canary.9faadd5d
+      @version 1.7.0-beta.1+canary.4118b1c6
     */
 
     if ('undefined' === typeof Ember) {
@@ -12854,10 +12854,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.7.0-beta.1+canary.9faadd5d'
+      @default '1.7.0-beta.1+canary.4118b1c6'
       @static
     */
-    Ember.VERSION = '1.7.0-beta.1+canary.9faadd5d';
+    Ember.VERSION = '1.7.0-beta.1+canary.4118b1c6';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -21819,12 +21819,9 @@ define("ember-routing/system/dsl",
         }
 
         var createSubRoutes = false;
-        if (Ember.FEATURES.isEnabled('ember-routing-consistent-resources')) {
+        
           createSubRoutes = true;
-        } else {
-          if (callback) { createSubRoutes = true; }
-        }
-
+        
         if (createSubRoutes) {
           var dsl = new DSL(name);
           route(dsl, 'loading');
