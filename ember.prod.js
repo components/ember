@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.3edd7bde
+ * @version   1.8.0-beta.1+canary.09ddc475
  */
 
 (function() {
@@ -12522,7 +12522,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.3edd7bde
+      @version 1.8.0-beta.1+canary.09ddc475
     */
 
     if ('undefined' === typeof Ember) {
@@ -12549,10 +12549,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.3edd7bde'
+      @default '1.8.0-beta.1+canary.09ddc475'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.3edd7bde';
+    Ember.VERSION = '1.8.0-beta.1+canary.09ddc475';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -19803,8 +19803,8 @@ define("ember-routing-handlebars/helpers/shared",
     __exports__.resolvePaths = resolvePaths;
   });
 define("ember-routing",
-  ["ember-handlebars","ember-metal/core","ember-routing/ext/run_loop","ember-routing/ext/controller","ember-routing/ext/view","ember-routing/location/api","ember-routing/location/none_location","ember-routing/location/hash_location","ember-routing/location/history_location","ember-routing/location/auto_location","ember-routing/system/controller_for","ember-routing/system/dsl","ember-routing/system/router","ember-routing/system/route","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __exports__) {
+  ["ember-handlebars","ember-metal/core","ember-routing/ext/run_loop","ember-routing/ext/controller","ember-routing/ext/view","ember-routing/location/api","ember-routing/location/none_location","ember-routing/location/hash_location","ember-routing/location/history_location","ember-routing/location/auto_location","ember-routing/system/generate_controller","ember-routing/system/controller_for","ember-routing/system/dsl","ember-routing/system/router","ember-routing/system/route","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __exports__) {
     "use strict";
     /**
     Ember Routing
@@ -19825,12 +19825,12 @@ define("ember-routing",
     var HistoryLocation = __dependency9__["default"];
     var AutoLocation = __dependency10__["default"];
 
-    var controllerFor = __dependency11__.controllerFor;
     var generateControllerFactory = __dependency11__.generateControllerFactory;
-    var generateController = __dependency11__.generateController;
-    var RouterDSL = __dependency12__["default"];
-    var Router = __dependency13__["default"];
-    var Route = __dependency14__["default"];
+    var generateController = __dependency11__.default;
+    var controllerFor = __dependency12__["default"];
+    var RouterDSL = __dependency13__["default"];
+    var Router = __dependency14__["default"];
+    var Route = __dependency15__["default"];
 
     Ember.Location = EmberLocation;
     Ember.AutoLocation = AutoLocation;

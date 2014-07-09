@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.3edd7bde
+ * @version   1.8.0-beta.1+canary.09ddc475
  */
 
 (function() {
@@ -23900,7 +23900,8 @@ define("ember-routing/tests/system/controller_for_test",
     var ObjectController = __dependency9__["default"];
     var ArrayController = __dependency10__["default"];
     var controllerFor = __dependency11__["default"];
-    var generateController = __dependency12__["default"];
+    var generateControllerFactory = __dependency12__.generateControllerFactory;
+    var generateController = __dependency12__.default;
 
     var buildContainer = function(namespace) {
       var container = new Container();
@@ -23969,6 +23970,11 @@ define("ember-routing/tests/system/controller_for_test",
           namespace.destroy();
         });
       }
+    });
+
+    test("generateController and generateControllerFactory are properties on the root namespace", function() {
+      equal(Ember.generateController, generateController, 'should export generateController');
+      equal(Ember.generateControllerFactory, generateControllerFactory, 'should export generateControllerFactory');
     });
 
     test("generateController should create Ember.Controller", function() {
@@ -49811,6 +49817,31 @@ define("ember/tests/component_registration_test.jshint",
     module('JSHint - ember/tests');
     test('ember/tests/component_registration_test.js should pass jshint', function() { 
       ok(true, 'ember/tests/component_registration_test.js should pass jshint.'); 
+    });
+  });
+define("ember/tests/global-api-test",
+  ["ember"],
+  function(__dependency1__) {
+    "use strict";
+
+    QUnit.module("Global API Tests");
+
+    function confirmExport(property) {
+      ok(Ember.get(this, property) + ' is exported propertly');
+    }
+
+    test('confirm public functions and properties are exported properly', function() {
+      confirmExport('Ember.DefaultResolver');
+      confirmExport('Ember.generateController');
+    });
+  });
+define("ember/tests/global-api-test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember/tests');
+    test('ember/tests/global-api-test.js should pass jshint', function() { 
+      ok(true, 'ember/tests/global-api-test.js should pass jshint.'); 
     });
   });
 define("ember/tests/helpers/helper_registration_test",
