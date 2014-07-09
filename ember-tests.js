@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.09ddc475
+ * @version   1.8.0-beta.1+canary.10977677
  */
 
 (function() {
@@ -49827,13 +49827,13 @@ define("ember/tests/global-api-test",
     QUnit.module("Global API Tests");
 
     function confirmExport(property) {
-      ok(Ember.get(this, property) + ' is exported propertly');
+      test('confirm ' + property + ' is exported', function() {
+        ok(Ember.get(window, property) + ' is exported propertly');
+      });
     }
 
-    test('confirm public functions and properties are exported properly', function() {
-      confirmExport('Ember.DefaultResolver');
-      confirmExport('Ember.generateController');
-    });
+    confirmExport('Ember.DefaultResolver');
+    confirmExport('Ember.generateController');
   });
 define("ember/tests/global-api-test.jshint",
   [],
