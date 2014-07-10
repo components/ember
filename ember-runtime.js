@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.10977677
+ * @version   1.8.0-beta.1+canary.80febdfa
  */
 
 (function() {
@@ -3346,7 +3346,7 @@ define("ember-metal/computed",
       @return {Ember.ComputedProperty} this
       @chainable
     */
-    ComputedPropertyPrototype.volatile = function() {
+    ComputedPropertyPrototype["volatile"] = function() {
       return this.cacheable(false);
     };
 
@@ -4433,7 +4433,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.10977677
+      @version 1.8.0-beta.1+canary.80febdfa
     */
 
     if ('undefined' === typeof Ember) {
@@ -4460,10 +4460,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.10977677'
+      @default '1.8.0-beta.1+canary.80febdfa'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.10977677';
+    Ember.VERSION = '1.8.0-beta.1+canary.80febdfa';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
