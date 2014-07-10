@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.2c8bbf00
+ * @version   1.8.0-beta.1+canary.02d69c8f
  */
 
 (function() {
@@ -1838,8 +1838,8 @@ define("container/inheriting_dict",
     __exports__["default"] = InheritingDict;
   });
 define("ember-metal",
-  ["ember-metal/core","ember-metal/merge","ember-metal/instrumentation","ember-metal/utils","ember-metal/error","ember-metal/enumerable_utils","ember-metal/platform","ember-metal/array","ember-metal/logger","ember-metal/property_get","ember-metal/events","ember-metal/observer_set","ember-metal/property_events","ember-metal/properties","ember-metal/property_set","ember-metal/map","ember-metal/get_properties","ember-metal/set_properties","ember-metal/watch_key","ember-metal/chains","ember-metal/watch_path","ember-metal/watching","ember-metal/expand_properties","ember-metal/computed","ember-metal/computed_macros","ember-metal/observer","ember-metal/mixin","ember-metal/binding","ember-metal/run_loop","ember-metal/libraries","ember-metal/is_none","ember-metal/is_empty","ember-metal/is_blank","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __dependency31__, __dependency32__, __dependency33__, __exports__) {
+  ["ember-metal/core","ember-metal/merge","ember-metal/instrumentation","ember-metal/utils","ember-metal/error","ember-metal/enumerable_utils","ember-metal/platform","ember-metal/array","ember-metal/logger","ember-metal/property_get","ember-metal/events","ember-metal/observer_set","ember-metal/property_events","ember-metal/properties","ember-metal/property_set","ember-metal/map","ember-metal/get_properties","ember-metal/set_properties","ember-metal/watch_key","ember-metal/chains","ember-metal/watch_path","ember-metal/watching","ember-metal/expand_properties","ember-metal/computed","ember-metal/computed_macros","ember-metal/observer","ember-metal/mixin","ember-metal/binding","ember-metal/run_loop","ember-metal/libraries","ember-metal/is_none","ember-metal/is_empty","ember-metal/is_blank","ember-metal/is_present","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __dependency31__, __dependency32__, __dependency33__, __dependency34__, __exports__) {
     "use strict";
     /**
     Ember Metal
@@ -1972,6 +1972,7 @@ define("ember-metal",
     var isEmpty = __dependency32__.isEmpty;
     var empty = __dependency32__.empty;
     var isBlank = __dependency33__["default"];
+    var isPresent = __dependency34__["default"];
     // END IMPORTS
 
     // BEGIN EXPORTS
@@ -2120,6 +2121,10 @@ define("ember-metal",
     Ember.empty = empty;
 
     Ember.isBlank = isBlank;
+
+    if (Ember.FEATURES.isEnabled('ember-metal-is-present')) {
+      Ember.isPresent = isPresent;
+    }
 
     Ember.merge = merge;
 
@@ -4375,7 +4380,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.2c8bbf00
+      @version 1.8.0-beta.1+canary.02d69c8f
     */
 
     if ('undefined' === typeof Ember) {
@@ -4402,10 +4407,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.2c8bbf00'
+      @default '1.8.0-beta.1+canary.02d69c8f'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.2c8bbf00';
+    Ember.VERSION = '1.8.0-beta.1+canary.02d69c8f';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -5764,6 +5769,44 @@ define("ember-metal/is_none",
     __exports__.none = none;
     __exports__["default"] = isNone;
     __exports__.isNone = isNone;
+  });
+define("ember-metal/is_present",
+  ["ember-metal/is_blank","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    var isBlank = __dependency1__["default"];
+    var isPresent;
+
+    if (Ember.FEATURES.isEnabled('ember-metal-is-present')) {
+      /**
+        A value is present if it not `isBlank`.
+
+        ```javascript
+        Ember.isPresent();                // false
+        Ember.isPresent(null);            // false
+        Ember.isPresent(undefined);       // false
+        Ember.isPresent('');              // false
+        Ember.isPresent([]);              // false
+        Ember.isPresent('\n\t');          // false
+        Ember.isPresent('  ');            // false
+        Ember.isPresent({});              // true
+        Ember.isPresent('\n\t Hello');    // true
+        Ember.isPresent('Hello world');   // true
+        Ember.isPresent([1,2,3]);         // true
+        ```
+
+        @method isPresent
+        @for Ember
+        @param {Object} obj Value to test
+        @return {Boolean}
+        @since 1.7.0
+        */
+      isPresent = function isPresent(obj) {
+        return !isBlank(obj);
+      };
+    }
+
+    __exports__["default"] = isPresent;
   });
 define("ember-metal/libraries",
   ["ember-metal/enumerable_utils","exports"],

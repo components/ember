@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.2c8bbf00
+ * @version   1.8.0-beta.1+canary.02d69c8f
  */
 
 (function() {
@@ -12816,6 +12816,15 @@ define("ember-metal/is_none.jshint",
       ok(true, 'ember-metal/is_none.js should pass jshint.'); 
     });
   });
+define("ember-metal/is_present.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal');
+    test('ember-metal/is_present.js should pass jshint', function() { 
+      ok(true, 'ember-metal/is_present.js should pass jshint.'); 
+    });
+  });
 define("ember-metal/libraries.jshint",
   [],
   function() {
@@ -15901,6 +15910,47 @@ define("ember-metal/tests/is_none_test.jshint",
     module('JSHint - ember-metal/tests');
     test('ember-metal/tests/is_none_test.js should pass jshint', function() { 
       ok(true, 'ember-metal/tests/is_none_test.js should pass jshint.'); 
+    });
+  });
+define("ember-metal/tests/is_present_test",
+  ["ember-metal/is_present"],
+  function(__dependency1__) {
+    "use strict";
+    var isPresent = __dependency1__["default"];
+
+    if (Ember.FEATURES.isEnabled('ember-metal-is-present')) {
+      QUnit.module("Ember.isPresent");
+
+      test("Ember.isPresent", function() {
+        var string = "string", fn = function() {},
+        object = {length: 0};
+
+        equal(false, isPresent(),          "for no params");
+        equal(false, isPresent(null),      "for null");
+        equal(false, isPresent(undefined), "for undefined");
+        equal(false, isPresent(""),        "for an empty String");
+        equal(false, isPresent("  "),      "for a whitespace String");
+        equal(false, isPresent("\n\t"),    "for another whitespace String");
+        equal(true,  isPresent("\n\t Hi"), "for a String with whitespaces");
+        equal(true,  isPresent(true),      "for true");
+        equal(true,  isPresent(false),     "for false");
+        equal(true,  isPresent(string),    "for a String");
+        equal(true,  isPresent(fn),        "for a Function");
+        equal(true,  isPresent(0),         "for 0");
+        equal(false, isPresent([]),        "for an empty Array");
+        equal(true,  isPresent({}),        "for an empty Object");
+        equal(false, isPresent(object),    "for an Object that has zero 'length'");
+        equal(true,  isPresent([1,2,3]),   "for a non-empty array");
+      });
+    }
+  });
+define("ember-metal/tests/is_present_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal/tests');
+    test('ember-metal/tests/is_present_test.js should pass jshint', function() { 
+      ok(true, 'ember-metal/tests/is_present_test.js should pass jshint.'); 
     });
   });
 define("ember-metal/tests/libraries_test",
