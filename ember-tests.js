@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.c13f585b
+ * @version   1.8.0-beta.1+canary.0dda1adb
  */
 
 (function() {
@@ -12708,6 +12708,15 @@ define("ember-metal/computed.jshint",
       ok(true, 'ember-metal/computed.js should pass jshint.'); 
     });
   });
+define("ember-metal/computed_macros.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal');
+    test('ember-metal/computed_macros.js should pass jshint', function() { 
+      ok(true, 'ember-metal/computed_macros.js should pass jshint.'); 
+    });
+  });
 define("ember-metal/core.jshint",
   [],
   function() {
@@ -12715,6 +12724,15 @@ define("ember-metal/core.jshint",
     module('JSHint - ember-metal');
     test('ember-metal/core.js should pass jshint', function() { 
       ok(true, 'ember-metal/core.js should pass jshint.'); 
+    });
+  });
+define("ember-metal/dependent_keys.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal');
+    test('ember-metal/dependent_keys.js should pass jshint', function() { 
+      ok(true, 'ember-metal/dependent_keys.js should pass jshint.'); 
     });
   });
 define("ember-metal/enumerable_utils.jshint",
