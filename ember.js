@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.02d69c8f
+ * @version   1.8.0-beta.1+canary.4902e623
  */
 
 (function() {
@@ -12774,7 +12774,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.02d69c8f
+      @version 1.8.0-beta.1+canary.4902e623
     */
 
     if ('undefined' === typeof Ember) {
@@ -12801,10 +12801,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.02d69c8f'
+      @default '1.8.0-beta.1+canary.4902e623'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.02d69c8f';
+    Ember.VERSION = '1.8.0-beta.1+canary.4902e623';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -35297,11 +35297,11 @@ define("ember-testing/helpers",
         run(app, app.handleURL, url);
       }
 
-      return wait(app);
+      return app.testHelpers.wait();
     }
 
     function click(app, selector, context) {
-      var $el = findWithAssert(app, selector, context);
+      var $el = app.testHelpers.findWithAssert(selector, context);
       run($el, 'mousedown');
 
       if ($el.is(':input')) {
@@ -35323,7 +35323,7 @@ define("ember-testing/helpers",
       run($el, 'mouseup');
       run($el, 'click');
 
-      return wait(app);
+      return app.testHelpers.wait();
     }
 
     function triggerEvent(app, selector, context, type, options){
@@ -35336,13 +35336,13 @@ define("ember-testing/helpers",
         options = {};
       }
 
-      var $el = findWithAssert(app, selector, context);
+      var $el = app.testHelpers.findWithAssert(selector, context);
 
       var event = jQuery.Event(type, options);
 
       run($el, 'trigger', event);
 
-      return wait(app);
+      return app.testHelpers.wait();
     }
 
     function keyEvent(app, selector, context, type, keyCode) {
@@ -35352,7 +35352,7 @@ define("ember-testing/helpers",
         context = null;
       }
 
-      return triggerEvent(app, selector, context, type, { keyCode: keyCode, which: keyCode });
+      return app.testHelpers.triggerEvent(selector, context, type, { keyCode: keyCode, which: keyCode });
     }
 
     function fillIn(app, selector, context, text) {
@@ -35361,15 +35361,15 @@ define("ember-testing/helpers",
         text = context;
         context = null;
       }
-      $el = findWithAssert(app, selector, context);
+      $el = app.testHelpers.findWithAssert(selector, context);
       run(function() {
         $el.val(text).change();
       });
-      return wait(app);
+      return app.testHelpers.wait();
     }
 
     function findWithAssert(app, selector, context) {
-      var $el = find(app, selector, context);
+      var $el = app.testHelpers.find(selector, context);
       if ($el.length === 0) {
         throw new EmberError("Element " + selector + " not found.");
       }
@@ -35385,7 +35385,7 @@ define("ember-testing/helpers",
     }
 
     function andThen(app, callback) {
-      return wait(app, callback(app));
+      return app.testHelpers.wait(callback(app));
     }
 
     function wait(app, value) {
@@ -35552,7 +35552,7 @@ define("ember-testing/helpers",
         .fillIn('#password', username)
         .click('.submit')
 
-        return wait();
+        return app.testHelpers.wait();
       });
 
       @method wait
@@ -35813,6 +35813,13 @@ define("ember-testing/test",
       @namespace Ember
     */
     var Test = {
+      /**
+        Hash containing all known test helpers.
+
+        @property _helpers
+        @private
+      */
+      _helpers: helpers,
 
       /**
         `registerHelper` is used to register a test helper that will be injected

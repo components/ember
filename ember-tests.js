@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.02d69c8f
+ * @version   1.8.0-beta.1+canary.4902e623
  */
 
 (function() {
@@ -42384,10 +42384,10 @@ define("ember-testing/tests/helpers_test",
 
       App.injectTestHelpers(helpers);
 
-      ok(helpers['visit'] !== 'snazzleflabber', "helper added to container");
+      ok(helpers.visit !== 'snazzleflabber', "helper added to container");
       App.removeTestHelpers();
 
-      ok(helpers['visit'] === 'snazzleflabber', "original value added back to container");
+      ok(helpers.visit === 'snazzleflabber', "original value added back to container");
     });
 
     test("`wait` respects registerWaiters", function() {
@@ -42696,6 +42696,61 @@ define("ember-testing/tests/helpers_test",
         equal(currentURL(App), '/user/edit', "should equal '/user/edit'.");
         equal(App.__container__.lookup('route:user').get('controller.model.firstName'), 'Tom', "should equal 'Tom'.");
       });
+    });
+
+    var originalVisitHelper, originalFindHelper, originalWaitHelper;
+
+    QUnit.module('can override built-in helpers', {
+      setup: function(){
+        originalVisitHelper = Test._helpers.visit;
+        originalFindHelper  = Test._helpers.find;
+        originalWaitHelper  = Test._helpers.wait;
+
+        jQuery('<style>#ember-testing-container { position: absolute; background: white; bottom: 0; right: 0; width: 640px; height: 384px; overflow: auto; z-index: 9999; border: 1px solid #ccc; } #ember-testing { zoom: 50%; }</style>').appendTo('head');
+        jQuery('<div id="ember-testing-container"><div id="ember-testing"></div></div>').appendTo('body');
+        run(function() {
+          App = Ember.Application.create({
+            rootElement: '#ember-testing'
+          });
+
+          App.setupForTesting();
+        });
+      },
+
+      teardown: function(){
+        App.removeTestHelpers();
+        jQuery('#ember-testing-container, #ember-testing').remove();
+        run(App, App.destroy);
+        App = null;
+
+        Test._helpers.visit = originalVisitHelper;
+        Test._helpers.find  = originalFindHelper;
+        Test._helpers.wait  = originalWaitHelper;
+      }
+    });
+
+    test("can override visit helper", function(){
+      expect(1);
+
+      Test.registerHelper('visit', function(){
+        ok(true, 'custom visit helper was called');
+      });
+
+      App.injectTestHelpers();
+      App.testHelpers.visit();
+    });
+
+    test("can override find helper", function(){
+      expect(1);
+
+      Test.registerHelper('find', function(){
+        ok(true, 'custom find helper was called');
+
+        return ['not empty array'];
+      });
+
+      App.injectTestHelpers();
+      App.testHelpers.findWithAssert('.who-cares');
     });
   });
 define("ember-testing/tests/helpers_test.jshint",
