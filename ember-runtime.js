@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.4902e623
+ * @version   1.8.0-beta.1+canary.5cee203d
  */
 
 (function() {
@@ -2159,6 +2159,81 @@ define("ember-metal",
 
     __exports__["default"] = Ember;
   });
+define("ember-metal/alias",
+  ["ember-metal/property_get","ember-metal/property_set","ember-metal/error","ember-metal/properties","ember-metal/platform","ember-metal/utils","ember-metal/dependent_keys","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
+    "use strict";
+    var get = __dependency1__.get;
+    var set = __dependency2__.set;
+    var EmberError = __dependency3__["default"];
+    var Descriptor = __dependency4__.Descriptor;
+    var defineProperty = __dependency4__.defineProperty;
+    var create = __dependency5__.create;
+    var meta = __dependency6__.meta;
+    var inspect = __dependency6__.inspect;
+    var addDependentKeys = __dependency7__.addDependentKeys;
+    var removeDependentKeys = __dependency7__.removeDependentKeys;
+
+    function alias(altKey) {
+      return new AliasedProperty(altKey);
+    }
+
+    __exports__.alias = alias;function AliasedProperty(altKey) {
+      this.altKey = altKey;
+      this._dependentKeys = [ altKey ];
+    }
+
+    __exports__.AliasedProperty = AliasedProperty;AliasedProperty.prototype = create(Descriptor.prototype);
+
+    AliasedProperty.prototype.get = function AliasedProperty_get(obj, keyName) {
+      return get(obj, this.altKey);
+    };
+
+    AliasedProperty.prototype.set = function AliasedProperty_set(obj, keyName, value) {
+      return set(obj, this.altKey, value);
+    };
+
+    AliasedProperty.prototype.willWatch = function(obj, keyName) {
+      addDependentKeys(this, obj, keyName, meta(obj));
+    };
+
+    AliasedProperty.prototype.didUnwatch = function(obj, keyName) {
+      removeDependentKeys(this, obj, keyName, meta(obj));
+    };
+
+    AliasedProperty.prototype.setup = function(obj, keyName) {
+      var m = meta(obj);
+      if (m.watching[keyName]) {
+        addDependentKeys(this, obj, keyName, m);
+      }
+    };
+
+    AliasedProperty.prototype.teardown = function(obj, keyName) {
+      var m = meta(obj);
+      if (m.watching[keyName]) {
+        removeDependentKeys(this, obj, keyName, m);
+      }
+    };
+
+    AliasedProperty.prototype.readOnly = function() {
+      this.set = AliasedProperty_readOnlySet;
+      return this;
+    };
+
+    function AliasedProperty_readOnlySet(obj, keyName, value) {
+      throw new EmberError('Cannot set read-only property "' + keyName + '" on object: ' + inspect(obj));
+    }
+
+    AliasedProperty.prototype.oneWay = function() {
+      this.set = AliasedProperty_oneWaySet;
+      return this;
+    };
+
+    function AliasedProperty_oneWaySet(obj, keyName, value) {
+      defineProperty(obj, keyName, null);
+      return set(obj, keyName, value);
+    }
+  });
 define("ember-metal/array",
   ["exports"],
   function(__exports__) {
@@ -3634,8 +3709,8 @@ define("ember-metal/computed",
     __exports__.cacheFor = cacheFor;
   });
 define("ember-metal/computed_macros",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/computed","ember-metal/is_empty","ember-metal/is_none"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/computed","ember-metal/is_empty","ember-metal/is_none","ember-metal/alias"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var get = __dependency2__.get;
@@ -3643,6 +3718,7 @@ define("ember-metal/computed_macros",
     var computed = __dependency4__.computed;
     var isEmpty = __dependency5__["default"];
     var isNone = __dependency6__.isNone;
+    var alias = __dependency7__.alias;
 
     /**
     @module ember-metal
@@ -4187,15 +4263,7 @@ define("ember-metal/computed_macros",
       @return {Ember.ComputedProperty} computed property which creates an
       alias to the original value for property.
     */
-    computed.alias = function(dependentKey) {
-      return computed(dependentKey, function(key, value) {
-        if (arguments.length > 1) {
-          set(this, dependentKey, value);
-        }
-
-        return get(this, dependentKey);
-      });
-    };
+    computed.alias = alias;
 
     /**
       Where `computed.alias` aliases `get` and `set`, and allows for bidirectional
@@ -4230,9 +4298,7 @@ define("ember-metal/computed_macros",
       one way computed property to the original value for property.
     */
     computed.oneWay = function(dependentKey) {
-      return computed(dependentKey, function() {
-        return get(this, dependentKey);
-      });
+      return alias(dependentKey).oneWay();
     };
 
     
@@ -4284,9 +4350,7 @@ define("ember-metal/computed_macros",
       @since 1.5.0
     */
     computed.readOnly = function(dependentKey) {
-      return computed(dependentKey, function() {
-        return get(this, dependentKey);
-      }).readOnly();
+      return alias(dependentKey).readOnly();
     };
     /**
       A computed property that acts like a standard getter and setter,
@@ -4380,7 +4444,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.4902e623
+      @version 1.8.0-beta.1+canary.5cee203d
     */
 
     if ('undefined' === typeof Ember) {
@@ -4407,10 +4471,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.4902e623'
+      @default '1.8.0-beta.1+canary.5cee203d'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.4902e623';
+    Ember.VERSION = '1.8.0-beta.1+canary.5cee203d';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -7724,6 +7788,7 @@ define("ember-metal/properties",
         } else {
           obj[keyName] = undefined; // make enumerable
         }
+        if (desc.setup) { desc.setup(obj, keyName); }
       } else {
         descs[keyName] = undefined; // shadow descriptor in proto
         if (desc == null) {
@@ -9840,6 +9905,9 @@ define("ember-metal/watch_key",
       if (!watching[keyName]) {
         watching[keyName] = 1;
 
+        var desc = m.descs[keyName];
+        if (desc && desc.willWatch) { desc.willWatch(obj, keyName); }
+
         if ('function' === typeof obj.willWatchProperty) {
           obj.willWatchProperty(keyName);
         }
@@ -9863,6 +9931,9 @@ define("ember-metal/watch_key",
 
       if (watching[keyName] === 1) {
         watching[keyName] = 0;
+
+        var desc = m.descs[keyName];
+        if (desc && desc.didUnwatch) { desc.didUnwatch(obj, keyName); }
 
         if ('function' === typeof obj.didUnwatchProperty) {
           obj.didUnwatchProperty(keyName);

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.4902e623
+ * @version   1.8.0-beta.1+canary.5cee203d
  */
 
 (function() {
@@ -12672,6 +12672,15 @@ define("ember-metal.jshint",
       ok(true, 'ember-metal.js should pass jshint.'); 
     });
   });
+define("ember-metal/alias.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal');
+    test('ember-metal/alias.js should pass jshint', function() { 
+      ok(true, 'ember-metal/alias.js should pass jshint.'); 
+    });
+  });
 define("ember-metal/array.jshint",
   [],
   function() {
@@ -13595,6 +13604,83 @@ define("ember-metal/tests/accessors/set_test.jshint",
     module('JSHint - ember-metal/tests/accessors');
     test('ember-metal/tests/accessors/set_test.js should pass jshint', function() { 
       ok(true, 'ember-metal/tests/accessors/set_test.js should pass jshint.'); 
+    });
+  });
+define("ember-metal/tests/alias_test",
+  ["ember-metal/alias","ember-metal/properties","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/watching","ember-metal/observer","ember-metal/mixin"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
+    "use strict";
+    var alias = __dependency1__.alias;
+    var Descriptor = __dependency2__.Descriptor;
+    var defineProperty = __dependency2__.defineProperty;
+    var get = __dependency3__.get;
+    var set = __dependency4__.set;
+    var meta = __dependency5__.meta;
+    var isWatching = __dependency6__.isWatching;
+    var addObserver = __dependency7__.addObserver;
+    var removeObserver = __dependency7__.removeObserver;
+    var mixin = __dependency8__.mixin;
+    var observer = __dependency8__.observer;
+
+    var obj, count;
+
+    QUnit.module('ember-metal/alias', {
+      setup: function() {
+        obj = { foo: { faz: 'FOO' } };
+        count = 0;
+      },
+      teardown: function() {
+        obj = null;
+      }
+    });
+
+    function incrementCount() {
+      count++;
+    }
+
+    test('should proxy get to alt key', function() {
+      defineProperty(obj, 'bar', alias('foo.faz'));
+      equal(get(obj, 'bar'), 'FOO');
+    });
+
+    test('should proxy set to alt key', function() {
+      defineProperty(obj, 'bar', alias('foo.faz'));
+      set(obj, 'bar', 'BAR');
+      equal(get(obj, 'foo.faz'), 'BAR');
+    });
+
+    test('basic lifecycle', function() {
+      defineProperty(obj, 'bar', alias('foo.faz'));
+      var m = meta(obj);
+      addObserver(obj, 'bar', incrementCount);
+      equal(m.deps['foo.faz'].bar, 1);
+      removeObserver(obj, 'bar', incrementCount);
+      equal(m.deps['foo.faz'].bar, 0);
+    });
+
+    test('begins watching alt key as soon as alias is watched', function() {
+      defineProperty(obj, 'bar', alias('foo.faz'));
+      addObserver(obj, 'bar', incrementCount);
+      ok(isWatching(obj, 'foo.faz'));
+      set(obj, 'foo.faz', 'BAR');
+      equal(count, 1);
+    });
+
+    test('immediately sets up dependencies if already being watched', function() {
+      addObserver(obj, 'bar', incrementCount);
+      defineProperty(obj, 'bar', alias('foo.faz'));
+      ok(isWatching(obj, 'foo.faz'));
+      set(obj, 'foo.faz', 'BAR');
+      equal(count, 1);
+    });
+  });
+define("ember-metal/tests/alias_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal/tests');
+    test('ember-metal/tests/alias_test.js should pass jshint', function() { 
+      ok(true, 'ember-metal/tests/alias_test.js should pass jshint.'); 
     });
   });
 define("ember-metal/tests/binding/connect_test",
@@ -28084,13 +28170,13 @@ define("ember-runtime/tests/controllers/item_controller_class_test.jshint",
     });
   });
 define("ember-runtime/tests/controllers/object_controller_test",
-  ["ember-runtime/controllers/object_controller"],
-  function(__dependency1__) {
+  ["ember-runtime/controllers/object_controller","ember-metal/mixin"],
+  function(__dependency1__, __dependency2__) {
     "use strict";
     var ObjectController = __dependency1__["default"];
+    var observer = __dependency2__.observer;
 
     QUnit.module("Ember.ObjectController");
-
 
     test("should be able to set the target property of an ObjectController", function() {
       var controller = ObjectController.create();
@@ -28098,6 +28184,15 @@ define("ember-runtime/tests/controllers/object_controller_test",
 
       controller.set('target', target);
       equal(controller.get('target'), target, "able to set the target property");
+    });
+
+    // See https://github.com/emberjs/ember.js/issues/5112
+    test("can observe a path on an ObjectController", function() {
+      var controller = ObjectController.extend({
+        baz: observer('foo.bar', function() {})
+      }).create();
+      controller.set('model', {});
+      ok(true, "should not fail");
     });
   });
 define("ember-runtime/tests/controllers/object_controller_test.jshint",
