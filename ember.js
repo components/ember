@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.0dda1adb
+ * @version   1.8.0-beta.1+canary.2c8bbf00
  */
 
 (function() {
@@ -12702,10 +12702,13 @@ define("ember-metal/computed_macros",
       @param {String} defaultPath
       @return {Ember.ComputedProperty} computed property which acts like
       a standard getter and setter, but defaults to the value from `defaultPath`.
+      @deprecated Use `Ember.computed.oneWay` or custom CP with default instead.
     */
     // ES6TODO: computed should have its own export path so you can do import {defaultTo} from computed
     computed.defaultTo = function(defaultPath) {
       return computed(function(key, newValue, cachedValue) {
+        Ember.deprecate('Usage of Ember.computed.defaultTo is deprecated, use `Ember.computed.oneWay` instead.');
+
         if (arguments.length === 1) {
           return get(this, defaultPath);
         }
@@ -12766,7 +12769,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.0dda1adb
+      @version 1.8.0-beta.1+canary.2c8bbf00
     */
 
     if ('undefined' === typeof Ember) {
@@ -12793,10 +12796,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.0dda1adb'
+      @default '1.8.0-beta.1+canary.2c8bbf00'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.0dda1adb';
+    Ember.VERSION = '1.8.0-beta.1+canary.2c8bbf00';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`

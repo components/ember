@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.0dda1adb
+ * @version   1.8.0-beta.1+canary.2c8bbf00
  */
 
 (function() {
@@ -14873,20 +14873,31 @@ define("ember-metal/tests/computed_test",
     });
 
     testBoth('computed.defaultTo', function(get, set) {
+      expect(6);
+
       var obj = { source: 'original source value' };
       defineProperty(obj, 'copy', computed.defaultTo('source'));
 
-      equal(get(obj, 'copy'), 'original source value');
+      ignoreDeprecation(function() {
+        equal(get(obj, 'copy'), 'original source value');
 
-      set(obj, 'copy', 'new copy value');
-      equal(get(obj, 'source'), 'original source value');
-      equal(get(obj, 'copy'), 'new copy value');
+        set(obj, 'copy', 'new copy value');
+        equal(get(obj, 'source'), 'original source value');
+        equal(get(obj, 'copy'), 'new copy value');
 
-      set(obj, 'source', 'new source value');
-      equal(get(obj, 'copy'), 'new copy value');
+        set(obj, 'source', 'new source value');
+        equal(get(obj, 'copy'), 'new copy value');
 
-      set(obj, 'copy', null);
-      equal(get(obj, 'copy'), 'new source value');
+        set(obj, 'copy', null);
+        equal(get(obj, 'copy'), 'new source value');
+      });
+
+      expectDeprecation(function() {
+        var obj = { source: 'original source value' };
+        defineProperty(obj, 'copy', computed.defaultTo('source'));
+
+        get(obj, 'copy');
+      }, 'Usage of Ember.computed.defaultTo is deprecated, use `Ember.computed.oneWay` instead.');
     });
 
     testBoth('computed.match', function(get, set) {
