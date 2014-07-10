@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.7.0-beta.2+pre.25382336
+ * @version   1.7.0-beta.2+pre.30c55173
  */
 
 (function() {
@@ -2881,7 +2881,7 @@ define("ember-extension-support/tests/container_debug_adapter_test",
     var Ember = __dependency1__["default"];
     var run = __dependency2__["default"];
     var EmberObject = __dependency3__["default"];
-    var EmberController = __dependency4__.default;
+    var EmberController = __dependency4__["default"];
     // Must be required to export Ember.ContainerDebugAdapter
     var Application = __dependency6__["default"];
 
@@ -2953,7 +2953,7 @@ define("ember-extension-support/tests/data_adapter_test",
     var addObserver = __dependency5__.addObserver;
     var removeObserver = __dependency5__.removeObserver;
     var EmberObject = __dependency6__["default"];
-    var EmberController = __dependency7__.default;
+    var EmberController = __dependency7__["default"];
     var EmberDataAdapter = __dependency8__["default"];
     var EmberApplication = __dependency9__["default"];
     var DefaultResolver = __dependency10__["default"];
@@ -8538,7 +8538,7 @@ define("ember-handlebars/tests/helpers/each_test",
     var EmberHandlebars = __dependency7__["default"];
     // import {expectAssertion} from "ember-metal/tests/debug_helpers";
     var A = __dependency8__.A;
-    var EmberController = __dependency9__.default;
+    var EmberController = __dependency9__["default"];
     var ObjectController = __dependency10__["default"];
     var Container = __dependency11__["default"];
 
@@ -13806,7 +13806,7 @@ define("ember-metal/tests/binding/sync_test",
             getCalled++;
             return setValue;
           }
-        }).volatile());
+        })["volatile"]());
 
         b = {
           a: a
@@ -21081,7 +21081,7 @@ define("ember-routing-handlebars/tests/helpers/action_test",
 
     var Container = __dependency5__["default"];
     var EmberObject = __dependency6__["default"];
-    var EmberController = __dependency7__.default;
+    var EmberController = __dependency7__["default"];
     var EmberObjectController = __dependency8__["default"];
     var EmberArrayController = __dependency9__["default"];
 
@@ -21890,7 +21890,7 @@ define("ember-routing-handlebars/tests/helpers/action_test",
       });
 
       var event = jQuery.Event("keyup");
-      event.char = 'a';
+      event["char"] = 'a';
       event.which = 65;
       view.$('input').trigger(event);
       ok(showCalled, "should call action with keyup");
@@ -22599,7 +22599,7 @@ define("ember-routing-handlebars/tests/helpers/render_test",
     var classify = __dependency9__.classify;
     var decamelize = __dependency9__.decamelize;
 
-    var EmberController = __dependency10__.default;
+    var EmberController = __dependency10__["default"];
     var EmberObjectController = __dependency11__["default"];
     var EmberArrayController = __dependency12__["default"];
 
@@ -23890,6 +23890,7 @@ define("ember-routing/tests/system/controller_for_test",
     var ObjectController = __dependency9__["default"];
     var ArrayController = __dependency10__["default"];
     var controllerFor = __dependency11__["default"];
+    var generateControllerFactory = __dependency12__.generateControllerFactory;
     var generateController = __dependency12__["default"];
 
     var buildContainer = function(namespace) {
@@ -23959,6 +23960,11 @@ define("ember-routing/tests/system/controller_for_test",
           namespace.destroy();
         });
       }
+    });
+
+    test("generateController and generateControllerFactory are properties on the root namespace", function() {
+      equal(Ember.generateController, generateController, 'should export generateController');
+      equal(Ember.generateControllerFactory, generateControllerFactory, 'should export generateControllerFactory');
     });
 
     test("generateController should create Ember.Controller", function() {
@@ -27988,7 +27994,7 @@ define("ember-runtime/tests/controllers/item_controller_class_test.jshint",
       ok(true, 'ember-runtime/tests/controllers/item_controller_class_test.js should pass jshint.'); 
     });
   });
-define("ember-runtime/tests/controllers/object_controller_tests",
+define("ember-runtime/tests/controllers/object_controller_test",
   ["ember-runtime/controllers/object_controller"],
   function(__dependency1__) {
     "use strict";
@@ -28005,13 +28011,13 @@ define("ember-runtime/tests/controllers/object_controller_tests",
       equal(controller.get('target'), target, "able to set the target property");
     });
   });
-define("ember-runtime/tests/controllers/object_controller_tests.jshint",
+define("ember-runtime/tests/controllers/object_controller_test.jshint",
   [],
   function() {
     "use strict";
     module('JSHint - ember-runtime/tests/controllers');
-    test('ember-runtime/tests/controllers/object_controller_tests.js should pass jshint', function() { 
-      ok(true, 'ember-runtime/tests/controllers/object_controller_tests.js should pass jshint.'); 
+    test('ember-runtime/tests/controllers/object_controller_test.js should pass jshint', function() { 
+      ok(true, 'ember-runtime/tests/controllers/object_controller_test.js should pass jshint.'); 
     });
   });
 define("ember-runtime/tests/core/compare_test",
@@ -28728,7 +28734,7 @@ define("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
           numberVal: 24,
           toggleVal: true,
 
-          computed: computed(function() { return 'value'; }).volatile(),
+          computed: computed(function() { return 'value'; })["volatile"](),
 
           method: function() { return "value"; },
 
@@ -28777,7 +28783,7 @@ define("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
           numberVal: 24,
           toggleVal: true,
 
-          computed: computed(function() { return 'value'; }).volatile(),
+          computed: computed(function() { return 'value'; })["volatile"](),
 
           method: function() { return "value"; },
 
@@ -28860,7 +28866,7 @@ define("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
     test("should return a property at a given path relative to the lookup", function() {
       lookup.Foo = ObservableObject.create({
         Bar: ObservableObject.createWithMixins({
-          Baz: computed(function() { return "blargh"; }).volatile()
+          Baz: computed(function() { return "blargh"; })["volatile"]()
         })
       });
 
@@ -28870,7 +28876,7 @@ define("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
     test("should return a property at a given path relative to the passed object", function() {
       var foo = ObservableObject.create({
         bar: ObservableObject.createWithMixins({
-          baz: computed(function() { return "blargh"; }).volatile()
+          baz: computed(function() { return "blargh"; })["volatile"]()
         })
       });
 
@@ -28916,7 +28922,7 @@ define("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
               this._computed = value ;
             }
             return this._computed ;
-          }).volatile(),
+          })["volatile"](),
 
           // method, but not a property
           _method: "method",
@@ -28998,7 +29004,7 @@ define("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
           computed: computed(function(key, value) {
             this.computedCalls.push(value);
             return 'computed';
-          }).volatile(),
+          })["volatile"](),
 
           computedCachedCalls: [],
           computedCached: computed(function(key, value) {
@@ -29015,13 +29021,13 @@ define("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
           dependent: computed(function(key, value) {
             this.dependentCalls.push(value);
             return 'dependent';
-          }).property('changer').volatile(),
+          }).property('changer')["volatile"](),
 
           dependentFrontCalls: [],
           dependentFront: computed('changer', function(key, value) {
             this.dependentFrontCalls.push(value);
             return 'dependentFront';
-          }).volatile(),
+          })["volatile"](),
 
           dependentCachedCalls: [],
           dependentCached: computed(function(key, value) {
@@ -29047,12 +29053,12 @@ define("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
           isOn: computed(function(key, value) {
             if (value !== undefined) this.set('state', 'on');
             return this.get('state') === 'on';
-          }).property('state').volatile(),
+          }).property('state')["volatile"](),
 
           isOff: computed(function(key, value) {
             if (value !== undefined) this.set('state', 'off');
             return this.get('state') === 'off';
-          }).property('state').volatile()
+          }).property('state')["volatile"]()
 
         }) ;
       },
@@ -29826,7 +29832,7 @@ define("ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test",
             return this;
           }
           return this._b;
-        }).volatile()
+        })["volatile"]()
       });
 
       a.set('b', 'foo');
@@ -38553,7 +38559,7 @@ define("ember-runtime/tests/system/object/computed_test",
 
       var ClassWithNoMetadata = EmberObject.extend({
         computedProperty: computed(function() {
-        }).volatile(),
+        })["volatile"](),
 
         staticProperty: 12
       });
@@ -47252,7 +47258,7 @@ define("ember-views/tests/views/view/init_test",
           elementId: 'test',
           classNames: computed(function() {
             return ['className'];
-          }).volatile()
+          })["volatile"]()
         });
       }, /Only arrays are allowed/i);
     });
@@ -47263,7 +47269,7 @@ define("ember-views/tests/views/view/init_test",
           elementId: 'test',
           classNameBindings: computed(function() {
             return ['className'];
-          }).volatile()
+          })["volatile"]()
         });
       }, /Only arrays are allowed/i);
     });
@@ -49756,6 +49762,31 @@ define("ember/tests/component_registration_test.jshint",
     module('JSHint - ember/tests');
     test('ember/tests/component_registration_test.js should pass jshint', function() { 
       ok(true, 'ember/tests/component_registration_test.js should pass jshint.'); 
+    });
+  });
+define("ember/tests/global-api-test",
+  ["ember"],
+  function(__dependency1__) {
+    "use strict";
+
+    QUnit.module("Global API Tests");
+
+    function confirmExport(property) {
+      test('confirm ' + property + ' is exported', function() {
+        ok(Ember.get(window, property) + ' is exported propertly');
+      });
+    }
+
+    confirmExport('Ember.DefaultResolver');
+    confirmExport('Ember.generateController');
+  });
+define("ember/tests/global-api-test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember/tests');
+    test('ember/tests/global-api-test.js should pass jshint', function() { 
+      ok(true, 'ember/tests/global-api-test.js should pass jshint.'); 
     });
   });
 define("ember/tests/helpers/helper_registration_test",
