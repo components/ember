@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.06782645
+ * @version   1.8.0-beta.1+canary.1b7a9db9
  */
 
 (function() {
@@ -12532,7 +12532,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.06782645
+      @version 1.8.0-beta.1+canary.1b7a9db9
     */
 
     if ('undefined' === typeof Ember) {
@@ -12559,10 +12559,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.06782645'
+      @default '1.8.0-beta.1+canary.1b7a9db9'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.06782645';
+    Ember.VERSION = '1.8.0-beta.1+canary.1b7a9db9';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -41403,7 +41403,12 @@ define("ember-views/views/view",
         if (isNone(value) || value === false) {
           // `null`, `undefined` or `false` should remove attribute
           elem.removeAttr(name);
-          elem.prop(name, '');
+          // In IE8 `prop` couldn't remove attribute when name is `required`.
+          if (name === 'required') {
+            elem.removeProp(name);
+          } else {
+            elem.prop(name, '');
+          }
         } else if (value !== elem.prop(name)) {
           // value should always be properties
           elem.prop(name, value);
