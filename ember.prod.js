@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.b22130b6
+ * @version   1.8.0-beta.1+canary.64bb07f3
  */
 
 (function() {
@@ -12530,7 +12530,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.b22130b6
+      @version 1.8.0-beta.1+canary.64bb07f3
     */
 
     if ('undefined' === typeof Ember) {
@@ -12557,10 +12557,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.b22130b6'
+      @default '1.8.0-beta.1+canary.64bb07f3'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.b22130b6';
+    Ember.VERSION = '1.8.0-beta.1+canary.64bb07f3';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -40512,10 +40512,10 @@ define("ember-views/views/view",
       },
 
       /**
-        Creates a DOM representation of the view and all of its
-        child views by recursively calling the `render()` method.
+        Creates a DOM representation of the view and all of its child views by
+        recursively calling the `render()` method.
 
-        After the element has been created, `didInsertElement` will
+        After the element has been inserted into the DOM, `didInsertElement` will
         be called on this view and all of its child views.
 
         @method createElement
