@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.1b7a9db9
+ * @version   1.8.0-beta.1+canary.b22130b6
  */
 
 (function() {
@@ -10251,7 +10251,6 @@ define("ember-metal",
     var reset = __dependency3__.reset;
     var generateGuid = __dependency4__.generateGuid;
     var GUID_KEY = __dependency4__.GUID_KEY;
-    var GUID_PREFIX = __dependency4__.GUID_PREFIX;
     var guidFor = __dependency4__.guidFor;
     var META_DESC = __dependency4__.META_DESC;
     var EMPTY_META = __dependency4__.EMPTY_META;
@@ -10381,7 +10380,6 @@ define("ember-metal",
 
     Ember.generateGuid    = generateGuid;
     Ember.GUID_KEY        = GUID_KEY;
-    Ember.GUID_PREFIX     = GUID_PREFIX;
     Ember.create          = create;
     Ember.platform        = platform;
 
@@ -12838,7 +12836,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.1b7a9db9
+      @version 1.8.0-beta.1+canary.b22130b6
     */
 
     if ('undefined' === typeof Ember) {
@@ -12865,10 +12863,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.1b7a9db9'
+      @default '1.8.0-beta.1+canary.b22130b6'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.1b7a9db9';
+    Ember.VERSION = '1.8.0-beta.1+canary.b22130b6';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -17608,7 +17606,7 @@ define("ember-metal/utils",
           if (obj[GUID_KEY]) return obj[GUID_KEY];
           if (obj === Object) return '(Object)';
           if (obj === Array)  return '(Array)';
-          ret = 'ember' + uuid();
+          ret = GUID_PREFIX + uuid();
 
           if (obj[GUID_KEY] === null) {
             obj[GUID_KEY] = ret;
@@ -18265,7 +18263,6 @@ define("ember-metal/utils",
     }
 
     __exports__.applyStr = applyStr;__exports__.GUID_KEY = GUID_KEY;
-    __exports__.GUID_PREFIX = GUID_PREFIX;
     __exports__.META_DESC = META_DESC;
     __exports__.EMPTY_META = EMPTY_META;
     __exports__.META_KEY = META_KEY;
