@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.7.0-beta.2+pre.2c3e7e70
+ * @version   1.7.0-beta.2+pre.7bfd70df
  */
 
 (function() {
@@ -7238,7 +7238,7 @@ define("ember-handlebars/helpers/binding",
         localizedOptions.hash.keywordPath = contextPath;
 
         bindContext = this;
-        context = path;
+        context = contextPath;
         options = localizedOptions;
         preserveContext = true;
       } else {
@@ -12511,7 +12511,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.7.0-beta.2+pre.2c3e7e70
+      @version 1.7.0-beta.2+pre.7bfd70df
     */
 
     if ('undefined' === typeof Ember) {
@@ -12538,10 +12538,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.7.0-beta.2+pre.2c3e7e70'
+      @default '1.7.0-beta.2+pre.7bfd70df'
       @static
     */
-    Ember.VERSION = '1.7.0-beta.2+pre.2c3e7e70';
+    Ember.VERSION = '1.7.0-beta.2+pre.7bfd70df';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -22969,55 +22969,122 @@ define("ember-routing/system/route",
       },
 
       /**
-        Renders a template into an outlet.
+        `render` is used to render a template into a region of another template
+        (indicated by an `{{outlet}}`). `render` is used both during the entry
+        phase of routing (via the `renderTemplate` hook) and later in response to
+        user interaction.
 
-        This method has a number of defaults, based on the name of the
-        route specified in the router.
+        For example, given the following minimal router and templates:
+
+        ```js
+        Router.map(function() {
+          this.resource('photos');
+        });
+        ```
+
+        ```handlebars
+        <!-- application.hbs -->
+        <div class='something-in-the-app-hbs'>
+          {{outlet "anOutletName"}}
+        </div>
+        ```
+
+        ```handlebars
+        <!-- photos.hbs -->
+        <h1>Photos</h1>
+        ```
+
+        You can render `photos.hbs` into the `"anOutletName"` outlet of
+        `application.hbs` by calling `render`:
+
+        ```js
+        // posts route
+        Ember.Route.extend({
+          renderTemplate: function(){
+            this.render('posts', {
+              into: 'application',
+              outlet: 'anOutletName'
+            })
+          }
+        });
+        ```
+
+        `render` additionally allows you to supply which `view`, `controller`, and
+        `model` objects should be loaded and associated with the rendered template.
+
+
+        ```js
+        // posts route
+        Ember.Route.extend({
+          renderTemplate: function(controller, model){
+            this.render('posts', {    // the template to render, referenced by name
+              into: 'application',    // the template to render into, referenced by name
+              outlet: 'anOutletName', // the outlet inside `options.template` to render into.
+              view: 'aViewName',      // the view to use for this template, referenced by name
+              controller: 'someControllerName', // the controller to use for this template, referenced by name
+              model: model            // the model to set on `options.controller`.
+            })
+          }
+        });
+        ```
+
+        The string values provided for the template name, view, and controller
+        will eventually pass through to the resolver for lookup. See
+        Ember.Resolver for how these are mapped to JavaScript objects in your
+        application.
+
+        Not all options need to be passed to `render`. Default values will be used
+        based on the name of the route specified in the router or the Route's
+        `controllerName`, `viewName` and and `templateName` properties.
 
         For example:
 
         ```js
-        App.Router.map(function() {
+        // router
+        Router.map(function() {
           this.route('index');
           this.resource('post', {path: '/posts/:post_id'});
         });
-
-        App.PostRoute = App.Route.extend({
-          renderTemplate: function() {
-            this.render();
-          }
-        });
         ```
-
-        The name of the `PostRoute`, as defined by the router, is `post`.
-
-        By default, render will:
-
-        * render the `post` template
-        * with the `post` view (`PostView`) for event handling, if one exists
-        * and the `post` controller (`PostController`), if one exists
-        * into the `main` outlet of the `application` template
-
-        You can override this behavior:
 
         ```js
-        App.PostRoute = App.Route.extend({
+        // post route
+        PostRoute = App.Route.extend({
           renderTemplate: function() {
-            this.render('myPost', {   // the template to render
-              into: 'index',          // the template to render into
-              outlet: 'detail',       // the name of the outlet in that template
-              controller: 'blogPost'  // the controller to use for the template
-            });
+            this.render(); // all defaults apply
           }
         });
         ```
 
-        Remember that the controller's `model` will be the route's model. In
-        this case, the default model will be `App.Post.find(params.post_id)`.
+        The name of the `PostRoute`, defined by the router, is `post`.
+
+        The following equivalent default options will be applied when
+        the Route calls `render`:
+
+        ```js
+        //
+        this.render('post', {  // the template name associated with 'post' Route
+          into: 'application', // the parent route to 'post' Route
+          outlet: 'main',      // {{outlet}} and {{outlet 'main' are synonymous}},
+          view: 'post',        // the view associated with the 'post' Route
+          controller: 'post',  // the controller associated with the 'post' Route
+        })
+        ```
+
+        By default the controller's `model` will be the route's model, so it does not
+        need to be passed unless you wish to change which model is being used.
 
         @method render
         @param {String} name the name of the template to render
         @param {Object} options the options
+        @param {String} options.into the template to render into,
+                        referenced by name. Defaults to the parent template
+        @param {String} options.outlet the outlet inside `options.template` to render into.
+                        Defaults to 'main'
+        @param {String} options.controller the controller to use for this template,
+                        referenced by name. Defaults to the Route's paired controller
+        @param {String} options.model the model object to set on `options.controller`
+                        Defaults to the return value of the Route's model hook
       */
       render: function(name, options) {
         
@@ -23029,6 +23096,7 @@ define("ember-routing/system/route",
         }
 
         options = options || {};
+        options.namePassed = namePassed;
 
         var templateName;
 
@@ -23455,10 +23523,10 @@ define("ember-routing/system/route",
 
       if (options.controller) {
         controller = options.controller;
-      } else if (namedController = route.container.lookup('controller:' + name)) {
-        controller = namedController;
+      } else if (options.namePassed) {
+        controller = route.container.lookup('controller:' + name) || route.controllerName || route.routeName;
       } else {
-        controller = route.controllerName || route.routeName;
+        controller = route.controllerName || route.container.lookup('controller:' + name);
       }
 
       if (typeof controller === 'string') {
@@ -41238,7 +41306,12 @@ define("ember-views/views/view",
         if (isNone(value) || value === false) {
           // `null`, `undefined` or `false` should remove attribute
           elem.removeAttr(name);
-          elem.prop(name, '');
+          // In IE8 `prop` couldn't remove attribute when name is `required`.
+          if (name === 'required') {
+            elem.removeProp(name);
+          } else {
+            elem.prop(name, '');
+          }
         } else if (value !== elem.prop(name)) {
           // value should always be properties
           elem.prop(name, value);

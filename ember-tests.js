@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.7.0-beta.2+pre.2c3e7e70
+ * @version   1.7.0-beta.2+pre.7bfd70df
  */
 
 (function() {
@@ -11027,6 +11027,33 @@ define("ember-handlebars/tests/helpers/with_test",
       run(view, 'destroy'); // destroy existing view
 
       ok(destroyed, 'controller was destroyed properly');
+    });
+
+    QUnit.module("{{#with}} helper binding to view keyword", {
+      setup: function() {
+        Ember.lookup = lookup = { Ember: Ember };
+
+        view = EmberView.create({
+          template: EmberHandlebars.compile("We have: {{#with view.thing as fromView}}{{fromView.name}} and {{fromContext.name}}{{/with}}"),
+          thing: { name: 'this is from the view' },
+          context: {
+            fromContext: { name: "this is from the context" },
+          }
+        });
+
+        appendView(view);
+      },
+
+      teardown: function() {
+        run(function() {
+          view.destroy();
+        });
+        Ember.lookup = originalLookup;
+      }
+    });
+
+    test("{{with}} helper can bind to keywords with 'as'", function(){
+      equal(view.$().text(), "We have: this is from the view and this is from the context", "should render");
     });
   });
 define("ember-handlebars/tests/helpers/with_test.jshint",
@@ -52104,6 +52131,31 @@ define("ember/tests/routing/basic_test",
       equal(Ember.$('h3:contains(Megatroll) + p:contains(Comes from homepage)', '#qunit-fixture').length, 1, "The homepage template was rendered");
     });
 
+    test("An alternate template will pull in an alternate controller instead of controllerName", function() {
+      Router.map(function() {
+        this.route("home", { path: "/" });
+      });
+
+      App.HomeRoute = Ember.Route.extend({
+        controllerName: 'foo',
+        renderTemplate: function() {
+          this.render('homepage');
+        }
+      });
+
+      App.FooController = Ember.Controller.extend({
+        home: "Comes from Foo"
+      });
+
+      App.HomepageController = Ember.Controller.extend({
+        home: "Comes from homepage"
+      });
+
+      bootApplication();
+
+      equal(Ember.$('h3:contains(Megatroll) + p:contains(Comes from homepage)', '#qunit-fixture').length, 1, "The homepage template was rendered");
+    });
+
     test("The template will pull in an alternate controller via key/value", function() {
       Router.map(function() {
         this.route("homepage", { path: "/" });
@@ -52435,6 +52487,33 @@ define("ember/tests/routing/basic_test",
 
       deepEqual(container.lookup('route:home').controller, container.lookup('controller:myController'), "route controller is set by controllerName");
       equal(Ember.$('p', '#qunit-fixture').text(), "alternative home: foo", "The homepage template was rendered with data from the custom controller");
+    });
+
+    test("The route controller specified via controllerName is used in render even when a controller with the routeName is available", function() {
+      Router.map(function() {
+        this.route("home", { path: "/" });
+      });
+
+      Ember.TEMPLATES.home = Ember.Handlebars.compile(
+        "<p>home: {{myValue}}</p>"
+      );
+
+      App.HomeRoute = Ember.Route.extend({
+        controllerName: 'myController'
+      });
+
+      container.register('controller:home', Ember.Controller.extend({
+        myValue: "home"
+      }));
+
+      container.register('controller:myController', Ember.Controller.extend({
+        myValue: "myController"
+      }));
+
+      bootApplication();
+
+      deepEqual(container.lookup('route:home').controller, container.lookup('controller:myController'), "route controller is set by controllerName");
+      equal(Ember.$('p', '#qunit-fixture').text(), "home: myController", "The homepage template was rendered with data from the custom controller");
     });
 
     test("The Homepage with a `setupController` hook modifying other controllers", function() {
