@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.938c5143
+ * @version   1.8.0-beta.1+canary.b9fa1d1f
  */
 
 (function() {
@@ -15695,6 +15695,108 @@ define("ember-metal/tests/events_test.jshint",
     module('JSHint - ember-metal/tests');
     test('ember-metal/tests/events_test.js should pass jshint', function() { 
       ok(true, 'ember-metal/tests/events_test.js should pass jshint.'); 
+    });
+  });
+define("ember-metal/tests/expand_properties_test",
+  ["ember-metal/core","ember-metal/expand_properties"],
+  function(__dependency1__, __dependency2__) {
+    "use strict";
+    var Ember = __dependency1__["default"];
+    var expandProperties = __dependency2__["default"];
+
+    var foundProperties = [];
+
+    function addProperty(property) {
+      foundProperties.push(property);
+    }
+
+    QUnit.module('Property Brace Expansion Test', {
+      setup: function() {
+        foundProperties = [];
+      }
+    });
+
+    test('Properties without expansions are unaffected', function() {
+      expect(1);
+
+      expandProperties('a', addProperty);
+      expandProperties('a.b', addProperty);
+      expandProperties('a.b.@each', addProperty);
+
+      deepEqual(['a', 'a.b', 'a.b.@each'].sort(), foundProperties.sort());
+    });
+
+    test('A single expansion at the end expands properly', function() {
+      expect(1);
+
+      expandProperties('a.b.{c,d}', addProperty);
+
+      deepEqual(['a.b.c', 'a.b.d'].sort(), foundProperties.sort());
+    });
+
+    test('A property with only a brace expansion expands correctly', function() {
+      expect(1);
+
+      expandProperties('{a,b,c}', addProperty);
+
+      var expected = ['a', 'b', 'c'];
+      deepEqual(expected.sort(), foundProperties.sort());
+    });
+
+    if (!Ember.FEATURES.isEnabled('property-brace-expansion-improvement')) {
+      test('A brace expansion at the beginning doesn\'t expand' , function() {
+        expect(1);
+
+        expandProperties('{a,b,c}.d', addProperty);
+
+        deepEqual(['{a,b,c}.d'], foundProperties);
+      });
+    }
+
+    if (Ember.FEATURES.isEnabled('property-brace-expansion-improvement')) {
+      test('Expansions with single properties only expand once', function() {
+        expect(1);
+
+        expandProperties('a.b.{c}.d.{e}', addProperty);
+
+        deepEqual(['a.b.c.d.e'], foundProperties);
+      });
+
+      test('A single brace expansion expands correctly', function() {
+        expect(1);
+
+        expandProperties('a.{b,c,d}.e', addProperty);
+
+        var expected = ['a.b.e', 'a.c.e', 'a.d.e'];
+        deepEqual(expected.sort(), foundProperties.sort());
+      });
+
+      test('Multiple brace expansions work correctly', function() {
+        expect(1);
+
+        expandProperties('{a,b,c}.d.{e,f}.g', addProperty);
+
+        var expected = ['a.d.e.g', 'a.d.f.g', 'b.d.e.g', 'b.d.f.g', 'c.d.e.g', 'c.d.f.g'];
+        deepEqual(expected.sort(), foundProperties.sort());
+      });
+
+      test('A property with only brace expansions expands correctly', function() {
+        expect(1);
+
+        expandProperties('{a,b,c}.{d}.{e,f}', addProperty);
+
+        var expected = ['a.d.e', 'a.d.f', 'b.d.e', 'b.d.f', 'c.d.e', 'c.d.f'];
+        deepEqual(expected.sort(), foundProperties.sort());
+      });
+    }
+  });
+define("ember-metal/tests/expand_properties_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal/tests');
+    test('ember-metal/tests/expand_properties_test.js should pass jshint', function() { 
+      ok(true, 'ember-metal/tests/expand_properties_test.js should pass jshint.'); 
     });
   });
 define("ember-metal/tests/features_test",

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.938c5143
+ * @version   1.8.0-beta.1+canary.b9fa1d1f
  */
 
 (function() {
@@ -4447,7 +4447,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.938c5143
+      @version 1.8.0-beta.1+canary.b9fa1d1f
     */
 
     if ('undefined' === typeof Ember) {
@@ -4474,10 +4474,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.938c5143'
+      @default '1.8.0-beta.1+canary.b9fa1d1f'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.938c5143';
+    Ember.VERSION = '1.8.0-beta.1+canary.b9fa1d1f';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -5420,17 +5420,19 @@ define("ember-metal/events",
     __exports__.on = on;__exports__.removeListener = removeListener;
   });
 define("ember-metal/expand_properties",
-  ["ember-metal/error","ember-metal/enumerable_utils","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["ember-metal/core","ember-metal/error","ember-metal/enumerable_utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
-    var EmberError = __dependency1__["default"];
-    var forEach = __dependency2__.forEach;
+    var Ember = __dependency1__["default"];
+    var EmberError = __dependency2__["default"];
+    var forEach = __dependency3__.forEach;
 
     /**
       @module ember-metal
       */
 
-    var BRACE_EXPANSION = /^((?:[^\.]*\.)*)\{(.*)\}$/;
+    var BRACE_EXPANSION = /^((?:[^\.]*\.)*)\{(.*)\}$/,
+        SPLIT_REGEX = /\{|\}/;
 
     /**
       Expands `pattern`, invoking `callback` for each expansion.
@@ -5456,12 +5458,20 @@ define("ember-metal/expand_properties",
       expansion, and is passed the expansion.
       */
     __exports__["default"] = function expandProperties(pattern, callback) {
-      var match, prefix, list;
-
       if (pattern.indexOf(' ') > -1) {
         throw new EmberError('Brace expanded properties cannot contain spaces, ' + 
           'e.g. `user.{firstName, lastName}` should be `user.{firstName,lastName}`');
       }
+
+      if (Ember.FEATURES.isEnabled('property-brace-expansion-improvement')) {
+        return newExpandProperties(pattern, callback);
+      } else {
+        return oldExpandProperties(pattern, callback);
+      }
+    }
+
+    function oldExpandProperties(pattern, callback) {
+      var match, prefix, list;
 
       if (match = BRACE_EXPANSION.exec(pattern)) {
         prefix = match[1];
@@ -5473,6 +5483,39 @@ define("ember-metal/expand_properties",
       } else {
         callback(pattern);
       }
+    }
+
+    function newExpandProperties(pattern, callback) {
+      if ('string' === Ember.typeOf(pattern)) {
+        var parts = pattern.split(SPLIT_REGEX),
+            properties = [parts];
+
+        forEach(parts, function(part, index) {
+          if (part.indexOf(',') >= 0) {
+            properties = duplicateAndReplace(properties, part.split(','), index);
+          }
+        });
+
+        forEach(properties, function(property) {
+          callback(property.join(''));
+        });
+      } else {
+        callback(pattern);
+      }
+    }
+
+    function duplicateAndReplace(properties, currentParts, index) {
+      var all = [];
+
+      forEach(properties, function(property) {
+        forEach(currentParts, function(part) {
+          var current = property.slice(0);
+          current[index] = part;
+          all.push(current);
+        });
+      });
+
+      return all;
     }
   });
 define("ember-metal/get_properties",
