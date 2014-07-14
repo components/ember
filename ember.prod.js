@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.ed216557
+ * @version   1.8.0-beta.1+canary.18dd58de
  */
 
 (function() {
@@ -12535,7 +12535,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.ed216557
+      @version 1.8.0-beta.1+canary.18dd58de
     */
 
     if ('undefined' === typeof Ember) {
@@ -12562,10 +12562,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.ed216557'
+      @default '1.8.0-beta.1+canary.18dd58de'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.ed216557';
+    Ember.VERSION = '1.8.0-beta.1+canary.18dd58de';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -24596,8 +24596,8 @@ define("ember-routing/system/router",
     __exports__["default"] = EmberRouter;
   });
 define("ember-runtime",
-  ["ember-metal","ember-runtime/core","ember-runtime/keys","ember-runtime/compare","ember-runtime/copy","ember-runtime/system/namespace","ember-runtime/system/object","ember-runtime/system/tracked_array","ember-runtime/system/subarray","ember-runtime/system/container","ember-runtime/system/application","ember-runtime/system/array_proxy","ember-runtime/system/object_proxy","ember-runtime/system/core_object","ember-runtime/system/each_proxy","ember-runtime/system/native_array","ember-runtime/system/set","ember-runtime/system/string","ember-runtime/system/deferred","ember-runtime/system/lazy_load","ember-runtime/mixins/array","ember-runtime/mixins/comparable","ember-runtime/mixins/copyable","ember-runtime/mixins/enumerable","ember-runtime/mixins/freezable","ember-runtime/mixins/observable","ember-runtime/mixins/action_handler","ember-runtime/mixins/deferred","ember-runtime/mixins/mutable_enumerable","ember-runtime/mixins/mutable_array","ember-runtime/mixins/target_action_support","ember-runtime/mixins/evented","ember-runtime/mixins/promise_proxy","ember-runtime/mixins/sortable","ember-runtime/computed/array_computed","ember-runtime/computed/reduce_computed","ember-runtime/computed/reduce_computed_macros","ember-runtime/controllers/array_controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/controller","ember-runtime/mixins/controller","ember-runtime/ext/rsvp","ember-runtime/ext/string","ember-runtime/ext/function","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __dependency31__, __dependency32__, __dependency33__, __dependency34__, __dependency35__, __dependency36__, __dependency37__, __dependency38__, __dependency39__, __dependency40__, __dependency41__, __dependency42__, __dependency43__, __dependency44__, __exports__) {
+  ["ember-metal","ember-runtime/core","ember-runtime/keys","ember-runtime/compare","ember-runtime/copy","ember-runtime/system/namespace","ember-runtime/system/object","ember-runtime/system/tracked_array","ember-runtime/system/subarray","ember-runtime/system/container","ember-runtime/system/application","ember-runtime/system/array_proxy","ember-runtime/system/object_proxy","ember-runtime/system/core_object","ember-runtime/system/each_proxy","ember-runtime/system/native_array","ember-runtime/system/set","ember-runtime/system/string","ember-runtime/system/deferred","ember-runtime/system/lazy_load","ember-runtime/mixins/array","ember-runtime/mixins/comparable","ember-runtime/mixins/copyable","ember-runtime/mixins/enumerable","ember-runtime/mixins/freezable","ember-runtime/mixins/proxy","ember-runtime/mixins/observable","ember-runtime/mixins/action_handler","ember-runtime/mixins/deferred","ember-runtime/mixins/mutable_enumerable","ember-runtime/mixins/mutable_array","ember-runtime/mixins/target_action_support","ember-runtime/mixins/evented","ember-runtime/mixins/promise_proxy","ember-runtime/mixins/sortable","ember-runtime/computed/array_computed","ember-runtime/computed/reduce_computed","ember-runtime/computed/reduce_computed_macros","ember-runtime/controllers/array_controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/controller","ember-runtime/mixins/controller","ember-runtime/ext/rsvp","ember-runtime/ext/string","ember-runtime/ext/function","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __dependency31__, __dependency32__, __dependency33__, __dependency34__, __dependency35__, __dependency36__, __dependency37__, __dependency38__, __dependency39__, __dependency40__, __dependency41__, __dependency42__, __dependency43__, __dependency44__, __dependency45__, __exports__) {
     "use strict";
     /**
     Ember Runtime
@@ -24639,43 +24639,44 @@ define("ember-runtime",
     var Enumerable = __dependency24__["default"];
     var Freezable = __dependency25__.Freezable;
     var FROZEN_ERROR = __dependency25__.FROZEN_ERROR;
+    var ProxyMixin = __dependency26__["default"];
 
-    var Observable = __dependency26__["default"];
-    var ActionHandler = __dependency27__["default"];
-    var DeferredMixin = __dependency28__["default"];
-    var MutableEnumerable = __dependency29__["default"];
-    var MutableArray = __dependency30__["default"];
-    var TargetActionSupport = __dependency31__["default"];
-    var Evented = __dependency32__["default"];
-    var PromiseProxyMixin = __dependency33__["default"];
-    var SortableMixin = __dependency34__["default"];
-    var arrayComputed = __dependency35__.arrayComputed;
-    var ArrayComputedProperty = __dependency35__.ArrayComputedProperty;
+    var Observable = __dependency27__["default"];
+    var ActionHandler = __dependency28__["default"];
+    var DeferredMixin = __dependency29__["default"];
+    var MutableEnumerable = __dependency30__["default"];
+    var MutableArray = __dependency31__["default"];
+    var TargetActionSupport = __dependency32__["default"];
+    var Evented = __dependency33__["default"];
+    var PromiseProxyMixin = __dependency34__["default"];
+    var SortableMixin = __dependency35__["default"];
+    var arrayComputed = __dependency36__.arrayComputed;
+    var ArrayComputedProperty = __dependency36__.ArrayComputedProperty;
 
-    var reduceComputed = __dependency36__.reduceComputed;
-    var ReduceComputedProperty = __dependency36__.ReduceComputedProperty;
+    var reduceComputed = __dependency37__.reduceComputed;
+    var ReduceComputedProperty = __dependency37__.ReduceComputedProperty;
 
-    var sum = __dependency37__.sum;
-    var min = __dependency37__.min;
-    var max = __dependency37__.max;
-    var map = __dependency37__.map;
-    var sort = __dependency37__.sort;
-    var setDiff = __dependency37__.setDiff;
-    var mapBy = __dependency37__.mapBy;
-    var mapProperty = __dependency37__.mapProperty;
-    var filter = __dependency37__.filter;
-    var filterBy = __dependency37__.filterBy;
-    var filterProperty = __dependency37__.filterProperty;
-    var uniq = __dependency37__.uniq;
-    var union = __dependency37__.union;
-    var intersect = __dependency37__.intersect;
+    var sum = __dependency38__.sum;
+    var min = __dependency38__.min;
+    var max = __dependency38__.max;
+    var map = __dependency38__.map;
+    var sort = __dependency38__.sort;
+    var setDiff = __dependency38__.setDiff;
+    var mapBy = __dependency38__.mapBy;
+    var mapProperty = __dependency38__.mapProperty;
+    var filter = __dependency38__.filter;
+    var filterBy = __dependency38__.filterBy;
+    var filterProperty = __dependency38__.filterProperty;
+    var uniq = __dependency38__.uniq;
+    var union = __dependency38__.union;
+    var intersect = __dependency38__.intersect;
 
-    var ArrayController = __dependency38__["default"];
-    var ObjectController = __dependency39__["default"];
-    var Controller = __dependency40__["default"];
-    var ControllerMixin = __dependency41__["default"];
+    var ArrayController = __dependency39__["default"];
+    var ObjectController = __dependency40__["default"];
+    var Controller = __dependency41__["default"];
+    var ControllerMixin = __dependency42__["default"];
 
-    var RSVP = __dependency42__["default"];
+    var RSVP = __dependency43__["default"];
         // just for side effect of extending Ember.RSVP
       // just for side effect of extending String.prototype
     // just for side effect of extending Function.prototype
@@ -24757,6 +24758,10 @@ define("ember-runtime",
     Ember.ObjectController = ObjectController;
     Ember.Controller = Controller;
     Ember.ControllerMixin = ControllerMixin;
+
+    if (Ember.FEATURES.isEnabled('ember-runtime-proxy-mixin')) {
+      Ember.ProxyMixin = ProxyMixin;
+    }
 
     Ember.RSVP = RSVP;
     // END EXPORTS
@@ -31094,6 +31099,102 @@ define("ember-runtime/mixins/promise_proxy",
       };
     }
   });
+define("ember-runtime/mixins/proxy",
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/observer","ember-metal/property_events","ember-metal/computed","ember-metal/properties","ember-metal/mixin","ember-runtime/system/string","ember-runtime/system/object","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-runtime
+    */
+
+    var Ember = __dependency1__["default"];
+    // Ember.assert
+    var get = __dependency2__.get;
+    var set = __dependency3__.set;
+    var meta = __dependency4__.meta;
+    var addObserver = __dependency5__.addObserver;
+    var removeObserver = __dependency5__.removeObserver;
+    var addBeforeObserver = __dependency5__.addBeforeObserver;
+    var removeBeforeObserver = __dependency5__.removeBeforeObserver;
+    var propertyWillChange = __dependency6__.propertyWillChange;
+    var propertyDidChange = __dependency6__.propertyDidChange;
+    var computed = __dependency7__.computed;
+    var defineProperty = __dependency8__.defineProperty;
+    var Mixin = __dependency9__.Mixin;
+    var observer = __dependency9__.observer;
+    var fmt = __dependency10__.fmt;
+    var EmberObject = __dependency11__["default"];
+
+    function contentPropertyWillChange(content, contentKey) {
+      var key = contentKey.slice(8); // remove "content."
+      if (key in this) { return; }  // if shadowed in proxy
+      propertyWillChange(this, key);
+    }
+
+    function contentPropertyDidChange(content, contentKey) {
+      var key = contentKey.slice(8); // remove "content."
+      if (key in this) { return; } // if shadowed in proxy
+      propertyDidChange(this, key);
+    }
+
+    /**
+      `Ember.ProxyMixin` forwards all properties not defined by the proxy itself
+      to a proxied `content` object.  See Ember.ObjectProxy for more details.
+
+      @class ProxyMixin
+      @namespace Ember
+    */
+    __exports__["default"] = Mixin.create({
+      /**
+        The object whose properties will be forwarded.
+
+        @property content
+        @type Ember.Object
+        @default null
+      */
+      content: null,
+      _contentDidChange: observer('content', function() {
+              }),
+
+      isTruthy: computed.bool('content'),
+
+      _debugContainerKey: null,
+
+      willWatchProperty: function (key) {
+        var contentKey = 'content.' + key;
+        addBeforeObserver(this, contentKey, null, contentPropertyWillChange);
+        addObserver(this, contentKey, null, contentPropertyDidChange);
+      },
+
+      didUnwatchProperty: function (key) {
+        var contentKey = 'content.' + key;
+        removeBeforeObserver(this, contentKey, null, contentPropertyWillChange);
+        removeObserver(this, contentKey, null, contentPropertyDidChange);
+      },
+
+      unknownProperty: function (key) {
+        var content = get(this, 'content');
+        if (content) {
+          return get(content, key);
+        }
+      },
+
+      setUnknownProperty: function (key, value) {
+        var m = meta(this);
+        if (m.proto === this) {
+          // if marked as prototype then just defineProperty
+          // rather than delegate
+          defineProperty(this, key, null, value);
+          return value;
+        }
+
+        var content = get(this, 'content');
+                return set(content, key, value);
+      }
+
+    });
+  });
 define("ember-runtime/mixins/sortable",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/enumerable_utils","ember-metal/mixin","ember-runtime/mixins/mutable_enumerable","ember-runtime/compare","ember-metal/observer","ember-metal/computed","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __exports__) {
@@ -33454,41 +33555,11 @@ define("ember-runtime/system/object",
     __exports__["default"] = EmberObject;
   });
 define("ember-runtime/system/object_proxy",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/observer","ember-metal/property_events","ember-metal/computed","ember-metal/properties","ember-metal/mixin","ember-runtime/system/string","ember-runtime/system/object","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
+  ["ember-runtime/system/object","ember-runtime/mixins/proxy","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
-    /**
-    @module ember
-    @submodule ember-runtime
-    */
-    var Ember = __dependency1__["default"];
-    // Ember.assert
-    var get = __dependency2__.get;
-    var set = __dependency3__.set;
-    var meta = __dependency4__.meta;
-    var addObserver = __dependency5__.addObserver;
-    var removeObserver = __dependency5__.removeObserver;
-    var addBeforeObserver = __dependency5__.addBeforeObserver;
-    var removeBeforeObserver = __dependency5__.removeBeforeObserver;
-    var propertyWillChange = __dependency6__.propertyWillChange;
-    var propertyDidChange = __dependency6__.propertyDidChange;
-    var computed = __dependency7__.computed;
-    var defineProperty = __dependency8__.defineProperty;
-    var observer = __dependency9__.observer;
-    var fmt = __dependency10__.fmt;
-    var EmberObject = __dependency11__["default"];
-
-    function contentPropertyWillChange(content, contentKey) {
-      var key = contentKey.slice(8); // remove "content."
-      if (key in this) { return; }  // if shadowed in proxy
-      propertyWillChange(this, key);
-    }
-
-    function contentPropertyDidChange(content, contentKey) {
-      var key = contentKey.slice(8); // remove "content."
-      if (key in this) { return; } // if shadowed in proxy
-      propertyDidChange(this, key);
-    }
+    var EmberObject = __dependency1__["default"];
+    var ProxyMixin = __dependency2__["default"];
 
     /**
       `Ember.ObjectProxy` forwards all properties not defined by the proxy itself
@@ -33556,58 +33627,10 @@ define("ember-runtime/system/object_proxy",
       @class ObjectProxy
       @namespace Ember
       @extends Ember.Object
+      @extends Ember.ProxyMixin
     */
-    var ObjectProxy = EmberObject.extend({
-      /**
-        The object whose properties will be forwarded.
 
-        @property content
-        @type Ember.Object
-        @default null
-      */
-      content: null,
-      _contentDidChange: observer('content', function() {
-              }),
-
-      isTruthy: computed.bool('content'),
-
-      _debugContainerKey: null,
-
-      willWatchProperty: function (key) {
-        var contentKey = 'content.' + key;
-        addBeforeObserver(this, contentKey, null, contentPropertyWillChange);
-        addObserver(this, contentKey, null, contentPropertyDidChange);
-      },
-
-      didUnwatchProperty: function (key) {
-        var contentKey = 'content.' + key;
-        removeBeforeObserver(this, contentKey, null, contentPropertyWillChange);
-        removeObserver(this, contentKey, null, contentPropertyDidChange);
-      },
-
-      unknownProperty: function (key) {
-        var content = get(this, 'content');
-        if (content) {
-          return get(content, key);
-        }
-      },
-
-      setUnknownProperty: function (key, value) {
-        var m = meta(this);
-        if (m.proto === this) {
-          // if marked as prototype then just defineProperty
-          // rather than delegate
-          defineProperty(this, key, null, value);
-          return value;
-        }
-
-        var content = get(this, 'content');
-                return set(content, key, value);
-      }
-
-    });
-
-    __exports__["default"] = ObjectProxy;
+    __exports__["default"] = EmberObject.extend(ProxyMixin);
   });
 define("ember-runtime/system/set",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/is_none","ember-runtime/system/string","ember-runtime/system/core_object","ember-runtime/mixins/mutable_enumerable","ember-runtime/mixins/enumerable","ember-runtime/mixins/copyable","ember-runtime/mixins/freezable","ember-metal/error","ember-metal/property_events","ember-metal/mixin","ember-metal/computed","exports"],
