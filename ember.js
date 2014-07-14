@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.72cd59dc
+ * @version   1.8.0-beta.1+canary.48e8cde0
  */
 
 (function() {
@@ -12841,7 +12841,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.72cd59dc
+      @version 1.8.0-beta.1+canary.48e8cde0
     */
 
     if ('undefined' === typeof Ember) {
@@ -12868,10 +12868,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.72cd59dc'
+      @default '1.8.0-beta.1+canary.48e8cde0'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.72cd59dc';
+    Ember.VERSION = '1.8.0-beta.1+canary.48e8cde0';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -18710,6 +18710,16 @@ define("ember-routing-handlebars/helpers/action",
       return allowed;
     };
 
+    function isKeyEvent(eventName) {
+      return ['keyUp', 'keyPress', 'keyDown'].indexOf(eventName) !== -1;
+    }
+
+    function ignoreKeyEvent(eventName, event, keyCode) {
+      var any = 'any';
+      keyCode = keyCode || any;
+      return isKeyEvent(eventName) && keyCode !== any && keyCode !== event.which.toString();
+    }
+
     ActionHelper.registerAction = function(actionNameOrPath, options, allowedKeys) {
       var actionId = uuid();
 
@@ -18728,8 +18738,10 @@ define("ember-routing-handlebars/helpers/action",
 
           var target = options.target,
               parameters = options.parameters,
+              eventName = options.eventName,
               actionName;
 
+          
           if (target.target) {
             target = handlebarsGet(target.root, target.target, target.options);
           } else {
@@ -18739,7 +18751,7 @@ define("ember-routing-handlebars/helpers/action",
           if (options.boundProperty) {
             actionName = resolveParams(parameters.context, [actionNameOrPath], { types: ['ID'], data: parameters.options.data })[0];
 
-            if(typeof actionName === 'undefined' || typeof actionName === 'function') {
+            if (typeof actionName === 'undefined' || typeof actionName === 'function') {
               Ember.assert("You specified a quoteless path to the {{action}} helper '" + actionNameOrPath + "' which did not resolve to an actionName. Perhaps you meant to use a quoted actionName? (e.g. {{action '" + actionNameOrPath + "'}}).", true);
               actionName = actionNameOrPath;
             }
@@ -18955,6 +18967,7 @@ define("ember-routing-handlebars/helpers/action",
         bubbles: hash.bubbles,
         preventDefault: hash.preventDefault,
         target: { options: options },
+        withKeyCode: hash.withKeyCode,
         boundProperty: options.types[0] === "ID"
       };
 
@@ -22026,9 +22039,12 @@ define("ember-routing/system/dsl",
         }
 
         var createSubRoutes = false;
-        
+        if (Ember.FEATURES.isEnabled('ember-routing-consistent-resources')) {
           createSubRoutes = true;
-        
+        } else {
+          if (callback) { createSubRoutes = true; }
+        }
+
         if (createSubRoutes) {
           var dsl = new DSL(name);
           route(dsl, 'loading');
