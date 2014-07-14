@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.18dd58de
+ * @version   1.8.0-beta.1+canary.7cae2d2b
  */
 
 (function() {
@@ -12841,7 +12841,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.18dd58de
+      @version 1.8.0-beta.1+canary.7cae2d2b
     */
 
     if ('undefined' === typeof Ember) {
@@ -12868,10 +12868,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.18dd58de'
+      @default '1.8.0-beta.1+canary.7cae2d2b'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.18dd58de';
+    Ember.VERSION = '1.8.0-beta.1+canary.7cae2d2b';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -37574,13 +37574,14 @@ define("ember-views/system/render_buffer",
     };
   });
 define("ember-views/system/utils",
-  ["ember-metal/core","exports"],
-  function(__dependency1__, __exports__) {
+  ["ember-metal/core","ember-views/system/jquery","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     /* globals XMLSerializer */
 
     var Ember = __dependency1__["default"];
     // Ember.assert
+    var jQuery = __dependency2__["default"];
 
     /**
     @module ember
@@ -37662,25 +37663,44 @@ define("ember-views/system/utils",
 
     /* END METAMORPH HELPERS */
 
+    function setInnerHTMLTestFactory(tagName, childTagName, ChildConstructor) {
+      return function() {
+        var el = document.createElement(tagName);
+        setInnerHTMLWithoutFix(el, '<' + childTagName + '>Content</' + childTagName + '>');
+        return el.firstChild instanceof ChildConstructor;
+      };
+    }
 
-    var innerHTMLTags = {};
-    var canSetInnerHTML = function(tagName) {
-      if (innerHTMLTags[tagName] !== undefined) {
-        return innerHTMLTags[tagName];
-      }
 
-      var canSet = true;
-
+    var innerHTMLTags = {
       // IE 8 and earlier don't allow us to do innerHTML on select
-      if (tagName.toLowerCase() === 'select') {
+      select: function() {
         var el = document.createElement('select');
         setInnerHTMLWithoutFix(el, '<option value="test">Test</option>');
-        canSet = el.options.length === 1;
+        return el.options.length === 1;
+      },
+
+      // IE 9 and earlier don't allow us to set innerHTML on col, colgroup, frameset,
+      // html, style, table, tbody, tfoot, thead, title, tr.
+      col:      setInnerHTMLTestFactory('col',      'span',  window.HTMLSpanElement),
+      colgroup: setInnerHTMLTestFactory('colgroup', 'col',   window.HTMLTableColElement),
+      frameset: setInnerHTMLTestFactory('frameset', 'frame', window.HTMLFrameElement),
+      table:    setInnerHTMLTestFactory('table',    'tbody', window.HTMLTableSectionElement),
+      tbody:    setInnerHTMLTestFactory('tbody',    'tr',    window.HTMLTableRowElement),
+      tfoot:    setInnerHTMLTestFactory('tfoot',    'tr',    window.HTMLTableRowElement),
+      thead:    setInnerHTMLTestFactory('thead',    'tr',    window.HTMLTableRowElement),
+      tr:       setInnerHTMLTestFactory('tr',       'td',    window.HTMLTableCellElement)
+    };
+
+    var canSetInnerHTML = function(tagName) {
+      tagName = tagName.toLowerCase();
+      var canSet = innerHTMLTags[tagName];
+
+      if (typeof canSet === 'function') {
+        canSet = innerHTMLTags[tagName] = canSet();
       }
 
-      innerHTMLTags[tagName] = canSet;
-
-      return canSet;
+      return canSet === undefined ? true : canSet;
     };
 
     function setInnerHTML(element, html) {
@@ -37697,7 +37717,7 @@ define("ember-views/system/utils",
             endTag = '</'+tagName+'>';
 
         var wrapper = document.createElement('div');
-        setInnerHTMLWithoutFix(wrapper, startTag + html + endTag);
+        jQuery(startTag + html + endTag).appendTo(wrapper);
         element = wrapper.firstChild;
         while (element.tagName !== tagName) {
           element = element.nextSibling;
