@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.01d92432
+ * @version   1.8.0-beta.1+canary.ea5ffe0a
  */
 
 (function() {
@@ -2209,12 +2209,9 @@ define("ember-application/tests/system/logging_test",
       run(App, 'advanceReadiness');
 
       visit('/posts').then(function() {
-        if (Ember.FEATURES.isEnabled('ember-routing-consistent-resources')) {
+        
           equal(Ember.keys(logs).length, 8, 'expected logs');
-        } else {
-          equal(Ember.keys(logs).length, 6, 'expected logs');
-        }
-      });
+              });
     });
 
     test("do NOT log class generation if logging disabled", function() {
@@ -53399,12 +53396,9 @@ define("ember/tests/routing/basic_test",
 
           deepEqual(router.location.path, '/specials/1');
 
-          if (Ember.FEATURES.isEnabled('ember-routing-consistent-resources')) {
+          
             equal(currentPath, 'root.special.index');
-          } else {
-            equal(currentPath, 'root.special');
-          }
-
+          
           QUnit.start();
         });
       });
@@ -55515,7 +55509,7 @@ define("ember/tests/routing/basic_test",
       });
     }
 
-    if (Ember.FEATURES.isEnabled('ember-routing-consistent-resources')) {
+    
       test("specifying no callback to `this.resources` still generates ", function() {
         expect(1);
 
@@ -55536,7 +55530,7 @@ define("ember/tests/routing/basic_test",
         Ember.run(router, 'transitionTo', 'home');
         equal(currentPath, 'home.index');
       });
-    }
+    
 
     test("Errors in transitionTo within redirect hook are logged", function() {
       Router.map(function() {
