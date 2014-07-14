@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.b9fa1d1f
+ * @version   1.8.0-beta.1+canary.2a35419f
  */
 
 (function() {
@@ -55498,6 +55498,14 @@ define("ember/tests/routing/query_params_test",
     var set = Ember.set;
     var compile = Ember.Handlebars.compile;
 
+    function withoutMeta(object) {
+      var newObject = Ember.$.extend(true, {}, object);
+
+      delete newObject['__ember_meta__'];
+
+      return newObject;
+    }
+
     function bootApplication() {
       router = container.lookup('router:main');
       Ember.run(App, 'advanceReadiness');
@@ -56526,7 +56534,7 @@ define("ember/tests/routing/query_params_test",
 
         App.IndexRoute = Ember.Route.extend({
           setupController: function(controller, model) {
-            deepEqual(model, { woot: true }, "index route inherited model route from parent route");
+            deepEqual(withoutMeta(model), { woot: true }, "index route inherited model route from parent route");
           }
         });
 
@@ -56685,7 +56693,7 @@ define("ember/tests/routing/query_params_test",
 
         equal(this.controller.get('q'), 'wat');
         equal(this.controller.get('z'), 0);
-        deepEqual(this.controller.get('model'), { id: 'a-2' });
+        deepEqual(withoutMeta(this.controller.get('model')), { id: 'a-2' });
         equal(this.$link1.attr('href'), '/a/a-1?q=lol');
         equal(this.$link2.attr('href'), '/a/a-2');
         equal(this.$link3.attr('href'), '/a/a-3');
@@ -56698,7 +56706,7 @@ define("ember/tests/routing/query_params_test",
         this.expectedModelHookParams = { id: 'a-1', q: 'lol', z: 0 };
         handleURL('/a/a-1?q=lol');
 
-        deepEqual(this.controller.get('model'), { id: 'a-1' });
+        deepEqual(withoutMeta(this.controller.get('model')), { id: 'a-1' });
         equal(this.controller.get('q'), 'lol');
         equal(this.controller.get('z'), 0);
         equal(this.$link1.attr('href'), '/a/a-1?q=lol');
@@ -56708,7 +56716,7 @@ define("ember/tests/routing/query_params_test",
         this.expectedModelHookParams = { id: 'a-2', q: 'lol', z: 0 };
         handleURL('/a/a-2?q=lol');
 
-        deepEqual(this.controller.get('model'), { id: 'a-2' }, "controller's model changed to a-2");
+        deepEqual(withoutMeta(this.controller.get('model')), { id: 'a-2' }, "controller's model changed to a-2");
         equal(this.controller.get('q'), 'lol');
         equal(this.controller.get('z'), 0);
         equal(this.$link1.attr('href'), '/a/a-1?q=lol');
@@ -56734,7 +56742,7 @@ define("ember/tests/routing/query_params_test",
         this.expectedModelHookParams = { id: 'a-1', q: 'wat', z: 0 };
         Ember.run(router, 'transitionTo', 'article', 'a-1');
 
-        deepEqual(this.controller.get('model'), { id: 'a-1' });
+        deepEqual(withoutMeta(this.controller.get('model')), { id: 'a-1' });
         equal(this.controller.get('q'), 'wat');
         equal(this.controller.get('z'), 0);
         equal(this.$link1.attr('href'), '/a/a-1');
@@ -56744,7 +56752,7 @@ define("ember/tests/routing/query_params_test",
         this.expectedModelHookParams = { id: 'a-2', q: 'lol', z: 0 };
         Ember.run(router, 'transitionTo', 'article', 'a-2', { queryParams: { q: 'lol' } });
 
-        deepEqual(this.controller.get('model'), { id: 'a-2' });
+        deepEqual(withoutMeta(this.controller.get('model')), { id: 'a-2' });
         equal(this.controller.get('q'), 'lol');
         equal(this.controller.get('z'), 0);
         equal(this.$link1.attr('href'), '/a/a-1');
@@ -56754,7 +56762,7 @@ define("ember/tests/routing/query_params_test",
         this.expectedModelHookParams = { id: 'a-3', q: 'hay', z: 0 };
         Ember.run(router, 'transitionTo', 'article', 'a-3', { queryParams: { q: 'hay' } });
 
-        deepEqual(this.controller.get('model'), { id: 'a-3' });
+        deepEqual(withoutMeta(this.controller.get('model')), { id: 'a-3' });
         equal(this.controller.get('q'), 'hay');
         equal(this.controller.get('z'), 0);
         equal(this.$link1.attr('href'), '/a/a-1');
@@ -56764,7 +56772,7 @@ define("ember/tests/routing/query_params_test",
         this.expectedModelHookParams = { id: 'a-2', q: 'lol', z: 1 };
         Ember.run(router, 'transitionTo', 'article', 'a-2', { queryParams: { z: 1 } });
 
-        deepEqual(this.controller.get('model'), { id: 'a-2' });
+        deepEqual(withoutMeta(this.controller.get('model')), { id: 'a-2' });
         equal(this.controller.get('q'), 'lol');
         equal(this.controller.get('z'), 1);
         equal(this.$link1.attr('href'), '/a/a-1');
@@ -56792,7 +56800,7 @@ define("ember/tests/routing/query_params_test",
 
         equal(this.controller.get('q'), 'lol');
         equal(this.controller.get('z'), 0);
-        deepEqual(this.controller.get('model'), { id: 'a-2' });
+        deepEqual(withoutMeta(this.controller.get('model')), { id: 'a-2' });
 
         equal(this.$link1.attr('href'), '/a/a-1?q=lol');
         equal(this.$link2.attr('href'), '/a/a-2?q=lol');
@@ -56801,7 +56809,7 @@ define("ember/tests/routing/query_params_test",
         this.expectedModelHookParams = { id: 'a-3', q: 'haha', z: 123 };
         handleURL('/a/a-3?q=haha&z=123');
 
-        deepEqual(this.controller.get('model'), { id: 'a-3' });
+        deepEqual(withoutMeta(this.controller.get('model')), { id: 'a-3' });
         equal(this.controller.get('q'), 'haha');
         equal(this.controller.get('z'), 123);
 
