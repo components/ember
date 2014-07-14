@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.6bf8ff5c
+ * @version   1.8.0-beta.1+canary.72cd59dc
  */
 
 (function() {
@@ -12535,7 +12535,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.6bf8ff5c
+      @version 1.8.0-beta.1+canary.72cd59dc
     */
 
     if ('undefined' === typeof Ember) {
@@ -12562,10 +12562,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.6bf8ff5c'
+      @default '1.8.0-beta.1+canary.72cd59dc'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.6bf8ff5c';
+    Ember.VERSION = '1.8.0-beta.1+canary.72cd59dc';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -31821,7 +31821,28 @@ define("ember-runtime/system/array_proxy",
         }
       },
 
+      /**
+        Override to implement content array `willChange` observer.
+
+        @method contentArrayWillChange
+
+        @param {Ember.Array} contentArray the content array
+        @param {Number} start starting index of the change
+        @param {Number} removeCount count of items removed
+        @param {Number} addCount count of items added
+
+      */
       contentArrayWillChange: K,
+      /**
+        Override to implement content array `didChange` observer.
+
+        @method contentArrayDidChange
+
+        @param {Ember.Array} contentArray the content array
+        @param {Number} start starting index of the change
+        @param {Number} removeCount count of items removed
+        @param {Number} addCount count of items added
+      */
       contentArrayDidChange: K,
 
       /**
