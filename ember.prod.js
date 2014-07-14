@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.7cae2d2b
+ * @version   1.8.0-beta.1+canary.6bf8ff5c
  */
 
 (function() {
@@ -12535,7 +12535,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.7cae2d2b
+      @version 1.8.0-beta.1+canary.6bf8ff5c
     */
 
     if ('undefined' === typeof Ember) {
@@ -12562,10 +12562,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.7cae2d2b'
+      @default '1.8.0-beta.1+canary.6bf8ff5c'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.7cae2d2b';
+    Ember.VERSION = '1.8.0-beta.1+canary.6bf8ff5c';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -18941,47 +18941,67 @@ define("ember-routing-handlebars/helpers/link_to",
         or the application's current route is the route the `LinkView` would trigger
         transitions into.
 
+        The `currentWhen` property can match against multiple routes by separating 
+        route names using the `|` character.
+
         @property active
       **/
       active: computed('loadedParams', function computeLinkViewActive() {
         if (get(this, 'loading')) { return false; }
 
-        var router = get(this, 'router'),
-            loadedParams = get(this, 'loadedParams'),
-            contexts = loadedParams.models,
-            currentWhen = this.currentWhen || loadedParams.targetRouteName,
-            handlers = router.router.recognizer.handlersFor(currentWhen),
-            leafName = handlers[handlers.length-1].handler,
-            maximumContexts = numberOfContextsAcceptedByHandler(currentWhen, handlers);
+        var router = get(this, 'router');
+        var loadedParams = get(this, 'loadedParams');
+        var contexts = loadedParams.models;
+        var currentWhen = this.currentWhen;
+        var isCurrentWhenSpecified = Boolean(currentWhen);
+        currentWhen = currentWhen || loadedParams.targetRouteName;
 
-        // NOTE: any ugliness in the calculation of activeness is largely
-        // due to the fact that we support automatic normalizing of
-        // `resource` -> `resource.index`, even though there might be
-        // dynamic segments / query params defined on `resource.index`
-        // which complicates (and makes somewhat ambiguous) the calculation
-        // of activeness for links that link to `resource` instead of
-        // directly to `resource.index`.
+        function isActiveForRoute(routeName) {
+          var handlers = router.router.recognizer.handlersFor(routeName);
+          var leafName = handlers[handlers.length-1].handler;
+          var maximumContexts = numberOfContextsAcceptedByHandler(routeName, handlers);
 
-        // if we don't have enough contexts revert back to full route name
-        // this is because the leaf route will use one of the contexts
-        if (contexts.length > maximumContexts) {
-          currentWhen = leafName;
+          // NOTE: any ugliness in the calculation of activeness is largely
+          // due to the fact that we support automatic normalizing of
+          // `resource` -> `resource.index`, even though there might be
+          // dynamic segments / query params defined on `resource.index`
+          // which complicates (and makes somewhat ambiguous) the calculation
+          // of activeness for links that link to `resource` instead of
+          // directly to `resource.index`.
+
+          // if we don't have enough contexts revert back to full route name
+          // this is because the leaf route will use one of the contexts
+          if (contexts.length > maximumContexts) {
+            routeName = leafName;
+          }
+
+          var args = routeArgs(routeName, contexts, null);
+          var isActive = router.isActive.apply(router, args);
+          if (!isActive) { return false; }
+
+          
+            if (!isCurrentWhenSpecified && leafName === loadedParams.targetRouteName) {
+              var visibleQueryParams = {};
+              merge(visibleQueryParams, loadedParams.queryParams);
+              router._prepareQueryParams(loadedParams.targetRouteName, loadedParams.models, visibleQueryParams);
+              isActive = shallowEqual(visibleQueryParams, router.router.state.queryParams);
+            }
+          
+          return isActive;
         }
 
-        var args = routeArgs(currentWhen, contexts, null);
-        var isActive = router.isActive.apply(router, args);
-        if (!isActive) { return false; }
-
-        
-          if (!this.currentWhen && leafName === loadedParams.targetRouteName) {
-            var visibleQueryParams = {};
-            merge(visibleQueryParams, loadedParams.queryParams);
-            router._prepareQueryParams(loadedParams.targetRouteName, loadedParams.models, visibleQueryParams);
-            isActive = shallowEqual(visibleQueryParams, router.router.state.queryParams);
+        if (Ember.FEATURES.isEnabled("ember-routing-multi-current-when")) {
+          currentWhen = currentWhen.split('|');
+          for (var i = 0, len = currentWhen.length; i < len; i++) {
+            if (isActiveForRoute(currentWhen[i])) { 
+              return get(this, 'activeClass'); 
+            }
           }
-        
-
-        if (isActive) { return get(this, 'activeClass'); }
+        } else {
+          if (isActiveForRoute(currentWhen)) { 
+            return get(this, 'activeClass'); 
+          }
+        }
       }),
 
       /**
