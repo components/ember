@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.48e8cde0
+ * @version   1.8.0-beta.1+canary.01d92432
  */
 
 (function() {
@@ -22203,7 +22203,80 @@ define("ember-routing-handlebars/tests/helpers/action_test",
       ok(showCalled, "should call action with keyup");
     });
 
-        test("a quoteless parameter should allow dynamic lookup of the actionName", function(){
+    if (Ember.FEATURES.isEnabled("ember-routing-handlebars-action-with-key-code")) {
+      test("it can trigger actions for key events with specific key codes", function() {
+        var showCalled = false;
+
+        view = EmberView.create({
+          template: compile("<input type='text' class='keyup-with-key-codes' {{action 'show' on='keyUp' withKeyCode='13'}}>" +
+            "<input type='text' class='keydown-with-key-codes' {{action 'show' on='keyDown' withKeyCode='13'}}>" +
+            "<input type='text' class='keypress-with-key-codes' {{action 'show' on='keyPress' withKeyCode='13'}}>" +
+            "<input type='text' class='keyup-without-key-codes' {{action 'show' on='keyUp'}}>")
+        });
+
+        var controller = EmberController.extend({
+          actions: {
+            show: function() {
+              showCalled = true;
+            }
+          }
+        }).create();
+
+        run(function() {
+          view.set('controller', controller);
+          view.appendTo('#qunit-fixture');
+        });
+
+        function enterEvent(eventType) {
+          var event = jQuery.Event(eventType);
+          event["char"] = '\n';
+          event.which = 13;
+          return event;
+        }
+
+        function nonEnterEvent(eventType) {
+          var event = jQuery.Event(eventType);
+          event["char"] = 'a';
+          event.which = 65;
+          return event;
+        }
+
+        view.$('input.keyup-with-key-codes').trigger(nonEnterEvent('keyup'));
+        ok(!showCalled, "should not call action with a's keyup");
+
+
+        view.$('input.keyup-with-key-codes').trigger(enterEvent('keyup'));
+        ok(showCalled, "should call action with enter's keyup");
+
+        showCalled = false;
+
+        view.$('input.keydown-with-key-codes').trigger(nonEnterEvent('keydown'));
+        ok(!showCalled, "should not call action with a's keydown");
+
+        view.$('input.keydown-with-key-codes').trigger(enterEvent('keydown'));
+        ok(showCalled, "should call action with enter's keydown");
+
+        showCalled = false;
+
+        view.$('input.keypress-with-key-codes').trigger(nonEnterEvent('keypress'));
+        ok(!showCalled, "should not call action with a's keypress");
+
+
+        view.$('input.keypress-with-key-codes').trigger(enterEvent('keypress'));
+        ok(showCalled, "should call action with enter's keypress");
+
+        showCalled = false;
+
+        view.$('input.keyup-without-key-codes').trigger(nonEnterEvent('keyup'));
+        ok(showCalled, "should call action with a's keyup");
+
+        showCalled = false;
+
+        view.$('input.keyup-without-key-codes').trigger(enterEvent('keyup'));
+        ok(showCalled, "should call action with enter's keyup");
+      });
+    }
+    test("a quoteless parameter should allow dynamic lookup of the actionName", function(){
       expect(4);
       var lastAction, actionOrder = [];
 
