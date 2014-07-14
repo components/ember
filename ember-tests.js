@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.8078a409
+ * @version   1.8.0-beta.1+canary.ed216557
  */
 
 (function() {
@@ -55487,11 +55487,12 @@ define("ember/tests/routing/basic_test.jshint",
     });
   });
 define("ember/tests/routing/query_params_test",
-  ["ember","ember-metal/enumerable_utils"],
-  function(__dependency1__, __dependency2__) {
+  ["ember","ember-metal/enumerable_utils","ember-metal/platform"],
+  function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
     var forEach = __dependency2__.forEach;
     var map = __dependency2__.map;
+    var platform = __dependency3__.platform;
 
     var Router, App, AppView, templates, router, container;
     var get = Ember.get;
@@ -55499,11 +55500,15 @@ define("ember/tests/routing/query_params_test",
     var compile = Ember.Handlebars.compile;
 
     function withoutMeta(object) {
-      var newObject = Ember.$.extend(true, {}, object);
+      if (platform.defineProperty.isSimulated) {
+        var newObject = Ember.$.extend(true, {}, object);
 
-      delete newObject['__ember_meta__'];
+        delete newObject['__ember_meta__'];
 
-      return newObject;
+        return newObject;
+      } else {
+        return object;
+      }
     }
 
     function bootApplication() {
