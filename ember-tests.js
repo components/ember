@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.05d2edc6
+ * @version   1.8.0-beta.1+canary.145f519e
  */
 
 (function() {
@@ -24751,6 +24751,12 @@ define("ember-routing/tests/system/router_test",
       teardown: function() {
         container = Router = router = null;
       }
+    });
+
+    test("can create a router without a container", function() {
+      var router = Router.create();
+
+      ok(router.router);
     });
 
     test("should create a router if one does not exist on the constructor", function() {
