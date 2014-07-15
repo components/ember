@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.7.0-beta.2+pre.0df55f71
+ * @version   1.7.0-beta.2+pre.cb1fcc72
  */
 
 (function() {
@@ -9143,10 +9143,10 @@ define("ember-handlebars/helpers/view",
     function viewHelper(path, options) {
       
       // If no path is provided, treat path param as options
-      // and get an instance of the registered `view:default`
+      // and get an instance of the registered `view:toplevel`
       if (path && path.data && path.data.isRenderData) {
         options = path;
-                path = options.data.view.container.lookupFactory('view:default');
+                path = options.data.view.container.lookupFactory('view:toplevel');
       }
 
       options.helperName = options.helperName || 'view';
@@ -12511,7 +12511,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.7.0-beta.2+pre.0df55f71
+      @version 1.7.0-beta.2+pre.cb1fcc72
     */
 
     if ('undefined' === typeof Ember) {
@@ -12538,10 +12538,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.7.0-beta.2+pre.0df55f71'
+      @default '1.7.0-beta.2+pre.cb1fcc72'
       @static
     */
-    Ember.VERSION = '1.7.0-beta.2+pre.0df55f71';
+    Ember.VERSION = '1.7.0-beta.2+pre.cb1fcc72';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
