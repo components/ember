@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.145f519e
+ * @version   1.8.0-beta.1+canary.1b565b3c
  */
 
 (function() {
@@ -52390,7 +52390,7 @@ define("ember/tests/routing/basic_test",
     var get = __dependency3__.get;
     var set = __dependency4__.set;
 
-    var Router, App, AppView, templates, router, container;
+    var Router, App, AppView, templates, router, container, originalLoggerError;
     var compile = Ember.Handlebars.compile;
 
     function bootApplication() {
@@ -52455,6 +52455,8 @@ define("ember/tests/routing/basic_test",
           Ember.TEMPLATES.home = compile("<h3>Hours</h3>");
           Ember.TEMPLATES.homepage = compile("<h3>Megatroll</h3><p>{{home}}</p>");
           Ember.TEMPLATES.camelot = compile('<section><h3>Is a silly place</h3></section>');
+
+          originalLoggerError = Ember.Logger.error;
         });
       },
 
@@ -52464,6 +52466,7 @@ define("ember/tests/routing/basic_test",
           App = null;
 
           Ember.TEMPLATES = {};
+          Ember.Logger.error = originalLoggerError;
         });
       }
     });
@@ -55464,8 +55467,7 @@ define("ember/tests/routing/basic_test",
 
     test("rejecting the model hooks promise with a non-error prints the `message` property", function() {
       var rejectedMessage = 'OMG!! SOOOOOO BAD!!!!',
-          rejectedStack   = 'Yeah, buddy: stack gets printed too.',
-          originalLoggerError = Ember.Logger.error;
+          rejectedStack   = 'Yeah, buddy: stack gets printed too.';
 
       Router.map(function() {
         this.route("yippie", { path: "/" });
@@ -55484,13 +55486,9 @@ define("ember/tests/routing/basic_test",
       });
 
       bootApplication();
-
-      Ember.Logger.error = originalLoggerError;
     });
 
     test("rejecting the model hooks promise with no reason still logs error", function() {
-      var originalLoggerError = Ember.Logger.error;
-
       Router.map(function() {
         this.route("wowzers", { path: "/" });
       });
@@ -55506,8 +55504,6 @@ define("ember/tests/routing/basic_test",
       });
 
       bootApplication();
-
-      Ember.Logger.error = originalLoggerError;
     });
 
     test("rejecting the model hooks promise with a string shows a good error", function() {
@@ -55629,6 +55625,9 @@ define("ember/tests/routing/basic_test",
     
 
     test("Errors in transitionTo within redirect hook are logged", function() {
+      expect(2);
+      var actual = [];
+
       Router.map(function() {
         this.route('yondo', { path: "/" });
         this.route('stink-bomb');
@@ -55640,12 +55639,34 @@ define("ember/tests/routing/basic_test",
         }
       });
 
-      raises(function() {
-        bootApplication();
-      },
-      /More context objects were passed than there are dynamic segments for the route: stink-bomb/);
+      Ember.Logger.error = function(message) {
+        actual.push(message);
+      };
+
+      bootApplication();
+
+      equal(actual[0], 'Error while processing route: yondo', 'source route is printed');
+      ok(actual[1].match(/More context objects were passed than there are dynamic segments for the route: stink-bomb/), 'the error is printed');
     });
 
+    test("Errors in transition show error template if available", function() {
+      Ember.TEMPLATES.error = compile("<div id='error'>Error!</div>");
+
+      Router.map(function() {
+        this.route('yondo', { path: "/" });
+        this.route('stink-bomb');
+      });
+
+      App.YondoRoute = Ember.Route.extend({
+        redirect: function(){
+          this.transitionTo('stink-bomb', {something: 'goes boom'});
+        }
+      });
+
+      bootApplication();
+
+      equal(Ember.$('#error').length, 1, "Error template was rendered.");
+    });
 
     
       test("Route#resetController gets fired when changing models and exiting routes", function() {
