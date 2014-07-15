@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.280a99c3
+ * @version   1.8.0-beta.1+canary.05d2edc6
  */
 
 (function() {
@@ -12841,7 +12841,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.280a99c3
+      @version 1.8.0-beta.1+canary.05d2edc6
     */
 
     if ('undefined' === typeof Ember) {
@@ -12868,10 +12868,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.280a99c3'
+      @default '1.8.0-beta.1+canary.05d2edc6'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.280a99c3';
+    Ember.VERSION = '1.8.0-beta.1+canary.05d2edc6';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -21465,8 +21465,18 @@ define("ember-routing/location/auto_location",
           if (currentPath === historyPath) {
             implementationClass = this._HistoryLocation;
           } else {
-            cancelRouterSetup = true;
-            this._replacePath(historyPath);
+            if (Ember.FEATURES.isEnabled("ember-routing-auto-location-uses-replace-state-for-history")) {
+              if (currentPath.substr(0, 2) === '/#') {
+                this._history.replaceState({ path: historyPath }, null, historyPath);
+                implementationClass = this._HistoryLocation;
+              } else {
+                cancelRouterSetup = true;
+                this._replacePath(historyPath);
+              }
+            } else {
+              cancelRouterSetup = true;
+              this._replacePath(historyPath);
+            }
           }
 
         } else if (this._getSupportsHashChange()) {
