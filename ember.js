@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.d0504f3a
+ * @version   1.8.0-beta.1+canary.280a99c3
  */
 
 (function() {
@@ -9455,11 +9455,11 @@ define("ember-handlebars/helpers/view",
       Ember.assert("The view helper only takes a single argument", arguments.length <= 2);
 
       // If no path is provided, treat path param as options
-      // and get an instance of the registered `view:default`
+      // and get an instance of the registered `view:toplevel`
       if (path && path.data && path.data.isRenderData) {
         options = path;
         Ember.assert('{{view}} helper requires parent view to have a container but none was found. This usually happens when you are manually-managing views.', !!options.data.view.container);
-        path = options.data.view.container.lookupFactory('view:default');
+        path = options.data.view.container.lookupFactory('view:toplevel');
       }
 
       options.helperName = options.helperName || 'view';
@@ -12841,7 +12841,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.d0504f3a
+      @version 1.8.0-beta.1+canary.280a99c3
     */
 
     if ('undefined' === typeof Ember) {
@@ -12868,10 +12868,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.d0504f3a'
+      @default '1.8.0-beta.1+canary.280a99c3'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.d0504f3a';
+    Ember.VERSION = '1.8.0-beta.1+canary.280a99c3';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`

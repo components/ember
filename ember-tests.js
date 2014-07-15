@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.d0504f3a
+ * @version   1.8.0-beta.1+canary.280a99c3
  */
 
 (function() {
@@ -5411,8 +5411,8 @@ define("ember-handlebars/tests/controls/text_field_test.jshint",
     });
   });
 define("ember-handlebars/tests/handlebars_test",
-  ["ember-metal/core","ember-views/system/jquery","ember-metal/enumerable_utils","ember-metal/run_loop","ember-runtime/system/namespace","ember-views/views/view","ember-handlebars","ember-runtime/system/object","ember-runtime/controllers/object_controller","ember-runtime/system/native_array","ember-metal/computed","ember-runtime/system/string","ember-metal/utils","ember-runtime/system/array_proxy","ember-views/views/collection_view","ember-views/views/container_view","ember-metal/binding","ember-metal/observer","ember-handlebars/controls/text_field","ember-runtime/system/container","ember-metal/logger","ember-handlebars/string","ember-metal/property_get","ember-metal/property_set"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__) {
+  ["ember-metal/core","ember-views/system/jquery","ember-metal/enumerable_utils","ember-metal/run_loop","ember-runtime/system/namespace","ember-views/views/view","ember-handlebars/views/metamorph_view","ember-handlebars","ember-runtime/system/object","ember-runtime/controllers/object_controller","ember-runtime/system/native_array","ember-metal/computed","ember-runtime/system/string","ember-metal/utils","ember-runtime/system/array_proxy","ember-views/views/collection_view","ember-views/views/container_view","ember-metal/binding","ember-metal/observer","ember-handlebars/controls/text_field","ember-runtime/system/container","ember-metal/logger","ember-handlebars/string","ember-metal/property_get","ember-metal/property_set"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__) {
     "use strict";
     /*globals TemplateTests:true,MyApp:true,App:true,Ember:true */
 
@@ -5425,23 +5425,24 @@ define("ember-handlebars/tests/handlebars_test",
     var run = __dependency4__["default"];
     var Namespace = __dependency5__["default"];
     var EmberView = __dependency6__["default"];
-    var EmberHandlebars = __dependency7__["default"];
-    var EmberObject = __dependency8__["default"];
-    var ObjectController = __dependency9__["default"];
-    var A = __dependency10__.A;
-    var computed = __dependency11__.computed;
-    var fmt = __dependency12__.fmt;
-    var typeOf = __dependency13__.typeOf;
-    var ArrayProxy = __dependency14__["default"];
-    var CollectionView = __dependency15__["default"];
-    var ContainerView = __dependency16__["default"];
-    var Binding = __dependency17__.Binding;
-    var observersFor = __dependency18__.observersFor;
-    var TextField = __dependency19__["default"];
-    var Container = __dependency20__["default"];
-    var Logger = __dependency21__["default"];
+    var _MetamorphView = __dependency7__["default"];
+    var EmberHandlebars = __dependency8__["default"];
+    var EmberObject = __dependency9__["default"];
+    var ObjectController = __dependency10__["default"];
+    var A = __dependency11__.A;
+    var computed = __dependency12__.computed;
+    var fmt = __dependency13__.fmt;
+    var typeOf = __dependency14__.typeOf;
+    var ArrayProxy = __dependency15__["default"];
+    var CollectionView = __dependency16__["default"];
+    var ContainerView = __dependency17__["default"];
+    var Binding = __dependency18__.Binding;
+    var observersFor = __dependency19__.observersFor;
+    var TextField = __dependency20__["default"];
+    var Container = __dependency21__["default"];
+    var Logger = __dependency22__["default"];
 
-    var htmlSafe = __dependency22__["default"];
+    var htmlSafe = __dependency23__["default"];
 
     // for global lookups in template. :(
     Ember.View = EmberView;
@@ -5450,8 +5451,8 @@ define("ember-handlebars/tests/handlebars_test",
 
     var trim = jQuery.trim;
 
-    var get = __dependency23__.get;
-    var set = __dependency24__.set;
+    var get = __dependency24__.get;
+    var set = __dependency25__.set;
 
     function firstGrandchild(view) {
       return get(get(view, 'childViews').objectAt(0), 'childViews').objectAt(0);
@@ -5524,7 +5525,8 @@ define("ember-handlebars/tests/handlebars_test",
 
         container = new Container();
         container.optionsForType('template', { instantiate: false });
-        container.register('view:default', EmberView.extend());
+        container.register('view:default', _MetamorphView);
+        container.register('view:toplevel', EmberView.extend());
       },
 
       teardown: function() {
@@ -8524,8 +8526,8 @@ define("ember-handlebars/tests/helpers/debug_test.jshint",
     });
   });
 define("ember-handlebars/tests/helpers/each_test",
-  ["ember-metal/core","ember-runtime/system/object","ember-metal/run_loop","ember-views/views/view","ember-metal/computed","ember-runtime/controllers/array_controller","ember-handlebars-compiler","ember-runtime/system/native_array","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/system/container","ember-metal/property_get","ember-metal/property_set"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__) {
+  ["ember-metal/core","ember-runtime/system/object","ember-metal/run_loop","ember-views/views/view","ember-handlebars/views/metamorph_view","ember-metal/computed","ember-runtime/controllers/array_controller","ember-handlebars-compiler","ember-runtime/system/native_array","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/system/container","ember-metal/property_get","ember-metal/property_set"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__) {
     "use strict";
     /*jshint newcap:false*/
     var Ember = __dependency1__["default"];
@@ -8533,17 +8535,18 @@ define("ember-handlebars/tests/helpers/each_test",
     var EmberObject = __dependency2__["default"];
     var run = __dependency3__["default"];
     var EmberView = __dependency4__["default"];
-    var computed = __dependency5__.computed;
-    var ArrayController = __dependency6__["default"];
-    var EmberHandlebars = __dependency7__["default"];
+    var _MetamorphView = __dependency5__["default"];
+    var computed = __dependency6__.computed;
+    var ArrayController = __dependency7__["default"];
+    var EmberHandlebars = __dependency8__["default"];
     // import {expectAssertion} from "ember-metal/tests/debug_helpers";
-    var A = __dependency8__.A;
-    var EmberController = __dependency9__["default"];
-    var ObjectController = __dependency10__["default"];
-    var Container = __dependency11__["default"];
+    var A = __dependency9__.A;
+    var EmberController = __dependency10__["default"];
+    var ObjectController = __dependency11__["default"];
+    var Container = __dependency12__["default"];
 
-    var get = __dependency12__.get;
-    var set = __dependency13__.set;
+    var get = __dependency13__.get;
+    var set = __dependency14__.set;
 
     var people, view, container;
     var template, templateMyView;
@@ -8562,7 +8565,8 @@ define("ember-handlebars/tests/helpers/each_test",
         people = A([{ name: "Steve Holt" }, { name: "Annabelle" }]);
 
         container = new Container();
-        container.register('view:default', EmberView.extend());
+        container.register('view:default', _MetamorphView);
+        container.register('view:toplevel', EmberView.extend());
 
         view = EmberView.create({
           container: container,
@@ -9055,7 +9059,8 @@ define("ember-handlebars/tests/helpers/each_test",
     QUnit.module("{{#each foo in bar}}", {
       setup: function() {
         container = new Container();
-        container.register('view:default', EmberView.extend());
+        container.register('view:default', _MetamorphView);
+        container.register('view:toplevel', EmberView.extend());
       },
       teardown: function() {
         run(function() {
@@ -9289,21 +9294,22 @@ define("ember-handlebars/tests/helpers/each_test.jshint",
     });
   });
 define("ember-handlebars/tests/helpers/group_test",
-  ["ember-metal/run_loop","ember-views/system/jquery","ember-views/views/view","ember-handlebars-compiler","ember-runtime/system/array_proxy","ember-runtime/system/native_array","ember-runtime/system/container","ember-metal/property_get","ember-metal/property_set","ember-views/views/component"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
+  ["ember-metal/run_loop","ember-views/system/jquery","ember-views/views/view","ember-handlebars/views/metamorph_view","ember-handlebars-compiler","ember-runtime/system/array_proxy","ember-runtime/system/native_array","ember-runtime/system/container","ember-metal/property_get","ember-metal/property_set","ember-views/views/component"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__) {
     "use strict";
     /*jshint newcap:false*/
 
     var run = __dependency1__["default"];
     var jQuery = __dependency2__["default"];
     var EmberView = __dependency3__["default"];
-    var EmberHandlebars = __dependency4__["default"];
-    var ArrayProxy = __dependency5__["default"];
-    var A = __dependency6__.A;
-    var Container = __dependency7__["default"];
-    var get = __dependency8__.get;
-    var set = __dependency9__.set;
-    var Component = __dependency10__["default"];
+    var _MetamorphView = __dependency4__["default"];
+    var EmberHandlebars = __dependency5__["default"];
+    var ArrayProxy = __dependency6__["default"];
+    var A = __dependency7__.A;
+    var Container = __dependency8__["default"];
+    var get = __dependency9__.get;
+    var set = __dependency10__.set;
+    var Component = __dependency11__["default"];
 
     var trim = jQuery.trim;
     var container, view;
@@ -9315,7 +9321,8 @@ define("ember-handlebars/tests/helpers/group_test",
     QUnit.module("EmberHandlebars - group flag", {
       setup: function() {
         container = new Container();
-        container.register('view:default', EmberView.extend());
+        container.register('view:default', _MetamorphView);
+        container.register('view:toplevel', EmberView.extend());
       },
 
       teardown: function() {
@@ -10377,13 +10384,14 @@ define("ember-handlebars/tests/helpers/unbound_test.jshint",
     });
   });
 define("ember-handlebars/tests/helpers/view_test",
-  ["ember-views/views/view","ember-metal/run_loop","ember-views/system/jquery"],
-  function(__dependency1__, __dependency2__, __dependency3__) {
+  ["ember-views/views/view","container/container","ember-metal/run_loop","ember-views/system/jquery"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
     /*globals EmberDev */
     var EmberView = __dependency1__["default"];
-    var run = __dependency2__["default"];
-    var jQuery = __dependency3__["default"];
+    var Container = __dependency2__["default"];
+    var run = __dependency3__["default"];
+    var jQuery = __dependency4__["default"];
 
     var view, originalLookup;
 
@@ -10410,9 +10418,9 @@ define("ember-handlebars/tests/helpers/view_test",
       }
     });
 
-    test("By default view:default is used", function() {
+    test("By default view:toplevel is used", function() {
       var DefaultView = viewClass({
-        elementId: 'default-view',
+        elementId: 'toplevel-view',
         template: Ember.Handlebars.compile('hello world')
       });
 
@@ -10427,10 +10435,10 @@ define("ember-handlebars/tests/helpers/view_test",
 
       run(view, 'appendTo', '#qunit-fixture');
 
-      equal(jQuery('#default-view').text(), 'hello world');
+      equal(jQuery('#toplevel-view').text(), 'hello world');
 
       function lookupFactory(fullName) {
-        equal(fullName, 'view:default');
+        equal(fullName, 'view:toplevel');
 
         return DefaultView;
       }
@@ -10564,6 +10572,25 @@ define("ember-handlebars/tests/helpers/view_test",
       equal(jQuery('#lol').text(), "nerd", "awkward mixed syntax treated like binding");
 
       Ember.warn = oldWarn;
+    });
+
+    test("allows you to pass attributes that will be assigned to the class instance, like class=\"foo\"", function() {
+      expect(4);
+
+      var container = new Container();
+      container.register('view:toplevel', EmberView.extend());
+
+      view = EmberView.extend({
+        template: Ember.Handlebars.compile('{{view id="foo" tagName="h1" class="foo"}}{{#view id="bar" class="bar"}}Bar{{/view}}'),
+        container: container
+      }).create();
+
+      run(view, 'appendTo', '#qunit-fixture');
+
+      ok(jQuery('#foo').hasClass('foo'));
+      ok(jQuery('#foo').is('h1'));
+      ok(jQuery('#bar').hasClass('bar'));
+      equal(jQuery('#bar').text(), 'Bar');
     });
   });
 define("ember-handlebars/tests/helpers/view_test.jshint",
@@ -22678,7 +22705,7 @@ define("ember-routing-handlebars/tests/helpers/outlet_test",
 
         var namespace = Namespace.create();
         container = buildContainer(namespace);
-        container.register('view:default', EmberView.extend());
+        container.register('view:default', _MetamorphView);
         container.register('router:main', EmberRouter.extend());
       },
       teardown: function() {
@@ -22960,8 +22987,8 @@ define("ember-routing-handlebars/tests/helpers/outlet_test.jshint",
     });
   });
 define("ember-routing-handlebars/tests/helpers/render_test",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-metal/platform","ember-metal/mixin","container/container","ember-runtime/system/namespace","ember-runtime/system/string","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-routing/system/router","ember-routing/location/hash_location","ember-handlebars","ember-routing/ext/view","ember-views/system/jquery","ember-routing-handlebars/helpers/render","ember-routing-handlebars/helpers/action","ember-routing-handlebars/helpers/outlet"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-metal/platform","ember-metal/mixin","container/container","ember-runtime/system/namespace","ember-runtime/system/string","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-routing/system/router","ember-routing/location/hash_location","ember-handlebars","ember-routing/ext/view","ember-handlebars/views/metamorph_view","ember-views/system/jquery","ember-routing-handlebars/helpers/render","ember-routing-handlebars/helpers/action","ember-routing-handlebars/helpers/outlet"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // TEMPLATES
@@ -22985,12 +23012,13 @@ define("ember-routing-handlebars/tests/helpers/render_test",
 
     var EmberHandlebars = __dependency15__["default"];
     var EmberView = __dependency16__["default"];
-    var jQuery = __dependency17__["default"];
+    var _MetamorphView = __dependency17__["default"];
+    var jQuery = __dependency18__["default"];
 
-    var renderHelper = __dependency18__["default"];
-    var ActionHelper = __dependency19__.ActionHelper;
-    var actionHelper = __dependency19__.actionHelper;
-    var outletHelper = __dependency20__.outletHelper;
+    var renderHelper = __dependency19__["default"];
+    var ActionHelper = __dependency20__.ActionHelper;
+    var actionHelper = __dependency20__.actionHelper;
+    var outletHelper = __dependency21__.outletHelper;
 
     function appendView(view) {
       run(function() { view.appendTo('#qunit-fixture'); });
@@ -23060,7 +23088,7 @@ define("ember-routing-handlebars/tests/helpers/render_test",
 
         var namespace = Namespace.create();
         container = buildContainer(namespace);
-        container.register('view:default', EmberView.extend());
+        container.register('view:default', _MetamorphView);
         container.register('router:main', EmberRouter.extend());
       },
       teardown: function() {
