@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.7.0-beta.2+pre.f433d6b5
+ * @version   1.7.0-beta.2+pre.5440f123
  */
 
 (function() {
@@ -42628,7 +42628,42 @@ define("ember-testing/tests/helpers_test",
       equal(Test.pendingAjaxRequests, 0, 'pendingAjaxRequests is reset');
     });
 
-    test("`trigger` can be used to trigger arbitrary events", function() {
+    test("`triggerEvent can limit searching for a selector to a scope", function(){
+      expect(2);
+
+      var triggerEvent, wait, event;
+
+      run(function() {
+        App = EmberApplication.create();
+        App.setupForTesting();
+      });
+
+      App.IndexView = EmberView.extend({
+        template: Ember.Handlebars.compile('{{input type="text" id="outside-scope" class="input"}}<div id="limited">{{input type="text" id="inside-scope" class="input"}}</div>'),
+
+        didInsertElement: function() {
+          this.$('.input').on('blur change', function(e) {
+            event = e;
+          });
+        }
+      });
+
+      App.injectTestHelpers();
+
+      run(App, App.advanceReadiness);
+
+      triggerEvent = App.testHelpers.triggerEvent;
+      wait         = App.testHelpers.wait;
+
+      wait().then(function() {
+        return triggerEvent('.input', '#limited', 'blur');
+      }).then(function() {
+        equal(event.type, 'blur', 'correct event was triggered');
+        equal(event.target.getAttribute('id'), 'inside-scope', 'triggered on the correct element');
+      });
+    });
+
+    test("`triggerEvent` can be used to trigger arbitrary events", function() {
       expect(2);
 
       var triggerEvent, wait, event;
