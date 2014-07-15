@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.7.0-beta.2+pre.cb1fcc72
+ * @version   1.7.0-beta.2+pre.d6aa69cf
  */
 
 (function() {
@@ -12816,7 +12816,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.7.0-beta.2+pre.cb1fcc72
+      @version 1.7.0-beta.2+pre.d6aa69cf
     */
 
     if ('undefined' === typeof Ember) {
@@ -12843,10 +12843,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.7.0-beta.2+pre.cb1fcc72'
+      @default '1.7.0-beta.2+pre.d6aa69cf'
       @static
     */
-    Ember.VERSION = '1.7.0-beta.2+pre.cb1fcc72';
+    Ember.VERSION = '1.7.0-beta.2+pre.d6aa69cf';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -24581,16 +24581,7 @@ define("ember-routing/system/router",
           return;
         }
 
-        var errorArgs = ['Error while processing route: ' + transition.targetName];
-
-        if (error) {
-          if (error.message) { errorArgs.push(error.message); }
-          if (error.stack)   { errorArgs.push(error.stack); }
-
-          if (typeof error === "string") { errorArgs.push(error); }
-        }
-
-        Ember.Logger.error.apply(this, errorArgs);
+        logError(error, 'Error while processing route: ' + transition.targetName);
       },
 
       loading: function(transition, originRoute) {
@@ -24620,6 +24611,21 @@ define("ember-routing/system/router",
         }
       }
     };
+
+    function logError(error, initialMessage) {
+      var errorArgs = [];
+
+      if (initialMessage) { errorArgs.push(initialMessage); }
+
+      if (error) {
+        if (error.message) { errorArgs.push(error.message); }
+        if (error.stack)   { errorArgs.push(error.stack); }
+
+        if (typeof error === "string") { errorArgs.push(error); }
+      }
+
+      Ember.Logger.error.apply(this, errorArgs);
+    }
 
     function findChildRouteName(parentRoute, originatingChildRoute, name) {
       var router = parentRoute.router;
@@ -24793,7 +24799,7 @@ define("ember-routing/system/router",
         } else if (error.name === 'TransitionAborted') {
           // just ignore TransitionAborted here
         } else {
-          throw error;
+          logError(error);
         }
 
         return error;
