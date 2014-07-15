@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.85c5a85c
+ * @version   1.8.0-beta.1+canary.d0504f3a
  */
 
 (function() {
@@ -12535,7 +12535,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.85c5a85c
+      @version 1.8.0-beta.1+canary.d0504f3a
     */
 
     if ('undefined' === typeof Ember) {
@@ -12562,10 +12562,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.85c5a85c'
+      @default '1.8.0-beta.1+canary.d0504f3a'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.85c5a85c';
+    Ember.VERSION = '1.8.0-beta.1+canary.d0504f3a';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -35181,6 +35181,7 @@ define("ember-testing/helpers",
 
     function triggerEvent(app, selector, context, type, options){
       if (arguments.length === 3) {
+        options = type;
         type = context;
         context = null;
       }
@@ -35474,7 +35475,7 @@ define("ember-testing/helpers",
     helper('currentURL', currentURL);
 
     /**
-      Triggers the given event on the element identified by the provided selector.
+      Triggers the given DOM event on the element identified by the provided selector.
 
       Example:
 
@@ -35490,8 +35491,10 @@ define("ember-testing/helpers",
 
      @method triggerEvent
      @param {String} selector jQuery selector for finding element on the DOM
+     @param {String} [context] jQuery selector that will limit the selector
+                               argument to find only within the context's children
      @param {String} type The event type to be triggered.
-     @param {String} options The options to be passed to jQuery.Event.
+     @param {Object} options The options to be passed to jQuery.Event.
      @return {RSVP.Promise}
      @since 1.5.0
     */
