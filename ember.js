@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.7.0-beta.2+pre.d6aa69cf
+ * @version   1.7.0-beta.2+pre.0a75e5d7
  */
 
 (function() {
@@ -12816,7 +12816,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.7.0-beta.2+pre.d6aa69cf
+      @version 1.7.0-beta.2+pre.0a75e5d7
     */
 
     if ('undefined' === typeof Ember) {
@@ -12843,10 +12843,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.7.0-beta.2+pre.d6aa69cf'
+      @default '1.7.0-beta.2+pre.0a75e5d7'
       @static
     */
-    Ember.VERSION = '1.7.0-beta.2+pre.d6aa69cf';
+    Ember.VERSION = '1.7.0-beta.2+pre.0a75e5d7';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -24259,7 +24259,7 @@ define("ember-routing/system/router",
         var location = get(this, 'location');
         var rootURL = get(this, 'rootURL');
 
-        if (rootURL && !this.container.has('-location-setting:root-url')) {
+        if (rootURL && this.container && !this.container.has('-location-setting:root-url')) {
           this.container.register('-location-setting:root-url', rootURL, { instantiate: false });
         }
 

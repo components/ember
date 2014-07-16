@@ -1,6 +1,6 @@
 {
   "name": "ember",
-  "version": "1.7.0-beta.2+pre.d6aa69cf",
+  "version": "1.7.0-beta.2+pre.0a75e5d7",
   "main": [
     "./ember.js"
   ],
