@@ -2155,19 +2155,20 @@ define("ember-metal",
     __exports__["default"] = Ember;
   });
 define("ember-metal/alias",
-  ["ember-metal/property_get","ember-metal/property_set","ember-metal/error","ember-metal/properties","ember-metal/platform","ember-metal/utils","ember-metal/dependent_keys","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
+  ["ember-metal/property_get","ember-metal/property_set","ember-metal/error","ember-metal/properties","ember-metal/computed","ember-metal/platform","ember-metal/utils","ember-metal/dependent_keys","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
     var get = __dependency1__.get;
     var set = __dependency2__.set;
     var EmberError = __dependency3__["default"];
     var Descriptor = __dependency4__.Descriptor;
     var defineProperty = __dependency4__.defineProperty;
-    var create = __dependency5__.create;
-    var meta = __dependency6__.meta;
-    var inspect = __dependency6__.inspect;
-    var addDependentKeys = __dependency7__.addDependentKeys;
-    var removeDependentKeys = __dependency7__.removeDependentKeys;
+    var ComputedProperty = __dependency5__.ComputedProperty;
+    var create = __dependency6__.create;
+    var meta = __dependency7__.meta;
+    var inspect = __dependency7__.inspect;
+    var addDependentKeys = __dependency8__.addDependentKeys;
+    var removeDependentKeys = __dependency8__.removeDependentKeys;
 
     function alias(altKey) {
       return new AliasedProperty(altKey);
@@ -2228,6 +2229,10 @@ define("ember-metal/alias",
       defineProperty(obj, keyName, null);
       return set(obj, keyName, value);
     }
+
+    // Backwards compatibility with Ember Data
+    AliasedProperty.prototype._meta = undefined;
+    AliasedProperty.prototype.meta = ComputedProperty.prototype.meta;
   });
 define("ember-metal/array",
   ["exports"],
