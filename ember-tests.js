@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.1df3336d
+ * @version   1.8.0-beta.1+canary.a0fa2187
  */
 
 (function() {
@@ -49230,7 +49230,7 @@ define("ember-views/tests/views/view/transition_to_deprecation_test",
       }, '');
     });
 
-    test("doesn't deprecafte when calling _transitionTo", function() {
+    test("doesn't deprecate when calling _transitionTo", function() {
       expect(1);
 
       view = EmberView.create();
