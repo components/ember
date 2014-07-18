@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.8e28a38e
+ * @version   1.8.0-beta.1+canary.1df3336d
  */
 
 (function() {
@@ -12535,7 +12535,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.8e28a38e
+      @version 1.8.0-beta.1+canary.1df3336d
     */
 
     if ('undefined' === typeof Ember) {
@@ -12562,10 +12562,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.8e28a38e'
+      @default '1.8.0-beta.1+canary.1df3336d'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.8e28a38e';
+    Ember.VERSION = '1.8.0-beta.1+canary.1df3336d';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -27101,32 +27101,39 @@ define("ember-runtime/controllers/object_controller",
     __exports__["default"] = ObjectProxy.extend(ControllerMixin);
   });
 define("ember-runtime/copy",
-  ["ember-metal/enumerable_utils","ember-metal/utils","ember-runtime/system/object","ember-runtime/mixins/copyable","ember-metal/platform","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
+  ["ember-metal/enumerable_utils","ember-metal/utils","ember-runtime/system/object","ember-runtime/mixins/copyable","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     var indexOf = __dependency1__.indexOf;
     var typeOf = __dependency2__.typeOf;
     var EmberObject = __dependency3__["default"];
     var Copyable = __dependency4__["default"];
-    var create = __dependency5__.create;
 
     function _copy(obj, deep, seen, copies) {
       var ret, loc, key;
 
       // primitive data types are immutable, just return them.
-      if ('object' !== typeof obj || obj===null) return obj;
+      if (typeof obj !== 'object' || obj === null) {
+        return obj;
+      }
 
       // avoid cyclical loops
-      if (deep && (loc=indexOf(seen, obj))>=0) return copies[loc];
+      if (deep && (loc = indexOf(seen, obj)) >= 0) {
+        return copies[loc];
+      }
 
       
       // IMPORTANT: this specific test will detect a native array only. Any other
       // object will need to implement Copyable.
       if (typeOf(obj) === 'array') {
         ret = obj.slice();
+
         if (deep) {
           loc = ret.length;
-          while(--loc>=0) ret[loc] = _copy(ret[loc], deep, seen, copies);
+
+          while (--loc >= 0) {
+            ret[loc] = _copy(ret[loc], deep, seen, copies);
+          }
         }
       } else if (Copyable && Copyable.detect(obj)) {
         ret = obj.copy(deep, seen, copies);
@@ -27134,12 +27141,17 @@ define("ember-runtime/copy",
         ret = new Date(obj.getTime());
       } else {
         ret = {};
-        for(key in obj) {
-          if (!obj.hasOwnProperty(key)) continue;
+
+        for (key in obj) {
+          if (!obj.hasOwnProperty(key)) {
+            continue;
+          }
 
           // Prevents browsers that don't respect non-enumerability from
           // copying internal Ember properties
-          if (key.substring(0,2) === '__') continue;
+          if (key.substring(0, 2) === '__') {
+            continue;
+          }
 
           ret[key] = deep ? _copy(obj[key], deep, seen, copies) : obj[key];
         }
@@ -27169,8 +27181,14 @@ define("ember-runtime/copy",
     */
     __exports__["default"] = function copy(obj, deep) {
       // fast paths
-      if ('object' !== typeof obj || obj === null) return obj; // can't copy primitives
-      if (Copyable && Copyable.detect(obj)) return obj.copy(deep);
+      if ('object' !== typeof obj || obj === null) {
+        return obj; // can't copy primitives
+      }
+
+      if (Copyable && Copyable.detect(obj)) {
+        return obj.copy(deep);
+      }
+
       return _copy(obj, deep, deep ? [] : null, deep ? [] : null);
     }
   });
