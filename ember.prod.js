@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.b805c1c7
+ * @version   1.8.0-beta.1+canary.eedc573e
  */
 
 (function() {
@@ -12538,7 +12538,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.b805c1c7
+      @version 1.8.0-beta.1+canary.eedc573e
     */
 
     if ('undefined' === typeof Ember) {
@@ -12565,10 +12565,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.b805c1c7'
+      @default '1.8.0-beta.1+canary.eedc573e'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.b805c1c7';
+    Ember.VERSION = '1.8.0-beta.1+canary.eedc573e';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -36548,12 +36548,12 @@ define("ember-views/system/event_dispatcher",
       rootElement: 'body',
 
       /**
-        It enables events to be dispatched to the view `eventManager` which object 
-        when present takes precedence over events of the same name handled through methods 
+        It enables events to be dispatched to the view `eventManager` which object
+        when present takes precedence over events of the same name handled through methods
         on the view.
 
-        Most of the ember applications does not implement view `eventManagers`, 
-        then disabling this property will provide some performance benefit 
+        Most of the ember applications does not implement view `eventManagers`,
+        then disabling this property will provide some performance benefit
         because it skips the search for the `eventManager` on the view tree.
 
         ```javascript
@@ -36564,7 +36564,7 @@ define("ember-views/system/event_dispatcher",
               focusout    : 'focusOut',
               change      : 'change'
           },
-          canDispatchToEventManager: false 
+          canDispatchToEventManager: false
         });
         container.register('event_dispatcher:main', EventDispatcher);
         ```
@@ -36637,15 +36637,13 @@ define("ember-views/system/event_dispatcher",
         rootElement.on(event + '.ember', '.ember-view', function(evt, triggeringManager) {
           var view = View.views[this.id],
               result = true;
-          
+
           var manager = self.canDispatchToEventManager ? self._findNearestEventManager(view, eventName) : null;
 
           if (manager && manager !== triggeringManager) {
             result = self._dispatchEvent(manager, evt, eventName, view);
           } else if (view) {
             result = self._bubbleEvent(view, evt, eventName);
-          } else {
-            evt.stopPropagation();
           }
 
           return result;
