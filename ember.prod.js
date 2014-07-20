@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.eedc573e
+ * @version   1.8.0-beta.1+canary.aef63b25
  */
 
 (function() {
@@ -3661,7 +3661,7 @@ define("ember-extension-support/container_debug_adapter",
         classes in the resolver for a given type.
 
         @method canCatalogEntriesByType
-        @param {string} type The type. e.g. "model", "controller", "route"
+        @param {String} type The type. e.g. "model", "controller", "route"
         @return {boolean} whether a list is available for this type.
       */
       canCatalogEntriesByType: function(type) {
@@ -3673,7 +3673,7 @@ define("ember-extension-support/container_debug_adapter",
         Returns the available classes a given type.
 
         @method catalogEntriesByType
-        @param {string} type The type. e.g. "model", "controller", "route"
+        @param {String} type The type. e.g. "model", "controller", "route"
         @return {Array} An array of strings.
       */
       catalogEntriesByType: function(type) {
@@ -12538,7 +12538,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.eedc573e
+      @version 1.8.0-beta.1+canary.aef63b25
     */
 
     if ('undefined' === typeof Ember) {
@@ -12565,10 +12565,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.eedc573e'
+      @default '1.8.0-beta.1+canary.aef63b25'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.eedc573e';
+    Ember.VERSION = '1.8.0-beta.1+canary.aef63b25';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -13542,13 +13542,13 @@ define("ember-metal/expand_properties",
 
       @method
       @private
-      @param {string} pattern The property pattern to expand.
-      @param {function} callback The callback to invoke.  It is invoked once per
+      @param {String} pattern The property pattern to expand.
+      @param {Function} callback The callback to invoke.  It is invoked once per
       expansion, and is passed the expansion.
       */
     __exports__["default"] = function expandProperties(pattern, callback) {
       if (pattern.indexOf(' ') > -1) {
-        throw new EmberError('Brace expanded properties cannot contain spaces, ' + 
+        throw new EmberError('Brace expanded properties cannot contain spaces, ' +
           'e.g. `user.{firstName, lastName}` should be `user.{firstName,lastName}`');
       }
 
@@ -34596,8 +34596,8 @@ define("ember-runtime/system/subarray",
 
         @method addItem
 
-        @param {number} index The index of the item in the tracked array.
-        @param {boolean} match `true` iff the item is included in the subarray.
+        @param {Number} index The index of the item in the tracked array.
+        @param {Boolean} match `true` iff the item is included in the subarray.
 
         @return {number} The index of the item in the subarray.
       */
@@ -34649,7 +34649,7 @@ define("ember-runtime/system/subarray",
 
         @method removeItem
 
-        @param {number} index The index of the item in the tracked array.
+        @param {Number} index The index of the item in the tracked array.
 
         @return {number} The index of the item in the subarray, or `-1` if the item
         was not in the subarray.
@@ -34759,7 +34759,7 @@ define("ember-runtime/system/tracked_array",
 
       @class TrackedArray
       @namespace Ember
-      @param {array} [items=[]] The array to be tracked.  This is used just to get
+      @param {Array} [items=[]] The array to be tracked.  This is used just to get
       the initial items for the starting state of retain:n.
     */
     function TrackedArray(items) {
@@ -34864,7 +34864,7 @@ define("ember-runtime/system/tracked_array",
         `Ember.TrackedArray.{RETAIN, DELETE, INSERT}`
 
         @method apply
-        @param {function} callback
+        @param {Function} callback
       */
       apply: function (callback) {
         var items = [],
@@ -34887,7 +34887,7 @@ define("ember-runtime/system/tracked_array",
 
         @method _findArrayOperation
 
-        @param {number} index the index of the item whose operation information
+        @param {Number} index the index of the item whose operation information
         should be returned.
         @private
       */
@@ -35045,10 +35045,10 @@ define("ember-runtime/system/tracked_array",
 
       @method ArrayOperation
       @private
-      @param {string} type The type of the operation.  One of
+      @param {String} type The type of the operation.  One of
       `Ember.TrackedArray.{RETAIN, INSERT, DELETE}`
-      @param {number} count The number of items in this operation.
-      @param {array} items The items of the operation, if included.  RETAIN and
+      @param {Number} count The number of items in this operation.
+      @param {Array} items The items of the operation, if included.  RETAIN and
       INSERT include their items, DELETE does not.
     */
     function ArrayOperation (operation, count, items) {
@@ -35064,10 +35064,10 @@ define("ember-runtime/system/tracked_array",
       @method ArrayOperationMatch
       @private
       @param {ArrayOperation} operation
-      @param {number} index The index of `operation` in the array of operations.
-      @param {boolean} split Whether or not the item index searched for would
+      @param {Number} index The index of `operation` in the array of operations.
+      @param {Boolean} split Whether or not the item index searched for would
       require a split for a new operation type.
-      @param {number} rangeStart The index of the first item in the operation,
+      @param {Number} rangeStart The index of the first item in the operation,
       with respect to the tracked array.  The index of the last item can be computed
       from `rangeStart` and `operation.count`.
     */
