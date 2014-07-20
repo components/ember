@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.d98d0c98
+ * @version   1.8.0-beta.1+canary.b805c1c7
  */
 
 (function() {
@@ -12436,6 +12436,53 @@ define("ember-handlebars/tests/views/collection_view_test.jshint",
     module('JSHint - ember-handlebars/tests/views');
     test('ember-handlebars/tests/views/collection_view_test.js should pass jshint', function() { 
       ok(true, 'ember-handlebars/tests/views/collection_view_test.js should pass jshint.'); 
+    });
+  });
+define("ember-handlebars/tests/views/handlebars_bound_view_test",
+  ["ember-handlebars/views/handlebars_bound_view"],
+  function(__dependency1__) {
+    "use strict";
+    var SimpleHandlebarsView = __dependency1__.SimpleHandlebarsView;
+
+    QUnit.module('SimpleHandlebarsView');
+
+    test('does not render if update is triggured by normalizedValue is the same as the previous normalizedValue', function(){
+      var html = null;
+      var path = 'foo';
+      var pathRoot = { 'foo': 'bar' };
+      var isEscaped = false;
+      var templateData;
+      var view = new SimpleHandlebarsView(path, pathRoot, isEscaped, templateData);
+
+      view.morph.html = function(newHTML) {
+        html = newHTML;
+      };
+
+      equal(html, null);
+
+      view.update();
+
+      equal(html, 'bar', 'expected call to morph.html with "bar"');
+      html = null;
+
+      view.update();
+
+      equal(html, null, 'expected no call to morph.html');
+
+      pathRoot.foo = 'baz'; // change property
+
+      view.update();
+
+      equal(html, 'baz', 'expected call to morph.html with "baz"');
+    });
+  });
+define("ember-handlebars/tests/views/handlebars_bound_view_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-handlebars/tests/views');
+    test('ember-handlebars/tests/views/handlebars_bound_view_test.js should pass jshint', function() { 
+      ok(true, 'ember-handlebars/tests/views/handlebars_bound_view_test.js should pass jshint.'); 
     });
   });
 define("ember-handlebars/tests/views/metamorph_view_test",

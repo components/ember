@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.d98d0c98
+ * @version   1.8.0-beta.1+canary.b805c1c7
  */
 
 (function() {
@@ -6205,8 +6205,8 @@ define("ember-handlebars/ext",
       @param data {Hash}
     */
     function normalizePath(root, path, data) {
-      var keywords = (data && data.keywords) || {},
-          keyword, isKeyword;
+      var keywords = (data && data.keywords) || {};
+      var keyword, isKeyword;
 
       // Get the first segment of the path. For example, if the
       // path is "foo.bar.baz", returns "foo".
@@ -6231,7 +6231,11 @@ define("ember-handlebars/ext",
         }
       }
 
-      return { root: root, path: path, isKeyword: isKeyword };
+      return {
+        root: root,
+        path: path,
+        isKeyword: isKeyword
+      };
     }
 
 
@@ -6247,9 +6251,9 @@ define("ember-handlebars/ext",
       @param {Object} options The template's option hash
     */
     function handlebarsGet(root, path, options) {
-      var data = options && options.data,
-          normalizedPath = normalizePath(root, path, data),
-          value;
+      var data = options && options.data;
+      var normalizedPath = normalizePath(root, path, data);
+      var value;
 
       if (Ember.FEATURES.isEnabled("ember-handlebars-caps-lookup")) {
 
@@ -6515,8 +6519,8 @@ define("ember-handlebars/ext",
       @param {String} dependentKeys*
     */
     function registerBoundHelper(name, fn) {
-      var boundHelperArgs = slice.call(arguments, 1),
-          boundFn = makeBoundHelper.apply(this, boundHelperArgs);
+      var boundHelperArgs = slice.call(arguments, 1);
+      var boundFn = makeBoundHelper.apply(this, boundHelperArgs);
       EmberHandlebars.registerHelper(name, boundFn);
     }
 
@@ -6551,20 +6555,20 @@ define("ember-handlebars/ext",
       var dependentKeys = slice.call(arguments, 1);
 
       function helper() {
-        var properties = slice.call(arguments, 0, -1),
-          numProperties = properties.length,
-          options = arguments[arguments.length - 1],
-          normalizedProperties = [],
-          data = options.data,
-          types = data.isUnbound ? slice.call(options.types, 1) : options.types,
-          hash = options.hash,
-          view = data.view,
-          contexts = options.contexts,
-          currentContext = (contexts && contexts.length) ? contexts[0] : this,
-          prefixPathForDependentKeys = '',
-          loc, len, hashOption,
-          boundOption, property,
-          normalizedValue = SimpleHandlebarsView.prototype.normalizedValue;
+        var properties = slice.call(arguments, 0, -1);
+        var numProperties = properties.length;
+        var options = arguments[arguments.length - 1];
+        var normalizedProperties = [];
+        var data = options.data;
+        var types = data.isUnbound ? slice.call(options.types, 1) : options.types;
+        var hash = options.hash;
+        var view = data.view;
+        var contexts = options.contexts;
+        var currentContext = (contexts && contexts.length) ? contexts[0] : this;
+        var prefixPathForDependentKeys = '';
+        var loc, len, hashOption;
+        var boundOption, property;
+        var normalizedValue = SimpleHandlebarsView.prototype.normalizedValue;
 
         
         // Detect bound options (e.g. countBinding="otherCount")
@@ -6586,7 +6590,7 @@ define("ember-handlebars/ext",
             normalizedProperties.push(normalizedProp);
             watchedProperties.push(normalizedProp);
           } else {
-            if(data.isUnbound) {
+            if (data.isUnbound) {
               normalizedProperties.push({path: properties[loc]});
             }else {
               normalizedProperties.push(null);
@@ -6651,9 +6655,9 @@ define("ember-handlebars/ext",
         }
 
         // Add dependent key observers to the first param
-        var normalized = normalizedProperties[0],
-            pathRoot = normalized.root,
-            path = normalized.path;
+        var normalized = normalizedProperties[0];
+        var pathRoot = normalized.root;
+        var path = normalized.path;
 
         if(!isEmpty(path)) {
           prefixPathForDependentKeys = path + '.';
@@ -6678,25 +6682,21 @@ define("ember-handlebars/ext",
       @param {String} options
     */
     function evaluateUnboundHelper(context, fn, normalizedProperties, options) {
-      var args = [],
-       hash = options.hash,
-       boundOptions = hash.boundOptions,
-       types = slice.call(options.types, 1),
-       loc,
-       len,
-       property,
-       propertyType,
-       boundOption;
+      var args = [];
+      var hash = options.hash;
+      var boundOptions = hash.boundOptions;
+      var types = slice.call(options.types, 1);
+      var loc, len, property, propertyType, boundOption;
 
       for (boundOption in boundOptions) {
         if (!boundOptions.hasOwnProperty(boundOption)) { continue; }
         hash[boundOption] = handlebarsGet(context, boundOptions[boundOption], options);
       }
 
-      for(loc = 0, len = normalizedProperties.length; loc < len; ++loc) {
+      for (loc = 0, len = normalizedProperties.length; loc < len; ++loc) {
         property = normalizedProperties[loc];
         propertyType = types[loc];
-        if(propertyType === "ID") {
+        if (propertyType === "ID") {
           args.push(handlebarsGet(property.root, property.path, options));
         } else {
           args.push(property.path);
@@ -6829,11 +6829,11 @@ define("ember-handlebars/helpers/binding",
     // Binds a property into the DOM. This will create a hook in DOM that the
     // KVO system will look for and update if the property changes.
     function bind(property, options, preserveContext, shouldDisplay, valueNormalizer, childProperties) {
-      var data = options.data,
-          fn = options.fn,
-          inverse = options.inverse,
-          view = data.view,
-          normalized, observer, i;
+      var data = options.data;
+      var fn = options.fn;
+      var inverse = options.inverse;
+      var view = data.view;
+      var normalized, observer, i;
 
       // we relied on the behavior of calling without
       // context to mean this === window, but when running
@@ -6917,9 +6917,9 @@ define("ember-handlebars/helpers/binding",
     }
 
     function simpleBind(currentContext, property, options) {
-      var data = options.data,
-          view = data.view,
-          normalized, observer, pathRoot, output;
+      var data = options.data;
+      var view = data.view;
+      var normalized, observer, pathRoot, output;
 
       normalized = normalizePath(currentContext, property, data);
       pathRoot = normalized.root;
@@ -7120,11 +7120,11 @@ define("ember-handlebars/helpers/binding",
       @since 1.4.0
     */
     function unboundIfHelper(property, fn) {
-      var context = (fn.contexts && fn.contexts.length) ? fn.contexts[0] : this,
-          data = fn.data,
-          template = fn.fn,
-          inverse = fn.inverse,
-          normalized, propertyValue, result;
+      var context = (fn.contexts && fn.contexts.length) ? fn.contexts[0] : this;
+      var data = fn.data;
+      var template = fn.fn;
+      var inverse = fn.inverse;
+      var normalized, propertyValue, result;
 
       normalized = normalizePath(context, property, data);
       propertyValue = handlebarsGet(context, property, fn);
@@ -7475,8 +7475,8 @@ define("ember-handlebars/helpers/binding",
         
         normalized = normalizePath(ctx, path, options.data);
 
-        var value = (path === 'this') ? normalized.root : handlebarsGet(ctx, path, options),
-            type = typeOf(value);
+        var value = (path === 'this') ? normalized.root : handlebarsGet(ctx, path, options);
+        var type = typeOf(value);
 
         
         var observer;
@@ -7567,8 +7567,8 @@ define("ember-handlebars/helpers/binding",
       // determine which class string to return, based on whether it is
       // a Boolean or not.
       var classStringForPath = function(root, parsedPath, options) {
-        var val,
-            path = parsedPath.path;
+        var val;
+        var path = parsedPath.path;
 
         if (path === 'this') {
           val = root;
@@ -7589,13 +7589,11 @@ define("ember-handlebars/helpers/binding",
         // closes over this variable, so it knows which string to remove when
         // the property changes.
         var oldClass;
-
         var observer;
-
-        var parsedPath = View._parsePropertyPath(binding),
-            path = parsedPath.path,
-            pathRoot = context,
-            normalized;
+        var parsedPath = View._parsePropertyPath(binding);
+        var path = parsedPath.path;
+        var pathRoot = context;
+        var normalized;
 
         if (path !== '' && path !== 'this') {
           normalized = normalizePath(context, path, options.data);
@@ -9470,6 +9468,7 @@ define("ember-handlebars/views/handlebars_bound_view",
       this.isEscaped = isEscaped;
       this.templateData = templateData;
 
+      this._lastNormalizedValue = undefined;
       this.morph = Metamorph();
       this.state = 'preRender';
       this.updateId = null;
@@ -9498,9 +9497,9 @@ define("ember-handlebars/views/handlebars_bound_view",
       propertyDidChange: K,
 
       normalizedValue: function() {
-        var path = this.path,
-            pathRoot = this.pathRoot,
-            result, templateData;
+        var path = this.path;
+        var pathRoot = this.pathRoot;
+        var result, templateData;
 
         // Use the pathRoot as the result if no path is provided. This
         // happens if the path is `this`, which gets normalized into
@@ -9526,12 +9525,12 @@ define("ember-handlebars/views/handlebars_bound_view",
         buffer.push(string);
       },
 
-      render: function() {
+      render: function(value) {
         // If not invoked via a triple-mustache ({{{foo}}}), escape
         // the content of the template.
         var escape = this.isEscaped;
-        var result = this.normalizedValue();
-
+        var result = value || this.normalizedValue();
+        this._lastNormalizedValue = result;
         if (result === null || result === undefined) {
           result = "";
         } else if (!(result instanceof SafeString)) {
@@ -9560,7 +9559,10 @@ define("ember-handlebars/views/handlebars_bound_view",
 
       update: function () {
         this.updateId = null;
-        this.morph.html(this.render());
+        var value = this.normalizedValue();
+        if (value !== this._lastNormalizedValue) {
+          this.morph.html(this.render(value));
+        }
       },
 
       _transitionTo: function(state) {
@@ -9682,10 +9684,10 @@ define("ember-handlebars/views/handlebars_bound_view",
       pathRoot: null,
 
       normalizedValue: function() {
-        var path = get(this, 'path'),
-            pathRoot  = get(this, 'pathRoot'),
-            valueNormalizer = get(this, 'valueNormalizerFunc'),
-            result, templateData;
+        var path = get(this, 'path');
+        var pathRoot  = get(this, 'pathRoot');
+        var valueNormalizer = get(this, 'valueNormalizerFunc');
+        var result, templateData;
 
         // Use the pathRoot as the result if no path is provided. This
         // happens if the path is `this`, which gets normalized into
@@ -9727,14 +9729,15 @@ define("ember-handlebars/views/handlebars_bound_view",
         // the content of the template.
         var escape = get(this, 'isEscaped');
 
-        var shouldDisplay = get(this, 'shouldDisplayFunc'),
-            preserveContext = get(this, 'preserveContext'),
-            context = get(this, 'previousContext');
+        var shouldDisplay = get(this, 'shouldDisplayFunc');
+        var preserveContext = get(this, 'preserveContext');
+        var context = get(this, 'previousContext');
 
-        var inverseTemplate = get(this, 'inverseTemplate'),
-            displayTemplate = get(this, 'displayTemplate');
+        var inverseTemplate = get(this, 'inverseTemplate');
+        var displayTemplate = get(this, 'displayTemplate');
 
         var result = this.normalizedValue();
+
         this._lastNormalizedValue = result;
 
         // First, test the conditional to see if we should
@@ -12535,7 +12538,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.d98d0c98
+      @version 1.8.0-beta.1+canary.b805c1c7
     */
 
     if ('undefined' === typeof Ember) {
@@ -12562,10 +12565,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.d98d0c98'
+      @default '1.8.0-beta.1+canary.b805c1c7'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.d98d0c98';
+    Ember.VERSION = '1.8.0-beta.1+canary.b805c1c7';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
