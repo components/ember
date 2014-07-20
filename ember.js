@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.aef63b25
+ * @version   1.8.0-beta.1+canary.81e41c70
  */
 
 (function() {
@@ -10815,12 +10815,14 @@ define("ember-metal/binding",
     // BINDING
     //
 
-    var Binding = function(toPath, fromPath) {
+    function Binding(toPath, fromPath) {
       this._direction = 'fwd';
       this._from = fromPath;
       this._to   = toPath;
       this._directionMap = Map.create();
-    };
+      this._readyToSync = undefined;
+      this._oneWay = undefined;
+    }
 
     /**
     @class Binding
@@ -11084,7 +11086,6 @@ define("ember-metal/binding",
       }
 
     });
-
     /**
       An `Ember.Binding` connects the properties of two objects so that whenever
       the value of one property changes, the other property will be changed also.
@@ -12844,7 +12845,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.aef63b25
+      @version 1.8.0-beta.1+canary.81e41c70
     */
 
     if ('undefined' === typeof Ember) {
@@ -12871,10 +12872,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.aef63b25'
+      @default '1.8.0-beta.1+canary.81e41c70'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.aef63b25';
+    Ember.VERSION = '1.8.0-beta.1+canary.81e41c70';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
