@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.a0fa2187
+ * @version   1.8.0-beta.1+canary.7a5ab2c1
  */
 
 (function() {
@@ -4447,7 +4447,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.a0fa2187
+      @version 1.8.0-beta.1+canary.7a5ab2c1
     */
 
     if ('undefined' === typeof Ember) {
@@ -4474,10 +4474,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.a0fa2187'
+      @default '1.8.0-beta.1+canary.7a5ab2c1'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.a0fa2187';
+    Ember.VERSION = '1.8.0-beta.1+canary.7a5ab2c1';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -10425,7 +10425,7 @@ define("ember-runtime/compare",
       var type2 = typeOf(w);
 
       if (Comparable) {
-        if (type1==='instance' && Comparable.detect(v.constructor)) {
+        if (type1 ==='instance' && Comparable.detect(v.constructor)) {
           return v.constructor.compare(v, w);
         }
 
@@ -10437,11 +10437,14 @@ define("ember-runtime/compare",
       // If we haven't yet generated a reverse-mapping of Ember.ORDER_DEFINITION,
       // do so now.
       var mapping = Ember.ORDER_DEFINITION_MAPPING;
+
       if (!mapping) {
         var order = Ember.ORDER_DEFINITION;
-        mapping = Ember.ORDER_DEFINITION_MAPPING = {};
         var idx, len;
-        for (idx = 0, len = order.length; idx < len;  ++idx) {
+
+        mapping = Ember.ORDER_DEFINITION_MAPPING = {};
+
+        for (idx = 0, len = order.length; idx < len; ++idx) {
           mapping[order[idx]] = idx;
         }
 
@@ -10476,7 +10479,7 @@ define("ember-runtime/compare",
           var r = 0;
           var i = 0;
           while (r === 0 && i < l) {
-            r = compare(v[i],w[i]);
+            r = compare(v[i], w[i]);
             i++;
           }
           if (r !== 0) { return r; }
@@ -10546,9 +10549,11 @@ define("ember-runtime/computed/array_computed",
     }
 
     ArrayComputedProperty.prototype = o_create(ReduceComputedProperty.prototype);
+
     ArrayComputedProperty.prototype.initialValue = function () {
       return Ember.A();
     };
+
     ArrayComputedProperty.prototype.resetValue = function (array) {
       array.clear();
       return array;
@@ -10681,8 +10686,8 @@ define("ember-runtime/computed/array_computed",
         options = a_slice.call(arguments, -1)[0];
       }
 
-      if (typeof options !== "object") {
-        throw new EmberError("Array Computed Property declared without an options hash");
+      if (typeof options !== 'object') {
+        throw new EmberError('Array Computed Property declared without an options hash');
       }
 
       var cp = new ArrayComputedProperty(options);
@@ -10786,7 +10791,7 @@ define("ember-runtime/computed/reduce_computed",
     }
 
     function ItemPropertyObserverContext (dependentArray, index, trackedArray) {
-      Ember.assert("Internal error: trackedArray is null or undefined", trackedArray);
+      Ember.assert('Internal error: trackedArray is null or undefined', trackedArray);
 
       this.dependentArray = dependentArray;
       this.index = index;
@@ -10794,7 +10799,6 @@ define("ember-runtime/computed/reduce_computed",
       this.trackedArray = trackedArray;
       this.beforeObserver = null;
       this.observer = null;
-
       this.destroyed = false;
     }
 
@@ -10802,6 +10806,7 @@ define("ember-runtime/computed/reduce_computed",
       setValue: function (newValue) {
         this.instanceMeta.setValue(newValue, true);
       },
+
       getValue: function () {
         return this.instanceMeta.getValue();
       },
@@ -10858,11 +10863,9 @@ define("ember-runtime/computed/reduce_computed",
       },
 
       teardownPropertyObservers: function (dependentKey, itemPropertyKeys) {
-        var dependentArrayObserver = this,
-            trackedArray = this.trackedArraysByGuid[dependentKey],
-            beforeObserver,
-            observer,
-            item;
+        var dependentArrayObserver = this;
+        var trackedArray = this.trackedArraysByGuid[dependentKey];
+        var beforeObserver, observer, item;
 
         if (!trackedArray) { return; }
 
@@ -10897,6 +10900,7 @@ define("ember-runtime/computed/reduce_computed",
         observerContext.beforeObserver = function (obj, keyName) {
           return dependentArrayObserver.itemPropertyWillChange(obj, keyName, observerContext.dependentArray, observerContext);
         };
+
         observerContext.observer = function (obj, keyName) {
           return dependentArrayObserver.itemPropertyDidChange(obj, keyName, observerContext.dependentArray, observerContext);
         };
@@ -10908,6 +10912,7 @@ define("ember-runtime/computed/reduce_computed",
 
       trackAdd: function (dependentKey, index, newItems) {
         var trackedArray = this.trackedArraysByGuid[dependentKey];
+
         if (trackedArray) {
           trackedArray.addItems(index, newItems);
         }
@@ -10973,7 +10978,7 @@ define("ember-runtime/computed/reduce_computed",
           forEach(itemPropertyKeys, removeObservers, this);
 
           changeMeta = new ChangeMeta(dependentArray, item, itemIndex, this.instanceMeta.propertyName, this.cp, normalizedRemoveCount);
-          this.setValue( removedItem.call(
+          this.setValue(removedItem.call(
             this.instanceMeta.context, this.getValue(), item, changeMeta, this.instanceMeta.sugarMeta));
         }
       },
@@ -10988,13 +10993,15 @@ define("ember-runtime/computed/reduce_computed",
         var itemPropertyKeys = this.cp._itemPropertyKeys[dependentKey];
         var length = get(dependentArray, 'length');
         var normalizedIndex = normalizeIndex(index, length, addedCount);
+        var endIndex = normalizedIndex + addedCount;
         var changeMeta, observerContext;
 
-        forEach(dependentArray.slice(normalizedIndex, normalizedIndex + addedCount), function (item, sliceIndex) {
+        forEach(dependentArray.slice(normalizedIndex, endIndex), function (item, sliceIndex) {
           if (itemPropertyKeys) {
-            observerContext =
-              observerContexts[sliceIndex] =
-              this.createPropertyObserverContext(dependentArray, normalizedIndex + sliceIndex, this.trackedArraysByGuid[dependentKey]);
+            observerContext = this.createPropertyObserverContext(dependentArray, normalizedIndex + sliceIndex,
+              this.trackedArraysByGuid[dependentKey]);
+            observerContexts[sliceIndex] = observerContext;
+
             forEach(itemPropertyKeys, function (propertyKey) {
               addBeforeObserver(item, propertyKey, this, observerContext.beforeObserver);
               addObserver(item, propertyKey, this, observerContext.observer);
@@ -11002,7 +11009,7 @@ define("ember-runtime/computed/reduce_computed",
           }
 
           changeMeta = new ChangeMeta(dependentArray, item, normalizedIndex + sliceIndex, this.instanceMeta.propertyName, this.cp, addedCount);
-          this.setValue( addedItem.call(
+          this.setValue(addedItem.call(
             this.instanceMeta.context, this.getValue(), item, changeMeta, this.instanceMeta.sugarMeta));
         }, this);
 
@@ -11014,24 +11021,24 @@ define("ember-runtime/computed/reduce_computed",
 
         if (!this.changedItems[guid]) {
           this.changedItems[guid] = {
-            array:            array,
-            observerContext:  observerContext,
-            obj:              obj,
-            previousValues:   {}
+            array: array,
+            observerContext: observerContext,
+            obj: obj,
+            previousValues: {}
           };
         }
-        ++this.changedItemCount;
 
+        ++this.changedItemCount;
         this.changedItems[guid].previousValues[keyName] = get(obj, keyName);
       },
 
-      itemPropertyDidChange: function(obj, keyName, array, observerContext) {
+      itemPropertyDidChange: function (obj, keyName, array, observerContext) {
         if (--this.changedItemCount === 0) {
           this.flushChanges();
         }
       },
 
-      flushChanges: function() {
+      flushChanges: function () {
         var changedItems = this.changedItems, key, c, changeMeta;
 
         for (key in changedItems) {
@@ -11046,6 +11053,7 @@ define("ember-runtime/computed/reduce_computed",
           this.setValue(
             this.callbacks.addedItem.call(this.instanceMeta.context, this.getValue(), c.obj, changeMeta, this.instanceMeta.sugarMeta));
         }
+
         this.changedItems = {};
       }
     };
@@ -11078,7 +11086,7 @@ define("ember-runtime/computed/reduce_computed",
       }
     }
 
-    function addItems (dependentArray, callbacks, cp, propertyName, meta) {
+    function addItems(dependentArray, callbacks, cp, propertyName, meta) {
       forEach(dependentArray, function (item, index) {
         meta.setValue( callbacks.addedItem.call(
           this, meta.getValue(), item, new ChangeMeta(dependentArray, item, index, propertyName, cp, dependentArray.length), meta.sugarMeta));
@@ -11097,7 +11105,10 @@ define("ember-runtime/computed/reduce_computed",
       }
 
       if (cp.options.initialize) {
-        cp.options.initialize.call(this, meta.getValue(), { property: cp, propertyName: propertyName }, meta.sugarMeta);
+        cp.options.initialize.call(this, meta.getValue(), {
+          property: cp,
+          propertyName: propertyName
+        }, meta.sugarMeta);
       }
     }
 
@@ -11114,16 +11125,15 @@ define("ember-runtime/computed/reduce_computed",
       this.context = context;
       this.propertyName = propertyName;
       this.cache = metaFor(context).cache;
-
       this.dependentArrays = {};
       this.sugarMeta = {};
-
       this.initialValue = initialValue;
     }
 
     ReduceComputedPropertyInstanceMeta.prototype = {
       getValue: function () {
         var value = cacheGet(this.cache, this.propertyName);
+
         if (value !== undefined) {
           return value;
         } else {
@@ -11166,11 +11176,11 @@ define("ember-runtime/computed/reduce_computed",
 
     __exports__.ReduceComputedProperty = ReduceComputedProperty;
     // TODO: default export
+
     function ReduceComputedProperty(options) {
       var cp = this;
 
       this.options = options;
-
       this._dependentKeys = null;
       // A map of dependentKey -> [itemProperty, ...] that tracks what properties of
       // items in the array we must track to update this property.
@@ -11186,24 +11196,25 @@ define("ember-runtime/computed/reduce_computed",
         // coalesce by, in addition to the target and method.
         run.once(this, recompute, propertyName);
       };
+
       var recompute = function(propertyName) {
-        var dependentKeys = cp._dependentKeys,
-            meta = cp._instanceMeta(this, propertyName),
-            callbacks = cp._callbacks();
+        var dependentKeys = cp._dependentKeys;
+        var meta = cp._instanceMeta(this, propertyName);
+        var callbacks = cp._callbacks();
 
         reset.call(this, cp, propertyName);
 
         meta.dependentArraysObserver.suspendArrayObservers(function () {
           forEach(cp._dependentKeys, function (dependentKey) {
             Ember.assert(
-              "dependent array " + dependentKey + " must be an `Ember.Array`.  " +
-              "If you are not extending arrays, you will need to wrap native arrays with `Ember.A`",
+              'dependent array ' + dependentKey + ' must be an `Ember.Array`.  ' +
+              'If you are not extending arrays, you will need to wrap native arrays with `Ember.A`',
               !(isArray(get(this, dependentKey)) && !EmberArray.detect(get(this, dependentKey))));
 
             if (!partiallyRecomputeFor(this, dependentKey)) { return; }
 
-            var dependentArray = get(this, dependentKey),
-                previousDependentArray = meta.dependentArrays[dependentKey];
+            var dependentArray = get(this, dependentKey);
+            var previousDependentArray = meta.dependentArrays[dependentKey];
 
             if (dependentArray === previousDependentArray) {
               // The array may be the same, but our item property keys may have
@@ -11232,6 +11243,7 @@ define("ember-runtime/computed/reduce_computed",
           if (!partiallyRecomputeFor(this, dependentKey)) { return; }
 
           var dependentArray = get(this, dependentKey);
+
           if (dependentArray) {
             addItems.call(this, dependentArray, callbacks, cp, propertyName, meta);
           }
@@ -11240,7 +11252,7 @@ define("ember-runtime/computed/reduce_computed",
 
 
       this.func = function (propertyName) {
-        Ember.assert("Computed reduce values require at least one dependent key", cp._dependentKeys);
+        Ember.assert('Computed reduce values require at least one dependent key', cp._dependentKeys);
 
         recompute.call(this, propertyName);
 
@@ -11257,11 +11269,13 @@ define("ember-runtime/computed/reduce_computed",
     ReduceComputedProperty.prototype._callbacks = function () {
       if (!this.callbacks) {
         var options = this.options;
+
         this.callbacks = {
           removedItem: options.removedItem || defaultCallback,
           addedItem: options.addedItem || defaultCallback
         };
       }
+
       return this.callbacks;
     };
 
@@ -11270,8 +11284,8 @@ define("ember-runtime/computed/reduce_computed",
     };
 
     ReduceComputedProperty.prototype._instanceMeta = function (context, propertyName) {
-      var cacheMeta = metaFor(context).cacheMeta,
-          meta = cacheMeta[propertyName];
+      var cacheMeta = metaFor(context).cacheMeta;
+      var meta = cacheMeta[propertyName];
 
       if (!meta) {
         meta = cacheMeta[propertyName] = new ReduceComputedPropertyInstanceMeta(context, propertyName, this.initialValue());
@@ -11307,23 +11321,21 @@ define("ember-runtime/computed/reduce_computed",
     };
 
     ReduceComputedProperty.prototype.property = function () {
-      var cp = this,
-          args = a_slice.call(arguments),
-          propertyArgs = new Set(),
-          match,
-          dependentArrayKey,
-          itemPropertyKey;
+      var cp = this;
+      var args = a_slice.call(arguments);
+      var propertyArgs = new Set();
+      var match, dependentArrayKey, itemPropertyKey;
 
       forEach(args, function (dependentKey) {
         if (doubleEachPropertyPattern.test(dependentKey)) {
-          throw new EmberError("Nested @each properties not supported: " + dependentKey);
+          throw new EmberError('Nested @each properties not supported: ' + dependentKey);
         } else if (match = eachPropertyPattern.exec(dependentKey)) {
           dependentArrayKey = match[1];
 
-          var itemPropertyKeyPattern = match[2],
-              addItemPropertyKey = function (itemPropertyKey) {
-                cp.itemPropertyKey(dependentArrayKey, itemPropertyKey);
-              };
+          var itemPropertyKeyPattern = match[2];
+          var addItemPropertyKey = function (itemPropertyKey) {
+            cp.itemPropertyKey(dependentArrayKey, itemPropertyKey);
+          };
 
           expandProperties(itemPropertyKeyPattern, addItemPropertyKey);
           propertyArgs.add(dependentArrayKey);
@@ -11333,7 +11345,6 @@ define("ember-runtime/computed/reduce_computed",
       });
 
       return ComputedProperty.prototype.property.apply(this, propertyArgs.toArray());
-
     };
 
     /**
@@ -11469,8 +11480,8 @@ define("ember-runtime/computed/reduce_computed",
           // `content.@each.reversedName` above, we would be getting the objects
           // directly and not have access to `reversedName`.
           //
-          var reversedNameA = get(personA, 'reversedName'),
-              reversedNameB = get(personB, 'reversedName');
+          var reversedNameA = get(personA, 'reversedName');
+          var reversedNameB = get(personB, 'reversedName');
 
           return Ember.compare(reversedNameA, reversedNameB);
         })
@@ -11529,12 +11540,12 @@ define("ember-runtime/computed/reduce_computed",
         options = a_slice.call(arguments, -1)[0];
       }
 
-      if (typeof options !== "object") {
-        throw new EmberError("Reduce Computed Property declared without an options hash");
+      if (typeof options !== 'object') {
+        throw new EmberError('Reduce Computed Property declared without an options hash');
       }
 
       if (!('initialValue' in options)) {
-        throw new EmberError("Reduce Computed Property declared without an initial value");
+        throw new EmberError('Reduce Computed Property declared without an initial value');
       }
 
       var cp = new ReduceComputedProperty(options);
@@ -11635,7 +11646,7 @@ define("ember-runtime/computed/reduce_computed_macros",
       @param {String} dependentKey
       @return {Ember.ComputedProperty} computes the largest value in the dependentKey's array
     */
-    function max (dependentKey) {
+    function max(dependentKey) {
       return reduceComputed(dependentKey, {
         initialValue: -Infinity,
 
@@ -11831,9 +11842,9 @@ define("ember-runtime/computed/reduce_computed_macros",
           instanceMeta.filteredArrayIndexes = new SubArray();
         },
 
-        addedItem: function(array, item, changeMeta, instanceMeta) {
-          var match = !!callback.call(this, item),
-              filterIndex = instanceMeta.filteredArrayIndexes.addItem(changeMeta.index, match);
+        addedItem: function (array, item, changeMeta, instanceMeta) {
+          var match = !!callback.call(this, item);
+          var filterIndex = instanceMeta.filteredArrayIndexes.addItem(changeMeta.index, match);
 
           if (match) {
             array.insertAt(filterIndex, item);
@@ -11939,6 +11950,7 @@ define("ember-runtime/computed/reduce_computed_macros",
     */
     function uniq() {
       var args = a_slice.call(arguments);
+
       args.push({
         initialize: function(array, changeMeta, instanceMeta) {
           instanceMeta.itemCounts = {};
@@ -11952,19 +11964,23 @@ define("ember-runtime/computed/reduce_computed_macros",
           } else {
             ++instanceMeta.itemCounts[guid];
           }
+
           array.addObject(item);
           return array;
         },
+
         removedItem: function(array, item, _, instanceMeta) {
-          var guid = guidFor(item),
-              itemCounts = instanceMeta.itemCounts;
+          var guid = guidFor(item);
+          var itemCounts = instanceMeta.itemCounts;
 
           if (--itemCounts[guid] === 0) {
             array.removeObject(item);
           }
+
           return array;
         }
       });
+
       return arrayComputed.apply(null, args);
     }
 
@@ -12009,37 +12025,47 @@ define("ember-runtime/computed/reduce_computed_macros",
       };
 
       var args = a_slice.call(arguments);
+
       args.push({
         initialize: function (array, changeMeta, instanceMeta) {
           instanceMeta.itemCounts = {};
         },
 
         addedItem: function(array, item, changeMeta, instanceMeta) {
-          var itemGuid = guidFor(item),
-              dependentGuids = getDependentKeyGuids(changeMeta),
-              dependentGuid = guidFor(changeMeta.arrayChanged),
-              numberOfDependentArrays = changeMeta.property._dependentKeys.length,
-              itemCounts = instanceMeta.itemCounts;
+          var itemGuid = guidFor(item);
+          var dependentGuids = getDependentKeyGuids(changeMeta);
+          var dependentGuid = guidFor(changeMeta.arrayChanged);
+          var numberOfDependentArrays = changeMeta.property._dependentKeys.length;
+          var itemCounts = instanceMeta.itemCounts;
 
-          if (!itemCounts[itemGuid]) { itemCounts[itemGuid] = {}; }
-          if (itemCounts[itemGuid][dependentGuid] === undefined) { itemCounts[itemGuid][dependentGuid] = 0; }
+          if (!itemCounts[itemGuid]) {
+            itemCounts[itemGuid] = {};
+          }
+
+          if (itemCounts[itemGuid][dependentGuid] === undefined) {
+            itemCounts[itemGuid][dependentGuid] = 0;
+          }
 
           if (++itemCounts[itemGuid][dependentGuid] === 1 &&
               numberOfDependentArrays === keys(itemCounts[itemGuid]).length) {
-
             array.addObject(item);
           }
+
           return array;
         },
-        removedItem: function(array, item, changeMeta, instanceMeta) {
-          var itemGuid = guidFor(item),
-              dependentGuids = getDependentKeyGuids(changeMeta),
-              dependentGuid = guidFor(changeMeta.arrayChanged),
-              numberOfDependentArrays = changeMeta.property._dependentKeys.length,
-              numberOfArraysItemAppearsIn,
-              itemCounts = instanceMeta.itemCounts;
 
-          if (itemCounts[itemGuid][dependentGuid] === undefined) { itemCounts[itemGuid][dependentGuid] = 0; }
+        removedItem: function(array, item, changeMeta, instanceMeta) {
+          var itemGuid = guidFor(item);
+          var dependentGuids = getDependentKeyGuids(changeMeta);
+          var dependentGuid = guidFor(changeMeta.arrayChanged);
+          var numberOfDependentArrays = changeMeta.property._dependentKeys.length;
+          var numberOfArraysItemAppearsIn;
+          var itemCounts = instanceMeta.itemCounts;
+
+          if (itemCounts[itemGuid][dependentGuid] === undefined) {
+            itemCounts[itemGuid][dependentGuid] = 0;
+          }
+
           if (--itemCounts[itemGuid][dependentGuid] === 0) {
             delete itemCounts[itemGuid][dependentGuid];
             numberOfArraysItemAppearsIn = keys(itemCounts[itemGuid]).length;
@@ -12047,11 +12073,14 @@ define("ember-runtime/computed/reduce_computed_macros",
             if (numberOfArraysItemAppearsIn === 0) {
               delete itemCounts[itemGuid];
             }
+
             array.removeObject(item);
           }
+
           return array;
         }
       });
+
       return arrayComputed.apply(null, args);
     }
 
@@ -12088,12 +12117,13 @@ define("ember-runtime/computed/reduce_computed_macros",
     */
     function setDiff(setAProperty, setBProperty) {
       if (arguments.length !== 2) {
-        throw new EmberError("setDiff requires exactly two dependent arrays.");
+        throw new EmberError('setDiff requires exactly two dependent arrays.');
       }
+
       return arrayComputed(setAProperty, setBProperty, {
         addedItem: function (array, item, changeMeta, instanceMeta) {
-          var setA = get(this, setAProperty),
-              setB = get(this, setBProperty);
+          var setA = get(this, setAProperty);
+          var setB = get(this, setBProperty);
 
           if (changeMeta.arrayChanged === setA) {
             if (!setB.contains(item)) {
@@ -12102,12 +12132,13 @@ define("ember-runtime/computed/reduce_computed_macros",
           } else {
             array.removeObject(item);
           }
+
           return array;
         },
 
         removedItem: function (array, item, changeMeta, instanceMeta) {
-          var setA = get(this, setAProperty),
-              setB = get(this, setBProperty);
+          var setA = get(this, setAProperty);
+          var setB = get(this, setBProperty);
 
           if (changeMeta.arrayChanged === setB) {
             if (setA.contains(item)) {
@@ -12116,6 +12147,7 @@ define("ember-runtime/computed/reduce_computed_macros",
           } else {
             array.removeObject(item);
           }
+
           return array;
         }
       });
@@ -12124,8 +12156,13 @@ define("ember-runtime/computed/reduce_computed_macros",
     __exports__.setDiff = setDiff;function binarySearch(array, item, low, high) {
       var mid, midItem, res, guidMid, guidItem;
 
-      if (arguments.length < 4) { high = get(array, 'length'); }
-      if (arguments.length < 3) { low = 0; }
+      if (arguments.length < 4) {
+        high = get(array, 'length');
+      }
+
+      if (arguments.length < 3) {
+        low = 0;
+      }
 
       if (low === high) {
         return low;
@@ -12142,6 +12179,7 @@ define("ember-runtime/computed/reduce_computed_macros",
       }
 
       res = this.order(midItem, item);
+
       if (res === 0) {
         res = guidMid < guidItem ? -1 : 1;
       }
@@ -12159,6 +12197,7 @@ define("ember-runtime/computed/reduce_computed_macros",
         if (SearchProxy.detectInstance(item)) {
           return guidFor(get(item, 'content'));
         }
+
         return guidFor(item);
       }
     }
@@ -12231,7 +12270,8 @@ define("ember-runtime/computed/reduce_computed_macros",
       on the sort property array or callback function
     */
     function sort(itemsKey, sortDefinition) {
-      Ember.assert("Ember.computed.sort requires two arguments: an array key to sort and either a sort properties key or sort function", arguments.length === 2);
+      Ember.assert('Ember.computed.sort requires two arguments: an array key to sort and ' +
+        'either a sort properties key or sort function', arguments.length === 2);
 
       var initFn, sortPropertiesKey;
 
@@ -12242,16 +12282,16 @@ define("ember-runtime/computed/reduce_computed_macros",
         };
       } else {
         sortPropertiesKey = sortDefinition;
+
         initFn = function (array, changeMeta, instanceMeta) {
           function setupSortProperties() {
-            var sortPropertyDefinitions = get(this, sortPropertiesKey),
-                sortProperty,
-                sortProperties = instanceMeta.sortProperties = [],
-                sortPropertyAscending = instanceMeta.sortPropertyAscending = {},
-                idx,
-                asc;
+            var sortPropertyDefinitions = get(this, sortPropertiesKey);
+            var sortProperties = instanceMeta.sortProperties = [];
+            var sortPropertyAscending = instanceMeta.sortPropertyAscending = {};
+            var sortProperty, idx, asc;
 
-            Ember.assert("Cannot sort: '" + sortPropertiesKey + "' is not an array.", isArray(sortPropertyDefinitions));
+            Ember.assert('Cannot sort: \'' + sortPropertiesKey + '\' is not an array.',
+              isArray(sortPropertyDefinitions));
 
             changeMeta.property.clearItemPropertyKeys(itemsKey);
 
@@ -12282,13 +12322,11 @@ define("ember-runtime/computed/reduce_computed_macros",
           }
 
           addObserver(this, sortPropertiesKey, updateSortPropertiesOnce);
-
           setupSortProperties.call(this);
 
-
           instanceMeta.order = function (itemA, itemB) {
-            var isProxy = itemB instanceof SearchProxy,
-                sortProperty, result, asc;
+            var isProxy = itemB instanceof SearchProxy;
+            var sortProperty, result, asc;
 
             for (var i = 0; i < this.sortProperties.length; ++i) {
               sortProperty = this.sortProperties[i];
@@ -12313,6 +12351,7 @@ define("ember-runtime/computed/reduce_computed_macros",
         addedItem: function (array, item, changeMeta, instanceMeta) {
           var index = instanceMeta.binarySearch(array, item);
           array.insertAt(index, item);
+
           return array;
         },
 
@@ -12329,6 +12368,7 @@ define("ember-runtime/computed/reduce_computed_macros",
 
           index = instanceMeta.binarySearch(array, searchItem);
           array.removeAt(index);
+
           return array;
         }
       });
@@ -12397,9 +12437,9 @@ define("ember-runtime/controllers/array_controller",
       For example:
 
       ```handlebars
-        {{#each post in controller}}
-          <li>{{post.title}} ({{post.titleLength}} characters)</li>
-        {{/each}}
+      {{#each post in controller}}
+        <li>{{post.title}} ({{post.titleLength}} characters)</li>
+      {{/each}}
       ```
 
       ```javascript
@@ -12409,7 +12449,6 @@ define("ember-runtime/controllers/array_controller",
 
       App.PostController = Ember.ObjectController.extend({
         // the `title` property will be proxied to the underlying post.
-
         titleLength: function() {
           return this.get('title').length;
         }.property('title')
@@ -12491,6 +12530,7 @@ define("ember-runtime/controllers/array_controller",
 
         if (idx >= 0 && idx < length) {
           controllerClass = this.lookupItemController(object);
+
           if (controllerClass) {
             return this.controllerAt(idx, object, controllerClass);
           }
@@ -12551,10 +12591,9 @@ define("ember-runtime/controllers/array_controller",
       _isVirtual: false,
 
       controllerAt: function(idx, object, controllerClass) {
-        var fullName, subController, parentController;
-
         var container = get(this, 'container');
         var subControllers = this._subControllers;
+        var fullName, subController, parentController;
 
         if (subControllers.length > idx) {
           subController = subControllers[idx];
@@ -12596,6 +12635,7 @@ define("ember-runtime/controllers/array_controller",
         if (subControllers.length) {
           for (var i = 0, length = subControllers.length; length > i; i++) {
             controller = subControllers[i];
+
             if (controller) {
               controller.destroy();
             }
@@ -12780,10 +12820,14 @@ define("ember-runtime/core",
       @return {Boolean}
     */
     var isEqual = function isEqual(a, b) {
-      if (a && 'function'===typeof a.isEqual) return a.isEqual(b);
+      if (a && typeof a.isEqual === 'function') {
+        return a.isEqual(b);
+      }
+
       if (a instanceof Date && b instanceof Date) {
         return a.getTime() === b.getTime();
       }
+
       return a === b;
     };
     __exports__.isEqual = isEqual;
@@ -12821,17 +12865,15 @@ define("ember-runtime/ext/function",
 
           fullName: function() {
             return this.get('firstName') + ' ' + this.get('lastName');
-
-            // Call this flag to mark the function as a property
-          }.property()
+          }.property() // Call this flag to mark the function as a property
         });
 
         var president = MyApp.President.create({
-          firstName: "Barack",
-          lastName: "Obama"
+          firstName: 'Barack',
+          lastName: 'Obama'
         });
 
-        president.get('fullName');    // "Barack Obama"
+        president.get('fullName'); // 'Barack Obama'
         ```
 
         Treating a function like a property is useful because they can work with
@@ -12867,7 +12909,7 @@ define("ember-runtime/ext/function",
         @method property
         @for Function
       */
-      FunctionPrototype.property = function() {
+      FunctionPrototype.property = function () {
         var ret = computed(this);
         // ComputedProperty.prototype.property expands properties; no need for us to
         // do so here.
@@ -12899,11 +12941,13 @@ define("ember-runtime/ext/function",
         @method observes
         @for Function
       */
-      FunctionPrototype.observes = function() {
-        var addWatchedProperty = function (obs) { watched.push(obs); };
+      FunctionPrototype.observes = function () {
         var watched = [];
+        var addWatchedProperty = function (obs) {
+          watched.push(obs);
+        };
 
-        for (var i=0; i<arguments.length; ++i) {
+        for (var i = 0; i < arguments.length; ++i) {
           expandProperties(arguments[i], addWatchedProperty);
         }
 
@@ -12937,10 +12981,11 @@ define("ember-runtime/ext/function",
         @method observesImmediately
         @for Function
       */
-      FunctionPrototype.observesImmediately = function() {
-        for (var i=0, l=arguments.length; i<l; i++) {
+      FunctionPrototype.observesImmediately = function () {
+        for (var i = 0, l = arguments.length; i < l; i++) {
           var arg = arguments[i];
-          Ember.assert("Immediate observers must observe internal properties only, not properties on other objects.", arg.indexOf('.') === -1);
+          Ember.assert('Immediate observers must observe internal properties only, ' +
+            'not properties on other objects.', arg.indexOf('.') === -1);
         }
 
         // observes handles property expansion
@@ -12969,11 +13014,13 @@ define("ember-runtime/ext/function",
         @method observesBefore
         @for Function
       */
-      FunctionPrototype.observesBefore = function() {
-        var addWatchedProperty = function (obs) { watched.push(obs); };
+      FunctionPrototype.observesBefore = function () {
         var watched = [];
+        var addWatchedProperty = function (obs) {
+          watched.push(obs);
+        };
 
-        for (var i=0; i<arguments.length; ++i) {
+        for (var i = 0; i < arguments.length; ++i) {
           expandProperties(arguments[i], addWatchedProperty);
         }
 
@@ -13003,9 +13050,10 @@ define("ember-runtime/ext/function",
         @method on
         @for Function
       */
-      FunctionPrototype.on = function() {
+      FunctionPrototype.on = function () {
         var events = a_slice.call(arguments);
         this.__ember_listens__ = events;
+
         return this;
       };
     }
@@ -13019,10 +13067,10 @@ define("ember-runtime/ext/rsvp",
     var Ember = __dependency1__["default"];
     var Logger = __dependency2__["default"];
 
-    var RSVP = requireModule("rsvp");
+    var RSVP = requireModule('rsvp');
     var Test, testModuleName = 'ember-testing/test';
 
-    RSVP.onerrorDefault = function(error) {
+    RSVP.onerrorDefault = function (error) {
       if (error instanceof Error) {
         if (Ember.testing) {
           // ES6TODO: remove when possible
@@ -13079,7 +13127,7 @@ define("ember-runtime/ext/string",
         @method fmt
         @for String
       */
-      StringPrototype.fmt = function() {
+      StringPrototype.fmt = function () {
         return fmt(this, arguments);
       };
 
@@ -13089,7 +13137,7 @@ define("ember-runtime/ext/string",
         @method w
         @for String
       */
-      StringPrototype.w = function() {
+      StringPrototype.w = function () {
         return w(this);
       };
 
@@ -13099,7 +13147,7 @@ define("ember-runtime/ext/string",
         @method loc
         @for String
       */
-      StringPrototype.loc = function() {
+      StringPrototype.loc = function () {
         return loc(this, arguments);
       };
 
@@ -13109,7 +13157,7 @@ define("ember-runtime/ext/string",
         @method camelize
         @for String
       */
-      StringPrototype.camelize = function() {
+      StringPrototype.camelize = function () {
         return camelize(this);
       };
 
@@ -13119,7 +13167,7 @@ define("ember-runtime/ext/string",
         @method decamelize
         @for String
       */
-      StringPrototype.decamelize = function() {
+      StringPrototype.decamelize = function () {
         return decamelize(this);
       };
 
@@ -13129,7 +13177,7 @@ define("ember-runtime/ext/string",
         @method dasherize
         @for String
       */
-      StringPrototype.dasherize = function() {
+      StringPrototype.dasherize = function () {
         return dasherize(this);
       };
 
@@ -13139,7 +13187,7 @@ define("ember-runtime/ext/string",
         @method underscore
         @for String
       */
-      StringPrototype.underscore = function() {
+      StringPrototype.underscore = function () {
         return underscore(this);
       };
 
@@ -13149,7 +13197,7 @@ define("ember-runtime/ext/string",
         @method classify
         @for String
       */
-      StringPrototype.classify = function() {
+      StringPrototype.classify = function () {
         return classify(this);
       };
 
@@ -13159,7 +13207,7 @@ define("ember-runtime/ext/string",
         @method capitalize
         @for String
       */
-      StringPrototype.capitalize = function() {
+      StringPrototype.capitalize = function () {
         return capitalize(this);
       };
     }
@@ -13182,6 +13230,7 @@ define("ember-runtime/keys",
       @return {Array} Array containing keys of obj
     */
     var keys = Object.keys;
+
     if (!keys || create.isSimulated) {
       var prototypeProperties = [
         'constructor',
@@ -13191,20 +13240,33 @@ define("ember-runtime/keys",
         'valueOf',
         'toLocaleString',
         'toString'
-      ],
-      pushPropertyName = function(obj, array, key) {
+      ];
+      var pushPropertyName = function(obj, array, key) {
         // Prevents browsers that don't respect non-enumerability from
         // copying internal Ember properties
-        if (key.substring(0,2) === '__') return;
-        if (key === '_super') return;
-        if (EnumerableUtils.indexOf(array, key) >= 0) return;
-        if (typeof obj.hasOwnProperty === 'function' && !obj.hasOwnProperty(key)) return;
+        if (key.substring(0, 2) === '__') {
+          return;
+        }
+
+        if (key === '_super') {
+          return;
+        }
+
+        if (EnumerableUtils.indexOf(array, key) >= 0) {
+          return;
+        }
+
+        if (typeof obj.hasOwnProperty === 'function' && !obj.hasOwnProperty(key)) {
+          return;
+        }
 
         array.push(key);
       };
 
       keys = function keys(obj) {
-        var ret = [], key;
+        var ret = [];
+        var key;
+
         for (key in obj) {
           pushPropertyName(obj, ret, key);
         }
