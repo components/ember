@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.71b820b0
+ * @version   1.8.0-beta.1+canary.b6c2982f
  */
 
 (function() {
@@ -4448,7 +4448,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.71b820b0
+      @version 1.8.0-beta.1+canary.b6c2982f
     */
 
     if ('undefined' === typeof Ember) {
@@ -4475,10 +4475,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.71b820b0'
+      @default '1.8.0-beta.1+canary.b6c2982f'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.71b820b0';
+    Ember.VERSION = '1.8.0-beta.1+canary.b6c2982f';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -4719,6 +4719,7 @@ define("ember-metal/dependent_keys",
         unwatch(obj, depKey, meta);
       }
     }
+
     __exports__.removeDependentKeys = removeDependentKeys;
   });
 define("ember-metal/enumerable_utils",
@@ -7177,7 +7178,7 @@ define("ember-metal/mixin",
       });
 
       var goodGuy = App.Person.create();
-      
+
       goodGuy.name();    // 'Tomhuda Katzdale'
       goodGuy.moniker(); // 'Tomhuda Katzdale'
       ```
@@ -11820,12 +11821,12 @@ define("ember-runtime/computed/reduce_computed_macros",
         })
       });
 
-      var hamster = Hamster.create({ 
+      var hamster = Hamster.create({
         chores: [
           { name: 'cook', done: true },
           { name: 'clean', done: true },
           { name: 'write more unit tests', done: false }
-        ] 
+        ]
       });
 
       hamster.get('remainingChores'); // [{name: 'write more unit tests', done: false}]
@@ -12721,7 +12722,7 @@ define("ember-runtime/copy",
         return copies[loc];
       }
 
-      Ember.assert('Cannot clone an Ember.Object that does not implement Ember.Copyable', 
+      Ember.assert('Cannot clone an Ember.Object that does not implement Ember.Copyable',
         !(obj instanceof EmberObject) || (Copyable && Copyable.detect(obj)));
 
       // IMPORTANT: this specific test will detect a native array only. Any other

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.71b820b0
+ * @version   1.8.0-beta.1+canary.b6c2982f
  */
 
 (function() {
@@ -24124,7 +24124,7 @@ define("ember-routing/tests/location/auto_location_test",
         createLocation();
 
         equal(get(location, 'implementation'), 'history');
-      });  
+      });
     } else {
       test("AutoLocation.create() should transform the URL for pushState-supported browsers viewing a HashLocation-formatted url", function() {
         expect(4);
@@ -51007,7 +51007,7 @@ define("ember/tests/helpers/link_to_test",
         Ember.TEMPLATES['index/about'] = Ember.Handlebars.compile("{{#link-to 'item' id='link1' currentWhen='item|index'}}ITEM{{/link-to}}");
         Ember.TEMPLATES['item'] = Ember.Handlebars.compile("{{#link-to 'item' id='link2' currentWhen='item|index'}}ITEM{{/link-to}}");
         Ember.TEMPLATES['foo'] = Ember.Handlebars.compile("{{#link-to 'item' id='link3' currentWhen='item|index'}}ITEM{{/link-to}}");
-        
+
         bootApplication();
 
         Ember.run(function() {

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.71b820b0
+ * @version   1.8.0-beta.1+canary.b6c2982f
  */
 
 (function() {
@@ -5307,7 +5307,7 @@ define("ember-handlebars/controls",
       Internally, `{{textarea}}` creates an instance of `Ember.TextArea`, passing
       arguments from the helper to `Ember.TextArea`'s `create` method. You can
       extend the capabilities of text areas in your application by reopening this
-      class. For example, if you are building a Bootstrap project where `data-*` 
+      class. For example, if you are building a Bootstrap project where `data-*`
       attributes are used, you can globally add support for a `data-*` attribute
       on all `{{textarea}}`s' in your app by reopening `Ember.TextArea` or
       `Ember.TextSupport` and adding it to the `attributeBindings` concatenated
@@ -8859,7 +8859,7 @@ define("ember-handlebars/helpers/loc",
       Take note that `"welcome"` is a string and not an object
       reference.
 
-      See [Ember.String.loc](/api/classes/Ember.String.html#method_loc) for how to 
+      See [Ember.String.loc](/api/classes/Ember.String.html#method_loc) for how to
       set up localized string references.
 
       @method loc
@@ -12907,7 +12907,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.71b820b0
+      @version 1.8.0-beta.1+canary.b6c2982f
     */
 
     if ('undefined' === typeof Ember) {
@@ -12934,10 +12934,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.71b820b0'
+      @default '1.8.0-beta.1+canary.b6c2982f'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.71b820b0';
+    Ember.VERSION = '1.8.0-beta.1+canary.b6c2982f';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -13178,6 +13178,7 @@ define("ember-metal/dependent_keys",
         unwatch(obj, depKey, meta);
       }
     }
+
     __exports__.removeDependentKeys = removeDependentKeys;
   });
 define("ember-metal/enumerable_utils",
@@ -15636,7 +15637,7 @@ define("ember-metal/mixin",
       });
 
       var goodGuy = App.Person.create();
-      
+
       goodGuy.name();    // 'Tomhuda Katzdale'
       goodGuy.moniker(); // 'Tomhuda Katzdale'
       ```
@@ -19350,7 +19351,7 @@ define("ember-routing-handlebars/helpers/link_to",
         or the application's current route is the route the `LinkView` would trigger
         transitions into.
 
-        The `currentWhen` property can match against multiple routes by separating 
+        The `currentWhen` property can match against multiple routes by separating
         route names using the `|` character.
 
         @property active
@@ -19402,13 +19403,13 @@ define("ember-routing-handlebars/helpers/link_to",
         if (Ember.FEATURES.isEnabled("ember-routing-multi-current-when")) {
           currentWhen = currentWhen.split('|');
           for (var i = 0, len = currentWhen.length; i < len; i++) {
-            if (isActiveForRoute(currentWhen[i])) { 
-              return get(this, 'activeClass'); 
+            if (isActiveForRoute(currentWhen[i])) {
+              return get(this, 'activeClass');
             }
           }
         } else {
-          if (isActiveForRoute(currentWhen)) { 
-            return get(this, 'activeClass'); 
+          if (isActiveForRoute(currentWhen)) {
+            return get(this, 'activeClass');
           }
         }
       }),
@@ -26702,12 +26703,12 @@ define("ember-runtime/computed/reduce_computed_macros",
         })
       });
 
-      var hamster = Hamster.create({ 
+      var hamster = Hamster.create({
         chores: [
           { name: 'cook', done: true },
           { name: 'clean', done: true },
           { name: 'write more unit tests', done: false }
-        ] 
+        ]
       });
 
       hamster.get('remainingChores'); // [{name: 'write more unit tests', done: false}]
@@ -27603,7 +27604,7 @@ define("ember-runtime/copy",
         return copies[loc];
       }
 
-      Ember.assert('Cannot clone an Ember.Object that does not implement Ember.Copyable', 
+      Ember.assert('Cannot clone an Ember.Object that does not implement Ember.Copyable',
         !(obj instanceof EmberObject) || (Copyable && Copyable.detect(obj)));
 
       // IMPORTANT: this specific test will detect a native array only. Any other
@@ -45435,6 +45436,7 @@ define("router",
 
     __exports__["default"] = Router;
   });
+
 /**
   @class RSVP
   @module RSVP
