@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.81e41c70
+ * @version   1.8.0-beta.1+canary.67f57a13
  */
 
 (function() {
@@ -2209,9 +2209,8 @@ define("ember-application/tests/system/logging_test",
       run(App, 'advanceReadiness');
 
       visit('/posts').then(function() {
-        
-          equal(Ember.keys(logs).length, 8, 'expected logs');
-              });
+        equal(Ember.keys(logs).length, 6, 'expected logs');
+      });
     });
 
     test("do NOT log class generation if logging disabled", function() {
@@ -53543,10 +53542,8 @@ define("ember/tests/routing/basic_test",
           equal(rootModel, 1, "The root model was called again");
 
           deepEqual(router.location.path, '/specials/1');
+          equal(currentPath, 'root.special');
 
-          
-            equal(currentPath, 'root.special.index');
-          
           QUnit.start();
         });
       });
@@ -55649,29 +55646,6 @@ define("ember/tests/routing/basic_test",
         Ember.run(router, 'transitionTo', 'about');
       });
     }
-
-    
-      test("specifying no callback to `this.resources` still generates ", function() {
-        expect(1);
-
-        Router.map(function() {
-          this.resource("home");
-        });
-
-        var currentPath;
-
-        App.ApplicationController = Ember.Controller.extend({
-          currentPathDidChange: Ember.observer('currentPath', function() {
-            currentPath = get(this, 'currentPath');
-          })
-        });
-
-        bootApplication();
-
-        Ember.run(router, 'transitionTo', 'home');
-        equal(currentPath, 'home.index');
-      });
-    
 
     test("Errors in transitionTo within redirect hook are logged", function() {
       expect(2);
