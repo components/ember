@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.d4d1e7f5
+ * @version   1.8.0-beta.1+canary.74dbdf7c
  */
 
 (function() {
@@ -12845,7 +12845,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.d4d1e7f5
+      @version 1.8.0-beta.1+canary.74dbdf7c
     */
 
     if ('undefined' === typeof Ember) {
@@ -12872,10 +12872,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.d4d1e7f5'
+      @default '1.8.0-beta.1+canary.74dbdf7c'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.d4d1e7f5';
+    Ember.VERSION = '1.8.0-beta.1+canary.74dbdf7c';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -36964,13 +36964,13 @@ define("ember-views/system/event_dispatcher",
       rootElement: 'body',
 
       /**
-        It enables events to be dispatched to the view `eventManager` which object
-        when present takes precedence over events of the same name handled through methods
-        on the view.
+        It enables events to be dispatched to the view's `eventManager.` When present,
+        this object takes precedence over handling of events on the view itself.
 
-        Most of the ember applications does not implement view `eventManagers`,
-        then disabling this property will provide some performance benefit
-        because it skips the search for the `eventManager` on the view tree.
+        Note that most Ember applications do not use this feature. If your app also
+        does not use it, consider setting this property to false to gain some performance
+        improvement by allowing the EventDispatcher to skip the search for the
+        `eventManager` on the view tree.
 
         ```javascript
         var EventDispatcher = Em.EventDispatcher.extend({
@@ -37008,7 +37008,6 @@ define("ember-views/system/event_dispatcher",
 
         jQuery.extend(events, addedEvents || {});
 
-
         if (!isNone(rootElement)) {
           set(this, 'rootElement', rootElement);
         }
@@ -37031,19 +37030,12 @@ define("ember-views/system/event_dispatcher",
       },
 
       /**
-        Registers an event listener on the document. If the given event is
+        Registers an event listener on the rootElement. If the given event is
         triggered, the provided event handler will be triggered on the target view.
 
         If the target view does not implement the event handler, or if the handler
         returns `false`, the parent view will be called. The event will continue to
         bubble to each successive parent view until it reaches the top.
-
-        For example, to have the `mouseDown` method called on the target view when
-        a `mousedown` event is received from the browser, do the following:
-
-        ```javascript
-        setupHandler('mousedown', 'mouseDown');
-        ```
 
         @private
         @method setupHandler
@@ -37123,6 +37115,7 @@ define("ember-views/system/event_dispatcher",
         jQuery(rootElement).off('.ember', '**').removeClass('ember-application');
         return this._super();
       },
+
       toString: function() {
         return '(EventDisptacher)';
       }
