@@ -21542,11 +21542,7 @@ define("ember-routing/system/dsl",
           options.path = "/" + name;
         }
 
-        var createSubRoutes = false;
-        
-          createSubRoutes = true;
-        
-        if (createSubRoutes) {
+        if (callback) {
           var dsl = new DSL(name);
           route(dsl, 'loading');
           route(dsl, 'error', { path: "/_unused_dummy_error_path_route_" + name + "/:error" });
