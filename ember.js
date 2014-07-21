@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.190c8810
+ * @version   1.8.0-beta.1+canary.c0ff0956
  */
 
 (function() {
@@ -12907,7 +12907,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.190c8810
+      @version 1.8.0-beta.1+canary.c0ff0956
     */
 
     if ('undefined' === typeof Ember) {
@@ -12934,10 +12934,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.190c8810'
+      @default '1.8.0-beta.1+canary.c0ff0956'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.190c8810';
+    Ember.VERSION = '1.8.0-beta.1+canary.c0ff0956';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -42271,39 +42271,6 @@ define("ember",
     Ember
 
     @module ember
-    */
-
-    function throwWithMessage(msg) {
-      return function() {
-        throw new Ember.Error(msg);
-      };
-    }
-
-    function generateRemovedClass(className) {
-      var msg = " has been moved into a plugin: https://github.com/emberjs/ember-states";
-
-      return {
-        extend: throwWithMessage(className + msg),
-        create: throwWithMessage(className + msg)
-      };
-    }
-
-    Ember.StateManager = generateRemovedClass("Ember.StateManager");
-
-    /**
-      This was exported to ember-states plugin for v 1.0.0 release. See: https://github.com/emberjs/ember-states
-
-      @class StateManager
-      @namespace Ember
-    */
-
-    Ember.State = generateRemovedClass("Ember.State");
-
-    /**
-      This was exported to ember-states plugin for v 1.0.0 release. See: https://github.com/emberjs/ember-states
-
-      @class State
-      @namespace Ember
     */
   });
 define("metamorph",

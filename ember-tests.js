@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.190c8810
+ * @version   1.8.0-beta.1+canary.c0ff0956
  */
 
 (function() {
@@ -58050,47 +58050,6 @@ define("ember/tests/routing/substates_test.jshint",
     module('JSHint - ember/tests/routing');
     test('ember/tests/routing/substates_test.js should pass jshint', function() { 
       ok(true, 'ember/tests/routing/substates_test.js should pass jshint.'); 
-    });
-  });
-define("ember/tests/states_removal_test",
-  ["ember"],
-  function(__dependency1__) {
-    "use strict";
-
-    /*globals EmberDev */
-
-    QUnit.module("ember-states removal");
-
-    test("errors occur when attempting to use Ember.StateManager or Ember.State", function() {
-      if (EmberDev && EmberDev.runningProdBuild){
-        ok(true, 'Ember.State & Ember.StateManager are not added to production builds');
-        return;
-      }
-
-      raises(function() {
-        Ember.StateManager.extend();
-      }, /has been moved into a plugin/);
-
-      raises(function() {
-        Ember.State.extend();
-      }, /has been moved into a plugin/);
-
-      raises(function() {
-        Ember.StateManager.create();
-      }, /has been moved into a plugin/);
-
-      raises(function() {
-        Ember.State.create();
-      }, /has been moved into a plugin/);
-    });
-  });
-define("ember/tests/states_removal_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember/tests');
-    test('ember/tests/states_removal_test.js should pass jshint', function() { 
-      ok(true, 'ember/tests/states_removal_test.js should pass jshint.'); 
     });
   });
 })();
