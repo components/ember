@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.b6c2982f
+ * @version   1.8.0-beta.1+canary.190c8810
  */
 
 (function() {
@@ -24669,6 +24669,34 @@ define("ember-routing/tests/system/dsl_test",
           this.resource('basic');
         });
       }, "'basic' cannot be used as a resource name.");
+    });
+
+    test("should reset namespace if nested with resource", function(){
+      var router = Router.map(function(){
+        this.resource('bleep', function(){
+          this.resource('bloop', function() {
+            this.resource('blork');
+          });
+        });
+      });
+
+      ok(router.recognizer.names['bleep'], 'nested resources do not contain parent name');
+      ok(router.recognizer.names['bloop'], 'nested resources do not contain parent name');
+      ok(router.recognizer.names['blork'], 'nested resources do not contain parent name');
+    });
+
+    test("should retain resource namespace if nested with routes", function(){
+      var router = Router.map(function(){
+        this.route('bleep', function(){
+          this.route('bloop', function() {
+            this.route('blork');
+          });
+        });
+      });
+
+      ok(router.recognizer.names['bleep'], 'parent name was used as base of nested routes');
+      ok(router.recognizer.names['bleep.bloop'], 'parent name was used as base of nested routes');
+      ok(router.recognizer.names['bleep.bloop.blork'], 'parent name was used as base of nested routes');
     });
   });
 define("ember-routing/tests/system/dsl_test.jshint",

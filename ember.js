@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.b6c2982f
+ * @version   1.8.0-beta.1+canary.190c8810
  */
 
 (function() {
@@ -12907,7 +12907,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.b6c2982f
+      @version 1.8.0-beta.1+canary.190c8810
     */
 
     if ('undefined' === typeof Ember) {
@@ -12934,10 +12934,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.b6c2982f'
+      @default '1.8.0-beta.1+canary.190c8810'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.b6c2982f';
+    Ember.VERSION = '1.8.0-beta.1+canary.190c8810';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -22104,9 +22104,7 @@ define("ember-routing/system/dsl",
     __exports__["default"] = DSL;
 
     DSL.prototype = {
-      resource: function(name, options, callback) {
-        Ember.assert("'basic' cannot be used as a resource name.", name !== 'basic');
-
+      route: function(name, options, callback) {
         if (arguments.length === 2 && typeof options === 'function') {
           callback = options;
           options = {};
@@ -22116,8 +22114,16 @@ define("ember-routing/system/dsl",
           options = {};
         }
 
+        var type = options.resetNamespace === true ? 'resource' : 'route';
+        Ember.assert("'basic' cannot be used as a " + type + " name.", name !== 'basic');
+
+
         if (typeof options.path !== 'string') {
           options.path = "/" + name;
+        }
+
+        if (canNest(this) && options.resetNamespace !== true) {
+          name = this.parent + "." + name;
         }
 
         if (callback) {
@@ -22132,14 +22138,9 @@ define("ember-routing/system/dsl",
           this.push(options.path, name, null);
         }
 
-
         if (Ember.FEATURES.isEnabled("ember-routing-named-substates")) {
-          // For namespace-preserving nested resource (e.g. resource('foo.bar') within
-          // resource('foo')) we only want to use the last route name segment to determine
-          // the names of the error/loading substates (e.g. 'bar_loading')
-          name = name.split('.').pop();
-          route(this, name + '_loading');
-          route(this, name + '_error', { path: "/_unused_dummy_error_path_route_" + name + "/:error" });
+          route(this, name + '_loading', {resetNamespace: options.resetNamespace});
+          route(this, name + '_error', { path: "/_unused_dummy_error_path_route_" + name + "/:error"});
         }
       },
 
@@ -22150,21 +22151,25 @@ define("ember-routing/system/dsl",
         this.matches.push([url, name, callback]);
       },
 
-      route: function(name, options) {
-        Ember.assert("'basic' cannot be used as a route name.", name !== 'basic');
-
-        route(this, name, options);
-        if (Ember.FEATURES.isEnabled("ember-routing-named-substates")) {
-          route(this, name + '_loading');
-          route(this, name + '_error', { path: "/_unused_dummy_error_path_route_" + name + "/:error" });
+      resource: function(name, options, callback) {
+        if (arguments.length === 2 && typeof options === 'function') {
+          callback = options;
+          options = {};
         }
+
+        if (arguments.length === 1) {
+          options = {};
+        }
+
+        options.resetNamespace = true;
+        this.route(name, options, callback);
       },
 
       generate: function() {
         var dslMatches = this.matches;
 
         if (!this.explicitIndex) {
-          this.route("index", { path: "/" });
+          route(this, "index", { path: "/" });
         }
 
         return function(match) {
@@ -22176,6 +22181,10 @@ define("ember-routing/system/dsl",
       }
     };
 
+    function canNest(dsl) {
+      return dsl.parent && dsl.parent !== 'application';
+    }
+
     function route(dsl, name, options) {
       Ember.assert("You must use `this.resource` to nest", typeof options !== 'function');
 
@@ -22185,7 +22194,7 @@ define("ember-routing/system/dsl",
         options.path = "/" + name;
       }
 
-      if (dsl.parent && dsl.parent !== 'application') {
+      if (canNest(dsl) && options.resetNamespace !== true) {
         name = dsl.parent + "." + name;
       }
 
