@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.74dbdf7c
+ * @version   1.8.0-beta.1+canary.71b820b0
  */
 
 (function() {
@@ -4777,6 +4777,35 @@ define("ember-handlebars/controls",
       <input type="text" value="Stanley" disabled="disabled" size="50"/>
       ```
 
+      ## Actions
+
+      The helper can send multiple actions based on user events.
+
+      The action property defines the action which is send when
+      the user presses the return key.
+
+      ```handlebars
+      {{input action="submit"}}
+      ```
+
+      The helper allows some user events to send actions.
+
+    * `enter`
+    * `insert-newline`
+    * `escape-press`
+    * `focus-in`
+    * `focus-out`
+    * `key-press`
+
+      For example, if you desire an action to be sent when the input is blurred,
+      you only need to setup the action name to the event name property.
+
+      ```handlebars
+      {{input focus-in="alertMessage"}}
+      ```
+
+      See more about [Text Support Actions](api/classes/Ember.TextField.html)
+
       ## Extension
 
       Internally, `{{input type="text"}}` creates an instance of `Ember.TextField`, passing
@@ -5011,6 +5040,35 @@ define("ember-handlebars/controls",
         Lots of text that IS bound
       </textarea>
       ```
+
+      ## Actions
+
+      The helper can send multiple actions based on user events.
+
+      The action property defines the action which is send when
+      the user presses the return key.
+
+      ```handlebars
+      {{input action="submit"}}
+      ```
+
+      The helper allows some user events to send actions.
+
+    * `enter`
+    * `insert-newline`
+    * `escape-press`
+    * `focus-in`
+    * `focus-out`
+    * `key-press`
+
+      For example, if you desire an action to be sent when the input is blurred,
+      you only need to setup the action name to the event name property.
+
+      ```handlebars
+      {{textarea focus-in="alertMessage"}}
+      ```
+
+      See more about [Text Support Actions](api/classes/Ember.TextArea.html)
 
       ## Extension
 
@@ -6075,10 +6133,10 @@ define("ember-handlebars/controls/text_support",
       },
 
       /**
-        The action to be sent when the user inserts a new line.
+        Called when the user inserts a new line.
 
         Called by the `Ember.TextSupport` mixin on keyUp if keycode matches 13.
-        Uses sendAction to send the `enter` action to the controller.
+        Uses sendAction to send the `enter` action.
 
         @method insertNewline
         @param {Event} event
@@ -6092,7 +6150,7 @@ define("ember-handlebars/controls/text_support",
         Called when the user hits escape.
 
         Called by the `Ember.TextSupport` mixin on keyUp if keycode matches 27.
-        Uses sendAction to send the `escape-press` action to the controller.
+        Uses sendAction to send the `escape-press` action.
 
         @method cancel
         @param {Event} event
@@ -6104,6 +6162,8 @@ define("ember-handlebars/controls/text_support",
       /**
         Called when the text area is focused.
 
+        Uses sendAction to send the `focus-in` action.
+
         @method focusIn
         @param {Event} event
       */
@@ -6112,7 +6172,9 @@ define("ember-handlebars/controls/text_support",
       },
 
       /**
-        Called when the text area is blurred.
+        Called when the text area is blurred. 
+
+        Uses sendAction to send the `focus-out` action.
 
         @method focusOut
         @param {Event} event
@@ -6122,10 +6184,10 @@ define("ember-handlebars/controls/text_support",
       },
 
       /**
-        The action to be sent when the user presses a key. Enabled by setting
+        Called when the user presses a key. Enabled by setting
         the `onEvent` property to `keyPress`.
 
-        Uses sendAction to send the `keyPress` action to the controller.
+        Uses sendAction to send the `key-press` action.
 
         @method keyPress
         @param {Event} event
@@ -12539,7 +12601,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.74dbdf7c
+      @version 1.8.0-beta.1+canary.71b820b0
     */
 
     if ('undefined' === typeof Ember) {
@@ -12566,10 +12628,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.74dbdf7c'
+      @default '1.8.0-beta.1+canary.71b820b0'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.74dbdf7c';
+    Ember.VERSION = '1.8.0-beta.1+canary.71b820b0';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`

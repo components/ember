@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.74dbdf7c
+ * @version   1.8.0-beta.1+canary.71b820b0
  */
 
 (function() {
@@ -4920,8 +4920,8 @@ define("ember-handlebars/tests/controls/text_area_test.jshint",
     });
   });
 define("ember-handlebars/tests/controls/text_field_test",
-  ["ember-metal/core","ember-metal/run_loop","ember-metal/property_get","ember-metal/property_set","ember-handlebars","ember-runtime/system/object","ember-views/views/view","ember-handlebars/controls/text_field"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
+  ["ember-metal/core","ember-metal/run_loop","ember-metal/property_get","ember-metal/property_set","ember-handlebars","ember-runtime/system/object","ember-views/views/view","ember-handlebars/controls/text_field","ember-views/system/event_dispatcher","ember-views/system/jquery"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
     "use strict";
     /*globals TestObject:true */
 
@@ -4935,6 +4935,8 @@ define("ember-handlebars/tests/controls/text_field_test",
     var EmberObject = __dependency6__["default"];
     var View = __dependency7__["default"];
     var TextField = __dependency8__["default"];
+    var EventDispatcher = __dependency9__["default"];
+    var jQuery = __dependency10__["default"];
 
     var textField;
     var K = Ember.K;
@@ -5398,6 +5400,139 @@ define("ember-handlebars/tests/controls/text_field_test",
       textField.set('bubbles', false);
       textField.trigger('keyUp', event);
       equal(stopPropagationCount, 1, "propagation was prevented if bubbles is false");
+    });
+
+
+    var dispatcher, StubController;
+    QUnit.module("Ember.TextField - Action events", {
+      setup: function() {
+
+        dispatcher = EventDispatcher.create();
+        dispatcher.setup();
+
+        StubController = EmberObject.extend({
+          send: function(actionName, value, sender) {
+            equal(actionName, 'doSomething', "text field sent correct action name");
+          }
+        });
+     
+      },
+     
+      teardown: function() {
+        run(function() {
+          dispatcher.destroy();
+
+          if (textField) {
+            textField.destroy();
+          }
+        });
+      }
+    });
+     
+    test("when the text field is blurred, the `focus-out` action is sent to the controller", function() {
+      expect(1);
+
+      textField = TextField.create({
+        'focus-out': 'doSomething',
+        targetObject: StubController.create({})
+      });
+
+      append();
+
+      run(function() { 
+        textField.$().blur();
+      });
+
+    });
+
+    test("when the text field is focused, the `focus-in` action is sent to the controller", function() {
+      expect(1);
+
+      textField = TextField.create({
+        'focus-in': 'doSomething',
+        targetObject: StubController.create({})
+      });
+
+      append();
+
+      run(function() { 
+        textField.$().focusin();
+      });
+
+
+    });
+
+    test("when the user presses a key, the `key-press` action is sent to the controller", function() {
+      expect(1);
+
+      textField = TextField.create({
+        'key-press': 'doSomething',
+        targetObject: StubController.create({})
+      });
+
+      append();
+      
+      run(function() { 
+        var event = jQuery.Event("keypress");
+        event.keyCode = event.which = 13;
+        textField.$().trigger(event);
+      });
+
+    });
+
+    test("when the user inserts a new line, the `insert-newline` action is sent to the controller", function() {
+      expect(1);
+
+      textField = TextField.create({
+        'insert-newline': 'doSomething',
+        targetObject: StubController.create({})
+      });
+
+      append();
+      
+      run(function() { 
+        var event = jQuery.Event("keyup");
+        event.keyCode = event.which = 13;
+        textField.$().trigger(event);
+      });
+
+    });
+
+
+    test("when the user presses the `enter` key, the `enter` action is sent to the controller", function() {
+      expect(1);
+
+      textField = TextField.create({
+        'enter': 'doSomething',
+        targetObject: StubController.create({})
+      });
+
+      append();
+      
+      run(function() { 
+        var event = jQuery.Event("keyup");
+        event.keyCode = event.which = 13;
+        textField.$().trigger(event);
+      });
+
+    });
+
+    test("when the user hits escape, the `escape-press` action is sent to the controller", function() {
+      expect(1);
+
+      textField = TextField.create({
+        'escape-press': 'doSomething',
+        targetObject: StubController.create({})
+      });
+
+      append();
+      
+      run(function() { 
+        var event = jQuery.Event("keyup");
+        event.keyCode = event.which = 27;
+        textField.$().trigger(event);
+      });
+
     });
   });
 define("ember-handlebars/tests/controls/text_field_test.jshint",
