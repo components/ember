@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.67f57a13
+ * @version   1.8.0-beta.1+canary.d4d1e7f5
  */
 
 (function() {
@@ -12539,7 +12539,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.67f57a13
+      @version 1.8.0-beta.1+canary.d4d1e7f5
     */
 
     if ('undefined' === typeof Ember) {
@@ -12566,10 +12566,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.67f57a13'
+      @default '1.8.0-beta.1+canary.d4d1e7f5'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.67f57a13';
+    Ember.VERSION = '1.8.0-beta.1+canary.d4d1e7f5';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -29723,7 +29723,7 @@ define("ember-runtime/mixins/enumerable",
 
       /**
         Invoke this method when the contents of your enumerable has changed.
-        This will notify any observers watching for content changes. If your are
+        This will notify any observers watching for content changes. If you are
         implementing an ordered enumerable (such as an array), also pass the
         start and end values where the content changed so that it can be used to
         notify range observers.
