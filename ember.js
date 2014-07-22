@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.c0ff0956
+ * @version   1.8.0-beta.1+canary.67c87911
  */
 
 (function() {
@@ -12907,7 +12907,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.c0ff0956
+      @version 1.8.0-beta.1+canary.67c87911
     */
 
     if ('undefined' === typeof Ember) {
@@ -12934,10 +12934,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.c0ff0956'
+      @default '1.8.0-beta.1+canary.67c87911'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.c0ff0956';
+    Ember.VERSION = '1.8.0-beta.1+canary.67c87911';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -36429,7 +36429,7 @@ define("ember-testing/test",
       /**
         Replacement for `Ember.RSVP.resolve`
         The only difference is this uses
-        and instance of `Ember.Test.Promise`
+        an instance of `Ember.Test.Promise`
 
         @public
         @method resolve
