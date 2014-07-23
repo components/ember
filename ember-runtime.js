@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.8c285dec
+ * @version   1.8.0-beta.1+canary.41fc3e57
  */
 
 (function() {
@@ -3685,9 +3685,9 @@ define("ember-metal/computed",
       @return {Object} the cached value
     */
     function cacheFor(obj, key) {
-      var meta = obj[META_KEY],
-          cache = meta && meta.cache,
-          ret = cache && cache[key];
+      var meta = obj[META_KEY];
+      var cache = meta && meta.cache;
+      var ret = cache && cache[key];
 
       if (ret === UNDEFINED) { return undefined; }
       return ret;
@@ -4451,7 +4451,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.8c285dec
+      @version 1.8.0-beta.1+canary.41fc3e57
     */
 
     if ('undefined' === typeof Ember) {
@@ -4478,10 +4478,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.8c285dec'
+      @default '1.8.0-beta.1+canary.41fc3e57'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.8c285dec';
+    Ember.VERSION = '1.8.0-beta.1+canary.41fc3e57';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -18171,9 +18171,10 @@ define("ember-runtime/system/core_object",
         @return {String} string representation
       */
       toString: function toString() {
-        var hasToStringExtension = typeof this.toStringExtension === 'function',
-            extension = hasToStringExtension ? ":" + this.toStringExtension() : '';
+        var hasToStringExtension = typeof this.toStringExtension === 'function';
+        var extension = hasToStringExtension ? ":" + this.toStringExtension() : '';
         var ret = '<'+this.constructor.toString()+':'+guidFor(this)+extension+'>';
+
         this.toString = makeToString(ret);
         return ret;
       }
@@ -18497,8 +18498,8 @@ define("ember-runtime/system/core_object",
         @param key {String} property name
       */
       metaForProperty: function(key) {
-        var meta = this.proto()[META_KEY],
-            desc = meta && meta.descs[key];
+        var meta = this.proto()[META_KEY];
+        var desc = meta && meta.descs[key];
 
         Ember.assert("metaForProperty() could not find a computed property with key '"+key+"'.", !!desc && desc instanceof ComputedProperty);
         return desc._meta || {};
@@ -18513,10 +18514,10 @@ define("ember-runtime/system/core_object",
         @param {Object} binding
       */
       eachComputedProperty: function(callback, binding) {
-        var proto = this.proto(),
-            descs = meta(proto).descs,
-            empty = {},
-            property;
+        var proto = this.proto();
+        var descs = meta(proto).descs;
+        var empty = {};
+        var property;
 
         for (var name in descs) {
           property = descs[name];
@@ -18988,6 +18989,15 @@ define("ember-runtime/system/namespace",
 
     var STARTS_WITH_UPPERCASE = /^[A-Z]/;
 
+    function tryIsNamespace(lookup, prop) {
+      try {
+        var obj = lookup[prop];
+        return obj && obj.isNamespace && obj;
+      } catch (e) {
+        // continue
+      }
+    }
+
     function findNamespaces() {
       var lookup = Ember.lookup, obj, isNamespace;
 
@@ -19002,14 +19012,8 @@ define("ember-runtime/system/namespace",
 
         // At times we are not allowed to access certain properties for security reasons.
         // There are also times where even if we can access them, we are not allowed to access their properties.
-        try {
-          obj = lookup[prop];
-          isNamespace = obj && obj.isNamespace;
-        } catch (e) {
-          continue;
-        }
-
-        if (isNamespace) {
+        obj = tryIsNamespace(lookup, prop);
+        if (obj) {
           obj[NAME_KEY] = prop;
         }
       }
