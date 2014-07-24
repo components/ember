@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.a5642567
+ * @version   1.8.0-beta.1+canary.8a28c621
  */
 
 (function() {
@@ -12962,7 +12962,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.a5642567
+      @version 1.8.0-beta.1+canary.8a28c621
     */
 
     if ('undefined' === typeof Ember) {
@@ -12989,10 +12989,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.a5642567'
+      @default '1.8.0-beta.1+canary.8a28c621'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.a5642567';
+    Ember.VERSION = '1.8.0-beta.1+canary.8a28c621';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -43492,6 +43492,14 @@ define("route-recognizer",
     };
   });
 
+define("router",
+  ["./router/router","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    var Router = __dependency1__["default"];
+
+    __exports__["default"] = Router;
+  });
 define("router/handler-info",
   ["./utils","rsvp/promise","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
@@ -43593,7 +43601,7 @@ define("router/handler-info",
           result = null;
         }
 
-        return Promise.resolve(result, null, this.promiseLabel("Resolve value returned from one of the model hooks"));
+        return Promise.resolve(result, this.promiseLabel("Resolve value returned from one of the model hooks"));
       },
 
       // overridden by subclasses
@@ -44975,13 +44983,13 @@ define("router/transition-state",
         .then(resolveOneHandlerInfo, null, this.promiseLabel('Resolve handler'))['catch'](handleError, this.promiseLabel('Handle error'));
 
         function innerShouldContinue() {
-          return Promise.resolve(shouldContinue(), promiseLabel("Check if should continue"))['catch'](function(reason) {
+          return Promise.resolve(shouldContinue(), currentState.promiseLabel("Check if should continue"))['catch'](function(reason) {
             // We distinguish between errors that occurred
             // during resolution (e.g. beforeModel/model/afterModel),
             // and aborts due to a rejecting promise from shouldContinue().
             wasAborted = true;
             return Promise.reject(reason);
-          }, promiseLabel("Handle abort"));
+          }, currentState.promiseLabel("Handle abort"));
         }
 
         function handleError(error) {
@@ -45018,7 +45026,7 @@ define("router/transition-state",
 
           // Proceed after ensuring that the redirect hook
           // didn't abort this transition by transitioning elsewhere.
-          return innerShouldContinue().then(resolveOneHandlerInfo, null, promiseLabel('Resolve handler'));
+          return innerShouldContinue().then(resolveOneHandlerInfo, null, currentState.promiseLabel('Resolve handler'));
         }
 
         function resolveOneHandlerInfo() {
@@ -45034,7 +45042,7 @@ define("router/transition-state",
           var handlerInfo = currentState.handlerInfos[payload.resolveIndex];
 
           return handlerInfo.resolve(innerShouldContinue, payload)
-                            .then(proceed, null, promiseLabel('Proceed'));
+                            .then(proceed, null, currentState.promiseLabel('Proceed'));
         }
       }
     };
@@ -45512,15 +45520,6 @@ define("router/utils",
     __exports__.isParam = isParam;
     __exports__.coerceQueryParamsToString = coerceQueryParamsToString;
   });
-define("router",
-  ["./router/router","exports"],
-  function(__dependency1__, __exports__) {
-    "use strict";
-    var Router = __dependency1__["default"];
-
-    __exports__["default"] = Router;
-  });
-
 define("rsvp",
   ["./rsvp/promise","./rsvp/events","./rsvp/node","./rsvp/all","./rsvp/all-settled","./rsvp/race","./rsvp/hash","./rsvp/hash-settled","./rsvp/rethrow","./rsvp/defer","./rsvp/config","./rsvp/map","./rsvp/resolve","./rsvp/reject","./rsvp/filter","./rsvp/asap","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __exports__) {
