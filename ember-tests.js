@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.08a2e4f9
+ * @version   1.8.0-beta.1+canary.6754242b
  */
 
 (function() {
@@ -1255,18 +1255,6 @@ define("ember-application/tests/system/application_test",
 
       ok(app.__container__.lookup('router:main') instanceof CustomRouter, 'application resolved the correct router');
     });
-
-    test("throws helpful error if `app.then` is used", function() {
-      run(function() {
-        app = Application.create({
-          rootElement: '#qunit-fixture'
-        });
-      });
-
-      expectDeprecation(function() {
-        run(app, 'then', Ember.K);
-      }, /Do not use `.then` on an instance of Ember.Application.  Please use the `.ready` hook instead./);
-    });
   });
 define("ember-application/tests/system/application_test.jshint",
   [],
@@ -2444,37 +2432,57 @@ define("ember-application/tests/system/readiness_test",
     // it was triggered after initialization.
 
     test("Ember.Application's ready event is called right away if jQuery is already ready", function() {
+      var wasResolved = 0;
       jQuery.isReady = true;
 
       run(function() {
         application = Application.create({ router: false });
+        application.then(function() {
+          wasResolved++;
+        });
 
         equal(readyWasCalled, 0, "ready is not called until later");
+        equal(wasResolved, 0);
       });
 
+      equal(wasResolved, 1);
       equal(readyWasCalled, 1, "ready was called");
 
       domReady();
 
+      equal(wasResolved, 1);
       equal(readyWasCalled, 1, "application's ready was not called again");
     });
 
     test("Ember.Application's ready event is called after the document becomes ready", function() {
+      var wasResolved = 0;
       run(function() {
         application = Application.create({ router: false });
+        application.then(function() {
+          wasResolved++;
+        });
+        equal(wasResolved, 0);
       });
 
       equal(readyWasCalled, 0, "ready wasn't called yet");
+      equal(wasResolved, 0);
 
       domReady();
 
+      equal(wasResolved, 1);
       equal(readyWasCalled, 1, "ready was called now that DOM is ready");
     });
 
     test("Ember.Application's ready event can be deferred by other components", function() {
+      var wasResolved = 0;
+
       run(function() {
         application = Application.create({ router: false });
+        application.then(function() {
+          wasResolved++;
+        });
         application.deferReadiness();
+        equal(wasResolved, 0);
       });
 
       equal(readyWasCalled, 0, "ready wasn't called yet");
@@ -2482,22 +2490,29 @@ define("ember-application/tests/system/readiness_test",
       domReady();
 
       equal(readyWasCalled, 0, "ready wasn't called yet");
+      equal(wasResolved, 0);
 
       run(function() {
         application.advanceReadiness();
         equal(readyWasCalled, 0);
+        equal(wasResolved, 0);
       });
 
+      equal(wasResolved, 1);
       equal(readyWasCalled, 1, "ready was called now all readiness deferrals are advanced");
     });
 
     test("Ember.Application's ready event can be deferred by other components", function() {
+      var wasResolved = 0;
       jQuery.isReady = false;
 
       run(function() {
         application = Application.create({ router: false });
         application.deferReadiness();
-        equal(readyWasCalled, 0, "ready wasn't called yet");
+        application.then(function() {
+          wasResolved++;
+        });
+        equal(wasResolved, 0);
       });
 
       domReady();
@@ -2506,8 +2521,10 @@ define("ember-application/tests/system/readiness_test",
 
       run(function() {
         application.advanceReadiness();
+        equal(wasResolved, 0);
       });
 
+      equal(wasResolved, 1);
       equal(readyWasCalled, 1, "ready was called now all readiness deferrals are advanced");
 
       expectAssertion(function() {
@@ -2559,13 +2576,12 @@ define("ember-application/tests/system/reset_test",
 
     test("Brings it's own run-loop if not provided", function() {
       application = run(Application, 'create');
-      application.ready = function() {
-        QUnit.start();
-        ok(true, 'app booted');
-      };
 
-      QUnit.stop();
       application.reset();
+
+      run(application,'then', function() {
+        ok(true, 'app booted');
+      });
     });
 
     test("does not bring it's own run loop if one is already provided", function() {
@@ -29241,8 +29257,6 @@ define("ember-runtime/tests/ext/rsvp_test",
   ["ember-metal/run_loop","ember-runtime/ext/rsvp"],
   function(__dependency1__, __dependency2__) {
     "use strict";
-    /* global Promise:true */
-
     var run = __dependency1__["default"];
     var RSVP = __dependency2__["default"];
 
@@ -29261,95 +29275,6 @@ define("ember-runtime/tests/ext/rsvp_test",
       } catch (e) {
         equal(e, error, "error was re-thrown");
       }
-    });
-
-    var asyncStarted = 0;
-    var asyncEnded = 0;
-    var Promise = RSVP.Promise;
-
-    var EmberTest;
-    var EmberTesting;
-
-    QUnit.module("Deferred RSVP's async + Testing", {
-      setup: function() {
-        EmberTest = Ember.Test;
-        EmberTesting = Ember.testing;
-
-        Ember.Test = {
-          adapter: {
-            asyncStart: function() {
-              asyncStarted++;
-              QUnit.stop();
-            },
-            asyncEnd: function() {
-              asyncEnded++;
-              QUnit.start();
-            }
-          }
-        };
-      },
-      teardown: function() {
-        asyncStarted = 0;
-        asyncEnded = 0;
-
-        Ember.testing = EmberTesting;
-        Ember.Test =  EmberTest;
-      }
-    });
-
-    test("given `Ember.testing = true`, correctly informs the test suite about async steps", function() {
-      expect(19);
-
-      ok(!run.currentRunLoop, 'expect no run-loop');
-
-      Ember.testing = true;
-
-      equal(asyncStarted, 0);
-      equal(asyncEnded, 0);
-
-      var user = Promise.resolve({
-        name: 'tomster'
-      });
-
-      equal(asyncStarted, 0);
-      equal(asyncEnded, 0);
-
-      user.then(function(user){
-        equal(asyncStarted, 1);
-        equal(asyncEnded, 1);
-
-        equal(user.name, 'tomster');
-
-        return Promise.resolve(1).then(function(){
-          equal(asyncStarted, 1);
-          equal(asyncEnded, 1);
-        });
-
-      }).then(function(){
-        equal(asyncStarted, 1);
-        equal(asyncEnded, 1);
-
-        return new Promise(function(resolve){
-          QUnit.stop(); // raw async, we must inform the test framework manually
-          setTimeout(function(){
-            QUnit.start(); // raw async, we must inform the test framework manually
-
-            equal(asyncStarted, 1);
-            equal(asyncEnded, 1);
-
-            resolve({
-              name: 'async tomster'
-            });
-
-            equal(asyncStarted, 2);
-            equal(asyncEnded, 1);
-          }, 0);
-        });
-      }).then(function(user){
-        equal(user.name, 'async tomster');
-        equal(asyncStarted, 2);
-        equal(asyncEnded, 2);
-      });
     });
   });
 define("ember-runtime/tests/ext/rsvp_test.jshint",
@@ -32487,7 +32412,7 @@ define("ember-runtime/tests/mixins/deferred_test",
   ["ember-metal/core","ember-metal/run_loop","ember-runtime/system/object","ember-runtime/mixins/deferred","ember-runtime/ext/rsvp"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
-    /* global Promise:true,EmberDev */
+    /* global Promise:true */
 
     var Ember = __dependency1__["default"];
     var run = __dependency2__["default"];
@@ -32495,18 +32420,7 @@ define("ember-runtime/tests/mixins/deferred_test",
     var Deferred = __dependency4__["default"];
     var RSVP = __dependency5__["default"];
 
-    var originalDeprecate;
-
-    QUnit.module("Deferred", {
-      setup: function() {
-        originalDeprecate = Ember.deprecate;
-        Ember.deprecate = function() { };
-      },
-
-      teardown: function() {
-        Ember.deprecate = originalDeprecate;
-      }
-    });
+    QUnit.module("Deferred");
 
     test("can resolve deferred", function() {
       var deferred, count = 0;
@@ -32820,25 +32734,94 @@ define("ember-runtime/tests/mixins/deferred_test",
       run(deferred, 'resolve', fulfillment);
     });
 
-    if (!EmberDev.runningProdBuild){
-      test("causes a deprecation warning when used", function() {
-        var deferred, deprecationMade, obj = {};
+    var asyncStarted = 0;
+    var asyncEnded = 0;
+    var Promise = RSVP.Promise;
 
-        Ember.deprecate = function(message) {
-          deprecationMade = message;
+    var EmberTest;
+    var EmberTesting;
+
+    QUnit.module("Deferred RSVP's async + Testing", {
+      setup: function() {
+        EmberTest = Ember.Test;
+        EmberTesting = Ember.testing;
+
+        Ember.Test = {
+          adapter: {
+            asyncStart: function() {
+              asyncStarted++;
+              QUnit.stop();
+            },
+            asyncEnd: function() {
+              asyncEnded++;
+              QUnit.start();
+            }
+          }
         };
+      },
+      teardown: function() {
+        asyncStarted = 0;
+        asyncEnded = 0;
 
-        deferred = EmberObject.createWithMixins(Deferred);
-        equal(deprecationMade, undefined, 'no deprecation was made on init');
+        Ember.testing = EmberTesting;
+        Ember.Test =  EmberTest;
+      }
+    });
 
-        deferred.then(function(value) {
-          equal(value, obj, "successfully resolved to given value");
-        });
-        equal(deprecationMade, 'Usage of Ember.DeferredMixin or Ember.Deferred is deprecated.');
+    test("given `Ember.testing = true`, correctly informs the test suite about async steps", function() {
+      expect(19);
 
-        run(deferred, 'resolve', obj);
+      ok(!run.currentRunLoop, 'expect no run-loop');
+
+      Ember.testing = true;
+
+      equal(asyncStarted, 0);
+      equal(asyncEnded, 0);
+
+      var user = Promise.resolve({
+        name: 'tomster'
       });
-    }
+
+      equal(asyncStarted, 0);
+      equal(asyncEnded, 0);
+
+      user.then(function(user){
+        equal(asyncStarted, 1);
+        equal(asyncEnded, 1);
+
+        equal(user.name, 'tomster');
+
+        return Promise.resolve(1).then(function(){
+          equal(asyncStarted, 1);
+          equal(asyncEnded, 1);
+        });
+
+      }).then(function(){
+        equal(asyncStarted, 1);
+        equal(asyncEnded, 1);
+
+        return new Promise(function(resolve){
+          QUnit.stop(); // raw async, we must inform the test framework manually
+          setTimeout(function(){
+            QUnit.start(); // raw async, we must inform the test framework manually
+
+            equal(asyncStarted, 1);
+            equal(asyncEnded, 1);
+
+            resolve({
+              name: 'async tomster'
+            });
+
+            equal(asyncStarted, 2);
+            equal(asyncEnded, 1);
+          }, 0);
+        });
+      }).then(function(user){
+        equal(user.name, 'async tomster');
+        equal(asyncStarted, 2);
+        equal(asyncEnded, 2);
+      });
+    });
   });
 define("ember-runtime/tests/mixins/deferred_test.jshint",
   [],
@@ -38770,34 +38753,30 @@ define("ember-runtime/tests/system/deferred_test",
     asyncTest("Can resolve a promise", function() {
       var value = { value: true };
 
-      ignoreDeprecation(function() {
-        var promise = Deferred.promise(function(deferred) {
-          setTimeout(function() {
-            run(function() { deferred.resolve(value); });
-          });
+      var promise = Deferred.promise(function(deferred) {
+        setTimeout(function() {
+          run(function() { deferred.resolve(value); });
         });
+      });
 
-        promise.then(function(resolveValue) {
-          QUnit.start();
-          equal(resolveValue, value, "The resolved value should be correct");
-        });
+      promise.then(function(resolveValue) {
+        QUnit.start();
+        equal(resolveValue, value, "The resolved value should be correct");
       });
     });
 
     asyncTest("Can reject a promise", function() {
       var rejected = { rejected: true };
 
-      ignoreDeprecation(function() {
-        var promise = Deferred.promise(function(deferred) {
-          setTimeout(function() {
-            run(function() { deferred.reject(rejected); });
-          });
+      var promise = Deferred.promise(function(deferred) {
+        setTimeout(function() {
+          run(function() { deferred.reject(rejected); });
         });
+      });
 
-        promise.then(null, function(rejectedValue) {
-          QUnit.start();
-          equal(rejectedValue, rejected, "The resolved value should be correct");
-        });
+      promise.then(null, function(rejectedValue) {
+        QUnit.start();
+        equal(rejectedValue, rejected, "The resolved value should be correct");
       });
     });
   });
@@ -53468,16 +53447,16 @@ define("ember/tests/routing/basic_test",
         this.resource("special", { path: "/specials/:menu_item_id" });
       });
 
-      var menuItem, resolve;
+      var menuItem;
 
-      App.MenuItem = Ember.Object.extend();
+      App.MenuItem = Ember.Object.extend(Ember.DeferredMixin);
       App.MenuItem.reopenClass({
         find: function(id) {
-          menuItem = App.MenuItem.create({ id: id });
-
-          return new Ember.RSVP.Promise(function(res) {
-            resolve = res;
+          menuItem = App.MenuItem.create({
+            id: id
           });
+
+          return menuItem;
         }
       });
 
@@ -53508,7 +53487,7 @@ define("ember/tests/routing/basic_test",
       equal(Ember.$('p', '#qunit-fixture').text(), "LOADING!", "The app is in the loading state");
 
       Ember.run(function() {
-        resolve(menuItem);
+        menuItem.resolve(menuItem);
       });
 
       equal(Ember.$('p', '#qunit-fixture').text(), "1", "The app is now in the specials state");
@@ -53598,17 +53577,13 @@ define("ember/tests/routing/basic_test",
         this.resource("special", { path: "/specials/:menu_item_id" });
       });
 
-      var menuItem, promise, resolve;
+      var menuItem;
 
-      App.MenuItem = Ember.Object.extend();
+      App.MenuItem = Ember.Object.extend(Ember.DeferredMixin);
       App.MenuItem.reopenClass({
         find: function(id) {
           menuItem = App.MenuItem.create({ id: id });
-          promise = new Ember.RSVP.Promise(function(res) {
-            resolve = res;
-          });
-
-          return promise;
+          return menuItem;
         }
       });
 
@@ -53627,9 +53602,7 @@ define("ember/tests/routing/basic_test",
 
       handleURLRejectsWith('/specials/1', 'Setup error');
 
-      Ember.run(function() {
-        resolve(menuItem);
-      });
+      Ember.run(menuItem, menuItem.resolve, menuItem);
     });
 
     function testOverridableErrorHandler(handlersName) {
@@ -53641,15 +53614,13 @@ define("ember/tests/routing/basic_test",
         this.resource("special", { path: "/specials/:menu_item_id" });
       });
 
-      var menuItem, resolve;
+      var menuItem;
 
-      App.MenuItem = Ember.Object.extend();
+      App.MenuItem = Ember.Object.extend(Ember.DeferredMixin);
       App.MenuItem.reopenClass({
         find: function(id) {
           menuItem = App.MenuItem.create({ id: id });
-          return new Ember.RSVP.Promise(function(res) {
-            resolve = res;
-          });
+          return menuItem;
         }
       });
 
@@ -53672,9 +53643,7 @@ define("ember/tests/routing/basic_test",
 
       handleURLRejectsWith("/specials/1", "Setup error");
 
-      Ember.run(function() {
-        resolve(menuItem);
-      });
+      Ember.run(menuItem, 'resolve', menuItem);
     }
 
     test("ApplicationRoute's default error handler can be overridden", function() {
@@ -53693,7 +53662,7 @@ define("ember/tests/routing/basic_test",
         this.resource("special", { path: "/specials/:menu_item_id" });
       });
 
-      App.MenuItem = Ember.Object.extend();
+      App.MenuItem = Ember.Object.extend(Ember.DeferredMixin);
 
       App.SpecialRoute = Ember.Route.extend({
         setupController: function(controller, model) {
@@ -53721,7 +53690,7 @@ define("ember/tests/routing/basic_test",
 
           var promiseContext = App.MenuItem.create({ id: 1 });
           Ember.run.later(function() {
-            Ember.RSVP.resolve(promiseContext);
+            promiseContext.resolve(promiseContext);
           }, 1);
 
           return router.transitionTo('special', promiseContext);
@@ -53747,9 +53716,9 @@ define("ember/tests/routing/basic_test",
         })
       });
 
-      var menuItem, resolve;
+      var menuItem;
 
-      App.MenuItem = Ember.Object.extend();
+      App.MenuItem = Ember.Object.extend(Ember.DeferredMixin);
       App.MenuItem.reopenClass({
         find: function(id) {
           menuItem = App.MenuItem.create({ id: id });
@@ -53819,9 +53788,7 @@ define("ember/tests/routing/basic_test",
 
       Ember.run(function() {
         var menuItem = App.MenuItem.create({ id: 1 });
-        Ember.run.later(function() {
-          Ember.RSVP.resolve(menuItem);
-        }, 1);
+        Ember.run.later(function() { menuItem.resolve(menuItem); }, 1);
 
         router.transitionTo('special', menuItem).then(function(result) {
           equal(rootSetup, 1, "The root setup was not triggered again");
