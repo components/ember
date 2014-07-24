@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.6754242b
+ * @version   1.8.0-beta.1+canary.08a2e4f9
  */
 
 (function() {
@@ -4450,7 +4450,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.6754242b
+      @version 1.8.0-beta.1+canary.08a2e4f9
     */
 
     if ('undefined' === typeof Ember) {
@@ -4477,10 +4477,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.6754242b'
+      @default '1.8.0-beta.1+canary.08a2e4f9'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.6754242b';
+    Ember.VERSION = '1.8.0-beta.1+canary.08a2e4f9';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -13063,16 +13063,45 @@ define("ember-runtime/ext/function",
     }
   });
 define("ember-runtime/ext/rsvp",
-  ["ember-metal/core","ember-metal/logger","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["ember-metal/core","ember-metal/logger","ember-metal/run_loop","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     /* globals RSVP:true */
 
     var Ember = __dependency1__["default"];
     var Logger = __dependency2__["default"];
+    var run = __dependency3__["default"];
 
     var RSVP = requireModule('rsvp');
     var Test, testModuleName = 'ember-testing/test';
+
+    var asyncStart = function() {
+      if (Ember.Test && Ember.Test.adapter) {
+        Ember.Test.adapter.asyncStart();
+      }
+    };
+
+    var asyncEnd = function() {
+      if (Ember.Test && Ember.Test.adapter) {
+        Ember.Test.adapter.asyncEnd();
+      }
+    };
+
+    RSVP.configure('async', function(callback, promise) {
+      var async = !run.currentRunLoop;
+
+      if (Ember.testing && async) { asyncStart(); }
+
+      run.backburner.schedule('actions', function(){
+        if (Ember.testing && async) { asyncEnd(); }
+        callback(promise);
+      });
+    });
+
+    RSVP.Promise.prototype.fail = function(callback, label){
+      Ember.deprecate('RSVP.Promise.fail has been renamed as RSVP.Promise.catch');
+      return this['catch'](callback, label);
+    };
 
     RSVP.onerrorDefault = function (error) {
       if (error instanceof Error) {
@@ -14215,44 +14244,15 @@ define("ember-runtime/mixins/copyable",
     });
   });
 define("ember-runtime/mixins/deferred",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/mixin","ember-metal/computed","ember-metal/run_loop","ember-runtime/ext/rsvp","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/mixin","ember-metal/computed","ember-runtime/ext/rsvp","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.FEATURES, Ember.Test
     var get = __dependency2__.get;
     var Mixin = __dependency3__.Mixin;
     var computed = __dependency4__.computed;
-    var run = __dependency5__["default"];
-    var RSVP = __dependency6__["default"];
-
-    var asyncStart = function() {
-      if (Ember.Test && Ember.Test.adapter) {
-        Ember.Test.adapter.asyncStart();
-      }
-    };
-
-    var asyncEnd = function() {
-      if (Ember.Test && Ember.Test.adapter) {
-        Ember.Test.adapter.asyncEnd();
-      }
-    };
-
-    RSVP.configure('async', function(callback, promise) {
-      var async = !run.currentRunLoop;
-
-      if (Ember.testing && async) { asyncStart(); }
-
-      run.backburner.schedule('actions', function(){
-        if (Ember.testing && async) { asyncEnd(); }
-        callback(promise);
-      });
-    });
-
-    RSVP.Promise.prototype.fail = function(callback, label){
-      Ember.deprecate('RSVP.Promise.fail has been renamed as RSVP.Promise.catch');
-      return this['catch'](callback, label);
-    };
+    var RSVP = __dependency5__["default"];
 
     /**
     @module ember
@@ -14318,6 +14318,8 @@ define("ember-runtime/mixins/deferred",
       },
 
       _deferred: computed(function() {
+        Ember.deprecate('Usage of Ember.DeferredMixin or Ember.Deferred is deprecated.', this._suppressDeferredDeprecation);
+
         return RSVP.defer('Ember: DeferredMixin - ' + this);
       })
     });
@@ -18576,14 +18578,20 @@ define("ember-runtime/system/core_object",
     __exports__["default"] = CoreObject;
   });
 define("ember-runtime/system/deferred",
-  ["ember-runtime/mixins/deferred","ember-metal/property_get","ember-runtime/system/object","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["ember-metal/core","ember-runtime/mixins/deferred","ember-metal/property_get","ember-runtime/system/object","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
-    var DeferredMixin = __dependency1__["default"];
-    var get = __dependency2__.get;
-    var EmberObject = __dependency3__["default"];
+    var Ember = __dependency1__["default"];
+    var DeferredMixin = __dependency2__["default"];
+    var get = __dependency3__.get;
+    var EmberObject = __dependency4__["default"];
 
-    var Deferred = EmberObject.extend(DeferredMixin);
+    var Deferred = EmberObject.extend(DeferredMixin, {
+      init: function() {
+        Ember.deprecate('Usage of Ember.Deferred is deprecated.');
+        this._super();
+      }
+    });
 
     Deferred.reopenClass({
       promise: function(callback, binding) {
