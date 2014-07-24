@@ -1255,6 +1255,18 @@ define("ember-application/tests/system/application_test",
 
       ok(app.__container__.lookup('router:main') instanceof CustomRouter, 'application resolved the correct router');
     });
+
+    test("throws helpful error if `app.then` is used", function() {
+      run(function() {
+        app = Application.create({
+          rootElement: '#qunit-fixture'
+        });
+      });
+
+      expectDeprecation(function() {
+        run(app, 'then', Ember.K);
+      }, /Do not use `.then` on an instance of Ember.Application.  Please use the `.ready` hook instead./);
+    });
   });
 define("ember-application/tests/system/application_test.jshint",
   [],
@@ -2432,57 +2444,37 @@ define("ember-application/tests/system/readiness_test",
     // it was triggered after initialization.
 
     test("Ember.Application's ready event is called right away if jQuery is already ready", function() {
-      var wasResolved = 0;
       jQuery.isReady = true;
 
       run(function() {
         application = Application.create({ router: false });
-        application.then(function() {
-          wasResolved++;
-        });
 
         equal(readyWasCalled, 0, "ready is not called until later");
-        equal(wasResolved, 0);
       });
 
-      equal(wasResolved, 1);
       equal(readyWasCalled, 1, "ready was called");
 
       domReady();
 
-      equal(wasResolved, 1);
       equal(readyWasCalled, 1, "application's ready was not called again");
     });
 
     test("Ember.Application's ready event is called after the document becomes ready", function() {
-      var wasResolved = 0;
       run(function() {
         application = Application.create({ router: false });
-        application.then(function() {
-          wasResolved++;
-        });
-        equal(wasResolved, 0);
       });
 
       equal(readyWasCalled, 0, "ready wasn't called yet");
-      equal(wasResolved, 0);
 
       domReady();
 
-      equal(wasResolved, 1);
       equal(readyWasCalled, 1, "ready was called now that DOM is ready");
     });
 
     test("Ember.Application's ready event can be deferred by other components", function() {
-      var wasResolved = 0;
-
       run(function() {
         application = Application.create({ router: false });
-        application.then(function() {
-          wasResolved++;
-        });
         application.deferReadiness();
-        equal(wasResolved, 0);
       });
 
       equal(readyWasCalled, 0, "ready wasn't called yet");
@@ -2490,29 +2482,22 @@ define("ember-application/tests/system/readiness_test",
       domReady();
 
       equal(readyWasCalled, 0, "ready wasn't called yet");
-      equal(wasResolved, 0);
 
       run(function() {
         application.advanceReadiness();
         equal(readyWasCalled, 0);
-        equal(wasResolved, 0);
       });
 
-      equal(wasResolved, 1);
       equal(readyWasCalled, 1, "ready was called now all readiness deferrals are advanced");
     });
 
     test("Ember.Application's ready event can be deferred by other components", function() {
-      var wasResolved = 0;
       jQuery.isReady = false;
 
       run(function() {
         application = Application.create({ router: false });
         application.deferReadiness();
-        application.then(function() {
-          wasResolved++;
-        });
-        equal(wasResolved, 0);
+        equal(readyWasCalled, 0, "ready wasn't called yet");
       });
 
       domReady();
@@ -2521,10 +2506,8 @@ define("ember-application/tests/system/readiness_test",
 
       run(function() {
         application.advanceReadiness();
-        equal(wasResolved, 0);
       });
 
-      equal(wasResolved, 1);
       equal(readyWasCalled, 1, "ready was called now all readiness deferrals are advanced");
 
       expectAssertion(function() {
@@ -2576,12 +2559,13 @@ define("ember-application/tests/system/reset_test",
 
     test("Brings it's own run-loop if not provided", function() {
       application = run(Application, 'create');
-
-      application.reset();
-
-      run(application,'then', function() {
+      application.ready = function() {
+        QUnit.start();
         ok(true, 'app booted');
-      });
+      };
+
+      QUnit.stop();
+      application.reset();
     });
 
     test("does not bring it's own run loop if one is already provided", function() {
@@ -4920,8 +4904,8 @@ define("ember-handlebars/tests/controls/text_area_test.jshint",
     });
   });
 define("ember-handlebars/tests/controls/text_field_test",
-  ["ember-metal/core","ember-metal/run_loop","ember-metal/property_get","ember-metal/property_set","ember-handlebars","ember-runtime/system/object","ember-views/views/view","ember-handlebars/controls/text_field"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
+  ["ember-metal/core","ember-metal/run_loop","ember-metal/property_get","ember-metal/property_set","ember-handlebars","ember-runtime/system/object","ember-views/views/view","ember-handlebars/controls/text_field","ember-views/system/event_dispatcher","ember-views/system/jquery"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
     "use strict";
     /*globals TestObject:true */
 
@@ -4935,6 +4919,8 @@ define("ember-handlebars/tests/controls/text_field_test",
     var EmberObject = __dependency6__["default"];
     var View = __dependency7__["default"];
     var TextField = __dependency8__["default"];
+    var EventDispatcher = __dependency9__["default"];
+    var jQuery = __dependency10__["default"];
 
     var textField;
     var K = Ember.K;
@@ -5398,6 +5384,139 @@ define("ember-handlebars/tests/controls/text_field_test",
       textField.set('bubbles', false);
       textField.trigger('keyUp', event);
       equal(stopPropagationCount, 1, "propagation was prevented if bubbles is false");
+    });
+
+
+    var dispatcher, StubController;
+    QUnit.module("Ember.TextField - Action events", {
+      setup: function() {
+
+        dispatcher = EventDispatcher.create();
+        dispatcher.setup();
+
+        StubController = EmberObject.extend({
+          send: function(actionName, value, sender) {
+            equal(actionName, 'doSomething', "text field sent correct action name");
+          }
+        });
+     
+      },
+     
+      teardown: function() {
+        run(function() {
+          dispatcher.destroy();
+
+          if (textField) {
+            textField.destroy();
+          }
+        });
+      }
+    });
+     
+    test("when the text field is blurred, the `focus-out` action is sent to the controller", function() {
+      expect(1);
+
+      textField = TextField.create({
+        'focus-out': 'doSomething',
+        targetObject: StubController.create({})
+      });
+
+      append();
+
+      run(function() { 
+        textField.$().blur();
+      });
+
+    });
+
+    test("when the text field is focused, the `focus-in` action is sent to the controller", function() {
+      expect(1);
+
+      textField = TextField.create({
+        'focus-in': 'doSomething',
+        targetObject: StubController.create({})
+      });
+
+      append();
+
+      run(function() { 
+        textField.$().focusin();
+      });
+
+
+    });
+
+    test("when the user presses a key, the `key-press` action is sent to the controller", function() {
+      expect(1);
+
+      textField = TextField.create({
+        'key-press': 'doSomething',
+        targetObject: StubController.create({})
+      });
+
+      append();
+      
+      run(function() { 
+        var event = jQuery.Event("keypress");
+        event.keyCode = event.which = 13;
+        textField.$().trigger(event);
+      });
+
+    });
+
+    test("when the user inserts a new line, the `insert-newline` action is sent to the controller", function() {
+      expect(1);
+
+      textField = TextField.create({
+        'insert-newline': 'doSomething',
+        targetObject: StubController.create({})
+      });
+
+      append();
+      
+      run(function() { 
+        var event = jQuery.Event("keyup");
+        event.keyCode = event.which = 13;
+        textField.$().trigger(event);
+      });
+
+    });
+
+
+    test("when the user presses the `enter` key, the `enter` action is sent to the controller", function() {
+      expect(1);
+
+      textField = TextField.create({
+        'enter': 'doSomething',
+        targetObject: StubController.create({})
+      });
+
+      append();
+      
+      run(function() { 
+        var event = jQuery.Event("keyup");
+        event.keyCode = event.which = 13;
+        textField.$().trigger(event);
+      });
+
+    });
+
+    test("when the user hits escape, the `escape-press` action is sent to the controller", function() {
+      expect(1);
+
+      textField = TextField.create({
+        'escape-press': 'doSomething',
+        targetObject: StubController.create({})
+      });
+
+      append();
+      
+      run(function() { 
+        var event = jQuery.Event("keyup");
+        event.keyCode = event.which = 27;
+        textField.$().trigger(event);
+      });
+
     });
   });
 define("ember-handlebars/tests/controls/text_field_test.jshint",
@@ -12427,6 +12546,53 @@ define("ember-handlebars/tests/views/collection_view_test.jshint",
       ok(true, 'ember-handlebars/tests/views/collection_view_test.js should pass jshint.'); 
     });
   });
+define("ember-handlebars/tests/views/handlebars_bound_view_test",
+  ["ember-handlebars/views/handlebars_bound_view"],
+  function(__dependency1__) {
+    "use strict";
+    var SimpleHandlebarsView = __dependency1__.SimpleHandlebarsView;
+
+    QUnit.module('SimpleHandlebarsView');
+
+    test('does not render if update is triggured by normalizedValue is the same as the previous normalizedValue', function(){
+      var html = null;
+      var path = 'foo';
+      var pathRoot = { 'foo': 'bar' };
+      var isEscaped = false;
+      var templateData;
+      var view = new SimpleHandlebarsView(path, pathRoot, isEscaped, templateData);
+
+      view.morph.html = function(newHTML) {
+        html = newHTML;
+      };
+
+      equal(html, null);
+
+      view.update();
+
+      equal(html, 'bar', 'expected call to morph.html with "bar"');
+      html = null;
+
+      view.update();
+
+      equal(html, null, 'expected no call to morph.html');
+
+      pathRoot.foo = 'baz'; // change property
+
+      view.update();
+
+      equal(html, 'baz', 'expected call to morph.html with "baz"');
+    });
+  });
+define("ember-handlebars/tests/views/handlebars_bound_view_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-handlebars/tests/views');
+    test('ember-handlebars/tests/views/handlebars_bound_view_test.js should pass jshint', function() { 
+      ok(true, 'ember-handlebars/tests/views/handlebars_bound_view_test.js should pass jshint.'); 
+    });
+  });
 define("ember-handlebars/tests/views/metamorph_view_test",
   ["ember-views/system/jquery","ember-metal/run_loop","ember-views/views/view","ember-metal/property_get","ember-metal/property_set","ember-metal/mixin","ember-handlebars-compiler","ember-handlebars/views/metamorph_view"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
@@ -14768,6 +14934,22 @@ define("ember-metal/tests/computed_test",
       ok('foo' in obj, 'foo in obj should pass');
     });
 
+    testBoth("when setting a value after it had been retrieved empty don't pass function UNDEFINED as oldValue", function(get, set) {
+        var obj = {}, oldValueIsNoFunction = true;
+
+        defineProperty(obj, 'foo', computed(function(key, value, oldValue) {
+            if(typeof oldValue === 'function') {
+                oldValueIsNoFunction = false;
+            }
+
+            return undefined;
+        }));
+
+        get(obj, 'foo');
+        set(obj, 'foo', undefined);
+
+        ok(oldValueIsNoFunction);
+    });
 
     QUnit.module('computed - setter');
 
@@ -24215,6 +24397,34 @@ define("ember-routing/tests/system/dsl_test",
         });
       }, "'basic' cannot be used as a resource name.");
     });
+
+    test("should reset namespace if nested with resource", function(){
+      var router = Router.map(function(){
+        this.resource('bleep', function(){
+          this.resource('bloop', function() {
+            this.resource('blork');
+          });
+        });
+      });
+
+      ok(router.recognizer.names['bleep'], 'nested resources do not contain parent name');
+      ok(router.recognizer.names['bloop'], 'nested resources do not contain parent name');
+      ok(router.recognizer.names['blork'], 'nested resources do not contain parent name');
+    });
+
+    test("should retain resource namespace if nested with routes", function(){
+      var router = Router.map(function(){
+        this.route('bleep', function(){
+          this.route('bloop', function() {
+            this.route('blork');
+          });
+        });
+      });
+
+      ok(router.recognizer.names['bleep'], 'parent name was used as base of nested routes');
+      ok(router.recognizer.names['bleep.bloop'], 'parent name was used as base of nested routes');
+      ok(router.recognizer.names['bleep.bloop.blork'], 'parent name was used as base of nested routes');
+    });
   });
 define("ember-routing/tests/system/dsl_test.jshint",
   [],
@@ -28749,6 +28959,8 @@ define("ember-runtime/tests/ext/rsvp_test",
   ["ember-metal/run_loop","ember-runtime/ext/rsvp"],
   function(__dependency1__, __dependency2__) {
     "use strict";
+    /* global Promise:true */
+
     var run = __dependency1__["default"];
     var RSVP = __dependency2__["default"];
 
@@ -28767,6 +28979,95 @@ define("ember-runtime/tests/ext/rsvp_test",
       } catch (e) {
         equal(e, error, "error was re-thrown");
       }
+    });
+
+    var asyncStarted = 0;
+    var asyncEnded = 0;
+    var Promise = RSVP.Promise;
+
+    var EmberTest;
+    var EmberTesting;
+
+    QUnit.module("Deferred RSVP's async + Testing", {
+      setup: function() {
+        EmberTest = Ember.Test;
+        EmberTesting = Ember.testing;
+
+        Ember.Test = {
+          adapter: {
+            asyncStart: function() {
+              asyncStarted++;
+              QUnit.stop();
+            },
+            asyncEnd: function() {
+              asyncEnded++;
+              QUnit.start();
+            }
+          }
+        };
+      },
+      teardown: function() {
+        asyncStarted = 0;
+        asyncEnded = 0;
+
+        Ember.testing = EmberTesting;
+        Ember.Test =  EmberTest;
+      }
+    });
+
+    test("given `Ember.testing = true`, correctly informs the test suite about async steps", function() {
+      expect(19);
+
+      ok(!run.currentRunLoop, 'expect no run-loop');
+
+      Ember.testing = true;
+
+      equal(asyncStarted, 0);
+      equal(asyncEnded, 0);
+
+      var user = Promise.resolve({
+        name: 'tomster'
+      });
+
+      equal(asyncStarted, 0);
+      equal(asyncEnded, 0);
+
+      user.then(function(user){
+        equal(asyncStarted, 1);
+        equal(asyncEnded, 1);
+
+        equal(user.name, 'tomster');
+
+        return Promise.resolve(1).then(function(){
+          equal(asyncStarted, 1);
+          equal(asyncEnded, 1);
+        });
+
+      }).then(function(){
+        equal(asyncStarted, 1);
+        equal(asyncEnded, 1);
+
+        return new Promise(function(resolve){
+          QUnit.stop(); // raw async, we must inform the test framework manually
+          setTimeout(function(){
+            QUnit.start(); // raw async, we must inform the test framework manually
+
+            equal(asyncStarted, 1);
+            equal(asyncEnded, 1);
+
+            resolve({
+              name: 'async tomster'
+            });
+
+            equal(asyncStarted, 2);
+            equal(asyncEnded, 1);
+          }, 0);
+        });
+      }).then(function(user){
+        equal(user.name, 'async tomster');
+        equal(asyncStarted, 2);
+        equal(asyncEnded, 2);
+      });
     });
   });
 define("ember-runtime/tests/ext/rsvp_test.jshint",
@@ -31904,7 +32205,7 @@ define("ember-runtime/tests/mixins/deferred_test",
   ["ember-metal/core","ember-metal/run_loop","ember-runtime/system/object","ember-runtime/mixins/deferred","ember-runtime/ext/rsvp"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
-    /* global Promise:true */
+    /* global Promise:true,EmberDev */
 
     var Ember = __dependency1__["default"];
     var run = __dependency2__["default"];
@@ -31912,7 +32213,18 @@ define("ember-runtime/tests/mixins/deferred_test",
     var Deferred = __dependency4__["default"];
     var RSVP = __dependency5__["default"];
 
-    QUnit.module("Deferred");
+    var originalDeprecate;
+
+    QUnit.module("Deferred", {
+      setup: function() {
+        originalDeprecate = Ember.deprecate;
+        Ember.deprecate = function() { };
+      },
+
+      teardown: function() {
+        Ember.deprecate = originalDeprecate;
+      }
+    });
 
     test("can resolve deferred", function() {
       var deferred, count = 0;
@@ -32226,94 +32538,25 @@ define("ember-runtime/tests/mixins/deferred_test",
       run(deferred, 'resolve', fulfillment);
     });
 
-    var asyncStarted = 0;
-    var asyncEnded = 0;
-    var Promise = RSVP.Promise;
+    if (!EmberDev.runningProdBuild){
+      test("causes a deprecation warning when used", function() {
+        var deferred, deprecationMade, obj = {};
 
-    var EmberTest;
-    var EmberTesting;
-
-    QUnit.module("Deferred RSVP's async + Testing", {
-      setup: function() {
-        EmberTest = Ember.Test;
-        EmberTesting = Ember.testing;
-
-        Ember.Test = {
-          adapter: {
-            asyncStart: function() {
-              asyncStarted++;
-              QUnit.stop();
-            },
-            asyncEnd: function() {
-              asyncEnded++;
-              QUnit.start();
-            }
-          }
+        Ember.deprecate = function(message) {
+          deprecationMade = message;
         };
-      },
-      teardown: function() {
-        asyncStarted = 0;
-        asyncEnded = 0;
 
-        Ember.testing = EmberTesting;
-        Ember.Test =  EmberTest;
-      }
-    });
+        deferred = EmberObject.createWithMixins(Deferred);
+        equal(deprecationMade, undefined, 'no deprecation was made on init');
 
-    test("given `Ember.testing = true`, correctly informs the test suite about async steps", function() {
-      expect(19);
-
-      ok(!run.currentRunLoop, 'expect no run-loop');
-
-      Ember.testing = true;
-
-      equal(asyncStarted, 0);
-      equal(asyncEnded, 0);
-
-      var user = Promise.resolve({
-        name: 'tomster'
-      });
-
-      equal(asyncStarted, 0);
-      equal(asyncEnded, 0);
-
-      user.then(function(user){
-        equal(asyncStarted, 1);
-        equal(asyncEnded, 1);
-
-        equal(user.name, 'tomster');
-
-        return Promise.resolve(1).then(function(){
-          equal(asyncStarted, 1);
-          equal(asyncEnded, 1);
+        deferred.then(function(value) {
+          equal(value, obj, "successfully resolved to given value");
         });
+        equal(deprecationMade, 'Usage of Ember.DeferredMixin or Ember.Deferred is deprecated.');
 
-      }).then(function(){
-        equal(asyncStarted, 1);
-        equal(asyncEnded, 1);
-
-        return new Promise(function(resolve){
-          QUnit.stop(); // raw async, we must inform the test framework manually
-          setTimeout(function(){
-            QUnit.start(); // raw async, we must inform the test framework manually
-
-            equal(asyncStarted, 1);
-            equal(asyncEnded, 1);
-
-            resolve({
-              name: 'async tomster'
-            });
-
-            equal(asyncStarted, 2);
-            equal(asyncEnded, 1);
-          }, 0);
-        });
-      }).then(function(user){
-        equal(user.name, 'async tomster');
-        equal(asyncStarted, 2);
-        equal(asyncEnded, 2);
+        run(deferred, 'resolve', obj);
       });
-    });
+    }
   });
 define("ember-runtime/tests/mixins/deferred_test.jshint",
   [],
@@ -38245,30 +38488,34 @@ define("ember-runtime/tests/system/deferred_test",
     asyncTest("Can resolve a promise", function() {
       var value = { value: true };
 
-      var promise = Deferred.promise(function(deferred) {
-        setTimeout(function() {
-          run(function() { deferred.resolve(value); });
+      ignoreDeprecation(function() {
+        var promise = Deferred.promise(function(deferred) {
+          setTimeout(function() {
+            run(function() { deferred.resolve(value); });
+          });
         });
-      });
 
-      promise.then(function(resolveValue) {
-        QUnit.start();
-        equal(resolveValue, value, "The resolved value should be correct");
+        promise.then(function(resolveValue) {
+          QUnit.start();
+          equal(resolveValue, value, "The resolved value should be correct");
+        });
       });
     });
 
     asyncTest("Can reject a promise", function() {
       var rejected = { rejected: true };
 
-      var promise = Deferred.promise(function(deferred) {
-        setTimeout(function() {
-          run(function() { deferred.reject(rejected); });
+      ignoreDeprecation(function() {
+        var promise = Deferred.promise(function(deferred) {
+          setTimeout(function() {
+            run(function() { deferred.reject(rejected); });
+          });
         });
-      });
 
-      promise.then(null, function(rejectedValue) {
-        QUnit.start();
-        equal(rejectedValue, rejected, "The resolved value should be correct");
+        promise.then(null, function(rejectedValue) {
+          QUnit.start();
+          equal(rejectedValue, rejected, "The resolved value should be correct");
+        });
       });
     });
   });
@@ -38748,7 +38995,7 @@ define("ember-runtime/tests/system/object/computed_test",
       }, "metaForProperty() could not find a computed property with key 'staticProperty'.");
     });
 
-    testBoth("can iterate over a list of computed properties for a class", function(get, set) {
+    test("can iterate over a list of computed properties for a class", function() {
       var MyClass = EmberObject.extend({
         foo: computed(function() {
 
@@ -38796,6 +39043,40 @@ define("ember-runtime/tests/system/object/computed_test",
       });
 
       deepEqual(list.sort(), ['bar', 'bat', 'baz', 'foo'], "all inherited properties are included");
+    });
+
+    test("list of properties updates when an additional property is added (such cache busting)", function() {
+      var MyClass = EmberObject.extend({
+        foo: computed(Ember.K),
+
+        fooDidChange: observer('foo', function() {
+
+        }),
+
+        bar: computed(Ember.K)
+      });
+
+      var list = [];
+
+      MyClass.eachComputedProperty(function(name) {
+        list.push(name);
+      });
+
+      deepEqual(list.sort(), ['bar', 'foo'].sort(), 'expected two computed properties');
+
+      MyClass.reopen({
+        baz: computed(Ember.K)
+      });
+
+      MyClass.create(); // force apply mixins
+
+      list = [];
+
+      MyClass.eachComputedProperty(function(name) {
+        list.push(name);
+      });
+
+      deepEqual(list.sort(), ['bar', 'foo', 'baz'].sort(), 'expected three computed properties');
     });
   });
 define("ember-runtime/tests/system/object/computed_test.jshint",
@@ -40011,6 +40292,50 @@ define("ember-runtime/tests/system/object/reopen_test.jshint",
     module('JSHint - ember-runtime/tests/system/object');
     test('ember-runtime/tests/system/object/reopen_test.js should pass jshint', function() { 
       ok(true, 'ember-runtime/tests/system/object/reopen_test.js should pass jshint.'); 
+    });
+  });
+define("ember-runtime/tests/system/object/strict-mode-test",
+  ["ember-metal/core","ember-runtime/system/object"],
+  function(__dependency1__, __dependency2__) {
+    "use strict";
+    var Ember = __dependency1__["default"];
+    var EmberObject = __dependency2__["default"];
+
+    var originalLookup, lookup;
+
+    QUnit.module('strict mode tests');
+
+    test('__superWrapper does not throw errors in strict mode', function() {
+      var Foo = EmberObject.extend({
+        blah: function() {
+          return 'foo';
+        }
+      });
+
+      var Bar = Foo.extend({
+        blah: function() {
+          return 'bar';
+        },
+
+        callBlah: function() {
+          var blah = this.blah;
+
+          return blah();
+        }
+      });
+
+      var bar = Bar.create();
+
+      equal(bar.callBlah(), 'bar', 'can call local function without call/apply');
+    });
+  });
+define("ember-runtime/tests/system/object/strict-mode-test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-runtime/tests/system/object');
+    test('ember-runtime/tests/system/object/strict-mode-test.js should pass jshint', function() { 
+      ok(true, 'ember-runtime/tests/system/object/strict-mode-test.js should pass jshint.'); 
     });
   });
 define("ember-runtime/tests/system/object/subclasses_test",
@@ -43370,9 +43695,11 @@ define("ember-views/tests/system/event_dispatcher_test",
       ok(!parentViewReceived, "parent view does not receive the event");
     });
 
-    test("should not interfere with event propagation", function() {
+    test('should not interfere with event propagation of virtualViews', function() {
       var receivedEvent;
-      view = View.create({
+
+      var view = View.create({
+        isVirtual: true,
         render: function(buffer) {
           buffer.push('<div id="propagate-test-div"></div>');
         }
@@ -43388,8 +43715,8 @@ define("ember-views/tests/system/event_dispatcher_test",
 
       jQuery('#propagate-test-div').click();
 
-      ok(receivedEvent, "allowed event to propagate outside Ember");
-      deepEqual(receivedEvent.target, jQuery('#propagate-test-div')[0], "target property is the element that was clicked");
+      ok(receivedEvent, 'allowed event to propagate');
+      deepEqual(receivedEvent && receivedEvent.target, jQuery('#propagate-test-div')[0], 'target property is the element that was clicked');
     });
 
     test("should dispatch events to nearest event manager", function() {
@@ -52736,16 +53063,16 @@ define("ember/tests/routing/basic_test",
         this.resource("special", { path: "/specials/:menu_item_id" });
       });
 
-      var menuItem;
+      var menuItem, resolve;
 
-      App.MenuItem = Ember.Object.extend(Ember.DeferredMixin);
+      App.MenuItem = Ember.Object.extend();
       App.MenuItem.reopenClass({
         find: function(id) {
-          menuItem = App.MenuItem.create({
-            id: id
-          });
+          menuItem = App.MenuItem.create({ id: id });
 
-          return menuItem;
+          return new Ember.RSVP.Promise(function(res) {
+            resolve = res;
+          });
         }
       });
 
@@ -52776,7 +53103,7 @@ define("ember/tests/routing/basic_test",
       equal(Ember.$('p', '#qunit-fixture').text(), "LOADING!", "The app is in the loading state");
 
       Ember.run(function() {
-        menuItem.resolve(menuItem);
+        resolve(menuItem);
       });
 
       equal(Ember.$('p', '#qunit-fixture').text(), "1", "The app is now in the specials state");
@@ -52866,13 +53193,17 @@ define("ember/tests/routing/basic_test",
         this.resource("special", { path: "/specials/:menu_item_id" });
       });
 
-      var menuItem;
+      var menuItem, promise, resolve;
 
-      App.MenuItem = Ember.Object.extend(Ember.DeferredMixin);
+      App.MenuItem = Ember.Object.extend();
       App.MenuItem.reopenClass({
         find: function(id) {
           menuItem = App.MenuItem.create({ id: id });
-          return menuItem;
+          promise = new Ember.RSVP.Promise(function(res) {
+            resolve = res;
+          });
+
+          return promise;
         }
       });
 
@@ -52891,7 +53222,9 @@ define("ember/tests/routing/basic_test",
 
       handleURLRejectsWith('/specials/1', 'Setup error');
 
-      Ember.run(menuItem, menuItem.resolve, menuItem);
+      Ember.run(function() {
+        resolve(menuItem);
+      });
     });
 
     function testOverridableErrorHandler(handlersName) {
@@ -52903,13 +53236,15 @@ define("ember/tests/routing/basic_test",
         this.resource("special", { path: "/specials/:menu_item_id" });
       });
 
-      var menuItem;
+      var menuItem, resolve;
 
-      App.MenuItem = Ember.Object.extend(Ember.DeferredMixin);
+      App.MenuItem = Ember.Object.extend();
       App.MenuItem.reopenClass({
         find: function(id) {
           menuItem = App.MenuItem.create({ id: id });
-          return menuItem;
+          return new Ember.RSVP.Promise(function(res) {
+            resolve = res;
+          });
         }
       });
 
@@ -52932,7 +53267,9 @@ define("ember/tests/routing/basic_test",
 
       handleURLRejectsWith("/specials/1", "Setup error");
 
-      Ember.run(menuItem, 'resolve', menuItem);
+      Ember.run(function() {
+        resolve(menuItem);
+      });
     }
 
     test("ApplicationRoute's default error handler can be overridden", function() {
@@ -52951,7 +53288,7 @@ define("ember/tests/routing/basic_test",
         this.resource("special", { path: "/specials/:menu_item_id" });
       });
 
-      App.MenuItem = Ember.Object.extend(Ember.DeferredMixin);
+      App.MenuItem = Ember.Object.extend();
 
       App.SpecialRoute = Ember.Route.extend({
         setupController: function(controller, model) {
@@ -52979,7 +53316,7 @@ define("ember/tests/routing/basic_test",
 
           var promiseContext = App.MenuItem.create({ id: 1 });
           Ember.run.later(function() {
-            promiseContext.resolve(promiseContext);
+            Ember.RSVP.resolve(promiseContext);
           }, 1);
 
           return router.transitionTo('special', promiseContext);
@@ -53005,9 +53342,9 @@ define("ember/tests/routing/basic_test",
         })
       });
 
-      var menuItem;
+      var menuItem, resolve;
 
-      App.MenuItem = Ember.Object.extend(Ember.DeferredMixin);
+      App.MenuItem = Ember.Object.extend();
       App.MenuItem.reopenClass({
         find: function(id) {
           menuItem = App.MenuItem.create({ id: id });
@@ -53077,7 +53414,9 @@ define("ember/tests/routing/basic_test",
 
       Ember.run(function() {
         var menuItem = App.MenuItem.create({ id: 1 });
-        Ember.run.later(function() { menuItem.resolve(menuItem); }, 1);
+        Ember.run.later(function() {
+          Ember.RSVP.resolve(menuItem);
+        }, 1);
 
         router.transitionTo('special', menuItem).then(function(result) {
           equal(rootSetup, 1, "The root setup was not triggered again");

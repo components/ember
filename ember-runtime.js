@@ -2415,12 +2415,14 @@ define("ember-metal/binding",
     // BINDING
     //
 
-    var Binding = function(toPath, fromPath) {
+    function Binding(toPath, fromPath) {
       this._direction = 'fwd';
       this._from = fromPath;
       this._to   = toPath;
       this._directionMap = Map.create();
-    };
+      this._readyToSync = undefined;
+      this._oneWay = undefined;
+    }
 
     /**
     @class Binding
@@ -2684,7 +2686,6 @@ define("ember-metal/binding",
       }
 
     });
-
     /**
       An `Ember.Binding` connects the properties of two objects so that whenever
       the value of one property changes, the other property will be changed also.
@@ -3563,7 +3564,10 @@ define("ember-metal/computed",
       try {
 
         if (cacheable && cache[keyName] !== undefined) {
-          cachedValue = cache[keyName];
+          if(cache[keyName] !== UNDEFINED) {
+            cachedValue = cache[keyName];
+          }
+
           hadCachedValue = true;
         }
 
@@ -8516,7 +8520,7 @@ define("ember-metal/run_loop",
       ```
 
       @method bind
-      @namespace run
+      @namespace Ember
       @param {Object} [target] target of method to call
       @param {Function|String} method Method to invoke.
         May be a function or a string. If you pass a string
@@ -9383,10 +9387,10 @@ define("ember-metal/utils",
     */
     function wrap(func, superFunc) {
       function superWrapper() {
-        var ret, sup = this.__nextSuper;
-        this.__nextSuper = superFunc;
+        var ret, sup = this && this.__nextSuper;
+        if(this) { this.__nextSuper = superFunc; }
         ret = apply(this, func, arguments);
-        this.__nextSuper = sup;
+        if(this) { this.__nextSuper = sup; }
         return ret;
       }
 
@@ -13482,7 +13486,7 @@ define("ember-runtime/mixins/array",
 
       /**
         This is the handler for the special array content property. If you get
-        this property, it will return this. If you set this property it a new
+        this property, it will return this. If you set this property to a new
         array, it will replace the current content.
 
         This property overrides the default property defined in `Ember.Enumerable`.
@@ -14142,6 +14146,8 @@ define("ember-runtime/mixins/deferred",
       },
 
       _deferred: computed(function() {
+        Ember.deprecate('Usage of Ember.DeferredMixin or Ember.Deferred is deprecated.', this._suppressDeferredDeprecation);
+
         return RSVP.defer('Ember: DeferredMixin - ' + this);
       })
     });
@@ -15124,7 +15130,7 @@ define("ember-runtime/mixins/enumerable",
 
       /**
         Invoke this method when the contents of your enumerable has changed.
-        This will notify any observers watching for content changes. If your are
+        This will notify any observers watching for content changes. If you are
         implementing an ordered enumerable (such as an array), also pass the
         start and end values where the content changed so that it can be used to
         notify range observers.
@@ -16062,13 +16068,15 @@ define("ember-runtime/mixins/observable",
         with a list of strings or an array:
 
         ```javascript
-        record.getProperties('firstName', 'lastName', 'zipCode');  // { firstName: 'John', lastName: 'Doe', zipCode: '10011' }
+        record.getProperties('firstName', 'lastName', 'zipCode');
+        // { firstName: 'John', lastName: 'Doe', zipCode: '10011' }
         ```
 
         is equivalent to:
 
         ```javascript
-        record.getProperties(['firstName', 'lastName', 'zipCode']);  // { firstName: 'John', lastName: 'Doe', zipCode: '10011' }
+        record.getProperties(['firstName', 'lastName', 'zipCode']);
+        // { firstName: 'John', lastName: 'Doe', zipCode: '10011' }
         ```
 
         @method getProperties
@@ -17511,6 +17519,7 @@ define("ember-runtime/system/core_object",
     var finishPartial = Mixin.finishPartial;
     var reopen = Mixin.prototype.reopen;
     var MANDATORY_SETTER = Ember.ENV.MANDATORY_SETTER;
+    var hasCachedComputedProperties = false;
 
     var undefinedDescriptor = {
       configurable: true,
@@ -18206,6 +18215,26 @@ define("ember-runtime/system/core_object",
         return desc._meta || {};
       },
 
+      _computedProperties: Ember.computed(function() {
+        hasCachedComputedProperties = true;
+        var proto = this.proto();
+        var descs = meta(proto).descs;
+        var property;
+        var properties = [];
+
+        for (var name in descs) {
+          property = descs[name];
+
+          if (property instanceof ComputedProperty) {
+            properties.push({
+              name: name,
+              meta: property._meta
+            });
+          }
+        }
+        return properties;
+      }).readOnly(),
+
       /**
         Iterate over each computed property for the class, passing its name
         and any associated metadata (see `metaForProperty`) to the callback.
@@ -18215,17 +18244,15 @@ define("ember-runtime/system/core_object",
         @param {Object} binding
       */
       eachComputedProperty: function(callback, binding) {
-        var proto = this.proto(),
-            descs = meta(proto).descs,
-            empty = {},
-            property;
+        var property, name;
+        var empty = {};
 
-        for (var name in descs) {
-          property = descs[name];
+        var properties = get(this, '_computedProperties');
 
-          if (property instanceof ComputedProperty) {
-            callback.call(binding || this, name, property._meta || empty);
-          }
+        for (var i = 0, length = properties.length; i < length; i++) {
+          property = properties[i];
+          name = property.name;
+          callback.call(binding || this, property.name, property.meta || empty);
         }
       }
     });
@@ -18237,19 +18264,42 @@ define("ember-runtime/system/core_object",
     }
 
     CoreObject.ClassMixin = ClassMixin;
+
     ClassMixin.apply(CoreObject);
+
+    CoreObject.reopen({
+      didDefineProperty: function(proto, key, value) {
+        if (hasCachedComputedProperties === false) { return; }
+        if (value instanceof Ember.ComputedProperty) {
+          var cache = Ember.meta(this.constructor).cache;
+
+          if (cache._computedProperties !== undefined) {
+            cache._computedProperties = undefined;
+          }
+        }
+
+        this._super();
+      }
+    });
+
 
     __exports__["default"] = CoreObject;
   });
 define("ember-runtime/system/deferred",
-  ["ember-runtime/mixins/deferred","ember-metal/property_get","ember-runtime/system/object","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["ember-metal/core","ember-runtime/mixins/deferred","ember-metal/property_get","ember-runtime/system/object","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
-    var DeferredMixin = __dependency1__["default"];
-    var get = __dependency2__.get;
-    var EmberObject = __dependency3__["default"];
+    var Ember = __dependency1__["default"];
+    var DeferredMixin = __dependency2__["default"];
+    var get = __dependency3__.get;
+    var EmberObject = __dependency4__["default"];
 
-    var Deferred = EmberObject.extend(DeferredMixin);
+    var Deferred = EmberObject.extend(DeferredMixin, {
+      init: function() {
+        Ember.deprecate('Usage of Ember.Deferred is deprecated.');
+        this._super();
+      }
+    });
 
     Deferred.reopenClass({
       promise: function(callback, binding) {
@@ -18690,6 +18740,15 @@ define("ember-runtime/system/namespace",
 
     var STARTS_WITH_UPPERCASE = /^[A-Z]/;
 
+    function tryIsNamespace(lookup, prop) {
+      try {
+        var obj = lookup[prop];
+        return obj && obj.isNamespace && obj;
+      } catch (e) {
+        // continue
+      }
+    }
+
     function findNamespaces() {
       var lookup = Ember.lookup, obj, isNamespace;
 
@@ -18704,14 +18763,8 @@ define("ember-runtime/system/namespace",
 
         // At times we are not allowed to access certain properties for security reasons.
         // There are also times where even if we can access them, we are not allowed to access their properties.
-        try {
-          obj = lookup[prop];
-          isNamespace = obj && obj.isNamespace;
-        } catch (e) {
-          continue;
-        }
-
-        if (isNamespace) {
+        obj = tryIsNamespace(lookup, prop);
+        if (obj) {
           obj[NAME_KEY] = prop;
         }
       }
