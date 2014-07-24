@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.8d9b0b39
+ * @version   1.8.0-beta.1+canary.460fccb3
  */
 
 (function() {
@@ -40553,6 +40553,50 @@ define("ember-runtime/tests/system/object/reopen_test.jshint",
     module('JSHint - ember-runtime/tests/system/object');
     test('ember-runtime/tests/system/object/reopen_test.js should pass jshint', function() { 
       ok(true, 'ember-runtime/tests/system/object/reopen_test.js should pass jshint.'); 
+    });
+  });
+define("ember-runtime/tests/system/object/strict-mode-test",
+  ["ember-metal/core","ember-runtime/system/object"],
+  function(__dependency1__, __dependency2__) {
+    "use strict";
+    var Ember = __dependency1__["default"];
+    var EmberObject = __dependency2__["default"];
+
+    var originalLookup, lookup;
+
+    QUnit.module('strict mode tests');
+
+    test('__superWrapper does not throw errors in strict mode', function() {
+      var Foo = EmberObject.extend({
+        blah: function() {
+          return 'foo';
+        }
+      });
+
+      var Bar = Foo.extend({
+        blah: function() {
+          return 'bar';
+        },
+
+        callBlah: function() {
+          var blah = this.blah;
+
+          return blah();
+        }
+      });
+
+      var bar = Bar.create();
+
+      equal(bar.callBlah(), 'bar', 'can call local function without call/apply');
+    });
+  });
+define("ember-runtime/tests/system/object/strict-mode-test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-runtime/tests/system/object');
+    test('ember-runtime/tests/system/object/strict-mode-test.js should pass jshint', function() { 
+      ok(true, 'ember-runtime/tests/system/object/strict-mode-test.js should pass jshint.'); 
     });
   });
 define("ember-runtime/tests/system/object/subclasses_test",

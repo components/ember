@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.8d9b0b39
+ * @version   1.8.0-beta.1+canary.460fccb3
  */
 
 (function() {
@@ -12910,7 +12910,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.8d9b0b39
+      @version 1.8.0-beta.1+canary.460fccb3
     */
 
     if ('undefined' === typeof Ember) {
@@ -12937,10 +12937,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.8d9b0b39'
+      @default '1.8.0-beta.1+canary.460fccb3'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.8d9b0b39';
+    Ember.VERSION = '1.8.0-beta.1+canary.460fccb3';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -17934,10 +17934,10 @@ define("ember-metal/utils",
     */
     function wrap(func, superFunc) {
       function superWrapper() {
-        var ret, sup = this.__nextSuper;
-        this.__nextSuper = superFunc;
+        var ret, sup = this && this.__nextSuper;
+        if(this) { this.__nextSuper = superFunc; }
         ret = apply(this, func, arguments);
-        this.__nextSuper = sup;
+        if(this) { this.__nextSuper = sup; }
         return ret;
       }
 
