@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.8a28c621
+ * @version   1.8.0-beta.1+canary.7a9dd164
  */
 
 (function() {
@@ -12655,7 +12655,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.8a28c621
+      @version 1.8.0-beta.1+canary.7a9dd164
     */
 
     if ('undefined' === typeof Ember) {
@@ -12682,10 +12682,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.8a28c621'
+      @default '1.8.0-beta.1+canary.7a9dd164'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.8a28c621';
+    Ember.VERSION = '1.8.0-beta.1+canary.7a9dd164';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -32454,7 +32454,12 @@ define("ember-runtime/system/core_object",
           }
         }
         finishPartial(this, m);
-        apply(this, this.init, arguments);
+        var length = arguments.length;
+        var args = new Array(length);
+        for (var x = 0; x < length; x++) {
+          args[x] = arguments[x];
+        }
+        apply(this, this.init, args);
         m.proto = proto;
         finishChains(this);
         sendEvent(this, "init");
@@ -32497,7 +32502,12 @@ define("ember-runtime/system/core_object",
 
     CoreObject.PrototypeMixin = Mixin.create({
       reopen: function() {
-        applyMixin(this, arguments, true);
+        var length = arguments.length;
+        var args = new Array(length);
+        for (var i = 0; i < length; i++) {
+          args[i] = arguments[i];
+        }
+        applyMixin(this, args, true);
         return this;
       },
 
@@ -32849,7 +32859,14 @@ define("ember-runtime/system/core_object",
       */
       createWithMixins: function() {
         var C = this;
-        if (arguments.length>0) { this._initMixins(arguments); }
+        var l= arguments.length;
+        if (l > 0) {
+          var args = new Array(l);
+          for (var i = 0; i < l; i++) {
+            args[i] = arguments[i];
+          }
+          this._initMixins(args);
+        }
         return new C();
       },
 
@@ -32892,7 +32909,14 @@ define("ember-runtime/system/core_object",
       */
       create: function() {
         var C = this;
-        if (arguments.length>0) { this._initProperties(arguments); }
+        var l = arguments.length;
+        if (l > 0) {
+          var args = new Array(l);
+          for (var i = 0; i < l; i++) {
+            args[i] = arguments[i];
+          }
+          this._initProperties(args);
+        }
         return new C();
       },
 
@@ -32927,7 +32951,16 @@ define("ember-runtime/system/core_object",
       */
       reopen: function() {
         this.willReopen();
-        apply(this.PrototypeMixin, reopen, arguments);
+
+        var l = arguments.length;
+        var args = new Array(l);
+        if (l > 0) {
+          for (var i = 0; i < l; i++) {
+            args[i] = arguments[i];
+          }
+        }
+
+        apply(this.PrototypeMixin, reopen, args);
         return this;
       },
 
@@ -32987,7 +33020,15 @@ define("ember-runtime/system/core_object",
         @method reopenClass
       */
       reopenClass: function() {
-        apply(this.ClassMixin, reopen, arguments);
+        var l = arguments.length;
+        var args = new Array(l);
+        if (l > 0) {
+          for (var i = 0; i < l; i++) {
+            args[i] = arguments[i];
+          }
+        }
+
+        apply(this.ClassMixin, reopen, args);
         applyMixin(this, arguments, false);
         return this;
       },
