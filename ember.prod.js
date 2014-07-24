@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.52baecd9
+ * @version   1.8.0-beta.1+canary.8d9b0b39
  */
 
 (function() {
@@ -12604,7 +12604,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.52baecd9
+      @version 1.8.0-beta.1+canary.8d9b0b39
     */
 
     if ('undefined' === typeof Ember) {
@@ -12631,10 +12631,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.52baecd9'
+      @default '1.8.0-beta.1+canary.8d9b0b39'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.52baecd9';
+    Ember.VERSION = '1.8.0-beta.1+canary.8d9b0b39';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -32292,6 +32292,7 @@ define("ember-runtime/system/core_object",
     var finishPartial = Mixin.finishPartial;
     var reopen = Mixin.prototype.reopen;
     var MANDATORY_SETTER = Ember.ENV.MANDATORY_SETTER;
+    var hasCachedComputedProperties = false;
 
     var undefinedDescriptor = {
       configurable: true,
@@ -32981,6 +32982,26 @@ define("ember-runtime/system/core_object",
                 return desc._meta || {};
       },
 
+      _computedProperties: Ember.computed(function() {
+        hasCachedComputedProperties = true;
+        var proto = this.proto();
+        var descs = meta(proto).descs;
+        var property;
+        var properties = [];
+
+        for (var name in descs) {
+          property = descs[name];
+
+          if (property instanceof ComputedProperty) {
+            properties.push({
+              name: name,
+              meta: property._meta
+            });
+          }
+        }
+        return properties;
+      }).readOnly(),
+
       /**
         Iterate over each computed property for the class, passing its name
         and any associated metadata (see `metaForProperty`) to the callback.
@@ -32990,17 +33011,15 @@ define("ember-runtime/system/core_object",
         @param {Object} binding
       */
       eachComputedProperty: function(callback, binding) {
-        var proto = this.proto();
-        var descs = meta(proto).descs;
+        var property, name;
         var empty = {};
-        var property;
 
-        for (var name in descs) {
-          property = descs[name];
+        var properties = get(this, '_computedProperties');
 
-          if (property instanceof ComputedProperty) {
-            callback.call(binding || this, name, property._meta || empty);
-          }
+        for (var i = 0, length = properties.length; i < length; i++) {
+          property = properties[i];
+          name = property.name;
+          callback.call(binding || this, property.name, property.meta || empty);
         }
       }
     });
@@ -33012,7 +33031,24 @@ define("ember-runtime/system/core_object",
     }
 
     CoreObject.ClassMixin = ClassMixin;
+
     ClassMixin.apply(CoreObject);
+
+    CoreObject.reopen({
+      didDefineProperty: function(proto, key, value) {
+        if (hasCachedComputedProperties === false) { return; }
+        if (value instanceof Ember.ComputedProperty) {
+          var cache = Ember.meta(this.constructor).cache;
+
+          if (cache._computedProperties !== undefined) {
+            cache._computedProperties = undefined;
+          }
+        }
+
+        this._super();
+      }
+    });
+
 
     __exports__["default"] = CoreObject;
   });
