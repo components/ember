@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.4705f4e0
+ * @version   1.8.0-beta.1+canary.afbd5655
  */
 
 (function() {
@@ -22798,6 +22798,64 @@ define("ember-routing-handlebars/tests/helpers/action_test.jshint",
     module('JSHint - ember-routing-handlebars/tests/helpers');
     test('ember-routing-handlebars/tests/helpers/action_test.js should pass jshint', function() { 
       ok(true, 'ember-routing-handlebars/tests/helpers/action_test.js should pass jshint.'); 
+    });
+  });
+define("ember-routing-handlebars/tests/helpers/link_to_test",
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-handlebars","ember-views/views/view","ember-views/system/jquery"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
+    "use strict";
+    var Ember = __dependency1__["default"];
+    // TEMPLATES
+    var get = __dependency2__.get;
+    var set = __dependency3__.set;
+    var run = __dependency4__["default"];
+
+    var EmberHandlebars = __dependency5__["default"];
+    var EmberView = __dependency6__["default"];
+    var jQuery = __dependency7__["default"];
+
+    var view;
+
+    var appendView = function(view) {
+      run(function() { view.appendTo('#qunit-fixture'); });
+    };
+
+    var compile = EmberHandlebars.compile;
+
+
+    QUnit.module("Handlebars {{link-to}} helper", {
+      setup: function() {
+
+      },
+
+      teardown: function() {
+        run(function() {
+          if (view) { view.destroy(); }
+        });
+      }
+    });
+
+
+    test("should be able to be inserted in DOM when the router is not present", function() {
+
+      var template = "{{#link-to 'index'}}Go to Index{{/link-to}}";
+      view = EmberView.create({
+        template: compile(template)
+      });
+
+      appendView(view);
+
+      equal(view.$().text(), 'Go to Index');
+
+    });
+  });
+define("ember-routing-handlebars/tests/helpers/link_to_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-routing-handlebars/tests/helpers');
+    test('ember-routing-handlebars/tests/helpers/link_to_test.js should pass jshint', function() { 
+      ok(true, 'ember-routing-handlebars/tests/helpers/link_to_test.js should pass jshint.'); 
     });
   });
 define("ember-routing-handlebars/tests/helpers/outlet_test",

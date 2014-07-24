@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.4705f4e0
+ * @version   1.8.0-beta.1+canary.afbd5655
  */
 
 (function() {
@@ -12921,7 +12921,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.4705f4e0
+      @version 1.8.0-beta.1+canary.afbd5655
     */
 
     if ('undefined' === typeof Ember) {
@@ -12948,10 +12948,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.4705f4e0'
+      @default '1.8.0-beta.1+canary.afbd5655'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.4705f4e0';
+    Ember.VERSION = '1.8.0-beta.1+canary.afbd5655';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -19450,7 +19450,10 @@ define("ember-routing-handlebars/helpers/link_to",
         @property router
       **/
       router: computed(function() {
-        return get(this, 'controller').container.lookup('router:main');
+        var controller = get(this, 'controller');
+        if (controller && controller.container) {
+          return controller.container.lookup('router:main');
+        }
       }),
 
       /**
@@ -19588,8 +19591,10 @@ define("ember-routing-handlebars/helpers/link_to",
         @return {Array} An array with the route name and any dynamic segments
       **/
       loadedParams: computed('resolvedParams', function computeLinkViewRouteArgs() {
+        var router = get(this, 'router');
+        if (!router) { return; }
+
         var resolvedParams = get(this, 'resolvedParams'),
-            router = get(this, 'router'),
             namedRoute = resolvedParams.targetRouteName;
 
         if (!namedRoute) { return; }
