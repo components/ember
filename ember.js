@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.d949b9f1
+ * @version   1.8.0-beta.1+canary.89be6901
  */
 
 (function() {
@@ -12921,7 +12921,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.d949b9f1
+      @version 1.8.0-beta.1+canary.89be6901
     */
 
     if ('undefined' === typeof Ember) {
@@ -12948,10 +12948,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.d949b9f1'
+      @default '1.8.0-beta.1+canary.89be6901'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.d949b9f1';
+    Ember.VERSION = '1.8.0-beta.1+canary.89be6901';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -16795,7 +16795,14 @@ define("ember-metal/property_get",
       Ember.assert("Cannot call get with "+ keyName +" key.", !!keyName);
       Ember.assert("Cannot call get with '"+ keyName +"' on an undefined object.", obj !== undefined);
 
-      if (obj === null) { return _getPath(obj, keyName);  }
+      if (obj === null) {
+        var value = _getPath(obj, keyName);
+        Ember.deprecate(
+          "Ember.get fetched '"+keyName+"' from the global context. This behavior will change in the future (issue #3852)",
+          !value || (obj && obj !== Ember.lookup) || keyName.indexOf('.') !== -1 || isGlobalPath(keyName+".") // Add a . to ensure simple paths are matched.
+        );
+        return value;
+      }
 
       var meta = obj['__ember_meta__'], desc = meta && meta.descs[keyName], ret;
 
@@ -16848,6 +16855,11 @@ define("ember-metal/property_get",
 
       if (!target || isGlobal) target = Ember.lookup;
       if (hasThis) path = path.slice(5);
+
+      Ember.deprecate(
+        "normalizeTuple will return '"+path+"' as a non-global. This behavior will change in the future (issue #3852)",
+        target === Ember.lookup || !target || hasThis || isGlobal || !isGlobalPath(path+'.')
+      );
 
       if (target === Ember.lookup) {
         key = path.match(FIRST_KEY)[0];

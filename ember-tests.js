@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.d949b9f1
+ * @version   1.8.0-beta.1+canary.89be6901
  */
 
 (function() {
@@ -13280,12 +13280,15 @@ define("ember-metal/tests/accessors/getPath_test",
             baz: { biff: '$FOOBIFF' }
           }
         };
+
+        window.localPathGlobal = 5;
       },
 
       teardown: function() {
         obj = undefined;
         window.Foo = undefined;
         window.$foo = undefined;
+        window.localPathGlobal = undefined;
       }
     };
 
@@ -13317,6 +13320,22 @@ define("ember-metal/tests/accessors/getPath_test",
 
     test('[obj, falseValue.notDefined] -> (null)', function() {
       deepEqual(get(obj, 'falseValue.notDefined'), undefined);
+    });
+
+    // ..........................................................
+    // LOCAL PATHS WITH NO TARGET DEPRECATION
+    //
+
+    test('[null, length] returning data is deprecated', function() {
+      expectDeprecation(function(){
+        equal(5, Ember.get(null, 'localPathGlobal'));
+      }, "Ember.get fetched 'localPathGlobal' from the global context. This behavior will change in the future (issue #3852)");
+    });
+
+    test('[length] returning data is deprecated', function() {
+      expectDeprecation(function(){
+        equal(5, Ember.get('localPathGlobal'));
+      }, "Ember.get fetched 'localPathGlobal' from the global context. This behavior will change in the future (issue #3852)");
     });
 
     // ..........................................................
@@ -13668,7 +13687,9 @@ define("ember-metal/tests/accessors/normalizeTuple_test",
     //
 
     test('[obj, Foo] -> [obj, Foo]', function() {
-      deepEqual(normalizeTuple(obj, 'Foo'), [obj, 'Foo']);
+      expectDeprecation(function(){
+        deepEqual(normalizeTuple(obj, 'Foo'), [obj, 'Foo']);
+      }, "normalizeTuple will return 'Foo' as a non-global. This behavior will change in the future (issue #3852)");
     });
 
     test('[obj, Foo.bar] -> [Foo, bar]', function() {
