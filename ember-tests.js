@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.ccf7b032
+ * @version   1.8.0-beta.1+canary.d949b9f1
  */
 
 (function() {
@@ -938,15 +938,6 @@ define("ember-application/system/dag.jshint",
       ok(true, 'ember-application/system/dag.js should pass jshint.'); 
     });
   });
-define("ember-application/system/deprecated-container.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-application/system');
-    test('ember-application/system/deprecated-container.js should pass jshint', function() { 
-      ok(true, 'ember-application/system/deprecated-container.js should pass jshint.'); 
-    });
-  });
 define("ember-application/system/resolver.jshint",
   [],
   function() {
@@ -1841,14 +1832,6 @@ define("ember-application/tests/system/dependency_injection_test",
       ok(camelCaseController instanceof application.PostIndexController);
 
       equal(dotNotationController, camelCaseController);
-    });
-
-    test('Container.defaultContainer is the same as the Apps container, but emits deprecation warnings', function() {
-      expectDeprecation(/Using the defaultContainer is no longer supported./);
-      var routerFromContainer = locator.lookup('router:main'),
-        routerFromDefaultContainer = Container.defaultContainer.lookup('router:main');
-
-      equal(routerFromContainer, routerFromDefaultContainer, 'routers from both containers are equal');
     });
 
     test('registered entities can be looked up later', function() {
@@ -6346,7 +6329,8 @@ define("ember-handlebars/tests/handlebars_test",
 
     test("Layout views return throw if their layout cannot be found", function() {
       view = EmberView.create({
-        layoutName: 'cantBeFound'
+        layoutName: 'cantBeFound',
+        container: { lookup: function() { }}
       });
 
       expectAssertion(function() {
@@ -49659,6 +49643,22 @@ define("ember-views/tests/views/view/template_test",
         parentView.destroy();
         parentViewWithControllerlessChild.destroy();
       });
+    });
+
+    test("should throw an assertion if no container has been set", function() {
+      expect(1);
+      var View;
+
+      View = EmberView.extend({
+        templateName: 'foobar',
+      });
+
+      raises(function() {
+        view = View.create();
+        run(function() {
+          view.createElement();
+        });
+      }, /Container was not found when looking up a views template./);
     });
   });
 define("ember-views/tests/views/view/template_test.jshint",
