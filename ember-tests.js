@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.7a9dd164
+ * @version   1.8.0-beta.1+canary.267d1598
  */
 
 (function() {
@@ -88,15 +88,6 @@ define("container/container.jshint",
     module('JSHint - container');
     test('container/container.js should pass jshint', function() { 
       ok(true, 'container/container.js should pass jshint.'); 
-    });
-  });
-define("container/inheriting_dict.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - container');
-    test('container/inheriting_dict.js should pass jshint', function() { 
-      ok(true, 'container/inheriting_dict.js should pass jshint.'); 
     });
   });
 define("container/tests/container_helper",
@@ -12918,6 +12909,15 @@ define("ember-metal/binding.jshint",
       ok(true, 'ember-metal/binding.js should pass jshint.'); 
     });
   });
+define("ember-metal/cache.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal');
+    test('ember-metal/cache.js should pass jshint', function() { 
+      ok(true, 'ember-metal/cache.js should pass jshint.'); 
+    });
+  });
 define("ember-metal/chains.jshint",
   [],
   function() {
@@ -12961,6 +12961,15 @@ define("ember-metal/dependent_keys.jshint",
     module('JSHint - ember-metal');
     test('ember-metal/dependent_keys.js should pass jshint', function() { 
       ok(true, 'ember-metal/dependent_keys.js should pass jshint.'); 
+    });
+  });
+define("ember-metal/dictionary.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal');
+    test('ember-metal/dictionary.js should pass jshint', function() { 
+      ok(true, 'ember-metal/dictionary.js should pass jshint.'); 
     });
   });
 define("ember-metal/enumerable_utils.jshint",
@@ -13114,6 +13123,15 @@ define("ember-metal/observer_set.jshint",
     module('JSHint - ember-metal');
     test('ember-metal/observer_set.js should pass jshint', function() { 
       ok(true, 'ember-metal/observer_set.js should pass jshint.'); 
+    });
+  });
+define("ember-metal/path_cache.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal');
+    test('ember-metal/path_cache.js should pass jshint', function() { 
+      ok(true, 'ember-metal/path_cache.js should pass jshint.'); 
     });
   });
 define("ember-metal/platform.jshint",

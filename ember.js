@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.7a9dd164
+ * @version   1.8.0-beta.1+canary.267d1598
  */
 
 (function() {
@@ -936,12 +936,12 @@ define("container",
     __exports__["default"] = Container;
   });
 define("container/container",
-  ["container/inheriting_dict","ember-metal/core","exports"],
+  ["ember-metal/core","ember-metal/dictionary","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
-    var InheritingDict = __dependency1__["default"];
-    var Ember = __dependency2__["default"];
+    var Ember = __dependency1__["default"];
     // Ember.assert
+    var dictionary = __dependency2__["default"];
 
     // A lightweight container that helps to assemble and decouple components.
     // Public api for the container is still in flux.
@@ -952,18 +952,19 @@ define("container/container",
 
       this.resolver = parent && parent.resolver || function() {};
 
-      this.registry = new InheritingDict(parent && parent.registry);
-      this.cache = new InheritingDict(parent && parent.cache);
-      this.factoryCache = new InheritingDict(parent && parent.factoryCache);
-      this.resolveCache = new InheritingDict(parent && parent.resolveCache);
-      this.typeInjections = new InheritingDict(parent && parent.typeInjections);
-      this.injections = {};
+      this.registry       = dictionary(parent ? parent.registry : null);
+      this.cache          = dictionary(parent ? parent.cache : null);
+      this.factoryCache   = dictionary(parent ? parent.factoryCache : null);
+      this.resolveCache   = dictionary(parent ? parent.resolveCache : null);
+      this.typeInjections = dictionary(parent ? parent.typeInjections : null);
+      this.injections     = dictionary(null);
+      this.normalizeCache = dictionary(null);
 
-      this.factoryTypeInjections = new InheritingDict(parent && parent.factoryTypeInjections);
-      this.factoryInjections = {};
+      this.factoryTypeInjections = dictionary(parent ? parent.factoryTypeInjections : null);
+      this.factoryInjections     = dictionary(null);
 
-      this._options = new InheritingDict(parent && parent._options);
-      this._typeOptions = new InheritingDict(parent && parent._typeOptions);
+      this._options     = dictionary(parent ? parent._options : null);
+      this._typeOptions = dictionary(parent ? parent._typeOptions : null);
     }
 
     Container.prototype = {
@@ -1082,14 +1083,14 @@ define("container/container",
           throw new TypeError('Attempting to register an unknown factory: `' + fullName + '`');
         }
 
-        var normalizedName = this.normalize(fullName);
+        var normalizedName = this._normalize(fullName);
 
-        if (this.cache.has(normalizedName)) {
+        if (normalizedName in this.cache) {
           throw new Error('Cannot re-register: `' + fullName +'`, as it has already been looked up.');
         }
 
-        this.registry.set(normalizedName, factory);
-        this._options.set(normalizedName, options || {});
+        this.registry[normalizedName] = factory;
+        this._options[normalizedName] = (options || {});
       },
 
       /**
@@ -1111,13 +1112,13 @@ define("container/container",
       unregister: function(fullName) {
         Ember.assert('fullName must be a proper full name', validateFullName(fullName));
 
-        var normalizedName = this.normalize(fullName);
+        var normalizedName = this._normalize(fullName);
 
-        this.registry.remove(normalizedName);
-        this.cache.remove(normalizedName);
-        this.factoryCache.remove(normalizedName);
-        this.resolveCache.remove(normalizedName);
-        this._options.remove(normalizedName);
+        delete this.registry[normalizedName];
+        delete this.cache[normalizedName];
+        delete this.factoryCache[normalizedName];
+        delete this.resolveCache[normalizedName];
+        delete this._options[normalizedName];
       },
 
       /**
@@ -1154,7 +1155,7 @@ define("container/container",
       */
       resolve: function(fullName) {
         Ember.assert('fullName must be a proper full name', validateFullName(fullName));
-        return resolve(this, this.normalize(fullName));
+        return resolve(this, this._normalize(fullName));
       },
 
       /**
@@ -1182,6 +1183,12 @@ define("container/container",
       */
       normalize: function(fullName) {
         return fullName;
+      },
+
+      _normalize: function(fullName) {
+        return this.normalizeCache[fullName] || (
+          this.normalizeCache[fullName] = this.normalize(fullName)
+        );
       },
 
       /**
@@ -1236,7 +1243,7 @@ define("container/container",
       */
       lookup: function(fullName, options) {
         Ember.assert('fullName must be a proper full name', validateFullName(fullName));
-        return lookup(this, this.normalize(fullName), options);
+        return lookup(this, this._normalize(fullName), options);
       },
 
       /**
@@ -1248,7 +1255,7 @@ define("container/container",
       */
       lookupFactory: function(fullName) {
         Ember.assert('fullName must be a proper full name', validateFullName(fullName));
-        return factoryFor(this, this.normalize(fullName));
+        return factoryFor(this, this._normalize(fullName));
       },
 
       /**
@@ -1261,7 +1268,7 @@ define("container/container",
       */
       has: function(fullName) {
         Ember.assert('fullName must be a proper full name', validateFullName(fullName));
-        return has(this, this.normalize(fullName));
+        return has(this, this._normalize(fullName));
       },
 
       /**
@@ -1294,7 +1301,7 @@ define("container/container",
       optionsForType: function(type, options) {
         if (this.parent) { illegalChildOperation('optionsForType'); }
 
-        this._typeOptions.set(type, options);
+        this._typeOptions[type] = options;
       },
 
       /**
@@ -1343,12 +1350,14 @@ define("container/container",
       */
       typeInjection: function(type, property, fullName) {
         Ember.assert('fullName must be a proper full name', validateFullName(fullName));
+
         if (this.parent) { illegalChildOperation('typeInjection'); }
 
         var fullNameType = fullName.split(':')[0];
-        if(fullNameType === type) {
+        if (fullNameType === type) {
           throw new Error('Cannot inject a `' + fullName + '` on other ' + type + '(s). Register the `' + fullName + '` as a different type and perform the typeInjection.');
         }
+
         addTypeInjection(this.typeInjections, type, property, fullName);
       },
 
@@ -1400,16 +1409,16 @@ define("container/container",
         if (this.parent) { illegalChildOperation('injection'); }
 
         validateFullName(injectionName);
-        var normalizedInjectionName = this.normalize(injectionName);
+        var normalizedInjectionName = this._normalize(injectionName);
 
         if (fullName.indexOf(':') === -1) {
           return this.typeInjection(fullName, property, normalizedInjectionName);
         }
 
         Ember.assert('fullName must be a proper full name', validateFullName(fullName));
-        var normalizedName = this.normalize(fullName);
+        var normalizedName = this._normalize(fullName);
 
-        if (this.cache.has(normalizedName)) {
+        if (this.cache[normalizedName]) {
           throw new Error("Attempted to register an injection for a type that has already been looked up. ('" + normalizedName + "', '" + property + "', '" + injectionName + "')");
         }
         addInjection(this.injections, normalizedName, property, normalizedInjectionName);
@@ -1448,7 +1457,7 @@ define("container/container",
       factoryTypeInjection: function(type, property, fullName) {
         if (this.parent) { illegalChildOperation('factoryTypeInjection'); }
 
-        addTypeInjection(this.factoryTypeInjections, type, property, this.normalize(fullName));
+        addTypeInjection(this.factoryTypeInjections, type, property, this._normalize(fullName));
       },
 
       /**
@@ -1503,8 +1512,8 @@ define("container/container",
       factoryInjection: function(fullName, property, injectionName) {
         if (this.parent) { illegalChildOperation('injection'); }
 
-        var normalizedName = this.normalize(fullName);
-        var normalizedInjectionName = this.normalize(injectionName);
+        var normalizedName = this._normalize(fullName);
+        var normalizedInjectionName = this._normalize(injectionName);
 
         validateFullName(injectionName);
 
@@ -1514,7 +1523,7 @@ define("container/container",
 
         Ember.assert('fullName must be a proper full name', validateFullName(fullName));
 
-        if (this.factoryCache.has(normalizedName)) {
+        if (this.factoryCache[normalizedName]) {
           throw new Error('Attempted to register a factoryInjection for a type that has already ' +
             'been looked up. (\'' + normalizedName + '\', \'' + property + '\', \'' + injectionName + '\')');
         }
@@ -1556,17 +1565,17 @@ define("container/container",
     };
 
     function resolve(container, normalizedName) {
-      var cached = container.resolveCache.get(normalizedName);
+      var cached = container.resolveCache[normalizedName];
       if (cached) { return cached; }
 
-      var resolved = container.resolver(normalizedName) || container.registry.get(normalizedName);
-      container.resolveCache.set(normalizedName, resolved);
+      var resolved = container.resolver(normalizedName) || container.registry[normalizedName];
+      container.resolveCache[normalizedName] = resolved;
 
       return resolved;
     }
 
     function has(container, fullName){
-      if (container.cache.has(fullName)) {
+      if (container.cache[fullName]) {
         return true;
       }
 
@@ -1576,8 +1585,8 @@ define("container/container",
     function lookup(container, fullName, options) {
       options = options || {};
 
-      if (container.cache.has(fullName) && options.singleton !== false) {
-        return container.cache.get(fullName);
+      if (container.cache[fullName] && options.singleton !== false) {
+        return container.cache[fullName];
       }
 
       var value = instantiate(container, fullName);
@@ -1585,7 +1594,7 @@ define("container/container",
       if (value === undefined) { return; }
 
       if (isSingleton(container, fullName) && options.singleton !== false) {
-        container.cache.set(fullName, value);
+        container.cache[fullName] = value;
       }
 
       return value;
@@ -1623,14 +1632,14 @@ define("container/container",
     }
 
     function option(container, fullName, optionName) {
-      var options = container._options.get(fullName);
+      var options = container._options[fullName];
 
       if (options && options[optionName] !== undefined) {
         return options[optionName];
       }
 
       var type = fullName.split(':')[0];
-      options = container._typeOptions.get(type);
+      options = container._typeOptions[type];
 
       if (options) {
         return options[optionName];
@@ -1639,8 +1648,8 @@ define("container/container",
 
     function factoryFor(container, fullName) {
       var cache = container.factoryCache;
-      if (cache.has(fullName)) {
-        return cache.get(fullName);
+      if (cache[fullName]) {
+        return cache[fullName];
       }
       var factory = container.resolve(fullName);
       if (factory === undefined) { return; }
@@ -1659,18 +1668,18 @@ define("container/container",
         var injectedFactory = factory.extend(injections);
         injectedFactory.reopenClass(factoryInjections);
 
-        cache.set(fullName, injectedFactory);
+        cache[fullName] = injectedFactory;
 
         return injectedFactory;
       }
     }
 
     function injectionsFor(container, fullName) {
-      var splitName = fullName.split(':'),
-        type = splitName[0],
-        injections = [];
+      var splitName = fullName.split(':');
+      var type = splitName[0];
+      var injections = [];
 
-      injections = injections.concat(container.typeInjections.get(type) || []);
+      injections = injections.concat(container.typeInjections[type] || []);
       injections = injections.concat(container.injections[fullName] || []);
 
       injections = buildInjections(container, injections);
@@ -1681,11 +1690,11 @@ define("container/container",
     }
 
     function factoryInjectionsFor(container, fullName) {
-      var splitName = fullName.split(':'),
-        type = splitName[0],
-        factoryInjections = [];
+      var splitName = fullName.split(':');
+      var type = splitName[0];
+      var factoryInjections = [];
 
-      factoryInjections = factoryInjections.concat(container.factoryTypeInjections.get(type) || []);
+      factoryInjections = factoryInjections.concat(container.factoryTypeInjections[type] || []);
       factoryInjections = factoryInjections.concat(container.factoryInjections[fullName] || []);
 
       factoryInjections = buildInjections(container, factoryInjections);
@@ -1720,26 +1729,34 @@ define("container/container",
     }
 
     function eachDestroyable(container, callback) {
-      container.cache.eachLocal(function(key, value) {
-        if (option(container, key, 'instantiate') === false) { return; }
-        callback(value);
-      });
+      var cache = container.cache;
+      var keys = Object.keys(cache);
+      var key, value;
+
+      for (var i = 0, l = keys.length; i < l; i++) {
+        key = keys[i];
+        value = cache[key];
+
+        if (option(container, key, 'instantiate') !== false) {
+          callback(value);
+        }
+      }
     }
 
     function resetCache(container) {
-      container.cache.eachLocal(function(key, value) {
-        if (option(container, key, 'instantiate') === false) { return; }
+      eachDestroyable(container, function(value) {
         value.destroy();
       });
-      container.cache.dict = {};
+
+      container.cache.dict = dictionary(null);
     }
 
     function addTypeInjection(rules, type, property, fullName) {
-      var injections = rules.get(type);
+      var injections = rules[type];
 
       if (!injections) {
         injections = [];
-        rules.set(type, injections);
+        rules[type] = injections;
       }
 
       injections.push({
@@ -1758,124 +1775,13 @@ define("container/container",
 
     function addInjection(rules, factoryName, property, injectionName) {
       var injections = rules[factoryName] = rules[factoryName] || [];
-      injections.push({ property: property, fullName: injectionName });
+      injections.push({
+        property: property,
+        fullName: injectionName
+      });
     }
 
     __exports__["default"] = Container;
-  });
-define("container/inheriting_dict",
-  ["exports"],
-  function(__exports__) {
-    "use strict";
-    // A safe and simple inheriting object.
-    function InheritingDict(parent) {
-      this.parent = parent;
-      this.dict = {};
-    }
-
-    InheritingDict.prototype = {
-
-      /**
-        @property parent
-        @type InheritingDict
-        @default null
-      */
-
-      parent: null,
-
-      /**
-        Object used to store the current nodes data.
-
-        @property dict
-        @type Object
-        @default Object
-      */
-      dict: null,
-
-      /**
-        Retrieve the value given a key, if the value is present at the current
-        level use it, otherwise walk up the parent hierarchy and try again. If
-        no matching key is found, return undefined.
-
-        @method get
-        @param {String} key
-        @return {any}
-      */
-      get: function(key) {
-        var dict = this.dict;
-
-        if (dict.hasOwnProperty(key)) {
-          return dict[key];
-        }
-
-        if (this.parent) {
-          return this.parent.get(key);
-        }
-      },
-
-      /**
-        Set the given value for the given key, at the current level.
-
-        @method set
-        @param {String} key
-        @param {Any} value
-      */
-      set: function(key, value) {
-        this.dict[key] = value;
-      },
-
-      /**
-        Delete the given key
-
-        @method remove
-        @param {String} key
-      */
-      remove: function(key) {
-        delete this.dict[key];
-      },
-
-      /**
-        Check for the existence of given a key, if the key is present at the current
-        level return true, otherwise walk up the parent hierarchy and try again. If
-        no matching key is found, return false.
-
-        @method has
-        @param {String} key
-        @return {Boolean}
-      */
-      has: function(key) {
-        var dict = this.dict;
-
-        if (dict.hasOwnProperty(key)) {
-          return true;
-        }
-
-        if (this.parent) {
-          return this.parent.has(key);
-        }
-
-        return false;
-      },
-
-      /**
-        Iterate and invoke a callback for each local key-value pair.
-
-        @method eachLocal
-        @param {Function} callback
-        @param {Object} binding
-      */
-      eachLocal: function(callback, binding) {
-        var dict = this.dict;
-
-        for (var prop in dict) {
-          if (dict.hasOwnProperty(prop)) {
-            callback.call(binding, prop, dict[prop]);
-          }
-        }
-      }
-    };
-
-    __exports__["default"] = InheritingDict;
   });
 define("ember-application",
   ["ember-metal/core","ember-runtime/system/lazy_load","ember-application/system/dag","ember-application/system/resolver","ember-application/system/application","ember-application/ext/controller"],
@@ -3278,8 +3184,8 @@ define("ember-application/system/deprecated-container",
     __exports__["default"] = DeprecatedContainer;
   });
 define("ember-application/system/resolver",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/logger","ember-runtime/system/string","ember-runtime/system/object","ember-runtime/system/namespace","ember-handlebars","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/logger","ember-runtime/system/string","ember-runtime/system/object","ember-runtime/system/namespace","ember-handlebars","ember-metal/dictionary","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -3384,6 +3290,7 @@ define("ember-application/system/resolver",
       @namespace Ember
       @extends Ember.Object
     */
+    var dictionary = __dependency8__["default"];
 
     __exports__["default"] = EmberObject.extend({
       /**
@@ -3394,10 +3301,13 @@ define("ember-application/system/resolver",
       */
       namespace: null,
 
+      init: function() {
+        this._parseNameCache = dictionary(null);
+      },
       normalize: function(fullName) {
-        var split = fullName.split(':', 2),
-            type = split[0],
-            name = split[1];
+        var split = fullName.split(':', 2);
+        var type = split[0];
+        var name = split[1];
 
         Ember.assert("Tried to normalize a container name without a colon (:) in it. You probably tried to lookup a name that did not contain a type, a colon, and a name. A proper lookup name would be `view:post`.", split.length === 2);
 
@@ -3405,11 +3315,15 @@ define("ember-application/system/resolver",
           var result = name;
 
           if (result.indexOf('.') > -1) {
-            result = result.replace(/\.(.)/g, function(m) { return m.charAt(1).toUpperCase(); });
+            result = result.replace(/\.(.)/g, function(m) {
+              return m.charAt(1).toUpperCase();
+            });
           }
 
           if (name.indexOf('_') > -1) {
-            result = result.replace(/_(.)/g, function(m) { return m.charAt(1).toUpperCase(); });
+            result = result.replace(/_(.)/g, function(m) {
+              return m.charAt(1).toUpperCase();
+            });
           }
 
           return type + ':' + result;
@@ -3429,9 +3343,9 @@ define("ember-application/system/resolver",
         @return {Object} the resolved factory
       */
       resolve: function(fullName) {
-        var parsedName = this.parseName(fullName),
-            resolveMethodName = parsedName.resolveMethodName,
-            resolved;
+        var parsedName = this.parseName(fullName);
+        var resolveMethodName = parsedName.resolveMethodName;
+        var resolved;
 
         if (!(parsedName.name && parsedName.type)) {
           throw new TypeError('Invalid fullName: `' + fullName + '`, must be of the form `type:name` ');
@@ -3460,12 +3374,19 @@ define("ember-application/system/resolver",
         @param {String} fullName the lookup string
         @method parseName
       */
+
       parseName: function(fullName) {
-        var nameParts = fullName.split(':'),
-            type = nameParts[0], fullNameWithoutType = nameParts[1],
-            name = fullNameWithoutType,
-            namespace = get(this, 'namespace'),
-            root = namespace;
+        return this._parseNameCache[fullName] || (
+          this._parseNameCache[fullName] = this._parseName(fullName)
+        );
+      },
+
+      _parseName: function(fullName) {
+        var nameParts = fullName.split(':');
+        var type = nameParts[0], fullNameWithoutType = nameParts[1];
+        var name = fullNameWithoutType;
+        var namespace = get(this, 'namespace');
+        var root = namespace;
 
         if (type !== 'template' && name.indexOf('/') !== -1) {
           var parts = name.split('/');
@@ -3504,7 +3425,10 @@ define("ember-application/system/resolver",
         }
 
         var description = parsedName.root + '.' + classify(parsedName.name);
-        if (parsedName.type !== 'model') { description += classify(parsedName.type); }
+
+        if (parsedName.type !== 'model') {
+          description += classify(parsedName.type);
+        }
 
         return description;
       },
@@ -3547,6 +3471,7 @@ define("ember-application/system/resolver",
           return Ember.TEMPLATES[templateName];
         }
       },
+
       /**
         Lookup the view using `resolveOther`
 
@@ -3559,6 +3484,7 @@ define("ember-application/system/resolver",
         this.useRouterNaming(parsedName);
         return this.resolveOther(parsedName);
       },
+
       /**
         Lookup the controller using `resolveOther`
 
@@ -6515,8 +6441,8 @@ define("ember-handlebars/controls/text_support",
     __exports__["default"] = TextSupport;
   });
 define("ember-handlebars/ext",
-  ["ember-metal/core","ember-runtime/system/string","ember-handlebars-compiler","ember-metal/property_get","ember-metal/binding","ember-metal/error","ember-metal/mixin","ember-metal/is_empty","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
+  ["ember-metal/core","ember-runtime/system/string","ember-handlebars-compiler","ember-metal/property_get","ember-metal/binding","ember-metal/error","ember-metal/mixin","ember-metal/is_empty","ember-metal/cache","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.FEATURES, Ember.assert, Ember.Handlebars, Ember.lookup
@@ -6551,13 +6477,20 @@ define("ember-handlebars/ext",
       @param path {String}
       @param data {Hash}
     */
+
+    var Cache = __dependency9__["default"];
+
+    var FIRST_SEGMENT_CACHE = new Cache(1000, function(path){
+      return path.split('.', 1)[0];
+    });
+
     function normalizePath(root, path, data) {
       var keywords = (data && data.keywords) || {};
       var keyword, isKeyword;
 
       // Get the first segment of the path. For example, if the
       // path is "foo.bar.baz", returns "foo".
-      keyword = path.split('.', 1)[0];
+      keyword = FIRST_SEGMENT_CACHE.get(path);
 
       // Test to see if the first path is a keyword that has been
       // passed along in the view's data hash. If so, we will treat
@@ -7080,8 +7013,8 @@ define("ember-handlebars/ext",
     __exports__.evaluateUnboundHelper = evaluateUnboundHelper;
   });
 define("ember-handlebars/helpers/binding",
-  ["ember-metal/core","ember-handlebars-compiler","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-runtime/system/string","ember-metal/platform","ember-metal/is_none","ember-metal/enumerable_utils","ember-metal/array","ember-views/views/view","ember-metal/run_loop","ember-metal/observer","ember-metal/binding","ember-views/system/jquery","ember-handlebars/ext","ember-runtime/keys","ember-handlebars/views/handlebars_bound_view","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __exports__) {
+  ["ember-metal/core","ember-handlebars-compiler","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-runtime/system/string","ember-metal/platform","ember-metal/is_none","ember-metal/enumerable_utils","ember-metal/array","ember-views/views/view","ember-metal/run_loop","ember-metal/observer","ember-metal/binding","ember-views/system/jquery","ember-handlebars/ext","ember-runtime/keys","ember-metal/cache","ember-handlebars/views/handlebars_bound_view","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -7111,9 +7044,10 @@ define("ember-handlebars/helpers/binding",
     var isArray = __dependency5__.isArray;
     var handlebarsGetEscaped = __dependency16__.getEscaped;
     var keys = __dependency17__["default"];
+    var Cache = __dependency18__["default"];
 
-    var _HandlebarsBoundView = __dependency18__._HandlebarsBoundView;
-    var SimpleHandlebarsView = __dependency18__.SimpleHandlebarsView;
+    var _HandlebarsBoundView = __dependency19__._HandlebarsBoundView;
+    var SimpleHandlebarsView = __dependency19__.SimpleHandlebarsView;
 
     var normalizePath = __dependency16__.normalizePath;
     var handlebarsGet = __dependency16__.handlebarsGet;
@@ -7355,6 +7289,10 @@ define("ember-handlebars/helpers/binding",
       return helpers.bind.call(this, property, options);
     }
 
+    var ISNT_HELPER_CACHE = new Cache(1000, function(key) {
+      return key.indexOf('-') === -1;
+    });
+    __exports__.ISNT_HELPER_CACHE = ISNT_HELPER_CACHE;
     /**
       Used to lookup/resolve handlebars helpers. The lookup order is:
 
@@ -7375,7 +7313,7 @@ define("ember-handlebars/helpers/binding",
         return helpers[name];
       }
 
-      if (!container || name.indexOf('-') === -1) {
+      if (!container || ISNT_HELPER_CACHE.get(name)) {
         return;
       }
 
@@ -7455,7 +7393,6 @@ define("ember-handlebars/helpers/binding",
 
       return bind.call(context, property, fn, true, shouldDisplayIfHelperContent, shouldDisplayIfHelperContent, ['isTruthy', 'length']);
     }
-
 
     /**
       @private
@@ -10349,8 +10286,8 @@ define("ember-handlebars/views/metamorph_view",
     __exports__._SimpleMetamorphView = _SimpleMetamorphView;__exports__["default"] = View.extend(_Metamorph);
   });
 define("ember-metal",
-  ["ember-metal/core","ember-metal/merge","ember-metal/instrumentation","ember-metal/utils","ember-metal/error","ember-metal/enumerable_utils","ember-metal/platform","ember-metal/array","ember-metal/logger","ember-metal/property_get","ember-metal/events","ember-metal/observer_set","ember-metal/property_events","ember-metal/properties","ember-metal/property_set","ember-metal/map","ember-metal/get_properties","ember-metal/set_properties","ember-metal/watch_key","ember-metal/chains","ember-metal/watch_path","ember-metal/watching","ember-metal/expand_properties","ember-metal/computed","ember-metal/computed_macros","ember-metal/observer","ember-metal/mixin","ember-metal/binding","ember-metal/run_loop","ember-metal/libraries","ember-metal/is_none","ember-metal/is_empty","ember-metal/is_blank","ember-metal/is_present","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __dependency31__, __dependency32__, __dependency33__, __dependency34__, __exports__) {
+  ["ember-metal/core","ember-metal/merge","ember-metal/instrumentation","ember-metal/utils","ember-metal/error","ember-metal/enumerable_utils","ember-metal/cache","ember-metal/platform","ember-metal/array","ember-metal/logger","ember-metal/property_get","ember-metal/events","ember-metal/observer_set","ember-metal/property_events","ember-metal/properties","ember-metal/property_set","ember-metal/map","ember-metal/get_properties","ember-metal/set_properties","ember-metal/watch_key","ember-metal/chains","ember-metal/watch_path","ember-metal/watching","ember-metal/expand_properties","ember-metal/computed","ember-metal/computed_macros","ember-metal/observer","ember-metal/mixin","ember-metal/binding","ember-metal/run_loop","ember-metal/libraries","ember-metal/is_none","ember-metal/is_empty","ember-metal/is_blank","ember-metal/is_present","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __dependency31__, __dependency32__, __dependency33__, __dependency34__, __dependency35__, __exports__) {
     "use strict";
     /**
     Ember Metal
@@ -10388,101 +10325,101 @@ define("ember-metal",
     var applyStr = __dependency4__.applyStr;
     var EmberError = __dependency5__["default"];
     var EnumerableUtils = __dependency6__["default"];
+    var Cache = __dependency7__["default"];
+    var create = __dependency8__.create;
+    var platform = __dependency8__.platform;
+    var map = __dependency9__.map;
+    var forEach = __dependency9__.forEach;
+    var filter = __dependency9__.filter;
+    var indexOf = __dependency9__.indexOf;
+    var Logger = __dependency10__["default"];
 
-    var create = __dependency7__.create;
-    var platform = __dependency7__.platform;
-    var map = __dependency8__.map;
-    var forEach = __dependency8__.forEach;
-    var filter = __dependency8__.filter;
-    var indexOf = __dependency8__.indexOf;
-    var Logger = __dependency9__["default"];
+    var get = __dependency11__.get;
+    var getWithDefault = __dependency11__.getWithDefault;
+    var normalizeTuple = __dependency11__.normalizeTuple;
+    var _getPath = __dependency11__._getPath;
 
-    var get = __dependency10__.get;
-    var getWithDefault = __dependency10__.getWithDefault;
-    var normalizeTuple = __dependency10__.normalizeTuple;
-    var _getPath = __dependency10__._getPath;
+    var on = __dependency12__.on;
+    var addListener = __dependency12__.addListener;
+    var removeListener = __dependency12__.removeListener;
+    var suspendListener = __dependency12__.suspendListener;
+    var suspendListeners = __dependency12__.suspendListeners;
+    var sendEvent = __dependency12__.sendEvent;
+    var hasListeners = __dependency12__.hasListeners;
+    var watchedEvents = __dependency12__.watchedEvents;
+    var listenersFor = __dependency12__.listenersFor;
+    var listenersDiff = __dependency12__.listenersDiff;
+    var listenersUnion = __dependency12__.listenersUnion;
 
-    var on = __dependency11__.on;
-    var addListener = __dependency11__.addListener;
-    var removeListener = __dependency11__.removeListener;
-    var suspendListener = __dependency11__.suspendListener;
-    var suspendListeners = __dependency11__.suspendListeners;
-    var sendEvent = __dependency11__.sendEvent;
-    var hasListeners = __dependency11__.hasListeners;
-    var watchedEvents = __dependency11__.watchedEvents;
-    var listenersFor = __dependency11__.listenersFor;
-    var listenersDiff = __dependency11__.listenersDiff;
-    var listenersUnion = __dependency11__.listenersUnion;
+    var ObserverSet = __dependency13__["default"];
 
-    var ObserverSet = __dependency12__["default"];
+    var propertyWillChange = __dependency14__.propertyWillChange;
+    var propertyDidChange = __dependency14__.propertyDidChange;
+    var overrideChains = __dependency14__.overrideChains;
+    var beginPropertyChanges = __dependency14__.beginPropertyChanges;
+    var endPropertyChanges = __dependency14__.endPropertyChanges;
+    var changeProperties = __dependency14__.changeProperties;
 
-    var propertyWillChange = __dependency13__.propertyWillChange;
-    var propertyDidChange = __dependency13__.propertyDidChange;
-    var overrideChains = __dependency13__.overrideChains;
-    var beginPropertyChanges = __dependency13__.beginPropertyChanges;
-    var endPropertyChanges = __dependency13__.endPropertyChanges;
-    var changeProperties = __dependency13__.changeProperties;
+    var Descriptor = __dependency15__.Descriptor;
+    var defineProperty = __dependency15__.defineProperty;
+    var set = __dependency16__.set;
+    var trySet = __dependency16__.trySet;
 
-    var Descriptor = __dependency14__.Descriptor;
-    var defineProperty = __dependency14__.defineProperty;
-    var set = __dependency15__.set;
-    var trySet = __dependency15__.trySet;
-
-    var OrderedSet = __dependency16__.OrderedSet;
-    var Map = __dependency16__.Map;
-    var MapWithDefault = __dependency16__.MapWithDefault;
-    var getProperties = __dependency17__["default"];
-    var setProperties = __dependency18__["default"];
-    var watchKey = __dependency19__.watchKey;
-    var unwatchKey = __dependency19__.unwatchKey;
-    var flushPendingChains = __dependency20__.flushPendingChains;
-    var removeChainWatcher = __dependency20__.removeChainWatcher;
-    var ChainNode = __dependency20__.ChainNode;
-    var finishChains = __dependency20__.finishChains;
-    var watchPath = __dependency21__.watchPath;
-    var unwatchPath = __dependency21__.unwatchPath;
-    var watch = __dependency22__.watch;
-    var isWatching = __dependency22__.isWatching;
-    var unwatch = __dependency22__.unwatch;
-    var rewatch = __dependency22__.rewatch;
-    var destroy = __dependency22__.destroy;
-    var expandProperties = __dependency23__["default"];
-    var ComputedProperty = __dependency24__.ComputedProperty;
-    var computed = __dependency24__.computed;
-    var cacheFor = __dependency24__.cacheFor;
+    var OrderedSet = __dependency17__.OrderedSet;
+    var Map = __dependency17__.Map;
+    var MapWithDefault = __dependency17__.MapWithDefault;
+    var getProperties = __dependency18__["default"];
+    var setProperties = __dependency19__["default"];
+    var watchKey = __dependency20__.watchKey;
+    var unwatchKey = __dependency20__.unwatchKey;
+    var flushPendingChains = __dependency21__.flushPendingChains;
+    var removeChainWatcher = __dependency21__.removeChainWatcher;
+    var ChainNode = __dependency21__.ChainNode;
+    var finishChains = __dependency21__.finishChains;
+    var watchPath = __dependency22__.watchPath;
+    var unwatchPath = __dependency22__.unwatchPath;
+    var watch = __dependency23__.watch;
+    var isWatching = __dependency23__.isWatching;
+    var unwatch = __dependency23__.unwatch;
+    var rewatch = __dependency23__.rewatch;
+    var destroy = __dependency23__.destroy;
+    var expandProperties = __dependency24__["default"];
+    var ComputedProperty = __dependency25__.ComputedProperty;
+    var computed = __dependency25__.computed;
+    var cacheFor = __dependency25__.cacheFor;
 
     // side effect of defining the computed.* macros
 
-    var addObserver = __dependency26__.addObserver;
-    var observersFor = __dependency26__.observersFor;
-    var removeObserver = __dependency26__.removeObserver;
-    var addBeforeObserver = __dependency26__.addBeforeObserver;
-    var _suspendBeforeObserver = __dependency26__._suspendBeforeObserver;
-    var _suspendObserver = __dependency26__._suspendObserver;
-    var _suspendBeforeObservers = __dependency26__._suspendBeforeObservers;
-    var _suspendObservers = __dependency26__._suspendObservers;
-    var beforeObserversFor = __dependency26__.beforeObserversFor;
-    var removeBeforeObserver = __dependency26__.removeBeforeObserver;
-    var IS_BINDING = __dependency27__.IS_BINDING;
-    var mixin = __dependency27__.mixin;
-    var Mixin = __dependency27__.Mixin;
-    var required = __dependency27__.required;
-    var aliasMethod = __dependency27__.aliasMethod;
-    var observer = __dependency27__.observer;
-    var immediateObserver = __dependency27__.immediateObserver;
-    var beforeObserver = __dependency27__.beforeObserver;
-    var Binding = __dependency28__.Binding;
-    var isGlobalPath = __dependency28__.isGlobalPath;
-    var bind = __dependency28__.bind;
-    var oneWay = __dependency28__.oneWay;
-    var run = __dependency29__["default"];
-    var libraries = __dependency30__["default"];
-    var isNone = __dependency31__.isNone;
-    var none = __dependency31__.none;
-    var isEmpty = __dependency32__.isEmpty;
-    var empty = __dependency32__.empty;
-    var isBlank = __dependency33__["default"];
-    var isPresent = __dependency34__["default"];
+    var addObserver = __dependency27__.addObserver;
+    var observersFor = __dependency27__.observersFor;
+    var removeObserver = __dependency27__.removeObserver;
+    var addBeforeObserver = __dependency27__.addBeforeObserver;
+    var _suspendBeforeObserver = __dependency27__._suspendBeforeObserver;
+    var _suspendObserver = __dependency27__._suspendObserver;
+    var _suspendBeforeObservers = __dependency27__._suspendBeforeObservers;
+    var _suspendObservers = __dependency27__._suspendObservers;
+    var beforeObserversFor = __dependency27__.beforeObserversFor;
+    var removeBeforeObserver = __dependency27__.removeBeforeObserver;
+    var IS_BINDING = __dependency28__.IS_BINDING;
+    var mixin = __dependency28__.mixin;
+    var Mixin = __dependency28__.Mixin;
+    var required = __dependency28__.required;
+    var aliasMethod = __dependency28__.aliasMethod;
+    var observer = __dependency28__.observer;
+    var immediateObserver = __dependency28__.immediateObserver;
+    var beforeObserver = __dependency28__.beforeObserver;
+    var Binding = __dependency29__.Binding;
+    var isGlobalPath = __dependency29__.isGlobalPath;
+    var bind = __dependency29__.bind;
+    var oneWay = __dependency29__.oneWay;
+    var run = __dependency30__["default"];
+    var libraries = __dependency31__["default"];
+    var isNone = __dependency32__.isNone;
+    var none = __dependency32__.none;
+    var isEmpty = __dependency33__.isEmpty;
+    var empty = __dependency33__.empty;
+    var isBlank = __dependency34__["default"];
+    var isPresent = __dependency35__["default"];
     // END IMPORTS
 
     // BEGIN EXPORTS
@@ -10494,6 +10431,8 @@ define("ember-metal",
 
     Ember.instrument = instrument;
     Ember.subscribe = subscribe;
+
+    Ember._Cache = Cache;
 
     Ember.generateGuid    = generateGuid;
     Ember.GUID_KEY        = GUID_KEY;
@@ -10869,8 +10808,8 @@ define("ember-metal/array",
     __exports__.indexOf = indexOf;
   });
 define("ember-metal/binding",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/map","ember-metal/observer","ember-metal/run_loop","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/map","ember-metal/observer","ember-metal/run_loop","ember-metal/path_cache","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.Logger, Ember.LOG_BINDINGS, assert
@@ -10883,6 +10822,8 @@ define("ember-metal/binding",
     var removeObserver = __dependency6__.removeObserver;
     var _suspendObserver = __dependency6__._suspendObserver;
     var run = __dependency7__["default"];
+    var isGlobalPath = __dependency8__.isGlobal;
+
 
     // ES6TODO: where is Ember.lookup defined?
     /**
@@ -10905,8 +10846,6 @@ define("ember-metal/binding",
     */
     Ember.LOG_BINDINGS = false || !!Ember.ENV.LOG_BINDINGS;
 
-    var IS_GLOBAL = /^([A-Z$]|([0-9][A-Z$]))/;
-
     /**
       Returns true if the provided path is global (e.g., `MyApp.fooController.bar`)
       instead of local (`foo.bar.baz`).
@@ -10917,9 +10856,6 @@ define("ember-metal/binding",
       @param {String} path
       @return Boolean
     */
-    function isGlobalPath(path) {
-      return IS_GLOBAL.test(path);
-    }
 
     function getWithGlobals(obj, path) {
       return get(isGlobalPath(path) ? Ember.lookup : obj, path);
@@ -11352,6 +11288,66 @@ define("ember-metal/binding",
 
     __exports__.oneWay = oneWay;__exports__.Binding = Binding;
     __exports__.isGlobalPath = isGlobalPath;
+  });
+define("ember-metal/cache",
+  ["ember-metal/dictionary","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    var dictionary = __dependency1__["default"];
+    __exports__["default"] = Cache;
+
+    function Cache(limit, func) {
+      this.store  = dictionary(null);
+      this.size   = 0;
+      this.misses = 0;
+      this.hits   = 0;
+      this.limit  = limit;
+      this.func   = func;
+    }
+
+    var FALSE     = function() { };
+    var ZERO      = function() { };
+    var UNDEFINED = function() { };
+    var NULL      = function() { };
+
+    Cache.prototype = {
+      set: function(key, value) {
+        if (this.limit > this.size) {
+          this.size ++;
+          if (value === undefined) {
+            this.store[key] = UNDEFINED;
+          } else {
+            this.store[key] = value;
+          }
+        }
+
+        return value;
+      },
+
+      get: function(key) {
+        var value = this.store[key];
+
+        if (value === undefined) {
+          this.misses ++;
+          value = this.set(key, this.func(key));
+        } else if (value === UNDEFINED) {
+          this.hits ++;
+          value = UNDEFINED;
+        } else {
+          this.hits ++;
+          // nothing to translate
+        }
+
+        return value;
+      },
+
+      purge: function() {
+        this.store  = dictionary(null);
+        this.size   = 0;
+        this.hits   = 0;
+        this.misses = 0;
+      }
+    };
   });
 define("ember-metal/chains",
   ["ember-metal/core","ember-metal/property_get","ember-metal/utils","ember-metal/array","ember-metal/watch_key","exports"],
@@ -12962,7 +12958,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.7a9dd164
+      @version 1.8.0-beta.1+canary.267d1598
     */
 
     if ('undefined' === typeof Ember) {
@@ -12989,10 +12985,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.7a9dd164'
+      @default '1.8.0-beta.1+canary.267d1598'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.7a9dd164';
+    Ember.VERSION = '1.8.0-beta.1+canary.267d1598';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -13235,6 +13231,22 @@ define("ember-metal/dependent_keys",
     }
 
     __exports__.removeDependentKeys = removeDependentKeys;
+  });
+define("ember-metal/dictionary",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    // the delete is meant to hint at runtimes that this object should remain in
+    // dictionary mode. This is clearly a runtime specific hack, but currently it
+    // appears worthwile in some usecases. Please note, these deletes do increase
+    // the cost of creation dramatically over a plain Object.create. And as this
+    // only makes sense for long-lived dictionaries that aren't instantiated often.
+    __exports__["default"] = function makeDictionary(parent) {
+      var dict = Object.create(parent);
+      dict['_dict'] = null;
+      delete dict['_dict'];
+      return dict;
+    }
   });
 define("ember-metal/enumerable_utils",
   ["ember-metal/array","exports"],
@@ -14667,15 +14679,16 @@ define("ember-metal/map",
       var output = {};
 
       for (var prop in obj) {
-        if (obj.hasOwnProperty(prop)) { output[prop] = obj[prop]; }
+        // hasOwnPropery is not needed because obj is Object.create(null);
+        output[prop] = obj[prop];
       }
 
       return output;
     }
 
     function copyMap(original, newObject) {
-      var keys = original.keys.copy(),
-          values = copy(original.values);
+      var keys = original.keys.copy();
+      var values = copy(original.values);
 
       newObject.keys = keys;
       newObject.values = values;
@@ -14707,13 +14720,12 @@ define("ember-metal/map",
       return new OrderedSet();
     };
 
-
     OrderedSet.prototype = {
       /**
         @method clear
       */
       clear: function() {
-        this.presenceSet = {};
+        this.presenceSet = Object.create(null);
         this.list = [];
       },
 
@@ -14722,11 +14734,11 @@ define("ember-metal/map",
         @param obj
       */
       add: function(obj) {
-        var guid = guidFor(obj),
-            presenceSet = this.presenceSet,
-            list = this.list;
+        var guid = guidFor(obj);
+        var presenceSet = this.presenceSet;
+        var list = this.list;
 
-        if (guid in presenceSet) { return; }
+        if (presenceSet[guid]) { return; }
 
         presenceSet[guid] = true;
         list.push(obj);
@@ -14737,9 +14749,9 @@ define("ember-metal/map",
         @param obj
       */
       remove: function(obj) {
-        var guid = guidFor(obj),
-            presenceSet = this.presenceSet,
-            list = this.list;
+        var guid = guidFor(obj);
+        var presenceSet = this.presenceSet;
+        var list = this.list;
 
         delete presenceSet[guid];
 
@@ -14763,10 +14775,10 @@ define("ember-metal/map",
         @return {Boolean}
       */
       has: function(obj) {
-        var guid = guidFor(obj),
-            presenceSet = this.presenceSet;
+        var guid = guidFor(obj);
+        var presenceSet = this.presenceSet;
 
-        return guid in presenceSet;
+        return presenceSet[guid];
       },
 
       /**
@@ -14827,7 +14839,7 @@ define("ember-metal/map",
     */
     function Map() {
       this.keys = OrderedSet.create();
-      this.values = {};
+      this.values = Object.create(null);
     }
 
     Ember.Map = Map;
@@ -14858,8 +14870,8 @@ define("ember-metal/map",
         @return {*} the value associated with the key, or `undefined`
       */
       get: function(key) {
-        var values = this.values,
-            guid = guidFor(key);
+        var values = this.values;
+        var guid = guidFor(key);
 
         return values[guid];
       },
@@ -14873,9 +14885,9 @@ define("ember-metal/map",
         @param {*} value
       */
       set: function(key, value) {
-        var keys = this.keys,
-            values = this.values,
-            guid = guidFor(key);
+        var keys = this.keys;
+        var values = this.values;
+        var guid = guidFor(key);
 
         keys.add(key);
         values[guid] = value;
@@ -14892,11 +14904,11 @@ define("ember-metal/map",
       remove: function(key) {
         // don't use ES6 "delete" because it will be annoying
         // to use in browsers that are not ES6 friendly;
-        var keys = this.keys,
-            values = this.values,
-            guid = guidFor(key);
+        var keys = this.keys;
+        var values = this.values;
+        var guid = guidFor(key);
 
-        if (values.hasOwnProperty(guid)) {
+        if (values[guid]) {
           keys.remove(key);
           delete values[guid];
           set(this, 'length', keys.list.length);
@@ -14914,10 +14926,10 @@ define("ember-metal/map",
         @return {Boolean} true if the item was present, false otherwise
       */
       has: function(key) {
-        var values = this.values,
-            guid = guidFor(key);
+        var values = this.values;
+        var guid = guidFor(key);
 
-        return values.hasOwnProperty(guid);
+        return !!values[guid];
       },
 
       /**
@@ -14932,8 +14944,8 @@ define("ember-metal/map",
           callback. By default, `this` is the map.
       */
       forEach: function(callback, self) {
-        var keys = this.keys,
-            values = this.values;
+        var keys = this.keys;
+        var values = this.values;
 
         keys.forEach(function(key) {
           var guid = guidFor(key);
@@ -14960,7 +14972,7 @@ define("ember-metal/map",
         @param {*} [options.defaultValue]
     */
     function MapWithDefault(options) {
-      Map.call(this);
+      this._super$constructor();
       this.defaultValue = options.defaultValue;
     }
 
@@ -14981,6 +14993,9 @@ define("ember-metal/map",
     };
 
     MapWithDefault.prototype = create(Map.prototype);
+    MapWithDefault.prototype.constructor = MapWithDefault;
+    MapWithDefault.prototype._super$constructor = Map;
+    MapWithDefault.prototype._super$get = Map.prototype.get;
 
     /**
       Retrieve the value associated with a given key.
@@ -14993,7 +15008,7 @@ define("ember-metal/map",
       var hasValue = this.has(key);
 
       if (hasValue) {
-        return Map.prototype.get.call(this, key);
+        return this._super$get(key);
       } else {
         var defaultValue = this.defaultValue(key);
         this.set(key, defaultValue);
@@ -16056,6 +16071,46 @@ define("ember-metal/observer_set",
       this.observers = [];
     };
   });
+define("ember-metal/path_cache",
+  ["ember-metal/cache","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    var Cache = __dependency1__["default"];
+
+    var IS_GLOBAL      = /^([A-Z$]|([0-9][A-Z$]))/;
+    var IS_GLOBAL_PATH = /^([A-Z$]|([0-9][A-Z$])).*[\.]/;
+    var HAS_THIS       = 'this.';
+
+    var isGlobalCache     = new Cache(1000, function(key) { return IS_GLOBAL.test(key);          });
+    var isGlobalPathCache = new Cache(1000, function(key) { return IS_GLOBAL_PATH.test(key);     });
+    var hasThisCache      = new Cache(1000, function(key) { return key.indexOf(HAS_THIS) !== -1; });
+    var isPathCache       = new Cache(1000, function(key) { return key.indexOf('.')      !== -1; });
+
+    var caches = {
+      isGlobalCache:     isGlobalCache,
+      isGlobalPathCache: isGlobalPathCache,
+      hasThisCache:      hasThisCache,
+      isPathCache:       isPathCache
+    };
+    __exports__.caches = caches;
+    function isGlobal(path) {
+      return isGlobalCache.get(path);
+    }
+
+    __exports__.isGlobal = isGlobal;function isGlobalPath(path) {
+      return isGlobalPathCache.get(path);
+    }
+
+    __exports__.isGlobalPath = isGlobalPath;function hasThis(path) {
+      return hasThisCache.get(path);
+    }
+
+    __exports__.hasThis = hasThis;function isPath(path) {
+      return isPathCache.get(path);
+    }
+
+    __exports__.isPath = isPath;
+  });
 define("ember-metal/platform",
   ["ember-metal/core","exports"],
   function(__dependency1__, __exports__) {
@@ -16077,44 +16132,6 @@ define("ember-metal/platform",
     */
     // TODO remove this
     var platform = {};
-
-    /**
-      Identical to `Object.create()`. Implements if not available natively.
-
-      @method create
-      @for Ember
-    */
-    var create = Object.create;
-
-    // IE8 has Object.create but it couldn't treat property descriptors.
-    if (create) {
-      if (create({a: 1}, {a: {value: 2}}).a !== 2) {
-        create = null;
-      }
-    }
-
-    // STUB_OBJECT_CREATE allows us to override other libraries that stub
-    // Object.create different than we would prefer
-    if (!create || Ember.ENV.STUB_OBJECT_CREATE) {
-      var K = function() {};
-
-      create = function(obj, props) {
-        K.prototype = obj;
-        obj = new K();
-        if (props) {
-          K.prototype = obj;
-          for (var prop in props) {
-            K.prototype[prop] = props[prop].value;
-          }
-          obj = new K();
-        }
-        K.prototype = null;
-
-        return obj;
-      };
-
-      create.isSimulated = true;
-    }
 
     var defineProperty = Object.defineProperty;
     var canRedefineProperties, canDefinePropertyOnDOM;
@@ -16184,6 +16201,110 @@ define("ember-metal/platform",
       }
     }
 
+    // ES5 15.2.3.7
+    // http://es5.github.com/#x15.2.3.7
+    if (!Object.defineProperties) {
+      Object.defineProperties = function defineProperties(object, properties) {
+        for (var property in properties) {
+          if (properties.hasOwnProperty(property) && property !== "__proto__") {
+            defineProperty(object, property, properties[property]);
+          }
+        }
+        return object;
+      };
+    }
+
+    /**
+      Identical to `Object.create()`. Implements if not available natively.
+
+      @method create
+      @for Ember
+    */
+    var create;
+    // ES5 15.2.3.5
+    // http://es5.github.com/#x15.2.3.5
+    if (!(Object.create && !Object.create(null).hasOwnProperty)) {
+      /* jshint scripturl:true, proto:true */
+      // Contributed by Brandon Benvie, October, 2012
+      var createEmpty;
+      var supportsProto = !({'__proto__':null} instanceof Object);
+      // the following produces false positives
+      // in Opera Mini => not a reliable check
+      // Object.prototype.__proto__ === null
+      if (supportsProto || typeof document === 'undefined') {
+        createEmpty = function () {
+          return { "__proto__": null };
+        };
+      } else {
+        // In old IE __proto__ can't be used to manually set `null`, nor does
+        // any other method exist to make an object that inherits from nothing,
+        // aside from Object.prototype itself. Instead, create a new global
+        // object and *steal* its Object.prototype and strip it bare. This is
+        // used as the prototype to create nullary objects.
+        createEmpty = function () {
+          var iframe = document.createElement('iframe');
+          var parent = document.body || document.documentElement;
+          iframe.style.display = 'none';
+          parent.appendChild(iframe);
+          iframe.src = 'javascript:';
+          var empty = iframe.contentWindow.Object.prototype;
+          parent.removeChild(iframe);
+          iframe = null;
+          delete empty.constructor;
+          delete empty.hasOwnProperty;
+          delete empty.propertyIsEnumerable;
+          delete empty.isPrototypeOf;
+          delete empty.toLocaleString;
+          delete empty.toString;
+          delete empty.valueOf;
+          empty.__proto__ = null;
+
+          function Empty() {}
+          Empty.prototype = empty;
+          // short-circuit future calls
+          createEmpty = function () {
+            return new Empty();
+          };
+          return new Empty();
+        };
+      }
+
+      create = Object.create = function create(prototype, properties) {
+
+        var object;
+        function Type() {}  // An empty constructor.
+
+        if (prototype === null) {
+          object = createEmpty();
+        } else {
+          if (typeof prototype !== "object" && typeof prototype !== "function") {
+            // In the native implementation `parent` can be `null`
+            // OR *any* `instanceof Object`  (Object|Function|Array|RegExp|etc)
+            // Use `typeof` tho, b/c in old IE, DOM elements are not `instanceof Object`
+            // like they are in modern browsers. Using `Object.create` on DOM elements
+            // is...err...probably inappropriate, but the native version allows for it.
+            throw new TypeError("Object prototype may only be an Object or null"); // same msg as Chrome
+          }
+          Type.prototype = prototype;
+          object = new Type();
+          // IE has no built-in implementation of `Object.getPrototypeOf`
+          // neither `__proto__`, but this manually setting `__proto__` will
+          // guarantee that `Object.getPrototypeOf` will work as expected with
+          // objects created using `Object.create`
+          object.__proto__ = prototype;
+        }
+
+        if (properties !== void 0) {
+          Object.defineProperties(object, properties);
+        }
+
+        return object;
+      };
+    } else {
+      create = Object.create;
+    }
+
+
     /**
     @class platform
     @namespace Ember
@@ -16242,8 +16363,8 @@ define("ember-metal/properties",
     var get = __dependency5__.get;
     var set = __dependency6__.set;
 
-    var metaFor = meta,
-        objectDefineProperty = platform.defineProperty;
+    var metaFor = meta;
+    var objectDefineProperty = platform.defineProperty;
 
     var MANDATORY_SETTER = Ember.ENV.MANDATORY_SETTER;
 
@@ -16450,10 +16571,10 @@ define("ember-metal/property_events",
       @return {void}
     */
     function propertyWillChange(obj, keyName) {
-      var m = obj[META_KEY],
-          watching = (m && m.watching[keyName] > 0) || keyName === 'length',
-          proto = m && m.proto,
-          desc = m && m.descs[keyName];
+      var m = obj[META_KEY];
+      var watching = (m && m.watching[keyName] > 0) || keyName === 'length';
+      var proto = m && m.proto;
+      var desc = m && m.descs[keyName];
 
       if (!watching) { return; }
       if (proto === obj) { return; }
@@ -16479,10 +16600,10 @@ define("ember-metal/property_events",
       @return {void}
     */
     function propertyDidChange(obj, keyName) {
-      var m = obj[META_KEY],
-          watching = (m && m.watching[keyName] > 0) || keyName === 'length',
-          proto = m && m.proto,
-          desc = m && m.descs[keyName];
+      var m = obj[META_KEY];
+      var watching = (m && m.watching[keyName] > 0) || keyName === 'length';
+      var proto = m && m.proto;
+      var desc = m && m.descs[keyName];
 
       if (proto === obj) { return; }
 
@@ -16540,9 +16661,9 @@ define("ember-metal/property_events",
         return;
       }
 
-      var nodes = m.chainWatchers[keyName],
-          events = [],
-          i, l;
+      var nodes = m.chainWatchers[keyName];
+      var events = [];
+      var i, l;
 
       for(i = 0, l = nodes.length; i < l; i++) {
         nodes[i].willChange(events);
@@ -16559,9 +16680,9 @@ define("ember-metal/property_events",
         return;
       }
 
-      var nodes = m.chainWatchers[keyName],
-          events = suppressEvents ? null : [],
-          i, l;
+      var nodes = m.chainWatchers[keyName];
+      var events = suppressEvents ? null : [];
+      var i, l;
 
       for(i = 0, l = nodes.length; i < l; i++) {
         nodes[i].didChange(events);
@@ -16654,8 +16775,8 @@ define("ember-metal/property_events",
     __exports__.changeProperties = changeProperties;
   });
 define("ember-metal/property_get",
-  ["ember-metal/core","ember-metal/utils","ember-metal/error","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["ember-metal/core","ember-metal/utils","ember-metal/error","ember-metal/path_cache","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     /**
     @module ember-metal
@@ -16664,13 +16785,11 @@ define("ember-metal/property_get",
     var Ember = __dependency1__["default"];
     var META_KEY = __dependency2__.META_KEY;
     var EmberError = __dependency3__["default"];
-
-    var get;
+    var isGlobalPath = __dependency4__.isGlobalPath;
+    var isPath = __dependency4__.isPath;
+    var pathHasThis = __dependency4__.hasThis;
 
     var MANDATORY_SETTER = Ember.ENV.MANDATORY_SETTER;
-
-    var IS_GLOBAL_PATH = /^([A-Z$]|([0-9][A-Z$])).*[\.]/;
-    var HAS_THIS  = 'this.';
     var FIRST_KEY = /^([^\.]+)/;
 
     // ..........................................................
@@ -16710,7 +16829,7 @@ define("ember-metal/property_get",
         return obj;
       }
 
-      if (!keyName && 'string'===typeof obj) {
+      if (!keyName && 'string' === typeof obj) {
         keyName = obj;
         obj = null;
       }
@@ -16722,7 +16841,7 @@ define("ember-metal/property_get",
 
       var meta = obj[META_KEY], desc = meta && meta.descs[keyName], ret;
 
-      if (desc === undefined && keyName.indexOf('.') !== -1) {
+      if (desc === undefined && isPath(keyName)) {
         return _getPath(obj, keyName);
       }
 
@@ -16765,9 +16884,9 @@ define("ember-metal/property_get",
       @return {Array} a temporary array with the normalized target/path pair.
     */
     function normalizeTuple(target, path) {
-      var hasThis  = path.indexOf(HAS_THIS) === 0,
-          isGlobal = !hasThis && IS_GLOBAL_PATH.test(path),
-          key;
+      var hasThis  = pathHasThis(path);
+      var isGlobal = !hasThis && isGlobalPath(path);
+      var key;
 
       if (!target || isGlobal) target = Ember.lookup;
       if (hasThis) path = path.slice(5);
@@ -16790,10 +16909,12 @@ define("ember-metal/property_get",
       // If there is no root and path is a key name, return that
       // property from the global object.
       // E.g. get('Ember') -> Ember
-      if (root === null && path.indexOf('.') === -1) { return get(Ember.lookup, path); }
+      if (root === null && !isPath(path)) {
+        return get(Ember.lookup, path);
+      }
 
       // detect complicated paths and normalize them
-      hasThis = path.indexOf(HAS_THIS) === 0;
+      hasThis = pathHasThis(path);
 
       if (!root || hasThis) {
         tuple = normalizeTuple(root, path);
@@ -16824,8 +16945,8 @@ define("ember-metal/property_get",
     __exports__._getPath = _getPath;
   });
 define("ember-metal/property_set",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/utils","ember-metal/property_events","ember-metal/properties","ember-metal/error","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/utils","ember-metal/property_events","ember-metal/properties","ember-metal/error","ember-metal/path_cache","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var getPath = __dependency2__._getPath;
@@ -16834,6 +16955,8 @@ define("ember-metal/property_set",
     var propertyDidChange = __dependency4__.propertyDidChange;
     var defineProperty = __dependency5__.defineProperty;
     var EmberError = __dependency6__["default"];
+    var isPath = __dependency7__.isPath;
+
 
     var MANDATORY_SETTER = Ember.ENV.MANDATORY_SETTER;
     var IS_GLOBAL = /^([A-Z$]|([0-9][A-Z$]))/;
@@ -16868,7 +16991,7 @@ define("ember-metal/property_set",
       var meta = obj[META_KEY], desc = meta && meta.descs[keyName],
           isUnknown, currentValue;
 
-      if (desc === undefined && keyName.indexOf('.') !== -1) {
+      if (desc === undefined && isPath(keyName)) {
         return setPath(obj, keyName, value, tolerant);
       }
 
@@ -34895,8 +35018,8 @@ define("ember-runtime/system/set",
     });
   });
 define("ember-runtime/system/string",
-  ["ember-metal/core","ember-metal/utils","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["ember-metal/core","ember-metal/utils","ember-metal/cache","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -34907,8 +35030,47 @@ define("ember-runtime/system/string",
     var isArray = __dependency2__.isArray;
     var emberInspect = __dependency2__.inspect;
 
+    var Cache = __dependency3__["default"];
+
     var STRING_DASHERIZE_REGEXP = (/[ _]/g);
-    var STRING_DASHERIZE_CACHE = {};
+
+    var STRING_DASHERIZE_CACHE = new Cache(1000, function(key) {
+      return decamelize(key).replace(STRING_DASHERIZE_REGEXP, '-');
+    });
+
+    var CAMELIZE_CACHE = new Cache(1000, function(key) {
+      return key.replace(STRING_CAMELIZE_REGEXP, function(match, separator, chr) {
+        return chr ? chr.toUpperCase() : '';
+      }).replace(/^([A-Z])/, function(match, separator, chr) {
+        return match.toLowerCase();
+      });
+    });
+
+    var CLASSIFY_CACHE = new Cache(1000, function(str) {
+      var parts = str.split("."),
+      out = [];
+
+      for (var i=0, l=parts.length; i<l; i++) {
+        var camelized = camelize(parts[i]);
+        out.push(camelized.charAt(0).toUpperCase() + camelized.substr(1));
+      }
+
+      return out.join(".");
+    });
+
+    var UNDERSCORE_CACHE = new Cache(1000, function(str) {
+      return str.replace(STRING_UNDERSCORE_REGEXP_1, '$1_$2').
+        replace(STRING_UNDERSCORE_REGEXP_2, '_').toLowerCase();
+    });
+
+    var CAPITALIZE_CACHE = new Cache(1000, function(str) {
+      return str.charAt(0).toUpperCase() + str.substr(1);
+    });
+
+    var DECAMELIZE_CACHE = new Cache(1000, function(str) {
+      return str.replace(STRING_DECAMELIZE_REGEXP, '$1_$2').toLowerCase();
+    });
+
     var STRING_DECAMELIZE_REGEXP = (/([a-z\d])([A-Z])/g);
     var STRING_CAMELIZE_REGEXP = (/(\-|_|\.|\s)+(.)?/g);
     var STRING_UNDERSCORE_REGEXP_1 = (/([a-z\d])([A-Z]+)/g);
@@ -34942,51 +35104,27 @@ define("ember-runtime/system/string",
     }
 
     function decamelize(str) {
-      return str.replace(STRING_DECAMELIZE_REGEXP, '$1_$2').toLowerCase();
+      return DECAMELIZE_CACHE.get(str);
     }
 
     function dasherize(str) {
-      var cache = STRING_DASHERIZE_CACHE,
-          hit   = cache.hasOwnProperty(str),
-          ret;
-
-      if (hit) {
-        return cache[str];
-      } else {
-        ret = decamelize(str).replace(STRING_DASHERIZE_REGEXP,'-');
-        cache[str] = ret;
-      }
-
-      return ret;
+      return STRING_DASHERIZE_CACHE.get(str);
     }
 
     function camelize(str) {
-      return str.replace(STRING_CAMELIZE_REGEXP, function(match, separator, chr) {
-        return chr ? chr.toUpperCase() : '';
-      }).replace(/^([A-Z])/, function(match, separator, chr) {
-        return match.toLowerCase();
-      });
+      return CAMELIZE_CACHE.get(str);
     }
 
     function classify(str) {
-      var parts = str.split("."),
-          out = [];
-
-      for (var i=0, l=parts.length; i<l; i++) {
-        var camelized = camelize(parts[i]);
-        out.push(camelized.charAt(0).toUpperCase() + camelized.substr(1));
-      }
-
-      return out.join(".");
+      return CLASSIFY_CACHE.get(str);
     }
 
     function underscore(str) {
-      return str.replace(STRING_UNDERSCORE_REGEXP_1, '$1_$2').
-        replace(STRING_UNDERSCORE_REGEXP_2, '_').toLowerCase();
+      return UNDERSCORE_CACHE.get(str);
     }
 
     function capitalize(str) {
-      return str.charAt(0).toUpperCase() + str.substr(1);
+      return CAPITALIZE_CACHE.get(str);
     }
 
     /**
