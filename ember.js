@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.267d1598
+ * @version   1.8.0-beta.1+canary.d56e7345
  */
 
 (function() {
@@ -10704,22 +10704,26 @@ define("ember-metal/array",
       return func && Function.prototype.toString.call(func).indexOf('[native code]') > -1;
     };
 
+    var defineNativeShim = function(nativeFunc, shim) {
+      if (isNativeFunc(nativeFunc)) {
+        return nativeFunc;
+      }
+      return shim;
+    };
+
     // From: https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/array/map
-    var map = isNativeFunc(ArrayPrototype.map) ? ArrayPrototype.map : function(fun /*, thisp */) {
+    var map = defineNativeShim(ArrayPrototype.map, function(fun /*, thisp */) {
       //"use strict";
 
-      if (this === void 0 || this === null) {
+      if (this === void 0 || this === null || typeof fun !== "function") {
         throw new TypeError();
       }
 
       var t = Object(this);
       var len = t.length >>> 0;
-      if (typeof fun !== "function") {
-        throw new TypeError();
-      }
-
       var res = new Array(len);
       var thisp = arguments[1];
+
       for (var i = 0; i < len; i++) {
         if (i in t) {
           res[i] = fun.call(thisp, t[i], i, t);
@@ -10727,44 +10731,48 @@ define("ember-metal/array",
       }
 
       return res;
-    };
+    });
 
     // From: https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/array/foreach
-    var forEach = isNativeFunc(ArrayPrototype.forEach) ? ArrayPrototype.forEach : function(fun /*, thisp */) {
+    var forEach = defineNativeShim(ArrayPrototype.forEach, function(fun /*, thisp */) {
       //"use strict";
 
-      if (this === void 0 || this === null) {
+      if (this === void 0 || this === null || typeof fun !== "function") {
         throw new TypeError();
       }
 
       var t = Object(this);
       var len = t.length >>> 0;
-      if (typeof fun !== "function") {
-        throw new TypeError();
-      }
-
       var thisp = arguments[1];
+
       for (var i = 0; i < len; i++) {
         if (i in t) {
           fun.call(thisp, t[i], i, t);
         }
       }
-    };
+    });
 
-    var indexOf = isNativeFunc(ArrayPrototype.indexOf) ? ArrayPrototype.indexOf : function (obj, fromIndex) {
-      if (fromIndex === null || fromIndex === undefined) { fromIndex = 0; }
-      else if (fromIndex < 0) { fromIndex = Math.max(0, this.length + fromIndex); }
+    var indexOf = defineNativeShim(ArrayPrototype.indexOf, function (obj, fromIndex) {
+      if (fromIndex === null || fromIndex === undefined) {
+        fromIndex = 0;
+      }
+      else if (fromIndex < 0) {
+        fromIndex = Math.max(0, this.length + fromIndex);
+      }
+
       for (var i = fromIndex, j = this.length; i < j; i++) {
-        if (this[i] === obj) { return i; }
+        if (this[i] === obj) {
+          return i;
+        }
       }
       return -1;
-    };
+    });
 
-    var filter = isNativeFunc(ArrayPrototype.filter) ? ArrayPrototype.filter : function (fn, context) {
+    var filter = defineNativeShim(ArrayPrototype.filter, function (fn, context) {
       var i,
-      value,
-      result = [],
-      length = this.length;
+          value,
+          result = [],
+          length = this.length;
 
       for (i = 0; i < length; i++) {
         if (this.hasOwnProperty(i)) {
@@ -10775,25 +10783,13 @@ define("ember-metal/array",
         }
       }
       return result;
-    };
-
+    });
 
     if (Ember.SHIM_ES5) {
-      if (!ArrayPrototype.map) {
-        ArrayPrototype.map = map;
-      }
-
-      if (!ArrayPrototype.forEach) {
-        ArrayPrototype.forEach = forEach;
-      }
-
-      if (!ArrayPrototype.filter) {
-        ArrayPrototype.filter = filter;
-      }
-
-      if (!ArrayPrototype.indexOf) {
-        ArrayPrototype.indexOf = indexOf;
-      }
+      ArrayPrototype.map = ArrayPrototype.map || map;
+      ArrayPrototype.forEach = ArrayPrototype.forEach || forEach;
+      ArrayPrototype.filter = ArrayPrototype.filter || filter;
+      ArrayPrototype.indexOf = ArrayPrototype.indexOf || indexOf;
     }
 
     /**
@@ -12958,7 +12954,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.267d1598
+      @version 1.8.0-beta.1+canary.d56e7345
     */
 
     if ('undefined' === typeof Ember) {
@@ -12985,10 +12981,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.267d1598'
+      @default '1.8.0-beta.1+canary.d56e7345'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.267d1598';
+    Ember.VERSION = '1.8.0-beta.1+canary.d56e7345';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
