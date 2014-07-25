@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.d56e7345
+ * @version   1.8.0-beta.1+canary.ff5e0c29
  */
 
 (function() {
@@ -12954,7 +12954,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.d56e7345
+      @version 1.8.0-beta.1+canary.ff5e0c29
     */
 
     if ('undefined' === typeof Ember) {
@@ -12981,10 +12981,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.d56e7345'
+      @default '1.8.0-beta.1+canary.ff5e0c29'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.d56e7345';
+    Ember.VERSION = '1.8.0-beta.1+canary.ff5e0c29';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -43038,9 +43038,11 @@ define("metamorph",
   });
 
 define("route-recognizer",
-  ["exports"],
-  function(__exports__) {
+  ["route-recognizer/dsl","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
+    var map = __dependency1__["default"];
+
     var specials = [
       '/', '.', '*', '+', '?', '|',
       '(', ')', '[', ']', '{', '}', '\\'
@@ -43466,7 +43468,7 @@ define("route-recognizer",
           if (value == null) {
             continue;
           }
-          var pair = key;
+          var pair = encodeURIComponent(key);
           if (isArray(value)) {
             for (var j = 0, l = value.length; j < l; j++) {
               var arrayPair = key + '[]' + '=' + encodeURIComponent(value[j]);
@@ -43507,7 +43509,7 @@ define("route-recognizer",
           if (isArray) {
             queryParams[key].push(value);
           } else {
-            queryParams[key] = decodeURIComponent(value);
+            queryParams[key] = value;
           }
         }
         return queryParams;
@@ -43564,8 +43566,14 @@ define("route-recognizer",
       }
     };
 
-    __exports__["default"] = RouteRecognizer;
+    RouteRecognizer.prototype.map = map;
 
+    __exports__["default"] = RouteRecognizer;
+  });
+define("route-recognizer/dsl",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
     function Target(path, matcher, delegate) {
       this.path = path;
       this.matcher = matcher;
@@ -43655,7 +43663,7 @@ define("route-recognizer",
       }
     }
 
-    RouteRecognizer.prototype.map = function(callback, addRouteCallback) {
+    __exports__["default"] = function(callback, addRouteCallback) {
       var matcher = new Matcher();
 
       callback(generateMatch("", matcher, this.delegate));
@@ -43664,9 +43672,8 @@ define("route-recognizer",
         if (addRouteCallback) { addRouteCallback(this, route); }
         else { this.add(route); }
       }, this);
-    };
+    }
   });
-
 define("router",
   ["./router/router","exports"],
   function(__dependency1__, __exports__) {
