@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.c07fbbb2
+ * @version   1.8.0-beta.1+canary.3f583178
  */
 
 (function() {
@@ -11354,7 +11354,6 @@ define("ember-metal/chains",
     var get = __dependency2__.get;
     var normalizeTuple = __dependency2__.normalizeTuple;
     var meta = __dependency3__.meta;
-    var META_KEY = __dependency3__.META_KEY;
     var forEach = __dependency4__.forEach;
     var watchKey = __dependency5__.watchKey;
     var unwatchKey = __dependency5__.unwatchKey;
@@ -11400,7 +11399,7 @@ define("ember-metal/chains",
     function removeChainWatcher(obj, keyName, node) {
       if (!obj || 'object' !== typeof obj) { return; } // nothing to do
 
-      var m = obj[META_KEY];
+      var m = obj['__ember_meta__'];
       if (m && !m.hasOwnProperty('chainWatchers')) { return; } // nothing to do
 
       var nodes = m && m.chainWatchers;
@@ -11454,7 +11453,7 @@ define("ember-metal/chains",
     function lazyGet(obj, key) {
       if (!obj) return undefined;
 
-      var meta = obj[META_KEY];
+      var meta = obj['__ember_meta__'];
       // check if object meant only to be a prototype
       if (meta && meta.proto === obj) return undefined;
 
@@ -11674,7 +11673,7 @@ define("ember-metal/chains",
 
     function finishChains(obj) {
       // We only create meta if we really have to
-      var m = obj[META_KEY], chains = m && m.chains;
+      var m = obj['__ember_meta__'], chains = m && m.chains;
       if (chains) {
         if (chains.value() !== obj) {
           metaFor(obj).chains = chains = chains.copy(obj);
@@ -11695,7 +11694,6 @@ define("ember-metal/computed",
     var get = __dependency2__.get;
     var set = __dependency3__.set;
     var meta = __dependency4__.meta;
-    var META_KEY = __dependency4__.META_KEY;
     var inspect = __dependency4__.inspect;
     var expandProperties = __dependency5__["default"];
     var EmberError = __dependency6__["default"];
@@ -12188,7 +12186,7 @@ define("ember-metal/computed",
       @return {Object} the cached value
     */
     function cacheFor(obj, key) {
-      var meta = obj[META_KEY];
+      var meta = obj['__ember_meta__'];
       var cache = meta && meta.cache;
       var ret = cache && cache[key];
 
@@ -12954,7 +12952,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.c07fbbb2
+      @version 1.8.0-beta.1+canary.3f583178
     */
 
     if ('undefined' === typeof Ember) {
@@ -12981,10 +12979,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.c07fbbb2'
+      @default '1.8.0-beta.1+canary.3f583178'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.c07fbbb2';
+    Ember.VERSION = '1.8.0-beta.1+canary.3f583178';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -13536,7 +13534,6 @@ define("ember-metal/events",
     */
     var Ember = __dependency1__["default"];
     var meta = __dependency2__.meta;
-    var META_KEY = __dependency2__.META_KEY;
     var tryFinally = __dependency2__.tryFinally;
     var apply = __dependency2__.apply;
     var applyStr = __dependency2__.applyStr;
@@ -13603,7 +13600,7 @@ define("ember-metal/events",
     }
 
     function listenersUnion(obj, eventName, otherActions) {
-      var meta = obj[META_KEY],
+      var meta = obj['__ember_meta__'],
           actions = meta && meta.listeners && meta.listeners[eventName];
 
       if (!actions) { return; }
@@ -13620,7 +13617,7 @@ define("ember-metal/events",
     }
 
     __exports__.listenersUnion = listenersUnion;function listenersDiff(obj, eventName, otherActions) {
-      var meta = obj[META_KEY],
+      var meta = obj['__ember_meta__'],
           actions = meta && meta.listeners && meta.listeners[eventName],
           diffActions = [];
 
@@ -13711,7 +13708,7 @@ define("ember-metal/events",
       if (method) {
         _removeListener(target, method);
       } else {
-        var meta = obj[META_KEY],
+        var meta = obj['__ember_meta__'],
             actions = meta && meta.listeners && meta.listeners[eventName];
 
         if (!actions) { return; }
@@ -13814,7 +13811,7 @@ define("ember-metal/events",
       @param obj
     */
     function watchedEvents(obj) {
-      var listeners = obj[META_KEY].listeners, ret = [];
+      var listeners = obj['__ember_meta__'].listeners, ret = [];
 
       if (listeners) {
         for(var eventName in listeners) {
@@ -13845,7 +13842,7 @@ define("ember-metal/events",
       }
 
       if (!actions) {
-        var meta = obj[META_KEY];
+        var meta = obj['__ember_meta__'];
         actions = meta && meta.listeners && meta.listeners[eventName];
       }
 
@@ -13882,7 +13879,7 @@ define("ember-metal/events",
       @param {String} eventName
     */
     function hasListeners(obj, eventName) {
-      var meta = obj[META_KEY],
+      var meta = obj['__ember_meta__'],
           actions = meta && meta.listeners && meta.listeners[eventName];
 
       return !!(actions && actions.length);
@@ -13897,7 +13894,7 @@ define("ember-metal/events",
     */
     function listenersFor(obj, eventName) {
       var ret = [];
-      var meta = obj[META_KEY],
+      var meta = obj['__ember_meta__'],
           actions = meta && meta.listeners && meta.listeners[eventName];
 
       if (!actions) { return ret; }
@@ -15071,7 +15068,6 @@ define("ember-metal/mixin",
     var create = __dependency4__.create;
     var guidFor = __dependency5__.guidFor;
     var meta = __dependency5__.meta;
-    var META_KEY = __dependency5__.META_KEY;
     var wrap = __dependency5__.wrap;
     var makeArray = __dependency5__.makeArray;
     var apply = __dependency5__.apply;
@@ -15617,7 +15613,7 @@ define("ember-metal/mixin",
     MixinPrototype.detect = function(obj) {
       if (!obj) { return false; }
       if (obj instanceof Mixin) { return _detect(obj, this, {}); }
-      var m = obj[META_KEY],
+      var m = obj['__ember_meta__'],
           mixins = m && m.mixins;
       if (mixins) {
         return !!mixins[guidFor(this)];
@@ -15657,7 +15653,7 @@ define("ember-metal/mixin",
     // returns the mixins currently applied to the specified object
     // TODO: Make Ember.mixin
     Mixin.mixins = function(obj) {
-      var m = obj[META_KEY],
+      var m = obj['__ember_meta__'],
           mixins = m && m.mixins, ret = [];
 
       if (!mixins) { return ret; }
@@ -16352,7 +16348,6 @@ define("ember-metal/properties",
     */
 
     var Ember = __dependency1__["default"];
-    var META_KEY = __dependency2__.META_KEY;
     var meta = __dependency2__.meta;
     var platform = __dependency3__.platform;
     var overrideChains = __dependency4__.overrideChains;
@@ -16391,7 +16386,7 @@ define("ember-metal/properties",
 
     var DEFAULT_GETTER_FUNCTION = Ember.DEFAULT_GETTER_FUNCTION = function DEFAULT_GETTER_FUNCTION(name) {
       return function() {
-        var meta = this[META_KEY];
+        var meta = this['__ember_meta__'];
         return meta && meta.values[name];
       };
     };
@@ -16535,7 +16530,6 @@ define("ember-metal/property_events",
   ["ember-metal/utils","ember-metal/events","ember-metal/observer_set","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
-    var META_KEY = __dependency1__.META_KEY;
     var guidFor = __dependency1__.guidFor;
     var tryFinally = __dependency1__.tryFinally;
     var sendEvent = __dependency2__.sendEvent;
@@ -16567,7 +16561,7 @@ define("ember-metal/property_events",
       @return {void}
     */
     function propertyWillChange(obj, keyName) {
-      var m = obj[META_KEY];
+      var m = obj['__ember_meta__'];
       var watching = (m && m.watching[keyName] > 0) || keyName === 'length';
       var proto = m && m.proto;
       var desc = m && m.descs[keyName];
@@ -16596,7 +16590,7 @@ define("ember-metal/property_events",
       @return {void}
     */
     function propertyDidChange(obj, keyName) {
-      var m = obj[META_KEY];
+      var m = obj['__ember_meta__'];
       var watching = (m && m.watching[keyName] > 0) || keyName === 'length';
       var proto = m && m.proto;
       var desc = m && m.descs[keyName];
@@ -16771,19 +16765,18 @@ define("ember-metal/property_events",
     __exports__.changeProperties = changeProperties;
   });
 define("ember-metal/property_get",
-  ["ember-metal/core","ember-metal/utils","ember-metal/error","ember-metal/path_cache","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+  ["ember-metal/core","ember-metal/error","ember-metal/path_cache","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     /**
     @module ember-metal
     */
 
     var Ember = __dependency1__["default"];
-    var META_KEY = __dependency2__.META_KEY;
-    var EmberError = __dependency3__["default"];
-    var isGlobalPath = __dependency4__.isGlobalPath;
-    var isPath = __dependency4__.isPath;
-    var pathHasThis = __dependency4__.hasThis;
+    var EmberError = __dependency2__["default"];
+    var isGlobalPath = __dependency3__.isGlobalPath;
+    var isPath = __dependency3__.isPath;
+    var pathHasThis = __dependency3__.hasThis;
 
     var MANDATORY_SETTER = Ember.ENV.MANDATORY_SETTER;
     var FIRST_KEY = /^([^\.]+)/;
@@ -16835,7 +16828,7 @@ define("ember-metal/property_get",
 
       if (obj === null) { return _getPath(obj, keyName);  }
 
-      var meta = obj[META_KEY], desc = meta && meta.descs[keyName], ret;
+      var meta = obj['__ember_meta__'], desc = meta && meta.descs[keyName], ret;
 
       if (desc === undefined && isPath(keyName)) {
         return _getPath(obj, keyName);
@@ -16941,17 +16934,16 @@ define("ember-metal/property_get",
     __exports__._getPath = _getPath;
   });
 define("ember-metal/property_set",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/utils","ember-metal/property_events","ember-metal/properties","ember-metal/error","ember-metal/path_cache","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_events","ember-metal/properties","ember-metal/error","ember-metal/path_cache","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var getPath = __dependency2__._getPath;
-    var META_KEY = __dependency3__.META_KEY;
-    var propertyWillChange = __dependency4__.propertyWillChange;
-    var propertyDidChange = __dependency4__.propertyDidChange;
-    var defineProperty = __dependency5__.defineProperty;
-    var EmberError = __dependency6__["default"];
-    var isPath = __dependency7__.isPath;
+    var propertyWillChange = __dependency3__.propertyWillChange;
+    var propertyDidChange = __dependency3__.propertyDidChange;
+    var defineProperty = __dependency4__.defineProperty;
+    var EmberError = __dependency5__["default"];
+    var isPath = __dependency6__.isPath;
 
 
     var MANDATORY_SETTER = Ember.ENV.MANDATORY_SETTER;
@@ -16984,7 +16976,7 @@ define("ember-metal/property_set",
         return setPath(obj, keyName, value, tolerant);
       }
 
-      var meta = obj[META_KEY], desc = meta && meta.descs[keyName],
+      var meta = obj['__ember_meta__'], desc = meta && meta.descs[keyName],
           isUnknown, currentValue;
 
       if (desc === undefined && isPath(keyName)) {
@@ -17918,17 +17910,6 @@ define("ember-metal/utils",
       value: null
     };
 
-    /**
-      The key used to store meta information on object for property observing.
-
-      @property META_KEY
-      @for Ember
-      @private
-      @final
-      @type String
-    */
-    var META_KEY = '__ember_meta__';
-
     var isDefinePropertySimulated = platform.defineProperty.isSimulated;
 
     function Meta(obj) {
@@ -17992,23 +17973,23 @@ define("ember-metal/utils",
     */
     function meta(obj, writable) {
 
-      var ret = obj[META_KEY];
+      var ret = obj['__ember_meta__'];
       if (writable===false) return ret || EMPTY_META;
 
       if (!ret) {
-        if (!isDefinePropertySimulated) o_defineProperty(obj, META_KEY, META_DESC);
+        if (!isDefinePropertySimulated) o_defineProperty(obj, '__ember_meta__', META_DESC);
 
         ret = new Meta(obj);
 
         if (MANDATORY_SETTER) { ret.values = {}; }
 
-        obj[META_KEY] = ret;
+        obj['__ember_meta__'] = ret;
 
         // make sure we don't accidentally try to create constructor like desc
         ret.descs.constructor = null;
 
       } else if (ret.source !== obj) {
-        if (!isDefinePropertySimulated) o_defineProperty(obj, META_KEY, META_DESC);
+        if (!isDefinePropertySimulated) o_defineProperty(obj, '__ember_meta__', META_DESC);
 
         ret = o_create(ret);
         ret.descs     = o_create(ret.descs);
@@ -18019,7 +18000,7 @@ define("ember-metal/utils",
 
         if (MANDATORY_SETTER) { ret.values = o_create(ret.values); }
 
-        obj[META_KEY] = ret;
+        obj['__ember_meta__'] = ret;
       }
       return ret;
     }
@@ -18554,7 +18535,6 @@ define("ember-metal/utils",
     __exports__.applyStr = applyStr;__exports__.GUID_KEY = GUID_KEY;
     __exports__.META_DESC = META_DESC;
     __exports__.EMPTY_META = EMPTY_META;
-    __exports__.META_KEY = META_KEY;
     __exports__.meta = meta;
     __exports__.typeOf = typeOf;
     __exports__.tryCatchFinally = tryCatchFinally;
@@ -18702,7 +18682,6 @@ define("ember-metal/watching",
     */
 
     var meta = __dependency1__.meta;
-    var META_KEY = __dependency1__.META_KEY;
     var GUID_KEY = __dependency1__.GUID_KEY;
     var typeOf = __dependency1__.typeOf;
     var generateGuid = __dependency1__.generateGuid;
@@ -18747,7 +18726,7 @@ define("ember-metal/watching",
     __exports__.watch = watch;
 
     function isWatching(obj, key) {
-      var meta = obj[META_KEY];
+      var meta = obj['__ember_meta__'];
       return (meta && meta.watching[key]) > 0;
     }
 
@@ -18775,7 +18754,7 @@ define("ember-metal/watching",
       @param obj
     */
     function rewatch(obj) {
-      var m = obj[META_KEY], chains = m && m.chains;
+      var m = obj['__ember_meta__'], chains = m && m.chains;
 
       // make sure the object has its own guid.
       if (GUID_KEY in obj && !obj.hasOwnProperty(GUID_KEY)) {
@@ -18800,9 +18779,9 @@ define("ember-metal/watching",
       @return {void}
     */
     function destroy(obj) {
-      var meta = obj[META_KEY], node, nodes, key, nodeObject;
+      var meta = obj['__ember_meta__'], node, nodes, key, nodeObject;
       if (meta) {
-        obj[META_KEY] = null;
+        obj['__ember_meta__'] = null;
         // remove chainWatchers to remove circular references that would prevent GC
         node = meta.chains;
         if (node) {
@@ -32852,7 +32831,6 @@ define("ember-runtime/system/core_object",
     var generateGuid = __dependency4__.generateGuid;
     var GUID_KEY = __dependency4__.GUID_KEY;
     var meta = __dependency4__.meta;
-    var META_KEY = __dependency4__.META_KEY;
     var makeArray = __dependency4__.makeArray;
     var rewatch = __dependency6__.rewatch;
     var finishChains = __dependency7__.finishChains;
@@ -33609,7 +33587,7 @@ define("ember-runtime/system/core_object",
         @param key {String} property name
       */
       metaForProperty: function(key) {
-        var meta = this.proto()[META_KEY];
+        var meta = this.proto()['__ember_meta__'];
         var desc = meta && meta.descs[key];
 
         Ember.assert("metaForProperty() could not find a computed property with key '"+key+"'.", !!desc && desc instanceof ComputedProperty);

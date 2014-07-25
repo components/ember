@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.c07fbbb2
+ * @version   1.8.0-beta.1+canary.3f583178
  */
 
 (function() {
@@ -14331,13 +14331,12 @@ define("ember-metal/tests/binding/sync_test.jshint",
     });
   });
 define("ember-metal/tests/chains_test",
-  ["ember-metal/utils","ember-metal/observer","ember-metal/chains","ember-metal/platform"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+  ["ember-metal/observer","ember-metal/chains","ember-metal/platform"],
+  function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
-    var META_KEY = __dependency1__.META_KEY;
-    var addObserver = __dependency2__.addObserver;
-    var finishChains = __dependency3__.finishChains;
-    var create = __dependency4__.create;
+    var addObserver = __dependency1__.addObserver;
+    var finishChains = __dependency2__.finishChains;
+    var create = __dependency3__.create;
 
     QUnit.module("Chains");
 
@@ -14350,7 +14349,7 @@ define("ember-metal/tests/chains_test",
       var childObj = create(obj);
       finishChains(childObj);
 
-      ok(obj[META_KEY].chains !== childObj[META_KEY].chains, "The chains object is copied");
+      ok(obj['__ember_meta__'].chains !== childObj['__ember_meta__'].chains, "The chains object is copied");
     });
   });
 define("ember-metal/tests/chains_test.jshint",
@@ -39802,8 +39801,8 @@ define("ember-runtime/tests/system/object/create_test.jshint",
     });
   });
 define("ember-runtime/tests/system/object/destroy_test",
-  ["ember-metal/core","ember-metal/run_loop","ember-metal/platform","ember-metal/mixin","ember-metal/property_set","ember-metal/binding","ember-metal/property_events","ember-metal/utils","ember-runtime/keys","ember-runtime/tests/props_helper","ember-runtime/system/object"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__) {
+  ["ember-metal/core","ember-metal/run_loop","ember-metal/platform","ember-metal/mixin","ember-metal/property_set","ember-metal/binding","ember-metal/property_events","ember-runtime/keys","ember-runtime/tests/props_helper","ember-runtime/system/object"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var run = __dependency2__["default"];
@@ -39813,10 +39812,9 @@ define("ember-runtime/tests/system/object/destroy_test",
     var bind = __dependency6__.bind;
     var beginPropertyChanges = __dependency7__.beginPropertyChanges;
     var endPropertyChanges = __dependency7__.endPropertyChanges;
-    var META_KEY = __dependency8__.META_KEY;
-    var objectKeys = __dependency9__["default"];
-    var testBoth = __dependency10__.testBoth;
-    var EmberObject = __dependency11__["default"];
+    var objectKeys = __dependency8__["default"];
+    var testBoth = __dependency9__.testBoth;
+    var EmberObject = __dependency10__["default"];
 
     QUnit.module('ember-runtime/system/object/destroy_test');
 
@@ -39825,13 +39823,13 @@ define("ember-runtime/tests/system/object/destroy_test",
 
       run(function() {
         obj.destroy();
-        meta = obj[META_KEY];
+        meta = obj['__ember_meta__'];
         ok(meta, "meta is not destroyed immediately");
         ok(get(obj, 'isDestroying'), "object is marked as destroying immediately");
         ok(!get(obj, 'isDestroyed'), "object is not destroyed immediately");
       });
 
-      meta = obj[META_KEY];
+      meta = obj['__ember_meta__'];
       ok(!meta, "meta is destroyed after run loop finishes");
       ok(get(obj, 'isDestroyed'), "object is destroyed after run loop finishes");
     });
