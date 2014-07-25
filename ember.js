@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.89be6901
+ * @version   1.8.0-beta.1+canary.6a780609
  */
 
 (function() {
@@ -12921,7 +12921,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.89be6901
+      @version 1.8.0-beta.1+canary.6a780609
     */
 
     if ('undefined' === typeof Ember) {
@@ -12948,10 +12948,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.89be6901'
+      @default '1.8.0-beta.1+canary.6a780609'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.89be6901';
+    Ember.VERSION = '1.8.0-beta.1+canary.6a780609';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -42517,6 +42517,8 @@ define("ember",
 
     @module ember
     */
+
+    Ember.deprecate('Usage of Ember is deprecated for Internet Explorer 6 and 7, support will be removed in the next major version.', !navigator.userAgent.match(/MSIE [67]/));
   });
 define("metamorph",
   [],

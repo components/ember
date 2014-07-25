@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.89be6901
+ * @version   1.8.0-beta.1+canary.6a780609
  */
 
 (function() {
@@ -50366,7 +50366,7 @@ define("ember.jshint",
     "use strict";
     module('JSHint - .');
     test('ember.js should pass jshint', function() { 
-      ok(true, 'ember.js should pass jshint.'); 
+      ok(false, 'ember.js should pass jshint.\nember.js: line 24, col 132, \'navigator\' is not defined.\n\n1 error'); 
     });
   });
 define("ember/tests/application_lifecycle",
