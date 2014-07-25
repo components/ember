@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.3f583178
+ * @version   1.8.0-beta.1+canary.ccf7b032
  */
 
 (function() {
@@ -6535,28 +6535,21 @@ define("ember-handlebars/ext",
       var normalizedPath = normalizePath(root, path, data);
       var value;
 
-      if (Ember.FEATURES.isEnabled("ember-handlebars-caps-lookup")) {
+      // In cases where the path begins with a keyword, change the
+      // root to the value represented by that keyword, and ensure
+      // the path is relative to it.
+      root = normalizedPath.root;
+      path = normalizedPath.path;
 
-        // If the path starts with a capital letter, look it up on Ember.lookup,
-        // which defaults to the `window` object in browsers.
-        if (isGlobalPath(path)) {
-          value = get(Ember.lookup, path);
-        } else {
+      value = get(root, path);
 
-          // In cases where the path begins with a keyword, change the
-          // root to the value represented by that keyword, and ensure
-          // the path is relative to it.
-          value = get(normalizedPath.root, normalizedPath.path);
+      if (isGlobalPath(path)) {
+        if (value === undefined && root !== Ember.lookup) {
+          root = Ember.lookup;
+          value = get(root, path);
         }
-
-      } else {
-        root = normalizedPath.root;
-        path = normalizedPath.path;
-
-        value = get(root, path);
-
-        if (value === undefined && root !== Ember.lookup && isGlobalPath(path)) {
-          value = get(Ember.lookup, path);
+        if (root === Ember.lookup || root === null) {
+          Ember.deprecate("Global lookup of "+path+" from a Handlebars template is deprecated.", options.silenceGlobalDeprecation);
         }
       }
 
@@ -8145,6 +8138,7 @@ define("ember-handlebars/helpers/collection",
       if (path) {
         controller = data.keywords.controller;
         container = controller && controller.container;
+        options.silenceGlobalDeprecation = true;
         collectionClass = handlebarsGet(this, path, options) || container.lookupFactory('view:' + path);
         Ember.assert(fmt("%@ #collection: Could not find collection class %@", [data.view, path]), !!collectionClass);
       }
@@ -8171,6 +8165,7 @@ define("ember-handlebars/helpers/collection",
                      "not found at " + container.describe("view:" + hash.itemView) +
                      " (and it was not registered in the container)", !!itemViewClass);
       } else if (hash.itemViewClass) {
+        options.silenceGlobalDeprecation = true;
         itemViewClass = handlebarsGet(collectionPrototype, hash.itemViewClass, options);
       } else {
         itemViewClass = collectionPrototype.itemViewClass;
@@ -8210,6 +8205,7 @@ define("ember-handlebars/helpers/collection",
               tagName: itemHash.tagName
         });
       } else if (hash.emptyViewClass) {
+        options.silenceGlobalDeprecation = true;
         emptyViewClass = handlebarsGet(this, hash.emptyViewClass, options);
       }
       if (emptyViewClass) { hash.emptyView = emptyViewClass; }
@@ -9165,6 +9161,7 @@ define("ember-handlebars/helpers/view",
 
       if (hash.hasOwnProperty('idBinding')) {
         // id can't be bound, so just perform one-time lookup.
+        options.silenceGlobalDeprecation = true;
         hash.id = handlebarsGet(thisContext, hash.idBinding, options);
         hashType.id = 'STRING';
         delete hash.idBinding;
@@ -9292,6 +9289,7 @@ define("ember-handlebars/helpers/view",
           if (options.types[0] === 'STRING' && LOWERCASE_A_Z.test(path) && !VIEW_PREFIX.test(path)) {
             lookup = path;
           } else {
+            options.silenceGlobalDeprecation = true;
             newView = handlebarsGet(thisContext, path, options);
             if (typeof newView === 'string') {
               lookup = newView;
@@ -12952,7 +12950,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.3f583178
+      @version 1.8.0-beta.1+canary.ccf7b032
     */
 
     if ('undefined' === typeof Ember) {
@@ -12979,10 +12977,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.3f583178'
+      @default '1.8.0-beta.1+canary.ccf7b032'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.3f583178';
+    Ember.VERSION = '1.8.0-beta.1+canary.ccf7b032';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`

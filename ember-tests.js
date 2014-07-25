@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.3f583178
+ * @version   1.8.0-beta.1+canary.ccf7b032
  */
 
 (function() {
@@ -5703,6 +5703,68 @@ define("ember-handlebars/tests/handlebars_test",
       appendView();
 
       equal(view.$().text(), "Señor CFC (and Fido)", "prints out values from a hash");
+    });
+
+    test("should read from globals [DEPRECATED]", function() {
+      Ember.lookup.Global = 'Klarg';
+      view = EmberView.create({
+        template: EmberHandlebars.compile('{{Global}}')
+      });
+
+      expectDeprecation(function(){
+        appendView();
+      }, "Global lookup of Global from a Handlebars template is deprecated.");
+      equal(view.$().text(), Ember.lookup.Global);
+    });
+
+    test("should read from globals with a path [DEPRECATED]", function() {
+      Ember.lookup.Global = { Space: 'Klarg' };
+      view = EmberView.create({
+        template: EmberHandlebars.compile('{{Global.Space}}')
+      });
+
+      expectDeprecation(function(){
+        appendView();
+      }, "Global lookup of Global.Space from a Handlebars template is deprecated.");
+      equal(view.$().text(), Ember.lookup.Global.Space);
+    });
+
+    test("with context, should read from globals [DEPRECATED]", function() {
+      Ember.lookup.Global = 'Klarg';
+      view = EmberView.create({
+        context: {},
+        template: EmberHandlebars.compile('{{Global}}')
+      });
+
+      expectDeprecation(function(){
+        appendView();
+      }, "Global lookup of Global from a Handlebars template is deprecated.");
+      equal(view.$().text(), Ember.lookup.Global);
+    });
+
+    test("with context, should read from globals with a path [DEPRECATED]", function() {
+      Ember.lookup.Global = { Space: 'Klarg' };
+      view = EmberView.create({
+        context: {},
+        template: EmberHandlebars.compile('{{Global.Space}}')
+      });
+
+      expectDeprecation(function(){
+        appendView();
+      }, "Global lookup of Global.Space from a Handlebars template is deprecated.");
+      equal(view.$().text(), Ember.lookup.Global.Space);
+    });
+
+    test("should read from a global-ish simple local path without deprecation", function() {
+      view = EmberView.create({
+        context: { NotGlobal: 'Gwar' },
+        template: EmberHandlebars.compile('{{NotGlobal}}')
+      });
+
+      expectNoDeprecation();
+      appendView();
+
+      equal(view.$().text(), 'Gwar');
     });
 
     test("htmlSafe should return an instance of Handlebars.SafeString", function() {
@@ -11823,16 +11885,23 @@ define("ember-handlebars/tests/lookup_test",
       deepEqual(params, ["Mr", "Tom", "Dale"]);
     });
 
-    if (Ember.FEATURES.isEnabled("ember-handlebars-caps-lookup")) {
-      test("ID parameters that start with capital letters use Ember.lookup as their context", function() {
-        Ember.lookup.FOO = "BAR";
+    test("ID parameters that start with capital letters fall back to Ember.lookup as their context", function() {
+      Ember.lookup.Global = "I'm going global, what you ain't a local?";
 
-        var context = { FOO: "BAZ" };
+      var context = {};
 
-        var params = Ember.Handlebars.resolveParams(context, ["FOO"], { types: ["ID"] });
-        deepEqual(params, ["BAR"]);
-      });
-    }
+      var params = Ember.Handlebars.resolveParams(context, ["Global"], { types: ["ID"] });
+      deepEqual(params, [Ember.lookup.Global]);
+    });
+
+    test("ID parameters that start with capital letters look up on given context first", function() {
+      Ember.lookup.Global = "I'm going global, what you ain't a local?";
+
+      var context = { Global: "Steal away from lookup" };
+
+      var params = Ember.Handlebars.resolveParams(context, ["Global"], { types: ["ID"] });
+      deepEqual(params, [context.Global]);
+    });
 
     test("ID parameters can look up keywords", function() {
       var controller = {
