@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.800f2aa4
+ * @version   1.8.0-beta.1+canary.9313620a
  */
 
 (function() {
@@ -12614,7 +12614,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.800f2aa4
+      @version 1.8.0-beta.1+canary.9313620a
     */
 
     if ('undefined' === typeof Ember) {
@@ -12641,10 +12641,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.800f2aa4'
+      @default '1.8.0-beta.1+canary.9313620a'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.800f2aa4';
+    Ember.VERSION = '1.8.0-beta.1+canary.9313620a';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -39524,6 +39524,8 @@ define("ember-views/views/states/pre_render",
   ["ember-views/views/states/default","ember-metal/platform","ember-metal/merge","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
+    /* global Node */
+
     var _default = __dependency1__["default"];
     var create = __dependency2__.create;
     var merge = __dependency3__["default"];
@@ -39533,6 +39535,15 @@ define("ember-views/views/states/pre_render",
     @submodule ember-views
     */
     var preRender = create(_default);
+
+    var containsElement = Node.prototype.contains;
+    if (!containsElement && Node.prototype.compareDocumentPosition) {
+      // polyfill for older Firefox.
+      // http://compatibility.shwups-cms.ch/en/polyfills/?&id=52
+      containsElement = function(node){
+        return !!(this.compareDocumentPosition(node) & 16);
+      };
+    }
 
     merge(preRender, {
       // a view leaves the preRender state once its element has been
@@ -39547,7 +39558,7 @@ define("ember-views/views/states/pre_render",
 
         // We transition to `inDOM` if the element exists in the DOM
         var element = view.get('element');
-        if (document.body.contains(element)) {
+        if (containsElement.call(document.body, element)) {
           viewCollection.transitionTo('inDOM', false);
           viewCollection.trigger('didInsertElement');
         }
