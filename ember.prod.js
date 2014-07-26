@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.6a780609
+ * @version   1.8.0-beta.1+canary.7a547b8d
  */
 
 (function() {
@@ -12614,7 +12614,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.6a780609
+      @version 1.8.0-beta.1+canary.7a547b8d
     */
 
     if ('undefined' === typeof Ember) {
@@ -12641,10 +12641,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.6a780609'
+      @default '1.8.0-beta.1+canary.7a547b8d'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.6a780609';
+    Ember.VERSION = '1.8.0-beta.1+canary.7a547b8d';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -25356,8 +25356,8 @@ define("ember-runtime/computed/array_computed",
     __exports__.ArrayComputedProperty = ArrayComputedProperty;
   });
 define("ember-runtime/computed/reduce_computed",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/error","ember-metal/property_events","ember-metal/expand_properties","ember-metal/observer","ember-metal/computed","ember-metal/platform","ember-metal/enumerable_utils","ember-runtime/system/tracked_array","ember-runtime/mixins/array","ember-metal/run_loop","ember-runtime/system/set","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/error","ember-metal/property_events","ember-metal/expand_properties","ember-metal/observer","ember-metal/computed","ember-metal/platform","ember-metal/enumerable_utils","ember-runtime/system/tracked_array","ember-runtime/mixins/array","ember-metal/run_loop","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.assert
@@ -25381,7 +25381,6 @@ define("ember-runtime/computed/reduce_computed",
     var TrackedArray = __dependency12__["default"];
     var EmberArray = __dependency13__["default"];
     var run = __dependency14__["default"];
-    var Set = __dependency15__["default"];
     var isArray = __dependency4__.isArray;
 
     var cacheSet = cacheFor.set;
@@ -25970,7 +25969,7 @@ define("ember-runtime/computed/reduce_computed",
     ReduceComputedProperty.prototype.property = function () {
       var cp = this;
       var args = a_slice.call(arguments);
-      var propertyArgs = new Set();
+      var propertyArgs = {};
       var match, dependentArrayKey, itemPropertyKey;
 
       forEach(args, function (dependentKey) {
@@ -25985,13 +25984,18 @@ define("ember-runtime/computed/reduce_computed",
           };
 
           expandProperties(itemPropertyKeyPattern, addItemPropertyKey);
-          propertyArgs.add(dependentArrayKey);
+          propertyArgs[guidFor(dependentArrayKey)] = dependentArrayKey;
         } else {
-          propertyArgs.add(dependentKey);
+          propertyArgs[guidFor(dependentKey)] = dependentKey;
         }
       });
 
-      return ComputedProperty.prototype.property.apply(this, propertyArgs.toArray());
+      var propertyArgsToArray = [];
+      for (var guid in propertyArgs) {
+        propertyArgsToArray.push(propertyArgs[guid]);
+      }
+
+      return ComputedProperty.prototype.property.apply(this, propertyArgsToArray);
     };
 
     /**
@@ -34083,7 +34087,7 @@ define("ember-runtime/system/set",
     @submodule ember-runtime
     */
     var Ember = __dependency1__["default"];
-    // Ember.isNone
+    // Ember.isNone, Ember.A
 
     var get = __dependency2__.get;
     var set = __dependency3__.set;
@@ -34435,7 +34439,7 @@ define("ember-runtime/system/set",
       //
 
       init: function(items) {
-        this._super();
+                this._super();
         if (items) this.addObjects(items);
       },
 
