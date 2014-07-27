@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.99662bde
+ * @version   1.8.0-beta.1+canary.a6c2c295
  */
 
 (function() {
@@ -42499,6 +42499,24 @@ define("ember-testing/tests/acceptance_test",
 
       andThen(function() {
         equal(currentRoute, 'posts');
+      });
+    });
+
+    test("Multiple nested async helpers", function() {
+      expect(2);
+
+      visit('/posts');
+
+      andThen(function() {
+        click('a:first', '#comments-link');
+
+        fillIn('.ember-text-field', "hello");
+        fillIn('.ember-text-field', "goodbye");
+      });
+
+      andThen(function() {
+        equal(find('.ember-text-field').val(), 'goodbye', "Fillin successfully works");
+        equal(currentRoute, 'comments', "Successfully visited comments route");
       });
     });
 
