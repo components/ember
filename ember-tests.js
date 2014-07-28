@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.ebede6ea
+ * @version   1.8.0-beta.1+canary.87ec3627
  */
 
 (function() {
@@ -25751,6 +25751,7 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
     var endPropertyChanges = __dependency11__.endPropertyChanges;
     var forEach = __dependency12__.forEach;
     var observer = __dependency13__.observer;
+    var Mixin = __dependency13__.Mixin;
     var computedSum = __dependency14__.sum;
     var computedMin = __dependency14__.min;
     var computedMax = __dependency14__.max;
@@ -25767,7 +25768,7 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
 
     var NativeArray = __dependency15__["default"];
 
-    var obj, sorted, sortProps, items, userFnCalls, todos, filtered;
+    var obj, sorted, sortProps, items, userFnCalls, todos, filtered, union;
 
     QUnit.module('computedMap', {
       setup: function() {
@@ -26172,11 +26173,12 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
       QUnit.module('computed.' + alias, {
         setup: function() {
           run(function() {
+            union = testedFunc('array', 'array2', 'array3');
             obj = EmberObject.createWithMixins({
               array: Ember.A([1,2,3,4,5,6]),
               array2: Ember.A([4,5,6,7,8,9,4,5,6,7,8,9]),
               array3: Ember.A([1,8,10]),
-              union: testedFunc('array', 'array2', 'array3')
+              union: union
             });
           });
         },
@@ -26240,6 +26242,22 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
 
         deepEqual(union, [1,4,5,6,7,8,9,10], "objects are removed when they are no longer in any dependent array");
       });
+
+      test("does not need to query the accumulated array while building it", function() {
+        var indexOfCalls = [];
+        var CountIndexOfCalls = Mixin.create({
+          indexOf: function() {
+            indexOfCalls.push(arguments);
+            return this._super.apply(this, arguments);
+          }
+        });
+        union.initialValue = function() {
+          return CountIndexOfCalls.apply(Ember.A([]));
+        };
+        get(obj, 'union');
+        ok(indexOfCalls.length === 0, "Ember.computed." + alias + " should not need to query the union as it is being built");
+      });
+
     });
 
     QUnit.module('computed.intersect', {
