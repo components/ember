@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.87ec3627
+ * @version   1.8.0-beta.1+canary.a6135ab2
  */
 
 (function() {
@@ -4753,7 +4753,7 @@ define("ember-handlebars/controls",
       {{input focus-in="alertMessage"}}
       ```
 
-      See more about [Text Support Actions](api/classes/Ember.TextField.html)
+      See more about [Text Support Actions](/api/classes/Ember.TextField.html)
 
       ## Extension
 
@@ -4774,7 +4774,7 @@ define("ember-handlebars/controls",
       itself extends `Ember.Component`, meaning that it does NOT inherit
       the `controller` of the parent view.
 
-      See more about [Ember components](api/classes/Ember.Component.html)
+      See more about [Ember components](/api/classes/Ember.Component.html)
 
 
       ## Use as checkbox
@@ -5017,7 +5017,7 @@ define("ember-handlebars/controls",
       {{textarea focus-in="alertMessage"}}
       ```
 
-      See more about [Text Support Actions](api/classes/Ember.TextArea.html)
+      See more about [Text Support Actions](/api/classes/Ember.TextArea.html)
 
       ## Extension
 
@@ -5040,7 +5040,7 @@ define("ember-handlebars/controls",
       itself extends `Ember.Component`, meaning that it does NOT inherit
       the `controller` of the parent view.
 
-      See more about [Ember components](api/classes/Ember.Component.html)
+      See more about [Ember components](/api/classes/Ember.Component.html)
 
       @method textarea
       @for Ember.Handlebars.helpers
@@ -12614,7 +12614,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.87ec3627
+      @version 1.8.0-beta.1+canary.a6135ab2
     */
 
     if ('undefined' === typeof Ember) {
@@ -12641,10 +12641,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.87ec3627'
+      @default '1.8.0-beta.1+canary.a6135ab2'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.87ec3627';
+    Ember.VERSION = '1.8.0-beta.1+canary.a6135ab2';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
