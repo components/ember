@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.ff333623
+ * @version   1.8.0-beta.1+canary.18b3a51f
  */
 
 (function() {
@@ -7588,7 +7588,7 @@ define("ember-handlebars/helpers/binding",
       <img {{bind-attr src="imageUrl" alt="imageTitle"}}>
       ```
 
-      The above handlebars template will fill the `<img>`'s `src` attribute will
+      The above handlebars template will fill the `<img>`'s `src` attribute with
       the value of the property referenced with `"imageUrl"` and its `alt`
       attribute with the value of the property referenced with `"imageTitle"`.
 
@@ -12921,7 +12921,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.ff333623
+      @version 1.8.0-beta.1+canary.18b3a51f
     */
 
     if ('undefined' === typeof Ember) {
@@ -12948,10 +12948,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.ff333623'
+      @default '1.8.0-beta.1+canary.18b3a51f'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.ff333623';
+    Ember.VERSION = '1.8.0-beta.1+canary.18b3a51f';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
