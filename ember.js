@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.7.0-beta.3
+ * @version   1.7.0-beta.4
  */
 
 (function() {
@@ -2044,8 +2044,8 @@ define("ember-application/ext/controller",
     __exports__["default"] = ControllerMixin;
   });
 define("ember-application/system/application",
-  ["ember-metal","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/lazy_load","ember-application/system/dag","ember-runtime/system/namespace","ember-runtime/mixins/deferred","ember-application/system/resolver","ember-metal/platform","ember-metal/run_loop","ember-metal/utils","container/container","ember-runtime/controllers/controller","ember-metal/enumerable_utils","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-views/system/event_dispatcher","ember-views/system/jquery","ember-routing/system/route","ember-routing/system/router","ember-routing/location/hash_location","ember-routing/location/history_location","ember-routing/location/auto_location","ember-routing/location/none_location","ember-routing/system/cache","ember-metal/core","ember-handlebars-compiler","ember-application/system/deprecated-container","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __exports__) {
+  ["ember-metal","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/lazy_load","ember-application/system/dag","ember-runtime/system/namespace","ember-runtime/mixins/deferred","ember-application/system/resolver","ember-metal/platform","ember-metal/run_loop","ember-metal/utils","container/container","ember-runtime/controllers/controller","ember-metal/enumerable_utils","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-views/system/event_dispatcher","ember-views/system/jquery","ember-routing/system/route","ember-routing/system/router","ember-routing/location/hash_location","ember-routing/location/history_location","ember-routing/location/auto_location","ember-routing/location/none_location","ember-routing/system/cache","ember-metal/core","ember-handlebars-compiler","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -2082,7 +2082,6 @@ define("ember-application/system/application",
 
     var K = __dependency26__.K;
     var EmberHandlebars = __dependency27__["default"];
-    var DeprecatedContainer = __dependency28__["default"];
 
     var ContainerDebugAdapter;
 
@@ -2991,8 +2990,6 @@ define("ember-application/system/application",
       buildContainer: function(namespace) {
         var container = new Container();
 
-        Container.defaultContainer = new DeprecatedContainer(container);
-
         container.set = set;
         container.resolver  = resolverFor(namespace);
         container.normalize = container.resolver.normalize;
@@ -3210,32 +3207,6 @@ define("ember-application/system/dag",
     };
 
     __exports__["default"] = DAG;
-  });
-define("ember-application/system/deprecated-container",
-  ["exports"],
-  function(__exports__) {
-    "use strict";
-    function DeprecatedContainer(container) {
-      this._container = container;
-    }
-
-    DeprecatedContainer.deprecate = function(method) {
-      return function() {
-        var container = this._container;
-
-        Ember.deprecate('Using the defaultContainer is no longer supported. [defaultContainer#' + method + '] see: http://git.io/EKPpnA', false);
-        return container[method].apply(container, arguments);
-      };
-    };
-
-    DeprecatedContainer.prototype = {
-      _container: null,
-      lookup: DeprecatedContainer.deprecate('lookup'),
-      resolve: DeprecatedContainer.deprecate('resolve'),
-      register: DeprecatedContainer.deprecate('register')
-    };
-
-    __exports__["default"] = DeprecatedContainer;
   });
 define("ember-application/system/resolver",
   ["ember-metal/core","ember-metal/property_get","ember-metal/logger","ember-runtime/system/string","ember-runtime/system/object","ember-runtime/system/namespace","ember-handlebars","exports"],
@@ -5046,7 +5017,7 @@ define("ember-handlebars/controls",
       {{input focus-in="alertMessage"}}
       ```
 
-      See more about [Text Support Actions](api/classes/Ember.TextField.html)
+      See more about [Text Support Actions](/api/classes/Ember.TextField.html)
 
       ## Extension
 
@@ -5067,7 +5038,7 @@ define("ember-handlebars/controls",
       itself extends `Ember.Component`, meaning that it does NOT inherit
       the `controller` of the parent view.
 
-      See more about [Ember components](api/classes/Ember.Component.html)
+      See more about [Ember components](/api/classes/Ember.Component.html)
 
 
       ## Use as checkbox
@@ -5312,7 +5283,7 @@ define("ember-handlebars/controls",
       {{textarea focus-in="alertMessage"}}
       ```
 
-      See more about [Text Support Actions](api/classes/Ember.TextArea.html)
+      See more about [Text Support Actions](/api/classes/Ember.TextArea.html)
 
       ## Extension
 
@@ -5335,7 +5306,7 @@ define("ember-handlebars/controls",
       itself extends `Ember.Component`, meaning that it does NOT inherit
       the `controller` of the parent view.
 
-      See more about [Ember components](api/classes/Ember.Component.html)
+      See more about [Ember components](/api/classes/Ember.Component.html)
 
       @method textarea
       @for Ember.Handlebars.helpers
@@ -7633,7 +7604,7 @@ define("ember-handlebars/helpers/binding",
       <img {{bind-attr src="imageUrl" alt="imageTitle"}}>
       ```
 
-      The above handlebars template will fill the `<img>`'s `src` attribute will
+      The above handlebars template will fill the `<img>`'s `src` attribute with
       the value of the property referenced with `"imageUrl"` and its `alt`
       attribute with the value of the property referenced with `"imageTitle"`.
 
@@ -12903,7 +12874,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.7.0-beta.3
+      @version 1.7.0-beta.4
     */
 
     if ('undefined' === typeof Ember) {
@@ -12930,10 +12901,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.7.0-beta.3'
+      @default '1.7.0-beta.4'
       @static
     */
-    Ember.VERSION = '1.7.0-beta.3';
+    Ember.VERSION = '1.7.0-beta.4';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -19313,7 +19284,10 @@ define("ember-routing-handlebars/helpers/link_to",
         @property router
       **/
       router: computed(function() {
-        return get(this, 'controller').container.lookup('router:main');
+        var controller = get(this, 'controller');
+        if (controller && controller.container) {
+          return controller.container.lookup('router:main');
+        }
       }),
 
       /**
@@ -19446,8 +19420,10 @@ define("ember-routing-handlebars/helpers/link_to",
         @return {Array} An array with the route name and any dynamic segments
       **/
       loadedParams: computed('resolvedParams', function computeLinkViewRouteArgs() {
+        var router = get(this, 'router');
+        if (!router) { return; }
+
         var resolvedParams = get(this, 'resolvedParams'),
-            router = get(this, 'router'),
             namedRoute = resolvedParams.targetRouteName;
 
         if (!namedRoute) { return; }
@@ -32441,7 +32417,12 @@ define("ember-runtime/system/core_object",
           }
         }
         finishPartial(this, m);
-        apply(this, this.init, arguments);
+        var length = arguments.length;
+        var args = new Array(length);
+        for (var x = 0; x < length; x++) {
+          args[x] = arguments[x];
+        }
+        apply(this, this.init, args);
         m.proto = proto;
         finishChains(this);
         sendEvent(this, "init");
@@ -32484,7 +32465,12 @@ define("ember-runtime/system/core_object",
 
     CoreObject.PrototypeMixin = Mixin.create({
       reopen: function() {
-        applyMixin(this, arguments, true);
+        var length = arguments.length;
+        var args = new Array(length);
+        for (var i = 0; i < length; i++) {
+          args[i] = arguments[i];
+        }
+        applyMixin(this, args, true);
         return this;
       },
 
@@ -32835,7 +32821,14 @@ define("ember-runtime/system/core_object",
       */
       createWithMixins: function() {
         var C = this;
-        if (arguments.length>0) { this._initMixins(arguments); }
+        var l= arguments.length;
+        if (l > 0) {
+          var args = new Array(l);
+          for (var i = 0; i < l; i++) {
+            args[i] = arguments[i];
+          }
+          this._initMixins(args);
+        }
         return new C();
       },
 
@@ -32878,7 +32871,14 @@ define("ember-runtime/system/core_object",
       */
       create: function() {
         var C = this;
-        if (arguments.length>0) { this._initProperties(arguments); }
+        var l = arguments.length;
+        if (l > 0) {
+          var args = new Array(l);
+          for (var i = 0; i < l; i++) {
+            args[i] = arguments[i];
+          }
+          this._initProperties(args);
+        }
         return new C();
       },
 
@@ -32913,7 +32913,16 @@ define("ember-runtime/system/core_object",
       */
       reopen: function() {
         this.willReopen();
-        apply(this.PrototypeMixin, reopen, arguments);
+
+        var l = arguments.length;
+        var args = new Array(l);
+        if (l > 0) {
+          for (var i = 0; i < l; i++) {
+            args[i] = arguments[i];
+          }
+        }
+
+        apply(this.PrototypeMixin, reopen, args);
         return this;
       },
 
@@ -32973,7 +32982,15 @@ define("ember-runtime/system/core_object",
         @method reopenClass
       */
       reopenClass: function() {
-        apply(this.ClassMixin, reopen, arguments);
+        var l = arguments.length;
+        var args = new Array(l);
+        if (l > 0) {
+          for (var i = 0; i < l; i++) {
+            args[i] = arguments[i];
+          }
+        }
+
+        apply(this.ClassMixin, reopen, args);
         applyMixin(this, arguments, false);
         return this;
       },
@@ -35522,13 +35539,24 @@ define("ember-testing/helpers",
 
     function triggerEvent(app, selector, context, type, options){
       if (arguments.length === 3) {
-        options = type;
+        // context and options are optional, so this is
+        // app, selector, type
         type = context;
         context = null;
+        options = {};
       }
 
-      if (typeof options === 'undefined') {
-        options = {};
+      if (arguments.length === 4) {
+        // context and options are optional, so this is
+        if (typeof type === "object") {  // either
+          // app, selector, type, options
+          options = type;
+          type = context;
+          context = null;
+        } else { // or
+          // app, selector, context, type
+          options = {};
+        }
       }
 
       var $el = app.testHelpers.findWithAssert(selector, context);
@@ -35835,7 +35863,7 @@ define("ember-testing/helpers",
      @param {String} [context] jQuery selector that will limit the selector
                                argument to find only within the context's children
      @param {String} type The event type to be triggered.
-     @param {Object} options The options to be passed to jQuery.Event.
+     @param {Object} [options] The options to be passed to jQuery.Event.
      @return {RSVP.Promise}
      @since 1.5.0
     */
@@ -39473,6 +39501,8 @@ define("ember-views/views/states/pre_render",
   ["ember-views/views/states/default","ember-metal/platform","ember-metal/merge","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
+    /* global Node */
+
     var _default = __dependency1__["default"];
     var create = __dependency2__.create;
     var merge = __dependency3__["default"];
@@ -39482,6 +39512,23 @@ define("ember-views/views/states/pre_render",
     @submodule ember-views
     */
     var preRender = create(_default);
+
+    var containsElement;
+    if (typeof Node === 'object') {
+      containsElement = Node.prototype.contains;
+
+      if (!containsElement && Node.prototype.compareDocumentPosition) {
+        // polyfill for older Firefox.
+        // http://compatibility.shwups-cms.ch/en/polyfills/?&id=52
+        containsElement = function(node){
+          return !!(this.compareDocumentPosition(node) & 16);
+        };
+      }
+    } else {
+      containsElement = function(element) {
+        return this.contains(element);
+      };
+    }
 
     merge(preRender, {
       // a view leaves the preRender state once its element has been
@@ -39496,7 +39543,7 @@ define("ember-views/views/states/pre_render",
 
         // We transition to `inDOM` if the element exists in the DOM
         var element = view.get('element');
-        if (document.body.contains(element)) {
+        if (containsElement.call(document.body, element)) {
           viewCollection.transitionTo('inDOM', false);
           viewCollection.trigger('didInsertElement');
         }
@@ -39520,8 +39567,8 @@ define("ember-views/views/states/pre_render",
     __exports__["default"] = preRender;
   });
 define("ember-views/views/view",
-  ["ember-metal/core","ember-runtime/mixins/evented","ember-runtime/system/object","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/set_properties","ember-metal/run_loop","ember-metal/observer","ember-metal/properties","ember-metal/utils","ember-metal/computed","ember-metal/mixin","ember-metal/is_none","container/container","ember-runtime/system/native_array","ember-runtime/system/string","ember-metal/enumerable_utils","ember-runtime/copy","ember-metal/binding","ember-metal/property_events","ember-views/system/jquery","ember-views/system/ext","ember-views/views/core_view","ember-views/views/view_collection","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __exports__) {
+  ["ember-metal/core","ember-runtime/mixins/evented","ember-runtime/system/object","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/set_properties","ember-metal/run_loop","ember-metal/observer","ember-metal/properties","ember-metal/utils","ember-metal/computed","ember-metal/mixin","ember-metal/is_none","ember-runtime/system/native_array","ember-runtime/system/string","ember-metal/enumerable_utils","ember-runtime/copy","ember-metal/binding","ember-metal/property_events","ember-views/system/jquery","ember-views/system/ext","ember-views/views/core_view","ember-views/views/view_collection","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __exports__) {
     "use strict";
     // Ember.assert, Ember.deprecate, Ember.warn, Ember.TEMPLATES,
     // Ember.K, jQuery, Ember.lookup,
@@ -39550,28 +39597,27 @@ define("ember-views/views/view",
     var isArray = __dependency11__.isArray;
     var isNone = __dependency14__.isNone;
     var Mixin = __dependency13__.Mixin;
-    var Container = __dependency15__["default"];
-    var emberA = __dependency16__.A;
+    var emberA = __dependency15__.A;
 
-    var dasherize = __dependency17__.dasherize;
+    var dasherize = __dependency16__.dasherize;
 
     // ES6TODO: functions on EnumerableUtils should get their own export
-    var forEach = __dependency18__.forEach;
-    var addObject = __dependency18__.addObject;
-    var removeObject = __dependency18__.removeObject;
+    var forEach = __dependency17__.forEach;
+    var addObject = __dependency17__.addObject;
+    var removeObject = __dependency17__.removeObject;
 
     var beforeObserver = __dependency13__.beforeObserver;
-    var copy = __dependency19__["default"];
-    var isGlobalPath = __dependency20__.isGlobalPath;
+    var copy = __dependency18__["default"];
+    var isGlobalPath = __dependency19__.isGlobalPath;
 
-    var propertyWillChange = __dependency21__.propertyWillChange;
-    var propertyDidChange = __dependency21__.propertyDidChange;
+    var propertyWillChange = __dependency20__.propertyWillChange;
+    var propertyDidChange = __dependency20__.propertyDidChange;
 
-    var jQuery = __dependency22__["default"];
+    var jQuery = __dependency21__["default"];
      // for the side effect of extending Ember.run.queues
 
-    var CoreView = __dependency24__["default"];
-    var ViewCollection = __dependency25__["default"];
+    var CoreView = __dependency23__["default"];
+    var ViewCollection = __dependency24__["default"];
 
     /**
     @module ember
@@ -40335,9 +40381,13 @@ define("ember-views/views/view",
         if (!name) { return; }
         Ember.assert("templateNames are not allowed to contain periods: "+name, name.indexOf('.') === -1);
 
-        // the defaultContainer is deprecated
-        var container = this.container || (Container && Container.defaultContainer);
-        return container && container.lookup('template:' + name);
+        if (!this.container) {
+          throw new EmberError('Container was not found when looking up a views template. ' +
+                     'This is most likely due to manually instantiating an Ember.View. ' +
+                     'See: http://git.io/EKPpnA');
+        }
+
+        return this.container.lookup('template:' + name);
       },
 
       /**
