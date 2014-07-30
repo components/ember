@@ -1,6 +1,6 @@
 {
   "name": "ember",
-  "version": "1.8.0-beta.1+canary.3a441189",
+  "version": "1.8.0-beta.1+canary.040b742b",
   "main": [
     "./ember.js"
   ],
