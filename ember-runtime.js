@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.040b742b
+ * @version   1.8.0-beta.1+canary.59e6c91b
  */
 
 (function() {
@@ -4450,7 +4450,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.040b742b
+      @version 1.8.0-beta.1+canary.59e6c91b
     */
 
     if ('undefined' === typeof Ember) {
@@ -4477,10 +4477,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.040b742b'
+      @default '1.8.0-beta.1+canary.59e6c91b'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.040b742b';
+    Ember.VERSION = '1.8.0-beta.1+canary.59e6c91b';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -9331,7 +9331,7 @@ define("ember-metal/utils",
 
       Why?
 
-      Runtimes store strings in atleast 2 different representations:
+      Runtimes store strings in at least 2 different representations:
       Ropes and Symbols (interned strings). The Rope provides a memory efficient
       data-structure for strings created from concatenation or some other string
       manipulation like splitting.
