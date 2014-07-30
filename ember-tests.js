@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.7.0-beta.4+pre.4b6ff143
+ * @version   1.7.0-beta.4
  */
 
 (function() {
@@ -947,15 +947,6 @@ define("ember-application/system/dag.jshint",
       ok(true, 'ember-application/system/dag.js should pass jshint.'); 
     });
   });
-define("ember-application/system/deprecated-container.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-application/system');
-    test('ember-application/system/deprecated-container.js should pass jshint', function() { 
-      ok(true, 'ember-application/system/deprecated-container.js should pass jshint.'); 
-    });
-  });
 define("ember-application/system/resolver.jshint",
   [],
   function() {
@@ -1850,14 +1841,6 @@ define("ember-application/tests/system/dependency_injection_test",
       ok(camelCaseController instanceof application.PostIndexController);
 
       equal(dotNotationController, camelCaseController);
-    });
-
-    test('Container.defaultContainer is the same as the Apps container, but emits deprecation warnings', function() {
-      expectDeprecation(/Using the defaultContainer is no longer supported./);
-      var routerFromContainer = locator.lookup('router:main'),
-        routerFromDefaultContainer = Container.defaultContainer.lookup('router:main');
-
-      equal(routerFromContainer, routerFromDefaultContainer, 'routers from both containers are equal');
     });
 
     test('registered entities can be looked up later', function() {
@@ -6293,7 +6276,8 @@ define("ember-handlebars/tests/handlebars_test",
 
     test("Layout views return throw if their layout cannot be found", function() {
       view = EmberView.create({
-        layoutName: 'cantBeFound'
+        layoutName: 'cantBeFound',
+        container: { lookup: function() { }}
       });
 
       expectAssertion(function() {
@@ -22552,6 +22536,64 @@ define("ember-routing-handlebars/tests/helpers/action_test.jshint",
     module('JSHint - ember-routing-handlebars/tests/helpers');
     test('ember-routing-handlebars/tests/helpers/action_test.js should pass jshint', function() { 
       ok(true, 'ember-routing-handlebars/tests/helpers/action_test.js should pass jshint.'); 
+    });
+  });
+define("ember-routing-handlebars/tests/helpers/link_to_test",
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-handlebars","ember-views/views/view","ember-views/system/jquery"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
+    "use strict";
+    var Ember = __dependency1__["default"];
+    // TEMPLATES
+    var get = __dependency2__.get;
+    var set = __dependency3__.set;
+    var run = __dependency4__["default"];
+
+    var EmberHandlebars = __dependency5__["default"];
+    var EmberView = __dependency6__["default"];
+    var jQuery = __dependency7__["default"];
+
+    var view;
+
+    var appendView = function(view) {
+      run(function() { view.appendTo('#qunit-fixture'); });
+    };
+
+    var compile = EmberHandlebars.compile;
+
+
+    QUnit.module("Handlebars {{link-to}} helper", {
+      setup: function() {
+
+      },
+
+      teardown: function() {
+        run(function() {
+          if (view) { view.destroy(); }
+        });
+      }
+    });
+
+
+    test("should be able to be inserted in DOM when the router is not present", function() {
+
+      var template = "{{#link-to 'index'}}Go to Index{{/link-to}}";
+      view = EmberView.create({
+        template: compile(template)
+      });
+
+      appendView(view);
+
+      equal(view.$().text(), 'Go to Index');
+
+    });
+  });
+define("ember-routing-handlebars/tests/helpers/link_to_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-routing-handlebars/tests/helpers');
+    test('ember-routing-handlebars/tests/helpers/link_to_test.js should pass jshint', function() { 
+      ok(true, 'ember-routing-handlebars/tests/helpers/link_to_test.js should pass jshint.'); 
     });
   });
 define("ember-routing-handlebars/tests/helpers/outlet_test",
@@ -42986,6 +43028,79 @@ define("ember-testing/tests/helpers_test",
       equal(Test.pendingAjaxRequests, 0, 'pendingAjaxRequests is reset');
     });
 
+    test("`triggerEvent accepts an optional options hash and context", function(){
+      expect(3);
+
+      var triggerEvent, wait, event;
+
+      run(function() {
+        App = EmberApplication.create();
+        App.setupForTesting();
+      });
+
+      App.IndexView = EmberView.extend({
+        template: Ember.Handlebars.compile('{{input type="text" id="outside-scope" class="input"}}<div id="limited">{{input type="text" id="inside-scope" class="input"}}</div>'),
+
+        didInsertElement: function() {
+          this.$('.input').on('blur change', function(e) {
+            event = e;
+          });
+        }
+      });
+
+      App.injectTestHelpers();
+
+      run(App, App.advanceReadiness);
+
+      triggerEvent = App.testHelpers.triggerEvent;
+      wait         = App.testHelpers.wait;
+
+      wait().then(function() {
+        return triggerEvent('.input', '#limited', 'blur', { keyCode: 13 });
+      }).then(function() {
+        equal(event.keyCode, 13, 'options were passed');
+        equal(event.type, 'blur', 'correct event was triggered');
+        equal(event.target.getAttribute('id'), 'inside-scope', 'triggered on the correct element');
+      });
+    });
+
+
+    test("`triggerEvent accepts an optional options hash without context", function(){
+      expect(3);
+
+      var triggerEvent, wait, event;
+
+      run(function() {
+        App = EmberApplication.create();
+        App.setupForTesting();
+      });
+
+      App.IndexView = EmberView.extend({
+        template: Ember.Handlebars.compile('{{input type="text" id="scope" class="input"}}'),
+
+        didInsertElement: function() {
+          this.$('.input').on('blur change', function(e) {
+            event = e;
+          });
+        }
+      });
+
+      App.injectTestHelpers();
+
+      run(App, App.advanceReadiness);
+
+      triggerEvent = App.testHelpers.triggerEvent;
+      wait         = App.testHelpers.wait;
+
+      wait().then(function() {
+        return triggerEvent('.input', 'blur', { keyCode: 13 });
+      }).then(function() {
+        equal(event.keyCode, 13, 'options were passed');
+        equal(event.type, 'blur', 'correct event was triggered');
+        equal(event.target.getAttribute('id'), 'scope', 'triggered on the correct element');
+      });
+    });
+
     test("`triggerEvent can limit searching for a selector to a scope", function(){
       expect(2);
 
@@ -49189,6 +49304,22 @@ define("ember-views/tests/views/view/template_test",
         parentView.destroy();
         parentViewWithControllerlessChild.destroy();
       });
+    });
+
+    test("should throw an assertion if no container has been set", function() {
+      expect(1);
+      var View;
+
+      View = EmberView.extend({
+        templateName: 'foobar',
+      });
+
+      raises(function() {
+        view = View.create();
+        run(function() {
+          view.createElement();
+        });
+      }, /Container was not found when looking up a views template./);
     });
   });
 define("ember-views/tests/views/view/template_test.jshint",
