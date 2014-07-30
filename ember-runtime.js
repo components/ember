@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.12555a1b
+ * @version   1.8.0-beta.1+canary.3a441189
  */
 
 (function() {
@@ -4450,7 +4450,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.12555a1b
+      @version 1.8.0-beta.1+canary.3a441189
     */
 
     if ('undefined' === typeof Ember) {
@@ -4477,10 +4477,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.12555a1b'
+      @default '1.8.0-beta.1+canary.3a441189'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.12555a1b';
+    Ember.VERSION = '1.8.0-beta.1+canary.3a441189';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -9321,6 +9321,50 @@ define("ember-metal/utils",
     var MANDATORY_SETTER = Ember.ENV.MANDATORY_SETTER;
 
     /**
+      Strongly hint runtimes to intern the provided string.
+
+      When do I need to use this function?
+
+      For the most part, never. Pre-mature optimization is bad, and often the
+      runtime does exactly what you need it to, and more often the trade-off isn't
+      worth it.
+
+      Why?
+
+      Runtimes store strings in atleast 2 different representations:
+      Ropes and Symbols (interned strings). The Rope provides a memory efficient
+      data-structure for strings created from concatenation or some other string
+      manipulation like splitting.
+
+      Unfortunately checking equality of different ropes can be quite costly as
+      runtimes must resort to clever string comparison algorithims. These
+      algorithims typically cost in proportion to the length of the string.
+      Luckily, this is where the Symbols (interned strings) shine. As Symbols are
+      unique by their string content, equality checks can be done by pointer
+      comparision.
+
+      How do I know if my string is a rope or symbol?
+
+      Typically (warning general sweeping statement, but truthy in runtimes at
+      present) static strings created as part of the JS source are interned.
+      Strings often used for comparisions can be interned at runtime if some
+      criteria are met.  One of these criteria can be the size of the entire rope.
+      For example, in chrome 38 a rope longer then 12 characters will not
+      intern, nor will segments of that rope.
+
+      Some numbers: http://jsperf.com/eval-vs-keys/8
+
+      Known Trick™
+
+      @private
+      @return {String} interned version of the provided string
+    */
+    function intern(string) {
+      "use strict";
+      return new Function('return "' + string + '"')();
+    }
+
+    /**
       A unique key used to assign guids and other private metadata to objects.
       If you inspect an object in your browser debugger you will often see these.
       They can be safely ignored.
@@ -9334,7 +9378,7 @@ define("ember-metal/utils",
       @type String
       @final
     */
-    var GUID_KEY = '__ember' + (+ new Date());
+    var GUID_KEY = intern('__ember' + (+ new Date()));
 
     var GUID_DESC = {
       writable:    false,
