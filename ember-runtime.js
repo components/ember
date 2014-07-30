@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.6ebd521b
+ * @version   1.8.0-beta.1+canary.12555a1b
  */
 
 (function() {
@@ -3549,13 +3549,13 @@ define("ember-metal/computed",
       @return {Object} The return value of the function backing the CP.
     */
     ComputedPropertyPrototype.set = function(obj, keyName, value) {
-      var cacheable = this._cacheable,
-          func = this.func,
-          meta = metaFor(obj, cacheable),
-          oldSuspended = this._suspended,
-          hadCachedValue = false,
-          cache = meta.cache,
-          funcArgLength, cachedValue, ret;
+      var cacheable = this._cacheable;
+      var func = this.func;
+      var meta = metaFor(obj, cacheable);
+      var oldSuspended = this._suspended;
+      var hadCachedValue = false;
+      var cache = meta.cache;
+      var funcArgLength, cachedValue, ret;
 
       if (this._readOnly) {
         throw new EmberError('Cannot set read-only property "' + keyName + '" on object: ' + inspect(obj));
@@ -4450,7 +4450,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.6ebd521b
+      @version 1.8.0-beta.1+canary.12555a1b
     */
 
     if ('undefined' === typeof Ember) {
@@ -4477,10 +4477,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.6ebd521b'
+      @default '1.8.0-beta.1+canary.12555a1b'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.6ebd521b';
+    Ember.VERSION = '1.8.0-beta.1+canary.12555a1b';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -7940,7 +7940,9 @@ define("ember-metal/properties",
       if (!meta) meta = metaFor(obj);
       descs = meta.descs;
       existingDesc = meta.descs[keyName];
-      watching = meta.watching[keyName] > 0;
+      var watchEntry = meta.watching[keyName];
+
+      watching = watchEntry !== undefined && watchEntry > 0;
 
       if (existingDesc instanceof Descriptor) {
         existingDesc.teardown(obj, keyName);
@@ -8099,54 +8101,64 @@ define("ember-metal/property_events",
       if (desc && desc.didChange) { desc.didChange(obj, keyName); }
       if (!watching && keyName !== 'length') { return; }
 
-      dependentKeysDidChange(obj, keyName, m);
+      if (m && m.deps && m.deps[keyName]) {
+        dependentKeysDidChange(obj, keyName, m);
+      }
+
       chainsDidChange(obj, keyName, m, false);
       notifyObservers(obj, keyName);
     }
 
     var WILL_SEEN, DID_SEEN;
-
     // called whenever a property is about to change to clear the cache of any dependent keys (and notify those properties of changes, etc...)
     function dependentKeysWillChange(obj, depKey, meta) {
       if (obj.isDestroying) { return; }
 
-      var seen = WILL_SEEN, top = !seen;
-      if (top) { seen = WILL_SEEN = {}; }
-      iterDeps(propertyWillChange, obj, depKey, seen, meta);
-      if (top) { WILL_SEEN = null; }
+      var deps;
+      if (meta && meta.deps && (deps = meta.deps[depKey])) {
+        var seen = WILL_SEEN, top = !seen;
+        if (top) { seen = WILL_SEEN = {}; }
+        iterDeps(propertyWillChange, obj, deps, depKey, seen, meta);
+        if (top) { WILL_SEEN = null; }
+      }
     }
 
     // called whenever a property has just changed to update dependent keys
     function dependentKeysDidChange(obj, depKey, meta) {
       if (obj.isDestroying) { return; }
 
-      var seen = DID_SEEN, top = !seen;
-      if (top) { seen = DID_SEEN = {}; }
-      iterDeps(propertyDidChange, obj, depKey, seen, meta);
-      if (top) { DID_SEEN = null; }
+      var deps;
+      if (meta && meta.deps && (deps = meta.deps[depKey])) {
+        var seen = DID_SEEN, top = !seen;
+        if (top) { seen = DID_SEEN = {}; }
+        iterDeps(propertyDidChange, obj, deps, depKey, seen, meta);
+        if (top) { DID_SEEN = null; }
+      }
     }
 
-    function iterDeps(method, obj, depKey, seen, meta) {
-      var guid, deps, keys, key, i, desc;
-      guid = guidFor(obj);
-      if (!seen[guid]) seen[guid] = {};
-      if (seen[guid][depKey]) return;
-      seen[guid][depKey] = true;
+    function keysOf(obj) {
+      var keys = [];
+      for (var key in obj) keys.push(key);
+      return keys;
+    }
 
-      deps = meta.deps;
-      deps = deps && deps[depKey];
-      keys = [];
+    function iterDeps(method, obj, deps, depKey, seen, meta) {
+      var keys, key, i, desc;
+      var guid = guidFor(obj);
+      var current = seen[guid];
+      if (!current) current = seen[guid] = {};
+      if (current[depKey]) return;
+      current[depKey] = true;
+
       if (deps) {
-        for(key in deps) {
-          keys.push(key);
+        keys = keysOf(deps);
+        var descs = meta.descs;
+        for (i=0; i<keys.length; i++) {
+          key = keys[i];
+          desc = descs[key];
+          if (desc && desc._suspended === obj) continue;
+          method(obj, key);
         }
-      }
-
-      for (i=0; i<keys.length; i++) {
-        key = keys[i];
-        desc = meta.descs[key];
-        if (desc && desc._suspended === obj) continue;
-        method(obj, key);
       }
     }
 
@@ -10191,8 +10203,8 @@ define("ember-metal/watch_path",
     __exports__.unwatchPath = unwatchPath;
   });
 define("ember-metal/watching",
-  ["ember-metal/utils","ember-metal/chains","ember-metal/watch_key","ember-metal/watch_path","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+  ["ember-metal/utils","ember-metal/chains","ember-metal/watch_key","ember-metal/watch_path","ember-metal/path_cache","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     /**
     @module ember-metal
@@ -10210,11 +10222,7 @@ define("ember-metal/watching",
     var unwatchPath = __dependency4__.unwatchPath;
 
     var metaFor = meta; // utils.js
-
-    // returns true if the passed path is just a keyName
-    function isKeyName(path) {
-      return path.indexOf('.') === -1;
-    }
+    var isPath = __dependency5__.isPath;
 
     /**
       Starts watching a property on an object. Whenever the property changes,
@@ -10233,7 +10241,7 @@ define("ember-metal/watching",
       // can't watch length on Array - it is special...
       if (_keyPath === 'length' && typeOf(obj) === 'array') { return; }
 
-      if (isKeyName(_keyPath)) {
+      if (!isPath(_keyPath)) {
         watchKey(obj, _keyPath, m);
       } else {
         watchPath(obj, _keyPath, m);
@@ -10253,7 +10261,7 @@ define("ember-metal/watching",
       // can't watch length on Array - it is special...
       if (_keyPath === 'length' && typeOf(obj) === 'array') { return; }
 
-      if (isKeyName(_keyPath)) {
+      if (!isPath(_keyPath)) {
         unwatchKey(obj, _keyPath, m);
       } else {
         unwatchPath(obj, _keyPath, m);
