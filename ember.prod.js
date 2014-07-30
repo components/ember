@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.c2f7f7de
+ * @version   1.8.0-beta.1+canary.6ebd521b
  */
 
 (function() {
@@ -12614,7 +12614,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.c2f7f7de
+      @version 1.8.0-beta.1+canary.6ebd521b
     */
 
     if ('undefined' === typeof Ember) {
@@ -12641,10 +12641,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.c2f7f7de'
+      @default '1.8.0-beta.1+canary.6ebd521b'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.c2f7f7de';
+    Ember.VERSION = '1.8.0-beta.1+canary.6ebd521b';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -35565,13 +35565,24 @@ define("ember-testing/helpers",
 
     function triggerEvent(app, selector, context, type, options){
       if (arguments.length === 3) {
-        options = type;
+        // context and options are optional, so this is
+        // app, selector, type
         type = context;
         context = null;
+        options = {};
       }
 
-      if (typeof options === 'undefined') {
-        options = {};
+      if (arguments.length === 4) {
+        // context and options are optional, so this is
+        if (typeof type === "object") {  // either
+          // app, selector, type, options
+          options = type;
+          type = context;
+          context = null;
+        } else { // or
+          // app, selector, context, type
+          options = {};
+        }
       }
 
       var $el = app.testHelpers.findWithAssert(selector, context);
@@ -35878,7 +35889,7 @@ define("ember-testing/helpers",
      @param {String} [context] jQuery selector that will limit the selector
                                argument to find only within the context's children
      @param {String} type The event type to be triggered.
-     @param {Object} options The options to be passed to jQuery.Event.
+     @param {Object} [options] The options to be passed to jQuery.Event.
      @return {RSVP.Promise}
      @since 1.5.0
     */

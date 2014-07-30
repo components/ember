@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.c2f7f7de
+ * @version   1.8.0-beta.1+canary.6ebd521b
  */
 
 (function() {
@@ -43450,6 +43450,79 @@ define("ember-testing/tests/helpers_test",
         setupForTesting();
       });
       equal(Test.pendingAjaxRequests, 0, 'pendingAjaxRequests is reset');
+    });
+
+    test("`triggerEvent accepts an optional options hash and context", function(){
+      expect(3);
+
+      var triggerEvent, wait, event;
+
+      run(function() {
+        App = EmberApplication.create();
+        App.setupForTesting();
+      });
+
+      App.IndexView = EmberView.extend({
+        template: Ember.Handlebars.compile('{{input type="text" id="outside-scope" class="input"}}<div id="limited">{{input type="text" id="inside-scope" class="input"}}</div>'),
+
+        didInsertElement: function() {
+          this.$('.input').on('blur change', function(e) {
+            event = e;
+          });
+        }
+      });
+
+      App.injectTestHelpers();
+
+      run(App, App.advanceReadiness);
+
+      triggerEvent = App.testHelpers.triggerEvent;
+      wait         = App.testHelpers.wait;
+
+      wait().then(function() {
+        return triggerEvent('.input', '#limited', 'blur', { keyCode: 13 });
+      }).then(function() {
+        equal(event.keyCode, 13, 'options were passed');
+        equal(event.type, 'blur', 'correct event was triggered');
+        equal(event.target.getAttribute('id'), 'inside-scope', 'triggered on the correct element');
+      });
+    });
+
+
+    test("`triggerEvent accepts an optional options hash without context", function(){
+      expect(3);
+
+      var triggerEvent, wait, event;
+
+      run(function() {
+        App = EmberApplication.create();
+        App.setupForTesting();
+      });
+
+      App.IndexView = EmberView.extend({
+        template: Ember.Handlebars.compile('{{input type="text" id="scope" class="input"}}'),
+
+        didInsertElement: function() {
+          this.$('.input').on('blur change', function(e) {
+            event = e;
+          });
+        }
+      });
+
+      App.injectTestHelpers();
+
+      run(App, App.advanceReadiness);
+
+      triggerEvent = App.testHelpers.triggerEvent;
+      wait         = App.testHelpers.wait;
+
+      wait().then(function() {
+        return triggerEvent('.input', 'blur', { keyCode: 13 });
+      }).then(function() {
+        equal(event.keyCode, 13, 'options were passed');
+        equal(event.type, 'blur', 'correct event was triggered');
+        equal(event.target.getAttribute('id'), 'scope', 'triggered on the correct element');
+      });
     });
 
     test("`triggerEvent can limit searching for a selector to a scope", function(){
