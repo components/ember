@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.59e6c91b
+ * @version   1.8.0-beta.1+canary.0251dccc
  */
 
 (function() {
@@ -12922,7 +12922,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.59e6c91b
+      @version 1.8.0-beta.1+canary.0251dccc
     */
 
     if ('undefined' === typeof Ember) {
@@ -12949,10 +12949,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.59e6c91b'
+      @default '1.8.0-beta.1+canary.0251dccc'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.59e6c91b';
+    Ember.VERSION = '1.8.0-beta.1+canary.0251dccc';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -36044,26 +36044,33 @@ define("ember-testing/helpers",
       return app.testHelpers.wait();
     }
 
-    function triggerEvent(app, selector, context, type, options){
-      if (arguments.length === 3) {
+    function triggerEvent(app, selector, contextOrType, typeOrOptions, possibleOptions){
+      var arity = arguments.length;
+      var context, type, options;
+
+      if (arity === 3) {
         // context and options are optional, so this is
         // app, selector, type
-        type = context;
         context = null;
+        type = contextOrType;
         options = {};
-      }
-
-      if (arguments.length === 4) {
+      } else if (arity === 4) {
         // context and options are optional, so this is
-        if (typeof type === "object") {  // either
+        if (typeof typeOrOptions === "object") {  // either
           // app, selector, type, options
-          options = type;
-          type = context;
           context = null;
+          type = contextOrType;
+          options = typeOrOptions;
         } else { // or
           // app, selector, context, type
+          context = contextOrType;
+          type = typeOrOptions;
           options = {};
         }
+      } else {
+        context = contextOrType;
+        type = typeOrOptions;
+        options = possibleOptions;
       }
 
       var $el = app.testHelpers.findWithAssert(selector, context);
@@ -36075,21 +36082,25 @@ define("ember-testing/helpers",
       return app.testHelpers.wait();
     }
 
-    function keyEvent(app, selector, context, type, keyCode) {
+    function keyEvent(app, selector, contextOrType, typeOrKeyCode, keyCode) {
+      var context, type;
+
       if (typeof keyCode === 'undefined') {
-        keyCode = type;
-        type = context;
         context = null;
+        keyCode = typeOrKeyCode;
+        type = contextOrType;
+      } else {
+        context = contextOrType;
+        type = typeOrKeyCode;
       }
 
       return app.testHelpers.triggerEvent(selector, context, type, { keyCode: keyCode, which: keyCode });
     }
 
-    function fillIn(app, selector, context, text) {
-      var $el;
+    function fillIn(app, selector, contextOrText, text) {
+      var $el, context;
       if (typeof text === 'undefined') {
-        text = context;
-        context = null;
+        text = contextOrText;
       }
       $el = app.testHelpers.findWithAssert(selector, context);
       run(function() {
