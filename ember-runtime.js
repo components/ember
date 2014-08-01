@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.0251dccc
+ * @version   1.8.0-beta.1+canary.7b0b50ec
  */
 
 (function() {
@@ -2266,6 +2266,19 @@ define("ember-metal/array",
       return -1;
     });
 
+    var lastIndexOf = defineNativeShim(ArrayPrototype.lastIndexOf, function(obj, fromIndex) {
+        var idx, len = this.length;
+
+        if (fromIndex === undefined) fromIndex = len-1;
+        else fromIndex = (fromIndex < 0) ? Math.ceil(fromIndex) : Math.floor(fromIndex);
+        if (fromIndex < 0) fromIndex += len;
+
+        for(idx = fromIndex;idx>=0;idx--) {
+          if (this[idx] === obj) return idx ;
+        }
+        return -1;
+    });
+
     var filter = defineNativeShim(ArrayPrototype.filter, function (fn, context) {
       var i,
           value,
@@ -2288,6 +2301,7 @@ define("ember-metal/array",
       ArrayPrototype.forEach = ArrayPrototype.forEach || forEach;
       ArrayPrototype.filter = ArrayPrototype.filter || filter;
       ArrayPrototype.indexOf = ArrayPrototype.indexOf || indexOf;
+      ArrayPrototype.lastIndexOf = ArrayPrototype.lastIndexOf || lastIndexOf;
     }
 
     /**
@@ -2300,6 +2314,7 @@ define("ember-metal/array",
     __exports__.forEach = forEach;
     __exports__.filter = filter;
     __exports__.indexOf = indexOf;
+    __exports__.lastIndexOf = lastIndexOf;
   });
 define("ember-metal/binding",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/map","ember-metal/observer","ember-metal/run_loop","ember-metal/path_cache","exports"],
@@ -4450,7 +4465,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.0251dccc
+      @version 1.8.0-beta.1+canary.7b0b50ec
     */
 
     if ('undefined' === typeof Ember) {
@@ -4477,10 +4492,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.0251dccc'
+      @default '1.8.0-beta.1+canary.7b0b50ec'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.0251dccc';
+    Ember.VERSION = '1.8.0-beta.1+canary.7b0b50ec';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -13744,6 +13759,24 @@ define("ember-runtime/mixins/array",
     var hasListeners = __dependency10__.hasListeners;
     var isWatching = __dependency11__.isWatching;
 
+    function arrayObserversHelper(obj, target, opts, operation, notify) {
+      var willChange = (opts && opts.willChange) || 'arrayWillChange';
+      var didChange  = (opts && opts.didChange) || 'arrayDidChange';
+      var hasObservers = get(obj, 'hasArrayObservers');
+
+      if (hasObservers === notify) {
+        propertyWillChange(obj, 'hasArrayObservers');
+      }
+
+      operation(obj, '@array:before', target, willChange);
+      operation(obj, '@array:change', target, didChange);
+
+      if (hasObservers === notify) {
+        propertyDidChange(obj, 'hasArrayObservers');
+      }
+      return obj;
+    }
+
     // ..........................................................
     // ARRAY
     //
@@ -13816,7 +13849,7 @@ define("ember-runtime/mixins/array",
         @return {*} item at index or undefined
       */
       objectAt: function(idx) {
-        if ((idx < 0) || (idx >= get(this, 'length'))) return undefined;
+        if (idx < 0 || idx >= get(this, 'length')) return undefined;
         return get(this, idx);
       },
 
@@ -13855,7 +13888,7 @@ define("ember-runtime/mixins/array",
       */
       '[]': computed(function(key, value) {
         if (value !== undefined) this.replace(0, get(this, 'length'), value) ;
-        return this ;
+        return this;
       }),
 
       firstObject: computed(function() {
@@ -13998,16 +14031,9 @@ define("ember-runtime/mixins/array",
           `willChange` and `didChange` option.
         @return {Ember.Array} receiver
       */
-      addArrayObserver: function(target, opts) {
-        var willChange = (opts && opts.willChange) || 'arrayWillChange',
-            didChange  = (opts && opts.didChange) || 'arrayDidChange';
 
-        var hasObservers = get(this, 'hasArrayObservers');
-        if (!hasObservers) propertyWillChange(this, 'hasArrayObservers');
-        addListener(this, '@array:before', target, willChange);
-        addListener(this, '@array:change', target, didChange);
-        if (!hasObservers) propertyDidChange(this, 'hasArrayObservers');
-        return this;
+      addArrayObserver: function(target, opts) {
+        return arrayObserversHelper(this, target, opts, addListener, false);
       },
 
       /**
@@ -14022,15 +14048,7 @@ define("ember-runtime/mixins/array",
         @return {Ember.Array} receiver
       */
       removeArrayObserver: function(target, opts) {
-        var willChange = (opts && opts.willChange) || 'arrayWillChange',
-            didChange  = (opts && opts.didChange) || 'arrayDidChange';
-
-        var hasObservers = get(this, 'hasArrayObservers');
-        if (hasObservers) propertyWillChange(this, 'hasArrayObservers');
-        removeListener(this, '@array:before', target, willChange);
-        removeListener(this, '@array:change', target, didChange);
-        if (hasObservers) propertyDidChange(this, 'hasArrayObservers');
-        return this;
+        return arrayObserversHelper(this, target, opts, removeListener, true);
       },
 
       /**
@@ -19325,8 +19343,8 @@ define("ember-runtime/system/namespace",
     __exports__["default"] = Namespace;
   });
 define("ember-runtime/system/native_array",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/enumerable_utils","ember-metal/mixin","ember-runtime/mixins/array","ember-runtime/mixins/mutable_array","ember-runtime/mixins/observable","ember-runtime/mixins/copyable","ember-runtime/mixins/freezable","ember-runtime/copy","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/enumerable_utils","ember-metal/mixin","ember-metal/array","ember-runtime/mixins/array","ember-runtime/mixins/mutable_array","ember-runtime/mixins/observable","ember-runtime/mixins/copyable","ember-runtime/mixins/freezable","ember-runtime/copy","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -19341,12 +19359,14 @@ define("ember-runtime/system/native_array",
     var replace = __dependency4__._replace;
     var forEach = __dependency4__.forEach;
     var Mixin = __dependency5__.Mixin;
-    var EmberArray = __dependency6__["default"];
-    var MutableArray = __dependency7__["default"];
-    var Observable = __dependency8__["default"];
-    var Copyable = __dependency9__["default"];
-    var FROZEN_ERROR = __dependency10__.FROZEN_ERROR;
-    var copy = __dependency11__["default"];
+    var indexOf = __dependency6__.indexOf;
+    var lastIndexOf = __dependency6__.lastIndexOf;
+    var EmberArray = __dependency7__["default"];
+    var MutableArray = __dependency8__["default"];
+    var Observable = __dependency9__["default"];
+    var Copyable = __dependency10__["default"];
+    var FROZEN_ERROR = __dependency11__.FROZEN_ERROR;
+    var copy = __dependency12__["default"];
 
     // Add Ember.Array to Array.prototype. Remove methods with native
     // implementations and supply some more optimized versions of generic methods
@@ -19404,39 +19424,15 @@ define("ember-runtime/system/native_array",
       // from member items.
       unknownProperty: function(key, value) {
         var ret;// = this.reducedProperty(key, value) ;
-        if ((value !== undefined) && ret === undefined) {
+        if (value !== undefined && ret === undefined) {
           ret = this[key] = value;
         }
-        return ret ;
+        return ret;
       },
 
-      // If browser did not implement indexOf natively, then override with
-      // specialized version
-      indexOf: function(object, startAt) {
-        var idx, len = this.length;
+      indexOf: indexOf,
 
-        if (startAt === undefined) startAt = 0;
-        else startAt = (startAt < 0) ? Math.ceil(startAt) : Math.floor(startAt);
-        if (startAt < 0) startAt += len;
-
-        for(idx=startAt;idx<len;idx++) {
-          if (this[idx] === object) return idx ;
-        }
-        return -1;
-      },
-
-      lastIndexOf: function(object, startAt) {
-        var idx, len = this.length;
-
-        if (startAt === undefined) startAt = len-1;
-        else startAt = (startAt < 0) ? Math.ceil(startAt) : Math.floor(startAt);
-        if (startAt < 0) startAt += len;
-
-        for(idx=startAt;idx>=0;idx--) {
-          if (this[idx] === object) return idx ;
-        }
-        return -1;
-      },
+      lastIndexOf: lastIndexOf,
 
       copy: function(deep) {
         if (deep) {
@@ -19453,7 +19449,7 @@ define("ember-runtime/system/native_array",
       if (Array.prototype[methodName]) ignore.push(methodName);
     });
 
-    if (ignore.length>0) {
+    if (ignore.length > 0) {
       NativeArray = NativeArray.without.apply(NativeArray, ignore);
     }
 
