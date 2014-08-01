@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.03561330
+ * @version   1.8.0-beta.1+canary.45252987
  */
 
 (function() {
@@ -1083,7 +1083,7 @@ define("container/container",
           throw new TypeError('Attempting to register an unknown factory: `' + fullName + '`');
         }
 
-        var normalizedName = this._normalize(fullName);
+        var normalizedName = this.normalize(fullName);
 
         if (normalizedName in this.cache) {
           throw new Error('Cannot re-register: `' + fullName +'`, as it has already been looked up.');
@@ -1112,7 +1112,7 @@ define("container/container",
       unregister: function(fullName) {
         Ember.assert('fullName must be a proper full name', validateFullName(fullName));
 
-        var normalizedName = this._normalize(fullName);
+        var normalizedName = this.normalize(fullName);
 
         delete this.registry[normalizedName];
         delete this.cache[normalizedName];
@@ -1155,7 +1155,7 @@ define("container/container",
       */
       resolve: function(fullName) {
         Ember.assert('fullName must be a proper full name', validateFullName(fullName));
-        return resolve(this, this._normalize(fullName));
+        return resolve(this, this.normalize(fullName));
       },
 
       /**
@@ -1177,17 +1177,24 @@ define("container/container",
       /**
         A hook to enable custom fullName normalization behaviour
 
+        @method normalizeFullName
+        @param {String} fullName
+        @return {string} normalized fullName
+      */
+      normalizeFullName: function(fullName) {
+        return fullName;
+      },
+
+      /**
+        normalize a fullName based on the applications conventions
+
         @method normalize
         @param {String} fullName
         @return {string} normalized fullName
       */
       normalize: function(fullName) {
-        return fullName;
-      },
-
-      _normalize: function(fullName) {
         return this.normalizeCache[fullName] || (
-          this.normalizeCache[fullName] = this.normalize(fullName)
+          this.normalizeCache[fullName] = this.normalizeFullName(fullName)
         );
       },
 
@@ -1243,7 +1250,7 @@ define("container/container",
       */
       lookup: function(fullName, options) {
         Ember.assert('fullName must be a proper full name', validateFullName(fullName));
-        return lookup(this, this._normalize(fullName), options);
+        return lookup(this, this.normalize(fullName), options);
       },
 
       /**
@@ -1255,7 +1262,7 @@ define("container/container",
       */
       lookupFactory: function(fullName) {
         Ember.assert('fullName must be a proper full name', validateFullName(fullName));
-        return factoryFor(this, this._normalize(fullName));
+        return factoryFor(this, this.normalize(fullName));
       },
 
       /**
@@ -1268,7 +1275,7 @@ define("container/container",
       */
       has: function(fullName) {
         Ember.assert('fullName must be a proper full name', validateFullName(fullName));
-        return has(this, this._normalize(fullName));
+        return has(this, this.normalize(fullName));
       },
 
       /**
@@ -1409,14 +1416,14 @@ define("container/container",
         if (this.parent) { illegalChildOperation('injection'); }
 
         validateFullName(injectionName);
-        var normalizedInjectionName = this._normalize(injectionName);
+        var normalizedInjectionName = this.normalize(injectionName);
 
         if (fullName.indexOf(':') === -1) {
           return this.typeInjection(fullName, property, normalizedInjectionName);
         }
 
         Ember.assert('fullName must be a proper full name', validateFullName(fullName));
-        var normalizedName = this._normalize(fullName);
+        var normalizedName = this.normalize(fullName);
 
         if (this.cache[normalizedName]) {
           throw new Error("Attempted to register an injection for a type that has already been looked up. ('" + normalizedName + "', '" + property + "', '" + injectionName + "')");
@@ -1457,7 +1464,7 @@ define("container/container",
       factoryTypeInjection: function(type, property, fullName) {
         if (this.parent) { illegalChildOperation('factoryTypeInjection'); }
 
-        addTypeInjection(this.factoryTypeInjections, type, property, this._normalize(fullName));
+        addTypeInjection(this.factoryTypeInjections, type, property, this.normalize(fullName));
       },
 
       /**
@@ -1512,8 +1519,8 @@ define("container/container",
       factoryInjection: function(fullName, property, injectionName) {
         if (this.parent) { illegalChildOperation('injection'); }
 
-        var normalizedName = this._normalize(fullName);
-        var normalizedInjectionName = this._normalize(injectionName);
+        var normalizedName = this.normalize(fullName);
+        var normalizedInjectionName = this.normalize(injectionName);
 
         validateFullName(injectionName);
 
@@ -4465,7 +4472,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.03561330
+      @version 1.8.0-beta.1+canary.45252987
     */
 
     if ('undefined' === typeof Ember) {
@@ -4492,10 +4499,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.03561330'
+      @default '1.8.0-beta.1+canary.45252987'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.03561330';
+    Ember.VERSION = '1.8.0-beta.1+canary.45252987';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
