@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.91c823a4
+ * @version   1.8.0-beta.1+canary.0c9d8f37
  */
 
 (function() {
@@ -2105,7 +2105,7 @@ define("ember-application/tests/system/initializers_test.jshint",
     });
   });
 define("ember-application/tests/system/logging_test",
-  ["ember-metal/run_loop","ember-application/system/application","ember-views/views/view","ember-runtime/controllers/controller","ember-routing/system/route","ember-runtime/ext/rsvp","ember-runtime/keys","ember-routing"],
+  ["ember-metal/run_loop","ember-application/system/application","ember-views/views/view","ember-runtime/controllers/controller","ember-routing/system/route","ember-runtime/ext/rsvp","ember-metal/keys","ember-routing"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
     "use strict";
     /*globals EmberDev */
@@ -13125,6 +13125,15 @@ define("ember-metal/is_present.jshint",
       ok(true, 'ember-metal/is_present.js should pass jshint.'); 
     });
   });
+define("ember-metal/keys.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal');
+    test('ember-metal/keys.js should pass jshint', function() { 
+      ok(true, 'ember-metal/keys.js should pass jshint.'); 
+    });
+  });
 define("ember-metal/libraries.jshint",
   [],
   function() {
@@ -16475,6 +16484,49 @@ define("ember-metal/tests/is_present_test.jshint",
     module('JSHint - ember-metal/tests');
     test('ember-metal/tests/is_present_test.js should pass jshint', function() { 
       ok(true, 'ember-metal/tests/is_present_test.js should pass jshint.'); 
+    });
+  });
+define("ember-metal/tests/keys_test",
+  ["ember-metal/property_set","ember-metal/keys","ember-metal/observer"],
+  function(__dependency1__, __dependency2__, __dependency3__) {
+    "use strict";
+    var set = __dependency1__.set;
+    var keys = __dependency2__["default"];
+    var addObserver = __dependency3__.addObserver;
+    var removeObserver = __dependency3__.removeObserver;
+
+    QUnit.module("Fetch Keys ");
+
+    test("should get a key array for a specified object", function() {
+      var object1 = {};
+
+      object1.names = "Rahul";
+      object1.age = "23";
+      object1.place = "Mangalore";
+
+      var object2 = keys(object1);
+
+      deepEqual(object2, ['names','age','place']);
+    });
+
+    // This test is for IE8.
+    test("should get a key array for property that is named the same as prototype property", function() {
+      var object1 = {
+        toString: function() {}
+      };
+
+      var object2 = keys(object1);
+
+      deepEqual(object2, ['toString']);
+    });
+  });
+define("ember-metal/tests/keys_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal/tests');
+    test('ember-metal/tests/keys_test.js should pass jshint', function() { 
+      ok(true, 'ember-metal/tests/keys_test.js should pass jshint.'); 
     });
   });
 define("ember-metal/tests/libraries_test",
@@ -29065,18 +29117,6 @@ define("ember-runtime/tests/core/keys_test",
 
     QUnit.module("Fetch Keys ");
 
-    test("should get a key array for a specified object", function() {
-      var object1 = {};
-
-      object1.names = "Rahul";
-      object1.age = "23";
-      object1.place = "Mangalore";
-
-      var object2 = keys(object1);
-
-      deepEqual(object2, ['names','age','place']);
-    });
-
     test("should get a key array for a specified Ember.Object", function() {
       var object1 = EmberObject.create({
         names: "Rahul",
@@ -29087,17 +29127,6 @@ define("ember-runtime/tests/core/keys_test",
       var object2 = keys(object1);
 
       deepEqual(object2, ['names','age','place']);
-    });
-
-    // This test is for IE8.
-    test("should get a key array for property that is named the same as prototype property", function() {
-      var object1 = {
-        toString: function() {}
-      };
-
-      var object2 = keys(object1);
-
-      deepEqual(object2, ['toString']);
     });
 
     test('should not contain properties declared in the prototype', function () {
@@ -39903,7 +39932,7 @@ define("ember-runtime/tests/system/object/create_test.jshint",
     });
   });
 define("ember-runtime/tests/system/object/destroy_test",
-  ["ember-metal/core","ember-metal/run_loop","ember-metal/platform","ember-metal/mixin","ember-metal/property_set","ember-metal/binding","ember-metal/property_events","ember-runtime/keys","ember-runtime/tests/props_helper","ember-runtime/system/object"],
+  ["ember-metal/core","ember-metal/run_loop","ember-metal/platform","ember-metal/mixin","ember-metal/property_set","ember-metal/binding","ember-metal/property_events","ember-metal/keys","ember-runtime/tests/props_helper","ember-runtime/system/object"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
     "use strict";
     var Ember = __dependency1__["default"];
