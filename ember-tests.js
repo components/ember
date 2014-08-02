@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.b66b0b34
+ * @version   1.8.0-beta.1+canary.396d66c3
  */
 
 (function() {
@@ -6464,7 +6464,7 @@ define("ember-handlebars/tests/handlebars_test",
     test("Child views created using the view helper should have their parent view set properly", function() {
       TemplateTests = {};
 
-      var template = '{{#view "Ember.View"}}{{#view "Ember.View"}}{{view "Ember.View"}}{{/view}}{{/view}}';
+      var template = '{{#view}}{{#view}}{{view}}{{/view}}{{/view}}';
 
       view = EmberView.create({
         template: EmberHandlebars.compile(template)
@@ -6479,7 +6479,7 @@ define("ember-handlebars/tests/handlebars_test",
     test("Child views created using the view helper should have their IDs registered for events", function() {
       TemplateTests = {};
 
-      var template = '{{view "Ember.View"}}{{view "Ember.View" id="templateViewTest"}}';
+      var template = '{{view}}{{view id="templateViewTest"}}';
 
       view = EmberView.create({
         template: EmberHandlebars.compile(template)
@@ -6500,7 +6500,7 @@ define("ember-handlebars/tests/handlebars_test",
     test("Child views created using the view helper and that have a viewName should be registered as properties on their parentView", function() {
       TemplateTests = {};
 
-      var template = '{{#view Ember.View}}{{view Ember.View viewName="ohai"}}{{/view}}';
+      var template = '{{#view}}{{view viewName="ohai"}}{{/view}}';
 
       view = EmberView.create({
         template: EmberHandlebars.compile(template)
@@ -6725,7 +6725,7 @@ define("ember-handlebars/tests/handlebars_test",
     test("{{view}} should not allow attributeBindings to be set", function() {
       expectAssertion(function() {
         view = EmberView.create({
-          template: EmberHandlebars.compile('{{view "Ember.View" attributeBindings="one two"}}')
+          template: EmberHandlebars.compile('{{view attributeBindings="one two"}}')
         });
         appendView();
       }, /Setting 'attributeBindings' via Handlebars is not allowed/);
@@ -9796,7 +9796,7 @@ define("ember-handlebars/tests/helpers/if_unless_test",
       view = EmberView.create({
         o: EmberObject.create({foo: '42'}),
 
-        template: compile('{{#with view.o}}{{#view Ember.View}}{{#unless view.doesNotExist}}foo: {{foo}}{{/unless}}{{/view}}{{/with}}')
+        template: compile('{{#with view.o}}{{#view}}{{#unless view.doesNotExist}}foo: {{foo}}{{/unless}}{{/view}}{{/with}}')
       });
 
       appendView(view);
@@ -10599,6 +10599,16 @@ define("ember-handlebars/tests/helpers/view_test",
       }
     });
 
+    test("By default, without a container, EmberView is used", function() {
+      view = EmberView.extend({
+        template: Ember.Handlebars.compile('{{view tagName="span"}}'),
+      }).create();
+
+      run(view, 'appendTo', '#qunit-fixture');
+
+      ok(jQuery('#qunit-fixture').html().match(/<span/), 'contains view with span');
+    });
+
     test("View lookup - App.FuView", function() {
       Ember.lookup = {
         App: {
@@ -10692,7 +10702,7 @@ define("ember-handlebars/tests/helpers/view_test",
 
     test("id bindings downgrade to one-time property lookup", function() {
       view = EmberView.extend({
-        template: Ember.Handlebars.compile("{{#view Ember.View id=view.meshuggah}}{{view.parentView.meshuggah}}{{/view}}"),
+        template: Ember.Handlebars.compile("{{#view id=view.meshuggah}}{{view.parentView.meshuggah}}{{/view}}"),
         meshuggah: 'stengah'
       }).create();
 
@@ -10718,7 +10728,7 @@ define("ember-handlebars/tests/helpers/view_test",
       };
 
       view = EmberView.extend({
-        template: Ember.Handlebars.compile("{{#view Ember.View borfBinding=view.snork}}<p id='lol'>{{view.borf}}</p>{{/view}}"),
+        template: Ember.Handlebars.compile("{{#view borfBinding=view.snork}}<p id='lol'>{{view.borf}}</p>{{/view}}"),
         snork: "nerd"
       }).create();
 
@@ -11351,7 +11361,7 @@ define("ember-handlebars/tests/helpers/yield_test",
 
     test("templates should yield to block, when the yield is embedded in a hierarchy of non-virtual views", function() {
       TemplateTests.NestingView = EmberView.extend({
-        layout: EmberHandlebars.compile('{{#view Ember.View tagName="div" classNames="nesting"}}{{yield}}{{/view}}')
+        layout: EmberHandlebars.compile('{{#view tagName="div" classNames="nesting"}}{{yield}}{{/view}}')
       });
 
       view = EmberView.create({
@@ -11367,7 +11377,7 @@ define("ember-handlebars/tests/helpers/yield_test",
 
     test("block should not be required", function() {
       TemplateTests.YieldingView = EmberView.extend({
-        layout: EmberHandlebars.compile('{{#view Ember.View tagName="div" classNames="yielding"}}{{yield}}{{/view}}')
+        layout: EmberHandlebars.compile('{{#view tagName="div" classNames="yielding"}}{{yield}}{{/view}}')
       });
 
       view = EmberView.create({
