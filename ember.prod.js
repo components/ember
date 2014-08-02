@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.9906d1c6
+ * @version   1.8.0-beta.1+canary.91c823a4
  */
 
 (function() {
@@ -12641,7 +12641,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.9906d1c6
+      @version 1.8.0-beta.1+canary.91c823a4
     */
 
     if ('undefined' === typeof Ember) {
@@ -12668,10 +12668,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.9906d1c6'
+      @default '1.8.0-beta.1+canary.91c823a4'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.9906d1c6';
+    Ember.VERSION = '1.8.0-beta.1+canary.91c823a4';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -41261,6 +41261,9 @@ define("ember-views/views/view",
         Called when the element of the view is going to be destroyed. Override
         this function to do any teardown that requires an element, like removing
         event listeners.
+
+        Please note: any property changes made during this event will have no
+        effect on object observers.
 
         @event willDestroyElement
       */
