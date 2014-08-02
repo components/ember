@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.0c9d8f37
+ * @version   1.8.0-beta.1+canary.e887af96
  */
 
 (function() {
@@ -9088,8 +9088,8 @@ define("ember-handlebars/helpers/unbound",
     }
   });
 define("ember-handlebars/helpers/view",
-  ["ember-metal/core","ember-runtime/system/object","ember-metal/property_get","ember-metal/property_set","ember-metal/mixin","ember-views/system/jquery","ember-views/views/view","ember-metal/binding","ember-handlebars/ext","ember-runtime/system/string","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __exports__) {
+  ["ember-metal/core","ember-runtime/system/object","ember-metal/property_get","ember-metal/property_set","ember-metal/mixin","ember-views/system/jquery","ember-views/views/view","ember-metal/binding","ember-metal/merge","ember-handlebars/ext","ember-runtime/system/string","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
     "use strict";
     /*globals Handlebars */
 
@@ -9109,9 +9109,10 @@ define("ember-handlebars/helpers/view",
     var jQuery = __dependency6__["default"];
     var View = __dependency7__["default"];
     var isGlobalPath = __dependency8__.isGlobalPath;
-    var normalizePath = __dependency9__.normalizePath;
-    var handlebarsGet = __dependency9__.handlebarsGet;
-    var EmberString = __dependency10__["default"];
+    var merge = __dependency9__["default"];
+    var normalizePath = __dependency10__.normalizePath;
+    var handlebarsGet = __dependency10__.handlebarsGet;
+    var EmberString = __dependency11__["default"];
 
 
     var LOWERCASE_A_Z = /^[a-z]/,
@@ -9189,7 +9190,7 @@ define("ember-handlebars/helpers/view",
         }
 
         if (dup) {
-          hash = jQuery.extend({}, hash);
+          hash = merge({}, hash);
           delete hash.id;
           delete hash.tag;
           delete hash['class'];
@@ -9231,7 +9232,7 @@ define("ember-handlebars/helpers/view",
           }
         }
 
-        return jQuery.extend(hash, extensions);
+        return merge(hash, extensions);
       },
 
       // Transform bindings from the current context to a context that can be evaluated within the view.
@@ -12950,7 +12951,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.0c9d8f37
+      @version 1.8.0-beta.1+canary.e887af96
     */
 
     if ('undefined' === typeof Ember) {
@@ -12977,10 +12978,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.0c9d8f37'
+      @default '1.8.0-beta.1+canary.e887af96'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.0c9d8f37';
+    Ember.VERSION = '1.8.0-beta.1+canary.e887af96';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -37317,8 +37318,8 @@ define("ember-views/mixins/view_target_action_support",
     });
   });
 define("ember-views/system/event_dispatcher",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/is_none","ember-metal/run_loop","ember-metal/utils","ember-runtime/system/string","ember-runtime/system/object","ember-views/system/jquery","ember-views/views/view","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/is_none","ember-metal/run_loop","ember-metal/utils","ember-runtime/system/string","ember-runtime/system/object","ember-views/system/jquery","ember-views/views/view","ember-metal/merge","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -37336,6 +37337,7 @@ define("ember-views/system/event_dispatcher",
     var EmberObject = __dependency8__["default"];
     var jQuery = __dependency9__["default"];
     var View = __dependency10__["default"];
+    var merge = __dependency11__["default"];
 
     var ActionHelper;
 
@@ -37455,7 +37457,7 @@ define("ember-views/system/event_dispatcher",
       setup: function(addedEvents, rootElement) {
         var event, events = get(this, 'events');
 
-        jQuery.extend(events, addedEvents || {});
+        merge(events, addedEvents || {});
 
         if (!isNone(rootElement)) {
           set(this, 'rootElement', rootElement);
