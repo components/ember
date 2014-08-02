@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.396d66c3
+ * @version   1.8.0-beta.1+canary.9906d1c6
  */
 
 (function() {
@@ -56221,7 +56221,7 @@ define("ember/tests/routing/basic_test",
     }
 
     test("Errors in transitionTo within redirect hook are logged", function() {
-      expect(2);
+      expect(3);
       var actual = [];
 
       Router.map(function() {
@@ -56235,14 +56235,16 @@ define("ember/tests/routing/basic_test",
         }
       });
 
-      Ember.Logger.error = function(message) {
-        actual.push(message);
+      Ember.Logger.error = function() {
+        // push the arguments onto an array so we can detect if the error gets logged twice
+        actual.push(arguments);
       };
 
       bootApplication();
 
-      equal(actual[0], 'Error while processing route: yondo', 'source route is printed');
-      ok(actual[1].match(/More context objects were passed than there are dynamic segments for the route: stink-bomb/), 'the error is printed');
+      equal(actual.length, 1, 'the error is only logged once');
+      equal(actual[0][0], 'Error while processing route: yondo', 'source route is printed');
+      ok(actual[0][1].match(/More context objects were passed than there are dynamic segments for the route: stink-bomb/), 'the error is printed');
     });
 
     test("Errors in transition show error template if available", function() {
