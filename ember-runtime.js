@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.2e70e8e4
+ * @version   1.8.0-beta.1+canary.00287440
  */
 
 (function() {
@@ -4476,7 +4476,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.2e70e8e4
+      @version 1.8.0-beta.1+canary.00287440
     */
 
     if ('undefined' === typeof Ember) {
@@ -4503,10 +4503,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.2e70e8e4'
+      @default '1.8.0-beta.1+canary.00287440'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.2e70e8e4';
+    Ember.VERSION = '1.8.0-beta.1+canary.00287440';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -12746,10 +12746,22 @@ define("ember-runtime/controllers/array_controller",
     __exports__["default"] = ArrayProxy.extend(ControllerMixin, SortableMixin, {
 
       /**
-        The controller used to wrap items, if any.
+        The controller used to wrap items, if any. If the value is a string, it will
+        be used to lookup the container for the controller. As an alternative, you
+        can also provide a controller class as the value.
+
+        For example:
+
+        ```javascript
+        App.MyArrayController = Ember.ArrayController.extend({
+          itemController: Ember.ObjectController.extend({
+            //Item Controller Implementation
+          })
+        });
+        ```
 
         @property itemController
-        @type String
+        @type String | Ember.Controller
         @default null
       */
       itemController: null,
@@ -12853,7 +12865,7 @@ define("ember-runtime/controllers/array_controller",
       controllerAt: function(idx, object, controllerClass) {
         var container = get(this, 'container');
         var subControllers = this._subControllers;
-        var fullName, subController, parentController;
+        var fullName, subController, subControllerFactory, parentController, options;
 
         if (subControllers.length > idx) {
           subController = subControllers[idx];
@@ -12863,23 +12875,46 @@ define("ember-runtime/controllers/array_controller",
           }
         }
 
-        fullName = 'controller:' + controllerClass;
-
-        if (!container.has(fullName)) {
-          throw new EmberError('Could not resolve itemController: "' + controllerClass + '"');
-        }
-
         if (this._isVirtual) {
           parentController = get(this, 'parentController');
         } else {
           parentController = this;
         }
 
-        subController = container.lookupFactory(fullName).create({
-          target: parentController,
-          parentController: parentController,
-          model: object
-        });
+        if (Ember.FEATURES.isEnabled("ember-runtime-item-controller-inline-class")) {
+          options = {
+            target: parentController,
+            parentController: parentController,
+            model: object
+          };
+
+          if (typeof controllerClass === 'string') {
+            fullName = 'controller:' + controllerClass;
+
+            if (!container.has(fullName)) {
+              throw new EmberError('Could not resolve itemController: "' + controllerClass + '"');
+            }
+
+            subControllerFactory = container.lookupFactory(fullName);
+          } else {
+            subControllerFactory = controllerClass;
+            options.container = container;
+          }
+
+          subController = subControllerFactory.create(options);
+        } else {
+          fullName = 'controller:' + controllerClass;
+
+          if (!container.has(fullName)) {
+            throw new EmberError('Could not resolve itemController: "' + controllerClass + '"');
+          }
+
+          subController = container.lookupFactory(fullName).create({
+            target: parentController,
+            parentController: parentController,
+            model: object
+          });
+        }
 
         subControllers[idx] = subController;
 

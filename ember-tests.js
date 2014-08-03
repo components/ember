@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.2e70e8e4
+ * @version   1.8.0-beta.1+canary.00287440
  */
 
 (function() {
@@ -28312,12 +28312,14 @@ define("ember-runtime/tests/computed/reduce_computed_test.jshint",
     });
   });
 define("ember-runtime/tests/controllers/array_controller_test",
-  ["ember-metal/core","ember-runtime/tests/suites/mutable_array","ember-runtime/controllers/array_controller"],
-  function(__dependency1__, __dependency2__, __dependency3__) {
+  ["ember-metal/core","ember-metal/computed","ember-runtime/tests/suites/mutable_array","ember-runtime/controllers/array_controller","ember-runtime/controllers/object_controller"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
     var Ember = __dependency1__["default"];
-    var MutableArrayTests = __dependency2__["default"];
-    var ArrayController = __dependency3__["default"];
+    var computed = __dependency2__.computed;
+    var MutableArrayTests = __dependency3__["default"];
+    var ArrayController = __dependency4__["default"];
+    var ObjectController = __dependency5__["default"];
 
     QUnit.module("ember-runtime/controllers/array_controller_test");
 
@@ -28353,6 +28355,24 @@ define("ember-runtime/tests/controllers/array_controller_test",
       controller.pushObject('item');
       equal(controller.get('length'), 1);
     });
+
+    if (Ember.FEATURES.isEnabled("ember-runtime-item-controller-inline-class")) {
+      test("Ember.ArrayController can accept a controller class directly as the value for itemController", function() {
+        var controller = ArrayController.create({
+          itemController: ObjectController.extend({
+            expand: computed(function() {
+              return this.get('text') + ' is working!';
+            }).property('text')
+          })
+        });
+
+        controller.pushObjects([{
+          text: 'itemController'
+        }]);
+
+        strictEqual(controller.get('firstObject.expand'), 'itemController is working!');
+      });
+    }
   });
 define("ember-runtime/tests/controllers/array_controller_test.jshint",
   [],
