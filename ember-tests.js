@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.e887af96
+ * @version   1.8.0-beta.1+canary.7d353980
  */
 
 (function() {
@@ -45832,7 +45832,7 @@ define("ember-views/tests/views/container_view_test",
 
       equal(view.container, container.container, 'view gains its containerViews container');
       equal(view._parentView, container, 'view\'s _parentView is the container');
-      equal(jQuery.trim(container.$().text()), "This is my moment");
+      equal(trim(container.$().text()), "This is my moment");
 
       run(function() {
         container.destroy();
@@ -46081,7 +46081,7 @@ define("ember-views/tests/views/container_view_test",
         container.appendTo('#qunit-fixture');
       });
 
-      equal(jQuery.trim(container.$().text()), "This is the main view.", "should render its child");
+      equal(trim(container.$().text()), "This is the main view.", "should render its child");
       equal(get(container, 'length'), 1, "should have one child view");
       equal(container.objectAt(0), mainView, "should have the currentView as the only child view");
       equal(mainView.get('parentView'), container, "parentView is setup");
@@ -46277,7 +46277,7 @@ define("ember-views/tests/views/container_view_test",
       equal(container.objectAt(0), secondaryView, "should have the currentView as the only child view");
       equal(mainView.isDestroyed, true, 'should destroy the previous currentView: mainView.');
 
-      equal(jQuery.trim(container.$().text()), "This is the secondary view.", "should render its child");
+      equal(trim(container.$().text()), "This is the secondary view.", "should render its child");
 
       run(function() {
         set(container, 'currentView', tertiaryView);
@@ -46287,7 +46287,7 @@ define("ember-views/tests/views/container_view_test",
       equal(container.objectAt(0), tertiaryView, "should have the currentView as the only child view");
       equal(secondaryView.isDestroyed, true, 'should destroy the previous currentView: secondaryView.');
 
-      equal(jQuery.trim(container.$().text()), "This is the tertiary view.", "should render its child");
+      equal(trim(container.$().text()), "This is the tertiary view.", "should render its child");
     });
 
     test("should be able to modify childViews many times during an run loop", function () {
