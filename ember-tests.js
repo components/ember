@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.e7d549de
+ * @version   1.8.0-beta.1+canary.0e89e303
  */
 
 (function() {
@@ -56791,6 +56791,24 @@ define("ember/tests/routing/query_params_test",
         });
 
         startingURL = "/omg";
+        bootApplication();
+      });
+
+      test("Route#paramsFor fetches falsy query params", function() {
+        expect(1);
+
+        App.IndexController = Ember.Controller.extend({
+          queryParams: ['foo'],
+          foo: true
+        });
+
+        App.IndexRoute = Ember.Route.extend({
+          model: function(params, transition) {
+            equal(params.foo, false);
+          }
+        });
+
+        startingURL = "/?foo=false";
         bootApplication();
       });
 
