@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.9a2f5e94
+ * @version   1.8.0-beta.1+canary.2e70e8e4
  */
 
 (function() {
@@ -8961,6 +8961,7 @@ define("ember-handlebars/helpers/view",
 
       helper: function(thisContext, path, options) {
         var data = options.data,
+            hash = merge({}, options.hash),
             fn = options.fn,
             newView;
 
@@ -8994,6 +8995,7 @@ define("ember-handlebars/helpers/view",
         var viewOptions = this.propertiesFromHTMLOptions(options, thisContext);
         var currentView = data.view;
         viewOptions.templateData = data;
+        viewOptions.templateHash = hash;
         var newViewProto = newView.proto ? newView.proto() : newView;
 
         if (fn) {
@@ -12646,7 +12648,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.9a2f5e94
+      @version 1.8.0-beta.1+canary.2e70e8e4
     */
 
     if ('undefined' === typeof Ember) {
@@ -12673,10 +12675,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.9a2f5e94'
+      @default '1.8.0-beta.1+canary.2e70e8e4'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.9a2f5e94';
+    Ember.VERSION = '1.8.0-beta.1+canary.2e70e8e4';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`

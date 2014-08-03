@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.9a2f5e94
+ * @version   1.8.0-beta.1+canary.2e70e8e4
  */
 
 (function() {
@@ -10809,6 +10809,22 @@ define("ember-handlebars/tests/helpers/view_test",
       ok(jQuery('#foo').is('h1'));
       ok(jQuery('#bar').hasClass('bar'));
       equal(jQuery('#bar').text(), 'Bar');
+    });
+
+    test("passes templateHash into the view", function() {
+      expect(1);
+
+      var container = new Container();
+      container.register('view:toplevel', EmberView.extend());
+
+      view = EmberView.extend({
+        template: Ember.Handlebars.compile('{{#view id="foo" bar="qux"}}{{view.templateHash.bar}}{{/view}}'),
+        container: container
+      }).create();
+
+      run(view, 'appendTo', '#qunit-fixture');
+
+      equal(jQuery('#foo').text(), 'qux');
     });
   });
 define("ember-handlebars/tests/helpers/view_test.jshint",
