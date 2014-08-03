@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.0e89e303
+ * @version   1.8.0-beta.1+canary.ef94cdb5
  */
 
 (function() {
@@ -1656,6 +1656,7 @@ define("container/container",
       if (!factory || typeof factory.extend !== 'function' || (!Ember.MODEL_FACTORY_INJECTIONS && type === 'model')) {
         // TODO: think about a 'safe' merge style extension
         // for now just fallback to create time injection
+        cache[fullName] = factory;
         return factory;
       } else {
         var injections = injectionsFor(container, fullName);
@@ -12645,7 +12646,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.0e89e303
+      @version 1.8.0-beta.1+canary.ef94cdb5
     */
 
     if ('undefined' === typeof Ember) {
@@ -12672,10 +12673,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.0e89e303'
+      @default '1.8.0-beta.1+canary.ef94cdb5'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.0e89e303';
+    Ember.VERSION = '1.8.0-beta.1+canary.ef94cdb5';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
