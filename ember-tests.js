@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.fe26a9c7
+ * @version   1.8.0-beta.1+canary.e24b0e2e
  */
 
 (function() {
@@ -789,6 +789,57 @@ define("container/tests/container_test",
       throws(function() {
         container.factoryInjection('apple:main', 'worm', 'worm:main');
       }, "Attempted to register a factoryInjection for a type that has already been looked up. ('apple:main', 'worm', 'worm:main')");
+    });
+
+    test("factory resolves are cached", function() {
+      var container = new Container();
+      var PostController = factory();
+      var resolveWasCalled = [];
+      container.resolve = function(fullName) {
+        resolveWasCalled.push(fullName);
+        return PostController;
+      };
+
+      deepEqual(resolveWasCalled, []);
+      container.lookupFactory('controller:post');
+      deepEqual(resolveWasCalled, ['controller:post']);
+
+      container.lookupFactory('controller:post');
+      deepEqual(resolveWasCalled, ['controller:post']);
+    });
+
+    test("factory for non extendables (MODEL) resolves are cached", function() {
+      var container = new Container();
+      var PostController = factory();
+      var resolveWasCalled = [];
+      container.resolve = function(fullName) {
+        resolveWasCalled.push(fullName);
+        return PostController;
+      };
+
+      deepEqual(resolveWasCalled, []);
+      container.lookupFactory('model:post');
+      deepEqual(resolveWasCalled, ['model:post']);
+
+      container.lookupFactory('model:post');
+      deepEqual(resolveWasCalled, ['model:post']);
+    });
+
+    test("factory for non extendables resolves are cached", function() {
+      var container = new Container();
+      var PostController = {};
+      var resolveWasCalled = [];
+      container.resolve = function(fullName) {
+        resolveWasCalled.push(fullName);
+        return PostController;
+      };
+
+      deepEqual(resolveWasCalled, []);
+      container.lookupFactory('foo:post');
+      deepEqual(resolveWasCalled, ['foo:post']);
+
+      container.lookupFactory('foo:post');
+      deepEqual(resolveWasCalled, ['foo:post']);
     });
   });
 define("container/tests/container_test.jshint",
