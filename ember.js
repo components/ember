@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.65ccd298
+ * @version   1.8.0-beta.1+canary.cbe0f436
  */
 
 (function() {
@@ -12951,7 +12951,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.65ccd298
+      @version 1.8.0-beta.1+canary.cbe0f436
     */
 
     if ('undefined' === typeof Ember) {
@@ -12978,10 +12978,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.65ccd298'
+      @default '1.8.0-beta.1+canary.cbe0f436'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.65ccd298';
+    Ember.VERSION = '1.8.0-beta.1+canary.cbe0f436';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -22649,7 +22649,7 @@ define("ember-routing/system/route",
 
         @method reset
       */
-      reset: function(isExiting, transition) {
+      _reset: function(isExiting, transition) {
         
           var controller = this.controller;
           controller._qpDelegate = get(this, '_qp.states.inactive');
@@ -43814,6 +43814,7 @@ define("router/handler-info",
     var merge = __dependency1__.merge;
     var serialize = __dependency1__.serialize;
     var promiseLabel = __dependency1__.promiseLabel;
+    var applyHook = __dependency1__.applyHook;
     var Promise = __dependency2__["default"];
 
     function HandlerInfo(_props) {
@@ -43900,8 +43901,7 @@ define("router/handler-info",
         }
         args.push(payload);
 
-        var handler = this.handler;
-        var result = handler[hookName] && handler[hookName].apply(handler, args);
+        var result = applyHook(this.handler, hookName, args);
 
         if (result && result.isTransition) {
           result = null;
@@ -44104,6 +44104,7 @@ define("router/handler-info/unresolved-handler-info-by-param",
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     var HandlerInfo = __dependency1__["default"];
+    var resolveHook = __dependency2__.resolveHook;
     var merge = __dependency2__.merge;
     var subclass = __dependency2__.subclass;
     var promiseLabel = __dependency2__.promiseLabel;
@@ -44122,8 +44123,9 @@ define("router/handler-info/unresolved-handler-info-by-param",
           fullParams.queryParams = payload.queryParams;
         }
 
-        var hookName = typeof this.handler.deserialize === 'function' ?
-                       'deserialize' : 'model';
+        var handler = this.handler;
+        var hookName = resolveHook(handler, 'deserialize') ||
+                       resolveHook(handler, 'model');
 
         return this.runSharedModelHook(payload, hookName, [fullParams]);
       }
@@ -44146,6 +44148,7 @@ define("router/router",
     var extractQueryParams = __dependency3__.extractQueryParams;
     var getChangelist = __dependency3__.getChangelist;
     var promiseLabel = __dependency3__.promiseLabel;
+    var callHook = __dependency3__.callHook;
     var TransitionState = __dependency4__["default"];
     var logAbort = __dependency5__.logAbort;
     var Transition = __dependency5__.Transition;
@@ -44289,11 +44292,9 @@ define("router/router",
       */
       reset: function() {
         if (this.state) {
-          forEach(this.state.handlerInfos, function(handlerInfo) {
+          forEach(this.state.handlerInfos.slice().reverse(), function(handlerInfo) {
             var handler = handlerInfo.handler;
-            if (handler.exit) {
-              handler.exit();
-            }
+            callHook(handler, 'exit');
           });
         }
 
@@ -44357,7 +44358,7 @@ define("router/router",
       },
 
       intermediateTransitionTo: function(name) {
-        doTransition(this, arguments, true);
+        return doTransition(this, arguments, true);
       },
 
       refresh: function(pivotHandler) {
@@ -44577,8 +44578,9 @@ define("router/router",
       forEach(partition.exited, function(handlerInfo) {
         var handler = handlerInfo.handler;
         delete handler.context;
-        if (handler.reset) { handler.reset(true, transition); }
-        if (handler.exit) { handler.exit(transition); }
+
+        callHook(handler, 'reset', true, transition);
+        callHook(handler, 'exit', transition);
       });
 
       var oldState = router.oldState = router.state;
@@ -44588,7 +44590,7 @@ define("router/router",
       try {
         forEach(partition.reset, function(handlerInfo) {
           var handler = handlerInfo.handler;
-          if (handler.reset) { handler.reset(false, transition); }
+          callHook(handler, 'reset', false, transition);
         });
 
         forEach(partition.updatedContext, function(handlerInfo) {
@@ -44619,15 +44621,15 @@ define("router/router",
       var handler = handlerInfo.handler,
           context = handlerInfo.context;
 
-      if (enter && handler.enter) { handler.enter(transition); }
+      callHook(handler, 'enter', transition);
       if (transition && transition.isAborted) {
         throw new TransitionAborted();
       }
 
       handler.context = context;
-      if (handler.contextDidChange) { handler.contextDidChange(); }
+      callHook(handler, 'contextDidChange');
 
-      if (handler.setup) { handler.setup(context, transition); }
+      callHook(handler, 'setup', context, transition);
       if (transition && transition.isAborted) {
         throw new TransitionAborted();
       }
@@ -44690,7 +44692,7 @@ define("router/router",
             unchanged: []
           };
 
-      var handlerChanged, contextChanged, i, l;
+      var handlerChanged, contextChanged = false, i, l;
 
       for (i=0, l=newHandlers.length; i<l; i++) {
         var oldHandler = oldHandlers[i], newHandler = newHandlers[i];
@@ -44908,9 +44910,10 @@ define("router/router",
       var oldHandlers = router.state.handlerInfos,
           changing = [],
           leavingIndex = null,
-          leaving, leavingChecker, i, oldHandler, newHandler;
+          leaving, leavingChecker, i, oldHandlerLen, oldHandler, newHandler;
 
-      for (i = 0; i < oldHandlers.length; i++) {
+      oldHandlerLen = oldHandlers.length;
+      for (i = 0; i < oldHandlerLen; i++) {
         oldHandler = oldHandlers[i];
         newHandler = newState.handlerInfos[i];
 
@@ -44925,9 +44928,9 @@ define("router/router",
       }
 
       if (leavingIndex !== null) {
-        leaving = oldHandlers.slice(leavingIndex, oldHandlers.length);
+        leaving = oldHandlers.slice(leavingIndex, oldHandlerLen);
         leavingChecker = function(name) {
-          for (var h = 0; h < leaving.length; h++) {
+          for (var h = 0, len = leaving.length; h < len; h++) {
             if (leaving[h].name === name) {
               return true;
             }
@@ -45006,7 +45009,7 @@ define("router/transition-intent/named-transition-intent",
 
       applyToHandlers: function(oldState, handlers, getHandler, targetRouteName, isIntermediate, checkingIfActive) {
 
-        var i;
+        var i, len;
         var newState = new TransitionState();
         var objects = this.contexts.slice(0);
 
@@ -45014,7 +45017,7 @@ define("router/transition-intent/named-transition-intent",
 
         // Pivot handlers are provided for refresh transitions
         if (this.pivotHandler) {
-          for (i = 0; i < handlers.length; ++i) {
+          for (i = 0, len = handlers.length; i < len; ++i) {
             if (getHandler(handlers[i].handler) === this.pivotHandler) {
               invalidateIndex = i;
               break;
@@ -45245,6 +45248,7 @@ define("router/transition-state",
     var ResolvedHandlerInfo = __dependency1__.ResolvedHandlerInfo;
     var forEach = __dependency2__.forEach;
     var promiseLabel = __dependency2__.promiseLabel;
+    var callHook = __dependency2__.callHook;
     var Promise = __dependency3__["default"];
 
     function TransitionState(other) {
@@ -45325,9 +45329,7 @@ define("router/transition-state",
             // routes don't re-run the model hooks for this
             // already-resolved route.
             var handler = resolvedHandlerInfo.handler;
-            if (handler && handler.redirect) {
-              handler.redirect(resolvedHandlerInfo.context, payload);
-            }
+            callHook(handler, 'redirect', resolvedHandlerInfo.context, payload);
           }
 
           // Proceed after ensuring that the redirect hook
@@ -45396,7 +45398,7 @@ define("router/transition",
 
         var len = state.handlerInfos.length;
         if (len) {
-          this.targetName = state.handlerInfos[state.handlerInfos.length-1].name;
+          this.targetName = state.handlerInfos[len-1].name;
         }
 
         for (var i = 0; i < len; ++i) {
@@ -45821,10 +45823,32 @@ define("router/utils",
       return C;
     }
 
-    __exports__.subclass = subclass;__exports__.merge = merge;
+    __exports__.subclass = subclass;function resolveHook(obj, hookName) {
+      if (!obj) { return; }
+      var underscored = "_" + hookName;
+      return obj[underscored] && underscored ||
+             obj[hookName] && hookName;
+    }
+
+    function callHook(obj, hookName) {
+      var args = slice.call(arguments, 2);
+      return applyHook(obj, hookName, args);
+    }
+
+    function applyHook(obj, _hookName, args) {
+      var hookName = resolveHook(obj, _hookName);
+      if (hookName) {
+        return obj[hookName].apply(obj, args);
+      }
+    }
+
+    __exports__.merge = merge;
     __exports__.slice = slice;
     __exports__.isParam = isParam;
     __exports__.coerceQueryParamsToString = coerceQueryParamsToString;
+    __exports__.callHook = callHook;
+    __exports__.resolveHook = resolveHook;
+    __exports__.applyHook = applyHook;
   });
 define("rsvp",
   ["./rsvp/promise","./rsvp/events","./rsvp/node","./rsvp/all","./rsvp/all-settled","./rsvp/race","./rsvp/hash","./rsvp/hash-settled","./rsvp/rethrow","./rsvp/defer","./rsvp/config","./rsvp/map","./rsvp/resolve","./rsvp/reject","./rsvp/filter","./rsvp/asap","exports"],
