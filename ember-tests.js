@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.cbe0f436
+ * @version   1.8.0-beta.1+canary.9f0addf7
  */
 
 (function() {
@@ -8210,7 +8210,9 @@ define("ember-handlebars/tests/helpers/bound_helper_test",
         template: EmberHandlebars.compile("{{capitalize TemplateTests.text}}")
       });
 
-      appendView();
+      expectDeprecation(function() {
+        appendView();
+      }, /Global lookup of TemplateTests.text from a Handlebars template is deprecated/);
 
       ok(view.$().text() === 'AB', "helper output is correct");
     });
@@ -10895,16 +10897,18 @@ define("ember-handlebars/tests/helpers/with_test",
 
       equal(view.$().text(), "Limbo-Wrath-Treachery-Wrath-Limbo", "should be properly scoped after updating");
     });
-    QUnit.module("Handlebars {{#with}} globals helper", {
+    QUnit.module("Handlebars {{#with}} globals helper [DEPRECATED]", {
       setup: function() {
         Ember.lookup = lookup = { Ember: Ember };
 
-        lookup.Foo = { bar: 'baz' };
-        view = EmberView.create({
-          template: EmberHandlebars.compile("{{#with Foo.bar as qux}}{{qux}}{{/with}}")
-        });
+        ignoreDeprecation(function() {
+          lookup.Foo = { bar: 'baz' };
+          view = EmberView.create({
+            template: EmberHandlebars.compile("{{#with Foo.bar as qux}}{{qux}}{{/with}}")
+          });
 
-        appendView(view);
+          appendView(view);
+        });
       },
 
       teardown: function() {
@@ -10915,11 +10919,13 @@ define("ember-handlebars/tests/helpers/with_test",
       }
     });
 
-    test("it should support #with Foo.bar as qux", function() {
+    test("it should support #with Foo.bar as qux [DEPRECATED]", function() {
       equal(view.$().text(), "baz", "should be properly scoped");
 
-      run(function() {
-        set(lookup.Foo, 'bar', 'updated');
+      ignoreDeprecation(function() {
+        run(function() {
+            set(lookup.Foo, 'bar', 'updated');
+        });
       });
 
       equal(view.$().text(), "updated", "should update");
@@ -11884,7 +11890,7 @@ define("ember-handlebars/tests/lookup_test",
 
       var context = {};
 
-      var params = Ember.Handlebars.resolveParams(context, ["Global"], { types: ["ID"] });
+      var params = Ember.Handlebars.resolveParams(context, ["Global"], { types: ["ID"], silenceGlobalDeprecation: true });
       deepEqual(params, [Ember.lookup.Global]);
     });
 
