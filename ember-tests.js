@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.7d353980
+ * @version   1.8.0-beta.1+canary.65ccd298
  */
 
 (function() {
@@ -31787,16 +31787,20 @@ define("ember-runtime/tests/legacy_1x/system/set_test",
     });
 
     test("new Set() should create empty set", function() {
-      var set = new Set() ;
-      equal(set.length, 0) ;
+      ignoreDeprecation(function() {
+        var set = new Set() ;
+        equal(set.length, 0) ;
+      });
     });
 
     test("new Set([1,2,3]) should create set with three items in them", function() {
-      var set = new Set(Ember.A([a,b,c])) ;
-      equal(set.length, 3) ;
-      equal(set.contains(a), true) ;
-      equal(set.contains(b), true) ;
-      equal(set.contains(c), true) ;
+      ignoreDeprecation(function() {
+        var set = new Set(Ember.A([a,b,c])) ;
+        equal(set.length, 3) ;
+        equal(set.contains(a), true) ;
+        equal(set.contains(b), true) ;
+        equal(set.contains(c), true) ;
+      });
     });
 
     test("new Set() should accept anything that implements EmberArray", function() {
@@ -31806,11 +31810,13 @@ define("ember-runtime/tests/legacy_1x/system/set_test",
         objectAt: function(idx) { return this._content[idx]; }
       }) ;
 
-      var set = new Set(arrayLikeObject) ;
-      equal(set.length, 3) ;
-      equal(set.contains(a), true) ;
-      equal(set.contains(b), true) ;
-      equal(set.contains(c), true) ;
+      ignoreDeprecation(function() {
+        var set = new Set(arrayLikeObject) ;
+        equal(set.length, 3) ;
+        equal(set.contains(a), true) ;
+        equal(set.contains(b), true) ;
+        equal(set.contains(c), true) ;
+      });
     });
 
     var set ; // global variables
@@ -31820,7 +31826,9 @@ define("ember-runtime/tests/legacy_1x/system/set_test",
     QUnit.module("Set.add + Set.contains", {
 
       setup: function() {
-        set = new Set() ;
+        ignoreDeprecation(function() {
+          set = new Set() ;
+        });
       },
 
       teardown: function() {
@@ -31925,11 +31933,13 @@ define("ember-runtime/tests/legacy_1x/system/set_test",
       // generate a set with every type of object, but none of the specific
       // ones we add in the tests below...
       setup: function() {
-        set = new Set(Ember.A([
-          EmberObject.create({ dummy: true }),
-          { isHash: true },
-          "Not the String",
-          16, true, false, 0])) ;
+        ignoreDeprecation(function() {
+          set = new Set(Ember.A([
+            EmberObject.create({ dummy: true }),
+            { isHash: true },
+            "Not the String",
+            16, true, false, 0])) ;
+        });
       },
 
       teardown: function() {
@@ -32034,16 +32044,18 @@ define("ember-runtime/tests/legacy_1x/system/set_test",
     // generate a set with every type of object, but none of the specific
     // ones we add in the tests below...
       setup: function() {
-        set = new Set(Ember.A([
-          EmberObject.create({ dummy: true }),
-          { isHash: true },
-          "Not the String",
-          16, false])) ;
-        },
+        ignoreDeprecation(function() {
+          set = new Set(Ember.A([
+            EmberObject.create({ dummy: true }),
+            { isHash: true },
+            "Not the String",
+            16, false])) ;
+        });
+      },
 
-        teardown: function() {
-          set = undefined ;
-        }
+      teardown: function() {
+        set = undefined ;
+      }
     });
 
     test("the pop() should remove an arbitrary object from the set", function() {
@@ -32054,16 +32066,22 @@ define("ember-runtime/tests/legacy_1x/system/set_test",
     });
 
     test("should pop false and 0", function() {
-      set = new Set(Ember.A([false]));
-      ok(set.pop() === false, "should pop false");
+      ignoreDeprecation(function() {
+        set = new Set(Ember.A([false]));
+        ok(set.pop() === false, "should pop false");
 
-      set = new Set(Ember.A([0]));
-      ok(set.pop() === 0, "should pop 0");
+        set = new Set(Ember.A([0]));
+        ok(set.pop() === 0, "should pop 0");
+      });
     });
 
     test("the copy() should return an indentical set", function() {
-      var oldLength = set.length ;
-      var obj = set.copy();
+      var oldLength = set.length, obj;
+
+      ignoreDeprecation(function() {
+        obj = set.copy();
+      });
+
       equal(oldLength,obj.length,'length of the clone should be same');
       equal(obj.contains(set[0]), true);
       equal(obj.contains(set[1]), true);
@@ -41197,12 +41215,29 @@ define("ember-runtime/tests/system/set/copyable_suite_test",
     var generateGuid = __dependency3__.generateGuid;
     var get = __dependency4__.get;
 
+    ignoreDeprecation(function() {
     CopyableTests.extend({
       name: 'Ember.Set Copyable',
 
       newObject: function() {
-        var set = new Set();
+        var set, originalCopy;
+        ignoreDeprecation(function() {
+          set = new Set();
+        });
+
         set.addObject(generateGuid());
+
+        originalCopy = set.copy;
+        set.copy = function() {
+          var ret;
+
+          ignoreDeprecation(function() {
+            ret = originalCopy.apply(set, arguments);
+          });
+
+          return ret;
+        };
+
         return set;
       },
 
@@ -41214,6 +41249,8 @@ define("ember-runtime/tests/system/set/copyable_suite_test",
 
       shouldBeFreezable: true
     }).run();
+
+    });
   });
 define("ember-runtime/tests/system/set/copyable_suite_test.jshint",
   [],
@@ -41237,18 +41274,31 @@ define("ember-runtime/tests/system/set/enumerable_suite_test",
       name: 'Ember.Set',
 
       newObject: function(ary) {
+        var ret;
         ary = ary ? ary.slice() : this.newFixture(3);
-        var ret = new Set();
-        ret.addObjects(ary);
+
+        ignoreDeprecation(function() {
+          ret =  new Set();
+          ret.addObjects(ary);
+        });
+
         return ret;
       },
 
       mutate: function(obj) {
-        obj.addObject(get(obj, 'length')+1);
+        ignoreDeprecation(function() {
+          obj.addObject(get(obj, 'length')+1);
+        });
       },
 
       toArray: function(obj) {
-        return obj.toArray ? obj.toArray() : obj.slice(); // make a copy.
+        var ret;
+
+        ignoreDeprecation(function() {
+          ret = obj.toArray ? obj.toArray() : obj.slice(); // make a copy.
+        });
+
+        return ret;
       }
 
     }).run();
@@ -41275,10 +41325,14 @@ define("ember-runtime/tests/system/set/extra_test",
     QUnit.module('Set.init');
 
     test('passing an array to new Set() should instantiate w/ items', function() {
+      var aSet;
 
       var ary  = [1,2,3];
-      var aSet = new Set(ary);
       var count = 0;
+
+      ignoreDeprecation(function() {
+        aSet = new Set(ary);
+      });
 
       equal(get(aSet, 'length'), 3, 'should have three items');
       aSet.forEach(function(x) {
@@ -41291,9 +41345,12 @@ define("ember-runtime/tests/system/set/extra_test",
     QUnit.module('Set.clear');
 
     test('should clear a set of its content', function() {
-
-      var aSet = new Set([1,2,3]);
+      var aSet;
       var count = 0;
+
+      ignoreDeprecation(function() {
+        aSet = new Set([1,2,3]);
+      });
 
       equal(get(aSet, 'length'), 3, 'should have three items');
       ok(get(aSet, 'firstObject'), 'firstObject should return an object');
@@ -41319,9 +41376,13 @@ define("ember-runtime/tests/system/set/extra_test",
     QUnit.module('Set.pop');
 
     test('calling pop should return an object and remove it', function() {
-
-      var aSet = new Set([1,2,3]);
+      var aSet;
       var count = 0, obj;
+
+      ignoreDeprecation(function() {
+        aSet = new Set([1,2,3]);
+      });
+
       while(count<10 && (obj = aSet.pop())) {
         equal(aSet.contains(obj), false, 'set should no longer contain object');
         count++;
@@ -41340,7 +41401,12 @@ define("ember-runtime/tests/system/set/extra_test",
     QUnit.module('Set aliases');
 
     test('method aliases', function() {
-      var aSet = new Set();
+      var aSet;
+
+      ignoreDeprecation(function() {
+        aSet = new Set();
+      });
+
       equal(aSet.add, aSet.addObject, 'add -> addObject');
       equal(aSet.remove, aSet.removeObject, 'remove -> removeObject');
       equal(aSet.addEach, aSet.addObjects, 'addEach -> addObjects');
