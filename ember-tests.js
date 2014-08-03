@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.9f0addf7
+ * @version   1.8.0-beta.1+canary.e7d549de
  */
 
 (function() {
@@ -57833,6 +57833,13 @@ define("ember/tests/routing/query_params_test",
         equal(Ember.$('#two').attr('href'), "/a/a-2/comments");
       });
 
+      test("can unit test without bucket cache", function() {
+        var controller = container.lookup('controller:article');
+        controller._bucketCache = null;
+
+        controller.set('q', "i used to break");
+        equal(controller.get('q'), "i used to break");
+      });
 
       QUnit.module("Query Params - overlapping query param property names", {
         setup: function() {
