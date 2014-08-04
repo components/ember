@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.fc3799c4
+ * @version   1.8.0-beta.1+canary.c3399321
  */
 
 (function() {
@@ -12647,7 +12647,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.fc3799c4
+      @version 1.8.0-beta.1+canary.c3399321
     */
 
     if ('undefined' === typeof Ember) {
@@ -12674,10 +12674,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.fc3799c4'
+      @default '1.8.0-beta.1+canary.c3399321'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.fc3799c4';
+    Ember.VERSION = '1.8.0-beta.1+canary.c3399321';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -38898,6 +38898,9 @@ define("ember-views/views/container_view",
     */
     var ContainerView = View.extend(MutableArray, {
       _states: states,
+
+      willWatchProperty: function(prop){
+              },
 
       init: function() {
         this._super();
