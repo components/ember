@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.188ec515
+ * @version   1.8.0-beta.1+canary.fc3799c4
  */
 
 (function() {
@@ -3601,6 +3601,27 @@ define("ember-handlebars/tests/controls/checkbox_test",
         append();
       }, /you must use `checked=/);
     });
+
+    QUnit.module("{{input type='checkbox'}} - prevent dynamic type", {
+      setup: function() {
+        checkboxView = EmberView.extend({
+          controller: controller,
+          inputType: "checkbox",
+          template: compile('{{input type=inputType}}')
+        }).create();
+      },
+
+      teardown: function() {
+        destroy(checkboxView);
+      }
+    });
+
+    test("It works", function() {
+      expectAssertion(function() {
+        append();
+      }, /not a variable/);
+    });
+
 
     QUnit.module("{{input type='checkbox'}} - static values", {
       setup: function() {
@@ -42572,7 +42593,7 @@ define("ember-testing/tests/acceptance_test",
           });
 
           App.CommentsView = EmberView.extend({
-            defaultTemplate: EmberHandlebars.compile("{{input type=text}}")
+            defaultTemplate: EmberHandlebars.compile('{{input type="text"}}')
           });
 
           App.AbortTransitionRoute = EmberRoute.extend({
