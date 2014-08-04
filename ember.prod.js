@@ -38241,6 +38241,9 @@ define("ember-views/views/container_view",
     var ContainerView = View.extend(MutableArray, {
       _states: states,
 
+      willWatchProperty: function(prop){
+              },
+
       init: function() {
         this._super();
 
