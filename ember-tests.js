@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.a7308cec
+ * @version   1.8.0-beta.1+canary.188ec515
  */
 
 (function() {
@@ -56493,12 +56493,13 @@ define("ember/tests/routing/basic_test.jshint",
     });
   });
 define("ember/tests/routing/query_params_test",
-  ["ember","ember-metal/enumerable_utils","ember-metal/platform"],
-  function(__dependency1__, __dependency2__, __dependency3__) {
+  ["ember","ember-metal/enumerable_utils","ember-metal/computed","ember-metal/platform"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
     var forEach = __dependency2__.forEach;
     var map = __dependency2__.map;
-    var platform = __dependency3__.platform;
+    var computed = __dependency3__.computed;
+    var platform = __dependency4__.platform;
 
     var Router, App, AppView, templates, router, container;
     var get = Ember.get;
@@ -56714,6 +56715,27 @@ define("ember/tests/routing/query_params_test",
         expectedReplaceURL = "/?foo=123";
 
         bootApplication();
+      });
+
+      test("Can override inherited QP behavior by specifying queryParams as a computed property", function() {
+        expect(0);
+        var SharedMixin = Ember.Mixin.create({
+          queryParams: ['a'],
+          a: 0
+        });
+
+        App.IndexController = Ember.Controller.extend(SharedMixin, {
+          queryParams: computed(function() {
+            return ['c'];
+          }),
+          c: true
+        });
+
+        bootApplication();
+        var indexController = container.lookup('controller:index');
+
+        expectedReplaceURL = "not gonna happen";
+        Ember.run(indexController, 'set', 'a', 1);
       });
 
       test("model hooks receives query params", function() {

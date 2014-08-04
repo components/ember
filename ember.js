@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.a7308cec
+ * @version   1.8.0-beta.1+canary.188ec515
  */
 
 (function() {
@@ -12952,7 +12952,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.a7308cec
+      @version 1.8.0-beta.1+canary.188ec515
     */
 
     if ('undefined' === typeof Ember) {
@@ -12979,10 +12979,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.a7308cec'
+      @default '1.8.0-beta.1+canary.188ec515'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.a7308cec';
+    Ember.VERSION = '1.8.0-beta.1+canary.188ec515';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -20966,7 +20966,7 @@ define("ember-routing/ext/controller",
             return get(m.proto, '_normalizedQueryParams');
           }
 
-          var queryParams = this.queryParams;
+          var queryParams = get(this, 'queryParams');
           if (queryParams._qpMap) {
             return queryParams._qpMap;
           }
