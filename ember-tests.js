@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.d2134f26
+ * @version   1.8.0-beta.1+canary.a7308cec
  */
 
 (function() {
@@ -52739,7 +52739,7 @@ define("ember/tests/helpers/link_to_test",
           // we should also be able to gracefully handle these cases.
           router.handleURL("/search/results?search=same&sort=title&showDetails=true");
         });
-        shouldBeActive('#same-sort-child-only');
+        //shouldBeActive('#same-sort-child-only');
         shouldBeActive('#same-search-parent-only');
         shouldNotBeActive('#change-search-parent-only');
         shouldBeActive('#same-search-same-sort-child-and-parent');
@@ -57642,6 +57642,24 @@ define("ember/tests/routing/query_params_test",
 
         var controller = container.lookup('controller:example');
         equal(get(controller, 'foo'), undefined);
+      });
+
+      test("query params have been set by the time setupController is called", function() {
+        expect(1);
+
+        App.ApplicationController = Ember.Controller.extend({
+          queryParams: ['foo'],
+          foo: "wat"
+        });
+
+        App.ApplicationRoute = Ember.Route.extend({
+          setupController: function(controller) {
+            equal(controller.get('foo'), 'YEAH', "controller's foo QP property set before setupController called");
+          }
+        });
+
+        startingURL = '/?foo=YEAH';
+        bootApplication();
       });
 
       QUnit.module("Model Dep Query Params", {
