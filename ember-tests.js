@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.64090bb6
+ * @version   1.8.0-beta.1+canary.9ded26c4
  */
 
 (function() {
@@ -29090,6 +29090,12 @@ define("ember-runtime/tests/core/copy_test",
       var date = new Date(2014, 7, 22),
           dateCopy = copy(date);
       equal(date.getTime(), dateCopy.getTime(), "dates should be equivalent");
+    });
+
+    test("Ember.copy null prototype object", function() {
+      var obj = Object.create(null);
+      obj.foo = 'bar';
+      equal(copy(obj).foo, 'bar', 'bar should still be bar');
     });
   });
 define("ember-runtime/tests/core/copy_test.jshint",
