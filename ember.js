@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.9ded26c4
+ * @version   1.8.0-beta.1+canary.6615f727
  */
 
 (function() {
@@ -4887,8 +4887,8 @@ define("ember-handlebars/component_lookup",
     __exports__["default"] = ComponentLookup;
   });
 define("ember-handlebars/controls",
-  ["ember-handlebars/controls/checkbox","ember-handlebars/controls/text_field","ember-handlebars/controls/text_area","ember-metal/core","ember-handlebars-compiler","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
+  ["ember-handlebars/controls/checkbox","ember-handlebars/controls/text_field","ember-handlebars/controls/text_area","ember-metal/core","ember-handlebars-compiler","ember-handlebars/ext","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     var Checkbox = __dependency1__["default"];
     var TextField = __dependency2__["default"];
@@ -4899,11 +4899,20 @@ define("ember-handlebars/controls",
     // var emberAssert = Ember.assert;
 
     var EmberHandlebars = __dependency5__["default"];
+    var handlebarsGet = __dependency6__.handlebarsGet;
     var helpers = EmberHandlebars.helpers;
     /**
     @module ember
     @submodule ember-handlebars-compiler
     */
+
+    function _resolveOption(context, options, key) {
+      if (options.hashTypes[key] === "ID") {
+        return handlebarsGet(context, options.hash[key], options);
+      } else {
+        return options.hash[key];
+      }
+    }
 
     /**
 
@@ -5085,10 +5094,8 @@ define("ember-handlebars/controls",
 
       var hash = options.hash,
           types = options.hashTypes,
-          inputType = hash.type,
+          inputType = _resolveOption(this, options, 'type'),
           onEvent = hash.on;
-
-      Ember.assert('You can only use a string as a `type` parameter, not a variable', types.type === 'STRING' || types.type === undefined);
 
       delete hash.type;
       delete hash.on;
@@ -12954,7 +12961,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.9ded26c4
+      @version 1.8.0-beta.1+canary.6615f727
     */
 
     if ('undefined' === typeof Ember) {
@@ -12981,10 +12988,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.9ded26c4'
+      @default '1.8.0-beta.1+canary.6615f727'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.9ded26c4';
+    Ember.VERSION = '1.8.0-beta.1+canary.6615f727';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
