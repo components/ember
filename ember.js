@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.4d7bf2fc
+ * @version   1.8.0-beta.1+canary.64090bb6
  */
 
 (function() {
@@ -12954,7 +12954,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.4d7bf2fc
+      @version 1.8.0-beta.1+canary.64090bb6
     */
 
     if ('undefined' === typeof Ember) {
@@ -12981,10 +12981,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.4d7bf2fc'
+      @default '1.8.0-beta.1+canary.64090bb6'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.4d7bf2fc';
+    Ember.VERSION = '1.8.0-beta.1+canary.64090bb6';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -31828,11 +31828,11 @@ define("ember-runtime/mixins/observable",
     });
   });
 define("ember-runtime/mixins/promise_proxy",
-  ["ember-metal/property_get","ember-metal/property_set","ember-metal/computed","ember-metal/mixin","ember-metal/error","exports"],
+  ["ember-metal/property_get","ember-metal/set_properties","ember-metal/computed","ember-metal/mixin","ember-metal/error","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     var get = __dependency1__.get;
-    var set = __dependency2__.set;
+    var setProperties = __dependency2__["default"];
     var computed = __dependency3__.computed;
     var Mixin = __dependency4__.Mixin;
     var EmberError = __dependency5__["default"];
@@ -31846,16 +31846,22 @@ define("ember-runtime/mixins/promise_proxy",
      */
 
     function tap(proxy, promise) {
-      set(proxy, 'isFulfilled', false);
-      set(proxy, 'isRejected', false);
+      setProperties(proxy, {
+        isFulfilled: false,
+        isRejected: false
+      });
 
       return promise.then(function(value) {
-        set(proxy, 'isFulfilled', true);
-        set(proxy, 'content', value);
+        setProperties(proxy, {
+          content: value,
+          isFulfilled: true
+        });
         return value;
       }, function(reason) {
-        set(proxy, 'isRejected', true);
-        set(proxy, 'reason', reason);
+        setProperties(proxy, {
+          reason: reason,
+          isRejected: true
+        });
         throw reason;
       }, "Ember: PromiseProxy");
     }

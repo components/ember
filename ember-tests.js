@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.4d7bf2fc
+ * @version   1.8.0-beta.1+canary.64090bb6
  */
 
 (function() {
@@ -34039,6 +34039,34 @@ define("ember-runtime/tests/mixins/promise_proxy_test",
       equal(get(proxy, 'isSettled'),   true,  'expects the proxy to indicate that it is settled');
       equal(get(proxy, 'isRejected'),  true,  'expects the proxy to indicate that it is  rejected');
       equal(get(proxy, 'isFulfilled'), false, 'expects the proxy to indicate that it is not fulfilled');
+    });
+
+    test("should have content when isFulfilled is set", function() {
+      var deferred = EmberRSVP.defer();
+
+      var proxy = ObjectPromiseProxy.create({
+        promise: deferred.promise
+      });
+
+      proxy.addObserver('isFulfilled', function() {
+        equal(get(proxy, 'content'), true);
+      });
+
+      run(deferred, 'resolve', true);
+    });
+
+    test("should have reason when isRejected is set", function() {
+      var deferred = EmberRSVP.defer();
+
+      var proxy = ObjectPromiseProxy.create({
+        promise: deferred.promise
+      });
+
+      proxy.addObserver('isRejected', function() {
+        equal(get(proxy, 'reason'), true);
+      });
+
+      run(deferred, 'reject', true);
     });
   });
 define("ember-runtime/tests/mixins/promise_proxy_test.jshint",
