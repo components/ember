@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.6615f727
+ * @version   1.8.0-beta.1+canary.414b19db
  */
 
 (function() {
@@ -8320,6 +8320,33 @@ define("ember-handlebars/tests/helpers/bound_helper_test",
       view = EmberView.create({
         controller: EmberObject.create({text: 'ab', numRepeats: 3}),
         template: EmberHandlebars.compile('{{repeat text countBinding="numRepeats"}}')
+      });
+
+      appendView();
+
+      equal(view.$().text(), 'ababab', "helper output is correct");
+
+      run(function() {
+        view.set('controller.numRepeats', 4);
+      });
+
+      equal(view.$().text(), 'abababab', "helper correctly re-rendered after bound option was changed");
+
+      run(function() {
+        view.set('controller.numRepeats', 2);
+        view.set('controller.text', "YES");
+      });
+
+      equal(view.$().text(), 'YESYES', "helper correctly re-rendered after both bound option and property changed");
+    });
+
+    test("bound helpers should support unquoted values as bound options", function() {
+
+      registerRepeatHelper();
+
+      view = EmberView.create({
+        controller: EmberObject.create({text: 'ab', numRepeats: 3}),
+        template: EmberHandlebars.compile('{{repeat text count=numRepeats}}')
       });
 
       appendView();
