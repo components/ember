@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.c3399321
+ * @version   1.8.0-beta.1+canary.4d7bf2fc
  */
 
 (function() {
@@ -12954,7 +12954,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.c3399321
+      @version 1.8.0-beta.1+canary.4d7bf2fc
     */
 
     if ('undefined' === typeof Ember) {
@@ -12981,10 +12981,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.c3399321'
+      @default '1.8.0-beta.1+canary.4d7bf2fc'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.c3399321';
+    Ember.VERSION = '1.8.0-beta.1+canary.4d7bf2fc';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -24002,14 +24002,14 @@ define("ember-routing/system/route",
 
         @method render
         @param {String} name the name of the template to render
-        @param {Object} options the options
-        @param {String} options.into the template to render into,
+        @param {Object} [options] the options
+        @param {String} [options.into] the template to render into,
                         referenced by name. Defaults to the parent template
-        @param {String} options.outlet the outlet inside `options.template` to render into.
+        @param {String} [options.outlet] the outlet inside `options.template` to render into.
                         Defaults to 'main'
-        @param {String} options.controller the controller to use for this template,
+        @param {String} [options.controller] the controller to use for this template,
                         referenced by name. Defaults to the Route's paired controller
-        @param {String} options.model the model object to set on `options.controller`
+        @param {String} [options.model] the model object to set on `options.controller`
                         Defaults to the return value of the Route's model hook
       */
       render: function(name, options) {
