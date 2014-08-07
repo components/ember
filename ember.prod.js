@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.414b19db
+ * @version   1.8.0-beta.1+canary.919cf869
  */
 
 (function() {
@@ -12658,7 +12658,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.414b19db
+      @version 1.8.0-beta.1+canary.919cf869
     */
 
     if ('undefined' === typeof Ember) {
@@ -12685,10 +12685,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.414b19db'
+      @default '1.8.0-beta.1+canary.919cf869'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.414b19db';
+    Ember.VERSION = '1.8.0-beta.1+canary.919cf869';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -23115,6 +23115,7 @@ define("ember-routing/system/route",
 
         @method redirect
         @param {Object} model the model for this route
+        @param {Transition} transition the transition object associated with the current transition
       */
       redirect: Ember.K,
 
