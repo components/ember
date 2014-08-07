@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.16158588
+ * @version   1.8.0-beta.1+canary.4b6a4d30
  */
 
 (function() {
@@ -12964,7 +12964,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.16158588
+      @version 1.8.0-beta.1+canary.4b6a4d30
     */
 
     if ('undefined' === typeof Ember) {
@@ -12991,10 +12991,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.16158588'
+      @default '1.8.0-beta.1+canary.4b6a4d30'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.16158588';
+    Ember.VERSION = '1.8.0-beta.1+canary.4b6a4d30';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -42312,15 +42312,17 @@ define("ember-views/views/view",
 
       _toggleVisibility: function() {
         var $el = this.$();
-        if (!$el) { return; }
-
         var isVisible = get(this, 'isVisible');
 
         if (this._isVisible === isVisible) { return ; }
 
-        $el.toggle(isVisible);
-
+        // It's important to keep these in sync, even if we don't yet have
+        // an element in the DOM to manipulate:
         this._isVisible = isVisible;
+
+        if (!$el) { return; }
+
+        $el.toggle(isVisible);
 
         if (this._isAncestorHidden()) { return; }
 
