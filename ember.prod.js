@@ -4683,8 +4683,8 @@ define("ember-handlebars/component_lookup",
     __exports__["default"] = ComponentLookup;
   });
 define("ember-handlebars/controls",
-  ["ember-handlebars/controls/checkbox","ember-handlebars/controls/text_field","ember-handlebars/controls/text_area","ember-metal/core","ember-handlebars-compiler","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
+  ["ember-handlebars/controls/checkbox","ember-handlebars/controls/text_field","ember-handlebars/controls/text_area","ember-metal/core","ember-handlebars-compiler","ember-handlebars/ext","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     var Checkbox = __dependency1__["default"];
     var TextField = __dependency2__["default"];
@@ -4695,11 +4695,20 @@ define("ember-handlebars/controls",
     // var emberAssert = Ember.assert;
 
     var EmberHandlebars = __dependency5__["default"];
+    var handlebarsGet = __dependency6__.handlebarsGet;
     var helpers = EmberHandlebars.helpers;
     /**
     @module ember
     @submodule ember-handlebars-compiler
     */
+
+    function _resolveOption(context, options, key) {
+      if (options.hashTypes[key] === "ID") {
+        return handlebarsGet(context, options.hash[key], options);
+      } else {
+        return options.hash[key];
+      }
+    }
 
     /**
 
@@ -4880,7 +4889,7 @@ define("ember-handlebars/controls",
       
       var hash = options.hash,
           types = options.hashTypes,
-          inputType = hash.type,
+          inputType = _resolveOption(this, options, 'type'),
           onEvent = hash.on;
 
       delete hash.type;
@@ -6596,6 +6605,7 @@ define("ember-handlebars/ext",
           loc, len, hashOption,
           boundOption, property,
           normalizedValue = SimpleHandlebarsView.prototype.normalizedValue;
+        var hashTypes = options.hashTypes;
 
         
         // Detect bound options (e.g. countBinding="otherCount")
@@ -6604,6 +6614,8 @@ define("ember-handlebars/ext",
           if (IS_BINDING.test(hashOption)) {
             // Lop off 'Binding' suffix.
             boundOptions[hashOption.slice(0, -7)] = hash[hashOption];
+          } else if (hashTypes[hashOption] === 'ID') {
+            boundOptions[hashOption] = hash[hashOption];
           }
         }
 
@@ -20159,7 +20171,7 @@ define("ember-routing/ext/controller",
             return get(m.proto, '_normalizedQueryParams');
           }
 
-          var queryParams = this.queryParams;
+          var queryParams = get(this, 'queryParams');
           if (queryParams._qpMap) {
             return queryParams._qpMap;
           }
@@ -20213,9 +20225,11 @@ define("ember-routing/ext/controller",
 
             var cacheKey = this._calculateCacheKey(propMeta.prefix, propMeta.parts, propMeta.values);
             var cache = this._bucketCache;
-            var value = cache.lookup(cacheKey, prop, propMeta.def);
 
-            set(this, prop, value);
+            if (cache) {
+              var value = cache.lookup(cacheKey, prop, propMeta.def);
+              set(this, prop, value);
+            }
           }
         },
 
@@ -20227,7 +20241,10 @@ define("ember-routing/ext/controller",
           var value = get(controller, prop);
 
           // 1. Update model-dep cache
-          controller._bucketCache.stash(cacheKey, prop, value);
+          var cache = this._bucketCache;
+          if (cache) {
+            controller._bucketCache.stash(cacheKey, prop, value);
+          }
 
           // 2. Notify a delegate (e.g. to fire a qp transition)
           var delegate = controller._qpDelegate;
@@ -22120,7 +22137,7 @@ define("ember-routing/system/route",
               // this controller.
               var value, svalue;
               if (changes && qp.urlKey in changes) {
-                // Controller overrode this value in setupController
+                // Value updated in/before setupController
                 value = get(controller, qp.prop);
                 svalue = route.serializeQueryParam(value, qp.urlKey, qp.type);
               } else {
@@ -22130,10 +22147,7 @@ define("ember-routing/system/route",
                 } else {
                   // No QP provided; use default value.
                   svalue = qp.sdef;
-                  value = qp.def;
-                  if (isArray(value)) {
-                    value = Ember.A(value.slice());
-                  }
+                  value = copyDefaultValue(qp.def);
                 }
               }
 
@@ -22480,6 +22494,10 @@ define("ember-routing/system/route",
               controller._updateCacheParams(transition.params);
             }
             controller._qpDelegate = states.allowOverrides;
+
+            if (transition) {
+              controller.setProperties(getQueryParamsFor(this, transition.state));
+            }
 
             this.setupController(controller, context, transition);
                   }
@@ -23153,14 +23171,14 @@ define("ember-routing/system/route",
 
         @method render
         @param {String} name the name of the template to render
-        @param {Object} options the options
-        @param {String} options.into the template to render into,
+        @param {Object} [options] the options
+        @param {String} [options.into] the template to render into,
                         referenced by name. Defaults to the parent template
-        @param {String} options.outlet the outlet inside `options.template` to render into.
+        @param {String} [options.outlet] the outlet inside `options.template` to render into.
                         Defaults to 'main'
-        @param {String} options.controller the controller to use for this template,
+        @param {String} [options.controller] the controller to use for this template,
                         referenced by name. Defaults to the Route's paired controller
-        @param {String} options.model the model object to set on `options.controller`
+        @param {String} [options.model] the model object to set on `options.controller`
                         Defaults to the return value of the Route's model hook
       */
       render: function(name, options) {
@@ -23440,9 +23458,6 @@ define("ember-routing/system/route",
           run.once(this, this._fireQueryParamTransition);
         },
 
-        //_inactiveQPChanged: function(controller, qp) {
-        //},
-
         _updatingQPChanged: function(controller, qp) {
           var router = this.router;
           if (!router._qpUpdates) {
@@ -23462,35 +23477,10 @@ define("ember-routing/system/route",
 
           var transition = this.router.router.activeTransition;
           var state = transition ? transition.state : this.router.router.state;
+
           var params = {};
-
           merge(params, state.params[name]);
-
-          if (!state.fullQueryParams) {
-            state.fullQueryParams = {};
-            merge(state.fullQueryParams, state.queryParams);
-
-            var targetRouteName = state.handlerInfos[state.handlerInfos.length-1].name;
-            this.router._deserializeQueryParams(targetRouteName, state.fullQueryParams);
-          }
-
-          var qpMeta = get(route, '_qp');
-
-          if (!qpMeta) {
-            // No query params specified on the controller.
-            return params;
-          }
-
-          // Copy over all the query params for this route/controller into params hash.
-          // TODO: is this correct? I think this won't do model dep state.
-          var qps = qpMeta.qps;
-          for (var i = 0, len = qps.length; i < len; ++i) {
-            // Put deserialized qp on params hash.
-            var qp = qps[i];
-            if (!(qp.prop in params)) {
-              params[qp.prop] = state.fullQueryParams[qp.prop] || qp.def;
-            }
-          }
+          merge(params, getQueryParamsFor(route, state));
 
           return params;
         },
@@ -23670,6 +23660,50 @@ define("ember-routing/system/route",
 
     function generateOutletTeardown(parentView, outlet) {
       return function() { parentView.disconnectOutlet(outlet); };
+    }
+
+    function getFullQueryParams(router, state) {
+      if (state.fullQueryParams) { return state.fullQueryParams; }
+
+      state.fullQueryParams = {};
+      merge(state.fullQueryParams, state.queryParams);
+
+      var targetRouteName = state.handlerInfos[state.handlerInfos.length-1].name;
+      router._deserializeQueryParams(targetRouteName, state.fullQueryParams);
+      return state.fullQueryParams;
+    }
+
+    function getQueryParamsFor(route, state) {
+      state.queryParamsFor = state.queryParamsFor || {};
+      var name = route.routeName;
+
+      if (state.queryParamsFor[name]) { return state.queryParamsFor[name]; }
+
+      var fullQueryParams = getFullQueryParams(route.router, state);
+
+      var params = state.queryParamsFor[name] = {};
+
+      // Copy over all the query params for this route/controller into params hash.
+      var qpMeta = get(route, '_qp');
+      var qps = qpMeta.qps;
+      for (var i = 0, len = qps.length; i < len; ++i) {
+        // Put deserialized qp on params hash.
+        var qp = qps[i];
+
+        var qpValueWasPassedIn = (qp.prop in fullQueryParams);
+        params[qp.prop] = qpValueWasPassedIn ?
+                          fullQueryParams[qp.prop] :
+                          copyDefaultValue(qp.def);
+      }
+
+      return params;
+    }
+
+    function copyDefaultValue(value) {
+      if (isArray(value)) {
+        return Ember.A(value.slice());
+      }
+      return value;
     }
 
     __exports__["default"] = Route;
@@ -24283,9 +24317,6 @@ define("ember-routing/system/router",
             router.intermediateTransitionTo('application_error', error);
             return;
           }
-        } else {
-          // Don't fire an assertion if we found an error substate.
-          return;
         }
 
         logError(error, 'Error while processing route: ' + transition.targetName);
@@ -24502,12 +24533,7 @@ define("ember-routing/system/router",
         if (!error || !error.name) { return; }
 
         if (error.name === "UnrecognizedURLError") {
-                  } else if (error.name === 'TransitionAborted') {
-          // just ignore TransitionAborted here
-        } else {
-          logError(error);
-        }
-
+                  }
         return error;
       }, 'Ember: Process errors from Router');
     }

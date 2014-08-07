@@ -3560,6 +3560,36 @@ define("ember-handlebars/tests/controls/checkbox_test",
       }, /you must use `checked=/);
     });
 
+    QUnit.module("{{input type=boundType}}", {
+      setup: function() {
+        controller = {
+          inputType: "checkbox",
+          isChecked: true,
+        };
+
+        checkboxView = EmberView.extend({
+          controller: controller,
+          template: compile('{{input type=inputType checked=isChecked}}')
+        }).create();
+
+        append();
+      },
+
+      teardown: function() {
+        destroy(checkboxView);
+      }
+    });
+
+    test("should append a checkbox", function() {
+      equal(checkboxView.$('input[type=checkbox]').length, 1, "A single checkbox is added");
+    });
+
+    // Checking for the checked property is a good way to verify that the correct
+    // view was used.
+    test("checkbox checked property is updated", function() {
+      equal(checkboxView.$('input').prop('checked'), true, "the checkbox is checked");
+    });
+
     QUnit.module("{{input type='checkbox'}} - static values", {
       setup: function() {
         controller = {
@@ -8184,6 +8214,33 @@ define("ember-handlebars/tests/helpers/bound_helper_test",
       view = EmberView.create({
         controller: EmberObject.create({text: 'ab', numRepeats: 3}),
         template: EmberHandlebars.compile('{{repeat text countBinding="numRepeats"}}')
+      });
+
+      appendView();
+
+      equal(view.$().text(), 'ababab', "helper output is correct");
+
+      run(function() {
+        view.set('controller.numRepeats', 4);
+      });
+
+      equal(view.$().text(), 'abababab', "helper correctly re-rendered after bound option was changed");
+
+      run(function() {
+        view.set('controller.numRepeats', 2);
+        view.set('controller.text', "YES");
+      });
+
+      equal(view.$().text(), 'YESYES', "helper correctly re-rendered after both bound option and property changed");
+    });
+
+    test("bound helpers should support unquoted values as bound options", function() {
+
+      registerRepeatHelper();
+
+      view = EmberView.create({
+        controller: EmberObject.create({text: 'ab', numRepeats: 3}),
+        template: EmberHandlebars.compile('{{repeat text count=numRepeats}}')
       });
 
       appendView();
@@ -52029,7 +52086,7 @@ define("ember/tests/helpers/link_to_test",
           // we should also be able to gracefully handle these cases.
           router.handleURL("/search/results?search=same&sort=title&showDetails=true");
         });
-        shouldBeActive('#same-sort-child-only');
+        //shouldBeActive('#same-sort-child-only');
         shouldBeActive('#same-search-parent-only');
         shouldNotBeActive('#change-search-parent-only');
         shouldBeActive('#same-search-same-sort-child-and-parent');
@@ -55643,7 +55700,7 @@ define("ember/tests/routing/basic_test",
     
 
     test("Errors in transitionTo within redirect hook are logged", function() {
-      expect(2);
+      expect(3);
       var actual = [];
 
       Router.map(function() {
@@ -55657,14 +55714,16 @@ define("ember/tests/routing/basic_test",
         }
       });
 
-      Ember.Logger.error = function(message) {
-        actual.push(message);
+      Ember.Logger.error = function() {
+        // push the arguments onto an array so we can detect if the error gets logged twice
+        actual.push(arguments);
       };
 
       bootApplication();
 
-      equal(actual[0], 'Error while processing route: yondo', 'source route is printed');
-      ok(actual[1].match(/More context objects were passed than there are dynamic segments for the route: stink-bomb/), 'the error is printed');
+      equal(actual.length, 1, 'the error is only logged once');
+      equal(actual[0][0], 'Error while processing route: yondo', 'source route is printed');
+      ok(actual[0][1].match(/More context objects were passed than there are dynamic segments for the route: stink-bomb/), 'the error is printed');
     });
 
     test("Errors in transition show error template if available", function() {
@@ -55741,12 +55800,13 @@ define("ember/tests/routing/basic_test.jshint",
     });
   });
 define("ember/tests/routing/query_params_test",
-  ["ember","ember-metal/enumerable_utils","ember-metal/platform"],
-  function(__dependency1__, __dependency2__, __dependency3__) {
+  ["ember","ember-metal/enumerable_utils","ember-metal/computed","ember-metal/platform"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
     var forEach = __dependency2__.forEach;
     var map = __dependency2__.map;
-    var platform = __dependency3__.platform;
+    var computed = __dependency3__.computed;
+    var platform = __dependency4__.platform;
 
     var Router, App, AppView, templates, router, container;
     var get = Ember.get;
@@ -55964,6 +56024,27 @@ define("ember/tests/routing/query_params_test",
         bootApplication();
       });
 
+      test("Can override inherited QP behavior by specifying queryParams as a computed property", function() {
+        expect(0);
+        var SharedMixin = Ember.Mixin.create({
+          queryParams: ['a'],
+          a: 0
+        });
+
+        App.IndexController = Ember.Controller.extend(SharedMixin, {
+          queryParams: computed(function() {
+            return ['c'];
+          }),
+          c: true
+        });
+
+        bootApplication();
+        var indexController = container.lookup('controller:index');
+
+        expectedReplaceURL = "not gonna happen";
+        Ember.run(indexController, 'set', 'a', 1);
+      });
+
       test("model hooks receives query params", function() {
         App.IndexController = Ember.Controller.extend({
           queryParams: ['omg'],
@@ -56110,6 +56191,24 @@ define("ember/tests/routing/query_params_test",
         });
 
         startingURL = "/omg";
+        bootApplication();
+      });
+
+      test("Route#paramsFor fetches falsy query params", function() {
+        expect(1);
+
+        App.IndexController = Ember.Controller.extend({
+          queryParams: ['foo'],
+          foo: true
+        });
+
+        App.IndexRoute = Ember.Route.extend({
+          model: function(params, transition) {
+            equal(params.foo, false);
+          }
+        });
+
+        startingURL = "/?foo=false";
         bootApplication();
       });
 
@@ -56874,6 +56973,24 @@ define("ember/tests/routing/query_params_test",
         equal(get(controller, 'foo'), undefined);
       });
 
+      test("query params have been set by the time setupController is called", function() {
+        expect(1);
+
+        App.ApplicationController = Ember.Controller.extend({
+          queryParams: ['foo'],
+          foo: "wat"
+        });
+
+        App.ApplicationRoute = Ember.Route.extend({
+          setupController: function(controller) {
+            equal(controller.get('foo'), 'YEAH', "controller's foo QP property set before setupController called");
+          }
+        });
+
+        startingURL = '/?foo=YEAH';
+        bootApplication();
+      });
+
       QUnit.module("Model Dep Query Params", {
         setup: function() {
           sharedSetup();
@@ -57152,6 +57269,13 @@ define("ember/tests/routing/query_params_test",
         equal(Ember.$('#two').attr('href'), "/a/a-2/comments");
       });
 
+      test("can unit test without bucket cache", function() {
+        var controller = container.lookup('controller:article');
+        controller._bucketCache = null;
+
+        controller.set('q', "i used to break");
+        equal(controller.get('q'), "i used to break");
+      });
 
       QUnit.module("Query Params - overlapping query param property names", {
         setup: function() {
