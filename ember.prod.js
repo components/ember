@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.64c45435
+ * @version   1.8.0-beta.1+canary.b9a79d37
  */
 
 (function() {
@@ -10016,6 +10016,7 @@ define("ember-metal",
     var wrap = __dependency4__.wrap;
     var apply = __dependency4__.apply;
     var applyStr = __dependency4__.applyStr;
+    var uuid = __dependency4__.uuid;
     var EmberError = __dependency5__["default"];
     var EnumerableUtils = __dependency6__["default"];
     var Cache = __dependency7__["default"];
@@ -10161,6 +10162,7 @@ define("ember-metal",
     Ember.wrap            = wrap;
     Ember.apply           = apply;
     Ember.applyStr        = applyStr;
+    Ember.uuid            = uuid;
 
     Ember.Logger = Logger;
 
@@ -12658,7 +12660,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.64c45435
+      @version 1.8.0-beta.1+canary.b9a79d37
     */
 
     if ('undefined' === typeof Ember) {
@@ -12685,10 +12687,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.64c45435'
+      @default '1.8.0-beta.1+canary.b9a79d37'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.64c45435';
+    Ember.VERSION = '1.8.0-beta.1+canary.b9a79d37';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -17557,6 +17559,15 @@ define("ember-metal/utils",
     */
     var _uuid = 0;
 
+    /**
+      Generates a universally unique identifier. This method
+      is used internally by Ember for assisting with
+      the generation of GUID's and other unique identifiers
+      such as `bind-attr` data attributes.
+
+      @public
+      @return {Number} [description]
+     */
     function uuid() {
       return ++_uuid;
     }
