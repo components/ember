@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.b9a79d37
+ * @version   1.8.0-beta.1+canary.81bd56f4
  */
 
 (function() {
@@ -12660,7 +12660,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.b9a79d37
+      @version 1.8.0-beta.1+canary.81bd56f4
     */
 
     if ('undefined' === typeof Ember) {
@@ -12687,10 +12687,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.b9a79d37'
+      @default '1.8.0-beta.1+canary.81bd56f4'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.b9a79d37';
+    Ember.VERSION = '1.8.0-beta.1+canary.81bd56f4';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -45112,11 +45112,48 @@ define("router/transition",
         use in situations where you want to pass around a thennable,
         but not the Transition itself.
 
-        @param {Function} success
-        @param {Function} failure
+        @param {Function} onFulfilled
+        @param {Function} onRejected
+        @param {String} label optional string for labeling the promise.
+        Useful for tooling.
+        @return {Promise}
        */
-      then: function(success, failure) {
-        return this.promise.then(success, failure);
+      then: function(onFulfilled, onRejected, label) {
+        return this.promise.then(onFulfilled, onRejected, label);
+      },
+
+      /**
+        @public
+
+        Forwards to the internal `promise` property which you can
+        use in situations where you want to pass around a thennable,
+        but not the Transition itself.
+
+        @method catch
+        @param {Function} onRejection
+        @param {String} label optional string for labeling the promise.
+        Useful for tooling.
+        @return {Promise}
+       */
+      catch: function(onRejection, label) {
+        return this.promise.catch(onRejection, label);
+      },
+
+      /**
+        @public
+
+        Forwards to the internal `promise` property which you can
+        use in situations where you want to pass around a thennable,
+        but not the Transition itself.
+
+        @method finally
+        @param {Function} callback
+        @param {String} label optional string for labeling the promise.
+        Useful for tooling.
+        @return {Promise}
+       */
+      finally: function(callback, label) {
+        return this.promise.finally(callback, label);
       },
 
       /**
