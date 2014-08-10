@@ -10016,6 +10016,7 @@ define("ember-metal",
     var wrap = __dependency4__.wrap;
     var apply = __dependency4__.apply;
     var applyStr = __dependency4__.applyStr;
+    var uuid = __dependency4__.uuid;
     var EmberError = __dependency5__["default"];
     var EnumerableUtils = __dependency6__["default"];
 
@@ -10156,6 +10157,7 @@ define("ember-metal",
     Ember.wrap            = wrap;
     Ember.apply           = apply;
     Ember.applyStr        = applyStr;
+    Ember.uuid            = uuid;
 
     Ember.Logger = Logger;
 
@@ -17180,6 +17182,15 @@ define("ember-metal/utils",
     */
     var _uuid = 0;
 
+    /**
+      Generates a universally unique identifier. This method
+      is used internally by Ember for assisting with
+      the generation of GUID's and other unique identifiers
+      such as `bind-attr` data attributes.
+
+      @public
+      @return {Number} [description]
+     */
     function uuid() {
       return ++_uuid;
     }
@@ -22642,6 +22653,7 @@ define("ember-routing/system/route",
 
         @method redirect
         @param {Object} model the model for this route
+        @param {Transition} transition the transition object associated with the current transition
       */
       redirect: Ember.K,
 
