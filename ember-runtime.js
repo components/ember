@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.81bd56f4
+ * @version   1.8.0-beta.1+canary.bbfc3f72
  */
 
 (function() {
@@ -2670,7 +2670,7 @@ define("ember-metal/binding",
 
       Properties ending in a `Binding` suffix will be converted to `Ember.Binding`
       instances. The value of this property should be a string representing a path
-      to another object or a custom binding instanced created using Binding helpers
+      to another object or a custom binding instance created using Binding helpers
       (see "One Way Bindings"):
 
       ```
@@ -4478,7 +4478,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.81bd56f4
+      @version 1.8.0-beta.1+canary.bbfc3f72
     */
 
     if ('undefined' === typeof Ember) {
@@ -4505,10 +4505,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.81bd56f4'
+      @default '1.8.0-beta.1+canary.bbfc3f72'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.81bd56f4';
+    Ember.VERSION = '1.8.0-beta.1+canary.bbfc3f72';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -4545,7 +4545,7 @@ define("ember-metal/core",
     MetamorphENV.DISABLE_RANGE_API = Ember.ENV.DISABLE_RANGE_API;
 
     /**
-      Hash of enabled Canary features. Add to before creating your application.
+      Hash of enabled Canary features. Add to this before creating your application.
 
       You can also define `ENV.FEATURES` if you need to enable features flagged at runtime.
 
