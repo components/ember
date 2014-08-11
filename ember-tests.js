@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.7b1dff7e
+ * @version   1.8.0-beta.1+canary.71283314
  */
 
 (function() {
@@ -45228,7 +45228,7 @@ define("ember-views/tests/views/collection_test",
         content.insertAt(1, 'quux');
       });
 
-      equal(jQuery.trim(view.$(':nth-child(2)').text()), 'quux');
+      equal(trim(view.$(':nth-child(2)').text()), 'quux');
     });
 
     test("should remove an item from DOM when an item is removed from the content array", function() {
@@ -45287,7 +45287,7 @@ define("ember-views/tests/views/collection_test",
       });
 
       forEach(content, function(item, idx) {
-        equal(jQuery.trim(view.$(fmt(':nth-child(%@)', [String(idx+1)])).text()), item, "postcond - correct array update");
+        equal(trim(view.$(fmt(':nth-child(%@)', [String(idx+1)])).text()), item, "postcond - correct array update");
       });
     });
 
@@ -45318,7 +45318,7 @@ define("ember-views/tests/views/collection_test",
       });
 
       forEach(content, function(item, idx) {
-        equal(jQuery.trim(view.$(fmt(':nth-child(%@)', [String(idx+1)])).text()), item, "postcond - correct array update");
+        equal(trim(view.$(fmt(':nth-child(%@)', [String(idx+1)])).text()), item, "postcond - correct array update");
       });
 
     });
@@ -45350,7 +45350,7 @@ define("ember-views/tests/views/collection_test",
       });
 
       forEach(content, function(item, idx) {
-        equal(jQuery.trim(view.$(fmt(':nth-child(%@)', [String(idx+1)])).text()), item, "postcond - correct array update");
+        equal(trim(view.$(fmt(':nth-child(%@)', [String(idx+1)])).text()), item, "postcond - correct array update");
       });
     });
 
@@ -45383,7 +45383,7 @@ define("ember-views/tests/views/collection_test",
       });
 
       forEach(content, function(item, idx) {
-        equal(jQuery.trim(view.$(fmt(':nth-child(%@)', [String(idx+1)])).text()), item, "postcond - correct array update: "+item.name+"!="+view.$(fmt(':nth-child(%@)', [String(idx+1)])).text());
+        equal(trim(view.$(fmt(':nth-child(%@)', [String(idx+1)])).text()), item, "postcond - correct array update: "+item.name+"!="+view.$(fmt(':nth-child(%@)', [String(idx+1)])).text());
       });
     });
 
@@ -45417,7 +45417,7 @@ define("ember-views/tests/views/collection_test",
       });
 
       forEach(content, function(item, idx) {
-        equal(jQuery.trim(view.$(fmt(':nth-child(%@)', [String(idx+1)])).text()), item, "postcond - correct array update");
+        equal(trim(view.$(fmt(':nth-child(%@)', [String(idx+1)])).text()), item, "postcond - correct array update");
       });
     });
 
@@ -45541,7 +45541,7 @@ define("ember-views/tests/views/collection_test",
         set(view, 'content', null);
       });
 
-      equal(jQuery.trim(view.$().children().text()), "(empty)", "should display empty view");
+      equal(trim(view.$().children().text()), "(empty)", "should display empty view");
     });
 
     test("should allow items to access to the CollectionView's current index in the content array", function() {
