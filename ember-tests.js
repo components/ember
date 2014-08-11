@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.71283314
+ * @version   1.8.0-beta.1+canary.11827286
  */
 
 (function() {
@@ -21861,28 +21861,29 @@ define("ember-routing-handlebars/helpers/shared.jshint",
     });
   });
 define("ember-routing-handlebars/tests/helpers/action_test",
-  ["ember-metal/core","ember-metal/property_set","ember-metal/run_loop","ember-views/system/event_dispatcher","ember-runtime/system/container","ember-runtime/system/object","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-handlebars","ember-views/views/view","ember-views/views/component","ember-views/system/jquery","ember-routing-handlebars/helpers/shared","ember-routing-handlebars/helpers/action"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__) {
+  ["ember-metal/core","ember-metal/property_set","ember-metal/run_loop","ember-views/system/event_dispatcher","ember-views/system/action_manager","ember-runtime/system/container","ember-runtime/system/object","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-handlebars","ember-views/views/view","ember-views/views/component","ember-views/system/jquery","ember-routing-handlebars/helpers/shared","ember-routing-handlebars/helpers/action"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // A, FEATURES, assert, TESTING_DEPRECATION
     var set = __dependency2__.set;
     var run = __dependency3__["default"];
     var EventDispatcher = __dependency4__["default"];
+    var ActionManager = __dependency5__["default"];
 
-    var Container = __dependency5__["default"];
-    var EmberObject = __dependency6__["default"];
-    var EmberController = __dependency7__["default"];
-    var EmberObjectController = __dependency8__["default"];
-    var EmberArrayController = __dependency9__["default"];
+    var Container = __dependency6__["default"];
+    var EmberObject = __dependency7__["default"];
+    var EmberController = __dependency8__["default"];
+    var EmberObjectController = __dependency9__["default"];
+    var EmberArrayController = __dependency10__["default"];
 
-    var EmberHandlebars = __dependency10__["default"];
-    var EmberView = __dependency11__["default"];
-    var EmberComponent = __dependency12__["default"];
-    var jQuery = __dependency13__["default"];
+    var EmberHandlebars = __dependency11__["default"];
+    var EmberView = __dependency12__["default"];
+    var EmberComponent = __dependency13__["default"];
+    var jQuery = __dependency14__["default"];
 
-    var ActionHelper = __dependency15__.ActionHelper;
-    var actionHelper = __dependency15__.actionHelper;
+    var ActionHelper = __dependency16__.ActionHelper;
+    var actionHelper = __dependency16__.actionHelper;
 
     var dispatcher, view, originalActionHelper,
         originalRegisterAction = ActionHelper.registerAction;
@@ -22192,7 +22193,7 @@ define("ember-routing-handlebars/tests/helpers/action_test",
 
       var actionId = view.$('a[data-ember-action]').attr('data-ember-action');
 
-      ok(ActionHelper.registeredActions[actionId], "The action was registered");
+      ok(ActionManager.registeredActions[actionId], "The action was registered");
 
       view.$('a').trigger('click');
 
@@ -22218,7 +22219,7 @@ define("ember-routing-handlebars/tests/helpers/action_test",
 
       var actionId = view.$('a[data-ember-action]').attr('data-ember-action');
 
-      ok(ActionHelper.registeredActions[actionId], "The action was registered");
+      ok(ActionManager.registeredActions[actionId], "The action was registered");
 
       var e = jQuery.Event('click');
       e.altKey = true;
@@ -22376,11 +22377,11 @@ define("ember-routing-handlebars/tests/helpers/action_test",
         view.rerender();
       });
 
-      ok(!ActionHelper.registeredActions[previousActionId], "On rerender, the event handler was removed");
+      ok(!ActionManager.registeredActions[previousActionId], "On rerender, the event handler was removed");
 
       var newActionId = view.$('a[data-ember-action]').attr('data-ember-action');
 
-      ok(ActionHelper.registeredActions[newActionId], "After rerender completes, a new event handler was added");
+      ok(ActionManager.registeredActions[newActionId], "After rerender completes, a new event handler was added");
     });
 
     test("should unregister event handlers on inside virtual views", function() {
@@ -22402,7 +22403,7 @@ define("ember-routing-handlebars/tests/helpers/action_test",
         things.removeAt(0);
       });
 
-      ok(!ActionHelper.registeredActions[actionId], "After the virtual view was destroyed, the action was unregistered");
+      ok(!ActionManager.registeredActions[actionId], "After the virtual view was destroyed, the action was unregistered");
     });
 
     test("should properly capture events on child elements of a container with an action", function() {
@@ -23505,8 +23506,8 @@ define("ember-routing-handlebars/tests/helpers/outlet_test.jshint",
     });
   });
 define("ember-routing-handlebars/tests/helpers/render_test",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-metal/platform","ember-metal/mixin","container/container","ember-runtime/system/namespace","ember-runtime/system/string","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-routing/system/router","ember-routing/location/hash_location","ember-handlebars","ember-routing/ext/view","ember-handlebars/views/metamorph_view","ember-views/system/jquery","ember-routing-handlebars/helpers/render","ember-routing-handlebars/helpers/action","ember-routing-handlebars/helpers/outlet"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-metal/platform","ember-metal/mixin","container/container","ember-runtime/system/namespace","ember-runtime/system/string","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-routing/system/router","ember-routing/location/hash_location","ember-handlebars","ember-routing/ext/view","ember-handlebars/views/metamorph_view","ember-views/system/jquery","ember-views/system/action_manager","ember-routing-handlebars/helpers/render","ember-routing-handlebars/helpers/action","ember-routing-handlebars/helpers/outlet"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // TEMPLATES
@@ -23532,11 +23533,11 @@ define("ember-routing-handlebars/tests/helpers/render_test",
     var EmberView = __dependency16__["default"];
     var _MetamorphView = __dependency17__["default"];
     var jQuery = __dependency18__["default"];
+    var ActionManager = __dependency19__["default"];
 
-    var renderHelper = __dependency19__["default"];
-    var ActionHelper = __dependency20__.ActionHelper;
-    var actionHelper = __dependency20__.actionHelper;
-    var outletHelper = __dependency21__.outletHelper;
+    var renderHelper = __dependency20__["default"];
+    var actionHelper = __dependency21__.actionHelper;
+    var outletHelper = __dependency22__.outletHelper;
 
     function appendView(view) {
       run(function() { view.appendTo('#qunit-fixture'); });
@@ -23983,7 +23984,7 @@ define("ember-routing-handlebars/tests/helpers/render_test",
 
       var button = jQuery("#parent-action"),
           actionId = button.data('ember-action'),
-          action = ActionHelper.registeredActions[actionId],
+          action = ActionManager.registeredActions[actionId],
           handler = action.handler;
 
       equal(button.text(), "Go to Mom", "The parentController property is set on the child controller");
@@ -44223,6 +44224,15 @@ define("ember-views/mixins/view_target_action_support.jshint",
       ok(true, 'ember-views/mixins/view_target_action_support.js should pass jshint.'); 
     });
   });
+define("ember-views/system/action_manager.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/system');
+    test('ember-views/system/action_manager.js should pass jshint', function() { 
+      ok(true, 'ember-views/system/action_manager.js should pass jshint.'); 
+    });
+  });
 define("ember-views/system/event_dispatcher.jshint",
   [],
   function() {
@@ -53286,12 +53296,13 @@ define("ember/tests/location_test.jshint",
     });
   });
 define("ember/tests/routing/basic_test",
-  ["ember","ember-metal/enumerable_utils","ember-metal/property_get","ember-metal/property_set"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+  ["ember","ember-metal/enumerable_utils","ember-metal/property_get","ember-metal/property_set","ember-views/system/action_manager"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
     var forEach = __dependency2__.forEach;
     var get = __dependency3__.get;
     var set = __dependency4__.set;
+    var ActionManager = __dependency5__["default"];
 
     var Router, App, AppView, templates, router, container, originalLoggerError;
     var compile = Ember.Handlebars.compile;
@@ -54455,7 +54466,7 @@ define("ember/tests/routing/basic_test",
       bootApplication();
 
       var actionId = Ember.$("#qunit-fixture a").data("ember-action");
-      var action = Ember.Handlebars.ActionHelper.registeredActions[actionId];
+      var action = ActionManager.registeredActions[actionId];
       var event = new Ember.$.Event("click");
       action.handler(event);
     });
@@ -54489,7 +54500,7 @@ define("ember/tests/routing/basic_test",
       bootApplication();
 
       var actionId = Ember.$("#qunit-fixture a").data("ember-action");
-      var action = Ember.Handlebars.ActionHelper.registeredActions[actionId];
+      var action = ActionManager.registeredActions[actionId];
       var event = new Ember.$.Event("click");
       action.handler(event);
     });
@@ -54527,7 +54538,7 @@ define("ember/tests/routing/basic_test",
       bootApplication();
 
       var actionId = Ember.$("#qunit-fixture a").data("ember-action");
-      var action = Ember.Handlebars.ActionHelper.registeredActions[actionId];
+      var action = ActionManager.registeredActions[actionId];
       var event = new Ember.$.Event("click");
       action.handler(event);
     });
@@ -54562,7 +54573,7 @@ define("ember/tests/routing/basic_test",
       bootApplication();
 
       var actionId = Ember.$("#qunit-fixture a").data("ember-action");
-      var action = Ember.Handlebars.ActionHelper.registeredActions[actionId];
+      var action = ActionManager.registeredActions[actionId];
       var event = new Ember.$.Event("click");
       action.handler(event);
     });
@@ -54601,7 +54612,7 @@ define("ember/tests/routing/basic_test",
       bootApplication();
 
       var actionId = Ember.$("#qunit-fixture a").data("ember-action");
-      var action = Ember.Handlebars.ActionHelper.registeredActions[actionId];
+      var action = ActionManager.registeredActions[actionId];
       var event = new Ember.$.Event("click");
       action.handler(event);
     });
@@ -54684,7 +54695,7 @@ define("ember/tests/routing/basic_test",
         bootApplication();
 
         var actionId = Ember.$("#qunit-fixture a").data("ember-action");
-        var action = Ember.Handlebars.ActionHelper.registeredActions[actionId];
+        var action = ActionManager.registeredActions[actionId];
         var event = new Ember.$.Event("click");
         action.handler(event);
       });
@@ -54728,7 +54739,7 @@ define("ember/tests/routing/basic_test",
         bootApplication();
 
         var actionId = Ember.$("#qunit-fixture a").data("ember-action");
-        var action = Ember.Handlebars.ActionHelper.registeredActions[actionId];
+        var action = ActionManager.registeredActions[actionId];
         var event = new Ember.$.Event("click");
         action.handler(event);
       });
@@ -54768,7 +54779,7 @@ define("ember/tests/routing/basic_test",
       bootApplication();
 
       var actionId = Ember.$("#qunit-fixture a").data("ember-action");
-      var action = Ember.Handlebars.ActionHelper.registeredActions[actionId];
+      var action = ActionManager.registeredActions[actionId];
       var event = new Ember.$.Event("click");
       action.handler(event);
     });

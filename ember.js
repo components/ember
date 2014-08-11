@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.71283314
+ * @version   1.8.0-beta.1+canary.11827286
  */
 
 (function() {
@@ -12981,7 +12981,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.71283314
+      @version 1.8.0-beta.1+canary.11827286
     */
 
     if ('undefined' === typeof Ember) {
@@ -13008,10 +13008,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.71283314'
+      @default '1.8.0-beta.1+canary.11827286'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.71283314';
+    Ember.VERSION = '1.8.0-beta.1+canary.11827286';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -19043,8 +19043,8 @@ define("ember-routing-handlebars",
     __exports__["default"] = Ember;
   });
 define("ember-routing-handlebars/helpers/action",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/array","ember-metal/utils","ember-metal/run_loop","ember-views/system/utils","ember-routing/system/router","ember-handlebars","ember-handlebars/ext","ember-handlebars/helpers/view","ember-routing-handlebars/helpers/shared","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/array","ember-metal/utils","ember-metal/run_loop","ember-views/system/utils","ember-views/system/action_manager","ember-routing/system/router","ember-handlebars","ember-handlebars/ext","ember-handlebars/helpers/view","ember-routing-handlebars/helpers/shared","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Handlebars, uuid, FEATURES, assert, deprecate
@@ -19054,13 +19054,14 @@ define("ember-routing-handlebars/helpers/action",
     var run = __dependency5__["default"];
 
     var isSimpleClick = __dependency6__.isSimpleClick;
-    var EmberRouter = __dependency7__["default"];
+    var ActionManager = __dependency7__["default"];
+    var EmberRouter = __dependency8__["default"];
 
-    var EmberHandlebars = __dependency8__["default"];
-    var handlebarsGet = __dependency9__.handlebarsGet;
-    var viewHelper = __dependency10__.viewHelper;
-    var resolveParams = __dependency11__.resolveParams;
-    var resolvePath = __dependency11__.resolvePath;
+    var EmberHandlebars = __dependency9__["default"];
+    var handlebarsGet = __dependency10__.handlebarsGet;
+    var viewHelper = __dependency11__.viewHelper;
+    var resolveParams = __dependency12__.resolveParams;
+    var resolvePath = __dependency12__.resolvePath;
 
     /**
     @module ember
@@ -19080,9 +19081,7 @@ define("ember-routing-handlebars/helpers/action",
       return ret.concat(resolveParams(options.context, options.params, { types: types, data: data }));
     }
 
-    var ActionHelper = {
-      registeredActions: {}
-    };
+    var ActionHelper = {};
 
     __exports__.ActionHelper = ActionHelper;
 
@@ -19127,7 +19126,7 @@ define("ember-routing-handlebars/helpers/action",
     ActionHelper.registerAction = function(actionNameOrPath, options, allowedKeys) {
       var actionId = uuid();
 
-      ActionHelper.registeredActions[actionId] = {
+      ActionManager.registeredActions[actionId] = {
         eventName: options.eventName,
         handler: function handleRegisteredAction(event) {
           if (!isAllowedEvent(event, allowedKeys)) { return true; }
@@ -19182,7 +19181,7 @@ define("ember-routing-handlebars/helpers/action",
       };
 
       options.view.on('willClearRender', function() {
-        delete ActionHelper.registeredActions[actionId];
+        delete ActionManager.registeredActions[actionId];
       });
 
       return actionId;
@@ -37421,9 +37420,31 @@ define("ember-views/mixins/view_target_action_support",
       actionContext: alias('context')
     });
   });
+define("ember-views/system/action_manager",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-views
+    */
+
+    function ActionManager() {}
+
+    /**
+      Global action id hash.
+
+      @private
+      @property registeredActions
+      @type Object
+    */
+    ActionManager.registeredActions = {};
+
+    __exports__["default"] = ActionManager;
+  });
 define("ember-views/system/event_dispatcher",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/is_none","ember-metal/run_loop","ember-metal/utils","ember-runtime/system/string","ember-runtime/system/object","ember-views/system/jquery","ember-views/views/view","ember-metal/merge","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/is_none","ember-metal/run_loop","ember-metal/utils","ember-runtime/system/string","ember-runtime/system/object","ember-views/system/jquery","ember-views/system/action_manager","ember-views/views/view","ember-metal/merge","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -37440,10 +37461,9 @@ define("ember-views/system/event_dispatcher",
     var fmt = __dependency7__.fmt;
     var EmberObject = __dependency8__["default"];
     var jQuery = __dependency9__["default"];
-    var View = __dependency10__["default"];
-    var merge = __dependency11__["default"];
-
-    var ActionHelper;
+    var ActionManager = __dependency10__["default"];
+    var View = __dependency11__["default"];
+    var merge = __dependency12__["default"];
 
     //ES6TODO:
     // find a better way to do Ember.View.views without global state
@@ -37617,11 +37637,8 @@ define("ember-views/system/event_dispatcher",
         });
 
         rootElement.on(event + '.ember', '[data-ember-action]', function(evt) {
-          //ES6TODO: Needed for ActionHelper (generally not available in ember-views test suite)
-          if (!ActionHelper) { ActionHelper = requireModule("ember-routing-handlebars/helpers/action")["ActionHelper"]; }
-
           var actionId = jQuery(evt.currentTarget).attr('data-ember-action'),
-              action   = ActionHelper.registeredActions[actionId];
+              action   = ActionManager.registeredActions[actionId];
 
           // We have to check for action here since in some cases, jQuery will trigger
           // an event on `removeChild` (i.e. focusout) after we've already torn down the
@@ -37672,7 +37689,7 @@ define("ember-views/system/event_dispatcher",
       },
 
       toString: function() {
-        return '(EventDisptacher)';
+        return '(EventDispatcher)';
       }
     });
   });
