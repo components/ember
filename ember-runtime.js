@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.4faaaf97
+ * @version   1.8.0-beta.1+canary.b55687a7
  */
 
 (function() {
@@ -4491,7 +4491,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.4faaaf97
+      @version 1.8.0-beta.1+canary.b55687a7
     */
 
     if ('undefined' === typeof Ember) {
@@ -4518,10 +4518,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.4faaaf97'
+      @default '1.8.0-beta.1+canary.b55687a7'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.4faaaf97';
+    Ember.VERSION = '1.8.0-beta.1+canary.b55687a7';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -13153,8 +13153,8 @@ define("ember-runtime/core",
     __exports__.isEqual = isEqual;
   });
 define("ember-runtime/ext/function",
-  ["ember-metal/core","ember-metal/expand_properties","ember-metal/computed"],
-  function(__dependency1__, __dependency2__, __dependency3__) {
+  ["ember-metal/core","ember-metal/expand_properties","ember-metal/computed","ember-metal/mixin"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
     /**
     @module ember
@@ -13165,6 +13165,7 @@ define("ember-runtime/ext/function",
     // Ember.EXTEND_PROTOTYPES, Ember.assert
     var expandProperties = __dependency2__["default"];
     var computed = __dependency3__.computed;
+    var observer = __dependency4__.observer;
 
     var a_slice = Array.prototype.slice;
     var FunctionPrototype = Function.prototype;
@@ -13261,19 +13262,13 @@ define("ember-runtime/ext/function",
         @method observes
         @for Function
       */
-      FunctionPrototype.observes = function () {
-        var watched = [];
-        var addWatchedProperty = function (obs) {
-          watched.push(obs);
-        };
-
-        for (var i = 0; i < arguments.length; ++i) {
-          expandProperties(arguments[i], addWatchedProperty);
+      FunctionPrototype.observes = function() {
+        var length = arguments.length;
+        var args = new Array(length);
+        for (var x = 0; x < length; x++) {
+          args[x] = arguments[x];
         }
-
-        this.__ember_observes__ = watched;
-
-        return this;
+        return observer.apply(this, args.concat(this));
       };
 
       /**
