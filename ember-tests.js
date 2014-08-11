@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.11827286
+ * @version   1.8.0-beta.1+canary.4faaaf97
  */
 
 (function() {
@@ -22967,42 +22967,6 @@ define("ember-routing-handlebars/tests/helpers/action_test",
       Ember.assert = oldAssert;
     });
 
-    test("a quoteless parameter that also exists as an action name in deprecated action in controller style results in an assertion", function(){
-      var dropDeprecatedActionStyleOrig = Ember.FEATURES['ember-routing-drop-deprecated-action-style'];
-      Ember.FEATURES['ember-routing-drop-deprecated-action-style'] = false;
-
-      var triggeredAction;
-
-      view = EmberView.create({
-        template: compile("<a id='oops-bound-param' {{action ohNoeNotValid}}>Hi</a>")
-      });
-
-      var controller = EmberController.extend({
-        ohNoeNotValid: function() {
-          triggeredAction = true;
-        }
-      }).create();
-
-      run(function() {
-        view.set('controller', controller);
-        view.appendTo('#qunit-fixture');
-      });
-
-      var oldAssert = Ember.assert;
-      Ember.assert = function(message, test){
-        ok(test, message + " -- was properly asserted");
-      };
-
-      run(function(){
-        view.$("#oops-bound-param").click();
-      });
-
-      ok(triggeredAction, 'the action was triggered');
-
-      Ember.assert = oldAssert;
-      Ember.FEATURES['ember-routing-drop-deprecated-action-style'] = dropDeprecatedActionStyleOrig;
-    });
-
     QUnit.module("Ember.Handlebars - action helper - deprecated invoking directly on target", {
       setup: function() {
         originalActionHelper = EmberHandlebars.helpers['action'];
@@ -23022,32 +22986,6 @@ define("ember-routing-handlebars/tests/helpers/action_test",
         });
       }
     });
-
-    if (!Ember.FEATURES.isEnabled('ember-routing-drop-deprecated-action-style')) {
-      test("should invoke a handler defined directly on the target (DEPRECATED)", function() {
-        var eventHandlerWasCalled,
-            model = EmberObject.create();
-
-        var controller = EmberController.extend({
-          edit: function() {
-            eventHandlerWasCalled = true;
-          }
-        }).create();
-
-        view = EmberView.create({
-          controller: controller,
-          template: EmberHandlebars.compile('<button {{action "edit"}}>edit</button>')
-        });
-
-        appendView();
-
-        expectDeprecation(/Action handlers implemented directly on controllers are deprecated/);
-
-        view.$('button').trigger('click');
-
-        ok(eventHandlerWasCalled, "the action was called");
-      });
-    }
 
     test("should respect preventDefault=false option if provided", function(){
       view = EmberView.create({
@@ -28567,19 +28505,6 @@ define("ember-runtime/tests/controllers/controller_test",
     });
 
     QUnit.module('Controller deprecations');
-
-    if (!Ember.FEATURES.isEnabled('ember-routing-drop-deprecated-action-style')) {
-      test("Action can be handled by method directly on controller (DEPRECATED)", function() {
-        expectDeprecation(/Action handlers implemented directly on controllers are deprecated/);
-        var TestController = Controller.extend({
-          poke: function() {
-            ok(true, 'poked');
-          }
-        });
-        var controller = TestController.create({});
-        controller.send("poke");
-      });
-    }
 
     QUnit.module('Controller Content -> Model Alias');
 
@@ -46943,19 +46868,6 @@ define("ember-views/tests/views/view/actions_test",
       view.send("poke");
     });
 
-    if (!Ember.FEATURES.isEnabled('ember-routing-drop-deprecated-action-style')) {
-      test("Action can be handled by a function on the view (DEPRECATED)", function() {
-        expect(2);
-        expectDeprecation(/Action handlers implemented directly on views are deprecated/);
-        view = View.extend({
-          poke: function() {
-            ok(true, 'poked');
-          }
-        }).create();
-        view.send("poke");
-      });
-    }
-
     test("A handled action can be bubbled to the target for continued processing", function() {
       expect(2);
       view = View.extend({
@@ -54656,94 +54568,48 @@ define("ember/tests/routing/basic_test",
       router.send("baz");
     });
 
-    if (Ember.FEATURES.isEnabled('ember-routing-drop-deprecated-action-style')) {
-      asyncTest("Actions are not triggered on the controller if a matching action name is implemented as a method", function() {
-        Router.map(function() {
-          this.route("home", { path: "/" });
-        });
-
-        var model = { name: "Tom Dale" };
-        var stateIsNotCalled = true;
-
-        App.HomeRoute = Ember.Route.extend({
-          model: function() {
-            return model;
-          },
-
-          actions: {
-            showStuff: function(context) {
-              ok (stateIsNotCalled, "an event on the state is not triggered");
-              deepEqual(context, { name: "Tom Dale" }, "an event with context is passed");
-              QUnit.start();
-            }
-          }
-        });
-
-        Ember.TEMPLATES.home = Ember.Handlebars.compile(
-          "<a {{action 'showStuff' model}}>{{name}}</a>"
-        );
-
-        var controller = Ember.Controller.extend({
-          showStuff: function(context) {
-            stateIsNotCalled = false;
-            ok (stateIsNotCalled, "an event on the state is not triggered");
-          }
-        });
-
-        container.register('controller:home', controller);
-
-        bootApplication();
-
-        var actionId = Ember.$("#qunit-fixture a").data("ember-action");
-        var action = ActionManager.registeredActions[actionId];
-        var event = new Ember.$.Event("click");
-        action.handler(event);
+    asyncTest("Actions are not triggered on the controller if a matching action name is implemented as a method", function() {
+      Router.map(function() {
+        this.route("home", { path: "/" });
       });
-    } else {
-      asyncTest("Events are triggered on the controller if a matching action name is implemented as a method (DEPRECATED)", function() {
-        Router.map(function() {
-          this.route("home", { path: "/" });
-        });
 
-        var model = { name: "Tom Dale" };
-        var stateIsNotCalled = true;
+      var model = { name: "Tom Dale" };
+      var stateIsNotCalled = true;
 
-        App.HomeRoute = Ember.Route.extend({
-          model: function() {
-            return model;
-          },
+      App.HomeRoute = Ember.Route.extend({
+        model: function() {
+          return model;
+        },
 
-          events: {
-            showStuff: function(obj) {
-              stateIsNotCalled = false;
-              ok (stateIsNotCalled, "an event on the state is not triggered");
-            }
-          }
-        });
-
-        Ember.TEMPLATES.home = Ember.Handlebars.compile(
-          "<a {{action 'showStuff' model}}>{{name}}</a>"
-        );
-
-        var controller = Ember.Controller.extend({
+        actions: {
           showStuff: function(context) {
             ok (stateIsNotCalled, "an event on the state is not triggered");
             deepEqual(context, { name: "Tom Dale" }, "an event with context is passed");
             QUnit.start();
           }
-        });
-
-        container.register('controller:home', controller);
-
-        expectDeprecation(/Action handlers contained in an `events` object are deprecated/);
-        bootApplication();
-
-        var actionId = Ember.$("#qunit-fixture a").data("ember-action");
-        var action = ActionManager.registeredActions[actionId];
-        var event = new Ember.$.Event("click");
-        action.handler(event);
+        }
       });
-    }
+
+      Ember.TEMPLATES.home = Ember.Handlebars.compile(
+        "<a {{action 'showStuff' model}}>{{name}}</a>"
+      );
+
+      var controller = Ember.Controller.extend({
+        showStuff: function(context) {
+          stateIsNotCalled = false;
+          ok (stateIsNotCalled, "an event on the state is not triggered");
+        }
+      });
+
+      container.register('controller:home', controller);
+
+      bootApplication();
+
+      var actionId = Ember.$("#qunit-fixture a").data("ember-action");
+      var action = ActionManager.registeredActions[actionId];
+      var event = new Ember.$.Event("click");
+      action.handler(event);
+    });
 
     asyncTest("actions can be triggered with multiple arguments", function() {
       Router.map(function() {

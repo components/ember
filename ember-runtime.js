@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.11827286
+ * @version   1.8.0-beta.1+canary.4faaaf97
  */
 
 (function() {
@@ -4491,7 +4491,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.11827286
+      @version 1.8.0-beta.1+canary.4faaaf97
     */
 
     if ('undefined' === typeof Ember) {
@@ -4518,10 +4518,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.11827286'
+      @default '1.8.0-beta.1+canary.4faaaf97'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.11827286';
+    Ember.VERSION = '1.8.0-beta.1+canary.4faaaf97';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -13851,13 +13851,6 @@ define("ember-runtime/mixins/action_handler",
           } else {
             return;
           }
-        } else if (!Ember.FEATURES.isEnabled('ember-routing-drop-deprecated-action-style') && this.deprecatedSend && this.deprecatedSendHandles && this.deprecatedSendHandles(actionName)) {
-          Ember.warn("The current default is deprecated but will prefer to handle actions directly on the controller instead of a similarly named action in the actions hash. To turn off this deprecated feature set: Ember.FEATURES['ember-routing-drop-deprecated-action-style'] = true");
-          if (this.deprecatedSend.apply(this, [].slice.call(arguments)) === true) {
-            // handler return true, so this action will bubble
-          } else {
-            return;
-          }
         }
 
         if (target = get(this, 'target')) {
@@ -14422,19 +14415,8 @@ define("ember-runtime/mixins/controller",
       store: null,
 
       model: null,
-      content: computed.alias('model'),
+      content: computed.alias('model')
 
-      deprecatedSendHandles: function(actionName) {
-        return !!this[actionName];
-      },
-
-      deprecatedSend: function(actionName) {
-        var args = [].slice.call(arguments, 1);
-        Ember.assert('' + this + " has the action " + actionName + " but it is not a function", typeof this[actionName] === 'function');
-        Ember.deprecate('Action handlers implemented directly on controllers are deprecated in favor of action handlers on an `actions` object ( action: `' + actionName + '` on ' + this + ')', false);
-        this[actionName].apply(this, args);
-        return;
-      }
     });
   });
 define("ember-runtime/mixins/controller_content_model_alias_deprecation",
