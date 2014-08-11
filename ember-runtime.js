@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.f246cc3a
+ * @version   1.8.0-beta.1+canary.7b1dff7e
  */
 
 (function() {
@@ -2726,7 +2726,7 @@ define("ember-metal/binding",
       something like this on your binding:
 
       ```javascript
-      binding = Ember.Binding.from(this.valueBinding).to("value");
+      binding = Ember.Binding.from("valueBinding").to("value");
       ```
 
       This creates a new binding instance based on the template you provide, and
@@ -2742,6 +2742,19 @@ define("ember-metal/binding",
       connected to. This object will be used as the root for both the from and
       to side of the binding when inspecting relative paths. This allows the
       binding to be automatically inherited by subclassed objects as well.
+
+      This also allows you to bind between objects using the paths you declare in
+      `from` and `to`:
+
+      ```javascript
+      // Example 1
+      binding = Ember.Binding.from("App.someObject.value").to("value");
+      binding.connect(this);
+
+      // Example 2
+      binding = Ember.Binding.from("parentView.value").to("App.someObject.value");
+      binding.connect(this);
+      ```
 
       Now that the binding is connected, it will observe both the from and to side
       and relay changes.
@@ -4478,7 +4491,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.f246cc3a
+      @version 1.8.0-beta.1+canary.7b1dff7e
     */
 
     if ('undefined' === typeof Ember) {
@@ -4505,10 +4518,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.f246cc3a'
+      @default '1.8.0-beta.1+canary.7b1dff7e'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.f246cc3a';
+    Ember.VERSION = '1.8.0-beta.1+canary.7b1dff7e';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
