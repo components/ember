@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.b55687a7
+ * @version   1.8.0-beta.1+canary.24e63660
  */
 
 (function() {
@@ -43803,6 +43803,37 @@ define("ember-testing/tests/helpers_test",
       }).then(function() {
         equal(event.type, 'blur', 'correct event was triggered');
         equal(event.target.getAttribute('id'), 'foo', 'triggered on the correct element');
+      });
+    });
+
+
+    test("`fillIn` takes context into consideration", function() {
+      expect(2);
+      var fillIn, find, visit, andThen;
+
+      run(function() {
+        App = EmberApplication.create();
+        App.setupForTesting();
+      });
+
+      App.IndexView = EmberView.extend({
+        template: Ember.Handlebars.compile('<div id="parent">{{input type="text" id="first" class="current"}}</div>{{input type="text" id="second" class="current"}}')
+      });
+
+      App.injectTestHelpers();
+
+      run(App, App.advanceReadiness);
+
+      fillIn = App.testHelpers.fillIn;
+      find = App.testHelpers.find;
+      visit = App.testHelpers.visit;
+      andThen = App.testHelpers.andThen;
+
+      visit('/');
+      fillIn('.current', '#parent', 'current value');
+      andThen(function() {
+        equal(find('#first').val().trim(), 'current value');
+        equal(find('#second').val().trim(), '');
       });
     });
 

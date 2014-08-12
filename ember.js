@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.b55687a7
+ * @version   1.8.0-beta.1+canary.24e63660
  */
 
 (function() {
@@ -12981,7 +12981,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.b55687a7
+      @version 1.8.0-beta.1+canary.24e63660
     */
 
     if ('undefined' === typeof Ember) {
@@ -13008,10 +13008,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.b55687a7'
+      @default '1.8.0-beta.1+canary.24e63660'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.b55687a7';
+    Ember.VERSION = '1.8.0-beta.1+canary.24e63660';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -36255,6 +36255,8 @@ define("ember-testing/helpers",
       var $el, context;
       if (typeof text === 'undefined') {
         text = contextOrText;
+      } else {
+        context = contextOrText;
       }
       $el = app.testHelpers.findWithAssert(selector, context);
       run(function() {
