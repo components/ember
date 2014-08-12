@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.7d0cba2a
+ * @version   1.8.0-beta.1+canary.2d062cb3
  */
 
 (function() {
@@ -12687,7 +12687,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.7d0cba2a
+      @version 1.8.0-beta.1+canary.2d062cb3
     */
 
     if ('undefined' === typeof Ember) {
@@ -12714,10 +12714,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.7d0cba2a'
+      @default '1.8.0-beta.1+canary.2d062cb3'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.7d0cba2a';
+    Ember.VERSION = '1.8.0-beta.1+canary.2d062cb3';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -27896,7 +27896,7 @@ define("ember-runtime/ext/function",
           watched.push(obs);
         };
 
-        for (var i = 0; i < arguments.length; ++i) {
+        for (var i = 0, l = arguments.length; i < l; ++i) {
           expandProperties(arguments[i], addWatchedProperty);
         }
 
