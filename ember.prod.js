@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.89eb9fb6
+ * @version   1.8.0-beta.1+canary.dd039259
  */
 
 (function() {
@@ -1831,7 +1831,8 @@ define("ember-application/ext/controller",
     var controllerFor = __dependency8__["default"];
 
     function verifyNeedsDependencies(controller, container, needs) {
-      var dependency, i, l, missing = [];
+      var dependency, i, l;
+      var missing = [];
 
       for (i=0, l=needs.length; i<l; i++) {
         dependency = needs[i];
@@ -1858,8 +1859,9 @@ define("ember-application/ext/controller",
         needs: get(controller, 'needs'),
         container: get(controller, 'container'),
         unknownProperty: function(controllerName) {
-          var needs = this.needs,
-            dependency, i, l;
+          var needs = this.needs;
+          var dependency, i, l;
+
           for (i=0, l=needs.length; i<l; i++) {
             dependency = needs[i];
             if (dependency === controllerName) {
@@ -3079,7 +3081,8 @@ define("ember-application/system/dag",
       if (!fromName || !toName || fromName === toName) {
         return;
       }
-      var from = this.add(fromName), to = this.add(toName);
+      var from = this.add(fromName);
+      var to = this.add(toName);
       if (to.incoming.hasOwnProperty(fromName)) {
         return;
       }
@@ -12697,7 +12700,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.89eb9fb6
+      @version 1.8.0-beta.1+canary.dd039259
     */
 
     if ('undefined' === typeof Ember) {
@@ -12724,10 +12727,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.89eb9fb6'
+      @default '1.8.0-beta.1+canary.dd039259'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.89eb9fb6';
+    Ember.VERSION = '1.8.0-beta.1+canary.dd039259';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.89eb9fb6
+ * @version   1.8.0-beta.1+canary.dd039259
  */
 
 (function() {
@@ -1093,7 +1093,8 @@ define("ember-application/tests/system/application_test",
     });
 
     test("acts like a namespace", function() {
-      var lookup = Ember.lookup = {}, app;
+      var lookup = Ember.lookup = {};
+      var app;
 
       run(function() {
         app = lookup.TestApp = Application.create({ rootElement: '#two', router: false });
@@ -1344,8 +1345,8 @@ define("ember-application/tests/system/controller_test",
 
       container.register('controller:posts', Controller.extend());
 
-      var postController = container.lookup('controller:post'),
-          postsController = container.lookup('controller:posts');
+      var postController = container.lookup('controller:post');
+      var postsController = container.lookup('controller:posts');
 
       equal(postsController, postController.get('controllers.posts'), "controller.posts must be auto synthesized");
     });
@@ -1424,8 +1425,8 @@ define("ember-application/tests/system/controller_test",
 
       container.register('controller:posts', Controller.extend());
 
-      var postController = container.lookup('controller:post'),
-          postsController = container.lookup('controller:posts');
+      var postController = container.lookup('controller:post');
+      var postsController = container.lookup('controller:posts');
 
       throws(function(){
         postController.set('controllers.posts', 'epic-self-troll');
@@ -1505,9 +1506,9 @@ define("ember-application/tests/system/dag_test",
     });
 
     test("#topsort iterates over the edges respecting precedence order", function(){
-      var graph = new DAG(),
-          names = [],
-          index = 0;
+      var graph = new DAG();
+      var names = [];
+      var index = 0;
 
       graph.addEdges("eat omelette", 1);
       graph.addEdges("buy eggs", 2) ;
@@ -1535,9 +1536,9 @@ define("ember-application/tests/system/dag_test",
     });
 
     test("#addEdged supports both strings and arrays to specify precedences", function(){
-      var graph = new DAG(),
-          names = [],
-          index = 0;
+      var graph = new DAG();
+      var names = [];
+      var index = 0;
 
       graph.addEdges("eat omelette", 1);
       graph.addEdges("buy eggs", 2) ;
@@ -1927,8 +1928,8 @@ define("ember-application/tests/system/dependency_injection_test",
 
     var EmberApplication = Application;
 
-    var locator, originalLookup = Ember.lookup, lookup,
-        application, originalModelInjections;
+    var originalLookup = Ember.lookup;
+    var locator, lookup, application, originalModelInjections;
 
     QUnit.module("Ember.Application Dependency Injection", {
       setup: function() {
@@ -1987,9 +1988,9 @@ define("ember-application/tests/system/dependency_injection_test",
       application.inject('model', 'fruit', 'fruit:favorite');
       application.inject('model:user', 'communication', 'communication:main');
 
-      var user = locator.lookup('model:user'),
-      person = locator.lookup('model:person'),
-      fruit = locator.lookup('fruit:favorite');
+      var user = locator.lookup('model:user');
+      var person = locator.lookup('model:person');
+      var fruit = locator.lookup('fruit:favorite');
 
       equal(user.get('fruit'), fruit);
       equal(person.get('fruit'), fruit);
@@ -2090,35 +2091,35 @@ define("ember-application/tests/system/initializers_test",
     });
 
     test("initializers can have multiple dependencies", function () {
-      var order = [],
-          a = {
+      var order = [];
+      var a = {
             name: "a",
             before: "b",
             initialize: function(container) {
               order.push('a');
             }
-          },
-          b = {
+          };
+      var b = {
             name: "b",
             initialize: function(container) {
               order.push('b');
             }
-          },
-          c = {
+          };
+      var c = {
             name: "c",
             after: "b",
             initialize: function(container) {
               order.push('c');
             }
-          },
-          afterB = {
+          };
+      var afterB = {
             name: "after b",
             after: "b",
             initialize: function(container) {
               order.push("after b");
             }
-          },
-          afterC = {
+          };
+      var afterC = {
             name: "after c",
             after: "c",
             initialize: function(container) {
@@ -2145,7 +2146,8 @@ define("ember-application/tests/system/initializers_test",
     });
 
     test("initializers set on Application subclasses should not be shared between apps", function(){
-      var firstInitializerRunCount = 0, secondInitializerRunCount = 0;
+      var firstInitializerRunCount = 0;
+      var secondInitializerRunCount = 0;
       var FirstApp = Application.extend();
       FirstApp.initializer({
         name: 'first',
@@ -2180,7 +2182,8 @@ define("ember-application/tests/system/initializers_test",
     });
 
     test("initializers are concatenated", function(){
-      var firstInitializerRunCount = 0, secondInitializerRunCount = 0;
+      var firstInitializerRunCount = 0;
+      var secondInitializerRunCount = 0;
       var FirstApp = Application.extend();
       FirstApp.initializer({
         name: 'first',
@@ -2651,7 +2654,8 @@ define("ember-application/tests/system/reset_test",
     var jQuery = __dependency10__["default"];
     var Container = __dependency11__["default"];
 
-    var application, EmberApplication = Application;
+    var application;
+    var EmberApplication = Application;
 
     QUnit.module("Ember.Application - resetting", {
       setup: function() {
