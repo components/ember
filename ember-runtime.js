@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.dd039259
+ * @version   1.8.0-beta.1+canary.ab21dda9
  */
 
 (function() {
@@ -3849,15 +3849,11 @@ define("ember-metal/computed_macros",
       A computed property that returns true if the value of the dependent
       property is NOT null, an empty string, empty array, or empty function.
 
-      Note: When using `computed.notEmpty` to watch an array make sure to
-      use the `array.[]` syntax so the computed can subscribe to transitions
-      from empty to non-empty states.
-
       Example
 
       ```javascript
       var Hamster = Ember.Object.extend({
-        hasStuff: Ember.computed.notEmpty('backpack.[]')
+        hasStuff: Ember.computed.notEmpty('backpack')
       });
 
       var hamster = Hamster.create({ backpack: ['Food', 'Sleeping Bag', 'Tent'] });
@@ -3873,9 +3869,11 @@ define("ember-metal/computed_macros",
       @return {Ember.ComputedProperty} computed property which returns true if
       original value for property is not empty.
     */
-    registerComputed('notEmpty', function(dependentKey) {
-      return !isEmpty(get(this, dependentKey));
-    });
+    computed.notEmpty = function(dependentKey) {
+      return computed(dependentKey + '.length', function () {
+        return !isEmpty(get(this, dependentKey));
+      });
+    };
 
     /**
       A computed property that returns true if the value of the dependent
@@ -4501,7 +4499,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.dd039259
+      @version 1.8.0-beta.1+canary.ab21dda9
     */
 
     if ('undefined' === typeof Ember) {
@@ -4528,10 +4526,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.dd039259'
+      @default '1.8.0-beta.1+canary.ab21dda9'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.dd039259';
+    Ember.VERSION = '1.8.0-beta.1+canary.ab21dda9';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`

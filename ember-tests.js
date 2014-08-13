@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.dd039259
+ * @version   1.8.0-beta.1+canary.ab21dda9
  */
 
 (function() {
@@ -26019,6 +26019,27 @@ define("ember-runtime/tests/computed/computed_macros_test",
 
       equal(get(obj, 'bestLannisterUnspecified'), false, "empty respects strings");
       equal(get(obj, 'noLannistersKnown'), false, "empty respects array mutations");
+    });
+
+    testBoth('Ember.computed.notEmpty', function(get, set) {
+      var obj = EmberObject.extend({
+        bestLannister: null,
+        lannisters: null,
+
+        bestLannisterSpecified: computed.notEmpty('bestLannister'),
+        LannistersKnown: computed.notEmpty('lannisters')
+      }).create({
+        lannisters: Ember.A([])
+      });
+
+      equal(get(obj, 'bestLannisterSpecified'), false, "bestLannister initially empty");
+      equal(get(obj, 'LannistersKnown'), false, "lannisters initially empty");
+
+      get(obj, 'lannisters').pushObject('Tyrion');
+      set(obj, 'bestLannister', 'Tyrion');
+
+      equal(get(obj, 'bestLannisterSpecified'), true, "empty respects strings");
+      equal(get(obj, 'LannistersKnown'), true, "empty respects array mutations");
     });
   });
 define("ember-runtime/tests/computed/computed_macros_test.jshint",
