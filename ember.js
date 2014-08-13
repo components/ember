@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.920239f9
+ * @version   1.8.0-beta.1+canary.05917406
  */
 
 (function() {
@@ -13024,7 +13024,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.920239f9
+      @version 1.8.0-beta.1+canary.05917406
     */
 
     if ('undefined' === typeof Ember) {
@@ -13051,10 +13051,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.920239f9'
+      @default '1.8.0-beta.1+canary.05917406'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.920239f9';
+    Ember.VERSION = '1.8.0-beta.1+canary.05917406';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -19146,8 +19146,8 @@ define("ember-routing-handlebars/helpers/action",
       var ret = [];
       if (actionName) { ret.push(actionName); }
 
-      var types = options.options.types.slice(1),
-          data = options.options.data;
+      var types = options.options.types.slice(1);
+      var data = options.options.data;
 
       return ret.concat(resolveParams(options.context, options.params, { types: types, data: data }));
     }
@@ -19210,10 +19210,10 @@ define("ember-routing-handlebars/helpers/action",
             event.stopPropagation();
           }
 
-          var target = options.target,
-              parameters = options.parameters,
-              eventName = options.eventName,
-              actionName;
+          var target = options.target;
+          var parameters = options.parameters;
+          var eventName = options.eventName;
+          var actionName;
 
           if (Ember.FEATURES.isEnabled("ember-routing-handlebars-action-with-key-code")) {
             if (ignoreKeyEvent(eventName, event, options.withKeyCode)) {
@@ -19514,8 +19514,8 @@ define("ember-routing-handlebars/helpers/link_to",
 
     function getResolvedPaths(options) {
 
-      var types = options.options.types,
-          data = options.options.data;
+      var types = options.options.types;
+      var data = options.options.data;
 
       return resolvePaths(options.context, options.params, { types: types, data: data });
     }
@@ -19692,11 +19692,11 @@ define("ember-routing-handlebars/helpers/link_to",
        @since 1.3.0
       **/
       _setupPathObservers: function(){
-        var helperParameters = this.parameters,
-            linkTextPath     = helperParameters.options.linkTextPath,
-            paths = getResolvedPaths(helperParameters),
-            length = paths.length,
-            path, i, normalizedPath;
+        var helperParameters = this.parameters;
+        var linkTextPath     = helperParameters.options.linkTextPath;
+        var paths = getResolvedPaths(helperParameters);
+        var length = paths.length;
+        var path, i, normalizedPath;
 
         if (linkTextPath) {
           normalizedPath = getNormalizedPath(linkTextPath, helperParameters);
@@ -19879,8 +19879,8 @@ define("ember-routing-handlebars/helpers/link_to",
           return false;
         }
 
-        var router = get(this, 'router'),
-            loadedParams = get(this, 'loadedParams');
+        var router = get(this, 'router');
+        var loadedParams = get(this, 'loadedParams');
 
         var transition = router._doTransition(loadedParams.targetRouteName, loadedParams.models, loadedParams.queryParams);
         if (get(this, 'replace')) {
@@ -19948,11 +19948,11 @@ define("ember-routing-handlebars/helpers/link_to",
         @return {Array}
        */
       resolvedParams: computed('router.url', function() {
-        var parameters = this.parameters,
-            options = parameters.options,
-            types = options.types,
-            data = options.data,
-            targetRouteName, models;
+        var parameters = this.parameters;
+        var options = parameters.options;
+        var types = options.types;
+        var data = options.data;
+        var targetRouteName, models;
 
         var onlyQueryParamsSupplied = (parameters.params.length === 0);
         if (onlyQueryParamsSupplied) {
@@ -19987,8 +19987,8 @@ define("ember-routing-handlebars/helpers/link_to",
         var router = get(this, 'router');
         if (!router) { return; }
 
-        var resolvedParams = get(this, 'resolvedParams'),
-            namedRoute = resolvedParams.targetRouteName;
+        var resolvedParams = get(this, 'resolvedParams');
+        var namedRoute = resolvedParams.targetRouteName;
 
         if (!namedRoute) { return; }
 
@@ -20016,8 +20016,8 @@ define("ember-routing-handlebars/helpers/link_to",
       href: computed('loadedParams', function computeLinkViewHref() {
         if (get(this, 'tagName') !== 'a') { return; }
 
-        var router = get(this, 'router'),
-            loadedParams = get(this, 'loadedParams');
+        var router = get(this, 'router');
+        var loadedParams = get(this, 'loadedParams');
 
         if (!loadedParams) {
           return get(this, 'loadingHref');
@@ -20324,9 +20324,9 @@ define("ember-routing-handlebars/helpers/link_to",
       @see {Ember.LinkView}
     */
     function linkToHelper(name) {
-      var options = slice.call(arguments, -1)[0],
-          params = slice.call(arguments, 0, -1),
-          hash = options.hash;
+      var options = slice.call(arguments, -1)[0];
+      var params = slice.call(arguments, 0, -1);
+      var hash = options.hash;
 
       Ember.assert("You must provide one or more parameters to the link-to helper.", params.length);
 
@@ -20391,9 +20391,9 @@ define("ember-routing-handlebars/helpers/link_to",
     }
 
     function getResolvedQueryParams(linkView, targetRouteName) {
-      var helperParameters = linkView.parameters,
-          queryParamsObject = linkView.queryParamsObject,
-          resolvedQueryParams = {};
+      var helperParameters = linkView.parameters;
+      var queryParamsObject = linkView.queryParamsObject;
+      var resolvedQueryParams = {};
 
       if (!queryParamsObject) { return resolvedQueryParams; }
       var rawParams = queryParamsObject.values;
@@ -20401,8 +20401,8 @@ define("ember-routing-handlebars/helpers/link_to",
       for (var key in rawParams) {
         if (!rawParams.hasOwnProperty(key)) { continue; }
 
-        var value = rawParams[key],
-            type = queryParamsObject.types[key];
+        var value = rawParams[key];
+        var type = queryParamsObject.types[key];
 
         if (type === 'ID') {
           var normalizedPath = getNormalizedPath(value, helperParameters);

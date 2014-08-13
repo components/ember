@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.920239f9
+ * @version   1.8.0-beta.1+canary.05917406
  */
 
 (function() {
@@ -22067,8 +22067,8 @@ define("ember-routing-handlebars/tests/helpers/action_test",
     var ActionHelper = __dependency16__.ActionHelper;
     var actionHelper = __dependency16__.actionHelper;
 
-    var dispatcher, view, originalActionHelper,
-        originalRegisterAction = ActionHelper.registerAction;
+    var dispatcher, view, originalActionHelper;
+    var originalRegisterAction = ActionHelper.registerAction;
 
     var appendView = function() {
       run(function() { view.appendTo('#qunit-fixture'); });
@@ -22143,7 +22143,8 @@ define("ember-routing-handlebars/tests/helpers/action_test",
     });
 
     test("should by default target the view's controller", function() {
-      var registeredTarget, controller = {};
+      var registeredTarget;
+      var controller = {};
 
       ActionHelper.registerAction = function(actionName, options) {
         registeredTarget = options.target;
@@ -22162,7 +22163,8 @@ define("ember-routing-handlebars/tests/helpers/action_test",
     });
 
     test("Inside a yield, the target points at the original target", function() {
-      var controller = {}, watted = false;
+      var controller = {};
+      var watted = false;
 
       var component = EmberComponent.extend({
         boundText: "inner",
@@ -22319,7 +22321,8 @@ define("ember-routing-handlebars/tests/helpers/action_test",
     });
 
     test("should lazily evaluate the target", function() {
-      var firstEdit = 0, secondEdit = 0;
+      var firstEdit = 0;
+      var secondEdit = 0;
 
       var controller = {};
       var first = {
@@ -22383,7 +22386,8 @@ define("ember-routing-handlebars/tests/helpers/action_test",
     });
 
     test("handles whitelisted modifier keys", function() {
-      var eventHandlerWasCalled = false, shortcutHandlerWasCalled = false;
+      var eventHandlerWasCalled = false;
+      var shortcutHandlerWasCalled = false;
 
       var controller = EmberController.extend({
         actions: {
@@ -22417,9 +22421,9 @@ define("ember-routing-handlebars/tests/helpers/action_test",
     });
 
     test("should be able to use action more than once for the same event within a view", function() {
-      var editWasCalled = false,
-          deleteWasCalled = false,
-          originalEventHandlerWasCalled = false;
+      var editWasCalled = false;
+      var deleteWasCalled = false;
+      var originalEventHandlerWasCalled = false;
 
       var controller = EmberController.extend({
         actions: {
@@ -22459,9 +22463,9 @@ define("ember-routing-handlebars/tests/helpers/action_test",
     });
 
     test("the event should not bubble if `bubbles=false` is passed", function() {
-      var editWasCalled = false,
-          deleteWasCalled = false,
-          originalEventHandlerWasCalled = false;
+      var editWasCalled = false;
+      var deleteWasCalled = false;
+      var originalEventHandlerWasCalled = false;
 
       var controller = EmberController.extend({
         actions: {
@@ -22608,8 +22612,8 @@ define("ember-routing-handlebars/tests/helpers/action_test",
     });
 
     test("should allow bubbling of events from action helper to original parent event", function() {
-      var eventHandlerWasCalled = false,
-          originalEventHandlerWasCalled = false;
+      var eventHandlerWasCalled = false;
+      var originalEventHandlerWasCalled = false;
 
       var controller = EmberController.extend({
         actions: { edit: function() { eventHandlerWasCalled = true; } }
@@ -22629,8 +22633,8 @@ define("ember-routing-handlebars/tests/helpers/action_test",
     });
 
     test("should not bubble an event from action helper to original parent event if `bubbles=false` is passed", function() {
-      var eventHandlerWasCalled = false,
-          originalEventHandlerWasCalled = false;
+      var eventHandlerWasCalled = false;
+      var originalEventHandlerWasCalled = false;
 
       var controller = EmberController.extend({
         actions: { edit: function() { eventHandlerWasCalled = true; } }
@@ -22715,9 +22719,9 @@ define("ember-routing-handlebars/tests/helpers/action_test",
     });
 
     test("should unwrap controllers passed as a context", function() {
-      var passedContext,
-          model = EmberObject.create(),
-          controller = EmberObjectController.extend({
+      var passedContext;
+      var model = EmberObject.create();
+      var controller = EmberObjectController.extend({
             model: model,
             actions: {
               edit: function(context) {
@@ -22739,8 +22743,8 @@ define("ember-routing-handlebars/tests/helpers/action_test",
     });
 
     test("should allow multiple contexts to be specified", function() {
-      var passedContexts,
-          models = [EmberObject.create(), EmberObject.create()];
+      var passedContexts;
+      var models = [EmberObject.create(), EmberObject.create()];
 
       var controller = EmberController.extend({
         actions: {
@@ -22765,8 +22769,8 @@ define("ember-routing-handlebars/tests/helpers/action_test",
     });
 
     test("should allow multiple contexts to be specified mixed with string args", function() {
-      var passedParams,
-          model = EmberObject.create();
+      var passedParams;
+      var model = EmberObject.create();
 
       var controller = EmberController.extend({
         actions: {
@@ -22945,7 +22949,8 @@ define("ember-routing-handlebars/tests/helpers/action_test",
     }
     test("a quoteless parameter should allow dynamic lookup of the actionName", function(){
       expect(4);
-      var lastAction, actionOrder = [];
+      var lastAction;
+      var actionOrder = [];
 
       view = EmberView.create({
         template: compile("<a id='woot-bound-param'' {{action hookMeUp}}>Hi</a>")
@@ -22993,7 +22998,8 @@ define("ember-routing-handlebars/tests/helpers/action_test",
 
     test("a quoteless parameter should lookup actionName in context", function(){
       expect(4);
-      var lastAction, actionOrder = [];
+      var lastAction;
+      var actionOrder = [];
 
       view = EmberView.create({
         template: compile("{{#each allactions}}<a {{bind-attr id='name'}} {{action name}}>{{title}}</a>{{/each}}")
@@ -23041,7 +23047,8 @@ define("ember-routing-handlebars/tests/helpers/action_test",
 
     test("a quoteless parameter should resolve actionName, including path", function(){
       expect(4);
-      var lastAction, actionOrder = [];
+      var lastAction;
+      var actionOrder = [];
 
       view = EmberView.create({
         template: compile("{{#each item in allactions}}<a {{bind-attr id='item.name'}} {{action item.name}}>{{item.title}}</a>{{/each}}")
@@ -23310,8 +23317,9 @@ define("ember-routing-handlebars/tests/helpers/outlet_test",
 
     function resolverFor(namespace) {
       return function(fullName) {
-        var nameParts = fullName.split(":"),
-            type = nameParts[0], name = nameParts[1];
+        var nameParts = fullName.split(":");
+        var type = nameParts[0];
+        var name = nameParts[1];
 
         if (type === 'template') {
           var templateName = decamelize(name);
@@ -23596,8 +23604,9 @@ define("ember-routing-handlebars/tests/helpers/outlet_test",
     });
 
     test("should support layouts", function() {
-      var template = "{{outlet}}",
-          layout = "<h1>HI</h1>{{yield}}";
+      var template = "{{outlet}}";
+      var layout = "<h1>HI</h1>{{yield}}";
+
       view = EmberView.create({
         template: EmberHandlebars.compile(template),
         layout: EmberHandlebars.compile(layout)
@@ -23694,8 +23703,9 @@ define("ember-routing-handlebars/tests/helpers/render_test",
 
     function resolverFor(namespace) {
       return function(fullName) {
-        var nameParts = fullName.split(":"),
-            type = nameParts[0], name = nameParts[1];
+        var nameParts = fullName.split(":");
+        var type = nameParts[0];
+        var name = nameParts[1];
 
         if (type === 'template') {
           var templateName = decamelize(name);
@@ -24102,10 +24112,10 @@ define("ember-routing-handlebars/tests/helpers/render_test",
 
       appendView(view);
 
-      var button = jQuery("#parent-action"),
-          actionId = button.data('ember-action'),
-          action = ActionManager.registeredActions[actionId],
-          handler = action.handler;
+      var button = jQuery("#parent-action");
+      var actionId = button.data('ember-action');
+      var action = ActionManager.registeredActions[actionId];
+      var handler = action.handler;
 
       equal(button.text(), "Go to Mom", "The parentController property is set on the child controller");
 
