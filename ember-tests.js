@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.06f2a13b
+ * @version   1.8.0-beta.1+canary.89eb9fb6
  */
 
 (function() {
@@ -26110,8 +26110,8 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
     });
 
     test("it caches properly", function() {
-      var array = get(obj, 'array'),
-          mapped = get(obj, 'mapped');
+      var array = get(obj, 'array');
+      var mapped = get(obj, 'mapped');
 
       equal(userFnCalls, 4, "precond - mapper called expected number of times");
 
@@ -26171,8 +26171,8 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
     });
 
     test("it maps unshifted objects with property observers", function() {
-      var array = Ember.A([]),
-          cObj = { v: 'c' };
+      var array = Ember.A([]);
+      var cObj = { v: 'c' };
 
       run(function() {
         obj = EmberObject.createWithMixins({
@@ -26231,8 +26231,8 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
     });
 
     test("it is observerable", function() {
-      var mapped = get(obj, 'mapped'),
-          calls = 0;
+      var mapped = get(obj, 'mapped');
+      var calls = 0;
 
       deepEqual(get(obj, 'mapped'), [1, 3, 2, 1]);
 
@@ -26275,8 +26275,8 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
     });
 
     test("it caches properly", function() {
-      var array = get(obj, 'array'),
-          filtered = get(obj, 'filtered');
+      var array = get(obj, 'array');
+      var filtered = get(obj, 'filtered');
 
       equal(userFnCalls, 8, "precond - filter called expected number of times");
 
@@ -26292,8 +26292,8 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
     });
 
     test("it updates as the array is modified", function() {
-      var array = get(obj, 'array'),
-          filtered = get(obj, 'filtered');
+      var array = get(obj, 'array');
+      var filtered = get(obj, 'filtered');
 
       deepEqual(filtered, [2,4,6,8], "precond - filtered array is initially correct");
 
@@ -26315,8 +26315,8 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
     });
 
     test("the dependent array can be cleared one at a time", function() {
-      var array = get(obj, 'array'),
-          filtered = get(obj, 'filtered');
+      var array = get(obj, 'array');
+      var filtered = get(obj, 'filtered');
 
       deepEqual(filtered, [2,4,6,8], "precond - filtered array is initially correct");
 
@@ -26336,8 +26336,8 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
     });
 
     test("the dependent array can be `clear`ed directly (#3272)", function() {
-      var array = get(obj, 'array'),
-          filtered = get(obj, 'filtered');
+      var array = get(obj, 'array');
+      var filtered = get(obj, 'filtered');
 
       deepEqual(filtered, [2,4,6,8], "precond - filtered array is initially correct");
 
@@ -26349,8 +26349,8 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
     });
 
     test("it updates as the array is replaced", function() {
-      var array = get(obj, 'array'),
-          filtered = get(obj, 'filtered');
+      var array = get(obj, 'array');
+      var filtered = get(obj, 'filtered');
 
       deepEqual(filtered, [2,4,6,8], "precond - filtered array is initially correct");
 
@@ -26382,9 +26382,9 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
     });
 
     test("properties can be filtered by truthiness", function() {
-      var array = get(obj, 'array'),
-          as = get(obj, 'as'),
-          bs = get(obj, 'bs');
+      var array = get(obj, 'array');
+      var as = get(obj, 'as');
+      var bs = get(obj, 'bs');
 
       deepEqual(as.mapBy('name'), ['one', 'two', 'three'], "properties can be filtered by existence");
       deepEqual(bs.mapBy('name'), ['three', 'four'], "booleans can be filtered");
@@ -26419,8 +26419,8 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
     });
 
     test("properties can be filtered by values", function() {
-      var array = get(obj, 'array'),
-          a1s = get(obj, 'a1s');
+      var array = get(obj, 'array');
+      var a1s = get(obj, 'a1s');
 
       deepEqual(a1s.mapBy('name'), ['one', 'three'], "properties can be filtered by matching value");
 
@@ -26460,8 +26460,8 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
     });
 
     forEach.call([['uniq', computedUniq], ['union', computedUnion]], function (tuple) {
-      var alias  = tuple[0],
-          testedFunc = tuple[1];
+      var alias  = tuple[0];
+      var testedFunc = tuple[1];
 
       QUnit.module('computed.' + alias, {
         setup: function() {
@@ -26483,10 +26483,10 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
       });
 
       test("does not include duplicates", function() {
-        var array = get(obj, 'array'),
-            array2 = get(obj, 'array2'),
-            array3 = get(obj, 'array3'),
-            union = get(obj, 'union');
+        var array = get(obj, 'array');
+        var array2 = get(obj, 'array2');
+        var array3 = get(obj, 'array3');
+        var union = get(obj, 'union');
 
         deepEqual(union, [1,2,3,4,5,6,7,8,9,10], alias + " does not include duplicates");
 
@@ -26516,10 +26516,10 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
       });
 
       test("has set-union semantics", function() {
-        var array = get(obj, 'array'),
-            array2 = get(obj, 'array2'),
-            array3 = get(obj, 'array3'),
-            union = get(obj, 'union');
+        var array = get(obj, 'array');
+        var array2 = get(obj, 'array2');
+        var array3 = get(obj, 'array3');
+        var union = get(obj, 'union');
 
         deepEqual(union, [1,2,3,4,5,6,7,8,9,10], alias + " is initially correct");
 
@@ -26572,10 +26572,10 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
     });
 
     test("it has set-intersection semantics", function() {
-      var array = get(obj, 'array'),
-          array2 = get(obj, 'array2'),
-          array3 = get(obj, 'array3'),
-          intersection = get(obj, 'intersection');
+      var array = get(obj, 'array');
+      var array2 = get(obj, 'array2');
+      var array3 = get(obj, 'array3');
+      var intersection = get(obj, 'intersection');
 
       deepEqual(intersection, [3,5], "intersection is initially correct");
 
@@ -26644,9 +26644,9 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
 
 
     test("it has set-diff semantics", function() {
-      var array1 = get(obj, 'array'),
-          array2 = get(obj, 'array2'),
-          diff = get(obj, 'diff');
+      var array1 = get(obj, 'array');
+      var array2 = get(obj, 'array2');
+      var diff = get(obj, 'diff');
 
       deepEqual(diff, [1, 2, 6, 7], "set-diff is initially correct");
 
@@ -26777,8 +26777,8 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
       });
 
       test("guid sort-order fallback with a serach proxy is not confused by non-search ObjectProxys", function() {
-        var tyrion = { fname: "Tyrion", lname: "Lannister" },
-            tyrionInDisguise = ObjectProxy.create({
+        var tyrion = { fname: "Tyrion", lname: "Lannister" };
+        var tyrionInDisguise = ObjectProxy.create({
               fname: "Yollo",
               lname: "",
               content: tyrion
@@ -27021,8 +27021,8 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
     });
 
     function sortByLnameFname(a, b) {
-      var lna = get(a, 'lname'),
-          lnb = get(b, 'lname');
+      var lna = get(a, 'lname');
+      var lnb = get(b, 'lname');
 
       if (lna !== lnb) {
         return lna > lnb ? 1 : -1;
@@ -27032,8 +27032,8 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
     }
 
     function sortByFnameAsc(a, b) {
-      var fna = get(a, 'fname'),
-          fnb = get(b, 'fname');
+      var fna = get(a, 'fname');
+      var fnb = get(b, 'fname');
 
       if (fna === fnb) {
         return 0;
@@ -27293,8 +27293,8 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
     }
 
     function priorityComparator(todoA, todoB) {
-      var pa = parseInt(get(todoA, 'priority'), 10),
-          pb = parseInt(get(todoB, 'priority'), 10);
+      var pa = parseInt(get(todoA, 'priority'), 10);
+      var pb = parseInt(get(todoB, 'priority'), 10);
 
       return pa - pb;
     }
@@ -27561,9 +27561,9 @@ define("ember-runtime/tests/computed/reduce_computed_test",
     });
 
     test("after the first retrieval, array computed properties observe additions to dependent arrays", function() {
-      var numbers = get(obj, 'numbers'),
+      var numbers = get(obj, 'numbers');
           // set up observers
-          evenNumbers = get(obj, 'evenNumbers');
+      var evenNumbers = get(obj, 'evenNumbers');
 
       run(function() {
         numbers.pushObjects([7, 8]);
@@ -27573,9 +27573,9 @@ define("ember-runtime/tests/computed/reduce_computed_test",
     });
 
     test("after the first retrieval, array computed properties observe removals from dependent arrays", function() {
-      var numbers = get(obj, 'numbers'),
+      var numbers = get(obj, 'numbers');
           // set up observers
-          evenNumbers = get(obj, 'evenNumbers');
+      var evenNumbers = get(obj, 'evenNumbers');
 
       run(function() {
         numbers.removeObjects([3, 4]);
@@ -27585,8 +27585,8 @@ define("ember-runtime/tests/computed/reduce_computed_test",
     });
 
     test("after first retrieval, array computed properties can observe properties on array items", function() {
-      var nestedNumbers = get(obj, 'nestedNumbers'),
-          evenNestedNumbers = get(obj, 'evenNestedNumbers');
+      var nestedNumbers = get(obj, 'nestedNumbers');
+      var evenNestedNumbers = get(obj, 'evenNestedNumbers');
 
       deepEqual(evenNestedNumbers, [2, 4, 6], 'precond -- starts off with correct values');
 
@@ -27599,8 +27599,8 @@ define("ember-runtime/tests/computed/reduce_computed_test",
     });
 
     test("changes to array computed properties happen synchronously", function() {
-      var nestedNumbers = get(obj, 'nestedNumbers'),
-          evenNestedNumbers = get(obj, 'evenNestedNumbers');
+      var nestedNumbers = get(obj, 'nestedNumbers');
+      var evenNestedNumbers = get(obj, 'evenNestedNumbers');
 
       deepEqual(evenNestedNumbers, [2, 4, 6], 'precond -- starts off with correct values');
 
@@ -27642,11 +27642,11 @@ define("ember-runtime/tests/computed/reduce_computed_test",
     });
 
       test("multiple item property keys can be specified via brace expansion", function() {
-        var addedCalls = 0,
-            removedCalls = 0,
-            expected = Ember.A(),
-            item = { propA: 'A', propB: 'B', propC: 'C' },
-            obj = EmberObject.createWithMixins({
+        var addedCalls = 0;
+        var removedCalls = 0;
+        var expected = Ember.A();
+        var item = { propA: 'A', propB: 'B', propC: 'C' };
+        var obj = EmberObject.createWithMixins({
               bar: Ember.A([item]),
               foo: reduceComputed({
                 initialValue: Ember.A(),
@@ -27715,8 +27715,8 @@ define("ember-runtime/tests/computed/reduce_computed_test",
     });
 
     test("after the first retrieval, array computed properties observe dependent arrays", function() {
-      var numbers = get(obj, 'numbers'),
-          evenNumbers = get(obj, 'evenNumbers');
+      var numbers = get(obj, 'numbers');
+      var evenNumbers = get(obj, 'evenNumbers');
 
       deepEqual(evenNumbers, [2, 4, 6], 'precond -- starts off with correct values');
 
@@ -27728,8 +27728,8 @@ define("ember-runtime/tests/computed/reduce_computed_test",
     });
 
     test("array observers are torn down when dependent arrays change", function() {
-      var numbers = get(obj, 'numbers'),
-          evenNumbers = get(obj, 'evenNumbers');
+      var numbers = get(obj, 'numbers');
+      var evenNumbers = get(obj, 'evenNumbers');
 
       equal(addCalls, 6, 'precond - add has been called for each item in the array');
       equal(removeCalls, 0, 'precond - removed has not been called');
@@ -27748,8 +27748,8 @@ define("ember-runtime/tests/computed/reduce_computed_test",
     });
 
     test("modifying properties on dependent array items triggers observers exactly once", function() {
-      var numbers = get(obj, 'numbers'),
-          evenNumbers = get(obj, 'evenNumbers');
+      var numbers = get(obj, 'numbers');
+      var evenNumbers = get(obj, 'evenNumbers');
 
       equal(addCalls, 6, 'precond - add has not been called for each item in the array');
       equal(removeCalls, 0, 'precond - removed has not been called');
@@ -27764,8 +27764,8 @@ define("ember-runtime/tests/computed/reduce_computed_test",
     });
 
     test("multiple array computed properties on the same object can observe dependent arrays", function() {
-      var numbers = get(obj, 'numbers'),
-          otherNumbers = get(obj, 'otherNumbers');
+      var numbers = get(obj, 'numbers');
+      var otherNumbers = get(obj, 'otherNumbers');
 
       deepEqual(get(obj, 'evenNumbers'), [2,4,6], "precond - evenNumbers is initially correct");
       deepEqual(get(obj, 'evenNumbersMultiDep'), [2, 4, 6, 8], "precond - evenNumbersMultiDep is initially correct");
@@ -27827,8 +27827,8 @@ define("ember-runtime/tests/computed/reduce_computed_test",
     });
 
     test("dependent arrays can use `replace` with an out of bounds index to add items", function() {
-      var dependentArray = Ember.A(),
-          array;
+      var dependentArray = Ember.A();
+      var array;
 
       obj = EmberObject.extend({
         dependentArray: dependentArray,
@@ -27855,8 +27855,8 @@ define("ember-runtime/tests/computed/reduce_computed_test",
     });
 
     test("dependent arrays can use `replace` with a negative index to remove items indexed from the right", function() {
-      var dependentArray = Ember.A([1,2,3,4,5]),
-          array;
+      var dependentArray = Ember.A([1,2,3,4,5]);
+      var array;
 
       obj = EmberObject.extend({
         dependentArray: dependentArray,
@@ -27876,8 +27876,8 @@ define("ember-runtime/tests/computed/reduce_computed_test",
     });
 
     test("dependent arrays that call `replace` with an out of bounds index to remove items is a no-op", function() {
-      var dependentArray = Ember.A([1, 2]),
-          array;
+      var dependentArray = Ember.A([1, 2]);
+      var array;
 
       obj = EmberObject.extend({
         dependentArray: dependentArray,
@@ -27897,8 +27897,8 @@ define("ember-runtime/tests/computed/reduce_computed_test",
     });
 
     test("dependent arrays that call `replace` with a too-large removedCount a) works and b) still right-truncates", function() {
-      var dependentArray = Ember.A([1, 2]),
-          array;
+      var dependentArray = Ember.A([1, 2]);
+      var array;
 
       obj = EmberObject.extend({
         dependentArray: dependentArray,
@@ -27929,8 +27929,8 @@ define("ember-runtime/tests/computed/reduce_computed_test",
         return array;
       }
 
-      var dependentArray = Ember.A(),
-          options = {
+      var dependentArray = Ember.A();
+      var options = {
             addedItem: addedItem,
             removedItem: removedItem
           };
@@ -27976,9 +27976,9 @@ define("ember-runtime/tests/computed/reduce_computed_test",
     });
 
     test("recomputations from `arrayComputed` observers add back dependent keys", function() {
-      var meta = metaFor(obj),
-          people = get(obj, 'people'),
-          titles;
+      var meta = metaFor(obj);
+      var people = get(obj, 'people');
+      var titles;
 
       equal(meta.deps, undefined, "precond - nobody depends on people'");
       equal(meta.watching.people, undefined, "precond - nobody is watching people");
@@ -28008,8 +28008,8 @@ define("ember-runtime/tests/computed/reduce_computed_test",
 
     QUnit.module('Ember.arryComputed - self chains', {
       setup: function() {
-        var a = EmberObject.create({ name: 'a' }),
-        b = EmberObject.create({ name: 'b' });
+        var a = EmberObject.create({ name: 'a' });
+        var b = EmberObject.create({ name: 'b' });
 
         obj = ArrayProxy.createWithMixins({
           content: Ember.A([a, b]),
@@ -28309,8 +28309,8 @@ define("ember-runtime/tests/computed/reduce_computed_test",
     });
 
     test("array dependencies specified with `.[]` completely invalidate a reduceComputed CP", function() {
-      var dependentArray = Ember.A(),
-      totallyInvalidatingDependentArray = Ember.A();
+      var dependentArray = Ember.A();
+      var totallyInvalidatingDependentArray = Ember.A();
 
       obj = EmberObject.extend({
         totallyInvalidatingDependentArray: totallyInvalidatingDependentArray,
@@ -28350,8 +28350,8 @@ define("ember-runtime/tests/computed/reduce_computed_test",
     });
 
     test("returning undefined in addedItem/removedItem completely invalidates a reduceComputed CP", function() {
-      var dependentArray = Ember.A([3,2,1]),
-          counter = 0;
+      var dependentArray = Ember.A([3,2,1]);
+      var counter = 0;
 
       obj = EmberObject.extend({
         dependentArray: dependentArray,
@@ -28883,9 +28883,9 @@ define("ember-runtime/tests/controllers/item_controller_class_test",
       arrayController.objectAtContent(2);
 
       // Not a public API; just checking for cleanup
-      var subControllers = get(arrayController, '_subControllers'),
-          jaimeController = subControllers[1],
-          cerseiController = subControllers[2];
+      var subControllers = get(arrayController, '_subControllers');
+      var jaimeController = subControllers[1];
+      var cerseiController = subControllers[2];
 
       equal(!!jaimeController.isDestroying, false, "precond - nobody is destroyed yet");
       equal(!!cerseiController.isDestroying, false, "precond - nobody is destroyed yet");
@@ -28911,9 +28911,9 @@ define("ember-runtime/tests/controllers/item_controller_class_test",
 
     test("when items are removed from the arrayController, their respective subcontainers are destroyed", function() {
       createArrayController();
-      var jaimeController = arrayController.objectAtContent(1),
-          cerseiController = arrayController.objectAtContent(2),
-          subControllers = get(arrayController, '_subControllers');
+      var jaimeController = arrayController.objectAtContent(1);
+      var cerseiController = arrayController.objectAtContent(2);
+      var subControllers = get(arrayController, '_subControllers');
 
       equal(!!jaimeController.isDestroyed, false, "precond - nobody is destroyed yet");
       equal(!!cerseiController.isDestroyed, false, "precond - nobody is destroyed yet");
@@ -28928,8 +28928,8 @@ define("ember-runtime/tests/controllers/item_controller_class_test",
 
     test("one cannot remove wrapped model directly when specifying `itemController`", function() {
       createArrayController();
-      var jaimeController = arrayController.objectAtContent(1),
-          cerseiController = arrayController.objectAtContent(2);
+      var jaimeController = arrayController.objectAtContent(1);
+      var cerseiController = arrayController.objectAtContent(2);
 
       equal(arrayController.get('length'), 3, "precondition - array is in initial state");
       arrayController.removeObject(cersei);
@@ -28944,9 +28944,9 @@ define("ember-runtime/tests/controllers/item_controller_class_test",
 
     test("when items are removed from the underlying array, their respective subcontainers are destroyed", function() {
       createArrayController();
-      var jaimeController = arrayController.objectAtContent(1),
-          cerseiController = arrayController.objectAtContent(2),
-          subContainers = get(arrayController, 'subContainers');
+      var jaimeController = arrayController.objectAtContent(1);
+      var cerseiController = arrayController.objectAtContent(2);
+      var subContainers = get(arrayController, 'subContainers');
 
       equal(!!jaimeController.isDestroying, false, "precond - nobody is destroyed yet");
       equal(!!cerseiController.isDestroying, false, "precond - nobody is destroyed yet");
@@ -28962,8 +28962,8 @@ define("ember-runtime/tests/controllers/item_controller_class_test",
     test("`itemController` can be dynamic by overwriting `lookupItemController`", function() {
       createDynamicArrayController();
 
-      var tywinController = arrayController.objectAtContent(0),
-          jaimeController = arrayController.objectAtContent(1);
+      var tywinController = arrayController.objectAtContent(0);
+      var jaimeController = arrayController.objectAtContent(1);
 
       ok(controllerClass.detectInstance(tywinController), "lookupItemController can return different classes for different objects");
       ok(otherControllerClass.detectInstance(jaimeController), "lookupItemController can return different classes for different objects");
@@ -29030,8 +29030,8 @@ define("ember-runtime/tests/controllers/item_controller_class_test",
     test("array observers can invoke `objectAt` without overwriting existing item controllers", function() {
       createArrayController();
 
-      var tywinController = arrayController.objectAtContent(0),
-          arrayObserverCalled = false;
+      var tywinController = arrayController.objectAtContent(0);
+      var arrayObserverCalled = false;
 
       arrayController.reopen({
         lannistersWillChange: Ember.K,
@@ -29056,8 +29056,8 @@ define("ember-runtime/tests/controllers/item_controller_class_test",
     test("`itemController`'s life cycle should be entangled with its parent controller", function() {
       createDynamicArrayController();
 
-      var tywinController = arrayController.objectAtContent(0),
-          jaimeController = arrayController.objectAtContent(1);
+      var tywinController = arrayController.objectAtContent(0);
+      var jaimeController = arrayController.objectAtContent(1);
 
       run(arrayController, 'destroy');
 
@@ -29223,18 +29223,22 @@ define("ember-runtime/tests/core/copy_test",
 
     test("Ember.copy null", function() {
       var obj = {field: null};
+
       equal(copy(obj, true).field, null, "null should still be null");
     });
 
     test("Ember.copy date", function() {
-      var date = new Date(2014, 7, 22),
-          dateCopy = copy(date);
+      var date = new Date(2014, 7, 22);
+      var dateCopy = copy(date);
+
       equal(date.getTime(), dateCopy.getTime(), "dates should be equivalent");
     });
 
     test("Ember.copy null prototype object", function() {
       var obj = Object.create(null);
+
       obj.foo = 'bar';
+
       equal(copy(obj).foo, 'bar', 'bar should still be bar');
     });
   });
@@ -29472,10 +29476,10 @@ define("ember-runtime/tests/core/type_test",
     QUnit.module("Ember Type Checking");
 
     test("Ember.typeOf", function() {
-      var a = null,
-          arr = [1,2,3],
-          obj = {},
-          object = EmberObject.create({ method: function() {} });
+      var a = null;
+      var arr = [1,2,3];
+      var obj = {};
+      var object = EmberObject.create({ method: function() {} });
 
       equal(typeOf(undefined),     'undefined', "item of type undefined");
       equal(typeOf(a),             'null',      "item of type null");
@@ -29922,10 +29926,10 @@ define("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
     // Ember.Observable Tests
     // ========================================================================
 
-    var object, ObjectC, ObjectD, objectA, objectB;
+    var object, ObjectC, ObjectD, objectA, objectB, lookup;
 
     var ObservableObject = EmberObject.extend(Observable);
-    var originalLookup = Ember.lookup, lookup;
+    var originalLookup = Ember.lookup;
 
     // ..........................................................
     // GET()
@@ -30313,8 +30317,8 @@ define("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
 
       // verify each call count.  cached should only be called once
       forEach(keys, function(key) {
-        var calls = object[key + 'Calls'], idx;
-        var expectedLength;
+        var calls = object[key + 'Calls'];
+        var idx, expectedLength;
 
         // Cached properties first check their cached value before setting the
         // property. Other properties blindly call set.
@@ -30876,10 +30880,10 @@ define("ember-runtime/tests/legacy_1x/mixins/observable/observersForKey_test",
     QUnit.module("object.observesForKey()");
 
     test("should get observers", function() {
-      var o1 = ObservableObject.create({ foo: 100 }),
-          o2 = ObservableObject.create({ func: function() {} }),
-          o3 = ObservableObject.create({ func: function() {} }),
-          observers = null;
+      var o1 = ObservableObject.create({ foo: 100 });
+      var o2 = ObservableObject.create({ func: function() {} });
+      var o3 = ObservableObject.create({ func: function() {} });
+      var observers = null;
 
       equal(get(o1.observersForKey('foo'), 'length'), 0, "o1.observersForKey should return empty array");
 
@@ -30935,7 +30939,8 @@ define("ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test",
 
     var ObservableObject = EmberObject.extend(Observable);
 
-    var revMatches = false , ObjectA;
+    var revMatches = false;
+    var ObjectA;
 
     QUnit.module("object.propertyChanges", {
       setup: function() {
@@ -31795,8 +31800,9 @@ define("ember-runtime/tests/legacy_1x/system/object/concatenated_test",
           values: ['d', 'e', 'f']
         });
 
-        var values = get(obj, 'values'),
-            expected = ['a', 'b', 'c', 'd', 'e', 'f'];
+        var values = get(obj, 'values');
+        var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
+
         deepEqual(values, expected, EmberStringUtils.fmt("should concatenate values property (expected: %@, got: %@)", [expected, values]));
       });
 
@@ -31806,8 +31812,9 @@ define("ember-runtime/tests/legacy_1x/system/object/concatenated_test",
         });
         var obj = subKlass.create();
 
-        var values = get(obj, 'values'),
-            expected = ['a', 'b', 'c', 'd', 'e', 'f'];
+        var values = get(obj, 'values');
+        var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
+
         deepEqual(values, expected, EmberStringUtils.fmt("should concatenate values property (expected: %@, got: %@)", [expected, values]));
       });
 
@@ -31817,8 +31824,9 @@ define("ember-runtime/tests/legacy_1x/system/object/concatenated_test",
         });
         var obj = klass.create();
 
-        var values = get(obj, 'values'),
-            expected = ['a', 'b', 'c', 'd', 'e', 'f'];
+        var values = get(obj, 'values');
+        var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
+
         deepEqual(values, expected, EmberStringUtils.fmt("should concatenate values property (expected: %@, got: %@)", [expected, values]));
       });
 
@@ -31831,8 +31839,9 @@ define("ember-runtime/tests/legacy_1x/system/object/concatenated_test",
         });
         var obj = subKlass.create();
 
-        var values = get(obj, 'values'),
-            expected = ['a', 'b', 'c', 'd', 'e', 'f'];
+        var values = get(obj, 'values');
+        var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
+
         deepEqual(values, expected, EmberStringUtils.fmt("should concatenate values property (expected: %@, got: %@)", [expected, values]));
       });
 
@@ -31841,8 +31850,9 @@ define("ember-runtime/tests/legacy_1x/system/object/concatenated_test",
         var subKlass = klass.extend({ values: ['e'] });
         var obj = subKlass.create({ values: ['f'] });
 
-        var values = get(obj, 'values'),
-            expected = ['a', 'b', 'c', 'd', 'e', 'f'];
+        var values = get(obj, 'values');
+        var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
+
         deepEqual(values, expected, EmberStringUtils.fmt("should concatenate values property (expected: %@, got: %@)", [expected, values]));
       });
 
@@ -31852,8 +31862,9 @@ define("ember-runtime/tests/legacy_1x/system/object/concatenated_test",
         });
         var obj = subKlass.create();
 
-        var values = get(obj, 'functions'),
-            expected = [Ember.K, Ember.K];
+        var values = get(obj, 'functions');
+        var expected = [Ember.K, Ember.K];
+
         deepEqual(values, expected, EmberStringUtils.fmt("should concatenate functions property (expected: %@, got: %@)", [expected, values]));
       });
   });
@@ -32320,7 +32331,8 @@ define("ember-runtime/tests/legacy_1x/system/set_test",
     });
 
     test("the copy() should return an indentical set", function() {
-      var oldLength = set.length, obj;
+      var oldLength = set.length;
+      var obj;
 
       ignoreDeprecation(function() {
         obj = set.copy();
@@ -32977,7 +32989,8 @@ define("ember-runtime/tests/mixins/deferred_test",
     });
 
     test("can resolve deferred", function() {
-      var deferred, count = 0;
+      var deferred;
+      var count = 0;
 
       run(function() {
         deferred = EmberObject.createWithMixins(Deferred);
@@ -32994,7 +33007,8 @@ define("ember-runtime/tests/mixins/deferred_test",
 
     test("can reject deferred", function() {
 
-      var deferred, count = 0;
+      var deferred;
+      var count = 0;
 
       run(function() {
         deferred = EmberObject.createWithMixins(Deferred);
@@ -33011,7 +33025,9 @@ define("ember-runtime/tests/mixins/deferred_test",
 
     test("can resolve with then", function() {
 
-      var deferred, count1 = 0 ,count2 = 0;
+      var deferred;
+      var count1 = 0;
+      var count2 = 0;
 
       run(function() {
         deferred = EmberObject.createWithMixins(Deferred);
@@ -33031,7 +33047,9 @@ define("ember-runtime/tests/mixins/deferred_test",
 
     test("can reject with then", function() {
 
-      var deferred, count1 = 0 ,count2 = 0;
+      var deferred;
+      var count1 = 0;
+      var count2 = 0;
 
       run(function() {
         deferred = EmberObject.createWithMixins(Deferred);
@@ -33051,7 +33069,8 @@ define("ember-runtime/tests/mixins/deferred_test",
 
     test("can call resolve multiple times", function() {
 
-      var deferred, count = 0;
+      var deferred;
+      var count = 0;
 
       run(function() {
         deferred = EmberObject.createWithMixins(Deferred);
@@ -33071,7 +33090,10 @@ define("ember-runtime/tests/mixins/deferred_test",
     });
 
     test("resolve prevent reject", function() {
-      var deferred, resolved = false, rejected = false, progress = 0;
+      var deferred;
+      var resolved = false;
+      var rejected = false;
+      var progress = 0;
 
       run(function() {
         deferred = EmberObject.createWithMixins(Deferred);
@@ -33091,7 +33113,10 @@ define("ember-runtime/tests/mixins/deferred_test",
     });
 
     test("reject prevent resolve", function() {
-      var deferred, resolved = false, rejected = false, progress = 0;
+      var deferred;
+      var resolved = false;
+      var rejected = false;
+      var progress = 0;
 
       run(function() {
         deferred = EmberObject.createWithMixins(Deferred);
@@ -33112,7 +33137,8 @@ define("ember-runtime/tests/mixins/deferred_test",
 
     test("will call callbacks if they are added after resolution", function() {
 
-      var deferred, count1 = 0;
+      var deferred;
+      var count1 = 0;
 
       run(function() {
         deferred = EmberObject.createWithMixins(Deferred);
@@ -33138,7 +33164,8 @@ define("ember-runtime/tests/mixins/deferred_test",
     });
 
     test("then is chainable", function() {
-      var deferred, count = 0;
+      var deferred;
+      var count = 0;
 
       run(function() {
         deferred = EmberObject.createWithMixins(Deferred);
@@ -33192,7 +33219,8 @@ define("ember-runtime/tests/mixins/deferred_test",
 
     test("can fulfill to a custom value", function() {
       expect(1);
-      var deferred, obj = {};
+      var deferred;
+      var obj = {};
 
       run(function() {
         deferred = EmberObject.createWithMixins(Deferred);
@@ -33230,7 +33258,8 @@ define("ember-runtime/tests/mixins/deferred_test",
 
     test("can do multi level assimilation", function() {
       expect(1);
-      var firstDeferred, secondDeferred, firstDeferredResolved = false;
+      var firstDeferred, secondDeferred;
+      var firstDeferredResolved = false;
 
       run(function() {
         firstDeferred = EmberObject.createWithMixins(Deferred);
@@ -33290,7 +33319,8 @@ define("ember-runtime/tests/mixins/deferred_test",
 
     if (!EmberDev.runningProdBuild){
       test("causes a deprecation warning when used", function() {
-        var deferred, deprecationMade, obj = {};
+        var deferred, deprecationMade;
+        var obj = {};
 
         Ember.deprecate = function(message) {
           deprecationMade = message;
@@ -33435,9 +33465,9 @@ define("ember-runtime/tests/mixins/enumerable_test",
         color: 'black'
       }, {
         color: 'white'
-      }]),
-      foundWhite = kittens.any(function(kitten) { return kitten.color === 'white'; }),
-      foundWhite2 = kittens.isAny('color', 'white');
+      }]);
+      var foundWhite = kittens.any(function(kitten) { return kitten.color === 'white'; });
+      var foundWhite2 = kittens.isAny('color', 'white');
 
       equal(foundWhite, true);
       equal(foundWhite2, true);
@@ -33458,16 +33488,16 @@ define("ember-runtime/tests/mixins/enumerable_test",
         color: 'black'
       }, {
         color: 'white'
-      }]),
-      allWhiteKittens = Ember.A([{
+      }]);
+      var allWhiteKittens = Ember.A([{
         color: 'white'
       }, {
         color: 'white'
       }, {
         color: 'white'
-      }]),
-      allWhite = false,
-      whiteKittenPredicate = function(kitten) { return kitten.color === 'white'; };
+      }]);
+      var allWhite = false;
+      var whiteKittenPredicate = function(kitten) { return kitten.color === 'white'; };
 
       allWhite = allColorsKittens.every(whiteKittenPredicate);
       equal(allWhite, false);
@@ -33549,7 +33579,9 @@ define("ember-runtime/tests/mixins/enumerable_test",
 
     // API variation that included items only
     test('should not notify when passed arrays of same length', function() {
-      var added = ['foo'], removed = ['bar'];
+      var added = ['foo'];
+      var removed = ['bar'];
+
       obj.enumerableContentWillChange(removed, added);
       equal(obj._after, 0);
 
@@ -33558,7 +33590,9 @@ define("ember-runtime/tests/mixins/enumerable_test",
     });
 
     test('should notify when passed arrays of different length', function() {
-      var added = ['foo'], removed = ['bar', 'baz'];
+      var added = ['foo'];
+      var removed = ['bar', 'baz'];
+
       obj.enumerableContentWillChange(removed, added);
       equal(obj._after, 0);
 
@@ -33625,7 +33659,9 @@ define("ember-runtime/tests/mixins/enumerable_test",
 
     // API variation that included items only
     test('should notify when called with same length items', function() {
-      var added = ['foo'], removed = ['bar'];
+      var added = ['foo'];
+      var removed = ['bar'];
+
       obj.enumerableContentWillChange(removed, added);
       deepEqual(observer._before, [obj, removed, added]);
 
@@ -33634,7 +33670,9 @@ define("ember-runtime/tests/mixins/enumerable_test",
     });
 
     test('should notify when called with diff length items', function() {
-      var added = ['foo', 'baz'], removed = ['bar'];
+      var added = ['foo', 'baz'];
+      var removed = ['bar'];
+
       obj.enumerableContentWillChange(removed, added);
       deepEqual(observer._before, [obj, removed, added]);
 
@@ -33691,9 +33729,9 @@ define("ember-runtime/tests/mixins/mutable_array_test",
 
       replace: function(idx, amt, objects) {
 
-        var args = objects ? objects.slice() : [],
-            removeAmt = amt,
-            addAmt    = args.length;
+        var args = objects ? objects.slice() : [];
+        var removeAmt = amt;
+        var addAmt    = args.length;
 
         this.arrayContentWillChange(idx, removeAmt, addAmt);
 
@@ -34299,7 +34337,8 @@ define("ember-runtime/tests/mixins/sortable_test",
     });
 
     test("changing sort order triggers observers", function() {
-      var observer, changeCount = 0;
+      var observer;
+      var changeCount = 0;
       observer = EmberObject.createWithMixins({
         array: sortedArrayController,
         arrangedDidChange: emberObserver('array.[]', function() {
@@ -34451,7 +34490,8 @@ define("ember-runtime/tests/mixins/sortable_test",
     });
 
     test("addObject does not insert duplicates", function() {
-      var sortedArrayProxy, obj = {};
+      var sortedArrayProxy;
+      var obj = {};
       sortedArrayProxy = ArrayProxy.createWithMixins(SortableMixin, {
         content: Ember.A([obj])
       });
@@ -34542,8 +34582,8 @@ define("ember-runtime/tests/mixins/sortable_test",
           sortedArrayController = ArrayController.create({
             sortProperties: ['name'],
             sortFunction: function(v, w) {
-                var lowerV = v.toLowerCase(),
-                    lowerW = w.toLowerCase();
+                var lowerV = v.toLowerCase();
+                var lowerW = w.toLowerCase();
 
                 if (lowerV < lowerW) {
                   return -1;
@@ -34584,8 +34624,8 @@ define("ember-runtime/tests/mixins/sortable_test",
         sortedArrayController = ArrayProxy.createWithMixins(SortableMixin, {
           sortProperties: ['name'],
           sortFunction: function(v, w) {
-                var lowerV = v.toLowerCase(),
-                    lowerW = w.toLowerCase();
+                var lowerV = v.toLowerCase();
+                var lowerW = w.toLowerCase();
 
                 if (lowerV < lowerW) {
                   return -1;
@@ -34737,10 +34777,11 @@ define("ember-runtime/tests/mixins/target_action_support_test",
             anEvent: function() {
               ok(true, "anEvent method was called");
             }
-          }),
-          obj = EmberObject.createWithMixins(TargetActionSupport,{
+          });
+      var obj = EmberObject.createWithMixins(TargetActionSupport,{
             action: 'anEvent'
           });
+
       ok(true === obj.triggerAction({target: targetObj}), "a valid target and action were specified");
     });
 
@@ -34759,8 +34800,8 @@ define("ember-runtime/tests/mixins/target_action_support_test",
 
     test("it should use the actionContext specified in the argument", function() {
       expect(2);
-      var context = {},
-          obj = EmberObject.createWithMixins(TargetActionSupport,{
+      var context = {};
+      var obj = EmberObject.createWithMixins(TargetActionSupport,{
         target: EmberObject.create({
           anEvent: function(ctx) {
             ok(context === ctx, "anEvent method was called with the expected context");
@@ -34768,14 +34809,15 @@ define("ember-runtime/tests/mixins/target_action_support_test",
         }),
         action: 'anEvent'
       });
+
       ok(true === obj.triggerAction({actionContext: context}), "a valid target and action were specified");
     });
 
     test("it should allow multiple arguments from actionContext", function() {
       expect(3);
-      var param1 = 'someParam',
-          param2 = 'someOtherParam',
-          obj = EmberObject.createWithMixins(TargetActionSupport,{
+      var param1 = 'someParam';
+      var param2 = 'someOtherParam';
+      var obj = EmberObject.createWithMixins(TargetActionSupport,{
         target: EmberObject.create({
           anEvent: function(first, second) {
             ok(first === param1, "anEvent method was called with the expected first argument");
@@ -34784,6 +34826,7 @@ define("ember-runtime/tests/mixins/target_action_support_test",
         }),
         action: 'anEvent'
       });
+
       ok(true === obj.triggerAction({actionContext: [param1, param2]}), "a valid target and action were specified");
     });
 
@@ -34952,10 +34995,10 @@ define("ember-runtime/tests/suites/array/indexOf",
     suite.module('indexOf');
 
     suite.test("should return index of object", function() {
-      var expected = this.newFixture(3),
-          obj      = this.newObject(expected),
-          len      = 3,
-          idx;
+      var expected = this.newFixture(3);
+      var obj      = this.newObject(expected);
+      var len      = 3;
+      var idx;
 
       for(idx=0;idx<len;idx++) {
         equal(obj.indexOf(expected[idx]), idx, fmt('obj.indexOf(%@) should match idx', [expected[idx]]));
@@ -34964,7 +35007,9 @@ define("ember-runtime/tests/suites/array/indexOf",
     });
 
     suite.test("should return -1 when requesting object not in index", function() {
-      var obj = this.newObject(this.newFixture(3)), foo = {};
+      var obj = this.newObject(this.newFixture(3));
+      var foo = {};
+
       equal(obj.indexOf(foo), -1, 'obj.indexOf(foo) should be < 0');
     });
 
@@ -34991,10 +35036,10 @@ define("ember-runtime/tests/suites/array/lastIndexOf",
     suite.module('lastIndexOf');
 
     suite.test("should return index of object's last occurrence", function() {
-      var expected = this.newFixture(3),
-          obj      = this.newObject(expected),
-          len      = 3,
-          idx;
+      var expected = this.newFixture(3);
+      var obj      = this.newObject(expected);
+      var len      = 3;
+      var idx;
 
       for(idx=0;idx<len;idx++) {
         equal(obj.lastIndexOf(expected[idx]), idx,
@@ -35004,10 +35049,10 @@ define("ember-runtime/tests/suites/array/lastIndexOf",
     });
 
     suite.test("should return index of object's last occurrence even startAt search location is equal to length", function() {
-      var expected = this.newFixture(3),
-          obj      = this.newObject(expected),
-          len      = 3,
-          idx;
+      var expected = this.newFixture(3);
+      var obj      = this.newObject(expected);
+      var len      = 3;
+      var idx;
 
       for(idx=0;idx<len;idx++) {
         equal(obj.lastIndexOf(expected[idx], len), idx,
@@ -35017,10 +35062,10 @@ define("ember-runtime/tests/suites/array/lastIndexOf",
     });
 
     suite.test("should return index of object's last occurrence even startAt search location is greater than length", function() {
-      var expected = this.newFixture(3),
-          obj      = this.newObject(expected),
-          len      = 3,
-          idx;
+      var expected = this.newFixture(3);
+      var obj      = this.newObject(expected);
+      var len      = 3;
+      var idx;
 
       for(idx=0;idx<len;idx++) {
         equal(obj.lastIndexOf(expected[idx], len + 1), idx,
@@ -35030,17 +35075,23 @@ define("ember-runtime/tests/suites/array/lastIndexOf",
     });
 
     suite.test("should return -1 when no match is found", function() {
-      var obj = this.newObject(this.newFixture(3)), foo = {};
+      var obj = this.newObject(this.newFixture(3));
+      var foo = {};
+
       equal(obj.lastIndexOf(foo), -1, 'obj.lastIndexOf(foo) should be -1');
     });
 
     suite.test("should return -1 when no match is found even startAt search location is equal to length", function() {
-      var obj = this.newObject(this.newFixture(3)), foo = {};
+      var obj = this.newObject(this.newFixture(3));
+      var foo = {};
+
       equal(obj.lastIndexOf(foo, obj.length), -1, 'obj.lastIndexOf(foo) should be -1');
     });
 
     suite.test("should return -1 when no match is found even startAt search location is greater than length", function() {
-      var obj = this.newObject(this.newFixture(3)), foo = {};
+      var obj = this.newObject(this.newFixture(3));
+      var foo = {};
+
       equal(obj.lastIndexOf(foo, obj.length + 1), -1, 'obj.lastIndexOf(foo) should be -1');
     });
 
@@ -35067,10 +35118,10 @@ define("ember-runtime/tests/suites/array/objectAt",
     suite.module('objectAt');
 
     suite.test("should return object at specified index", function() {
-      var expected = this.newFixture(3),
-          obj      = this.newObject(expected),
-          len      = expected.length,
-          idx;
+      var expected = this.newFixture(3);
+      var obj      = this.newObject(expected);
+      var len      = expected.length;
+      var idx;
 
       for(idx=0;idx<len;idx++) {
         equal(obj.objectAt(idx), expected[idx], fmt('obj.objectAt(%@) should match', [idx]));
@@ -35290,8 +35341,9 @@ define("ember-runtime/tests/suites/enumerable",
 
       observeBefore: function(obj) {
         if (obj.addBeforeObserver) {
-          var keys = Array.prototype.slice.call(arguments, 1),
-              loc  = keys.length;
+          var keys = Array.prototype.slice.call(arguments, 1);
+          var loc  = keys.length;
+
           while(--loc>=0) obj.addBeforeObserver(keys[loc], this, 'propertyWillChange');
         }
         return this;
@@ -35308,8 +35360,9 @@ define("ember-runtime/tests/suites/enumerable",
       */
       observe: function(obj) {
         if (obj.addObserver) {
-          var keys = Array.prototype.slice.call(arguments, 1),
-              loc  = keys.length;
+          var keys = Array.prototype.slice.call(arguments, 1);
+          var loc  = keys.length;
+
           while(--loc>=0) obj.addObserver(keys[loc], this, 'propertyDidChange');
         } else {
           this.isEnabled = false;
@@ -35560,9 +35613,10 @@ define("ember-runtime/tests/suites/enumerable/any",
     suite.module('any');
 
     suite.test('any should should invoke callback on each item as long as you return false', function() {
-      var obj = this.newObject(),
-          ary = this.toArray(obj),
-          found = [], result;
+      var obj = this.newObject();
+      var ary = this.toArray(obj);
+      var found = [];
+      var result;
 
       result = obj.any(function(i) { found.push(i); return false; });
       equal(result, false, 'return value of obj.any');
@@ -35570,11 +35624,12 @@ define("ember-runtime/tests/suites/enumerable/any",
     });
 
     suite.test('any should stop invoking when you return true', function() {
-      var obj = this.newObject(),
-          ary = this.toArray(obj),
-          cnt = ary.length - 2,
-          exp = cnt,
-          found = [], result;
+      var obj = this.newObject();
+      var ary = this.toArray(obj);
+      var cnt = ary.length - 2;
+      var exp = cnt;
+      var found = [];
+      var result;
 
       result = obj.any(function(i) { found.push(i); return --cnt <= 0; });
       equal(result, true, 'return value of obj.any');
@@ -35584,7 +35639,8 @@ define("ember-runtime/tests/suites/enumerable/any",
 
 
     suite.test('any should return true if any object matches the callback', function() {
-      var obj = Ember.A([0, 1, 2]), result;
+      var obj = Ember.A([0, 1, 2]);
+      var result;
 
       result = obj.any(function(i) { return !!i; });
       equal(result, true, 'return value of obj.any');
@@ -35592,7 +35648,8 @@ define("ember-runtime/tests/suites/enumerable/any",
 
 
     suite.test('any should return false if no object matches the callback', function() {
-      var obj = Ember.A([0, null, false]), result;
+      var obj = Ember.A([0, null, false]);
+      var result;
 
       result = obj.any(function(i) { return !!i; });
       equal(result, false, 'return value of obj.any');
@@ -35600,7 +35657,8 @@ define("ember-runtime/tests/suites/enumerable/any",
 
 
     suite.test('any should produce correct results even if the matching element is undefined', function() {
-      var obj = Ember.A([undefined]), result;
+      var obj = Ember.A([undefined]);
+      var result;
 
       result = obj.any(function(i) { return true; });
       equal(result, true, 'return value of obj.any');
@@ -35608,12 +35666,13 @@ define("ember-runtime/tests/suites/enumerable/any",
 
 
     suite.test('any should be aliased to some', function() {
-      var obj = this.newObject(),
-          ary = this.toArray(obj),
-          anyFound = [], anyResult,
-          someFound = [], someResult,
-          cnt = ary.length - 2,
-          exp = cnt;
+      var obj = this.newObject();
+          var ary = this.toArray(obj);
+          var anyFound = [];
+          var someFound = [];
+          var cnt = ary.length - 2;
+          var exp = cnt;
+          var anyResult, someResult;
 
       anyResult = obj.any(function(i) { anyFound.push(i); return false; });
       someResult = obj.some(function(i) { someFound.push(i); return false; });
@@ -35717,9 +35776,10 @@ define("ember-runtime/tests/suites/enumerable/every",
     suite.module('every');
 
     suite.test('every should should invoke callback on each item as long as you return true', function() {
-      var obj = this.newObject(),
-          ary = this.toArray(obj),
-          found = [], result;
+      var obj = this.newObject();
+      var ary = this.toArray(obj);
+      var found = [];
+      var result;
 
       result = obj.every(function(i) { found.push(i); return true; });
       equal(result, true, 'return value of obj.every');
@@ -35727,11 +35787,12 @@ define("ember-runtime/tests/suites/enumerable/every",
     });
 
     suite.test('every should stop invoking when you return false', function() {
-      var obj = this.newObject(),
-          ary = this.toArray(obj),
-          cnt = ary.length - 2,
-          exp = cnt,
-          found = [], result;
+      var obj = this.newObject();
+      var ary = this.toArray(obj);
+      var cnt = ary.length - 2;
+      var exp = cnt;
+      var found = [];
+      var result;
 
       result = obj.every(function(i) { found.push(i); return --cnt>0; });
       equal(result, false, 'return value of obj.every');
@@ -35823,10 +35884,11 @@ define("ember-runtime/tests/suites/enumerable/filter",
     suite.module('filter');
 
     suite.test('filter should invoke on each item', function() {
-      var obj = this.newObject(),
-          ary = this.toArray(obj),
-          cnt = ary.length - 2,
-          found = [], result;
+      var obj = this.newObject();
+      var ary = this.toArray(obj);
+      var cnt = ary.length - 2;
+      var found = [];
+      var result;
 
       // return true on all but the last two
       result = obj.filter(function(i) { found.push(i); return --cnt>=0; });
@@ -35978,9 +36040,10 @@ define("ember-runtime/tests/suites/enumerable/find",
     suite.module('find');
 
     suite.test('find should invoke callback on each item as long as you return false', function() {
-      var obj = this.newObject(),
-          ary = this.toArray(obj),
-          found = [], result;
+      var obj = this.newObject();
+      var ary = this.toArray(obj);
+      var found = [];
+      var result;
 
       result = obj.find(function(i) { found.push(i); return false; });
       equal(result, undefined, 'return value of obj.find');
@@ -35988,11 +36051,12 @@ define("ember-runtime/tests/suites/enumerable/find",
     });
 
     suite.test('every should stop invoking when you return true', function() {
-      var obj = this.newObject(),
-          ary = this.toArray(obj),
-          cnt = ary.length - 2,
-          exp = cnt,
-          found = [], result;
+      var obj = this.newObject();
+      var ary = this.toArray(obj);
+      var cnt = ary.length - 2;
+      var exp = cnt;
+      var found = [];
+      var result;
 
       result = obj.find(function(i) { found.push(i); return --cnt >= 0; });
       equal(result, ary[exp-1], 'return value of obj.find');
@@ -36128,9 +36192,9 @@ define("ember-runtime/tests/suites/enumerable/forEach",
     suite.module('forEach');
 
     suite.test('forEach should iterate over list', function() {
-      var obj = this.newObject(),
-          ary = this.toArray(obj),
-          found = [];
+      var obj = this.newObject();
+      var ary = this.toArray(obj);
+      var found = [];
 
       obj.forEach(function(i) { found.push(i); });
       deepEqual(found, ary, 'items passed during forEach should match');
@@ -36143,9 +36207,9 @@ define("ember-runtime/tests/suites/enumerable/forEach",
         return ;
       }
 
-      var obj = this.newObject(),
-          ary = this.toArray(obj),
-          found = [];
+      var obj = this.newObject();
+      var ary = this.toArray(obj);
+      var found = [];
 
       obj.forEach(function(i) { found.push(i); });
       deepEqual(found, ary, 'items passed during forEach should match');
@@ -36159,7 +36223,8 @@ define("ember-runtime/tests/suites/enumerable/forEach",
     });
 
     suite.test('2nd target parameter', function() {
-      var obj = this.newObject(), target = this;
+      var obj = this.newObject();
+      var target = this;
 
       obj.forEach(function() {
         // ES6TODO: When transpiled we will end up with "use strict" which disables automatically binding to the global context.
@@ -36177,9 +36242,9 @@ define("ember-runtime/tests/suites/enumerable/forEach",
 
 
     suite.test('callback params', function() {
-      var obj = this.newObject(),
-          ary = this.toArray(obj),
-          loc = 0;
+      var obj = this.newObject();
+      var ary = this.toArray(obj);
+      var loc = 0;
 
 
       obj.forEach(function(item, idx, enumerable) {
@@ -36350,13 +36415,15 @@ define("ember-runtime/tests/suites/enumerable/lastObject",
     suite.module('lastObject');
 
     suite.test('returns last item in enumerable', function() {
-      var obj = this.newObject(),
-          ary = this.toArray(obj);
+      var obj = this.newObject();
+      var ary = this.toArray(obj);
+
       equal(get(obj, 'lastObject'), ary[ary.length-1]);
     });
 
     suite.test('returns undefined if enumerable is empty', function() {
       var obj = this.newObject([]);
+
       equal(get(obj, 'lastObject'), undefined);
     });
 
@@ -36380,16 +36447,17 @@ define("ember-runtime/tests/suites/enumerable/map",
     var get = __dependency3__.get;
     var guidFor = __dependency4__.guidFor;
 
-    var suite = SuiteModuleBuilder.create(), global = this;
+    var suite = SuiteModuleBuilder.create();
+    var global = this;
 
     suite.module('map');
 
     function mapFunc(item) { return item ? item.toString() : null; }
 
     suite.test('map should iterate over list', function() {
-      var obj = this.newObject(),
-          ary = EnumerableUtils.map(this.toArray(obj), mapFunc),
-          found = [];
+      var obj = this.newObject();
+      var ary = EnumerableUtils.map(this.toArray(obj), mapFunc);
+      var found = [];
 
       found = obj.map(mapFunc);
       deepEqual(found, ary, 'mapped arrays should match');
@@ -36402,9 +36470,9 @@ define("ember-runtime/tests/suites/enumerable/map",
         return ;
       }
 
-      var obj = this.newObject(),
-          ary = this.toArray(obj).map(mapFunc),
-          found;
+      var obj = this.newObject();
+      var ary = this.toArray(obj).map(mapFunc);
+      var found;
 
       found = obj.map(mapFunc);
       deepEqual(found, ary, 'items passed during forEach should match');
@@ -36416,7 +36484,8 @@ define("ember-runtime/tests/suites/enumerable/map",
     });
 
     suite.test('2nd target parameter', function() {
-      var obj = this.newObject(), target = this;
+      var obj = this.newObject();
+      var target = this;
 
 
       obj.map(function() {
@@ -36435,9 +36504,9 @@ define("ember-runtime/tests/suites/enumerable/map",
 
 
     suite.test('callback params', function() {
-      var obj = this.newObject(),
-          ary = this.toArray(obj),
-          loc = 0;
+      var obj = this.newObject();
+      var ary = this.toArray(obj);
+      var loc = 0;
 
 
       obj.map(function(item, idx, enumerable) {
@@ -36551,17 +36620,17 @@ define("ember-runtime/tests/suites/enumerable/reject",
     suite.module('reject');
 
     suite.test('should reject any item that does not meet the condition', function() {
-      var obj = this.newObject([1,2,3,4]),
-          result;
+      var obj = this.newObject([1,2,3,4]);
+      var result;
 
       result = obj.reject(function(i) { return i < 3; });
       deepEqual(result, [3,4], 'reject the correct items');
     });
 
     suite.test('should be the inverse of filter', function() {
-      var obj = this.newObject([1,2,3,4]),
-          isEven = function(i) { return i % 2 === 0; },
-          filtered, rejected;
+      var obj = this.newObject([1,2,3,4]);
+      var isEven = function(i) { return i % 2 === 0; };
+      var filtered, rejected;
 
       filtered = obj.filter(isEven);
       rejected = obj.reject(isEven);
@@ -36714,15 +36783,17 @@ define("ember-runtime/tests/suites/enumerable/sortBy",
     suite.module('sortBy');
 
     suite.test('sort by value of property', function() {
-      var obj = this.newObject([{a: 2},{a: 1}]),
-      sorted = obj.sortBy('a');
+      var obj = this.newObject([{a: 2},{a: 1}]);
+      var sorted = obj.sortBy('a');
+
       equal(get(sorted[0], 'a'), 1);
       equal(get(sorted[1], 'a'), 2);
     });
 
     suite.test('supports multiple propertyNames', function() {
-      var obj = this.newObject([{a: 1, b: 2},{a: 1, b: 1}]),
-      sorted = obj.sortBy('a', 'b');
+      var obj = this.newObject([{a: 1, b: 2},{a: 1, b: 1}]);
+      var sorted = obj.sortBy('a', 'b');
+
       equal(get(sorted[0], 'b'), 1);
       equal(get(sorted[1], 'b'), 2);
     });
@@ -37068,7 +37139,9 @@ define("ember-runtime/tests/suites/mutable_array/insertAt",
     });
 
     suite.test("[].insertAt(200,X) => OUT_OF_RANGE_EXCEPTION exception", function() {
-      var obj = this.newObject([]), that = this;
+      var obj = this.newObject([]);
+      var that = this;
+
       raises(function() {
         obj.insertAt(200, that.newFixture(1)[0]);
       }, Error);
@@ -37135,7 +37208,9 @@ define("ember-runtime/tests/suites/mutable_array/insertAt",
     });
 
     suite.test("[A].insertAt(200,X) => OUT_OF_RANGE exception", function() {
-      var obj = this.newObject(this.newFixture(1)), that = this;
+      var obj = this.newObject(this.newFixture(1));
+      var that = this;
+
       raises(function() {
         obj.insertAt(200, that.newFixture(1)[0]);
       }, Error);
@@ -38660,11 +38735,13 @@ define("ember-runtime/tests/suites/suite",
 
       module: function(desc, opts) {
         if (!opts) opts = {};
-        var setup = opts.setup, teardown = opts.teardown;
+        var setup = opts.setup;
+        var teardown = opts.teardown;
         this.reopen({
           run: function() {
             this._super();
-            var title = get(this, 'name')+': '+desc, ctx = this;
+            var title = get(this, 'name')+': '+desc;
+            var ctx = this;
             QUnit.module(title, {
               setup: function() {
                 if (setup) setup.call(ctx);
@@ -39102,8 +39179,8 @@ define("ember-runtime/tests/system/array_proxy/content_change_test",
     });
 
     test("The `arrangedContentWillChange` method is invoked before `content` is changed.", function() {
-      var callCount = 0,
-          expectedLength;
+      var callCount = 0;
+      var expectedLength;
 
       var proxy = ArrayProxy.extend({
         content: Ember.A([1, 2, 3]),
@@ -39126,8 +39203,8 @@ define("ember-runtime/tests/system/array_proxy/content_change_test",
     });
 
     test("The `arrangedContentDidChange` method is invoked after `content` is changed.", function() {
-      var callCount = 0,
-          expectedLength;
+      var callCount = 0;
+      var expectedLength;
 
       var proxy = ArrayProxy.extend({
         content: Ember.A([1, 2, 3]),
@@ -39185,7 +39262,8 @@ define("ember-runtime/tests/system/array_proxy/content_update_test",
 
     test("The `contentArrayDidChange` method is invoked after `content` is updated.", function() {
 
-      var proxy, observerCalled = false;
+      var proxy;
+      var observerCalled = false;
 
       proxy = ArrayProxy.createWithMixins({
         content: Ember.A(),
@@ -39686,8 +39764,8 @@ define("ember-runtime/tests/system/object/computed_test",
         count: 20
       });
 
-      var obj1 = new MyClass(),
-          obj2 = new Subclass();
+      var obj1 = new MyClass();
+      var obj2 = new Subclass();
 
       equal(get(obj1, 'foo'), 'BIFF 1');
       equal(get(obj2, 'foo'), 'BIFF 21');
@@ -40003,8 +40081,8 @@ define("ember-runtime/tests/system/object/create_test",
     });
 
     test("inherits properties from passed in EmberObject", function() {
-      var baseObj = EmberObject.create({ foo: 'bar' }),
-          secondaryObj = EmberObject.create(baseObj);
+      var baseObj = EmberObject.create({ foo: 'bar' });
+      var secondaryObj = EmberObject.create(baseObj);
 
       equal(secondaryObj.foo, baseObj.foo, "Em.O.create inherits properties from EmberObject parameter");
     });
@@ -40206,8 +40284,8 @@ define("ember-runtime/tests/system/object/create_test",
     test("created objects should not share a guid with their superclass", function() {
       ok(guidFor(EmberObject), "EmberObject has a guid");
 
-      var objA = EmberObject.createWithMixins(),
-          objB = EmberObject.createWithMixins();
+      var objA = EmberObject.createWithMixins();
+      var objB = EmberObject.createWithMixins();
 
       ok(guidFor(objA) !== guidFor(objB), "two instances do not share a guid");
     });
@@ -40240,7 +40318,8 @@ define("ember-runtime/tests/system/object/destroy_test",
     QUnit.module('ember-runtime/system/object/destroy_test');
 
     testBoth("should schedule objects to be destroyed at the end of the run loop", function(get, set) {
-      var obj = EmberObject.create(), meta;
+      var obj = EmberObject.create();
+      var meta;
 
       run(function() {
         obj.destroy();
@@ -40297,7 +40376,8 @@ define("ember-runtime/tests/system/object/destroy_test",
     });
 
     test("destroyed objects should not see each others changes during teardown but a long lived object should", function () {
-      var shouldChange = 0, shouldNotChange = 0;
+      var shouldChange = 0;
+      var shouldNotChange = 0;
 
       var objs = {};
 
@@ -40418,10 +40498,10 @@ define("ember-runtime/tests/system/object/detectInstance_test",
       var B = A.extend();
       var C = A.extend();
 
-      var o = EmberObject.create(),
-          a = A.create(),
-          b = B.create(),
-          c = C.create();
+      var o = EmberObject.create();
+      var a = A.create();
+      var b = B.create();
+      var c = C.create();
 
       ok( EmberObject.detectInstance(o), 'o is an instance of EmberObject' );
       ok( EmberObject.detectInstance(a), 'a is an instance of EmberObject' );
@@ -40557,7 +40637,8 @@ define("ember-runtime/tests/system/object/events_test",
     });
 
     test("a listener can be added and removed automatically and have arguments", function() {
-      var self, args, count = 0;
+      var self, args;
+      var count = 0;
 
       var obj = EmberObject.createWithMixins(Evented);
 
@@ -41233,7 +41314,8 @@ define("ember-runtime/tests/system/object/toString_test",
     });
 
     test("toString on a namespace finds the namespace in Ember.lookup", function() {
-      var Foo = lookup.Foo = Namespace.create(), obj;
+      var Foo = lookup.Foo = Namespace.create();
+      var obj;
 
       Foo.Bar = EmberObject.extend();
 
@@ -41248,13 +41330,14 @@ define("ember-runtime/tests/system/object/toString_test",
             toStringExtension: function() {
               return "fooey";
             }
-          }),
-          foo = Foo.create(),
-          Bar = EmberObject.extend({}),
-          bar = Bar.create();
-        // simulate these classes being defined on a Namespace
-        Foo[GUID_KEY+'_name'] = 'Foo';
-        Bar[GUID_KEY+'_name'] = 'Bar';
+          });
+      var foo = Foo.create();
+      var Bar = EmberObject.extend({});
+      var bar = Bar.create();
+
+      // simulate these classes being defined on a Namespace
+      Foo[GUID_KEY+'_name'] = 'Foo';
+      Bar[GUID_KEY+'_name'] = 'Bar';
 
       equal(bar.toString(), '<Bar:'+guidFor(bar)+'>', 'does not include toStringExtension part');
       equal(foo.toString(), '<Foo:'+guidFor(foo)+':fooey>', 'Includes toStringExtension result');
@@ -41305,8 +41388,8 @@ define("ember-runtime/tests/system/object_proxy_test",
             firstName: 'Tom',
             lastName: 'Dale',
             unknownProperty: function (key) { return key + ' unknown';}
-          },
-          proxy = ObjectProxy.create();
+          };
+      var proxy = ObjectProxy.create();
 
       equal(get(proxy, 'firstName'), undefined, 'get on proxy without content should return undefined');
       expectAssertion(function () {
@@ -41331,17 +41414,16 @@ define("ember-runtime/tests/system/object_proxy_test",
     });
 
     testBoth("should work with watched properties", function(get, set) {
-      var content1 = {firstName: 'Tom', lastName: 'Dale'},
-        content2 = {firstName: 'Yehuda', lastName: 'Katz'},
-        Proxy,
-        proxy,
-        count = 0,
-        last;
+      var content1 = {firstName: 'Tom', lastName: 'Dale'};
+      var content2 = {firstName: 'Yehuda', lastName: 'Katz'};
+      var count = 0;
+      var Proxy, proxy, last;
 
       Proxy = ObjectProxy.extend({
         fullName: computed(function () {
-          var firstName = this.get('firstName'),
-              lastName = this.get('lastName');
+          var firstName = this.get('firstName');
+          var lastName = this.get('lastName');
+
           if (firstName && lastName) {
             return firstName + ' ' + lastName;
           }
@@ -41393,9 +41475,10 @@ define("ember-runtime/tests/system/object_proxy_test",
     });
 
     test("set and get should work with paths", function () {
-      var content = {foo: {bar: 'baz'}},
-          proxy = ObjectProxy.create({content: content}),
-          count = 0;
+      var content = {foo: {bar: 'baz'}};
+      var proxy = ObjectProxy.create({content: content});
+      var count = 0;
+
       proxy.set('foo.bar', 'hello');
       equal(proxy.get('foo.bar'), 'hello');
       equal(proxy.get('content.foo.bar'), 'hello');
@@ -41412,9 +41495,9 @@ define("ember-runtime/tests/system/object_proxy_test",
     });
 
     testBoth("should transition between watched and unwatched strategies", function(get, set) {
-      var content = {foo: 'foo'},
-          proxy = ObjectProxy.create({content: content}),
-          count = 0;
+      var content = {foo: 'foo'};
+      var proxy = ObjectProxy.create({content: content});
+      var count = 0;
 
       function observer() {
         count++;
@@ -41648,8 +41731,8 @@ define("ember-runtime/tests/system/set/extra_test",
     QUnit.module('Set.pop');
 
     test('calling pop should return an object and remove it', function() {
-      var aSet;
-      var count = 0, obj;
+      var aSet, obj;
+      var count = 0;
 
       ignoreDeprecation(function() {
         aSet = new Set([1,2,3]);

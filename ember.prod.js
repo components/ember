@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.06f2a13b
+ * @version   1.8.0-beta.1+canary.89eb9fb6
  */
 
 (function() {
@@ -12697,7 +12697,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.06f2a13b
+      @version 1.8.0-beta.1+canary.89eb9fb6
     */
 
     if ('undefined' === typeof Ember) {
@@ -12724,10 +12724,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.06f2a13b'
+      @default '1.8.0-beta.1+canary.89eb9fb6'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.06f2a13b';
+    Ember.VERSION = '1.8.0-beta.1+canary.89eb9fb6';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -25738,9 +25738,9 @@ define("ember-runtime/computed/reduce_computed",
       },
 
       setupPropertyObservers: function (dependentKey, itemPropertyKeys) {
-        var dependentArray = get(this.instanceMeta.context, dependentKey),
-            length = get(dependentArray, 'length'),
-            observerContexts = new Array(length);
+        var dependentArray = get(this.instanceMeta.context, dependentKey);
+        var length = get(dependentArray, 'length');
+        var observerContexts = new Array(length);
 
         this.resetTransformations(dependentKey, observerContexts);
 
@@ -25932,7 +25932,8 @@ define("ember-runtime/computed/reduce_computed",
       },
 
       flushChanges: function () {
-        var changedItems = this.changedItems, key, c, changeMeta;
+        var changedItems = this.changedItems;
+        var key, c, changeMeta;
 
         for (key in changedItems) {
           c = changedItems[key];
@@ -25987,8 +25988,8 @@ define("ember-runtime/computed/reduce_computed",
     }
 
     function reset(cp, propertyName) {
-      var callbacks = cp._callbacks(),
-          meta;
+      var callbacks = cp._callbacks();
+      var meta;
 
       if (cp._hasInstanceMeta(this, propertyName)) {
         meta = cp._instanceMeta(this, propertyName);
@@ -27983,7 +27984,8 @@ define("ember-runtime/ext/rsvp",
     var run = __dependency3__["default"];
 
     var RSVP = requireModule('rsvp');
-    var Test, testModuleName = 'ember-testing/test';
+    var testModuleName = 'ember-testing/test';
+    var Test;
 
     var asyncStart = function() {
       if (Ember.Test && Ember.Test.adapter) {
@@ -28433,7 +28435,8 @@ define("ember-runtime/mixins/action_handler",
         @param {*} context a context to send with the action
       */
       send: function(actionName) {
-        var args = [].slice.call(arguments, 1), target;
+        var args = [].slice.call(arguments, 1);
+        var target;
 
         if (this._actions && this._actions[actionName]) {
           if (this._actions[actionName].apply(this, args) === true) {
@@ -32219,9 +32222,9 @@ define("ember-runtime/mixins/target_action_support",
       */
       triggerAction: function(opts) {
         opts = opts || {};
-        var action = opts.action || get(this, 'action'),
-            target = opts.target || get(this, 'targetObject'),
-            actionContext = opts.actionContext;
+        var action = opts.action || get(this, 'action');
+        var target = opts.target || get(this, 'targetObject');
+        var actionContext = opts.actionContext;
 
         function args(options, actionName) {
           var ret = [];
@@ -32457,8 +32460,8 @@ define("ember-runtime/system/array_proxy",
       },
 
       _arrangedContentWillChange: beforeObserver('arrangedContent', function() {
-        var arrangedContent = get(this, 'arrangedContent'),
-            len = arrangedContent ? get(arrangedContent, 'length') : 0;
+        var arrangedContent = get(this, 'arrangedContent');
+        var len = arrangedContent ? get(arrangedContent, 'length') : 0;
 
         this.arrangedContentArrayWillChange(this, 0, len, undefined);
         this.arrangedContentWillChange(this);
@@ -32467,8 +32470,8 @@ define("ember-runtime/system/array_proxy",
       }),
 
       _arrangedContentDidChange: observer('arrangedContent', function() {
-        var arrangedContent = get(this, 'arrangedContent'),
-            len = arrangedContent ? get(arrangedContent, 'length') : 0;
+        var arrangedContent = get(this, 'arrangedContent');
+        var len = arrangedContent ? get(arrangedContent, 'length') : 0;
 
         
         this._setupArrangedContent();
@@ -32543,9 +32546,10 @@ define("ember-runtime/system/array_proxy",
 
       removeAt: function(start, len) {
         if ('number' === typeof start) {
-          var content = get(this, 'content'),
-              arrangedContent = get(this, 'arrangedContent'),
-              indices = [], i;
+          var content = get(this, 'content');
+          var arrangedContent = get(this, 'arrangedContent');
+          var indices = [];
+          var i;
 
           if ((start < 0) || (start >= get(this, 'length'))) {
             throw new EmberError(OUT_OF_RANGE_EXCEPTION);
@@ -32710,7 +32714,8 @@ define("ember-runtime/system/core_object",
       // method a lot faster. This is glue code so we want it to be as fast as
       // possible.
 
-      var wasApplied = false, initMixins, initProperties;
+      var wasApplied = false;
+      var initMixins, initProperties;
 
       var Class = function() {
         if (!wasApplied) {
@@ -32718,7 +32723,8 @@ define("ember-runtime/system/core_object",
         }
         o_defineProperty(this, GUID_KEY, nullDescriptor);
         o_defineProperty(this, '__nextSuper', undefinedDescriptor);
-        var m = meta(this), proto = m.proto;
+        var m = meta(this);
+        var proto = m.proto;
         m.proto = this;
         if (initMixins) {
           // capture locally so we can clear the closed over variable
@@ -33167,7 +33173,8 @@ define("ember-runtime/system/core_object",
         @param {Object} [arguments]* Object containing values to use within the new class
       */
       extend: function() {
-        var Class = makeCtor(), proto;
+        var Class = makeCtor();
+        var proto;
         Class.ClassMixin = Mixin.create(this.ClassMixin);
         Class.PrototypeMixin = Mixin.create(this.PrototypeMixin);
 
@@ -33572,7 +33579,8 @@ define("ember-runtime/system/each_proxy",
     var IS_OBSERVER = /^.+:(before|change)$/;
 
     function addObserverForContentKey(content, keyName, proxy, idx, loc) {
-      var objects = proxy._objects, guid;
+      var objects = proxy._objects;
+      var guid;
       if (!objects) objects = proxy._objects = {};
 
       while(--loc>=idx) {
@@ -33653,7 +33661,8 @@ define("ember-runtime/system/each_proxy",
       // Invokes whenever the content array itself changes.
 
       arrayWillChange: function(content, idx, removedCnt, addedCnt) {
-        var keys = this._keys, key, lim;
+        var keys = this._keys;
+        var key, lim;
 
         lim = removedCnt>0 ? idx+removedCnt : -1;
         beginPropertyChanges(this);
@@ -33671,7 +33680,8 @@ define("ember-runtime/system/each_proxy",
       },
 
       arrayDidChange: function(content, idx, removedCnt, addedCnt) {
-        var keys = this._keys, lim;
+        var keys = this._keys;
+        var lim;
 
         lim = addedCnt>0 ? idx+addedCnt : -1;
         changeProperties(function() {
@@ -33712,8 +33722,9 @@ define("ember-runtime/system/each_proxy",
         if (!keys) keys = this._keys = {};
         if (!keys[keyName]) {
           keys[keyName] = 1;
-          var content = this._content,
-              len = get(content, 'length');
+          var content = this._content;
+          var len = get(content, 'length');
+
           addObserverForContentKey(content, keyName, this, 0, len);
         } else {
           keys[keyName]++;
@@ -33723,8 +33734,9 @@ define("ember-runtime/system/each_proxy",
       stopObservingContentKey: function(keyName) {
         var keys = this._keys;
         if (keys && (keys[keyName]>0) && (--keys[keyName]<=0)) {
-          var content = this._content,
-              len     = get(content, 'length');
+          var content = this._content;
+          var len     = get(content, 'length');
+
           removeObserverForContentKey(content, keyName, this, 0, len);
         }
       },
@@ -33872,8 +33884,8 @@ define("ember-runtime/system/namespace",
       },
 
       destroy: function() {
-        var namespaces = Namespace.NAMESPACES,
-            toString = this.toString();
+        var namespaces = Namespace.NAMESPACES;
+        var toString = this.toString();
 
         if (toString) {
           Ember.lookup[toString] = undefined;
@@ -33952,7 +33964,8 @@ define("ember-runtime/system/namespace",
     }
 
     function findNamespaces() {
-      var lookup = Ember.lookup, obj, isNamespace;
+      var lookup = Ember.lookup;
+      var obj, isNamespace;
 
       if (Namespace.PROCESSED) { return; }
 
@@ -34009,8 +34022,8 @@ define("ember-runtime/system/namespace",
     }
 
     function processAllNamespaces() {
-      var unprocessedNamespaces = !Namespace.PROCESSED,
-          unprocessedMixins = Ember.anyUnprocessedMixins;
+      var unprocessedNamespaces = !Namespace.PROCESSED;
+      var unprocessedMixins = Ember.anyUnprocessedMixins;
 
       if (unprocessedNamespaces) {
         findNamespaces();
@@ -34018,7 +34031,9 @@ define("ember-runtime/system/namespace",
       }
 
       if (unprocessedNamespaces || unprocessedMixins) {
-        var namespaces = Namespace.NAMESPACES, namespace;
+        var namespaces = Namespace.NAMESPACES;
+        var namespace;
+
         for (var i=0, l=namespaces.length; i<l; i++) {
           namespace = namespaces[i];
           processNamespace([namespace.toString()], namespace, {});
@@ -34822,8 +34837,8 @@ define("ember-runtime/system/string",
     });
 
     var CLASSIFY_CACHE = new Cache(1000, function(str) {
-      var parts = str.split("."),
-      out = [];
+      var parts = str.split(".");
+      var out = [];
 
       for (var i=0, l=parts.length; i<l; i++) {
         var camelized = camelize(parts[i]);
@@ -35150,9 +35165,9 @@ define("ember-runtime/system/subarray",
         @return {number} The index of the item in the subarray.
       */
       addItem: function(index, match) {
-        var returnValue = -1,
-            itemType = match ? RETAIN : FILTER,
-            self = this;
+        var returnValue = -1;
+        var itemType = match ? RETAIN : FILTER;
+        var self = this;
 
         this._findOperation(index, function(operation, operationIndex, rangeStart, rangeEnd, seenInSubArray) {
           var newOperation, splitOperation;
@@ -35203,8 +35218,8 @@ define("ember-runtime/system/subarray",
         was not in the subarray.
       */
       removeItem: function(index) {
-        var returnValue = -1,
-            self = this;
+        var returnValue = -1;
+        var self = this;
 
         this._findOperation(index, function (operation, operationIndex, rangeStart, rangeEnd, seenInSubArray) {
           if (operation.type === RETAIN) {
@@ -35226,12 +35241,12 @@ define("ember-runtime/system/subarray",
 
 
       _findOperation: function (index, foundCallback, notFoundCallback) {
+        var seenInSubArray = 0;
         var operationIndex,
             len,
             operation,
             rangeStart,
-            rangeEnd,
-            seenInSubArray = 0;
+            rangeEnd;
 
         // OPTIMIZE: change to balanced tree
         // find leftmost operation to the right of `index`
@@ -35251,8 +35266,8 @@ define("ember-runtime/system/subarray",
       },
 
       _composeAt: function(index) {
-        var op = this._operations[index],
-            otherOp;
+        var op = this._operations[index];
+        var otherOp;
 
         if (!op) {
           // Composing out of bounds is a no-op, as when removing the last operation
@@ -35339,11 +35354,11 @@ define("ember-runtime/system/tracked_array",
         var count = get(newItems, 'length');
         if (count < 1) { return; }
 
-        var match = this._findArrayOperation(index),
-            arrayOperation = match.operation,
-            arrayOperationIndex = match.index,
-            arrayOperationRangeStart = match.rangeStart,
-            composeIndex,
+        var match = this._findArrayOperation(index);
+        var arrayOperation = match.operation;
+        var arrayOperationIndex = match.index;
+        var arrayOperationRangeStart = match.rangeStart;
+        var composeIndex,
             splitIndex,
             splitItems,
             splitArrayOperation,
@@ -35379,12 +35394,11 @@ define("ember-runtime/system/tracked_array",
       removeItems: function (index, count) {
         if (count < 1) { return; }
 
-        var match = this._findArrayOperation(index),
-            arrayOperation = match.operation,
-            arrayOperationIndex = match.index,
-            arrayOperationRangeStart = match.rangeStart,
-            newArrayOperation,
-            composeIndex;
+        var match = this._findArrayOperation(index);
+        var arrayOperation = match.operation;
+        var arrayOperationIndex = match.index;
+        var arrayOperationRangeStart = match.rangeStart;
+        var newArrayOperation, composeIndex;
 
         newArrayOperation = new ArrayOperation(DELETE, count);
         if (!match.split) {
@@ -35415,8 +35429,8 @@ define("ember-runtime/system/tracked_array",
         @param {Function} callback
       */
       apply: function (callback) {
-        var items = [],
-            offset = 0;
+        var items = [];
+        var offset = 0;
 
         forEach(this._operations, function (arrayOperation, operationIndex) {
           callback(arrayOperation.items, offset, arrayOperation.type, operationIndex);
@@ -35440,12 +35454,10 @@ define("ember-runtime/system/tracked_array",
         @private
       */
       _findArrayOperation: function (index) {
-        var arrayOperationIndex,
-            len,
-            split = false,
-            arrayOperation,
-            arrayOperationRangeStart,
-            arrayOperationRangeEnd;
+        var split = false;
+        var arrayOperationIndex, arrayOperation,
+            arrayOperationRangeStart, arrayOperationRangeEnd,
+            len;
 
         // OPTIMIZE: we could search these faster if we kept a balanced tree.
         // find leftmost arrayOperation to the right of `index`
@@ -35483,11 +35495,11 @@ define("ember-runtime/system/tracked_array",
 
       // see SubArray for a better implementation.
       _composeInsert: function (index) {
-        var newArrayOperation = this._operations[index],
-            leftArrayOperation = this._operations[index-1], // may be undefined
-            rightArrayOperation = this._operations[index+1], // may be undefined
-            leftOp = leftArrayOperation && leftArrayOperation.type,
-            rightOp = rightArrayOperation && rightArrayOperation.type;
+        var newArrayOperation = this._operations[index];
+        var leftArrayOperation = this._operations[index-1]; // may be undefined
+        var rightArrayOperation = this._operations[index+1]; // may be undefined
+        var leftOp = leftArrayOperation && leftArrayOperation.type;
+        var rightOp = rightArrayOperation && rightArrayOperation.type;
 
         if (leftOp === INSERT) {
             // merge left
@@ -35512,15 +35524,15 @@ define("ember-runtime/system/tracked_array",
       },
 
       _composeDelete: function (index) {
-        var arrayOperation = this._operations[index],
-            deletesToGo = arrayOperation.count,
-            leftArrayOperation = this._operations[index-1], // may be undefined
-            leftOp = leftArrayOperation && leftArrayOperation.type,
-            nextArrayOperation,
-            nextOp,
-            nextCount,
-            removeNewAndNextOp = false,
-            removedItems = [];
+        var arrayOperation = this._operations[index];
+        var deletesToGo = arrayOperation.count;
+        var leftArrayOperation = this._operations[index-1]; // may be undefined
+        var leftOp = leftArrayOperation && leftArrayOperation.type;
+        var nextArrayOperation;
+        var nextOp;
+        var nextCount;
+        var removeNewAndNextOp = false;
+        var removedItems = [];
 
         if (leftOp === DELETE) {
           arrayOperation = leftArrayOperation;
