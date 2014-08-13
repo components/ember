@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.ab21dda9
+ * @version   1.8.0-beta.1+canary.a8d64b20
  */
 
 (function() {
@@ -13005,7 +13005,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.ab21dda9
+      @version 1.8.0-beta.1+canary.a8d64b20
     */
 
     if ('undefined' === typeof Ember) {
@@ -13032,10 +13032,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.ab21dda9'
+      @default '1.8.0-beta.1+canary.a8d64b20'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.ab21dda9';
+    Ember.VERSION = '1.8.0-beta.1+canary.a8d64b20';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -44956,7 +44956,7 @@ define("router/router",
         // Resolve with the final handler.
         return handlerInfos[handlerInfos.length - 1].handler;
       } catch(e) {
-        if (!(e instanceof TransitionAborted)) {
+        if (!((e instanceof TransitionAborted))) {
           //var erroneousHandler = handlerInfos.pop();
           var infos = transition.state.handlerInfos;
           transition.trigger(true, 'error', e, transition, infos[infos.length-1].handler);
@@ -45676,8 +45676,8 @@ define("router/transition",
         Useful for tooling.
         @return {Promise}
        */
-      catch: function(onRejection, label) {
-        return this.promise.catch(onRejection, label);
+      "catch": function(onRejection, label) {
+        return this.promise["catch"](onRejection, label);
       },
 
       /**
@@ -45693,8 +45693,8 @@ define("router/transition",
         Useful for tooling.
         @return {Promise}
        */
-      finally: function(callback, label) {
-        return this.promise.finally(callback, label);
+      "finally": function(callback, label) {
+        return this.promise["finally"](callback, label);
       },
 
       /**
