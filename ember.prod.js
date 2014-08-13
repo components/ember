@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.8da9f055
+ * @version   1.8.0-beta.1+canary.920239f9
  */
 
 (function() {
@@ -6241,7 +6241,8 @@ define("ember-handlebars/ext",
 
     var isEmpty = __dependency8__["default"];
 
-    var slice = [].slice, originalTemplate = EmberHandlebars.template;
+    var slice = [].slice;
+    var originalTemplate = EmberHandlebars.template;
 
     /**
       If a path starts with a reserved keyword, returns the root
@@ -6660,7 +6661,8 @@ define("ember-handlebars/ext",
 
         // Override SimpleHandlebarsView's method for generating the view's content.
         bindView.normalizedValue = function() {
-          var args = [], boundOption;
+          var args = [];
+          var boundOption;
 
           // Copy over bound hash options.
           for (boundOption in boundOptions) {
@@ -6905,7 +6907,8 @@ define("ember-handlebars/helpers/binding",
             run.once(view, 'rerender');
           };
 
-          var template, context, result = handlebarsGet(currentContext, property, options);
+          var template, context;
+          var result = handlebarsGet(currentContext, property, options);
 
           result = valueNormalizer ? valueNormalizer(result) : result;
 
@@ -7271,7 +7274,8 @@ define("ember-handlebars/helpers/binding",
       @return {String} HTML string
     */
     function withHelper(context, options) {
-      var bindContext, preserveContext, controller, helperName = 'with';
+      var bindContext, preserveContext, controller;
+      var helperName = 'with';
 
       if (arguments.length === 4) {
         var keywordName, path, rootPath, normalized, contextPath;
@@ -7353,7 +7357,9 @@ define("ember-handlebars/helpers/binding",
     */
     function unlessHelper(context, options) {
             
-      var fn = options.fn, inverse = options.inverse, helperName = 'unless';
+      var fn = options.fn;
+      var inverse = options.inverse;
+      var helperName = 'unless';
 
       if (context) {
         helperName += ' ' + context;
@@ -7617,7 +7623,8 @@ define("ember-handlebars/helpers/binding",
       @return {Array} An array of class names to add
     */
     function bindClasses(context, classBindings, view, bindAttrId, options) {
-      var ret = [], newClass, value, elem;
+      var ret = [];
+      var newClass, value, elem;
 
       // Helper method to retrieve the property from the context and
       // determine which class string to return, based on whether it is
@@ -7897,10 +7904,13 @@ define("ember-handlebars/helpers/collection",
         collectionClass = CollectionView;
       }
 
-      var hash = options.hash, itemHash = {}, match;
+      var hash = options.hash;
+      var itemHash = {};
+      var match;
 
       // Extract item view class if provided else default to the standard class
-      var collectionPrototype = collectionClass.proto(), itemViewClass;
+      var collectionPrototype = collectionClass.proto();
+      var itemViewClass;
 
       if (hash.itemView) {
         controller = data.keywords.controller;
@@ -8492,7 +8502,8 @@ define("ember-handlebars/helpers/each",
       @param [options.groupedRows] {boolean} enable normal item-by-item rendering when inside a `#group` helper
     */
     function eachHelper(path, options) {
-      var ctx, helperName = 'each';
+      var ctx;
+      var helperName = 'each';
 
       if (arguments.length === 4) {
         
@@ -8857,12 +8868,12 @@ define("ember-handlebars/helpers/view",
     var EmberString = __dependency11__["default"];
 
 
-    var LOWERCASE_A_Z = /^[a-z]/,
-        VIEW_PREFIX = /^view\./;
+    var LOWERCASE_A_Z = /^[a-z]/;
+    var VIEW_PREFIX = /^view\./;
 
     function makeBindings(thisContext, options) {
-      var hash = options.hash,
-          hashType = options.hashTypes;
+      var hash = options.hash;
+      var hashType = options.hashTypes;
 
       for (var prop in hash) {
         if (hashType[prop] === 'ID') {
@@ -9390,12 +9401,12 @@ define("ember-handlebars/loader",
 
         var compile = (script.attr('type') === 'text/x-raw-handlebars') ?
                       jQuery.proxy(Handlebars.compile, Handlebars) :
-                      jQuery.proxy(EmberHandlebars.compile, EmberHandlebars),
-          // Get the name of the script, used by Ember.View's templateName property.
-          // First look for data-template-name attribute, then fall back to its
-          // id if no name is found.
-          templateName = script.attr('data-template-name') || script.attr('id') || 'application',
-          template = compile(script.html());
+                      jQuery.proxy(EmberHandlebars.compile, EmberHandlebars);
+        // Get the name of the script, used by Ember.View's templateName property.
+        // First look for data-template-name attribute, then fall back to its
+        // id if no name is found.
+        var templateName = script.attr('data-template-name') || script.attr('id') || 'application';
+        var template = compile(script.html());
 
         // Check if template of same name already exists
         if (Ember.TEMPLATES[templateName] !== undefined) {
@@ -12704,7 +12715,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.8da9f055
+      @version 1.8.0-beta.1+canary.920239f9
     */
 
     if ('undefined' === typeof Ember) {
@@ -12731,10 +12742,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.8da9f055'
+      @default '1.8.0-beta.1+canary.920239f9'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.8da9f055';
+    Ember.VERSION = '1.8.0-beta.1+canary.920239f9';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`

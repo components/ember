@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.8da9f055
+ * @version   1.8.0-beta.1+canary.920239f9
  */
 
 (function() {
@@ -2984,7 +2984,8 @@ define("ember-extension-support/tests/container_debug_adapter_test",
     // Must be required to export Ember.ContainerDebugAdapter
     var Application = __dependency6__["default"];
 
-    var adapter, App, Model = EmberObject.extend();
+    var adapter, App;
+    var Model = EmberObject.extend();
 
 
     function boot() {
@@ -3057,7 +3058,8 @@ define("ember-extension-support/tests/data_adapter_test",
     var EmberApplication = __dependency9__["default"];
     var DefaultResolver = __dependency10__["default"];
 
-    var adapter, App, Model = EmberObject.extend();
+    var adapter, App;
+    var Model = EmberObject.extend();
 
     var DataAdapter = EmberDataAdapter.extend({
       detect: function(klass) {
@@ -4048,8 +4050,9 @@ define("ember-handlebars/tests/controls/select_test",
     });
 
     test("can retrieve the current selected option when multiple=false", function() {
-      var yehuda = { id: 1, firstName: 'Yehuda' },
-          tom = { id: 2, firstName: 'Tom' };
+      var yehuda = { id: 1, firstName: 'Yehuda' };
+      var tom = { id: 2, firstName: 'Tom' };
+
       select.set('content', Ember.A([yehuda, tom]));
 
       append();
@@ -4063,10 +4066,11 @@ define("ember-handlebars/tests/controls/select_test",
     });
 
     test("can retrieve the current selected options when multiple=true", function() {
-      var yehuda = { id: 1, firstName: 'Yehuda' },
-          tom = { id: 2, firstName: 'Tom' },
-          david = { id: 3, firstName: 'David' },
-          brennain = { id: 4, firstName: 'Brennain' };
+      var yehuda = { id: 1, firstName: 'Yehuda' };
+      var tom = { id: 2, firstName: 'Tom' };
+      var david = { id: 3, firstName: 'David' };
+      var brennain = { id: 4, firstName: 'Brennain' };
+
       select.set('content', Ember.A([yehuda, tom, david, brennain]));
       select.set('multiple', true);
       select.set('optionLabelPath', 'content.firstName');
@@ -4088,8 +4092,8 @@ define("ember-handlebars/tests/controls/select_test",
     });
 
     test("selection can be set when multiple=false", function() {
-      var yehuda = { id: 1, firstName: 'Yehuda' },
-          tom = { id: 2, firstName: 'Tom' };
+      var yehuda = { id: 1, firstName: 'Yehuda' };
+      var tom = { id: 2, firstName: 'Tom' };
 
       run(function() {
         select.set('content', Ember.A([yehuda, tom]));
@@ -4107,10 +4111,10 @@ define("ember-handlebars/tests/controls/select_test",
     });
 
     test("selection can be set when multiple=true", function() {
-      var yehuda = { id: 1, firstName: 'Yehuda' },
-          tom = { id: 2, firstName: 'Tom' },
-          david = { id: 3, firstName: 'David' },
-          brennain = { id: 4, firstName: 'Brennain' };
+      var yehuda = { id: 1, firstName: 'Yehuda' };
+      var tom = { id: 2, firstName: 'Tom' };
+      var david = { id: 3, firstName: 'David' };
+      var brennain = { id: 4, firstName: 'Brennain' };
 
       run(function() {
         select.set('content', Ember.A([yehuda, tom, david, brennain]));
@@ -4128,10 +4132,10 @@ define("ember-handlebars/tests/controls/select_test",
     });
 
     test("selection can be set when multiple=true and prompt", function() {
-      var yehuda = { id: 1, firstName: 'Yehuda' },
-          tom = { id: 2, firstName: 'Tom' },
-          david = { id: 3, firstName: 'David' },
-          brennain = { id: 4, firstName: 'Brennain' };
+      var yehuda = { id: 1, firstName: 'Yehuda' };
+      var tom = { id: 2, firstName: 'Tom' };
+      var david = { id: 3, firstName: 'David' };
+      var brennain = { id: 4, firstName: 'Brennain' };
 
       run(function() {
         select.set('content', Ember.A([yehuda, tom, david, brennain]));
@@ -4152,10 +4156,10 @@ define("ember-handlebars/tests/controls/select_test",
     });
 
     test("multiple selections can be set when multiple=true", function() {
-      var yehuda = { id: 1, firstName: 'Yehuda' },
-          tom = { id: 2, firstName: 'Tom' },
-          david = { id: 3, firstName: 'David' },
-          brennain = { id: 4, firstName: 'Brennain' };
+      var yehuda = { id: 1, firstName: 'Yehuda' };
+      var tom = { id: 2, firstName: 'Tom' };
+      var david = { id: 3, firstName: 'David' };
+      var brennain = { id: 4, firstName: 'Brennain' };
 
       run(function() {
         select.set('content', Ember.A([yehuda, tom, david, brennain]));
@@ -4178,11 +4182,11 @@ define("ember-handlebars/tests/controls/select_test",
     });
 
     test("multiple selections can be set by changing in place the selection array when multiple=true", function() {
-      var yehuda = { id: 1, firstName: 'Yehuda' },
-          tom = { id: 2, firstName: 'Tom' },
-          david = { id: 3, firstName: 'David' },
-          brennain = { id: 4, firstName: 'Brennain' },
-          selection = Ember.A([yehuda, tom]);
+      var yehuda = { id: 1, firstName: 'Yehuda' };
+      var tom = { id: 2, firstName: 'Tom' };
+      var david = { id: 3, firstName: 'David' };
+      var brennain = { id: 4, firstName: 'Brennain' };
+      var selection = Ember.A([yehuda, tom]);
 
       run(function() {
         select.set('content', Ember.A([yehuda, tom, david, brennain]));
@@ -4209,11 +4213,11 @@ define("ember-handlebars/tests/controls/select_test",
     test("multiple selections can be set indirectly via bindings and in-place when multiple=true (issue #1058)", function() {
       var indirectContent = EmberObject.create();
 
-      var yehuda = { id: 1, firstName: 'Yehuda' },
-          tom = { id: 2, firstName: 'Tom' },
-          david = { id: 3, firstName: 'David' },
-          brennain = { id: 4, firstName: 'Brennain' },
-          cyril = { id: 5, firstName: 'Cyril' };
+      var yehuda = { id: 1, firstName: 'Yehuda' };
+      var tom = { id: 2, firstName: 'Tom' };
+      var david = { id: 3, firstName: 'David' };
+      var brennain = { id: 4, firstName: 'Brennain' };
+      var cyril = { id: 5, firstName: 'Cyril' };
 
       run(function() {
         select.destroy(); // Destroy the existing select
@@ -4350,11 +4354,11 @@ define("ember-handlebars/tests/controls/select_test",
     });
 
     test("selection uses the same array when multiple=true", function() {
-      var yehuda = { id: 1, firstName: 'Yehuda' },
-          tom = { id: 2, firstName: 'Tom' },
-          david = { id: 3, firstName: 'David' },
-          brennain = { id: 4, firstName: 'Brennain' },
-          selection = Ember.A([yehuda, david]);
+      var yehuda = { id: 1, firstName: 'Yehuda' };
+      var tom = { id: 2, firstName: 'Tom' };
+      var david = { id: 3, firstName: 'David' };
+      var brennain = { id: 4, firstName: 'Brennain' };
+      var selection = Ember.A([yehuda, david]);
 
       run(function() {
         select.set('content', Ember.A([yehuda, tom, david, brennain]));
@@ -4377,10 +4381,10 @@ define("ember-handlebars/tests/controls/select_test",
     });
 
     test("Ember.SelectedOption knows when it is selected when multiple=false", function() {
-      var yehuda = { id: 1, firstName: 'Yehuda' },
-          tom = { id: 2, firstName: 'Tom' },
-          david = { id: 3, firstName: 'David' },
-          brennain = { id: 4, firstName: 'Brennain' };
+      var yehuda = { id: 1, firstName: 'Yehuda' };
+      var tom = { id: 2, firstName: 'Tom' };
+      var david = { id: 3, firstName: 'David' };
+      var brennain = { id: 4, firstName: 'Brennain' };
 
       run(function() {
         select.set('content', Ember.A([yehuda, tom, david, brennain]));
@@ -4399,10 +4403,10 @@ define("ember-handlebars/tests/controls/select_test",
     });
 
     test("Ember.SelectedOption knows when it is selected when multiple=true", function() {
-      var yehuda = { id: 1, firstName: 'Yehuda' },
-          tom = { id: 2, firstName: 'Tom' },
-          david = { id: 3, firstName: 'David' },
-          brennain = { id: 4, firstName: 'Brennain' };
+      var yehuda = { id: 1, firstName: 'Yehuda' };
+      var tom = { id: 2, firstName: 'Tom' };
+      var david = { id: 3, firstName: 'David' };
+      var brennain = { id: 4, firstName: 'Brennain' };
 
       run(function() {
         select.set('content', Ember.A([yehuda, tom, david, brennain]));
@@ -4439,8 +4443,8 @@ define("ember-handlebars/tests/controls/select_test",
     });
 
     test("a prompt can be specified", function() {
-      var yehuda = { id: 1, firstName: 'Yehuda' },
-          tom = { id: 2, firstName: 'Tom' };
+      var yehuda = { id: 1, firstName: 'Yehuda' };
+      var tom = { id: 2, firstName: 'Tom' };
 
       run(function() {
         select.set('content', Ember.A([yehuda, tom]));
@@ -4648,8 +4652,8 @@ define("ember-handlebars/tests/controls/select_test",
     });
 
     test("upon content change, the DOM should reflect the selection (#481)", function() {
-      var userOne = {name: 'Mike', options: Ember.A(['a', 'b']), selectedOption: 'a'},
-          userTwo = {name: 'John', options: Ember.A(['c', 'd']), selectedOption: 'd'};
+      var userOne = {name: 'Mike', options: Ember.A(['a', 'b']), selectedOption: 'a'};
+      var userTwo = {name: 'John', options: Ember.A(['c', 'd']), selectedOption: 'd'};
 
       view = EmberView.create({
         user: userOne,
@@ -4664,8 +4668,8 @@ define("ember-handlebars/tests/controls/select_test",
         view.appendTo('#qunit-fixture');
       });
 
-      var select = view.get('select'),
-          selectEl = select.$()[0];
+      var select = view.get('select');
+      var selectEl = select.$()[0];
 
       equal(select.get('selection'), 'a', "Precond: Initial selection is correct");
       equal(selectEl.selectedIndex, 0, "Precond: The DOM reflects the correct selection");
@@ -4679,8 +4683,8 @@ define("ember-handlebars/tests/controls/select_test",
     });
 
     test("upon content change with Array-like content, the DOM should reflect the selection", function() {
-      var tom = {id: 4, name: 'Tom'},
-          sylvain = {id: 5, name: 'Sylvain'};
+      var tom = {id: 4, name: 'Tom'};
+      var sylvain = {id: 5, name: 'Sylvain'};
 
       var proxy = ArrayProxy.create({
         content: Ember.A(),
@@ -4700,8 +4704,8 @@ define("ember-handlebars/tests/controls/select_test",
         view.appendTo('#qunit-fixture');
       });
 
-      var select = view.get('select'),
-          selectEl = select.$()[0];
+      var select = view.get('select');
+      var selectEl = select.$()[0];
 
       equal(selectEl.selectedIndex, -1, "Precond: The DOM reflects the lack of selection");
 
@@ -4724,8 +4728,8 @@ define("ember-handlebars/tests/controls/select_test",
         view.appendTo('#qunit-fixture');
       });
 
-      var select = view.get('select'),
-          selectEl = select.$()[0];
+      var select = view.get('select');
+      var selectEl = select.$()[0];
 
       equal(view.get('val'), 'g', "Precond: Initial bound property is correct");
       equal(select.get('value'), 'g', "Precond: Initial selection is correct");
@@ -5781,8 +5785,8 @@ define("ember-handlebars/tests/handlebars_test",
       run(function() { view.appendTo('#qunit-fixture'); });
     };
 
-    var originalLookup = Ember.lookup, lookup;
-    var TemplateTests, container;
+    var originalLookup = Ember.lookup;
+    var TemplateTests, container, lookup;
 
     /**
       This module specifically tests integration with Handlebars and Ember-specific
@@ -6087,8 +6091,8 @@ define("ember-handlebars/tests/handlebars_test",
     });
 
     test("using Handlebars helper that doesn't exist should result in an error", function() {
-      var names = [{ name: 'Alex' }, { name: 'Stef' }],
-          context = {
+      var names = [{ name: 'Alex' }, { name: 'Stef' }];
+      var context = {
             content: A(names)
           };
 
@@ -6689,8 +6693,9 @@ define("ember-handlebars/tests/handlebars_test",
 
       appendView();
 
-      var parentView = firstChild(view),
-          childView  = firstGrandchild(view);
+      var parentView = firstChild(view);
+      var childView  = firstGrandchild(view);
+
       equal(get(parentView, 'ohai'), childView);
     });
 
@@ -7265,8 +7270,8 @@ define("ember-handlebars/tests/handlebars_test",
 
     test("{{bindAttr}} is aliased to {{bind-attr}}", function() {
 
-      var originalBindAttr = EmberHandlebars.helpers['bind-attr'],
-        originalWarn = Ember.warn;
+      var originalBindAttr = EmberHandlebars.helpers['bind-attr'];
+      var originalWarn = Ember.warn;
 
       Ember.warn = function(msg) {
         equal(msg, "The 'bindAttr' view helper is deprecated in favor of 'bind-attr'", 'Warning called');
@@ -7601,8 +7606,9 @@ define("ember-handlebars/tests/handlebars_test",
     });
 
     test("should work with precompiled templates", function() {
-      var templateString = EmberHandlebars.precompile("{{view.value}}"),
-          compiledTemplate = EmberHandlebars.template(eval(templateString));
+      var templateString = EmberHandlebars.precompile("{{view.value}}");
+      var compiledTemplate = EmberHandlebars.template(eval(templateString));
+
       view = EmberView.create({
         value: "rendered",
         template: compiledTemplate
@@ -8807,7 +8813,8 @@ define("ember-handlebars/tests/helpers/debug_test",
     var EmberHandlebars = __dependency5__["default"];
     var logHelper = __dependency6__.logHelper;
 
-    var originalLookup = Ember.lookup, lookup;
+    var originalLookup = Ember.lookup;
+    var lookup;
     var originalLog, logCalls;
     var originalLogHelper;
     var view;
@@ -8920,7 +8927,8 @@ define("ember-handlebars/tests/helpers/each_test",
       return EmberHandlebars.compile(template);
     }
 
-    var originalLookup = Ember.lookup, lookup;
+    var originalLookup = Ember.lookup;
+    var lookup;
 
     QUnit.module("the #each helper", {
       setup: function() {
@@ -9173,8 +9181,8 @@ define("ember-handlebars/tests/helpers/each_test",
             controllerName: computed(function() {
               return "controller:" + get(this, 'model.name') + ' of ' + get(this, 'parentController.company');
             })
-          }),
-          parentController = {
+          });
+      var parentController = {
             container: container,
             company: 'Yapp'
           };
@@ -9201,8 +9209,8 @@ define("ember-handlebars/tests/helpers/each_test",
             controllerName: computed(function() {
               return "controller:" + get(this, 'model.name') + ' of ' + get(this, 'parentController.company');
             })
-          }),
-          PeopleController = ArrayController.extend({
+          });
+      var PeopleController = ArrayController.extend({
             model: people,
             itemController: 'person',
             company: 'Yapp'
@@ -9229,16 +9237,16 @@ define("ember-handlebars/tests/helpers/each_test",
             controllerName: computed(function() {
               return "controller:" + get(this, 'model.name') + ' of ' + get(this, 'parentController.company');
             })
-          }),
-          PeopleController = ArrayController.extend({
+          });
+      var PeopleController = ArrayController.extend({
             model: people,
             itemController: 'person',
             parentController: computed(function(){
               return this.container.lookup('controller:company');
             }),
             company: 'Yapp'
-          }),
-          CompanyController = EmberController.extend();
+          });
+       var CompanyController = EmberController.extend();
 
       container.register('controller:company', CompanyController);
       container.register('controller:people', PeopleController);
@@ -9455,8 +9463,8 @@ define("ember-handlebars/tests/helpers/each_test",
     test("#each accepts a name binding and does not change the context", function() {
       var controller = EmberController.create({
         name: 'bob the controller'
-      }),
-      obj = EmberObject.create({
+      });
+      var obj = EmberObject.create({
         name: 'henry the item'
       });
 
@@ -9625,14 +9633,14 @@ define("ember-handlebars/tests/helpers/each_test",
             controllerName: computed(function() {
               return "controller:" + get(this, 'model.name') + ' of ' + get(this, 'parentController.company');
             })
-          }),
-          PeopleController = ArrayController.extend({
+          });
+      var PeopleController = ArrayController.extend({
             model: people,
             itemController: 'person',
             company: 'Yapp',
             controllerName: 'controller:people'
-          }),
-          container = new Container();
+          });
+      var container = new Container();
 
       container.register('controller:people', PeopleController);
       container.register('controller:person', PersonController);
@@ -10250,8 +10258,8 @@ define("ember-handlebars/tests/helpers/partial_test",
 
     var compile = EmberHandlebars.compile;
 
-    var MyApp;
-    var originalLookup = Ember.lookup, lookup, TemplateTests, view, container;
+    var MyApp, lookup, TemplateTests, view, container;
+    var originalLookup = Ember.lookup;
 
     QUnit.module("Support for {{partial}} helper", {
       setup: function() {
@@ -10370,8 +10378,8 @@ define("ember-handlebars/tests/helpers/template_test",
     var Container = __dependency5__["default"];
     var EmberHandlebars = __dependency6__["default"];
 
-    var MyApp;
-    var originalLookup = Ember.lookup, lookup, TemplateTests, view, container;
+    var MyApp, lookup, TemplateTests, view, container;
+    var originalLookup = Ember.lookup;
 
     QUnit.module("Support for {{template}} helper", {
       setup: function() {
@@ -10460,9 +10468,8 @@ define("ember-handlebars/tests/helpers/unbound_test",
       run(function() { view.appendTo('#qunit-fixture'); });
     }
 
-    var view;
-    var originalLookup = Ember.lookup, lookup;
-    var container;
+    var view, lookup, container;
+    var originalLookup = Ember.lookup;
 
     QUnit.module("Handlebars {{#unbound}} helper -- classic single-property usage", {
       setup: function() {
@@ -11010,8 +11017,8 @@ define("ember-handlebars/tests/helpers/with_test",
       run(function() { view.appendTo('#qunit-fixture'); });
     }
 
-    var view;
-    var originalLookup = Ember.lookup, lookup;
+    var view, lookup;
+    var originalLookup = Ember.lookup;
 
     QUnit.module("Handlebars {{#with}} helper", {
       setup: function() {
@@ -11500,7 +11507,8 @@ define("ember-handlebars/tests/helpers/yield_test",
     var Component = __dependency10__["default"];
     var EmberError = __dependency11__["default"];
 
-    var originalLookup = Ember.lookup, lookup, TemplateTests, view, container;
+    var originalLookup = Ember.lookup;
+    var lookup, TemplateTests, view, container;
 
     QUnit.module("Support for {{yield}} helper", {
       setup: function() {
@@ -11566,7 +11574,8 @@ define("ember-handlebars/tests/helpers/yield_test",
         layout: EmberHandlebars.compile('<div class="times">{{#each view.index}}{{yield}}{{/each}}</div>'),
         n: null,
         index: computed(function() {
-          var n = get(this, 'n'), indexArray = A();
+          var n = get(this, 'n');
+          var indexArray = A();
           for (var i=0; i < n; i++) {
             indexArray[i] = i;
           }
@@ -11906,7 +11915,8 @@ define("ember-handlebars/tests/loader_test",
     var EmberView = __dependency3__["default"];
     var trim = jQuery.trim;
 
-    var originalLookup = Ember.lookup, lookup, Tobias, App, view;
+    var originalLookup = Ember.lookup;
+    var lookup, Tobias, App, view;
 
     QUnit.module("test Ember.Handlebars.bootstrap", {
       setup: function() {
@@ -12250,7 +12260,8 @@ define("ember-handlebars/tests/views/collection_view_test",
 
     var firstChild = nthChild;
 
-    var originalLookup = Ember.lookup, lookup, TemplateTests, view;
+    var originalLookup = Ember.lookup;
+    var lookup, TemplateTests, view;
 
     QUnit.module("ember-handlebars/tests/views/collection_view_test", {
       setup: function() {
