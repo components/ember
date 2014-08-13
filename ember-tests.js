@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.42f9a06f
+ * @version   1.8.0-beta.1+canary.a932ae26
  */
 
 (function() {
@@ -14466,7 +14466,9 @@ define("ember-metal/tests/binding/sync_test",
     QUnit.module("system/binding/sync_test.js");
 
     testBoth("bindings should not sync twice in a single run loop", function(get, set) {
-      var a, b, setValue, setCalled=0, getCalled=0;
+      var a, b, setValue;
+      var setCalled=0;
+      var getCalled=0;
 
       run(function() {
         a = {};
@@ -15285,7 +15287,8 @@ define("ember-metal/tests/computed_test",
     });
 
     testBoth("when setting a value after it had been retrieved empty don't pass function UNDEFINED as oldValue", function(get, set) {
-        var obj = {}, oldValueIsNoFunction = true;
+        var obj = {};
+        var oldValueIsNoFunction = true;
 
         defineProperty(obj, 'foo', computed(function(key, value, oldValue) {
             if(typeof oldValue === 'function') {
@@ -15319,12 +15322,12 @@ define("ember-metal/tests/computed_test",
           return get(this, 'firstName') + ' ' + get(this, 'lastName');
         }).property('firstName', 'lastName')
       );
-      var fullNameWillChange = 0,
-          fullNameDidChange = 0,
-          firstNameWillChange = 0,
-          firstNameDidChange = 0,
-          lastNameWillChange = 0,
-          lastNameDidChange = 0;
+      var fullNameWillChange = 0;
+      var fullNameDidChange = 0;
+      var firstNameWillChange = 0;
+      var firstNameDidChange = 0;
+      var lastNameWillChange = 0;
+      var lastNameDidChange = 0;
       addBeforeObserver(obj, 'fullName', function () {
         fullNameWillChange++;
       });
@@ -15375,8 +15378,8 @@ define("ember-metal/tests/computed_test",
           return get(this, 'foo') + 1;
         }).property('foo')
       );
-      var plusOneWillChange = 0,
-          plusOneDidChange = 0;
+      var plusOneWillChange = 0;
+      var plusOneDidChange = 0;
       addBeforeObserver(obj, 'plusOne', function () {
         plusOneWillChange++;
       });
@@ -15403,7 +15406,8 @@ define("ember-metal/tests/computed_test",
     QUnit.module('computed - default setter');
 
     testBoth("when setting a value on a computed property that doesn't handle sets", function(get, set) {
-      var obj = {}, observerFired = false;
+      var obj = {};
+      var observerFired = false;
 
       defineProperty(obj, 'foo', computed(function() {
         return 'foo';
@@ -15900,7 +15904,8 @@ define("ember-metal/tests/enumerable_utils_test",
     QUnit.module('Ember.EnumerableUtils.intersection');
 
     test('returns an array of objects that appear in both enumerables', function() {
-      var a = [1,2,3], b = [2,3,4], result;
+      var a = [1,2,3];
+      var b = [2,3,4], result;
 
       result = EnumerableUtils.intersection(a, b);
 
@@ -15971,7 +15976,8 @@ define("ember-metal/tests/events_test",
     QUnit.module('system/props/events_test');
 
     test('listener should receive event - removing should remove', function() {
-      var obj = {}, count = 0;
+      var obj = {};
+      var count = 0;
       var F = function() { count++; };
 
       addListener(obj, 'event!', F);
@@ -15988,7 +15994,8 @@ define("ember-metal/tests/events_test",
     });
 
     test('listeners should be inherited', function() {
-      var obj = {}, count = 0;
+      var obj = {};
+      var count = 0;
       var F = function() { count++; };
 
       addListener(obj, 'event!', F);
@@ -16014,7 +16021,8 @@ define("ember-metal/tests/events_test",
 
     test('adding a listener more than once should only invoke once', function() {
 
-      var obj = {}, count = 0;
+      var obj = {};
+      var count = 0;
       var F = function() { count++; };
       addListener(obj, 'event!', F);
       addListener(obj, 'event!', F);
@@ -16090,7 +16098,8 @@ define("ember-metal/tests/events_test",
 
     test('calling sendEvent with extra params should be passed to listeners', function() {
 
-      var obj = {}, params = null;
+      var obj = {};
+      var params = null;
       addListener(obj, 'event!', function() {
         params = Array.prototype.slice.call(arguments);
       });
@@ -16118,7 +16127,9 @@ define("ember-metal/tests/events_test",
 
     test('hasListeners tells you if there are listeners for a given event', function() {
 
-      var obj = {}, F = function() {}, F2 = function() {};
+      var obj = {};
+      var F = function() {};
+      var F2 = function() {};
 
       equal(hasListeners(obj, 'event!'), false, 'no listeners at first');
 
@@ -16138,7 +16149,9 @@ define("ember-metal/tests/events_test",
     });
 
     test('calling removeListener without method should remove all listeners', function() {
-      var obj = {}, F = function() {}, F2 = function() {};
+      var obj = {};
+      var F = function() {};
+      var F2 = function() {};
 
       equal(hasListeners(obj, 'event!'), false, 'no listeners at first');
 
@@ -16427,7 +16440,8 @@ define("ember-metal/tests/instrumentation_test",
     test("subscribing to a simple path receives the listener", function() {
       expect(12);
 
-      var sentPayload = {}, count = 0;
+      var sentPayload = {};
+      var count = 0;
 
       subscribe("render", {
         before: function(name, timestamp, payload) {
@@ -16467,7 +16481,8 @@ define("ember-metal/tests/instrumentation_test",
     test("returning a value from the before callback passes it to the after callback", function() {
       expect(2);
 
-      var passthru1 = {}, passthru2 = {};
+      var passthru1 = {};
+      var passthru2 = {};
 
       subscribe("render", {
         before: function(name, timestamp, payload) {
@@ -16571,8 +16586,9 @@ define("ember-metal/tests/is_blank_test",
     QUnit.module("Ember.isBlank");
 
     test("Ember.isBlank", function() {
-      var string = "string", fn = function() {},
-      object = {length: 0};
+      var string = "string";
+      var fn = function() {};
+      var object = {length: 0};
 
       equal(true,  isBlank(null),      "for null");
       equal(true,  isBlank(undefined), "for undefined");
@@ -16609,8 +16625,9 @@ define("ember-metal/tests/is_empty_test",
     QUnit.module("Ember.isEmpty");
 
     test("Ember.isEmpty", function() {
-      var string = "string", fn = function() {},
-          object = {length: 0};
+      var string = "string";
+      var fn = function() {};
+      var object = {length: 0};
 
       equal(true,  isEmpty(null),      "for null");
       equal(true,  isEmpty(undefined), "for undefined");
@@ -16643,7 +16660,8 @@ define("ember-metal/tests/is_none_test",
     QUnit.module("Ember.isNone");
 
     test("Ember.isNone", function() {
-      var string = "string", fn = function() {};
+      var string = "string";
+      var fn = function() {};
 
       equal(true,  isNone(null),      "for null");
       equal(true,  isNone(undefined), "for undefined");
@@ -16676,8 +16694,9 @@ define("ember-metal/tests/is_present_test",
       QUnit.module("Ember.isPresent");
 
       test("Ember.isPresent", function() {
-        var string = "string", fn = function() {},
-        object = {length: 0};
+        var string = "string";
+        var fn = function() {};
+        var object = {length: 0};
 
         equal(false, isPresent(),          "for no params");
         equal(false, isPresent(null),      "for null");
@@ -17248,8 +17267,8 @@ define("ember-metal/tests/mixin/computed_test",
       var SuperMixin, SubMixin;
       var obj;
 
-      var superGetOccurred = false,
-          superSetOccurred = false;
+      var superGetOccurred = false;
+      var superSetOccurred = false;
 
       SuperMixin = Mixin.create({
         aProp: computed(function(key, val) {
@@ -18363,7 +18382,8 @@ define("ember-metal/tests/observer_test",
     });
 
     testBoth('observer should continue to fire after dependent properties are accessed', function(get, set) {
-      var observerCount = 0, obj = {};
+      var observerCount = 0;
+      var obj = {};
 
       defineProperty(obj, 'prop', Ember.computed(function () { return Math.random(); }));
       defineProperty(obj, 'anotherProp', Ember.computed('prop', function () { return get(this, 'prop') + Math.random(); }));
@@ -18478,7 +18498,8 @@ define("ember-metal/tests/observer_test",
 
     testBoth('nested observers should fire in order', function(get,set) {
       var obj = { foo: 'foo', bar: 'bar' };
-      var fooCount = 0, barCount = 0;
+      var fooCount = 0;
+      var barCount = 0;
 
       addObserver(obj, 'foo' ,function() { fooCount++; });
       addObserver(obj, 'bar', function() {
@@ -18494,9 +18515,16 @@ define("ember-metal/tests/observer_test",
     });
 
     testBoth('removing an chain observer on change should not fail', function(get,set) {
-      var foo = { bar: 'bar' },
-        obj1 = { foo: foo }, obj2 = { foo: foo }, obj3 = { foo: foo }, obj4 = { foo: foo },
-        count1=0, count2=0, count3=0, count4=0;
+      var foo = { bar: 'bar' };
+      var obj1 = { foo: foo };
+      var obj2 = { foo: foo };
+      var obj3 = { foo: foo };
+      var obj4 = { foo: foo };
+      var count1=0;
+      var count2=0;
+      var count3=0;
+      var count4=0;
+
       function observer1() { count1++; }
       function observer2() { count2++; }
       function observer3() {
@@ -18521,9 +18549,16 @@ define("ember-metal/tests/observer_test",
     });
 
     testBoth('removing an chain before observer on change should not fail', function(get,set) {
-      var foo = { bar: 'bar' },
-        obj1 = { foo: foo }, obj2 = { foo: foo }, obj3 = { foo: foo }, obj4 = { foo: foo },
-        count1=0, count2=0, count3=0, count4=0;
+      var foo = { bar: 'bar' };
+      var obj1 = { foo: foo };
+      var obj2 = { foo: foo };
+      var obj3 = { foo: foo };
+      var obj4 = { foo: foo };
+      var count1=0;
+      var count2=0;
+      var count3=0;
+      var count4=0;
+
       function observer1() { count1++; }
       function observer2() { count2++; }
       function observer3() {
@@ -18752,7 +18787,8 @@ define("ember-metal/tests/observer_test",
     });
 
     testBoth('implementing sendEvent on object should invoke when deferring property change notifications ends', function(get, set) {
-      var count = 0, events = [];
+      var count = 0;
+      var events = [];
       var obj = {
         sendEvent: function(eventName) {
           events.push(eventName);
@@ -19320,9 +19356,8 @@ define("ember-metal/tests/observer_test",
     QUnit.module("Ember.immediateObserver");
 
     testBoth("immediate observers should fire synchronously", function(get, set) {
-      var obj = {},
-          observerCalled = 0,
-          mixin;
+      var obj = {};
+      var observerCalled = 0, mixin;
 
       // explicitly create a run loop so we do not inadvertently
       // trigger deferred behavior
@@ -19355,9 +19390,8 @@ define("ember-metal/tests/observer_test",
 
     if (Ember.EXTEND_PROTOTYPES) {
       testBoth('immediate observers added declaratively via brace expansion fire synchronously', function (get, set) {
-        var obj = {},
-        observerCalled = 0,
-        mixin;
+        var obj = {};
+        var observerCalled = 0, mixin;
 
         // explicitly create a run loop so we do not inadvertently
         // trigger deferred behavior
@@ -19389,9 +19423,8 @@ define("ember-metal/tests/observer_test",
     }
 
     testBoth('immediate observers watching multiple properties via brace expansion fire synchronously', function (get, set) {
-      var obj = {},
-      observerCalled = 0,
-      mixin;
+      var obj = {};
+      var observerCalled = 0, mixin;
 
       // explicitly create a run loop so we do not inadvertently
       // trigger deferred behavior
@@ -19530,7 +19563,8 @@ define("ember-metal/tests/performance_test",
 
     test("computed properties that depend on multiple properties should run only once per run loop", function() {
       var obj = {a: 'a', b: 'b', c: 'c'};
-      var cpCount = 0, obsCount = 0;
+      var cpCount = 0;
+      var obsCount = 0;
 
       defineProperty(obj, 'abc', computed(function(key) {
         cpCount++;
@@ -19715,7 +19749,10 @@ define("ember-metal/tests/platform/defineProperty_test",
     // and setters don't do anything
     if (platform.hasPropertyAccessors) {
       test('defining a getter/setter', function() {
-        var obj = {}, getCnt = 0, setCnt = 0, v = 'FOO';
+        var obj = {};
+        var getCnt = 0;
+        var setCnt = 0;
+        var v = 'FOO';
 
         var desc = {
           enumerable: true,
@@ -20371,7 +20408,8 @@ define("ember-metal/tests/run_loop/once_test",
 
     test('should differentiate based on target', function() {
 
-      var A = { count: 0 }, B = { count: 0 };
+      var A = { count: 0 };
+      var B = { count: 0 };
       run(function() {
         var F = function() { this.count++; };
         run.once(A, F);
@@ -20387,7 +20425,8 @@ define("ember-metal/tests/run_loop/once_test",
 
     test('should ignore other arguments - replacing previous ones', function() {
 
-      var A = { count: 0 }, B = { count: 0 };
+      var A = { count: 0 };
+      var B = { count: 0 };
       run(function() {
         var F = function(amt) { this.count += amt; };
         run.once(A, F, 10);
@@ -20828,7 +20867,8 @@ define("ember-metal/tests/utils/guidFor_test",
     };
 
     test("Object", function() {
-      var a = {}, b = {};
+      var a = {};
+      var b = {};
 
       sameGuid( a, a, "same object always yields same guid" );
       diffGuid( a, b, "different objects yield different guids" );
@@ -20852,7 +20892,9 @@ define("ember-metal/tests/utils/guidFor_test",
     });
 
     test("strings", function() {
-      var a = "string A", aprime = "string A", b = "String B";
+      var a = "string A";
+      var aprime = "string A";
+      var b = "String B";
 
       sameGuid( a, a,      "same string always yields same guid" );
       sameGuid( a, aprime, "identical strings always yield the same guid" );
@@ -20861,7 +20903,9 @@ define("ember-metal/tests/utils/guidFor_test",
     });
 
     test("numbers", function() {
-      var a = 23, aprime = 23, b = 34;
+      var a = 23;
+      var aprime = 23;
+      var b = 34;
 
       sameGuid( a, a,      "same numbers always yields same guid" );
       sameGuid( a, aprime, "identical numbers always yield the same guid" );
@@ -20870,7 +20914,9 @@ define("ember-metal/tests/utils/guidFor_test",
     });
 
     test("numbers", function() {
-      var a = true, aprime = true, b = false;
+      var a = true;
+      var aprime = true;
+      var b = false;
 
       sameGuid( a, a,      "same booleans always yields same guid" );
       sameGuid( a, aprime, "identical booleans always yield the same guid" );
@@ -20880,7 +20926,9 @@ define("ember-metal/tests/utils/guidFor_test",
     });
 
     test("null and undefined", function() {
-      var a = null, aprime = null, b;
+      var a = null;
+      var aprime = null;
+      var b;
 
       sameGuid( a, a,      "null always returns the same guid" );
       sameGuid( b, b,      "undefined always returns the same guid" );
@@ -20891,7 +20939,9 @@ define("ember-metal/tests/utils/guidFor_test",
     });
 
     test("arrays", function() {
-      var a = ["a", "b", "c"], aprime = ["a", "b", "c"], b = ["1", "2", "3"];
+      var a = ["a", "b", "c"];
+      var aprime = ["a", "b", "c"];
+      var b = ["1", "2", "3"];
 
       sameGuid( a, a,      "same instance always yields same guid" );
       diffGuid( a, aprime, "identical arrays always yield the same guid" );
@@ -20918,13 +20968,13 @@ define("ember-metal/tests/utils/is_array_test",
     var global = this;
 
     test("Ember.isArray" ,function() {
-      var numarray      = [1,2,3],
-          number        = 23,
-          strarray      = ["Hello", "Hi"],
-          string        = "Hello",
-          object        = {},
-          length        = {length: 12},
-          fn            = function() {};
+      var numarray      = [1,2,3];
+      var number        = 23;
+      var strarray      = ["Hello", "Hi"];
+      var string        = "Hello";
+      var object        = {};
+      var length        = {length: 12};
+      var fn            = function() {};
 
       equal( isArray(numarray), true,  "[1,2,3]" );
       equal( isArray(number),   false, "23" );
@@ -21327,10 +21377,10 @@ define("ember-metal/tests/utils/type_of_test",
       var MockedDate = function() { };
       MockedDate.prototype = new Date();
 
-      var mockedDate  = new MockedDate(),
-          date        = new Date(),
-          error       = new Error('boum'),
-          object      = {a: 'b'};
+      var mockedDate  = new MockedDate();
+      var date        = new Date();
+      var error       = new Error('boum');
+      var object      = {a: 'b'};
 
       equal( typeOf(),            'undefined',  "undefined");
       equal( typeOf(null),        'null',       "null");
@@ -21345,8 +21395,8 @@ define("ember-metal/tests/utils/type_of_test",
       equal( typeOf(object),      'object',     "object");
 
       if(Ember.Object) {
-        var klass       = Ember.Object.extend(),
-            instance    = Ember.Object.create();
+        var klass       = Ember.Object.extend();
+        var instance    = Ember.Object.create();
 
         equal( Ember.typeOf(klass),     'class',      "class");
         equal( Ember.typeOf(instance),  'instance',   "instance");
@@ -21377,7 +21427,8 @@ define("ember-metal/tests/watching/isWatching_test",
     QUnit.module('isWatching');
 
     function testObserver(setup, teardown, key) {
-      var obj = {}, fn = function() {};
+      var obj = {};
+      var fn = function() {};
       key = key || 'foo';
 
       equal(isWatching(obj, key), false, "precond - isWatching is false by default");

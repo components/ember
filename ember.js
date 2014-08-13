@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.42f9a06f
+ * @version   1.8.0-beta.1+canary.a932ae26
  */
 
 (function() {
@@ -10796,10 +10796,9 @@ define("ember-metal/array",
     });
 
     var filter = defineNativeShim(ArrayPrototype.filter, function (fn, context) {
-      var i,
-          value,
-          result = [],
-          length = this.length;
+      var i, value;
+      var result = [];
+      var length = this.length;
 
       for (i = 0; i < length; i++) {
         if (this.hasOwnProperty(i)) {
@@ -10996,7 +10995,8 @@ define("ember-metal/binding",
       connect: function(obj) {
         Ember.assert('Must pass a valid object to Ember.Binding.connect()', !!obj);
 
-        var fromPath = this._from, toPath = this._to;
+        var fromPath = this._from;
+        var toPath = this._to;
         trySet(obj, toPath, getWithGlobals(obj, fromPath));
 
         // add an observer on the object to be notified when the binding should be updated
@@ -11076,7 +11076,8 @@ define("ember-metal/binding",
         var directionMap = this._directionMap;
         var direction = directionMap.get(obj);
 
-        var fromPath = this._from, toPath = this._to;
+        var fromPath = this._from;
+        var toPath = this._to;
 
         directionMap.remove(obj);
 
@@ -11124,7 +11125,8 @@ define("ember-metal/binding",
         @static
       */
       from: function() {
-        var C = this, binding = new C();
+        var C = this;
+        var binding = new C();
         return binding.from.apply(binding, arguments);
       },
 
@@ -11135,7 +11137,8 @@ define("ember-metal/binding",
         @static
       */
       to: function() {
-        var C = this, binding = new C();
+        var C = this;
+        var binding = new C();
         return binding.to.apply(binding, arguments);
       },
 
@@ -11156,7 +11159,8 @@ define("ember-metal/binding",
         @return {Ember.Binding} `this`
       */
       oneWay: function(from, flag) {
-        var C = this, binding = new C(null, from);
+        var C = this;
+        var binding = new C(null, from);
         return binding.oneWay(flag);
       }
 
@@ -11400,9 +11404,9 @@ define("ember-metal/chains",
     var watchKey = __dependency5__.watchKey;
     var unwatchKey = __dependency5__.unwatchKey;
 
-    var metaFor = meta,
-        warn = Ember.warn,
-        FIRST_KEY = /^([^\.]+)/;
+    var metaFor = meta;
+    var warn = Ember.warn;
+    var FIRST_KEY = /^([^\.]+)/;
 
     function firstKey(path) {
       return path.match(FIRST_KEY)[0];
@@ -11427,7 +11431,8 @@ define("ember-metal/chains",
     __exports__.flushPendingChains = flushPendingChains;function addChainWatcher(obj, keyName, node) {
       if (!obj || ('object' !== typeof obj)) { return; } // nothing to do
 
-      var m = metaFor(obj), nodes = m.chainWatchers;
+      var m = metaFor(obj);
+      var nodes = m.chainWatchers;
 
       if (!m.hasOwnProperty('chainWatchers')) {
         nodes = m.chainWatchers = {};
@@ -11532,8 +11537,10 @@ define("ember-metal/chains",
 
     // copies a top level object only
     ChainNodePrototype.copy = function(obj) {
-      var ret = new ChainNode(null, null, obj),
-          paths = this._paths, path;
+      var ret = new ChainNode(null, null, obj);
+      var paths = this._paths;
+      var path;
+
       for (path in paths) {
         if (paths[path] <= 0) { continue; } // this check will also catch non-number vals.
         ret.add(path);
@@ -11619,7 +11626,8 @@ define("ember-metal/chains",
     };
 
     ChainNodePrototype.unchain = function(key, path) {
-      var chains = this._chains, node = chains[key];
+      var chains = this._chains;
+      var node = chains[key];
 
       // unchain rest of path first...
       if (path && path.length>1) {
@@ -11753,8 +11761,8 @@ define("ember-metal/computed",
     Ember.warn("The CP_DEFAULT_CACHEABLE flag has been removed and computed properties are always cached by default. Use `volatile` if you don't want caching.", Ember.ENV.CP_DEFAULT_CACHEABLE !== false);
 
 
-    var metaFor = meta,
-        a_slice = [].slice;
+    var metaFor = meta;
+    var a_slice = [].slice;
 
     function UNDEFINED() { }
 
@@ -12994,7 +13002,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.42f9a06f
+      @version 1.8.0-beta.1+canary.a932ae26
     */
 
     if ('undefined' === typeof Ember) {
@@ -13021,10 +13029,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.42f9a06f'
+      @default '1.8.0-beta.1+canary.a932ae26'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.42f9a06f';
+    Ember.VERSION = '1.8.0-beta.1+canary.a932ae26';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -13581,10 +13589,12 @@ define("ember-metal/events",
     var applyStr = __dependency2__.applyStr;
     var create = __dependency3__.create;
 
-    var a_slice = [].slice,
-        metaFor = meta,
-        /* listener flags */
-        ONCE = 1, SUSPENDED = 2;
+    var a_slice = [].slice;
+    var metaFor = meta;
+
+    /* listener flags */
+    var ONCE = 1;
+    var SUSPENDED = 2;
 
 
     /*
@@ -13642,15 +13652,15 @@ define("ember-metal/events",
     }
 
     function listenersUnion(obj, eventName, otherActions) {
-      var meta = obj['__ember_meta__'],
-          actions = meta && meta.listeners && meta.listeners[eventName];
+      var meta = obj['__ember_meta__'];
+      var actions = meta && meta.listeners && meta.listeners[eventName];
 
       if (!actions) { return; }
       for (var i = actions.length - 3; i >= 0; i -= 3) {
-        var target = actions[i],
-            method = actions[i+1],
-            flags = actions[i+2],
-            actionIndex = indexOf(otherActions, target, method);
+        var target = actions[i];
+        var method = actions[i+1];
+        var flags = actions[i+2];
+        var actionIndex = indexOf(otherActions, target, method);
 
         if (actionIndex === -1) {
           otherActions.push(target, method, flags);
@@ -13665,10 +13675,10 @@ define("ember-metal/events",
 
       if (!actions) { return; }
       for (var i = actions.length - 3; i >= 0; i -= 3) {
-        var target = actions[i],
-            method = actions[i+1],
-            flags = actions[i+2],
-            actionIndex = indexOf(otherActions, target, method);
+        var target = actions[i];
+        var method = actions[i+1];
+        var flags = actions[i+2];
+        var actionIndex = indexOf(otherActions, target, method);
 
         if (actionIndex !== -1) { continue; }
 
@@ -13698,9 +13708,9 @@ define("ember-metal/events",
         target = null;
       }
 
-      var actions = actionsFor(obj, eventName),
-          actionIndex = indexOf(actions, target, method),
-          flags = 0;
+      var actions = actionsFor(obj, eventName);
+      var actionIndex = indexOf(actions, target, method);
+      var flags = 0;
 
       if (once) flags |= ONCE;
 
@@ -13734,8 +13744,8 @@ define("ember-metal/events",
       }
 
       function _removeListener(target, method) {
-        var actions = actionsFor(obj, eventName),
-            actionIndex = indexOf(actions, target, method);
+        var actions = actionsFor(obj, eventName);
+        var actionIndex = indexOf(actions, target, method);
 
         // action doesn't exist, give up silently
         if (actionIndex === -1) { return; }
@@ -13750,8 +13760,8 @@ define("ember-metal/events",
       if (method) {
         _removeListener(target, method);
       } else {
-        var meta = obj['__ember_meta__'],
-            actions = meta && meta.listeners && meta.listeners[eventName];
+        var meta = obj['__ember_meta__'];
+        var actions = meta && meta.listeners && meta.listeners[eventName];
 
         if (!actions) { return; }
         for (var i = actions.length - 3; i >= 0; i -= 3) {
@@ -13784,8 +13794,8 @@ define("ember-metal/events",
         target = null;
       }
 
-      var actions = actionsFor(obj, eventName),
-          actionIndex = indexOf(actions, target, method);
+      var actions = actionsFor(obj, eventName);
+      var actionIndex = indexOf(actions, target, method);
 
       if (actionIndex !== -1) {
         actions[actionIndex+2] |= SUSPENDED; // mark the action as suspended
@@ -13994,8 +14004,8 @@ define("ember-metal/expand_properties",
       @module ember-metal
       */
 
-    var BRACE_EXPANSION = /^((?:[^\.]*\.)*)\{(.*)\}$/,
-        SPLIT_REGEX = /\{|\}/;
+    var BRACE_EXPANSION = /^((?:[^\.]*\.)*)\{(.*)\}$/;
+    var SPLIT_REGEX = /\{|\}/;
 
     /**
       Expands `pattern`, invoking `callback` for each expansion.
@@ -14050,8 +14060,8 @@ define("ember-metal/expand_properties",
 
     function newExpandProperties(pattern, callback) {
       if ('string' === Ember.typeOf(pattern)) {
-        var parts = pattern.split(SPLIT_REGEX),
-            properties = [parts];
+        var parts = pattern.split(SPLIT_REGEX);
+        var properties = [parts];
 
         forEach(parts, function(part, index) {
           if (part.indexOf(',') >= 0) {
@@ -14177,7 +14187,8 @@ define("ember-metal/instrumentation",
       @namespace Ember
       @static
     */
-    var subscribers = [], cache = {};
+    var subscribers = [];
+    var cache = {};
 
     var populateListeners = function(name) {
       var listeners = [], subscriber;
@@ -15197,13 +15208,13 @@ define("ember-metal/mixin",
     var addListener = __dependency11__.addListener;
     var removeListener = __dependency11__.removeListener;
 
-    var REQUIRED,
-        a_map = map,
-        a_indexOf = indexOf,
-        a_forEach = forEach,
-        a_slice = [].slice,
-        o_create = create,
-        metaFor = meta;
+    var REQUIRED;
+    var a_map = map;
+    var a_indexOf = indexOf;
+    var a_forEach = forEach;
+    var a_slice = [].slice;
+    var o_create = create;
+    var metaFor = meta;
 
     function superFunction(){
       var ret, func = this.__nextSuper;
@@ -15216,7 +15227,8 @@ define("ember-metal/mixin",
     }
 
     function mixinsMeta(obj) {
-      var m = metaFor(obj, true), ret = m.mixins;
+      var m = metaFor(obj, true);
+      var ret = m.mixins;
       if (!ret) {
         ret = m.mixins = {};
       } else if (!m.hasOwnProperty('mixins')) {
@@ -15340,8 +15352,8 @@ define("ember-metal/mixin",
 
       if (!baseValue) { return value; }
 
-      var newBase = merge({}, baseValue),
-          hasFunction = false;
+      var newBase = merge({}, baseValue);
+      var hasFunction = false;
 
       for (var prop in value) {
         if (!value.hasOwnProperty(prop)) { continue; }
@@ -15513,8 +15525,11 @@ define("ember-metal/mixin",
     }
 
     function applyMixin(obj, mixins, partial) {
-      var descs = {}, values = {}, m = metaFor(obj),
-          key, value, desc, keys = [];
+      var descs = {};
+      var values = {};
+      var m = metaFor(obj);
+      var keys = [];
+      var key, value, desc;
 
       obj._super = superFunction;
 
@@ -15673,7 +15688,8 @@ define("ember-metal/mixin",
         this.mixins = [];
       }
 
-      var len = arguments.length, mixins = this.mixins, idx;
+      var len = arguments.length;
+      var mixins = this.mixins, idx;
 
       for(idx=0; idx < len; idx++) {
         mixin = arguments[idx];
@@ -15712,7 +15728,8 @@ define("ember-metal/mixin",
       seen[guid] = true;
 
       if (curMixin === targetMixin) { return true; }
-      var mixins = curMixin.mixins, loc = mixins ? mixins.length : 0;
+      var mixins = curMixin.mixins;
+      var loc = mixins ? mixins.length : 0;
       while (--loc >= 0) {
         if (_detect(mixins[loc], targetMixin, seen)) { return true; }
       }
@@ -15727,8 +15744,8 @@ define("ember-metal/mixin",
     MixinPrototype.detect = function(obj) {
       if (!obj) { return false; }
       if (obj instanceof Mixin) { return _detect(obj, this, {}); }
-      var m = obj['__ember_meta__'],
-          mixins = m && m.mixins;
+      var m = obj['__ember_meta__'];
+      var mixins = m && m.mixins;
       if (mixins) {
         return !!mixins[guidFor(this)];
       }
@@ -15756,7 +15773,9 @@ define("ember-metal/mixin",
     }
 
     MixinPrototype.keys = function() {
-      var keys = {}, seen = {}, ret = [];
+      var keys = {};
+      var seen = {};
+      var ret = [];
       _keys(keys, this, seen);
       for(var key in keys) {
         if (keys.hasOwnProperty(key)) { ret.push(key); }
@@ -15767,8 +15786,9 @@ define("ember-metal/mixin",
     // returns the mixins currently applied to the specified object
     // TODO: Make Ember.mixin
     Mixin.mixins = function(obj) {
-      var m = obj['__ember_meta__'],
-          mixins = m && m.mixins, ret = [];
+      var m = obj['__ember_meta__'];
+      var mixins = m && m.mixins;
+      var ret = [];
 
       if (!mixins) { return ret; }
 
@@ -16139,11 +16159,11 @@ define("ember-metal/observer_set",
 
 
     ObserverSet.prototype.add = function(sender, keyName, eventName) {
-      var observerSet = this.observerSet,
-          observers = this.observers,
-          senderGuid = guidFor(sender),
-          keySet = observerSet[senderGuid],
-          index;
+      var observerSet = this.observerSet;
+      var observers = this.observers;
+      var senderGuid = guidFor(sender);
+      var keySet = observerSet[senderGuid];
+      var index;
 
       if (!keySet) {
         observerSet[senderGuid] = keySet = {};
@@ -16733,7 +16753,8 @@ define("ember-metal/property_events",
 
       var deps;
       if (meta && meta.deps && (deps = meta.deps[depKey])) {
-        var seen = WILL_SEEN, top = !seen;
+        var seen = WILL_SEEN;
+        var top = !seen;
         if (top) { seen = WILL_SEEN = {}; }
         iterDeps(propertyWillChange, obj, deps, depKey, seen, meta);
         if (top) { WILL_SEEN = null; }
@@ -16746,7 +16767,8 @@ define("ember-metal/property_events",
 
       var deps;
       if (meta && meta.deps && (deps = meta.deps[depKey])) {
-        var seen = DID_SEEN, top = !seen;
+        var seen = DID_SEEN;
+        var top = !seen;
         if (top) { seen = DID_SEEN = {}; }
         iterDeps(propertyDidChange, obj, deps, depKey, seen, meta);
         if (top) { DID_SEEN = null; }
@@ -16969,7 +16991,8 @@ define("ember-metal/property_get",
         return value;
       }
 
-      var meta = obj['__ember_meta__'], desc = meta && meta.descs[keyName], ret;
+      var meta = obj['__ember_meta__'];
+      var desc = meta && meta.descs[keyName], ret;
 
       if (desc === undefined && isPath(keyName)) {
         return _getPath(obj, keyName);
@@ -17122,7 +17145,8 @@ define("ember-metal/property_set",
         return setPath(obj, keyName, value, tolerant);
       }
 
-      var meta = obj['__ember_meta__'], desc = meta && meta.descs[keyName],
+      var meta = obj['__ember_meta__'];
+      var desc = meta && meta.descs[keyName],
           isUnknown, currentValue;
 
       if (desc === undefined && isPath(keyName)) {
@@ -18838,7 +18862,8 @@ define("ember-metal/watch_path",
     // chains inherited from the proto they will be cloned and reconfigured for
     // the current object.
     function chainsFor(obj, meta) {
-      var m = meta || metaFor(obj), ret = m.chains;
+      var m = meta || metaFor(obj);
+      var ret = m.chains;
       if (!ret) {
         ret = m.chains = new ChainNode(null, null, obj);
       } else if (ret.value() !== obj) {
@@ -18851,7 +18876,8 @@ define("ember-metal/watch_path",
       // can't watch length on Array - it is special...
       if (keyPath === 'length' && typeOf(obj) === 'array') { return; }
 
-      var m = meta || metaFor(obj), watching = m.watching;
+      var m = meta || metaFor(obj);
+      var watching = m.watching;
 
       if (!watching[keyPath]) { // activate watching first time
         watching[keyPath] = 1;
@@ -18862,7 +18888,8 @@ define("ember-metal/watch_path",
     }
 
     __exports__.watchPath = watchPath;function unwatchPath(obj, keyPath, meta) {
-      var m = meta || metaFor(obj), watching = m.watching;
+      var m = meta || metaFor(obj);
+      var watching = m.watching;
 
       if (watching[keyPath] === 1) {
         watching[keyPath] = 0;
