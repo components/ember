@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.a932ae26
+ * @version   1.8.0-beta.1+canary.06f2a13b
  */
 
 (function() {
@@ -10783,7 +10783,8 @@ define("ember-metal/array",
     });
 
     var lastIndexOf = defineNativeShim(ArrayPrototype.lastIndexOf, function(obj, fromIndex) {
-        var idx, len = this.length;
+        var len = this.length;
+        var idx;
 
         if (fromIndex === undefined) fromIndex = len-1;
         else fromIndex = (fromIndex < 0) ? Math.ceil(fromIndex) : Math.floor(fromIndex);
@@ -11610,7 +11611,8 @@ define("ember-metal/chains",
     ChainNodePrototype.count = 0;
 
     ChainNodePrototype.chain = function(key, path, src) {
-      var chains = this._chains, node;
+      var chains = this._chains;
+      var node;
       if (!chains) { chains = this._chains = {}; }
 
       node = chains[key];
@@ -13002,7 +13004,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.a932ae26
+      @version 1.8.0-beta.1+canary.06f2a13b
     */
 
     if ('undefined' === typeof Ember) {
@@ -13029,10 +13031,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.a932ae26'
+      @default '1.8.0-beta.1+canary.06f2a13b'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.a932ae26';
+    Ember.VERSION = '1.8.0-beta.1+canary.06f2a13b';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -13629,8 +13631,8 @@ define("ember-metal/events",
     }
 
     function actionsFor(obj, eventName) {
-      var meta = metaFor(obj, true),
-          actions;
+      var meta = metaFor(obj, true);
+      var actions;
 
       if (!meta.listeners) { meta.listeners = {}; }
 
@@ -14191,7 +14193,8 @@ define("ember-metal/instrumentation",
     var cache = {};
 
     var populateListeners = function(name) {
-      var listeners = [], subscriber;
+      var listeners = [];
+      var subscriber;
 
       for (var i=0, l=subscribers.length; i<l; i++) {
         subscriber = subscribers[i];
@@ -15217,7 +15220,8 @@ define("ember-metal/mixin",
     var metaFor = meta;
 
     function superFunction(){
-      var ret, func = this.__nextSuper;
+      var func = this.__nextSuper;
+      var ret;
       if (func) {
         this.__nextSuper = null;
         ret = apply(this, func, arguments);
@@ -15456,7 +15460,8 @@ define("ember-metal/mixin",
 
     function connectBindings(obj, m) {
       // TODO Mixin.apply(instance) should disconnect binding if exists
-      var bindings = m.bindings, key, binding, to;
+      var bindings = m.bindings;
+      var key, binding, to;
       if (bindings) {
         for (key in bindings) {
           binding = bindings[key];
@@ -15483,7 +15488,8 @@ define("ember-metal/mixin",
     }
 
     function followAlias(obj, desc, m, descs, values) {
-      var altKey = desc.methodName, value;
+      var altKey = desc.methodName;
+      var value;
       if (descs[altKey] || values[altKey]) {
         value = values[altKey];
         desc  = descs[altKey];
@@ -15689,7 +15695,8 @@ define("ember-metal/mixin",
       }
 
       var len = arguments.length;
-      var mixins = this.mixins, idx;
+      var mixins = this.mixins;
+      var idx;
 
       for(idx=0; idx < len; idx++) {
         mixin = arguments[idx];
@@ -16182,7 +16189,8 @@ define("ember-metal/observer_set",
     };
 
     ObserverSet.prototype.flush = function() {
-      var observers = this.observers, i, len, observer, sender;
+      var observers = this.observers;
+      var i, len, observer, sender;
       this.clear();
       for (i=0, len=observers.length; i < len; ++i) {
         observer = observers[i];
@@ -16891,7 +16899,8 @@ define("ember-metal/property_events",
     function notifyBeforeObservers(obj, keyName) {
       if (obj.isDestroying) { return; }
 
-      var eventName = keyName + ':before', listeners, diff;
+      var eventName = keyName + ':before';
+      var listeners, diff;
       if (deferred) {
         listeners = beforeObserverSet.add(obj, keyName, eventName);
         diff = listenersDiff(obj, eventName, listeners);
@@ -16904,7 +16913,8 @@ define("ember-metal/property_events",
     function notifyObservers(obj, keyName) {
       if (obj.isDestroying) { return; }
 
-      var eventName = keyName + ':change', listeners;
+      var eventName = keyName + ':change';
+      var listeners;
       if (deferred) {
         listeners = observerSet.add(obj, keyName, eventName);
         listenersUnion(obj, eventName, listeners);
@@ -16992,7 +17002,8 @@ define("ember-metal/property_get",
       }
 
       var meta = obj['__ember_meta__'];
-      var desc = meta && meta.descs[keyName], ret;
+      var desc = meta && meta.descs[keyName];
+      var ret;
 
       if (desc === undefined && isPath(keyName)) {
         return _getPath(obj, keyName);
@@ -17146,8 +17157,8 @@ define("ember-metal/property_set",
       }
 
       var meta = obj['__ember_meta__'];
-      var desc = meta && meta.descs[keyName],
-          isUnknown, currentValue;
+      var desc = meta && meta.descs[keyName];
+      var isUnknown, currentValue;
 
       if (desc === undefined && isPath(keyName)) {
         return setPath(obj, keyName, value, tolerant);

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.a932ae26
+ * @version   1.8.0-beta.1+canary.06f2a13b
  */
 
 (function() {
@@ -13498,7 +13498,8 @@ define("ember-metal/tests/accessors/getPath_test",
 
     var get = __dependency1__.get;
 
-    var obj, moduleOpts = {
+    var obj;
+    var moduleOpts = {
       setup: function() {
         obj = {
           foo: {
@@ -13854,7 +13855,8 @@ define("ember-metal/tests/accessors/normalizeTuple_test",
     /*globals Foo:true, $foo:true */
     var normalizeTuple = __dependency1__.normalizeTuple;
 
-    var obj, moduleOpts = {
+    var obj;
+    var moduleOpts = {
       setup: function() {
         obj = {
           foo: {
@@ -13973,7 +13975,8 @@ define("ember-metal/tests/accessors/setPath_test",
 
     var originalLookup = Ember.lookup;
 
-    var obj, moduleOpts = {
+    var obj;
+    var moduleOpts = {
       setup: function() {
         obj = {
           foo: {
@@ -14503,7 +14506,8 @@ define("ember-metal/tests/binding/sync_test",
     });
 
     testBoth("bindings should not infinite loop if computed properties return objects", function(get, set) {
-      var a, b, getCalled=0;
+      var a, b;
+      var getCalled=0;
 
       run(function() {
         a = {};
@@ -14697,8 +14701,8 @@ define("ember-metal/tests/computed_test",
     var addBeforeObserver = __dependency10__.addBeforeObserver;
     var indexOf = __dependency11__.indexOf;
 
-    var originalLookup = Ember.lookup, lookup;
-    var obj, count, Global;
+    var originalLookup = Ember.lookup;
+    var obj, count, Global, lookup;
 
     QUnit.module('computed');
 
@@ -15126,7 +15130,8 @@ define("ember-metal/tests/computed_test",
     //
 
 
-    var func, moduleOpts = {
+    var func;
+    var moduleOpts = {
       setup: function() {
         originalLookup = Ember.lookup;
         lookup = Ember.lookup = {};
@@ -15905,7 +15910,8 @@ define("ember-metal/tests/enumerable_utils_test",
 
     test('returns an array of objects that appear in both enumerables', function() {
       var a = [1,2,3];
-      var b = [2,3,4], result;
+      var b = [2,3,4];
+      var result;
 
       result = EnumerableUtils.intersection(a, b);
 
@@ -16032,7 +16038,8 @@ define("ember-metal/tests/events_test",
     });
 
     test('adding a listener with a target should invoke with target', function() {
-      var obj = {}, target;
+      var obj = {};
+      var target;
 
       target = {
         count: 0,
@@ -16045,7 +16052,8 @@ define("ember-metal/tests/events_test",
     });
 
     test('suspending a listener should not invoke during callback', function() {
-      var obj = {}, target, otherTarget;
+      var obj = {};
+      var target, otherTarget;
 
       target = {
         count: 0,
@@ -16080,7 +16088,8 @@ define("ember-metal/tests/events_test",
     });
 
     test('adding a listener with string method should lookup method on event delivery', function() {
-      var obj = {}, target;
+      var obj = {};
+      var target;
 
       target = {
         count: 0,
@@ -16166,7 +16175,8 @@ define("ember-metal/tests/events_test",
     });
 
     test('while suspended, it should not be possible to add a duplicate listener', function() {
-      var obj = {}, target;
+      var obj = {};
+      var target;
 
       target = {
         count: 0,
@@ -16357,8 +16367,8 @@ define("ember-metal/tests/features_test",
     "use strict";
     var Ember = __dependency1__["default"];
 
-    var isEnabled = Ember.FEATURES.isEnabled,
-        origFeatures, origEnableAll, origEnableOptional;
+    var isEnabled = Ember.FEATURES.isEnabled;
+    var origFeatures, origEnableAll, origEnableOptional;
 
     QUnit.module("Ember.FEATURES.isEnabled", {
       setup: function(){
@@ -16842,9 +16852,8 @@ define("ember-metal/tests/map_test",
     var Map = __dependency1__.Map;
     var MapWithDefault = __dependency1__.MapWithDefault;
 
-    var object, number, string, map;
-
-    var varieties = [['Map', Map], ['MapWithDefault', MapWithDefault]], variety;
+    var object, number, string, map, variety;
+    var varieties = [['Map', Map], ['MapWithDefault', MapWithDefault]];
 
     function testMap(nameAndFunc) {
       variety = nameAndFunc[0];
@@ -18583,7 +18592,8 @@ define("ember-metal/tests/observer_test",
     });
 
     testBoth('suspending an observer should not fire during callback', function(get,set) {
-      var obj = {}, target, otherTarget;
+      var obj = {};
+      var target, otherTarget;
 
       target = {
         values: [],
@@ -18619,7 +18629,8 @@ define("ember-metal/tests/observer_test",
 
 
     testBoth('suspending an observer should not defer change notifications during callback', function(get,set) {
-      var obj = {}, target, otherTarget;
+      var obj = {};
+      var target, otherTarget;
 
       target = {
         values: [],
@@ -18656,7 +18667,8 @@ define("ember-metal/tests/observer_test",
     });
 
     testBoth('suspending observers should not fire during callback', function(get,set) {
-      var obj = {}, target, otherTarget;
+      var obj = {};
+      var target, otherTarget;
 
       target = {
         values: [],
@@ -18692,7 +18704,8 @@ define("ember-metal/tests/observer_test",
 
 
     testBoth('suspending observers should not defer change notifications during callback', function(get,set) {
-      var obj = {}, target, otherTarget;
+      var obj = {};
+      var target, otherTarget;
 
       target = {
         values: [],
@@ -18813,7 +18826,8 @@ define("ember-metal/tests/observer_test",
     });
 
     testBoth('addObserver should propagate through prototype', function(get,set) {
-      var obj = { foo: 'foo', count: 0 }, obj2;
+      var obj = { foo: 'foo', count: 0 };
+      var obj2;
 
       addObserver(obj, 'foo', function() { this.count++; });
       obj2 = create(obj);
@@ -19112,7 +19126,8 @@ define("ember-metal/tests/observer_test",
     });
 
     testBoth('addBeforeObserver should propagate through prototype', function(get,set) {
-      var obj = { foo: 'foo', count: 0 }, obj2;
+      var obj = { foo: 'foo', count: 0 };
+      var obj2;
 
       addBeforeObserver(obj, 'foo', function() { this.count++; });
       obj2 = create(obj);
@@ -19169,8 +19184,8 @@ define("ember-metal/tests/observer_test",
     // CHAINED OBSERVERS
     //
 
-    var obj, count;
-    var originalLookup = Ember.lookup, lookup;
+    var obj, count, lookup;
+    var originalLookup = Ember.lookup;
 
     QUnit.module('addObserver - dependentkey with chained properties', {
       setup: function() {
@@ -19262,7 +19277,8 @@ define("ember-metal/tests/observer_test",
     });
 
     testBoth('depending on a Global chain', function(get, set) {
-      var Global = lookup.Global, val;
+      var Global = lookup.Global;
+      var val;
 
       addObserver(obj, 'Global.foo.bar.baz.biff', function(target, key) {
         val = get(lookup, key);
@@ -19357,7 +19373,8 @@ define("ember-metal/tests/observer_test",
 
     testBoth("immediate observers should fire synchronously", function(get, set) {
       var obj = {};
-      var observerCalled = 0, mixin;
+      var observerCalled = 0;
+      var mixin;
 
       // explicitly create a run loop so we do not inadvertently
       // trigger deferred behavior
@@ -19391,7 +19408,8 @@ define("ember-metal/tests/observer_test",
     if (Ember.EXTEND_PROTOTYPES) {
       testBoth('immediate observers added declaratively via brace expansion fire synchronously', function (get, set) {
         var obj = {};
-        var observerCalled = 0, mixin;
+        var observerCalled = 0;
+        var mixin;
 
         // explicitly create a run loop so we do not inadvertently
         // trigger deferred behavior
@@ -19424,7 +19442,8 @@ define("ember-metal/tests/observer_test",
 
     testBoth('immediate observers watching multiple properties via brace expansion fire synchronously', function (get, set) {
       var obj = {};
-      var observerCalled = 0, mixin;
+      var observerCalled = 0;
+      var mixin;
 
       // explicitly create a run loop so we do not inadvertently
       // trigger deferred behavior
@@ -20053,8 +20072,8 @@ define("ember-metal/tests/run_loop/join_test",
     });
 
     test('run.join returns undefined if joining another run-loop', function() {
-      var value = 'returned value',
-      result;
+      var value = 'returned value';
+      var result;
 
       run(function() {
         var result = run.join(function() {
@@ -20148,7 +20167,8 @@ define("ember-metal/tests/run_loop/later_test",
     });
 
     asyncTest('should always invoke within a separate runloop', function() {
-      var obj = { invoked: 0 }, firstRunLoop, secondRunLoop;
+      var obj = { invoked: 0 };
+      var firstRunLoop, secondRunLoop;
 
       run(function() {
         firstRunLoop = run.currentRunLoop;
@@ -20467,8 +20487,8 @@ define("ember-metal/tests/run_loop/onerror_test",
     QUnit.module('system/run_loop/onerror_test');
 
     test('With Ember.onerror undefined, errors in Ember.run are thrown', function () {
-      var thrown = new Error('Boom!'),
-          caught;
+      var thrown = new Error('Boom!');
+      var caught;
 
       try {
         run(function() { throw thrown; });
@@ -20480,8 +20500,8 @@ define("ember-metal/tests/run_loop/onerror_test",
     });
 
     test('With Ember.onerror set, errors in Ember.run are caught', function () {
-      var thrown = new Error('Boom!'),
-          caught;
+      var thrown = new Error('Boom!');
+      var caught;
 
       Ember.onerror = function(error) { caught = error; };
 
