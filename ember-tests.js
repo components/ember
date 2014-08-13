@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.a8d64b20
+ * @version   1.8.0-beta.1+canary.bd792d6a
  */
 
 (function() {
@@ -355,8 +355,8 @@ define("container/tests/container_test",
     });
 
     test("Throw exception when trying to inject `type:thing` on all type(s)", function(){
-      var container = new Container(),
-        PostController = factory();
+      var container = new Container();
+      var PostController = factory();
 
       container.register('controller:post', PostController);
 
@@ -698,9 +698,9 @@ define("container/tests/container_test",
     });
 
     test("can re-register a factory", function(){
-      var container = new Container(),
-        FirstApple = factory('first'),
-        SecondApple = factory('second');
+      var container = new Container();
+      var FirstApple = factory('first');
+      var SecondApple = factory('second');
 
       container.register('controller:apple', FirstApple);
       container.register('controller:apple', SecondApple);
@@ -709,9 +709,9 @@ define("container/tests/container_test",
     });
 
     test("cannot re-register a factory if has been looked up", function(){
-      var container = new Container(),
-        FirstApple = factory('first'),
-        SecondApple = factory('second');
+      var container = new Container();
+      var FirstApple = factory('first');
+      var SecondApple = factory('second');
 
       container.register('controller:apple', FirstApple);
       ok(container.lookup('controller:apple') instanceof FirstApple);
@@ -727,9 +727,9 @@ define("container/tests/container_test",
     test('container.has should not accidentally cause injections on that factory to be run. (Mitigate merely on observing)', function(){
       expect(1);
 
-      var container = new Container(),
-        FirstApple = factory('first'),
-        SecondApple = factory('second');
+      var container = new Container();
+      var FirstApple = factory('first');
+      var SecondApple = factory('second');
 
       SecondApple.extend = function(a,b,c) {
         ok(false, 'should not extend or touch the injected model, merely to inspect existence of another');
@@ -763,9 +763,9 @@ define("container/tests/container_test",
     test('once looked up, assert if an injection is registered for the entry', function() {
       expect(1);
 
-      var container = new Container(),
-          Apple = factory(),
-          Worm = factory();
+      var container = new Container();
+      var Apple = factory();
+      var Worm = factory();
 
       container.register('apple:main', Apple);
       container.register('worm:main', Worm);
@@ -778,9 +778,9 @@ define("container/tests/container_test",
     test("Once looked up, assert if a factoryInjection is registered for the factory", function() {
       expect(1);
 
-      var container = new Container(),
-          Apple = factory(),
-          Worm = factory();
+      var container = new Container();
+      var Apple = factory();
+      var Worm = factory();
 
       container.register('apple:main', Apple);
       container.register('worm:main', Worm);
@@ -2093,39 +2093,40 @@ define("ember-application/tests/system/initializers_test",
     test("initializers can have multiple dependencies", function () {
       var order = [];
       var a = {
-            name: "a",
-            before: "b",
-            initialize: function(container) {
-              order.push('a');
-            }
-          };
+        name: "a",
+        before: "b",
+        initialize: function(container) {
+          order.push('a');
+        }
+      };
       var b = {
-            name: "b",
-            initialize: function(container) {
-              order.push('b');
-            }
-          };
+        name: "b",
+        initialize: function(container) {
+          order.push('b');
+        }
+      };
       var c = {
-            name: "c",
-            after: "b",
-            initialize: function(container) {
-              order.push('c');
-            }
-          };
+        name: "c",
+        after: "b",
+        initialize: function(container) {
+          order.push('c');
+        }
+      };
       var afterB = {
-            name: "after b",
-            after: "b",
-            initialize: function(container) {
-              order.push("after b");
-            }
-          };
+        name: "after b",
+        after: "b",
+        initialize: function(container) {
+          order.push("after b");
+        }
+      };
       var afterC = {
-            name: "after c",
-            after: "c",
-            initialize: function(container) {
-              order.push("after c");
-            }
-          };
+        name: "after c",
+        after: "c",
+        initialize: function(container) {
+          order.push("after c");
+        }
+      };
+
       Application.initializer(b);
       Application.initializer(a);
       Application.initializer(afterC);
@@ -3110,15 +3111,15 @@ define("ember-extension-support/tests/data_adapter_test",
     });
 
     test("Model types added with custom container-debug-adapter", function() {
-      var PostClass = Model.extend() ,
-          StubContainerDebugAdapter = DefaultResolver.extend({
-            canCatalogEntriesByType: function(type){
-              return true;
-            },
-            catalogEntriesByType: function(type){
-              return [PostClass];
-            }
-          });
+      var PostClass = Model.extend();
+      var StubContainerDebugAdapter = DefaultResolver.extend({
+        canCatalogEntriesByType: function(type){
+          return true;
+        },
+        catalogEntriesByType: function(type){
+          return [PostClass];
+        }
+      });
       App.__container__.register('container-debug-adapter:main', StubContainerDebugAdapter);
 
       adapter = App.__container__.lookup('data-adapter:main');
@@ -3281,8 +3282,8 @@ define("ember-handlebars-compiler/tests/block_helper_missing_test",
     "use strict";
     var EmberHandlebars = __dependency1__["default"];
 
-    var stringify = EmberHandlebars.JavaScriptCompiler.stringifyLastBlockHelperMissingInvocation,
-        s;
+    var stringify = EmberHandlebars.JavaScriptCompiler.stringifyLastBlockHelperMissingInvocation;
+    var s;
 
     QUnit.module("stringifyLastBlockHelperMissingInvocation", {
       setup: function() {
@@ -3369,10 +3370,10 @@ define("ember-handlebars-compiler/tests/precompile_type_test",
   function(__dependency1__) {
     "use strict";
     var EmberHandlebars = __dependency1__["default"];
-    var precompile = EmberHandlebars.precompile,
-        parse = EmberHandlebars.parse,
-        template = 'Hello World',
-        result;
+    var precompile = EmberHandlebars.precompile;
+    var parse = EmberHandlebars.parse;
+    var template = 'Hello World';
+    var result;
 
     QUnit.module("Ember.Handlebars.precompileType");
 

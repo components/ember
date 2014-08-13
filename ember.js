@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.a8d64b20
+ * @version   1.8.0-beta.1+canary.bd792d6a
  */
 
 (function() {
@@ -4016,8 +4016,10 @@ define("ember-extension-support/data_adapter",
         @return {Function} Method to call to remove all observers
       */
       watchModelTypes: function(typesAdded, typesUpdated) {
-        var modelTypes = this.getModelTypes(),
-            self = this, typesToSend, releaseMethods = emberA();
+        var modelTypes = this.getModelTypes();
+        var self = this;
+        var releaseMethods = emberA();
+        var typesToSend;
 
         typesToSend = modelTypes.map(function(type) {
           var klass = type.klass;
@@ -4158,7 +4160,8 @@ define("ember-extension-support/data_adapter",
       */
 
       observeModelType: function(type, typesUpdated) {
-        var self = this, records = this.getRecords(type);
+        var self = this;
+        var records = this.getRecords(type);
 
         var onChange = function() {
           typesUpdated([self.wrapModelType(type)]);
@@ -4198,8 +4201,9 @@ define("ember-extension-support/data_adapter",
           release: {Function} The function to remove observers
       */
       wrapModelType: function(type, name) {
-        var release, records = this.getRecords(type),
-            typeToSend, self = this;
+        var records = this.getRecords(type);
+        var self = this;
+        var release, typeToSend;
 
         typeToSend = {
           name: name || type.toString(),
@@ -4221,8 +4225,9 @@ define("ember-extension-support/data_adapter",
         @return {Array} Array of model types
       */
       getModelTypes: function() {
-        var types, self = this,
-            containerDebugAdapter = this.get('containerDebugAdapter');
+        var self = this;
+        var containerDebugAdapter = this.get('containerDebugAdapter');
+        var types;
 
         if (containerDebugAdapter.canCatalogEntriesByType('model')) {
           types = containerDebugAdapter.catalogEntriesByType('model');
@@ -4253,9 +4258,9 @@ define("ember-extension-support/data_adapter",
         @return {Array} Array of model type strings
       */
       _getObjectsOnNamespaces: function() {
-        var namespaces = emberA(Namespace.NAMESPACES),
-            types = emberA(),
-            self = this;
+        var namespaces = emberA(Namespace.NAMESPACES);
+        var types = emberA();
+        var self = this;
 
         namespaces.forEach(function(namespace) {
           for (var key in namespace) {
@@ -4298,7 +4303,9 @@ define("ember-extension-support/data_adapter",
         searchKeywords: {Array}
       */
       wrapRecord: function(record) {
-        var recordToSend = { object: record }, columnValues = {}, self = this;
+        var recordToSend = { object: record };
+        var columnValues = {};
+        var self = this;
 
         recordToSend.columnValues = this.getRecordColumnValues(record);
         recordToSend.searchKeywords = this.getRecordKeywords(record);
@@ -4589,14 +4596,14 @@ define("ember-handlebars-compiler",
     // This can go away once the following is closed:
     // https://github.com/wycats/handlebars.js/issues/634
 
-    var DOT_LOOKUP_REGEX = /helpers\.(.*?)\)/,
-        BRACKET_STRING_LOOKUP_REGEX = /helpers\['(.*?)'/,
-        INVOCATION_SPLITTING_REGEX = /(.*blockHelperMissing\.call\(.*)(stack[0-9]+)(,.*)/;
+    var DOT_LOOKUP_REGEX = /helpers\.(.*?)\)/;
+    var BRACKET_STRING_LOOKUP_REGEX = /helpers\['(.*?)'/;
+    var INVOCATION_SPLITTING_REGEX = /(.*blockHelperMissing\.call\(.*)(stack[0-9]+)(,.*)/;
 
     EmberHandlebars.JavaScriptCompiler.stringifyLastBlockHelperMissingInvocation = function(source) {
-      var helperInvocation = source[source.length - 1],
-          helperName = (DOT_LOOKUP_REGEX.exec(helperInvocation) || BRACKET_STRING_LOOKUP_REGEX.exec(helperInvocation))[1],
-          matches = INVOCATION_SPLITTING_REGEX.exec(helperInvocation);
+      var helperInvocation = source[source.length - 1];
+      var helperName = (DOT_LOOKUP_REGEX.exec(helperInvocation) || BRACKET_STRING_LOOKUP_REGEX.exec(helperInvocation))[1];
+      var matches = INVOCATION_SPLITTING_REGEX.exec(helperInvocation);
 
       source[source.length - 1] = matches[1] + "'" + helperName + "'" + matches[3];
     };
@@ -4878,9 +4885,9 @@ define("ember-handlebars/component_lookup",
 
         container = container || this.container;
 
-        var fullName = 'component:' + name,
-            templateFullName = 'template:components/' + name,
-            templateRegistered = container && container.has(templateFullName);
+        var fullName = 'component:' + name;
+        var templateFullName = 'template:components/' + name;
+        var templateRegistered = container && container.has(templateFullName);
 
         if (templateRegistered) {
           container.injection(fullName, 'layout', templateFullName);
@@ -5108,10 +5115,10 @@ define("ember-handlebars/controls",
     function inputHelper(options) {
       Ember.assert('You can only pass attributes to the `input` helper, not arguments', arguments.length < 2);
 
-      var hash = options.hash,
-          types = options.hashTypes,
-          inputType = _resolveOption(this, options, 'type'),
-          onEvent = hash.on;
+      var hash = options.hash;
+      var types = options.hashTypes;
+      var inputType = _resolveOption(this, options, 'type');
+      var onEvent = hash.on;
 
       delete hash.type;
       delete hash.on;
@@ -5314,8 +5321,8 @@ define("ember-handlebars/controls",
     function textareaHelper(options) {
       Ember.assert('You can only pass attributes to the `textarea` helper, not arguments', arguments.length < 2);
 
-      var hash = options.hash,
-          types = options.hashTypes;
+      var hash = options.hash;
+      var types = options.hashTypes;
 
       return helpers.view.call(this, TextArea, options);
     }
@@ -5446,8 +5453,8 @@ define("ember-handlebars/controls/select",
       },
 
       selected: computed(function() {
-        var content = get(this, 'content'),
-            selection = get(this, 'parentView.selection');
+        var content = get(this, 'content');
+        var selection = get(this, 'parentView.selection');
         if (get(this, 'parentView.multiple')) {
           return selection && indexOf(selection, content.valueOf()) > -1;
         } else {
@@ -5988,11 +5995,11 @@ define("ember-handlebars/controls/select",
       }),
 
       valueDidChange: observer('value', function() {
-        var content = get(this, 'content'),
-            value = get(this, 'value'),
-            valuePath = get(this, 'optionValuePath').replace(/^content\.?/, ''),
-            selectedValue = (valuePath ? get(this, 'selection.' + valuePath) : get(this, 'selection')),
-            selection;
+        var content = get(this, 'content');
+        var value = get(this, 'value');
+        var valuePath = get(this, 'optionValuePath').replace(/^content\.?/, '');
+        var selectedValue = (valuePath ? get(this, 'selection.' + valuePath) : get(this, 'selection'));
+        var selection;
 
         if (value !== selectedValue) {
           selection = content ? content.find(function(obj) {
@@ -6015,9 +6022,9 @@ define("ember-handlebars/controls/select",
       },
 
       _changeSingle: function() {
-        var selectedIndex = this.$()[0].selectedIndex,
-            content = get(this, 'content'),
-            prompt = get(this, 'prompt');
+        var selectedIndex = this.$()[0].selectedIndex;
+        var content = get(this, 'content');
+        var prompt = get(this, 'prompt');
 
         if (!content || !get(content, 'length')) { return; }
         if (prompt && selectedIndex === 0) { set(this, 'selection', null); return; }
@@ -6028,11 +6035,11 @@ define("ember-handlebars/controls/select",
 
 
       _changeMultiple: function() {
-        var options = this.$('option:selected'),
-            prompt = get(this, 'prompt'),
-            offset = prompt ? 1 : 0,
-            content = get(this, 'content'),
-            selection = get(this, 'selection');
+        var options = this.$('option:selected');
+        var prompt = get(this, 'prompt');
+        var offset = prompt ? 1 : 0;
+        var content = get(this, 'content');
+        var selection = get(this, 'selection');
 
         if (!content) { return; }
         if (options) {
@@ -6053,23 +6060,23 @@ define("ember-handlebars/controls/select",
         var el = this.get('element');
         if (!el) { return; }
 
-        var content = get(this, 'content'),
-            selection = get(this, 'selection'),
-            selectionIndex = content ? indexOf(content, selection) : -1,
-            prompt = get(this, 'prompt');
+        var content = get(this, 'content');
+        var selection = get(this, 'selection');
+        var selectionIndex = content ? indexOf(content, selection) : -1;
+        var prompt = get(this, 'prompt');
 
         if (prompt) { selectionIndex += 1; }
         if (el) { el.selectedIndex = selectionIndex; }
       },
 
       _selectionDidChangeMultiple: function() {
-        var content = get(this, 'content'),
-            selection = get(this, 'selection'),
-            selectedIndexes = content ? indexesOf(content, selection) : [-1],
-            prompt = get(this, 'prompt'),
-            offset = prompt ? 1 : 0,
-            options = this.$('option'),
-            adjusted;
+        var content = get(this, 'content');
+        var selection = get(this, 'selection');
+        var selectedIndexes = content ? indexesOf(content, selection) : [-1];
+        var prompt = get(this, 'prompt');
+        var offset = prompt ? 1 : 0;
+        var options = this.$('option');
+        var adjusted;
 
         if (options) {
           options.each(function() {
@@ -6134,8 +6141,8 @@ define("ember-handlebars/controls/text_area",
 
       _updateElementValue: observer('value', function() {
         // We do this check so cursor position doesn't get affected in IE
-        var value = get(this, 'value'),
-            $el = this.$();
+        var value = get(this, 'value');
+        var $el = this.$();
         if ($el && value !== $el.val()) {
           $el.val(value);
         }
@@ -6387,7 +6394,7 @@ define("ember-handlebars/controls/text_support",
       },
 
       /**
-        Called when the text area is blurred. 
+        Called when the text area is blurred.
 
         Uses sendAction to send the `focus-out` action.
 
@@ -6422,9 +6429,9 @@ define("ember-handlebars/controls/text_support",
     // sendAction semantics for TextField are different from
     // the component semantics so this method normalizes them.
     function sendAction(eventName, view, event) {
-      var action = get(view, eventName),
-          on = get(view, 'onEvent'),
-          value = get(view, 'value');
+      var action = get(view, eventName);
+      var on = get(view, 'onEvent');
+      var value = get(view, 'value');
 
       // back-compat support for keyPress as an event name even though
       // it's also a method name that consumes the event (and therefore
@@ -7771,8 +7778,8 @@ define("ember-handlebars/helpers/binding",
       // For each attribute passed, create an observer and emit the
       // current value of the property as an attribute.
       forEach.call(attrKeys, function(attr) {
-        var path = attrs[attr],
-            normalized;
+        var path = attrs[attr];
+        var normalized;
 
         Ember.assert(fmt("You must provide an expression as the value of bound attribute. You specified: %@=%@", [attr, path]), typeof path === 'string');
 
@@ -8267,18 +8274,18 @@ define("ember-handlebars/helpers/debug",
       @param {String} property
     */
     function logHelper() {
-      var params = a_slice.call(arguments, 0, -1),
-          options = arguments[arguments.length - 1],
-          logger = Logger.log,
-          values = [],
-          allowPrimitives = true;
+      var params = a_slice.call(arguments, 0, -1);
+      var options = arguments[arguments.length - 1];
+      var logger = Logger.log;
+      var values = [];
+      var allowPrimitives = true;
 
       for (var i = 0; i < params.length; i++) {
         var type = options.types[i];
 
         if (type === 'ID' || !allowPrimitives) {
-          var context = (options.contexts && options.contexts[i]) || this,
-              normalized = normalizePath(context, params[i], options.data);
+          var context = (options.contexts && options.contexts[i]) || this;
+          var normalized = normalizePath(context, params[i], options.data);
 
           if (normalized.path === 'this') {
             values.push(normalized.root);
@@ -8351,7 +8358,6 @@ define("ember-handlebars/helpers/each",
     */
     var Ember = __dependency1__["default"];
     // Ember.assert;, Ember.K
-    // var emberAssert = Ember.assert,
     var K = Ember.K;
 
     var EmberHandlebars = __dependency2__["default"];
@@ -8498,8 +8504,8 @@ define("ember-handlebars/helpers/each",
     });
 
     var GroupedEach = EmberHandlebars.GroupedEach = function(context, path, options) {
-      var self = this,
-          normalized = EmberHandlebars.normalizePath(context, path, options.data);
+      var self = this;
+      var normalized = EmberHandlebars.normalizePath(context, path, options.data);
 
       this.context = context;
       this.path = path;
@@ -8570,11 +8576,11 @@ define("ember-handlebars/helpers/each",
       render: function() {
         if (!this.content) { return; }
 
-        var content = this.content,
-            contentLength = get(content, 'length'),
-            options = this.options,
-            data = options.data,
-            template = this.template;
+        var content = this.content;
+        var contentLength = get(content, 'length');
+        var options = this.options;
+        var data = options.data;
+        var template = this.template;
 
         data.insideEach = true;
         for (var i = 0; i < contentLength; i++) {
@@ -13005,7 +13011,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.a8d64b20
+      @version 1.8.0-beta.1+canary.bd792d6a
     */
 
     if ('undefined' === typeof Ember) {
@@ -13032,10 +13038,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.a8d64b20'
+      @default '1.8.0-beta.1+canary.bd792d6a'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.a8d64b20';
+    Ember.VERSION = '1.8.0-beta.1+canary.bd792d6a';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
