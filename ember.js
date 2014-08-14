@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.05917406
+ * @version   1.8.0-beta.1+canary.69f1cdee
  */
 
 (function() {
@@ -13024,7 +13024,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.05917406
+      @version 1.8.0-beta.1+canary.69f1cdee
     */
 
     if ('undefined' === typeof Ember) {
@@ -13051,10 +13051,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.05917406'
+      @default '1.8.0-beta.1+canary.69f1cdee'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.05917406';
+    Ember.VERSION = '1.8.0-beta.1+canary.69f1cdee';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -43843,14 +43843,14 @@ define("route-recognizer",
             pathLen, i, l, queryStart, queryParams = {},
             isSlashDropped = false;
 
-        path = decodeURI(path);
-
         queryStart = path.indexOf('?');
         if (queryStart !== -1) {
           var queryString = path.substr(queryStart + 1, path.length);
           path = path.substr(0, queryStart);
           queryParams = this.parseQueryString(queryString);
         }
+
+        path = decodeURI(path);
 
         // DEBUG GROUP path
 
