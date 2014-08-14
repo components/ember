@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.69f1cdee
+ * @version   1.8.0-beta.1+canary.eeffdf00
  */
 
 (function() {
@@ -30,11 +30,11 @@ var define, requireModule, require, requirejs, Ember;
         throw new Error("Could not find module " + name);
       }
 
-      var mod = registry[name],
-      deps = mod.deps,
-      callback = mod.callback,
-      reified = [],
-      exports;
+      var mod = registry[name];
+      var deps = mod.deps;
+      var callback = mod.callback;
+      var reified = [];
+      var exports;
 
       for (var i=0, l=deps.length; i<l; i++) {
         if (deps[i] === 'exports') {
@@ -6092,9 +6092,7 @@ define("ember-handlebars/tests/handlebars_test",
 
     test("using Handlebars helper that doesn't exist should result in an error", function() {
       var names = [{ name: 'Alex' }, { name: 'Stef' }];
-      var context = {
-            content: A(names)
-          };
+      var context = { content: A(names) };
 
       throws(function() {
         view = EmberView.create({
@@ -22323,7 +22321,6 @@ define("ember-routing-handlebars/tests/helpers/action_test",
     test("should lazily evaluate the target", function() {
       var firstEdit = 0;
       var secondEdit = 0;
-
       var controller = {};
       var first = {
         edit: function() {
@@ -22722,13 +22719,13 @@ define("ember-routing-handlebars/tests/helpers/action_test",
       var passedContext;
       var model = EmberObject.create();
       var controller = EmberObjectController.extend({
-            model: model,
-            actions: {
-              edit: function(context) {
-                passedContext = context;
-              }
-            }
-          }).create();
+        model: model,
+        actions: {
+          edit: function(context) {
+            passedContext = context;
+          }
+        }
+      }).create();
 
       view = EmberView.create({
         controller: controller,
@@ -24366,9 +24363,9 @@ define("ember-routing/tests/location/auto_location_test",
     var AutoLocation = __dependency6__["default"];
     var EmberLocation = __dependency7__["default"];
 
-    var AutoTestLocation, location, supportsHistory, supportsHashChange,
-        getSupportsHistory = AutoLocation._getSupportsHistory,
-        getSupportsHashChange = AutoLocation._getSupportsHashChange;
+    var AutoTestLocation, location, supportsHistory, supportsHashChange;
+    var getSupportsHistory = AutoLocation._getSupportsHistory;
+    var getSupportsHashChange = AutoLocation._getSupportsHashChange;
 
     var FakeHistoryLocation = EmberObject.extend({
       implementation: 'history'
@@ -24795,8 +24792,8 @@ define("ember-routing/tests/location/history_location_test",
     var run = __dependency3__["default"];
     var HistoryLocation = __dependency4__["default"];
 
-    var FakeHistory, HistoryTestLocation, location,
-        rootURL = window.location.pathname;
+    var FakeHistory, HistoryTestLocation, location;
+    var rootURL = window.location.pathname;
 
     function createLocation(options){
       if (!options) { options = {}; }
@@ -24992,8 +24989,9 @@ define("ember-routing/tests/system/controller_for_test",
 
     function resolverFor(namespace) {
       return function(fullName) {
-        var nameParts = fullName.split(":"),
-            type = nameParts[0], name = nameParts[1];
+        var nameParts = fullName.split(":");
+        var type = nameParts[0];
+        var name = nameParts[1];
 
         if (name === 'basic') {
           name = '';
@@ -43453,8 +43451,8 @@ define("ember-testing/tests/helpers_test",
       if (expected === undefined) { expected = true; }
 
       function checkHelperPresent(helper, expected){
-        var presentInHelperContainer = !!helperContainer[helper],
-            presentInTestHelpers = !!application.testHelpers[helper];
+        var presentInHelperContainer = !!helperContainer[helper];
+        var presentInTestHelpers = !!application.testHelpers[helper];
 
         ok(presentInHelperContainer === expected, "Expected '" + helper + "' to be present in the helper container (defaults to window).");
         ok(presentInTestHelpers === expected, "Expected '" + helper + "' to be present in App.testHelpers.");
@@ -44892,8 +44890,8 @@ define("ember-views/tests/system/event_dispatcher_test",
 
       test("should not dispatch events to view event Manager when canDispatchToEventManager is false", function () {
 
-        var eventManagerCounter=0,
-            viewCounter=0;
+        var eventManagerCounter=0;
+        var viewCounter=0;
 
         run(function() {
           dispatcher.destroy();
@@ -45066,8 +45064,8 @@ define("ember-views/tests/system/jquery_ext_test",
     var view, dispatcher;
 
     // Adapted from https://github.com/jquery/jquery/blob/f30f7732e7775b6e417c4c22ced7adb2bf76bf89/test/data/testinit.js
-    var canDataTransfer,
-        fireNativeWithDataTransfer;
+    var canDataTransfer, fireNativeWithDataTransfer;
+
     if (document.createEvent) {
       canDataTransfer = !!document.createEvent('HTMLEvents').dataTransfer;
       fireNativeWithDataTransfer = function(node, type, dataTransfer) {
@@ -45700,12 +45698,12 @@ define("ember-views/tests/views/collection_test",
     });
 
     test("should fire life cycle events when elements are added and removed", function() {
-      var view,
-        didInsertElement = 0,
-        willDestroyElement = 0,
-        willDestroy = 0,
-        destroy = 0,
-        content = Ember.A([1, 2, 3]);
+      var view;
+      var didInsertElement = 0;
+      var willDestroyElement = 0;
+      var willDestroy = 0;
+      var destroy = 0;
+      var content = Ember.A([1, 2, 3]);
       run(function () {
         view = CollectionView.create({
           content: content,
@@ -46275,8 +46273,8 @@ define("ember-views/tests/views/component_test",
     test("Calling sendAction on a component with multiple parameters", function() {
       set(component, 'playing', "didStartPlaying");
 
-      var firstContext  = {song: 'She Broke My Ember'},
-          secondContext = {song: 'My Achey Breaky Ember'};
+      var firstContext  = {song: 'She Broke My Ember'};
+      var secondContext = {song: 'My Achey Breaky Ember'};
 
       component.sendAction('playing', firstContext, secondContext);
 
@@ -46426,9 +46424,9 @@ define("ember-views/tests/views/container_view_test",
 
       equal(get(view, 'parentView'), container, "sets the parent view after the childView is appended");
 
-      var secondView = ViewKlass.create(),
-          thirdView = ViewKlass.create(),
-          fourthView = ViewKlass.create();
+      var secondView = ViewKlass.create();
+      var thirdView = ViewKlass.create();
+      var fourthView = ViewKlass.create();
 
       run(function() {
         container.pushObject(secondView);
@@ -47024,8 +47022,8 @@ define("ember-views/tests/views/container_view_test",
 
     test("if a containerView appends a child in its didInsertElement event, the didInsertElement event of the child view should be fired once", function () {
 
-      var counter = 0,
-          root = ContainerView.create({});
+      var counter = 0;
+      var root = ContainerView.create({});
 
       container = ContainerView.create({
 
@@ -48511,8 +48509,8 @@ define("ember-views/tests/views/view/create_child_view_test",
     });
 
     test("should create from string via container lookup", function() {
-      var ChildViewClass = EmberView.extend(),
-      fullName = 'view:bro';
+      var ChildViewClass = EmberView.extend();
+      var fullName = 'view:bro';
 
       view.container.lookupFactory = function(viewName) {
         equal(fullName, viewName);
@@ -48732,9 +48730,9 @@ define("ember-views/tests/views/view/destroy_test",
     QUnit.module("Ember.View#destroy");
 
     test("should teardown viewName on parentView when childView is destroyed", function() {
-      var viewName = "someChildView",
-          parentView = EmberView.create(),
-          childView = parentView.createChildView(EmberView, {viewName: viewName});
+      var viewName = "someChildView";
+      var parentView = EmberView.create();
+      var childView = parentView.createChildView(EmberView, {viewName: viewName});
 
       equal(get(parentView, viewName), childView, "Precond - child view was registered on parent");
 
@@ -49465,12 +49463,12 @@ define("ember-views/tests/views/view/nearest_of_type_test",
     });
 
     (function() {
-      var Mixin = EmberMixin.create({}),
-          Parent = View.extend(Mixin, {
-            render: function(buffer) {
-              this.appendChild( View.create() );
-            }
-          });
+      var Mixin = EmberMixin.create({});
+      var Parent = View.extend(Mixin, {
+        render: function(buffer) {
+          this.appendChild( View.create() );
+        }
+      });
 
       test("nearestOfType should find the closest view by view class", function() {
         var child;
@@ -50246,12 +50244,12 @@ define("ember-views/tests/views/view/template_test",
         toString: function() { return "Controller2"; }
       });
 
-      var controller1 = Controller1.create(),
-          controller2 = Controller2.create(),
-          optionsDataKeywordsControllerForView,
-          optionsDataKeywordsControllerForChildView,
-          contextForView,
-          contextForControllerlessView;
+      var controller1 = Controller1.create();
+      var controller2 = Controller2.create();
+      var optionsDataKeywordsControllerForView;
+      var optionsDataKeywordsControllerForChildView;
+      var contextForView;
+      var contextForControllerlessView;
 
       view = EmberView.create({
         controller: controller1,
@@ -52315,8 +52313,8 @@ define("ember/tests/helpers/link_to_test",
 
       assertEquality('/');
 
-      var controller = container.lookup('controller:index'),
-          view = Ember.View.views['index-view'];
+      var controller = container.lookup('controller:index');
+      var view = Ember.View.views['index-view'];
       Ember.run(function() {
         controller.set('foo', 'about');
         view.set('foo', 'about');
@@ -52365,9 +52363,9 @@ define("ember/tests/helpers/link_to_test",
         }
       }
 
-      var $contextLink = Ember.$('#context-link', '#qunit-fixture'),
-          $staticLink = Ember.$('#static-link', '#qunit-fixture'),
-          controller = container.lookup('controller:index');
+      var $contextLink = Ember.$('#context-link', '#qunit-fixture');
+      var $staticLink = Ember.$('#static-link', '#qunit-fixture');
+      var controller = container.lookup('controller:index');
 
       assertLinkStatus($contextLink);
       assertLinkStatus($staticLink);
@@ -52418,8 +52416,8 @@ define("ember/tests/helpers/link_to_test",
         this.route('post', { path: '/posts/:post_id' });
       });
 
-      var post = Ember.Object.create({id: '1'}),
-          secondPost = Ember.Object.create({id: '2'});
+      var post = Ember.Object.create({id: '1'});
+      var secondPost = Ember.Object.create({id: '2'});
 
       Ember.TEMPLATES.index = compile('{{#link-to "post" post id="post"}}post{{/link-to}}');
 
@@ -52448,8 +52446,8 @@ define("ember/tests/helpers/link_to_test",
         this.route('post', { path: '/posts/:post_id' });
       });
 
-      var post = Ember.Object.create({id: '1'}),
-          secondPost = Ember.Object.create({id: '2'});
+      var post = Ember.Object.create({id: '1'});
+      var secondPost = Ember.Object.create({id: '2'});
 
       Ember.TEMPLATES = {
         index: compile(' '),
@@ -52705,8 +52703,8 @@ define("ember/tests/helpers/link_to_test",
 
       assertEquality('/');
 
-      var controller = container.lookup('controller:index'),
-      view = Ember.View.views['index-view'];
+      var controller = container.lookup('controller:index');
+      var view = Ember.View.views['index-view'];
       Ember.run(function() {
         controller.set('foo', 'about');
         view.set('foo', 'about');
@@ -54945,8 +54943,8 @@ define("ember/tests/routing/basic_test",
         });
       });
 
-      var model1 = { name: "Tilde" },
-          model2 = { name: "Tom Dale" };
+      var model1 = { name: "Tilde" };
+      var model2 = { name: "Tom Dale" };
 
       App.RootRoute = Ember.Route.extend({
         actions: {
@@ -55028,8 +55026,8 @@ define("ember/tests/routing/basic_test",
     });
 
     test("using replaceWith calls location.replaceURL if available", function() {
-      var setCount = 0,
-          replaceCount = 0;
+      var setCount = 0;
+      var replaceCount = 0;
 
       Router.reopen({
         location: Ember.NoneLocation.createWithMixins({
@@ -55551,8 +55549,8 @@ define("ember/tests/routing/basic_test",
 
 
     test("Parent route context change", function() {
-      var editCount = 0,
-          editedPostIds = Ember.A();
+      var editCount = 0;
+      var editedPostIds = Ember.A();
 
       Ember.TEMPLATES.application = compile("{{outlet}}");
       Ember.TEMPLATES.posts = compile("{{outlet}}");
@@ -55621,10 +55619,9 @@ define("ember/tests/routing/basic_test",
     });
 
     test("Router accounts for rootURL on page load when using history location", function() {
-      var rootURL = window.location.pathname + '/app',
-          postsTemplateRendered = false,
-          setHistory,
-          HistoryTestLocation;
+      var rootURL = window.location.pathname + '/app';
+      var postsTemplateRendered = false;
+      var setHistory, HistoryTestLocation;
 
       setHistory = function(obj, path) {
         obj.set('history', { state: { path: path } });
@@ -55677,8 +55674,8 @@ define("ember/tests/routing/basic_test",
 
     test("The rootURL is passed properly to the location implementation", function() {
       expect(1);
-      var rootURL = "/blahzorz",
-          HistoryTestLocation;
+      var rootURL = "/blahzorz";
+      var HistoryTestLocation;
 
       HistoryTestLocation = Ember.HistoryLocation.extend({
         rootURL: 'this is not the URL you are looking for',
@@ -56583,8 +56580,8 @@ define("ember/tests/routing/basic_test",
     });
 
     test("rejecting the model hooks promise with a non-error prints the `message` property", function() {
-      var rejectedMessage = 'OMG!! SOOOOOO BAD!!!!',
-          rejectedStack   = 'Yeah, buddy: stack gets printed too.';
+      var rejectedMessage = 'OMG!! SOOOOOO BAD!!!!';
+      var rejectedStack   = 'Yeah, buddy: stack gets printed too.';
 
       Router.map(function() {
         this.route("yippie", { path: "/" });
@@ -56624,8 +56621,8 @@ define("ember/tests/routing/basic_test",
     });
 
     test("rejecting the model hooks promise with a string shows a good error", function() {
-      var originalLoggerError = Ember.Logger.error,
-          rejectedMessage = "Supercalifragilisticexpialidocious";
+      var originalLoggerError = Ember.Logger.error;
+      var rejectedMessage = "Supercalifragilisticexpialidocious";
 
       Router.map(function() {
         this.route("yondo", { path: "/" });
@@ -57095,9 +57092,9 @@ define("ember/tests/routing/query_params_test",
         Ember.TEMPLATES.about = compile("<h3>{{link-to 'Home' 'home'  (query-params foo='naw')}}</h3>");
         Ember.TEMPLATES['cats/index'] = compile("<h3>{{link-to 'Cats' 'cats'  (query-params name='domino') id='cats-link'}}</h3>");
 
-        var homeShouldBeCreated = false,
-            aboutShouldBeCreated = false,
-            catsIndexShouldBeCreated = false;
+        var homeShouldBeCreated = false;
+        var aboutShouldBeCreated = false;
+        var catsIndexShouldBeCreated = false;
 
         App.HomeRoute = Ember.Route.extend({
           setup: function() {
@@ -58539,8 +58536,8 @@ define("ember/tests/routing/substates_test",
 
       expect(7);
 
-      var grandmaDeferred = Ember.RSVP.defer(),
-      sallyDeferred = Ember.RSVP.defer();
+      var grandmaDeferred = Ember.RSVP.defer();
+      var sallyDeferred = Ember.RSVP.defer();
 
       Router.map(function() {
         this.resource('grandma', function() {
@@ -58755,8 +58752,8 @@ define("ember/tests/routing/substates_test",
 
       delete templates.loading;
 
-      var sallyDeferred = Ember.RSVP.defer(),
-      smellsDeferred = Ember.RSVP.defer();
+      var sallyDeferred = Ember.RSVP.defer();
+      var smellsDeferred = Ember.RSVP.defer();
 
       var shouldBubbleToApplication = true;
 
