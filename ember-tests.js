@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.eeffdf00
+ * @version   1.8.0-beta.1+canary.7ec3f603
  */
 
 (function() {
@@ -53175,6 +53175,7 @@ define("ember/tests/helpers/link_to_test",
         Ember.TEMPLATES.application = Ember.Handlebars.compile(
             "{{#link-to 'parent' id='parent-link'}}Parent{{/link-to}} " +
             "{{#link-to 'parent.child' id='parent-child-link'}}Child{{/link-to}} " +
+            "{{#link-to 'parent' (query-params foo=cat) id='parent-link-qp'}}Parent{{/link-to}} " +
             "{{outlet}}"
             );
 
@@ -53186,8 +53187,10 @@ define("ember/tests/helpers/link_to_test",
         bootApplication();
         shouldNotBeActive('#parent-link');
         shouldNotBeActive('#parent-child-link');
+        shouldNotBeActive('#parent-link-qp');
         Ember.run(router, 'handleURL', '/parent/child?foo=dog');
         shouldBeActive('#parent-link');
+        shouldNotBeActive('#parent-link-qp');
       });
 
       test("The {{link-to}} helper disregards query-params in activeness computation when currentWhen specified", function() {

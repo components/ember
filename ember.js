@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.eeffdf00
+ * @version   1.8.0-beta.1+canary.7ec3f603
  */
 
 (function() {
@@ -13023,7 +13023,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.eeffdf00
+      @version 1.8.0-beta.1+canary.7ec3f603
     */
 
     if ('undefined' === typeof Ember) {
@@ -13050,10 +13050,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.eeffdf00'
+      @default '1.8.0-beta.1+canary.7ec3f603'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.eeffdf00';
+    Ember.VERSION = '1.8.0-beta.1+canary.7ec3f603';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -19799,7 +19799,9 @@ define("ember-routing-handlebars/helpers/link_to",
           if (!isActive) { return false; }
 
           
-            if (!isCurrentWhenSpecified && leafName === loadedParams.targetRouteName) {
+            var emptyQueryParams = Ember.isEmpty(Ember.keys(loadedParams.queryParams));
+
+            if (!isCurrentWhenSpecified && !emptyQueryParams && isActive) {
               var visibleQueryParams = {};
               merge(visibleQueryParams, loadedParams.queryParams);
               router._prepareQueryParams(loadedParams.targetRouteName, loadedParams.models, visibleQueryParams);
