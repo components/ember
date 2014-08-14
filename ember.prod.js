@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.4abccd43
+ * @version   1.8.0-beta.1+canary.bec883d3
  */
 
 (function() {
@@ -12772,7 +12772,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.4abccd43
+      @version 1.8.0-beta.1+canary.bec883d3
     */
 
     if ('undefined' === typeof Ember) {
@@ -12799,10 +12799,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.4abccd43'
+      @default '1.8.0-beta.1+canary.bec883d3'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.4abccd43';
+    Ember.VERSION = '1.8.0-beta.1+canary.bec883d3';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -26708,16 +26708,17 @@ define("ember-runtime/computed/reduce_computed_macros",
 
       The callback method you provide should have the following signature.
       `item` is the current item in the iteration.
+      `index` is the integer index of the current item in the iteration.
 
       ```javascript
-      function(item);
+      function(item, index);
       ```
 
       Example
 
       ```javascript
       var Hamster = Ember.Object.extend({
-        excitingChores: Ember.computed.map('chores', function(chore) {
+        excitingChores: Ember.computed.map('chores', function(chore, index) {
           return chore.toUpperCase() + '!';
         })
       });
@@ -26738,7 +26739,7 @@ define("ember-runtime/computed/reduce_computed_macros",
     function map(dependentKey, callback) {
       var options = {
         addedItem: function(array, item, changeMeta, instanceMeta) {
-          var mapped = callback.call(this, item);
+          var mapped = callback.call(this, item, changeMeta.index);
           array.insertAt(changeMeta.index, mapped);
           return array;
         },
@@ -26799,14 +26800,15 @@ define("ember-runtime/computed/reduce_computed_macros",
 
       The callback method you provide should have the following signature.
       `item` is the current item in the iteration.
+      `index` is the integer index of the current item in the iteration.
 
       ```javascript
-      function(item);
+      function(item, index);
       ```
 
       ```javascript
       var Hamster = Ember.Object.extend({
-        remainingChores: Ember.computed.filter('chores', function(chore) {
+        remainingChores: Ember.computed.filter('chores', function(chore, index) {
           return !chore.done;
         })
       });
@@ -26835,7 +26837,7 @@ define("ember-runtime/computed/reduce_computed_macros",
         },
 
         addedItem: function (array, item, changeMeta, instanceMeta) {
-          var match = !!callback.call(this, item);
+          var match = !!callback.call(this, item, changeMeta.index);
           var filterIndex = instanceMeta.filteredArrayIndexes.addItem(changeMeta.index, match);
 
           if (match) {
