@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.0f7ea889
+ * @version   1.8.0-beta.1+canary.e4b79cad
  */
 
 (function() {
@@ -52202,6 +52202,26 @@ define("ember/tests/helpers/link_to_test",
         Ember.$('#self-link', '#qunit-fixture').trigger(event);
 
         equal(event.isDefaultPrevented(), true, "should preventDefault when target attribute is `_self`");
+      });
+
+      test("The {{link-to}} helper should not transition if target is not equal to _self or empty", function() {
+        Ember.TEMPLATES.index = Ember.Handlebars.compile("{{#linkTo 'about' id='about-link' replace=true target='_blank'}}About{{/linkTo}}");
+
+        Router.map(function() {
+          this.route("about");
+        });
+
+        bootApplication();
+
+        Ember.run(function() {
+          router.handleURL("/");
+        });
+
+        Ember.run(function() {
+          Ember.$('#about-link', '#qunit-fixture').click();
+        });
+
+        notEqual(container.lookup('controller:application').get('currentRouteName'), 'about', 'link-to should not transition if target is not equal to _self or empty');
       });
     }
 
