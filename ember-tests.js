@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.b7971d72
+ * @version   1.8.0-beta.1+canary.2bcd494c
  */
 
 (function() {
@@ -51988,7 +51988,7 @@ define("ember/tests/helpers/link_to_test",
       equal(Ember.$('#other-link.active', '#qunit-fixture').length, 1, "The link is active when currentWhen is given for explicitly for a resource");
     });
 
-    if (Ember.FEATURES.isEnabled("ember-routing-multi-current-when")) {
+    
       test("The {{link-to}} helper supports multiple currentWhen routes", function() {
         Router.map(function(match) {
           this.resource("index", { path: "/" }, function() {
@@ -51999,9 +51999,9 @@ define("ember/tests/helpers/link_to_test",
         });
 
         Ember.TEMPLATES.index = Ember.Handlebars.compile("<h3>Home</h3>{{outlet}}");
-        Ember.TEMPLATES['index/about'] = Ember.Handlebars.compile("{{#link-to 'item' id='link1' currentWhen='item|index'}}ITEM{{/link-to}}");
-        Ember.TEMPLATES['item'] = Ember.Handlebars.compile("{{#link-to 'item' id='link2' currentWhen='item|index'}}ITEM{{/link-to}}");
-        Ember.TEMPLATES['foo'] = Ember.Handlebars.compile("{{#link-to 'item' id='link3' currentWhen='item|index'}}ITEM{{/link-to}}");
+        Ember.TEMPLATES['index/about'] = Ember.Handlebars.compile("{{#link-to 'item' id='link1' currentWhen='item index'}}ITEM{{/link-to}}");
+        Ember.TEMPLATES['item'] = Ember.Handlebars.compile("{{#link-to 'item' id='link2' currentWhen='item index'}}ITEM{{/link-to}}");
+        Ember.TEMPLATES['foo'] = Ember.Handlebars.compile("{{#link-to 'item' id='link3' currentWhen='item index'}}ITEM{{/link-to}}");
 
         bootApplication();
 
@@ -52023,7 +52023,7 @@ define("ember/tests/helpers/link_to_test",
 
         equal(Ember.$('#link3.active', '#qunit-fixture').length, 0, "The link is not active since currentWhen does not contain the active route");
       });
-    }
+    
 
     test("The {{link-to}} helper defaults to bubbling", function() {
       Ember.TEMPLATES.about = Ember.Handlebars.compile("<div {{action 'hide'}}>{{#link-to 'about.contact' id='about-contact'}}About{{/link-to}}</div>{{outlet}}");

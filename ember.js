@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.b7971d72
+ * @version   1.8.0-beta.1+canary.2bcd494c
  */
 
 (function() {
@@ -13081,7 +13081,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.b7971d72
+      @version 1.8.0-beta.1+canary.2bcd494c
     */
 
     if ('undefined' === typeof Ember) {
@@ -13108,10 +13108,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.b7971d72'
+      @default '1.8.0-beta.1+canary.2bcd494c'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.b7971d72';
+    Ember.VERSION = '1.8.0-beta.1+canary.2bcd494c';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -19819,7 +19819,7 @@ define("ember-routing-handlebars/helpers/link_to",
         transitions into.
 
         The `currentWhen` property can match against multiple routes by separating
-        route names using the `|` character.
+        route names using the ` ` (space) character.
 
         @property active
       **/
@@ -19869,19 +19869,14 @@ define("ember-routing-handlebars/helpers/link_to",
           return isActive;
         }
 
-        if (Ember.FEATURES.isEnabled("ember-routing-multi-current-when")) {
-          currentWhen = currentWhen.split('|');
+        
+          currentWhen = currentWhen.split(' ');
           for (var i = 0, len = currentWhen.length; i < len; i++) {
             if (isActiveForRoute(currentWhen[i])) {
               return get(this, 'activeClass');
             }
           }
-        } else {
-          if (isActiveForRoute(currentWhen)) {
-            return get(this, 'activeClass');
-          }
-        }
-      }),
+              }),
 
       /**
         Accessed as a classname binding to apply the `LinkView`'s `loadingClass`
