@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.4d5cd7fb
+ * @version   1.8.0-beta.1+canary.baf543fa
  */
 
 (function() {
@@ -13081,7 +13081,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.4d5cd7fb
+      @version 1.8.0-beta.1+canary.baf543fa
     */
 
     if ('undefined' === typeof Ember) {
@@ -13108,10 +13108,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.4d5cd7fb'
+      @default '1.8.0-beta.1+canary.baf543fa'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.4d5cd7fb';
+    Ember.VERSION = '1.8.0-beta.1+canary.baf543fa';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -46329,8 +46329,6 @@ define("rsvp/-internal",
     }
 
     function handleOwnThenable(promise, thenable) {
-      promise._onerror = null;
-
       if (thenable._state === FULFILLED) {
         fulfill(promise, thenable._result);
       } else if (promise._state === REJECTED) {
@@ -46349,7 +46347,7 @@ define("rsvp/-internal",
     }
 
     function handleMaybeThenable(promise, maybeThenable) {
-      if (maybeThenable instanceof promise.constructor) {
+      if (maybeThenable.constructor === promise.constructor) {
         handleOwnThenable(promise, maybeThenable);
       } else {
         var then = getThen(maybeThenable);
@@ -47672,10 +47670,10 @@ define("rsvp/node",
       return args;
     }
 
-    function wrapThenable(then, arg, args) {
+    function wrapThenable(then, promise) {
       return {
-        then: function() {
-          return then.apply(arg, args);
+        then: function(onFulFillment, onRejection) {
+          return then.call(promise, onFulFillment, onRejection);
         }
       };
     }
@@ -47820,13 +47818,14 @@ define("rsvp/node",
           arg = arguments[i];
 
           if (!promiseInput) {
+            // TODO: clean this up
             promiseInput = needsPromiseInput(arg);
             if (promiseInput === GET_THEN_ERROR) {
               var p = new Promise(noop);
               reject(p, GET_THEN_ERROR.value);
               return p;
-            } else if (promiseInput && arg.constructor !== Promise) {
-              arg = wrapThenable(promiseInput, arguments);
+            } else if (promiseInput && promiseInput !== true) {
+              arg = wrapThenable(promiseInput, arg);
             }
           }
           args[i] = arg;
@@ -48081,6 +48080,8 @@ define("rsvp/promise",
     function Promise(resolver, label) {
       this._id = counter++;
       this._label = label;
+      this._state = undefined;
+      this._result = undefined;
       this._subscribers = [];
 
       if (config.instrument) {
@@ -48109,13 +48110,7 @@ define("rsvp/promise",
     Promise.prototype = {
       constructor: Promise,
 
-      _id: undefined,
       _guidKey: guidKey,
-      _label: undefined,
-
-      _state: undefined,
-      _result: undefined,
-      _subscribers: undefined,
 
       _onerror: function (reason) {
         config.trigger('error', reason);
@@ -48844,10 +48839,17 @@ define("rsvp/utils",
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now#Compatibility
     var now = Date.now || function() { return new Date().getTime(); };
     __exports__.now = now;
-    var o_create = (Object.create || function(object) {
-      var o = function() { };
-      o.prototype = object;
-      return o;
+    function F() { }
+
+    var o_create = (Object.create || function (o) {
+      if (arguments.length > 1) {
+        throw new Error('Second argument not supported');
+      }
+      if (typeof o !== 'object') {
+        throw new TypeError('Argument must be an object');
+      }
+      F.prototype = o;
+      return new F();
     });
     __exports__.o_create = o_create;
   });
