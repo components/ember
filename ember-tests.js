@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.f6405789
+ * @version   1.8.0-beta.1+canary.41d097aa
  */
 
 (function() {
@@ -52187,7 +52187,7 @@ define("ember/tests/helpers/link_to_test",
       equal(link.attr('tabindex'), '-1', "The self-link contains tabindex attribute");
     });
 
-    if(Ember.FEATURES.isEnabled('ember-routing-linkto-target-attribute')) {
+    
       test("The {{link-to}} helper supports `target` attribute", function() {
         Ember.TEMPLATES.index = Ember.Handlebars.compile("<h3>Home</h3>{{#link-to 'index' id='self-link' target='_blank'}}Self{{/link-to}}");
         bootApplication();
@@ -52247,7 +52247,7 @@ define("ember/tests/helpers/link_to_test",
 
         notEqual(container.lookup('controller:application').get('currentRouteName'), 'about', 'link-to should not transition if target is not equal to _self or empty');
       });
-    }
+    
 
     test("The {{link-to}} helper accepts string/numeric arguments", function() {
       Router.map(function() {
