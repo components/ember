@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.41d097aa
+ * @version   1.8.0-beta.1+canary.303ec647
  */
 
 (function() {
@@ -24565,7 +24565,7 @@ define("ember-routing/tests/location/auto_location_test",
       equal(get(location, 'cancelRouterSetup'), true, 'cancelRouterSetup should be set so the router knows.');
     });
 
-    if (Ember.FEATURES.isEnabled('ember-routing-auto-location-uses-replace-state-for-history')) {
+    
       test("AutoLocation.create() should replace the URL for pushState-supported browsers viewing a HashLocation-formatted url", function() {
         expect(2);
 
@@ -24590,35 +24590,7 @@ define("ember-routing/tests/location/auto_location_test",
 
         equal(get(location, 'implementation'), 'history');
       });
-    } else {
-      test("AutoLocation.create() should transform the URL for pushState-supported browsers viewing a HashLocation-formatted url", function() {
-        expect(4);
-
-        supportsHistory = true;
-        supportsHashChange = true;
-
-        AutoTestLocation._location = {
-          hash: '#/test',
-          hostname: 'test.com',
-          href: 'http://test.com/#/test',
-          pathname: '/',
-          protocol: 'http:',
-          port: '',
-          search: '',
-
-          replace: function (path) {
-            equal(path, 'http://test.com/test', 'location.replace should be called with normalized HistoryLocation url');
-          }
-        };
-
-        createLocation();
-
-        equal(get(location, 'implementation'), 'none', 'NoneLocation should be returned while we attempt to location.replace()');
-        equal(location instanceof FakeNoneLocation, true, 'NoneLocation should be returned while we attempt to location.replace()');
-        equal(get(location, 'cancelRouterSetup'), true, 'cancelRouterSetup should be set so the router knows.');
-      });
-    }
-
+    
     test("AutoLocation._getSupportsHistory() should handle false positive for Android 2.2/2.3, returning false", function() {
       expect(1);
 
