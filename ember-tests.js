@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.afebdae2
+ * @version   1.8.0-beta.1+canary.b7971d72
  */
 
 (function() {
@@ -56868,13 +56868,14 @@ define("ember/tests/routing/basic_test.jshint",
     });
   });
 define("ember/tests/routing/query_params_test",
-  ["ember","ember-metal/enumerable_utils","ember-metal/computed","ember-metal/platform"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+  ["ember","ember-metal/enumerable_utils","ember-metal/computed","ember-metal/platform","ember-runtime/system/string"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
     var forEach = __dependency2__.forEach;
     var map = __dependency2__.map;
     var computed = __dependency3__.computed;
     var platform = __dependency4__.platform;
+    var capitalize = __dependency5__.capitalize;
 
     var Router, App, AppView, templates, router, container;
     var get = Ember.get;
@@ -58058,6 +58059,27 @@ define("ember/tests/routing/query_params_test",
         startingURL = '/?foo=YEAH';
         bootApplication();
       });
+
+      var testParamlessLinks = function(routeName) {
+        test("param-less links in an app booted with query params in the URL don't reset the query params: " + routeName, function() {
+          expect(1);
+
+          Ember.TEMPLATES[routeName] = compile("{{link-to 'index' 'index' id='index-link'}}");
+
+          App[capitalize(routeName) + "Controller"] = Ember.Controller.extend({
+            queryParams: ['foo'],
+            foo: "wat"
+          });
+
+          startingURL = '/?foo=YEAH';
+          bootApplication();
+
+          equal(Ember.$('#index-link').attr('href'), '/?foo=YEAH');
+        });
+      };
+
+      testParamlessLinks('application');
+      testParamlessLinks('index');
 
       QUnit.module("Model Dep Query Params", {
         setup: function() {
