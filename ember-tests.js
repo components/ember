@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.e4b79cad
+ * @version   1.8.0-beta.1+canary.4d5cd7fb
  */
 
 (function() {
@@ -52151,7 +52151,7 @@ define("ember/tests/helpers/link_to_test",
     });
 
     test("The {{link-to}} helper binds some anchor html tag common attributes", function() {
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("<h3>Home</h3>{{#link-to 'index' id='self-link' title='title-attr' rel='rel-attr'}}Self{{/link-to}}");
+      Ember.TEMPLATES.index = Ember.Handlebars.compile("<h3>Home</h3>{{#link-to 'index' id='self-link' title='title-attr' rel='rel-attr' tabindex='-1'}}Self{{/link-to}}");
       bootApplication();
 
       Ember.run(function() {
@@ -52161,6 +52161,7 @@ define("ember/tests/helpers/link_to_test",
       var link = Ember.$('#self-link', '#qunit-fixture');
       equal(link.attr('title'), 'title-attr', "The self-link contains title attribute");
       equal(link.attr('rel'), 'rel-attr', "The self-link contains rel attribute");
+      equal(link.attr('tabindex'), '-1', "The self-link contains tabindex attribute");
     });
 
     if(Ember.FEATURES.isEnabled('ember-routing-linkto-target-attribute')) {
