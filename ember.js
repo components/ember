@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.2bcd494c
+ * @version   1.8.0-beta.1+canary.f6405789
  */
 
 (function() {
@@ -13081,7 +13081,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.2bcd494c
+      @version 1.8.0-beta.1+canary.f6405789
     */
 
     if ('undefined' === typeof Ember) {
@@ -13108,10 +13108,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.2bcd494c'
+      @default '1.8.0-beta.1+canary.f6405789'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.2bcd494c';
+    Ember.VERSION = '1.8.0-beta.1+canary.f6405789';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -19596,7 +19596,19 @@ define("ember-routing-handlebars/helpers/link_to",
     **/
     var LinkView = Ember.LinkView = EmberComponent.extend({
       tagName: 'a',
+
+      /**
+        @deprecated Use current-when instead.
+        @property currentWhen
+      */
       currentWhen: null,
+
+      /**
+        Used to determine when this LinkView is active.
+
+        @property currentWhen
+      */
+      'current-when': null,
 
       /**
         Sets the `title` attribute of the `LinkView`'s HTML element.
@@ -19727,6 +19739,8 @@ define("ember-routing-handlebars/helpers/link_to",
       init: function() {
         this._super.apply(this, arguments);
 
+        Ember.deprecate('Using currentWhen with {{link-to}} is deprecated in favor of `current-when`.', this.currentWhen);
+
         // Map desired event name to invoke function
         var eventName = get(this, 'eventName');
         this.on(eventName, this, this._invoke);
@@ -19829,7 +19843,7 @@ define("ember-routing-handlebars/helpers/link_to",
         var router = get(this, 'router');
         var loadedParams = get(this, 'loadedParams');
         var contexts = loadedParams.models;
-        var currentWhen = this.currentWhen;
+        var currentWhen = this['current-when'] || this.currentWhen;
         var isCurrentWhenSpecified = Boolean(currentWhen);
         currentWhen = currentWhen || loadedParams.targetRouteName;
 
