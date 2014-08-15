@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.e636ff29
+ * @version   1.8.0-beta.1+canary.88f78f51
  */
 
 (function() {
@@ -25667,6 +25667,15 @@ define("ember-runtime/keys.jshint",
       ok(true, 'ember-runtime/keys.js should pass jshint.'); 
     });
   });
+define("ember-runtime/mixins/-proxy.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-runtime/mixins');
+    test('ember-runtime/mixins/-proxy.js should pass jshint', function() { 
+      ok(true, 'ember-runtime/mixins/-proxy.js should pass jshint.'); 
+    });
+  });
 define("ember-runtime/mixins/action_handler.jshint",
   [],
   function() {
@@ -25791,15 +25800,6 @@ define("ember-runtime/mixins/promise_proxy.jshint",
     module('JSHint - ember-runtime/mixins');
     test('ember-runtime/mixins/promise_proxy.js should pass jshint', function() { 
       ok(true, 'ember-runtime/mixins/promise_proxy.js should pass jshint.'); 
-    });
-  });
-define("ember-runtime/mixins/proxy.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-runtime/mixins');
-    test('ember-runtime/mixins/proxy.js should pass jshint', function() { 
-      ok(true, 'ember-runtime/mixins/proxy.js should pass jshint.'); 
     });
   });
 define("ember-runtime/mixins/sortable.jshint",
