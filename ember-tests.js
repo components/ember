@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.303ec647
+ * @version   1.8.0-beta.1+canary.e636ff29
  */
 
 (function() {
@@ -16714,7 +16714,7 @@ define("ember-metal/tests/is_present_test",
     "use strict";
     var isPresent = __dependency1__["default"];
 
-    if (Ember.FEATURES.isEnabled('ember-metal-is-present')) {
+    
       QUnit.module("Ember.isPresent");
 
       test("Ember.isPresent", function() {
@@ -16739,7 +16739,7 @@ define("ember-metal/tests/is_present_test",
         equal(false, isPresent(object),    "for an Object that has zero 'length'");
         equal(true,  isPresent([1,2,3]),   "for a non-empty array");
       });
-    }
+    
   });
 define("ember-metal/tests/is_present_test.jshint",
   [],

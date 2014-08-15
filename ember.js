@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.303ec647
+ * @version   1.8.0-beta.1+canary.e636ff29
  */
 
 (function() {
@@ -10663,9 +10663,9 @@ define("ember-metal",
 
     Ember.isBlank = isBlank;
 
-    if (Ember.FEATURES.isEnabled('ember-metal-is-present')) {
+    
       Ember.isPresent = isPresent;
-    }
+    
 
     Ember.merge = merge;
 
@@ -13081,7 +13081,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.303ec647
+      @version 1.8.0-beta.1+canary.e636ff29
     */
 
     if ('undefined' === typeof Ember) {
@@ -13108,10 +13108,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.303ec647'
+      @default '1.8.0-beta.1+canary.e636ff29'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.303ec647';
+    Ember.VERSION = '1.8.0-beta.1+canary.e636ff29';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -14545,7 +14545,7 @@ define("ember-metal/is_present",
     var isBlank = __dependency1__["default"];
     var isPresent;
 
-    if (Ember.FEATURES.isEnabled('ember-metal-is-present')) {
+    
       /**
         A value is present if it not `isBlank`.
 
@@ -14572,7 +14572,7 @@ define("ember-metal/is_present",
       isPresent = function isPresent(obj) {
         return !isBlank(obj);
       };
-    }
+    
 
     __exports__["default"] = isPresent;
   });
