@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.6689bece
+ * @version   1.8.0-beta.1+canary.3dd5955e
  */
 
 (function() {
@@ -13081,7 +13081,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.6689bece
+      @version 1.8.0-beta.1+canary.3dd5955e
     */
 
     if ('undefined' === typeof Ember) {
@@ -13108,10 +13108,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.6689bece'
+      @default '1.8.0-beta.1+canary.3dd5955e'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.6689bece';
+    Ember.VERSION = '1.8.0-beta.1+canary.3dd5955e';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -19739,7 +19739,7 @@ define("ember-routing-handlebars/helpers/link_to",
       init: function() {
         this._super.apply(this, arguments);
 
-        Ember.deprecate('Using currentWhen with {{link-to}} is deprecated in favor of `current-when`.', this.currentWhen);
+        Ember.deprecate('Using currentWhen with {{link-to}} is deprecated in favor of `current-when`.', !this.currentWhen);
 
         // Map desired event name to invoke function
         var eventName = get(this, 'eventName');

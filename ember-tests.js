@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.6689bece
+ * @version   1.8.0-beta.1+canary.3dd5955e
  */
 
 (function() {
@@ -51928,7 +51928,7 @@ define("ember/tests/helpers/link_to_test",
       });
 
       Ember.TEMPLATES.index = Ember.Handlebars.compile("<h3>Home</h3>{{outlet}}");
-      Ember.TEMPLATES['index/about'] = Ember.Handlebars.compile("{{#link-to 'item' id='other-link' current-when='index'}}ITEM{{/link-to}}");
+      Ember.TEMPLATES['index/about'] = Ember.Handlebars.compile("{{#link-to 'item' id='other-link' currentWhen='index'}}ITEM{{/link-to}}");
 
       bootApplication();
 
