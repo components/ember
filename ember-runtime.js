@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.8ac57ac2
+ * @version   1.8.0-beta.1+canary.54dad244
  */
 
 (function() {
@@ -4499,7 +4499,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.8ac57ac2
+      @version 1.8.0-beta.1+canary.54dad244
     */
 
     if ('undefined' === typeof Ember) {
@@ -4526,10 +4526,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.8ac57ac2'
+      @default '1.8.0-beta.1+canary.54dad244'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.8ac57ac2';
+    Ember.VERSION = '1.8.0-beta.1+canary.54dad244';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -18641,7 +18641,7 @@ define("ember-runtime/system/core_object",
         @param {Mixin} [mixins]* One or more Mixin classes
         @param {Object} [arguments]* Object containing values to use within the new class
       */
-      extend: function() {
+      extend: function extend() {
         var Class = makeCtor();
         var proto;
         Class.ClassMixin = Mixin.create(this.ClassMixin);
