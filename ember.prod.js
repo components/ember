@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.88f78f51
+ * @version   1.8.0-beta.1+canary.114841c2
  */
 
 (function() {
@@ -12772,7 +12772,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.88f78f51
+      @version 1.8.0-beta.1+canary.114841c2
     */
 
     if ('undefined' === typeof Ember) {
@@ -12799,10 +12799,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.88f78f51'
+      @default '1.8.0-beta.1+canary.114841c2'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.88f78f51';
+    Ember.VERSION = '1.8.0-beta.1+canary.114841c2';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -13783,17 +13783,20 @@ define("ember-metal/expand_properties",
       Expands `pattern`, invoking `callback` for each expansion.
 
       The only pattern supported is brace-expansion, anything else will be passed
-      once to `callback` directly. Brace expansion can only appear at the end of a
-      pattern, for an example see the last call below.
+      once to `callback` directly.
 
       Example
+
       ```js
       function echo(arg){ console.log(arg); }
 
-      Ember.expandProperties('foo.bar', echo);        //=> 'foo.bar'
-      Ember.expandProperties('{foo,bar}', echo);      //=> 'foo', 'bar'
-      Ember.expandProperties('foo.{bar,baz}', echo);  //=> 'foo.bar', 'foo.baz'
-      Ember.expandProperties('{foo,bar}.baz', echo);  //=> '{foo,bar}.baz'
+      Ember.expandProperties('foo.bar', echo);              //=> 'foo.bar'
+      Ember.expandProperties('{foo,bar}', echo);            //=> 'foo', 'bar'
+      Ember.expandProperties('foo.{bar,baz}', echo);        //=> 'foo.bar', 'foo.baz'
+      Ember.expandProperties('{foo,bar}.baz', echo);        //=> '{foo,bar}.baz'
+      Ember.expandProperties('foo.{bar,baz}.@each', echo)   //=> 'foo.bar.@each', 'foo.baz.@each'
+      Ember.expandProperties('{foo,bar}.{spam,eggs}', echo) //=> 'foo.spam', 'foo.eggs', 'bar.spam', 'bar.eggs'
+      Ember.expandProperties('{foo}.bar.{baz}')             //=> 'foo.bar.baz'
       ```
 
       @method
@@ -13808,12 +13811,9 @@ define("ember-metal/expand_properties",
           'e.g. `user.{firstName, lastName}` should be `user.{firstName,lastName}`');
       }
 
-      if (Ember.FEATURES.isEnabled('property-brace-expansion-improvement')) {
+      
         return newExpandProperties(pattern, callback);
-      } else {
-        return oldExpandProperties(pattern, callback);
-      }
-    }
+          }
 
     function oldExpandProperties(pattern, callback) {
       var match, prefix, list;

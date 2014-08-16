@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.88f78f51
+ * @version   1.8.0-beta.1+canary.114841c2
  */
 
 (function() {
@@ -16329,7 +16329,7 @@ define("ember-metal/tests/expand_properties_test",
       });
     }
 
-    if (Ember.FEATURES.isEnabled('property-brace-expansion-improvement')) {
+    
       test('Expansions with single properties only expand once', function() {
         expect(1);
 
@@ -16364,7 +16364,7 @@ define("ember-metal/tests/expand_properties_test",
         var expected = ['a.d.e', 'a.d.f', 'b.d.e', 'b.d.f', 'c.d.e', 'c.d.f'];
         deepEqual(expected.sort(), foundProperties.sort());
       });
-    }
+    
   });
 define("ember-metal/tests/expand_properties_test.jshint",
   [],
