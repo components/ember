@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.3dd5955e
+ * @version   1.8.0-beta.1+canary.8ac57ac2
  */
 
 (function() {
@@ -1985,8 +1985,8 @@ define("ember-application/ext/controller",
     __exports__["default"] = ControllerMixin;
   });
 define("ember-application/system/application",
-  ["ember-metal","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/lazy_load","ember-application/system/dag","ember-runtime/system/namespace","ember-runtime/mixins/deferred","ember-application/system/resolver","ember-metal/platform","ember-metal/run_loop","ember-metal/utils","container/container","ember-runtime/controllers/controller","ember-metal/enumerable_utils","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-views/system/event_dispatcher","ember-views/system/jquery","ember-routing/system/route","ember-routing/system/router","ember-routing/location/hash_location","ember-routing/location/history_location","ember-routing/location/auto_location","ember-routing/location/none_location","ember-routing/system/cache","ember-metal/core","ember-handlebars-compiler","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __exports__) {
+  ["ember-metal","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/lazy_load","ember-application/system/dag","ember-runtime/system/namespace","ember-runtime/mixins/deferred","ember-application/system/resolver","ember-metal/platform","ember-metal/run_loop","ember-metal/utils","container/container","ember-runtime/controllers/controller","ember-metal/enumerable_utils","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-handlebars/controls/select","ember-views/system/event_dispatcher","ember-views/system/jquery","ember-routing/system/route","ember-routing/system/router","ember-routing/location/hash_location","ember-routing/location/history_location","ember-routing/location/auto_location","ember-routing/location/none_location","ember-routing/system/cache","ember-metal/core","ember-handlebars-compiler","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -2010,19 +2010,20 @@ define("ember-application/system/application",
     var EnumerableUtils = __dependency14__["default"];
     var ObjectController = __dependency15__["default"];
     var ArrayController = __dependency16__["default"];
-    var EventDispatcher = __dependency17__["default"];
+    var SelectView = __dependency17__["default"];
+    var EventDispatcher = __dependency18__["default"];
     //import ContainerDebugAdapter from "ember-extension-support/container_debug_adapter";
-    var jQuery = __dependency18__["default"];
-    var Route = __dependency19__["default"];
-    var Router = __dependency20__["default"];
-    var HashLocation = __dependency21__["default"];
-    var HistoryLocation = __dependency22__["default"];
-    var AutoLocation = __dependency23__["default"];
-    var NoneLocation = __dependency24__["default"];
-    var BucketCache = __dependency25__["default"];
+    var jQuery = __dependency19__["default"];
+    var Route = __dependency20__["default"];
+    var Router = __dependency21__["default"];
+    var HashLocation = __dependency22__["default"];
+    var HistoryLocation = __dependency23__["default"];
+    var AutoLocation = __dependency24__["default"];
+    var NoneLocation = __dependency25__["default"];
+    var BucketCache = __dependency26__["default"];
 
-    var K = __dependency26__.K;
-    var EmberHandlebars = __dependency27__["default"];
+    var K = __dependency27__.K;
+    var EmberHandlebars = __dependency28__["default"];
 
     var ContainerDebugAdapter;
 
@@ -2936,6 +2937,9 @@ define("ember-application/system/application",
         container.register('controller:basic', Controller, { instantiate: false });
         container.register('controller:object', ObjectController, { instantiate: false });
         container.register('controller:array', ArrayController, { instantiate: false });
+
+        container.register('view:select', SelectView);
+
         container.register('route:basic', Route, { instantiate: false });
         container.register('event_dispatcher:main', EventDispatcher);
 
@@ -4313,7 +4317,7 @@ define("ember-handlebars-compiler",
       Which is functionally equivalent to:
 
       ```handlebars
-      {{view App.CalendarView}}
+      {{view 'calendar'}}
       ```
 
       Options in the helper will be passed to the view in exactly the same
@@ -5348,7 +5352,7 @@ define("ember-handlebars/controls/select",
       ```
 
       ```handlebars
-      {{view Ember.Select content=names}}
+      {{view "select" content=names}}
       ```
 
       Would result in the following HTML:
@@ -5371,10 +5375,7 @@ define("ember-handlebars/controls/select",
       ```
 
       ```handlebars
-      {{view Ember.Select
-             content=names
-             value=selectedName
-      }}
+      {{view "select" content=names value=selectedName}}
       ```
 
       Would result in the following HTML with the `<option>` for 'Tom' selected:
@@ -5413,7 +5414,7 @@ define("ember-handlebars/controls/select",
       ```
 
       ```handlebars
-      {{view Ember.Select
+      {{view "select"
              content=programmers
              optionValuePath="content.id"
              optionLabelPath="content.firstName"}}
@@ -5444,7 +5445,7 @@ define("ember-handlebars/controls/select",
       ```
 
       ```handlebars
-      {{view Ember.Select
+      {{view "select"
              content=programmers
              optionValuePath="content.id"
              optionLabelPath="content.firstName"
@@ -5477,15 +5478,12 @@ define("ember-handlebars/controls/select",
 
       App.ApplicationController = Ember.ObjectController.extend({
         selectedPerson: tom,
-        programmers: [
-          yehuda,
-          tom
-        ]
+        programmers: [ yehuda, tom ]
       });
       ```
 
       ```handlebars
-      {{view Ember.Select
+      {{view "select"
              content=programmers
              optionValuePath="content.id"
              optionLabelPath="content.firstName"
@@ -5514,15 +5512,12 @@ define("ember-handlebars/controls/select",
       ```javascript
       App.ApplicationController = Ember.ObjectController.extend({
         selectedProgrammer: null,
-        programmers: [
-          "Yehuda",
-          "Tom"
-        ]
+        programmers: ["Yehuda", "Tom"]
       });
       ```
 
       ``` handlebars
-      {{view Ember.Select
+      {{view "select"
              content=programmers
              value=selectedProgrammer
       }}
@@ -5546,15 +5541,12 @@ define("ember-handlebars/controls/select",
       ```javascript
       App.ApplicationController = Ember.ObjectController.extend({
         selectedProgrammer: null,
-        programmers: [
-          "Yehuda",
-          "Tom"
-        ]
+        programmers: [ "Yehuda", "Tom" ]
       });
       ```
 
       ```handlebars
-      {{view Ember.Select
+      {{view "select"
              content=programmers
              value=selectedProgrammer
              prompt="Please select a name"
@@ -5676,7 +5668,8 @@ define("ember-handlebars/controls/select",
         Otherwise, this should be a list of objects. For instance:
 
         ```javascript
-        Ember.Select.create({
+        var App = Ember.Application.create();
+        var App.MySelect = Ember.Select.extend({
           content: Ember.A([
               { id: 1, firstName: 'Yehuda' },
               { id: 2, firstName: 'Tom' }
@@ -6276,8 +6269,8 @@ define("ember-handlebars/controls/text_support",
     __exports__["default"] = TextSupport;
   });
 define("ember-handlebars/ext",
-  ["ember-metal/core","ember-runtime/system/string","ember-handlebars-compiler","ember-metal/property_get","ember-metal/binding","ember-metal/error","ember-metal/mixin","ember-metal/is_empty","ember-metal/cache","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __exports__) {
+  ["ember-metal/core","ember-runtime/system/string","ember-handlebars-compiler","ember-metal/property_get","ember-metal/error","ember-metal/mixin","ember-views/views/view","ember-handlebars/views/metamorph_view","ember-metal/path_cache","ember-metal/is_empty","ember-metal/cache","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.FEATURES, Ember.assert, Ember.Handlebars, Ember.lookup
@@ -6289,14 +6282,17 @@ define("ember-handlebars/ext",
     var helpers = EmberHandlebars.helpers;
 
     var get = __dependency4__.get;
-    var isGlobalPath = __dependency5__.isGlobalPath;
-    var EmberError = __dependency6__["default"];
-    var IS_BINDING = __dependency7__.IS_BINDING;
+    var EmberError = __dependency5__["default"];
+    var IS_BINDING = __dependency6__.IS_BINDING;
+
+    var View = __dependency7__["default"];
+    var _Metamorph = __dependency8__._Metamorph;
+    var detectIsGlobal = __dependency9__.isGlobal;
 
     // late bound via requireModule because of circular dependencies.
     var resolveHelper, SimpleHandlebarsView;
 
-    var isEmpty = __dependency8__["default"];
+    var isEmpty = __dependency10__["default"];
 
     var slice = [].slice;
     var originalTemplate = EmberHandlebars.template;
@@ -6313,7 +6309,7 @@ define("ember-handlebars/ext",
       @param data {Hash}
     */
 
-    var Cache = __dependency9__["default"];
+    var Cache = __dependency11__["default"];
 
     var FIRST_SEGMENT_CACHE = new Cache(1000, function(path){
       return path.split('.', 1)[0];
@@ -6376,9 +6372,17 @@ define("ember-handlebars/ext",
       root = normalizedPath.root;
       path = normalizedPath.path;
 
-      value = get(root, path);
+      // Ember.get with a null root and GlobalPath will fall back to
+      // Ember.lookup, which is no longer allowed in templates.
+      //
+      // But when outputting a primitive, root will be the primitive
+      // and path a blank string. These primitives should pass through
+      // to `get`.
+      if (root || path === '') {
+        value = get(root, path);
+      }
 
-      if (isGlobalPath(path)) {
+      if (detectIsGlobal(path)) {
         if (value === undefined && root !== Ember.lookup) {
           root = Ember.lookup;
           value = get(root, path);
@@ -6388,6 +6392,68 @@ define("ember-handlebars/ext",
       }
 
       return value;
+    }
+
+    /**
+      handlebarsGetView resolves a view based on strings passed into a template.
+      For example:
+
+      ```handlebars
+      {{view "some-view"}}
+      {{view view.someView}}
+      {{view App.SomeView}} {{! deprecated }}
+      ```
+
+      A value is first checked to be a string- non-strings are presumed to be
+      an object and returned. This handles the "access a view on a context"
+      case (line 2 in the above examples).
+
+      Next a string is normalized, then called on the context with `get`. If
+      there is still no value, a GlobalPath will be fetched from the global
+      context (raising a deprecation) and a localPath will be passed to the
+      container to be looked up.
+
+      @private
+      @for Ember.Handlebars
+      @param {Object} context The context of the template being rendered
+      @param {String} path The path to be lookedup
+      @param {Object} container The container
+      @param {Object} data The template's data hash
+    */
+    function handlebarsGetView(context, path, container, data) {
+      var viewClass;
+      if ('string' === typeof path) {
+        if (data) {
+          var normalizedPath = normalizePath(context, path, data);
+          context = normalizedPath.root;
+          path = normalizedPath.path;
+        }
+
+        // Only lookup view class on context if there is a context. If not,
+        // the global lookup path on get may kick in.
+        viewClass = context && get(context, path);
+        var isGlobal = detectIsGlobal(path);
+
+        if (!viewClass && !isGlobal) {
+                    viewClass = container.lookupFactory('view:'+path);
+        }
+        if (!viewClass && isGlobal) {
+          var globalViewClass = get(path);
+                    if (globalViewClass) {
+            viewClass = globalViewClass;
+          }
+        }
+      } else {
+        viewClass = path;
+      }
+
+      // Sometimes a view's value is yet another path
+      if ('string' === typeof viewClass && data && data.view) {
+        viewClass = handlebarsGetView(data.view, viewClass, container, data);
+      }
+
+      
+      return viewClass;
     }
 
     /**
@@ -6835,6 +6901,7 @@ define("ember-handlebars/ext",
     __exports__.template = template;__exports__.normalizePath = normalizePath;
     __exports__.makeBoundHelper = makeBoundHelper;
     __exports__.handlebarsGet = handlebarsGet;
+    __exports__.handlebarsGetView = handlebarsGetView;
     __exports__.evaluateUnboundHelper = evaluateUnboundHelper;
   });
 define("ember-handlebars/helpers/binding",
@@ -7805,6 +7872,7 @@ define("ember-handlebars/helpers/collection",
     var fmt = __dependency4__.fmt;
     var get = __dependency5__.get;
     var handlebarsGet = __dependency6__.handlebarsGet;
+    var handlebarsGetView = __dependency6__.handlebarsGetView;
     var ViewHelper = __dependency7__.ViewHelper;
     var computed = __dependency8__.computed;
     var CollectionView = __dependency9__["default"];
@@ -7826,7 +7894,8 @@ define("ember-handlebars/helpers/collection",
       Given an empty `<body>` the following template:
 
       ```handlebars
-      {{#collection contentBinding="App.items"}}
+      {{! application.hbs }}
+      {{#collection content=model}}
         Hi {{view.content.name}}
       {{/collection}}
       ```
@@ -7834,44 +7903,45 @@ define("ember-handlebars/helpers/collection",
       And the following application code
 
       ```javascript
-      App = Ember.Application.create()
-      App.items = [
-        Ember.Object.create({name: 'Dave'}),
-        Ember.Object.create({name: 'Mary'}),
-        Ember.Object.create({name: 'Sara'})
-      ]
+      App = Ember.Application.create();
+      App.ApplicationRoute = Ember.Route.extend({
+        model: function(){
+          return [{name: 'Yehuda'},{name: 'Tom'},{name: 'Peter'}];
+        }
+      });
       ```
 
-      Will result in the HTML structure below
+      The following HTML will result:
 
       ```html
       <div class="ember-view">
-        <div class="ember-view">Hi Dave</div>
-        <div class="ember-view">Hi Mary</div>
-        <div class="ember-view">Hi Sara</div>
+        <div class="ember-view">Hi Yehuda</div>
+        <div class="ember-view">Hi Tom</div>
+        <div class="ember-view">Hi Peter</div>
       </div>
       ```
 
-      ### Blockless use in a collection
+      ### Non-block version of collection
 
-      If you provide an `itemViewClass` option that has its own `template` you can
+      If you provide an `itemViewClass` option that has its own `template` you may
       omit the block.
 
       The following template:
 
       ```handlebars
-      {{collection contentBinding="App.items" itemViewClass="App.AnItemView"}}
+      {{! application.hbs }}
+      {{collection content=model itemViewClass="an-item"}}
       ```
 
       And application code
 
       ```javascript
       App = Ember.Application.create();
-      App.items = [
-        Ember.Object.create({name: 'Dave'}),
-        Ember.Object.create({name: 'Mary'}),
-        Ember.Object.create({name: 'Sara'})
-      ];
+      App.ApplicationRoute = Ember.Route.extend({
+        model: function(){
+          return [{name: 'Yehuda'},{name: 'Tom'},{name: 'Peter'}];
+        }
+      });
 
       App.AnItemView = Ember.View.extend({
         template: Ember.Handlebars.compile("Greetings {{view.content.name}}")
@@ -7882,9 +7952,9 @@ define("ember-handlebars/helpers/collection",
 
       ```html
       <div class="ember-view">
-        <div class="ember-view">Greetings Dave</div>
-        <div class="ember-view">Greetings Mary</div>
-        <div class="ember-view">Greetings Sara</div>
+        <div class="ember-view">Greetings Yehuda</div>
+        <div class="ember-view">Greetings Tom</div>
+        <div class="ember-view">Greetings Peter</div>
       </div>
       ```
 
@@ -7895,10 +7965,12 @@ define("ember-handlebars/helpers/collection",
       the helper by passing it as the first argument:
 
       ```handlebars
-      {{#collection App.MyCustomCollectionClass contentBinding="App.items"}}
+      {{#collection "my-custom-collection" content=model}}
         Hi {{view.content.name}}
       {{/collection}}
       ```
+
+      This example would look for the class `App.MyCustomCollection`.
 
       ### Forwarded `item.*`-named Options
 
@@ -7908,7 +7980,7 @@ define("ember-handlebars/helpers/collection",
       item (note the camelcasing):
 
       ```handlebars
-      {{#collection contentBinding="App.items"
+      {{#collection content=model
                     itemTagName="p"
                     itemClassNames="greeting"}}
         Howdy {{view.content.name}}
@@ -7919,9 +7991,9 @@ define("ember-handlebars/helpers/collection",
 
       ```html
       <div class="ember-view">
-        <p class="ember-view greeting">Howdy Dave</p>
-        <p class="ember-view greeting">Howdy Mary</p>
-        <p class="ember-view greeting">Howdy Sara</p>
+        <p class="ember-view greeting">Howdy Yehuda</p>
+        <p class="ember-view greeting">Howdy Tom</p>
+        <p class="ember-view greeting">Howdy Peter</p>
       </div>
       ```
 
@@ -7941,21 +8013,19 @@ define("ember-handlebars/helpers/collection",
               } else {
               }
 
-      var fn = options.fn;
-      var data = options.data;
-      var inverse = options.inverse;
-      var view = options.data.view;
+      var fn        = options.fn,
+          data      = options.data,
+          inverse   = options.inverse,
+          view      = options.data.view,
+          // This should be deterministic, and should probably come from a
+          // parent view and not the controller.
+          container = (view.controller && view.controller.container ? view.controller.container : view.container);
 
-
-      var controller, container;
       // If passed a path string, convert that into an object.
       // Otherwise, just default to the standard class.
       var collectionClass;
       if (path) {
-        controller = data.keywords.controller;
-        container = controller && controller.container;
-        options.silenceGlobalDeprecation = true;
-        collectionClass = handlebarsGet(this, path, options) || container.lookupFactory('view:' + path);
+        collectionClass = handlebarsGetView(this, path, container, options.data);
               }
       else {
         collectionClass = CollectionView;
@@ -7970,14 +8040,11 @@ define("ember-handlebars/helpers/collection",
       var itemViewClass;
 
       if (hash.itemView) {
-        controller = data.keywords.controller;
-                container = controller.container;
-        itemViewClass = container.lookupFactory('view:' + hash.itemView);
-              } else if (hash.itemViewClass) {
-        options.silenceGlobalDeprecation = true;
-        itemViewClass = handlebarsGet(collectionPrototype, hash.itemViewClass, options);
+        itemViewClass = handlebarsGetView(this, hash.itemView, container, options.data);
+      } else if (hash.itemViewClass) {
+        itemViewClass = handlebarsGetView(collectionPrototype, hash.itemViewClass, container, options.data);
       } else {
-        itemViewClass = collectionPrototype.itemViewClass;
+        itemViewClass = handlebarsGetView(collectionPrototype, collectionPrototype.itemViewClass, container, options.data);
       }
 
       
@@ -8013,8 +8080,7 @@ define("ember-handlebars/helpers/collection",
               tagName: itemHash.tagName
         });
       } else if (hash.emptyViewClass) {
-        options.silenceGlobalDeprecation = true;
-        emptyViewClass = handlebarsGet(this, hash.emptyViewClass, options);
+        emptyViewClass = handlebarsGetView(this, hash.emptyViewClass, container, options.data);
       }
       if (emptyViewClass) { hash.emptyView = emptyViewClass; }
 
@@ -8387,131 +8453,161 @@ define("ember-handlebars/helpers/each",
     };
 
     /**
-      The `{{#each}}` helper loops over elements in a collection, rendering its
-      block once for each item. It is an extension of the base Handlebars `{{#each}}`
-      helper:
+      The `{{#each}}` helper loops over elements in a collection. It is an extension
+      of the base Handlebars `{{#each}}` helper.
+
+      The default behavior of `{{#each}}` is to yield its inner block once for every
+      item in an array. Each yield will provide the item as the context of the block.
 
       ```javascript
-      Developers = [{name: 'Yehuda'},{name: 'Tom'}, {name: 'Paul'}];
+      var developers = [{name: 'Yehuda'},{name: 'Tom'}, {name: 'Paul'}];
       ```
 
       ```handlebars
-      {{#each Developers}}
+      {{#each developers}}
         {{name}}
+        {{! `this` is each developer }}
       {{/each}}
       ```
 
-      `{{each}}` supports an alternative syntax with element naming:
+      `{{#each}}` supports an alternative syntax with element naming. This preserves
+      context of the yielded block:
 
       ```handlebars
-      {{#each person in Developers}}
+      {{#each person in developers}}
         {{person.name}}
+        {{! `this` is whatever it was outside the #each }}
       {{/each}}
       ```
 
-      When looping over objects that do not have properties, `{{this}}` can be used
-      to render the object:
+      The same rules apply to arrays of primitives, but the items may need to be
+      references with `{{this}}`.
 
       ```javascript
-      DeveloperNames = ['Yehuda', 'Tom', 'Paul']
+      var developerNames = ['Yehuda', 'Tom', 'Paul']
       ```
 
       ```handlebars
-      {{#each DeveloperNames}}
+      {{#each developerNames}}
         {{this}}
       {{/each}}
       ```
+
       ### {{else}} condition
+
       `{{#each}}` can have a matching `{{else}}`. The contents of this block will render
       if the collection is empty.
 
       ```
-      {{#each person in Developers}}
+      {{#each person in developers}}
         {{person.name}}
       {{else}}
         <p>Sorry, nobody is available for this task.</p>
       {{/each}}
       ```
-      ### Specifying a View class for items
-      If you provide an `itemViewClass` option that references a view class
-      with its own `template` you can omit the block.
+
+      ### Specifying an alternative view for each item
+
+      `itemViewClass` can control which view will be used during the render of each
+      item's template.
 
       The following template:
 
       ```handlebars
-      {{#view App.MyView }}
-        {{each view.items itemViewClass="App.AnItemView"}}
-      {{/view}}
+      <ul>
+      {{#each developers itemViewClass="person"}}
+        {{name}}
+      {{/each}}
+      </ul>
       ```
 
-      And application code
+      Will use the following view for each item
 
       ```javascript
-      App = Ember.Application.create({
-        MyView: Ember.View.extend({
-          items: [
-            Ember.Object.create({name: 'Dave'}),
-            Ember.Object.create({name: 'Mary'}),
-            Ember.Object.create({name: 'Sara'})
-          ]
-        })
-      });
-
-      App.AnItemView = Ember.View.extend({
-        template: Ember.Handlebars.compile("Greetings {{name}}")
+      App.PersonView = Ember.View.extend({
+        tagName: 'li'
       });
       ```
 
-      Will result in the HTML structure below
+      Resulting in HTML output that looks like the following:
 
       ```html
-      <div class="ember-view">
-        <div class="ember-view">Greetings Dave</div>
-        <div class="ember-view">Greetings Mary</div>
-        <div class="ember-view">Greetings Sara</div>
-      </div>
+      <ul>
+        <li class="ember-view">Yehuda</li>
+        <li class="ember-view">Tom</li>
+        <li class="ember-view">Paul</li>
+      </ul>
       ```
 
-      If an `itemViewClass` is defined on the helper, and therefore the helper is not
-      being used as a block, an `emptyViewClass` can also be provided optionally.
-      The `emptyViewClass` will match the behavior of the `{{else}}` condition
-      described above. That is, the `emptyViewClass` will render if the collection
-      is empty.
-
-      ### Representing each item with a Controller.
-      By default the controller lookup within an `{{#each}}` block will be
-      the controller of the template where the `{{#each}}` was used. If each
-      item needs to be presented by a custom controller you can provide a
-      `itemController` option which references a controller by lookup name.
-      Each item in the loop will be wrapped in an instance of this controller
-      and the item itself will be set to the `model` property of that controller.
-
-      This is useful in cases where properties of model objects need transformation
-      or synthesis for display:
+      `itemViewClass` also enables a non-block form of `{{each}}`. The view
+      must {{#crossLink "Ember.View/toc_templates"}}provide its own template{{/crossLink}},
+      and then the block should be dropped. An example that outputs the same HTML
+      as the previous one:
 
       ```javascript
-      App.DeveloperController = Ember.ObjectController.extend({
+      App.PersonView = Ember.View.extend({
+        tagName: 'li',
+        template: '{{name}}'
+      });
+      ```
+
+      ```handlebars
+      <ul>
+        {{each developers itemViewClass="person"}}
+      </ul>
+      ```
+
+      ### Specifying an alternative view for no items (else)
+
+      The `emptyViewClass` option provides the same flexibility to the `{{else}}`
+      case of the each helper.
+
+      ```javascript
+      App.NoPeopleView = Ember.View.extend({
+        tagName: 'li',
+        template: 'No person is available, sorry'
+      });
+      ```
+
+      ```handlebars
+      <ul>
+      {{#each developers emptyViewClass="no-people"}}
+        <li>{{name}}</li>
+      {{/each}}
+      </ul>
+      ```
+
+      ### Wrapping each item in a controller
+
+      Controllers in Ember manage state and decorate data. In many cases,
+      providing a controller for each item in a list can be useful.
+      Specifically, an {{#crossLink "Ember.ObjectController"}}Ember.ObjectController{{/crossLink}}
+      should probably be used. Item controllers are passed the item they
+      will present as a `model` property, and an object controller will
+      proxy property lookups to `model` for us.
+
+      This allows state and decoration to be added to the controller
+      while any other property lookups are delegated to the model. An example:
+
+      ```javascript
+      App.RecruitController = Ember.ObjectController.extend({
         isAvailableForHire: function() {
-          return !this.get('model.isEmployed') && this.get('model.isSeekingWork');
+          return !this.get('isEmployed') && this.get('isSeekingWork');
         }.property('isEmployed', 'isSeekingWork')
       })
       ```
 
       ```handlebars
-      {{#each person in developers itemController="developer"}}
+      {{#each person in developers itemController="recruit"}}
         {{person.name}} {{#if person.isAvailableForHire}}Hire me!{{/if}}
       {{/each}}
       ```
 
-      Each itemController will receive a reference to the current controller as
-      a `parentController` property.
-
       ### (Experimental) Grouped Each
 
-      When used in conjunction with the experimental [group helper](https://github.com/emberjs/group-helper),
-      you can inform Handlebars to re-render an entire group of items instead of
-      re-rendering them one at a time (in the event that they are changed en masse
-      or an item is added/removed).
+      If a list's membership often changes, but properties of items in that
+      group rarely change, a significant improvement in template rendering
+      time can be achieved by using the experimental [group helper](https://github.com/emberjs/group-helper).
 
       ```handlebars
       {{#group}}
@@ -8521,33 +8617,32 @@ define("ember-handlebars/helpers/each",
       {{/group}}
       ```
 
-      This can be faster than the normal way that Handlebars re-renders items
-      in some cases.
+      When the membership of `people` changes, or when any property changes, the entire
+      `{{#group}}` block will be re-rendered.
 
-      If for some reason you have a group with more than one `#each`, you can make
-      one of the collections be updated in normal (non-grouped) fashion by setting
-      the option `groupedRows=true` (counter-intuitive, I know).
-
-      For example,
+      An `{{#each}}` inside the `{{#group}}` helper can opt-out of the special group
+      behavior by passing the `groupedRows` option. For example:
 
       ```handlebars
-      {{dealershipName}}
-
       {{#group}}
         {{#each dealers}}
+          {{! uses group's special behavior }}
           {{firstName}} {{lastName}}
         {{/each}}
 
         {{#each car in cars groupedRows=true}}
+          {{! does not use group's special behavior }}
           {{car.make}} {{car.model}} {{car.color}}
         {{/each}}
       {{/group}}
       ```
-      Any change to `dealershipName` or the `dealers` collection will cause the
-      entire group to be re-rendered. However, changes to the `cars` collection
-      will be re-rendered individually (as normal).
 
-      Note that `group` behavior is also disabled by specifying an `itemViewClass`.
+      Any change to the `dealers` collection will cause the entire group to be re-rendered.
+      Changes to the `cars` collection will be re-rendered individually, as they are with
+      normal `{{#each}}` usage.
+
+      `{{#group}}` is implemented with an `itemViewClass`, so specifying an `itemViewClass`
+      on an `{{#each}}` will also disable the special re-rendering behavior.
 
       @method each
       @for Ember.Handlebars.helpers
@@ -8555,6 +8650,7 @@ define("ember-handlebars/helpers/each",
       @param [path] {String} path
       @param [options] {Object} Handlebars key/value pairs of options
       @param [options.itemViewClass] {String} a path to a view class used for each item
+      @param [options.emptyViewClass] {String} a path to a view class used for each item
       @param [options.itemController] {String} name of a controller to be created for each item
       @param [options.groupedRows] {boolean} enable normal item-by-item rendering when inside a `#group` helper
     */
@@ -8595,8 +8691,7 @@ define("ember-handlebars/helpers/each",
       if (options.data.insideGroup && !options.hash.groupedRows && !options.hash.itemViewClass) {
         new GroupedEach(ctx, path, options).render();
       } else {
-        // ES6TODO: figure out how to do this without global lookup.
-        return helpers.collection.call(ctx, 'Ember.Handlebars.EachView', options);
+        return helpers.collection.call(ctx, EmberHandlebars.EachView, options);
       }
     }
 
@@ -8922,6 +9017,7 @@ define("ember-handlebars/helpers/view",
     var merge = __dependency9__["default"];
     var normalizePath = __dependency10__.normalizePath;
     var handlebarsGet = __dependency10__.handlebarsGet;
+    var handlebarsGetView = __dependency10__.handlebarsGetView;
     var EmberString = __dependency11__["default"];
 
 
@@ -8949,7 +9045,6 @@ define("ember-handlebars/helpers/view",
 
       if (hash.hasOwnProperty('idBinding')) {
         // id can't be bound, so just perform one-time lookup.
-        options.silenceGlobalDeprecation = true;
         hash.id = handlebarsGet(thisContext, hash.idBinding, options);
         hashType.id = 'STRING';
         delete hash.idBinding;
@@ -9069,35 +9164,13 @@ define("ember-handlebars/helpers/view",
 
         makeBindings(thisContext, options);
 
-        if ('string' === typeof path) {
-          var lookup;
-          // TODO: this is a lame conditional, this should likely change
-          // but something along these lines will likely need to be added
-          // as deprecation warnings
-          //
-          if (options.types[0] === 'STRING' && LOWERCASE_A_Z.test(path) && !VIEW_PREFIX.test(path)) {
-            lookup = path;
-          } else {
-            options.silenceGlobalDeprecation = true;
-            newView = handlebarsGet(thisContext, path, options);
-            if (typeof newView === 'string') {
-              lookup = newView;
-            }
-          }
+        var container = this.container || (data && data.view && data.view.container);
+        newView = handlebarsGetView(thisContext, path, container, options.data);
 
-          if (lookup) {
-                        newView = data.view.container.lookupFactory('view:' + lookup);
-          }
-
-                  } else {
-          newView = path;
-        }
-
-        
         var viewOptions = this.propertiesFromHTMLOptions(options, thisContext);
         var currentView = data.view;
         viewOptions.templateData = data;
-        var newViewProto = newView.proto ? newView.proto() : newView;
+        var newViewProto = newView.proto();
 
         if (fn) {
                     viewOptions.template = fn;
@@ -9106,6 +9179,35 @@ define("ember-handlebars/helpers/view",
         // We only want to override the `_context` computed property if there is
         // no specified controller. See View#_context for more information.
         if (!newViewProto.controller && !newViewProto.controllerBinding && !viewOptions.controller && !viewOptions.controllerBinding) {
+          viewOptions._context = thisContext;
+        }
+
+        // for instrumentation
+        if (options.helperName) {
+          viewOptions.helperName = options.helperName;
+        }
+
+        currentView.appendChild(newView, viewOptions);
+      },
+
+      instanceHelper: function(thisContext, newView, options) {
+        var data = options.data,
+            fn = options.fn;
+
+        makeBindings(thisContext, options);
+
+        
+        var viewOptions = this.propertiesFromHTMLOptions(options, thisContext);
+        var currentView = data.view;
+        viewOptions.templateData = data;
+
+        if (fn) {
+                    viewOptions.template = fn;
+        }
+
+        // We only want to override the `_context` computed property if there is
+        // no specified controller. See View#_context for more information.
+        if (!newView.controller && !newView.controllerBinding && !viewOptions.controller && !viewOptions.controllerBinding) {
           viewOptions._context = thisContext;
         }
 
@@ -9222,7 +9324,7 @@ define("ember-handlebars/helpers/view",
       specify a path to a custom view class.
 
       ```handlebars
-      {{#view "MyApp.CustomView"}}
+      {{#view "custom"}}{{! will look up App.CustomView }}
         hello.
       {{/view}}
       ```
@@ -9236,7 +9338,7 @@ define("ember-handlebars/helpers/view",
         innerViewClass: Ember.View.extend({
           classNames: ['a-custom-view-class-as-property']
         }),
-        template: Ember.Handlebars.compile('{{#view "view.innerViewClass"}} hi {{/view}}')
+        template: Ember.Handlebars.compile('{{#view view.innerViewClass}} hi {{/view}}')
       });
 
       MyApp.OuterView.create().appendTo('body');
@@ -9259,8 +9361,21 @@ define("ember-handlebars/helpers/view",
       supplying a block. Attempts to use both a `templateName` option and supply a
       block will throw an error.
 
+      ```javascript
+      var App = Ember.Application.create();
+      App.WithTemplateDefinedView = Ember.View.extend({
+        templateName: 'defined-template'
+      });
+      ```
+
       ```handlebars
-      {{view "MyApp.ViewWithATemplateDefined"}}
+      {{! application.hbs }}
+      {{view 'with-template-defined'}}
+      ```
+
+      ```handlebars
+      {{! defined-template.hbs }}
+      Some content for the defined template view.
       ```
 
       ### `viewName` property
@@ -12772,7 +12887,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.3dd5955e
+      @version 1.8.0-beta.1+canary.8ac57ac2
     */
 
     if ('undefined' === typeof Ember) {
@@ -12799,10 +12914,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.3dd5955e'
+      @default '1.8.0-beta.1+canary.8ac57ac2'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.3dd5955e';
+    Ember.VERSION = '1.8.0-beta.1+canary.8ac57ac2';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -20312,7 +20427,7 @@ define("ember-routing-handlebars/helpers/render",
     var generateControllerFactory = __dependency6__.generateControllerFactory;
     var generateController = __dependency6__["default"];
     var handlebarsGet = __dependency7__.handlebarsGet;
-    var viewHelper = __dependency8__.viewHelper;
+    var ViewHelper = __dependency8__.ViewHelper;
 
 
     /**
@@ -20471,7 +20586,7 @@ define("ember-routing-handlebars/helpers/render",
 
       options.helperName = options.helperName || ('render "' + name + '"');
 
-      viewHelper.call(this, view, options);
+      ViewHelper.instanceHelper(this, view, options);
     }
   });
 define("ember-routing-handlebars/helpers/shared",
@@ -38169,8 +38284,8 @@ define("ember-views/system/utils",
     __exports__.isSimpleClick = isSimpleClick;
   });
 define("ember-views/views/collection_view",
-  ["ember-metal/core","ember-metal/platform","ember-metal/binding","ember-metal/merge","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/string","ember-views/views/container_view","ember-views/views/core_view","ember-views/views/view","ember-metal/mixin","ember-runtime/mixins/array","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __exports__) {
+  ["ember-metal/core","ember-metal/platform","ember-metal/binding","ember-metal/merge","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/string","ember-views/views/container_view","ember-views/views/core_view","ember-views/views/view","ember-metal/mixin","ember-handlebars/ext","ember-runtime/mixins/array","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __exports__) {
     "use strict";
 
     /**
@@ -38191,7 +38306,8 @@ define("ember-views/views/collection_view",
     var View = __dependency10__["default"];
     var observer = __dependency11__.observer;
     var beforeObserver = __dependency11__.beforeObserver;
-    var EmberArray = __dependency12__["default"];
+    var handlebarsGetView = __dependency12__.handlebarsGetView;
+    var EmberArray = __dependency13__["default"];
 
     /**
       `Ember.CollectionView` is an `Ember.View` descendent responsible for managing
@@ -38214,27 +38330,32 @@ define("ember-views/views/collection_view",
       The view for each item in the collection will have its `content` property set
       to the item.
 
-      ## Specifying itemViewClass
+      ## Specifying `itemViewClass`
 
       By default the view class for each item in the managed collection will be an
       instance of `Ember.View`. You can supply a different class by setting the
       `CollectionView`'s `itemViewClass` property.
 
-      Given an empty `<body>` and the following code:
+      Given the following application code:
 
       ```javascript
-      someItemsView = Ember.CollectionView.create({
+      var App = Ember.Application.create();
+      App.ItemListView = Ember.CollectionView.extend({
         classNames: ['a-collection'],
         content: ['A','B','C'],
         itemViewClass: Ember.View.extend({
           template: Ember.Handlebars.compile("the letter: {{view.content}}")
         })
       });
-
-      someItemsView.appendTo('body');
       ```
 
-      Will result in the following HTML structure
+      And a simple application template:
+
+      ```handlebars
+      {{view 'item-list'}}
+      ```
+
+      The following HTML will result:
 
       ```html
       <div class="ember-view a-collection">
@@ -38250,21 +38371,26 @@ define("ember-views/views/collection_view",
       "ul", "ol", "table", "thead", "tbody", "tfoot", "tr", or "select" will result
       in the item views receiving an appropriately matched `tagName` property.
 
-      Given an empty `<body>` and the following code:
+      Given the following application code:
 
       ```javascript
-      anUnorderedListView = Ember.CollectionView.create({
+      var App = Ember.Application.create();
+      App.UnorderedListView = Ember.CollectionView.create({
         tagName: 'ul',
         content: ['A','B','C'],
         itemViewClass: Ember.View.extend({
           template: Ember.Handlebars.compile("the letter: {{view.content}}")
         })
       });
-
-      anUnorderedListView.appendTo('body');
       ```
 
-      Will result in the following HTML structure
+      And a simple application template:
+
+      ```handlebars
+      {{view 'unordered-list-view'}}
+      ```
+
+      The following HTML will result:
 
       ```html
       <ul class="ember-view a-collection">
@@ -38275,7 +38401,7 @@ define("ember-views/views/collection_view",
       ```
 
       Additional `tagName` pairs can be provided by adding to
-      `Ember.CollectionView.CONTAINER_MAP `
+      `Ember.CollectionView.CONTAINER_MAP`. For example:
 
       ```javascript
       Ember.CollectionView.CONTAINER_MAP['article'] = 'section'
@@ -38288,7 +38414,7 @@ define("ember-views/views/collection_view",
       `createChildView` method can be overidden:
 
       ```javascript
-      CustomCollectionView = Ember.CollectionView.extend({
+      App.CustomCollectionView = Ember.CollectionView.extend({
         createChildView: function(viewClass, attrs) {
           if (attrs.content.kind == 'album') {
             viewClass = App.AlbumView;
@@ -38308,18 +38434,23 @@ define("ember-views/views/collection_view",
       will be the `CollectionView`s only child.
 
       ```javascript
-      aListWithNothing = Ember.CollectionView.create({
+      var App = Ember.Application.create();
+      App.ListWithNothing = Ember.CollectionView.create({
         classNames: ['nothing']
         content: null,
         emptyView: Ember.View.extend({
           template: Ember.Handlebars.compile("The collection is empty")
         })
       });
-
-      aListWithNothing.appendTo('body');
       ```
 
-      Will result in the following HTML structure
+      And a simple application template:
+
+      ```handlebars
+      {{view 'list-with-nothing'}}
+      ```
+
+      The following HTML will result:
 
       ```html
       <div class="ember-view nothing">
@@ -38517,12 +38648,8 @@ define("ember-views/views/collection_view",
 
         if (len) {
           itemViewClass = get(this, 'itemViewClass');
+          itemViewClass = handlebarsGetView(content, itemViewClass, this.container);
 
-          if ('string' === typeof itemViewClass && isGlobalPath(itemViewClass)) {
-            itemViewClass = get(itemViewClass) || itemViewClass;
-          }
-
-          
           for (idx = start; idx < start+added; idx++) {
             item = content.objectAt(idx);
 
@@ -40581,8 +40708,9 @@ define("ember-views/views/view",
       on the descendent.
 
       ```javascript
-      OuterView = Ember.View.extend({
-        template: Ember.Handlebars.compile("outer {{#view InnerView}}inner{{/view}} outer"),
+      var App = Ember.Application.create();
+      App.OuterView = Ember.View.extend({
+        template: Ember.Handlebars.compile("outer {{#view 'inner'}}inner{{/view}} outer"),
         eventManager: Ember.Object.create({
           mouseEnter: function(event, view) {
             // view might be instance of either
@@ -40592,7 +40720,7 @@ define("ember-views/views/view",
         })
       });
 
-      InnerView = Ember.View.extend({
+      App.InnerView = Ember.View.extend({
         click: function(event) {
           // will be called if rendered inside
           // an OuterView because OuterView's

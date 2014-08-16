@@ -95,7 +95,7 @@ var EmberHandlebars = Ember.Handlebars = objectCreate(Handlebars);
   Which is functionally equivalent to:
 
   ```handlebars
-  {{view App.CalendarView}}
+  {{view 'calendar'}}
   ```
 
   Options in the helper will be passed to the view in exactly the same

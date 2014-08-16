@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.3dd5955e
+ * @version   1.8.0-beta.1+canary.8ac57ac2
  */
 
 (function() {
@@ -4499,7 +4499,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.3dd5955e
+      @version 1.8.0-beta.1+canary.8ac57ac2
     */
 
     if ('undefined' === typeof Ember) {
@@ -4526,10 +4526,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.3dd5955e'
+      @default '1.8.0-beta.1+canary.8ac57ac2'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.3dd5955e';
+    Ember.VERSION = '1.8.0-beta.1+canary.8ac57ac2';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -8495,7 +8495,7 @@ define("ember-metal/property_get",
         var value = _getPath(obj, keyName);
         Ember.deprecate(
           "Ember.get fetched '"+keyName+"' from the global context. This behavior will change in the future (issue #3852)",
-          !value || (obj && obj !== Ember.lookup) || keyName.indexOf('.') !== -1 || isGlobalPath(keyName+".") // Add a . to ensure simple paths are matched.
+          !value || (obj && obj !== Ember.lookup) || isPath(keyName) || isGlobalPath(keyName+".") // Add a . to ensure simple paths are matched.
         );
         return value;
       }
