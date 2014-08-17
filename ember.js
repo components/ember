@@ -26837,12 +26837,6 @@ define("ember-runtime/computed/reduce_computed_macros",
       duplicated elements from the dependent arrays
     */
     function intersect() {
-      var getDependentKeyGuids = function (changeMeta) {
-        return map(changeMeta.property._dependentKeys, function (dependentKey) {
-          return guidFor(dependentKey);
-        });
-      };
-
       var args = a_slice.call(arguments);
       args.push({
         initialize: function (array, changeMeta, instanceMeta) {
@@ -26850,11 +26844,10 @@ define("ember-runtime/computed/reduce_computed_macros",
         },
 
         addedItem: function(array, item, changeMeta, instanceMeta) {
-          var itemGuid = guidFor(item),
-              dependentGuids = getDependentKeyGuids(changeMeta),
-              dependentGuid = guidFor(changeMeta.arrayChanged),
-              numberOfDependentArrays = changeMeta.property._dependentKeys.length,
-              itemCounts = instanceMeta.itemCounts;
+          var itemGuid = guidFor(item);
+          var dependentGuid = guidFor(changeMeta.arrayChanged);
+          var numberOfDependentArrays = changeMeta.property._dependentKeys.length;
+          var itemCounts = instanceMeta.itemCounts;
 
           if (!itemCounts[itemGuid]) { itemCounts[itemGuid] = {}; }
           if (itemCounts[itemGuid][dependentGuid] === undefined) { itemCounts[itemGuid][dependentGuid] = 0; }
@@ -26867,14 +26860,16 @@ define("ember-runtime/computed/reduce_computed_macros",
           return array;
         },
         removedItem: function(array, item, changeMeta, instanceMeta) {
-          var itemGuid = guidFor(item),
-              dependentGuids = getDependentKeyGuids(changeMeta),
-              dependentGuid = guidFor(changeMeta.arrayChanged),
-              numberOfDependentArrays = changeMeta.property._dependentKeys.length,
-              numberOfArraysItemAppearsIn,
-              itemCounts = instanceMeta.itemCounts;
+          var itemGuid = guidFor(item);
+          var dependentGuid = guidFor(changeMeta.arrayChanged);
+          var numberOfDependentArrays = changeMeta.property._dependentKeys.length;
+          var numberOfArraysItemAppearsIn;
+          var itemCounts = instanceMeta.itemCounts;
 
-          if (itemCounts[itemGuid][dependentGuid] === undefined) { itemCounts[itemGuid][dependentGuid] = 0; }
+          if (itemCounts[itemGuid][dependentGuid] === undefined) {
+            itemCounts[itemGuid][dependentGuid] = 0;
+          }
+
           if (--itemCounts[itemGuid][dependentGuid] === 0) {
             delete itemCounts[itemGuid][dependentGuid];
             numberOfArraysItemAppearsIn = keys(itemCounts[itemGuid]).length;
