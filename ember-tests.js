@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.643a676a
+ * @version   1.8.0-beta.1+canary.cf2ad87a
  */
 
 (function() {
@@ -22272,8 +22272,6 @@ define("ember-routing-handlebars/tests/helpers/action_test",
 
         delete EmberHandlebars.helpers['action'];
         EmberHandlebars.helpers['action'] = originalActionHelper;
-
-        Ember.TESTING_DEPRECATION = false;
       }
     });
 
@@ -23275,7 +23273,7 @@ define("ember-routing-handlebars/tests/helpers/action_test",
     });
 
     test("a quoteless parameter that also exists as an action name functions properly", function(){
-      Ember.TESTING_DEPRECATION = true;
+      expectDeprecation('You specified a quoteless path to the {{action}} helper \'ohNoeNotValid\' which did not resolve to an actionName. Perhaps you meant to use a quoted actionName? (e.g. {{action \'ohNoeNotValid\'}}).');
       var triggeredAction;
 
       view = EmberView.create({
@@ -23302,7 +23300,9 @@ define("ember-routing-handlebars/tests/helpers/action_test",
       ok(triggeredAction, 'the action was triggered');
     });
 
-    test("a quoteless parameter that also exists as an action name results in an assertion", function(){
+    test("a quoteless parameter that also exists as an action name results in a deprecation", function(){
+      expectDeprecation('You specified a quoteless path to the {{action}} helper \'ohNoeNotValid\' which did not resolve to an actionName. Perhaps you meant to use a quoted actionName? (e.g. {{action \'ohNoeNotValid\'}}).');
+
       var triggeredAction;
 
       view = EmberView.create({
@@ -23322,18 +23322,11 @@ define("ember-routing-handlebars/tests/helpers/action_test",
         view.appendTo('#qunit-fixture');
       });
 
-      var oldAssert = Ember.assert;
-      Ember.assert = function(message, test){
-        ok(test, message + " -- was properly asserted");
-      };
-
       run(function(){
         view.$("#oops-bound-param").click();
       });
 
       ok(triggeredAction, 'the action was triggered');
-
-      Ember.assert = oldAssert;
     });
 
     QUnit.module("Ember.Handlebars - action helper - deprecated invoking directly on target", {
