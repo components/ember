@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.54dad244
+ * @version   1.8.0-beta.1+canary.aedda05f
  */
 
 (function() {
@@ -13153,6 +13153,7 @@ define("ember-metal/computed_macros",
       @param {String} dependentKey
       @return {Ember.ComputedProperty} computed property which creates an
       alias with a deprecation to the original value for property.
+      @since 1.7.0
     */
     computed.deprecatingAlias = function(dependentKey) {
       return computed(dependentKey, function(key, value) {
@@ -13195,7 +13196,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.54dad244
+      @version 1.8.0-beta.1+canary.aedda05f
     */
 
     if ('undefined' === typeof Ember) {
@@ -13222,10 +13223,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.54dad244'
+      @default '1.8.0-beta.1+canary.aedda05f'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.54dad244';
+    Ember.VERSION = '1.8.0-beta.1+canary.aedda05f';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -16847,6 +16848,7 @@ define("ember-metal/properties",
       @param {String} deprecatedKey The property to add (and print deprecation warnings upon accessing).
       @param {String} newKey The property that will be aliased.
       @private
+      @since 1.7.0
     */
 
     function deprecateProperty(object, deprecatedKey, newKey) {
@@ -22946,7 +22948,8 @@ define("ember-routing/system/route",
       /**
         @private
 
-        @method reset
+        @method _reset
+        @since 1.7.0
       */
       _reset: function(isExiting, transition) {
         
@@ -24670,6 +24673,7 @@ define("ember-routing/system/route",
           @param {Controller} controller instance
           @param {Boolean} isExiting
           @param {Object} transition
+          @since 1.7.0
         */
         resetController: Ember.K
       });
@@ -25072,12 +25076,13 @@ define("ember-routing/system/router",
         manual concatenation of the arguments into a single
         array.
 
-        @method isActive
+        @method isActiveIntent
         @param routeName
         @param models
         @param queryParams
         @return {Boolean}
         @private
+        @since 1.7.0
       */
       isActiveIntent: function(routeName, models, queryParams) {
         var router = this.router;
@@ -29759,6 +29764,8 @@ define("ember-runtime/mixins/controller_content_model_alias_deprecation",
 
       @class ControllerContentModelAliasDeprecation
       @namespace Ember
+      @private
+      @since 1.7.0
     */
     __exports__["default"] = Mixin.create({
       /**
@@ -36997,6 +37004,7 @@ define("ember-testing/test",
 
         @property _helpers
         @private
+        @since 1.7.0
       */
       _helpers: helpers,
 
@@ -37822,6 +37830,7 @@ define("ember-views/system/event_dispatcher",
         @property canDispatchToEventManager
         @type boolean
         @default 'true'
+        @since 1.7.0
       */
       canDispatchToEventManager: true,
 
