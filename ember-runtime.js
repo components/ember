@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.cf2ad87a
+ * @version   1.8.0-beta.1+canary.a3b8d69b
  */
 
 (function() {
@@ -4500,7 +4500,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.cf2ad87a
+      @version 1.8.0-beta.1+canary.a3b8d69b
     */
 
     if ('undefined' === typeof Ember) {
@@ -4527,10 +4527,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.cf2ad87a'
+      @default '1.8.0-beta.1+canary.a3b8d69b'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.cf2ad87a';
+    Ember.VERSION = '1.8.0-beta.1+canary.a3b8d69b';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -12346,12 +12346,6 @@ define("ember-runtime/computed/reduce_computed_macros",
       duplicated elements from the dependent arrays
     */
     function intersect() {
-      var getDependentKeyGuids = function (changeMeta) {
-        return map(changeMeta.property._dependentKeys, function (dependentKey) {
-          return guidFor(dependentKey);
-        });
-      };
-
       var args = a_slice.call(arguments);
 
       args.push({
@@ -12361,7 +12355,6 @@ define("ember-runtime/computed/reduce_computed_macros",
 
         addedItem: function(array, item, changeMeta, instanceMeta) {
           var itemGuid = guidFor(item);
-          var dependentGuids = getDependentKeyGuids(changeMeta);
           var dependentGuid = guidFor(changeMeta.arrayChanged);
           var numberOfDependentArrays = changeMeta.property._dependentKeys.length;
           var itemCounts = instanceMeta.itemCounts;
@@ -12384,7 +12377,6 @@ define("ember-runtime/computed/reduce_computed_macros",
 
         removedItem: function(array, item, changeMeta, instanceMeta) {
           var itemGuid = guidFor(item);
-          var dependentGuids = getDependentKeyGuids(changeMeta);
           var dependentGuid = guidFor(changeMeta.arrayChanged);
           var numberOfDependentArrays = changeMeta.property._dependentKeys.length;
           var numberOfArraysItemAppearsIn;
