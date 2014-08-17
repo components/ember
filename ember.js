@@ -3127,11 +3127,28 @@ define("ember-application/system/dag",
       path.pop();
     }
 
+
+    /**
+     * DAG stands for Directed acyclic graph.
+     *
+     * It is used to build a graph of dependencies checking that there isn't circular
+     * dependencies. p.e Registering initializers with a certain precedence order.
+     *
+     * @class DAG
+     * @constructor
+     */
     function DAG() {
       this.names = [];
       this.vertices = {};
     }
 
+    /**
+     * Adds a vertex entry to the graph unless it is already added.
+     *
+     * @private
+     * @method add
+     * @param {String} name The name of the vertex to add
+     */
     DAG.prototype.add = function(name) {
       if (!name) { return; }
       if (this.vertices.hasOwnProperty(name)) {
@@ -3145,10 +3162,27 @@ define("ember-application/system/dag",
       return vertex;
     };
 
+    /**
+     * Adds a vertex to the graph and sets its value.
+     *
+     * @private
+     * @method map
+     * @param {String} name The name of the vertex.
+     * @param         value The value to put in the vertex.
+     */
     DAG.prototype.map = function(name, value) {
       this.add(name).value = value;
     };
 
+    /**
+     * Connects the vertices with the given names, adding them to the graph if
+     * necesary, only if this does not produce is any circular dependency.
+     *
+     * @private
+     * @method addEdge
+     * @param {String} fromName The name the vertex where the edge starts.
+     * @param {String} toName The name the vertex where the edge ends.
+     */
     DAG.prototype.addEdge = function(fromName, toName) {
       if (!fromName || !toName || fromName === toName) {
         return;
@@ -3168,6 +3202,13 @@ define("ember-application/system/dag",
       to.incomingNames.push(fromName);
     };
 
+    /**
+     * Visits all the vertex of the graph calling the given function with each one,
+     * ensuring that the vertices are visited respecting their precedence.
+     *
+     * @method  topsort
+     * @param {Function} fn The function to be invoked on each vertex.
+     */
     DAG.prototype.topsort = function(fn) {
       var visited = {};
       var vertices = this.vertices;
@@ -3183,6 +3224,23 @@ define("ember-application/system/dag",
       }
     };
 
+    /**
+     * Adds a vertex with the given name and value to the graph and joins it with the
+     * vertices referenced in _before_ and _after_. If there isn't vertices with those
+     * names, they are added too.
+     *
+     * If either _before_ or _after_ are falsy/empty, the added vertex will not have
+     * an incoming/outgoing edge.
+     *
+     * @method addEdges
+     * @param {String} name The name of the vertex to be added.
+     * @param         value The value of that vertex.
+     * @param        before An string or array of strings with the names of the vertices before
+     *                      which this vertex must be visited.
+     * @param         after An string or array of strings with the names of the vertex after
+     *                      which this vertex must be visited.
+     *
+     */
     DAG.prototype.addEdges = function(name, value, before, after) {
       var i;
       this.map(name, value);
@@ -9244,8 +9302,10 @@ define("ember-handlebars/helpers/view",
               //
               //     classNameBinding="_parentView.context.isGreen:green"
               var parsedPath = View._parsePropertyPath(full);
-              path = this.contextualizeBindingPath(parsedPath.path, data);
-              if (path) { extensions.classNameBindings[b] = path + parsedPath.classNames; }
+              if(parsedPath.path !== '') {
+                path = this.contextualizeBindingPath(parsedPath.path, data); 
+                if (path) { extensions.classNameBindings[b] = path + parsedPath.classNames; }
+              }
             }
           }
         }
@@ -11141,7 +11201,7 @@ define("ember-metal/binding",
 
       Properties ending in a `Binding` suffix will be converted to `Ember.Binding`
       instances. The value of this property should be a string representing a path
-      to another object or a custom binding instanced created using Binding helpers
+      to another object or a custom binding instance created using Binding helpers
       (see "One Way Bindings"):
 
       ```
@@ -11197,7 +11257,7 @@ define("ember-metal/binding",
       something like this on your binding:
 
       ```javascript
-      binding = Ember.Binding.from(this.valueBinding).to("value");
+      binding = Ember.Binding.from("valueBinding").to("value");
       ```
 
       This creates a new binding instance based on the template you provide, and
@@ -11213,6 +11273,19 @@ define("ember-metal/binding",
       connected to. This object will be used as the root for both the from and
       to side of the binding when inspecting relative paths. This allows the
       binding to be automatically inherited by subclassed objects as well.
+
+      This also allows you to bind between objects using the paths you declare in
+      `from` and `to`:
+
+      ```javascript
+      // Example 1
+      binding = Ember.Binding.from("App.someObject.value").to("value");
+      binding.connect(this);
+
+      // Example 2
+      binding = Ember.Binding.from("parentView.value").to("App.someObject.value");
+      binding.connect(this);
+      ```
 
       Now that the binding is connected, it will observe both the from and to side
       and relay changes.
@@ -12239,15 +12312,11 @@ define("ember-metal/computed_macros",
       A computed property that returns true if the value of the dependent
       property is NOT null, an empty string, empty array, or empty function.
 
-      Note: When using `computed.notEmpty` to watch an array make sure to
-      use the `array.[]` syntax so the computed can subscribe to transitions
-      from empty to non-empty states.
-
       Example
 
       ```javascript
       var Hamster = Ember.Object.extend({
-        hasStuff: Ember.computed.notEmpty('backpack.[]')
+        hasStuff: Ember.computed.notEmpty('backpack')
       });
 
       var hamster = Hamster.create({ backpack: ['Food', 'Sleeping Bag', 'Tent'] });
@@ -12263,9 +12332,11 @@ define("ember-metal/computed_macros",
       @return {Ember.ComputedProperty} computed property which returns true if
       original value for property is not empty.
     */
-    registerComputed('notEmpty', function(dependentKey) {
-      return !isEmpty(get(this, dependentKey));
-    });
+    computed.notEmpty = function(dependentKey) {
+      return computed(dependentKey + '.length', function () {
+        return !isEmpty(get(this, dependentKey));
+      });
+    };
 
     /**
       A computed property that returns true if the value of the dependent
@@ -12955,7 +13026,7 @@ define("ember-metal/core",
     MetamorphENV.DISABLE_RANGE_API = Ember.ENV.DISABLE_RANGE_API;
 
     /**
-      Hash of enabled Canary features. Add to before creating your application.
+      Hash of enabled Canary features. Add to this before creating your application.
 
       You can also define `ENV.FEATURES` if you need to enable features flagged at runtime.
 
@@ -19088,7 +19159,7 @@ define("ember-routing-handlebars/helpers/link_to",
         @type Array | String
         @default ['href', 'title', 'rel']
        **/
-      attributeBindings: ['href', 'title', 'rel'],
+      attributeBindings: ['href', 'title', 'rel', 'tabindex'],
 
       /**
         By default the `{{link-to}}` helper will bind to the `active`, `loading`, and
@@ -19247,13 +19318,16 @@ define("ember-routing-handlebars/helpers/link_to",
       active: computed('loadedParams', function computeLinkViewActive() {
         if (get(this, 'loading')) { return false; }
 
-        var router = get(this, 'router'),
-            loadedParams = get(this, 'loadedParams'),
-            contexts = loadedParams.models,
-            currentWhen = this.currentWhen || loadedParams.targetRouteName,
-            handlers = router.router.recognizer.handlersFor(currentWhen),
-            leafName = handlers[handlers.length-1].handler,
-            maximumContexts = numberOfContextsAcceptedByHandler(currentWhen, handlers);
+        var router = get(this, 'router');
+        var loadedParams = get(this, 'loadedParams');
+        var contexts = loadedParams.models;
+        var currentWhen = this.currentWhen;
+        var isCurrentWhenSpecified = Boolean(currentWhen);
+        currentWhen = currentWhen || loadedParams.targetRouteName;
+
+        var handlers = router.router.recognizer.handlersFor(currentWhen);
+        var leafName = handlers[handlers.length-1].handler;
+        var maximumContexts = numberOfContextsAcceptedByHandler(currentWhen, handlers);
 
         // NOTE: any ugliness in the calculation of activeness is largely
         // due to the fact that we support automatic normalizing of
@@ -19274,7 +19348,9 @@ define("ember-routing-handlebars/helpers/link_to",
         if (!isActive) { return false; }
 
         
-          if (!this.currentWhen && leafName === loadedParams.targetRouteName) {
+          var emptyQueryParams = Ember.isEmpty(Ember.keys(loadedParams.queryParams));
+
+          if (!isCurrentWhenSpecified && !emptyQueryParams && isActive) {
             var visibleQueryParams = {};
             merge(visibleQueryParams, loadedParams.queryParams);
             router._prepareQueryParams(loadedParams.targetRouteName, loadedParams.models, visibleQueryParams);
@@ -22849,13 +22925,15 @@ define("ember-routing/system/route",
             var states = get(this, '_qp.states');
             if (transition) {
               // Update the model dep values used to calculate cache keys.
+              stashParamNames(this.router, transition.state.handlerInfos);
               controller._qpDelegate = states.changingKeys;
               controller._updateCacheParams(transition.params);
             }
             controller._qpDelegate = states.allowOverrides;
 
             if (transition) {
-              controller.setProperties(getQueryParamsFor(this, transition.state));
+              var qpValues = getQueryParamsFor(this, transition.state);
+              controller.setProperties(qpValues);
             }
 
             this.setupController(controller, context, transition);
@@ -24843,6 +24921,25 @@ define("ember-routing/system/router",
 
     EmberRouter.reopenClass({
       router: null,
+
+      /**
+        The `Router.map` function allows you to define mappings from URLs to routes
+        and resources in your application. These mappings are defined within the
+        supplied callback function using `this.resource` and `this.route`.
+
+        ```javascript
+        App.Router.map(function({
+          this.route('about');
+          this.resource('article');
+        }));
+        ```
+
+        For more detailed examples please see
+        [the guides](http://emberjs.com/guides/routing/defining-your-routes/).
+
+        @method map
+        @param callback
+      */
       map: function(callback) {
         var router = this.router;
         if (!router) {
@@ -42627,9 +42724,11 @@ define("metamorph",
   });
 
 define("route-recognizer",
-  ["exports"],
-  function(__exports__) {
+  ["route-recognizer/dsl","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
+    var map = __dependency1__["default"];
+
     var specials = [
       '/', '.', '*', '+', '?', '|',
       '(', ')', '[', ']', '{', '}', '\\'
@@ -43055,7 +43154,7 @@ define("route-recognizer",
           if (value == null) {
             continue;
           }
-          var pair = key;
+          var pair = encodeURIComponent(key);
           if (isArray(value)) {
             for (var j = 0, l = value.length; j < l; j++) {
               var arrayPair = key + '[]' + '=' + encodeURIComponent(value[j]);
@@ -43096,7 +43195,7 @@ define("route-recognizer",
           if (isArray) {
             queryParams[key].push(value);
           } else {
-            queryParams[key] = decodeURIComponent(value);
+            queryParams[key] = value;
           }
         }
         return queryParams;
@@ -43107,14 +43206,14 @@ define("route-recognizer",
             pathLen, i, l, queryStart, queryParams = {},
             isSlashDropped = false;
 
-        path = decodeURI(path);
-
         queryStart = path.indexOf('?');
         if (queryStart !== -1) {
           var queryString = path.substr(queryStart + 1, path.length);
           path = path.substr(0, queryStart);
           queryParams = this.parseQueryString(queryString);
         }
+
+        path = decodeURI(path);
 
         // DEBUG GROUP path
 
@@ -43153,8 +43252,14 @@ define("route-recognizer",
       }
     };
 
-    __exports__["default"] = RouteRecognizer;
+    RouteRecognizer.prototype.map = map;
 
+    __exports__["default"] = RouteRecognizer;
+  });
+define("route-recognizer/dsl",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
     function Target(path, matcher, delegate) {
       this.path = path;
       this.matcher = matcher;
@@ -43244,7 +43349,7 @@ define("route-recognizer",
       }
     }
 
-    RouteRecognizer.prototype.map = function(callback, addRouteCallback) {
+    __exports__["default"] = function(callback, addRouteCallback) {
       var matcher = new Matcher();
 
       callback(generateMatch("", matcher, this.delegate));
@@ -43253,7 +43358,7 @@ define("route-recognizer",
         if (addRouteCallback) { addRouteCallback(this, route); }
         else { this.add(route); }
       }, this);
-    };
+    }
   });
 
 define("router/handler-info",

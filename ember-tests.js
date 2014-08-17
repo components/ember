@@ -10751,6 +10751,23 @@ define("ember-handlebars/tests/helpers/view_test",
       ok(jQuery('#bar').hasClass('bar'));
       equal(jQuery('#bar').text(), 'Bar');
     });
+
+    test("Should apply class without condition always", function() {
+      var container = new Container();
+      container.register('view:toplevel', EmberView.extend());
+
+      view = EmberView.create({
+        context: [],
+        container: container,
+        controller: Ember.Object.create(),
+        template: Ember.Handlebars.compile('{{#view id="foo" classBinding=":foo"}} Foo{{/view}}')
+      });
+
+      run(view, 'appendTo', '#qunit-fixture');
+
+      ok(jQuery('#foo').hasClass('foo'), "Always applies classbinding without condition");
+
+    });
   });
 define("ember-handlebars/tests/helpers/view_test.jshint",
   [],
@@ -25390,6 +25407,27 @@ define("ember-runtime/tests/computed/computed_macros_test",
 
       equal(get(obj, 'bestLannisterUnspecified'), false, "empty respects strings");
       equal(get(obj, 'noLannistersKnown'), false, "empty respects array mutations");
+    });
+
+    testBoth('Ember.computed.notEmpty', function(get, set) {
+      var obj = EmberObject.extend({
+        bestLannister: null,
+        lannisters: null,
+
+        bestLannisterSpecified: computed.notEmpty('bestLannister'),
+        LannistersKnown: computed.notEmpty('lannisters')
+      }).create({
+        lannisters: Ember.A([])
+      });
+
+      equal(get(obj, 'bestLannisterSpecified'), false, "bestLannister initially empty");
+      equal(get(obj, 'LannistersKnown'), false, "lannisters initially empty");
+
+      get(obj, 'lannisters').pushObject('Tyrion');
+      set(obj, 'bestLannister', 'Tyrion');
+
+      equal(get(obj, 'bestLannisterSpecified'), true, "empty respects strings");
+      equal(get(obj, 'LannistersKnown'), true, "empty respects array mutations");
     });
   });
 define("ember-runtime/tests/computed/computed_macros_test.jshint",
@@ -51142,7 +51180,7 @@ define("ember/tests/helpers/link_to_test",
     });
 
     test("The {{link-to}} helper binds some anchor html tag common attributes", function() {
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("<h3>Home</h3>{{#link-to 'index' id='self-link' title='title-attr' rel='rel-attr'}}Self{{/link-to}}");
+      Ember.TEMPLATES.index = Ember.Handlebars.compile("<h3>Home</h3>{{#link-to 'index' id='self-link' title='title-attr' rel='rel-attr' tabindex='-1'}}Self{{/link-to}}");
       bootApplication();
 
       Ember.run(function() {
@@ -51152,6 +51190,7 @@ define("ember/tests/helpers/link_to_test",
       var link = Ember.$('#self-link', '#qunit-fixture');
       equal(link.attr('title'), 'title-attr', "The self-link contains title attribute");
       equal(link.attr('rel'), 'rel-attr', "The self-link contains rel attribute");
+      equal(link.attr('tabindex'), '-1', "The self-link contains tabindex attribute");
     });
 
     
@@ -52153,6 +52192,7 @@ define("ember/tests/helpers/link_to_test",
         Ember.TEMPLATES.application = Ember.Handlebars.compile(
             "{{#link-to 'parent' id='parent-link'}}Parent{{/link-to}} " +
             "{{#link-to 'parent.child' id='parent-child-link'}}Child{{/link-to}} " +
+            "{{#link-to 'parent' (query-params foo=cat) id='parent-link-qp'}}Parent{{/link-to}} " +
             "{{outlet}}"
             );
 
@@ -52164,8 +52204,10 @@ define("ember/tests/helpers/link_to_test",
         bootApplication();
         shouldNotBeActive('#parent-link');
         shouldNotBeActive('#parent-child-link');
+        shouldNotBeActive('#parent-link-qp');
         Ember.run(router, 'handleURL', '/parent/child?foo=dog');
         shouldBeActive('#parent-link');
+        shouldNotBeActive('#parent-link-qp');
       });
 
       test("The {{link-to}} helper disregards query-params in activeness computation when currentWhen specified", function() {
@@ -55800,13 +55842,14 @@ define("ember/tests/routing/basic_test.jshint",
     });
   });
 define("ember/tests/routing/query_params_test",
-  ["ember","ember-metal/enumerable_utils","ember-metal/computed","ember-metal/platform"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+  ["ember","ember-metal/enumerable_utils","ember-metal/computed","ember-metal/platform","ember-runtime/system/string"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
     var forEach = __dependency2__.forEach;
     var map = __dependency2__.map;
     var computed = __dependency3__.computed;
     var platform = __dependency4__.platform;
+    var capitalize = __dependency5__.capitalize;
 
     var Router, App, AppView, templates, router, container;
     var get = Ember.get;
@@ -56990,6 +57033,27 @@ define("ember/tests/routing/query_params_test",
         startingURL = '/?foo=YEAH';
         bootApplication();
       });
+
+      var testParamlessLinks = function(routeName) {
+        test("param-less links in an app booted with query params in the URL don't reset the query params: " + routeName, function() {
+          expect(1);
+
+          Ember.TEMPLATES[routeName] = compile("{{link-to 'index' 'index' id='index-link'}}");
+
+          App[capitalize(routeName) + "Controller"] = Ember.Controller.extend({
+            queryParams: ['foo'],
+            foo: "wat"
+          });
+
+          startingURL = '/?foo=YEAH';
+          bootApplication();
+
+          equal(Ember.$('#index-link').attr('href'), '/?foo=YEAH');
+        });
+      };
+
+      testParamlessLinks('application');
+      testParamlessLinks('index');
 
       QUnit.module("Model Dep Query Params", {
         setup: function() {
