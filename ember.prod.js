@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.b9eed2b7
+ * @version   1.8.0-beta.1+canary.d6d4f01d
  */
 
 (function() {
@@ -2026,6 +2026,15 @@ define("ember-application/system/application",
     var EmberHandlebars = __dependency28__["default"];
 
     var ContainerDebugAdapter;
+    function props(obj) {
+      var properties = [];
+
+      for (var key in obj) {
+        properties.push(key);
+      }
+
+      return properties;
+    }
 
     /**
       An instance of `Ember.Application` is the starting point for every Ember
@@ -2635,14 +2644,15 @@ define("ember-application/system/application",
         @method runInitializers
       */
       runInitializers: function() {
-        var initializers = get(this.constructor, 'initializers');
+        var initializersByName = get(this.constructor, 'initializers');
+        var initializers = props(initializersByName);
         var container = this.__container__;
         var graph = new DAG();
         var namespace = this;
         var name, initializer;
 
-        for (name in initializers) {
-          initializer = initializers[name];
+        for (var i = 0; i < initializers.length; i++) {
+          initializer = initializersByName[initializers[i]];
           graph.addEdges(initializer.name, initializer.initialize, initializer.before, initializer.after);
         }
 
@@ -2756,7 +2766,7 @@ define("ember-application/system/application",
     });
 
     Application.reopenClass({
-      initializers: {},
+      initializers: Object.create(null),
 
       /**
         Initializer receives an object which has the following attributes:
@@ -3071,7 +3081,22 @@ define("ember-application/system/dag",
      */
     function DAG() {
       this.names = [];
-      this.vertices = {};
+      this.vertices = Object.create(null);
+    }
+
+    /**
+     * DAG Vertex
+     *
+     * @class Vertex
+     * @constructor
+     */
+
+    function Vertex(name) {
+      this.name = name;
+      this.incoming = {};
+      this.incomingNames = [];
+      this.hasOutgoing = false;
+      this.value = null;
     }
 
     /**
@@ -3082,13 +3107,13 @@ define("ember-application/system/dag",
      * @param {String} name The name of the vertex to add
      */
     DAG.prototype.add = function(name) {
-      if (!name) { return; }
-      if (this.vertices.hasOwnProperty(name)) {
+      if (!name) {
+        throw new Error("Can't add Vertex without name");
+      }
+      if (this.vertices[name] !== undefined) {
         return this.vertices[name];
       }
-      var vertex = {
-        name: name, incoming: {}, incomingNames: [], hasOutgoing: false, value: null
-      };
+      var vertex = new Vertex(name);
       this.vertices[name] = vertex;
       this.names.push(name);
       return vertex;
@@ -12906,7 +12931,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.b9eed2b7
+      @version 1.8.0-beta.1+canary.d6d4f01d
     */
 
     if ('undefined' === typeof Ember) {
@@ -12933,10 +12958,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.b9eed2b7'
+      @default '1.8.0-beta.1+canary.d6d4f01d'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.b9eed2b7';
+    Ember.VERSION = '1.8.0-beta.1+canary.d6d4f01d';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
