@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.c2773c77
+ * @version   1.8.0-beta.1+canary.7ebf077e
  */
 
 (function() {
@@ -29548,119 +29548,6 @@ define("ember-runtime/tests/core/is_empty_test.jshint",
     module('JSHint - ember-runtime/tests/core');
     test('ember-runtime/tests/core/is_empty_test.js should pass jshint', function() { 
       ok(true, 'ember-runtime/tests/core/is_empty_test.js should pass jshint.'); 
-    });
-  });
-define("ember-runtime/tests/core/keys_test",
-  ["ember-metal/property_set","ember-metal/keys","ember-metal/observer","ember-runtime/system/object"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
-    "use strict";
-    var set = __dependency1__.set;
-    var keys = __dependency2__["default"];
-    var addObserver = __dependency3__.addObserver;
-    var removeObserver = __dependency3__.removeObserver;
-    var EmberObject = __dependency4__["default"];
-
-    QUnit.module("Fetch Keys ");
-
-    test("should get a key array for a specified Ember.Object", function() {
-      var object1 = EmberObject.create({
-        names: "Rahul",
-        age: "23",
-        place: "Mangalore"
-      });
-
-      var object2 = keys(object1);
-
-      deepEqual(object2, ['names','age','place']);
-    });
-
-    test('should not contain properties declared in the prototype', function () {
-      var beer = EmberObject.extend({
-        type: 'ipa'
-      }).create();
-
-      deepEqual(keys(beer), []);
-    });
-
-    test('should return properties that were set after object creation', function () {
-      var beer = EmberObject.extend({
-        type: 'ipa'
-      }).create();
-
-      set(beer, 'brand', 'big daddy');
-
-      deepEqual(keys(beer), ['brand']);
-    });
-
-    QUnit.module('Keys behavior with observers');
-
-    test('should not leak properties on the prototype', function () {
-      var beer = EmberObject.extend({
-        type: 'ipa'
-      }).create();
-
-      addObserver(beer, 'type', Ember.K);
-      deepEqual(keys(beer), []);
-      removeObserver(beer, 'type', Ember.K);
-    });
-
-    test('observing a non existent property', function () {
-      var beer = EmberObject.extend({
-        type: 'ipa'
-      }).create();
-
-      addObserver(beer, 'brand', Ember.K);
-
-      deepEqual(keys(beer), []);
-
-      set(beer, 'brand', 'Corona');
-      deepEqual(keys(beer), ['brand']);
-
-      removeObserver(beer, 'brand', Ember.K);
-    });
-
-    test('with observers switched on and off', function () {
-      var beer = EmberObject.extend({
-        type: 'ipa'
-      }).create();
-
-      addObserver(beer, 'type', Ember.K);
-      removeObserver(beer, 'type', Ember.K);
-
-      deepEqual(keys(beer), []);
-    });
-
-    test('observers switched on and off with setter in between', function () {
-      var beer = EmberObject.extend({
-        type: 'ipa'
-      }).create();
-
-      addObserver(beer, 'type', Ember.K);
-      set(beer, 'type', 'ale');
-      removeObserver(beer, 'type', Ember.K);
-
-      deepEqual(keys(beer), ['type']);
-    });
-
-    test('observer switched on and off and then setter', function () {
-      var beer = EmberObject.extend({
-        type: 'ipa'
-      }).create();
-
-      addObserver(beer, 'type', Ember.K);
-      removeObserver(beer, 'type', Ember.K);
-      set(beer, 'type', 'ale');
-
-      deepEqual(keys(beer), ['type']);
-    });
-  });
-define("ember-runtime/tests/core/keys_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-runtime/tests/core');
-    test('ember-runtime/tests/core/keys_test.js should pass jshint', function() { 
-      ok(true, 'ember-runtime/tests/core/keys_test.js should pass jshint.'); 
     });
   });
 define("ember-runtime/tests/core/type_test",

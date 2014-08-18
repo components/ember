@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.c2773c77
+ * @version   1.8.0-beta.1+canary.7ebf077e
  */
 
 (function() {
@@ -1738,7 +1738,7 @@ define("container/container",
 
     function eachDestroyable(container, callback) {
       var cache = container.cache;
-      var keys = Object.keys(cache);
+      var keys = Ember.keys(cache);
       var key, value;
 
       for (var i = 0, l = keys.length; i < l; i++) {
@@ -13214,7 +13214,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.c2773c77
+      @version 1.8.0-beta.1+canary.7ebf077e
     */
 
     if ('undefined' === typeof Ember) {
@@ -13241,10 +13241,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.c2773c77'
+      @default '1.8.0-beta.1+canary.7ebf077e'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.c2773c77';
+    Ember.VERSION = '1.8.0-beta.1+canary.7ebf077e';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -14753,7 +14753,7 @@ define("ember-metal/keys",
           return;
         }
 
-        if (typeof obj.hasOwnProperty === 'function' && !obj.hasOwnProperty(key)) {
+        if (!Object.prototype.hasOwnProperty.call(obj, key)) {
           return;
         }
 
@@ -33427,7 +33427,6 @@ define("ember-runtime/system/core_object",
     */
     var CoreObject = makeCtor();
     CoreObject.toString = function() { return "Ember.CoreObject"; };
-
     CoreObject.PrototypeMixin = Mixin.create({
       reopen: function() {
         var length = arguments.length;
