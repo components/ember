@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.a3b8d69b
+ * @version   1.8.0-beta.1+canary.3002d982
  */
 
 (function() {
@@ -25834,15 +25834,6 @@ define("ember-runtime/ext/string.jshint",
       ok(true, 'ember-runtime/ext/string.js should pass jshint.'); 
     });
   });
-define("ember-runtime/keys.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-runtime');
-    test('ember-runtime/keys.js should pass jshint', function() { 
-      ok(true, 'ember-runtime/keys.js should pass jshint.'); 
-    });
-  });
 define("ember-runtime/mixins/-proxy.jshint",
   [],
   function() {
@@ -27657,7 +27648,7 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test.jshint",
     });
   });
 define("ember-runtime/tests/computed/reduce_computed_test",
-  ["ember-metal/core","ember-metal/enumerable_utils","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/run_loop","ember-metal/mixin","ember-runtime/keys","ember-runtime/system/object","ember-metal/computed","ember-runtime/computed/array_computed","ember-runtime/computed/reduce_computed","ember-runtime/system/array_proxy","ember-runtime/system/subarray"],
+  ["ember-metal/core","ember-metal/enumerable_utils","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/run_loop","ember-metal/mixin","ember-metal/keys","ember-runtime/system/object","ember-metal/computed","ember-runtime/computed/array_computed","ember-runtime/computed/reduce_computed","ember-runtime/system/array_proxy","ember-runtime/system/subarray"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__) {
     "use strict";
     var Ember = __dependency1__["default"];
@@ -29575,7 +29566,7 @@ define("ember-runtime/tests/core/is_empty_test.jshint",
     });
   });
 define("ember-runtime/tests/core/keys_test",
-  ["ember-metal/property_set","ember-runtime/keys","ember-metal/observer","ember-runtime/system/object"],
+  ["ember-metal/property_set","ember-metal/keys","ember-metal/observer","ember-runtime/system/object"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
     var set = __dependency1__.set;
