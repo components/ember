@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.eab91cb9
+ * @version   1.8.0-beta.1+canary.094b0bf2
  */
 
 (function() {
@@ -10868,7 +10868,7 @@ define("ember-handlebars/tests/helpers/view_test",
 
       run(view, 'appendTo', '#qunit-fixture');
 
-      ok(jQuery('#qunit-fixture').html().match(/<span/), 'contains view with span');
+      ok(jQuery('#qunit-fixture').html().toUpperCase().match(/<SPAN/), 'contains view with span');
     });
 
     test("View lookup - App.FuView (DEPRECATED)", function() {
