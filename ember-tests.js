@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.094b0bf2
+ * @version   1.8.0-beta.1+canary.5a31d6fe
  */
 
 (function() {
@@ -1474,11 +1474,12 @@ define("ember-application/tests/system/controller_test.jshint",
     });
   });
 define("ember-application/tests/system/dag_test",
-  ["ember-application/system/dag","ember-metal/error"],
-  function(__dependency1__, __dependency2__) {
+  ["ember-application/system/dag","ember-metal/error","ember-metal/enumerable_utils"],
+  function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
     var DAG = __dependency1__["default"];
     var EmberError = __dependency2__["default"];
+    var indexOf = __dependency3__.indexOf;
 
     QUnit.module("Ember.DAG");
 
@@ -1522,12 +1523,12 @@ define("ember-application/tests/system/dag_test",
         index++;
       });
 
-      ok(names.indexOf("buy eggs") < names.indexOf("shake eggs"), "you need eggs to shake them");
-      ok(names.indexOf("buy oil") < names.indexOf("warm oil"), "you need oil to warm it");
-      ok(names.indexOf("eat omelette") < names.indexOf("clear the table"), "you clear the table after eat");
-      ok(names.indexOf("fry omelette") < names.indexOf("eat omelette"), "cook before eat");
-      ok(names.indexOf("shake eggs") < names.indexOf("fry omelette"), "shake before put into the pan");
-      ok(names.indexOf("prepare salad") > -1, "we don't know when we prepare the salad, but we do");
+      ok(indexOf(names, "buy eggs") < indexOf(names, "shake eggs"), "you need eggs to shake them");
+      ok(indexOf(names, "buy oil") < indexOf(names, "warm oil"), "you need oil to warm it");
+      ok(indexOf(names, "eat omelette") < indexOf(names, "clear the table"), "you clear the table after eat");
+      ok(indexOf(names, "fry omelette") < indexOf(names, "eat omelette"), "cook before eat");
+      ok(indexOf(names, "shake eggs") < indexOf(names, "fry omelette"), "shake before put into the pan");
+      ok(indexOf(names, "prepare salad") > -1, "we don't know when we prepare the salad, but we do");
     });
 
     test("#addEdged supports both strings and arrays to specify precedences", function(){
