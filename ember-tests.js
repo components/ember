@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.3776c783
+ * @version   1.8.0-beta.1+canary.7c54237c
  */
 
 (function() {
@@ -13,7 +13,7 @@ var define, requireModule, require, requirejs, Ember;
 
 (function() {
   Ember = this.Ember = this.Ember || {};
-  if (typeof Ember === 'undefined') { Ember = {}; };
+  if (typeof Ember === 'undefined') { Ember = {} };
 
   if (typeof Ember.__loader === 'undefined') {
     var registry = {}, seen = {};
@@ -3703,7 +3703,7 @@ define("ember-handlebars/tests/controls/checkbox_test",
       setup: function() {
         controller = {
           inputType: "checkbox",
-          isChecked: true
+          isChecked: true,
         };
 
         checkboxView = EmberView.extend({
@@ -10862,7 +10862,7 @@ define("ember-handlebars/tests/helpers/view_test",
 
     test("By default, without a container, EmberView is used", function() {
       view = EmberView.extend({
-        template: Ember.Handlebars.compile('{{view tagName="span"}}')
+        template: Ember.Handlebars.compile('{{view tagName="span"}}'),
       }).create();
 
       run(view, 'appendTo', '#qunit-fixture');
