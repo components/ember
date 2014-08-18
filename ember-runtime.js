@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.7ebf077e
+ * @version   1.8.0-beta.1+canary.7c54237c
  */
 
 (function() {
@@ -4500,7 +4500,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.7ebf077e
+      @version 1.8.0-beta.1+canary.7c54237c
     */
 
     if ('undefined' === typeof Ember) {
@@ -4527,10 +4527,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.7ebf077e'
+      @default '1.8.0-beta.1+canary.7c54237c'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.7ebf077e';
+    Ember.VERSION = '1.8.0-beta.1+canary.7c54237c';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -7919,13 +7919,10 @@ define("ember-metal/platform",
             // is...err...probably inappropriate, but the native version allows for it.
             throw new TypeError("Object prototype may only be an Object or null"); // same msg as Chrome
           }
+
           Type.prototype = prototype;
+
           object = new Type();
-          // IE has no built-in implementation of `Object.getPrototypeOf`
-          // neither `__proto__`, but this manually setting `__proto__` will
-          // guarantee that `Object.getPrototypeOf` will work as expected with
-          // objects created using `Object.create`
-          object.__proto__ = prototype;
         }
 
         if (properties !== undefined) {
