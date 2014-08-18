@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.fac79a14
+ * @version   1.8.0-beta.1+canary.c2773c77
  */
 
 (function() {
@@ -102,18 +102,6 @@ define("container/tests/container_helper",
       }
     };
 
-    var o_create = Object.create || (function(){
-      function F(){}
-
-      return function(o) {
-        if (arguments.length !== 1) {
-          throw new Ember.Error('Object.create implementation only accepts one parameter.');
-        }
-        F.prototype = o;
-        return new F();
-      };
-    }());
-
     var guids = 0;
 
     var passedOptions;
@@ -174,7 +162,6 @@ define("container/tests/container_helper",
     };
 
     __exports__.factory = factory;
-    __exports__.o_create = o_create;
     __exports__.setProperties = setProperties;
   });
 define("container/tests/container_helper.jshint",
@@ -191,7 +178,6 @@ define("container/tests/container_test",
   function(__dependency1__, __dependency2__) {
     "use strict";
     var factory = __dependency1__.factory;
-    var o_create = __dependency1__.o_create;
     var setProperties = __dependency1__.setProperties;
 
     var Container = __dependency2__["default"];
@@ -856,7 +842,6 @@ define("container/tests/sub_container_test",
   function(__dependency1__, __dependency2__) {
     "use strict";
     var factory = __dependency1__.factory;
-    var o_create = __dependency1__.o_create;
     var setProperties = __dependency1__.setProperties;
 
     var Container = __dependency2__["default"];
