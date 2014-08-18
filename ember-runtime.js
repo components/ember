@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.5a31d6fe
+ * @version   1.8.0-beta.1+canary.704b439a
  */
 
 (function() {
@@ -4500,7 +4500,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.5a31d6fe
+      @version 1.8.0-beta.1+canary.704b439a
     */
 
     if ('undefined' === typeof Ember) {
@@ -4527,10 +4527,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.5a31d6fe'
+      @default '1.8.0-beta.1+canary.704b439a'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.5a31d6fe';
+    Ember.VERSION = '1.8.0-beta.1+canary.704b439a';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -7964,7 +7964,7 @@ define("ember-metal/platform",
     if (!platform.defineProperty) {
       platform.hasPropertyAccessors = false;
 
-      platform.defineProperty = function(obj, keyName, desc) {
+      defineProperty = platform.defineProperty = function(obj, keyName, desc) {
         if (!desc.get) { obj[keyName] = desc.value; }
       };
 
