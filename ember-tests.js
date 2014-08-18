@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.d6d4f01d
+ * @version   1.8.0-beta.1+canary.eab91cb9
  */
 
 (function() {
@@ -10800,14 +10800,15 @@ define("ember-handlebars/tests/helpers/unbound_test.jshint",
     });
   });
 define("ember-handlebars/tests/helpers/view_test",
-  ["ember-views/views/view","container/container","ember-metal/run_loop","ember-views/system/jquery"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+  ["ember-views/views/view","container/container","ember-metal/run_loop","ember-views/system/jquery","ember-metal/platform"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
     /*globals EmberDev */
     var EmberView = __dependency1__["default"];
     var Container = __dependency2__["default"];
     var run = __dependency3__["default"];
     var jQuery = __dependency4__["default"];
+    var platform = __dependency5__.platform;
 
     var view, originalLookup;
 
@@ -11095,19 +11096,21 @@ define("ember-handlebars/tests/helpers/view_test",
       equal(jQuery('#foo').text(), 'yippie', "moves dasherized to camelized props");
     });
 
-    test('Should allow access to dasherized property in view with a deprecation', function() {
-      expectDeprecation('Usage of `foo-bar` is deprecated, use `fooBar` instead.');
+    if (platform.hasPropertyAccessors) {
+      test('Should allow access to dasherized property in view with a deprecation', function() {
+        expectDeprecation('Usage of `foo-bar` is deprecated, use `fooBar` instead.');
 
-      view = EmberView.create({
-        context: [],
-        controller: Ember.Object.create(),
-        template: Ember.Handlebars.compile('{{#view id="foo" foo-bar="yippie"}}{{view.foo-bar}}{{/view}}')
+        view = EmberView.create({
+          context: [],
+          controller: Ember.Object.create(),
+          template: Ember.Handlebars.compile('{{#view id="foo" foo-bar="yippie"}}{{view.foo-bar}}{{/view}}')
+        });
+
+        run(view, 'appendTo', '#qunit-fixture');
+
+        equal(jQuery('#foo').text(), 'yippie', "moves dasherized to camelized props");
       });
-
-      run(view, 'appendTo', '#qunit-fixture');
-
-      equal(jQuery('#foo').text(), 'yippie', "moves dasherized to camelized props");
-    });
+    }
 
     test('Should not throw deprecation if dasherized property is not accessed', function() {
       expectNoDeprecation();
