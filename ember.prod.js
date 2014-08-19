@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.0654413e
+ * @version   1.8.0-beta.1+canary.288fcc00
  */
 
 (function() {
@@ -13099,7 +13099,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.0654413e
+      @version 1.8.0-beta.1+canary.288fcc00
     */
 
     if ('undefined' === typeof Ember) {
@@ -13126,10 +13126,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.0654413e'
+      @default '1.8.0-beta.1+canary.288fcc00'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.0654413e';
+    Ember.VERSION = '1.8.0-beta.1+canary.288fcc00';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -18372,7 +18372,8 @@ define("ember-metal/utils",
         shared with its constructor
     */
     function metaPath(obj, path, writable) {
-            var _meta = meta(obj, writable), keyName, value;
+            var _meta = meta(obj, writable);
+      var keyName, value;
 
       for (var i=0, l=path.length; i<l; i++) {
         keyName = path[i];
@@ -18407,7 +18408,8 @@ define("ember-metal/utils",
     */
     function wrap(func, superFunc) {
       function superWrapper() {
-        var ret, sup = this && this.__nextSuper;
+        var ret;
+        var sup = this && this.__nextSuper;
         if(this) { this.__nextSuper = superFunc; }
         ret = apply(this, func, arguments);
         if(this) { this.__nextSuper = sup; }
@@ -18812,7 +18814,8 @@ define("ember-metal/utils",
         return obj + '';
       }
 
-      var v, ret = [];
+      var v;
+      var ret = [];
       for(var key in obj) {
         if (obj.hasOwnProperty(key)) {
           v = obj[key];
