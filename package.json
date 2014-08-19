@@ -1,6 +1,6 @@
 {
   "name": "components-ember",
-  "version": "1.8.0-beta.1+canary.b7ab19fd",
+  "version": "1.8.0-beta.1+metal-views.a66a820a",
   "description": "Ember Application Framework",
   "keywords": [
     "ember"

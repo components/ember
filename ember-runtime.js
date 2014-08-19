@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.b7ab19fd
+ * @version   1.8.0-beta.1+metal-views.a66a820a
  */
 
 (function() {
@@ -4500,7 +4500,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.b7ab19fd
+      @version 1.8.0-beta.1+metal-views.a66a820a
     */
 
     if ('undefined' === typeof Ember) {
@@ -4527,10 +4527,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.b7ab19fd'
+      @default '1.8.0-beta.1+metal-views.a66a820a'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.b7ab19fd';
+    Ember.VERSION = '1.8.0-beta.1+metal-views.a66a820a';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -5690,7 +5690,7 @@ define("ember-metal/instrumentation",
       @static
     */
     var subscribers = [];
-    var cache = {};
+    __exports__.subscribers = subscribers;var cache = {};
 
     var populateListeners = function(name) {
       var listeners = [];
@@ -5725,56 +5725,70 @@ define("ember-metal/instrumentation",
       @param {Function} callback Function that you're instrumenting.
       @param {Object} binding Context that instrument function is called with.
     */
-    function instrument(name, payload, callback, binding) {
-      var listeners = cache[name], timeName, ret;
-
-      // ES6TODO: Docs. What is this?
-      if (Ember.STRUCTURED_PROFILE) {
-        timeName = name + ": " + payload.object;
-        console.time(timeName);
+    function instrument(name, _payload, callback, binding) {
+      if (subscribers.length === 0) {
+        return;
       }
+      var payload = _payload || {};
+      var finalizer = _instrumentStart(name, function () {
+        return payload;
+      });
+      if (finalizer) {
+        var tryable = function _instrumenTryable() {
+          return callback.call(binding);
+        };
+        var catchable = function _instrumentCatchable(e) {
+          payload.exception = e;
+        };
+        return tryCatchFinally(tryable, catchable, finalizer);
+      }
+    }
+
+    __exports__.instrument = instrument;// private for now
+    function _instrumentStart(name, _payload) {
+      var listeners = cache[name];
 
       if (!listeners) {
         listeners = populateListeners(name);
       }
 
       if (listeners.length === 0) {
-        ret = callback.call(binding);
-        if (Ember.STRUCTURED_PROFILE) { console.timeEnd(timeName); }
-        return ret;
+        return;
       }
 
-      var beforeValues = [], listener, i, l;
+      var payload = _payload();
 
-      function tryable() {
+      var STRUCTURED_PROFILE = Ember.STRUCTURED_PROFILE;
+      var timeName;
+      if (STRUCTURED_PROFILE) {
+        timeName = name + ": " + payload.object;
+        console.time(timeName);
+      }
+
+      var l = listeners.length;
+      var beforeValues = new Array(l);
+      var i, listener;
+      var timestamp = time();
+      for (i=0; i<l; i++) {
+        listener = listeners[i];
+        beforeValues[i] = listener.before(name, timestamp, payload);
+      }
+
+      return function _instrumentEnd() {
+        var i, l, listener;
+        var timestamp = time();
         for (i=0, l=listeners.length; i<l; i++) {
           listener = listeners[i];
-          beforeValues[i] = listener.before(name, time(), payload);
+          listener.after(name, timestamp, payload, beforeValues[i]);
         }
 
-        return callback.call(binding);
-      }
-
-      function catchable(e) {
-        payload = payload || {};
-        payload.exception = e;
-      }
-
-      function finalizer() {
-        for (i=0, l=listeners.length; i<l; i++) {
-          listener = listeners[i];
-          listener.after(name, time(), payload, beforeValues[i]);
-        }
-
-        if (Ember.STRUCTURED_PROFILE) {
+        if (STRUCTURED_PROFILE) {
           console.timeEnd(timeName);
         }
-      }
-
-      return tryCatchFinally(tryable, catchable, finalizer);
+      };
     }
 
-    __exports__.instrument = instrument;/**
+    __exports__._instrumentStart = _instrumentStart;/**
       Subscribes to a particular event or instrumented block of code.
 
       @method subscribe
@@ -5840,7 +5854,7 @@ define("ember-metal/instrumentation",
       @namespace Ember.Instrumentation
     */
     function reset() {
-      subscribers = [];
+      subscribers.length = 0;
       cache = {};
     }
 

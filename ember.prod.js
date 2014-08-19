@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.b7ab19fd
+ * @version   1.8.0-beta.1+metal-views.a66a820a
  */
 
 (function() {
@@ -8360,17 +8360,6 @@ define("ember-handlebars/helpers/each",
       }
     });
 
-    // Defeatureify doesn't seem to like nested functions that need to be removed
-    function _addMetamorphCheck() {
-      EachView.reopen({
-        _checkMetamorph: on('didInsertElement', function() {
-                  })
-      });
-    }
-
-    // until ember-debug is es6ed
-    var runInDebug = function(f){ f(); };
-    
     var GroupedEach = EmberHandlebars.GroupedEach = function(context, path, options) {
       var self = this;
       var normalized = EmberHandlebars.normalizePath(context, path, options.data);
@@ -9721,8 +9710,6 @@ define("ember-handlebars/views/handlebars_bound_view",
     // Ember.K
     var K = Ember.K;
 
-    var Metamorph = requireModule('metamorph');
-
     var EmberError = __dependency3__["default"];
     var get = __dependency4__.get;
     var set = __dependency5__.set;
@@ -9745,11 +9732,11 @@ define("ember-handlebars/views/handlebars_bound_view",
       this.templateData = templateData;
       this[Ember.GUID_KEY] = uuid();
       this._lastNormalizedValue = undefined;
-      this.morph = Metamorph();
       this.state = 'preRender';
       this.updateId = null;
       this._parentView = null;
       this.buffer = null;
+      this._morph = null;
     }
 
     SimpleHandlebarsView.prototype = {
@@ -9775,6 +9762,7 @@ define("ember-handlebars/views/handlebars_bound_view",
       normalizedValue: function() {
         var path = this.path;
         var pathRoot = this.pathRoot;
+        var escape = this.isEscaped;
         var result, templateData;
 
         // Use the pathRoot as the result if no path is provided. This
@@ -9788,33 +9776,19 @@ define("ember-handlebars/views/handlebars_bound_view",
           result = handlebarsGet(pathRoot, path, { data: templateData });
         }
 
-        return result;
-      },
-
-      renderToBuffer: function(buffer) {
-        var string = '';
-
-        string += this.morph.startTag();
-        string += this.render();
-        string += this.morph.endTag();
-
-        buffer.push(string);
-      },
-
-      render: function(value) {
-        // If not invoked via a triple-mustache ({{{foo}}}), escape
-        // the content of the template.
-        var escape = this.isEscaped;
-        var result = value || this.normalizedValue();
-        this._lastNormalizedValue = result;
         if (result === null || result === undefined) {
           result = "";
-        } else if (!(result instanceof SafeString)) {
-          result = String(result);
+        } else if (!escape && !(result instanceof SafeString)) {
+          result = new SafeString(result);
         }
 
-        if (escape) { result = Handlebars.Utils.escapeExpression(result); }
         return result;
+      },
+
+      render: function(buffer) {
+        var value = this.normalizedValue();
+        this._lastNormalizedValue = value;
+        buffer._element = value;
       },
 
       rerender: function() {
@@ -9829,15 +9803,16 @@ define("ember-handlebars/views/handlebars_bound_view",
             this.updateId = run.scheduleOnce('render', this, 'update');
             break;
         }
-
         return this;
       },
 
       update: function () {
         this.updateId = null;
         var value = this.normalizedValue();
+        // doesn't diff SafeString instances
         if (value !== this._lastNormalizedValue) {
-          this.morph.html(this.render(value));
+          this._lastNormalizedValue = value;
+          this._morph.update(value);
         }
       },
 
@@ -10064,23 +10039,19 @@ define("ember-handlebars/views/handlebars_bound_view",
     __exports__.SimpleHandlebarsView = SimpleHandlebarsView;
   });
 define("ember-handlebars/views/metamorph_view",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-views/views/core_view","ember-views/views/view","ember-metal/mixin","ember-metal/run_loop","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
+  ["ember-metal/core","ember-views/views/core_view","ember-views/views/view","ember-metal/mixin","ember-metal/run_loop","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     /* global Metamorph:true */
 
     /*jshint newcap:false*/
     var Ember = __dependency1__["default"];
     // Ember.deprecate
-    // var emberDeprecate = Ember.deprecate;
 
-    var get = __dependency2__.get;
-    var set = __dependency3__["default"];
-
-    var CoreView = __dependency4__["default"];
-    var View = __dependency5__["default"];
-    var Mixin = __dependency6__.Mixin;
-    var run = __dependency7__["default"];
+    var CoreView = __dependency2__["default"];
+    var View = __dependency3__["default"];
+    var Mixin = __dependency4__.Mixin;
+    var run = __dependency5__["default"];
 
     /**
     @module ember
@@ -10092,63 +10063,6 @@ define("ember-handlebars/views/metamorph_view",
     function notifyMutationListeners() {
       run.once(View, 'notifyMutationListeners');
     }
-
-    // DOMManager should just abstract dom manipulation between jquery and metamorph
-    var DOMManager = {
-      remove: function(view) {
-        view.morph.remove();
-        notifyMutationListeners();
-      },
-
-      prepend: function(view, html) {
-        view.morph.prepend(html);
-        notifyMutationListeners();
-      },
-
-      after: function(view, html) {
-        view.morph.after(html);
-        notifyMutationListeners();
-      },
-
-      html: function(view, html) {
-        view.morph.html(html);
-        notifyMutationListeners();
-      },
-
-      // This is messed up.
-      replace: function(view) {
-        var morph = view.morph;
-
-        view._transitionTo('preRender');
-
-        run.schedule('render', this, function renderMetamorphView() {
-          if (view.isDestroying) { return; }
-
-          view.clearRenderedChildren();
-          var buffer = view.renderToBuffer();
-
-          view.invokeRecursively(function(view) {
-            view.propertyWillChange('element');
-          });
-          view.triggerRecursively('willInsertElement');
-
-          morph.replaceWith(buffer.string());
-          view._transitionTo('inDOM');
-
-          view.invokeRecursively(function(view) {
-            view.propertyDidChange('element');
-          });
-          view.triggerRecursively('didInsertElement');
-
-          notifyMutationListeners();
-        });
-      },
-
-      empty: function(view) {
-        view.morph.html("");
-        notifyMutationListeners();
-      }
-    };
 
     // The `morph` and `outerHTML` properties are internal only
     // and not observable.
@@ -10166,26 +10080,7 @@ define("ember-handlebars/views/metamorph_view",
 
       init: function() {
         this._super();
-        this.morph = Metamorph();
-              },
-
-      beforeRender: function(buffer) {
-        buffer.push(this.morph.startTag());
-        buffer.pushOpeningTag();
-      },
-
-      afterRender: function(buffer) {
-        buffer.pushClosingTag();
-        buffer.push(this.morph.endTag());
-      },
-
-      createElement: function() {
-        var buffer = this.renderToBuffer();
-        this.outerHTML = buffer.string();
-        this.clearBuffer();
-      },
-
-      domManager: DOMManager
+              }
     });
     __exports__._Metamorph = _Metamorph;
     var _wrapMap = Metamorph._wrapMap;
@@ -10208,6 +10103,297 @@ define("ember-handlebars/views/metamorph_view",
     */
     var _SimpleMetamorphView = CoreView.extend(_Metamorph);
     __exports__._SimpleMetamorphView = _SimpleMetamorphView;__exports__["default"] = View.extend(_Metamorph);
+  });
+define("ember-metal-views",
+  ["ember-metal-views/renderer","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    var Renderer = __dependency1__["default"];
+    __exports__.Renderer = Renderer;
+  });
+define("ember-metal-views/renderer",
+  ["morph","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    var DOMHelper = __dependency1__.DOMHelper;
+
+    function Renderer() {
+      this._uuid = 0;
+      this._views = new Array(2000);
+      this._queue = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+      this._parents = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+      this._elements = new Array(17);
+      this._inserts = {};
+      this._dom = new DOMHelper();
+    }
+
+    function Renderer_renderTree(_view, _parentView, _insertAt) {
+      var views = this._views;
+      views[0] = _view;
+      var insertAt = _insertAt === undefined ? -1 : _insertAt;
+      var index = 0;
+      var total = 1;
+      var levelBase = _parentView ? _parentView._level+1 : 0;
+
+      var root = _parentView == null ? _view : _parentView._root;
+
+      // if root view has a _morph assigned
+      var willInsert = !!root._morph;
+
+      var queue = this._queue;
+      queue[0] = 0;
+      var length = 1;
+
+      var parentIndex = -1;
+      var parents = this._parents;
+      var parent = null;
+      var elements = this._elements;
+      var element = null;
+      var level = 0;
+
+      var view = _view;
+      var children, i, l, child;
+      while (length) {
+        elements[level] = element;
+        if (!view._morph) {
+          // ensure props we add are in same order
+          view._morph = null;
+        }
+        view._root = root;
+        this.uuid(view);
+        view._level = levelBase + level;
+        if (view._elementCreated) {
+          this.remove(view, false, true);
+        }
+
+        this.willCreateElement(view);
+        element = this.createElement(view);
+
+        parents[level++] = parentIndex;
+        parentIndex = index;
+        parent = view;
+
+        // enqueue for end
+        queue[length++] = index;
+        // enqueue children
+        children = this.childViews(view);
+        if (children) {
+          for (i=children.length-1;i>=0;i--) {
+            child = children[i];
+            index = total++;
+            views[index] = child;
+            queue[length++] = index;
+            view = child;
+          }
+        }
+
+        index = queue[--length];
+        view = views[index];
+
+        while (parentIndex === index) {
+          level--;
+          view._elementCreated = true;
+          this.didCreateElement(view);
+          if (willInsert) {
+            this.willInsertElement(view);
+          }
+
+          if (level === 0) {
+            length--;
+            break;
+          }
+
+          parentIndex = parents[level];
+          parent = views[parentIndex];
+          this.insertElement(view, parent, element, -1);
+          index = queue[--length];
+          view = views[index];
+          element = elements[level];
+          elements[level] = null;
+        }
+      }
+
+      this.insertElement(view, _parentView, element, insertAt);
+
+      for (i=total-1;i>=0;i--) {
+        if (willInsert) {
+          views[i]._elementInserted = true;
+          this.didInsertElement(views[i]);
+        }
+        views[i] = null;
+      }
+
+      return element;
+    }
+
+    Renderer.prototype.uuid = function Renderer_uuid(view) {
+      if (view._uuid === undefined) {
+        view._uuid = ++this._uuid;
+        view._renderer = this;
+      } // else assert(view._renderer === this)
+      return view._uuid;
+    };
+
+    Renderer.prototype.scheduleInsert =
+      function Renderer_scheduleInsert(view, morph) {
+        if (view._morph || view._elementCreated) {
+          throw new Error("You can't insert a View that has already been rendered");
+        }
+        view._morph = morph;
+        var viewId = this.uuid(view);
+        this._inserts[viewId] = this.scheduleRender(this, function() {
+          this._inserts[viewId] = null;
+          this.renderTree(view);
+        });
+      };
+
+    Renderer.prototype.appendTo =
+      function Renderer_appendTo(view, target) {
+        // TODO use dom helper for creating this morph.
+        var start = document.createTextNode('');
+        var end = document.createTextNode('');
+        target.appendChild(start);
+        target.appendChild(end);
+        var morph = this._dom.createMorph(target, start, end);
+        this.scheduleInsert(view, morph);
+      };
+
+    Renderer.prototype.replaceIn =
+      function Renderer_replaceIn(view, target) {
+        var morph = this._dom.createMorph(target, null, null);
+        this.scheduleInsert(view, morph);
+      };
+
+    function Renderer_remove(_view, shouldDestroy, reset) {
+      var viewId = this.uuid(_view);
+
+      if (this._inserts[viewId]) {
+        this.cancelRender(this._inserts[viewId]);
+        this._inserts[viewId] = undefined;
+      }
+
+      if (!_view._elementCreated) {
+        return;
+      }
+
+      var removeQueue = [];
+      var destroyQueue = [];
+      var morph = _view._morph;
+      var  idx, len, view, staticChildren, queue,
+        childViews, i, l, parentView;
+
+      removeQueue.push(_view);
+
+      for (idx=0; idx<removeQueue.length; idx++) {
+        view = removeQueue[idx];
+
+        if (!shouldDestroy && view._childViewsMorph) {
+          queue = removeQueue;
+        } else {
+          queue = destroyQueue;
+        }
+
+        this.beforeRemove(removeQueue[idx]);
+
+        childViews = view._childViews;
+        if (childViews) {
+          for (i=0,l=childViews.length; i<l; i++) {
+            queue.push(childViews[i]);
+          }
+        }
+      }
+
+      for (idx=0; idx<destroyQueue.length; idx++) {
+        view = destroyQueue[idx];
+
+        this.beforeRemove(destroyQueue[idx]);
+
+        childViews = view._childViews;
+        if (childViews) {
+          for (i=0,l=childViews.length; i<l; i++) {
+            destroyQueue.push(childViews[i]);
+          }
+        }
+      }
+
+      // destroy DOM from root insertion
+      if (morph && !reset) {
+        morph.destroy();
+      }
+
+      for (idx=0, len=removeQueue.length; idx < len; idx++) {
+        this.afterRemove(removeQueue[idx], false);
+      }
+
+      for (idx=0, len=destroyQueue.length; idx < len; idx++) {
+        this.afterRemove(destroyQueue[idx], true);
+      }
+
+      if (reset) {
+        _view._morph = morph;
+      }
+    }
+
+    function Renderer_insertElement(view, parentView, element, index) {
+      if (element === null || element === undefined) return;
+      if (view._morph) {
+        view._morph.update(element);
+      } else if (parentView) {
+        if (index === -1) {
+          view._morph = parentView._childViewsMorph.append(element);
+        } else {
+          view._morph = parentView._childViewsMorph.insert(index, element);
+        }
+      }
+    }
+
+    function Renderer_beforeRemove(view) {
+      if (view._elementCreated) {
+        this.willDestroyElement(view);
+      }
+      if (view._elementInserted) {
+        this.willRemoveElement(view);
+      }
+    }
+
+    function Renderer_afterRemove(view, shouldDestroy) {
+      view._elementInserted = false;
+      view._morph = null;
+      view._childViewsMorph = null;
+      if (view._elementCreated) {
+        view._elementCreated = false;
+        this.didDestroyElement(view);
+      }
+      if (shouldDestroy) {
+        this.destroyView(view);
+      }
+    }
+
+    Renderer.prototype.remove = Renderer_remove;
+    Renderer.prototype.destroy = function (view) {
+      this.remove(view, true);
+    };
+
+    Renderer.prototype.renderTree = Renderer_renderTree;
+    Renderer.prototype.insertElement = Renderer_insertElement;
+    Renderer.prototype.beforeRemove = Renderer_beforeRemove;
+    Renderer.prototype.afterRemove = Renderer_afterRemove;
+
+    /// HOOKS
+    var noop = function () {};
+
+    Renderer.prototype.willCreateElement = noop; // inBuffer
+    Renderer.prototype.createElement = noop; // renderToBuffer or createElement
+    Renderer.prototype.didCreateElement = noop; // hasElement
+    Renderer.prototype.willInsertElement = noop; // will place into DOM
+    Renderer.prototype.didInsertElement = noop; // inDOM // placed into DOM
+    Renderer.prototype.willRemoveElement = noop; // removed from DOM  willDestroyElement currently paired with didInsertElement
+    Renderer.prototype.willDestroyElement = noop; // willClearRender (currently balanced with render) this is now paired with createElement
+    Renderer.prototype.didDestroyElement = noop; // element destroyed so view.destroy shouldn't try to remove it removedFromDOM
+    Renderer.prototype.destroyView = noop;
+    Renderer.prototype.childViews = noop;
+
+    __exports__["default"] = Renderer;
   });
 define("ember-metal",
   ["ember-metal/core","ember-metal/merge","ember-metal/instrumentation","ember-metal/utils","ember-metal/error","ember-metal/enumerable_utils","ember-metal/cache","ember-metal/platform","ember-metal/array","ember-metal/logger","ember-metal/property_get","ember-metal/events","ember-metal/observer_set","ember-metal/property_events","ember-metal/properties","ember-metal/property_set","ember-metal/map","ember-metal/get_properties","ember-metal/set_properties","ember-metal/watch_key","ember-metal/chains","ember-metal/watch_path","ember-metal/watching","ember-metal/expand_properties","ember-metal/computed","ember-metal/computed_macros","ember-metal/observer","ember-metal/mixin","ember-metal/binding","ember-metal/run_loop","ember-metal/libraries","ember-metal/is_none","ember-metal/is_empty","ember-metal/is_blank","ember-metal/is_present","ember-metal/keys","exports"],
@@ -12913,7 +13099,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.b7ab19fd
+      @version 1.8.0-beta.1+metal-views.a66a820a
     */
 
     if ('undefined' === typeof Ember) {
@@ -12940,10 +13126,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.b7ab19fd'
+      @default '1.8.0-beta.1+metal-views.a66a820a'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.b7ab19fd';
+    Ember.VERSION = '1.8.0-beta.1+metal-views.a66a820a';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -14101,7 +14287,7 @@ define("ember-metal/instrumentation",
       @static
     */
     var subscribers = [];
-    var cache = {};
+    __exports__.subscribers = subscribers;var cache = {};
 
     var populateListeners = function(name) {
       var listeners = [];
@@ -14136,56 +14322,70 @@ define("ember-metal/instrumentation",
       @param {Function} callback Function that you're instrumenting.
       @param {Object} binding Context that instrument function is called with.
     */
-    function instrument(name, payload, callback, binding) {
-      var listeners = cache[name], timeName, ret;
-
-      // ES6TODO: Docs. What is this?
-      if (Ember.STRUCTURED_PROFILE) {
-        timeName = name + ": " + payload.object;
-        console.time(timeName);
+    function instrument(name, _payload, callback, binding) {
+      if (subscribers.length === 0) {
+        return;
       }
+      var payload = _payload || {};
+      var finalizer = _instrumentStart(name, function () {
+        return payload;
+      });
+      if (finalizer) {
+        var tryable = function _instrumenTryable() {
+          return callback.call(binding);
+        };
+        var catchable = function _instrumentCatchable(e) {
+          payload.exception = e;
+        };
+        return tryCatchFinally(tryable, catchable, finalizer);
+      }
+    }
+
+    __exports__.instrument = instrument;// private for now
+    function _instrumentStart(name, _payload) {
+      var listeners = cache[name];
 
       if (!listeners) {
         listeners = populateListeners(name);
       }
 
       if (listeners.length === 0) {
-        ret = callback.call(binding);
-        if (Ember.STRUCTURED_PROFILE) { console.timeEnd(timeName); }
-        return ret;
+        return;
       }
 
-      var beforeValues = [], listener, i, l;
+      var payload = _payload();
 
-      function tryable() {
+      var STRUCTURED_PROFILE = Ember.STRUCTURED_PROFILE;
+      var timeName;
+      if (STRUCTURED_PROFILE) {
+        timeName = name + ": " + payload.object;
+        console.time(timeName);
+      }
+
+      var l = listeners.length;
+      var beforeValues = new Array(l);
+      var i, listener;
+      var timestamp = time();
+      for (i=0; i<l; i++) {
+        listener = listeners[i];
+        beforeValues[i] = listener.before(name, timestamp, payload);
+      }
+
+      return function _instrumentEnd() {
+        var i, l, listener;
+        var timestamp = time();
         for (i=0, l=listeners.length; i<l; i++) {
           listener = listeners[i];
-          beforeValues[i] = listener.before(name, time(), payload);
+          listener.after(name, timestamp, payload, beforeValues[i]);
         }
 
-        return callback.call(binding);
-      }
-
-      function catchable(e) {
-        payload = payload || {};
-        payload.exception = e;
-      }
-
-      function finalizer() {
-        for (i=0, l=listeners.length; i<l; i++) {
-          listener = listeners[i];
-          listener.after(name, time(), payload, beforeValues[i]);
-        }
-
-        if (Ember.STRUCTURED_PROFILE) {
+        if (STRUCTURED_PROFILE) {
           console.timeEnd(timeName);
         }
-      }
-
-      return tryCatchFinally(tryable, catchable, finalizer);
+      };
     }
 
-    __exports__.instrument = instrument;/**
+    __exports__._instrumentStart = _instrumentStart;/**
       Subscribes to a particular event or instrumented block of code.
 
       @method subscribe
@@ -14251,7 +14451,7 @@ define("ember-metal/instrumentation",
       @namespace Ember.Instrumentation
     */
     function reset() {
-      subscribers = [];
+      subscribers.length = 0;
       cache = {};
     }
 
@@ -37015,8 +37215,8 @@ define("ember-testing/test",
     __exports__["default"] = Test;
   });
 define("ember-views",
-  ["ember-runtime","ember-views/system/jquery","ember-views/system/utils","ember-views/system/render_buffer","ember-views/system/ext","ember-views/views/states","ember-views/views/core_view","ember-views/views/view","ember-views/views/view_collection","ember-views/views/container_view","ember-views/views/collection_view","ember-views/views/component","ember-views/system/event_dispatcher","ember-views/mixins/view_target_action_support","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __exports__) {
+  ["ember-runtime","ember-views/system/jquery","ember-views/system/utils","ember-views/system/render_buffer","ember-views/system/ext","ember-views/views/states","ember-views/views/core_view","ember-views/views/view","ember-views/views/container_view","ember-views/views/collection_view","ember-views/views/component","ember-views/system/event_dispatcher","ember-views/mixins/view_target_action_support","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __exports__) {
     "use strict";
     /**
     Ember Views
@@ -37039,13 +37239,12 @@ define("ember-views",
 
     var CoreView = __dependency7__["default"];
     var View = __dependency8__["default"];
-    var ViewCollection = __dependency9__["default"];
-    var ContainerView = __dependency10__["default"];
-    var CollectionView = __dependency11__["default"];
-    var Component = __dependency12__["default"];
+    var ContainerView = __dependency9__["default"];
+    var CollectionView = __dependency10__["default"];
+    var Component = __dependency11__["default"];
 
-    var EventDispatcher = __dependency13__["default"];
-    var ViewTargetActionSupport = __dependency14__["default"];
+    var EventDispatcher = __dependency12__["default"];
+    var ViewTargetActionSupport = __dependency13__["default"];
     // END IMPORTS
 
     /**
@@ -37070,7 +37269,6 @@ define("ember-views",
     Ember.View.states = states;
     Ember.View.cloneStates = cloneStates;
 
-    Ember._ViewCollection = ViewCollection;
     Ember.ContainerView = ContainerView;
     Ember.CollectionView = CollectionView;
     Ember.Component = Component;
@@ -37541,8 +37739,8 @@ define("ember-views/system/jquery",
     __exports__["default"] = jQuery;
   });
 define("ember-views/system/render_buffer",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-views/system/utils","ember-views/system/jquery","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-views/system/utils","ember-views/system/jquery","morph","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -37556,6 +37754,7 @@ define("ember-views/system/render_buffer",
     var set = __dependency3__.set;
     var setInnerHTML = __dependency4__.setInnerHTML;
     var jQuery = __dependency5__["default"];
+    var DOMHelper = __dependency6__.DOMHelper;
 
     function ClassSet() {
       this.seen = {};
@@ -37628,26 +37827,28 @@ define("ember-views/system/render_buffer",
     })();
 
     /**
-      `Ember.RenderBuffer` gathers information regarding the view and generates the
-      final representation. `Ember.RenderBuffer` will generate HTML which can be pushed
+      `Ember.renderBuffer` gathers information regarding the view and generates the
+      final representation. `Ember.renderBuffer` will generate HTML which can be pushed
       to the DOM.
 
        ```javascript
-       var buffer = Ember.RenderBuffer('div');
+       var buffer = Ember.renderBuffer('div');
       ```
 
-      @class RenderBuffer
+      @method renderBuffer
       @namespace Ember
-      @constructor
       @param {String} tagName tag name (such as 'div' or 'p') used for the buffer
     */
-    __exports__["default"] = function RenderBuffer(tagName) {
+    __exports__["default"] = function renderBuffer(tagName) {
       return new _RenderBuffer(tagName); // jshint ignore:line
     }
 
     function _RenderBuffer(tagName) {
-      this.tagNames = [tagName || null];
-      this.buffer = "";
+      this.tagName = tagName;
+      this.buffer = null;
+      this.childViews = [];
+      this.dom = new DOMHelper();
+
     }
 
     _RenderBuffer.prototype = {
@@ -37754,6 +37955,29 @@ define("ember-views/system/render_buffer",
       */
       elementStyle: null,
 
+      pushChildView: function (view) {
+        var index = this.childViews.length;
+        this.childViews[index] = view;
+        this.push("<script id='morph-"+index+"' type='text/x-placeholder'>\x3C/script>");
+      },
+
+      hydrateMorphs: function () {
+        var childViews = this.childViews;
+        var el = this._element;
+        for (var i=0,l=childViews.length; i<l; i++) {
+          var childView = childViews[i];
+          var morphId = '#morph-'+i;
+          var ref = el.querySelector(morphId);
+          var parent = ref.parentNode;
+          var start = document.createTextNode('');
+          var end = document.createTextNode('');
+          parent.insertBefore(start, ref);
+          parent.insertBefore(end, ref);
+          parent.removeChild(ref);
+          childView._morph = this.dom.createMorph(parent, start, end);
+        }
+      },
+
       /**
         Adds a string of HTML to the `RenderBuffer`.
 
@@ -37762,6 +37986,9 @@ define("ember-views/system/render_buffer",
         @chainable
       */
       push: function(string) {
+        if (this.buffer === null) {
+          this.buffer = '';
+        }
         this.buffer += string;
         return this;
       },
@@ -37890,96 +38117,8 @@ define("ember-views/system/render_buffer",
         return this;
       },
 
-      begin: function(tagName) {
-        this.tagNames.push(tagName || null);
-        return this;
-      },
-
-      pushOpeningTag: function() {
-        var tagName = this.currentTagName();
-        if (!tagName) { return; }
-
-        if (this._hasElement && !this._element && this.buffer.length === 0) {
-          this._element = this.generateElement();
-          return;
-        }
-
-        var buffer = this.buffer;
-        var id = this.elementId;
-        var classes = this.classes;
-        var attrs = this.elementAttributes;
-        var props = this.elementProperties;
-        var style = this.elementStyle;
-        var attr, prop;
-
-        buffer += '<' + stripTagName(tagName);
-
-        if (id) {
-          buffer += ' id="' + escapeAttribute(id) + '"';
-          this.elementId = null;
-        }
-        if (classes) {
-          buffer += ' class="' + escapeAttribute(classes.join(' ')) + '"';
-          this.classes = null;
-          this.elementClasses = null;
-        }
-
-        if (style) {
-          buffer += ' style="';
-
-          for (prop in style) {
-            if (style.hasOwnProperty(prop)) {
-              buffer += prop + ':' + escapeAttribute(style[prop]) + ';';
-            }
-          }
-
-          buffer += '"';
-
-          this.elementStyle = null;
-        }
-
-        if (attrs) {
-          for (attr in attrs) {
-            if (attrs.hasOwnProperty(attr)) {
-              buffer += ' ' + attr + '="' + escapeAttribute(attrs[attr]) + '"';
-            }
-          }
-
-          this.elementAttributes = null;
-        }
-
-        if (props) {
-          for (prop in props) {
-            if (props.hasOwnProperty(prop)) {
-              var value = props[prop];
-              if (value || typeof(value) === 'number') {
-                if (value === true) {
-                  buffer += ' ' + prop + '="' + prop + '"';
-                } else {
-                  buffer += ' ' + prop + '="' + escapeAttribute(props[prop]) + '"';
-                }
-              }
-            }
-          }
-
-          this.elementProperties = null;
-        }
-
-        buffer += '>';
-        this.buffer = buffer;
-      },
-
-      pushClosingTag: function() {
-        var tagName = this.tagNames.pop();
-        if (tagName) { this.buffer += '</' + stripTagName(tagName) + '>'; }
-      },
-
-      currentTagName: function() {
-        return this.tagNames[this.tagNames.length-1];
-      },
-
       generateElement: function() {
-        var tagName = this.tagNames.pop(), // pop since we don't need to close
+        var tagName = this.tagName,
             id = this.elementId,
             classes = this.classes,
             attrs = this.elementAttributes,
@@ -38039,7 +38178,7 @@ define("ember-views/system/render_buffer",
           this.elementProperties = null;
         }
 
-        return element;
+        this._element = element;
       },
 
       /**
@@ -38050,10 +38189,23 @@ define("ember-views/system/render_buffer",
       element: function() {
         var html = this.innerString();
 
-        if (html) {
-          this._element = setInnerHTML(this._element, html);
+        if (this._element) {
+          if (html) {
+            this._element = setInnerHTML(this._element, html);
+            this.hydrateMorphs();
+          }
+        } else {
+          if (html) {
+            var frag = this._element = document.createDocumentFragment();
+            var parsed = jQuery.parseHTML(html);
+            for (var i=0,l=parsed.length; i<l; i++) {
+              frag.appendChild(parsed[i]);
+            }
+            this.hydrateMorphs();
+          } else if (html === '') {
+            this._element = html;
+          }
         }
-
         return this._element;
       },
 
@@ -38080,6 +38232,173 @@ define("ember-views/system/render_buffer",
         return this.buffer;
       }
     };
+  });
+define("ember-views/system/renderer",
+  ["ember-metal-views/renderer","ember-metal/platform","ember-views/system/render_buffer","ember-metal/run_loop","ember-metal/property_set","ember-metal/instrumentation","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+    "use strict";
+    var Renderer = __dependency1__["default"];
+    var create = __dependency2__.create;
+    var renderBuffer = __dependency3__["default"];
+    var run = __dependency4__["default"];
+    var set = __dependency5__.set;
+    var _instrumentStart = __dependency6__._instrumentStart;
+    var subscribers = __dependency6__.subscribers;
+
+    function EmberRenderer() {
+      Renderer.call(this);
+    }
+    EmberRenderer.prototype = create(Renderer.prototype);
+    EmberRenderer.prototype.constructor = EmberRenderer;
+
+    var BAD_TAG_NAME_TEST_REGEXP = /[^a-zA-Z0-9\-]/;
+    var BAD_TAG_NAME_REPLACE_REGEXP = /[^a-zA-Z0-9\-]/g;
+
+    function stripTagName(tagName) {
+      if (!tagName) {
+        return tagName;
+      }
+
+      if (!BAD_TAG_NAME_TEST_REGEXP.test(tagName)) {
+        return tagName;
+      }
+
+      return tagName.replace(BAD_TAG_NAME_REPLACE_REGEXP, '');
+    }
+
+    EmberRenderer.prototype.scheduleRender =
+      function EmberRenderer_scheduleRender(ctx, fn) {
+        return run.scheduleOnce('render', ctx, fn);
+      };
+
+    EmberRenderer.prototype.cancelRender =
+      function EmberRenderer_cancelRender(id) {
+        run.cancel(id);
+      };
+
+    EmberRenderer.prototype.createChildViewsMorph =
+      function EmberRenderer_createChildViewsMorph(view, _element) {
+        if (view.createChildViewsMorph) {
+          return view.createChildViewsMorph(_element);
+        }
+        var element = _element;
+        if (view.tagName === '') {
+          if (view._morph) {
+            view._childViewsMorph = view._morph;
+          } else {
+            element = document.createDocumentFragment();
+            var start = document.createTextNode('');
+            var end = document.createTextNode('');
+            element.appendChild(start);
+            element.appendChild(end);
+            view._childViewsMorph = this._dom.createMorph(element, start, end);
+          }
+        } else {
+          view._childViewsMorph = this._dom.createMorph(element, element.lastChild, null);
+        }
+        return element;
+      };
+
+    EmberRenderer.prototype.createElement =
+      function EmberRenderer_createElement(view) {
+        // If this is the top-most view, start a new buffer. Otherwise,
+        // create a new buffer relative to the original using the
+        // provided buffer operation (for example, `insertAfter` will
+        // insert a new buffer after the "parent buffer").
+        var tagName = view.tagName;
+        if (tagName === null || tagName === undefined) {
+          tagName = 'div';
+        }
+        var buffer = view.buffer = renderBuffer(tagName);
+
+        if (view.beforeRender) {
+          view.beforeRender(buffer);
+        }
+
+        if (view.tagName !== '') {
+          if (view.applyAttributesToBuffer) {
+            view.applyAttributesToBuffer(buffer);
+          }
+          buffer.generateElement();
+        }
+
+        if (view.render) {
+          view.render(buffer);
+        }
+
+        if (view.afterRender) {
+          view.afterRender(buffer);
+        }
+
+        var element = buffer.element();
+
+        if (view.isContainer) {
+          this.createChildViewsMorph(view, element);
+        }
+
+        view.buffer = null;
+        if (element && element.nodeType === 1) {
+          // We have hooks, we shouldn't make element observable
+          // consider just doing view.element = element
+          set(view, 'element', element);
+        }
+        return element;
+      };
+
+    EmberRenderer.prototype.destroyView = function destroyView(view) {
+      view.removedFromDOM = true;
+      view.destroy();
+    };
+
+    EmberRenderer.prototype.childViews = function childViews(view) {
+      return view._childViews;
+    };
+
+    Renderer.prototype.willCreateElement = function (view) {
+      if (subscribers.length) {
+        view._instrumentEnd = _instrumentStart('render.'+view.instrumentName, function viewInstrumentDetails() {
+          var details = {};
+          view.instrumentDetails(details);
+          return details;
+        });
+      }
+      if (view._transitionTo) {
+        view._transitionTo('inBuffer');
+      }
+    }; // inBuffer
+    Renderer.prototype.didCreateElement = function (view) {
+      if (view._transitionTo) {
+        view._transitionTo('hasElement');
+      }
+      if (view._instrumentEnd) {
+        view._instrumentEnd();
+      }
+    }; // hasElement
+    Renderer.prototype.willInsertElement = function (view) {
+      if (view.trigger) { view.trigger('willInsertElement'); }
+    }; // will place into DOM
+    Renderer.prototype.didInsertElement = function (view) {
+      if (view._transitionTo) {
+        view._transitionTo('inDOM');
+      }
+      if (view.trigger) { view.trigger('didInsertElement'); }
+    }; // inDOM // placed into DOM
+
+    Renderer.prototype.willRemoveElement = function (view) {};
+
+    Renderer.prototype.willDestroyElement = function (view) {
+      if (view.trigger) { view.trigger('willDestroyElement'); }
+      if (view.trigger) { view.trigger('willClearRender'); }
+    };
+
+    Renderer.prototype.didDestroyElement = function (view) {
+      set(view, 'element', null);
+      if (view._transitionTo) {
+        view._transitionTo('preRender');
+      }
+    }; // element destroyed so view.destroy shouldn't try to remove it removedFromDOM
+
+    __exports__["default"] = EmberRenderer;
   });
 define("ember-views/system/utils",
   ["ember-metal/core","ember-views/system/jquery","exports"],
@@ -38567,18 +38886,7 @@ define("ember-views/views/collection_view",
         // Loop through child views that correspond with the removed items.
         // Note that we loop from the end of the array to the beginning because
         // we are mutating it as we go.
-        var childViews = this._childViews, childView, idx, len;
-
-        len = this._childViews.length;
-
-        var removingAll = removedCount === len;
-
-        if (removingAll) {
-          this.currentState.empty(this);
-          this.invokeRecursively(function(view) {
-            view.removedFromDOM = true;
-          }, false);
-        }
+        var childViews = this._childViews, childView, idx;
 
         for (idx = start + removedCount - 1; idx >= start; idx--) {
           childView = childViews[idx];
@@ -39003,8 +39311,8 @@ define("ember-views/views/component",
     __exports__["default"] = Component;
   });
 define("ember-views/views/container_view",
-  ["ember-metal/core","ember-metal/merge","ember-runtime/mixins/mutable_array","ember-metal/property_get","ember-metal/property_set","ember-views/views/view","ember-views/views/view_collection","ember-views/views/states","ember-metal/error","ember-metal/enumerable_utils","ember-metal/computed","ember-metal/run_loop","ember-metal/properties","ember-views/system/render_buffer","ember-metal/mixin","ember-runtime/system/native_array","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __exports__) {
+  ["ember-metal/core","ember-metal/merge","ember-runtime/mixins/mutable_array","ember-metal/property_get","ember-metal/property_set","ember-views/views/view","ember-views/views/states","ember-metal/error","ember-metal/enumerable_utils","ember-metal/computed","ember-metal/run_loop","ember-metal/properties","ember-views/system/render_buffer","ember-metal/mixin","ember-runtime/system/native_array","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.assert, Ember.K
@@ -39015,22 +39323,21 @@ define("ember-views/views/container_view",
     var set = __dependency5__.set;
 
     var View = __dependency6__["default"];
-    var ViewCollection = __dependency7__["default"];
 
-    var cloneStates = __dependency8__.cloneStates;
-    var EmberViewStates = __dependency8__.states;
+    var cloneStates = __dependency7__.cloneStates;
+    var EmberViewStates = __dependency7__.states;
 
-    var EmberError = __dependency9__["default"];
+    var EmberError = __dependency8__["default"];
 
-    var forEach = __dependency10__.forEach;
+    var forEach = __dependency9__.forEach;
 
-    var computed = __dependency11__.computed;
-    var run = __dependency12__["default"];
-    var defineProperty = __dependency13__.defineProperty;
-    var renderBuffer = __dependency14__["default"];
-    var observer = __dependency15__.observer;
-    var beforeObserver = __dependency15__.beforeObserver;
-    var emberA = __dependency16__.A;
+    var computed = __dependency10__.computed;
+    var run = __dependency11__["default"];
+    var defineProperty = __dependency12__.defineProperty;
+    var renderBuffer = __dependency13__["default"];
+    var observer = __dependency14__.observer;
+    var beforeObserver = __dependency14__.beforeObserver;
+    var emberA = __dependency15__.A;
 
     /**
     @module ember
@@ -39190,6 +39497,7 @@ define("ember-views/views/container_view",
       @extends Ember.View
     */
     var ContainerView = View.extend(MutableArray, {
+      isContainer: true,
       _states: states,
 
       willWatchProperty: function(prop){
@@ -39263,9 +39571,6 @@ define("ember-views/views/container_view",
         @param {Ember.RenderBuffer} buffer the buffer to render to
       */
       render: function(buffer) {
-        this.forEachChildView(function(view) {
-          view.renderToBuffer(buffer);
-        });
       },
 
       instrumentName: 'container',
@@ -39383,72 +39688,41 @@ define("ember-views/views/container_view",
       },
 
       ensureChildrenAreInDOM: function(view) {
-        var childViews = view._childViews, i, len, childView, previous, buffer, viewCollection = new ViewCollection();
+        var childViews = view._childViews;
+        var renderer = view._renderer;
 
+        var i, len, childView;
         for (i = 0, len = childViews.length; i < len; i++) {
           childView = childViews[i];
-
-          if (!buffer) { buffer = renderBuffer(); buffer._hasElement = false; }
-
-          if (childView.renderToBufferIfNeeded(buffer)) {
-            viewCollection.push(childView);
-          } else if (viewCollection.length) {
-            insertViewCollection(view, viewCollection, previous, buffer);
-            buffer = null;
-            previous = childView;
-            viewCollection.clear();
-          } else {
-            previous = childView;
+          if (!childView._elementCreated) {
+            renderer.renderTree(childView, view, i);
           }
-        }
-
-        if (viewCollection.length) {
-          insertViewCollection(view, viewCollection, previous, buffer);
         }
       }
     });
 
-    function insertViewCollection(view, viewCollection, previous, buffer) {
-      viewCollection.triggerRecursively('willInsertElement');
-
-      if (previous) {
-        previous.domManager.after(previous, buffer.string());
-      } else {
-        view.domManager.prepend(view, buffer.string());
-      }
-
-      viewCollection.forEach(function(v) {
-        v._transitionTo('inDOM');
-        v.propertyDidChange('element');
-        v.triggerRecursively('didInsertElement');
-      });
-    }
-
-
     __exports__["default"] = ContainerView;
   });
 define("ember-views/views/core_view",
-  ["ember-views/views/states","ember-runtime/system/object","ember-runtime/mixins/evented","ember-runtime/mixins/action_handler","ember-metal/properties","ember-metal/property_get","ember-metal/property_set","ember-metal/computed","ember-metal/utils","ember-metal/instrumentation","ember-views/system/render_buffer","exports"],
+  ["ember-views/system/renderer","ember-views/views/states","ember-runtime/system/object","ember-runtime/mixins/evented","ember-runtime/mixins/action_handler","ember-metal/properties","ember-metal/property_get","ember-metal/property_set","ember-metal/computed","ember-metal/utils","ember-metal/instrumentation","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
     "use strict";
-    var cloneStates = __dependency1__.cloneStates;
-    var states = __dependency1__.states;
-    var EmberObject = __dependency2__["default"];
-    var Evented = __dependency3__["default"];
-    var ActionHandler = __dependency4__["default"];
+    var Rerender = __dependency1__["default"];
 
-    var defineProperty = __dependency5__.defineProperty;
-    var deprecateProperty = __dependency5__.deprecateProperty;
-    var get = __dependency6__.get;
-    var set = __dependency7__.set;
-    var computed = __dependency8__.computed;
+    var cloneStates = __dependency2__.cloneStates;
+    var states = __dependency2__.states;
+    var EmberObject = __dependency3__["default"];
+    var Evented = __dependency4__["default"];
+    var ActionHandler = __dependency5__["default"];
 
-    var typeOf = __dependency9__.typeOf;
+    var deprecateProperty = __dependency6__.deprecateProperty;
+    var get = __dependency7__.get;
+    var set = __dependency8__.set;
+    var computed = __dependency9__.computed;
 
-    var instrument = __dependency10__.instrument;
+    var typeOf = __dependency10__.typeOf;
 
-
-    var renderBuffer = __dependency11__["default"];
+    var instrument = __dependency11__.instrument;
 
     /**
       `Ember.CoreView` is an abstract class that exists to give view-like behavior
@@ -39467,6 +39741,8 @@ define("ember-views/views/core_view",
     */
     var CoreView = EmberObject.extend(Evented, ActionHandler, {
       isView: true,
+      isVirtual: false,
+      isContainer: false,
 
       _states: cloneStates(states),
 
@@ -39516,55 +39792,6 @@ define("ember-views/views/core_view",
       },
 
       /**
-        Invoked by the view system when this view needs to produce an HTML
-        representation. This method will create a new render buffer, if needed,
-        then apply any default attributes, such as class names and visibility.
-        Finally, the `render()` method is invoked, which is responsible for
-        doing the bulk of the rendering.
-
-        You should not need to override this method; instead, implement the
-        `template` property, or if you need more control, override the `render`
-        method.
-
-        @method renderToBuffer
-        @param {Ember.RenderBuffer} buffer the render buffer. If no buffer is
-          passed, a default buffer, using the current view's `tagName`, will
-          be used.
-        @private
-      */
-      renderToBuffer: function(buffer) {
-        var name = 'render.' + this.instrumentName;
-        var details = {};
-
-        this.instrumentDetails(details);
-
-        return instrument(name, details, function instrumentRenderToBuffer() {
-          return this._renderToBuffer(buffer);
-        }, this);
-      },
-
-      _renderToBuffer: function(_buffer) {
-        // If this is the top-most view, start a new buffer. Otherwise,
-        // create a new buffer relative to the original using the
-        // provided buffer operation (for example, `insertAfter` will
-        // insert a new buffer after the "parent buffer").
-        var tagName = this.tagName;
-
-        if (tagName === null || tagName === undefined) {
-          tagName = 'div';
-        }
-
-        var buffer = this.buffer = _buffer && _buffer.begin(tagName) || renderBuffer(tagName);
-        this._transitionTo('inBuffer', false);
-
-        this.beforeRender(buffer);
-        this.render(buffer);
-        this.afterRender(buffer);
-
-        return buffer;
-      },
-
-      /**
         Override the default event firing from `Ember.Evented` to
         also call methods with the given name.
 
@@ -39595,9 +39822,12 @@ define("ember-views/views/core_view",
 
         if (!this._super()) { return; }
 
+
         // destroy the element -- this will avoid each child view destroying
         // the element over and over again...
-        if (!this.removedFromDOM) { this.destroyElement(); }
+        if (!this.removedFromDOM && this._renderer) {
+          this._renderer.remove(this, true);
+        }
 
         // remove from parent if found. Don't call removeFromParent,
         // as removeFromParent will try to remove the element from
@@ -39610,10 +39840,12 @@ define("ember-views/views/core_view",
       },
 
       clearRenderedChildren: Ember.K,
-      triggerRecursively: Ember.K,
-      invokeRecursively: Ember.K,
       _transitionTo: Ember.K,
       destroyElement: Ember.K
+    });
+
+    CoreView.reopenClass({
+      renderer: new Rerender()
     });
 
     __exports__["default"] = CoreView;
@@ -39694,16 +39926,9 @@ define("ember-views/views/states/default",
       },
 
       destroyElement: function(view) {
-        set(view, 'element', null);
-        if (view._scheduledInsert) {
-          run.cancel(view._scheduledInsert);
-          view._scheduledInsert = null;
-        }
+        if (view._renderer)
+          view._renderer.remove(view, false);
         return view;
-      },
-
-      renderToBufferIfNeeded: function () {
-        return false;
       },
 
       rerender: Ember.K,
@@ -39737,22 +39962,7 @@ define("ember-views/views/states/destroying",
       },
       destroyElement: function() {
         throw new EmberError(fmt(destroyingError, ['destroyElement']));
-      },
-      empty: function() {
-        throw new EmberError(fmt(destroyingError, ['empty']));
-      },
-
-      setElement: function() {
-        throw new EmberError(fmt(destroyingError, ["set('element', ...)"]));
-      },
-
-      renderToBufferIfNeeded: function() {
-        return false;
-      },
-
-      // Since element insertion is scheduled, don't do anything if
-      // the view has been destroyed between scheduling and execution
-      insertElement: Ember.K
+      }
     });
 
     __exports__["default"] = destroying;
@@ -39780,7 +39990,7 @@ define("ember-views/views/states/has_element",
 
     merge(hasElement, {
       $: function(view, sel) {
-        var elem = get(view, 'element');
+        var elem = view.get('concreteView').element;
         return sel ? jQuery(sel, elem) : jQuery(elem);
       },
 
@@ -39791,25 +40001,17 @@ define("ember-views/views/states/has_element",
         return jQuery("#" + get(view, 'elementId'))[0];
       },
 
-      setElement: function(view, value) {
-        if (value === null) {
-          view._transitionTo('preRender');
-        } else {
-          throw new EmberError("You cannot set an element to a non-null value when the element is already in the DOM.");
-        }
-
-        return value;
-      },
-
       // once the view has been inserted into the DOM, rerendering is
       // deferred to allow bindings to synchronize.
       rerender: function(view) {
-        view.triggerRecursively('willClearRender');
-
-        view.clearRenderedChildren();
-
-        view.domManager.replace(view);
-        return view;
+        if (view._root._morph && !view._elementInserted) {
+          throw new EmberError("Something you did caused a view to re-render after it rendered but before it was inserted into the DOM.");
+        }
+        // TODO: should be scheduled with renderer
+        run.scheduleOnce('render', function () {
+          if (view.isDestroying) return;
+          view._renderer.renderTree(view, view._parentView);
+        });
       },
 
       // once the view is already in the DOM, destroying it removes it
@@ -39817,25 +40019,8 @@ define("ember-views/views/states/has_element",
       // preRender state if inDOM.
 
       destroyElement: function(view) {
-        view._notifyWillDestroyElement();
-        view.domManager.remove(view);
-        set(view, 'element', null);
-        if (view._scheduledInsert) {
-          run.cancel(view._scheduledInsert);
-          view._scheduledInsert = null;
-        }
+        view._renderer.remove(view, false);
         return view;
-      },
-
-      empty: function(view) {
-        var _childViews = view._childViews, len, idx;
-        if (_childViews) {
-          len = _childViews.length;
-          for (idx = 0; idx < len; idx++) {
-            _childViews[idx]._notifyWillDestroyElement();
-          }
-        }
-        view.domManager.empty(view);
       },
 
       // Handle events from `Ember.EventDispatcher`
@@ -39901,46 +40086,13 @@ define("ember-views/views/states/in_buffer",
         if (!_childViews.length) { _childViews = view._childViews = _childViews.slice(); }
         _childViews.push(childView);
 
-        childView.renderToBuffer(buffer);
+        if (!childView._morph) {
+          buffer.pushChildView(childView);
+        }
 
         view.propertyDidChange('childViews');
 
         return childView;
-      },
-
-      // when a view is rendered in a buffer, destroying the
-      // element will simply destroy the buffer and put the
-      // state back into the preRender state.
-      destroyElement: function(view) {
-        view.clearBuffer();
-        var viewCollection = view._notifyWillDestroyElement();
-        viewCollection.transitionTo('preRender', false);
-
-        return view;
-      },
-
-      empty: function() {
-              },
-
-      renderToBufferIfNeeded: function (view, buffer) {
-        return false;
-      },
-
-      // It should be impossible for a rendered view to be scheduled for
-      // insertion.
-      insertElement: function() {
-        throw new EmberError("You can't insert an element that has already been rendered");
-      },
-
-      setElement: function(view, value) {
-        if (value === null) {
-          view._transitionTo('preRender');
-        } else {
-          view.clearBuffer();
-          view._transitionTo('hasElement');
-        }
-
-        return value;
       },
 
       invokeObserver: function(target, observer) {
@@ -39989,10 +40141,6 @@ define("ember-views/views/states/in_dom",
         if (!View) { View = requireModule('ember-views/views/view')["default"]; } // ES6TODO: this sucks. Have to avoid cycles...
 
         if (!this.isVirtual) delete View.views[view.elementId];
-      },
-
-      insertElement: function(view, fn) {
-        throw new EmberError("You can't insert an element into the DOM that has already been inserted");
       }
     });
 
@@ -40015,45 +40163,28 @@ define("ember-views/views/states/pre_render",
     */
     var preRender = create(_default);
 
-    merge(preRender, {
-      // a view leaves the preRender state once its element has been
-      // created (createElement).
-      insertElement: function(view, fn) {
-        view.createElement();
-        var viewCollection = view.viewHierarchyCollection();
+    var containsElement;
+    if (typeof Node === 'object') {
+      containsElement = Node.prototype.contains;
 
-        viewCollection.trigger('willInsertElement');
-
-        fn.call(view);
-
-        // We transition to `inDOM` if the element exists in the DOM
-        var element = view.get('element');
-        if (jQuery.contains(document.body, element)) {
-          viewCollection.transitionTo('inDOM', false);
-          viewCollection.trigger('didInsertElement');
-        }
-      },
-
-      renderToBufferIfNeeded: function(view, buffer) {
-        view.renderToBuffer(buffer);
-        return true;
-      },
-
-      empty: Ember.K,
-
-      setElement: function(view, value) {
-        if (value !== null) {
-          view._transitionTo('hasElement');
-        }
-        return value;
+      if (!containsElement && Node.prototype.compareDocumentPosition) {
+        // polyfill for older Firefox.
+        // http://compatibility.shwups-cms.ch/en/polyfills/?&id=52
+        containsElement = function(node){
+          return !!(this.compareDocumentPosition(node) & 16);
+        };
       }
-    });
+    } else {
+      containsElement = function(element) {
+        return this.contains(element);
+      };
+    }
 
     __exports__["default"] = preRender;
   });
 define("ember-views/views/view",
-  ["ember-metal/core","ember-runtime/mixins/evented","ember-runtime/system/object","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/set_properties","ember-metal/run_loop","ember-metal/observer","ember-metal/properties","ember-metal/utils","ember-metal/computed","ember-metal/mixin","ember-metal/is_none","ember-runtime/system/native_array","ember-runtime/system/string","ember-metal/enumerable_utils","ember-runtime/copy","ember-metal/binding","ember-metal/property_events","ember-views/system/jquery","ember-views/system/ext","ember-views/views/core_view","ember-views/views/view_collection","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __exports__) {
+  ["ember-metal/core","ember-runtime/mixins/evented","ember-runtime/system/object","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/set_properties","ember-metal/run_loop","ember-metal/observer","ember-metal/properties","ember-metal/utils","ember-metal/computed","ember-metal/mixin","ember-metal/is_none","ember-runtime/system/native_array","ember-runtime/system/string","ember-metal/enumerable_utils","ember-runtime/copy","ember-metal/binding","ember-metal/property_events","ember-views/system/jquery","ember-views/system/ext","ember-views/views/core_view","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __exports__) {
     "use strict";
     // Ember.assert, Ember.deprecate, Ember.warn, Ember.TEMPLATES,
     // Ember.K, jQuery, Ember.lookup,
@@ -40102,24 +40233,11 @@ define("ember-views/views/view",
      // for the side effect of extending Ember.run.queues
 
     var CoreView = __dependency23__["default"];
-    var ViewCollection = __dependency24__["default"];
 
     /**
     @module ember
     @submodule ember-views
     */
-
-    var ContainerView;
-
-    function nullViewsBuffer(view) {
-      view.buffer = null;
-
-    }
-
-    function clearCachedElement(view) {
-      meta(view).cache.element = undefined;
-    }
-
     var childViewsProperty = computed(function() {
       var childViews = this._childViews, ret = emberA(), view = this;
 
@@ -41145,21 +41263,6 @@ define("ember-views/views/view",
         return this.currentState.rerender(this);
       },
 
-      clearRenderedChildren: function() {
-        var lengthBefore = this.lengthBeforeRender;
-        var lengthAfter  = this.lengthAfterRender;
-
-        // If there were child views created during the last call to render(),
-        // remove them under the assumption that they will be re-created when
-        // we re-render.
-
-        // VIEW-TODO: Unit test this path.
-        var childViews = this._childViews;
-        for (var i=lengthAfter-1; i>=lengthBefore; i--) {
-          if (childViews[i]) { childViews[i].destroy(); }
-        }
-      },
-
       /**
         Iterates over the view's `classNameBindings` array, inserts the value
         of the specified property into the `classNames` array, then creates an
@@ -41345,13 +41448,7 @@ define("ember-views/views/view",
         @property element
         @type DOMElement
       */
-      element: computed('_parentView', function(key, value) {
-        if (value !== undefined) {
-          return this.currentState.setElement(this, value);
-        } else {
-          return this.currentState.getElement(this);
-        }
-      }),
+      element: null,
 
       /**
         Returns a jQuery object for this view's element. If you pass in a selector
@@ -41418,12 +41515,11 @@ define("ember-views/views/view",
         @param {String|DOMElement|jQuery} A selector, element, HTML string, or jQuery object
         @return {Ember.View} receiver
       */
-      appendTo: function(target) {
-        // Schedule the DOM element to be created and appended to the given
-        // element after bindings have synchronized.
-        this._insertElementLater(function() {
-                              this.$().appendTo(target);
-        });
+      appendTo: function(selector) {
+        var target = jQuery(selector);
+
+                
+        this.constructor.renderer.appendTo(this, target[0]);
 
         return this;
       },
@@ -41441,45 +41537,13 @@ define("ember-views/views/view",
         @param {String|DOMElement|jQuery} target A selector, element, HTML string, or jQuery object
         @return {Ember.View} received
       */
-      replaceIn: function(target) {
+      replaceIn: function(selector) {
+        var target = jQuery(selector);
+
                 
-        this._insertElementLater(function() {
-          jQuery(target).empty();
-          this.$().appendTo(target);
-        });
+        this.constructor.renderer.replaceIn(this, target[0]);
 
         return this;
-      },
-
-      /**
-        Schedules a DOM operation to occur during the next render phase. This
-        ensures that all bindings have finished synchronizing before the view is
-        rendered.
-
-        To use, pass a function that performs a DOM operation.
-
-        Before your function is called, this view and all child views will receive
-        the `willInsertElement` event. After your function is invoked, this view
-        and all of its child views will receive the `didInsertElement` event.
-
-        ```javascript
-        view._insertElementLater(function() {
-          this.createElement();
-          this.$().appendTo('body');
-        });
-        ```
-
-        @method _insertElementLater
-        @param {Function} fn the function that inserts the element into the DOM
-        @private
-      */
-      _insertElementLater: function(fn) {
-        this._scheduledInsert = run.scheduleOnce('render', this, '_insertElement', fn);
-      },
-
-      _insertElement: function (fn) {
-        this._scheduledInsert = null;
-        this.currentState.insertElement(this, fn);
       },
 
       /**
@@ -41515,9 +41579,6 @@ define("ember-views/views/view",
         // In the interim, we will just re-render if that happens. It is more
         // important than elements get garbage collected.
         if (!this.removedFromDOM) { this.destroyElement(); }
-        this.invokeRecursively(function(view) {
-          if (view.clearRenderedChildren) { view.clearRenderedChildren(); }
-        });
       },
 
       elementId: null,
@@ -41549,10 +41610,9 @@ define("ember-views/views/view",
         @return {Ember.View} receiver
       */
       createElement: function() {
-        if (get(this, 'element')) { return this; }
+        if (this.element) { return this; }
 
-        var buffer = this.renderToBuffer();
-        set(this, 'element', buffer.element());
+        this.constructor.renderer.renderTree(this);
 
         return this;
       },
@@ -41581,65 +41641,6 @@ define("ember-views/views/view",
         @event willClearRender
       */
       willClearRender: Ember.K,
-
-      /**
-        Run this callback on the current view (unless includeSelf is false) and recursively on child views.
-
-        @method invokeRecursively
-        @param fn {Function}
-        @param includeSelf {Boolean} Includes itself if true.
-        @private
-      */
-      invokeRecursively: function(fn, includeSelf) {
-        var childViews = (includeSelf === false) ? this._childViews : [this];
-        var currentViews, view, currentChildViews;
-
-        while (childViews.length) {
-          currentViews = childViews.slice();
-          childViews = [];
-
-          for (var i=0, l=currentViews.length; i<l; i++) {
-            view = currentViews[i];
-            currentChildViews = view._childViews ? view._childViews.slice(0) : null;
-            fn(view);
-            if (currentChildViews) {
-              childViews.push.apply(childViews, currentChildViews);
-            }
-          }
-        }
-      },
-
-      triggerRecursively: function(eventName) {
-        var childViews = [this], currentViews, view, currentChildViews;
-
-        while (childViews.length) {
-          currentViews = childViews.slice();
-          childViews = [];
-
-          for (var i=0, l=currentViews.length; i<l; i++) {
-            view = currentViews[i];
-            currentChildViews = view._childViews ? view._childViews.slice(0) : null;
-            if (view.trigger) { view.trigger(eventName); }
-            if (currentChildViews) {
-              childViews.push.apply(childViews, currentChildViews);
-            }
-
-          }
-        }
-      },
-
-      viewHierarchyCollection: function() {
-        var currentView, viewCollection = new ViewCollection([this]);
-
-        for (var i = 0; i < viewCollection.length; i++) {
-          currentView = viewCollection.objectAt(i);
-          if (currentView._childViews) {
-            viewCollection.push.apply(viewCollection, currentView._childViews);
-          }
-        }
-
-        return viewCollection;
-      },
 
       /**
         Destroys any existing element along with the element for any child views
@@ -41676,36 +41677,6 @@ define("ember-views/views/view",
       willDestroyElement: Ember.K,
 
       /**
-        Triggers the `willDestroyElement` event (which invokes the
-        `willDestroyElement()` method if it exists) on this view and all child
-        views.
-
-        Before triggering `willDestroyElement`, it first triggers the
-        `willClearRender` event recursively.
-
-        @method _notifyWillDestroyElement
-        @private
-      */
-      _notifyWillDestroyElement: function() {
-        var viewCollection = this.viewHierarchyCollection();
-        viewCollection.trigger('willClearRender');
-        viewCollection.trigger('willDestroyElement');
-        return viewCollection;
-      },
-
-      /**
-        If this view's element changes, we need to invalidate the caches of our
-        child views so that we do not retain references to DOM elements that are
-        no longer needed.
-
-        @method _elementDidChange
-        @private
-      */
-      _elementDidChange: observer('element', function() {
-        this.forEachChildView(clearCachedElement);
-      }),
-
-      /**
         Called when the parentView property has changed.
 
         @event parentViewDidChange
@@ -41719,26 +41690,9 @@ define("ember-views/views/view",
         this._super(hash);
       },
 
-      _renderToBuffer: function(buffer) {
-        this.lengthBeforeRender = this._childViews.length;
-        buffer = this._super(buffer);
-        this.lengthAfterRender = this._childViews.length;
+      beforeRender: function(buffer) {},
 
-        return buffer;
-      },
-
-      renderToBufferIfNeeded: function (buffer) {
-        return this.currentState.renderToBufferIfNeeded(this, buffer);
-      },
-
-      beforeRender: function(buffer) {
-        this.applyAttributesToBuffer(buffer);
-        buffer.pushOpeningTag();
-      },
-
-      afterRender: function(buffer) {
-        buffer.pushClosingTag();
-      },
+      afterRender: function(buffer) {},
 
       applyAttributesToBuffer: function(buffer) {
         // Creates observers for all registered class name and attribute bindings,
@@ -41901,7 +41855,9 @@ define("ember-views/views/view",
         @private
       */
       init: function() {
-        this.elementId = this.elementId || guidFor(this);
+        if (!this.isVirtual && !this.elementId) {
+          this.elementId = guidFor(this);
+        }
 
         this._super();
 
@@ -41995,19 +41951,9 @@ define("ember-views/views/view",
 
         if (!this._super()) { return; }
 
-        childLen = childViews.length;
-        for (i=childLen-1; i>=0; i--) {
-          childViews[i].removedFromDOM = true;
-        }
-
         // remove from non-virtual parent view if viewName was specified
         if (viewName && nonVirtualParentView) {
           nonVirtualParentView.set(viewName, null);
-        }
-
-        childLen = childViews.length;
-        for (i=childLen-1; i>=0; i--) {
-          childViews[i].destroy();
         }
 
         return this;
@@ -42141,28 +42087,16 @@ define("ember-views/views/view",
 
         return false;
       },
-
-      clearBuffer: function() {
-        this.invokeRecursively(nullViewsBuffer);
-      },
       transitionTo: function(state, children) {
                 this._transitionTo(state, children);
       },
       _transitionTo: function(state, children) {
         var priorState = this.currentState;
         var currentState = this.currentState = this._states[state];
-
         this._state = state;
 
         if (priorState && priorState.exit) { priorState.exit(this); }
         if (currentState.enter) { currentState.enter(this); }
-        if (state === 'inDOM') { meta(this).cache.element = undefined; }
-
-        if (children !== false) {
-          this.forEachChildView(function(view) {
-            view._transitionTo(state);
-          });
-        }
       },
 
       // .......................................................
@@ -42238,48 +42172,6 @@ define("ember-views/views/view",
     function notifyMutationListeners() {
       run.once(View, 'notifyMutationListeners');
     }
-
-    var DOMManager = {
-      prepend: function(view, html) {
-        view.$().prepend(html);
-        notifyMutationListeners();
-      },
-
-      after: function(view, html) {
-        view.$().after(html);
-        notifyMutationListeners();
-      },
-
-      html: function(view, html) {
-        view.$().html(html);
-        notifyMutationListeners();
-      },
-
-      replace: function(view) {
-        var element = get(view, 'element');
-
-        set(view, 'element', null);
-
-        view._insertElementLater(function() {
-          jQuery(element).replaceWith(get(view, 'element'));
-          notifyMutationListeners();
-        });
-      },
-
-      remove: function(view) {
-        view.$().remove();
-        notifyMutationListeners();
-      },
-
-      empty: function(view) {
-        view.$().empty();
-        notifyMutationListeners();
-      }
-    };
-
-    View.reopen({
-      domManager: DOMManager
-    });
 
     View.reopenClass({
 
@@ -42390,7 +42282,7 @@ define("ember-views/views/view",
     });
 
     var mutation = EmberObject.extend(Evented).create();
-
+    // TODO MOVE TO RENDERER HOOKS
     View.addMutationListener = function(callback) {
       mutation.on('change', callback);
     };
@@ -42447,74 +42339,6 @@ define("ember-views/views/view",
     };
 
     __exports__["default"] = View;
-  });
-define("ember-views/views/view_collection",
-  ["ember-metal/enumerable_utils","exports"],
-  function(__dependency1__, __exports__) {
-    "use strict";
-    var forEach = __dependency1__.forEach;
-
-    function ViewCollection(initialViews) {
-      var views = this.views = initialViews || [];
-      this.length = views.length;
-    }
-
-    ViewCollection.prototype = {
-      length: 0,
-
-      trigger: function(eventName) {
-        var views = this.views, view;
-        for (var i = 0, l = views.length; i < l; i++) {
-          view = views[i];
-          if (view.trigger) { view.trigger(eventName); }
-        }
-      },
-
-      triggerRecursively: function(eventName) {
-        var views = this.views;
-        for (var i = 0, l = views.length; i < l; i++) {
-          views[i].triggerRecursively(eventName);
-        }
-      },
-
-      invokeRecursively: function(fn) {
-        var views = this.views, view;
-
-        for (var i = 0, l = views.length; i < l; i++) {
-          view = views[i];
-          fn(view);
-        }
-      },
-
-      transitionTo: function(state, children) {
-        var views = this.views;
-        for (var i = 0, l = views.length; i < l; i++) {
-          views[i]._transitionTo(state, children);
-        }
-      },
-
-      push: function() {
-        this.length += arguments.length;
-        var views = this.views;
-        return views.push.apply(views, arguments);
-      },
-
-      objectAt: function(idx) {
-        return this.views[idx];
-      },
-
-      forEach: function(callback) {
-        var views = this.views;
-        return forEach(views, callback);
-      },
-
-      clear: function() {
-        this.length = 0;
-        this.views.length = 0;
-      }
-    };
-
-    __exports__["default"] = ViewCollection;
   });
 define("ember",
   ["ember-metal","ember-runtime","ember-handlebars","ember-views","ember-routing","ember-routing-handlebars","ember-application","ember-extension-support"],
@@ -43018,6 +42842,404 @@ define("metamorph",
     return Metamorph;
   });
 
+define("morph",
+  ["morph/morph","morph/dom-helper","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
+    "use strict";
+    var Morph = __dependency1__["default"];
+    var Morph;
+    __exports__.Morph = Morph;
+    var DOMHelper = __dependency2__["default"];
+    var DOMHelper;
+    __exports__.DOMHelper = DOMHelper;
+  });
+define("morph/dom-helper",
+  ["morph/morph","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    var Morph = __dependency1__["default"];
+
+    var emptyString = '';
+
+    var deletesBlankTextNodes = (function(){
+      var element = document.createElement('div');
+      element.appendChild( document.createTextNode('') );
+      var clonedElement = element.cloneNode(true);
+      return clonedElement.childNodes.length === 0;
+    })();
+
+    var ignoresCheckedAttribute = (function(){
+      var element = document.createElement('input');
+      element.setAttribute('checked', 'checked');
+      var clonedElement = element.cloneNode(false);
+      return !clonedElement.checked;
+    })();
+
+    /*
+     * A class wrapping DOM functions to address environment compatibility,
+     * namespaces, contextual elements for morph un-escaped content
+     * insertion.
+     *
+     * When entering a template, a DOMHelper should be passed:
+     *
+     *   template(context, { hooks: hooks, dom: new DOMHelper() });
+     *
+     * TODO: support foreignObject as a passed contextual element. It has
+     * a namespace (svg) that does not match its internal namespace
+     * (xhtml).
+     *
+     * @class DOMHelper
+     * @constructor
+     * @param {HTMLDocument} _document The document DOM methods are proxied to
+     */
+    function DOMHelper(_document){
+      this.document = _document || window.document;
+    }
+
+    var prototype = DOMHelper.prototype;
+    prototype.constructor = DOMHelper;
+
+    prototype.appendChild = function(element, childElement) {
+      element.appendChild(childElement);
+    };
+
+    prototype.appendText = function(element, text) {
+      element.appendChild(this.document.createTextNode(text));
+    };
+
+    prototype.setAttribute = function(element, name, value) {
+      element.setAttribute(name, value);
+    };
+
+    prototype.createElement = function(tagName) {
+      if (this.namespaceURI) {
+        return this.document.createElementNS(this.namespaceURI, tagName);
+      } else {
+        return this.document.createElement(tagName);
+      }
+    };
+
+    prototype.createDocumentFragment = function(){
+      return this.document.createDocumentFragment();
+    };
+
+    prototype.createTextNode = function(text){
+      return this.document.createTextNode(text);
+    };
+
+    prototype.repairClonedNode = function(element, blankChildTextNodes, isChecked){
+      if (deletesBlankTextNodes && blankChildTextNodes.length > 0) {
+        for (var i=0, len=blankChildTextNodes.length;i<len;i++){
+          var textNode = document.createTextNode(emptyString),
+              offset = blankChildTextNodes[i],
+              before = element.childNodes[offset];
+          if (before) {
+            element.insertBefore(textNode, before);
+          } else {
+            element.appendChild(textNode);
+          }
+        }
+      }
+      if (ignoresCheckedAttribute && isChecked) {
+        element.setAttribute('checked', 'checked');
+      }
+    };
+
+    prototype.cloneNode = function(element, deep){
+      var clone = element.cloneNode(!!deep);
+      return clone;
+    };
+
+    prototype.createMorph = function(parent, start, end, contextualElement){
+      if (!contextualElement && parent.nodeType === Node.ELEMENT_NODE) {
+        contextualElement = parent;
+      }
+      if (!contextualElement) {
+        contextualElement = this.document.body;
+      }
+      return new Morph(parent, start, end, this, contextualElement);
+    };
+
+    // This helper is just to keep the templates good looking,
+    // passing integers instead of element references.
+    prototype.createMorphAt = function(parent, startIndex, endIndex, contextualElement){
+      var childNodes = parent.childNodes,
+          start = startIndex === -1 ? null : childNodes[startIndex],
+          end = endIndex === -1 ? null : childNodes[endIndex];
+      return this.createMorph(parent, start, end, contextualElement);
+    };
+
+    prototype.parseHTML = function(html, contextualElement){
+      var element = this.cloneNode(contextualElement, false);
+      element.innerHTML = html;
+      return element.childNodes;
+    };
+
+    __exports__["default"] = DOMHelper;
+  });
+define("morph/morph",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    var splice = Array.prototype.splice;
+
+    function Morph(parent, start, end, domHelper, contextualElement) {
+      // TODO: this is an internal API, this should be an assert
+      if (parent.nodeType === 11) {
+        if (start === null || end === null) {
+          throw new Error('a fragment parent must have boundary nodes in order to detect insertion');
+        }
+        this.element = null;
+      } else {
+        this.element = parent;
+      }
+      this._parent = parent;
+      this.start = start;
+      this.end = end;
+      this.domHelper = domHelper;
+      if (!contextualElement || contextualElement.nodeType !== Node.ELEMENT_NODE) {
+        throw new Error('An element node must be provided for a contextualElement, you provided '+(contextualElement ? 'nodeType '+contextualElement.nodeType : 'nothing'));
+      }
+      this.contextualElement = contextualElement;
+      this.text = null;
+      this.owner = null;
+      this.morphs = null;
+      this.before = null;
+      this.after = null;
+      this.escaped = true;
+    }
+
+    Morph.prototype.parent = function () {
+      if (!this.element) {
+        var parent = this.start.parentNode;
+        if (this._parent !== parent) {
+          this.element = this._parent = parent;
+        }
+      }
+      return this._parent;
+    };
+
+    Morph.prototype.destroy = function () {
+      if (this.owner) {
+        this.owner.removeMorph(this);
+      } else {
+        clear(this.element || this.parent(), this.start, this.end);
+      }
+    };
+
+    Morph.prototype.removeMorph = function (morph) {
+      var morphs = this.morphs;
+      for (var i=0, l=morphs.length; i<l; i++) {
+        if (morphs[i] === morph) {
+          this.replace(i, 1);
+          break;
+        }
+      }
+    };
+
+    Morph.prototype.update = function (nodeOrString) {
+      this._update(this.element || this.parent(), nodeOrString);
+    };
+
+    Morph.prototype.updateNode = function (node) {
+      var parent = this.element || this.parent();
+      if (!node) return this._updateText(parent, '');
+      this._updateNode(parent, node);
+    };
+
+    Morph.prototype.updateText = function (text) {
+      this._updateText(this.element || this.parent(), text);
+    };
+
+    Morph.prototype.updateHTML = function (html) {
+      var parent = this.element || this.parent();
+      if (!html) return this._updateText(parent, '');
+      this._updateHTML(parent, html);
+    };
+
+    Morph.prototype._update = function (parent, nodeOrString) {
+      if (nodeOrString === null || nodeOrString === undefined) {
+        this._updateText(parent, '');
+      } else if (typeof nodeOrString === 'string') {
+        if (this.escaped) {
+          this._updateText(parent, nodeOrString);
+        } else {
+          this._updateHTML(parent, nodeOrString);
+        }
+      } else if (nodeOrString.nodeType) {
+        this._updateNode(parent, nodeOrString);
+      } else if (nodeOrString.string) { // duck typed SafeString
+        this._updateHTML(parent, nodeOrString.string);
+      } else {
+        this._updateText(parent, nodeOrString.toString());
+      }
+    };
+
+    Morph.prototype._updateNode = function (parent, node) {
+      if (this.text) {
+        if (node.nodeType === 3) {
+          this.text.nodeValue = node.nodeValue;
+          return;
+        } else {
+          this.text = null;
+        }
+      }
+      var start = this.start, end = this.end;
+      clear(parent, start, end);
+      parent.insertBefore(node, end);
+      if (this.before !== null) {
+        this.before.end = start.nextSibling;
+      }
+      if (this.after !== null) {
+        this.after.start = end.previousSibling;
+      }
+    };
+
+    Morph.prototype._updateText = function (parent, text) {
+      if (this.text) {
+        this.text.nodeValue = text;
+        return;
+      }
+      var node = this.domHelper.createTextNode(text);
+      this.text = node;
+      clear(parent, this.start, this.end);
+      parent.insertBefore(node, this.end);
+      if (this.before !== null) {
+        this.before.end = node;
+      }
+      if (this.after !== null) {
+        this.after.start = node;
+      }
+    };
+
+    Morph.prototype._updateHTML = function (parent, html) {
+      var start = this.start, end = this.end;
+      clear(parent, start, end);
+      this.text = null;
+      var childNodes = this.domHelper.parseHTML(html, this.contextualElement);
+      appendChildren(parent, end, childNodes);
+      if (this.before !== null) {
+        this.before.end = start.nextSibling;
+      }
+      if (this.after !== null) {
+        this.after.start = end.previousSibling;
+      }
+    };
+
+    Morph.prototype.append = function (node) {
+      if (this.morphs === null) this.morphs = [];
+      var index = this.morphs.length;
+      return this.insert(index, node);
+    };
+
+    Morph.prototype.insert = function (index, node) {
+      if (this.morphs === null) this.morphs = [];
+      var parent = this.element || this.parent(),
+        morphs = this.morphs,
+        before = index > 0 ? morphs[index-1] : null,
+        after  = index < morphs.length ? morphs[index] : null,
+        start  = before === null ? this.start : (before.end === null ? parent.lastChild : before.end.previousSibling),
+        end    = after === null ? this.end : (after.start === null ? parent.firstChild : after.start.nextSibling),
+        morph  = new Morph(parent, start, end, this.domHelper, this.contextualElement);
+      morph.owner = this;
+      morph._update(parent, node);
+      if (before !== null) {
+        morph.before = before;
+        before.end = start.nextSibling;
+        before.after = morph;
+      }
+      if (after !== null) {
+        morph.after = after;
+        after.before = morph;
+        after.start = end.previousSibling;
+      }
+      this.morphs.splice(index, 0, morph);
+      return morph;
+    };
+
+    Morph.prototype.replace = function (index, removedLength, addedNodes) {
+      if (this.morphs === null) this.morphs = [];
+      var parent = this.element || this.parent(),
+        morphs = this.morphs,
+        before = index > 0 ? morphs[index-1] : null,
+        after = index+removedLength < morphs.length ? morphs[index+removedLength] : null,
+        start = before === null ? this.start : (before.end === null ? parent.lastChild : before.end.previousSibling),
+        end   = after === null ? this.end : (after.start === null ? parent.firstChild : after.start.nextSibling),
+        addedLength = addedNodes === undefined ? 0 : addedNodes.length,
+        args, i, current;
+
+      if (removedLength > 0) {
+        clear(parent, start, end);
+      }
+
+      if (addedLength === 0) {
+        if (before !== null) {
+          before.after = after;
+          before.end = end;
+        }
+        if (after !== null) {
+          after.before = before;
+          after.start = start;
+        }
+        morphs.splice(index, removedLength);
+        return;
+      }
+
+      args = new Array(addedLength+2);
+      if (addedLength > 0) {
+        for (i=0; i<addedLength; i++) {
+          args[i+2] = current = new Morph(parent, start, end, this.domHelper, this.contextualElement);
+          current._update(parent, addedNodes[i]);
+          current.owner = this;
+          if (before !== null) {
+            current.before = before;
+            before.end = start.nextSibling;
+            before.after = current;
+          }
+          before = current;
+          start = end === null ? parent.lastChild : end.previousSibling;
+        }
+        if (after !== null) {
+          current.after = after;
+          after.before = current;
+          after.start = end.previousSibling;
+        }
+      }
+
+      args[0] = index;
+      args[1] = removedLength;
+
+      splice.apply(morphs, args);
+    };
+
+    function appendChildren(parent, end, nodeList) {
+      var ref = end,
+          i = nodeList.length,
+          node;
+      while (i--) {
+        node = nodeList[i];
+        parent.insertBefore(node, ref);
+        ref = node;
+      }
+    }
+
+    function clear(parent, start, end) {
+      var current, previous;
+      if (end === null) {
+        current = parent.lastChild;
+      } else {
+        current = end.previousSibling;
+      }
+
+      while (current !== null && current !== start) {
+        previous = current.previousSibling;
+        parent.removeChild(current);
+        current = previous;
+      }
+    }
+
+    __exports__["default"] = Morph;
+  });
 define("route-recognizer",
   ["route-recognizer/dsl","exports"],
   function(__dependency1__, __exports__) {
