@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.78be16cc
+ * @version   1.8.0-beta.1+canary.b7ab19fd
  */
 
 (function() {
@@ -11035,96 +11035,6 @@ define("ember-handlebars/tests/helpers/view_test",
 
       ok(jQuery('#foo').hasClass('foo'), "Always applies classbinding without condition");
 
-    });
-
-    test("Should allow `class-binding` (move dasherized properties to camelized)", function() {
-      view = EmberView.create({
-        context: [],
-        controller: Ember.Object.create(),
-        template: Ember.Handlebars.compile('{{#view id="foo" class-binding=":foo"}} Foo{{/view}}')
-      });
-
-      run(view, 'appendTo', '#qunit-fixture');
-
-      ok(jQuery('#foo').hasClass('foo'), "applied class binding");
-    });
-
-    test("Should allow `class-binding` (move dasherized properties to camelized)", function() {
-      view = EmberView.create({
-        context: [],
-        controller: Ember.Object.create(),
-        template: Ember.Handlebars.compile('{{#view id="foo" class-binding=":foo"}} Foo{{/view}}')
-      });
-
-      run(view, 'appendTo', '#qunit-fixture');
-
-      ok(jQuery('#foo').hasClass('foo'), "applied class binding");
-    });
-
-    test("Should allow `class-binding` (move dasherized properties to camelized)", function() {
-      view = EmberView.create({
-        context: [],
-        controller: Ember.Object.create(),
-        template: Ember.Handlebars.compile('{{#view id="foo" class-binding=":foo"}} Foo{{/view}}')
-      });
-
-      run(view, 'appendTo', '#qunit-fixture');
-
-      ok(jQuery('#foo').hasClass('foo'), "applied class binding");
-    });
-
-    test("Should allow `class-name-bindings` (move dasherized properties to camelized)", function() {
-      view = EmberView.create({
-        context: [],
-        controller: Ember.Object.create(),
-        template: Ember.Handlebars.compile('{{#view id="foo" class-name-bindings=":foo"}} Foo{{/view}}')
-      });
-
-      run(view, 'appendTo', '#qunit-fixture');
-
-      ok(jQuery('#foo').hasClass('foo'), "applied class binding");
-    });
-
-    test("Should move dasherized properties to camelized", function() {
-      view = EmberView.create({
-        context: [],
-        controller: Ember.Object.create(),
-        template: Ember.Handlebars.compile('{{#view id="foo" foo-bar="yippie"}}{{view.fooBar}}{{/view}}')
-      });
-
-      run(view, 'appendTo', '#qunit-fixture');
-
-      equal(jQuery('#foo').text(), 'yippie', "moves dasherized to camelized props");
-    });
-
-    if (platform.hasPropertyAccessors) {
-      test('Should allow access to dasherized property in view with a deprecation', function() {
-        expectDeprecation('Usage of `foo-bar` is deprecated, use `fooBar` instead.');
-
-        view = EmberView.create({
-          context: [],
-          controller: Ember.Object.create(),
-          template: Ember.Handlebars.compile('{{#view id="foo" foo-bar="yippie"}}{{view.foo-bar}}{{/view}}')
-        });
-
-        run(view, 'appendTo', '#qunit-fixture');
-
-        equal(jQuery('#foo').text(), 'yippie', "moves dasherized to camelized props");
-      });
-    }
-
-    test('Should not throw deprecation if dasherized property is not accessed', function() {
-      expectNoDeprecation();
-
-      view = EmberView.create({
-        context: [],
-        controller: Ember.Object.create(),
-        template: Ember.Handlebars.compile('{{#view id="foo" foo-bar="yippie"}}{{view.fooBar}}{{/view}}')
-      });
-
-      run(view, 'appendTo', '#qunit-fixture');
-
-      equal(jQuery('#foo').text(), 'yippie', "moves dasherized to camelized props");
     });
   });
 define("ember-handlebars/tests/helpers/view_test.jshint",
@@ -51960,7 +51870,9 @@ define("ember/tests/helpers/link_to_test",
       equal(normalizeUrl(Ember.$('#item a', '#qunit-fixture').attr('href')), '/about');
     });
 
-    test("The {{link-to}} helper supports currentWhen", function() {
+    test("The {{link-to}} helper supports currentWhen (DEPRECATED)", function() {
+      expectDeprecation('Using currentWhen with {{link-to}} is deprecated in favor of `current-when`.');
+
       Router.map(function(match) {
         this.resource("index", { path: "/" }, function() {
           this.route("about");

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.78be16cc
+ * @version   1.8.0-beta.1+canary.b7ab19fd
  */
 
 (function() {
@@ -9043,8 +9043,7 @@ define("ember-handlebars/helpers/view",
     var normalizePath = __dependency10__.normalizePath;
     var handlebarsGet = __dependency10__.handlebarsGet;
     var handlebarsGetView = __dependency10__.handlebarsGetView;
-    var fmt = __dependency11__.fmt;
-    var camelize = __dependency11__.camelize;
+    var EmberString = __dependency11__["default"];
 
 
     var LOWERCASE_A_Z = /^[a-z]/;
@@ -9102,22 +9101,18 @@ define("ember-handlebars/helpers/view",
           dup = true;
         }
 
-        var classBinding = hash.classBinding || hash['class-binding'];
-        if (classBinding) {
-          extensions.classNameBindings = classBinding.split(' ');
-          dup = true;
-        } else {
-          extensions.classNameBindings = [];
-        }
-
-        var classNameBindings = hash.classNameBindings || hash['class-name-bindings'];
-        if (classNameBindings) {
-          extensions.classNameBindings = extensions.classNameBindings.concat(classNameBindings.split(' '));
+        if (hash.classBinding) {
+          extensions.classNameBindings = hash.classBinding.split(' ');
           dup = true;
         }
 
-        var attributeBindings = hash.attributeBindings || hash['attribute-bindings'];
-        if (attributeBindings) {
+        if (hash.classNameBindings) {
+          if (extensions.classNameBindings === undefined) extensions.classNameBindings = [];
+          extensions.classNameBindings = extensions.classNameBindings.concat(hash.classNameBindings.split(' '));
+          dup = true;
+        }
+
+        if (hash.attributeBindings) {
                     extensions.attributeBindings = null;
           dup = true;
         }
@@ -9128,14 +9123,12 @@ define("ember-handlebars/helpers/view",
           delete hash.tag;
           delete hash['class'];
           delete hash.classBinding;
-          delete hash['class-binding'];
         }
 
         // Set the proper context for all bindings passed to the helper. This applies to regular attribute bindings
         // as well as class name bindings. If the bindings are local, make them relative to the current context
         // instead of the view.
         var path;
-        var deprecatedProperties = {};
 
         // Evaluate the context of regular attribute bindings:
         for (var prop in hash) {
@@ -9146,18 +9139,7 @@ define("ember-handlebars/helpers/view",
             path = this.contextualizeBindingPath(hash[prop], data);
             if (path) { hash[prop] = path; }
           }
-
-
-          var camelized = camelize(prop);
-          if (prop !== camelized) {
-            hash[camelized] = hash[prop];
-            delete hash[prop];
-
-            deprecatedProperties[prop] = camelized;
-          }
         }
-
-        hash._deprecatedProperties = deprecatedProperties;
 
         // Evaluate the context of class name bindings:
         if (extensions.classNameBindings) {
@@ -12931,7 +12913,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.78be16cc
+      @version 1.8.0-beta.1+canary.b7ab19fd
     */
 
     if ('undefined' === typeof Ember) {
@@ -12958,10 +12940,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.78be16cc'
+      @default '1.8.0-beta.1+canary.b7ab19fd'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.78be16cc';
+    Ember.VERSION = '1.8.0-beta.1+canary.b7ab19fd';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -19418,11 +19400,17 @@ define("ember-routing-handlebars/helpers/link_to",
       tagName: 'a',
 
       /**
+        @deprecated Use current-when instead.
+        @property currentWhen
+      */
+      currentWhen: null,
+
+      /**
         Used to determine when this LinkView is active.
 
         @property currentWhen
       */
-      currentWhen: null,
+      'current-when': null,
 
       /**
         Sets the `title` attribute of the `LinkView`'s HTML element.
@@ -19553,6 +19541,7 @@ define("ember-routing-handlebars/helpers/link_to",
       init: function() {
         this._super.apply(this, arguments);
 
+        
         // Map desired event name to invoke function
         var eventName = get(this, 'eventName');
         this.on(eventName, this, this._invoke);
@@ -19655,7 +19644,7 @@ define("ember-routing-handlebars/helpers/link_to",
         var router = get(this, 'router');
         var loadedParams = get(this, 'loadedParams');
         var contexts = loadedParams.models;
-        var currentWhen = this.currentWhen;
+        var currentWhen = this['current-when'] || this.currentWhen;
         var isCurrentWhenSpecified = Boolean(currentWhen);
         currentWhen = currentWhen || loadedParams.targetRouteName;
 
@@ -41922,8 +41911,6 @@ define("ember-views/views/view",
                 this.classNameBindings = emberA(this.classNameBindings.slice());
 
                 this.classNames = emberA(this.classNames.slice());
-
-        this._setupDeprecatedProperties();
       },
 
       appendChild: function(view, options) {
@@ -42076,19 +42063,11 @@ define("ember-views/views/view",
           }
 
           setProperties(view, attrs);
+
         }
 
         return view;
       },
-
-      _setupDeprecatedProperties: function setupDeprecatedProperties() {
-        if (!this._deprecatedProperties) { return; }
-
-        for (var prop in this._deprecatedProperties) {
-          deprecateProperty(this, prop, this._deprecatedProperties[prop]);
-        }
-      },
-
 
       becameVisible: Ember.K,
       becameHidden: Ember.K,
