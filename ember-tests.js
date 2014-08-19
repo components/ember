@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.00d6be42
+ * @version   1.8.0-beta.1+canary.0654413e
  */
 
 (function() {
@@ -46583,7 +46583,8 @@ define("ember-views/tests/views/container_view_test",
     var View = __dependency7__["default"];
     var ContainerView = __dependency8__["default"];
 
-    var trim = jQuery.trim, container, view, otherContainer;
+    var trim = jQuery.trim;
+    var container, view, otherContainer;
 
     QUnit.module("ember-views/views/container_view_test", {
       teardown: function() {
@@ -47864,7 +47865,8 @@ define("ember-views/tests/views/view/attribute_bindings_test",
 
     var EmberView = __dependency6__["default"];
 
-    var originalLookup = Ember.lookup, lookup, view;
+    var originalLookup = Ember.lookup;
+    var lookup, view;
 
     var appendView = function() {
       run(function() { view.appendTo('#qunit-fixture'); });
@@ -48931,7 +48933,8 @@ define("ember-views/tests/views/view/destroy_element_test",
     });
 
     test("if it has a element, calls willDestroyElement on receiver and child views then deletes the element", function() {
-      var parentCount = 0, childCount = 0;
+      var parentCount = 0;
+      var childCount = 0;
 
       view = ContainerView.create({
         willDestroyElement: function() { parentCount++; },
@@ -49198,7 +49201,8 @@ define("ember-views/tests/views/view/init_test",
     var EmberObject = __dependency5__["default"];
     var EmberView = __dependency6__["default"];
 
-    var originalLookup = Ember.lookup, lookup, view;
+    var originalLookup = Ember.lookup;
+    var lookup, view;
 
     QUnit.module("EmberView.create", {
       setup: function() {
@@ -49582,7 +49586,8 @@ define("ember-views/tests/views/view/layout_test",
     });
 
     test("should call the function of the associated layout", function() {
-      var templateCalled = 0, layoutCalled = 0;
+      var templateCalled = 0;
+      var layoutCalled = 0;
 
       container.register('template:template', function() { templateCalled++; });
       container.register('template:layout', function() { layoutCalled++; });
@@ -50025,8 +50030,11 @@ define("ember-views/tests/views/view/render_test",
     });
 
     test("default implementation does not render child views", function() {
+      var rendered = 0;
+      var updated = 0;
+      var parentRendered = 0;
+      var parentUpdated = 0 ;
 
-      var rendered = 0, updated = 0, parentRendered = 0, parentUpdated = 0 ;
       view = ContainerView.createWithMixins({
         childViews: ["child"],
 
@@ -50053,8 +50061,10 @@ define("ember-views/tests/views/view/render_test",
     });
 
     test("should invoke renderChildViews if layer is destroyed then re-rendered", function() {
+      var rendered = 0;
+      var parentRendered = 0;
+      var parentUpdated = 0 ;
 
-      var rendered = 0, parentRendered = 0, parentUpdated = 0 ;
       view = ContainerView.createWithMixins({
         childViews: ["child"],
 
@@ -50093,7 +50103,9 @@ define("ember-views/tests/views/view/render_test",
     });
 
     test("should render child views with a different tagName", function() {
-      var rendered = 0, parentRendered = 0, parentUpdated = 0 ;
+      var rendered = 0;
+      var parentRendered = 0;
+      var parentUpdated = 0 ;
 
       view = ContainerView.create({
         childViews: ["child"],
@@ -50654,7 +50666,8 @@ define("ember-views/tests/views/view/view_lifecycle_test",
     var jQuery = __dependency5__["default"];
     var EmberView = __dependency6__["default"];
 
-    var originalLookup = Ember.lookup, lookup, view;
+    var originalLookup = Ember.lookup;
+    var lookup, view;
 
     QUnit.module("views/view/view_lifecycle_test - pre-render", {
       setup: function() {

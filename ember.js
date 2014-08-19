@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.00d6be42
+ * @version   1.8.0-beta.1+canary.0654413e
  */
 
 (function() {
@@ -13398,7 +13398,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.00d6be42
+      @version 1.8.0-beta.1+canary.0654413e
     */
 
     if ('undefined' === typeof Ember) {
@@ -13425,10 +13425,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.00d6be42'
+      @default '1.8.0-beta.1+canary.0654413e'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.00d6be42';
+    Ember.VERSION = '1.8.0-beta.1+canary.0654413e';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -38436,7 +38436,8 @@ define("ember-views/system/render_buffer",
 
       setClasses: function(classNames) {
         this.elementClasses = null;
-        var len = classNames.length, i;
+        var len = classNames.length;
+        var i;
         for (i = 0; i < len; i++) {
           this.addClass(classNames[i]);
         }
@@ -38543,13 +38544,14 @@ define("ember-views/system/render_buffer",
       },
 
       generateElement: function() {
-        var tagName = this.tagName,
-            id = this.elementId,
-            classes = this.classes,
-            attrs = this.elementAttributes,
-            props = this.elementProperties,
-            style = this.elementStyle,
-            styleBuffer = '', attr, prop, tagString;
+        var tagName = this.tagName;
+        var id = this.elementId;
+        var classes = this.classes;
+        var attrs = this.elementAttributes;
+        var props = this.elementProperties;
+        var style = this.elementStyle;
+        var styleBuffer = '';
+        var attr, prop, tagString;
 
         if (attrs && attrs.name && !canSetNameOnInputs) {
           // IE allows passing a tag to createElement. See note on `canSetNameOnInputs` above as well.
@@ -38643,7 +38645,8 @@ define("ember-views/system/render_buffer",
       string: function() {
         if (this._hasElement && this._element) {
           // Firefox versions < 11 do not have support for element.outerHTML.
-          var thisElement = this.element(), outerHTML = thisElement.outerHTML;
+          var thisElement = this.element();
+          var outerHTML = thisElement.outerHTML;
           if (typeof outerHTML === 'undefined') {
             return jQuery('<div/>').append(thisElement).html();
           }
@@ -38867,7 +38870,8 @@ define("ember-views/system/utils",
     var findChildById = function(element, id) {
       if (element.getAttribute('id') === id) { return element; }
 
-      var len = element.childNodes.length, idx, node, found;
+      var len = element.childNodes.length;
+      var idx, node, found;
       for (idx=0; idx<len; idx++) {
         node = element.childNodes[idx];
         found = node.nodeType === 1 && findChildById(node, id);
@@ -38894,7 +38898,8 @@ define("ember-views/system/utils",
 
       // If we have to do any whitespace adjustments do them now
       if (matches.length > 0) {
-        var len = matches.length, idx;
+        var len = matches.length;
+        var idx;
         for (idx=0; idx<len; idx++) {
           var script = findChildById(element, matches[idx][0]);
           var node = document.createTextNode(matches[idx][1]);
@@ -39313,7 +39318,8 @@ define("ember-views/views/collection_view",
         // Loop through child views that correspond with the removed items.
         // Note that we loop from the end of the array to the beginning because
         // we are mutating it as we go.
-        var childViews = this._childViews, childView, idx;
+        var childViews = this._childViews;
+        var childView, idx;
 
         for (idx = start + removedCount - 1; idx >= start; idx--) {
           childView = childViews[idx];
@@ -40522,7 +40528,8 @@ define("ember-views/views/states/in_buffer",
       // view will render that view and append the resulting
       // buffer into its buffer.
       appendChild: function(view, childView, options) {
-        var buffer = view.buffer, _childViews = view._childViews;
+        var buffer = view.buffer;
+        var _childViews = view._childViews;
 
         childView = view.createChildView(childView, options);
         if (!_childViews.length) { _childViews = view._childViews = _childViews.slice(); }
@@ -40682,7 +40689,9 @@ define("ember-views/views/view",
     @submodule ember-views
     */
     var childViewsProperty = computed(function() {
-      var childViews = this._childViews, ret = emberA(), view = this;
+      var childViews = this._childViews;
+      var ret = emberA();
+      var view = this;
 
       forEach(childViews, function(view) {
         var currentChildViews;
