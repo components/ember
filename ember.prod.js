@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.288fcc00
+ * @version   1.8.0-beta.1+canary.793dbf30
  */
 
 (function() {
@@ -13099,7 +13099,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.288fcc00
+      @version 1.8.0-beta.1+canary.793dbf30
     */
 
     if ('undefined' === typeof Ember) {
@@ -13126,10 +13126,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.288fcc00'
+      @default '1.8.0-beta.1+canary.793dbf30'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.288fcc00';
+    Ember.VERSION = '1.8.0-beta.1+canary.793dbf30';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -23655,12 +23655,29 @@ define("ember-routing/system/route",
         * The find method is called on the model class with the value of
           the dynamic segment.
 
-        Note that for routes with dynamic segments, this hook is only
-        executed when entered via the URL. If the route is entered
-        through a transition (e.g. when using the `link-to` Handlebars
-        helper), then a model context is already provided and this hook
-        is not called. Routes without dynamic segments will always
-        execute the model hook.
+        Note that for routes with dynamic segments, this hook is not always
+        executed. If the route is entered through a transition (e.g. when
+        using the `link-to` Handlebars helper or the `transitionTo` method
+        of routes), and a model context is already provided this hook
+        is not called.
+
+        A model context does not include a primitive string or number,
+        which does cause the model hook to be called.
+
+        Routes without dynamic segments will always execute the model hook.
+
+        ```js
+        // no dynamic segment, model hook always called
+        this.transitionTo('posts');
+
+        // model passed in, so model hook not called
+        thePost = store.find('post', 1);
+        this.transitionTo('post', thePost);
+
+        // integer passed in, model hook is called
+        this.transitionTo('post', 1);
+        ```
+
 
         This hook follows the asynchronous/promise semantics
         described in the documentation for `beforeModel`. In particular,
