@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.789262e1
+ * @version   1.8.0-beta.1+canary.6acf3768
  */
 
 (function() {
@@ -13006,7 +13006,7 @@ define("ember-metal/computed_macros",
       @for Ember
       @param {String} dependentKey*
       @return {Ember.ComputedProperty} computed property which maps
-      values of all passed properties in to an array.
+      values of all passed in properties to an array.
     */
     registerComputedWithProperties('collect', function(properties) {
       var res = [];
@@ -13228,7 +13228,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.789262e1
+      @version 1.8.0-beta.1+canary.6acf3768
     */
 
     if ('undefined' === typeof Ember) {
@@ -13255,10 +13255,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.789262e1'
+      @default '1.8.0-beta.1+canary.6acf3768'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.789262e1';
+    Ember.VERSION = '1.8.0-beta.1+canary.6acf3768';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
