@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.834c7e3a
+ * @version   1.8.0-beta.1+canary.1c19e2e3
  */
 
 (function() {
@@ -4489,19 +4489,17 @@ define("ember-metal/computed_macros",
       return alias(dependentKey).oneWay();
     };
 
-    
-      /**
-        This is a more semantically meaningful alias of `computed.oneWay`,
-        whose name is somewhat ambiguous as to which direction the data flows.
+    /**
+      This is a more semantically meaningful alias of `computed.oneWay`,
+      whose name is somewhat ambiguous as to which direction the data flows.
 
-        @method computed.reads
-        @for Ember
-        @param {String} dependentKey
-        @return {Ember.ComputedProperty} computed property which creates a
-          one way computed property to the original value for property.
-       */
-      computed.reads = computed.oneWay;
-    
+      @method computed.reads
+      @for Ember
+      @param {String} dependentKey
+      @return {Ember.ComputedProperty} computed property which creates a
+        one way computed property to the original value for property.
+     */
+    computed.reads = computed.oneWay;
 
     /**
       Where `computed.oneWay` provides oneWay bindings, `computed.readOnly` provides
@@ -4633,7 +4631,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.834c7e3a
+      @version 1.8.0-beta.1+canary.1c19e2e3
     */
 
     if ('undefined' === typeof Ember) {
@@ -4660,10 +4658,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.834c7e3a'
+      @default '1.8.0-beta.1+canary.1c19e2e3'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.834c7e3a';
+    Ember.VERSION = '1.8.0-beta.1+canary.1c19e2e3';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
