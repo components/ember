@@ -12654,6 +12654,7 @@ define("ember-metal/computed_macros",
       @param {String} dependentKey
       @return {Ember.ComputedProperty} computed property which creates an
       alias with a deprecation to the original value for property.
+      @since 1.7.0
     */
     computed.deprecatingAlias = function(dependentKey) {
       return computed(dependentKey, function(key, value) {
@@ -16038,6 +16039,7 @@ define("ember-metal/properties",
       @param {String} deprecatedKey The property to add (and print deprecation warnings upon accessing).
       @param {String} newKey The property that will be aliased.
       @private
+      @since 1.7.0
     */
 
     function deprecateProperty(object, deprecatedKey, newKey) {
@@ -18505,7 +18507,7 @@ define("ember-routing-handlebars/helpers/action",
           if (options.boundProperty) {
             actionName = resolveParams(parameters.context, [actionNameOrPath], { types: ['ID'], data: parameters.options.data })[0];
 
-            if(typeof actionName === 'undefined' || typeof actionName === 'function') {
+            if (typeof actionName === 'undefined' || typeof actionName === 'function') {
                             actionName = actionNameOrPath;
             }
           }
@@ -21964,7 +21966,8 @@ define("ember-routing/system/route",
       /**
         @private
 
-        @method reset
+        @method _reset
+        @since 1.7.0
       */
       _reset: function(isExiting, transition) {
         
@@ -23690,6 +23693,7 @@ define("ember-routing/system/route",
           @param {Controller} controller instance
           @param {Boolean} isExiting
           @param {Object} transition
+          @since 1.7.0
         */
         resetController: Ember.K
       });
@@ -24089,12 +24093,13 @@ define("ember-routing/system/router",
         manual concatenation of the arguments into a single
         array.
 
-        @method isActive
+        @method isActiveIntent
         @param routeName
         @param models
         @param queryParams
         @return {Boolean}
         @private
+        @since 1.7.0
       */
       isActiveIntent: function(routeName, models, queryParams) {
         var router = this.router;
@@ -28544,6 +28549,8 @@ define("ember-runtime/mixins/controller_content_model_alias_deprecation",
 
       @class ControllerContentModelAliasDeprecation
       @namespace Ember
+      @private
+      @since 1.7.0
     */
     __exports__["default"] = Mixin.create({
       /**
@@ -35828,6 +35835,7 @@ define("ember-testing/test",
 
         @property _helpers
         @private
+        @since 1.7.0
       */
       _helpers: helpers,
 
@@ -36630,6 +36638,7 @@ define("ember-views/system/event_dispatcher",
         @property canDispatchToEventManager
         @type boolean
         @default 'true'
+        @since 1.7.0
       */
       canDispatchToEventManager: true,
 
@@ -39257,37 +39266,21 @@ define("ember-views/views/states/in_dom",
     __exports__["default"] = inDOM;
   });
 define("ember-views/views/states/pre_render",
-  ["ember-views/views/states/default","ember-metal/platform","ember-metal/merge","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["ember-views/views/states/default","ember-metal/platform","ember-metal/merge","ember-views/system/jquery","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     /* global Node */
 
     var _default = __dependency1__["default"];
     var create = __dependency2__.create;
     var merge = __dependency3__["default"];
+    var jQuery = __dependency4__["default"];
 
     /**
     @module ember
     @submodule ember-views
     */
     var preRender = create(_default);
-
-    var containsElement;
-    if (typeof Node === 'object') {
-      containsElement = Node.prototype.contains;
-
-      if (!containsElement && Node.prototype.compareDocumentPosition) {
-        // polyfill for older Firefox.
-        // http://compatibility.shwups-cms.ch/en/polyfills/?&id=52
-        containsElement = function(node){
-          return !!(this.compareDocumentPosition(node) & 16);
-        };
-      }
-    } else {
-      containsElement = function(element) {
-        return this.contains(element);
-      };
-    }
 
     merge(preRender, {
       // a view leaves the preRender state once its element has been
@@ -39302,7 +39295,7 @@ define("ember-views/views/states/pre_render",
 
         // We transition to `inDOM` if the element exists in the DOM
         var element = view.get('element');
-        if (containsElement.call(document.body, element)) {
+        if (jQuery.contains(document.body, element)) {
           viewCollection.transitionTo('inDOM', false);
           viewCollection.trigger('didInsertElement');
         }
