@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.714fa89b
+ * @version   1.8.0-beta.1+canary.6eafdbba
  */
 
 (function() {
@@ -13398,7 +13398,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.714fa89b
+      @version 1.8.0-beta.1+canary.6eafdbba
     */
 
     if ('undefined' === typeof Ember) {
@@ -13425,10 +13425,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.714fa89b'
+      @default '1.8.0-beta.1+canary.6eafdbba'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.714fa89b';
+    Ember.VERSION = '1.8.0-beta.1+canary.6eafdbba';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -28510,7 +28510,8 @@ define("ember-runtime/copy",
         ret = {};
 
         for (key in obj) {
-          if (obj.hasOwnProperty && !obj.hasOwnProperty(key)) {
+          // support Null prototype
+          if (!Object.prototype.hasOwnProperty.call(obj, key)) {
             continue;
           }
 
