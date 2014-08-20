@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.1d2f96b6
+ * @version   1.8.0-beta.1+canary.789262e1
  */
 
 (function() {
@@ -13527,7 +13527,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.1d2f96b6
+      @version 1.8.0-beta.1+canary.789262e1
     */
 
     if ('undefined' === typeof Ember) {
@@ -13554,10 +13554,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.1d2f96b6'
+      @default '1.8.0-beta.1+canary.789262e1'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.1d2f96b6';
+    Ember.VERSION = '1.8.0-beta.1+canary.789262e1';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -19684,6 +19684,10 @@ define("ember-routing-handlebars/helpers/action",
     }
 
     var ActionHelper = {};
+
+    // registeredActions is re-exported for compatibility with older plugins
+    // that were using this undocumented API.
+    ActionHelper.registeredActions = ActionManager.registeredActions;
 
     __exports__.ActionHelper = ActionHelper;
 
