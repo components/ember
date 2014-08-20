@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.07006943
+ * @version   1.8.0-beta.1+canary.b8dd0f5d
  */
 
 (function() {
@@ -13394,7 +13394,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.07006943
+      @version 1.8.0-beta.1+canary.b8dd0f5d
     */
 
     if ('undefined' === typeof Ember) {
@@ -13421,10 +13421,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.07006943'
+      @default '1.8.0-beta.1+canary.b8dd0f5d'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.07006943';
+    Ember.VERSION = '1.8.0-beta.1+canary.b8dd0f5d';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -38290,15 +38290,25 @@ define("ember-views/system/render_buffer",
       this.buffer = null;
       this.childViews = [];
       this.dom = new DOMHelper();
-
     }
 
     _RenderBuffer.prototype = {
 
+      reset: function(tagName) {
+        this.tagName = tagName;
+        this.buffer = null;
+        this._element = null;
+        this.elementClasses = null;
+        this.elementId = null;
+        this.elementAttributes = null;
+        this.elementProperties = null;
+        this.elementTag = null;
+        this.elementStyle = null;
+        this.childViews.length = 0;
+      },
+
       // The root view's element
       _element: null,
-
-      _hasElement: true,
 
       /**
         An internal set used to de-dupe class names when `addClass()` is
@@ -38660,7 +38670,7 @@ define("ember-views/system/render_buffer",
         @return {String} The generated HTML
       */
       string: function() {
-        if (this._hasElement && this._element) {
+        if (this._element) {
           // Firefox versions < 11 do not have support for element.outerHTML.
           var thisElement = this.element();
           var outerHTML = thisElement.outerHTML;
@@ -38691,6 +38701,7 @@ define("ember-views/system/renderer",
     var subscribers = __dependency6__.subscribers;
 
     function EmberRenderer() {
+      this.buffer = renderBuffer();
       Renderer.call(this);
     }
     EmberRenderer.prototype = create(Renderer.prototype);
@@ -38754,7 +38765,9 @@ define("ember-views/system/renderer",
         if (tagName === null || tagName === undefined) {
           tagName = 'div';
         }
-        var buffer = view.buffer = renderBuffer(tagName);
+
+        var buffer = view.buffer = this.buffer;
+        buffer.reset(tagName);
 
         if (view.beforeRender) {
           view.beforeRender(buffer);
