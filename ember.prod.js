@@ -22805,12 +22805,29 @@ define("ember-routing/system/route",
         * The find method is called on the model class with the value of
           the dynamic segment.
 
-        Note that for routes with dynamic segments, this hook is only
-        executed when entered via the URL. If the route is entered
-        through a transition (e.g. when using the `link-to` Handlebars
-        helper), then a model context is already provided and this hook
-        is not called. Routes without dynamic segments will always
-        execute the model hook.
+        Note that for routes with dynamic segments, this hook is not always
+        executed. If the route is entered through a transition (e.g. when
+        using the `link-to` Handlebars helper or the `transitionTo` method
+        of routes), and a model context is already provided this hook
+        is not called.
+
+        A model context does not include a primitive string or number,
+        which does cause the model hook to be called.
+
+        Routes without dynamic segments will always execute the model hook.
+
+        ```js
+        // no dynamic segment, model hook always called
+        this.transitionTo('posts');
+
+        // model passed in, so model hook not called
+        thePost = store.find('post', 1);
+        this.transitionTo('post', thePost);
+
+        // integer passed in, model hook is called
+        this.transitionTo('post', 1);
+        ```
+
 
         This hook follows the asynchronous/promise semantics
         described in the documentation for `beforeModel`. In particular,
@@ -28475,7 +28492,18 @@ define("ember-runtime/mixins/controller",
 
       store: null,
 
+      /**
+        The controller's current model. When retrieving or modifying a controller's
+        model, this property should be used instead of the `content` property.
+
+        @property model
+        @public
+       */
       model: null,
+
+      /**
+        @private
+       */
       content: computed.alias('model'),
 
       deprecatedSendHandles: function(actionName) {
