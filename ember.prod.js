@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.6acf3768
+ * @version   1.8.0-beta.1+canary.834c7e3a
  */
 
 (function() {
@@ -10378,12 +10378,7 @@ define("ember-metal-views/renderer",
 
     Renderer.prototype.appendTo =
       function Renderer_appendTo(view, target) {
-        // TODO use dom helper for creating this morph.
-        var start = document.createTextNode('');
-        var end = document.createTextNode('');
-        target.appendChild(start);
-        target.appendChild(end);
-        var morph = this._dom.createMorph(target, start, end);
+        var morph = this._dom.appendMorph(target);
         this.scheduleInsert(view, morph);
       };
 
@@ -13228,7 +13223,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.6acf3768
+      @version 1.8.0-beta.1+canary.834c7e3a
     */
 
     if ('undefined' === typeof Ember) {
@@ -13255,10 +13250,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.6acf3768'
+      @default '1.8.0-beta.1+canary.834c7e3a'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.6acf3768';
+    Ember.VERSION = '1.8.0-beta.1+canary.834c7e3a';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -38146,15 +38141,11 @@ define("ember-views/system/render_buffer",
         var el = this._element;
         for (var i=0,l=childViews.length; i<l; i++) {
           var childView = childViews[i];
-          var morphId = '#morph-'+i;
-          var ref = el.querySelector(morphId);
+          var ref = el.querySelector('#morph-'+i);
           var parent = ref.parentNode;
-          var start = document.createTextNode('');
-          var end = document.createTextNode('');
-          parent.insertBefore(start, ref);
-          parent.insertBefore(end, ref);
+
+          childView._morph = this.dom.insertMorphBefore(parent, ref);
           parent.removeChild(ref);
-          childView._morph = this.dom.createMorph(parent, start, end);
         }
       },
 
@@ -38471,11 +38462,7 @@ define("ember-views/system/renderer",
             view._childViewsMorph = view._morph;
           } else {
             element = document.createDocumentFragment();
-            var start = document.createTextNode('');
-            var end = document.createTextNode('');
-            element.appendChild(start);
-            element.appendChild(end);
-            view._childViewsMorph = this._dom.createMorph(element, start, end);
+            view._childViewsMorph = this._dom.appendMorph(element);
           }
         } else {
           view._childViewsMorph = this._dom.createMorph(element, element.lastChild, null);
@@ -42613,12 +42600,16 @@ define("morph/dom-helper",
     var prototype = DOMHelper.prototype;
     prototype.constructor = DOMHelper;
 
+    prototype.insertBefore = function(element, childElement, referenceChild) {
+      return element.insertBefore(childElement, referenceChild);
+    };
+
     prototype.appendChild = function(element, childElement) {
-      element.appendChild(childElement);
+      return element.appendChild(childElement);
     };
 
     prototype.appendText = function(element, text) {
-      element.appendChild(this.document.createTextNode(text));
+      return element.appendChild(this.document.createTextNode(text));
     };
 
     prototype.setAttribute = function(element, name, value) {
@@ -42689,6 +42680,22 @@ define("morph/dom-helper",
           start = startIndex === -1 ? null : childNodes[startIndex],
           end = endIndex === -1 ? null : childNodes[endIndex];
       return this.createMorph(parent, start, end, contextualElement);
+    };
+
+    prototype.insertMorphBefore = function(element, referenceChild, contextualElement) {
+      var start = document.createTextNode('');
+      var end = document.createTextNode('');
+      element.insertBefore(start, referenceChild);
+      element.insertBefore(end, referenceChild);
+      return this.createMorph(element, start, end, contextualElement);
+    };
+
+    prototype.appendMorph = function(element, contextualElement) {
+      var start = document.createTextNode('');
+      var end = document.createTextNode('');
+      element.appendChild(start);
+      element.appendChild(end);
+      return this.createMorph(element, start, end, contextualElement);
     };
 
     prototype.parseHTML = function(html, contextualElement){
