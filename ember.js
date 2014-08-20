@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.2e103ae6
+ * @version   1.8.0-beta.1+canary.75447741
  */
 
 (function() {
@@ -79,15 +79,14 @@ define("backburner",
     var Utils = __dependency1__["default"];
     var DeferredActionQueues = __dependency2__.DeferredActionQueues;
 
-    var slice = [].slice,
-        pop = [].pop,
-        each = Utils.each,
-        isString = Utils.isString,
-        isFunction = Utils.isFunction,
-        isNumber = Utils.isNumber,
-        timers = [],
-        global = this,
-        NUMBER = /\d+/;
+    var slice = [].slice;
+    var pop = [].pop;
+    var each = Utils.each;
+    var isString = Utils.isString;
+    var isFunction = Utils.isFunction;
+    var isNumber = Utils.isNumber;
+    var global = this;
+    var NUMBER = /\d+/;
 
     // In IE 6-8, try/finally doesn't work without a catch.
     // Unfortunately, this is impossible to test for since wrapping it in a parent try/catch doesn't trigger the bug.
@@ -111,6 +110,7 @@ define("backburner",
       this.instanceStack = [];
       this._debouncees = [];
       this._throttlers = [];
+      this._timers = [];
     }
 
     Backburner.prototype = {
@@ -120,9 +120,9 @@ define("backburner",
       instanceStack: null,
 
       begin: function() {
-        var options = this.options,
-            onBegin = options && options.onBegin,
-            previousInstance = this.currentInstance;
+        var options = this.options;
+        var onBegin = options && options.onBegin;
+        var previousInstance = this.currentInstance;
 
         if (previousInstance) {
           this.instanceStack.push(previousInstance);
@@ -135,10 +135,10 @@ define("backburner",
       },
 
       end: function() {
-        var options = this.options,
-            onEnd = options && options.onEnd,
-            currentInstance = this.currentInstance,
-            nextInstance = null;
+        var options = this.options;
+        var onEnd = options && options.onEnd;
+        var currentInstance = this.currentInstance;
+        var nextInstance = null;
 
         // Prevent double-finally bug in Safari 6.0.2 and iOS 6
         // This bug appears to be resolved in Safari 6.0.5 and iOS 7
@@ -215,8 +215,19 @@ define("backburner",
           method = target[method];
         }
 
-        var stack = this.DEBUG ? new Error() : undefined,
-            args = arguments.length > 3 ? slice.call(arguments, 3) : undefined;
+        var stack = this.DEBUG ? new Error() : undefined;
+        var length = arguments.length;
+        var args;
+
+        if (length > 3) {
+          args = new Array(length - 3);
+          for (var i = 3; i < length; i++) {
+            args[i-3] = arguments[i];
+          }
+        } else {
+          args = undefined;
+        }
+
         if (!this.currentInstance) { createAutorun(this); }
         return this.currentInstance.schedule(queueName, target, method, args, false, stack);
       },
@@ -231,15 +242,30 @@ define("backburner",
           method = target[method];
         }
 
-        var stack = this.DEBUG ? new Error() : undefined,
-            args = arguments.length > 3 ? slice.call(arguments, 3) : undefined;
+        var stack = this.DEBUG ? new Error() : undefined;
+        var length = arguments.length;
+        var args;
+
+        if (length > 3) {
+          args = new Array(length - 3);
+          for (var i = 3; i < length; i++) {
+            args[i-3] = arguments[i];
+          }
+        } else {
+          args = undefined;
+        }
+
         if (!this.currentInstance) { createAutorun(this); }
         return this.currentInstance.schedule(queueName, target, method, args, true, stack);
       },
 
       setTimeout: function() {
-        var args = slice.call(arguments),
-            length = args.length,
+        var l = arguments.length;
+        var args = new Array(l);
+        for (var x = 0; x < l; x++) {
+          args[x] = arguments[x];
+        }
+        var length = args.length,
             method, wait, target,
             methodOrTarget, methodOrWait, methodOrArgs;
 
@@ -306,9 +332,9 @@ define("backburner",
         }
 
         // find position to insert
-        var i = searchTimer(executeAt, timers);
+        var i = searchTimer(executeAt, this._timers);
 
-        timers.splice(i, 0, executeAt, fn);
+        this._timers.splice(i, 0, executeAt, fn);
 
         updateLaterTimer(this, executeAt, wait);
 
@@ -316,13 +342,10 @@ define("backburner",
       },
 
       throttle: function(target, method /* , args, wait, [immediate] */) {
-        var self = this,
-            args = arguments,
-            immediate = pop.call(args),
-            wait,
-            throttler,
-            index,
-            timer;
+        var self = this;
+        var args = arguments;
+        var immediate = pop.call(args);
+        var wait, throttler, index, timer;
 
         if (isNumber(immediate) || isString(immediate)) {
           wait = immediate;
@@ -358,13 +381,10 @@ define("backburner",
       },
 
       debounce: function(target, method /* , args, wait, [immediate] */) {
-        var self = this,
-            args = arguments,
-            immediate = pop.call(args),
-            wait,
-            index,
-            debouncee,
-            timer;
+        var self = this;
+        var args = arguments;
+        var immediate = pop.call(args);
+        var wait, index, debouncee, timer;
 
         if (isNumber(immediate) || isString(immediate)) {
           wait = immediate;
@@ -419,7 +439,7 @@ define("backburner",
           clearTimeout(this._laterTimer);
           this._laterTimer = null;
         }
-        timers = [];
+        this._timers = [];
 
         if (this._autorun) {
           clearTimeout(this._autorun);
@@ -428,7 +448,7 @@ define("backburner",
       },
 
       hasTimers: function() {
-        return !!timers.length || !!this._debouncees.length || !!this._throttlers.length || this._autorun;
+        return !!this._timers.length || !!this._debouncees.length || !!this._throttlers.length || this._autorun;
       },
 
       cancel: function(timer) {
@@ -437,9 +457,18 @@ define("backburner",
         if (timer && timerType === 'object' && timer.queue && timer.method) { // we're cancelling a deferOnce
           return timer.queue.cancel(timer);
         } else if (timerType === 'function') { // we're cancelling a setTimeout
-          for (var i = 0, l = timers.length; i < l; i += 2) {
-            if (timers[i + 1] === timer) {
-              timers.splice(i, 2); // remove the two elements
+          for (var i = 0, l = this._timers.length; i < l; i += 2) {
+            if (this._timers[i + 1] === timer) {
+              this._timers.splice(i, 2); // remove the two elements
+              if (i === 0) {
+                if (this._laterTimer) { // Active timer? Then clear timer and reset for future timer
+                  clearTimeout(this._laterTimer);
+                  this._laterTimer = null;
+                }
+                if (this._timers.length > 0) { // Update to next available timer when available
+                  updateLaterTimer(this, this._timers[0], this._timers[0] - (+new Date()));
+                }
+              }
               return true;
             }
           }
@@ -452,18 +481,17 @@ define("backburner",
       },
 
       _cancelItem: function(findMethod, array, timer){
-        var item,
-            index;
+        var item, index;
 
         if (timer.length < 3) { return false; }
 
         index = findMethod(timer[0], timer[1], array);
 
-        if(index > -1) {
+        if (index > -1) {
 
           item = array[index];
 
-          if(item[2] === timer[2]){
+          if (item[2] === timer[2]) {
             array.splice(index, 1);
             clearTimeout(timer[2]);
             return true;
@@ -510,32 +538,47 @@ define("backburner",
     }
 
     function updateLaterTimer(self, executeAt, wait) {
-      if (!self._laterTimer || executeAt < self._laterTimerExpiresAt) {
+      var now = (+new Date());
+      if (!self._laterTimer || executeAt < self._laterTimerExpiresAt || self._laterTimerExpiresAt < now) {
+
+        if (self._laterTimer) {
+          // Clear when:
+          // - Already expired
+          // - New timer is earlier
+          clearTimeout(self._laterTimer);
+
+          if (self._laterTimerExpiresAt < now) { // If timer was never triggered
+            // Calculate the left-over wait-time
+            wait = Math.max(0, executeAt - now);
+          }
+        }
+
         self._laterTimer = global.setTimeout(function() {
           self._laterTimer = null;
           self._laterTimerExpiresAt = null;
           executeTimers(self);
         }, wait);
-        self._laterTimerExpiresAt = executeAt;
+
+        self._laterTimerExpiresAt = now + wait;
       }
     }
 
     function executeTimers(self) {
-      var now = +new Date(),
-          time, fns, i, l;
+      var now = +new Date();
+      var fns, i, l;
 
       self.run(function() {
-        i = searchTimer(now, timers);
+        i = searchTimer(now, self._timers);
 
-        fns = timers.splice(0, i);
+        fns = self._timers.splice(0, i);
 
         for (i = 1, l = fns.length; i < l; i += 2) {
           self.schedule(self.options.defaultQueue, null, fns[i]);
         }
       });
 
-      if (timers.length) {
-        updateLaterTimer(self, timers[0], timers[0] - now);
+      if (self._timers.length) {
+        updateLaterTimer(self, self._timers[0], self._timers[0] - now);
       }
     }
 
@@ -548,8 +591,8 @@ define("backburner",
     }
 
     function findItem(target, method, collection) {
-      var item,
-          index = -1;
+      var item;
+      var index = -1;
 
       for (var i = 0, l = collection.length; i < l; i++) {
         item = collection[i];
@@ -563,9 +606,9 @@ define("backburner",
     }
 
     function searchTimer(time, timers) {
-      var start = 0,
-          end = timers.length - 2,
-          middle, l;
+      var start = 0;
+      var end = timers.length - 2;
+      var middle, l;
 
       while (start < end) {
         // since timers is an array of pairs 'l' will always
@@ -595,8 +638,8 @@ define("backburner/deferred_action_queues",
     var Utils = __dependency1__["default"];
     var Queue = __dependency2__.Queue;
 
-    var each = Utils.each,
-        isString = Utils.isString;
+    var each = Utils.each;
+    var isString = Utils.isString;
 
     function DeferredActionQueues(queueNames, options) {
       var queues = this.queues = {};
@@ -609,16 +652,20 @@ define("backburner/deferred_action_queues",
       });
     }
 
+    function noSuchQueue(name) {
+      throw new Error("You attempted to schedule an action in a queue (" + name + ") that doesn't exist");
+    }
+
     DeferredActionQueues.prototype = {
       queueNames: null,
       queues: null,
       options: null,
 
-      schedule: function(queueName, target, method, args, onceFlag, stack) {
-        var queues = this.queues,
-            queue = queues[queueName];
+      schedule: function(name, target, method, args, onceFlag, stack) {
+        var queues = this.queues;
+        var queue = queues[name];
 
-        if (!queue) { throw new Error("You attempted to schedule an action in a queue (" + queueName + ") that doesn't exist"); }
+        if (!queue) { noSuchQueue(name); }
 
         if (onceFlag) {
           return queue.pushUnique(target, method, args, stack);
@@ -627,7 +674,7 @@ define("backburner/deferred_action_queues",
         }
       },
 
-      invoke: function(target, method, args, _) {
+      invoke: function(target, method, args, _, _errorRecordedForStack) {
         if (args && args.length > 0) {
           method.apply(target, args);
         } else {
@@ -635,7 +682,7 @@ define("backburner/deferred_action_queues",
         }
       },
 
-      invokeWithOnError: function(target, method, args, onError) {
+      invokeWithOnError: function(target, method, args, onError, errorRecordedForStack) {
         try {
           if (args && args.length > 0) {
             method.apply(target, args);
@@ -643,18 +690,19 @@ define("backburner/deferred_action_queues",
             method.call(target);
           }
         } catch(error) {
-          onError(error);
+          onError(error, errorRecordedForStack);
         }
       },
 
       flush: function() {
-        var queues = this.queues,
-            queueNames = this.queueNames,
-            queueName, queue, queueItems, priorQueueNameIndex,
-            queueNameIndex = 0, numberOfQueues = queueNames.length,
-            options = this.options,
-            onError = options.onError || (options.onErrorTarget && options.onErrorTarget[options.onErrorMethod]),
-            invoke = onError ? this.invokeWithOnError : this.invoke;
+        var queues = this.queues;
+        var queueNames = this.queueNames;
+        var queueName, queue, queueItems, priorQueueNameIndex;
+        var queueNameIndex = 0;
+        var numberOfQueues = queueNames.length;
+        var options = this.options;
+        var onError = options.onError || (options.onErrorTarget && options.onErrorTarget[options.onErrorMethod]);
+        var invoke = onError ? this.invokeWithOnError : this.invoke;
 
         outerloop:
         while (queueNameIndex < numberOfQueues) {
@@ -663,25 +711,26 @@ define("backburner/deferred_action_queues",
           queueItems = queue._queueBeingFlushed = queue._queue.slice();
           queue._queue = [];
 
-          var queueOptions = queue.options, // TODO: write a test for this
-              before = queueOptions && queueOptions.before,
-              after = queueOptions && queueOptions.after,
-              target, method, args, stack,
-              queueIndex = 0, numberOfQueueItems = queueItems.length;
+          var queueOptions = queue.options; // TODO: write a test for this
+          var before = queueOptions && queueOptions.before;
+          var after = queueOptions && queueOptions.after;
+          var target, method, args, errorRecordedForStack;
+          var queueIndex = 0;
+          var numberOfQueueItems = queueItems.length;
 
           if (numberOfQueueItems && before) { before(); }
 
           while (queueIndex < numberOfQueueItems) {
-            target = queueItems[queueIndex];
-            method = queueItems[queueIndex+1];
-            args   = queueItems[queueIndex+2];
-            stack  = queueItems[queueIndex+3]; // Debugging assistance
+            target                = queueItems[queueIndex];
+            method                = queueItems[queueIndex+1];
+            args                  = queueItems[queueIndex+2];
+            errorRecordedForStack = queueItems[queueIndex+3]; // Debugging assistance
 
             if (isString(method)) { method = target[method]; }
 
             // method could have been nullified / canceled during flush
             if (method) {
-              invoke(target, method, args, onError);
+              invoke(target, method, args, onError, errorRecordedForStack);
             }
 
             queueIndex += 4;
@@ -730,13 +779,16 @@ define("backburner/queue",
       daq: null,
       name: null,
       options: null,
-      onError: null,
       _queue: null,
 
       push: function(target, method, args, stack) {
         var queue = this._queue;
         queue.push(target, method, args, stack);
-        return {queue: this, target: target, method: method};
+        return {
+          queue: this,
+          target: target,
+          method: method
+        };
       },
 
       pushUnique: function(target, method, args, stack) {
@@ -747,25 +799,33 @@ define("backburner/queue",
           currentMethod = queue[i+1];
 
           if (currentTarget === target && currentMethod === method) {
-            queue[i+2] = args; // replace args
+            queue[i+2] = args;  // replace args
             queue[i+3] = stack; // replace stack
-            return {queue: this, target: target, method: method};
+            return {
+              queue: this,
+              target: target,
+              method: method
+            };
           }
         }
 
         queue.push(target, method, args, stack);
-        return {queue: this, target: target, method: method};
+        return {
+          queue: this,
+          target: target,
+          method: method
+        };
       },
 
       // TODO: remove me, only being used for Ember.run.sync
       flush: function() {
-        var queue = this._queue,
-            globalOptions = this.globalOptions,
-            options = this.options,
-            before = options && options.before,
-            after = options && options.after,
-            onError = globalOptions.onError || (globalOptions.onErrorTarget && globalOptions.onErrorTarget[globalOptions.onErrorMethod]),
-            target, method, args, stack, i, l = queue.length;
+        var queue = this._queue;
+        var globalOptions = this.globalOptions;
+        var options = this.options;
+        var before = options && options.before;
+        var after = options && options.after;
+        var onError = globalOptions.onError || (globalOptions.onErrorTarget && globalOptions.onErrorTarget[globalOptions.onErrorMethod]);
+        var target, method, args, stack, i, l = queue.length;
 
         if (l && before) { before(); }
         for (i = 0; i < l; i += 4) {
@@ -11004,8 +11064,25 @@ define("ember-metal",
       @event onerror
       @for Ember
       @param {Exception} error the error object
-    */
-    Ember.onerror = null;
+      @param {Exception} errorRecordedForStack error recorded when Ember.run.backburner.DEBUG = true.
+      The Error's .stack property will contain information on where the work was scheduled.
+      */
+    Ember.onerror = function(error, errorRecordedForStack){
+      var url;
+      var capableOfStack = new Error().stack;
+      if (!Ember.run.backburner.DEBUG && capableOfStack) {
+        url = 'http://emberjs.com/guides/understanding-ember/debugging/#toc_errors-within-code-ember-run-later-code-a-href-https-github-com-ebryn-backburner-js-backburner-js-a';
+        Logger.warn('Ember.run is currently not running in debug mode. ' +
+                          'Set Ember.run.backburner.DEBUG = true for more debugging information. ' + url);
+      } else if (errorRecordedForStack && capableOfStack) {
+        Logger.warn(
+          'Ember.onerror: Location work that caused error was scheduled',
+          errorRecordedForStack,
+          errorRecordedForStack.stack
+        );
+      }
+      throw error;
+    };
     // END EXPORTS
 
     // do this for side-effects of updating Ember.assert, warn, etc when
@@ -13398,7 +13475,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.2e103ae6
+      @version 1.8.0-beta.1+canary.75447741
     */
 
     if ('undefined' === typeof Ember) {
@@ -13425,10 +13502,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.2e103ae6'
+      @default '1.8.0-beta.1+canary.75447741'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.2e103ae6';
+    Ember.VERSION = '1.8.0-beta.1+canary.75447741';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
