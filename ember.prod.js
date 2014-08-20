@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.5e4af92d
+ * @version   1.8.0-beta.1+canary.714fa89b
  */
 
 (function() {
@@ -13099,7 +13099,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.5e4af92d
+      @version 1.8.0-beta.1+canary.714fa89b
     */
 
     if ('undefined' === typeof Ember) {
@@ -13126,10 +13126,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.5e4af92d'
+      @default '1.8.0-beta.1+canary.714fa89b'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.5e4af92d';
+    Ember.VERSION = '1.8.0-beta.1+canary.714fa89b';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -15414,7 +15414,7 @@ define("ember-metal/mixin",
       // it on the original object.
       superProperty = superProperty || meta.descs[key];
 
-      if (!superProperty || !(superProperty instanceof ComputedProperty)) {
+      if (superProperty === undefined || !(superProperty instanceof ComputedProperty)) {
         return property;
       }
 
@@ -15441,7 +15441,7 @@ define("ember-metal/mixin",
       superMethod = superMethod || obj[key];
 
       // Only wrap the new method if the original method was a function
-      if ('function' !== typeof superMethod) {
+      if (superMethod === undefined || 'function' !== typeof superMethod) {
         return method;
       }
 
