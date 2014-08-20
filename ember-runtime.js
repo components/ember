@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.afe1e4d4
+ * @version   1.8.0-beta.1+canary.1d2f96b6
  */
 
 (function() {
@@ -4633,7 +4633,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.afe1e4d4
+      @version 1.8.0-beta.1+canary.1d2f96b6
     */
 
     if ('undefined' === typeof Ember) {
@@ -4660,10 +4660,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.afe1e4d4'
+      @default '1.8.0-beta.1+canary.1d2f96b6'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.afe1e4d4';
+    Ember.VERSION = '1.8.0-beta.1+canary.1d2f96b6';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -20431,15 +20431,21 @@ define("ember-runtime/system/string",
     var STRING_UNDERSCORE_REGEXP_2 = (/\-|\s+/g);
 
     function fmt(str, formats) {
-      if (!isArray(formats) || arguments.length > 2) {
-        formats = Array.prototype.slice.call(arguments, 1);
+      var cachedFormats = formats;
+
+      if (!isArray(cachedFormats) || arguments.length > 2) {
+        cachedFormats = new Array(arguments.length - 1);
+
+        for (var i = 1, l = arguments.length; i < l; i++) {
+          cachedFormats[i - 1] = arguments[i];
+        }
       }
 
       // first, replace any ORDERED replacements.
       var idx  = 0; // the current index for non-numerical replacements
       return str.replace(/%@([0-9]+)?/g, function(s, argIndex) {
         argIndex = (argIndex) ? parseInt(argIndex, 10) - 1 : idx++;
-        s = formats[argIndex];
+        s = cachedFormats[argIndex];
         return (s === null) ? '(null)' : (s === undefined) ? '' : emberInspect(s);
       });
     }
