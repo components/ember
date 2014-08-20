@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.75447741
+ * @version   1.8.0-beta.1+canary.5e4af92d
  */
 
 (function() {
@@ -20929,8 +20929,6 @@ define("ember-metal/tests/run_loop/onerror_test",
     QUnit.module('system/run_loop/onerror_test');
 
     test('With Ember.onerror undefined, errors in Ember.run are thrown', function () {
-      var defaultOnError = Ember.onerror;
-      Ember.onerror = undefined;
       var thrown = new Error('Boom!');
       var caught;
 
@@ -20940,54 +20938,21 @@ define("ember-metal/tests/run_loop/onerror_test",
         caught = error;
       }
 
-      Ember.onerror = defaultOnError;
       deepEqual(caught, thrown);
     });
 
     test('With Ember.onerror set, errors in Ember.run are caught', function () {
       var thrown = new Error('Boom!');
-      var originalOnError = Ember.onerror;
       var caught;
 
-      Ember.onerror = function(error){
-        caught = error;
-      };
+      Ember.onerror = function(error) { caught = error; };
 
       run(function() { throw thrown; });
 
       deepEqual(caught, thrown);
 
-      Ember.onerror = originalOnError;
+      Ember.onerror = undefined;
     });
-
-    if (new Error().stack){
-
-      asyncTest('Ember.run.backburner.DEBUG = true gets error recorded for stack traces', function(){
-        var thrown          = new Error('Boom!');
-        var originalOnError = Ember.onerror;
-        var caught, stackError;
-
-        Ember.run.backburner.DEBUG = true;
-
-        Ember.onerror = function(error, errorRecordedForStack){
-          stackError = errorRecordedForStack;
-          caught     = error;
-          QUnit.start();
-          deepEqual(caught, thrown);
-          ok(stackError, 'gets a error with stack for when the work was queued');
-        };
-
-        run(function(){
-          run.scheduleOnce('afterRender', function(){
-            throw thrown;
-          });
-        });
-
-        Ember.run.backburner.DEBUG = false;
-
-        Ember.onerror = originalOnError;
-      });
-    }
   });
 define("ember-metal/tests/run_loop/onerror_test.jshint",
   [],
