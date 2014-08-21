@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.1c19e2e3
+ * @version   1.8.0-beta.1+canary.6943ac5d
  */
 
 (function() {
@@ -4631,7 +4631,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.1c19e2e3
+      @version 1.8.0-beta.1+canary.6943ac5d
     */
 
     if ('undefined' === typeof Ember) {
@@ -4658,10 +4658,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.1c19e2e3'
+      @default '1.8.0-beta.1+canary.6943ac5d'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.1c19e2e3';
+    Ember.VERSION = '1.8.0-beta.1+canary.6943ac5d';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -11571,14 +11571,10 @@ define("ember-runtime/computed/reduce_computed",
 
     function reset(cp, propertyName) {
       var callbacks = cp._callbacks();
-      var meta;
+      var hadMeta = cp._hasInstanceMeta(this, propertyName);
+      var meta = cp._instanceMeta(this, propertyName);
 
-      if (cp._hasInstanceMeta(this, propertyName)) {
-        meta = cp._instanceMeta(this, propertyName);
-        meta.setValue(cp.resetValue(meta.getValue()));
-      } else {
-        meta = cp._instanceMeta(this, propertyName);
-      }
+      if (hadMeta) { meta.setValue(cp.resetValue(meta.getValue())); }
 
       if (cp.options.initialize) {
         cp.options.initialize.call(this, meta.getValue(), {
