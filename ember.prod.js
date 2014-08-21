@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.6943ac5d
+ * @version   1.8.0-beta.1+canary.803fdc91
  */
 
 (function() {
@@ -13221,7 +13221,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.6943ac5d
+      @version 1.8.0-beta.1+canary.803fdc91
     */
 
     if ('undefined' === typeof Ember) {
@@ -13248,10 +13248,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.6943ac5d'
+      @default '1.8.0-beta.1+canary.803fdc91'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.6943ac5d';
+    Ember.VERSION = '1.8.0-beta.1+canary.803fdc91';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -15571,7 +15571,17 @@ define("ember-metal/mixin",
         return method;
       }
 
-      return wrap(method, superMethod);
+      var hasSuper = method.__hasSuper;
+
+      if (hasSuper === undefined) {
+        hasSuper = method.toString().indexOf('_super');
+      }
+
+      if (hasSuper) {
+        return wrap(method, superMethod);
+      } else {
+        return method;
+      }
     }
 
     function applyConcatenatedProperties(obj, key, value, values) {
