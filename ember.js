@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.fdc817c6
+ * @version   1.8.0-beta.1+canary.d978208a
  */
 
 (function() {
@@ -13038,7 +13038,7 @@ define("ember-metal/computed_macros",
     });
 
     /**
-      A computed property that returns true if the provied dependent property
+      A computed property that returns true if the provided dependent property
       is greater than the provided value.
 
       Example
@@ -13507,7 +13507,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.fdc817c6
+      @version 1.8.0-beta.1+canary.d978208a
     */
 
     if ('undefined' === typeof Ember) {
@@ -13534,10 +13534,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.fdc817c6'
+      @default '1.8.0-beta.1+canary.d978208a'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.fdc817c6';
+    Ember.VERSION = '1.8.0-beta.1+canary.d978208a';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
