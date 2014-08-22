@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.803fdc91
+ * @version   1.8.0-beta.1+canary.fdc817c6
  */
 
 (function() {
@@ -3390,13 +3390,11 @@ define("ember-handlebars-compiler/tests/precompile_type_test",
       equal(typeof(result), "string");
     });
 
-    if (Ember.FEATURES.isEnabled("ember-handlebars-compiler-ast-to-precompile")) {
-      test("precompile creates a function when passed an AST", function(){
-        var ast = parse(template);
-        result = precompile(ast);
-        equal(typeof(result), "function");
-      });
-    }
+    test("precompile creates a function when passed an AST", function(){
+      var ast = parse(template);
+      result = precompile(ast);
+      equal(typeof(result), "function");
+    });
   });
 define("ember-handlebars-compiler/tests/precompile_type_test.jshint",
   [],

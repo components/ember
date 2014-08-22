@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.803fdc91
+ * @version   1.8.0-beta.1+canary.fdc817c6
  */
 
 (function() {
@@ -4651,19 +4651,7 @@ define("ember-handlebars-compiler",
                                 compiled template should be returned as an Object or a String
     */
     EmberHandlebars.precompile = function(value, asObject) {
-      var ast;
-
-      if (Ember.FEATURES.isEnabled("ember-handlebars-compiler-ast-to-precompile")) {
-
-        if ( typeof value === 'string' ) {
-          ast = Handlebars.parse(value);
-        } else if ( typeof value === 'object' ) {
-          ast = value;
-        }
-
-              } else {
-        ast = Handlebars.parse(value);
-      }
+      var ast = Handlebars.parse(value);
 
       var options = {
         knownHelpers: {
@@ -13221,7 +13209,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.803fdc91
+      @version 1.8.0-beta.1+canary.fdc817c6
     */
 
     if ('undefined' === typeof Ember) {
@@ -13248,10 +13236,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.803fdc91'
+      @default '1.8.0-beta.1+canary.fdc817c6'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.803fdc91';
+    Ember.VERSION = '1.8.0-beta.1+canary.fdc817c6';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
