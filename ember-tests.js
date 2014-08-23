@@ -5221,6 +5221,29 @@ define("ember-handlebars/tests/controls/text_field_test",
       equal(textField.$('input').attr('tabindex'), "5", "renders text field with the tabindex");
     });
 
+    QUnit.module("{{input type='text'}} - dynamic type", {
+      setup: function() {
+        controller = {
+          someProperty: 'password'
+        };
+
+        textField = View.extend({
+          controller: controller,
+          template: compile('{{input type=someProperty}}')
+        }).create();
+
+        append();
+      },
+
+      teardown: function() {
+        destroy(textField);
+      }
+    });
+
+    test("should insert a text field into DOM", function() {
+      equal(textField.$('input').attr('type'), 'password', "a bound property can be used to determine type.");
+    });
+
     QUnit.module("{{input}} - default type", {
       setup: function() {
         controller = {};

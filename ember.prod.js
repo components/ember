@@ -5096,13 +5096,15 @@ define("ember-handlebars/controls",
       var inputType = _resolveOption(this, options, 'type');
       var onEvent = hash.on;
 
-      delete hash.type;
-      delete hash.on;
-
       if (inputType === 'checkbox') {
-                return helpers.view.call(this, Checkbox, options);
+        delete hash.type;
+        delete types.type;
+
+        
+        return helpers.view.call(this, Checkbox, options);
       } else {
-        if (inputType) { hash.type = inputType; }
+        delete hash.on;
+
         hash.onEvent = onEvent || 'enter';
         return helpers.view.call(this, TextField, options);
       }

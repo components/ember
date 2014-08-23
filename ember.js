@@ -5329,14 +5329,16 @@ define("ember-handlebars/controls",
       var inputType = _resolveOption(this, options, 'type');
       var onEvent = hash.on;
 
-      delete hash.type;
-      delete hash.on;
-
       if (inputType === 'checkbox') {
+        delete hash.type;
+        delete types.type;
+
         Ember.assert("{{input type='checkbox'}} does not support setting `value=someBooleanValue`; you must use `checked=someBooleanValue` instead.", options.hashTypes.value !== 'ID');
+
         return helpers.view.call(this, Checkbox, options);
       } else {
-        if (inputType) { hash.type = inputType; }
+        delete hash.on;
+
         hash.onEvent = onEvent || 'enter';
         return helpers.view.call(this, TextField, options);
       }
