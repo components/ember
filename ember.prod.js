@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.e2553420
+ * @version   1.9.0-beta.1+canary.310ad0f2
  */
 
 (function() {
@@ -13211,7 +13211,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.e2553420
+      @version 1.9.0-beta.1+canary.310ad0f2
     */
 
     if ('undefined' === typeof Ember) {
@@ -13238,10 +13238,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.e2553420'
+      @default '1.9.0-beta.1+canary.310ad0f2'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.e2553420';
+    Ember.VERSION = '1.9.0-beta.1+canary.310ad0f2';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -17770,7 +17770,7 @@ define("ember-metal/run_loop",
 
     /**
       Invokes the passed target/method and optional arguments after a specified
-      period if time. The last parameter of this method must always be a number
+      period of time. The last parameter of this method must always be a number
       of milliseconds.
 
       You should use this method whenever you need to run some action after a
