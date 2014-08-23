@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.d978208a
+ * @version   1.8.0-beta.1+canary.efe391c1
  */
 
 (function() {
@@ -44935,24 +44935,22 @@ define("ember-views/tests/system/event_dispatcher_test",
       var childKeyDownCalled = 0;
       var parentKeyDownCalled = 0;
 
-      view = ContainerView.createWithMixins({
-        childViews: ['child'],
+      var childView = View.createWithMixins({
+        render: function(buffer) {
+          buffer.push('<span id="wot">ewot</span>');
+        },
 
-        child: View.extend({
-          render: function(buffer) {
-            buffer.push('<span id="wot">ewot</span>');
-          },
+        keyDown: function(evt) {
+          childKeyDownCalled++;
 
-          keyDown: function(evt) {
-            childKeyDownCalled++;
+          return false;
+        }
+      });
 
-            return false;
-          }
-        }),
-
+      view = View.createWithMixins({
         render: function(buffer) {
           buffer.push('some <span id="awesome">awesome</span> content');
-          this._super(buffer);
+          this.appendChild(childView);
         },
 
         mouseDown: function(evt) {

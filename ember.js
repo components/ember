@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1+canary.d978208a
+ * @version   1.8.0-beta.1+canary.efe391c1
  */
 
 (function() {
@@ -13507,7 +13507,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1+canary.d978208a
+      @version 1.8.0-beta.1+canary.efe391c1
     */
 
     if ('undefined' === typeof Ember) {
@@ -13534,10 +13534,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1+canary.d978208a'
+      @default '1.8.0-beta.1+canary.efe391c1'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1+canary.d978208a';
+    Ember.VERSION = '1.8.0-beta.1+canary.efe391c1';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -38922,25 +38922,6 @@ define("ember-views/system/renderer",
         run.cancel(id);
       };
 
-    EmberRenderer.prototype.createChildViewsMorph =
-      function EmberRenderer_createChildViewsMorph(view, _element) {
-        if (view.createChildViewsMorph) {
-          return view.createChildViewsMorph(_element);
-        }
-        var element = _element;
-        if (view.tagName === '') {
-          if (view._morph) {
-            view._childViewsMorph = view._morph;
-          } else {
-            element = document.createDocumentFragment();
-            view._childViewsMorph = this._dom.appendMorph(element);
-          }
-        } else {
-          view._childViewsMorph = this._dom.createMorph(element, element.lastChild, null);
-        }
-        return element;
-      };
-
     EmberRenderer.prototype.createElement =
       function EmberRenderer_createElement(view) {
         // If this is the top-most view, start a new buffer. Otherwise,
@@ -38975,10 +38956,6 @@ define("ember-views/system/renderer",
         }
 
         var element = buffer.element();
-
-        if (view.isContainer) {
-          this.createChildViewsMorph(view, element);
-        }
 
         view.buffer = null;
         if (element && element.nodeType === 1) {
@@ -40155,7 +40132,6 @@ define("ember-views/views/container_view",
       @extends Ember.View
     */
     var ContainerView = View.extend(MutableArray, {
-      isContainer: true,
       _states: states,
 
       willWatchProperty: function(prop){
@@ -40234,6 +40210,21 @@ define("ember-views/views/container_view",
         @param {Ember.RenderBuffer} buffer the buffer to render to
       */
       render: function(buffer) {
+        var element = buffer.element();
+        var dom = buffer.dom;
+
+        if (this.tagName === '') {
+          if (this._morph) {
+            this._childViewsMorph = this._morph;
+          } else {
+            element = dom.createDocumentFragment();
+            this._childViewsMorph = dom.appendMorph(element);
+          }
+        } else {
+          this._childViewsMorph = dom.createMorph(element, element.lastChild, null);
+        }
+
+        return element;
       },
 
       instrumentName: 'container',
@@ -40406,7 +40397,6 @@ define("ember-views/views/core_view",
     var CoreView = EmberObject.extend(Evented, ActionHandler, {
       isView: true,
       isVirtual: false,
-      isContainer: false,
 
       _states: cloneStates(states),
 
