@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.a62ec5f6
+ * @version   1.9.0-beta.1+canary.a3549e42
  */
 
 (function() {
@@ -2469,6 +2469,7 @@ define("ember-metal/binding",
     var Ember = __dependency1__["default"];
     // Ember.Logger, Ember.LOG_BINDINGS, assert
     var get = __dependency2__.get;
+    var set = __dependency3__.set;
     var trySet = __dependency3__.trySet;
     var guidFor = __dependency4__.guidFor;
     var Map = __dependency5__.Map;
@@ -2977,7 +2978,10 @@ define("ember-metal/cache",
       this.func   = func;
     }
 
+    var FALSE     = function() { };
+    var ZERO      = function() { };
     var UNDEFINED = function() { };
+    var NULL      = function() { };
 
     Cache.prototype = {
       set: function(key, value) {
@@ -3365,21 +3369,22 @@ define("ember-metal/chains",
     __exports__.ChainNode = ChainNode;
   });
 define("ember-metal/computed",
-  ["ember-metal/core","ember-metal/property_set","ember-metal/utils","ember-metal/expand_properties","ember-metal/error","ember-metal/properties","ember-metal/property_events","ember-metal/dependent_keys","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/expand_properties","ember-metal/error","ember-metal/properties","ember-metal/property_events","ember-metal/dependent_keys","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
-    var set = __dependency2__.set;
-    var meta = __dependency3__.meta;
-    var inspect = __dependency3__.inspect;
-    var expandProperties = __dependency4__["default"];
-    var EmberError = __dependency5__["default"];
-    var Descriptor = __dependency6__.Descriptor;
-    var defineProperty = __dependency6__.defineProperty;
-    var propertyWillChange = __dependency7__.propertyWillChange;
-    var propertyDidChange = __dependency7__.propertyDidChange;
-    var addDependentKeys = __dependency8__.addDependentKeys;
-    var removeDependentKeys = __dependency8__.removeDependentKeys;
+    var get = __dependency2__.get;
+    var set = __dependency3__.set;
+    var meta = __dependency4__.meta;
+    var inspect = __dependency4__.inspect;
+    var expandProperties = __dependency5__["default"];
+    var EmberError = __dependency6__["default"];
+    var Descriptor = __dependency7__.Descriptor;
+    var defineProperty = __dependency7__.defineProperty;
+    var propertyWillChange = __dependency8__.propertyWillChange;
+    var propertyDidChange = __dependency8__.propertyDidChange;
+    var addDependentKeys = __dependency9__.addDependentKeys;
+    var removeDependentKeys = __dependency9__.removeDependentKeys;
 
     /**
     @module ember-metal
@@ -4602,7 +4607,7 @@ define("ember-metal/core",
   ["exports"],
   function(__exports__) {
     "use strict";
-    /*globals Ember:true,ENV,EmberENV,MetamorphENV:true */
+    /*globals Ember:true,Em:true,ENV,EmberENV,MetamorphENV:true */
 
     /**
     @module ember
@@ -4626,7 +4631,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.a62ec5f6
+      @version 1.9.0-beta.1+canary.a3549e42
     */
 
     if ('undefined' === typeof Ember) {
@@ -4636,9 +4641,9 @@ define("ember-metal/core",
     }
 
     // Default imports, exports and lookup to the global object;
-    Ember.imports = Ember.imports || this;
-    Ember.lookup  = Ember.lookup  || this;
-    var exports   = Ember.exports = Ember.exports || this;
+    var imports = Ember.imports = Ember.imports || this;
+    var exports = Ember.exports = Ember.exports || this;
+    var lookup  = Ember.lookup  = Ember.lookup  || this;
 
     // aliases needed to keep minifiers from removing the global context
     exports.Em = exports.Ember = Ember;
@@ -4653,10 +4658,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.a62ec5f6'
+      @default '1.9.0-beta.1+canary.a3549e42'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.a62ec5f6';
+    Ember.VERSION = '1.9.0-beta.1+canary.a3549e42';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -5987,10 +5992,12 @@ define("ember-metal/instrumentation",
     __exports__.reset = reset;
   });
 define("ember-metal/is_blank",
-  ["ember-metal/is_empty","exports"],
-  function(__dependency1__, __exports__) {
+  ["ember-metal/core","ember-metal/is_empty","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
-    var isEmpty = __dependency1__["default"];
+    var Ember = __dependency1__["default"];
+    // deprecateFunc
+    var isEmpty = __dependency2__["default"];
 
     /**
       A value is blank if it is empty or a whitespace string.
@@ -8946,6 +8953,7 @@ define("ember-metal/run_loop",
       onErrorMethod: 'onerror'
     });
     var slice = [].slice;
+    var concat = [].concat;
 
     // ..........................................................
     // run - this is ideally the only public API the dev sees
@@ -10577,6 +10585,7 @@ define("ember-metal/watching",
     @module ember-metal
     */
 
+    var meta = __dependency1__.meta;
     var GUID_KEY = __dependency1__.GUID_KEY;
     var typeOf = __dependency1__.typeOf;
     var generateGuid = __dependency1__.generateGuid;
@@ -10587,6 +10596,7 @@ define("ember-metal/watching",
     var watchPath = __dependency4__.watchPath;
     var unwatchPath = __dependency4__.unwatchPath;
 
+    var metaFor = meta; // utils.js
     var isPath = __dependency5__.isPath;
 
     /**
@@ -10990,6 +11000,7 @@ define("ember-runtime/computed/array_computed",
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
+    var reduceComputed = __dependency2__.reduceComputed;
     var ReduceComputedProperty = __dependency2__.ReduceComputedProperty;
     var forEach = __dependency3__.forEach;
     var o_create = __dependency4__.create;
@@ -11178,30 +11189,32 @@ define("ember-runtime/computed/array_computed",
     __exports__.ArrayComputedProperty = ArrayComputedProperty;
   });
 define("ember-runtime/computed/reduce_computed",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/utils","ember-metal/error","ember-metal/property_events","ember-metal/expand_properties","ember-metal/observer","ember-metal/computed","ember-metal/platform","ember-metal/enumerable_utils","ember-runtime/system/tracked_array","ember-runtime/mixins/array","ember-metal/run_loop","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/error","ember-metal/property_events","ember-metal/expand_properties","ember-metal/observer","ember-metal/computed","ember-metal/platform","ember-metal/enumerable_utils","ember-runtime/system/tracked_array","ember-runtime/mixins/array","ember-metal/run_loop","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.assert
     var e_get = __dependency2__.get;
-    var guidFor = __dependency3__.guidFor;
-    var metaFor = __dependency3__.meta;
-    var EmberError = __dependency4__["default"];
-    var propertyWillChange = __dependency5__.propertyWillChange;
-    var propertyDidChange = __dependency5__.propertyDidChange;
-    var expandProperties = __dependency6__["default"];
-    var addObserver = __dependency7__.addObserver;
-    var removeObserver = __dependency7__.removeObserver;
-    var addBeforeObserver = __dependency7__.addBeforeObserver;
-    var removeBeforeObserver = __dependency7__.removeBeforeObserver;
-    var ComputedProperty = __dependency8__.ComputedProperty;
-    var cacheFor = __dependency8__.cacheFor;
-    var o_create = __dependency9__.create;
-    var forEach = __dependency10__.forEach;
-    var TrackedArray = __dependency11__["default"];
-    var EmberArray = __dependency12__["default"];
-    var run = __dependency13__["default"];
-    var isArray = __dependency3__.isArray;
+    var set = __dependency3__.set;
+    var guidFor = __dependency4__.guidFor;
+    var metaFor = __dependency4__.meta;
+    var EmberError = __dependency5__["default"];
+    var propertyWillChange = __dependency6__.propertyWillChange;
+    var propertyDidChange = __dependency6__.propertyDidChange;
+    var expandProperties = __dependency7__["default"];
+    var addObserver = __dependency8__.addObserver;
+    var observersFor = __dependency8__.observersFor;
+    var removeObserver = __dependency8__.removeObserver;
+    var addBeforeObserver = __dependency8__.addBeforeObserver;
+    var removeBeforeObserver = __dependency8__.removeBeforeObserver;
+    var ComputedProperty = __dependency9__.ComputedProperty;
+    var cacheFor = __dependency9__.cacheFor;
+    var o_create = __dependency10__.create;
+    var forEach = __dependency11__.forEach;
+    var TrackedArray = __dependency12__["default"];
+    var EmberArray = __dependency13__["default"];
+    var run = __dependency14__["default"];
+    var isArray = __dependency4__.isArray;
 
     var cacheSet = cacheFor.set;
     var cacheGet = cacheFor.get;
@@ -11567,6 +11580,7 @@ define("ember-runtime/computed/reduce_computed",
     }
 
     function reset(cp, propertyName) {
+      var callbacks = cp._callbacks();
       var hadMeta = cp._hasInstanceMeta(this, propertyName);
       var meta = cp._instanceMeta(this, propertyName);
 
@@ -11666,6 +11680,7 @@ define("ember-runtime/computed/reduce_computed",
       };
 
       var recompute = function(propertyName) {
+        var dependentKeys = cp._dependentKeys;
         var meta = cp._instanceMeta(this, propertyName);
         var callbacks = cp._callbacks();
 
@@ -11791,7 +11806,7 @@ define("ember-runtime/computed/reduce_computed",
       var cp = this;
       var args = a_slice.call(arguments);
       var propertyArgs = {};
-      var match, dependentArrayKey;
+      var match, dependentArrayKey, itemPropertyKey;
 
       forEach(args, function (dependentKey) {
         if (doubleEachPropertyPattern.test(dependentKey)) {
@@ -12032,8 +12047,8 @@ define("ember-runtime/computed/reduce_computed",
     __exports__.reduceComputed = reduceComputed;
   });
 define("ember-runtime/computed/reduce_computed_macros",
-  ["ember-metal/core","ember-metal/merge","ember-metal/property_get","ember-metal/utils","ember-metal/error","ember-metal/enumerable_utils","ember-metal/run_loop","ember-metal/observer","ember-runtime/computed/array_computed","ember-runtime/computed/reduce_computed","ember-runtime/system/object_proxy","ember-runtime/system/subarray","ember-metal/keys","ember-runtime/compare","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __exports__) {
+  ["ember-metal/core","ember-metal/merge","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/error","ember-metal/enumerable_utils","ember-metal/run_loop","ember-metal/observer","ember-runtime/computed/array_computed","ember-runtime/computed/reduce_computed","ember-runtime/system/object_proxy","ember-runtime/system/subarray","ember-metal/keys","ember-runtime/compare","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -12044,18 +12059,19 @@ define("ember-runtime/computed/reduce_computed_macros",
     // Ember.assert
     var merge = __dependency2__["default"];
     var get = __dependency3__.get;
-    var isArray = __dependency4__.isArray;
-    var guidFor = __dependency4__.guidFor;
-    var EmberError = __dependency5__["default"];
-    var forEach = __dependency6__.forEach;
-    var run = __dependency7__["default"];
-    var addObserver = __dependency8__.addObserver;
-    var arrayComputed = __dependency9__.arrayComputed;
-    var reduceComputed = __dependency10__.reduceComputed;
-    var ObjectProxy = __dependency11__["default"];
-    var SubArray = __dependency12__["default"];
-    var keys = __dependency13__["default"];
-    var compare = __dependency14__["default"];
+    var set = __dependency4__.set;
+    var isArray = __dependency5__.isArray;
+    var guidFor = __dependency5__.guidFor;
+    var EmberError = __dependency6__["default"];
+    var forEach = __dependency7__.forEach;
+    var run = __dependency8__["default"];
+    var addObserver = __dependency9__.addObserver;
+    var arrayComputed = __dependency10__.arrayComputed;
+    var reduceComputed = __dependency11__.reduceComputed;
+    var ObjectProxy = __dependency12__["default"];
+    var SubArray = __dependency13__["default"];
+    var keys = __dependency14__["default"];
+    var compare = __dependency15__["default"];
 
     var a_slice = [].slice;
 
@@ -12522,6 +12538,7 @@ define("ember-runtime/computed/reduce_computed_macros",
         removedItem: function(array, item, changeMeta, instanceMeta) {
           var itemGuid = guidFor(item);
           var dependentGuid = guidFor(changeMeta.arrayChanged);
+          var numberOfDependentArrays = changeMeta.property._dependentKeys.length;
           var numberOfArraysItemAppearsIn;
           var itemCounts = instanceMeta.itemCounts;
 
@@ -12840,8 +12857,8 @@ define("ember-runtime/computed/reduce_computed_macros",
     __exports__.sort = sort;
   });
 define("ember-runtime/controllers/array_controller",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/enumerable_utils","ember-runtime/system/array_proxy","ember-runtime/mixins/sortable","ember-runtime/mixins/controller","ember-metal/computed","ember-metal/error","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/enumerable_utils","ember-runtime/system/array_proxy","ember-runtime/mixins/sortable","ember-runtime/mixins/controller","ember-metal/computed","ember-metal/error","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -12850,13 +12867,14 @@ define("ember-runtime/controllers/array_controller",
 
     var Ember = __dependency1__["default"];
     var get = __dependency2__.get;
-    var forEach = __dependency3__.forEach;
-    var replace = __dependency3__.replace;
-    var ArrayProxy = __dependency4__["default"];
-    var SortableMixin = __dependency5__["default"];
-    var ControllerMixin = __dependency6__["default"];
-    var computed = __dependency7__.computed;
-    var EmberError = __dependency8__["default"];
+    var set = __dependency3__.set;
+    var forEach = __dependency4__.forEach;
+    var replace = __dependency4__.replace;
+    var ArrayProxy = __dependency5__["default"];
+    var SortableMixin = __dependency6__["default"];
+    var ControllerMixin = __dependency7__["default"];
+    var computed = __dependency8__.computed;
+    var EmberError = __dependency9__["default"];
 
 
     /**
@@ -13736,8 +13754,8 @@ define("ember-runtime/ext/string",
     }
   });
 define("ember-runtime/mixins/-proxy",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/observer","ember-metal/property_events","ember-metal/computed","ember-metal/properties","ember-metal/mixin","ember-runtime/system/string","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/observer","ember-metal/property_events","ember-metal/computed","ember-metal/properties","ember-metal/mixin","ember-runtime/system/string","ember-runtime/system/object","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -13760,6 +13778,7 @@ define("ember-runtime/mixins/-proxy",
     var Mixin = __dependency9__.Mixin;
     var observer = __dependency9__.observer;
     var fmt = __dependency10__.fmt;
+    var EmberObject = __dependency11__["default"];
 
     function contentPropertyWillChange(content, contentKey) {
       var key = contentKey.slice(8); // remove "content."
@@ -14063,8 +14082,8 @@ define("ember-runtime/mixins/action_handler",
     __exports__["default"] = ActionHandler;
   });
 define("ember-runtime/mixins/array",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/computed","ember-metal/is_none","ember-runtime/mixins/enumerable","ember-metal/enumerable_utils","ember-metal/mixin","ember-metal/property_events","ember-metal/events","ember-metal/watching","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/computed","ember-metal/is_none","ember-runtime/mixins/enumerable","ember-metal/enumerable_utils","ember-metal/mixin","ember-metal/property_events","ember-metal/events","ember-metal/watching","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -14078,20 +14097,22 @@ define("ember-runtime/mixins/array",
     // ES6TODO: Ember.A
 
     var get = __dependency2__.get;
-    var computed = __dependency3__.computed;
-    var cacheFor = __dependency3__.cacheFor;
-    var isNone = __dependency4__.isNone;
-    var Enumerable = __dependency5__["default"];
-    var map = __dependency6__.map;
-    var Mixin = __dependency7__.Mixin;
-    var required = __dependency7__.required;
-    var propertyWillChange = __dependency8__.propertyWillChange;
-    var propertyDidChange = __dependency8__.propertyDidChange;
-    var addListener = __dependency9__.addListener;
-    var removeListener = __dependency9__.removeListener;
-    var sendEvent = __dependency9__.sendEvent;
-    var hasListeners = __dependency9__.hasListeners;
-    var isWatching = __dependency10__.isWatching;
+    var set = __dependency3__.set;
+    var computed = __dependency4__.computed;
+    var cacheFor = __dependency4__.cacheFor;
+    var isNone = __dependency5__.isNone;
+    var none = __dependency5__.none;
+    var Enumerable = __dependency6__["default"];
+    var map = __dependency7__.map;
+    var Mixin = __dependency8__.Mixin;
+    var required = __dependency8__.required;
+    var propertyWillChange = __dependency9__.propertyWillChange;
+    var propertyDidChange = __dependency9__.propertyDidChange;
+    var addListener = __dependency10__.addListener;
+    var removeListener = __dependency10__.removeListener;
+    var sendEvent = __dependency10__.sendEvent;
+    var hasListeners = __dependency10__.hasListeners;
+    var isWatching = __dependency11__.isWatching;
 
     function arrayObserversHelper(obj, target, opts, operation, notify) {
       var willChange = (opts && opts.willChange) || 'arrayWillChange';
@@ -14561,13 +14582,17 @@ define("ember-runtime/mixins/comparable",
     });
   });
 define("ember-runtime/mixins/controller",
-  ["ember-metal/mixin","ember-metal/computed","ember-runtime/mixins/action_handler","ember-runtime/mixins/controller_content_model_alias_deprecation","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-runtime/system/object","ember-metal/mixin","ember-metal/computed","ember-runtime/mixins/action_handler","ember-runtime/mixins/controller_content_model_alias_deprecation","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
-    var Mixin = __dependency1__.Mixin;
-    var computed = __dependency2__.computed;
-    var ActionHandler = __dependency3__["default"];
-    var ControllerContentModelAliasDeprecation = __dependency4__["default"];
+    var Ember = __dependency1__["default"];
+    // Ember.assert, Ember.deprecate
+    var get = __dependency2__.get;
+    var EmberObject = __dependency3__["default"];
+    var Mixin = __dependency4__.Mixin;
+    var computed = __dependency5__.computed;
+    var ActionHandler = __dependency6__["default"];
+    var ControllerContentModelAliasDeprecation = __dependency7__["default"];
 
     /**
       `Ember.ControllerMixin` provides a standard interface for all classes that
@@ -14625,12 +14650,13 @@ define("ember-runtime/mixins/controller",
     });
   });
 define("ember-runtime/mixins/controller_content_model_alias_deprecation",
-  ["ember-metal/core","ember-metal/mixin","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/mixin","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.deprecate
-    var Mixin = __dependency2__.Mixin;
+    var get = __dependency2__.get;
+    var Mixin = __dependency3__.Mixin;
 
     /**
       The ControllerContentModelAliasDeprecation mixin is used to provide a useful
@@ -14683,8 +14709,8 @@ define("ember-runtime/mixins/controller_content_model_alias_deprecation",
     });
   });
 define("ember-runtime/mixins/copyable",
-  ["ember-metal/property_get","ember-metal/mixin","ember-runtime/mixins/freezable","ember-runtime/system/string","ember-metal/error","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
+  ["ember-metal/property_get","ember-metal/property_set","ember-metal/mixin","ember-runtime/mixins/freezable","ember-runtime/system/string","ember-metal/error","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -14693,11 +14719,12 @@ define("ember-runtime/mixins/copyable",
 
 
     var get = __dependency1__.get;
-    var required = __dependency2__.required;
-    var Freezable = __dependency3__.Freezable;
-    var Mixin = __dependency2__.Mixin;
-    var fmt = __dependency4__.fmt;
-    var EmberError = __dependency5__["default"];
+    var set = __dependency2__.set;
+    var required = __dependency3__.required;
+    var Freezable = __dependency4__.Freezable;
+    var Mixin = __dependency3__.Mixin;
+    var fmt = __dependency5__.fmt;
+    var EmberError = __dependency6__["default"];
 
 
     /**
@@ -16126,8 +16153,8 @@ define("ember-runtime/mixins/freezable",
     __exports__.FROZEN_ERROR = FROZEN_ERROR;
   });
 define("ember-runtime/mixins/mutable_array",
-  ["ember-metal/property_get","ember-metal/utils","ember-metal/error","ember-metal/mixin","ember-runtime/mixins/array","ember-runtime/mixins/mutable_enumerable","ember-runtime/mixins/enumerable","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
+  ["ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/error","ember-metal/mixin","ember-runtime/mixins/array","ember-runtime/mixins/mutable_enumerable","ember-runtime/mixins/enumerable","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -16150,13 +16177,14 @@ define("ember-runtime/mixins/mutable_array",
     //
 
     var get = __dependency1__.get;
-    var isArray = __dependency2__.isArray;
-    var EmberError = __dependency3__["default"];
-    var Mixin = __dependency4__.Mixin;
-    var required = __dependency4__.required;
-    var EmberArray = __dependency5__["default"];
-    var MutableEnumerable = __dependency6__["default"];
-    var Enumerable = __dependency7__["default"];
+    var set = __dependency2__.set;
+    var isArray = __dependency3__.isArray;
+    var EmberError = __dependency4__["default"];
+    var Mixin = __dependency5__.Mixin;
+    var required = __dependency5__.required;
+    var EmberArray = __dependency6__["default"];
+    var MutableEnumerable = __dependency7__["default"];
+    var Enumerable = __dependency8__["default"];
     /**
       This mixin defines the API for modifying array-like objects. These methods
       can be applied only to a collection that keeps its items in an ordered set.
@@ -17324,8 +17352,8 @@ define("ember-runtime/mixins/promise_proxy",
     }
   });
 define("ember-runtime/mixins/sortable",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/enumerable_utils","ember-metal/mixin","ember-runtime/mixins/mutable_enumerable","ember-runtime/compare","ember-metal/observer","ember-metal/computed","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/enumerable_utils","ember-metal/mixin","ember-runtime/mixins/mutable_enumerable","ember-runtime/compare","ember-metal/observer","ember-metal/computed","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -17336,15 +17364,16 @@ define("ember-runtime/mixins/sortable",
     // Ember.assert, Ember.A
 
     var get = __dependency2__.get;
-    var forEach = __dependency3__.forEach;
-    var Mixin = __dependency4__.Mixin;
-    var MutableEnumerable = __dependency5__["default"];
-    var compare = __dependency6__["default"];
-    var addObserver = __dependency7__.addObserver;
-    var removeObserver = __dependency7__.removeObserver;
-    var computed = __dependency8__.computed;
-    var beforeObserver = __dependency4__.beforeObserver;
-    var observer = __dependency4__.observer;
+    var set = __dependency3__.set;
+    var forEach = __dependency4__.forEach;
+    var Mixin = __dependency5__.Mixin;
+    var MutableEnumerable = __dependency6__["default"];
+    var compare = __dependency7__["default"];
+    var addObserver = __dependency8__.addObserver;
+    var removeObserver = __dependency8__.removeObserver;
+    var computed = __dependency9__.computed;
+    var beforeObserver = __dependency5__.beforeObserver;
+    var observer = __dependency5__.observer;
     //ES6TODO: should we access these directly from their package or from how thier exposed in ember-metal?
 
     /**
@@ -17629,8 +17658,8 @@ define("ember-runtime/mixins/sortable",
     });
   });
 define("ember-runtime/mixins/target_action_support",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/utils","ember-metal/mixin","ember-metal/computed","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/mixin","ember-metal/computed","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -17640,9 +17669,10 @@ define("ember-runtime/mixins/target_action_support",
     // Ember.lookup, Ember.assert
 
     var get = __dependency2__.get;
-    var typeOf = __dependency3__.typeOf;
-    var Mixin = __dependency4__.Mixin;
-    var computed = __dependency5__.computed;
+    var set = __dependency3__.set;
+    var typeOf = __dependency4__.typeOf;
+    var Mixin = __dependency5__.Mixin;
+    var computed = __dependency6__.computed;
 
     /**
     `Ember.TargetActionSupport` is a mixin that can be included in a class
@@ -17786,24 +17816,25 @@ define("ember-runtime/system/application",
     __exports__["default"] = Namespace.extend();
   });
 define("ember-runtime/system/array_proxy",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/utils","ember-metal/computed","ember-metal/mixin","ember-metal/property_events","ember-metal/error","ember-runtime/system/object","ember-runtime/mixins/mutable_array","ember-runtime/mixins/enumerable","ember-runtime/system/string","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/computed","ember-metal/mixin","ember-metal/property_events","ember-metal/error","ember-runtime/system/object","ember-runtime/mixins/mutable_array","ember-runtime/mixins/enumerable","ember-runtime/system/string","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.K, Ember.assert
     var get = __dependency2__.get;
-    var isArray = __dependency3__.isArray;
-    var apply = __dependency3__.apply;
-    var computed = __dependency4__.computed;
-    var beforeObserver = __dependency5__.beforeObserver;
-    var observer = __dependency5__.observer;
-    var beginPropertyChanges = __dependency6__.beginPropertyChanges;
-    var endPropertyChanges = __dependency6__.endPropertyChanges;
-    var EmberError = __dependency7__["default"];
-    var EmberObject = __dependency8__["default"];
-    var MutableArray = __dependency9__["default"];
-    var Enumerable = __dependency10__["default"];
-    var fmt = __dependency11__.fmt;
+    var set = __dependency3__.set;
+    var isArray = __dependency4__.isArray;
+    var apply = __dependency4__.apply;
+    var computed = __dependency5__.computed;
+    var beforeObserver = __dependency6__.beforeObserver;
+    var observer = __dependency6__.observer;
+    var beginPropertyChanges = __dependency7__.beginPropertyChanges;
+    var endPropertyChanges = __dependency7__.endPropertyChanges;
+    var EmberError = __dependency8__["default"];
+    var EmberObject = __dependency9__["default"];
+    var MutableArray = __dependency10__["default"];
+    var Enumerable = __dependency11__["default"];
+    var fmt = __dependency12__.fmt;
 
     /**
     @module ember
@@ -18174,8 +18205,8 @@ define("ember-runtime/system/container",
     __exports__["default"] = Container;
   });
 define("ember-runtime/system/core_object",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/utils","ember-metal/platform","ember-metal/watching","ember-metal/chains","ember-metal/events","ember-metal/mixin","ember-metal/enumerable_utils","ember-metal/error","ember-metal/keys","ember-runtime/mixins/action_handler","ember-metal/properties","ember-metal/binding","ember-metal/computed","ember-metal/run_loop","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/platform","ember-metal/watching","ember-metal/chains","ember-metal/events","ember-metal/mixin","ember-metal/enumerable_utils","ember-metal/error","ember-metal/keys","ember-runtime/mixins/action_handler","ember-metal/properties","ember-metal/binding","ember-metal/computed","ember-metal/run_loop","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __exports__) {
     "use strict";
     /**
       @module ember
@@ -18188,29 +18219,30 @@ define("ember-runtime/system/core_object",
     // NOTE: this object should never be included directly. Instead use `Ember.Object`.
     // We only define this separately so that `Ember.Set` can depend on it.
     var get = __dependency2__.get;
-    var guidFor = __dependency3__.guidFor;
-    var apply = __dependency3__.apply;
-    var o_create = __dependency4__.create;
-    var generateGuid = __dependency3__.generateGuid;
-    var GUID_KEY = __dependency3__.GUID_KEY;
-    var meta = __dependency3__.meta;
-    var makeArray = __dependency3__.makeArray;
-    var rewatch = __dependency5__.rewatch;
-    var finishChains = __dependency6__.finishChains;
-    var sendEvent = __dependency7__.sendEvent;
-    var IS_BINDING = __dependency8__.IS_BINDING;
-    var Mixin = __dependency8__.Mixin;
-    var required = __dependency8__.required;
-    var indexOf = __dependency9__.indexOf;
-    var EmberError = __dependency10__["default"];
-    var platform = __dependency4__.platform;
-    var keys = __dependency11__["default"];
-    var ActionHandler = __dependency12__["default"];
-    var defineProperty = __dependency13__.defineProperty;
-    var Binding = __dependency14__.Binding;
-    var ComputedProperty = __dependency15__.ComputedProperty;
-    var run = __dependency16__["default"];
-    var destroy = __dependency5__.destroy;
+    var set = __dependency3__.set;
+    var guidFor = __dependency4__.guidFor;
+    var apply = __dependency4__.apply;
+    var o_create = __dependency5__.create;
+    var generateGuid = __dependency4__.generateGuid;
+    var GUID_KEY = __dependency4__.GUID_KEY;
+    var meta = __dependency4__.meta;
+    var makeArray = __dependency4__.makeArray;
+    var rewatch = __dependency6__.rewatch;
+    var finishChains = __dependency7__.finishChains;
+    var sendEvent = __dependency8__.sendEvent;
+    var IS_BINDING = __dependency9__.IS_BINDING;
+    var Mixin = __dependency9__.Mixin;
+    var required = __dependency9__.required;
+    var indexOf = __dependency10__.indexOf;
+    var EmberError = __dependency11__["default"];
+    var platform = __dependency5__.platform;
+    var keys = __dependency12__["default"];
+    var ActionHandler = __dependency13__["default"];
+    var defineProperty = __dependency14__.defineProperty;
+    var Binding = __dependency15__.Binding;
+    var ComputedProperty = __dependency16__.ComputedProperty;
+    var run = __dependency17__["default"];
+    var destroy = __dependency6__.destroy;
 
     var K = __dependency1__.K;
     var o_defineProperty = platform.defineProperty;
@@ -19030,12 +19062,13 @@ define("ember-runtime/system/core_object",
     __exports__["default"] = CoreObject;
   });
 define("ember-runtime/system/deferred",
-  ["ember-metal/core","ember-runtime/mixins/deferred","ember-runtime/system/object","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["ember-metal/core","ember-runtime/mixins/deferred","ember-metal/property_get","ember-runtime/system/object","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var DeferredMixin = __dependency2__["default"];
-    var EmberObject = __dependency3__["default"];
+    var get = __dependency3__.get;
+    var EmberObject = __dependency4__["default"];
 
     var Deferred = EmberObject.extend(DeferredMixin, {
       init: function() {
@@ -19055,8 +19088,8 @@ define("ember-runtime/system/deferred",
     __exports__["default"] = Deferred;
   });
 define("ember-runtime/system/each_proxy",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/utils","ember-metal/enumerable_utils","ember-metal/array","ember-runtime/mixins/array","ember-runtime/system/object","ember-metal/computed","ember-metal/observer","ember-metal/events","ember-metal/properties","ember-metal/property_events","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/enumerable_utils","ember-metal/array","ember-runtime/mixins/array","ember-runtime/system/object","ember-metal/computed","ember-metal/observer","ember-metal/events","ember-metal/properties","ember-metal/property_events","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -19067,25 +19100,26 @@ define("ember-runtime/system/each_proxy",
     // Ember.assert
 
     var get = __dependency2__.get;
-    var guidFor = __dependency3__.guidFor;
-    var forEach = __dependency4__.forEach;
-    var indexOf = __dependency5__.indexOf;
-    var EmberArray = __dependency6__["default"];
+    var set = __dependency3__.set;
+    var guidFor = __dependency4__.guidFor;
+    var forEach = __dependency5__.forEach;
+    var indexOf = __dependency6__.indexOf;
+    var EmberArray = __dependency7__["default"];
     // ES6TODO: WAT? Circular dep?
-    var EmberObject = __dependency7__["default"];
-    var computed = __dependency8__.computed;
-    var addObserver = __dependency9__.addObserver;
-    var addBeforeObserver = __dependency9__.addBeforeObserver;
-    var removeBeforeObserver = __dependency9__.removeBeforeObserver;
-    var removeObserver = __dependency9__.removeObserver;
-    var typeOf = __dependency3__.typeOf;
-    var watchedEvents = __dependency10__.watchedEvents;
-    var defineProperty = __dependency11__.defineProperty;
-    var beginPropertyChanges = __dependency12__.beginPropertyChanges;
-    var propertyDidChange = __dependency12__.propertyDidChange;
-    var propertyWillChange = __dependency12__.propertyWillChange;
-    var endPropertyChanges = __dependency12__.endPropertyChanges;
-    var changeProperties = __dependency12__.changeProperties;
+    var EmberObject = __dependency8__["default"];
+    var computed = __dependency9__.computed;
+    var addObserver = __dependency10__.addObserver;
+    var addBeforeObserver = __dependency10__.addBeforeObserver;
+    var removeBeforeObserver = __dependency10__.removeBeforeObserver;
+    var removeObserver = __dependency10__.removeObserver;
+    var typeOf = __dependency4__.typeOf;
+    var watchedEvents = __dependency11__.watchedEvents;
+    var defineProperty = __dependency12__.defineProperty;
+    var beginPropertyChanges = __dependency13__.beginPropertyChanges;
+    var propertyDidChange = __dependency13__.propertyDidChange;
+    var propertyWillChange = __dependency13__.propertyWillChange;
+    var endPropertyChanges = __dependency13__.endPropertyChanges;
+    var changeProperties = __dependency13__.changeProperties;
 
     var EachArray = EmberObject.extend(EmberArray, {
 
@@ -19498,7 +19532,7 @@ define("ember-runtime/system/namespace",
 
     function findNamespaces() {
       var lookup = Ember.lookup;
-      var obj;
+      var obj, isNamespace;
 
       if (Namespace.PROCESSED) { return; }
 
@@ -19585,8 +19619,8 @@ define("ember-runtime/system/namespace",
     __exports__["default"] = Namespace;
   });
 define("ember-runtime/system/native_array",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/enumerable_utils","ember-metal/mixin","ember-metal/array","ember-runtime/mixins/array","ember-runtime/mixins/mutable_array","ember-runtime/mixins/observable","ember-runtime/mixins/copyable","ember-runtime/mixins/freezable","ember-runtime/copy","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/enumerable_utils","ember-metal/mixin","ember-metal/array","ember-runtime/mixins/array","ember-runtime/mixins/mutable_array","ember-runtime/mixins/observable","ember-runtime/mixins/copyable","ember-runtime/mixins/freezable","ember-runtime/copy","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -19597,17 +19631,18 @@ define("ember-runtime/system/native_array",
     // Ember.EXTEND_PROTOTYPES
 
     var get = __dependency2__.get;
-    var replace = __dependency3__._replace;
-    var forEach = __dependency3__.forEach;
-    var Mixin = __dependency4__.Mixin;
-    var indexOf = __dependency5__.indexOf;
-    var lastIndexOf = __dependency5__.lastIndexOf;
-    var EmberArray = __dependency6__["default"];
-    var MutableArray = __dependency7__["default"];
-    var Observable = __dependency8__["default"];
-    var Copyable = __dependency9__["default"];
-    var FROZEN_ERROR = __dependency10__.FROZEN_ERROR;
-    var copy = __dependency11__["default"];
+    var set = __dependency3__.set;
+    var replace = __dependency4__._replace;
+    var forEach = __dependency4__.forEach;
+    var Mixin = __dependency5__.Mixin;
+    var indexOf = __dependency6__.indexOf;
+    var lastIndexOf = __dependency6__.lastIndexOf;
+    var EmberArray = __dependency7__["default"];
+    var MutableArray = __dependency8__["default"];
+    var Observable = __dependency9__["default"];
+    var Copyable = __dependency10__["default"];
+    var FROZEN_ERROR = __dependency11__.FROZEN_ERROR;
+    var copy = __dependency12__["default"];
 
     // Add Ember.Array to Array.prototype. Remove methods with native
     // implementations and supply some more optimized versions of generic methods
@@ -20656,11 +20691,12 @@ define("ember-runtime/system/string",
     __exports__.capitalize = capitalize;
   });
 define("ember-runtime/system/subarray",
-  ["ember-metal/error","ember-metal/enumerable_utils","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["ember-metal/property_get","ember-metal/error","ember-metal/enumerable_utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
-    var EmberError = __dependency1__["default"];
-    var EnumerableUtils = __dependency2__["default"];
+    var get = __dependency1__.get;
+    var EmberError = __dependency2__["default"];
+    var EnumerableUtils = __dependency3__["default"];
 
     var RETAIN = 'r';
     var FILTER = 'f';
@@ -20892,7 +20928,7 @@ define("ember-runtime/system/tracked_array",
         var arrayOperation = match.operation;
         var arrayOperationIndex = match.index;
         var arrayOperationRangeStart = match.rangeStart;
-        var composeIndex, newArrayOperation;
+        var composeIndex, splitIndex, splitItems, splitArrayOperation, newArrayOperation;
 
         newArrayOperation = new ArrayOperation(INSERT, count, newItems);
 
@@ -20925,6 +20961,7 @@ define("ember-runtime/system/tracked_array",
         if (count < 1) { return; }
 
         var match = this._findArrayOperation(index);
+        var arrayOperation = match.operation;
         var arrayOperationIndex = match.index;
         var arrayOperationRangeStart = match.rangeStart;
         var newArrayOperation, composeIndex;
