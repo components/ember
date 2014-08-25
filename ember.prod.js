@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.7f3388b5
+ * @version   1.9.0-beta.1+canary.ad1f22d2
  */
 
 (function() {
@@ -12409,9 +12409,45 @@ define("ember-metal/computed",
       The function should accept two parameters, key and value. If value is not
       undefined you should set the value first. In either case return the
       current value of the property.
+      
+      A computed property defined in this way might look like this:
+
+      ```js
+      var Person = Ember.Object.extend({
+        firstName: 'Betty',
+        lastName: 'Jones',
+
+        fullName: Ember.computed('firstName', 'lastName', function(key, value) {
+          return this.get('firstName') + ' ' + this.get('lastName');
+        })
+      });
+
+      var client = Person.create();
+
+      client.get('fullName'); // 'Betty Jones'
+      
+      client.set('lastName', 'Fuller');
+      client.get('fullName'); // 'Betty Fuller'
+      ```
+
+      _Note: This is the prefered way to define computed properties when writing third-party
+      libraries that depend on or use Ember, since there is no guarantee that the user
+      will have prototype extensions enabled._
+
+      You might use this method if you disabled
+      [Prototype Extensions](http://emberjs.com/guides/configuring-ember/disabling-prototype-extensions/).
+      The alternative syntax might look like this
+      (if prototype extensions are enabled, which is the default behavior):
+
+      ```js
+      fullName: function () {
+        return this.get('firstName') + ' ' + this.get('lastName');
+      }.property('firstName', 'lastName')
+      ```
 
       @method computed
       @for Ember
+      @param {String} [dependentKeys*] Optional dependent keys that trigger this computed property.
       @param {Function} func The computed property function.
       @return {Ember.ComputedProperty} property descriptor instance
     */
@@ -13211,7 +13247,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.7f3388b5
+      @version 1.9.0-beta.1+canary.ad1f22d2
     */
 
     if ('undefined' === typeof Ember) {
@@ -13238,10 +13274,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.7f3388b5'
+      @default '1.9.0-beta.1+canary.ad1f22d2'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.7f3388b5';
+    Ember.VERSION = '1.9.0-beta.1+canary.ad1f22d2';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
