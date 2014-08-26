@@ -704,7 +704,7 @@ define("backburner/deferred-action-queues",
           queue = queues[queueName];
           queueItems = queue._queueBeingFlushed = queue._queue.slice();
           queue._queue = [];
-          queue.guidBucket = Object.create(null);
+          queue.targetQueues = Object.create(null);
 
           var queueOptions = queue.options; // TODO: write a test for this
           var before = queueOptions && queueOptions.before;
