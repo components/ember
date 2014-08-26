@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.ad1f22d2
+ * @version   1.9.0-beta.1+canary.c7cb8279
  */
 
 (function() {
@@ -704,7 +704,7 @@ define("backburner/deferred-action-queues",
           queue = queues[queueName];
           queueItems = queue._queueBeingFlushed = queue._queue.slice();
           queue._queue = [];
-          queue.guidBucket = Object.create(null);
+          queue.targetQueues = Object.create(null);
 
           var queueOptions = queue.options; // TODO: write a test for this
           var before = queueOptions && queueOptions.before;
@@ -4667,7 +4667,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.ad1f22d2
+      @version 1.9.0-beta.1+canary.c7cb8279
     */
 
     if ('undefined' === typeof Ember) {
@@ -4694,10 +4694,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.ad1f22d2'
+      @default '1.9.0-beta.1+canary.c7cb8279'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.ad1f22d2';
+    Ember.VERSION = '1.9.0-beta.1+canary.c7cb8279';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
