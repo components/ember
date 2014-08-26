@@ -14436,7 +14436,7 @@ define("ember-metal/instrumentation",
     */
     function instrument(name, _payload, callback, binding) {
       if (subscribers.length === 0) {
-        return;
+        return callback.call(binding);
       }
       var payload = _payload || {};
       var finalizer = _instrumentStart(name, function () {
@@ -14450,6 +14450,8 @@ define("ember-metal/instrumentation",
           payload.exception = e;
         };
         return tryCatchFinally(tryable, catchable, finalizer);
+      } else {
+        return callback.call(binding);
       }
     }
 

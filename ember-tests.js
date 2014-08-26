@@ -16901,6 +16901,13 @@ define("ember-metal/tests/instrumentation_test",
       }
     });
 
+    test("execute block even if no listeners", function() {
+      var result = instrument("render", {}, function() {
+        return "hello";
+      });
+      equal(result, "hello", 'called block');
+    });
+
     test("subscribing to a simple path receives the listener", function() {
       expect(12);
 
