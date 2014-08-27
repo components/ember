@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.99af3c0d
+ * @version   1.9.0-beta.1+canary.72099aaf
  */
 
 (function() {
@@ -40489,6 +40489,24 @@ define("ember-runtime/tests/system/object/create_test",
       var objB = EmberObject.createWithMixins();
 
       ok(guidFor(objA) !== guidFor(objB), "two instances do not share a guid");
+    });
+
+    test("ensure internal properties do not leak", function(){
+      var obj = EmberObject.create({
+        firstName: 'Joe',
+        lastName:  'Black'
+      });
+
+      var expectedProperties = ['firstName', 'lastName'];
+      var actualProperties   = [];
+
+      for (var name in obj) {
+        if (obj.hasOwnProperty(name)) {
+          actualProperties.push(name);
+        }
+      }
+
+      deepEqual(actualProperties, expectedProperties, 'internal properties do not leak');
     });
   });
 define("ember-runtime/tests/system/object/create_test.jshint",
