@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.e3087df9
+ * @version   1.9.0-beta.1+canary.a11f8acf
  */
 
 (function() {
@@ -16849,6 +16849,13 @@ define("ember-metal/tests/instrumentation_test",
       teardown: function() {
         reset();
       }
+    });
+
+    test("execute block even if no listeners", function() {
+      var result = instrument("render", {}, function() {
+        return "hello";
+      });
+      equal(result, "hello", 'called block');
     });
 
     test("subscribing to a simple path receives the listener", function() {

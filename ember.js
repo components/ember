@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.e3087df9
+ * @version   1.9.0-beta.1+canary.a11f8acf
  */
 
 (function() {
@@ -13500,7 +13500,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.e3087df9
+      @version 1.9.0-beta.1+canary.a11f8acf
     */
 
     if ('undefined' === typeof Ember) {
@@ -13527,10 +13527,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.e3087df9'
+      @default '1.9.0-beta.1+canary.a11f8acf'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.e3087df9';
+    Ember.VERSION = '1.9.0-beta.1+canary.a11f8acf';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -14727,7 +14727,7 @@ define("ember-metal/instrumentation",
     */
     function instrument(name, _payload, callback, binding) {
       if (subscribers.length === 0) {
-        return;
+        return callback.call(binding);
       }
       var payload = _payload || {};
       var finalizer = _instrumentStart(name, function () {
@@ -14741,6 +14741,8 @@ define("ember-metal/instrumentation",
           payload.exception = e;
         };
         return tryCatchFinally(tryable, catchable, finalizer);
+      } else {
+        return callback.call(binding);
       }
     }
 
