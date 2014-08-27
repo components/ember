@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.a11f8acf
+ * @version   1.9.0-beta.1+canary.99af3c0d
  */
 
 (function() {
@@ -13500,7 +13500,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.a11f8acf
+      @version 1.9.0-beta.1+canary.99af3c0d
     */
 
     if ('undefined' === typeof Ember) {
@@ -13527,10 +13527,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.a11f8acf'
+      @default '1.9.0-beta.1+canary.99af3c0d'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.a11f8acf';
+    Ember.VERSION = '1.9.0-beta.1+canary.99af3c0d';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -23321,8 +23321,7 @@ define("ember-routing/system/route",
       */
       _qp: computed(function() {
         var controllerName = this.controllerName || this.routeName;
-        var fullName = this.container.normalize('controller:' + controllerName);
-        var controllerClass = this.container.lookupFactory(fullName);
+        var controllerClass = this.container.lookupFactory('controller:' + controllerName);
 
         if (!controllerClass) {
           return defaultQPMeta;
