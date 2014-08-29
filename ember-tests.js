@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.ac19d156
+ * @version   1.9.0-beta.1+canary.0abc64c1
  */
 
 (function() {
@@ -146,6 +146,7 @@ define("container/tests/container_helper",
         Child.prototype = new Parent();
         Child.prototype.constructor = Child;
 
+        setProperties(Child, Klass);
         setProperties(Child.prototype, options);
 
         Child.create = create;
@@ -820,6 +821,27 @@ define("container/tests/container_test",
       container.lookupFactory('foo:post');
       deepEqual(resolveWasCalled, ['foo:post']);
     });
+
+    if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
+      test("A factory's lazy injections are validated when first instantiated", function() {
+        var container = new Container();
+        var Apple = factory();
+        var Orange = factory();
+
+        Apple.reopenClass({
+          lazyInjections: function() {
+            return [ 'orange:main', 'banana:main' ];
+          }
+        });
+
+        container.register('apple:main', Apple);
+        container.register('orange:main', Orange);
+
+        throws(function() {
+          container.lookup('apple:main');
+        }, /Attempting to inject an unknown injection: `banana:main`/);
+      });
+    }
   });
 define("container/tests/container_test.jshint",
   [],
@@ -13719,6 +13741,15 @@ define("ember-metal/get_properties.jshint",
       ok(true, 'ember-metal/get_properties.js should pass jshint.'); 
     });
   });
+define("ember-metal/injected_property.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal');
+    test('ember-metal/injected_property.js should pass jshint', function() { 
+      ok(true, 'ember-metal/injected_property.js should pass jshint.'); 
+    });
+  });
 define("ember-metal/instrumentation.jshint",
   [],
   function() {
@@ -16831,6 +16862,80 @@ define("ember-metal/tests/features_test.jshint",
     module('JSHint - ember-metal/tests');
     test('ember-metal/tests/features_test.js should pass jshint', function() { 
       ok(true, 'ember-metal/tests/features_test.js should pass jshint.'); 
+    });
+  });
+define("ember-metal/tests/injected_property_test",
+  ["ember-metal/properties","ember-metal/property_get","ember-metal/property_set","ember-metal/injected_property"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+    "use strict";
+    var Descriptor = __dependency1__.Descriptor;
+    var defineProperty = __dependency1__.defineProperty;
+    var get = __dependency2__.get;
+    var set = __dependency3__.set;
+    var InjectedProperty = __dependency4__["default"];
+
+    if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
+      QUnit.module('InjectedProperty');
+
+      test('injected properties should be descriptors', function() {
+        ok(new InjectedProperty() instanceof Descriptor);
+      });
+
+      test('setting the injected property should error', function() {
+        var obj = {};
+        defineProperty(obj, 'foo', new InjectedProperty());
+
+        throws(function() {
+          set(obj, 'foo', 'bar');
+        }, /Cannot set injected property 'foo' on object/);
+      });
+
+      test("getting on an object without a container should fail assertion", function() {
+        var obj = {};
+        defineProperty(obj, 'foo', new InjectedProperty('type', 'name'));
+
+        expectAssertion(function() {
+          get(obj, 'foo');
+        }, /Attempting to lookup an injected property on an object without a container, ensure that the object was instantiated via a container./);
+      });
+
+      test("getting should return a lookup on the container", function() {
+        expect(2);
+
+        var obj = {
+          container: {
+            lookup: function(key) {
+              ok(true, 'should call container.lookup');
+              return key;
+            }
+          }
+        };
+        defineProperty(obj, 'foo', new InjectedProperty('type', 'name'));
+
+        equal(get(obj, 'foo'), 'type:name', 'should return the value of container.lookup');
+      });
+
+      test("omitting the lookup name should default to the property name", function() {
+        var obj = {
+          container: {
+            lookup: function(key) {
+              return key;
+            }
+          }
+        };
+        defineProperty(obj, 'foo', new InjectedProperty('type'));
+
+        equal(get(obj, 'foo'), 'type:foo', 'should lookup the type using the property name');
+      });
+    }
+  });
+define("ember-metal/tests/injected_property_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal/tests');
+    test('ember-metal/tests/injected_property_test.js should pass jshint', function() { 
+      ok(true, 'ember-metal/tests/injected_property_test.js should pass jshint.'); 
     });
   });
 define("ember-metal/tests/instrumentation_test",
@@ -25485,13 +25590,15 @@ define("ember-routing/tests/system/dsl_test.jshint",
     });
   });
 define("ember-routing/tests/system/route_test",
-  ["ember-metal/run_loop","container/container","ember-runtime/system/object","ember-routing/system/route"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+  ["ember-metal/run_loop","container/container","ember-runtime/system/service","ember-runtime/system/object","ember-routing/system/route","ember-runtime/inject"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
     var run = __dependency1__["default"];
     var Container = __dependency2__["default"];
-    var EmberObject = __dependency3__["default"];
-    var EmberRoute = __dependency4__["default"];
+    var Service = __dependency3__["default"];
+    var EmberObject = __dependency4__["default"];
+    var EmberRoute = __dependency5__["default"];
+    var inject = __dependency6__["default"];
 
     var route, routeOne, routeTwo, container, lookupHash;
 
@@ -25688,6 +25795,25 @@ define("ember-routing/tests/system/route_test",
 
       equal(routeTwo.controllerFor('one'), testController);
     });
+
+    if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
+      QUnit.module('Route injected properties');
+
+      test("services can be injected into routes", function() {
+        var container = new Container();
+
+        container.register('route:application', EmberRoute.extend({
+          authService: inject.service('auth')
+        }));
+
+        container.register('service:auth', Service.extend());
+
+        var appRoute = container.lookup('route:application'),
+          authService = container.lookup('service:auth');
+
+        equal(authService, appRoute.get('authService'), "service.auth is injected");
+      });
+    }
   });
 define("ember-routing/tests/system/route_test.jshint",
   [],
@@ -25993,6 +26119,15 @@ define("ember-runtime/ext/string.jshint",
       ok(true, 'ember-runtime/ext/string.js should pass jshint.'); 
     });
   });
+define("ember-runtime/inject.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-runtime');
+    test('ember-runtime/inject.js should pass jshint', function() { 
+      ok(true, 'ember-runtime/inject.js should pass jshint.'); 
+    });
+  });
 define("ember-runtime/mixins/-proxy.jshint",
   [],
   function() {
@@ -26243,6 +26378,15 @@ define("ember-runtime/system/object_proxy.jshint",
     module('JSHint - ember-runtime/system');
     test('ember-runtime/system/object_proxy.js should pass jshint', function() { 
       ok(true, 'ember-runtime/system/object_proxy.js should pass jshint.'); 
+    });
+  });
+define("ember-runtime/system/service.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-runtime/system');
+    test('ember-runtime/system/service.js should pass jshint', function() { 
+      ok(true, 'ember-runtime/system/service.js should pass jshint.'); 
     });
   });
 define("ember-runtime/system/set.jshint",
@@ -28899,12 +29043,16 @@ define("ember-runtime/tests/controllers/array_controller_test.jshint",
     });
   });
 define("ember-runtime/tests/controllers/controller_test",
-  ["ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-metal/mixin"],
-  function(__dependency1__, __dependency2__, __dependency3__) {
+  ["ember-runtime/controllers/controller","ember-runtime/system/service","ember-runtime/controllers/object_controller","ember-metal/mixin","ember-runtime/system/object","ember-runtime/system/container","ember-runtime/inject"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
     "use strict";
     var Controller = __dependency1__["default"];
-    var ObjectController = __dependency2__["default"];
-    var Mixin = __dependency3__["default"];
+    var Service = __dependency2__["default"];
+    var ObjectController = __dependency3__["default"];
+    var Mixin = __dependency4__["default"];
+    var Object = __dependency5__["default"];
+    var Container = __dependency6__["default"];
+    var inject = __dependency7__["default"];
 
     QUnit.module('Controller event handling');
 
@@ -29073,6 +29221,51 @@ define("ember-runtime/tests/controllers/controller_test",
         model: 'blammo'
       }).create();
     });
+
+    if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
+      QUnit.module('Controller injected properties');
+
+      test("defining a controller on a non-controller should fail assertion", function(){
+        expectAssertion(function() {
+          var AnObject = Object.extend({
+            foo: inject.controller('bar')
+          });
+
+          // Prototype chains are lazy, make sure it's evaluated
+          AnObject.proto();
+        }, /Defining an injected controller property on a non-controller is not allowed./);
+      });
+
+      test("controllers can be injected into controllers", function() {
+        var container = new Container();
+
+        container.register('controller:post', Controller.extend({
+          postsController: inject.controller('posts')
+        }));
+
+        container.register('controller:posts', Controller.extend());
+
+        var postController = container.lookup('controller:post'),
+          postsController = container.lookup('controller:posts');
+
+        equal(postsController, postController.get('postsController'), "controller.posts is injected");
+      });
+
+      test("services can be injected into controllers", function() {
+        var container = new Container();
+
+        container.register('controller:application', Controller.extend({
+          authService: inject.service('auth')
+        }));
+
+        container.register('service:auth', Service.extend());
+
+        var appController = container.lookup('controller:application'),
+          authService = container.lookup('service:auth');
+
+        equal(authService, appController.get('authService'), "service.auth is injected");
+      });
+    }
   });
 define("ember-runtime/tests/controllers/controller_test.jshint",
   [],
@@ -30050,6 +30243,74 @@ define("ember-runtime/tests/ext/rsvp_test.jshint",
     module('JSHint - ember-runtime/tests/ext');
     test('ember-runtime/tests/ext/rsvp_test.js should pass jshint', function() { 
       ok(true, 'ember-runtime/tests/ext/rsvp_test.js should pass jshint.'); 
+    });
+  });
+define("ember-runtime/tests/inject_test",
+  ["ember-metal/injected_property","ember-runtime/inject","ember-runtime/system/container","ember-runtime/system/object"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+    "use strict";
+    var InjectedProperty = __dependency1__["default"];
+    var createInjectionHelper = __dependency2__.createInjectionHelper;
+    var inject = __dependency2__["default"];
+    var Container = __dependency3__["default"];
+    var Object = __dependency4__["default"];
+
+    if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
+      QUnit.module('inject');
+
+      test("calling `inject` directly should error", function() {
+        throws(function() {
+          inject('foo');
+        }, /Injected properties must be created through helpers/);
+      });
+
+      test("injection type validation function is run once at mixin time", function() {
+        expect(1);
+
+        createInjectionHelper('foo', function() {
+          ok(true, 'should call validation function');
+        });
+
+        var AnObject = Object.extend({
+          bar: inject.foo(),
+          baz: inject.foo()
+        });
+
+        // Prototype chains are lazy, make sure it's evaluated
+        AnObject.proto();
+      });
+
+      test("attempting to inject a nonexistent container key should error", function() {
+        var container = new Container();
+        var AnObject = Object.extend({
+          container: container,
+          foo: new InjectedProperty('bar', 'baz')
+        });
+
+        container.register('foo:main', AnObject);
+
+        throws(function() {
+          container.lookup('foo:main');
+        }, /Attempting to inject an unknown injection: `bar:baz`/);
+      });
+
+      test("factories should return a list of lazy injection full names", function() {
+        var AnObject = Object.extend({
+          foo: new InjectedProperty('foo', 'bar'),
+          bar: new InjectedProperty('quux')
+        });
+
+        deepEqual(AnObject.lazyInjections(), { 'foo': 'foo:bar', 'bar': 'quux:bar' }, "should return injected container keys");
+      });
+    }
+  });
+define("ember-runtime/tests/inject_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-runtime/tests');
+    test('ember-runtime/tests/inject_test.js should pass jshint', function() { 
+      ok(true, 'ember-runtime/tests/inject_test.js should pass jshint.'); 
     });
   });
 define("ember-runtime/tests/legacy_1x/mixins/observable/chained_test",
@@ -46233,15 +46494,18 @@ define("ember-views/tests/views/collection_test.jshint",
     });
   });
 define("ember-views/tests/views/component_test",
-  ["ember-metal/property_set","ember-metal/run_loop","ember-runtime/system/object","ember-views/views/view","ember-views/views/component"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
+  ["ember-metal/property_set","ember-metal/run_loop","ember-runtime/system/object","ember-runtime/system/service","ember-runtime/system/container","ember-runtime/inject","ember-views/views/view","ember-views/views/component"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
     "use strict";
     var set = __dependency1__.set;
     var run = __dependency2__["default"];
     var EmberObject = __dependency3__["default"];
+    var Service = __dependency4__["default"];
+    var Container = __dependency5__["default"];
+    var inject = __dependency6__["default"];
 
-    var EmberView = __dependency4__["default"];
-    var Component = __dependency5__["default"];
+    var EmberView = __dependency7__["default"];
+    var Component = __dependency8__["default"];
 
     var a_slice = Array.prototype.slice;
 
@@ -46416,6 +46680,25 @@ define("ember-views/tests/views/component_test",
 
       deepEqual(actionArguments, [firstContext, secondContext], "arguments were sent to the action");
     });
+
+    if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
+      QUnit.module('Ember.Component - injected properties');
+
+      test("services can be injected into components", function() {
+        var container = new Container();
+
+        container.register('component:application', Component.extend({
+          profilerService: inject.service('profiler')
+        }));
+
+        container.register('service:profiler', Service.extend());
+
+        var appComponent = container.lookup('component:application'),
+        profilerService = container.lookup('service:profiler');
+
+        equal(profilerService, appComponent.get('profilerService'), "service.profiler is injected");
+      });
+    }
   });
 define("ember-views/tests/views/component_test.jshint",
   [],
@@ -49095,6 +49378,43 @@ define("ember-views/tests/views/view/init_test.jshint",
     module('JSHint - ember-views/tests/views/view');
     test('ember-views/tests/views/view/init_test.js should pass jshint', function() { 
       ok(true, 'ember-views/tests/views/view/init_test.js should pass jshint.'); 
+    });
+  });
+define("ember-views/tests/views/view/inject_test",
+  ["ember-runtime/system/service","ember-runtime/system/container","ember-runtime/inject","ember-views/views/view"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+    "use strict";
+    var Service = __dependency1__["default"];
+    var Container = __dependency2__["default"];
+    var inject = __dependency3__["default"];
+    var View = __dependency4__["default"];
+
+    if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
+      QUnit.module('EmberView - injected properties');
+
+      test("services can be injected into views", function() {
+        var container = new Container();
+
+        container.register('view:application', View.extend({
+          profilerService: inject.service('profiler')
+        }));
+
+        container.register('service:profiler', Service.extend());
+
+        var appView = container.lookup('view:application'),
+          profilerService = container.lookup('service:profiler');
+
+        equal(profilerService, appView.get('profilerService'), "service.profiler is injected");
+      });
+    }
+  });
+define("ember-views/tests/views/view/inject_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/inject_test.js should pass jshint', function() { 
+      ok(true, 'ember-views/tests/views/view/inject_test.js should pass jshint.'); 
     });
   });
 define("ember-views/tests/views/view/is_visible_test",
