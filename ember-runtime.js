@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.0da3ddd5
+ * @version   1.9.0-beta.1+canary.85f6e314
  */
 
 (function() {
@@ -4703,7 +4703,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.0da3ddd5
+      @version 1.9.0-beta.1+canary.85f6e314
     */
 
     if ('undefined' === typeof Ember) {
@@ -4730,10 +4730,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.0da3ddd5'
+      @default '1.9.0-beta.1+canary.85f6e314'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.0da3ddd5';
+    Ember.VERSION = '1.9.0-beta.1+canary.85f6e314';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -10589,6 +10589,7 @@ define("ember-metal/watch_key",
     var MANDATORY_SETTER = Ember.ENV.MANDATORY_SETTER;
     var o_defineProperty = platform.defineProperty;
 
+
     function watchKey(obj, keyName, meta) {
       // can't watch length on Array - it is special...
       if (keyName === 'length' && typeOf(obj) === 'array') { return; }
@@ -10606,21 +10607,29 @@ define("ember-metal/watch_key",
           obj.willWatchProperty(keyName);
         }
 
-        if (MANDATORY_SETTER && keyName in obj) {
-          m.values[keyName] = obj[keyName];
-          o_defineProperty(obj, keyName, {
-            configurable: true,
-            enumerable: obj.propertyIsEnumerable(keyName),
-            set: Ember.MANDATORY_SETTER_FUNCTION,
-            get: Ember.DEFAULT_GETTER_FUNCTION(keyName)
-          });
+        if (MANDATORY_SETTER) {
+          handleMandetorySetter(m, obj, keyName);
         }
       } else {
         watching[keyName] = (watching[keyName] || 0) + 1;
       }
     }
 
-    __exports__.watchKey = watchKey;function unwatchKey(obj, keyName, meta) {
+    __exports__.watchKey = watchKey;function handleMandetorySetter(m, keyName, obj) {
+      // this x in Y deopts, so keeping it in this function is better;
+      if (keyName in obj) {
+        m.values[keyName] = obj[keyName];
+        o_defineProperty(obj, keyName, {
+          configurable: true,
+          enumerable: obj.propertyIsEnumerable(keyName),
+          set: Ember.MANDATORY_SETTER_FUNCTION,
+          get: Ember.DEFAULT_GETTER_FUNCTION(keyName)
+        });
+      }
+    }
+
+
+    function unwatchKey(obj, keyName, meta) {
       var m = meta || metaFor(obj), watching = m.watching;
 
       if (watching[keyName] === 1) {
