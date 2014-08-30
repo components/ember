@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.0abc64c1
+ * @version   1.9.0-beta.1+canary.14fc1cf9
  */
 
 (function() {
@@ -1069,12 +1069,13 @@ define("container",
     __exports__["default"] = Container;
   });
 define("container/container",
-  ["ember-metal/core","ember-metal/dictionary","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["ember-metal/core","ember-metal/keys","ember-metal/dictionary","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.assert
-    var dictionary = __dependency2__["default"];
+    var emberKeys = __dependency2__["default"];
+    var dictionary = __dependency3__["default"];
 
     // A lightweight container that helps to assemble and decouple components.
     // Public api for the container is still in flux.
@@ -1908,7 +1909,7 @@ define("container/container",
 
     function eachDestroyable(container, callback) {
       var cache = container.cache;
-      var keys = Ember.keys(cache);
+      var keys = emberKeys(cache);
       var key, value;
 
       for (var i = 0, l = keys.length; i < l; i++) {
@@ -4702,7 +4703,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.0abc64c1
+      @version 1.9.0-beta.1+canary.14fc1cf9
     */
 
     if ('undefined' === typeof Ember) {
@@ -4729,10 +4730,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.0abc64c1'
+      @default '1.9.0-beta.1+canary.14fc1cf9'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.0abc64c1';
+    Ember.VERSION = '1.9.0-beta.1+canary.14fc1cf9';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`

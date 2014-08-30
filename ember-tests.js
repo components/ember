@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.0abc64c1
+ * @version   1.9.0-beta.1+canary.14fc1cf9
  */
 
 (function() {
@@ -17253,10 +17253,15 @@ define("ember-metal/tests/is_present_test.jshint",
     });
   });
 define("ember-metal/tests/keys_test",
-  ["ember-metal/keys"],
-  function(__dependency1__) {
+  ["ember-metal/core","ember-metal/property_set","ember-metal/keys","ember-metal/observer"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
-    var keys = __dependency1__["default"];
+    var Ember = __dependency1__["default"];
+    // Ember.K
+    var set = __dependency2__.set;
+    var keys = __dependency3__["default"];
+    var addObserver = __dependency4__.addObserver;
+    var removeObserver = __dependency4__.removeObserver;
 
     QUnit.module("Fetch Keys ");
 
@@ -17281,6 +17286,93 @@ define("ember-metal/tests/keys_test",
       var object2 = keys(object1);
 
       deepEqual(object2, ['toString']);
+    });
+
+    test('should not contain properties declared in the prototype', function () {
+      function Beer() { }
+      Beer.prototype.type = 'ipa';
+
+      var beer = new Beer();
+
+      deepEqual(keys(beer), []);
+    });
+
+    test('should return properties that were set after object creation', function () {
+      function Beer() { }
+      Beer.prototype.type = 'ipa';
+
+      var beer = new Beer();
+
+      set(beer, 'brand', 'big daddy');
+
+      deepEqual(keys(beer), ['brand']);
+    });
+
+    QUnit.module('Keys behavior with observers');
+
+    test('should not leak properties on the prototype', function () {
+      function Beer() { }
+      Beer.prototype.type = 'ipa';
+
+      var beer = new Beer();
+
+      addObserver(beer, 'type', Ember.K);
+      deepEqual(keys(beer), []);
+      removeObserver(beer, 'type', Ember.K);
+    });
+
+    test('observing a non existent property', function () {
+      function Beer() { }
+      Beer.prototype.type = 'ipa';
+
+      var beer = new Beer();
+
+      addObserver(beer, 'brand', Ember.K);
+
+      deepEqual(keys(beer), []);
+
+      set(beer, 'brand', 'Corona');
+      deepEqual(keys(beer), ['brand']);
+
+      removeObserver(beer, 'brand', Ember.K);
+    });
+
+    test('with observers switched on and off', function () {
+      function Beer() { }
+      Beer.prototype.type = 'ipa';
+
+      var beer = new Beer();
+
+      addObserver(beer, 'type', Ember.K);
+      removeObserver(beer, 'type', Ember.K);
+
+      deepEqual(keys(beer), []);
+    });
+
+    test('observers switched on and off with setter in between', function () {
+      function Beer() { }
+      Beer.prototype.type = 'ipa';
+
+      var beer = new Beer();
+
+      addObserver(beer, 'type', Ember.K);
+      set(beer, 'type', 'ale');
+      removeObserver(beer, 'type', Ember.K);
+
+      deepEqual(keys(beer), ['type']);
+    });
+
+    test('observer switched on and off and then setter', function () {
+      function Beer() { }
+      Beer.prototype.type = 'ipa';
+
+      var beer = new Beer();
+
+      addObserver(beer, 'type', Ember.K);
+      removeObserver(beer, 'type', Ember.K);
+      set(beer, 'type', 'ale');
+
+      deepEqual(keys(beer), ['type']);
     });
   });
 define("ember-metal/tests/keys_test.jshint",
