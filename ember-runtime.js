@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.c14bc89e
+ * @version   1.9.0-beta.1+canary.cc52ea36
  */
 
 (function() {
@@ -4703,7 +4703,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.c14bc89e
+      @version 1.9.0-beta.1+canary.cc52ea36
     */
 
     if ('undefined' === typeof Ember) {
@@ -4730,10 +4730,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.c14bc89e'
+      @default '1.9.0-beta.1+canary.cc52ea36'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.c14bc89e';
+    Ember.VERSION = '1.9.0-beta.1+canary.cc52ea36';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -5336,21 +5336,26 @@ define("ember-metal/events",
     function actionsFor(obj, eventName) {
       var meta = metaFor(obj, true);
       var actions;
+      var listeners = meta.listeners;
 
-      if (!meta.listeners) { meta.listeners = {}; }
-
-      if (!meta.hasOwnProperty('listeners')) {
+      if (!listeners) {
+        listeners = meta.listeners = create(null);
+        listeners.__source__ = obj;
+      } else if (listeners.__source__ !== obj) {
         // setup inherited copy of the listeners object
-        meta.listeners = create(meta.listeners);
+        listeners = meta.listeners = create(listeners);
+        listeners.__source__ = obj;
       }
 
-      actions = meta.listeners[eventName];
+      actions = listeners[eventName];
 
       // if there are actions, but the eventName doesn't exist in our listeners, then copy them from the prototype
-      if (actions && !meta.listeners.hasOwnProperty(eventName)) {
-        actions = meta.listeners[eventName] = meta.listeners[eventName].slice();
+      if (actions && actions.__source__ !== obj) {
+        actions = listeners[eventName] = listeners[eventName].slice();
+        actions.__source__ = obj;
       } else if (!actions) {
-        actions = meta.listeners[eventName] = [];
+        actions = listeners[eventName] = [];
+        actions.__source__ = obj;
       }
 
       return actions;
@@ -5571,8 +5576,11 @@ define("ember-metal/events",
       var listeners = obj['__ember_meta__'].listeners, ret = [];
 
       if (listeners) {
-        for(var eventName in listeners) {
-          if (listeners[eventName]) { ret.push(eventName); }
+        for (var eventName in listeners) {
+          if (eventName !== '__source__' &&
+              listeners[eventName]) {
+            ret.push(eventName);
+          }
         }
       }
       return ret;
