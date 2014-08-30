@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.14fc1cf9
+ * @version   1.9.0-beta.1+canary.c14bc89e
  */
 
 (function() {
@@ -10655,7 +10655,7 @@ define("ember-metal-views/renderer",
         }
         view._morph = morph;
         var viewId = this.uuid(view);
-        this._inserts[viewId] = this.scheduleRender(this, function() {
+        this._inserts[viewId] = this.scheduleRender(this, function scheduledRenderTree() {
           this._inserts[viewId] = null;
           this.renderTree(view);
         });
@@ -13541,7 +13541,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.14fc1cf9
+      @version 1.9.0-beta.1+canary.c14bc89e
     */
 
     if ('undefined' === typeof Ember) {
@@ -13568,10 +13568,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.14fc1cf9'
+      @default '1.9.0-beta.1+canary.c14bc89e'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.14fc1cf9';
+    Ember.VERSION = '1.9.0-beta.1+canary.c14bc89e';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -39150,10 +39150,12 @@ define("ember-views/system/renderer",
 
     function EmberRenderer() {
       this.buffer = renderBuffer();
-      Renderer.call(this);
+      this._super$constructor();
     }
+
     EmberRenderer.prototype = create(Renderer.prototype);
     EmberRenderer.prototype.constructor = EmberRenderer;
+    EmberRenderer.prototype._super$constructor = Renderer;
 
     EmberRenderer.prototype.scheduleRender =
       function EmberRenderer_scheduleRender(ctx, fn) {
