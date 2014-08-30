@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.538212a3
+ * @version   1.9.0-beta.1+canary.0da3ddd5
  */
 
 (function() {
@@ -13541,7 +13541,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.538212a3
+      @version 1.9.0-beta.1+canary.0da3ddd5
     */
 
     if ('undefined' === typeof Ember) {
@@ -13568,10 +13568,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.538212a3'
+      @default '1.9.0-beta.1+canary.0da3ddd5'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.538212a3';
+    Ember.VERSION = '1.9.0-beta.1+canary.0da3ddd5';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -25630,7 +25630,9 @@ define("ember-routing/system/router",
         var rootURL = get(this, 'rootURL');
 
         if (rootURL && this.container && !this.container.has('-location-setting:root-url')) {
-          this.container.register('-location-setting:root-url', rootURL, { instantiate: false });
+          this.container.register('-location-setting:root-url', rootURL, {
+            instantiate: false
+          });
         }
 
         if ('string' === typeof location && this.container) {
@@ -25640,23 +25642,30 @@ define("ember-routing/system/router",
             location = set(this, 'location', resolvedLocation);
           } else {
             // Allow for deprecated registration of custom location API's
-            var options = {implementation: location};
+            var options = {
+              implementation: location
+            };
 
             location = set(this, 'location', EmberLocation.create(options));
           }
         }
 
-        if (rootURL && typeof rootURL === 'string') {
-          location.rootURL = rootURL;
-        }
+        if (location !== null && typeof location === 'object') {
+          if (rootURL && typeof rootURL === 'string') {
+            location.rootURL = rootURL;
+          }
 
-        // ensure that initState is called AFTER the rootURL is set on
-        // the location instance
-        if (typeof location.initState === 'function') { location.initState(); }
+          // ensure that initState is called AFTER the rootURL is set on
+          // the location instance
+          if (typeof location.initState === 'function') {
+            location.initState();
+          }
+        }
       },
 
       _getHandlerFunction: function() {
-        var seen = {}, container = this.container;
+        var seen = Object.create(null);
+        var container = this.container;
         var DefaultRoute = container.lookupFactory('route:basic');
         var self = this;
 
@@ -25664,7 +25673,9 @@ define("ember-routing/system/router",
           var routeName = 'route:' + name;
           var handler = container.lookup(routeName);
 
-          if (seen[name]) { return handler; }
+          if (seen[name]) {
+            return handler;
+          }
 
           seen[name] = true;
 
