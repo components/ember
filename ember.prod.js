@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.85f6e314
+ * @version   1.9.0-beta.1+canary.87b69dce
  */
 
 (function() {
@@ -12799,7 +12799,7 @@ define("ember-metal/computed_macros",
       @param {String} dependentKey
       @param {Number} value
       @return {Ember.ComputedProperty} computed property which returns true if
-      the original value for property is greater then given value.
+      the original value for property is greater than given value.
     */
     registerComputed('gt', function(dependentKey, value) {
       return get(this, dependentKey) > value;
@@ -12892,7 +12892,7 @@ define("ember-metal/computed_macros",
       @param {String} dependentKey
       @param {Number} value
       @return {Ember.ComputedProperty} computed property which returns true if
-      the original value for property is less or equal then given value.
+      the original value for property is less or equal than given value.
     */
     registerComputed('lte', function(dependentKey, value) {
       return get(this, dependentKey) <= value;
@@ -13242,7 +13242,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.85f6e314
+      @version 1.9.0-beta.1+canary.87b69dce
     */
 
     if ('undefined' === typeof Ember) {
@@ -13269,10 +13269,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.85f6e314'
+      @default '1.9.0-beta.1+canary.87b69dce'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.85f6e314';
+    Ember.VERSION = '1.9.0-beta.1+canary.87b69dce';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
