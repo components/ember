@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.a0be6c55
+ * @version   1.9.0-beta.1+canary.fa5a8c39
  */
 
 (function() {
@@ -13541,7 +13541,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.a0be6c55
+      @version 1.9.0-beta.1+canary.fa5a8c39
     */
 
     if ('undefined' === typeof Ember) {
@@ -13568,10 +13568,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.a0be6c55'
+      @default '1.9.0-beta.1+canary.fa5a8c39'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.a0be6c55';
+    Ember.VERSION = '1.9.0-beta.1+canary.fa5a8c39';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -19446,14 +19446,14 @@ define("ember-metal/watch_key",
         }
 
         if (MANDATORY_SETTER) {
-          handleMandetorySetter(m, obj, keyName);
+          handleMandatorySetter(m, obj, keyName);
         }
       } else {
         watching[keyName] = (watching[keyName] || 0) + 1;
       }
     }
 
-    __exports__.watchKey = watchKey;function handleMandetorySetter(m, keyName, obj) {
+    __exports__.watchKey = watchKey;function handleMandatorySetter(m, keyName, obj) {
       // this x in Y deopts, so keeping it in this function is better;
       if (keyName in obj) {
         m.values[keyName] = obj[keyName];
