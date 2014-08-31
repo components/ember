@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.87b69dce
+ * @version   1.9.0-beta.1+canary.cc392290
  */
 
 (function() {
@@ -45740,7 +45740,16 @@ define("ember-views/tests/system/render_buffer_test",
       buffer.generateElement();
 
       var el = buffer.element();
-      equal(el.getAttribute('style'), 'color:blue;" xss="true" style="color:red;');
+      var div = document.createElement('div');
+
+      // some browsers have different escaping strageties
+      // we should ensure the outcome is consistent. Ultimately we now use
+      // setAttribute under the hood, so we should always do the right thing.  But
+      // this test should be kept to ensure we do. Also, I believe/hope it is
+      // alright to assume the browser escapes setAttribute correctly...
+      div.setAttribute('style', 'color:blue;" xss="true" style="color:red;');
+
+      equal(el.getAttribute('style'), div.getAttribute('style'));
     });
 
     test("prevents XSS injection via `tagName`", function() {
