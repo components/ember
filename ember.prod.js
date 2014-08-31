@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.fa5a8c39
+ * @version   1.9.0-beta.1+canary.ae6f3e0d
  */
 
 (function() {
@@ -13242,7 +13242,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.fa5a8c39
+      @version 1.9.0-beta.1+canary.ae6f3e0d
     */
 
     if ('undefined' === typeof Ember) {
@@ -13269,10 +13269,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.fa5a8c39'
+      @default '1.9.0-beta.1+canary.ae6f3e0d'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.fa5a8c39';
+    Ember.VERSION = '1.9.0-beta.1+canary.ae6f3e0d';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -16980,8 +16980,8 @@ define("ember-metal/properties",
         defineProperty(object, deprecatedKey, {
             configurable: true,
             enumerable: false,
-            set: function(value) { deprecate(); set(object, newKey, value); },
-            get: function() { deprecate(); return get(object, newKey); }
+            set: function(value) { deprecate(); set(this, newKey, value); },
+            get: function() { deprecate(); return get(this, newKey); }
         });
       }
     }
@@ -40179,8 +40179,8 @@ define("ember-views/views/container_view",
     __exports__["default"] = ContainerView;
   });
 define("ember-views/views/core_view",
-  ["ember-views/system/renderer","ember-views/views/states","ember-runtime/system/object","ember-runtime/mixins/evented","ember-runtime/mixins/action_handler","ember-metal/properties","ember-metal/property_get","ember-metal/computed","ember-metal/utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __exports__) {
+  ["ember-views/system/renderer","ember-views/views/states","ember-runtime/system/object","ember-runtime/mixins/evented","ember-runtime/mixins/action_handler","ember-metal/property_get","ember-metal/computed","ember-metal/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
     var Rerender = __dependency1__["default"];
 
@@ -40190,11 +40190,10 @@ define("ember-views/views/core_view",
     var Evented = __dependency4__["default"];
     var ActionHandler = __dependency5__["default"];
 
-    var deprecateProperty = __dependency6__.deprecateProperty;
-    var get = __dependency7__.get;
-    var computed = __dependency8__.computed;
+    var get = __dependency6__.get;
+    var computed = __dependency7__.computed;
 
-    var typeOf = __dependency9__.typeOf;
+    var typeOf = __dependency8__.typeOf;
     /**
       `Ember.CoreView` is an abstract class that exists to give view-like behavior
       to both Ember's main view class `Ember.View` and other classes like
@@ -40220,9 +40219,6 @@ define("ember-views/views/core_view",
         this._super();
         this._transitionTo('preRender');
         this._isVisible = get(this, 'isVisible');
-
-        deprecateProperty(this, 'states', '_states');
-        deprecateProperty(this, 'state', '_state');
       },
 
       /**
@@ -40657,6 +40653,7 @@ define("ember-views/views/view",
     var isArray = __dependency11__.isArray;
     var isNone = __dependency14__.isNone;
     var Mixin = __dependency13__.Mixin;
+    var deprecateProperty = __dependency10__.deprecateProperty;
     var emberA = __dependency15__.A;
 
     var dasherize = __dependency16__.dasherize;
@@ -42584,6 +42581,8 @@ define("ember-views/views/view",
       }
 
     });
+    deprecateProperty(View.prototype, 'state', '_state');
+    deprecateProperty(View.prototype, 'states', '_states');
 
     /*
       Describe how the specified actions should behave in the various

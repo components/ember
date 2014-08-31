@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.fa5a8c39
+ * @version   1.9.0-beta.1+canary.ae6f3e0d
  */
 
 (function() {
@@ -4703,7 +4703,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.fa5a8c39
+      @version 1.9.0-beta.1+canary.ae6f3e0d
     */
 
     if ('undefined' === typeof Ember) {
@@ -4730,10 +4730,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.fa5a8c39'
+      @default '1.9.0-beta.1+canary.ae6f3e0d'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.fa5a8c39';
+    Ember.VERSION = '1.9.0-beta.1+canary.ae6f3e0d';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -8453,8 +8453,8 @@ define("ember-metal/properties",
         defineProperty(object, deprecatedKey, {
             configurable: true,
             enumerable: false,
-            set: function(value) { deprecate(); set(object, newKey, value); },
-            get: function() { deprecate(); return get(object, newKey); }
+            set: function(value) { deprecate(); set(this, newKey, value); },
+            get: function() { deprecate(); return get(this, newKey); }
         });
       }
     }
