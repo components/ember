@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.ae6f3e0d
+ * @version   1.9.0-beta.1+canary.01959903
  */
 
 (function() {
@@ -13242,7 +13242,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.ae6f3e0d
+      @version 1.9.0-beta.1+canary.01959903
     */
 
     if ('undefined' === typeof Ember) {
@@ -13269,10 +13269,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.ae6f3e0d'
+      @default '1.9.0-beta.1+canary.01959903'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.ae6f3e0d';
+    Ember.VERSION = '1.9.0-beta.1+canary.01959903';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -14808,11 +14808,11 @@ define("ember-metal/is_present",
     __exports__["default"] = isPresent;
   });
 define("ember-metal/keys",
-  ["ember-metal/enumerable_utils","ember-metal/platform","exports"],
+  ["ember-metal/array","ember-metal/platform","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
-    var EnumerableUtils = __dependency1__["default"];
-    var create = __dependency2__.create;
+    var indexOf = __dependency1__.indexOf;
+    var canDefineNonEnumerableProperties = __dependency2__.canDefineNonEnumerableProperties;
 
     /**
       Returns all of the keys defined on an object or hash. This is useful
@@ -14826,7 +14826,7 @@ define("ember-metal/keys",
     */
     var keys = Object.keys;
 
-    if (!keys || create.isSimulated) {
+    if (!keys || !canDefineNonEnumerableProperties) {
       var prototypeProperties = [
         'constructor',
         'hasOwnProperty',
@@ -14847,7 +14847,7 @@ define("ember-metal/keys",
           return;
         }
 
-        if (EnumerableUtils.indexOf(array, key) >= 0) {
+        if (indexOf(array, key) >= 0) {
           return;
         }
 
@@ -16578,55 +16578,54 @@ define("ember-metal/platform",
     /**
     @module ember-metal
     */
-
-    /**
-      Platform specific methods and feature detectors needed by the framework.
-
-      @class platform
-      @namespace Ember
-      @static
-    */
-    // TODO remove this
-    var platform = {};
-
-    var defineProperty = Object.defineProperty;
-    var canRedefineProperties, canDefinePropertyOnDOM;
-
-    // Catch IE8 where Object.defineProperty exists but only works on DOM elements
-    if (defineProperty) {
+    var defineProperty = (function checkCompliance(defineProperty) {
+      if (!defineProperty) return;
       try {
-        defineProperty({}, 'a',{get:function() {}});
-      } catch (e) {
-        defineProperty = null;
-      }
-    }
-
-    if (defineProperty) {
-      // Detects a bug in Android <3.2 where you cannot redefine a property using
-      // Object.defineProperty once accessors have already been set.
-      canRedefineProperties = (function() {
+        var a = 5;
         var obj = {};
-
         defineProperty(obj, 'a', {
           configurable: true,
           enumerable: true,
-          get: function() { },
-          set: function() { }
+          get: function () {
+            return a;
+          },
+          set: function (v) {
+            a = v;
+          }
         });
+        if (obj.a !== 5) return;
+        obj.a = 10;
+        if (a !== 10) return;
 
+        // check non-enumerability
         defineProperty(obj, 'a', {
           configurable: true,
-          enumerable: true,
+          enumerable: false,
           writable: true,
           value: true
         });
+        for (var key in obj) {
+          if (key === 'a') return;
+        }
 
-        return obj.a === true;
-      })();
+        // Detects a bug in Android <3.2 where you cannot redefine a property using
+        // Object.defineProperty once accessors have already been set.
+        if (obj.a !== true) return;
 
+        // defineProperty is compliant
+        return defineProperty;
+      } catch (e) {
+        // IE8 defines Object.defineProperty but calling it on an Object throws
+        return;
+      }
+    })(Object.defineProperty);
+
+    var hasES5CompliantDefineProperty = !!defineProperty;
+
+    if (hasES5CompliantDefineProperty && typeof document !== 'undefined') {
       // This is for Safari 5.0, which supports Object.defineProperty, but not
       // on DOM nodes.
-      canDefinePropertyOnDOM = (function() {
+      var canDefinePropertyOnDOM = (function() {
         try {
           defineProperty(document.createElement('div'), 'definePropertyOnDOM', {});
           return true;
@@ -16635,9 +16634,7 @@ define("ember-metal/platform",
         return false;
       })();
 
-      if (!canRedefineProperties) {
-        defineProperty = null;
-      } else if (!canDefinePropertyOnDOM) {
+      if (!canDefinePropertyOnDOM) {
         defineProperty = function(obj, keyName, desc) {
           var isNode;
 
@@ -16655,6 +16652,12 @@ define("ember-metal/platform",
           }
         };
       }
+    }
+
+    if (!hasES5CompliantDefineProperty) {
+      defineProperty = function defineProperty(obj, keyName, desc) {
+        if (!desc.get) { obj[keyName] = desc.value; }
+      };
     }
 
     // ES5 15.2.3.7
@@ -16752,16 +16755,31 @@ define("ember-metal/platform",
 
         return object;
       };
-      create.isSimulated = true;
     } else {
       create = Object.create;
     }
 
+    if (Ember.ENV.MANDATORY_SETTER) {
+      Ember.ENV.MANDATORY_SETTER = hasES5CompliantDefineProperty;
+    }
+
+    var hasPropertyAccessors = hasES5CompliantDefineProperty;
+    var canDefineNonEnumerableProperties = hasES5CompliantDefineProperty;
 
     /**
     @class platform
     @namespace Ember
     */
+
+    /**
+      Platform specific methods and feature detectors needed by the framework.
+
+      @class platform
+      @namespace Ember
+      @static
+    */
+    // TODO remove this
+    var platform = {};
 
     /**
       Identical to `Object.defineProperty()`. Implements as much functionality
@@ -16781,23 +16799,12 @@ define("ember-metal/platform",
       @property hasPropertyAccessors
       @final
     */
-    platform.hasPropertyAccessors = true;
-
-    if (!platform.defineProperty) {
-      platform.hasPropertyAccessors = false;
-
-      defineProperty = platform.defineProperty = function(obj, keyName, desc) {
-        if (!desc.get) { obj[keyName] = desc.value; }
-      };
-
-      platform.defineProperty.isSimulated = true;
-    }
-
-    if (Ember.ENV.MANDATORY_SETTER && !platform.hasPropertyAccessors) {
-      Ember.ENV.MANDATORY_SETTER = false;
-    }
+    platform.hasPropertyAccessors = hasPropertyAccessors;
 
     __exports__.create = create;
+    __exports__.defineProperty = defineProperty;
+    __exports__.hasPropertyAccessors = hasPropertyAccessors;
+    __exports__.canDefineNonEnumerableProperties = canDefineNonEnumerableProperties;
     __exports__.platform = platform;
   });
 define("ember-metal/properties",
@@ -16809,14 +16816,12 @@ define("ember-metal/properties",
     */
 
     var Ember = __dependency1__["default"];
-    var meta = __dependency2__.meta;
-    var platform = __dependency3__.platform;
+    var metaFor = __dependency2__.meta;
+    var objectDefineProperty = __dependency3__.defineProperty;
+    var hasPropertyAccessors = __dependency3__.hasPropertyAccessors;
     var overrideChains = __dependency4__.overrideChains;
     var get = __dependency5__.get;
     var set = __dependency6__.set;
-
-    var metaFor = meta;
-    var objectDefineProperty = platform.defineProperty;
 
     var MANDATORY_SETTER = Ember.ENV.MANDATORY_SETTER;
 
@@ -16976,7 +16981,7 @@ define("ember-metal/properties",
       function deprecate() {
               }
 
-      if (platform.hasPropertyAccessors) {
+      if (hasPropertyAccessors) {
         defineProperty(object, deprecatedKey, {
             configurable: true,
             enumerable: false,
@@ -18236,7 +18241,8 @@ define("ember-metal/utils",
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
-    var platform = __dependency2__.platform;
+    var o_defineProperty = __dependency2__.defineProperty;
+    var canDefineNonEnumerableProperties = __dependency2__.canDefineNonEnumerableProperties;
     var create = __dependency2__.create;
 
     var forEach = __dependency3__.forEach;
@@ -18278,7 +18284,6 @@ define("ember-metal/utils",
     */
     var GUID_PREFIX = 'ember';
 
-    var o_defineProperty = platform.defineProperty;
     var o_create = create;
     // Used for guid generation...
     var numberCache  = [];
@@ -18449,8 +18454,6 @@ define("ember-metal/utils",
       value: null
     };
 
-    var isDefinePropertySimulated = platform.defineProperty.isSimulated;
-
     function Meta(obj) {
       this.descs = {};
       this.watching = {};
@@ -18475,7 +18478,7 @@ define("ember-metal/utils",
       proto: null
     };
 
-    if (isDefinePropertySimulated) {
+    if (!canDefineNonEnumerableProperties) {
       // on platforms that don't support enumerable false
       // make meta fail jQuery.isPlainObject() to hide from
       // jQuery.extend() by having a property that fails
@@ -18516,7 +18519,7 @@ define("ember-metal/utils",
       if (writable===false) return ret || EMPTY_META;
 
       if (!ret) {
-        if (!isDefinePropertySimulated) o_defineProperty(obj, '__ember_meta__', META_DESC);
+        if (canDefineNonEnumerableProperties) o_defineProperty(obj, '__ember_meta__', META_DESC);
 
         ret = new Meta(obj);
 
@@ -18528,7 +18531,7 @@ define("ember-metal/utils",
         ret.descs.constructor = null;
 
       } else if (ret.source !== obj) {
-        if (!isDefinePropertySimulated) o_defineProperty(obj, '__ember_meta__', META_DESC);
+        if (canDefineNonEnumerableProperties) o_defineProperty(obj, '__ember_meta__', META_DESC);
 
         ret = o_create(ret);
         ret.descs     = o_create(ret.descs);
@@ -19094,11 +19097,10 @@ define("ember-metal/watch_key",
     var Ember = __dependency1__["default"];
     var meta = __dependency2__.meta;
     var typeOf = __dependency2__.typeOf;
-    var platform = __dependency3__.platform;
+    var o_defineProperty = __dependency3__.defineProperty;
 
     var metaFor = meta; // utils.js
     var MANDATORY_SETTER = Ember.ENV.MANDATORY_SETTER;
-    var o_defineProperty = platform.defineProperty;
 
 
     function watchKey(obj, keyName, meta) {
@@ -33462,7 +33464,7 @@ define("ember-runtime/system/core_object",
     var required = __dependency8__.required;
     var indexOf = __dependency9__.indexOf;
     var EmberError = __dependency10__["default"];
-    var platform = __dependency4__.platform;
+    var o_defineProperty = __dependency4__.defineProperty;
     var keys = __dependency11__["default"];
     var ActionHandler = __dependency12__["default"];
     var defineProperty = __dependency13__.defineProperty;
@@ -33473,7 +33475,6 @@ define("ember-runtime/system/core_object",
     var destroy = __dependency5__.destroy;
 
     var K = __dependency1__.K;
-    var o_defineProperty = platform.defineProperty;
     var schedule = run.schedule;
     var applyMixin = Mixin._apply;
     var finishPartial = Mixin.finishPartial;
