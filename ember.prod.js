@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.01959903
+ * @version   1.9.0-beta.1+canary.0fce70de
  */
 
 (function() {
@@ -13242,7 +13242,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.01959903
+      @version 1.9.0-beta.1+canary.0fce70de
     */
 
     if ('undefined' === typeof Ember) {
@@ -13269,10 +13269,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.01959903'
+      @default '1.9.0-beta.1+canary.0fce70de'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.01959903';
+    Ember.VERSION = '1.9.0-beta.1+canary.0fce70de';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -16759,10 +16759,7 @@ define("ember-metal/platform",
       create = Object.create;
     }
 
-    if (Ember.ENV.MANDATORY_SETTER) {
-      Ember.ENV.MANDATORY_SETTER = hasES5CompliantDefineProperty;
-    }
-
+    
     var hasPropertyAccessors = hasES5CompliantDefineProperty;
     var canDefineNonEnumerableProperties = hasES5CompliantDefineProperty;
 
@@ -16822,8 +16819,6 @@ define("ember-metal/properties",
     var overrideChains = __dependency4__.overrideChains;
     var get = __dependency5__.get;
     var set = __dependency6__.set;
-
-    var MANDATORY_SETTER = Ember.ENV.MANDATORY_SETTER;
 
     // ..........................................................
     // DESCRIPTOR
@@ -16919,33 +16914,18 @@ define("ember-metal/properties",
         value = desc;
 
         descs[keyName] = desc;
-        if (MANDATORY_SETTER && watching) {
-          objectDefineProperty(obj, keyName, {
-            configurable: true,
-            enumerable: true,
-            writable: true,
-            value: undefined // make enumerable
-          });
-        } else {
+        
           obj[keyName] = undefined; // make enumerable
-        }
+        
         if (desc.setup) { desc.setup(obj, keyName); }
       } else {
         descs[keyName] = undefined; // shadow descriptor in proto
         if (desc == null) {
           value = data;
 
-          if (MANDATORY_SETTER && watching) {
-            meta.values[keyName] = data;
-            objectDefineProperty(obj, keyName, {
-              configurable: true,
-              enumerable: true,
-              set: MANDATORY_SETTER_FUNCTION,
-              get: DEFAULT_GETTER_FUNCTION(keyName)
-            });
-          } else {
+          
             obj[keyName] = data;
-          }
+          
         } else {
           value = desc;
 
@@ -17266,7 +17246,6 @@ define("ember-metal/property_get",
     var isPath = __dependency3__.isPath;
     var pathHasThis = __dependency3__.hasThis;
 
-    var MANDATORY_SETTER = Ember.ENV.MANDATORY_SETTER;
     var FIRST_KEY = /^([^\.]+)/;
 
     // ..........................................................
@@ -17328,11 +17307,9 @@ define("ember-metal/property_get",
       if (desc) {
         return desc.get(obj, keyName);
       } else {
-        if (MANDATORY_SETTER && meta && meta.watching[keyName] > 0) {
-          ret = meta.values[keyName];
-        } else {
+        
           ret = obj[keyName];
-        }
+        
 
         if (ret === undefined &&
             'object' === typeof obj && !(keyName in obj) && 'function' === typeof obj.unknownProperty) {
@@ -17437,8 +17414,6 @@ define("ember-metal/property_set",
     var EmberError = __dependency5__["default"];
     var isPath = __dependency6__.isPath;
 
-
-    var MANDATORY_SETTER = Ember.ENV.MANDATORY_SETTER;
     var IS_GLOBAL = /^([A-Z$]|([0-9][A-Z$]))/;
 
     /**
@@ -17491,23 +17466,15 @@ define("ember-metal/property_set",
         if (isUnknown && 'function' === typeof obj.setUnknownProperty) {
           obj.setUnknownProperty(keyName, value);
         } else if (meta && meta.watching[keyName] > 0) {
-          if (MANDATORY_SETTER) {
-            currentValue = meta.values[keyName];
-          } else {
+          
             currentValue = obj[keyName];
-          }
+          
           // only trigger a change if the value has changed
           if (value !== currentValue) {
             propertyWillChange(obj, keyName);
-            if (MANDATORY_SETTER) {
-              if ((currentValue === undefined && !(keyName in obj)) || !obj.propertyIsEnumerable(keyName)) {
-                defineProperty(obj, keyName, null, value); // setup mandatory setter
-              } else {
-                meta.values[keyName] = value;
-              }
-            } else {
+            
               obj[keyName] = value;
-            }
+            
             propertyDidChange(obj, keyName);
           }
         } else {
@@ -18288,7 +18255,6 @@ define("ember-metal/utils",
     // Used for guid generation...
     var numberCache  = [];
     var stringCache  = {};
-    var MANDATORY_SETTER = Ember.ENV.MANDATORY_SETTER;
 
     /**
       Strongly hint runtimes to intern the provided string.
@@ -18493,8 +18459,7 @@ define("ember-metal/utils",
     // Placeholder for non-writable metas.
     var EMPTY_META = new Meta(null);
 
-    if (MANDATORY_SETTER) { EMPTY_META.values = {}; }
-
+    
     /**
       Retrieves the meta hash for an object. If `writable` is true ensures the
       hash is writable for this object as well.
@@ -18523,8 +18488,7 @@ define("ember-metal/utils",
 
         ret = new Meta(obj);
 
-        if (MANDATORY_SETTER) { ret.values = {}; }
-
+        
         obj['__ember_meta__'] = ret;
 
         // make sure we don't accidentally try to create constructor like desc
@@ -18540,8 +18504,7 @@ define("ember-metal/utils",
         ret.cacheMeta = {};
         ret.source    = obj;
 
-        if (MANDATORY_SETTER) { ret.values = o_create(ret.values); }
-
+        
         obj['__ember_meta__'] = ret;
       }
       return ret;
@@ -19100,7 +19063,6 @@ define("ember-metal/watch_key",
     var o_defineProperty = __dependency3__.defineProperty;
 
     var metaFor = meta; // utils.js
-    var MANDATORY_SETTER = Ember.ENV.MANDATORY_SETTER;
 
 
     function watchKey(obj, keyName, meta) {
@@ -19120,10 +19082,7 @@ define("ember-metal/watch_key",
           obj.willWatchProperty(keyName);
         }
 
-        if (MANDATORY_SETTER) {
-          handleMandatorySetter(m, obj, keyName);
-        }
-      } else {
+              } else {
         watching[keyName] = (watching[keyName] || 0) + 1;
       }
     }
@@ -19155,24 +19114,7 @@ define("ember-metal/watch_key",
           obj.didUnwatchProperty(keyName);
         }
 
-        if (MANDATORY_SETTER && keyName in obj) {
-          o_defineProperty(obj, keyName, {
-            configurable: true,
-            enumerable: obj.propertyIsEnumerable(keyName),
-            set: function(val) {
-              // redefine to set as enumerable
-              o_defineProperty(obj, keyName, {
-                configurable: true,
-                writable: true,
-                enumerable: true,
-                value: val
-              });
-              delete m.values[keyName];
-            },
-            get: Ember.DEFAULT_GETTER_FUNCTION(keyName)
-          });
-        }
-      } else if (watching[keyName] > 1) {
+              } else if (watching[keyName] > 1) {
         watching[keyName]--;
       }
     }
@@ -33444,7 +33386,7 @@ define("ember-runtime/system/core_object",
     */
 
     var Ember = __dependency1__["default"];
-    // Ember.ENV.MANDATORY_SETTER, Ember.assert, Ember.K, Ember.config
+    // Ember.assert, Ember.K, Ember.config
 
     // NOTE: this object should never be included directly. Instead use `Ember.Object`.
     // We only define this separately so that `Ember.Set` can depend on it.
@@ -33479,7 +33421,6 @@ define("ember-runtime/system/core_object",
     var applyMixin = Mixin._apply;
     var finishPartial = Mixin.finishPartial;
     var reopen = Mixin.prototype.reopen;
-    var MANDATORY_SETTER = Ember.ENV.MANDATORY_SETTER;
     var hasCachedComputedProperties = false;
 
     var undefinedDescriptor = {
@@ -33577,10 +33518,10 @@ define("ember-runtime/system/core_object",
               } else {
                 if (typeof this.setUnknownProperty === 'function' && !(keyName in this)) {
                   this.setUnknownProperty(keyName, value);
-                } else if (MANDATORY_SETTER) {
-                  defineProperty(this, keyName, null, value); // setup mandatory setter
                 } else {
-                  this[keyName] = value;
+                  
+                    this[keyName] = value;
+                  
                 }
               }
             }

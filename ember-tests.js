@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.01959903
+ * @version   1.9.0-beta.1+canary.0fce70de
  */
 
 (function() {
@@ -40543,33 +40543,7 @@ define("ember-runtime/tests/system/object/create_test",
       equal(o.get('foo'), 'bar');
     });
 
-    if (Ember.ENV.MANDATORY_SETTER) {
-      test("sets up mandatory setters for watched simple properties", function() {
-
-        var MyClass = EmberObject.extend({
-          foo: null,
-          bar: null,
-          fooDidChange: observer('foo', function() {})
-        });
-
-        var o = MyClass.create({foo: 'bar', bar: 'baz'});
-        equal(o.get('foo'), 'bar');
-
-        // Catch IE8 where Object.getOwnPropertyDescriptor exists but only works on DOM elements
-        try {
-          Object.getOwnPropertyDescriptor({}, 'foo');
-        } catch(e) {
-          return;
-        }
-
-        var descriptor = Object.getOwnPropertyDescriptor(o, 'foo');
-        ok(descriptor.set, 'Mandatory setter was setup');
-
-        descriptor = Object.getOwnPropertyDescriptor(o, 'bar');
-        ok(!descriptor.set, 'Mandatory setter was not setup');
-      });
-    }
-
+    
     test("allows bindings to be defined", function() {
       var obj = EmberObject.create({
         foo: 'foo',
