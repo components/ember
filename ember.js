@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.104b71c8
+ * @version   1.9.0-beta.1+canary.d08c98e7
  */
 
 (function() {
@@ -13541,7 +13541,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.104b71c8
+      @version 1.9.0-beta.1+canary.d08c98e7
     */
 
     if ('undefined' === typeof Ember) {
@@ -13568,10 +13568,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.104b71c8'
+      @default '1.9.0-beta.1+canary.d08c98e7'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.104b71c8';
+    Ember.VERSION = '1.9.0-beta.1+canary.d08c98e7';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -30483,7 +30483,7 @@ define("ember-runtime/mixins/enumerable",
     var contexts = [];
 
     function popCtx() {
-      return contexts.length===0 ? {} : contexts.pop();
+      return contexts.length === 0 ? {} : contexts.pop();
     }
 
     function pushCtx(ctx) {
@@ -30496,7 +30496,7 @@ define("ember-runtime/mixins/enumerable",
 
       function i(item) {
         var cur = get(item, key);
-        return valueProvided ? value===cur : !!cur;
+        return valueProvided ? value === cur : !!cur;
       }
 
       return i;
@@ -30587,8 +30587,8 @@ define("ember-runtime/mixins/enumerable",
         If your enumerable is empty, this method should return `undefined`.
 
         ```javascript
-        var arr = ["a", "b", "c"];
-        arr.get('firstObject');  // "a"
+        var arr = ['a', 'b', 'c'];
+        arr.get('firstObject');  // 'a'
 
         var arr = [];
         arr.get('firstObject');  // undefined
@@ -30598,12 +30598,16 @@ define("ember-runtime/mixins/enumerable",
         @return {Object} the object or undefined
       */
       firstObject: computed('[]', function() {
-        if (get(this, 'length')===0) return undefined ;
+        if (get(this, 'length') === 0) {
+          return undefined;
+        }
 
         // handle generic enumerables
-        var context = popCtx(), ret;
-        ret = this.nextObject(0, null, context);
+        var context = popCtx();
+        var ret = this.nextObject(0, null, context);
+
         pushCtx(context);
+
         return ret;
       }),
 
@@ -30613,8 +30617,8 @@ define("ember-runtime/mixins/enumerable",
         If your enumerable is empty, this method should return `undefined`.
 
         ```javascript
-        var arr = ["a", "b", "c"];
-        arr.get('lastObject');  // "c"
+        var arr = ['a', 'b', 'c'];
+        arr.get('lastObject');  // 'c'
 
         var arr = [];
         arr.get('lastObject');  // undefined
@@ -30625,13 +30629,23 @@ define("ember-runtime/mixins/enumerable",
       */
       lastObject: computed('[]', function() {
         var len = get(this, 'length');
-        if (len===0) return undefined ;
-        var context = popCtx(), idx=0, cur, last = null;
+
+        if (len === 0) {
+          return undefined;
+        }
+
+        var context = popCtx();
+        var idx = 0;
+        var last = null;
+        var cur;
+
         do {
           last = cur;
           cur = this.nextObject(idx++, last, context);
         } while (cur !== undefined);
+
         pushCtx(context);
+
         return last;
       }),
 
@@ -30641,9 +30655,10 @@ define("ember-runtime/mixins/enumerable",
         is found. You may want to override this with a more efficient version.
 
         ```javascript
-        var arr = ["a", "b", "c"];
-        arr.contains("a"); // true
-        arr.contains("z"); // false
+        var arr = ['a', 'b', 'c'];
+
+        arr.contains('a'); // true
+        arr.contains('z'); // false
         ```
 
         @method contains
@@ -30651,7 +30666,11 @@ define("ember-runtime/mixins/enumerable",
         @return {Boolean} `true` if object is found in enumerable.
       */
       contains: function(obj) {
-        return this.find(function(item) { return item===obj; }) !== undefined;
+        var found = this.find(function(item) {
+          return item === obj;
+        });
+        
+        return found !== undefined;
       },
 
       /**
@@ -30680,18 +30699,27 @@ define("ember-runtime/mixins/enumerable",
         @return {Object} receiver
       */
       forEach: function(callback, target) {
-        if (typeof callback !== 'function') throw new TypeError() ;
-        var len = get(this, 'length'), last = null, context = popCtx();
+        if (typeof callback !== 'function') {
+          throw new TypeError();
+        }
 
-        if (target === undefined) target = null;
+        var context = popCtx();
+        var len = get(this, 'length');
+        var last = null;
 
-        for(var idx=0;idx<len;idx++) {
+        if (target === undefined) {
+          target = null;
+        }
+
+        for(var idx = 0; idx < len; idx++) {
           var next = this.nextObject(idx, last, context) ;
           callback.call(target, next, idx, this);
           last = next ;
         }
+
         last = null ;
         context = pushCtx(context);
+
         return this ;
       },
 
@@ -30751,9 +30779,11 @@ define("ember-runtime/mixins/enumerable",
       */
       map: function(callback, target) {
         var ret = Ember.A();
+
         this.forEach(function(x, idx, i) {
           ret[idx] = callback.call(target, x, idx,i);
         });
+
         return ret ;
       },
 
@@ -30813,9 +30843,13 @@ define("ember-runtime/mixins/enumerable",
       */
       filter: function(callback, target) {
         var ret = Ember.A();
+
         this.forEach(function(x, idx, i) {
-          if (callback.call(target, x, idx, i)) ret.push(x);
+          if (callback.call(target, x, idx, i)) {
+            ret.push(x);
+          }
         });
+
         return ret ;
       },
 
@@ -30889,8 +30923,14 @@ define("ember-runtime/mixins/enumerable",
         @return {Array} rejected array
       */
       rejectBy: function(key, value) {
-        var exactValue = function(item) { return get(item, key) === value; };
-        var hasValue = function(item) { return !!get(item, key); };
+        var exactValue = function(item) {
+          return get(item, key) === value;
+        };
+
+        var hasValue = function(item) {
+          return !!get(item, key);
+        };
+
         var use = (arguments.length === 2 ? exactValue : hasValue);
 
         return this.reject(use);
@@ -30938,19 +30978,31 @@ define("ember-runtime/mixins/enumerable",
         @return {Object} Found item or `undefined`.
       */
       find: function(callback, target) {
-        var len = get(this, 'length') ;
-        if (target === undefined) target = null;
+        var len = get(this, 'length');
 
-        var last = null, next, found = false, ret ;
-        var context = popCtx();
-        for(var idx=0;idx<len && !found;idx++) {
-          next = this.nextObject(idx, last, context) ;
-          if (found = callback.call(target, next, idx, this)) ret = next ;
-          last = next ;
+        if (target === undefined) {
+          target = null;
         }
-        next = last = null ;
+
+        var context = popCtx();
+        var found = false;
+        var last = null;
+        var next, ret;
+
+        for(var idx = 0; idx < len && !found; idx++) {
+          next = this.nextObject(idx, last, context);
+
+          if (found = callback.call(target, next, idx, this)) {
+            ret = next;
+          }
+
+          last = next;
+        }
+
+        next = last = null;
         context = pushCtx(context);
-        return ret ;
+
+        return ret;
       },
 
       /**
@@ -31008,7 +31060,9 @@ define("ember-runtime/mixins/enumerable",
         Example Usage:
 
         ```javascript
-        if (people.every(isEngineer)) { Paychecks.addBigBonus(); }
+        if (people.every(isEngineer)) {
+          Paychecks.addBigBonus();
+        }
         ```
 
         @method every
@@ -31079,7 +31133,9 @@ define("ember-runtime/mixins/enumerable",
         Usage Example:
 
         ```javascript
-        if (people.any(isManager)) { Paychecks.addBiggerBonus(); }
+        if (people.any(isManager)) {
+          Paychecks.addBiggerBonus();
+        }
         ```
 
         @method any
@@ -31088,13 +31144,15 @@ define("ember-runtime/mixins/enumerable",
         @return {Boolean} `true` if the passed function returns `true` for any item
       */
       any: function(callback, target) {
-        var len     = get(this, 'length');
+        var len = get(this, 'length');
         var context = popCtx();
-        var found   = false;
-        var last    = null;
+        var found = false;
+        var last = null;
         var next, idx;
 
-        if (target === undefined) { target = null; }
+        if (target === undefined) {
+          target = null;
+        }
 
         for (idx = 0; idx < len && !found; idx++) {
           next  = this.nextObject(idx, last, context);
@@ -31132,7 +31190,9 @@ define("ember-runtime/mixins/enumerable",
         Usage Example:
 
         ```javascript
-        if (people.some(isManager)) { Paychecks.addBiggerBonus(); }
+        if (people.some(isManager)) {
+          Paychecks.addBiggerBonus();
+        }
         ```
 
         @method some
@@ -31209,7 +31269,9 @@ define("ember-runtime/mixins/enumerable",
         @return {Object} The reduced value.
       */
       reduce: function(callback, initialValue, reducerProperty) {
-        if (typeof callback !== "function") { throw new TypeError(); }
+        if (typeof callback !== 'function') {
+          throw new TypeError();
+        }
 
         var ret = initialValue;
 
@@ -31231,11 +31293,16 @@ define("ember-runtime/mixins/enumerable",
         @return {Array} return values from calling invoke.
       */
       invoke: function(methodName) {
-        var args, ret = Ember.A();
-        if (arguments.length>1) args = a_slice.call(arguments, 1);
+        var ret = Ember.A();
+        var args;
+
+        if (arguments.length > 1) {
+          args = a_slice.call(arguments, 1);
+        }
 
         this.forEach(function(x, idx) {
           var method = x && x[methodName];
+
           if ('function' === typeof method) {
             ret[idx] = args ? apply(x, method, args) : x[methodName]();
           }
@@ -31253,23 +31320,29 @@ define("ember-runtime/mixins/enumerable",
       */
       toArray: function() {
         var ret = Ember.A();
-        this.forEach(function(o, idx) { ret[idx] = o; });
+
+        this.forEach(function(o, idx) {
+          ret[idx] = o;
+        });
+
         return ret;
       },
 
       /**
-        Returns a copy of the array with all null and undefined elements removed.
+        Returns a copy of the array with all `null` and `undefined` elements removed.
 
         ```javascript
-        var arr = ["a", null, "c", undefined];
-        arr.compact();  // ["a", "c"]
+        var arr = ['a', null, 'c', undefined];
+        arr.compact();  // ['a', 'c']
         ```
 
         @method compact
         @return {Array} the array without null and undefined elements.
       */
       compact: function() {
-        return this.filter(function(value) { return value != null; });
+        return this.filter(function(value) {
+          return value != null;
+        });
       },
 
       /**
@@ -31278,8 +31351,8 @@ define("ember-runtime/mixins/enumerable",
         the receiver does not contain the value.
 
         ```javascript
-        var arr = ["a", "b", "a", "c"];
-        arr.without("a");  // ["b", "c"]
+        var arr = ['a', 'b', 'a', 'c'];
+        arr.without('a');  // ['b', 'c']
         ```
 
         @method without
@@ -31287,12 +31360,19 @@ define("ember-runtime/mixins/enumerable",
         @return {Ember.Enumerable}
       */
       without: function(value) {
-        if (!this.contains(value)) return this; // nothing to do
+        if (!this.contains(value)) {
+          return this; // nothing to do
+        }
+
         var ret = Ember.A();
+
         this.forEach(function(k) {
-          if (k !== value) ret[ret.length] = k;
-        }) ;
-        return ret ;
+          if (k !== value) {
+            ret[ret.length] = k;
+          }
+        });
+
+        return ret;
       },
 
       /**
@@ -31300,18 +31380,24 @@ define("ember-runtime/mixins/enumerable",
         implementation returns an array regardless of the receiver type.
 
         ```javascript
-        var arr = ["a", "a", "b", "b"];
-        arr.uniq();  // ["a", "b"]
+        var arr = ['a', 'a', 'b', 'b'];
+        arr.uniq();  // ['a', 'b']
         ```
+
+        This only works on primitive data types, e.g. Strings, Numbers, etc.
 
         @method uniq
         @return {Ember.Enumerable}
       */
       uniq: function() {
         var ret = Ember.A();
+
         this.forEach(function(k) {
-          if (indexOf(ret, k)<0) ret.push(k);
+          if (indexOf(ret, k) < 0) {
+            ret.push(k);
+          }
         });
+
         return ret;
       },
 
@@ -31349,10 +31435,17 @@ define("ember-runtime/mixins/enumerable",
         var didChange  = (opts && opts.didChange) || 'enumerableDidChange';
         var hasObservers = get(this, 'hasEnumerableObservers');
 
-        if (!hasObservers) propertyWillChange(this, 'hasEnumerableObservers');
+        if (!hasObservers) { 
+          propertyWillChange(this, 'hasEnumerableObservers');
+        }
+
         addListener(this, '@enumerable:before', target, willChange);
         addListener(this, '@enumerable:change', target, didChange);
-        if (!hasObservers) propertyDidChange(this, 'hasEnumerableObservers');
+
+        if (!hasObservers) {
+          propertyDidChange(this, 'hasEnumerableObservers');
+        }
+
         return this;
       },
 
@@ -31367,12 +31460,19 @@ define("ember-runtime/mixins/enumerable",
       removeEnumerableObserver: function(target, opts) {
         var willChange = (opts && opts.willChange) || 'enumerableWillChange';
         var didChange  = (opts && opts.didChange) || 'enumerableDidChange';
-
         var hasObservers = get(this, 'hasEnumerableObservers');
-        if (hasObservers) propertyWillChange(this, 'hasEnumerableObservers');
+
+        if (hasObservers) {
+          propertyWillChange(this, 'hasEnumerableObservers');
+        }
+
         removeListener(this, '@enumerable:before', target, willChange);
         removeListener(this, '@enumerable:change', target, didChange);
-        if (hasObservers) propertyDidChange(this, 'hasEnumerableObservers');
+
+        if (hasObservers) {
+          propertyDidChange(this, 'hasEnumerableObservers');
+        }
+
         return this;
       },
 
@@ -31401,24 +31501,40 @@ define("ember-runtime/mixins/enumerable",
         @chainable
       */
       enumerableContentWillChange: function(removing, adding) {
-
         var removeCnt, addCnt, hasDelta;
 
-        if ('number' === typeof removing) removeCnt = removing;
-        else if (removing) removeCnt = get(removing, 'length');
-        else removeCnt = removing = -1;
+        if ('number' === typeof removing) {
+          removeCnt = removing;
+        } else if (removing) {
+          removeCnt = get(removing, 'length');
+        } else {
+          removeCnt = removing = -1;
+        }
 
-        if ('number' === typeof adding) addCnt = adding;
-        else if (adding) addCnt = get(adding,'length');
-        else addCnt = adding = -1;
+        if ('number' === typeof adding) {
+          addCnt = adding;
+        } else if (adding) {
+          addCnt = get(adding,'length');
+        } else {
+          addCnt = adding = -1;
+        }
 
-        hasDelta = addCnt<0 || removeCnt<0 || addCnt-removeCnt!==0;
+        hasDelta = addCnt < 0 || removeCnt < 0 || addCnt - removeCnt !== 0;
 
-        if (removing === -1) removing = null;
-        if (adding   === -1) adding   = null;
+        if (removing === -1) {
+          removing = null;
+        }
+
+        if (adding === -1) {
+          adding = null;
+        }
 
         propertyWillChange(this, '[]');
-        if (hasDelta) propertyWillChange(this, 'length');
+
+        if (hasDelta) {
+          propertyWillChange(this, 'length');
+        }
+
         sendEvent(this, '@enumerable:before', [this, removing, adding]);
 
         return this;
@@ -31441,21 +31557,38 @@ define("ember-runtime/mixins/enumerable",
       enumerableContentDidChange: function(removing, adding) {
         var removeCnt, addCnt, hasDelta;
 
-        if ('number' === typeof removing) removeCnt = removing;
-        else if (removing) removeCnt = get(removing, 'length');
-        else removeCnt = removing = -1;
+        if ('number' === typeof removing) {
+          removeCnt = removing;
+        } else if (removing) {
+          removeCnt = get(removing, 'length');
+        } else {
+          removeCnt = removing = -1;
+        }
 
-        if ('number' === typeof adding) addCnt = adding;
-        else if (adding) addCnt = get(adding, 'length');
-        else addCnt = adding = -1;
+        if ('number' === typeof adding) {
+          addCnt = adding;
+        } else if (adding) {
+          addCnt = get(adding, 'length');
+        } else {
+          addCnt = adding = -1;
+        }
 
-        hasDelta = addCnt<0 || removeCnt<0 || addCnt-removeCnt!==0;
+        hasDelta = addCnt < 0 || removeCnt < 0 || addCnt - removeCnt !== 0;
 
-        if (removing === -1) removing = null;
-        if (adding   === -1) adding   = null;
+        if (removing === -1) {
+          removing = null;
+        }
+
+        if (adding === -1) {
+          adding = null;
+        }
 
         sendEvent(this, '@enumerable:change', [this, removing, adding]);
-        if (hasDelta) propertyDidChange(this, 'length');
+
+        if (hasDelta) {
+          propertyDidChange(this, 'length');
+        }
+
         propertyDidChange(this, '[]');
 
         return this ;
@@ -31474,6 +31607,7 @@ define("ember-runtime/mixins/enumerable",
         */
       sortBy: function() {
         var sortKeys = arguments;
+
         return this.toArray().sort(function(a, b){
           for(var i = 0; i < sortKeys.length; i++) {
             var key = sortKeys[i];
@@ -31481,7 +31615,10 @@ define("ember-runtime/mixins/enumerable",
             var propB = get(b, key);
             // return 1 or -1 else continue to the next sortKey
             var compareValue = compare(propA, propB);
-            if (compareValue) { return compareValue; }
+
+            if (compareValue) {
+              return compareValue;
+            }
           }
           return 0;
         });
