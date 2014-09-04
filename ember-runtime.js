@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.e481725a
+ * @version   1.9.0-beta.1+canary.8c73cb53
  */
 
 (function() {
@@ -4703,7 +4703,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.e481725a
+      @version 1.9.0-beta.1+canary.8c73cb53
     */
 
     if ('undefined' === typeof Ember) {
@@ -4730,10 +4730,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.e481725a'
+      @default '1.9.0-beta.1+canary.8c73cb53'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.e481725a';
+    Ember.VERSION = '1.9.0-beta.1+canary.8c73cb53';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -15437,7 +15437,7 @@ define("ember-runtime/mixins/enumerable",
         - `index` is the current index in the iteration.
         - `enumerable` is the enumerable object itself.
 
-        It should return the `true` to include the item in the results, `false`
+        It should return `true` to include the item in the results, `false`
         otherwise.
 
         Note that in addition to a callback, you can also pass an optional target
