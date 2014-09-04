@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.d08c98e7
+ * @version   1.9.0-beta.1+canary.e481725a
  */
 
 (function() {
@@ -13242,7 +13242,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.d08c98e7
+      @version 1.9.0-beta.1+canary.e481725a
     */
 
     if ('undefined' === typeof Ember) {
@@ -13269,10 +13269,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.d08c98e7'
+      @default '1.9.0-beta.1+canary.e481725a'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.d08c98e7';
+    Ember.VERSION = '1.9.0-beta.1+canary.e481725a';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -16568,12 +16568,10 @@ define("ember-metal/path_cache",
     __exports__.isPath = isPath;
   });
 define("ember-metal/platform",
-  ["ember-metal/core","exports"],
-  function(__dependency1__, __exports__) {
+  ["exports"],
+  function(__exports__) {
     "use strict";
     /*globals Node */
-
-    var Ember = __dependency1__["default"];
 
     /**
     @module ember-metal
@@ -16759,7 +16757,6 @@ define("ember-metal/platform",
       create = Object.create;
     }
 
-    
     var hasPropertyAccessors = hasES5CompliantDefineProperty;
     var canDefineNonEnumerableProperties = hasES5CompliantDefineProperty;
 
@@ -16841,17 +16838,17 @@ define("ember-metal/properties",
     // DEFINING PROPERTIES API
     //
 
-    var MANDATORY_SETTER_FUNCTION = Ember.MANDATORY_SETTER_FUNCTION = function(value) {
-          };
+    function MANDATORY_SETTER_FUNCTION(value) {
+          }
 
-    var DEFAULT_GETTER_FUNCTION = Ember.DEFAULT_GETTER_FUNCTION = function DEFAULT_GETTER_FUNCTION(name) {
-      return function() {
+    __exports__.MANDATORY_SETTER_FUNCTION = MANDATORY_SETTER_FUNCTION;function DEFAULT_GETTER_FUNCTION(name) {
+      return function GETTER_FUNCTION() {
         var meta = this['__ember_meta__'];
         return meta && meta.values[name];
       };
-    };
+    }
 
-    /**
+    __exports__.DEFAULT_GETTER_FUNCTION = DEFAULT_GETTER_FUNCTION;/**
       NOTE: This is a low-level method used by other parts of the API. You almost
       never want to call this method directly. Instead you should use
       `Ember.mixin()` to define new properties.
@@ -17233,8 +17230,8 @@ define("ember-metal/property_events",
     __exports__.changeProperties = changeProperties;
   });
 define("ember-metal/property_get",
-  ["ember-metal/core","ember-metal/error","ember-metal/path_cache","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["ember-metal/core","ember-metal/error","ember-metal/path_cache","ember-metal/platform","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     /**
     @module ember-metal
@@ -17245,6 +17242,7 @@ define("ember-metal/property_get",
     var isGlobalPath = __dependency3__.isGlobalPath;
     var isPath = __dependency3__.isPath;
     var pathHasThis = __dependency3__.hasThis;
+    var hasPropertyAccessors = __dependency4__.hasPropertyAccessors;
 
     var FIRST_KEY = /^([^\.]+)/;
 
@@ -17403,8 +17401,8 @@ define("ember-metal/property_get",
     __exports__._getPath = _getPath;
   });
 define("ember-metal/property_set",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_events","ember-metal/properties","ember-metal/error","ember-metal/path_cache","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_events","ember-metal/properties","ember-metal/error","ember-metal/path_cache","ember-metal/platform","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var getPath = __dependency2__._getPath;
@@ -17413,6 +17411,7 @@ define("ember-metal/property_set",
     var defineProperty = __dependency4__.defineProperty;
     var EmberError = __dependency5__["default"];
     var isPath = __dependency6__.isPath;
+    var hasPropertyAccessors = __dependency7__.hasPropertyAccessors;
 
     var IS_GLOBAL = /^([A-Z$]|([0-9][A-Z$]))/;
 
@@ -18210,6 +18209,7 @@ define("ember-metal/utils",
     var Ember = __dependency1__["default"];
     var o_defineProperty = __dependency2__.defineProperty;
     var canDefineNonEnumerableProperties = __dependency2__.canDefineNonEnumerableProperties;
+    var hasPropertyAccessors = __dependency2__.hasPropertyAccessors;
     var create = __dependency2__.create;
 
     var forEach = __dependency3__.forEach;
@@ -19054,13 +19054,16 @@ define("ember-metal/utils",
     __exports__.tryFinally = tryFinally;
   });
 define("ember-metal/watch_key",
-  ["ember-metal/core","ember-metal/utils","ember-metal/platform","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["ember-metal/core","ember-metal/utils","ember-metal/platform","ember-metal/properties","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var meta = __dependency2__.meta;
     var typeOf = __dependency2__.typeOf;
     var o_defineProperty = __dependency3__.defineProperty;
+    var hasPropertyAccessors = __dependency3__.hasPropertyAccessors;
+    var MANDATORY_SETTER_FUNCTION = __dependency4__.MANDATORY_SETTER_FUNCTION;
+    var DEFAULT_GETTER_FUNCTION = __dependency4__.DEFAULT_GETTER_FUNCTION;
 
     var metaFor = meta; // utils.js
 
@@ -19087,20 +19090,8 @@ define("ember-metal/watch_key",
       }
     }
 
-    __exports__.watchKey = watchKey;function handleMandatorySetter(m, keyName, obj) {
-      // this x in Y deopts, so keeping it in this function is better;
-      if (keyName in obj) {
-        m.values[keyName] = obj[keyName];
-        o_defineProperty(obj, keyName, {
-          configurable: true,
-          enumerable: obj.propertyIsEnumerable(keyName),
-          set: Ember.MANDATORY_SETTER_FUNCTION,
-          get: Ember.DEFAULT_GETTER_FUNCTION(keyName)
-        });
-      }
-    }
-
-
+    __exports__.watchKey = watchKey;
+    
     function unwatchKey(obj, keyName, meta) {
       var m = meta || metaFor(obj), watching = m.watching;
 
@@ -33552,8 +33543,9 @@ define("ember-runtime/system/core_object",
     var InjectedProperty = __dependency16__["default"];
     var run = __dependency17__["default"];
     var destroy = __dependency5__.destroy;
-
     var K = __dependency1__.K;
+    var hasPropertyAccessors = __dependency4__.hasPropertyAccessors;
+
     var schedule = run.schedule;
     var applyMixin = Mixin._apply;
     var finishPartial = Mixin.finishPartial;
@@ -43021,7 +43013,7 @@ define("morph/dom-helper",
     };
 
     prototype.createMorph = function(parent, start, end, contextualElement){
-      if (!contextualElement && parent.nodeType === Node.ELEMENT_NODE) {
+      if (!contextualElement && parent.nodeType === 1) {
         contextualElement = parent;
       }
       if (!contextualElement) {
@@ -43086,7 +43078,7 @@ define("morph/morph",
     }
 
     function ensureContext(contextualElement) {
-      if (!contextualElement || contextualElement.nodeType !== Node.ELEMENT_NODE) {
+      if (!contextualElement || contextualElement.nodeType !== 1) {
         throw new Error('An element node must be provided for a contextualElement, you provided ' +
                         (contextualElement ? 'nodeType ' + contextualElement.nodeType : 'nothing'));
       }
