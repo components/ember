@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.aa210aa1
+ * @version   1.9.0-beta.1+canary.c2b792e7
  */
 
 (function() {
@@ -9487,7 +9487,8 @@ define("ember-handlebars/helpers/view",
     var ViewHelper = EmberObject.create({
 
       propertiesFromHTMLOptions: function(options) {
-        var hash = options.hash, data = options.data;
+        var hash = options.hash;
+        var data = options.data;
         var extensions = {};
         var classes = hash['class'];
         var dup = false;
@@ -13541,7 +13542,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.aa210aa1
+      @version 1.9.0-beta.1+canary.c2b792e7
     */
 
     if ('undefined' === typeof Ember) {
@@ -13568,10 +13569,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.aa210aa1'
+      @default '1.9.0-beta.1+canary.c2b792e7'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.aa210aa1';
+    Ember.VERSION = '1.9.0-beta.1+canary.c2b792e7';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
