@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.ec3f7635
+ * @version   1.9.0-beta.1+canary.a01968a9
  */
 
 (function() {
@@ -9172,6 +9172,8 @@ define("ember-handlebars/helpers/view",
     var handlebarsGet = __dependency8__.handlebarsGet;
     var handlebarsGetView = __dependency8__.handlebarsGetView;
 
+    var SELF_BINDING = /^_view\./;
+
     function makeBindings(thisContext, options) {
       var hash = options.hash;
       var hashType = options.hashTypes;
@@ -9291,9 +9293,10 @@ define("ember-handlebars/helpers/view",
 
       // Transform bindings from the current context to a context that can be evaluated within the view.
       // Returns null if the path shouldn't be changed.
-      //
-      // TODO: consider the addition of a prefix that would allow this method to return `path`.
       contextualizeBindingPath: function(path, data) {
+        if (SELF_BINDING.test(path)) {
+          return path.slice(6); // Lop off "_view."
+        }
         var normalized = normalizePath(null, path, data);
         if (normalized.isKeyword) {
           return 'templateData.keywords.' + path;
@@ -13243,7 +13246,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.ec3f7635
+      @version 1.9.0-beta.1+canary.a01968a9
     */
 
     if ('undefined' === typeof Ember) {
@@ -13270,10 +13273,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.ec3f7635'
+      @default '1.9.0-beta.1+canary.a01968a9'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.ec3f7635';
+    Ember.VERSION = '1.9.0-beta.1+canary.a01968a9';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -19009,12 +19012,7 @@ define("ember-metal/utils",
           v = obj[key];
           if (v === 'toString') { continue; } // ignore useless items
           if (typeOf(v) === 'function') { v = "function() { ... }"; }
-
-          if (v && typeof v.toString !== 'function') {
-            ret.push(key + ": " + toString.call(v));
-          } else {
-            ret.push(key + ": " + v);
-          }
+          ret.push(key + ": " + v);
         }
       }
       return "{" + ret.join(", ") + "}";
@@ -20795,7 +20793,7 @@ define("ember-routing-handlebars/helpers/outlet",
 
       viewClass = viewName ? container.lookupFactory(viewFullName) : options.hash.viewClass || OutletView;
 
-      options.data.view.set('outletSource', outletSource);
+      options.hash.outletSource = outletSource;
       options.hash.currentViewBinding = '_view.outletSource._outlets.' + property;
 
       options.helperName = options.helperName || 'outlet';
@@ -41711,7 +41709,6 @@ define("ember-views/views/view",
 
         var keywords = templateData ? copy(templateData.keywords) : {};
         set(keywords, 'view', this.isVirtual ? keywords.view : this);
-        set(keywords, '_view', this);
         set(keywords, 'controller', get(this, 'controller'));
 
         return keywords;

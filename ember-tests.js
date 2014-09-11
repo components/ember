@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.ec3f7635
+ * @version   1.9.0-beta.1+canary.a01968a9
  */
 
 (function() {
@@ -16277,13 +16277,11 @@ define("ember-metal/tests/computed_test.jshint",
     });
   });
 define("ember-metal/tests/core/inspect_test",
-  ["ember-metal/utils","ember-metal/platform","ember-metal/core"],
-  function(__dependency1__, __dependency2__, __dependency3__) {
+  ["ember-metal/utils","ember-metal/core"],
+  function(__dependency1__, __dependency2__) {
     "use strict";
     var inspect = __dependency1__.inspect;
-    var create = __dependency2__.create;
-
-    var Ember = __dependency3__["default"];
+    var Ember = __dependency2__["default"];
 
     QUnit.module("Ember.inspect");
 
@@ -16315,11 +16313,6 @@ define("ember-metal/tests/core/inspect_test",
       equal(inspect({}), "{}");
       equal(inspect({ foo: 'bar' }), "{foo: bar}");
       equal(inspect({ foo: Ember.K }), "{foo: function() { ... }}");
-    });
-
-    test("objects without a prototype", function() {
-      var prototypelessObj = create(null);
-      equal(inspect({ foo: prototypelessObj }), "{foo: [object Object]}");
     });
 
     test("array", function() {
