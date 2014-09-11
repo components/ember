@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.05bc2d53
+ * @version   1.9.0-beta.1+canary.ec3f7635
  */
 
 (function() {
@@ -13542,7 +13542,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.05bc2d53
+      @version 1.9.0-beta.1+canary.ec3f7635
     */
 
     if ('undefined' === typeof Ember) {
@@ -13569,10 +13569,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.05bc2d53'
+      @default '1.9.0-beta.1+canary.ec3f7635'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.05bc2d53';
+    Ember.VERSION = '1.9.0-beta.1+canary.ec3f7635';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -19336,7 +19336,12 @@ define("ember-metal/utils",
           v = obj[key];
           if (v === 'toString') { continue; } // ignore useless items
           if (typeOf(v) === 'function') { v = "function() { ... }"; }
-          ret.push(key + ": " + v);
+
+          if (v && typeof v.toString !== 'function') {
+            ret.push(key + ": " + toString.call(v));
+          } else {
+            ret.push(key + ": " + v);
+          }
         }
       }
       return "{" + ret.join(", ") + "}";
