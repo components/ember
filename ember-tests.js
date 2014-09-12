@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.a01968a9
+ * @version   1.9.0-beta.1+canary.9620ae65
  */
 
 (function() {
@@ -26089,6 +26089,15 @@ define("ember-routing/tests/system/router_test.jshint",
     module('JSHint - ember-routing/tests/system');
     test('ember-routing/tests/system/router_test.js should pass jshint', function() { 
       ok(true, 'ember-routing/tests/system/router_test.js should pass jshint.'); 
+    });
+  });
+define("ember-routing/utils.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-routing');
+    test('ember-routing/utils.js should pass jshint', function() { 
+      ok(true, 'ember-routing/utils.js should pass jshint.'); 
     });
   });
 define("ember-runtime.jshint",

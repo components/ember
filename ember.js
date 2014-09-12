@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.a01968a9
+ * @version   1.9.0-beta.1+canary.9620ae65
  */
 
 (function() {
@@ -13545,7 +13545,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.a01968a9
+      @version 1.9.0-beta.1+canary.9620ae65
     */
 
     if ('undefined' === typeof Ember) {
@@ -13572,10 +13572,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.a01968a9'
+      @default '1.9.0-beta.1+canary.9620ae65'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.a01968a9';
+    Ember.VERSION = '1.9.0-beta.1+canary.9620ae65';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -20027,8 +20027,8 @@ define("ember-routing-handlebars/helpers/action",
     __exports__.actionHelper = actionHelper;
   });
 define("ember-routing-handlebars/helpers/link_to",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/merge","ember-metal/run_loop","ember-metal/computed","ember-runtime/system/string","ember-runtime/system/object","ember-metal/keys","ember-views/system/utils","ember-views/views/component","ember-handlebars","ember-handlebars/helpers/view","ember-routing-handlebars/helpers/shared","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/merge","ember-metal/run_loop","ember-metal/computed","ember-runtime/system/string","ember-runtime/system/object","ember-metal/keys","ember-views/system/utils","ember-views/views/component","ember-handlebars","ember-handlebars/helpers/view","ember-routing/utils","ember-routing-handlebars/helpers/shared","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // FEATURES, Logger, Handlebars, warn, assert
@@ -20044,9 +20044,9 @@ define("ember-routing-handlebars/helpers/link_to",
     var EmberComponent = __dependency10__["default"];
     var EmberHandlebars = __dependency11__["default"];
     var viewHelper = __dependency12__.viewHelper;
-    var resolveParams = __dependency13__.resolveParams;
-    var resolvePaths = __dependency13__.resolvePaths;
     var routeArgs = __dependency13__.routeArgs;
+    var resolveParams = __dependency14__.resolveParams;
+    var resolvePaths = __dependency14__.resolvePaths;
 
     /**
     @module ember
@@ -21319,35 +21319,16 @@ define("ember-routing-handlebars/helpers/render",
     }
   });
 define("ember-routing-handlebars/helpers/shared",
-  ["ember-metal/property_get","ember-metal/array","ember-runtime/mixins/controller","ember-handlebars/ext","ember-metal/utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
+  ["ember-metal/property_get","ember-metal/array","ember-runtime/mixins/controller","ember-handlebars/ext","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     var get = __dependency1__.get;
     var map = __dependency2__.map;
     var ControllerMixin = __dependency3__["default"];
     var handlebarsResolve = __dependency4__.resolveParams;
     var handlebarsGet = __dependency4__.handlebarsGet;
-    var typeOf = __dependency5__.typeOf;
-    var get = __dependency1__.get;
 
-    function routeArgs(targetRouteName, models, queryParams) {
-      var args = [];
-      if (typeOf(targetRouteName) === 'string') {
-        args.push('' + targetRouteName);
-      }
-      args.push.apply(args, models);
-      args.push({ queryParams: queryParams });
-      return args;
-    }
-
-    __exports__.routeArgs = routeArgs;function getActiveTargetName(router) {
-      var handlerInfos = router.activeTransition ?
-                         router.activeTransition.state.handlerInfos :
-                         router.state.handlerInfos;
-      return handlerInfos[handlerInfos.length - 1].name;
-    }
-
-    __exports__.getActiveTargetName = getActiveTargetName;function resolveParams(context, params, options) {
+    function resolveParams(context, params, options) {
       return map.call(resolvePaths(context, params, options), function(path, i) {
         if (null === path) {
           // Param was string/number, not a path, so just return raw string/number.
@@ -21358,35 +21339,7 @@ define("ember-routing-handlebars/helpers/shared",
       });
     }
 
-    __exports__.resolveParams = resolveParams;function stashParamNames(router, handlerInfos) {
-      if (handlerInfos._namesStashed) { return; }
-
-      // This helper exists because router.js/route-recognizer.js awkwardly
-      // keeps separate a handlerInfo's list of parameter names depending
-      // on whether a URL transition or named transition is happening.
-      // Hopefully we can remove this in the future.
-      var targetRouteName = handlerInfos[handlerInfos.length-1].name;
-      var recogHandlers = router.router.recognizer.handlersFor(targetRouteName);
-      var dynamicParent = null;
-
-      for (var i = 0, len = handlerInfos.length; i < len; ++i) {
-        var handlerInfo = handlerInfos[i];
-        var names = recogHandlers[i].names;
-
-        if (names.length) {
-          dynamicParent = handlerInfo;
-        }
-
-        handlerInfo._names = names;
-
-        var route = handlerInfo.handler;
-        route._stashNames(handlerInfo, dynamicParent);
-      }
-
-      handlerInfos._namesStashed = true;
-    }
-
-    __exports__.stashParamNames = stashParamNames;function resolvePaths(context, params, options) {
+    __exports__.resolveParams = resolveParams;function resolvePaths(context, params, options) {
       var resolved = handlebarsResolve(context, params, options);
       var types = options.types;
 
@@ -23286,7 +23239,7 @@ define("ember-routing/system/generate_controller",
     }
   });
 define("ember-routing/system/route",
-  ["ember-metal/core","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/get_properties","ember-metal/enumerable_utils","ember-metal/is_none","ember-metal/computed","ember-metal/merge","ember-metal/utils","ember-metal/run_loop","ember-metal/keys","ember-runtime/copy","ember-runtime/system/string","ember-runtime/system/object","ember-runtime/mixins/action_handler","ember-routing/system/generate_controller","ember-routing-handlebars/helpers/shared","exports"],
+  ["ember-metal/core","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/get_properties","ember-metal/enumerable_utils","ember-metal/is_none","ember-metal/computed","ember-metal/merge","ember-metal/utils","ember-metal/run_loop","ember-metal/keys","ember-runtime/copy","ember-runtime/system/string","ember-runtime/system/object","ember-runtime/mixins/action_handler","ember-routing/system/generate_controller","ember-routing/utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
@@ -25283,7 +25236,7 @@ define("ember-routing/system/route",
     __exports__["default"] = Route;
   });
 define("ember-routing/system/router",
-  ["ember-metal/core","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/properties","ember-metal/computed","ember-metal/merge","ember-metal/run_loop","ember-runtime/system/string","ember-runtime/system/object","ember-runtime/mixins/evented","ember-routing/system/dsl","ember-views/views/view","ember-routing/location/api","ember-handlebars/views/metamorph_view","ember-routing-handlebars/helpers/shared","exports"],
+  ["ember-metal/core","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/properties","ember-metal/computed","ember-metal/merge","ember-metal/run_loop","ember-runtime/system/string","ember-runtime/system/object","ember-runtime/mixins/evented","ember-routing/system/dsl","ember-views/views/view","ember-routing/location/api","ember-handlebars/views/metamorph_view","ember-routing/utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
@@ -26173,6 +26126,59 @@ define("ember-routing/system/router",
     }
 
     __exports__["default"] = EmberRouter;
+  });
+define("ember-routing/utils",
+  ["ember-metal/utils","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    var typeOf = __dependency1__.typeOf;
+
+    function routeArgs(targetRouteName, models, queryParams) {
+      var args = [];
+      if (typeOf(targetRouteName) === 'string') {
+        args.push('' + targetRouteName);
+      }
+      args.push.apply(args, models);
+      args.push({ queryParams: queryParams });
+      return args;
+    }
+
+    __exports__.routeArgs = routeArgs;function getActiveTargetName(router) {
+      var handlerInfos = router.activeTransition ?
+                         router.activeTransition.state.handlerInfos :
+                         router.state.handlerInfos;
+      return handlerInfos[handlerInfos.length - 1].name;
+    }
+
+    __exports__.getActiveTargetName = getActiveTargetName;function stashParamNames(router, handlerInfos) {
+      if (handlerInfos._namesStashed) { return; }
+
+      // This helper exists because router.js/route-recognizer.js awkwardly
+      // keeps separate a handlerInfo's list of parameter names depending
+      // on whether a URL transition or named transition is happening.
+      // Hopefully we can remove this in the future.
+      var targetRouteName = handlerInfos[handlerInfos.length-1].name;
+      var recogHandlers = router.router.recognizer.handlersFor(targetRouteName);
+      var dynamicParent = null;
+
+      for (var i = 0, len = handlerInfos.length; i < len; ++i) {
+        var handlerInfo = handlerInfos[i];
+        var names = recogHandlers[i].names;
+
+        if (names.length) {
+          dynamicParent = handlerInfo;
+        }
+
+        handlerInfo._names = names;
+
+        var route = handlerInfo.handler;
+        route._stashNames(handlerInfo, dynamicParent);
+      }
+
+      handlerInfos._namesStashed = true;
+    }
+
+    __exports__.stashParamNames = stashParamNames;
   });
 define("ember-runtime",
   ["ember-metal","ember-runtime/core","ember-runtime/compare","ember-runtime/copy","ember-runtime/inject","ember-runtime/system/namespace","ember-runtime/system/object","ember-runtime/system/tracked_array","ember-runtime/system/subarray","ember-runtime/system/container","ember-runtime/system/array_proxy","ember-runtime/system/object_proxy","ember-runtime/system/core_object","ember-runtime/system/each_proxy","ember-runtime/system/native_array","ember-runtime/system/set","ember-runtime/system/string","ember-runtime/system/deferred","ember-runtime/system/lazy_load","ember-runtime/mixins/array","ember-runtime/mixins/comparable","ember-runtime/mixins/copyable","ember-runtime/mixins/enumerable","ember-runtime/mixins/freezable","ember-runtime/mixins/-proxy","ember-runtime/mixins/observable","ember-runtime/mixins/action_handler","ember-runtime/mixins/deferred","ember-runtime/mixins/mutable_enumerable","ember-runtime/mixins/mutable_array","ember-runtime/mixins/target_action_support","ember-runtime/mixins/evented","ember-runtime/mixins/promise_proxy","ember-runtime/mixins/sortable","ember-runtime/computed/array_computed","ember-runtime/computed/reduce_computed","ember-runtime/computed/reduce_computed_macros","ember-runtime/controllers/array_controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/controller","ember-runtime/mixins/controller","ember-runtime/system/service","ember-runtime/ext/rsvp","ember-runtime/ext/string","ember-runtime/ext/function","exports"],
