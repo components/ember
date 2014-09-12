@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.9620ae65
+ * @version   1.9.0-beta.1+canary.29db65dc
  */
 
 (function() {
@@ -13545,7 +13545,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.9620ae65
+      @version 1.9.0-beta.1+canary.29db65dc
     */
 
     if ('undefined' === typeof Ember) {
@@ -13572,10 +13572,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.9620ae65'
+      @default '1.9.0-beta.1+canary.29db65dc'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.9620ae65';
+    Ember.VERSION = '1.9.0-beta.1+canary.29db65dc';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -39691,7 +39691,7 @@ define("ember-views/views/collection_view",
       ```javascript
       var App = Ember.Application.create();
       App.ListWithNothing = Ember.CollectionView.create({
-        classNames: ['nothing']
+        classNames: ['nothing'],
         content: null,
         emptyView: Ember.View.extend({
           template: Ember.Handlebars.compile("The collection is empty")
