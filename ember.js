@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.ada6cffd
+ * @version   1.9.0-beta.1+canary.82b5ea2c
  */
 
 (function() {
@@ -12604,6 +12604,39 @@ define("ember-metal/computed",
       Generally speaking if you intend for your computed property to be set
       your backing function should accept either two or three arguments.
 
+      ```javascript
+      var Person = Ember.Object.extend({
+        // these will be supplied by `create`
+        firstName: null,
+        lastName: null,
+
+        fullName: function(key, value, oldValue) {
+          // getter
+          if (arguments.length === 1) {
+            var firstName = this.get('firstName');
+            var lastName = this.get('lastName');
+
+            return firstName + ' ' + lastName;
+
+          // setter
+          } else {
+            var name = value.split(' ');
+
+            this.set('firstName', name[0]);
+            this.set('lastName', name[1]);
+
+            return value;
+          }
+        }.property('firstName', 'lastName')
+      });
+
+      var person = Person.create();
+
+      person.set('fullName', 'Peter Wagenet');
+      person.get('firstName'); // 'Peter'
+      person.get('lastName');  // 'Wagenet'
+      ```
+
       @method set
       @param {String} keyName The key being accessed.
       @param {Object} newValue The new value being assigned.
@@ -13545,7 +13578,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.ada6cffd
+      @version 1.9.0-beta.1+canary.82b5ea2c
     */
 
     if ('undefined' === typeof Ember) {
@@ -13572,10 +13605,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.ada6cffd'
+      @default '1.9.0-beta.1+canary.82b5ea2c'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.ada6cffd';
+    Ember.VERSION = '1.9.0-beta.1+canary.82b5ea2c';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
