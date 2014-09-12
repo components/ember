@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.dd8f9b53
+ * @version   1.9.0-beta.1+canary.ada6cffd
  */
 
 (function() {
@@ -13545,7 +13545,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.dd8f9b53
+      @version 1.9.0-beta.1+canary.ada6cffd
     */
 
     if ('undefined' === typeof Ember) {
@@ -13572,10 +13572,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.dd8f9b53'
+      @default '1.9.0-beta.1+canary.ada6cffd'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.dd8f9b53';
+    Ember.VERSION = '1.9.0-beta.1+canary.ada6cffd';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -20936,6 +20936,13 @@ define("ember-routing-handlebars/helpers/link_to",
     }
 
     /**
+      This is a sub-expression to be used in conjunction with the link-to helper.
+      It will supply url query parameters to the target route.
+
+      Example
+
+      {#link-to 'posts' (query-params direction="asc")}}Sort{{/link-to}}
+
       @method query-params
       @for Ember.Handlebars.helpers
       @param {Object} hash takes a hash of query parameters
@@ -21437,6 +21444,11 @@ define("ember-routing/ext/controller",
       },
 
       /**
+        Defines which query parameters the controller accepts.
+        If you give the names ['category','page'] it will bind
+        the values of these query parameters to the variables
+        `this.category` and `this.page`
+
         @property queryParams
         @public
       */
@@ -23461,7 +23473,12 @@ define("ember-routing/system/route",
       mergedProperties: ['events', 'queryParams'],
 
       /**
+        Retrieves parameters, for current route using the state.params
+        variable and getQueryParamsFor, using the supplied routeName.
+
         @method paramsFor
+        @param {String} routename
+
       */
       paramsFor: function(name) {
         var route = this.container.lookup('route:' + name);
@@ -23481,14 +23498,22 @@ define("ember-routing/system/route",
       },
 
       /**
+        Serializes the query parameter key
+
         @method serializeQueryParamKey
+        @param {String} controllerPropertyName
       */
       serializeQueryParamKey: function(controllerPropertyName) {
         return controllerPropertyName;
       },
 
       /**
+        Serializes value of the query parameter based on defaultValueType
+
         @method serializeQueryParam
+        @param {Object} value
+        @param {String} urlKey
+        @param {String} defaultValueType
       */
       serializeQueryParam: function(value, urlKey, defaultValueType) {
         // urlKey isn't used here, but anyone overriding
@@ -23501,7 +23526,12 @@ define("ember-routing/system/route",
       },
 
       /**
+        Deserializes value of the query parameter based on defaultValueType
+
         @method deserializeQueryParam
+        @param {Object} value
+        @param {String} urlKey
+        @param {String} defaultValueType
       */
       deserializeQueryParam: function(value, urlKey, defaultValueType) {
         // urlKey isn't used here, but anyone overriding
