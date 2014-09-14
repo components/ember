@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.82b5ea2c
+ * @version   1.9.0-beta.1+canary.e1d388c3
  */
 
 (function() {
@@ -13687,6 +13687,15 @@ define("ember-metal/dependent_keys.jshint",
       ok(true, 'ember-metal/dependent_keys.js should pass jshint.'); 
     });
   });
+define("ember-metal/deprecate_property.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal');
+    test('ember-metal/deprecate_property.js should pass jshint', function() { 
+      ok(true, 'ember-metal/deprecate_property.js should pass jshint.'); 
+    });
+  });
 define("ember-metal/dictionary.jshint",
   [],
   function() {
@@ -20405,14 +20414,14 @@ define("ember-metal/tests/platform/defineProperty_test.jshint",
     });
   });
 define("ember-metal/tests/properties_test",
-  ["ember-metal/core","ember-metal/platform","ember-metal/computed","ember-metal/properties"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+  ["ember-metal/core","ember-metal/platform","ember-metal/computed","ember-metal/properties","ember-metal/deprecate_property"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var hasPropertyAccessors = __dependency2__.hasPropertyAccessors;
     var computed = __dependency3__.computed;
     var defineProperty = __dependency4__.defineProperty;
-    var deprecateProperty = __dependency4__.deprecateProperty;
+    var deprecateProperty = __dependency5__.deprecateProperty;
 
     QUnit.module('Ember.defineProperty');
 
