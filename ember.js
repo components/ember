@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.e1d388c3
+ * @version   1.9.0-beta.1+canary.0b0d5f66
  */
 
 (function() {
@@ -5038,7 +5038,6 @@ define("ember-handlebars",
     var ComponentLookup = __dependency24__["default"];
     var _HandlebarsBoundView = __dependency25__._HandlebarsBoundView;
     var SimpleHandlebarsView = __dependency25__.SimpleHandlebarsView;
-    var _wrapMap = __dependency26__._wrapMap;
     var _SimpleMetamorphView = __dependency26__._SimpleMetamorphView;
     var _MetamorphView = __dependency26__._MetamorphView;
     var _Metamorph = __dependency26__._Metamorph;
@@ -5080,7 +5079,6 @@ define("ember-handlebars",
     Ember._SimpleMetamorphView = _SimpleMetamorphView;
     Ember._MetamorphView = _MetamorphView;
     Ember._Metamorph = _Metamorph;
-    Ember._metamorphWrapMap = _wrapMap;
     Ember.TextSupport = TextSupport;
     Ember.Checkbox = Checkbox;
     Ember.Select = Select;
@@ -7330,7 +7328,7 @@ define("ember-handlebars/ext",
     __exports__.evaluateUnboundHelper = evaluateUnboundHelper;
   });
 define("ember-handlebars/helpers/binding",
-  ["ember-metal/core","ember-handlebars-compiler","ember-metal/property_get","ember-metal/utils","ember-runtime/system/string","ember-metal/platform","ember-metal/is_none","ember-metal/array","ember-views/views/view","ember-metal/run_loop","ember-metal/observer","ember-metal/binding","ember-views/system/jquery","ember-handlebars/ext","ember-metal/keys","ember-metal/cache","ember-handlebars/views/handlebars_bound_view","exports"],
+  ["ember-metal/core","ember-handlebars-compiler","ember-metal/property_get","ember-metal/utils","ember-runtime/system/string","ember-metal/platform","ember-metal/is_none","ember-metal/array","ember-views/views/view","ember-metal/run_loop","ember-metal/observer","ember-metal/binding","ember-views/system/jquery","ember-metal/keys","ember-metal/cache","ember-handlebars/views/handlebars_bound_view","ember-handlebars/ext","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __exports__) {
     "use strict";
     /**
@@ -7357,16 +7355,15 @@ define("ember-handlebars/helpers/binding",
     var emberBind = __dependency12__.bind;
     var jQuery = __dependency13__["default"];
     var isArray = __dependency4__.isArray;
-    var getEscaped = __dependency14__.getEscaped;
-    var keys = __dependency15__["default"];
-    var Cache = __dependency16__["default"];
+    var keys = __dependency14__["default"];
+    var Cache = __dependency15__["default"];
 
-    var _HandlebarsBoundView = __dependency17__._HandlebarsBoundView;
-    var SimpleHandlebarsView = __dependency17__.SimpleHandlebarsView;
+    var _HandlebarsBoundView = __dependency16__._HandlebarsBoundView;
+    var SimpleHandlebarsView = __dependency16__.SimpleHandlebarsView;
 
-    var normalizePath = __dependency14__.normalizePath;
-    var handlebarsGet = __dependency14__.handlebarsGet;
-    var getEscaped = __dependency14__.getEscaped;
+    var normalizePath = __dependency17__.normalizePath;
+    var handlebarsGet = __dependency17__.handlebarsGet;
+    var getEscaped = __dependency17__.getEscaped;
 
     var guidFor = __dependency4__.guidFor;
     var typeOf = __dependency4__.typeOf;
@@ -13578,7 +13575,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.e1d388c3
+      @version 1.9.0-beta.1+canary.0b0d5f66
     */
 
     if ('undefined' === typeof Ember) {
@@ -13605,10 +13602,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.e1d388c3'
+      @default '1.9.0-beta.1+canary.0b0d5f66'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.e1d388c3';
+    Ember.VERSION = '1.9.0-beta.1+canary.0b0d5f66';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -15114,7 +15111,7 @@ define("ember-metal/is_empty",
     }
 
     var empty = Ember.deprecateFunc("Ember.empty is deprecated. Please use Ember.isEmpty instead.", isEmpty);
-    __exports__.empty = empty;
+
     __exports__["default"] = isEmpty;
     __exports__.isEmpty = isEmpty;
     __exports__.empty = empty;
@@ -33998,7 +33995,7 @@ define("ember-runtime/system/container",
   ["ember-metal/property_set","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
-    var set = __dependency1__["default"];
+    var set = __dependency1__.set;
 
     var Container = requireModule('container')["default"];
     Container.set = set;

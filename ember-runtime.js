@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.e1d388c3
+ * @version   1.9.0-beta.1+canary.0b0d5f66
  */
 
 (function() {
@@ -4736,7 +4736,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.e1d388c3
+      @version 1.9.0-beta.1+canary.0b0d5f66
     */
 
     if ('undefined' === typeof Ember) {
@@ -4763,10 +4763,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.e1d388c3'
+      @default '1.9.0-beta.1+canary.0b0d5f66'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.e1d388c3';
+    Ember.VERSION = '1.9.0-beta.1+canary.0b0d5f66';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -6272,7 +6272,7 @@ define("ember-metal/is_empty",
     }
 
     var empty = Ember.deprecateFunc("Ember.empty is deprecated. Please use Ember.isEmpty instead.", isEmpty);
-    __exports__.empty = empty;
+
     __exports__["default"] = isEmpty;
     __exports__.isEmpty = isEmpty;
     __exports__.empty = empty;
@@ -18575,7 +18575,7 @@ define("ember-runtime/system/container",
   ["ember-metal/property_set","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
-    var set = __dependency1__["default"];
+    var set = __dependency1__.set;
 
     var Container = requireModule('container')["default"];
     Container.set = set;
