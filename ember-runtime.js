@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.3260c942
+ * @version   1.9.0-beta.1+canary.80773e72
  */
 
 (function() {
@@ -4746,7 +4746,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.3260c942
+      @version 1.9.0-beta.1+canary.80773e72
     */
 
     if ('undefined' === typeof Ember) {
@@ -4773,10 +4773,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.3260c942'
+      @default '1.9.0-beta.1+canary.80773e72'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.3260c942';
+    Ember.VERSION = '1.9.0-beta.1+canary.80773e72';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -9747,8 +9747,8 @@ define("ember-metal/set_properties",
     }
   });
 define("ember-metal/utils",
-  ["ember-metal/core","ember-metal/platform","ember-metal/array","ember-metal/keys","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+  ["ember-metal/core","ember-metal/platform","ember-metal/array","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var o_defineProperty = __dependency2__.defineProperty;
@@ -9758,7 +9758,6 @@ define("ember-metal/utils",
 
     var forEach = __dependency3__.forEach;
 
-    var keys = __dependency4__["default"];
     /**
     @module ember-metal
     */
@@ -9839,10 +9838,13 @@ define("ember-metal/utils",
       @private
       @return {String} interned version of the provided string
     */
-    function intern(string) {
-      var obj = Object.create(null);
-      obj[string] = true;
-      return keys(obj)[0];
+    function intern(str) {
+      var obj = {};
+      obj[str] = 1;
+      for (var key in obj) {
+        if (key === str) return key;
+      }
+      return str;
     }
 
     /**
