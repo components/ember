@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.aa2636bf
+ * @version   1.9.0-beta.1+canary.5ddaa3e7
  */
 
 (function() {
@@ -14681,6 +14681,12 @@ define("ember-metal/tests/alias_test",
       ok(isWatching(obj, 'foo.faz'));
       set(obj, 'foo.faz', 'BAR');
       equal(count, 1);
+    });
+
+    test('setting alias on self should fail assertion', function() {
+      expectAssertion(function() {
+        defineProperty(obj, 'bar', alias('bar'));
+      }, "Setting alias 'bar' on self");
     });
   });
 define("ember-metal/tests/alias_test.jshint",

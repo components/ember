@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.aa2636bf
+ * @version   1.9.0-beta.1+canary.5ddaa3e7
  */
 
 (function() {
@@ -11132,20 +11132,22 @@ define("ember-metal",
     __exports__["default"] = Ember;
   });
 define("ember-metal/alias",
-  ["ember-metal/property_get","ember-metal/property_set","ember-metal/error","ember-metal/properties","ember-metal/computed","ember-metal/platform","ember-metal/utils","ember-metal/dependent_keys","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
+  ["ember-metal/property_get","ember-metal/property_set","ember-metal/core","ember-metal/error","ember-metal/properties","ember-metal/computed","ember-metal/platform","ember-metal/utils","ember-metal/dependent_keys","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __exports__) {
     "use strict";
     var get = __dependency1__.get;
     var set = __dependency2__.set;
-    var EmberError = __dependency3__["default"];
-    var Descriptor = __dependency4__.Descriptor;
-    var defineProperty = __dependency4__.defineProperty;
-    var ComputedProperty = __dependency5__.ComputedProperty;
-    var create = __dependency6__.create;
-    var meta = __dependency7__.meta;
-    var inspect = __dependency7__.inspect;
-    var addDependentKeys = __dependency8__.addDependentKeys;
-    var removeDependentKeys = __dependency8__.removeDependentKeys;
+    var Ember = __dependency3__["default"];
+    // Ember.assert
+    var EmberError = __dependency4__["default"];
+    var Descriptor = __dependency5__.Descriptor;
+    var defineProperty = __dependency5__.defineProperty;
+    var ComputedProperty = __dependency6__.ComputedProperty;
+    var create = __dependency7__.create;
+    var meta = __dependency8__.meta;
+    var inspect = __dependency8__.inspect;
+    var addDependentKeys = __dependency9__.addDependentKeys;
+    var removeDependentKeys = __dependency9__.removeDependentKeys;
 
     function alias(altKey) {
       return new AliasedProperty(altKey);
@@ -11175,6 +11177,7 @@ define("ember-metal/alias",
     };
 
     AliasedProperty.prototype.setup = function(obj, keyName) {
+      Ember.assert("Setting alias '" + keyName + "' on self", this.altKey !== keyName);
       var m = meta(obj);
       if (m.watching[keyName]) {
         addDependentKeys(this, obj, keyName, m);
@@ -13585,7 +13588,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.aa2636bf
+      @version 1.9.0-beta.1+canary.5ddaa3e7
     */
 
     if ('undefined' === typeof Ember) {
@@ -13612,10 +13615,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.aa2636bf'
+      @default '1.9.0-beta.1+canary.5ddaa3e7'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.aa2636bf';
+    Ember.VERSION = '1.9.0-beta.1+canary.5ddaa3e7';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
