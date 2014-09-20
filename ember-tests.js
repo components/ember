@@ -16292,11 +16292,13 @@ define("ember-metal/tests/computed_test.jshint",
     });
   });
 define("ember-metal/tests/core/inspect_test",
-  ["ember-metal/utils","ember-metal/core"],
-  function(__dependency1__, __dependency2__) {
+  ["ember-metal/utils","ember-metal/platform","ember-metal/core"],
+  function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
     var inspect = __dependency1__.inspect;
-    var Ember = __dependency2__["default"];
+    var create = __dependency2__.create;
+
+    var Ember = __dependency3__["default"];
 
     QUnit.module("Ember.inspect");
 
@@ -16328,6 +16330,11 @@ define("ember-metal/tests/core/inspect_test",
       equal(inspect({}), "{}");
       equal(inspect({ foo: 'bar' }), "{foo: bar}");
       equal(inspect({ foo: Ember.K }), "{foo: function() { ... }}");
+    });
+
+    test("objects without a prototype", function() {
+      var prototypelessObj = create(null);
+      equal(inspect({ foo: prototypelessObj }), "{foo: [object Object]}");
     });
 
     test("array", function() {
@@ -17198,13 +17205,15 @@ define("ember-metal/tests/is_present_test.jshint",
     });
   });
 define("ember-metal/tests/keys_test",
-  ["ember-metal/property_set","ember-metal/keys","ember-metal/observer"],
-  function(__dependency1__, __dependency2__, __dependency3__) {
+  ["ember-metal/core","ember-metal/property_set","ember-metal/keys","ember-metal/observer"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
-    var set = __dependency1__.set;
-    var keys = __dependency2__["default"];
-    var addObserver = __dependency3__.addObserver;
-    var removeObserver = __dependency3__.removeObserver;
+    var Ember = __dependency1__["default"];
+    // Ember.K
+    var set = __dependency2__.set;
+    var keys = __dependency3__["default"];
+    var addObserver = __dependency4__.addObserver;
+    var removeObserver = __dependency4__.removeObserver;
 
     QUnit.module("Fetch Keys ");
 
@@ -17229,6 +17238,93 @@ define("ember-metal/tests/keys_test",
       var object2 = keys(object1);
 
       deepEqual(object2, ['toString']);
+    });
+
+    test('should not contain properties declared in the prototype', function () {
+      function Beer() { }
+      Beer.prototype.type = 'ipa';
+
+      var beer = new Beer();
+
+      deepEqual(keys(beer), []);
+    });
+
+    test('should return properties that were set after object creation', function () {
+      function Beer() { }
+      Beer.prototype.type = 'ipa';
+
+      var beer = new Beer();
+
+      set(beer, 'brand', 'big daddy');
+
+      deepEqual(keys(beer), ['brand']);
+    });
+
+    QUnit.module('Keys behavior with observers');
+
+    test('should not leak properties on the prototype', function () {
+      function Beer() { }
+      Beer.prototype.type = 'ipa';
+
+      var beer = new Beer();
+
+      addObserver(beer, 'type', Ember.K);
+      deepEqual(keys(beer), []);
+      removeObserver(beer, 'type', Ember.K);
+    });
+
+    test('observing a non existent property', function () {
+      function Beer() { }
+      Beer.prototype.type = 'ipa';
+
+      var beer = new Beer();
+
+      addObserver(beer, 'brand', Ember.K);
+
+      deepEqual(keys(beer), []);
+
+      set(beer, 'brand', 'Corona');
+      deepEqual(keys(beer), ['brand']);
+
+      removeObserver(beer, 'brand', Ember.K);
+    });
+
+    test('with observers switched on and off', function () {
+      function Beer() { }
+      Beer.prototype.type = 'ipa';
+
+      var beer = new Beer();
+
+      addObserver(beer, 'type', Ember.K);
+      removeObserver(beer, 'type', Ember.K);
+
+      deepEqual(keys(beer), []);
+    });
+
+    test('observers switched on and off with setter in between', function () {
+      function Beer() { }
+      Beer.prototype.type = 'ipa';
+
+      var beer = new Beer();
+
+      addObserver(beer, 'type', Ember.K);
+      set(beer, 'type', 'ale');
+      removeObserver(beer, 'type', Ember.K);
+
+      deepEqual(keys(beer), ['type']);
+    });
+
+    test('observer switched on and off and then setter', function () {
+      function Beer() { }
+      Beer.prototype.type = 'ipa';
+
+      var beer = new Beer();
+
+      addObserver(beer, 'type', Ember.K);
+      removeObserver(beer, 'type', Ember.K);
+      set(beer, 'type', 'ale');
+
+      deepEqual(keys(beer), ['type']);
     });
   });
 define("ember-metal/tests/keys_test.jshint",
@@ -20156,7 +20252,9 @@ define("ember-metal/tests/platform/defineProperty_test",
   ["ember-metal/platform","ember-metal/enumerable_utils"],
   function(__dependency1__, __dependency2__) {
     "use strict";
-    var platform = __dependency1__.platform;
+    var defineProperty = __dependency1__.defineProperty;
+    var hasPropertyAccessors = __dependency1__.hasPropertyAccessors;
+    var canDefineNonEnumerableProperties = __dependency1__.canDefineNonEnumerableProperties;
     var EnumerableUtils = __dependency2__["default"];
 
     function isEnumerable(obj, keyName) {
@@ -20167,11 +20265,11 @@ define("ember-metal/tests/platform/defineProperty_test",
       return EnumerableUtils.indexOf(keys, keyName)>=0;
     }
 
-    QUnit.module("platform.defineProperty()");
+    QUnit.module("defineProperty()");
 
     test("defining a simple property", function() {
       var obj = {};
-      platform.defineProperty(obj, 'foo', {
+      defineProperty(obj, 'foo', {
         enumerable:   true,
         writable:     true,
         value: 'FOO'
@@ -20186,7 +20284,7 @@ define("ember-metal/tests/platform/defineProperty_test",
 
     test('defining a read only property', function() {
       var obj = {};
-      platform.defineProperty(obj, 'foo', {
+      defineProperty(obj, 'foo', {
         enumerable:   true,
         writable:     false,
         value: 'FOO'
@@ -20194,10 +20292,7 @@ define("ember-metal/tests/platform/defineProperty_test",
 
       equal(obj.foo, 'FOO', 'should have added property');
 
-      if (platform.defineProperty.isSimulated) {
-        obj.foo = "BAR";
-        equal(obj.foo, 'BAR', 'simulated defineProperty should silently work');
-      } else {
+      if (hasPropertyAccessors) {
         // cannot set read-only property in strict-mode
         try {
           obj.foo = "BAR";
@@ -20206,28 +20301,30 @@ define("ember-metal/tests/platform/defineProperty_test",
         }finally {
           equal(obj.foo, 'FOO', 'real defined property should not be writable');
         }
+      } else {
+        obj.foo = "BAR";
+        equal(obj.foo, 'BAR', 'simulated defineProperty should silently work');
       }
-
     });
 
     test('defining a non enumerable property', function() {
       var obj = {};
-      platform.defineProperty(obj, 'foo', {
+      defineProperty(obj, 'foo', {
         enumerable:   false,
         writable:     true,
         value: 'FOO'
       });
 
-      if (platform.defineProperty.isSimulated) {
-        equal(isEnumerable(obj, 'foo'), true, 'simulated defineProperty will leave properties enumerable');
-      } else {
+      if (canDefineNonEnumerableProperties) {
         equal(isEnumerable(obj, 'foo'), false, 'real defineProperty will make property not-enumerable');
+      } else {
+        equal(isEnumerable(obj, 'foo'), true, 'simulated defineProperty will leave properties enumerable');
       }
     });
 
     // If accessors don't exist, behavior that relies on getters
     // and setters don't do anything
-    if (platform.hasPropertyAccessors) {
+    if (hasPropertyAccessors) {
       test('defining a getter/setter', function() {
         var obj = {};
         var getCnt = 0;
@@ -20240,23 +20337,19 @@ define("ember-metal/tests/platform/defineProperty_test",
           set: function(val) { setCnt++; v = val; }
         };
 
-        if (platform.hasPropertyAccessors) {
-          platform.defineProperty(obj, 'foo', desc);
-          equal(obj.foo, 'FOO', 'should return getter');
-          equal(getCnt, 1, 'should have invoked getter');
+        defineProperty(obj, 'foo', desc);
+        equal(obj.foo, 'FOO', 'should return getter');
+        equal(getCnt, 1, 'should have invoked getter');
 
-          obj.foo = 'BAR';
-          equal(obj.foo, 'BAR', 'setter should have worked');
-          equal(setCnt, 1, 'should have invoked setter');
-
-        }
-
+        obj.foo = 'BAR';
+        equal(obj.foo, 'BAR', 'setter should have worked');
+        equal(setCnt, 1, 'should have invoked setter');
       });
 
       test('defining getter/setter along with writable', function() {
         var obj  ={};
         raises(function() {
-          platform.defineProperty(obj, 'foo', {
+          defineProperty(obj, 'foo', {
             enumerable: true,
             get: function() {},
             set: function() {},
@@ -20268,7 +20361,7 @@ define("ember-metal/tests/platform/defineProperty_test",
       test('defining getter/setter along with value', function() {
         var obj  ={};
         raises(function() {
-          platform.defineProperty(obj, 'foo', {
+          defineProperty(obj, 'foo', {
             enumerable: true,
             get: function() {},
             set: function() {},
@@ -20288,16 +20381,14 @@ define("ember-metal/tests/platform/defineProperty_test.jshint",
     });
   });
 define("ember-metal/tests/properties_test",
-  ["ember-metal/core","ember-metal/platform","ember-metal/property_set","ember-metal/property_get","ember-metal/computed","ember-metal/properties"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
+  ["ember-metal/core","ember-metal/platform","ember-metal/computed","ember-metal/properties"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
     var Ember = __dependency1__["default"];
-    var platform = __dependency2__.platform;
-    var set = __dependency3__.set;
-    var get = __dependency4__.get;
-    var computed = __dependency5__.computed;
-    var defineProperty = __dependency6__.defineProperty;
-    var deprecateProperty = __dependency6__.deprecateProperty;
+    var hasPropertyAccessors = __dependency2__.hasPropertyAccessors;
+    var computed = __dependency3__.computed;
+    var defineProperty = __dependency4__.defineProperty;
+    var deprecateProperty = __dependency4__.deprecateProperty;
 
     QUnit.module('Ember.defineProperty');
 
@@ -20336,7 +20427,7 @@ define("ember-metal/tests/properties_test",
       defineProperty(obj, 'foo', computedProperty);
     });
 
-    if (platform.hasPropertyAccessors) {
+    if (hasPropertyAccessors) {
 
       QUnit.module('Ember.deprecateProperty');
 
@@ -21483,7 +21574,7 @@ define("ember-metal/tests/utils/meta_test",
     /*global jQuery*/
     var Ember = __dependency1__["default"];
     var create = __dependency2__.create;
-    var platform = __dependency2__.platform;
+    var canDefineNonEnumerableProperties = __dependency2__.canDefineNonEnumerableProperties;
     var getMeta = __dependency3__.getMeta;
     var setMeta = __dependency3__.setMeta;
     var meta = __dependency3__.meta;
@@ -21533,7 +21624,7 @@ define("ember-metal/tests/utils/meta_test",
     QUnit.module("Ember.meta enumerable");
     // Tests fix for https://github.com/emberjs/ember.js/issues/344
     // This is primarily for older browsers such as IE8
-    if (platform.defineProperty.isSimulated) {
+    if (canDefineNonEnumerableProperties) {
       if (Ember.imports.jQuery) {
         test("meta is not jQuery.isPlainObject", function () {
           var proto, obj;
@@ -24007,7 +24098,7 @@ define("ember-routing-handlebars/tests/helpers/render_test",
     var get = __dependency2__.get;
     var emberSet = __dependency3__.set;
     var run = __dependency4__["default"];
-    var create = __dependency5__.create;
+    var canDefineNonEnumerableProperties = __dependency5__.canDefineNonEnumerableProperties;
     var observer = __dependency6__.observer;
 
     var Container = __dependency7__["default"];
@@ -24220,10 +24311,10 @@ define("ember-routing-handlebars/tests/helpers/render_test",
       set(controller, 'post', { title: "Rails is unagi" });
 
       equal(view.$().text(), 'HIRails is unagi');
-      if (create.isSimulated) {
-        equal(postController.get('model').title, "Rails is unagi");
-      } else {
+      if (canDefineNonEnumerableProperties) {
         deepEqual(postController.get('model'), { title: "Rails is unagi" });
+      } else {
+        equal(postController.get('model').title, "Rails is unagi");
       }
     });
 
@@ -24344,10 +24435,10 @@ define("ember-routing-handlebars/tests/helpers/render_test",
       set(controller, 'post1', { title: "I am new" });
 
       ok(view.$().text().match(/^HI ?I am new ?Then me$/));
-      if (create.isSimulated) {
-        equal(postController1.get('model').title, "I am new");
-      } else {
+      if (canDefineNonEnumerableProperties) {
         deepEqual(postController1.get('model'), { title: "I am new" });
+      } else {
+        equal(postController1.get('model').title, "I am new");
       }
     });
 
@@ -24444,10 +24535,10 @@ define("ember-routing-handlebars/tests/helpers/render_test",
       set(controller, 'post', { title: "Rails is unagi" });
 
       ok(view.$().text().match(/^HI ?Title: ?Title:Rails is unagi$/));
-      if (create.isSimulated) {
-        equal(postController2.get('model').title, "Rails is unagi");
-      } else {
+      if (canDefineNonEnumerableProperties) {
         deepEqual(postController2.get('model'), { title: "Rails is unagi" });
+      } else {
+        equal(postController2.get('model').title, "Rails is unagi");
       }
     });
 
@@ -40265,33 +40356,7 @@ define("ember-runtime/tests/system/object/create_test",
       equal(o.get('foo'), 'bar');
     });
 
-    if (Ember.ENV.MANDATORY_SETTER) {
-      test("sets up mandatory setters for watched simple properties", function() {
-
-        var MyClass = EmberObject.extend({
-          foo: null,
-          bar: null,
-          fooDidChange: observer('foo', function() {})
-        });
-
-        var o = MyClass.create({foo: 'bar', bar: 'baz'});
-        equal(o.get('foo'), 'bar');
-
-        // Catch IE8 where Object.getOwnPropertyDescriptor exists but only works on DOM elements
-        try {
-          Object.getOwnPropertyDescriptor({}, 'foo');
-        } catch(e) {
-          return;
-        }
-
-        var descriptor = Object.getOwnPropertyDescriptor(o, 'foo');
-        ok(descriptor.set, 'Mandatory setter was setup');
-
-        descriptor = Object.getOwnPropertyDescriptor(o, 'bar');
-        ok(!descriptor.set, 'Mandatory setter was not setup');
-      });
-    }
-
+    
     test("allows bindings to be defined", function() {
       var obj = EmberObject.create({
         foo: 'foo',
@@ -40578,7 +40643,7 @@ define("ember-runtime/tests/system/object/destroy_test",
     "use strict";
     var Ember = __dependency1__["default"];
     var run = __dependency2__["default"];
-    var platform = __dependency3__.platform;
+    var hasPropertyAccessors = __dependency3__.hasPropertyAccessors;
     var observer = __dependency4__.observer;
     var set = __dependency5__.set;
     var bind = __dependency6__.bind;
@@ -40607,8 +40672,11 @@ define("ember-runtime/tests/system/object/destroy_test",
       ok(get(obj, 'isDestroyed'), "object is destroyed after run loop finishes");
     });
 
-    test("should raise an exception when modifying watched properties on a destroyed object", function() {
-      if (platform.hasAccessors) {
+    if (hasPropertyAccessors) {
+      // MANDATORY_SETTER moves value to meta.values
+      // a destroyed object removes meta but leaves the accessor
+      // that looks it up
+      test("should raise an exception when modifying watched properties on a destroyed object", function() {
         var obj = EmberObject.createWithMixins({
           foo: "bar",
           fooDidChange: observer('foo', function() { })
@@ -40621,10 +40689,8 @@ define("ember-runtime/tests/system/object/destroy_test",
         raises(function() {
           set(obj, 'foo', 'baz');
         }, Error, "raises an exception");
-      } else {
-        expect(0);
-      }
-    });
+      });
+    }
 
     test("observers should not fire after an object has been destroyed", function() {
       var count = 0;
@@ -45415,7 +45481,16 @@ define("ember-views/tests/system/render_buffer_test",
       buffer.generateElement();
 
       var el = buffer.element();
-      equal(el.getAttribute('style'), 'color:blue;" xss="true" style="color:red;');
+      var div = document.createElement('div');
+
+      // some browsers have different escaping strageties
+      // we should ensure the outcome is consistent. Ultimately we now use
+      // setAttribute under the hood, so we should always do the right thing.  But
+      // this test should be kept to ensure we do. Also, I believe/hope it is
+      // alright to assume the browser escapes setAttribute correctly...
+      div.setAttribute('style', 'color:blue;" xss="true" style="color:red;');
+
+      equal(el.getAttribute('style'), div.getAttribute('style'));
     });
 
     test("prevents XSS injection via `tagName`", function() {
@@ -50199,7 +50274,7 @@ define("ember-views/tests/views/view/state_deprecation_test",
   ["ember-metal/platform","ember-metal/run_loop","ember-views/views/view"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
-    var platform = __dependency1__.platform;
+    var hasPropertyAccessors = __dependency1__.hasPropertyAccessors;
     var run = __dependency2__["default"];
     var EmberView = __dependency3__["default"];
 
@@ -50213,7 +50288,7 @@ define("ember-views/tests/views/view/state_deprecation_test",
       }
     });
 
-    if (platform.hasPropertyAccessors) {
+    if (hasPropertyAccessors) {
       test("view.state should be an alias of view._state with a deprecation", function() {
         expect(2);
         view = EmberView.create();
@@ -56957,7 +57032,7 @@ define("ember/tests/routing/query_params_test",
     var forEach = __dependency2__.forEach;
     var map = __dependency2__.map;
     var computed = __dependency3__.computed;
-    var platform = __dependency4__.platform;
+    var canDefineNonEnumerableProperties = __dependency4__.canDefineNonEnumerableProperties;
     var capitalize = __dependency5__.capitalize;
 
     var Router, App, AppView, templates, router, container;
@@ -56966,15 +57041,12 @@ define("ember/tests/routing/query_params_test",
     var compile = Ember.Handlebars.compile;
 
     function withoutMeta(object) {
-      if (platform.defineProperty.isSimulated) {
-        var newObject = Ember.$.extend(true, {}, object);
-
-        delete newObject['__ember_meta__'];
-
-        return newObject;
-      } else {
+      if (canDefineNonEnumerableProperties) {
         return object;
       }
+      var newObject = Ember.$.extend(true, {}, object);
+      delete newObject['__ember_meta__'];
+      return newObject;
     }
 
     function bootApplication() {
