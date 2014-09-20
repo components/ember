@@ -23920,3 +23920,4 @@ define("rsvp/utils",
 requireModule("ember-runtime");
 
 })();
+;module.exports = Ember;
