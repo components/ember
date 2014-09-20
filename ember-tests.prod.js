@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.02048b6b
+ * @version   1.9.0-beta.1+canary.dc1042d0
  */
 
 (function() {
@@ -55693,7 +55693,7 @@ define("ember/tests/routing/basic_test",
       handleURL("/posts/3/shares/3");
     });
 
-    test("Resource does not inherit model from parent resource", function() {
+    test("Resource inherits model from parent resource", function() {
       expect(6);
 
       Router.map(function() {
@@ -55721,7 +55721,7 @@ define("ember/tests/routing/basic_test",
         afterModel: function(post, transition) {
           var parent_model = this.modelFor('thePost');
 
-          notEqual(post, parent_model);
+          equal(post, parent_model);
         }
       });
 

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.02048b6b
+ * @version   1.9.0-beta.1+canary.dc1042d0
  */
 
 (function() {
@@ -13588,7 +13588,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.02048b6b
+      @version 1.9.0-beta.1+canary.dc1042d0
     */
 
     if ('undefined' === typeof Ember) {
@@ -13615,10 +13615,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.02048b6b'
+      @default '1.9.0-beta.1+canary.dc1042d0'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.02048b6b';
+    Ember.VERSION = '1.9.0-beta.1+canary.dc1042d0';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -24649,7 +24649,7 @@ define("ember-routing/system/route",
 
         if (!name && sawParams) { return copy(params); }
         else if (!name) {
-          if (transition.resolveIndex !== transition.state.handlerInfos.length-1) { return; }
+          if (transition.resolveIndex < 1) { return; }
 
           var parentModel = transition.state.handlerInfos[transition.resolveIndex-1].context;
 
