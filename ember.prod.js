@@ -23025,7 +23025,8 @@ define("ember-routing/system/route",
       */
       _qp: computed(function() {
         var controllerName = this.controllerName || this.routeName;
-        var controllerClass = this.container.lookupFactory('controller:' + controllerName);
+        var fullName = this.container.normalize('controller:' + controllerName);
+        var controllerClass = this.container.lookupFactory(fullName);
 
         if (!controllerClass) {
           return defaultQPMeta;
