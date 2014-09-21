@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.1
+ * @version   1.8.0-beta.2
  */
 
 (function() {
@@ -704,7 +704,7 @@ define("backburner/deferred-action-queues",
           queue = queues[queueName];
           queueItems = queue._queueBeingFlushed = queue._queue.slice();
           queue._queue = [];
-          queue.guidBucket = Object.create(null);
+          queue.targetQueues = Object.create(null);
 
           var queueOptions = queue.options; // TODO: write a test for this
           var before = queueOptions && queueOptions.before;
@@ -1069,12 +1069,13 @@ define("container",
     __exports__["default"] = Container;
   });
 define("container/container",
-  ["ember-metal/core","ember-metal/dictionary","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["ember-metal/core","ember-metal/keys","ember-metal/dictionary","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.assert
-    var dictionary = __dependency2__["default"];
+    var emberKeys = __dependency2__["default"];
+    var dictionary = __dependency3__["default"];
 
     // A lightweight container that helps to assemble and decouple components.
     // Public api for the container is still in flux.
@@ -1871,7 +1872,7 @@ define("container/container",
 
     function eachDestroyable(container, callback) {
       var cache = container.cache;
-      var keys = Ember.keys(cache);
+      var keys = emberKeys(cache);
       var key, value;
 
       for (var i = 0, l = keys.length; i < l; i++) {
@@ -3294,7 +3295,7 @@ define("ember-application/system/dag",
 
     /**
      * Connects the vertices with the given names, adding them to the graph if
-     * necesary, only if this does not produce is any circular dependency.
+     * necessary, only if this does not produce is any circular dependency.
      *
      * @private
      * @method addEdge
@@ -5329,14 +5330,16 @@ define("ember-handlebars/controls",
       var inputType = _resolveOption(this, options, 'type');
       var onEvent = hash.on;
 
-      delete hash.type;
-      delete hash.on;
-
       if (inputType === 'checkbox') {
+        delete hash.type;
+        delete types.type;
+
         Ember.assert("{{input type='checkbox'}} does not support setting `value=someBooleanValue`; you must use `checked=someBooleanValue` instead.", options.hashTypes.value !== 'ID');
+
         return helpers.view.call(this, Checkbox, options);
       } else {
-        if (inputType) { hash.type = inputType; }
+        delete hash.on;
+
         hash.onEvent = onEvent || 'enter';
         return helpers.view.call(this, TextField, options);
       }
@@ -12602,81 +12605,124 @@ define("ember-metal/computed",
       Generally speaking if you intend for your computed property to be set
       your backing function should accept either two or three arguments.
 
+      ```javascript
+      var Person = Ember.Object.extend({
+        // these will be supplied by `create`
+        firstName: null,
+        lastName: null,
+
+        fullName: function(key, value, oldValue) {
+          // getter
+          if (arguments.length === 1) {
+            var firstName = this.get('firstName');
+            var lastName = this.get('lastName');
+
+            return firstName + ' ' + lastName;
+
+          // setter
+          } else {
+            var name = value.split(' ');
+
+            this.set('firstName', name[0]);
+            this.set('lastName', name[1]);
+
+            return value;
+          }
+        }.property('firstName', 'lastName')
+      });
+
+      var person = Person.create();
+
+      person.set('fullName', 'Peter Wagenet');
+      person.get('firstName'); // 'Peter'
+      person.get('lastName');  // 'Wagenet'
+      ```
+
       @method set
       @param {String} keyName The key being accessed.
       @param {Object} newValue The new value being assigned.
       @param {String} oldValue The old value being replaced.
       @return {Object} The return value of the function backing the CP.
     */
-    ComputedPropertyPrototype.set = function(obj, keyName, value) {
-      var cacheable = this._cacheable;
-      var func = this.func;
-      var meta = metaFor(obj, cacheable);
+    ComputedPropertyPrototype.set = function computedPropertySetWithSuspend(obj, keyName, value) {
       var oldSuspended = this._suspended;
+
+      this._suspended = obj;
+
+      try {
+        this._set(obj, keyName, value);
+      } finally {
+        this._suspended = oldSuspended;
+      }
+    };
+
+    ComputedPropertyPrototype._set = function computedPropertySet(obj, keyName, value) {
+      var cacheable      = this._cacheable;
+      var func           = this.func;
+      var meta           = metaFor(obj, cacheable);
+      var cache          = meta.cache;
       var hadCachedValue = false;
-      var cache = meta.cache;
+
       var funcArgLength, cachedValue, ret;
 
       if (this._readOnly) {
         throw new EmberError('Cannot set read-only property "' + keyName + '" on object: ' + inspect(obj));
       }
 
-      this._suspended = obj;
-
-      try {
-
-        if (cacheable && cache[keyName] !== undefined) {
-          if(cache[keyName] !== UNDEFINED) {
-            cachedValue = cache[keyName];
-          }
-
-          hadCachedValue = true;
+      if (cacheable && cache[keyName] !== undefined) {
+        if(cache[keyName] !== UNDEFINED) {
+          cachedValue = cache[keyName];
         }
 
-        // Check if the CP has been wrapped. If it has, use the
-        // length from the wrapped function.
-
-        funcArgLength = func.wrappedFunction ? func.wrappedFunction.__ember_arity__ : func.__ember_arity__;
-
-        // For backwards-compatibility with computed properties
-        // that check for arguments.length === 2 to determine if
-        // they are being get or set, only pass the old cached
-        // value if the computed property opts into a third
-        // argument.
-        if (funcArgLength === 3) {
-          ret = func.call(obj, keyName, value, cachedValue);
-        } else if (funcArgLength === 2) {
-          ret = func.call(obj, keyName, value);
-        } else {
-          defineProperty(obj, keyName, null, cachedValue);
-          set(obj, keyName, value);
-          return;
-        }
-
-        if (hadCachedValue && cachedValue === ret) { return; }
-
-        var watched = meta.watching[keyName];
-        if (watched) { propertyWillChange(obj, keyName); }
-
-        if (hadCachedValue) {
-          cache[keyName] = undefined;
-        }
-
-        if (cacheable) {
-          if (!hadCachedValue) {
-            addDependentKeys(this, obj, keyName, meta);
-          }
-          if (ret === undefined) {
-            cache[keyName] = UNDEFINED;
-          } else {
-            cache[keyName] = ret;
-          }
-        }
-
-        if (watched) { propertyDidChange(obj, keyName); }
-      } finally {
-        this._suspended = oldSuspended;
+        hadCachedValue = true;
       }
+
+      // Check if the CP has been wrapped. If it has, use the
+      // length from the wrapped function.
+
+      funcArgLength = func.wrappedFunction ? func.wrappedFunction.__ember_arity__ : func.__ember_arity__;
+
+      // For backwards-compatibility with computed properties
+      // that check for arguments.length === 2 to determine if
+      // they are being get or set, only pass the old cached
+      // value if the computed property opts into a third
+      // argument.
+      if (funcArgLength === 3) {
+        ret = func.call(obj, keyName, value, cachedValue);
+      } else if (funcArgLength === 2) {
+        ret = func.call(obj, keyName, value);
+      } else {
+        defineProperty(obj, keyName, null, cachedValue);
+        set(obj, keyName, value);
+        return;
+      }
+
+      if (hadCachedValue && cachedValue === ret) { return; }
+
+      var watched = meta.watching[keyName];
+      if (watched) {
+        propertyWillChange(obj, keyName);
+      }
+
+      if (hadCachedValue) {
+        cache[keyName] = undefined;
+      }
+
+      if (cacheable) {
+        if (!hadCachedValue) {
+          addDependentKeys(this, obj, keyName, meta);
+        }
+        if (ret === undefined) {
+          cache[keyName] = UNDEFINED;
+        } else {
+          cache[keyName] = ret;
+        }
+      }
+
+      if (watched) {
+        propertyDidChange(obj, keyName);
+      }
+
       return ret;
     };
 
@@ -12703,9 +12749,45 @@ define("ember-metal/computed",
       The function should accept two parameters, key and value. If value is not
       undefined you should set the value first. In either case return the
       current value of the property.
+      
+      A computed property defined in this way might look like this:
+
+      ```js
+      var Person = Ember.Object.extend({
+        firstName: 'Betty',
+        lastName: 'Jones',
+
+        fullName: Ember.computed('firstName', 'lastName', function(key, value) {
+          return this.get('firstName') + ' ' + this.get('lastName');
+        })
+      });
+
+      var client = Person.create();
+
+      client.get('fullName'); // 'Betty Jones'
+      
+      client.set('lastName', 'Fuller');
+      client.get('fullName'); // 'Betty Fuller'
+      ```
+
+      _Note: This is the prefered way to define computed properties when writing third-party
+      libraries that depend on or use Ember, since there is no guarantee that the user
+      will have prototype extensions enabled._
+
+      You might use this method if you disabled
+      [Prototype Extensions](http://emberjs.com/guides/configuring-ember/disabling-prototype-extensions/).
+      The alternative syntax might look like this
+      (if prototype extensions are enabled, which is the default behavior):
+
+      ```js
+      fullName: function () {
+        return this.get('firstName') + ' ' + this.get('lastName');
+      }.property('firstName', 'lastName')
+      ```
 
       @method computed
       @for Ember
+      @param {String} [dependentKeys*] Optional dependent keys that trigger this computed property.
       @param {Function} func The computed property function.
       @return {Ember.ComputedProperty} property descriptor instance
     */
@@ -13038,7 +13120,7 @@ define("ember-metal/computed_macros",
     });
 
     /**
-      A computed property that returns true if the provied dependent property
+      A computed property that returns true if the provided dependent property
       is greater than the provided value.
 
       Example
@@ -13062,7 +13144,7 @@ define("ember-metal/computed_macros",
       @param {String} dependentKey
       @param {Number} value
       @return {Ember.ComputedProperty} computed property which returns true if
-      the original value for property is greater then given value.
+      the original value for property is greater than given value.
     */
     registerComputed('gt', function(dependentKey, value) {
       return get(this, dependentKey) > value;
@@ -13155,7 +13237,7 @@ define("ember-metal/computed_macros",
       @param {String} dependentKey
       @param {Number} value
       @return {Ember.ComputedProperty} computed property which returns true if
-      the original value for property is less or equal then given value.
+      the original value for property is less or equal than given value.
     */
     registerComputed('lte', function(dependentKey, value) {
       return get(this, dependentKey) <= value;
@@ -13507,7 +13589,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.1
+      @version 1.8.0-beta.2
     */
 
     if ('undefined' === typeof Ember) {
@@ -13534,10 +13616,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.1'
+      @default '1.8.0-beta.2'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.1';
+    Ember.VERSION = '1.8.0-beta.2';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -13780,6 +13862,50 @@ define("ember-metal/dependent_keys",
     }
 
     __exports__.removeDependentKeys = removeDependentKeys;
+  });
+define("ember-metal/deprecate_property",
+  ["ember-metal/core","ember-metal/platform","ember-metal/properties","ember-metal/property_get","ember-metal/property_set","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
+    "use strict";
+    /**
+    @module ember-metal
+    */
+
+    var Ember = __dependency1__["default"];
+    var hasPropertyAccessors = __dependency2__.hasPropertyAccessors;
+    var defineProperty = __dependency3__.defineProperty;
+    var get = __dependency4__.get;
+    var set = __dependency5__.set;
+
+
+    /**
+      Used internally to allow changing properties in a backwards compatible way, and print a helpful
+      deprecation warning.
+
+      @method deprecateProperty
+      @param {Object} object The object to add the deprecated property to.
+      @param {String} deprecatedKey The property to add (and print deprecation warnings upon accessing).
+      @param {String} newKey The property that will be aliased.
+      @private
+      @since 1.7.0
+    */
+
+    function deprecateProperty(object, deprecatedKey, newKey) {
+      function deprecate() {
+        Ember.deprecate('Usage of `' + deprecatedKey + '` is deprecated, use `' + newKey + '` instead.');
+      }
+
+      if (hasPropertyAccessors) {
+        defineProperty(object, deprecatedKey, {
+            configurable: true,
+            enumerable: false,
+            set: function(value) { deprecate(); set(this, newKey, value); },
+            get: function() { deprecate(); return get(this, newKey); }
+        });
+      }
+    }
+
+    __exports__.deprecateProperty = deprecateProperty;
   });
 define("ember-metal/dictionary",
   ["exports"],
@@ -14734,7 +14860,7 @@ define("ember-metal/instrumentation",
     */
     function instrument(name, _payload, callback, binding) {
       if (subscribers.length === 0) {
-        return;
+        return callback.call(binding);
       }
       var payload = _payload || {};
       var finalizer = _instrumentStart(name, function () {
@@ -14748,6 +14874,8 @@ define("ember-metal/instrumentation",
           payload.exception = e;
         };
         return tryCatchFinally(tryable, catchable, finalizer);
+      } else {
+        return callback.call(binding);
       }
     }
 
@@ -15017,11 +15145,11 @@ define("ember-metal/is_present",
     __exports__["default"] = isPresent;
   });
 define("ember-metal/keys",
-  ["ember-metal/enumerable_utils","ember-metal/platform","exports"],
+  ["ember-metal/array","ember-metal/platform","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
-    var EnumerableUtils = __dependency1__["default"];
-    var create = __dependency2__.create;
+    var indexOf = __dependency1__.indexOf;
+    var canDefineNonEnumerableProperties = __dependency2__.canDefineNonEnumerableProperties;
 
     /**
       Returns all of the keys defined on an object or hash. This is useful
@@ -15035,7 +15163,7 @@ define("ember-metal/keys",
     */
     var keys = Object.keys;
 
-    if (!keys || create.isSimulated) {
+    if (!keys || !canDefineNonEnumerableProperties) {
       var prototypeProperties = [
         'constructor',
         'hasOwnProperty',
@@ -15056,7 +15184,7 @@ define("ember-metal/keys",
           return;
         }
 
-        if (EnumerableUtils.indexOf(array, key) >= 0) {
+        if (indexOf(array, key) >= 0) {
           return;
         }
 
@@ -16771,65 +16899,62 @@ define("ember-metal/path_cache",
     __exports__.isPath = isPath;
   });
 define("ember-metal/platform",
-  ["ember-metal/core","exports"],
-  function(__dependency1__, __exports__) {
+  ["exports"],
+  function(__exports__) {
     "use strict";
     /*globals Node */
-
-    var Ember = __dependency1__["default"];
 
     /**
     @module ember-metal
     */
-
-    /**
-      Platform specific methods and feature detectors needed by the framework.
-
-      @class platform
-      @namespace Ember
-      @static
-    */
-    // TODO remove this
-    var platform = {};
-
-    var defineProperty = Object.defineProperty;
-    var canRedefineProperties, canDefinePropertyOnDOM;
-
-    // Catch IE8 where Object.defineProperty exists but only works on DOM elements
-    if (defineProperty) {
+    var defineProperty = (function checkCompliance(defineProperty) {
+      if (!defineProperty) return;
       try {
-        defineProperty({}, 'a',{get:function() {}});
-      } catch (e) {
-        defineProperty = null;
-      }
-    }
-
-    if (defineProperty) {
-      // Detects a bug in Android <3.2 where you cannot redefine a property using
-      // Object.defineProperty once accessors have already been set.
-      canRedefineProperties = (function() {
+        var a = 5;
         var obj = {};
-
         defineProperty(obj, 'a', {
           configurable: true,
           enumerable: true,
-          get: function() { },
-          set: function() { }
+          get: function () {
+            return a;
+          },
+          set: function (v) {
+            a = v;
+          }
         });
+        if (obj.a !== 5) return;
+        obj.a = 10;
+        if (a !== 10) return;
 
+        // check non-enumerability
         defineProperty(obj, 'a', {
           configurable: true,
-          enumerable: true,
+          enumerable: false,
           writable: true,
           value: true
         });
+        for (var key in obj) {
+          if (key === 'a') return;
+        }
 
-        return obj.a === true;
-      })();
+        // Detects a bug in Android <3.2 where you cannot redefine a property using
+        // Object.defineProperty once accessors have already been set.
+        if (obj.a !== true) return;
 
+        // defineProperty is compliant
+        return defineProperty;
+      } catch (e) {
+        // IE8 defines Object.defineProperty but calling it on an Object throws
+        return;
+      }
+    })(Object.defineProperty);
+
+    var hasES5CompliantDefineProperty = !!defineProperty;
+
+    if (hasES5CompliantDefineProperty && typeof document !== 'undefined') {
       // This is for Safari 5.0, which supports Object.defineProperty, but not
       // on DOM nodes.
-      canDefinePropertyOnDOM = (function() {
+      var canDefinePropertyOnDOM = (function() {
         try {
           defineProperty(document.createElement('div'), 'definePropertyOnDOM', {});
           return true;
@@ -16838,9 +16963,7 @@ define("ember-metal/platform",
         return false;
       })();
 
-      if (!canRedefineProperties) {
-        defineProperty = null;
-      } else if (!canDefinePropertyOnDOM) {
+      if (!canDefinePropertyOnDOM) {
         defineProperty = function(obj, keyName, desc) {
           var isNode;
 
@@ -16858,6 +16981,12 @@ define("ember-metal/platform",
           }
         };
       }
+    }
+
+    if (!hasES5CompliantDefineProperty) {
+      defineProperty = function defineProperty(obj, keyName, desc) {
+        if (!desc.get) { obj[keyName] = desc.value; }
+      };
     }
 
     // ES5 15.2.3.7
@@ -16955,16 +17084,27 @@ define("ember-metal/platform",
 
         return object;
       };
-      create.isSimulated = true;
     } else {
       create = Object.create;
     }
 
+    var hasPropertyAccessors = hasES5CompliantDefineProperty;
+    var canDefineNonEnumerableProperties = hasES5CompliantDefineProperty;
 
     /**
     @class platform
     @namespace Ember
     */
+
+    /**
+      Platform specific methods and feature detectors needed by the framework.
+
+      @class platform
+      @namespace Ember
+      @static
+    */
+    // TODO remove this
+    var platform = {};
 
     /**
       Identical to `Object.defineProperty()`. Implements as much functionality
@@ -16984,45 +17124,27 @@ define("ember-metal/platform",
       @property hasPropertyAccessors
       @final
     */
-    platform.hasPropertyAccessors = true;
-
-    if (!platform.defineProperty) {
-      platform.hasPropertyAccessors = false;
-
-      defineProperty = platform.defineProperty = function(obj, keyName, desc) {
-        if (!desc.get) { obj[keyName] = desc.value; }
-      };
-
-      platform.defineProperty.isSimulated = true;
-    }
-
-    if (Ember.ENV.MANDATORY_SETTER && !platform.hasPropertyAccessors) {
-      Ember.ENV.MANDATORY_SETTER = false;
-    }
+    platform.hasPropertyAccessors = hasPropertyAccessors;
 
     __exports__.create = create;
+    __exports__.defineProperty = defineProperty;
+    __exports__.hasPropertyAccessors = hasPropertyAccessors;
+    __exports__.canDefineNonEnumerableProperties = canDefineNonEnumerableProperties;
     __exports__.platform = platform;
   });
 define("ember-metal/properties",
-  ["ember-metal/core","ember-metal/utils","ember-metal/platform","ember-metal/property_events","ember-metal/property_get","ember-metal/property_set","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+  ["ember-metal/core","ember-metal/utils","ember-metal/platform","ember-metal/property_events","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     /**
     @module ember-metal
     */
 
     var Ember = __dependency1__["default"];
-    var meta = __dependency2__.meta;
-    var platform = __dependency3__.platform;
+    var metaFor = __dependency2__.meta;
+    var objectDefineProperty = __dependency3__.defineProperty;
+    var hasPropertyAccessors = __dependency3__.hasPropertyAccessors;
     var overrideChains = __dependency4__.overrideChains;
-    var get = __dependency5__.get;
-    var set = __dependency6__.set;
-
-    var metaFor = meta;
-    var objectDefineProperty = platform.defineProperty;
-
-    var MANDATORY_SETTER = Ember.ENV.MANDATORY_SETTER;
-
     // ..........................................................
     // DESCRIPTOR
     //
@@ -17044,18 +17166,18 @@ define("ember-metal/properties",
     // DEFINING PROPERTIES API
     //
 
-    var MANDATORY_SETTER_FUNCTION = Ember.MANDATORY_SETTER_FUNCTION = function(value) {
+    function MANDATORY_SETTER_FUNCTION(value) {
       Ember.assert("You must use Ember.set() to access this property (of " + this + ")", false);
-    };
+    }
 
-    var DEFAULT_GETTER_FUNCTION = Ember.DEFAULT_GETTER_FUNCTION = function DEFAULT_GETTER_FUNCTION(name) {
-      return function() {
+    __exports__.MANDATORY_SETTER_FUNCTION = MANDATORY_SETTER_FUNCTION;function DEFAULT_GETTER_FUNCTION(name) {
+      return function GETTER_FUNCTION() {
         var meta = this['__ember_meta__'];
         return meta && meta.values[name];
       };
-    };
+    }
 
-    /**
+    __exports__.DEFAULT_GETTER_FUNCTION = DEFAULT_GETTER_FUNCTION;/**
       NOTE: This is a low-level method used by other parts of the API. You almost
       never want to call this method directly. Instead you should use
       `Ember.mixin()` to define new properties.
@@ -17118,34 +17240,36 @@ define("ember-metal/properties",
         value = desc;
 
         descs[keyName] = desc;
-        if (MANDATORY_SETTER && watching) {
-          objectDefineProperty(obj, keyName, {
-            configurable: true,
-            enumerable: true,
-            writable: true,
-            value: undefined // make enumerable
-          });
-        } else {
-          obj[keyName] = undefined; // make enumerable
-        }
-        if (desc.setup) { desc.setup(obj, keyName); }
+        
+          if (watching && hasPropertyAccessors) {
+            objectDefineProperty(obj, keyName, {
+              configurable: true,
+              enumerable: true,
+              writable: true,
+              value: undefined // make enumerable
+            });
+          } else {
+            obj[keyName] = undefined; // make enumerable
+          }
+                if (desc.setup) { desc.setup(obj, keyName); }
       } else {
         descs[keyName] = undefined; // shadow descriptor in proto
         if (desc == null) {
           value = data;
 
-          if (MANDATORY_SETTER && watching) {
-            meta.values[keyName] = data;
-            objectDefineProperty(obj, keyName, {
-              configurable: true,
-              enumerable: true,
-              set: MANDATORY_SETTER_FUNCTION,
-              get: DEFAULT_GETTER_FUNCTION(keyName)
-            });
-          } else {
-            obj[keyName] = data;
-          }
-        } else {
+          
+            if (watching && hasPropertyAccessors) {
+              meta.values[keyName] = data;
+              objectDefineProperty(obj, keyName, {
+                configurable: true,
+                enumerable: true,
+                set: MANDATORY_SETTER_FUNCTION,
+                get: DEFAULT_GETTER_FUNCTION(keyName)
+              });
+            } else {
+              obj[keyName] = data;
+            }
+                  } else {
           value = desc;
 
           // compatibility with ES5
@@ -17163,35 +17287,7 @@ define("ember-metal/properties",
 
       return this;
     }
-
-    __exports__.defineProperty = defineProperty;/**
-      Used internally to allow changing properties in a backwards compatible way, and print a helpful
-      deprecation warning.
-
-      @method deprecateProperty
-      @param {Object} object The object to add the deprecated property to.
-      @param {String} deprecatedKey The property to add (and print deprecation warnings upon accessing).
-      @param {String} newKey The property that will be aliased.
-      @private
-      @since 1.7.0
-    */
-
-    function deprecateProperty(object, deprecatedKey, newKey) {
-      function deprecate() {
-        Ember.deprecate('Usage of `' + deprecatedKey + '` is deprecated, use `' + newKey + '` instead.');
-      }
-
-      if (platform.hasPropertyAccessors) {
-        defineProperty(object, deprecatedKey, {
-            configurable: true,
-            enumerable: false,
-            set: function(value) { deprecate(); set(object, newKey, value); },
-            get: function() { deprecate(); return get(object, newKey); }
-        });
-      }
-    }
-
-    __exports__.deprecateProperty = deprecateProperty;
+    __exports__.defineProperty = defineProperty;
   });
 define("ember-metal/property_events",
   ["ember-metal/utils","ember-metal/events","ember-metal/observer_set","exports"],
@@ -17453,8 +17549,8 @@ define("ember-metal/property_events",
     __exports__.changeProperties = changeProperties;
   });
 define("ember-metal/property_get",
-  ["ember-metal/core","ember-metal/error","ember-metal/path_cache","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["ember-metal/core","ember-metal/error","ember-metal/path_cache","ember-metal/platform","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     /**
     @module ember-metal
@@ -17465,8 +17561,8 @@ define("ember-metal/property_get",
     var isGlobalPath = __dependency3__.isGlobalPath;
     var isPath = __dependency3__.isPath;
     var pathHasThis = __dependency3__.hasThis;
+    var hasPropertyAccessors = __dependency4__.hasPropertyAccessors;
 
-    var MANDATORY_SETTER = Ember.ENV.MANDATORY_SETTER;
     var FIRST_KEY = /^([^\.]+)/;
 
     // ..........................................................
@@ -17534,12 +17630,13 @@ define("ember-metal/property_get",
       if (desc) {
         return desc.get(obj, keyName);
       } else {
-        if (MANDATORY_SETTER && meta && meta.watching[keyName] > 0) {
-          ret = meta.values[keyName];
-        } else {
-          ret = obj[keyName];
-        }
-
+        
+          if (hasPropertyAccessors && meta && meta.watching[keyName] > 0) {
+            ret = meta.values[keyName];
+          } else {
+            ret = obj[keyName];
+          }
+        
         if (ret === undefined &&
             'object' === typeof obj && !(keyName in obj) && 'function' === typeof obj.unknownProperty) {
           return obj.unknownProperty(keyName);
@@ -17636,8 +17733,8 @@ define("ember-metal/property_get",
     __exports__._getPath = _getPath;
   });
 define("ember-metal/property_set",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_events","ember-metal/properties","ember-metal/error","ember-metal/path_cache","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_events","ember-metal/properties","ember-metal/error","ember-metal/path_cache","ember-metal/platform","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var getPath = __dependency2__._getPath;
@@ -17646,9 +17743,8 @@ define("ember-metal/property_set",
     var defineProperty = __dependency4__.defineProperty;
     var EmberError = __dependency5__["default"];
     var isPath = __dependency6__.isPath;
+    var hasPropertyAccessors = __dependency7__.hasPropertyAccessors;
 
-
-    var MANDATORY_SETTER = Ember.ENV.MANDATORY_SETTER;
     var IS_GLOBAL = /^([A-Z$]|([0-9][A-Z$]))/;
 
     /**
@@ -17705,24 +17801,26 @@ define("ember-metal/property_set",
         if (isUnknown && 'function' === typeof obj.setUnknownProperty) {
           obj.setUnknownProperty(keyName, value);
         } else if (meta && meta.watching[keyName] > 0) {
-          if (MANDATORY_SETTER) {
-            currentValue = meta.values[keyName];
-          } else {
-            currentValue = obj[keyName];
-          }
-          // only trigger a change if the value has changed
+          
+            if (hasPropertyAccessors) {
+              currentValue = meta.values[keyName];
+            } else {
+              currentValue = obj[keyName];
+            }
+                    // only trigger a change if the value has changed
           if (value !== currentValue) {
             propertyWillChange(obj, keyName);
-            if (MANDATORY_SETTER) {
-              if ((currentValue === undefined && !(keyName in obj)) || !obj.propertyIsEnumerable(keyName)) {
-                defineProperty(obj, keyName, null, value); // setup mandatory setter
+            
+              if (hasPropertyAccessors) {
+                if ((currentValue === undefined && !(keyName in obj)) || !obj.propertyIsEnumerable(keyName)) {
+                  defineProperty(obj, keyName, null, value); // setup mandatory setter
+                } else {
+                  meta.values[keyName] = value;
+                }
               } else {
-                meta.values[keyName] = value;
+                obj[keyName] = value;
               }
-            } else {
-              obj[keyName] = value;
-            }
-            propertyDidChange(obj, keyName);
+                        propertyDidChange(obj, keyName);
           }
         } else {
           obj[keyName] = value;
@@ -18079,7 +18177,7 @@ define("ember-metal/run_loop",
 
     /**
       Invokes the passed target/method and optional arguments after a specified
-      period if time. The last parameter of this method must always be a number
+      period of time. The last parameter of this method must always be a number
       of milliseconds.
 
       You should use this method whenever you need to run some action after a
@@ -18453,16 +18551,17 @@ define("ember-metal/set_properties",
     }
   });
 define("ember-metal/utils",
-  ["ember-metal/core","ember-metal/platform","ember-metal/array","ember-metal/keys","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+  ["ember-metal/core","ember-metal/platform","ember-metal/array","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
-    var platform = __dependency2__.platform;
+    var o_defineProperty = __dependency2__.defineProperty;
+    var canDefineNonEnumerableProperties = __dependency2__.canDefineNonEnumerableProperties;
+    var hasPropertyAccessors = __dependency2__.hasPropertyAccessors;
     var create = __dependency2__.create;
 
     var forEach = __dependency3__.forEach;
 
-    var keys = __dependency4__["default"];
     /**
     @module ember-metal
     */
@@ -18499,12 +18598,10 @@ define("ember-metal/utils",
     */
     var GUID_PREFIX = 'ember';
 
-    var o_defineProperty = platform.defineProperty;
     var o_create = create;
     // Used for guid generation...
     var numberCache  = [];
     var stringCache  = {};
-    var MANDATORY_SETTER = Ember.ENV.MANDATORY_SETTER;
 
     /**
       Strongly hint runtimes to intern the provided string.
@@ -18545,10 +18642,13 @@ define("ember-metal/utils",
       @private
       @return {String} interned version of the provided string
     */
-    function intern(string) {
-      var obj = Object.create(null);
-      obj[string] = true;
-      return keys(obj)[0];
+    function intern(str) {
+      var obj = {};
+      obj[str] = 1;
+      for (var key in obj) {
+        if (key === str) return key;
+      }
+      return str;
     }
 
     /**
@@ -18670,8 +18770,6 @@ define("ember-metal/utils",
       value: null
     };
 
-    var isDefinePropertySimulated = platform.defineProperty.isSimulated;
-
     function Meta(obj) {
       this.descs = {};
       this.watching = {};
@@ -18696,7 +18794,7 @@ define("ember-metal/utils",
       proto: null
     };
 
-    if (isDefinePropertySimulated) {
+    if (!canDefineNonEnumerableProperties) {
       // on platforms that don't support enumerable false
       // make meta fail jQuery.isPlainObject() to hide from
       // jQuery.extend() by having a property that fails
@@ -18711,7 +18809,11 @@ define("ember-metal/utils",
     // Placeholder for non-writable metas.
     var EMPTY_META = new Meta(null);
 
-    if (MANDATORY_SETTER) { EMPTY_META.values = {}; }
+    
+      if (hasPropertyAccessors) {
+        EMPTY_META.values = {};
+      }
+    
 
     /**
       Retrieves the meta hash for an object. If `writable` is true ensures the
@@ -18737,11 +18839,15 @@ define("ember-metal/utils",
       if (writable===false) return ret || EMPTY_META;
 
       if (!ret) {
-        if (!isDefinePropertySimulated) o_defineProperty(obj, '__ember_meta__', META_DESC);
+        if (canDefineNonEnumerableProperties) o_defineProperty(obj, '__ember_meta__', META_DESC);
 
         ret = new Meta(obj);
 
-        if (MANDATORY_SETTER) { ret.values = {}; }
+        
+          if (hasPropertyAccessors) {
+            ret.values = {};
+          }
+        
 
         obj['__ember_meta__'] = ret;
 
@@ -18749,7 +18855,7 @@ define("ember-metal/utils",
         ret.descs.constructor = null;
 
       } else if (ret.source !== obj) {
-        if (!isDefinePropertySimulated) o_defineProperty(obj, '__ember_meta__', META_DESC);
+        if (canDefineNonEnumerableProperties) o_defineProperty(obj, '__ember_meta__', META_DESC);
 
         ret = o_create(ret);
         ret.descs     = o_create(ret.descs);
@@ -18758,7 +18864,11 @@ define("ember-metal/utils",
         ret.cacheMeta = {};
         ret.source    = obj;
 
-        if (MANDATORY_SETTER) { ret.values = o_create(ret.values); }
+        
+          if (hasPropertyAccessors) {
+            ret.values = o_create(ret.values);
+          }
+        
 
         obj['__ember_meta__'] = ret;
       }
@@ -19264,7 +19374,12 @@ define("ember-metal/utils",
           v = obj[key];
           if (v === 'toString') { continue; } // ignore useless items
           if (typeOf(v) === 'function') { v = "function() { ... }"; }
-          ret.push(key + ": " + v);
+
+          if (v && typeof v.toString !== 'function') {
+            ret.push(key + ": " + toString.call(v));
+          } else {
+            ret.push(key + ": " + v);
+          }
         }
       }
       return "{" + ret.join(", ") + "}";
@@ -19310,17 +19425,19 @@ define("ember-metal/utils",
     __exports__.tryFinally = tryFinally;
   });
 define("ember-metal/watch_key",
-  ["ember-metal/core","ember-metal/utils","ember-metal/platform","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["ember-metal/core","ember-metal/utils","ember-metal/platform","ember-metal/properties","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var meta = __dependency2__.meta;
     var typeOf = __dependency2__.typeOf;
-    var platform = __dependency3__.platform;
+    var o_defineProperty = __dependency3__.defineProperty;
+    var hasPropertyAccessors = __dependency3__.hasPropertyAccessors;
+    var MANDATORY_SETTER_FUNCTION = __dependency4__.MANDATORY_SETTER_FUNCTION;
+    var DEFAULT_GETTER_FUNCTION = __dependency4__.DEFAULT_GETTER_FUNCTION;
 
     var metaFor = meta; // utils.js
-    var MANDATORY_SETTER = Ember.ENV.MANDATORY_SETTER;
-    var o_defineProperty = platform.defineProperty;
+
 
     function watchKey(obj, keyName, meta) {
       // can't watch length on Array - it is special...
@@ -19339,21 +19456,33 @@ define("ember-metal/watch_key",
           obj.willWatchProperty(keyName);
         }
 
-        if (MANDATORY_SETTER && keyName in obj) {
-          m.values[keyName] = obj[keyName];
-          o_defineProperty(obj, keyName, {
-            configurable: true,
-            enumerable: obj.propertyIsEnumerable(keyName),
-            set: Ember.MANDATORY_SETTER_FUNCTION,
-            get: Ember.DEFAULT_GETTER_FUNCTION(keyName)
-          });
-        }
+        
+          if (hasPropertyAccessors) {
+            handleMandatorySetter(m, obj, keyName);
+          }
+        
       } else {
         watching[keyName] = (watching[keyName] || 0) + 1;
       }
     }
 
-    __exports__.watchKey = watchKey;function unwatchKey(obj, keyName, meta) {
+    __exports__.watchKey = watchKey;
+    
+      var handleMandatorySetter = function handleMandatorySetter(m, obj, keyName) {
+        // this x in Y deopts, so keeping it in this function is better;
+        if (keyName in obj) {
+          m.values[keyName] = obj[keyName];
+          o_defineProperty(obj, keyName, {
+            configurable: true,
+            enumerable: obj.propertyIsEnumerable(keyName),
+            set: MANDATORY_SETTER_FUNCTION,
+            get: DEFAULT_GETTER_FUNCTION(keyName)
+          });
+        }
+      };
+    
+
+    function unwatchKey(obj, keyName, meta) {
       var m = meta || metaFor(obj), watching = m.watching;
 
       if (watching[keyName] === 1) {
@@ -19366,23 +19495,25 @@ define("ember-metal/watch_key",
           obj.didUnwatchProperty(keyName);
         }
 
-        if (MANDATORY_SETTER && keyName in obj) {
-          o_defineProperty(obj, keyName, {
-            configurable: true,
-            enumerable: obj.propertyIsEnumerable(keyName),
-            set: function(val) {
-              // redefine to set as enumerable
-              o_defineProperty(obj, keyName, {
-                configurable: true,
-                writable: true,
-                enumerable: true,
-                value: val
-              });
-              delete m.values[keyName];
-            },
-            get: Ember.DEFAULT_GETTER_FUNCTION(keyName)
-          });
-        }
+        
+          if (hasPropertyAccessors && keyName in obj) {
+            o_defineProperty(obj, keyName, {
+              configurable: true,
+              enumerable: obj.propertyIsEnumerable(keyName),
+              set: function(val) {
+                // redefine to set as enumerable
+                o_defineProperty(obj, keyName, {
+                  configurable: true,
+                  writable: true,
+                  enumerable: true,
+                  value: val
+                });
+                delete m.values[keyName];
+              },
+              get: DEFAULT_GETTER_FUNCTION(keyName)
+            });
+          }
+        
       } else if (watching[keyName] > 1) {
         watching[keyName]--;
       }
@@ -23334,8 +23465,7 @@ define("ember-routing/system/route",
       */
       _qp: computed(function() {
         var controllerName = this.controllerName || this.routeName;
-        var fullName = this.container.normalize('controller:' + controllerName);
-        var controllerClass = this.container.lookupFactory(fullName);
+        var controllerClass = this.container.lookupFactory('controller:' + controllerName);
 
         if (!controllerClass) {
           return defaultQPMeta;
@@ -24484,7 +24614,7 @@ define("ember-routing/system/route",
 
         if (!name && sawParams) { return copy(params); }
         else if (!name) {
-          if (transition.resolveIndex !== transition.state.handlerInfos.length-1) { return; }
+          if (transition.resolveIndex < 1) { return; }
 
           var parentModel = transition.state.handlerInfos[transition.resolveIndex-1].context;
 
@@ -25560,13 +25690,17 @@ define("ember-routing/system/router",
           }
         }
 
-        if (rootURL && typeof rootURL === 'string') {
-          location.rootURL = rootURL;
-        }
+        if (location !== null && typeof location === 'object') {
+          if (rootURL && typeof rootURL === 'string') {
+            location.rootURL = rootURL;
+          }
 
-        // ensure that initState is called AFTER the rootURL is set on
-        // the location instance
-        if (typeof location.initState === 'function') { location.initState(); }
+          // ensure that initState is called AFTER the rootURL is set on
+          // the location instance
+          if (typeof location.initState === 'function') {
+            location.initState();
+          }
+        }
       },
 
       _getHandlerFunction: function() {
@@ -30595,7 +30729,7 @@ define("ember-runtime/mixins/enumerable",
         - `index` is the current index in the iteration.
         - `enumerable` is the enumerable object itself.
 
-        It should return the `true` to include the item in the results, `false`
+        It should return `true` to include the item in the results, `false`
         otherwise.
 
         Note that in addition to a callback, you can also pass an optional target
@@ -32156,7 +32290,7 @@ define("ember-runtime/mixins/observable",
       },
 
       /**
-        To get multiple properties at once, call `getProperties`
+        To get the values of multiple properties at once, call `getProperties`
         with a list of strings or an array:
 
         ```javascript
@@ -33601,7 +33735,7 @@ define("ember-runtime/system/core_object",
     */
 
     var Ember = __dependency1__["default"];
-    // Ember.ENV.MANDATORY_SETTER, Ember.assert, Ember.K, Ember.config
+    // Ember.assert, Ember.K, Ember.config
 
     // NOTE: this object should never be included directly. Instead use `Ember.Object`.
     // We only define this separately so that `Ember.Set` can depend on it.
@@ -33622,7 +33756,7 @@ define("ember-runtime/system/core_object",
     var required = __dependency9__.required;
     var indexOf = __dependency10__.indexOf;
     var EmberError = __dependency11__["default"];
-    var platform = __dependency5__.platform;
+    var o_defineProperty = __dependency5__.defineProperty;
     var keys = __dependency12__["default"];
     var ActionHandler = __dependency13__["default"];
     var defineProperty = __dependency14__.defineProperty;
@@ -33630,14 +33764,13 @@ define("ember-runtime/system/core_object",
     var ComputedProperty = __dependency16__.ComputedProperty;
     var run = __dependency17__["default"];
     var destroy = __dependency6__.destroy;
-
     var K = __dependency1__.K;
-    var o_defineProperty = platform.defineProperty;
+    var hasPropertyAccessors = __dependency5__.hasPropertyAccessors;
+
     var schedule = run.schedule;
     var applyMixin = Mixin._apply;
     var finishPartial = Mixin.finishPartial;
     var reopen = Mixin.prototype.reopen;
-    var MANDATORY_SETTER = Ember.ENV.MANDATORY_SETTER;
     var hasCachedComputedProperties = false;
 
     var undefinedDescriptor = {
@@ -33741,11 +33874,14 @@ define("ember-runtime/system/core_object",
               } else {
                 if (typeof this.setUnknownProperty === 'function' && !(keyName in this)) {
                   this.setUnknownProperty(keyName, value);
-                } else if (MANDATORY_SETTER) {
-                  defineProperty(this, keyName, null, value); // setup mandatory setter
                 } else {
-                  this[keyName] = value;
-                }
+                  
+                    if (hasPropertyAccessors) {
+                      defineProperty(this, keyName, null, value); // setup mandatory setter
+                    } else {
+                      this[keyName] = value;
+                    }
+                                  }
               }
             }
           }
@@ -34440,11 +34576,8 @@ define("ember-runtime/system/core_object",
             cache._computedProperties = undefined;
           }
         }
-
-        this._super();
       }
     });
-
 
     __exports__["default"] = CoreObject;
   });
@@ -39313,7 +39446,7 @@ define("ember-views/views/collection_view",
       ```javascript
       var App = Ember.Application.create();
       App.ListWithNothing = Ember.CollectionView.create({
-        classNames: ['nothing']
+        classNames: ['nothing'],
         content: null,
         emptyView: Ember.View.extend({
           template: Ember.Handlebars.compile("The collection is empty")
@@ -40319,8 +40452,8 @@ define("ember-views/views/container_view",
     __exports__["default"] = ContainerView;
   });
 define("ember-views/views/core_view",
-  ["ember-views/system/renderer","ember-views/views/states","ember-runtime/system/object","ember-runtime/mixins/evented","ember-runtime/mixins/action_handler","ember-metal/properties","ember-metal/property_get","ember-metal/property_set","ember-metal/computed","ember-metal/utils","ember-metal/instrumentation","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
+  ["ember-views/system/renderer","ember-views/views/states","ember-runtime/system/object","ember-runtime/mixins/evented","ember-runtime/mixins/action_handler","ember-metal/property_get","ember-metal/property_set","ember-metal/computed","ember-metal/utils","ember-metal/instrumentation","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __exports__) {
     "use strict";
     var Rerender = __dependency1__["default"];
 
@@ -40330,14 +40463,13 @@ define("ember-views/views/core_view",
     var Evented = __dependency4__["default"];
     var ActionHandler = __dependency5__["default"];
 
-    var deprecateProperty = __dependency6__.deprecateProperty;
-    var get = __dependency7__.get;
-    var set = __dependency8__.set;
-    var computed = __dependency9__.computed;
+    var get = __dependency6__.get;
+    var set = __dependency7__.set;
+    var computed = __dependency8__.computed;
 
-    var typeOf = __dependency10__.typeOf;
+    var typeOf = __dependency9__.typeOf;
 
-    var instrument = __dependency11__.instrument;
+    var instrument = __dependency10__.instrument;
 
     /**
       `Ember.CoreView` is an abstract class that exists to give view-like behavior
@@ -40365,9 +40497,6 @@ define("ember-views/views/core_view",
         this._super();
         this._transitionTo('preRender');
         this._isVisible = get(this, 'isVisible');
-
-        deprecateProperty(this, 'states', '_states');
-        deprecateProperty(this, 'state', '_state');
       },
 
       /**
@@ -40781,8 +40910,8 @@ define("ember-views/views/states/pre_render",
     __exports__["default"] = preRender;
   });
 define("ember-views/views/view",
-  ["ember-metal/core","ember-runtime/mixins/evented","ember-runtime/system/object","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/set_properties","ember-metal/run_loop","ember-metal/observer","ember-metal/properties","ember-metal/utils","ember-metal/computed","ember-metal/mixin","ember-metal/is_none","ember-runtime/system/native_array","ember-runtime/system/string","ember-metal/enumerable_utils","ember-runtime/copy","ember-metal/binding","ember-metal/property_events","ember-views/system/jquery","ember-views/system/ext","ember-views/views/core_view","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __exports__) {
+  ["ember-metal/core","ember-runtime/mixins/evented","ember-runtime/system/object","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/set_properties","ember-metal/run_loop","ember-metal/observer","ember-metal/properties","ember-metal/utils","ember-metal/computed","ember-metal/mixin","ember-metal/is_none","ember-metal/deprecate_property","ember-runtime/system/native_array","ember-runtime/system/string","ember-metal/enumerable_utils","ember-runtime/copy","ember-metal/binding","ember-metal/property_events","ember-views/system/jquery","ember-views/system/ext","ember-views/views/core_view","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __exports__) {
     "use strict";
     // Ember.assert, Ember.deprecate, Ember.warn, Ember.TEMPLATES,
     // Ember.K, jQuery, Ember.lookup,
@@ -40811,26 +40940,27 @@ define("ember-views/views/view",
     var isArray = __dependency11__.isArray;
     var isNone = __dependency14__.isNone;
     var Mixin = __dependency13__.Mixin;
-    var emberA = __dependency15__.A;
+    var deprecateProperty = __dependency15__.deprecateProperty;
+    var emberA = __dependency16__.A;
 
-    var dasherize = __dependency16__.dasherize;
+    var dasherize = __dependency17__.dasherize;
 
     // ES6TODO: functions on EnumerableUtils should get their own export
-    var forEach = __dependency17__.forEach;
-    var addObject = __dependency17__.addObject;
-    var removeObject = __dependency17__.removeObject;
+    var forEach = __dependency18__.forEach;
+    var addObject = __dependency18__.addObject;
+    var removeObject = __dependency18__.removeObject;
 
     var beforeObserver = __dependency13__.beforeObserver;
-    var copy = __dependency18__["default"];
-    var isGlobalPath = __dependency19__.isGlobalPath;
+    var copy = __dependency19__["default"];
+    var isGlobalPath = __dependency20__.isGlobalPath;
 
-    var propertyWillChange = __dependency20__.propertyWillChange;
-    var propertyDidChange = __dependency20__.propertyDidChange;
+    var propertyWillChange = __dependency21__.propertyWillChange;
+    var propertyDidChange = __dependency21__.propertyDidChange;
 
-    var jQuery = __dependency21__["default"];
+    var jQuery = __dependency22__["default"];
      // for the side effect of extending Ember.run.queues
 
-    var CoreView = __dependency23__["default"];
+    var CoreView = __dependency24__["default"];
 
     /**
     @module ember
@@ -42757,6 +42887,8 @@ define("ember-views/views/view",
       }
 
     });
+    deprecateProperty(View.prototype, 'state', '_state');
+    deprecateProperty(View.prototype, 'states', '_states');
 
     /*
       Describe how the specified actions should behave in the various
@@ -43121,7 +43253,7 @@ define("morph/dom-helper",
     };
 
     prototype.createMorph = function(parent, start, end, contextualElement){
-      if (!contextualElement && parent.nodeType === Node.ELEMENT_NODE) {
+      if (!contextualElement && parent.nodeType === 1) {
         contextualElement = parent;
       }
       if (!contextualElement) {
@@ -43186,7 +43318,7 @@ define("morph/morph",
     }
 
     function ensureContext(contextualElement) {
-      if (!contextualElement || contextualElement.nodeType !== Node.ELEMENT_NODE) {
+      if (!contextualElement || contextualElement.nodeType !== 1) {
         throw new Error('An element node must be provided for a contextualElement, you provided ' +
                         (contextualElement ? 'nodeType ' + contextualElement.nodeType : 'nothing'));
       }
