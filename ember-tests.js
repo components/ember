@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.dc1042d0
+ * @version   1.9.0-beta.1+canary.3d08a193
  */
 
 (function() {
@@ -30369,6 +30369,8 @@ define("ember-runtime/tests/inject_test",
   ["ember-metal/injected_property","ember-runtime/inject","ember-runtime/system/container","ember-runtime/system/object"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
+    /* global EmberDev */
+
     var InjectedProperty = __dependency1__["default"];
     var createInjectionHelper = __dependency2__.createInjectionHelper;
     var inject = __dependency2__["default"];
@@ -30379,26 +30381,30 @@ define("ember-runtime/tests/inject_test",
       QUnit.module('inject');
 
       test("calling `inject` directly should error", function() {
-        throws(function() {
+        expectAssertion(function() {
           inject('foo');
         }, /Injected properties must be created through helpers/);
       });
 
-      test("injection type validation function is run once at mixin time", function() {
-        expect(1);
+      if (!EmberDev.runningProdBuild) {
+        // this check is done via an assertion which is stripped from
+        // production builds
+        test("injection type validation function is run once at mixin time", function() {
+          expect(1);
 
-        createInjectionHelper('foo', function() {
-          ok(true, 'should call validation function');
+          createInjectionHelper('foo', function() {
+            ok(true, 'should call validation function');
+          });
+
+          var AnObject = Object.extend({
+            bar: inject.foo(),
+            baz: inject.foo()
+          });
+
+          // Prototype chains are lazy, make sure it's evaluated
+          AnObject.proto();
         });
-
-        var AnObject = Object.extend({
-          bar: inject.foo(),
-          baz: inject.foo()
-        });
-
-        // Prototype chains are lazy, make sure it's evaluated
-        AnObject.proto();
-      });
+      }
 
       test("attempting to inject a nonexistent container key should error", function() {
         var container = new Container();
