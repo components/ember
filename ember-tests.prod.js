@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.cd380722
+ * @version   1.9.0-beta.1+canary.755057a5
  */
 
 (function() {
@@ -41614,6 +41614,36 @@ define("ember-runtime/tests/system/object/observer_test",
       set(get(obj2, 'bar2'), 'baz', 'BIFF3');
       equal(get(obj1, 'count'), 1, 'should not invoke again');
       equal(get(obj2, 'count'), 1, 'should invoke observer on obj2');
+    });
+
+    testBoth('chain observer on class that has a reference to an uninitialized object will finish chains that reference it', function(get, set) {
+      var changed = false;
+
+      var ChildClass = EmberObject.extend({
+        parent: null,
+        parentOneTwoDidChange: observer('parent.one.two', function() {
+          changed = true;
+        })
+      });
+
+      var ParentClass = EmberObject.extend({
+        one: {
+          two: "old"
+        },
+        init: function () {
+          this.child = ChildClass.create({
+            parent: this
+          });
+        }
+      });
+
+      var parent = new ParentClass();
+
+      equal(changed, false, 'precond');
+
+      parent.set('one.two', 'new');
+
+      equal(changed, true, 'child should have been notified of change to path');
     });
   });
 define("ember-runtime/tests/system/object/observer_test.jshint",
