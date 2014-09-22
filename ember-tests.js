@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.3d08a193
+ * @version   1.9.0-beta.1+canary.cd380722
  */
 
 (function() {
@@ -21665,19 +21665,8 @@ define("ember-metal/tests/utils/meta_test",
     });
 
     QUnit.module("Ember.meta enumerable");
-    // Tests fix for https://github.com/emberjs/ember.js/issues/344
-    // This is primarily for older browsers such as IE8
+
     if (canDefineNonEnumerableProperties) {
-      if (Ember.imports.jQuery) {
-        test("meta is not jQuery.isPlainObject", function () {
-          var proto, obj;
-          proto = {foo: 'bar'};
-          equal(jQuery.isPlainObject(meta(proto)), false, 'meta should not be isPlainObject when meta property cannot be marked as enumerable: false');
-          obj = create(proto);
-          equal(jQuery.isPlainObject(meta(obj)), false, 'meta should not be isPlainObject when meta property cannot be marked as enumerable: false');
-        });
-      }
-    } else {
       test("meta is not enumerable", function () {
         var proto, obj, props, prop;
         proto = {foo: 'bar'};
@@ -21698,6 +21687,18 @@ define("ember-metal/tests/utils/meta_test",
           }
         }
       });
+    } else {
+      // Tests fix for https://github.com/emberjs/ember.js/issues/344
+      // This is primarily for older browsers such as IE8
+      if (Ember.imports.jQuery) {
+        test("meta is not jQuery.isPlainObject", function () {
+          var proto, obj;
+          proto = {foo: 'bar'};
+          equal(jQuery.isPlainObject(meta(proto)), false, 'meta should not be isPlainObject when meta property cannot be marked as enumerable: false');
+          obj = create(proto);
+          equal(jQuery.isPlainObject(meta(obj)), false, 'meta should not be isPlainObject when meta property cannot be marked as enumerable: false');
+        });
+      }
     }
   });
 define("ember-metal/tests/utils/meta_test.jshint",
@@ -40533,8 +40534,8 @@ define("ember-runtime/tests/system/object/computed_test.jshint",
     });
   });
 define("ember-runtime/tests/system/object/create_test",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/computed","ember-metal/mixin","ember-metal/run_loop","ember-metal/events","ember-runtime/system/object"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/computed","ember-metal/mixin","ember-metal/run_loop","ember-metal/events","ember-runtime/system/object","ember-metal/keys"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var get = __dependency2__.get;
@@ -40547,6 +40548,7 @@ define("ember-runtime/tests/system/object/create_test",
     var run = __dependency7__["default"];
     var on = __dependency8__.on;
     var EmberObject = __dependency9__["default"];
+    var keys = __dependency10__["default"];
 
     var moduleOptions, originalLookup;
 
@@ -40885,13 +40887,7 @@ define("ember-runtime/tests/system/object/create_test",
       });
 
       var expectedProperties = ['firstName', 'lastName'];
-      var actualProperties   = [];
-
-      for (var name in obj) {
-        if (obj.hasOwnProperty(name)) {
-          actualProperties.push(name);
-        }
-      }
+      var actualProperties   = keys(obj);
 
       deepEqual(actualProperties, expectedProperties, 'internal properties do not leak');
     });
