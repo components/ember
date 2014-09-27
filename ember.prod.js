@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.f9aa3f4e
+ * @version   1.9.0-beta.1+canary.24592625
  */
 
 (function() {
@@ -10276,9 +10276,10 @@ define("ember-metal-views/renderer",
 
       var parentIndex = -1;
       var parents = this._parents;
-      var parent = null;
+      var parent = _parentView || null;
       var elements = this._elements;
       var element = null;
+      var contextualElement = null;
       var level = 0;
 
       var view = _view;
@@ -10297,7 +10298,17 @@ define("ember-metal-views/renderer",
         }
 
         this.willCreateElement(view);
-        element = this.createElement(view);
+
+        contextualElement = view._morph && view._morph.contextualElement;
+        if (!contextualElement && parent && parent._childViewsMorph) {
+          contextualElement = parent._childViewsMorph.contextualElement;
+        }
+        if (!contextualElement && view._didCreateElementWithoutMorph) {
+          // This code path is only used by createElement and rerender when createElement
+          // was previously called on a view.
+          contextualElement = document.body;
+        }
+                element = this.createElement(view, contextualElement);
 
         parents[level++] = parentIndex;
         parentIndex = index;
@@ -10334,7 +10345,7 @@ define("ember-metal-views/renderer",
           }
 
           parentIndex = parents[level];
-          parent = views[parentIndex];
+          parent = parentIndex === -1 ? _parentView : views[parentIndex];
           this.insertElement(view, parent, element, -1);
           index = queue[--length];
           view = views[index];
@@ -10367,9 +10378,9 @@ define("ember-metal-views/renderer",
     Renderer.prototype.scheduleInsert =
       function Renderer_scheduleInsert(view, morph) {
         if (view._morph || view._elementCreated) {
-          throw new Error("You can't insert a View that has already been rendered");
+          throw new Error("You cannot insert a View that has already been rendered");
         }
-        view._morph = morph;
+                view._morph = morph;
         var viewId = this.uuid(view);
         this._inserts[viewId] = this.scheduleRender(this, function scheduledRenderTree() {
           this._inserts[viewId] = null;
@@ -13310,7 +13321,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.f9aa3f4e
+      @version 1.9.0-beta.1+canary.24592625
     */
 
     if ('undefined' === typeof Ember) {
@@ -13337,10 +13348,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.f9aa3f4e'
+      @default '1.9.0-beta.1+canary.24592625'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.f9aa3f4e';
+    Ember.VERSION = '1.9.0-beta.1+canary.24592625';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -38080,7 +38091,6 @@ define("ember-views",
     // BEGIN IMPORTS
     var Ember = __dependency1__["default"];
     var jQuery = __dependency2__["default"];
-    var setInnerHTML = __dependency3__.setInnerHTML;
     var isSimpleClick = __dependency3__.isSimpleClick;
     var RenderBuffer = __dependency4__["default"];
      // for the side effect of extending Ember.run.queues
@@ -38111,7 +38121,6 @@ define("ember-views",
     Ember.RenderBuffer = RenderBuffer;
 
     var ViewUtils = Ember.ViewUtils = {};
-    ViewUtils.setInnerHTML = setInnerHTML;
     ViewUtils.isSimpleClick = isSimpleClick;
 
     Ember.CoreView = CoreView;
@@ -38585,7 +38594,7 @@ define("ember-views/system/jquery",
     __exports__["default"] = jQuery;
   });
 define("ember-views/system/render_buffer",
-  ["ember-views/system/utils","ember-views/system/jquery","morph","exports"],
+  ["ember-views/system/jquery","morph","ember-metal/core","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     /**
@@ -38593,9 +38602,55 @@ define("ember-views/system/render_buffer",
     @submodule ember-views
     */
 
-    var setInnerHTML = __dependency1__.setInnerHTML;
-    var jQuery = __dependency2__["default"];
-    var DOMHelper = __dependency3__.DOMHelper;
+    var jQuery = __dependency1__["default"];
+    var DOMHelper = __dependency2__.DOMHelper;
+    var Ember = __dependency3__["default"];
+
+    // The HTML spec allows for "omitted start tags". These tags are optional
+    // when their intended child is the first thing in the parent tag. For
+    // example, this is a tbody start tag:
+    //
+    // <table>
+    //   <tbody>
+    //     <tr>
+    //
+    // The tbody may be omitted, and the browser will accept and render:
+    //
+    // <table>
+    //   <tr>
+    //
+    // However, the omitted start tag will still be added to the DOM. Here
+    // we test the string and context to see if the browser is about to
+    // perform this cleanup, but with a special allowance for disregarding
+    // <script tags. This disregarding of <script being the first child item
+    // may bend the offical spec a bit, and is only needed for Handlebars
+    // templates.
+    //
+    // http://www.whatwg.org/specs/web-apps/current-work/multipage/syntax.html#optional-tags
+    // describes which tags are omittable. The spec for tbody and colgroup
+    // explains this behavior:
+    //
+    // http://www.whatwg.org/specs/web-apps/current-work/multipage/tables.html#the-tbody-element
+    // http://www.whatwg.org/specs/web-apps/current-work/multipage/tables.html#the-colgroup-element
+    //
+    var omittedStartTagChildren = {
+      tr: document.createElement('tbody'),
+      col: document.createElement('colgroup')
+    };
+
+    var omittedStartTagChildTest = /(?:<script)*.*?<([\w:]+)/i;
+
+    function detectOmittedStartTag(string, contextualElement){
+      // Omitted start tags are only inside table tags.
+      if (contextualElement.tagName === 'TABLE') {
+        var omittedStartTagChildMatch = omittedStartTagChildTest.exec(string);
+        if (omittedStartTagChildMatch) {
+          // It is already asserted that the contextual element is a table
+          // and not the proper start tag. Just look up the start tag.
+          return omittedStartTagChildren[omittedStartTagChildMatch[1].toLowerCase()];
+        }
+      }
+    }
 
     function ClassSet() {
       this.seen = {};
@@ -38673,19 +38728,20 @@ define("ember-views/system/render_buffer",
       to the DOM.
 
        ```javascript
-       var buffer = Ember.renderBuffer('div');
+       var buffer = Ember.renderBuffer('div', contextualElement);
       ```
 
       @method renderBuffer
       @namespace Ember
       @param {String} tagName tag name (such as 'div' or 'p') used for the buffer
     */
-    __exports__["default"] = function renderBuffer(tagName) {
-      return new _RenderBuffer(tagName); // jshint ignore:line
+    __exports__["default"] = function renderBuffer(tagName, contextualElement) {
+      return new _RenderBuffer(tagName, contextualElement); // jshint ignore:line
     }
 
-    function _RenderBuffer(tagName) {
+    function _RenderBuffer(tagName, contextualElement) {
       this.tagName = tagName;
+      this._contextualElement = contextualElement;
       this.buffer = null;
       this.childViews = [];
       this.dom = new DOMHelper();
@@ -38693,10 +38749,11 @@ define("ember-views/system/render_buffer",
 
     _RenderBuffer.prototype = {
 
-      reset: function(tagName) {
+      reset: function(tagName, contextualElement) {
         this.tagName = tagName;
         this.buffer = null;
         this._element = null;
+        this._contextualElement = contextualElement;
         this.elementClasses = null;
         this.elementId = null;
         this.elementAttributes = null;
@@ -38708,6 +38765,9 @@ define("ember-views/system/render_buffer",
 
       // The root view's element
       _element: null,
+
+      // The root view's contextualElement
+      _contextualElement: null,
 
       /**
         An internal set used to de-dupe class names when `addClass()` is
@@ -38782,7 +38842,7 @@ define("ember-views/system/render_buffer",
         example, if you wanted to create a `p` tag, then you would call
 
         ```javascript
-        Ember.RenderBuffer('p')
+        Ember.RenderBuffer('p', contextualElement)
         ```
 
         @property elementTag
@@ -38812,7 +38872,7 @@ define("ember-views/system/render_buffer",
         this.push("<script id='morph-"+index+"' type='text/x-placeholder'>\x3C/script>");
       },
 
-      hydrateMorphs: function () {
+      hydrateMorphs: function (contextualElement) {
         var childViews = this.childViews;
         var el = this._element;
         for (var i=0,l=childViews.length; i<l; i++) {
@@ -38820,7 +38880,11 @@ define("ember-views/system/render_buffer",
           var ref = el.querySelector('#morph-'+i);
           var parent = ref.parentNode;
 
-          childView._morph = this.dom.insertMorphBefore(parent, ref);
+          childView._morph = this.dom.insertMorphBefore(
+            parent,
+            ref,
+            parent.nodeType === 1 ? parent : contextualElement
+          );
           parent.removeChild(ref);
         }
       },
@@ -38982,7 +39046,7 @@ define("ember-views/system/render_buffer",
           tagString = tagName;
         }
 
-        var element = document.createElement(tagString);
+        var element = this.dom.createElement(tagString);
         var $element = jQuery(element);
 
         if (id) {
@@ -39036,21 +39100,30 @@ define("ember-views/system/render_buffer",
           of this buffer
       */
       element: function() {
+        if (!this._contextualElement) {
+                    this._contextualElement = document.body;
+        }
         var html = this.innerString();
 
+        var nodes;
         if (this._element) {
           if (html) {
-            this._element = setInnerHTML(this._element, html);
-            this.hydrateMorphs();
+            nodes = this.dom.parseHTML(html, this._element);
+            while (nodes[0]) {
+              this._element.appendChild(nodes[0]);
+            }
+            this.hydrateMorphs(this._element);
           }
         } else {
           if (html) {
+            var omittedStartTag = detectOmittedStartTag(html, this._contextualElement);
+            var contextualElement = omittedStartTag || this._contextualElement;
+            nodes = this.dom.parseHTML(html, contextualElement);
             var frag = this._element = document.createDocumentFragment();
-            var parsed = jQuery.parseHTML(html);
-            for (var i=0,l=parsed.length; i<l; i++) {
-              frag.appendChild(parsed[i]);
+            while (nodes[0]) {
+              frag.appendChild(nodes[0]);
             }
-            this.hydrateMorphs();
+            this.hydrateMorphs(contextualElement);
           } else if (html === '') {
             this._element = html;
           }
@@ -39115,7 +39188,7 @@ define("ember-views/system/renderer",
       };
 
     EmberRenderer.prototype.createElement =
-      function EmberRenderer_createElement(view) {
+      function EmberRenderer_createElement(view, contextualElement) {
         // If this is the top-most view, start a new buffer. Otherwise,
         // create a new buffer relative to the original using the
         // provided buffer operation (for example, `insertAfter` will
@@ -39126,7 +39199,7 @@ define("ember-views/system/renderer",
         }
 
         var buffer = view.buffer = this.buffer;
-        buffer.reset(tagName);
+        buffer.reset(tagName, contextualElement);
 
         if (view.beforeRender) {
           view.beforeRender(buffer);
@@ -39214,161 +39287,15 @@ define("ember-views/system/renderer",
     __exports__["default"] = EmberRenderer;
   });
 define("ember-views/system/utils",
-  ["ember-metal/core","ember-views/system/jquery","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["exports"],
+  function(__exports__) {
     "use strict";
-    /* globals XMLSerializer */
-
-    var Ember = __dependency1__["default"];
-    // Ember.assert
-    var jQuery = __dependency2__["default"];
-
     /**
     @module ember
     @submodule ember-views
     */
 
-    /* BEGIN METAMORPH HELPERS */
-
-    // Internet Explorer prior to 9 does not allow setting innerHTML if the first element
-    // is a "zero-scope" element. This problem can be worked around by making
-    // the first node an invisible text node. We, like Modernizr, use &shy;
-
-    var needsShy = typeof document !== 'undefined' && (function() {
-      var testEl = document.createElement('div');
-      testEl.innerHTML = "<div></div>";
-      testEl.firstChild.innerHTML = "<script></script>";
-      return testEl.firstChild.innerHTML === '';
-    })();
-
-    // IE 8 (and likely earlier) likes to move whitespace preceeding
-    // a script tag to appear after it. This means that we can
-    // accidentally remove whitespace when updating a morph.
-    var movesWhitespace = typeof document !== 'undefined' && (function() {
-      var testEl = document.createElement('div');
-      testEl.innerHTML = "Test: <script type='text/x-placeholder'></script>Value";
-      return testEl.childNodes[0].nodeValue === 'Test:' &&
-              testEl.childNodes[2].nodeValue === ' Value';
-    })();
-
-    // Use this to find children by ID instead of using jQuery
-    var findChildById = function(element, id) {
-      if (element.getAttribute('id') === id) { return element; }
-
-      var len = element.childNodes.length;
-      var idx, node, found;
-      for (idx=0; idx<len; idx++) {
-        node = element.childNodes[idx];
-        found = node.nodeType === 1 && findChildById(node, id);
-        if (found) { return found; }
-      }
-    };
-
-    var setInnerHTMLWithoutFix = function(element, html) {
-      if (needsShy) {
-        html = '&shy;' + html;
-      }
-
-      var matches = [];
-      if (movesWhitespace) {
-        // Right now we only check for script tags with ids with the
-        // goal of targeting morphs.
-        html = html.replace(/(\s+)(<script id='([^']+)')/g, function(match, spaces, tag, id) {
-          matches.push([id, spaces]);
-          return tag;
-        });
-      }
-
-      element.innerHTML = html;
-
-      // If we have to do any whitespace adjustments do them now
-      if (matches.length > 0) {
-        var len = matches.length;
-        var idx;
-        for (idx=0; idx<len; idx++) {
-          var script = findChildById(element, matches[idx][0]);
-          var node = document.createTextNode(matches[idx][1]);
-          script.parentNode.insertBefore(node, script);
-        }
-      }
-
-      if (needsShy) {
-        var shyElement = element.firstChild;
-        while (shyElement.nodeType === 1 && !shyElement.nodeName) {
-          shyElement = shyElement.firstChild;
-        }
-        if (shyElement.nodeType === 3 && shyElement.nodeValue.charAt(0) === "\u00AD") {
-          shyElement.nodeValue = shyElement.nodeValue.slice(1);
-        }
-      }
-    };
-
-    /* END METAMORPH HELPERS */
-
-    function setInnerHTMLTestFactory(tagName, childTagName, ChildConstructor) {
-      return function() {
-        var el = document.createElement(tagName);
-        setInnerHTMLWithoutFix(el, '<' + childTagName + '>Content</' + childTagName + '>');
-        return el.firstChild instanceof ChildConstructor;
-      };
-    }
-
-
-    var innerHTMLTags = {
-      // IE 8 and earlier don't allow us to do innerHTML on select
-      select: function() {
-        var el = document.createElement('select');
-        setInnerHTMLWithoutFix(el, '<option value="test">Test</option>');
-        return el.options.length === 1;
-      },
-
-      // IE 9 and earlier don't allow us to set innerHTML on col, colgroup, frameset,
-      // html, style, table, tbody, tfoot, thead, title, tr.
-      col:      setInnerHTMLTestFactory('col',      'span',  window.HTMLSpanElement),
-      colgroup: setInnerHTMLTestFactory('colgroup', 'col',   window.HTMLTableColElement),
-      frameset: setInnerHTMLTestFactory('frameset', 'frame', window.HTMLFrameElement),
-      table:    setInnerHTMLTestFactory('table',    'tbody', window.HTMLTableSectionElement),
-      tbody:    setInnerHTMLTestFactory('tbody',    'tr',    window.HTMLTableRowElement),
-      tfoot:    setInnerHTMLTestFactory('tfoot',    'tr',    window.HTMLTableRowElement),
-      thead:    setInnerHTMLTestFactory('thead',    'tr',    window.HTMLTableRowElement),
-      tr:       setInnerHTMLTestFactory('tr',       'td',    window.HTMLTableCellElement)
-    };
-
-    var canSetInnerHTML = function(tagName) {
-      tagName = tagName.toLowerCase();
-      var canSet = innerHTMLTags[tagName];
-
-      if (typeof canSet === 'function') {
-        canSet = innerHTMLTags[tagName] = canSet();
-      }
-
-      return canSet === undefined ? true : canSet;
-    };
-
-    function setInnerHTML(element, html) {
-      var tagName = element.tagName;
-
-      if (canSetInnerHTML(tagName)) {
-        setInnerHTMLWithoutFix(element, html);
-      } else {
-        // Firefox versions < 11 do not have support for element.outerHTML.
-        var outerHTML = element.outerHTML || new XMLSerializer().serializeToString(element);
-        
-        var startTag = outerHTML.match(new RegExp("<"+tagName+"([^>]*)>", 'i'))[0];
-        var endTag = '</'+tagName+'>';
-
-        var wrapper = document.createElement('div');
-        jQuery(startTag + html + endTag).appendTo(wrapper);
-        element = wrapper.firstChild;
-        while (element.tagName !== tagName) {
-          element = element.nextSibling;
-        }
-      }
-
-      return element;
-    }
-
-    __exports__.setInnerHTML = setInnerHTML;function isSimpleClick(event) {
+    function isSimpleClick(event) {
       var modifier = event.shiftKey || event.metaKey || event.altKey || event.ctrlKey;
       var secondaryClick = event.which > 1; // IE9 may return undefined
 
@@ -42405,6 +42332,7 @@ define("ember-views/views/view",
       createElement: function() {
         if (this.element) { return this; }
 
+        this._didCreateElementWithoutMorph = true;
         this.constructor.renderer.renderTree(this);
 
         return this;
@@ -43165,12 +43093,11 @@ define("morph",
     __exports__.DOMHelper = DOMHelper;
   });
 define("morph/dom-helper",
-  ["../morph/morph","exports"],
-  function(__dependency1__, __exports__) {
+  ["../morph/morph","./dom-helper/build-html-dom","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     var Morph = __dependency1__["default"];
-
-    var emptyString = '';
+    var buildHTMLDOM = __dependency2__.buildHTMLDOM;
 
     var deletesBlankTextNodes = (function(){
       var element = document.createElement('div');
@@ -43187,7 +43114,7 @@ define("morph/dom-helper",
     })();
 
     var svgNamespace = 'http://www.w3.org/2000/svg',
-        svgHTMLIntegrationPoints = ['foreignObject', 'desc', 'title'];
+        svgHTMLIntegrationPoints = {foreignObject: 1, desc: 1, title: 1};
 
     function isSVG(ns){
       return ns === svgNamespace;
@@ -43199,12 +43126,58 @@ define("morph/dom-helper",
       if (
         element &&
         element.namespaceURI === svgNamespace &&
-        svgHTMLIntegrationPoints.indexOf(element.tagName) === -1
+        !svgHTMLIntegrationPoints[element.tagName]
       ) {
         return svgNamespace;
       } else {
         return null;
       }
+    }
+
+    // The HTML spec allows for "omitted start tags". These tags are optional
+    // when their intended child is the first thing in the parent tag. For
+    // example, this is a tbody start tag:
+    //
+    // <table>
+    //   <tbody>
+    //     <tr>
+    //
+    // The tbody may be omitted, and the browser will accept and render:
+    //
+    // <table>
+    //   <tr>
+    //
+    // However, the omitted start tag will still be added to the DOM. Here
+    // we test the string and context to see if the browser is about to
+    // perform this cleanup.
+    //
+    // http://www.whatwg.org/specs/web-apps/current-work/multipage/syntax.html#optional-tags
+    // describes which tags are omittable. The spec for tbody and colgroup
+    // explains this behavior:
+    //
+    // http://www.whatwg.org/specs/web-apps/current-work/multipage/tables.html#the-tbody-element
+    // http://www.whatwg.org/specs/web-apps/current-work/multipage/tables.html#the-colgroup-element
+    //
+
+    var omittedStartTagChildTest = /<([\w:]+)/;
+    function detectOmittedStartTag(string, contextualElement){
+      // Omitted start tags are only inside table tags.
+      if (contextualElement.tagName === 'TABLE') {
+        var omittedStartTagChildMatch = omittedStartTagChildTest.exec(string);
+        if (omittedStartTagChildMatch) {
+          var omittedStartTagChild = omittedStartTagChildMatch[1];
+          // It is already asserted that the contextual element is a table
+          // and not the proper start tag. Just see if a tag was omitted.
+          return omittedStartTagChild === 'tr' ||
+                 omittedStartTagChild === 'col';
+        }
+      }
+    }
+
+    function buildSVGDOM(html, dom){
+      var div = dom.document.createElement('div');
+      div.innerHTML = '<svg>'+html+'</svg>';
+      return div.firstChild.childNodes;
     }
 
     /*
@@ -43248,13 +43221,19 @@ define("morph/dom-helper",
       element.setAttribute(name, value);
     };
 
-    prototype.createElement = function(tagName) {
-      if (this.namespace) {
-        return this.document.createElementNS(this.namespace, tagName);
-      } else {
+    if (document.createElementNS) {
+      prototype.createElement = function(tagName) {
+        if (this.namespace) {
+          return this.document.createElementNS(this.namespace, tagName);
+        } else {
+          return this.document.createElement(tagName);
+        }
+      };
+    } else {
+      prototype.createElement = function(tagName) {
         return this.document.createElement(tagName);
-      }
-    };
+      };
+    }
 
     prototype.setNamespace = function(ns) {
       this.namespace = ns;
@@ -43275,7 +43254,7 @@ define("morph/dom-helper",
     prototype.repairClonedNode = function(element, blankChildTextNodes, isChecked){
       if (deletesBlankTextNodes && blankChildTextNodes.length > 0) {
         for (var i=0, len=blankChildTextNodes.length;i<len;i++){
-          var textNode = document.createTextNode(emptyString),
+          var textNode = this.document.createTextNode(''),
               offset = blankChildTextNodes[i],
               before = element.childNodes[offset];
           if (before) {
@@ -43299,9 +43278,6 @@ define("morph/dom-helper",
       if (!contextualElement && parent.nodeType === 1) {
         contextualElement = parent;
       }
-      if (!contextualElement) {
-        contextualElement = this.document.body;
-      }
       return new Morph(parent, start, end, this, contextualElement);
     };
 
@@ -43315,38 +43291,242 @@ define("morph/dom-helper",
     };
 
     prototype.insertMorphBefore = function(element, referenceChild, contextualElement) {
-      var start = document.createTextNode('');
-      var end = document.createTextNode('');
+      var start = this.document.createTextNode('');
+      var end = this.document.createTextNode('');
       element.insertBefore(start, referenceChild);
       element.insertBefore(end, referenceChild);
       return this.createMorph(element, start, end, contextualElement);
     };
 
     prototype.appendMorph = function(element, contextualElement) {
-      var start = document.createTextNode('');
-      var end = document.createTextNode('');
+      var start = this.document.createTextNode('');
+      var end = this.document.createTextNode('');
       element.appendChild(start);
       element.appendChild(end);
       return this.createMorph(element, start, end, contextualElement);
     };
 
-    prototype.parseHTML = function(html, contextualElement){
-      var element;
-      if (isSVG(this.namespace) && svgHTMLIntegrationPoints.indexOf(contextualElement.tagName) === -1) {
-        html = '<svg>'+html+'</svg>';
-        element = document.createElement('div');
+    prototype.parseHTML = function(html, contextualElement) {
+      var isSVGContent = (
+        isSVG(this.namespace) &&
+        !svgHTMLIntegrationPoints[contextualElement.tagName]
+      );
+
+      if (isSVGContent) {
+        return buildSVGDOM(html, this);
       } else {
-        element = this.cloneNode(contextualElement, false);
-      }
-      element.innerHTML = html;
-      if (isSVG(this.namespace)) {
-        return element.firstChild.childNodes;
-      } else {
-        return element.childNodes;
+        var nodes = buildHTMLDOM(html, contextualElement, this);
+        if (detectOmittedStartTag(html, contextualElement)) {
+          var node = nodes[0];
+          while (node && node.nodeType !== 1) {
+            node = node.nextSibling;
+          }
+          return node.childNodes;
+        } else {
+          return nodes;
+        }
       }
     };
 
     __exports__["default"] = DOMHelper;
+  });
+define("morph/dom-helper/build-html-dom",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    // Internet Explorer prior to 9 does not allow setting innerHTML if the first element
+    // is a "zero-scope" element. This problem can be worked around by making
+    // the first node an invisible text node. We, like Modernizr, use &shy;
+    var needsShy = (function() {
+      var testEl = document.createElement('div');
+      testEl.innerHTML = "<div></div>";
+      testEl.firstChild.innerHTML = "<script><\/script>";
+      return testEl.firstChild.innerHTML === '';
+    })();
+
+    // IE 8 (and likely earlier) likes to move whitespace preceeding
+    // a script tag to appear after it. This means that we can
+    // accidentally remove whitespace when updating a morph.
+    var movesWhitespace = document && (function() {
+      var testEl = document.createElement('div');
+      testEl.innerHTML = "Test: <script type='text/x-placeholder'><\/script>Value";
+      return testEl.childNodes[0].nodeValue === 'Test:' &&
+              testEl.childNodes[2].nodeValue === ' Value';
+    })();
+
+    // IE 9 and earlier don't allow us to set innerHTML on col, colgroup, frameset,
+    // html, style, table, tbody, tfoot, thead, title, tr. Detect this and add
+    // them to an initial list of corrected tags.
+    //
+    // Here we are only dealing with the ones which can have child nodes.
+    //
+    var tagNamesRequiringInnerHTMLFix, tableNeedsInnerHTMLFix;
+    var tableInnerHTMLTestElement = document.createElement('table');
+    try {
+      tableInnerHTMLTestElement.innerHTML = '<tbody></tbody>';
+    } catch (e) {
+    } finally {
+      tableNeedsInnerHTMLFix = (tableInnerHTMLTestElement.childNodes.length === 0);
+    }
+    if (tableNeedsInnerHTMLFix) {
+      tagNamesRequiringInnerHTMLFix = {
+        colgroup: ['table'],
+        table: [],
+        tbody: ['table'],
+        tfoot: ['table'],
+        thead: ['table'],
+        tr: ['table', 'tbody']
+      };
+    } else {
+      tagNamesRequiringInnerHTMLFix = {};
+    }
+
+    // IE 8 doesn't allow setting innerHTML on a select tag. Detect this and
+    // add it to the list of corrected tags.
+    //
+    var selectInnerHTMLTestElement = document.createElement('select');
+    selectInnerHTMLTestElement.innerHTML = '<option></option>';
+    if (selectInnerHTMLTestElement) {
+      tagNamesRequiringInnerHTMLFix.select = [];
+    }
+
+    function scriptSafeInnerHTML(element, html) {
+      // without a leading text node, IE will drop a leading script tag.
+      html = '&shy;'+html;
+
+      element.innerHTML = html;
+
+      var nodes = element.childNodes;
+
+      // Look for &shy; to remove it.
+      var shyElement = nodes[0];
+      while (shyElement.nodeType === 1 && !shyElement.nodeName) {
+        shyElement = shyElement.firstChild;
+      }
+      // At this point it's the actual unicode character.
+      if (shyElement.nodeType === 3 && shyElement.nodeValue.charAt(0) === "\u00AD") {
+        var newValue = shyElement.nodeValue.slice(1);
+        if (newValue.length) {
+          shyElement.nodeValue = shyElement.nodeValue.slice(1);
+        } else {
+          shyElement.parentNode.removeChild(shyElement);
+        }
+      }
+
+      return nodes;
+    }
+
+    function buildDOMWithFix(html, contextualElement){
+      var tagName = contextualElement.tagName;
+
+      // Firefox versions < 11 do not have support for element.outerHTML.
+      var outerHTML = contextualElement.outerHTML || new XMLSerializer().serializeToString(contextualElement);
+      if (!outerHTML) {
+        throw "Can't set innerHTML on "+tagName+" in this browser";
+      }
+
+      var wrappingTags = tagNamesRequiringInnerHTMLFix[tagName.toLowerCase()];
+      var startTag = outerHTML.match(new RegExp("<"+tagName+"([^>]*)>", 'i'))[0];
+      var endTag = '</'+tagName+'>';
+
+      var wrappedHTML = [startTag, html, endTag];
+
+      var i = wrappingTags.length;
+      var wrappedDepth = 1 + i;
+      while(i--) {
+        wrappedHTML.unshift('<'+wrappingTags[i]+'>');
+        wrappedHTML.push('</'+wrappingTags[i]+'>');
+      }
+
+      var wrapper = document.createElement('div');
+      scriptSafeInnerHTML(wrapper, wrappedHTML.join(''));
+      var element = wrapper;
+      while (wrappedDepth--) {
+        element = element.firstChild;
+        while (element && element.nodeType !== 1) {
+          element = element.nextSibling;
+        }
+      }
+      while (element && element.tagName !== tagName) {
+        element = element.nextSibling;
+      }
+      return element ? element.childNodes : [];
+    }
+
+    function buildDOM(html, contextualElement, dom){
+      contextualElement = dom.cloneNode(contextualElement, false);
+      scriptSafeInnerHTML(contextualElement, html);
+      return contextualElement.childNodes;
+    }
+
+    var buildHTMLDOM;
+    // Really, this just means IE8 and IE9 get a slower buildHTMLDOM
+    if (tagNamesRequiringInnerHTMLFix.length > 0 || needsShy || movesWhitespace) {
+      buildHTMLDOM = function buildHTMLDOM(html, contextualElement, dom) {
+        // Make a list of the leading text on script nodes. Include
+        // script tags without any whitespace for easier processing later.
+        var spacesBefore = [];
+        var spacesAfter = [];
+        html = html.replace(/(\s*)(<script)/g, function(match, spaces, tag) {
+          spacesBefore.push(spaces);
+          return tag;
+        });
+
+        html = html.replace(/(<\/script>)(\s*)/g, function(match, tag, spaces) {
+          spacesAfter.push(spaces);
+          return tag;
+        });
+
+        // Fetch nodes
+        var nodes;
+        if (tagNamesRequiringInnerHTMLFix[contextualElement.tagName.toLowerCase()]) {
+          // buildDOMWithFix uses string wrappers for problematic innerHTML.
+          nodes = buildDOMWithFix(html, contextualElement);
+        } else {
+          nodes = buildDOM(html, contextualElement, dom);
+        }
+
+        // Build a list of script tags, the nodes themselves will be
+        // mutated as we add test nodes.
+        var i, j, node, nodeScriptNodes;
+        var scriptNodes = [];
+        for (i=0;node=nodes[i];i++) {
+          if (node.nodeType !== 1) {
+            continue;
+          }
+          if (node.tagName === 'SCRIPT') {
+            scriptNodes.push(node);
+          } else {
+            nodeScriptNodes = node.getElementsByTagName('script');
+            for (j=0;j<nodeScriptNodes.length;j++) {
+              scriptNodes.push(nodeScriptNodes[j]);
+            }
+          }
+        }
+
+        // Walk the script tags and put back their leading text nodes.
+        var textNode, spaceBefore, spaceAfter;
+        for (i=0;scriptNode=scriptNodes[i];i++) {
+          spaceBefore = spacesBefore[i];
+          if (spaceBefore && spaceBefore.length > 0) {
+            textNode = dom.document.createTextNode(spaceBefore);
+            scriptNode.parentNode.insertBefore(textNode, scriptNode);
+          }
+
+          spaceAfter = spacesAfter[i];
+          if (spaceAfter && spaceAfter.length > 0) {
+            textNode = dom.document.createTextNode(spaceAfter);
+            scriptNode.parentNode.insertBefore(textNode, scriptNode.nextSibling);
+          }
+        }
+
+        return nodes;
+      };
+    } else {
+      buildHTMLDOM = buildDOM;
+    }
+
+    __exports__.buildHTMLDOM = buildHTMLDOM;
   });
 define("morph/morph",
   ["exports"],

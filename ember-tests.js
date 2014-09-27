@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.f9aa3f4e
+ * @version   1.9.0-beta.1+canary.24592625
  */
 
 (function() {
@@ -13406,6 +13406,7 @@ define("ember-metal-views/tests/main_test",
       }
     });
 
+    // Test the behavior of the helper createElement stub
     test("by default, view renders as a div", function() {
       view = {isView: true};
 
@@ -13413,6 +13414,7 @@ define("ember-metal-views/tests/main_test",
       equalHTML('qunit-fixture', "<div></div>");
     });
 
+    // Test the behavior of the helper createElement stub
     test("tagName can be specified", function() {
       view = {
         isView: true,
@@ -13424,6 +13426,7 @@ define("ember-metal-views/tests/main_test",
       equalHTML('qunit-fixture', "<span></span>");
     });
 
+    // Test the behavior of the helper createElement stub
     test("textContent can be specified", function() {
       view = {
         isView: true,
@@ -13435,6 +13438,7 @@ define("ember-metal-views/tests/main_test",
       equalHTML('qunit-fixture', "<div>ohai &lt;a&gt;derp&lt;/a&gt;</div>");
     });
 
+    // Test the behavior of the helper createElement stub
     test("innerHTML can be specified", function() {
       view = {
         isView: true,
@@ -13446,6 +13450,20 @@ define("ember-metal-views/tests/main_test",
       equalHTML('qunit-fixture', "<div>ohai <a>derp</a></div>");
     });
 
+    // Test the behavior of the helper createElement stub
+    test("innerHTML tr can be specified", function() {
+      view = {
+        isView: true,
+        tagName: 'table',
+        innerHTML: '<tr><td>ohai</td></tr>'
+      };
+
+      appendTo(view);
+
+      equalHTML('qunit-fixture', "<table><tr><td>ohai</td></tr></table>");
+    });
+
+    // Test the behavior of the helper createElement stub
     test("element can be specified", function() {
       view = {
         isView: true,
@@ -13550,12 +13568,12 @@ define("ember-metal-views/tests/test_helpers",
     };
     MetalRenderer.prototype.willCreateElement = function(view) {
     };
-    MetalRenderer.prototype.createElement = function (view) {
+    MetalRenderer.prototype.createElement = function (view, contextualElement) {
       var el;
       if (view.element) {
         el = view.element;
       } else {
-        el = view.element = document.createElement(view.tagName || 'div');
+        el = view.element = this._dom.createElement(view.tagName || 'div');
       }
       var classNames = view.classNames;
       if (typeof classNames === 'string') {
@@ -13580,7 +13598,10 @@ define("ember-metal-views/tests/test_helpers",
       } else if (view.textContent) {
         setElementText(el, view.textContent);
       } else if (view.innerHTML) {
-        el.innerHTML = view.innerHTML;
+        var nodes = this._dom.parseHTML(view.innerHTML, el);
+        while (nodes[0]) {
+          el.appendChild(nodes[0]);
+        }
       }
       return el;
     };
@@ -13619,20 +13640,32 @@ define("ember-metal-views/tests/test_helpers",
     }
 
     __exports__.subject = subject;var supportsTextContent = ('textContent' in document.createElement('div'));
-    function setElementText(element, text) {
-      if (supportsTextContent) {
+    var setElementText;
+    if (supportsTextContent) {
+      setElementText = function setElementText(element, text) {
         element.textContent = text;
-      } else {
+      };
+    } else {
+      setElementText = function setElementText(element, text) {
         element.innerText = text;
-      }
+      };
     }
+    __exports__.setElementText = setElementText;
 
-    __exports__.setElementText = setElementText;function equalHTML(element, expectedHTML, message) {
+    function equalHTML(element, expectedHTML, message) {
       var html;
       if (typeof element === 'string') {
         html = document.getElementById(element).innerHTML;
       } else {
-        html = element.outerHTML;
+        if (element instanceof window.NodeList) {
+          var fragment = document.createElement('div');
+          while (element[0]) {
+            fragment.appendChild(element[0]);
+          }
+          html = fragment.innerHTML;
+        } else {
+          html = element.outerHTML;
+        }
       }
 
       var actualHTML = html.replace(/ id="[^"]+"/gmi, '');
@@ -23037,7 +23070,7 @@ define("ember-routing-handlebars/tests/helpers/action_test",
         boundText: "inner",
         truthy: true,
         obj: {},
-        layout: EmberHandlebars.compile("<p>{{boundText}}</p><p>{{#if truthy}}{{#with obj}}{{yield}}{{/with}}{{/if}}</p>")
+        layout: EmberHandlebars.compile("<div>{{boundText}}</div><div>{{#if truthy}}{{#with obj}}{{yield}}{{/with}}{{/if}}</div>")
       });
 
       view = EmberView.create({
@@ -23053,7 +23086,7 @@ define("ember-routing-handlebars/tests/helpers/action_test",
             boundText: 'insideWith'
           }
         },
-        template: EmberHandlebars.compile('{{#with obj}}{{#if truthy}}{{#view component}}{{#if truthy}}<p {{action "wat"}} class="wat">{{boundText}}</p>{{/if}}{{/view}}{{/if}}{{/with}}')
+        template: EmberHandlebars.compile('{{#with obj}}{{#if truthy}}{{#view component}}{{#if truthy}}<div {{action "wat"}} class="wat">{{boundText}}</div>{{/if}}{{/view}}{{/if}}{{/with}}')
       });
 
       appendView();
@@ -24986,7 +25019,7 @@ define("ember-routing-handlebars/tests/helpers/render_test",
       run(function() {
         view.connectOutlet('main', EmberView.create({
           controller: controller.create(),
-          template: compile("<p>1{{render 'home'}}</p>")
+          template: compile("<div>1{{render 'home'}}</div>")
         }));
       });
 
@@ -24995,7 +25028,7 @@ define("ember-routing-handlebars/tests/helpers/render_test",
       run(function() {
         view.connectOutlet('main', EmberView.create({
           controller: controller.create(),
-          template: compile("<p>2{{render 'home'}}</p>")
+          template: compile("<div>2{{render 'home'}}</div>")
         }));
       });
 
@@ -46032,8 +46065,27 @@ define("ember-views/tests/system/render_buffer_test",
     //
     QUnit.module("RenderBuffer");
 
-    test("RenderBuffers combine strings", function() {
+    test("RenderBuffers raise a deprecation warning without a contextualElement", function() {
       var buffer = new RenderBuffer('div');
+      buffer.generateElement();
+      expectDeprecation(function(){
+        var el = buffer.element();
+        equal(el.tagName.toLowerCase(), 'div');
+      }, /buffer.element expects a contextualElement to exist/);
+    });
+
+    test("reset RenderBuffers raise a deprecation warning without a contextualElement", function() {
+      var buffer = new RenderBuffer('div', document.body);
+      buffer.reset('span');
+      buffer.generateElement();
+      expectDeprecation(function(){
+        var el = buffer.element();
+        equal(el.tagName.toLowerCase(), 'span');
+      }, /buffer.element expects a contextualElement to exist/);
+    });
+
+    test("RenderBuffers combine strings", function() {
+      var buffer = new RenderBuffer('div', document.body);
       buffer.generateElement();
 
       buffer.push('a');
@@ -46046,7 +46098,7 @@ define("ember-views/tests/system/render_buffer_test",
 
     test("value of 0 is included in output", function() {
       var buffer, el;
-      buffer = new RenderBuffer('input');
+      buffer = new RenderBuffer('input', document.body);
       buffer.prop('value', 0);
       buffer.generateElement();
       el = buffer.element();
@@ -46054,7 +46106,7 @@ define("ember-views/tests/system/render_buffer_test",
     });
 
     test("prevents XSS injection via `id`", function() {
-      var buffer = new RenderBuffer('div');
+      var buffer = new RenderBuffer('div', document.body);
 
       buffer.id('hacked" megahax="yes');
       buffer.generateElement();
@@ -46064,7 +46116,7 @@ define("ember-views/tests/system/render_buffer_test",
     });
 
     test("prevents XSS injection via `attr`", function() {
-      var buffer = new RenderBuffer('div');
+      var buffer = new RenderBuffer('div', document.body);
 
       buffer.attr('id', 'trololol" onmouseover="pwn()');
       buffer.attr('class', "hax><img src=\"trollface.png\"");
@@ -46078,7 +46130,7 @@ define("ember-views/tests/system/render_buffer_test",
     });
 
     test("prevents XSS injection via `addClass`", function() {
-      var buffer = new RenderBuffer('div');
+      var buffer = new RenderBuffer('div', document.body);
 
       buffer.addClass('megahax" xss="true');
       buffer.generateElement();
@@ -46088,7 +46140,7 @@ define("ember-views/tests/system/render_buffer_test",
     });
 
     test("prevents XSS injection via `style`", function() {
-      var buffer = new RenderBuffer('div');
+      var buffer = new RenderBuffer('div', document.body);
 
       buffer.style('color', 'blue;" xss="true" style="color:red');
       buffer.generateElement();
@@ -46107,25 +46159,25 @@ define("ember-views/tests/system/render_buffer_test",
     });
 
     test("prevents XSS injection via `tagName`", function() {
-      var buffer = new RenderBuffer('cool-div><div xss="true"');
+      var buffer = new RenderBuffer('cool-div><div xss="true"', document.body);
       try {
         buffer.generateElement();
-        equal(buffer.string(), '<cool-divdivxsstrue></cool-divdivxsstrue>');
+        equal(buffer.element().childNodes.length, 0, 'no extra nodes created');
       } catch (e) {
         ok(true, 'dom exception');
       }
     });
 
     test("handles null props - Issue #2019", function() {
-      var buffer = new RenderBuffer('div');
+      var buffer = new RenderBuffer('div', document.body);
 
       buffer.prop('value', null);
       buffer.generateElement();
-      equal(buffer.string(), '<div></div>');
+      equal(buffer.element().tagName, 'DIV', 'div exists');
     });
 
     test("handles browsers like Firefox < 11 that don't support outerHTML Issue #1952", function() {
-      var buffer = new RenderBuffer('div');
+      var buffer = new RenderBuffer('div', document.body);
       buffer.generateElement();
       // Make sure element.outerHTML is falsy to trigger the fallback.
       var elementStub = '<div></div>';
@@ -46135,20 +46187,78 @@ define("ember-views/tests/system/render_buffer_test",
     });
 
     test("lets `setClasses` and `addClass` work together", function() {
-      var buffer = new RenderBuffer('div');
+      var buffer = new RenderBuffer('div', document.body);
       buffer.setClasses(['foo', 'bar']);
       buffer.addClass('baz');
       buffer.generateElement();
 
       var el = buffer.element();
-      equal(el.tagName.toLowerCase(), 'div');
+      equal(el.tagName, 'DIV');
       equal(el.getAttribute('class'), 'foo bar baz');
+    });
+
+    test("generates text and a div and text", function() {
+      var div = document.createElement('div');
+      var buffer = new RenderBuffer(undefined, div);
+      buffer.buffer = 'Howdy<div>Nick</div>Cage';
+
+      var el = buffer.element();
+      equal(el.childNodes[0].data, 'Howdy');
+      equal(el.childNodes[1].tagName, 'DIV');
+      equal(el.childNodes[1].childNodes[0].data, 'Nick');
+      equal(el.childNodes[2].data, 'Cage');
+    });
+
+
+    test("generates a tr from a tr innerString", function() {
+      var table = document.createElement('table');
+      var buffer = new RenderBuffer(undefined, table);
+      buffer.buffer = '<tr></tr>';
+
+      var el = buffer.element();
+      equal(el.childNodes[0].tagName.toLowerCase(), 'tr');
+    });
+
+    test("generates a tr from a tr innerString with leading <script", function() {
+      var table = document.createElement('table');
+      var buffer = new RenderBuffer(undefined, table);
+      buffer.buffer = '<script></script><tr></tr>';
+
+      var el = buffer.element();
+      equal(el.childNodes[1].tagName.toLowerCase(), 'tr');
+    });
+
+    test("generates a tr from a tr innerString with leading comment", function() {
+      var table = document.createElement('table');
+      var buffer = new RenderBuffer(undefined, table);
+      buffer.buffer = '<!-- blargh! --><tr></tr>';
+
+      var el = buffer.element();
+      equal(el.childNodes[1].tagName, 'TR');
+    });
+
+    test("generates a tbody from a tbody innerString", function() {
+      var table = document.createElement('table');
+      var buffer = new RenderBuffer(undefined, table);
+      buffer.buffer = '<tbody><tr></tr></tbody>';
+
+      var el = buffer.element();
+      equal(el.childNodes[0].tagName, 'TBODY');
+    });
+
+    test("generates a col from a col innerString", function() {
+      var table = document.createElement('table');
+      var buffer = new RenderBuffer(undefined, table);
+      buffer.buffer = '<col></col>';
+
+      var el = buffer.element();
+      equal(el.childNodes[0].tagName, 'COL');
     });
 
     QUnit.module("RenderBuffer - without tagName");
 
     test("It is possible to create a RenderBuffer without a tagName", function() {
-      var buffer = new RenderBuffer();
+      var buffer = new RenderBuffer(undefined, document.body);
       buffer.push('a');
       buffer.push('b');
       buffer.push('c');
@@ -46163,7 +46273,7 @@ define("ember-views/tests/system/render_buffer_test",
     QUnit.module("RenderBuffer#element");
 
     test("properly handles old IE's zero-scope bug", function() {
-      var buffer = new RenderBuffer('div');
+      var buffer = new RenderBuffer('div', document.body);
       buffer.generateElement();
       buffer.push('<script></script>foo');
 
@@ -49406,13 +49516,14 @@ define("ember-views/tests/views/view/create_child_view_test.jshint",
     });
   });
 define("ember-views/tests/views/view/create_element_test",
-  ["ember-metal/property_get","ember-metal/run_loop","ember-views/views/view","ember-views/views/container_view"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+  ["ember-metal/property_get","ember-metal/run_loop","ember-views/views/view","ember-views/views/container_view","ember-metal-views/tests/test_helpers"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
     var get = __dependency1__.get;
     var run = __dependency2__["default"];
     var EmberView = __dependency3__["default"];
     var ContainerView = __dependency4__["default"];
+    var equalHTML = __dependency5__.equalHTML;
 
     var view;
 
@@ -49455,6 +49566,61 @@ define("ember-views/tests/views/view/create_element_test",
       ok(elem, 'has element now');
       equal(elem.innerHTML, 'foo', 'has innerHTML from context');
       equal(elem.tagName.toString().toLowerCase(), 'span', 'has tagName from view');
+    });
+
+    test("calls render and parses the buffer string in the right context", function() {
+      view = ContainerView.create({
+        tagName: 'table',
+        childViews: [ EmberView.create({
+          tagName: '',
+          render: function(buffer) {
+            // Emulate a metamorph
+            buffer.push("<script></script><tr><td>snorfblax</td></tr>");
+          }
+        })]
+      });
+
+      equal(get(view, 'element'), null, 'precondition - has no element');
+      run(function() {
+        view.createElement();
+      });
+
+
+      var elem = get(view, 'element');
+      ok(elem, 'has element now');
+      equalHTML(elem.childNodes, '<script></script><tr><td>snorfblax</td></tr>', 'has innerHTML from context');
+      equal(elem.tagName.toString().toLowerCase(), 'table', 'has tagName from view');
+    });
+
+    test("does not wrap many tr children in tbody elements", function() {
+      view = ContainerView.create({
+        tagName: 'table',
+        childViews: [
+          EmberView.create({
+            tagName: '',
+            render: function(buffer) {
+              // Emulate a metamorph
+              buffer.push("<script></script><tr><td>snorfblax</td></tr>");
+            } }),
+          EmberView.create({
+            tagName: '',
+            render: function(buffer) {
+              // Emulate a metamorph
+              buffer.push("<script></script><tr><td>snorfblax</td></tr>");
+            } })
+        ]
+      });
+
+      equal(get(view, 'element'), null, 'precondition - has no element');
+      run(function() {
+        view.createElement();
+      });
+
+
+      var elem = get(view, 'element');
+      ok(elem, 'has element now');
+      equalHTML(elem.childNodes, '<script></script><tr><td>snorfblax</td></tr><script></script><tr><td>snorfblax</td></tr>', 'has innerHTML from context');
+      equal(elem.tagName.toString().toLowerCase(), 'table', 'has tagName from view');
     });
 
     test("generated element include HTML from child views as well", function() {
