@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.a06d040b
+ * @version   1.9.0-beta.1+canary.f0dd7092
  */
 
 (function() {
@@ -8291,6 +8291,8 @@ define("ember-handlebars/helpers/collection",
       var viewOptions = ViewHelper.propertiesFromHTMLOptions({ data: data, hash: itemHash }, this);
       hash.itemViewClass = itemViewClass.extend(viewOptions);
 
+      options.helperName = options.helperName || 'collection';
+
       return EmberHandlebars.helpers.view.call(this, collectionClass, options);
     }
 
@@ -9282,11 +9284,8 @@ define("ember-handlebars/helpers/view",
         }
 
         // Evaluate the context of class name bindings:
-        var classNameBindingsKeys = keys(extensions.classNameBindings);
-
-        for (var j = 0, k = classNameBindingsKeys.length; j < k; j++) {
-          var classKey = classNameBindingsKeys[j];
-          var full     = extensions.classNameBindings[classKey];
+        for (var j = 0, k = extensions.classNameBindings.length; j < k; j++) {
+          var full = extensions.classNameBindings[j];
 
           if (typeof full === 'string') {
             // Contextualize the path of classNameBinding so this:
@@ -9300,7 +9299,7 @@ define("ember-handlebars/helpers/view",
             if (parsedPath.path !== '') {
               path = this.contextualizeBindingPath(parsedPath.path, data);
               if (path) {
-                extensions.classNameBindings[classKey] = path + parsedPath.classNames;
+                extensions.classNameBindings[j] = path + parsedPath.classNames;
               }
             }
           }
@@ -13321,7 +13320,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.a06d040b
+      @version 1.9.0-beta.1+canary.f0dd7092
     */
 
     if ('undefined' === typeof Ember) {
@@ -13348,10 +13347,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.a06d040b'
+      @default '1.9.0-beta.1+canary.f0dd7092'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.a06d040b';
+    Ember.VERSION = '1.9.0-beta.1+canary.f0dd7092';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
