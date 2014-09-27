@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.b2029a58
+ * @version   1.9.0-beta.1+canary.f9aa3f4e
  */
 
 (function() {
@@ -2157,8 +2157,8 @@ define("ember-application/ext/controller",
     __exports__["default"] = ControllerMixin;
   });
 define("ember-application/system/application",
-  ["ember-metal","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/lazy_load","ember-application/system/dag","ember-runtime/system/namespace","ember-runtime/mixins/deferred","ember-application/system/resolver","ember-metal/platform","ember-metal/run_loop","ember-metal/utils","container/container","ember-runtime/controllers/controller","ember-metal/enumerable_utils","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-handlebars/controls/select","ember-views/system/event_dispatcher","ember-views/system/jquery","ember-routing/system/route","ember-routing/system/router","ember-routing/location/hash_location","ember-routing/location/history_location","ember-routing/location/auto_location","ember-routing/location/none_location","ember-routing/system/cache","ember-metal/core","ember-handlebars-compiler","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __exports__) {
+  ["ember-metal","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/lazy_load","ember-application/system/dag","ember-runtime/system/namespace","ember-runtime/mixins/deferred","ember-application/system/resolver","ember-metal/platform","ember-metal/run_loop","ember-metal/utils","container/container","ember-runtime/controllers/controller","ember-metal/enumerable_utils","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-handlebars/controls/select","ember-views/system/event_dispatcher","ember-views/system/jquery","ember-routing/system/route","ember-routing/system/router","ember-routing/location/hash_location","ember-routing/location/history_location","ember-routing/location/auto_location","ember-routing/location/none_location","ember-routing/system/cache","ember-extension-support/container_debug_adapter","ember-metal/core","ember-handlebars-compiler","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -2184,7 +2184,6 @@ define("ember-application/system/application",
     var ArrayController = __dependency16__["default"];
     var SelectView = __dependency17__["default"];
     var EventDispatcher = __dependency18__["default"];
-    //import ContainerDebugAdapter from "ember-extension-support/container_debug_adapter";
     var jQuery = __dependency19__["default"];
     var Route = __dependency20__["default"];
     var Router = __dependency21__["default"];
@@ -2194,10 +2193,16 @@ define("ember-application/system/application",
     var NoneLocation = __dependency25__["default"];
     var BucketCache = __dependency26__["default"];
 
-    var K = __dependency27__.K;
-    var EmberHandlebars = __dependency28__["default"];
+    // this is technically incorrect (per @wycats)
+    // it should work properly with:
+    // `import ContainerDebugAdapter from 'ember-extension-support/container_debug_adapter';` but
+    // es6-module-transpiler 0.4.0 eagerly grabs the module (which is undefined)
 
-    var ContainerDebugAdapter;
+    var ContainerDebugAdapterModule = __dependency27__;
+
+    var K = __dependency28__.K;
+    var EmberHandlebars = __dependency29__["default"];
+
     function props(obj) {
       var properties = [];
 
@@ -3150,9 +3155,7 @@ define("ember-application/system/application",
         container.injection('data-adapter:main', 'containerDebugAdapter', 'container-debug-adapter:main');
         // Custom resolver authors may want to register their own ContainerDebugAdapter with this key
 
-        // ES6TODO: resolve this via import once ember-application package is ES6'ed
-        if (!ContainerDebugAdapter) { ContainerDebugAdapter = requireModule('ember-extension-support/container_debug_adapter')['default']; }
-        container.register('container-debug-adapter:main', ContainerDebugAdapter);
+        container.register('container-debug-adapter:main', ContainerDebugAdapterModule['default']);
 
         return container;
       }
@@ -4934,7 +4937,6 @@ define("ember-handlebars/controls",
 
     var EmberHandlebars = __dependency5__["default"];
     var handlebarsGet = __dependency6__.handlebarsGet;
-    var helpers = EmberHandlebars.helpers;
     /**
     @module ember
     @submodule ember-handlebars-compiler
@@ -5135,12 +5137,12 @@ define("ember-handlebars/controls",
         delete types.type;
 
         
-        return helpers.view.call(this, Checkbox, options);
+        return EmberHandlebars.helpers.view.call(this, Checkbox, options);
       } else {
         delete hash.on;
 
         hash.onEvent = onEvent || 'enter';
-        return helpers.view.call(this, TextField, options);
+        return EmberHandlebars.helpers.view.call(this, TextField, options);
       }
     }
 
@@ -5331,7 +5333,7 @@ define("ember-handlebars/controls",
     */
     function textareaHelper(options) {
       
-      return helpers.view.call(this, TextArea, options);
+      return EmberHandlebars.helpers.view.call(this, TextArea, options);
     }
 
     __exports__.textareaHelper = textareaHelper;
@@ -6484,7 +6486,6 @@ define("ember-handlebars/ext",
     var fmt = __dependency2__.fmt;
 
     var EmberHandlebars = __dependency3__["default"];
-    var helpers = EmberHandlebars.helpers;
 
     var get = __dependency4__.get;
     var EmberError = __dependency5__["default"];
@@ -6782,7 +6783,7 @@ define("ember-handlebars/ext",
       if (helper) {
         return helper.apply(this, slice.call(arguments, 1));
       } else {
-        return helpers.helperMissing.call(this, path);
+        return EmberHandlebars.helpers.helperMissing.call(this, path);
       }
     }
 
@@ -8052,7 +8053,7 @@ define("ember-handlebars/helpers/binding",
     __exports__.bindClasses = bindClasses;
   });
 define("ember-handlebars/helpers/collection",
-  ["ember-metal/core","ember-handlebars-compiler","ember-runtime/system/string","ember-metal/property_get","ember-handlebars/ext","ember-handlebars/helpers/view","ember-metal/computed","ember-views/views/collection_view","exports"],
+  ["ember-metal/core","ember-handlebars-compiler","ember-runtime/system/string","ember-metal/property_get","ember-handlebars/ext","ember-handlebars/helpers/view","ember-metal/alias","ember-views/views/collection_view","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
     /**
@@ -8067,16 +8068,14 @@ define("ember-handlebars/helpers/collection",
         // emberDeprecate = Ember.deprecate;
 
     var EmberHandlebars = __dependency2__["default"];
-    var helpers = EmberHandlebars.helpers;
 
     var fmt = __dependency3__.fmt;
     var get = __dependency4__.get;
     var handlebarsGetView = __dependency5__.handlebarsGetView;
     var ViewHelper = __dependency6__.ViewHelper;
-    var computed = __dependency7__.computed;
+    var alias = __dependency7__["default"];
     var CollectionView = __dependency8__["default"];
 
-    var alias = computed.alias;
     /**
       `{{collection}}` is a `Ember.Handlebars` helper for adding instances of
       `Ember.CollectionView` to a template. See [Ember.CollectionView](/api/classes/Ember.CollectionView.html)
@@ -8292,7 +8291,7 @@ define("ember-handlebars/helpers/collection",
       var viewOptions = ViewHelper.propertiesFromHTMLOptions({ data: data, hash: itemHash }, this);
       hash.itemViewClass = itemViewClass.extend(viewOptions);
 
-      return helpers.view.call(this, collectionClass, options);
+      return EmberHandlebars.helpers.view.call(this, collectionClass, options);
     }
 
     __exports__["default"] = collectionHelper;
@@ -8417,7 +8416,6 @@ define("ember-handlebars/helpers/each",
     var K = Ember.K;
 
     var EmberHandlebars = __dependency2__["default"];
-    var helpers = EmberHandlebars.helpers;
 
     var fmt = __dependency3__.fmt;
     var get = __dependency4__.get;
@@ -8875,7 +8873,7 @@ define("ember-handlebars/helpers/each",
       if (options.data.insideGroup && !options.hash.groupedRows && !options.hash.itemViewClass) {
         new GroupedEach(ctx, path, options).render();
       } else {
-        return helpers.collection.call(ctx, EmberHandlebars.EachView, options);
+        return EmberHandlebars.helpers.collection.call(ctx, EmberHandlebars.EachView, options);
       }
     }
 
@@ -9062,7 +9060,6 @@ define("ember-handlebars/helpers/template",
     // var emberDeprecate = Ember.deprecate;
 
     var EmberHandlebars = __dependency2__["default"];
-    var helpers = EmberHandlebars.helpers;
     /**
     @module ember
     @submodule ember-handlebars
@@ -9115,7 +9112,7 @@ define("ember-handlebars/helpers/template",
       
       options.helperName = options.helperName || 'template';
 
-      return helpers.partial.apply(this, arguments);
+      return EmberHandlebars.helpers.partial.apply(this, arguments);
     }
   });
 define("ember-handlebars/helpers/unbound",
@@ -9128,7 +9125,6 @@ define("ember-handlebars/helpers/unbound",
     */
 
     var EmberHandlebars = __dependency1__["default"];
-    var helpers = EmberHandlebars.helpers;
 
     var resolveHelper = __dependency2__.resolveHelper;
     var handlebarsGet = __dependency3__.handlebarsGet;
@@ -9164,7 +9160,7 @@ define("ember-handlebars/helpers/unbound",
       if (arguments.length > 2) {
         // Unbound helper call.
         options.data.isUnbound = true;
-        helper = resolveHelper(container, property) || helpers.helperMissing;
+        helper = resolveHelper(container, property) || EmberHandlebars.helpers.helperMissing;
         out = helper.apply(ctx, slice.call(arguments, 1));
         delete options.data.isUnbound;
         return out;
@@ -9853,7 +9849,6 @@ define("ember-handlebars/views/handlebars_bound_view",
 
     var EmberHandlebars = __dependency1__["default"];
     // EmberHandlebars.SafeString;
-    var SafeString = EmberHandlebars.SafeString;
 
     var Ember = __dependency2__["default"];
     // Ember.K
@@ -9865,8 +9860,7 @@ define("ember-handlebars/views/handlebars_bound_view",
     var merge = __dependency6__["default"];
     var run = __dependency7__["default"];
     var cloneStates = __dependency8__.cloneStates;
-    var states = __dependency8__.states;
-    var viewStates = states;
+    var viewStates = __dependency8__.states;
 
     var _MetamorphView = __dependency9__["default"];
     var handlebarsGet = __dependency10__.handlebarsGet;
@@ -9925,8 +9919,8 @@ define("ember-handlebars/views/handlebars_bound_view",
 
         if (result === null || result === undefined) {
           result = "";
-        } else if (!escape && !(result instanceof SafeString)) {
-          result = new SafeString(result);
+        } else if (!escape && !(result instanceof EmberHandlebars.SafeString)) {
+          result = new EmberHandlebars.SafeString(result);
         }
 
         return result;
@@ -9956,7 +9950,7 @@ define("ember-handlebars/views/handlebars_bound_view",
       update: function () {
         this.updateId = null;
         var value = this.normalizedValue();
-        // doesn't diff SafeString instances
+        // doesn't diff EmberHandlebars.SafeString instances
         if (value !== this._lastNormalizedValue) {
           this._lastNormalizedValue = value;
           this._morph.update(value);
@@ -9968,7 +9962,7 @@ define("ember-handlebars/views/handlebars_bound_view",
       }
     };
 
-    states = cloneStates(viewStates);
+    var states = cloneStates(viewStates);
 
     merge(states._default, {
       rerenderIfNeeded: K
@@ -10157,7 +10151,7 @@ define("ember-handlebars/views/handlebars_bound_view",
             // expression to the render context and return.
               if (result === null || result === undefined) {
                 result = "";
-              } else if (!(result instanceof SafeString)) {
+              } else if (!(result instanceof EmberHandlebars.SafeString)) {
                 result = String(result);
               }
 
@@ -10870,11 +10864,11 @@ define("ember-metal/alias",
     var addDependentKeys = __dependency9__.addDependentKeys;
     var removeDependentKeys = __dependency9__.removeDependentKeys;
 
-    function alias(altKey) {
+    __exports__["default"] = function alias(altKey) {
       return new AliasedProperty(altKey);
     }
 
-    __exports__.alias = alias;function AliasedProperty(altKey) {
+    function AliasedProperty(altKey) {
       this.altKey = altKey;
       this._dependentKeys = [ altKey ];
     }
@@ -11627,12 +11621,11 @@ define("ember-metal/chains",
     // warn, assert, etc;
     var get = __dependency2__.get;
     var normalizeTuple = __dependency2__.normalizeTuple;
-    var meta = __dependency3__.meta;
+    var metaFor = __dependency3__.meta;
     var forEach = __dependency4__.forEach;
     var watchKey = __dependency5__.watchKey;
     var unwatchKey = __dependency5__.unwatchKey;
 
-    var metaFor = meta;
     var warn = Ember.warn;
     var FIRST_KEY = /^([^\.]+)/;
 
@@ -12596,7 +12589,7 @@ define("ember-metal/computed_macros",
     var computed = __dependency4__.computed;
     var isEmpty = __dependency5__["default"];
     var isNone = __dependency6__.isNone;
-    var alias = __dependency7__.alias;
+    var alias = __dependency7__["default"];
 
     /**
     @module ember-metal
@@ -13317,7 +13310,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.b2029a58
+      @version 1.9.0-beta.1+canary.f9aa3f4e
     */
 
     if ('undefined' === typeof Ember) {
@@ -13344,10 +13337,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.b2029a58'
+      @default '1.9.0-beta.1+canary.f9aa3f4e'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.b2029a58';
+    Ember.VERSION = '1.9.0-beta.1+canary.f9aa3f4e';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -13508,15 +13501,13 @@ define("ember-metal/dependent_keys",
   ["ember-metal/platform","ember-metal/watching","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
-    var create = __dependency1__.create;
+    var o_create = __dependency1__.create;
     var watch = __dependency2__.watch;
     var unwatch = __dependency2__.unwatch;
 
     /**
     @module ember-metal
     */
-
-    var o_create = create;
 
     // ..........................................................
     // DEPENDENT KEYS
@@ -13945,14 +13936,13 @@ define("ember-metal/events",
     @module ember-metal
     */
     var Ember = __dependency1__["default"];
-    var meta = __dependency2__.meta;
+    var metaFor = __dependency2__.meta;
     var tryFinally = __dependency2__.tryFinally;
     var apply = __dependency2__.apply;
     var applyStr = __dependency2__.applyStr;
     var create = __dependency3__.create;
 
     var a_slice = [].slice;
-    var metaFor = meta;
 
     /* listener flags */
     var ONCE = 1;
@@ -15730,12 +15720,12 @@ define("ember-metal/mixin",
     var Ember = __dependency1__["default"];
     // warn, assert, wrap, et;
     var merge = __dependency2__["default"];
-    var map = __dependency3__.map;
-    var indexOf = __dependency3__.indexOf;
-    var forEach = __dependency3__.forEach;
-    var create = __dependency4__.create;
+    var a_map = __dependency3__.map;
+    var a_indexOf = __dependency3__.indexOf;
+    var a_forEach = __dependency3__.forEach;
+    var o_create = __dependency4__.create;
     var guidFor = __dependency5__.guidFor;
-    var meta = __dependency5__.meta;
+    var metaFor = __dependency5__.meta;
     var wrap = __dependency5__.wrap;
     var makeArray = __dependency5__.makeArray;
     var apply = __dependency5__.apply;
@@ -15752,12 +15742,7 @@ define("ember-metal/mixin",
     var removeListener = __dependency11__.removeListener;
 
     var REQUIRED;
-    var a_map = map;
-    var a_indexOf = indexOf;
-    var a_forEach = forEach;
     var a_slice = [].slice;
-    var o_create = create;
-    var metaFor = meta;
 
     function superFunction(){
       var func = this.__nextSuper;
@@ -18415,7 +18400,7 @@ define("ember-metal/utils",
     var o_defineProperty = __dependency2__.defineProperty;
     var canDefineNonEnumerableProperties = __dependency2__.canDefineNonEnumerableProperties;
     var hasPropertyAccessors = __dependency2__.hasPropertyAccessors;
-    var create = __dependency2__.create;
+    var o_create = __dependency2__.create;
 
     var forEach = __dependency3__.forEach;
 
@@ -18455,7 +18440,6 @@ define("ember-metal/utils",
     */
     var GUID_PREFIX = 'ember';
 
-    var o_create = create;
     // Used for guid generation...
     var numberCache  = [];
     var stringCache  = {};
@@ -19270,15 +19254,12 @@ define("ember-metal/watch_key",
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
-    var meta = __dependency2__.meta;
+    var metaFor = __dependency2__.meta;
     var typeOf = __dependency2__.typeOf;
     var o_defineProperty = __dependency3__.defineProperty;
     var hasPropertyAccessors = __dependency3__.hasPropertyAccessors;
     var MANDATORY_SETTER_FUNCTION = __dependency4__.MANDATORY_SETTER_FUNCTION;
     var DEFAULT_GETTER_FUNCTION = __dependency4__.DEFAULT_GETTER_FUNCTION;
-
-    var metaFor = meta; // utils.js
-
 
     function watchKey(obj, keyName, meta) {
       // can't watch length on Array - it is special...
@@ -19328,11 +19309,9 @@ define("ember-metal/watch_path",
   ["ember-metal/utils","ember-metal/chains","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
-    var meta = __dependency1__.meta;
+    var metaFor = __dependency1__.meta;
     var typeOf = __dependency1__.typeOf;
     var ChainNode = __dependency2__.ChainNode;
-
-    var metaFor = meta;
 
     // get the chains for the current object. If the current object has
     // chains inherited from the proto they will be cloned and reconfigured for
@@ -19580,7 +19559,6 @@ define("ember-routing-handlebars/helpers/action",
     @submodule ember-routing
     */
 
-    var SafeString = EmberHandlebars.SafeString;
     var a_slice = Array.prototype.slice;
 
     function args(options, actionName) {
@@ -19900,7 +19878,7 @@ define("ember-routing-handlebars/helpers/action",
       }
 
       var actionId = ActionHelper.registerAction(actionName, action, hash.allowedKeys);
-      return new SafeString('data-ember-action="' + actionId + '"');
+      return new EmberHandlebars.SafeString('data-ember-action="' + actionId + '"');
     }
 
     __exports__.actionHelper = actionHelper;
@@ -19927,14 +19905,13 @@ define("ember-routing-handlebars/helpers/link_to",
     var resolveParams = __dependency14__.resolveParams;
     var resolvePaths = __dependency14__.resolvePaths;
 
+
     /**
     @module ember
     @submodule ember-routing
     */
 
     var slice = [].slice;
-
-    requireModule('ember-handlebars');
 
     var numberOfContextsAcceptedByHandler = function(handler, handlerInfos) {
       var req = 0;
@@ -21030,7 +21007,6 @@ define("ember-routing-handlebars/helpers/render",
     var generateController = __dependency4__["default"];
     var handlebarsGet = __dependency5__.handlebarsGet;
     var ViewHelper = __dependency6__.ViewHelper;
-
 
     /**
     @module ember
@@ -25103,8 +25079,8 @@ define("ember-routing/system/route",
     __exports__["default"] = Route;
   });
 define("ember-routing/system/router",
-  ["ember-metal/core","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/properties","ember-metal/computed","ember-metal/merge","ember-metal/run_loop","ember-runtime/system/string","ember-runtime/system/object","ember-runtime/mixins/evented","ember-routing/system/dsl","ember-views/views/view","ember-routing/location/api","ember-handlebars/views/metamorph_view","ember-routing/utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __exports__) {
+  ["ember-metal/core","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/properties","ember-metal/computed","ember-metal/merge","ember-metal/run_loop","ember-runtime/system/string","ember-runtime/system/object","ember-runtime/mixins/evented","ember-routing/system/dsl","ember-views/views/view","ember-routing/location/api","ember-handlebars/views/metamorph_view","ember-routing/utils","router","router/transition","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // FEATURES, Logger, K, assert
@@ -25127,22 +25103,12 @@ define("ember-routing/system/router",
     var getActiveTargetName = __dependency16__.getActiveTargetName;
     var stashParamNames = __dependency16__.stashParamNames;
 
-    // requireModule("ember-handlebars");
-    // requireModule("ember-runtime");
-    // requireModule("ember-views");
-
     /**
     @module ember
     @submodule ember-routing
     */
 
-    // // side effect of loading some Ember globals, for now
-    // requireModule("ember-handlebars");
-    // requireModule("ember-runtime");
-    // requireModule("ember-views");
-
-    var Router = requireModule("router")['default'];
-    requireModule("router/transition");
+    var Router = __dependency17__["default"];
 
     var slice = [].slice;
 
@@ -28928,8 +28894,8 @@ define("ember-runtime/ext/function",
     }
   });
 define("ember-runtime/ext/rsvp",
-  ["ember-metal/core","ember-metal/logger","ember-metal/run_loop","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["ember-metal/core","ember-metal/logger","ember-metal/run_loop","rsvp","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     /* globals RSVP:true */
 
@@ -28937,7 +28903,12 @@ define("ember-runtime/ext/rsvp",
     var Logger = __dependency2__["default"];
     var run = __dependency3__["default"];
 
-    var RSVP = requireModule('rsvp');
+    // this is technically incorrect (per @wycats)
+    // it should be `import * as RSVP from 'rsvp';` but
+    // Esprima does not support this syntax yet (and neither does
+    // es6-module-transpiler 0.4.0 - 0.6.2).
+    var RSVP = __dependency4__;
+
     var testModuleName = 'ember-testing/test';
     var Test;
 
@@ -33439,8 +33410,8 @@ define("ember-runtime/system/application",
     __exports__["default"] = Namespace.extend();
   });
 define("ember-runtime/system/array_proxy",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/utils","ember-metal/computed","ember-metal/mixin","ember-metal/property_events","ember-metal/error","ember-runtime/system/object","ember-runtime/mixins/mutable_array","ember-runtime/mixins/enumerable","ember-runtime/system/string","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/utils","ember-metal/computed","ember-metal/mixin","ember-metal/property_events","ember-metal/error","ember-runtime/system/object","ember-runtime/mixins/mutable_array","ember-runtime/mixins/enumerable","ember-runtime/system/string","ember-metal/alias","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.K, Ember.assert
@@ -33457,6 +33428,7 @@ define("ember-runtime/system/array_proxy",
     var MutableArray = __dependency9__["default"];
     var Enumerable = __dependency10__["default"];
     var fmt = __dependency11__.fmt;
+    var alias = __dependency12__["default"];
 
     /**
     @module ember
@@ -33465,7 +33437,6 @@ define("ember-runtime/system/array_proxy",
 
     var OUT_OF_RANGE_EXCEPTION = "Index out of range";
     var EMPTY = [];
-    var alias = computed.alias;
     var K = Ember.K;
 
     /**
@@ -33807,12 +33778,12 @@ define("ember-runtime/system/array_proxy",
     __exports__["default"] = ArrayProxy;
   });
 define("ember-runtime/system/container",
-  ["ember-metal/property_set","exports"],
-  function(__dependency1__, __exports__) {
+  ["ember-metal/property_set","container","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     var set = __dependency1__.set;
+    var Container = __dependency2__["default"];
 
-    var Container = requireModule('container')["default"];
     Container.set = set;
 
     __exports__["default"] = Container;
@@ -38224,15 +38195,12 @@ define("ember-views/mixins/component_template_deprecation",
     });
   });
 define("ember-views/mixins/view_target_action_support",
-  ["ember-metal/mixin","ember-runtime/mixins/target_action_support","ember-metal/computed","exports"],
+  ["ember-metal/mixin","ember-runtime/mixins/target_action_support","ember-metal/alias","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     var Mixin = __dependency1__.Mixin;
     var TargetActionSupport = __dependency2__["default"];
-
-    // ES6TODO: computed should have its own export path so you can do import {defaultTo} from computed
-    var computed = __dependency3__.computed;
-    var alias = computed.alias;
+    var alias = __dependency3__["default"];
 
     /**
     `Ember.ViewTargetActionSupport` is a mixin that can be included in a

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.b2029a58
+ * @version   1.9.0-beta.1+canary.f9aa3f4e
  */
 
 (function() {
@@ -2310,11 +2310,11 @@ define("ember-metal/alias",
     var addDependentKeys = __dependency9__.addDependentKeys;
     var removeDependentKeys = __dependency9__.removeDependentKeys;
 
-    function alias(altKey) {
+    __exports__["default"] = function alias(altKey) {
       return new AliasedProperty(altKey);
     }
 
-    __exports__.alias = alias;function AliasedProperty(altKey) {
+    function AliasedProperty(altKey) {
       this.altKey = altKey;
       this._dependentKeys = [ altKey ];
     }
@@ -3070,12 +3070,11 @@ define("ember-metal/chains",
     // warn, assert, etc;
     var get = __dependency2__.get;
     var normalizeTuple = __dependency2__.normalizeTuple;
-    var meta = __dependency3__.meta;
+    var metaFor = __dependency3__.meta;
     var forEach = __dependency4__.forEach;
     var watchKey = __dependency5__.watchKey;
     var unwatchKey = __dependency5__.unwatchKey;
 
-    var metaFor = meta;
     var warn = Ember.warn;
     var FIRST_KEY = /^([^\.]+)/;
 
@@ -4040,7 +4039,7 @@ define("ember-metal/computed_macros",
     var computed = __dependency4__.computed;
     var isEmpty = __dependency5__["default"];
     var isNone = __dependency6__.isNone;
-    var alias = __dependency7__.alias;
+    var alias = __dependency7__["default"];
 
     /**
     @module ember-metal
@@ -4763,7 +4762,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.b2029a58
+      @version 1.9.0-beta.1+canary.f9aa3f4e
     */
 
     if ('undefined' === typeof Ember) {
@@ -4790,10 +4789,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.b2029a58'
+      @default '1.9.0-beta.1+canary.f9aa3f4e'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.b2029a58';
+    Ember.VERSION = '1.9.0-beta.1+canary.f9aa3f4e';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -4954,15 +4953,13 @@ define("ember-metal/dependent_keys",
   ["ember-metal/platform","ember-metal/watching","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
-    var create = __dependency1__.create;
+    var o_create = __dependency1__.create;
     var watch = __dependency2__.watch;
     var unwatch = __dependency2__.unwatch;
 
     /**
     @module ember-metal
     */
-
-    var o_create = create;
 
     // ..........................................................
     // DEPENDENT KEYS
@@ -5392,14 +5389,13 @@ define("ember-metal/events",
     @module ember-metal
     */
     var Ember = __dependency1__["default"];
-    var meta = __dependency2__.meta;
+    var metaFor = __dependency2__.meta;
     var tryFinally = __dependency2__.tryFinally;
     var apply = __dependency2__.apply;
     var applyStr = __dependency2__.applyStr;
     var create = __dependency3__.create;
 
     var a_slice = [].slice;
-    var metaFor = meta;
 
     /* listener flags */
     var ONCE = 1;
@@ -7184,12 +7180,12 @@ define("ember-metal/mixin",
     var Ember = __dependency1__["default"];
     // warn, assert, wrap, et;
     var merge = __dependency2__["default"];
-    var map = __dependency3__.map;
-    var indexOf = __dependency3__.indexOf;
-    var forEach = __dependency3__.forEach;
-    var create = __dependency4__.create;
+    var a_map = __dependency3__.map;
+    var a_indexOf = __dependency3__.indexOf;
+    var a_forEach = __dependency3__.forEach;
+    var o_create = __dependency4__.create;
     var guidFor = __dependency5__.guidFor;
-    var meta = __dependency5__.meta;
+    var metaFor = __dependency5__.meta;
     var wrap = __dependency5__.wrap;
     var makeArray = __dependency5__.makeArray;
     var apply = __dependency5__.apply;
@@ -7206,12 +7202,7 @@ define("ember-metal/mixin",
     var removeListener = __dependency11__.removeListener;
 
     var REQUIRED;
-    var a_map = map;
-    var a_indexOf = indexOf;
-    var a_forEach = forEach;
     var a_slice = [].slice;
-    var o_create = create;
-    var metaFor = meta;
 
     function superFunction(){
       var func = this.__nextSuper;
@@ -9920,7 +9911,7 @@ define("ember-metal/utils",
     var o_defineProperty = __dependency2__.defineProperty;
     var canDefineNonEnumerableProperties = __dependency2__.canDefineNonEnumerableProperties;
     var hasPropertyAccessors = __dependency2__.hasPropertyAccessors;
-    var create = __dependency2__.create;
+    var o_create = __dependency2__.create;
 
     var forEach = __dependency3__.forEach;
 
@@ -9960,7 +9951,6 @@ define("ember-metal/utils",
     */
     var GUID_PREFIX = 'ember';
 
-    var o_create = create;
     // Used for guid generation...
     var numberCache  = [];
     var stringCache  = {};
@@ -10791,15 +10781,12 @@ define("ember-metal/watch_key",
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
-    var meta = __dependency2__.meta;
+    var metaFor = __dependency2__.meta;
     var typeOf = __dependency2__.typeOf;
     var o_defineProperty = __dependency3__.defineProperty;
     var hasPropertyAccessors = __dependency3__.hasPropertyAccessors;
     var MANDATORY_SETTER_FUNCTION = __dependency4__.MANDATORY_SETTER_FUNCTION;
     var DEFAULT_GETTER_FUNCTION = __dependency4__.DEFAULT_GETTER_FUNCTION;
-
-    var metaFor = meta; // utils.js
-
 
     function watchKey(obj, keyName, meta) {
       // can't watch length on Array - it is special...
@@ -10887,11 +10874,9 @@ define("ember-metal/watch_path",
   ["ember-metal/utils","ember-metal/chains","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
-    var meta = __dependency1__.meta;
+    var metaFor = __dependency1__.meta;
     var typeOf = __dependency1__.typeOf;
     var ChainNode = __dependency2__.ChainNode;
-
-    var metaFor = meta;
 
     // get the chains for the current object. If the current object has
     // chains inherited from the proto they will be cloned and reconfigured for
@@ -13970,8 +13955,8 @@ define("ember-runtime/ext/function",
     }
   });
 define("ember-runtime/ext/rsvp",
-  ["ember-metal/core","ember-metal/logger","ember-metal/run_loop","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["ember-metal/core","ember-metal/logger","ember-metal/run_loop","rsvp","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     /* globals RSVP:true */
 
@@ -13979,7 +13964,12 @@ define("ember-runtime/ext/rsvp",
     var Logger = __dependency2__["default"];
     var run = __dependency3__["default"];
 
-    var RSVP = requireModule('rsvp');
+    // this is technically incorrect (per @wycats)
+    // it should be `import * as RSVP from 'rsvp';` but
+    // Esprima does not support this syntax yet (and neither does
+    // es6-module-transpiler 0.4.0 - 0.6.2).
+    var RSVP = __dependency4__;
+
     var testModuleName = 'ember-testing/test';
     var Test;
 
@@ -18496,8 +18486,8 @@ define("ember-runtime/system/application",
     __exports__["default"] = Namespace.extend();
   });
 define("ember-runtime/system/array_proxy",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/utils","ember-metal/computed","ember-metal/mixin","ember-metal/property_events","ember-metal/error","ember-runtime/system/object","ember-runtime/mixins/mutable_array","ember-runtime/mixins/enumerable","ember-runtime/system/string","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/utils","ember-metal/computed","ember-metal/mixin","ember-metal/property_events","ember-metal/error","ember-runtime/system/object","ember-runtime/mixins/mutable_array","ember-runtime/mixins/enumerable","ember-runtime/system/string","ember-metal/alias","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.K, Ember.assert
@@ -18514,6 +18504,7 @@ define("ember-runtime/system/array_proxy",
     var MutableArray = __dependency9__["default"];
     var Enumerable = __dependency10__["default"];
     var fmt = __dependency11__.fmt;
+    var alias = __dependency12__["default"];
 
     /**
     @module ember
@@ -18522,7 +18513,6 @@ define("ember-runtime/system/array_proxy",
 
     var OUT_OF_RANGE_EXCEPTION = "Index out of range";
     var EMPTY = [];
-    var alias = computed.alias;
     var K = Ember.K;
 
     /**
@@ -18873,12 +18863,12 @@ define("ember-runtime/system/array_proxy",
     __exports__["default"] = ArrayProxy;
   });
 define("ember-runtime/system/container",
-  ["ember-metal/property_set","exports"],
-  function(__dependency1__, __exports__) {
+  ["ember-metal/property_set","container","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     var set = __dependency1__.set;
+    var Container = __dependency2__["default"];
 
-    var Container = requireModule('container')["default"];
     Container.set = set;
 
     __exports__["default"] = Container;

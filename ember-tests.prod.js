@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.b2029a58
+ * @version   1.9.0-beta.1+canary.f9aa3f4e
  */
 
 (function() {
@@ -14685,7 +14685,7 @@ define("ember-metal/tests/alias_test",
   ["ember-metal/alias","ember-metal/properties","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/watching","ember-metal/observer"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
     "use strict";
-    var alias = __dependency1__.alias;
+    var alias = __dependency1__["default"];
     var defineProperty = __dependency2__.defineProperty;
     var get = __dependency3__.get;
     var set = __dependency4__.set;
