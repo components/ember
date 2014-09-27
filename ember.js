@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.dc0d8570
+ * @version   1.9.0-beta.1+canary.24cc7c8b
  */
 
 (function() {
@@ -13602,7 +13602,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.dc0d8570
+      @version 1.9.0-beta.1+canary.24cc7c8b
     */
 
     if ('undefined' === typeof Ember) {
@@ -13629,10 +13629,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.dc0d8570'
+      @default '1.9.0-beta.1+canary.24cc7c8b'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.dc0d8570';
+    Ember.VERSION = '1.9.0-beta.1+canary.24cc7c8b';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -42808,9 +42808,6 @@ define("ember-views/views/view",
         Called when the element of the view has been inserted into the DOM
         or after the view was re-rendered. Override this function to do any
         set up that requires an element in the document body.
-
-        When a view has children, didInsertElement will be called on the
-        child view(s) first, bubbling upwards through the hierarchy.
 
         @event didInsertElement
       */
