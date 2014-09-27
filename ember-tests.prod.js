@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.24cc7c8b
+ * @version   1.9.0-beta.1+canary.dc0d8570
  */
 
 (function() {
@@ -50073,6 +50073,62 @@ define("ember-views/tests/views/view/nearest_of_type_test.jshint",
     module('JSHint - ember-views/tests/views/view');
     test('ember-views/tests/views/view/nearest_of_type_test.js should pass jshint', function() { 
       ok(true, 'ember-views/tests/views/view/nearest_of_type_test.js should pass jshint.'); 
+    });
+  });
+define("ember-views/tests/views/view/nested_view_ordering_test",
+  ["container","ember-metal/run_loop","ember-views/views/view","ember-handlebars-compiler"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+    "use strict";
+    var Container = __dependency1__["default"];
+    var run = __dependency2__["default"];
+
+    var EmberView = __dependency3__["default"];
+    var EmberHandlebars = __dependency4__["default"];
+
+    var container, view;
+
+    QUnit.module("EmberView - Nested View Ordering", {
+      setup: function() {
+        container = new Container();
+      },
+      teardown: function() {
+        run(function() {
+          if (view) { view.destroy(); }
+        });
+      }
+    });
+
+    test("should call didInsertElement on child views before parent", function() {
+      var insertedLast;
+      
+      view = EmberView.create({
+        didInsertElement: function(){
+          insertedLast = "outer";
+        },
+        container: container,
+        template: EmberHandlebars.compile("{{view \"inner\"}}")
+      });
+
+      container.register("view:inner", EmberView.extend({
+        didInsertElement: function(){
+          insertedLast = "inner";
+        }
+      }));
+
+      run(function() {
+        view.append();
+      });
+
+      equal(insertedLast, "outer", "didInsertElement called on outer view after inner view");
+    });
+  });
+define("ember-views/tests/views/view/nested_view_ordering_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/nested_view_ordering_test.js should pass jshint', function() { 
+      ok(true, 'ember-views/tests/views/view/nested_view_ordering_test.js should pass jshint.'); 
     });
   });
 define("ember-views/tests/views/view/parse_property_path_test",
