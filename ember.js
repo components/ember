@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.e50baff6
+ * @version   1.9.0-beta.1+canary.075fa156
  */
 
 (function() {
@@ -8534,8 +8534,6 @@ define("ember-handlebars/helpers/collection",
       var viewOptions = ViewHelper.propertiesFromHTMLOptions({ data: data, hash: itemHash }, this);
       hash.itemViewClass = itemViewClass.extend(viewOptions);
 
-      options.helperName = options.helperName || 'collection';
-
       return helpers.view.call(this, collectionClass, options);
     }
 
@@ -9430,7 +9428,7 @@ define("ember-handlebars/helpers/unbound",
     }
   });
 define("ember-handlebars/helpers/view",
-  ["ember-metal/core","ember-runtime/system/object","ember-metal/property_get","ember-metal/mixin","ember-views/views/view","ember-metal/binding","ember-metal/merge","ember-handlebars/ext","exports"],
+  ["ember-metal/core","ember-runtime/system/object","ember-metal/property_get","ember-metal/mixin","ember-views/views/view","ember-metal/binding","ember-metal/keys","ember-handlebars/ext","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
     /**
@@ -9447,7 +9445,7 @@ define("ember-handlebars/helpers/view",
     var IS_BINDING = __dependency4__.IS_BINDING;
     var View = __dependency5__["default"];
     var isGlobalPath = __dependency6__.isGlobalPath;
-    var merge = __dependency7__["default"];
+    var keys = __dependency7__["default"];
     var normalizePath = __dependency8__.normalizePath;
     var handlebarsGet = __dependency8__.handlebarsGet;
     var handlebarsGetView = __dependency8__.handlebarsGetView;
@@ -9484,93 +9482,90 @@ define("ember-handlebars/helpers/view",
     }
 
     var ViewHelper = EmberObject.create({
-
       propertiesFromHTMLOptions: function(options) {
         var hash = options.hash;
         var data = options.data;
-        var extensions = {};
+        var extensions = {
+          classNameBindings: [],
+          helperName:        options.helperName || ''
+        };
         var classes = hash['class'];
-        var dup = false;
 
         if (hash.id) {
           extensions.elementId = hash.id;
-          dup = true;
         }
 
         if (hash.tag) {
           extensions.tagName = hash.tag;
-          dup = true;
         }
 
         if (classes) {
           classes = classes.split(' ');
           extensions.classNames = classes;
-          dup = true;
         }
 
         if (hash.classBinding) {
           extensions.classNameBindings = hash.classBinding.split(' ');
-          dup = true;
         }
 
         if (hash.classNameBindings) {
-          if (extensions.classNameBindings === undefined) extensions.classNameBindings = [];
           extensions.classNameBindings = extensions.classNameBindings.concat(hash.classNameBindings.split(' '));
-          dup = true;
         }
 
         if (hash.attributeBindings) {
           Ember.assert("Setting 'attributeBindings' via Handlebars is not allowed. Please subclass Ember.View and set it there instead.");
           extensions.attributeBindings = null;
-          dup = true;
-        }
-
-        if (dup) {
-          hash = merge({}, hash);
-          delete hash.id;
-          delete hash.tag;
-          delete hash['class'];
-          delete hash.classBinding;
         }
 
         // Set the proper context for all bindings passed to the helper. This applies to regular attribute bindings
         // as well as class name bindings. If the bindings are local, make them relative to the current context
         // instead of the view.
         var path;
+        var hashKeys = keys(hash);
 
-        // Evaluate the context of regular attribute bindings:
-        for (var prop in hash) {
-          if (!hash.hasOwnProperty(prop)) { continue; }
+        for (var i = 0, l = hashKeys.length; i < l; i++) {
+          var prop      = hashKeys[i];
+          var isBinding = IS_BINDING.test(prop);
+
+          if (prop !== 'classNameBindings') {
+            extensions[prop] = hash[prop];
+          }
 
           // Test if the property ends in "Binding"
-          if (IS_BINDING.test(prop) && typeof hash[prop] === 'string') {
+          if (isBinding && typeof extensions[prop] === 'string') {
             path = this.contextualizeBindingPath(hash[prop], data);
-            if (path) { hash[prop] = path; }
+            if (path) {
+              extensions[prop] = path;
+            }
           }
         }
 
         // Evaluate the context of class name bindings:
-        if (extensions.classNameBindings) {
-          for (var b in extensions.classNameBindings) {
-            var full = extensions.classNameBindings[b];
-            if (typeof full === 'string') {
-              // Contextualize the path of classNameBinding so this:
-              //
-              //     classNameBinding="isGreen:green"
-              //
-              // is converted to this:
-              //
-              //     classNameBinding="_parentView.context.isGreen:green"
-              var parsedPath = View._parsePropertyPath(full);
-              if(parsedPath.path !== '') {
-                path = this.contextualizeBindingPath(parsedPath.path, data);
-                if (path) { extensions.classNameBindings[b] = path + parsedPath.classNames; }
+        var classNameBindingsKeys = keys(extensions.classNameBindings);
+
+        for (var j = 0, k = classNameBindingsKeys.length; j < k; j++) {
+          var classKey = classNameBindingsKeys[j];
+          var full     = extensions.classNameBindings[classKey];
+
+          if (typeof full === 'string') {
+            // Contextualize the path of classNameBinding so this:
+            //
+            //     classNameBinding="isGreen:green"
+            //
+            // is converted to this:
+            //
+            //     classNameBinding="_parentView.context.isGreen:green"
+            var parsedPath = View._parsePropertyPath(full);
+            if (parsedPath.path !== '') {
+              path = this.contextualizeBindingPath(parsedPath.path, data);
+              if (path) {
+                extensions.classNameBindings[classKey] = path + parsedPath.classNames;
               }
             }
           }
         }
 
-        return merge(hash, extensions);
+        return extensions;
       },
 
       // Transform bindings from the current context to a context that can be evaluated within the view.
@@ -9593,7 +9588,7 @@ define("ember-handlebars/helpers/view",
 
       helper: function(thisContext, path, options) {
         var data = options.data;
-        var fn = options.fn;
+        var fn   = options.fn;
         var newView;
 
         makeBindings(thisContext, options);
@@ -9617,17 +9612,12 @@ define("ember-handlebars/helpers/view",
           viewOptions._context = thisContext;
         }
 
-        // for instrumentation
-        if (options.helperName) {
-          viewOptions.helperName = options.helperName;
-        }
-
         currentView.appendChild(newView, viewOptions);
       },
 
       instanceHelper: function(thisContext, newView, options) {
-        var data = options.data,
-            fn = options.fn;
+        var data = options.data;
+        var fn   = options.fn;
 
         makeBindings(thisContext, options);
 
@@ -9649,11 +9639,6 @@ define("ember-handlebars/helpers/view",
         // no specified controller. See View#_context for more information.
         if (!newView.controller && !newView.controllerBinding && !viewOptions.controller && !viewOptions.controllerBinding) {
           viewOptions._context = thisContext;
-        }
-
-        // for instrumentation
-        if (options.helperName) {
-          viewOptions.helperName = options.helperName;
         }
 
         currentView.appendChild(newView, viewOptions);
@@ -13602,7 +13587,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.e50baff6
+      @version 1.9.0-beta.1+canary.075fa156
     */
 
     if ('undefined' === typeof Ember) {
@@ -13629,10 +13614,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.e50baff6'
+      @default '1.9.0-beta.1+canary.075fa156'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.e50baff6';
+    Ember.VERSION = '1.9.0-beta.1+canary.075fa156';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
