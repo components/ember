@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.b5aca9b2
+ * @version   1.9.0-beta.1+canary.24cc7c8b
  */
 
 (function() {
@@ -4763,7 +4763,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.b5aca9b2
+      @version 1.9.0-beta.1+canary.24cc7c8b
     */
 
     if ('undefined' === typeof Ember) {
@@ -4790,10 +4790,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.b5aca9b2'
+      @default '1.9.0-beta.1+canary.24cc7c8b'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.b5aca9b2';
+    Ember.VERSION = '1.9.0-beta.1+canary.24cc7c8b';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -7026,9 +7026,11 @@ define("ember-metal/map",
     __exports__.MapWithDefault = MapWithDefault;
   });
 define("ember-metal/merge",
-  ["exports"],
-  function(__exports__) {
+  ["ember-metal/keys","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
+    var keys = __dependency1__["default"];
+
     /**
       Merge the contents of two objects together into the first object.
 
@@ -7045,10 +7047,19 @@ define("ember-metal/merge",
       @return {Object}
     */
     __exports__["default"] = function merge(original, updates) {
-      for (var prop in updates) {
-        if (!updates.hasOwnProperty(prop)) { continue; }
+      if (!updates || typeof updates !== 'object') { 
+        return original;
+      }
+
+      var props = keys(updates);
+      var prop;
+      var length = props.length;
+
+      for (var i = 0; i < length; i++) {
+        prop = props[i];
         original[prop] = updates[prop];
       }
+
       return original;
     }
   });
