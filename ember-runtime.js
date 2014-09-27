@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.c9ef4bb7
+ * @version   1.9.0-beta.1+canary.a06d040b
  */
 
 (function() {
@@ -4762,7 +4762,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.c9ef4bb7
+      @version 1.9.0-beta.1+canary.a06d040b
     */
 
     if ('undefined' === typeof Ember) {
@@ -4789,10 +4789,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.c9ef4bb7'
+      @default '1.9.0-beta.1+canary.a06d040b'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.c9ef4bb7';
+    Ember.VERSION = '1.9.0-beta.1+canary.a06d040b';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -9880,11 +9880,12 @@ define("ember-metal/run_loop",
     };
   });
 define("ember-metal/set_properties",
-  ["ember-metal/property_events","ember-metal/property_set","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["ember-metal/property_events","ember-metal/property_set","ember-metal/keys","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     var changeProperties = __dependency1__.changeProperties;
     var set = __dependency2__.set;
+    var keys = __dependency3__["default"];
 
     /**
       Set a list of properties on an object. These properties are set inside
@@ -9908,8 +9909,13 @@ define("ember-metal/set_properties",
     */
     __exports__["default"] = function setProperties(self, hash) {
       changeProperties(function() {
-        for(var prop in hash) {
-          if (hash.hasOwnProperty(prop)) { set(self, prop, hash[prop]); }
+        var props = keys(hash);
+        var prop;
+
+        for (var i = 0, l = props.length; i < l; i++) {
+          prop = props[i];
+
+          set(self, prop, hash[prop]);
         }
       });
       return self;
