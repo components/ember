@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.57e3cee3
+ * @version   1.9.0-beta.1+canary.e50baff6
  */
 
 (function() {
@@ -13602,7 +13602,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.57e3cee3
+      @version 1.9.0-beta.1+canary.e50baff6
     */
 
     if ('undefined' === typeof Ember) {
@@ -13629,10 +13629,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.57e3cee3'
+      @default '1.9.0-beta.1+canary.e50baff6'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.57e3cee3';
+    Ember.VERSION = '1.9.0-beta.1+canary.e50baff6';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -29927,6 +29927,7 @@ define("ember-runtime/mixins/array",
       if (hasObservers === notify) {
         propertyDidChange(obj, 'hasArrayObservers');
       }
+
       return obj;
     }
 
@@ -29990,8 +29991,9 @@ define("ember-runtime/mixins/array",
 
         ```javascript
         var arr = ['a', 'b', 'c', 'd'];
-        arr.objectAt(0);   // "a"
-        arr.objectAt(3);   // "d"
+
+        arr.objectAt(0);   // 'a'
+        arr.objectAt(3);   // 'd'
         arr.objectAt(-1);  // undefined
         arr.objectAt(4);   // undefined
         arr.objectAt(5);   // undefined
@@ -30002,7 +30004,10 @@ define("ember-runtime/mixins/array",
         @return {*} item at index or undefined
       */
       objectAt: function(idx) {
-        if (idx < 0 || idx >= get(this, 'length')) return undefined;
+        if (idx < 0 || idx >= get(this, 'length')) {
+          return undefined;
+        }
+
         return get(this, idx);
       },
 
@@ -30011,8 +30016,9 @@ define("ember-runtime/mixins/array",
 
         ```javascript
         var arr = ['a', 'b', 'c', 'd'];
-        arr.objectsAt([0, 1, 2]);  // ["a", "b", "c"]
-        arr.objectsAt([2, 3, 4]);  // ["c", "d", undefined]
+
+        arr.objectsAt([0, 1, 2]);  // ['a', 'b', 'c']
+        arr.objectsAt([2, 3, 4]);  // ['c', 'd', undefined]
         ```
 
         @method objectsAt
@@ -30021,7 +30027,10 @@ define("ember-runtime/mixins/array",
        */
       objectsAt: function(indexes) {
         var self = this;
-        return map(indexes, function(idx) { return self.objectAt(idx); });
+
+        return map(indexes, function(idx) {
+          return self.objectAt(idx);
+        });
       },
 
       // overrides Ember.Enumerable version
@@ -30040,7 +30049,10 @@ define("ember-runtime/mixins/array",
         @return this
       */
       '[]': computed(function(key, value) {
-        if (value !== undefined) this.replace(0, get(this, 'length'), value) ;
+        if (value !== undefined) {
+          this.replace(0, get(this, 'length'), value);
+        }
+
         return this;
       }),
 
@@ -30049,7 +30061,7 @@ define("ember-runtime/mixins/array",
       }),
 
       lastObject: computed(function() {
-        return this.objectAt(get(this, 'length')-1);
+        return this.objectAt(get(this, 'length') - 1);
       }),
 
       // optimized version from Enumerable
@@ -30065,6 +30077,7 @@ define("ember-runtime/mixins/array",
 
         ```javascript
         var arr = ['red', 'green', 'blue'];
+
         arr.slice(0);       // ['red', 'green', 'blue']
         arr.slice(0, 2);    // ['red', 'green']
         arr.slice(1, 100);  // ['green', 'blue']
@@ -30077,17 +30090,29 @@ define("ember-runtime/mixins/array",
       */
       slice: function(beginIndex, endIndex) {
         var ret = Ember.A();
-        var length = get(this, 'length') ;
-        if (isNone(beginIndex)) beginIndex = 0 ;
-        if (isNone(endIndex) || (endIndex > length)) endIndex = length ;
+        var length = get(this, 'length');
 
-        if (beginIndex < 0) beginIndex = length + beginIndex;
-        if (endIndex < 0) endIndex = length + endIndex;
-
-        while(beginIndex < endIndex) {
-          ret[ret.length] = this.objectAt(beginIndex++) ;
+        if (isNone(beginIndex)) {
+          beginIndex = 0;
         }
-        return ret ;
+
+        if (isNone(endIndex) || (endIndex > length)) {
+          endIndex = length;
+        }
+
+        if (beginIndex < 0) {
+          beginIndex = length + beginIndex;
+        }
+
+        if (endIndex < 0) {
+          endIndex = length + endIndex;
+        }
+
+        while (beginIndex < endIndex) {
+          ret[ret.length] = this.objectAt(beginIndex++);
+        }
+
+        return ret;
       },
 
       /**
@@ -30097,13 +30122,14 @@ define("ember-runtime/mixins/array",
         the end of the array. Returns -1 if no match is found.
 
         ```javascript
-        var arr = ["a", "b", "c", "d", "a"];
-        arr.indexOf("a");       //  0
-        arr.indexOf("z");       // -1
-        arr.indexOf("a", 2);    //  4
-        arr.indexOf("a", -1);   //  4
-        arr.indexOf("b", 3);    // -1
-        arr.indexOf("a", 100);  // -1
+        var arr = ['a', 'b', 'c', 'd', 'a'];
+
+        arr.indexOf('a');       //  0
+        arr.indexOf('z');       // -1
+        arr.indexOf('a', 2);    //  4
+        arr.indexOf('a', -1);   //  4
+        arr.indexOf('b', 3);    // -1
+        arr.indexOf('a', 100);  // -1
         ```
 
         @method indexOf
@@ -30112,14 +30138,23 @@ define("ember-runtime/mixins/array",
         @return {Number} index or -1 if not found
       */
       indexOf: function(object, startAt) {
-        var idx, len = get(this, 'length');
+        var len = get(this, 'length');
+        var idx;
 
-        if (startAt === undefined) startAt = 0;
-        if (startAt < 0) startAt += len;
-
-        for(idx = startAt; idx < len; idx++) {
-          if (this.objectAt(idx) === object) return idx;
+        if (startAt === undefined) {
+          startAt = 0;
         }
+
+        if (startAt < 0) {
+          startAt += len;
+        }
+
+        for (idx = startAt; idx < len; idx++) {
+          if (this.objectAt(idx) === object) {
+            return idx;
+          }
+        }
+
         return -1;
       },
 
@@ -30130,13 +30165,14 @@ define("ember-runtime/mixins/array",
         from the end of the array. Returns -1 if no match is found.
 
         ```javascript
-        var arr = ["a", "b", "c", "d", "a"];
-        arr.lastIndexOf("a");       //  4
-        arr.lastIndexOf("z");       // -1
-        arr.lastIndexOf("a", 2);    //  0
-        arr.lastIndexOf("a", -1);   //  4
-        arr.lastIndexOf("b", 3);    //  1
-        arr.lastIndexOf("a", 100);  //  4
+        var arr = ['a', 'b', 'c', 'd', 'a'];
+
+        arr.lastIndexOf('a');       //  4
+        arr.lastIndexOf('z');       // -1
+        arr.lastIndexOf('a', 2);    //  0
+        arr.lastIndexOf('a', -1);   //  4
+        arr.lastIndexOf('b', 3);    //  1
+        arr.lastIndexOf('a', 100);  //  4
         ```
 
         @method lastIndexOf
@@ -30145,14 +30181,23 @@ define("ember-runtime/mixins/array",
         @return {Number} index or -1 if not found
       */
       lastIndexOf: function(object, startAt) {
-        var idx, len = get(this, 'length');
+        var len = get(this, 'length');
+        var idx;
 
-        if (startAt === undefined || startAt >= len) startAt = len-1;
-        if (startAt < 0) startAt += len;
-
-        for(idx = startAt; idx >= 0; idx--) {
-          if (this.objectAt(idx) === object) return idx;
+        if (startAt === undefined || startAt >= len) {
+          startAt = len-1;
         }
+
+        if (startAt < 0) {
+          startAt += len;
+        }
+
+        for (idx = startAt; idx >= 0; idx--) {
+          if (this.objectAt(idx) === object) {
+            return idx;
+          }
+        }
+
         return -1;
       },
 
@@ -30229,26 +30274,36 @@ define("ember-runtime/mixins/array",
         @return {Ember.Array} receiver
       */
       arrayContentWillChange: function(startIdx, removeAmt, addAmt) {
+        var removing, lim;
 
         // if no args are passed assume everything changes
-        if (startIdx===undefined) {
+        if (startIdx === undefined) {
           startIdx = 0;
           removeAmt = addAmt = -1;
         } else {
-          if (removeAmt === undefined) removeAmt=-1;
-          if (addAmt    === undefined) addAmt=-1;
+          if (removeAmt === undefined) {
+            removeAmt = -1;
+          }
+
+          if (addAmt === undefined) {
+            addAmt = -1;
+          }
         }
 
         // Make sure the @each proxy is set up if anyone is observing @each
-        if (isWatching(this, '@each')) { get(this, '@each'); }
+        if (isWatching(this, '@each')) {
+          get(this, '@each');
+        }
 
         sendEvent(this, '@array:before', [this, startIdx, removeAmt, addAmt]);
 
-        var removing, lim;
-        if (startIdx>=0 && removeAmt>=0 && get(this, 'hasEnumerableObservers')) {
+        if (startIdx >= 0 && removeAmt >= 0 && get(this, 'hasEnumerableObservers')) {
           removing = [];
-          lim = startIdx+removeAmt;
-          for(var idx=startIdx;idx<lim;idx++) removing.push(this.objectAt(idx));
+          lim = startIdx + removeAmt;
+
+          for (var idx = startIdx; idx < lim; idx++) {
+            removing.push(this.objectAt(idx));
+          }
         } else {
           removing = removeAmt;
         }
@@ -30273,21 +30328,29 @@ define("ember-runtime/mixins/array",
         @return {Ember.Array} receiver
       */
       arrayContentDidChange: function(startIdx, removeAmt, addAmt) {
+        var adding, lim;
 
         // if no args are passed assume everything changes
-        if (startIdx===undefined) {
+        if (startIdx === undefined) {
           startIdx = 0;
           removeAmt = addAmt = -1;
         } else {
-          if (removeAmt === undefined) removeAmt=-1;
-          if (addAmt    === undefined) addAmt=-1;
+          if (removeAmt === undefined) {
+            removeAmt = -1;
+          }
+
+          if (addAmt === undefined) {
+            addAmt = -1;
+          }
         }
 
-        var adding, lim;
-        if (startIdx>=0 && addAmt>=0 && get(this, 'hasEnumerableObservers')) {
+        if (startIdx >= 0 && addAmt >= 0 && get(this, 'hasEnumerableObservers')) {
           adding = [];
-          lim = startIdx+addAmt;
-          for(var idx=startIdx;idx<lim;idx++) adding.push(this.objectAt(idx));
+          lim = startIdx + addAmt;
+
+          for (var idx = startIdx; idx < lim; idx++) {
+            adding.push(this.objectAt(idx));
+          }
         } else {
           adding = addAmt;
         }
@@ -30295,13 +30358,15 @@ define("ember-runtime/mixins/array",
         this.enumerableContentDidChange(removeAmt, adding);
         sendEvent(this, '@array:change', [this, startIdx, removeAmt, addAmt]);
 
-        var length      = get(this, 'length');
+        var length = get(this, 'length');
         var cachedFirst = cacheFor(this, 'firstObject');
-        var cachedLast  = cacheFor(this, 'lastObject');
+        var cachedLast = cacheFor(this, 'lastObject');
+
         if (this.objectAt(0) !== cachedFirst) {
           propertyWillChange(this, 'firstObject');
           propertyDidChange(this, 'firstObject');
         }
+
         if (this.objectAt(length-1) !== cachedLast) {
           propertyWillChange(this, 'lastObject');
           propertyDidChange(this, 'lastObject');
