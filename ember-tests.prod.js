@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.3+pre.e2dd213f
+ * @version   1.8.0-beta.3+pre.5454b800
  */
 
 (function() {
@@ -13358,9 +13358,8 @@ define("ember-metal-views/tests/main_test",
   ["ember-metal-views/tests/test_helpers"],
   function(__dependency1__) {
     "use strict";
-    /*globals HTMLElement */
-
     var testsFor = __dependency1__.testsFor;
+    var setElementText = __dependency1__.setElementText;
     var equalHTML = __dependency1__.equalHTML;
     var appendTo = __dependency1__.appendTo;
 
@@ -13373,6 +13372,7 @@ define("ember-metal-views/tests/main_test",
       }
     });
 
+    // Test the behavior of the helper createElement stub
     test("by default, view renders as a div", function() {
       view = {isView: true};
 
@@ -13380,6 +13380,7 @@ define("ember-metal-views/tests/main_test",
       equalHTML('qunit-fixture', "<div></div>");
     });
 
+    // Test the behavior of the helper createElement stub
     test("tagName can be specified", function() {
       view = {
         isView: true,
@@ -13391,6 +13392,7 @@ define("ember-metal-views/tests/main_test",
       equalHTML('qunit-fixture', "<span></span>");
     });
 
+    // Test the behavior of the helper createElement stub
     test("textContent can be specified", function() {
       view = {
         isView: true,
@@ -13402,6 +13404,7 @@ define("ember-metal-views/tests/main_test",
       equalHTML('qunit-fixture', "<div>ohai &lt;a&gt;derp&lt;/a&gt;</div>");
     });
 
+    // Test the behavior of the helper createElement stub
     test("innerHTML can be specified", function() {
       view = {
         isView: true,
@@ -13413,6 +13416,20 @@ define("ember-metal-views/tests/main_test",
       equalHTML('qunit-fixture', "<div>ohai <a>derp</a></div>");
     });
 
+    // Test the behavior of the helper createElement stub
+    test("innerHTML tr can be specified", function() {
+      view = {
+        isView: true,
+        tagName: 'table',
+        innerHTML: '<tr><td>ohai</td></tr>'
+      };
+
+      appendTo(view);
+
+      equalHTML('qunit-fixture', "<table><tr><td>ohai</td></tr></table>");
+    });
+
+    // Test the behavior of the helper createElement stub
     test("element can be specified", function() {
       view = {
         isView: true,
@@ -13431,9 +13448,9 @@ define("ember-metal-views/tests/main_test",
         isView: true,
 
         willInsertElement: function(el) {
-          ok(this.element instanceof HTMLElement, "We have an element");
+          ok(this.element && this.element.nodeType === 1, "We have an element");
           equal(this.element.parentElement, null, "The element is parentless");
-          this.element.textContent = 'you gone and done inserted that element';
+          setElementText(this.element, 'you gone and done inserted that element');
         }
       };
 
@@ -13449,9 +13466,9 @@ define("ember-metal-views/tests/main_test",
         isView: true,
 
         didInsertElement: function() {
-          ok(this.element instanceof HTMLElement, "We have an element");
+          ok(this.element && this.element.nodeType === 1, "We have an element");
           equal(this.element.parentElement, document.getElementById('qunit-fixture'), "The element's parent is correct");
-          this.element.textContent = 'you gone and done inserted that element';
+          setElementText(this.element, 'you gone and done inserted that element');
         }
       };
 
@@ -13501,9 +13518,9 @@ define("ember-metal-views/tests/test_helpers",
     var renderer;
 
     function MetalRenderer () {
-      MetalRenderer["super"].call(this);
+      MetalRenderer._super.call(this);
     }
-    MetalRenderer["super"] = Renderer;
+    MetalRenderer._super = Renderer;
     MetalRenderer.prototype = Object.create(Renderer.prototype, {
       constructor: {
         value: MetalRenderer,
@@ -13518,12 +13535,12 @@ define("ember-metal-views/tests/test_helpers",
     };
     MetalRenderer.prototype.willCreateElement = function(view) {
     };
-    MetalRenderer.prototype.createElement = function (view) {
+    MetalRenderer.prototype.createElement = function (view, contextualElement) {
       var el;
       if (view.element) {
         el = view.element;
       } else {
-        el = view.element = document.createElement(view.tagName || 'div');
+        el = view.element = this._dom.createElement(view.tagName || 'div');
       }
       var classNames = view.classNames;
       if (typeof classNames === 'string') {
@@ -13546,9 +13563,12 @@ define("ember-metal-views/tests/test_helpers",
       if (view.childViews) {
         view._childViewsMorph = this._dom.createMorph(el, null, null);
       } else if (view.textContent) {
-        el.textContent = view.textContent;
+        setElementText(el, view.textContent);
       } else if (view.innerHTML) {
-        el.innerHTML = view.innerHTML;
+        var nodes = this._dom.parseHTML(view.innerHTML, el);
+        while (nodes[0]) {
+          el.appendChild(nodes[0]);
+        }
       }
       return el;
     };
@@ -13586,15 +13606,41 @@ define("ember-metal-views/tests/test_helpers",
       return renderer;
     }
 
-    __exports__.subject = subject;function equalHTML(element, expectedHTML, message) {
+    __exports__.subject = subject;var supportsTextContent = ('textContent' in document.createElement('div'));
+    var setElementText;
+    if (supportsTextContent) {
+      setElementText = function setElementText(element, text) {
+        element.textContent = text;
+      };
+    } else {
+      setElementText = function setElementText(element, text) {
+        element.innerText = text;
+      };
+    }
+    __exports__.setElementText = setElementText;
+
+    function equalHTML(element, expectedHTML, message) {
       var html;
       if (typeof element === 'string') {
         html = document.getElementById(element).innerHTML;
       } else {
-        html = element.outerHTML;
+        if (element instanceof window.NodeList) {
+          var fragment = document.createElement('div');
+          while (element[0]) {
+            fragment.appendChild(element[0]);
+          }
+          html = fragment.innerHTML;
+        } else {
+          html = element.outerHTML;
+        }
       }
 
       var actualHTML = html.replace(/ id="[^"]+"/gmi, '');
+      actualHTML = actualHTML.replace(/<\/?([A-Z]+)/gi, function(tag){
+        return tag.toLowerCase();
+      });
+      actualHTML = actualHTML.replace(/\r\n/gm, '');
+      actualHTML = actualHTML.replace(/ $/, '');
       equal(actualHTML, expectedHTML, message || "HTML matches");
     }
 
@@ -17456,7 +17502,13 @@ define("ember-metal/tests/map_test",
         mapHasLength(entries.length, theMap);
       };
 
-      test("add", function() {
+      var unboundThis;
+
+      (function() {
+        unboundThis = this;
+      }());
+
+      test("set", function() {
         map.set(object, "winning");
         map.set(number, "winning");
         map.set(string, "winning");
@@ -17477,8 +17529,46 @@ define("ember-metal/tests/map_test",
           [ string, "losing" ]
         ]);
 
-        equal(map.has("nope"), false);
-        equal(map.has({}), false);
+        equal(map.has("nope"), false, "expected the key `nope` to not be present");
+        equal(map.has({}), false, "expected they key `{}` to not be present");
+      });
+
+      test("set chaining", function() {
+        map.set(object, "winning").
+            set(number, "winning").
+            set(string, "winning");
+
+        mapHasEntries([
+          [ object, "winning" ],
+          [ number, "winning" ],
+          [ string, "winning" ]
+        ]);
+
+        map.set(object, "losing").
+            set(number, "losing").
+            set(string, "losing");
+
+        mapHasEntries([
+          [ object, "losing" ],
+          [ number, "losing" ],
+          [ string, "losing" ]
+        ]);
+
+        equal(map.has("nope"), false, "expected the key `nope` to not be present");
+        equal(map.has({}), false, "expected they key `{}` to not be present");
+      });
+
+      test("with key with undefined value", function() {
+        map.set("foo", undefined);
+
+        map.forEach(function(value, key) {
+          equal(value, undefined);
+          equal(key, 'foo');
+        });
+
+        ok(map.has("foo"), "has key foo, even with undefined value");
+
+        equal(map.size, 1);
       });
 
       test("remove", function() {
@@ -17540,37 +17630,169 @@ define("ember-metal/tests/map_test",
         mapHasEntries([ ], map2);
       });
 
-      test("length", function() {
+      test("size", function() {
         //Add a key twice
-        equal(map.length, 0);
+        equal(map.size, 0);
         map.set(string, "a string");
-        equal(map.length, 1);
+        equal(map.size, 1);
         map.set(string, "the same string");
-        equal(map.length, 1);
+        equal(map.size, 1);
 
         //Add another
         map.set(number, "a number");
-        equal(map.length, 2);
+        equal(map.size, 2);
 
         //Remove one that doesn't exist
         map.remove('does not exist');
-        equal(map.length, 2);
+        equal(map.size, 2);
 
         //Check copy
         var copy = map.copy();
-        equal(copy.length, 2);
+        equal(copy.size, 2);
 
         //Remove a key twice
         map.remove(number);
-        equal(map.length, 1);
+        equal(map.size, 1);
         map.remove(number);
-        equal(map.length, 1);
+        equal(map.size, 1);
 
         //Remove the last key
         map.remove(string);
-        equal(map.length, 0);
+        equal(map.size, 0);
         map.remove(string);
-        equal(map.length, 0);
+        equal(map.size, 0);
+      });
+
+      test("forEach without proper callback", function() {
+        QUnit["throws"](function() {
+          map.forEach();
+        }, '[object Undefined] is not a function');
+
+        QUnit["throws"](function() {
+          map.forEach(undefined);
+        }, '[object Undefined] is not a function');
+
+        QUnit["throws"](function() {
+          map.forEach(1);
+        }, '[object Number] is not a function');
+
+        QUnit["throws"](function() {
+          map.forEach({});
+        }, '[object Object] is not a function');
+      });
+
+      test("forEach basic", function() {
+        map.set("a", 1);
+        map.set("b", 2);
+        map.set("c", 3);
+
+        var iteration = 0;
+
+        var expectations = [
+          { value: 1, key: "a", context: unboundThis },
+          { value: 2, key: "b", context: unboundThis },
+          { value: 3, key: "c", context: unboundThis },
+        ];
+
+        map.forEach(function(value, key) {
+          var expectation = expectations[iteration];
+
+          equal(value, expectation.value, 'value should be correct');
+          equal(key, expectation.key, 'key should be correct');
+          equal(this, expectation.context, 'context should be as if it was unbound');
+
+          iteration++;
+        });
+
+        equal(iteration, 3, 'expected 3 iterations');
+
+      });
+
+      test("forEach basic /w context", function() {
+        map.set("a", 1);
+        map.set("b", 2);
+        map.set("c", 3);
+
+        var iteration = 0;
+        var context = {};
+        var expectations = [
+          { value: 1, key: "a", context: context },
+          { value: 2, key: "b", context: context },
+          { value: 3, key: "c", context: context },
+        ];
+
+        map.forEach(function(value, key) {
+          var expectation = expectations[iteration];
+
+          equal(value, expectation.value, 'value should be correct');
+          equal(key, expectation.key, 'key should be correct');
+          equal(this, expectation.context, 'context should be as if it was unbound');
+
+          iteration++;
+
+        }, context);
+
+        equal(iteration, 3, 'expected 3 iterations');
+      });
+
+      test("forEach basic /w deletion while enumerating", function() {
+        map.set("a", 1);
+        map.set("b", 2);
+        map.set("c", 3);
+
+        var iteration = 0;
+
+        var expectations = [
+          { value: 1, key: "a", context: unboundThis },
+          { value: 2, key: "b", context: unboundThis }
+        ];
+
+        map.forEach(function(value, key) {
+          if (iteration === 0) {
+            map["delete"]("c");
+          }
+
+          var expectation = expectations[iteration];
+
+          equal(value, expectation.value, 'value should be correct');
+          equal(key, expectation.key, 'key should be correct');
+          equal(this, expectation.context, 'context should be as if it was unbound');
+
+          iteration++;
+        });
+
+        equal(iteration, 2, 'expected 3 iterations');
+      });
+
+      test("forEach basic /w addition while enumerating", function() {
+        map.set("a", 1);
+        map.set("b", 2);
+        map.set("c", 3);
+
+        var iteration = 0;
+
+        var expectations = [
+          { value: 1, key: "a", context: unboundThis },
+          { value: 2, key: "b", context: unboundThis },
+          { value: 3, key: "c", context: unboundThis },
+          { value: 4, key: "d", context: unboundThis },
+        ];
+
+        map.forEach(function(value, key) {
+          if (iteration === 0) {
+            map.set('d', 4);
+          }
+
+          var expectation = expectations[iteration];
+
+          equal(value, expectation.value, 'value should be correct');
+          equal(key, expectation.key, 'key should be correct');
+          equal(this, expectation.context, 'context should be as if it was unbound');
+
+          iteration++;
+        });
+
+        equal(iteration, 4, 'expected 3 iterations');
       });
     }
 
@@ -21631,19 +21853,8 @@ define("ember-metal/tests/utils/meta_test",
     });
 
     QUnit.module("Ember.meta enumerable");
-    // Tests fix for https://github.com/emberjs/ember.js/issues/344
-    // This is primarily for older browsers such as IE8
+
     if (canDefineNonEnumerableProperties) {
-      if (Ember.imports.jQuery) {
-        test("meta is not jQuery.isPlainObject", function () {
-          var proto, obj;
-          proto = {foo: 'bar'};
-          equal(jQuery.isPlainObject(meta(proto)), false, 'meta should not be isPlainObject when meta property cannot be marked as enumerable: false');
-          obj = create(proto);
-          equal(jQuery.isPlainObject(meta(obj)), false, 'meta should not be isPlainObject when meta property cannot be marked as enumerable: false');
-        });
-      }
-    } else {
       test("meta is not enumerable", function () {
         var proto, obj, props, prop;
         proto = {foo: 'bar'};
@@ -21664,6 +21875,18 @@ define("ember-metal/tests/utils/meta_test",
           }
         }
       });
+    } else {
+      // Tests fix for https://github.com/emberjs/ember.js/issues/344
+      // This is primarily for older browsers such as IE8
+      if (Ember.imports.jQuery) {
+        test("meta is not jQuery.isPlainObject", function () {
+          var proto, obj;
+          proto = {foo: 'bar'};
+          equal(jQuery.isPlainObject(meta(proto)), false, 'meta should not be isPlainObject when meta property cannot be marked as enumerable: false');
+          obj = create(proto);
+          equal(jQuery.isPlainObject(meta(obj)), false, 'meta should not be isPlainObject when meta property cannot be marked as enumerable: false');
+        });
+      }
     }
   });
 define("ember-metal/tests/utils/meta_test.jshint",
@@ -22713,7 +22936,7 @@ define("ember-routing-handlebars/tests/helpers/action_test",
         boundText: "inner",
         truthy: true,
         obj: {},
-        layout: EmberHandlebars.compile("<p>{{boundText}}</p><p>{{#if truthy}}{{#with obj}}{{yield}}{{/with}}{{/if}}</p>")
+        layout: EmberHandlebars.compile("<div>{{boundText}}</div><div>{{#if truthy}}{{#with obj}}{{yield}}{{/with}}{{/if}}</div>")
       });
 
       view = EmberView.create({
@@ -22729,7 +22952,7 @@ define("ember-routing-handlebars/tests/helpers/action_test",
             boundText: 'insideWith'
           }
         },
-        template: EmberHandlebars.compile('{{#with obj}}{{#if truthy}}{{#view component}}{{#if truthy}}<p {{action "wat"}} class="wat">{{boundText}}</p>{{/if}}{{/view}}{{/if}}{{/with}}')
+        template: EmberHandlebars.compile('{{#with obj}}{{#if truthy}}{{#view component}}{{#if truthy}}<div {{action "wat"}} class="wat">{{boundText}}</div>{{/if}}{{/view}}{{/if}}{{/with}}')
       });
 
       appendView();
@@ -24602,7 +24825,7 @@ define("ember-routing-handlebars/tests/helpers/render_test",
       run(function() {
         view.connectOutlet('main', EmberView.create({
           controller: controller.create(),
-          template: compile("<p>1{{render 'home'}}</p>")
+          template: compile("<div>1{{render 'home'}}</div>")
         }));
       });
 
@@ -24611,7 +24834,7 @@ define("ember-routing-handlebars/tests/helpers/render_test",
       run(function() {
         view.connectOutlet('main', EmberView.create({
           controller: controller.create(),
-          template: compile("<p>2{{render 'home'}}</p>")
+          template: compile("<div>2{{render 'home'}}</div>")
         }));
       });
 
@@ -40318,8 +40541,8 @@ define("ember-runtime/tests/system/object/computed_test.jshint",
     });
   });
 define("ember-runtime/tests/system/object/create_test",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/computed","ember-metal/mixin","ember-metal/run_loop","ember-metal/events","ember-runtime/system/object"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/computed","ember-metal/mixin","ember-metal/run_loop","ember-metal/events","ember-runtime/system/object","ember-metal/keys"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var get = __dependency2__.get;
@@ -40332,6 +40555,7 @@ define("ember-runtime/tests/system/object/create_test",
     var run = __dependency7__["default"];
     var on = __dependency8__.on;
     var EmberObject = __dependency9__["default"];
+    var keys = __dependency10__["default"];
 
     var moduleOptions, originalLookup;
 
@@ -41387,6 +41611,36 @@ define("ember-runtime/tests/system/object/observer_test",
       set(get(obj2, 'bar2'), 'baz', 'BIFF3');
       equal(get(obj1, 'count'), 1, 'should not invoke again');
       equal(get(obj2, 'count'), 1, 'should invoke observer on obj2');
+    });
+
+    testBoth('chain observer on class that has a reference to an uninitialized object will finish chains that reference it', function(get, set) {
+      var changed = false;
+
+      var ChildClass = EmberObject.extend({
+        parent: null,
+        parentOneTwoDidChange: observer('parent.one.two', function() {
+          changed = true;
+        })
+      });
+
+      var ParentClass = EmberObject.extend({
+        one: {
+          two: "old"
+        },
+        init: function () {
+          this.child = ChildClass.create({
+            parent: this
+          });
+        }
+      });
+
+      var parent = new ParentClass();
+
+      equal(changed, false, 'precond');
+
+      parent.set('one.two', 'new');
+
+      equal(changed, true, 'child should have been notified of change to path');
     });
   });
 define("ember-runtime/tests/system/object/observer_test.jshint",
@@ -45428,8 +45682,27 @@ define("ember-views/tests/system/render_buffer_test",
     //
     QUnit.module("RenderBuffer");
 
-    test("RenderBuffers combine strings", function() {
+    test("RenderBuffers raise a deprecation warning without a contextualElement", function() {
       var buffer = new RenderBuffer('div');
+      buffer.generateElement();
+      expectDeprecation(function(){
+        var el = buffer.element();
+        equal(el.tagName.toLowerCase(), 'div');
+      }, /buffer.element expects a contextualElement to exist/);
+    });
+
+    test("reset RenderBuffers raise a deprecation warning without a contextualElement", function() {
+      var buffer = new RenderBuffer('div', document.body);
+      buffer.reset('span');
+      buffer.generateElement();
+      expectDeprecation(function(){
+        var el = buffer.element();
+        equal(el.tagName.toLowerCase(), 'span');
+      }, /buffer.element expects a contextualElement to exist/);
+    });
+
+    test("RenderBuffers combine strings", function() {
+      var buffer = new RenderBuffer('div', document.body);
       buffer.generateElement();
 
       buffer.push('a');
@@ -45442,7 +45715,7 @@ define("ember-views/tests/system/render_buffer_test",
 
     test("value of 0 is included in output", function() {
       var buffer, el;
-      buffer = new RenderBuffer('input');
+      buffer = new RenderBuffer('input', document.body);
       buffer.prop('value', 0);
       buffer.generateElement();
       el = buffer.element();
@@ -45450,7 +45723,7 @@ define("ember-views/tests/system/render_buffer_test",
     });
 
     test("prevents XSS injection via `id`", function() {
-      var buffer = new RenderBuffer('div');
+      var buffer = new RenderBuffer('div', document.body);
 
       buffer.id('hacked" megahax="yes');
       buffer.generateElement();
@@ -45460,7 +45733,7 @@ define("ember-views/tests/system/render_buffer_test",
     });
 
     test("prevents XSS injection via `attr`", function() {
-      var buffer = new RenderBuffer('div');
+      var buffer = new RenderBuffer('div', document.body);
 
       buffer.attr('id', 'trololol" onmouseover="pwn()');
       buffer.attr('class', "hax><img src=\"trollface.png\"");
@@ -45474,7 +45747,7 @@ define("ember-views/tests/system/render_buffer_test",
     });
 
     test("prevents XSS injection via `addClass`", function() {
-      var buffer = new RenderBuffer('div');
+      var buffer = new RenderBuffer('div', document.body);
 
       buffer.addClass('megahax" xss="true');
       buffer.generateElement();
@@ -45484,7 +45757,7 @@ define("ember-views/tests/system/render_buffer_test",
     });
 
     test("prevents XSS injection via `style`", function() {
-      var buffer = new RenderBuffer('div');
+      var buffer = new RenderBuffer('div', document.body);
 
       buffer.style('color', 'blue;" xss="true" style="color:red');
       buffer.generateElement();
@@ -45503,25 +45776,25 @@ define("ember-views/tests/system/render_buffer_test",
     });
 
     test("prevents XSS injection via `tagName`", function() {
-      var buffer = new RenderBuffer('cool-div><div xss="true"');
+      var buffer = new RenderBuffer('cool-div><div xss="true"', document.body);
       try {
         buffer.generateElement();
-        equal(buffer.string(), '<cool-divdivxsstrue></cool-divdivxsstrue>');
+        equal(buffer.element().childNodes.length, 0, 'no extra nodes created');
       } catch (e) {
         ok(true, 'dom exception');
       }
     });
 
     test("handles null props - Issue #2019", function() {
-      var buffer = new RenderBuffer('div');
+      var buffer = new RenderBuffer('div', document.body);
 
       buffer.prop('value', null);
       buffer.generateElement();
-      equal(buffer.string(), '<div></div>');
+      equal(buffer.element().tagName, 'DIV', 'div exists');
     });
 
     test("handles browsers like Firefox < 11 that don't support outerHTML Issue #1952", function() {
-      var buffer = new RenderBuffer('div');
+      var buffer = new RenderBuffer('div', document.body);
       buffer.generateElement();
       // Make sure element.outerHTML is falsy to trigger the fallback.
       var elementStub = '<div></div>';
@@ -45531,20 +45804,78 @@ define("ember-views/tests/system/render_buffer_test",
     });
 
     test("lets `setClasses` and `addClass` work together", function() {
-      var buffer = new RenderBuffer('div');
+      var buffer = new RenderBuffer('div', document.body);
       buffer.setClasses(['foo', 'bar']);
       buffer.addClass('baz');
       buffer.generateElement();
 
       var el = buffer.element();
-      equal(el.tagName.toLowerCase(), 'div');
+      equal(el.tagName, 'DIV');
       equal(el.getAttribute('class'), 'foo bar baz');
+    });
+
+    test("generates text and a div and text", function() {
+      var div = document.createElement('div');
+      var buffer = new RenderBuffer(undefined, div);
+      buffer.buffer = 'Howdy<div>Nick</div>Cage';
+
+      var el = buffer.element();
+      equal(el.childNodes[0].data, 'Howdy');
+      equal(el.childNodes[1].tagName, 'DIV');
+      equal(el.childNodes[1].childNodes[0].data, 'Nick');
+      equal(el.childNodes[2].data, 'Cage');
+    });
+
+
+    test("generates a tr from a tr innerString", function() {
+      var table = document.createElement('table');
+      var buffer = new RenderBuffer(undefined, table);
+      buffer.buffer = '<tr></tr>';
+
+      var el = buffer.element();
+      equal(el.childNodes[0].tagName.toLowerCase(), 'tr');
+    });
+
+    test("generates a tr from a tr innerString with leading <script", function() {
+      var table = document.createElement('table');
+      var buffer = new RenderBuffer(undefined, table);
+      buffer.buffer = '<script></script><tr></tr>';
+
+      var el = buffer.element();
+      equal(el.childNodes[1].tagName.toLowerCase(), 'tr');
+    });
+
+    test("generates a tr from a tr innerString with leading comment", function() {
+      var table = document.createElement('table');
+      var buffer = new RenderBuffer(undefined, table);
+      buffer.buffer = '<!-- blargh! --><tr></tr>';
+
+      var el = buffer.element();
+      equal(el.childNodes[1].tagName, 'TR');
+    });
+
+    test("generates a tbody from a tbody innerString", function() {
+      var table = document.createElement('table');
+      var buffer = new RenderBuffer(undefined, table);
+      buffer.buffer = '<tbody><tr></tr></tbody>';
+
+      var el = buffer.element();
+      equal(el.childNodes[0].tagName, 'TBODY');
+    });
+
+    test("generates a col from a col innerString", function() {
+      var table = document.createElement('table');
+      var buffer = new RenderBuffer(undefined, table);
+      buffer.buffer = '<col></col>';
+
+      var el = buffer.element();
+      equal(el.childNodes[0].tagName, 'COL');
     });
 
     QUnit.module("RenderBuffer - without tagName");
 
     test("It is possible to create a RenderBuffer without a tagName", function() {
-      var buffer = new RenderBuffer();
+      var buffer = new RenderBuffer(undefined, document.body);
       buffer.push('a');
       buffer.push('b');
       buffer.push('c');
@@ -45559,7 +45890,7 @@ define("ember-views/tests/system/render_buffer_test",
     QUnit.module("RenderBuffer#element");
 
     test("properly handles old IE's zero-scope bug", function() {
-      var buffer = new RenderBuffer('div');
+      var buffer = new RenderBuffer('div', document.body);
       buffer.generateElement();
       buffer.push('<script></script>foo');
 
@@ -48794,13 +49125,14 @@ define("ember-views/tests/views/view/create_child_view_test.jshint",
     });
   });
 define("ember-views/tests/views/view/create_element_test",
-  ["ember-metal/property_get","ember-metal/run_loop","ember-views/views/view","ember-views/views/container_view"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+  ["ember-metal/property_get","ember-metal/run_loop","ember-views/views/view","ember-views/views/container_view","ember-metal-views/tests/test_helpers"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
     var get = __dependency1__.get;
     var run = __dependency2__["default"];
     var EmberView = __dependency3__["default"];
     var ContainerView = __dependency4__["default"];
+    var equalHTML = __dependency5__.equalHTML;
 
     var view;
 
@@ -48843,6 +49175,61 @@ define("ember-views/tests/views/view/create_element_test",
       ok(elem, 'has element now');
       equal(elem.innerHTML, 'foo', 'has innerHTML from context');
       equal(elem.tagName.toString().toLowerCase(), 'span', 'has tagName from view');
+    });
+
+    test("calls render and parses the buffer string in the right context", function() {
+      view = ContainerView.create({
+        tagName: 'table',
+        childViews: [ EmberView.create({
+          tagName: '',
+          render: function(buffer) {
+            // Emulate a metamorph
+            buffer.push("<script></script><tr><td>snorfblax</td></tr>");
+          }
+        })]
+      });
+
+      equal(get(view, 'element'), null, 'precondition - has no element');
+      run(function() {
+        view.createElement();
+      });
+
+
+      var elem = get(view, 'element');
+      ok(elem, 'has element now');
+      equalHTML(elem.childNodes, '<script></script><tr><td>snorfblax</td></tr>', 'has innerHTML from context');
+      equal(elem.tagName.toString().toLowerCase(), 'table', 'has tagName from view');
+    });
+
+    test("does not wrap many tr children in tbody elements", function() {
+      view = ContainerView.create({
+        tagName: 'table',
+        childViews: [
+          EmberView.create({
+            tagName: '',
+            render: function(buffer) {
+              // Emulate a metamorph
+              buffer.push("<script></script><tr><td>snorfblax</td></tr>");
+            } }),
+          EmberView.create({
+            tagName: '',
+            render: function(buffer) {
+              // Emulate a metamorph
+              buffer.push("<script></script><tr><td>snorfblax</td></tr>");
+            } })
+        ]
+      });
+
+      equal(get(view, 'element'), null, 'precondition - has no element');
+      run(function() {
+        view.createElement();
+      });
+
+
+      var elem = get(view, 'element');
+      ok(elem, 'has element now');
+      equalHTML(elem.childNodes, '<script></script><tr><td>snorfblax</td></tr><script></script><tr><td>snorfblax</td></tr>', 'has innerHTML from context');
+      equal(elem.tagName.toString().toLowerCase(), 'table', 'has tagName from view');
     });
 
     test("generated element include HTML from child views as well", function() {
@@ -49742,6 +50129,62 @@ define("ember-views/tests/views/view/nearest_of_type_test.jshint",
     module('JSHint - ember-views/tests/views/view');
     test('ember-views/tests/views/view/nearest_of_type_test.js should pass jshint', function() { 
       ok(true, 'ember-views/tests/views/view/nearest_of_type_test.js should pass jshint.'); 
+    });
+  });
+define("ember-views/tests/views/view/nested_view_ordering_test",
+  ["container","ember-metal/run_loop","ember-views/views/view","ember-handlebars-compiler"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+    "use strict";
+    var Container = __dependency1__["default"];
+    var run = __dependency2__["default"];
+
+    var EmberView = __dependency3__["default"];
+    var EmberHandlebars = __dependency4__["default"];
+
+    var container, view;
+
+    QUnit.module("EmberView - Nested View Ordering", {
+      setup: function() {
+        container = new Container();
+      },
+      teardown: function() {
+        run(function() {
+          if (view) { view.destroy(); }
+        });
+      }
+    });
+
+    test("should call didInsertElement on child views before parent", function() {
+      var insertedLast;
+      
+      view = EmberView.create({
+        didInsertElement: function(){
+          insertedLast = "outer";
+        },
+        container: container,
+        template: EmberHandlebars.compile("{{view \"inner\"}}")
+      });
+
+      container.register("view:inner", EmberView.extend({
+        didInsertElement: function(){
+          insertedLast = "inner";
+        }
+      }));
+
+      run(function() {
+        view.append();
+      });
+
+      equal(insertedLast, "outer", "didInsertElement called on outer view after inner view");
+    });
+  });
+define("ember-views/tests/views/view/nested_view_ordering_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/nested_view_ordering_test.js should pass jshint', function() { 
+      ok(true, 'ember-views/tests/views/view/nested_view_ordering_test.js should pass jshint.'); 
     });
   });
 define("ember-views/tests/views/view/parse_property_path_test",

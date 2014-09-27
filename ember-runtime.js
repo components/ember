@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.3+pre.e2dd213f
+ * @version   1.8.0-beta.3+pre.5454b800
  */
 
 (function() {
@@ -3356,12 +3356,26 @@ define("ember-metal/chains",
 
     function finishChains(obj) {
       // We only create meta if we really have to
-      var m = obj['__ember_meta__'], chains = m && m.chains;
-      if (chains) {
-        if (chains.value() !== obj) {
+      var m = obj['__ember_meta__'],
+        chains, chainWatchers, chainNodes;
+      if (m) {
+        // finish any current chains node watchers that reference obj
+        chainWatchers = m.chainWatchers;
+        if (chainWatchers) {
+          for(var key in chainWatchers) {
+            if (!chainWatchers.hasOwnProperty(key)) { continue; }
+            chainNodes = chainWatchers[key];
+            if (chainNodes) {
+              for (var i=0,l=chainNodes.length;i<l;i++) {
+                chainNodes[i].didChange(null);
+              }
+            }
+          }
+        }
+        // copy chains from prototype
+        chains = m.chains;
+        if (chains && chains.value() !== obj) {
           metaFor(obj).chains = chains = chains.copy(obj);
-        } else {
-          chains.didChange(null);
         }
       }
     }
@@ -4711,7 +4725,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.3+pre.e2dd213f
+      @version 1.8.0-beta.3+pre.5454b800
     */
 
     if ('undefined' === typeof Ember) {
@@ -4738,10 +4752,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.3+pre.e2dd213f'
+      @default '1.8.0-beta.3+pre.5454b800'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.3+pre.e2dd213f';
+    Ember.VERSION = '1.8.0-beta.3+pre.5454b800';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -6267,11 +6281,10 @@ define("ember-metal/is_present",
     __exports__["default"] = isPresent;
   });
 define("ember-metal/keys",
-  ["ember-metal/array","ember-metal/platform","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["ember-metal/platform","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
-    var indexOf = __dependency1__.indexOf;
-    var canDefineNonEnumerableProperties = __dependency2__.canDefineNonEnumerableProperties;
+    var canDefineNonEnumerableProperties = __dependency1__.canDefineNonEnumerableProperties;
 
     /**
       Returns all of the keys defined on an object or hash. This is useful
@@ -6286,54 +6299,47 @@ define("ember-metal/keys",
     var keys = Object.keys;
 
     if (!keys || !canDefineNonEnumerableProperties) {
-      var prototypeProperties = [
-        'constructor',
-        'hasOwnProperty',
-        'isPrototypeOf',
-        'propertyIsEnumerable',
-        'valueOf',
-        'toLocaleString',
-        'toString'
-      ];
-      var pushPropertyName = function(obj, array, key) {
-        // Prevents browsers that don't respect non-enumerability from
-        // copying internal Ember properties
-        if (key.substring(0, 2) === '__') {
-          return;
-        }
+      // modified from
+      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
+      keys = (function () {
+        var hasOwnProperty = Object.prototype.hasOwnProperty,
+            hasDontEnumBug = !({toString: null}).propertyIsEnumerable('toString'),
+            dontEnums = [
+              'toString',
+              'toLocaleString',
+              'valueOf',
+              'hasOwnProperty',
+              'isPrototypeOf',
+              'propertyIsEnumerable',
+              'constructor'
+            ],
+            dontEnumsLength = dontEnums.length;
 
-        if (key === '_super') {
-          return;
-        }
+        return function keys(obj) {
+          if (typeof obj !== 'object' && (typeof obj !== 'function' || obj === null)) {
+            throw new TypeError('Object.keys called on non-object');
+          }
 
-        if (indexOf(array, key) >= 0) {
-          return;
-        }
+          var result = [], prop, i;
 
-        if (!Object.prototype.hasOwnProperty.call(obj, key)) {
-          return;
-        }
+          for (prop in obj) {
+            if (prop !== '_super' &&
+              prop.lastIndexOf('__',0) !== 0 &&
+              hasOwnProperty.call(obj, prop)) {
+              result.push(prop);
+            }
+          }
 
-        array.push(key);
-      };
-
-      keys = function keys(obj) {
-        var ret = [];
-        var key;
-
-        for (key in obj) {
-          pushPropertyName(obj, ret, key);
-        }
-
-        // IE8 doesn't enumerate property that named the same as prototype properties.
-        for (var i = 0, l = prototypeProperties.length; i < l; i++) {
-          key = prototypeProperties[i];
-
-          pushPropertyName(obj, ret, key);
-        }
-
-        return ret;
-      };
+          if (hasDontEnumBug) {
+            for (i = 0; i < dontEnumsLength; i++) {
+              if (hasOwnProperty.call(obj, dontEnums[i])) {
+                result.push(dontEnums[i]);
+              }
+            }
+          }
+          return result;
+        };
+      }());
     }
 
     __exports__["default"] = keys;
@@ -6535,8 +6541,8 @@ define("ember-metal/logger",
     };
   });
 define("ember-metal/map",
-  ["ember-metal/property_set","ember-metal/utils","ember-metal/array","ember-metal/platform","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+  ["ember-metal/utils","ember-metal/array","ember-metal/platform","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     /**
     @module ember-metal
@@ -6562,13 +6568,20 @@ define("ember-metal/map",
       `Ember.Map.create()` for symmetry with other Ember classes.
     */
 
-    var set = __dependency1__.set;
-    var guidFor = __dependency2__.guidFor;
-    var indexOf = __dependency3__.indexOf;
-    var create = __dependency4__.create;
+    var guidFor = __dependency1__.guidFor;
+    var indexOf = __dependency2__.indexOf;
+    var create = __dependency3__.create;
 
-    function copy(obj) {
-      var output = {};
+    function missingFunction(fn) {
+      throw new TypeError('' + Object.prototype.toString.call(fn) + " is not a function");
+    }
+
+    function missingNew(name) {
+      throw new TypeError("Constructor " + name + "requires 'new'");
+    }
+
+    function copyNull(obj) {
+      var output = Object.create(null);
 
       for (var prop in obj) {
         // hasOwnPropery is not needed because obj is Object.create(null);
@@ -6580,11 +6593,11 @@ define("ember-metal/map",
 
     function copyMap(original, newObject) {
       var keys = original.keys.copy();
-      var values = copy(original.values);
+      var values = copyNull(original.values);
 
       newObject.keys = keys;
       newObject.values = values;
-      newObject.length = original.length;
+      newObject.size = original.size;
 
       return newObject;
     }
@@ -6600,7 +6613,12 @@ define("ember-metal/map",
       @private
     */
     function OrderedSet() {
-      this.clear();
+
+      if (this instanceof OrderedSet) {
+        this.clear();
+      } else {
+        missingNew("OrderedSet");
+      }
     }
 
     /**
@@ -6609,47 +6627,77 @@ define("ember-metal/map",
       @return {Ember.OrderedSet}
     */
     OrderedSet.create = function() {
-      return new OrderedSet();
+      var Constructor = this;
+
+      return new Constructor();
     };
 
     OrderedSet.prototype = {
+      constructor: OrderedSet,
       /**
         @method clear
       */
       clear: function() {
         this.presenceSet = Object.create(null);
         this.list = [];
+        this.size = 0;
       },
 
       /**
         @method add
         @param obj
+        @param guid (optional, and for internal use)
+        @return {Ember.OrderedSet}
       */
-      add: function(obj) {
-        var guid = guidFor(obj);
+      add: function(obj, _guid) {
+        var guid = _guid || guidFor(obj);
         var presenceSet = this.presenceSet;
         var list = this.list;
 
-        if (presenceSet[guid]) { return; }
+        if (presenceSet[guid]) {
+          return;
+        }
 
         presenceSet[guid] = true;
         list.push(obj);
+        this.size++;
+
+        return this;
       },
 
       /**
+        @deprecated
+
         @method remove
         @param obj
+        @param _guid (optional and for internal use only)
+        @return {Boolean}
       */
-      remove: function(obj) {
-        var guid = guidFor(obj);
+      remove: function(obj, _guid) {
+        return this['delete'](obj, _guid);
+      },
+
+      /**
+        @method delete
+        @param obj
+        @param _guid (optional and for internal use only)
+        @return {Boolean}
+      */
+      'delete': function(obj, _guid) {
+        var guid = _guid || guidFor(obj);
         var presenceSet = this.presenceSet;
         var list = this.list;
 
-        delete presenceSet[guid];
-
-        var index = indexOf.call(list, obj);
-        if (index > -1) {
-          list.splice(index, 1);
+        if (presenceSet[guid] !== undefined) {
+          delete presenceSet[guid];
+          var index = indexOf.call(list, obj);
+          if (index > -1) {
+            list.splice(index, 1);
+          }
+          this.size--;
+          return true;
+        } else {
+          return false;
         }
       },
 
@@ -6658,7 +6706,7 @@ define("ember-metal/map",
         @return {Boolean}
       */
       isEmpty: function() {
-        return this.list.length === 0;
+        return this.size === 0;
       },
 
       /**
@@ -6670,7 +6718,7 @@ define("ember-metal/map",
         var guid = guidFor(obj);
         var presenceSet = this.presenceSet;
 
-        return presenceSet[guid];
+        return !!presenceSet[guid];
       },
 
       /**
@@ -6678,12 +6726,19 @@ define("ember-metal/map",
         @param {Function} fn
         @param self
       */
-      forEach: function(fn, self) {
-        // allow mutation during iteration
-        var list = this.toArray();
+      forEach: function(fn, thisArg) {
+        var list = this.list;
+        var length = arguments.length;
+        var i;
 
-        for (var i = 0, j = list.length; i < j; i++) {
-          fn.call(self, list[i]);
+        if (length === 2) {
+          for (i = 0; i < list.length; i++) {
+            fn.call(thisArg, list[i]);
+          }
+        } else {
+          for (i = 0; i < list.length; i++) {
+            fn(list[i]);
+          }
         }
       },
 
@@ -6700,9 +6755,10 @@ define("ember-metal/map",
         @return {Ember.OrderedSet}
       */
       copy: function() {
-        var set = new OrderedSet();
+        var Constructor = this.constructor;
+        var set = new Constructor();
 
-        set.presenceSet = copy(this.presenceSet);
+        set.presenceSet = copyNull(this.presenceSet);
         set.list = this.toArray();
 
         return set;
@@ -6730,8 +6786,13 @@ define("ember-metal/map",
       @constructor
     */
     function Map() {
-      this.keys = OrderedSet.create();
-      this.values = Object.create(null);
+      if (this instanceof this.constructor) {
+        this.keys = OrderedSet.create();
+        this.values = Object.create(null);
+        this.size = 0;
+      } else {
+        missingNew("OrderedSet");
+      }
     }
 
     Ember.Map = Map;
@@ -6741,18 +6802,21 @@ define("ember-metal/map",
       @static
     */
     Map.create = function() {
-      return new Map();
+      var Constructor = this;
+      return new Constructor();
     };
 
     Map.prototype = {
+      constructor: Map,
+
       /**
         This property will change as the number of objects in the map changes.
 
-        @property length
+        @property size
         @type number
         @default 0
       */
-      length: 0,
+      size: 0,
 
       /**
         Retrieve the value associated with a given key.
@@ -6775,18 +6839,23 @@ define("ember-metal/map",
         @method set
         @param {*} key
         @param {*} value
+        @return {Ember.Map}
       */
       set: function(key, value) {
         var keys = this.keys;
         var values = this.values;
         var guid = guidFor(key);
 
-        keys.add(key);
+        keys.add(key, guid);
         values[guid] = value;
-        set(this, 'length', keys.list.length);
+
+        this.size = keys.size;
+
+        return this;
       },
 
       /**
+        @deprecated see delete
         Removes a value from the map for an associated key.
 
         @method remove
@@ -6794,6 +6863,17 @@ define("ember-metal/map",
         @return {Boolean} true if an item was removed, false otherwise
       */
       remove: function(key) {
+        return this['delete'](key);
+      },
+
+      /**
+        Removes a value from the map for an associated key.
+
+        @method delete
+        @param {*} key
+        @return {Boolean} true if an item was removed, false otherwise
+      */
+      'delete': function(key) {
         // don't use ES6 "delete" because it will be annoying
         // to use in browsers that are not ES6 friendly;
         var keys = this.keys;
@@ -6801,9 +6881,9 @@ define("ember-metal/map",
         var guid = guidFor(key);
 
         if (values[guid]) {
-          keys.remove(key);
+          keys.remove(key, guid);
           delete values[guid];
-          set(this, 'length', keys.list.length);
+          this.size = keys.size;
           return true;
         } else {
           return false;
@@ -6818,10 +6898,7 @@ define("ember-metal/map",
         @return {Boolean} true if the item was present, false otherwise
       */
       has: function(key) {
-        var values = this.values;
-        var guid = guidFor(key);
-
-        return !!values[guid];
+        return this.keys.has(key);
       },
 
       /**
@@ -6835,14 +6912,26 @@ define("ember-metal/map",
         @param {*} self if passed, the `this` value inside the
           callback. By default, `this` is the map.
       */
-      forEach: function(callback, self) {
-        var keys = this.keys;
-        var values = this.values;
+      forEach: function(callback, thisArg) {
+        if (typeof callback !== 'function') {
+          missingFunction(callback);
+        }
 
-        keys.forEach(function(key) {
-          var guid = guidFor(key);
-          callback.call(self, key, values[guid]);
-        });
+        var length = arguments.length;
+        var map = this;
+        var cb;
+
+        if (length === 2) {
+          cb = function(key) {
+            callback.call(thisArg, map.get(key), key);
+          };
+        } else {
+          cb = function(key) {
+            callback(map.get(key), key);
+          };
+        }
+
+        this.keys.forEach(cb);
       },
 
       /**
@@ -6913,7 +7002,8 @@ define("ember-metal/map",
       @return {Ember.MapWithDefault}
     */
     MapWithDefault.prototype.copy = function() {
-      return copyMap(this, new MapWithDefault({
+      var Constructor = this.constructor;
+      return copyMap(this, new Constructor({
         defaultValue: this.defaultValue
       }));
     };
@@ -6923,9 +7013,11 @@ define("ember-metal/map",
     __exports__.MapWithDefault = MapWithDefault;
   });
 define("ember-metal/merge",
-  ["exports"],
-  function(__exports__) {
+  ["ember-metal/keys","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
+    var keys = __dependency1__["default"];
+
     /**
       Merge the contents of two objects together into the first object.
 
@@ -6942,10 +7034,19 @@ define("ember-metal/merge",
       @return {Object}
     */
     __exports__["default"] = function merge(original, updates) {
-      for (var prop in updates) {
-        if (!updates.hasOwnProperty(prop)) { continue; }
+      if (!updates || typeof updates !== 'object') { 
+        return original;
+      }
+
+      var props = keys(updates);
+      var prop;
+      var length = props.length;
+
+      for (var i = 0; i < length; i++) {
+        prop = props[i];
         original[prop] = updates[prop];
       }
+
       return original;
     }
   });
@@ -14180,8 +14281,8 @@ define("ember-runtime/mixins/action_handler",
     __exports__["default"] = ActionHandler;
   });
 define("ember-runtime/mixins/array",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/computed","ember-metal/is_none","ember-runtime/mixins/enumerable","ember-metal/enumerable_utils","ember-metal/mixin","ember-metal/property_events","ember-metal/events","ember-metal/watching","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/computed","ember-metal/is_none","ember-runtime/mixins/enumerable","ember-metal/enumerable_utils","ember-metal/mixin","ember-metal/property_events","ember-metal/events","ember-metal/watching","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -14193,24 +14294,22 @@ define("ember-runtime/mixins/array",
     //
     var Ember = __dependency1__["default"];
     // ES6TODO: Ember.A
-
     var get = __dependency2__.get;
-    var set = __dependency3__.set;
-    var computed = __dependency4__.computed;
-    var cacheFor = __dependency4__.cacheFor;
-    var isNone = __dependency5__.isNone;
-    var none = __dependency5__.none;
-    var Enumerable = __dependency6__["default"];
-    var map = __dependency7__.map;
-    var Mixin = __dependency8__.Mixin;
-    var required = __dependency8__.required;
-    var propertyWillChange = __dependency9__.propertyWillChange;
-    var propertyDidChange = __dependency9__.propertyDidChange;
-    var addListener = __dependency10__.addListener;
-    var removeListener = __dependency10__.removeListener;
-    var sendEvent = __dependency10__.sendEvent;
-    var hasListeners = __dependency10__.hasListeners;
-    var isWatching = __dependency11__.isWatching;
+    var computed = __dependency3__.computed;
+    var cacheFor = __dependency3__.cacheFor;
+    var isNone = __dependency4__.isNone;
+    var none = __dependency4__.none;
+    var Enumerable = __dependency5__["default"];
+    var map = __dependency6__.map;
+    var Mixin = __dependency7__.Mixin;
+    var required = __dependency7__.required;
+    var propertyWillChange = __dependency8__.propertyWillChange;
+    var propertyDidChange = __dependency8__.propertyDidChange;
+    var addListener = __dependency9__.addListener;
+    var removeListener = __dependency9__.removeListener;
+    var sendEvent = __dependency9__.sendEvent;
+    var hasListeners = __dependency9__.hasListeners;
+    var isWatching = __dependency10__.isWatching;
 
     function arrayObserversHelper(obj, target, opts, operation, notify) {
       var willChange = (opts && opts.willChange) || 'arrayWillChange';
@@ -14227,6 +14326,7 @@ define("ember-runtime/mixins/array",
       if (hasObservers === notify) {
         propertyDidChange(obj, 'hasArrayObservers');
       }
+
       return obj;
     }
 
@@ -14290,8 +14390,9 @@ define("ember-runtime/mixins/array",
 
         ```javascript
         var arr = ['a', 'b', 'c', 'd'];
-        arr.objectAt(0);   // "a"
-        arr.objectAt(3);   // "d"
+
+        arr.objectAt(0);   // 'a'
+        arr.objectAt(3);   // 'd'
         arr.objectAt(-1);  // undefined
         arr.objectAt(4);   // undefined
         arr.objectAt(5);   // undefined
@@ -14302,7 +14403,10 @@ define("ember-runtime/mixins/array",
         @return {*} item at index or undefined
       */
       objectAt: function(idx) {
-        if (idx < 0 || idx >= get(this, 'length')) return undefined;
+        if (idx < 0 || idx >= get(this, 'length')) {
+          return undefined;
+        }
+
         return get(this, idx);
       },
 
@@ -14311,8 +14415,9 @@ define("ember-runtime/mixins/array",
 
         ```javascript
         var arr = ['a', 'b', 'c', 'd'];
-        arr.objectsAt([0, 1, 2]);  // ["a", "b", "c"]
-        arr.objectsAt([2, 3, 4]);  // ["c", "d", undefined]
+
+        arr.objectsAt([0, 1, 2]);  // ['a', 'b', 'c']
+        arr.objectsAt([2, 3, 4]);  // ['c', 'd', undefined]
         ```
 
         @method objectsAt
@@ -14321,7 +14426,10 @@ define("ember-runtime/mixins/array",
        */
       objectsAt: function(indexes) {
         var self = this;
-        return map(indexes, function(idx) { return self.objectAt(idx); });
+
+        return map(indexes, function(idx) {
+          return self.objectAt(idx);
+        });
       },
 
       // overrides Ember.Enumerable version
@@ -14340,7 +14448,10 @@ define("ember-runtime/mixins/array",
         @return this
       */
       '[]': computed(function(key, value) {
-        if (value !== undefined) this.replace(0, get(this, 'length'), value) ;
+        if (value !== undefined) {
+          this.replace(0, get(this, 'length'), value);
+        }
+
         return this;
       }),
 
@@ -14349,7 +14460,7 @@ define("ember-runtime/mixins/array",
       }),
 
       lastObject: computed(function() {
-        return this.objectAt(get(this, 'length')-1);
+        return this.objectAt(get(this, 'length') - 1);
       }),
 
       // optimized version from Enumerable
@@ -14365,6 +14476,7 @@ define("ember-runtime/mixins/array",
 
         ```javascript
         var arr = ['red', 'green', 'blue'];
+
         arr.slice(0);       // ['red', 'green', 'blue']
         arr.slice(0, 2);    // ['red', 'green']
         arr.slice(1, 100);  // ['green', 'blue']
@@ -14377,17 +14489,29 @@ define("ember-runtime/mixins/array",
       */
       slice: function(beginIndex, endIndex) {
         var ret = Ember.A();
-        var length = get(this, 'length') ;
-        if (isNone(beginIndex)) beginIndex = 0 ;
-        if (isNone(endIndex) || (endIndex > length)) endIndex = length ;
+        var length = get(this, 'length');
 
-        if (beginIndex < 0) beginIndex = length + beginIndex;
-        if (endIndex < 0) endIndex = length + endIndex;
-
-        while(beginIndex < endIndex) {
-          ret[ret.length] = this.objectAt(beginIndex++) ;
+        if (isNone(beginIndex)) {
+          beginIndex = 0;
         }
-        return ret ;
+
+        if (isNone(endIndex) || (endIndex > length)) {
+          endIndex = length;
+        }
+
+        if (beginIndex < 0) {
+          beginIndex = length + beginIndex;
+        }
+
+        if (endIndex < 0) {
+          endIndex = length + endIndex;
+        }
+
+        while (beginIndex < endIndex) {
+          ret[ret.length] = this.objectAt(beginIndex++);
+        }
+
+        return ret;
       },
 
       /**
@@ -14397,13 +14521,14 @@ define("ember-runtime/mixins/array",
         the end of the array. Returns -1 if no match is found.
 
         ```javascript
-        var arr = ["a", "b", "c", "d", "a"];
-        arr.indexOf("a");       //  0
-        arr.indexOf("z");       // -1
-        arr.indexOf("a", 2);    //  4
-        arr.indexOf("a", -1);   //  4
-        arr.indexOf("b", 3);    // -1
-        arr.indexOf("a", 100);  // -1
+        var arr = ['a', 'b', 'c', 'd', 'a'];
+
+        arr.indexOf('a');       //  0
+        arr.indexOf('z');       // -1
+        arr.indexOf('a', 2);    //  4
+        arr.indexOf('a', -1);   //  4
+        arr.indexOf('b', 3);    // -1
+        arr.indexOf('a', 100);  // -1
         ```
 
         @method indexOf
@@ -14412,14 +14537,23 @@ define("ember-runtime/mixins/array",
         @return {Number} index or -1 if not found
       */
       indexOf: function(object, startAt) {
-        var idx, len = get(this, 'length');
+        var len = get(this, 'length');
+        var idx;
 
-        if (startAt === undefined) startAt = 0;
-        if (startAt < 0) startAt += len;
-
-        for(idx = startAt; idx < len; idx++) {
-          if (this.objectAt(idx) === object) return idx;
+        if (startAt === undefined) {
+          startAt = 0;
         }
+
+        if (startAt < 0) {
+          startAt += len;
+        }
+
+        for (idx = startAt; idx < len; idx++) {
+          if (this.objectAt(idx) === object) {
+            return idx;
+          }
+        }
+
         return -1;
       },
 
@@ -14430,13 +14564,14 @@ define("ember-runtime/mixins/array",
         from the end of the array. Returns -1 if no match is found.
 
         ```javascript
-        var arr = ["a", "b", "c", "d", "a"];
-        arr.lastIndexOf("a");       //  4
-        arr.lastIndexOf("z");       // -1
-        arr.lastIndexOf("a", 2);    //  0
-        arr.lastIndexOf("a", -1);   //  4
-        arr.lastIndexOf("b", 3);    //  1
-        arr.lastIndexOf("a", 100);  //  4
+        var arr = ['a', 'b', 'c', 'd', 'a'];
+
+        arr.lastIndexOf('a');       //  4
+        arr.lastIndexOf('z');       // -1
+        arr.lastIndexOf('a', 2);    //  0
+        arr.lastIndexOf('a', -1);   //  4
+        arr.lastIndexOf('b', 3);    //  1
+        arr.lastIndexOf('a', 100);  //  4
         ```
 
         @method lastIndexOf
@@ -14445,14 +14580,23 @@ define("ember-runtime/mixins/array",
         @return {Number} index or -1 if not found
       */
       lastIndexOf: function(object, startAt) {
-        var idx, len = get(this, 'length');
+        var len = get(this, 'length');
+        var idx;
 
-        if (startAt === undefined || startAt >= len) startAt = len-1;
-        if (startAt < 0) startAt += len;
-
-        for(idx = startAt; idx >= 0; idx--) {
-          if (this.objectAt(idx) === object) return idx;
+        if (startAt === undefined || startAt >= len) {
+          startAt = len-1;
         }
+
+        if (startAt < 0) {
+          startAt += len;
+        }
+
+        for (idx = startAt; idx >= 0; idx--) {
+          if (this.objectAt(idx) === object) {
+            return idx;
+          }
+        }
+
         return -1;
       },
 
@@ -14529,26 +14673,36 @@ define("ember-runtime/mixins/array",
         @return {Ember.Array} receiver
       */
       arrayContentWillChange: function(startIdx, removeAmt, addAmt) {
+        var removing, lim;
 
         // if no args are passed assume everything changes
-        if (startIdx===undefined) {
+        if (startIdx === undefined) {
           startIdx = 0;
           removeAmt = addAmt = -1;
         } else {
-          if (removeAmt === undefined) removeAmt=-1;
-          if (addAmt    === undefined) addAmt=-1;
+          if (removeAmt === undefined) {
+            removeAmt = -1;
+          }
+
+          if (addAmt === undefined) {
+            addAmt = -1;
+          }
         }
 
         // Make sure the @each proxy is set up if anyone is observing @each
-        if (isWatching(this, '@each')) { get(this, '@each'); }
+        if (isWatching(this, '@each')) {
+          get(this, '@each');
+        }
 
         sendEvent(this, '@array:before', [this, startIdx, removeAmt, addAmt]);
 
-        var removing, lim;
-        if (startIdx>=0 && removeAmt>=0 && get(this, 'hasEnumerableObservers')) {
+        if (startIdx >= 0 && removeAmt >= 0 && get(this, 'hasEnumerableObservers')) {
           removing = [];
-          lim = startIdx+removeAmt;
-          for(var idx=startIdx;idx<lim;idx++) removing.push(this.objectAt(idx));
+          lim = startIdx + removeAmt;
+
+          for (var idx = startIdx; idx < lim; idx++) {
+            removing.push(this.objectAt(idx));
+          }
         } else {
           removing = removeAmt;
         }
@@ -14573,21 +14727,29 @@ define("ember-runtime/mixins/array",
         @return {Ember.Array} receiver
       */
       arrayContentDidChange: function(startIdx, removeAmt, addAmt) {
+        var adding, lim;
 
         // if no args are passed assume everything changes
-        if (startIdx===undefined) {
+        if (startIdx === undefined) {
           startIdx = 0;
           removeAmt = addAmt = -1;
         } else {
-          if (removeAmt === undefined) removeAmt=-1;
-          if (addAmt    === undefined) addAmt=-1;
+          if (removeAmt === undefined) {
+            removeAmt = -1;
+          }
+
+          if (addAmt === undefined) {
+            addAmt = -1;
+          }
         }
 
-        var adding, lim;
-        if (startIdx>=0 && addAmt>=0 && get(this, 'hasEnumerableObservers')) {
+        if (startIdx >= 0 && addAmt >= 0 && get(this, 'hasEnumerableObservers')) {
           adding = [];
-          lim = startIdx+addAmt;
-          for(var idx=startIdx;idx<lim;idx++) adding.push(this.objectAt(idx));
+          lim = startIdx + addAmt;
+
+          for (var idx = startIdx; idx < lim; idx++) {
+            adding.push(this.objectAt(idx));
+          }
         } else {
           adding = addAmt;
         }
@@ -14595,13 +14757,15 @@ define("ember-runtime/mixins/array",
         this.enumerableContentDidChange(removeAmt, adding);
         sendEvent(this, '@array:change', [this, startIdx, removeAmt, addAmt]);
 
-        var length      = get(this, 'length');
+        var length = get(this, 'length');
         var cachedFirst = cacheFor(this, 'firstObject');
-        var cachedLast  = cacheFor(this, 'lastObject');
+        var cachedLast = cacheFor(this, 'lastObject');
+
         if (this.objectAt(0) !== cachedFirst) {
           propertyWillChange(this, 'firstObject');
           propertyDidChange(this, 'firstObject');
         }
+
         if (this.objectAt(length-1) !== cachedLast) {
           propertyWillChange(this, 'lastObject');
           propertyDidChange(this, 'lastObject');
