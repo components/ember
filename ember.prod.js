@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.f4ea6733
+ * @version   1.9.0-beta.1+canary.728b326f
  */
 
 (function() {
@@ -13321,7 +13321,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.f4ea6733
+      @version 1.9.0-beta.1+canary.728b326f
     */
 
     if ('undefined' === typeof Ember) {
@@ -13348,10 +13348,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.f4ea6733'
+      @default '1.9.0-beta.1+canary.728b326f'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.f4ea6733';
+    Ember.VERSION = '1.9.0-beta.1+canary.728b326f';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -15205,9 +15205,7 @@ define("ember-metal/map",
 
       This implementation follows the current iteration of the ES6 proposal for
       maps (http://wiki.ecmascript.org/doku.php?id=harmony:simple_maps_and_sets),
-      with two exceptions. First, because we need our implementation to be pleasant
-      on older browsers, we do not use the `delete` name (using `remove` instead).
-      Second, as we do not have the luxury of in-VM iteration, we implement a
+      with one exception:  as we do not have the luxury of in-VM iteration, we implement a
       forEach method for iteration.
 
       Map is mocked out to look like an Ember object, so you can do
