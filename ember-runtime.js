@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.728b326f
+ * @version   1.9.0-beta.1+canary.c9ef4bb7
  */
 
 (function() {
@@ -4762,7 +4762,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.728b326f
+      @version 1.9.0-beta.1+canary.c9ef4bb7
     */
 
     if ('undefined' === typeof Ember) {
@@ -4789,10 +4789,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.728b326f'
+      @default '1.9.0-beta.1+canary.c9ef4bb7'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.728b326f';
+    Ember.VERSION = '1.9.0-beta.1+canary.c9ef4bb7';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -6769,7 +6769,7 @@ define("ember-metal/map",
       remove: function(obj, _guid) {
         Ember.deprecate('Calling `OrderedSet.prototype.remove` has been deprecated, please use `OrderedSet.prototype.delete` instead.', this._silenceRemoveDeprecation);
 
-        return this['delete'](obj, _guid);
+        return this.delete(obj, _guid);
       },
 
       /**
@@ -6778,7 +6778,7 @@ define("ember-metal/map",
         @param _guid (optional and for internal use only)
         @return {Boolean}
       */
-      'delete': function(obj, _guid) {
+      delete: function(obj, _guid) {
         var guid = _guid || guidFor(obj);
         var presenceSet = this.presenceSet;
         var list = this.list;
@@ -6823,7 +6823,11 @@ define("ember-metal/map",
         @param {Function} fn
         @param self
       */
-      forEach: function(fn, thisArg) {
+      forEach: function(fn /*, thisArg*/) {
+        if (typeof fn !== 'function') {
+          missingFunction(fn);
+        }
+
         if (this.size === 0) { return; }
 
         var list = this.list;
@@ -6832,7 +6836,7 @@ define("ember-metal/map",
 
         if (length === 2) {
           for (i = 0; i < list.length; i++) {
-            fn.call(thisArg, list[i]);
+            fn.call(arguments[1], list[i]);
           }
         } else {
           for (i = 0; i < list.length; i++) {
@@ -6971,7 +6975,7 @@ define("ember-metal/map",
       remove: function(key) {
         Ember.deprecate('Calling `Map.prototype.remove` has been deprecated, please use `Map.prototype.delete` instead.');
 
-        return this['delete'](key);
+        return this.delete(key);
       },
 
       /**
@@ -6981,7 +6985,7 @@ define("ember-metal/map",
         @param {*} key
         @return {Boolean} true if an item was removed, false otherwise
       */
-      'delete': function(key) {
+      delete: function(key) {
         if (this.size === 0) { return false; }
         // don't use ES6 "delete" because it will be annoying
         // to use in browsers that are not ES6 friendly;
@@ -6990,7 +6994,7 @@ define("ember-metal/map",
         var guid = guidFor(key);
 
         if (values[guid]) {
-          keys.remove(key, guid);
+          keys.delete(key, guid);
           delete values[guid];
           this.size = keys.size;
           return true;
@@ -7022,7 +7026,7 @@ define("ember-metal/map",
         @param {*} self if passed, the `this` value inside the
           callback. By default, `this` is the map.
       */
-      forEach: function(callback, thisArg) {
+      forEach: function(callback /*, thisArg*/) {
         if (typeof callback !== 'function') {
           missingFunction(callback);
         }
@@ -7031,9 +7035,10 @@ define("ember-metal/map",
 
         var length = arguments.length;
         var map = this;
-        var cb;
+        var cb, thisArg;
 
         if (length === 2) {
+          thisArg = arguments[1];
           cb = function(key) {
             callback.call(thisArg, map.get(key), key);
           };
@@ -7044,6 +7049,15 @@ define("ember-metal/map",
         }
 
         this.keys.forEach(cb);
+      },
+
+      /**
+        @method clear
+      */
+      clear: function() {
+        this.keys.clear();
+        this.values = Object.create(null);
+        this.size = 0;
       },
 
       /**

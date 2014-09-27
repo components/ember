@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.728b326f
+ * @version   1.9.0-beta.1+canary.c9ef4bb7
  */
 
 (function() {
@@ -17680,6 +17680,15 @@ define("ember-metal/tests/map_test",
         equal(map.size, 1);
       });
 
+      test("arity of forEach is 1 – es6 23.1.3.5", function() {
+        equal(map.forEach.length, 1, 'expected arity for map.forEach is 1');
+      });
+
+      test("forEach throws without a callback as the first argument", function() {
+        
+        equal(map.forEach.length, 1, 'expected arity for map.forEach is 1');
+      });
+
       test("remove", function() {
         map.set(object, "winning");
         map.set(number, "winning");
@@ -17842,6 +17851,15 @@ define("ember-metal/tests/map_test",
         QUnit["throws"](function() {
           map.forEach({});
         }, '[object Object] is not a function');
+
+        map.forEach(function(value, key) {
+          map["delete"](key);
+        });
+        // ensure the error happens even if no data is present
+        equal(map.size, 0);
+        QUnit["throws"](function() {
+          map.forEach({});
+        }, '[object Object] is not a function');
       });
 
       test("forEach basic", function() {
@@ -17957,6 +17975,30 @@ define("ember-metal/tests/map_test",
 
         equal(iteration, 4, 'expected 3 iterations');
       });
+
+      test("clear", function() {
+        var iterations = 0;
+
+        map.set("a", 1);
+        map.set("b", 2);
+        map.set("c", 3);
+        map.set("d", 4);
+
+        equal(map.size, 4);
+
+        map.forEach(function() {
+          iterations++;
+        });
+        equal(iterations, 4);
+
+        map.clear();
+        equal(map.size, 0);
+        iterations = 0;
+        map.forEach(function() {
+          iterations++;
+        });
+        equal(iterations, 0);
+      });
     }
 
     for (var i = 0;  i < varieties.length;  i++) {
@@ -17976,6 +18018,18 @@ define("ember-metal/tests/map_test",
       deepEqual(value, [ 'ohai' ]);
 
       strictEqual(value, map.get('ohai'));
+    });
+
+    test("Map.prototype.constructor", function() {
+      var map = new Map();
+      equal(map.constructor, Map);
+    });
+
+    test("MapWithDefault.prototype.constructor", function() {
+      var map = new MapWithDefault({
+        defaultValue: function(key) { return key; }
+      });
+      equal(map.constructor, MapWithDefault);
     });
 
     test("Copying a MapWithDefault copies the default value", function() {
