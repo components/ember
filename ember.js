@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.075fa156
+ * @version   1.9.0-beta.1+canary.00a47cb8
  */
 
 (function() {
@@ -11339,7 +11339,7 @@ define("ember-metal/binding",
     var get = __dependency2__.get;
     var trySet = __dependency3__.trySet;
     var guidFor = __dependency4__.guidFor;
-    var Map = __dependency5__.Map;
+    var Map = __dependency5__["default"];
     var addObserver = __dependency6__.addObserver;
     var removeObserver = __dependency6__.removeObserver;
     var _suspendObserver = __dependency6__._suspendObserver;
@@ -11391,7 +11391,7 @@ define("ember-metal/binding",
       this._direction = 'fwd';
       this._from = fromPath;
       this._to   = toPath;
-      this._directionMap = Map.create();
+      this._directionMap = new Map();
       this._readyToSync = undefined;
       this._oneWay = undefined;
     }
@@ -11577,7 +11577,7 @@ define("ember-metal/binding",
         var fromPath = this._from;
         var toPath = this._to;
 
-        directionMap.remove(obj);
+        directionMap["delete"](obj);
 
         // if we're synchronizing from the remote object...
         if (direction === 'fwd') {
@@ -13587,7 +13587,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.075fa156
+      @version 1.9.0-beta.1+canary.00a47cb8
     */
 
     if ('undefined' === typeof Ember) {
@@ -13614,10 +13614,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.075fa156'
+      @default '1.9.0-beta.1+canary.00a47cb8'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.075fa156';
+    Ember.VERSION = '1.9.0-beta.1+canary.00a47cb8';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -15462,7 +15462,7 @@ define("ember-metal/logger",
     };
   });
 define("ember-metal/map",
-  ["ember-metal/property_set","ember-metal/utils","ember-metal/array","ember-metal/platform","exports"],
+  ["ember-metal/utils","ember-metal/array","ember-metal/platform","ember-metal/deprecate_property","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     /**
@@ -15489,13 +15489,21 @@ define("ember-metal/map",
       `Ember.Map.create()` for symmetry with other Ember classes.
     */
 
-    var set = __dependency1__.set;
-    var guidFor = __dependency2__.guidFor;
-    var indexOf = __dependency3__.indexOf;
-    var create = __dependency4__.create;
+    var guidFor = __dependency1__.guidFor;
+    var indexOf = __dependency2__.indexOf;
+    var create = __dependency3__.create;
+    var deprecateProperty = __dependency4__.deprecateProperty;
 
-    function copy(obj) {
-      var output = {};
+    function missingFunction(fn) {
+      throw new TypeError('' + Object.prototype.toString.call(fn) + " is not a function");
+    }
+
+    function missingNew(name) {
+      throw new TypeError("Constructor " + name + "requires 'new'");
+    }
+
+    function copyNull(obj) {
+      var output = Object.create(null);
 
       for (var prop in obj) {
         // hasOwnPropery is not needed because obj is Object.create(null);
@@ -15507,11 +15515,11 @@ define("ember-metal/map",
 
     function copyMap(original, newObject) {
       var keys = original.keys.copy();
-      var values = copy(original.values);
+      var values = copyNull(original.values);
 
       newObject.keys = keys;
       newObject.values = values;
-      newObject.length = original.length;
+      newObject.size = original.size;
 
       return newObject;
     }
@@ -15527,7 +15535,13 @@ define("ember-metal/map",
       @private
     */
     function OrderedSet() {
-      this.clear();
+
+      if (this instanceof OrderedSet) {
+        this.clear();
+        this._silenceRemoveDeprecation = false;
+      } else {
+        missingNew("OrderedSet");
+      }
     }
 
     /**
@@ -15536,47 +15550,79 @@ define("ember-metal/map",
       @return {Ember.OrderedSet}
     */
     OrderedSet.create = function() {
-      return new OrderedSet();
+      var Constructor = this;
+
+      return new Constructor();
     };
 
     OrderedSet.prototype = {
+      constructor: OrderedSet,
       /**
         @method clear
       */
       clear: function() {
         this.presenceSet = Object.create(null);
         this.list = [];
+        this.size = 0;
       },
 
       /**
         @method add
         @param obj
+        @param guid (optional, and for internal use)
+        @return {Ember.OrderedSet}
       */
-      add: function(obj) {
-        var guid = guidFor(obj);
+      add: function(obj, _guid) {
+        var guid = _guid || guidFor(obj);
         var presenceSet = this.presenceSet;
         var list = this.list;
 
-        if (presenceSet[guid]) { return; }
+        if (presenceSet[guid]) {
+          return;
+        }
 
         presenceSet[guid] = true;
         list.push(obj);
+        this.size++;
+
+        return this;
       },
 
       /**
+        @deprecated
+
         @method remove
         @param obj
+        @param _guid (optional and for internal use only)
+        @return {Boolean}
       */
-      remove: function(obj) {
-        var guid = guidFor(obj);
+      remove: function(obj, _guid) {
+        Ember.deprecate('Calling `OrderedSet.prototype.remove` has been deprecated, please use `OrderedSet.prototype.delete` instead.', this._silenceRemoveDeprecation);
+
+        return this['delete'](obj, _guid);
+      },
+
+      /**
+        @method delete
+        @param obj
+        @param _guid (optional and for internal use only)
+        @return {Boolean}
+      */
+      'delete': function(obj, _guid) {
+        var guid = _guid || guidFor(obj);
         var presenceSet = this.presenceSet;
         var list = this.list;
 
-        delete presenceSet[guid];
-
-        var index = indexOf.call(list, obj);
-        if (index > -1) {
-          list.splice(index, 1);
+        if (presenceSet[guid] !== undefined) {
+          delete presenceSet[guid];
+          var index = indexOf.call(list, obj);
+          if (index > -1) {
+            list.splice(index, 1);
+          }
+          this.size--;
+          return true;
+        } else {
+          return false;
         }
       },
 
@@ -15585,7 +15631,7 @@ define("ember-metal/map",
         @return {Boolean}
       */
       isEmpty: function() {
-        return this.list.length === 0;
+        return this.size === 0;
       },
 
       /**
@@ -15594,10 +15640,12 @@ define("ember-metal/map",
         @return {Boolean}
       */
       has: function(obj) {
+        if (this.size === 0) { return; }
+
         var guid = guidFor(obj);
         var presenceSet = this.presenceSet;
 
-        return presenceSet[guid];
+        return !!presenceSet[guid];
       },
 
       /**
@@ -15605,12 +15653,21 @@ define("ember-metal/map",
         @param {Function} fn
         @param self
       */
-      forEach: function(fn, self) {
-        // allow mutation during iteration
-        var list = this.toArray();
+      forEach: function(fn, thisArg) {
+        if (this.size === 0) { return; }
 
-        for (var i = 0, j = list.length; i < j; i++) {
-          fn.call(self, list[i]);
+        var list = this.list;
+        var length = arguments.length;
+        var i;
+
+        if (length === 2) {
+          for (i = 0; i < list.length; i++) {
+            fn.call(thisArg, list[i]);
+          }
+        } else {
+          for (i = 0; i < list.length; i++) {
+            fn(list[i]);
+          }
         }
       },
 
@@ -15627,14 +15684,19 @@ define("ember-metal/map",
         @return {Ember.OrderedSet}
       */
       copy: function() {
-        var set = new OrderedSet();
+        var Constructor = this.constructor;
+        var set = new Constructor();
 
-        set.presenceSet = copy(this.presenceSet);
+        set._silenceRemoveDeprecation = this._silenceRemoveDeprecation;
+        set.presenceSet = copyNull(this.presenceSet);
         set.list = this.toArray();
+        set.size = this.size;
 
         return set;
       }
     };
+
+    deprecateProperty(OrderedSet.prototype, 'length', 'size');
 
     /**
       A Map stores values indexed by keys. Unlike JavaScript's
@@ -15657,8 +15719,14 @@ define("ember-metal/map",
       @constructor
     */
     function Map() {
-      this.keys = OrderedSet.create();
-      this.values = Object.create(null);
+      if (this instanceof this.constructor) {
+        this.keys = OrderedSet.create();
+        this.keys._silenceRemoveDeprecation = true;
+        this.values = Object.create(null);
+        this.size = 0;
+      } else {
+        missingNew("OrderedSet");
+      }
     }
 
     Ember.Map = Map;
@@ -15668,18 +15736,21 @@ define("ember-metal/map",
       @static
     */
     Map.create = function() {
-      return new Map();
+      var Constructor = this;
+      return new Constructor();
     };
 
     Map.prototype = {
+      constructor: Map,
+
       /**
         This property will change as the number of objects in the map changes.
 
-        @property length
+        @property size
         @type number
         @default 0
       */
-      length: 0,
+      size: 0,
 
       /**
         Retrieve the value associated with a given key.
@@ -15689,6 +15760,8 @@ define("ember-metal/map",
         @return {*} the value associated with the key, or `undefined`
       */
       get: function(key) {
+        if (this.size === 0) { return; }
+
         var values = this.values;
         var guid = guidFor(key);
 
@@ -15702,18 +15775,23 @@ define("ember-metal/map",
         @method set
         @param {*} key
         @param {*} value
+        @return {Ember.Map}
       */
       set: function(key, value) {
         var keys = this.keys;
         var values = this.values;
         var guid = guidFor(key);
 
-        keys.add(key);
+        keys.add(key, guid);
         values[guid] = value;
-        set(this, 'length', keys.list.length);
+
+        this.size = keys.size;
+
+        return this;
       },
 
       /**
+        @deprecated see delete
         Removes a value from the map for an associated key.
 
         @method remove
@@ -15721,6 +15799,20 @@ define("ember-metal/map",
         @return {Boolean} true if an item was removed, false otherwise
       */
       remove: function(key) {
+        Ember.deprecate('Calling `Map.prototype.remove` has been deprecated, please use `Map.prototype.delete` instead.');
+
+        return this['delete'](key);
+      },
+
+      /**
+        Removes a value from the map for an associated key.
+
+        @method delete
+        @param {*} key
+        @return {Boolean} true if an item was removed, false otherwise
+      */
+      'delete': function(key) {
+        if (this.size === 0) { return false; }
         // don't use ES6 "delete" because it will be annoying
         // to use in browsers that are not ES6 friendly;
         var keys = this.keys;
@@ -15728,9 +15820,9 @@ define("ember-metal/map",
         var guid = guidFor(key);
 
         if (values[guid]) {
-          keys.remove(key);
+          keys.remove(key, guid);
           delete values[guid];
-          set(this, 'length', keys.list.length);
+          this.size = keys.size;
           return true;
         } else {
           return false;
@@ -15745,10 +15837,8 @@ define("ember-metal/map",
         @return {Boolean} true if the item was present, false otherwise
       */
       has: function(key) {
-        var values = this.values;
-        var guid = guidFor(key);
-
-        return !!values[guid];
+        if (this.size === 0) { return; }
+        return this.keys.has(key);
       },
 
       /**
@@ -15762,14 +15852,28 @@ define("ember-metal/map",
         @param {*} self if passed, the `this` value inside the
           callback. By default, `this` is the map.
       */
-      forEach: function(callback, self) {
-        var keys = this.keys;
-        var values = this.values;
+      forEach: function(callback, thisArg) {
+        if (typeof callback !== 'function') {
+          missingFunction(callback);
+        }
 
-        keys.forEach(function(key) {
-          var guid = guidFor(key);
-          callback.call(self, key, values[guid]);
-        });
+        if (this.size === 0) { return; }
+
+        var length = arguments.length;
+        var map = this;
+        var cb;
+
+        if (length === 2) {
+          cb = function(key) {
+            callback.call(thisArg, map.get(key), key);
+          };
+        } else {
+          cb = function(key) {
+            callback(map.get(key), key);
+          };
+        }
+
+        this.keys.forEach(cb);
       },
 
       /**
@@ -15780,6 +15884,8 @@ define("ember-metal/map",
         return copyMap(this, new Map());
       }
     };
+
+    deprecateProperty(Map.prototype, 'length', 'size');
 
     /**
       @class MapWithDefault
@@ -15840,10 +15946,13 @@ define("ember-metal/map",
       @return {Ember.MapWithDefault}
     */
     MapWithDefault.prototype.copy = function() {
-      return copyMap(this, new MapWithDefault({
+      var Constructor = this.constructor;
+      return copyMap(this, new Constructor({
         defaultValue: this.defaultValue
       }));
     };
+
+    __exports__["default"] = Map;
 
     __exports__.OrderedSet = OrderedSet;
     __exports__.Map = Map;

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.075fa156
+ * @version   1.9.0-beta.1+canary.00a47cb8
  */
 
 (function() {
@@ -17528,7 +17528,13 @@ define("ember-metal/tests/map_test",
         mapHasLength(entries.length, theMap);
       };
 
-      test("add", function() {
+      var unboundThis;
+
+      (function() {
+        unboundThis = this;
+      }());
+
+      test("set", function() {
         map.set(object, "winning");
         map.set(number, "winning");
         map.set(string, "winning");
@@ -17549,8 +17555,46 @@ define("ember-metal/tests/map_test",
           [ string, "losing" ]
         ]);
 
-        equal(map.has("nope"), false);
-        equal(map.has({}), false);
+        equal(map.has("nope"), false, "expected the key `nope` to not be present");
+        equal(map.has({}), false, "expected they key `{}` to not be present");
+      });
+
+      test("set chaining", function() {
+        map.set(object, "winning").
+            set(number, "winning").
+            set(string, "winning");
+
+        mapHasEntries([
+          [ object, "winning" ],
+          [ number, "winning" ],
+          [ string, "winning" ]
+        ]);
+
+        map.set(object, "losing").
+            set(number, "losing").
+            set(string, "losing");
+
+        mapHasEntries([
+          [ object, "losing" ],
+          [ number, "losing" ],
+          [ string, "losing" ]
+        ]);
+
+        equal(map.has("nope"), false, "expected the key `nope` to not be present");
+        equal(map.has({}), false, "expected they key `{}` to not be present");
+      });
+
+      test("with key with undefined value", function() {
+        map.set("foo", undefined);
+
+        map.forEach(function(value, key) {
+          equal(value, undefined);
+          equal(key, 'foo');
+        });
+
+        ok(map.has("foo"), "has key foo, even with undefined value");
+
+        equal(map.size, 1);
       });
 
       test("remove", function() {
@@ -17558,12 +17602,31 @@ define("ember-metal/tests/map_test",
         map.set(number, "winning");
         map.set(string, "winning");
 
-        map.remove(object);
-        map.remove(number);
-        map.remove(string);
+        expectDeprecation(function() {
+          map.remove(object);
+          map.remove(number);
+          map.remove(string);
+
+          // doesn't explode
+          map.remove({});
+        }, 'Calling `Map.prototype.remove` has been deprecated, please use `Map.prototype.delete` instead.');
+
+        mapHasEntries([]);
+      });
+
+      test("delete", function() {
+        expectNoDeprecation();
+
+        map.set(object, "winning");
+        map.set(number, "winning");
+        map.set(string, "winning");
+
+        map["delete"](object);
+        map["delete"](number);
+        map["delete"](string);
 
         // doesn't explode
-        map.remove({});
+        map["delete"]({});
 
         mapHasEntries([]);
       });
@@ -17592,16 +17655,16 @@ define("ember-metal/tests/map_test",
         ], map2);
       });
 
-      test("copy and then remove", function() {
+      test("copy and then delete", function() {
         map.set(object, "winning");
         map.set(number, "winning");
         map.set(string, "winning");
 
         var map2 = map.copy();
 
-        map2.remove(object);
-        map2.remove(number);
-        map2.remove(string);
+        map2["delete"](object);
+        map2["delete"](number);
+        map2["delete"](string);
 
         mapHasEntries([
           [ object, "winning" ],
@@ -17613,6 +17676,8 @@ define("ember-metal/tests/map_test",
       });
 
       test("length", function() {
+        expectDeprecation('Usage of `length` is deprecated, use `size` instead.');
+
         //Add a key twice
         equal(map.length, 0);
         map.set(string, "a string");
@@ -17625,7 +17690,7 @@ define("ember-metal/tests/map_test",
         equal(map.length, 2);
 
         //Remove one that doesn't exist
-        map.remove('does not exist');
+        map["delete"]('does not exist');
         equal(map.length, 2);
 
         //Check copy
@@ -17633,16 +17698,181 @@ define("ember-metal/tests/map_test",
         equal(copy.length, 2);
 
         //Remove a key twice
-        map.remove(number);
+        map["delete"](number);
         equal(map.length, 1);
-        map.remove(number);
+        map["delete"](number);
         equal(map.length, 1);
 
         //Remove the last key
-        map.remove(string);
+        map["delete"](string);
         equal(map.length, 0);
-        map.remove(string);
+        map["delete"](string);
         equal(map.length, 0);
+      });
+
+      test("size", function() {
+        //Add a key twice
+        equal(map.size, 0);
+        map.set(string, "a string");
+        equal(map.size, 1);
+        map.set(string, "the same string");
+        equal(map.size, 1);
+
+        //Add another
+        map.set(number, "a number");
+        equal(map.size, 2);
+
+        //Remove one that doesn't exist
+        map["delete"]('does not exist');
+        equal(map.size, 2);
+
+        //Check copy
+        var copy = map.copy();
+        equal(copy.size, 2);
+
+        //Remove a key twice
+        map["delete"](number);
+        equal(map.size, 1);
+        map["delete"](number);
+        equal(map.size, 1);
+
+        //Remove the last key
+        map["delete"](string);
+        equal(map.size, 0);
+        map["delete"](string);
+        equal(map.size, 0);
+      });
+
+      test("forEach without proper callback", function() {
+        QUnit["throws"](function() {
+          map.forEach();
+        }, '[object Undefined] is not a function');
+
+        QUnit["throws"](function() {
+          map.forEach(undefined);
+        }, '[object Undefined] is not a function');
+
+        QUnit["throws"](function() {
+          map.forEach(1);
+        }, '[object Number] is not a function');
+
+        QUnit["throws"](function() {
+          map.forEach({});
+        }, '[object Object] is not a function');
+      });
+
+      test("forEach basic", function() {
+        map.set("a", 1);
+        map.set("b", 2);
+        map.set("c", 3);
+
+        var iteration = 0;
+
+        var expectations = [
+          { value: 1, key: "a", context: unboundThis },
+          { value: 2, key: "b", context: unboundThis },
+          { value: 3, key: "c", context: unboundThis },
+        ];
+
+        map.forEach(function(value, key) {
+          var expectation = expectations[iteration];
+
+          equal(value, expectation.value, 'value should be correct');
+          equal(key, expectation.key, 'key should be correct');
+          equal(this, expectation.context, 'context should be as if it was unbound');
+
+          iteration++;
+        });
+
+        equal(iteration, 3, 'expected 3 iterations');
+
+      });
+
+      test("forEach basic /w context", function() {
+        map.set("a", 1);
+        map.set("b", 2);
+        map.set("c", 3);
+
+        var iteration = 0;
+        var context = {};
+        var expectations = [
+          { value: 1, key: "a", context: context },
+          { value: 2, key: "b", context: context },
+          { value: 3, key: "c", context: context },
+        ];
+
+        map.forEach(function(value, key) {
+          var expectation = expectations[iteration];
+
+          equal(value, expectation.value, 'value should be correct');
+          equal(key, expectation.key, 'key should be correct');
+          equal(this, expectation.context, 'context should be as if it was unbound');
+
+          iteration++;
+
+        }, context);
+
+        equal(iteration, 3, 'expected 3 iterations');
+      });
+
+      test("forEach basic /w deletion while enumerating", function() {
+        map.set("a", 1);
+        map.set("b", 2);
+        map.set("c", 3);
+
+        var iteration = 0;
+
+        var expectations = [
+          { value: 1, key: "a", context: unboundThis },
+          { value: 2, key: "b", context: unboundThis }
+        ];
+
+        map.forEach(function(value, key) {
+          if (iteration === 0) {
+            map["delete"]("c");
+          }
+
+          var expectation = expectations[iteration];
+
+          equal(value, expectation.value, 'value should be correct');
+          equal(key, expectation.key, 'key should be correct');
+          equal(this, expectation.context, 'context should be as if it was unbound');
+
+          iteration++;
+        });
+
+        equal(iteration, 2, 'expected 3 iterations');
+      });
+
+      test("forEach basic /w addition while enumerating", function() {
+        map.set("a", 1);
+        map.set("b", 2);
+        map.set("c", 3);
+
+        var iteration = 0;
+
+        var expectations = [
+          { value: 1, key: "a", context: unboundThis },
+          { value: 2, key: "b", context: unboundThis },
+          { value: 3, key: "c", context: unboundThis },
+          { value: 4, key: "d", context: unboundThis },
+        ];
+
+        map.forEach(function(value, key) {
+          if (iteration === 0) {
+            map.set('d', 4);
+          }
+
+          var expectation = expectations[iteration];
+
+          equal(value, expectation.value, 'value should be correct');
+          equal(key, expectation.key, 'key should be correct');
+          equal(this, expectation.context, 'context should be as if it was unbound');
+
+          iteration++;
+        });
+
+        equal(iteration, 4, 'expected 3 iterations');
       });
     }
 
