@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.f3e17fa3
+ * @version   1.9.0-beta.1+canary.b5aca9b2
  */
 
 (function() {
@@ -13342,9 +13342,8 @@ define("ember-metal-views/tests/main_test",
   ["ember-metal-views/tests/test_helpers"],
   function(__dependency1__) {
     "use strict";
-    /*globals HTMLElement */
-
     var testsFor = __dependency1__.testsFor;
+    var setElementText = __dependency1__.setElementText;
     var equalHTML = __dependency1__.equalHTML;
     var appendTo = __dependency1__.appendTo;
 
@@ -13415,9 +13414,9 @@ define("ember-metal-views/tests/main_test",
         isView: true,
 
         willInsertElement: function(el) {
-          ok(this.element instanceof HTMLElement, "We have an element");
+          ok(this.element && this.element.nodeType === 1, "We have an element");
           equal(this.element.parentElement, null, "The element is parentless");
-          this.element.textContent = 'you gone and done inserted that element';
+          setElementText(this.element, 'you gone and done inserted that element');
         }
       };
 
@@ -13433,9 +13432,9 @@ define("ember-metal-views/tests/main_test",
         isView: true,
 
         didInsertElement: function() {
-          ok(this.element instanceof HTMLElement, "We have an element");
+          ok(this.element && this.element.nodeType === 1, "We have an element");
           equal(this.element.parentElement, document.getElementById('qunit-fixture'), "The element's parent is correct");
-          this.element.textContent = 'you gone and done inserted that element';
+          setElementText(this.element, 'you gone and done inserted that element');
         }
       };
 
@@ -13484,9 +13483,9 @@ define("ember-metal-views/tests/test_helpers",
     var renderer;
 
     function MetalRenderer () {
-      MetalRenderer["super"].call(this);
+      MetalRenderer._super.call(this);
     }
-    MetalRenderer["super"] = Renderer;
+    MetalRenderer._super = Renderer;
     MetalRenderer.prototype = Object.create(Renderer.prototype, {
       constructor: {
         value: MetalRenderer,
@@ -13529,7 +13528,7 @@ define("ember-metal-views/tests/test_helpers",
       if (view.childViews) {
         view._childViewsMorph = this._dom.createMorph(el, null, null);
       } else if (view.textContent) {
-        el.textContent = view.textContent;
+        setElementText(el, view.textContent);
       } else if (view.innerHTML) {
         el.innerHTML = view.innerHTML;
       }
@@ -13569,7 +13568,16 @@ define("ember-metal-views/tests/test_helpers",
       return renderer;
     }
 
-    __exports__.subject = subject;function equalHTML(element, expectedHTML, message) {
+    __exports__.subject = subject;var supportsTextContent = ('textContent' in document.createElement('div'));
+    function setElementText(element, text) {
+      if (supportsTextContent) {
+        element.textContent = text;
+      } else {
+        element.innerText = text;
+      }
+    }
+
+    __exports__.setElementText = setElementText;function equalHTML(element, expectedHTML, message) {
       var html;
       if (typeof element === 'string') {
         html = document.getElementById(element).innerHTML;
@@ -13578,6 +13586,11 @@ define("ember-metal-views/tests/test_helpers",
       }
 
       var actualHTML = html.replace(/ id="[^"]+"/gmi, '');
+      actualHTML = actualHTML.replace(/<\/?([A-Z]+)/gi, function(tag){
+        return tag.toLowerCase();
+      });
+      actualHTML = actualHTML.replace(/\r\n/gm, '');
+      actualHTML = actualHTML.replace(/ $/, '');
       equal(actualHTML, expectedHTML, message || "HTML matches");
     }
 
