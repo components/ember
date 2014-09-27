@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.00a47cb8
+ * @version   1.9.0-beta.1+canary.b2029a58
  */
 
 (function() {
@@ -6518,12 +6518,9 @@ define("ember-handlebars/controls/text_support",
 
       init: function() {
         this._super();
-        this.on("focusOut", this, this._elementValueDidChange);
-        this.on("change", this, this._elementValueDidChange);
         this.on("paste", this, this._elementValueDidChange);
         this.on("cut", this, this._elementValueDidChange);
         this.on("input", this, this._elementValueDidChange);
-        this.on("keyUp", this, this.interpretKeyEvents);
       },
 
       /**
@@ -6609,6 +6606,10 @@ define("ember-handlebars/controls/text_support",
         sendAction('escape-press', this, event);
       },
 
+      change: function(event) {
+        this._elementValueDidChange(event);
+      },
+
       /**
         Called when the text area is focused.
 
@@ -6630,6 +6631,7 @@ define("ember-handlebars/controls/text_support",
         @param {Event} event
       */
       focusOut: function(event) {
+        this._elementValueDidChange(event);
         sendAction('focus-out', this, event);
       },
 
@@ -6644,8 +6646,36 @@ define("ember-handlebars/controls/text_support",
       */
       keyPress: function(event) {
         sendAction('key-press', this, event);
-      }
+      },
 
+      /**
+        Called when the browser triggers a `keyup` event on the element.
+
+        Uses sendAction to send the `key-up` action passing the current value
+        and event as parameters.
+
+        @method keyUp
+        @param {Event} event
+      */
+      keyUp: function(event) {
+        this.interpretKeyEvents(event);
+
+        this.sendAction('key-up', get(this, 'value'), event);
+      },
+
+      /**
+        Called when the browser triggers a `keydown` event on the element.
+
+        Uses sendAction to send the `key-down` action passing the current value
+        and event as parameters. Note that generally in key-down the value is unchanged
+        (as the key pressing has not completed yet).
+
+        @method keyDown
+        @param {Event} event
+      */
+      keyDown: function(event) {
+        this.sendAction('key-down', get(this, 'value'), event);
+      }
     });
 
     TextSupport.KEY_EVENTS = {
@@ -13587,7 +13617,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.00a47cb8
+      @version 1.9.0-beta.1+canary.b2029a58
     */
 
     if ('undefined' === typeof Ember) {
@@ -13614,10 +13644,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.00a47cb8'
+      @default '1.9.0-beta.1+canary.b2029a58'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.00a47cb8';
+    Ember.VERSION = '1.9.0-beta.1+canary.b2029a58';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
