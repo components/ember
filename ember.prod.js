@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.f0dd7092
+ * @version   1.9.0-beta.1+canary.ee0407f4
  */
 
 (function() {
@@ -4808,8 +4808,8 @@ define("ember-handlebars",
     var ComponentLookup = __dependency24__["default"];
     var _HandlebarsBoundView = __dependency25__._HandlebarsBoundView;
     var SimpleHandlebarsView = __dependency25__.SimpleHandlebarsView;
+    var _MetamorphView = __dependency26__["default"];
     var _SimpleMetamorphView = __dependency26__._SimpleMetamorphView;
-    var _MetamorphView = __dependency26__._MetamorphView;
     var _Metamorph = __dependency26__._Metamorph;
 
 
@@ -8436,8 +8436,8 @@ define("ember-handlebars/helpers/each",
     var addBeforeObserver = __dependency14__.addBeforeObserver;
     var removeBeforeObserver = __dependency14__.removeBeforeObserver;
 
+    var _MetamorphView = __dependency15__["default"];
     var _Metamorph = __dependency15__._Metamorph;
-    var _MetamorphView = __dependency15__._MetamorphView;
 
     var EachView = CollectionView.extend(_Metamorph, {
 
@@ -10221,8 +10221,8 @@ define("ember-handlebars/views/metamorph_view",
       @uses Ember._Metamorph
       @private
     */
-    var _MetamorphView = View.extend(_Metamorph);
-    __exports__._MetamorphView = _MetamorphView;
+    __exports__["default"] = View.extend(_Metamorph);
+
     /**
       @class _SimpleMetamorphView
       @namespace Ember
@@ -10231,7 +10231,7 @@ define("ember-handlebars/views/metamorph_view",
       @private
     */
     var _SimpleMetamorphView = CoreView.extend(_Metamorph);
-    __exports__._SimpleMetamorphView = _SimpleMetamorphView;__exports__["default"] = View.extend(_Metamorph);
+    __exports__._SimpleMetamorphView = _SimpleMetamorphView;
   });
 define("ember-metal-views",
   ["ember-metal-views/renderer","exports"],
@@ -13320,7 +13320,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.f0dd7092
+      @version 1.9.0-beta.1+canary.ee0407f4
     */
 
     if ('undefined' === typeof Ember) {
@@ -13347,10 +13347,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.f0dd7092'
+      @default '1.9.0-beta.1+canary.ee0407f4'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.f0dd7092';
+    Ember.VERSION = '1.9.0-beta.1+canary.ee0407f4';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
