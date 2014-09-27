@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.2
+ * @version   1.8.0-beta.3
  */
 
 (function() {
@@ -6101,7 +6101,7 @@ define("ember-handlebars/controls/text_area",
       classNames: ['ember-text-area'],
 
       tagName: "textarea",
-      attributeBindings: ['rows', 'cols', 'name', 'selectionEnd', 'selectionStart', 'wrap'],
+      attributeBindings: ['rows', 'cols', 'name', 'selectionEnd', 'selectionStart', 'wrap', 'lang', 'dir'],
       rows: null,
       cols: null,
 
@@ -6160,7 +6160,7 @@ define("ember-handlebars/controls/text_field",
       attributeBindings: ['type', 'value', 'size', 'pattern', 'name', 'min', 'max',
                           'accept', 'autocomplete', 'autosave', 'formaction',
                           'formenctype', 'formmethod', 'formnovalidate', 'formtarget',
-                          'height', 'inputmode', 'list', 'multiple', 'step',
+                          'height', 'inputmode', 'list', 'multiple', 'step', 'lang', 'dir',
                           'width'],
 
       /**
@@ -8242,8 +8242,6 @@ define("ember-handlebars/helpers/collection",
       var viewOptions = ViewHelper.propertiesFromHTMLOptions({ data: data, hash: itemHash }, this);
       hash.itemViewClass = itemViewClass.extend(viewOptions);
 
-      options.helperName = options.helperName || 'collection';
-
       return helpers.view.call(this, collectionClass, options);
     }
 
@@ -9131,7 +9129,7 @@ define("ember-handlebars/helpers/unbound",
     }
   });
 define("ember-handlebars/helpers/view",
-  ["ember-metal/core","ember-runtime/system/object","ember-metal/property_get","ember-metal/property_set","ember-metal/mixin","ember-views/system/jquery","ember-views/views/view","ember-metal/binding","ember-metal/merge","ember-handlebars/ext","ember-runtime/system/string","exports"],
+  ["ember-metal/core","ember-runtime/system/object","ember-metal/property_get","ember-metal/property_set","ember-metal/mixin","ember-views/system/jquery","ember-views/views/view","ember-metal/binding","ember-metal/keys","ember-handlebars/ext","ember-runtime/system/string","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
     "use strict";
     /*globals Handlebars */
@@ -9152,7 +9150,7 @@ define("ember-handlebars/helpers/view",
     var jQuery = __dependency6__["default"];
     var View = __dependency7__["default"];
     var isGlobalPath = __dependency8__.isGlobalPath;
-    var merge = __dependency9__["default"];
+    var keys = __dependency9__["default"];
     var normalizePath = __dependency10__.normalizePath;
     var handlebarsGet = __dependency10__.handlebarsGet;
     var handlebarsGetView = __dependency10__.handlebarsGetView;
@@ -9191,91 +9189,89 @@ define("ember-handlebars/helpers/view",
     }
 
     var ViewHelper = EmberObject.create({
-
       propertiesFromHTMLOptions: function(options) {
-        var hash = options.hash, data = options.data;
-        var extensions = {};
+        var hash = options.hash;
+        var data = options.data;
+        var extensions = {
+          classNameBindings: [],
+          helperName:        options.helperName || ''
+        };
         var classes = hash['class'];
-        var dup = false;
 
         if (hash.id) {
           extensions.elementId = hash.id;
-          dup = true;
         }
 
         if (hash.tag) {
           extensions.tagName = hash.tag;
-          dup = true;
         }
 
         if (classes) {
           classes = classes.split(' ');
           extensions.classNames = classes;
-          dup = true;
         }
 
         if (hash.classBinding) {
           extensions.classNameBindings = hash.classBinding.split(' ');
-          dup = true;
         }
 
         if (hash.classNameBindings) {
-          if (extensions.classNameBindings === undefined) extensions.classNameBindings = [];
           extensions.classNameBindings = extensions.classNameBindings.concat(hash.classNameBindings.split(' '));
-          dup = true;
         }
 
         if (hash.attributeBindings) {
                     extensions.attributeBindings = null;
-          dup = true;
-        }
-
-        if (dup) {
-          hash = merge({}, hash);
-          delete hash.id;
-          delete hash.tag;
-          delete hash['class'];
-          delete hash.classBinding;
         }
 
         // Set the proper context for all bindings passed to the helper. This applies to regular attribute bindings
         // as well as class name bindings. If the bindings are local, make them relative to the current context
         // instead of the view.
         var path;
+        var hashKeys = keys(hash);
 
-        // Evaluate the context of regular attribute bindings:
-        for (var prop in hash) {
-          if (!hash.hasOwnProperty(prop)) { continue; }
+        for (var i = 0, l = hashKeys.length; i < l; i++) {
+          var prop      = hashKeys[i];
+          var isBinding = IS_BINDING.test(prop);
+
+          if (prop !== 'classNameBindings') {
+            extensions[prop] = hash[prop];
+          }
 
           // Test if the property ends in "Binding"
-          if (IS_BINDING.test(prop) && typeof hash[prop] === 'string') {
+          if (isBinding && typeof extensions[prop] === 'string') {
             path = this.contextualizeBindingPath(hash[prop], data);
-            if (path) { hash[prop] = path; }
+            if (path) {
+              extensions[prop] = path;
+            }
           }
         }
 
         // Evaluate the context of class name bindings:
-        if (extensions.classNameBindings) {
-          for (var b in extensions.classNameBindings) {
-            var full = extensions.classNameBindings[b];
-            if (typeof full === 'string') {
-              // Contextualize the path of classNameBinding so this:
-              //
-              //     classNameBinding="isGreen:green"
-              //
-              // is converted to this:
-              //
-              //     classNameBinding="_parentView.context.isGreen:green"
-              var parsedPath = View._parsePropertyPath(full);
-              if(parsedPath.path !== '') {
-                path = this.contextualizeBindingPath(parsedPath.path, data);
-                if (path) { extensions.classNameBindings[b] = path + parsedPath.classNames; }
+        var classNameBindingsKeys = keys(extensions.classNameBindings);
+
+        for (var j = 0, k = classNameBindingsKeys.length; j < k; j++) {
+          var classKey = classNameBindingsKeys[j];
+          var full     = extensions.classNameBindings[classKey];
+
+          if (typeof full === 'string') {
+            // Contextualize the path of classNameBinding so this:
+            //
+            //     classNameBinding="isGreen:green"
+            //
+            // is converted to this:
+            //
+            //     classNameBinding="_parentView.context.isGreen:green"
+            var parsedPath = View._parsePropertyPath(full);
+            if (parsedPath.path !== '') {
+              path = this.contextualizeBindingPath(parsedPath.path, data);
+              if (path) {
+                extensions.classNameBindings[classKey] = path + parsedPath.classNames;
               }
             }
           }
         }
 
-        return merge(hash, extensions);
+        return extensions;
       },
 
       // Transform bindings from the current context to a context that can be evaluated within the view.
@@ -9297,7 +9293,7 @@ define("ember-handlebars/helpers/view",
 
       helper: function(thisContext, path, options) {
         var data = options.data;
-        var fn = options.fn;
+        var fn   = options.fn;
         var newView;
 
         makeBindings(thisContext, options);
@@ -9320,17 +9316,12 @@ define("ember-handlebars/helpers/view",
           viewOptions._context = thisContext;
         }
 
-        // for instrumentation
-        if (options.helperName) {
-          viewOptions.helperName = options.helperName;
-        }
-
         currentView.appendChild(newView, viewOptions);
       },
 
       instanceHelper: function(thisContext, newView, options) {
-        var data = options.data,
-            fn = options.fn;
+        var data = options.data;
+        var fn   = options.fn;
 
         makeBindings(thisContext, options);
 
@@ -9347,11 +9338,6 @@ define("ember-handlebars/helpers/view",
         // no specified controller. See View#_context for more information.
         if (!newView.controller && !newView.controllerBinding && !viewOptions.controller && !viewOptions.controllerBinding) {
           viewOptions._context = thisContext;
-        }
-
-        // for instrumentation
-        if (options.helperName) {
-          viewOptions.helperName = options.helperName;
         }
 
         currentView.appendChild(newView, viewOptions);
@@ -10266,9 +10252,10 @@ define("ember-metal-views/renderer",
 
       var parentIndex = -1;
       var parents = this._parents;
-      var parent = null;
+      var parent = _parentView || null;
       var elements = this._elements;
       var element = null;
+      var contextualElement = null;
       var level = 0;
 
       var view = _view;
@@ -10287,7 +10274,17 @@ define("ember-metal-views/renderer",
         }
 
         this.willCreateElement(view);
-        element = this.createElement(view);
+
+        contextualElement = view._morph && view._morph.contextualElement;
+        if (!contextualElement && parent && parent._childViewsMorph) {
+          contextualElement = parent._childViewsMorph.contextualElement;
+        }
+        if (!contextualElement && view._didCreateElementWithoutMorph) {
+          // This code path is only used by createElement and rerender when createElement
+          // was previously called on a view.
+          contextualElement = document.body;
+        }
+                element = this.createElement(view, contextualElement);
 
         parents[level++] = parentIndex;
         parentIndex = index;
@@ -10324,7 +10321,7 @@ define("ember-metal-views/renderer",
           }
 
           parentIndex = parents[level];
-          parent = views[parentIndex];
+          parent = parentIndex === -1 ? _parentView : views[parentIndex];
           this.insertElement(view, parent, element, -1);
           index = queue[--length];
           view = views[index];
@@ -10357,9 +10354,9 @@ define("ember-metal-views/renderer",
     Renderer.prototype.scheduleInsert =
       function Renderer_scheduleInsert(view, morph) {
         if (view._morph || view._elementCreated) {
-          throw new Error("You can't insert a View that has already been rendered");
+          throw new Error("You cannot insert a View that has already been rendered");
         }
-        view._morph = morph;
+                view._morph = morph;
         var viewId = this.uuid(view);
         this._inserts[viewId] = this.scheduleRender(this, function() {
           this._inserts[viewId] = null;
@@ -11939,12 +11936,26 @@ define("ember-metal/chains",
 
     function finishChains(obj) {
       // We only create meta if we really have to
-      var m = obj['__ember_meta__'], chains = m && m.chains;
-      if (chains) {
-        if (chains.value() !== obj) {
+      var m = obj['__ember_meta__'],
+        chains, chainWatchers, chainNodes;
+      if (m) {
+        // finish any current chains node watchers that reference obj
+        chainWatchers = m.chainWatchers;
+        if (chainWatchers) {
+          for(var key in chainWatchers) {
+            if (!chainWatchers.hasOwnProperty(key)) { continue; }
+            chainNodes = chainWatchers[key];
+            if (chainNodes) {
+              for (var i=0,l=chainNodes.length;i<l;i++) {
+                chainNodes[i].didChange(null);
+              }
+            }
+          }
+        }
+        // copy chains from prototype
+        chains = m.chains;
+        if (chains && chains.value() !== obj) {
           metaFor(obj).chains = chains = chains.copy(obj);
-        } else {
-          chains.didChange(null);
         }
       }
     }
@@ -13291,7 +13302,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.2
+      @version 1.8.0-beta.3
     */
 
     if ('undefined' === typeof Ember) {
@@ -13318,10 +13329,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.2'
+      @default '1.8.0-beta.3'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.2';
+    Ember.VERSION = '1.8.0-beta.3';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -14844,11 +14855,10 @@ define("ember-metal/is_present",
     __exports__["default"] = isPresent;
   });
 define("ember-metal/keys",
-  ["ember-metal/array","ember-metal/platform","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["ember-metal/platform","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
-    var indexOf = __dependency1__.indexOf;
-    var canDefineNonEnumerableProperties = __dependency2__.canDefineNonEnumerableProperties;
+    var canDefineNonEnumerableProperties = __dependency1__.canDefineNonEnumerableProperties;
 
     /**
       Returns all of the keys defined on an object or hash. This is useful
@@ -14863,54 +14873,47 @@ define("ember-metal/keys",
     var keys = Object.keys;
 
     if (!keys || !canDefineNonEnumerableProperties) {
-      var prototypeProperties = [
-        'constructor',
-        'hasOwnProperty',
-        'isPrototypeOf',
-        'propertyIsEnumerable',
-        'valueOf',
-        'toLocaleString',
-        'toString'
-      ];
-      var pushPropertyName = function(obj, array, key) {
-        // Prevents browsers that don't respect non-enumerability from
-        // copying internal Ember properties
-        if (key.substring(0, 2) === '__') {
-          return;
-        }
+      // modified from
+      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
+      keys = (function () {
+        var hasOwnProperty = Object.prototype.hasOwnProperty,
+            hasDontEnumBug = !({toString: null}).propertyIsEnumerable('toString'),
+            dontEnums = [
+              'toString',
+              'toLocaleString',
+              'valueOf',
+              'hasOwnProperty',
+              'isPrototypeOf',
+              'propertyIsEnumerable',
+              'constructor'
+            ],
+            dontEnumsLength = dontEnums.length;
 
-        if (key === '_super') {
-          return;
-        }
+        return function keys(obj) {
+          if (typeof obj !== 'object' && (typeof obj !== 'function' || obj === null)) {
+            throw new TypeError('Object.keys called on non-object');
+          }
 
-        if (indexOf(array, key) >= 0) {
-          return;
-        }
+          var result = [], prop, i;
 
-        if (!Object.prototype.hasOwnProperty.call(obj, key)) {
-          return;
-        }
+          for (prop in obj) {
+            if (prop !== '_super' &&
+              prop.lastIndexOf('__',0) !== 0 &&
+              hasOwnProperty.call(obj, prop)) {
+              result.push(prop);
+            }
+          }
 
-        array.push(key);
-      };
-
-      keys = function keys(obj) {
-        var ret = [];
-        var key;
-
-        for (key in obj) {
-          pushPropertyName(obj, ret, key);
-        }
-
-        // IE8 doesn't enumerate property that named the same as prototype properties.
-        for (var i = 0, l = prototypeProperties.length; i < l; i++) {
-          key = prototypeProperties[i];
-
-          pushPropertyName(obj, ret, key);
-        }
-
-        return ret;
-      };
+          if (hasDontEnumBug) {
+            for (i = 0; i < dontEnumsLength; i++) {
+              if (hasOwnProperty.call(obj, dontEnums[i])) {
+                result.push(dontEnums[i]);
+              }
+            }
+          }
+          return result;
+        };
+      }());
     }
 
     __exports__["default"] = keys;
@@ -15112,8 +15115,8 @@ define("ember-metal/logger",
     };
   });
 define("ember-metal/map",
-  ["ember-metal/property_set","ember-metal/utils","ember-metal/array","ember-metal/platform","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+  ["ember-metal/utils","ember-metal/array","ember-metal/platform","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     /**
     @module ember-metal
@@ -15139,13 +15142,20 @@ define("ember-metal/map",
       `Ember.Map.create()` for symmetry with other Ember classes.
     */
 
-    var set = __dependency1__.set;
-    var guidFor = __dependency2__.guidFor;
-    var indexOf = __dependency3__.indexOf;
-    var create = __dependency4__.create;
+    var guidFor = __dependency1__.guidFor;
+    var indexOf = __dependency2__.indexOf;
+    var create = __dependency3__.create;
 
-    function copy(obj) {
-      var output = {};
+    function missingFunction(fn) {
+      throw new TypeError('' + Object.prototype.toString.call(fn) + " is not a function");
+    }
+
+    function missingNew(name) {
+      throw new TypeError("Constructor " + name + "requires 'new'");
+    }
+
+    function copyNull(obj) {
+      var output = Object.create(null);
 
       for (var prop in obj) {
         // hasOwnPropery is not needed because obj is Object.create(null);
@@ -15157,11 +15167,11 @@ define("ember-metal/map",
 
     function copyMap(original, newObject) {
       var keys = original.keys.copy();
-      var values = copy(original.values);
+      var values = copyNull(original.values);
 
       newObject.keys = keys;
       newObject.values = values;
-      newObject.length = original.length;
+      newObject.size = original.size;
 
       return newObject;
     }
@@ -15177,7 +15187,12 @@ define("ember-metal/map",
       @private
     */
     function OrderedSet() {
-      this.clear();
+
+      if (this instanceof OrderedSet) {
+        this.clear();
+      } else {
+        missingNew("OrderedSet");
+      }
     }
 
     /**
@@ -15186,47 +15201,77 @@ define("ember-metal/map",
       @return {Ember.OrderedSet}
     */
     OrderedSet.create = function() {
-      return new OrderedSet();
+      var Constructor = this;
+
+      return new Constructor();
     };
 
     OrderedSet.prototype = {
+      constructor: OrderedSet,
       /**
         @method clear
       */
       clear: function() {
         this.presenceSet = Object.create(null);
         this.list = [];
+        this.size = 0;
       },
 
       /**
         @method add
         @param obj
+        @param guid (optional, and for internal use)
+        @return {Ember.OrderedSet}
       */
-      add: function(obj) {
-        var guid = guidFor(obj);
+      add: function(obj, _guid) {
+        var guid = _guid || guidFor(obj);
         var presenceSet = this.presenceSet;
         var list = this.list;
 
-        if (presenceSet[guid]) { return; }
+        if (presenceSet[guid]) {
+          return;
+        }
 
         presenceSet[guid] = true;
         list.push(obj);
+        this.size++;
+
+        return this;
       },
 
       /**
+        @deprecated
+
         @method remove
         @param obj
+        @param _guid (optional and for internal use only)
+        @return {Boolean}
       */
-      remove: function(obj) {
-        var guid = guidFor(obj);
+      remove: function(obj, _guid) {
+        return this['delete'](obj, _guid);
+      },
+
+      /**
+        @method delete
+        @param obj
+        @param _guid (optional and for internal use only)
+        @return {Boolean}
+      */
+      'delete': function(obj, _guid) {
+        var guid = _guid || guidFor(obj);
         var presenceSet = this.presenceSet;
         var list = this.list;
 
-        delete presenceSet[guid];
-
-        var index = indexOf.call(list, obj);
-        if (index > -1) {
-          list.splice(index, 1);
+        if (presenceSet[guid] !== undefined) {
+          delete presenceSet[guid];
+          var index = indexOf.call(list, obj);
+          if (index > -1) {
+            list.splice(index, 1);
+          }
+          this.size--;
+          return true;
+        } else {
+          return false;
         }
       },
 
@@ -15235,7 +15280,7 @@ define("ember-metal/map",
         @return {Boolean}
       */
       isEmpty: function() {
-        return this.list.length === 0;
+        return this.size === 0;
       },
 
       /**
@@ -15247,7 +15292,7 @@ define("ember-metal/map",
         var guid = guidFor(obj);
         var presenceSet = this.presenceSet;
 
-        return presenceSet[guid];
+        return !!presenceSet[guid];
       },
 
       /**
@@ -15255,12 +15300,19 @@ define("ember-metal/map",
         @param {Function} fn
         @param self
       */
-      forEach: function(fn, self) {
-        // allow mutation during iteration
-        var list = this.toArray();
+      forEach: function(fn, thisArg) {
+        var list = this.list;
+        var length = arguments.length;
+        var i;
 
-        for (var i = 0, j = list.length; i < j; i++) {
-          fn.call(self, list[i]);
+        if (length === 2) {
+          for (i = 0; i < list.length; i++) {
+            fn.call(thisArg, list[i]);
+          }
+        } else {
+          for (i = 0; i < list.length; i++) {
+            fn(list[i]);
+          }
         }
       },
 
@@ -15277,9 +15329,10 @@ define("ember-metal/map",
         @return {Ember.OrderedSet}
       */
       copy: function() {
-        var set = new OrderedSet();
+        var Constructor = this.constructor;
+        var set = new Constructor();
 
-        set.presenceSet = copy(this.presenceSet);
+        set.presenceSet = copyNull(this.presenceSet);
         set.list = this.toArray();
 
         return set;
@@ -15307,8 +15360,13 @@ define("ember-metal/map",
       @constructor
     */
     function Map() {
-      this.keys = OrderedSet.create();
-      this.values = Object.create(null);
+      if (this instanceof this.constructor) {
+        this.keys = OrderedSet.create();
+        this.values = Object.create(null);
+        this.size = 0;
+      } else {
+        missingNew("OrderedSet");
+      }
     }
 
     Ember.Map = Map;
@@ -15318,18 +15376,21 @@ define("ember-metal/map",
       @static
     */
     Map.create = function() {
-      return new Map();
+      var Constructor = this;
+      return new Constructor();
     };
 
     Map.prototype = {
+      constructor: Map,
+
       /**
         This property will change as the number of objects in the map changes.
 
-        @property length
+        @property size
         @type number
         @default 0
       */
-      length: 0,
+      size: 0,
 
       /**
         Retrieve the value associated with a given key.
@@ -15352,18 +15413,23 @@ define("ember-metal/map",
         @method set
         @param {*} key
         @param {*} value
+        @return {Ember.Map}
       */
       set: function(key, value) {
         var keys = this.keys;
         var values = this.values;
         var guid = guidFor(key);
 
-        keys.add(key);
+        keys.add(key, guid);
         values[guid] = value;
-        set(this, 'length', keys.list.length);
+
+        this.size = keys.size;
+
+        return this;
       },
 
       /**
+        @deprecated see delete
         Removes a value from the map for an associated key.
 
         @method remove
@@ -15371,6 +15437,17 @@ define("ember-metal/map",
         @return {Boolean} true if an item was removed, false otherwise
       */
       remove: function(key) {
+        return this['delete'](key);
+      },
+
+      /**
+        Removes a value from the map for an associated key.
+
+        @method delete
+        @param {*} key
+        @return {Boolean} true if an item was removed, false otherwise
+      */
+      'delete': function(key) {
         // don't use ES6 "delete" because it will be annoying
         // to use in browsers that are not ES6 friendly;
         var keys = this.keys;
@@ -15378,9 +15455,9 @@ define("ember-metal/map",
         var guid = guidFor(key);
 
         if (values[guid]) {
-          keys.remove(key);
+          keys.remove(key, guid);
           delete values[guid];
-          set(this, 'length', keys.list.length);
+          this.size = keys.size;
           return true;
         } else {
           return false;
@@ -15395,10 +15472,7 @@ define("ember-metal/map",
         @return {Boolean} true if the item was present, false otherwise
       */
       has: function(key) {
-        var values = this.values;
-        var guid = guidFor(key);
-
-        return !!values[guid];
+        return this.keys.has(key);
       },
 
       /**
@@ -15412,14 +15486,26 @@ define("ember-metal/map",
         @param {*} self if passed, the `this` value inside the
           callback. By default, `this` is the map.
       */
-      forEach: function(callback, self) {
-        var keys = this.keys;
-        var values = this.values;
+      forEach: function(callback, thisArg) {
+        if (typeof callback !== 'function') {
+          missingFunction(callback);
+        }
 
-        keys.forEach(function(key) {
-          var guid = guidFor(key);
-          callback.call(self, key, values[guid]);
-        });
+        var length = arguments.length;
+        var map = this;
+        var cb;
+
+        if (length === 2) {
+          cb = function(key) {
+            callback.call(thisArg, map.get(key), key);
+          };
+        } else {
+          cb = function(key) {
+            callback(map.get(key), key);
+          };
+        }
+
+        this.keys.forEach(cb);
       },
 
       /**
@@ -15490,7 +15576,8 @@ define("ember-metal/map",
       @return {Ember.MapWithDefault}
     */
     MapWithDefault.prototype.copy = function() {
-      return copyMap(this, new MapWithDefault({
+      var Constructor = this.constructor;
+      return copyMap(this, new Constructor({
         defaultValue: this.defaultValue
       }));
     };
@@ -15500,9 +15587,11 @@ define("ember-metal/map",
     __exports__.MapWithDefault = MapWithDefault;
   });
 define("ember-metal/merge",
-  ["exports"],
-  function(__exports__) {
+  ["ember-metal/keys","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
+    var keys = __dependency1__["default"];
+
     /**
       Merge the contents of two objects together into the first object.
 
@@ -15519,10 +15608,19 @@ define("ember-metal/merge",
       @return {Object}
     */
     __exports__["default"] = function merge(original, updates) {
-      for (var prop in updates) {
-        if (!updates.hasOwnProperty(prop)) { continue; }
+      if (!updates || typeof updates !== 'object') { 
+        return original;
+      }
+
+      var props = keys(updates);
+      var prop;
+      var length = props.length;
+
+      for (var i = 0; i < length; i++) {
+        prop = props[i];
         original[prop] = updates[prop];
       }
+
       return original;
     }
   });
@@ -29128,8 +29226,8 @@ define("ember-runtime/mixins/action_handler",
     __exports__["default"] = ActionHandler;
   });
 define("ember-runtime/mixins/array",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/computed","ember-metal/is_none","ember-runtime/mixins/enumerable","ember-metal/enumerable_utils","ember-metal/mixin","ember-metal/property_events","ember-metal/events","ember-metal/watching","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/computed","ember-metal/is_none","ember-runtime/mixins/enumerable","ember-metal/enumerable_utils","ember-metal/mixin","ember-metal/property_events","ember-metal/events","ember-metal/watching","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -29141,24 +29239,22 @@ define("ember-runtime/mixins/array",
     //
     var Ember = __dependency1__["default"];
     // ES6TODO: Ember.A
-
     var get = __dependency2__.get;
-    var set = __dependency3__.set;
-    var computed = __dependency4__.computed;
-    var cacheFor = __dependency4__.cacheFor;
-    var isNone = __dependency5__.isNone;
-    var none = __dependency5__.none;
-    var Enumerable = __dependency6__["default"];
-    var map = __dependency7__.map;
-    var Mixin = __dependency8__.Mixin;
-    var required = __dependency8__.required;
-    var propertyWillChange = __dependency9__.propertyWillChange;
-    var propertyDidChange = __dependency9__.propertyDidChange;
-    var addListener = __dependency10__.addListener;
-    var removeListener = __dependency10__.removeListener;
-    var sendEvent = __dependency10__.sendEvent;
-    var hasListeners = __dependency10__.hasListeners;
-    var isWatching = __dependency11__.isWatching;
+    var computed = __dependency3__.computed;
+    var cacheFor = __dependency3__.cacheFor;
+    var isNone = __dependency4__.isNone;
+    var none = __dependency4__.none;
+    var Enumerable = __dependency5__["default"];
+    var map = __dependency6__.map;
+    var Mixin = __dependency7__.Mixin;
+    var required = __dependency7__.required;
+    var propertyWillChange = __dependency8__.propertyWillChange;
+    var propertyDidChange = __dependency8__.propertyDidChange;
+    var addListener = __dependency9__.addListener;
+    var removeListener = __dependency9__.removeListener;
+    var sendEvent = __dependency9__.sendEvent;
+    var hasListeners = __dependency9__.hasListeners;
+    var isWatching = __dependency10__.isWatching;
 
     function arrayObserversHelper(obj, target, opts, operation, notify) {
       var willChange = (opts && opts.willChange) || 'arrayWillChange';
@@ -29175,6 +29271,7 @@ define("ember-runtime/mixins/array",
       if (hasObservers === notify) {
         propertyDidChange(obj, 'hasArrayObservers');
       }
+
       return obj;
     }
 
@@ -29238,8 +29335,9 @@ define("ember-runtime/mixins/array",
 
         ```javascript
         var arr = ['a', 'b', 'c', 'd'];
-        arr.objectAt(0);   // "a"
-        arr.objectAt(3);   // "d"
+
+        arr.objectAt(0);   // 'a'
+        arr.objectAt(3);   // 'd'
         arr.objectAt(-1);  // undefined
         arr.objectAt(4);   // undefined
         arr.objectAt(5);   // undefined
@@ -29250,7 +29348,10 @@ define("ember-runtime/mixins/array",
         @return {*} item at index or undefined
       */
       objectAt: function(idx) {
-        if (idx < 0 || idx >= get(this, 'length')) return undefined;
+        if (idx < 0 || idx >= get(this, 'length')) {
+          return undefined;
+        }
+
         return get(this, idx);
       },
 
@@ -29259,8 +29360,9 @@ define("ember-runtime/mixins/array",
 
         ```javascript
         var arr = ['a', 'b', 'c', 'd'];
-        arr.objectsAt([0, 1, 2]);  // ["a", "b", "c"]
-        arr.objectsAt([2, 3, 4]);  // ["c", "d", undefined]
+
+        arr.objectsAt([0, 1, 2]);  // ['a', 'b', 'c']
+        arr.objectsAt([2, 3, 4]);  // ['c', 'd', undefined]
         ```
 
         @method objectsAt
@@ -29269,7 +29371,10 @@ define("ember-runtime/mixins/array",
        */
       objectsAt: function(indexes) {
         var self = this;
-        return map(indexes, function(idx) { return self.objectAt(idx); });
+
+        return map(indexes, function(idx) {
+          return self.objectAt(idx);
+        });
       },
 
       // overrides Ember.Enumerable version
@@ -29288,7 +29393,10 @@ define("ember-runtime/mixins/array",
         @return this
       */
       '[]': computed(function(key, value) {
-        if (value !== undefined) this.replace(0, get(this, 'length'), value) ;
+        if (value !== undefined) {
+          this.replace(0, get(this, 'length'), value);
+        }
+
         return this;
       }),
 
@@ -29297,7 +29405,7 @@ define("ember-runtime/mixins/array",
       }),
 
       lastObject: computed(function() {
-        return this.objectAt(get(this, 'length')-1);
+        return this.objectAt(get(this, 'length') - 1);
       }),
 
       // optimized version from Enumerable
@@ -29313,6 +29421,7 @@ define("ember-runtime/mixins/array",
 
         ```javascript
         var arr = ['red', 'green', 'blue'];
+
         arr.slice(0);       // ['red', 'green', 'blue']
         arr.slice(0, 2);    // ['red', 'green']
         arr.slice(1, 100);  // ['green', 'blue']
@@ -29325,17 +29434,29 @@ define("ember-runtime/mixins/array",
       */
       slice: function(beginIndex, endIndex) {
         var ret = Ember.A();
-        var length = get(this, 'length') ;
-        if (isNone(beginIndex)) beginIndex = 0 ;
-        if (isNone(endIndex) || (endIndex > length)) endIndex = length ;
+        var length = get(this, 'length');
 
-        if (beginIndex < 0) beginIndex = length + beginIndex;
-        if (endIndex < 0) endIndex = length + endIndex;
-
-        while(beginIndex < endIndex) {
-          ret[ret.length] = this.objectAt(beginIndex++) ;
+        if (isNone(beginIndex)) {
+          beginIndex = 0;
         }
-        return ret ;
+
+        if (isNone(endIndex) || (endIndex > length)) {
+          endIndex = length;
+        }
+
+        if (beginIndex < 0) {
+          beginIndex = length + beginIndex;
+        }
+
+        if (endIndex < 0) {
+          endIndex = length + endIndex;
+        }
+
+        while (beginIndex < endIndex) {
+          ret[ret.length] = this.objectAt(beginIndex++);
+        }
+
+        return ret;
       },
 
       /**
@@ -29345,13 +29466,14 @@ define("ember-runtime/mixins/array",
         the end of the array. Returns -1 if no match is found.
 
         ```javascript
-        var arr = ["a", "b", "c", "d", "a"];
-        arr.indexOf("a");       //  0
-        arr.indexOf("z");       // -1
-        arr.indexOf("a", 2);    //  4
-        arr.indexOf("a", -1);   //  4
-        arr.indexOf("b", 3);    // -1
-        arr.indexOf("a", 100);  // -1
+        var arr = ['a', 'b', 'c', 'd', 'a'];
+
+        arr.indexOf('a');       //  0
+        arr.indexOf('z');       // -1
+        arr.indexOf('a', 2);    //  4
+        arr.indexOf('a', -1);   //  4
+        arr.indexOf('b', 3);    // -1
+        arr.indexOf('a', 100);  // -1
         ```
 
         @method indexOf
@@ -29360,14 +29482,23 @@ define("ember-runtime/mixins/array",
         @return {Number} index or -1 if not found
       */
       indexOf: function(object, startAt) {
-        var idx, len = get(this, 'length');
+        var len = get(this, 'length');
+        var idx;
 
-        if (startAt === undefined) startAt = 0;
-        if (startAt < 0) startAt += len;
-
-        for(idx = startAt; idx < len; idx++) {
-          if (this.objectAt(idx) === object) return idx;
+        if (startAt === undefined) {
+          startAt = 0;
         }
+
+        if (startAt < 0) {
+          startAt += len;
+        }
+
+        for (idx = startAt; idx < len; idx++) {
+          if (this.objectAt(idx) === object) {
+            return idx;
+          }
+        }
+
         return -1;
       },
 
@@ -29378,13 +29509,14 @@ define("ember-runtime/mixins/array",
         from the end of the array. Returns -1 if no match is found.
 
         ```javascript
-        var arr = ["a", "b", "c", "d", "a"];
-        arr.lastIndexOf("a");       //  4
-        arr.lastIndexOf("z");       // -1
-        arr.lastIndexOf("a", 2);    //  0
-        arr.lastIndexOf("a", -1);   //  4
-        arr.lastIndexOf("b", 3);    //  1
-        arr.lastIndexOf("a", 100);  //  4
+        var arr = ['a', 'b', 'c', 'd', 'a'];
+
+        arr.lastIndexOf('a');       //  4
+        arr.lastIndexOf('z');       // -1
+        arr.lastIndexOf('a', 2);    //  0
+        arr.lastIndexOf('a', -1);   //  4
+        arr.lastIndexOf('b', 3);    //  1
+        arr.lastIndexOf('a', 100);  //  4
         ```
 
         @method lastIndexOf
@@ -29393,14 +29525,23 @@ define("ember-runtime/mixins/array",
         @return {Number} index or -1 if not found
       */
       lastIndexOf: function(object, startAt) {
-        var idx, len = get(this, 'length');
+        var len = get(this, 'length');
+        var idx;
 
-        if (startAt === undefined || startAt >= len) startAt = len-1;
-        if (startAt < 0) startAt += len;
-
-        for(idx = startAt; idx >= 0; idx--) {
-          if (this.objectAt(idx) === object) return idx;
+        if (startAt === undefined || startAt >= len) {
+          startAt = len-1;
         }
+
+        if (startAt < 0) {
+          startAt += len;
+        }
+
+        for (idx = startAt; idx >= 0; idx--) {
+          if (this.objectAt(idx) === object) {
+            return idx;
+          }
+        }
+
         return -1;
       },
 
@@ -29477,26 +29618,36 @@ define("ember-runtime/mixins/array",
         @return {Ember.Array} receiver
       */
       arrayContentWillChange: function(startIdx, removeAmt, addAmt) {
+        var removing, lim;
 
         // if no args are passed assume everything changes
-        if (startIdx===undefined) {
+        if (startIdx === undefined) {
           startIdx = 0;
           removeAmt = addAmt = -1;
         } else {
-          if (removeAmt === undefined) removeAmt=-1;
-          if (addAmt    === undefined) addAmt=-1;
+          if (removeAmt === undefined) {
+            removeAmt = -1;
+          }
+
+          if (addAmt === undefined) {
+            addAmt = -1;
+          }
         }
 
         // Make sure the @each proxy is set up if anyone is observing @each
-        if (isWatching(this, '@each')) { get(this, '@each'); }
+        if (isWatching(this, '@each')) {
+          get(this, '@each');
+        }
 
         sendEvent(this, '@array:before', [this, startIdx, removeAmt, addAmt]);
 
-        var removing, lim;
-        if (startIdx>=0 && removeAmt>=0 && get(this, 'hasEnumerableObservers')) {
+        if (startIdx >= 0 && removeAmt >= 0 && get(this, 'hasEnumerableObservers')) {
           removing = [];
-          lim = startIdx+removeAmt;
-          for(var idx=startIdx;idx<lim;idx++) removing.push(this.objectAt(idx));
+          lim = startIdx + removeAmt;
+
+          for (var idx = startIdx; idx < lim; idx++) {
+            removing.push(this.objectAt(idx));
+          }
         } else {
           removing = removeAmt;
         }
@@ -29521,21 +29672,29 @@ define("ember-runtime/mixins/array",
         @return {Ember.Array} receiver
       */
       arrayContentDidChange: function(startIdx, removeAmt, addAmt) {
+        var adding, lim;
 
         // if no args are passed assume everything changes
-        if (startIdx===undefined) {
+        if (startIdx === undefined) {
           startIdx = 0;
           removeAmt = addAmt = -1;
         } else {
-          if (removeAmt === undefined) removeAmt=-1;
-          if (addAmt    === undefined) addAmt=-1;
+          if (removeAmt === undefined) {
+            removeAmt = -1;
+          }
+
+          if (addAmt === undefined) {
+            addAmt = -1;
+          }
         }
 
-        var adding, lim;
-        if (startIdx>=0 && addAmt>=0 && get(this, 'hasEnumerableObservers')) {
+        if (startIdx >= 0 && addAmt >= 0 && get(this, 'hasEnumerableObservers')) {
           adding = [];
-          lim = startIdx+addAmt;
-          for(var idx=startIdx;idx<lim;idx++) adding.push(this.objectAt(idx));
+          lim = startIdx + addAmt;
+
+          for (var idx = startIdx; idx < lim; idx++) {
+            adding.push(this.objectAt(idx));
+          }
         } else {
           adding = addAmt;
         }
@@ -29543,13 +29702,15 @@ define("ember-runtime/mixins/array",
         this.enumerableContentDidChange(removeAmt, adding);
         sendEvent(this, '@array:change', [this, startIdx, removeAmt, addAmt]);
 
-        var length      = get(this, 'length');
+        var length = get(this, 'length');
         var cachedFirst = cacheFor(this, 'firstObject');
-        var cachedLast  = cacheFor(this, 'lastObject');
+        var cachedLast = cacheFor(this, 'lastObject');
+
         if (this.objectAt(0) !== cachedFirst) {
           propertyWillChange(this, 'firstObject');
           propertyDidChange(this, 'firstObject');
         }
+
         if (this.objectAt(length-1) !== cachedLast) {
           propertyWillChange(this, 'lastObject');
           propertyDidChange(this, 'lastObject');
@@ -37440,7 +37601,6 @@ define("ember-views",
     // BEGIN IMPORTS
     var Ember = __dependency1__["default"];
     var jQuery = __dependency2__["default"];
-    var setInnerHTML = __dependency3__.setInnerHTML;
     var isSimpleClick = __dependency3__.isSimpleClick;
     var RenderBuffer = __dependency4__["default"];
      // for the side effect of extending Ember.run.queues
@@ -37471,7 +37631,6 @@ define("ember-views",
     Ember.RenderBuffer = RenderBuffer;
 
     var ViewUtils = Ember.ViewUtils = {};
-    ViewUtils.setInnerHTML = setInnerHTML;
     ViewUtils.isSimpleClick = isSimpleClick;
 
     Ember.CoreView = CoreView;
@@ -37949,22 +38108,63 @@ define("ember-views/system/jquery",
     __exports__["default"] = jQuery;
   });
 define("ember-views/system/render_buffer",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-views/system/utils","ember-views/system/jquery","morph","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+  ["ember-views/system/jquery","morph","ember-metal/core","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     /**
     @module ember
     @submodule ember-views
     */
 
-    var Ember = __dependency1__["default"];
-    // jQuery
+    var jQuery = __dependency1__["default"];
+    var DOMHelper = __dependency2__.DOMHelper;
+    var Ember = __dependency3__["default"];
 
-    var get = __dependency2__.get;
-    var set = __dependency3__.set;
-    var setInnerHTML = __dependency4__.setInnerHTML;
-    var jQuery = __dependency5__["default"];
-    var DOMHelper = __dependency6__.DOMHelper;
+    // The HTML spec allows for "omitted start tags". These tags are optional
+    // when their intended child is the first thing in the parent tag. For
+    // example, this is a tbody start tag:
+    //
+    // <table>
+    //   <tbody>
+    //     <tr>
+    //
+    // The tbody may be omitted, and the browser will accept and render:
+    //
+    // <table>
+    //   <tr>
+    //
+    // However, the omitted start tag will still be added to the DOM. Here
+    // we test the string and context to see if the browser is about to
+    // perform this cleanup, but with a special allowance for disregarding
+    // <script tags. This disregarding of <script being the first child item
+    // may bend the offical spec a bit, and is only needed for Handlebars
+    // templates.
+    //
+    // http://www.whatwg.org/specs/web-apps/current-work/multipage/syntax.html#optional-tags
+    // describes which tags are omittable. The spec for tbody and colgroup
+    // explains this behavior:
+    //
+    // http://www.whatwg.org/specs/web-apps/current-work/multipage/tables.html#the-tbody-element
+    // http://www.whatwg.org/specs/web-apps/current-work/multipage/tables.html#the-colgroup-element
+    //
+    var omittedStartTagChildren = {
+      tr: document.createElement('tbody'),
+      col: document.createElement('colgroup')
+    };
+
+    var omittedStartTagChildTest = /(?:<script)*.*?<([\w:]+)/i;
+
+    function detectOmittedStartTag(string, contextualElement){
+      // Omitted start tags are only inside table tags.
+      if (contextualElement.tagName === 'TABLE') {
+        var omittedStartTagChildMatch = omittedStartTagChildTest.exec(string);
+        if (omittedStartTagChildMatch) {
+          // It is already asserted that the contextual element is a table
+          // and not the proper start tag. Just look up the start tag.
+          return omittedStartTagChildren[omittedStartTagChildMatch[1].toLowerCase()];
+        }
+      }
+    }
 
     function ClassSet() {
       this.seen = {};
@@ -38042,19 +38242,20 @@ define("ember-views/system/render_buffer",
       to the DOM.
 
        ```javascript
-       var buffer = Ember.renderBuffer('div');
+       var buffer = Ember.renderBuffer('div', contextualElement);
       ```
 
       @method renderBuffer
       @namespace Ember
       @param {String} tagName tag name (such as 'div' or 'p') used for the buffer
     */
-    __exports__["default"] = function renderBuffer(tagName) {
-      return new _RenderBuffer(tagName); // jshint ignore:line
+    __exports__["default"] = function renderBuffer(tagName, contextualElement) {
+      return new _RenderBuffer(tagName, contextualElement); // jshint ignore:line
     }
 
-    function _RenderBuffer(tagName) {
+    function _RenderBuffer(tagName, contextualElement) {
       this.tagName = tagName;
+      this._contextualElement = contextualElement;
       this.buffer = null;
       this.childViews = [];
       this.dom = new DOMHelper();
@@ -38062,10 +38263,11 @@ define("ember-views/system/render_buffer",
 
     _RenderBuffer.prototype = {
 
-      reset: function(tagName) {
+      reset: function(tagName, contextualElement) {
         this.tagName = tagName;
         this.buffer = null;
         this._element = null;
+        this._contextualElement = contextualElement;
         this.elementClasses = null;
         this.elementId = null;
         this.elementAttributes = null;
@@ -38077,6 +38279,9 @@ define("ember-views/system/render_buffer",
 
       // The root view's element
       _element: null,
+
+      // The root view's contextualElement
+      _contextualElement: null,
 
       /**
         An internal set used to de-dupe class names when `addClass()` is
@@ -38151,7 +38356,7 @@ define("ember-views/system/render_buffer",
         example, if you wanted to create a `p` tag, then you would call
 
         ```javascript
-        Ember.RenderBuffer('p')
+        Ember.RenderBuffer('p', contextualElement)
         ```
 
         @property elementTag
@@ -38181,7 +38386,7 @@ define("ember-views/system/render_buffer",
         this.push("<script id='morph-"+index+"' type='text/x-placeholder'>\x3C/script>");
       },
 
-      hydrateMorphs: function () {
+      hydrateMorphs: function (contextualElement) {
         var childViews = this.childViews;
         var el = this._element;
         for (var i=0,l=childViews.length; i<l; i++) {
@@ -38189,7 +38394,11 @@ define("ember-views/system/render_buffer",
           var ref = el.querySelector('#morph-'+i);
           var parent = ref.parentNode;
 
-          childView._morph = this.dom.insertMorphBefore(parent, ref);
+          childView._morph = this.dom.insertMorphBefore(
+            parent,
+            ref,
+            parent.nodeType === 1 ? parent : contextualElement
+          );
           parent.removeChild(ref);
         }
       },
@@ -38351,7 +38560,7 @@ define("ember-views/system/render_buffer",
           tagString = tagName;
         }
 
-        var element = document.createElement(tagString);
+        var element = this.dom.createElement(tagString);
         var $element = jQuery(element);
 
         if (id) {
@@ -38405,21 +38614,30 @@ define("ember-views/system/render_buffer",
           of this buffer
       */
       element: function() {
+        if (!this._contextualElement) {
+                    this._contextualElement = document.body;
+        }
         var html = this.innerString();
 
+        var nodes;
         if (this._element) {
           if (html) {
-            this._element = setInnerHTML(this._element, html);
-            this.hydrateMorphs();
+            nodes = this.dom.parseHTML(html, this._element);
+            while (nodes[0]) {
+              this._element.appendChild(nodes[0]);
+            }
+            this.hydrateMorphs(this._element);
           }
         } else {
           if (html) {
+            var omittedStartTag = detectOmittedStartTag(html, this._contextualElement);
+            var contextualElement = omittedStartTag || this._contextualElement;
+            nodes = this.dom.parseHTML(html, contextualElement);
             var frag = this._element = document.createDocumentFragment();
-            var parsed = jQuery.parseHTML(html);
-            for (var i=0,l=parsed.length; i<l; i++) {
-              frag.appendChild(parsed[i]);
+            while (nodes[0]) {
+              frag.appendChild(nodes[0]);
             }
-            this.hydrateMorphs();
+            this.hydrateMorphs(contextualElement);
           } else if (html === '') {
             this._element = html;
           }
@@ -38516,7 +38734,7 @@ define("ember-views/system/renderer",
       };
 
     EmberRenderer.prototype.createElement =
-      function EmberRenderer_createElement(view) {
+      function EmberRenderer_createElement(view, contextualElement) {
         // If this is the top-most view, start a new buffer. Otherwise,
         // create a new buffer relative to the original using the
         // provided buffer operation (for example, `insertAfter` will
@@ -38527,7 +38745,7 @@ define("ember-views/system/renderer",
         }
 
         var buffer = view.buffer = this.buffer;
-        buffer.reset(tagName);
+        buffer.reset(tagName, contextualElement);
 
         if (view.beforeRender) {
           view.beforeRender(buffer);
@@ -38619,161 +38837,15 @@ define("ember-views/system/renderer",
     __exports__["default"] = EmberRenderer;
   });
 define("ember-views/system/utils",
-  ["ember-metal/core","ember-views/system/jquery","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["exports"],
+  function(__exports__) {
     "use strict";
-    /* globals XMLSerializer */
-
-    var Ember = __dependency1__["default"];
-    // Ember.assert
-    var jQuery = __dependency2__["default"];
-
     /**
     @module ember
     @submodule ember-views
     */
 
-    /* BEGIN METAMORPH HELPERS */
-
-    // Internet Explorer prior to 9 does not allow setting innerHTML if the first element
-    // is a "zero-scope" element. This problem can be worked around by making
-    // the first node an invisible text node. We, like Modernizr, use &shy;
-
-    var needsShy = typeof document !== 'undefined' && (function() {
-      var testEl = document.createElement('div');
-      testEl.innerHTML = "<div></div>";
-      testEl.firstChild.innerHTML = "<script></script>";
-      return testEl.firstChild.innerHTML === '';
-    })();
-
-    // IE 8 (and likely earlier) likes to move whitespace preceeding
-    // a script tag to appear after it. This means that we can
-    // accidentally remove whitespace when updating a morph.
-    var movesWhitespace = typeof document !== 'undefined' && (function() {
-      var testEl = document.createElement('div');
-      testEl.innerHTML = "Test: <script type='text/x-placeholder'></script>Value";
-      return testEl.childNodes[0].nodeValue === 'Test:' &&
-              testEl.childNodes[2].nodeValue === ' Value';
-    })();
-
-    // Use this to find children by ID instead of using jQuery
-    var findChildById = function(element, id) {
-      if (element.getAttribute('id') === id) { return element; }
-
-      var len = element.childNodes.length;
-      var idx, node, found;
-      for (idx=0; idx<len; idx++) {
-        node = element.childNodes[idx];
-        found = node.nodeType === 1 && findChildById(node, id);
-        if (found) { return found; }
-      }
-    };
-
-    var setInnerHTMLWithoutFix = function(element, html) {
-      if (needsShy) {
-        html = '&shy;' + html;
-      }
-
-      var matches = [];
-      if (movesWhitespace) {
-        // Right now we only check for script tags with ids with the
-        // goal of targeting morphs.
-        html = html.replace(/(\s+)(<script id='([^']+)')/g, function(match, spaces, tag, id) {
-          matches.push([id, spaces]);
-          return tag;
-        });
-      }
-
-      element.innerHTML = html;
-
-      // If we have to do any whitespace adjustments do them now
-      if (matches.length > 0) {
-        var len = matches.length;
-        var idx;
-        for (idx=0; idx<len; idx++) {
-          var script = findChildById(element, matches[idx][0]);
-          var node = document.createTextNode(matches[idx][1]);
-          script.parentNode.insertBefore(node, script);
-        }
-      }
-
-      if (needsShy) {
-        var shyElement = element.firstChild;
-        while (shyElement.nodeType === 1 && !shyElement.nodeName) {
-          shyElement = shyElement.firstChild;
-        }
-        if (shyElement.nodeType === 3 && shyElement.nodeValue.charAt(0) === "\u00AD") {
-          shyElement.nodeValue = shyElement.nodeValue.slice(1);
-        }
-      }
-    };
-
-    /* END METAMORPH HELPERS */
-
-    function setInnerHTMLTestFactory(tagName, childTagName, ChildConstructor) {
-      return function() {
-        var el = document.createElement(tagName);
-        setInnerHTMLWithoutFix(el, '<' + childTagName + '>Content</' + childTagName + '>');
-        return el.firstChild instanceof ChildConstructor;
-      };
-    }
-
-
-    var innerHTMLTags = {
-      // IE 8 and earlier don't allow us to do innerHTML on select
-      select: function() {
-        var el = document.createElement('select');
-        setInnerHTMLWithoutFix(el, '<option value="test">Test</option>');
-        return el.options.length === 1;
-      },
-
-      // IE 9 and earlier don't allow us to set innerHTML on col, colgroup, frameset,
-      // html, style, table, tbody, tfoot, thead, title, tr.
-      col:      setInnerHTMLTestFactory('col',      'span',  window.HTMLSpanElement),
-      colgroup: setInnerHTMLTestFactory('colgroup', 'col',   window.HTMLTableColElement),
-      frameset: setInnerHTMLTestFactory('frameset', 'frame', window.HTMLFrameElement),
-      table:    setInnerHTMLTestFactory('table',    'tbody', window.HTMLTableSectionElement),
-      tbody:    setInnerHTMLTestFactory('tbody',    'tr',    window.HTMLTableRowElement),
-      tfoot:    setInnerHTMLTestFactory('tfoot',    'tr',    window.HTMLTableRowElement),
-      thead:    setInnerHTMLTestFactory('thead',    'tr',    window.HTMLTableRowElement),
-      tr:       setInnerHTMLTestFactory('tr',       'td',    window.HTMLTableCellElement)
-    };
-
-    var canSetInnerHTML = function(tagName) {
-      tagName = tagName.toLowerCase();
-      var canSet = innerHTMLTags[tagName];
-
-      if (typeof canSet === 'function') {
-        canSet = innerHTMLTags[tagName] = canSet();
-      }
-
-      return canSet === undefined ? true : canSet;
-    };
-
-    function setInnerHTML(element, html) {
-      var tagName = element.tagName;
-
-      if (canSetInnerHTML(tagName)) {
-        setInnerHTMLWithoutFix(element, html);
-      } else {
-        // Firefox versions < 11 do not have support for element.outerHTML.
-        var outerHTML = element.outerHTML || new XMLSerializer().serializeToString(element);
-        
-        var startTag = outerHTML.match(new RegExp("<"+tagName+"([^>]*)>", 'i'))[0];
-        var endTag = '</'+tagName+'>';
-
-        var wrapper = document.createElement('div');
-        jQuery(startTag + html + endTag).appendTo(wrapper);
-        element = wrapper.firstChild;
-        while (element.tagName !== tagName) {
-          element = element.nextSibling;
-        }
-      }
-
-      return element;
-    }
-
-    __exports__.setInnerHTML = setInnerHTML;function isSimpleClick(event) {
+    function isSimpleClick(event) {
       var modifier = event.shiftKey || event.metaKey || event.altKey || event.ctrlKey;
       var secondaryClick = event.which > 1; // IE9 may return undefined
 
@@ -41814,6 +41886,7 @@ define("ember-views/views/view",
       createElement: function() {
         if (this.element) { return this; }
 
+        this._didCreateElementWithoutMorph = true;
         this.constructor.renderer.renderTree(this);
 
         return this;
@@ -41830,6 +41903,9 @@ define("ember-views/views/view",
         Called when the element of the view has been inserted into the DOM
         or after the view was re-rendered. Override this function to do any
         set up that requires an element in the document body.
+
+        When a view has children, didInsertElement will be called on the
+        child view(s) first, bubbling upwards through the hierarchy.
 
         @event didInsertElement
       */
@@ -42577,12 +42653,11 @@ define("morph",
     __exports__.DOMHelper = DOMHelper;
   });
 define("morph/dom-helper",
-  ["../morph/morph","exports"],
-  function(__dependency1__, __exports__) {
+  ["../morph/morph","./dom-helper/build-html-dom","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     var Morph = __dependency1__["default"];
-
-    var emptyString = '';
+    var buildHTMLDOM = __dependency2__.buildHTMLDOM;
 
     var deletesBlankTextNodes = (function(){
       var element = document.createElement('div');
@@ -42599,7 +42674,7 @@ define("morph/dom-helper",
     })();
 
     var svgNamespace = 'http://www.w3.org/2000/svg',
-        svgHTMLIntegrationPoints = ['foreignObject', 'desc', 'title'];
+        svgHTMLIntegrationPoints = {foreignObject: 1, desc: 1, title: 1};
 
     function isSVG(ns){
       return ns === svgNamespace;
@@ -42611,12 +42686,58 @@ define("morph/dom-helper",
       if (
         element &&
         element.namespaceURI === svgNamespace &&
-        svgHTMLIntegrationPoints.indexOf(element.tagName) === -1
+        !svgHTMLIntegrationPoints[element.tagName]
       ) {
         return svgNamespace;
       } else {
         return null;
       }
+    }
+
+    // The HTML spec allows for "omitted start tags". These tags are optional
+    // when their intended child is the first thing in the parent tag. For
+    // example, this is a tbody start tag:
+    //
+    // <table>
+    //   <tbody>
+    //     <tr>
+    //
+    // The tbody may be omitted, and the browser will accept and render:
+    //
+    // <table>
+    //   <tr>
+    //
+    // However, the omitted start tag will still be added to the DOM. Here
+    // we test the string and context to see if the browser is about to
+    // perform this cleanup.
+    //
+    // http://www.whatwg.org/specs/web-apps/current-work/multipage/syntax.html#optional-tags
+    // describes which tags are omittable. The spec for tbody and colgroup
+    // explains this behavior:
+    //
+    // http://www.whatwg.org/specs/web-apps/current-work/multipage/tables.html#the-tbody-element
+    // http://www.whatwg.org/specs/web-apps/current-work/multipage/tables.html#the-colgroup-element
+    //
+
+    var omittedStartTagChildTest = /<([\w:]+)/;
+    function detectOmittedStartTag(string, contextualElement){
+      // Omitted start tags are only inside table tags.
+      if (contextualElement.tagName === 'TABLE') {
+        var omittedStartTagChildMatch = omittedStartTagChildTest.exec(string);
+        if (omittedStartTagChildMatch) {
+          var omittedStartTagChild = omittedStartTagChildMatch[1];
+          // It is already asserted that the contextual element is a table
+          // and not the proper start tag. Just see if a tag was omitted.
+          return omittedStartTagChild === 'tr' ||
+                 omittedStartTagChild === 'col';
+        }
+      }
+    }
+
+    function buildSVGDOM(html, dom){
+      var div = dom.document.createElement('div');
+      div.innerHTML = '<svg>'+html+'</svg>';
+      return div.firstChild.childNodes;
     }
 
     /*
@@ -42660,13 +42781,19 @@ define("morph/dom-helper",
       element.setAttribute(name, value);
     };
 
-    prototype.createElement = function(tagName) {
-      if (this.namespace) {
-        return this.document.createElementNS(this.namespace, tagName);
-      } else {
+    if (document.createElementNS) {
+      prototype.createElement = function(tagName) {
+        if (this.namespace) {
+          return this.document.createElementNS(this.namespace, tagName);
+        } else {
+          return this.document.createElement(tagName);
+        }
+      };
+    } else {
+      prototype.createElement = function(tagName) {
         return this.document.createElement(tagName);
-      }
-    };
+      };
+    }
 
     prototype.setNamespace = function(ns) {
       this.namespace = ns;
@@ -42687,7 +42814,7 @@ define("morph/dom-helper",
     prototype.repairClonedNode = function(element, blankChildTextNodes, isChecked){
       if (deletesBlankTextNodes && blankChildTextNodes.length > 0) {
         for (var i=0, len=blankChildTextNodes.length;i<len;i++){
-          var textNode = document.createTextNode(emptyString),
+          var textNode = this.document.createTextNode(''),
               offset = blankChildTextNodes[i],
               before = element.childNodes[offset];
           if (before) {
@@ -42711,9 +42838,6 @@ define("morph/dom-helper",
       if (!contextualElement && parent.nodeType === 1) {
         contextualElement = parent;
       }
-      if (!contextualElement) {
-        contextualElement = this.document.body;
-      }
       return new Morph(parent, start, end, this, contextualElement);
     };
 
@@ -42727,38 +42851,242 @@ define("morph/dom-helper",
     };
 
     prototype.insertMorphBefore = function(element, referenceChild, contextualElement) {
-      var start = document.createTextNode('');
-      var end = document.createTextNode('');
+      var start = this.document.createTextNode('');
+      var end = this.document.createTextNode('');
       element.insertBefore(start, referenceChild);
       element.insertBefore(end, referenceChild);
       return this.createMorph(element, start, end, contextualElement);
     };
 
     prototype.appendMorph = function(element, contextualElement) {
-      var start = document.createTextNode('');
-      var end = document.createTextNode('');
+      var start = this.document.createTextNode('');
+      var end = this.document.createTextNode('');
       element.appendChild(start);
       element.appendChild(end);
       return this.createMorph(element, start, end, contextualElement);
     };
 
-    prototype.parseHTML = function(html, contextualElement){
-      var element;
-      if (isSVG(this.namespace) && svgHTMLIntegrationPoints.indexOf(contextualElement.tagName) === -1) {
-        html = '<svg>'+html+'</svg>';
-        element = document.createElement('div');
+    prototype.parseHTML = function(html, contextualElement) {
+      var isSVGContent = (
+        isSVG(this.namespace) &&
+        !svgHTMLIntegrationPoints[contextualElement.tagName]
+      );
+
+      if (isSVGContent) {
+        return buildSVGDOM(html, this);
       } else {
-        element = this.cloneNode(contextualElement, false);
-      }
-      element.innerHTML = html;
-      if (isSVG(this.namespace)) {
-        return element.firstChild.childNodes;
-      } else {
-        return element.childNodes;
+        var nodes = buildHTMLDOM(html, contextualElement, this);
+        if (detectOmittedStartTag(html, contextualElement)) {
+          var node = nodes[0];
+          while (node && node.nodeType !== 1) {
+            node = node.nextSibling;
+          }
+          return node.childNodes;
+        } else {
+          return nodes;
+        }
       }
     };
 
     __exports__["default"] = DOMHelper;
+  });
+define("morph/dom-helper/build-html-dom",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    // Internet Explorer prior to 9 does not allow setting innerHTML if the first element
+    // is a "zero-scope" element. This problem can be worked around by making
+    // the first node an invisible text node. We, like Modernizr, use &shy;
+    var needsShy = (function() {
+      var testEl = document.createElement('div');
+      testEl.innerHTML = "<div></div>";
+      testEl.firstChild.innerHTML = "<script><\/script>";
+      return testEl.firstChild.innerHTML === '';
+    })();
+
+    // IE 8 (and likely earlier) likes to move whitespace preceeding
+    // a script tag to appear after it. This means that we can
+    // accidentally remove whitespace when updating a morph.
+    var movesWhitespace = document && (function() {
+      var testEl = document.createElement('div');
+      testEl.innerHTML = "Test: <script type='text/x-placeholder'><\/script>Value";
+      return testEl.childNodes[0].nodeValue === 'Test:' &&
+              testEl.childNodes[2].nodeValue === ' Value';
+    })();
+
+    // IE 9 and earlier don't allow us to set innerHTML on col, colgroup, frameset,
+    // html, style, table, tbody, tfoot, thead, title, tr. Detect this and add
+    // them to an initial list of corrected tags.
+    //
+    // Here we are only dealing with the ones which can have child nodes.
+    //
+    var tagNamesRequiringInnerHTMLFix, tableNeedsInnerHTMLFix;
+    var tableInnerHTMLTestElement = document.createElement('table');
+    try {
+      tableInnerHTMLTestElement.innerHTML = '<tbody></tbody>';
+    } catch (e) {
+    } finally {
+      tableNeedsInnerHTMLFix = (tableInnerHTMLTestElement.childNodes.length === 0);
+    }
+    if (tableNeedsInnerHTMLFix) {
+      tagNamesRequiringInnerHTMLFix = {
+        colgroup: ['table'],
+        table: [],
+        tbody: ['table'],
+        tfoot: ['table'],
+        thead: ['table'],
+        tr: ['table', 'tbody']
+      };
+    } else {
+      tagNamesRequiringInnerHTMLFix = {};
+    }
+
+    // IE 8 doesn't allow setting innerHTML on a select tag. Detect this and
+    // add it to the list of corrected tags.
+    //
+    var selectInnerHTMLTestElement = document.createElement('select');
+    selectInnerHTMLTestElement.innerHTML = '<option></option>';
+    if (selectInnerHTMLTestElement) {
+      tagNamesRequiringInnerHTMLFix.select = [];
+    }
+
+    function scriptSafeInnerHTML(element, html) {
+      // without a leading text node, IE will drop a leading script tag.
+      html = '&shy;'+html;
+
+      element.innerHTML = html;
+
+      var nodes = element.childNodes;
+
+      // Look for &shy; to remove it.
+      var shyElement = nodes[0];
+      while (shyElement.nodeType === 1 && !shyElement.nodeName) {
+        shyElement = shyElement.firstChild;
+      }
+      // At this point it's the actual unicode character.
+      if (shyElement.nodeType === 3 && shyElement.nodeValue.charAt(0) === "\u00AD") {
+        var newValue = shyElement.nodeValue.slice(1);
+        if (newValue.length) {
+          shyElement.nodeValue = shyElement.nodeValue.slice(1);
+        } else {
+          shyElement.parentNode.removeChild(shyElement);
+        }
+      }
+
+      return nodes;
+    }
+
+    function buildDOMWithFix(html, contextualElement){
+      var tagName = contextualElement.tagName;
+
+      // Firefox versions < 11 do not have support for element.outerHTML.
+      var outerHTML = contextualElement.outerHTML || new XMLSerializer().serializeToString(contextualElement);
+      if (!outerHTML) {
+        throw "Can't set innerHTML on "+tagName+" in this browser";
+      }
+
+      var wrappingTags = tagNamesRequiringInnerHTMLFix[tagName.toLowerCase()];
+      var startTag = outerHTML.match(new RegExp("<"+tagName+"([^>]*)>", 'i'))[0];
+      var endTag = '</'+tagName+'>';
+
+      var wrappedHTML = [startTag, html, endTag];
+
+      var i = wrappingTags.length;
+      var wrappedDepth = 1 + i;
+      while(i--) {
+        wrappedHTML.unshift('<'+wrappingTags[i]+'>');
+        wrappedHTML.push('</'+wrappingTags[i]+'>');
+      }
+
+      var wrapper = document.createElement('div');
+      scriptSafeInnerHTML(wrapper, wrappedHTML.join(''));
+      var element = wrapper;
+      while (wrappedDepth--) {
+        element = element.firstChild;
+        while (element && element.nodeType !== 1) {
+          element = element.nextSibling;
+        }
+      }
+      while (element && element.tagName !== tagName) {
+        element = element.nextSibling;
+      }
+      return element ? element.childNodes : [];
+    }
+
+    function buildDOM(html, contextualElement, dom){
+      contextualElement = dom.cloneNode(contextualElement, false);
+      scriptSafeInnerHTML(contextualElement, html);
+      return contextualElement.childNodes;
+    }
+
+    var buildHTMLDOM;
+    // Really, this just means IE8 and IE9 get a slower buildHTMLDOM
+    if (tagNamesRequiringInnerHTMLFix.length > 0 || needsShy || movesWhitespace) {
+      buildHTMLDOM = function buildHTMLDOM(html, contextualElement, dom) {
+        // Make a list of the leading text on script nodes. Include
+        // script tags without any whitespace for easier processing later.
+        var spacesBefore = [];
+        var spacesAfter = [];
+        html = html.replace(/(\s*)(<script)/g, function(match, spaces, tag) {
+          spacesBefore.push(spaces);
+          return tag;
+        });
+
+        html = html.replace(/(<\/script>)(\s*)/g, function(match, tag, spaces) {
+          spacesAfter.push(spaces);
+          return tag;
+        });
+
+        // Fetch nodes
+        var nodes;
+        if (tagNamesRequiringInnerHTMLFix[contextualElement.tagName.toLowerCase()]) {
+          // buildDOMWithFix uses string wrappers for problematic innerHTML.
+          nodes = buildDOMWithFix(html, contextualElement);
+        } else {
+          nodes = buildDOM(html, contextualElement, dom);
+        }
+
+        // Build a list of script tags, the nodes themselves will be
+        // mutated as we add test nodes.
+        var i, j, node, nodeScriptNodes;
+        var scriptNodes = [];
+        for (i=0;node=nodes[i];i++) {
+          if (node.nodeType !== 1) {
+            continue;
+          }
+          if (node.tagName === 'SCRIPT') {
+            scriptNodes.push(node);
+          } else {
+            nodeScriptNodes = node.getElementsByTagName('script');
+            for (j=0;j<nodeScriptNodes.length;j++) {
+              scriptNodes.push(nodeScriptNodes[j]);
+            }
+          }
+        }
+
+        // Walk the script tags and put back their leading text nodes.
+        var textNode, spaceBefore, spaceAfter;
+        for (i=0;scriptNode=scriptNodes[i];i++) {
+          spaceBefore = spacesBefore[i];
+          if (spaceBefore && spaceBefore.length > 0) {
+            textNode = dom.document.createTextNode(spaceBefore);
+            scriptNode.parentNode.insertBefore(textNode, scriptNode);
+          }
+
+          spaceAfter = spacesAfter[i];
+          if (spaceAfter && spaceAfter.length > 0) {
+            textNode = dom.document.createTextNode(spaceAfter);
+            scriptNode.parentNode.insertBefore(textNode, scriptNode.nextSibling);
+          }
+        }
+
+        return nodes;
+      };
+    } else {
+      buildHTMLDOM = buildDOM;
+    }
+
+    __exports__.buildHTMLDOM = buildHTMLDOM;
   });
 define("morph/morph",
   ["exports"],
@@ -44044,6 +44372,58 @@ define("router/router",
       this.reset();
     }
 
+    function getTransitionByIntent(intent, isIntermediate) {
+      var wasTransitioning = !!this.activeTransition;
+      var oldState = wasTransitioning ? this.activeTransition.state : this.state;
+      var newTransition;
+
+      var newState = intent.applyToState(oldState, this.recognizer, this.getHandler, isIntermediate);
+      var queryParamChangelist = getChangelist(oldState.queryParams, newState.queryParams);
+
+      if (handlerInfosEqual(newState.handlerInfos, oldState.handlerInfos)) {
+
+        // This is a no-op transition. See if query params changed.
+        if (queryParamChangelist) {
+          newTransition = this.queryParamsTransition(queryParamChangelist, wasTransitioning, oldState, newState);
+          if (newTransition) {
+            return newTransition;
+          }
+        }
+
+        // No-op. No need to create a new transition.
+        return new Transition(this);
+      }
+
+      if (isIntermediate) {
+        setupContexts(this, newState);
+        return;
+      }
+
+      // Create a new transition to the destination route.
+      newTransition = new Transition(this, intent, newState);
+
+      // Abort and usurp any previously active transition.
+      if (this.activeTransition) {
+        this.activeTransition.abort();
+      }
+      this.activeTransition = newTransition;
+
+      // Transition promises by default resolve with resolved state.
+      // For our purposes, swap out the promise to resolve
+      // after the transition has been finalized.
+      newTransition.promise = newTransition.promise.then(function(result) {
+        return finalizeTransition(newTransition, result.state);
+      }, null, promiseLabel("Settle transition promise when transition is finalized"));
+
+      if (!wasTransitioning) {
+        notifyExistingHandlers(this, newState, newTransition);
+      }
+
+      fireQueryParamDidChange(this, newState, queryParamChangelist);
+
+      return newTransition;
+    }
+
     Router.prototype = {
 
       /**
@@ -44108,58 +44488,8 @@ define("router/router",
       // it shall remain until our ES6 transpiler can
       // handle cyclical deps.
       transitionByIntent: function(intent, isIntermediate) {
-
-        var wasTransitioning = !!this.activeTransition;
-        var oldState = wasTransitioning ? this.activeTransition.state : this.state;
-        var newTransition;
-        var router = this;
-
         try {
-          var newState = intent.applyToState(oldState, this.recognizer, this.getHandler, isIntermediate);
-          var queryParamChangelist = getChangelist(oldState.queryParams, newState.queryParams);
-
-          if (handlerInfosEqual(newState.handlerInfos, oldState.handlerInfos)) {
-
-            // This is a no-op transition. See if query params changed.
-            if (queryParamChangelist) {
-              newTransition = this.queryParamsTransition(queryParamChangelist, wasTransitioning, oldState, newState);
-              if (newTransition) {
-                return newTransition;
-              }
-            }
-
-            // No-op. No need to create a new transition.
-            return new Transition(this);
-          }
-
-          if (isIntermediate) {
-            setupContexts(this, newState);
-            return;
-          }
-
-          // Create a new transition to the destination route.
-          newTransition = new Transition(this, intent, newState);
-
-          // Abort and usurp any previously active transition.
-          if (this.activeTransition) {
-            this.activeTransition.abort();
-          }
-          this.activeTransition = newTransition;
-
-          // Transition promises by default resolve with resolved state.
-          // For our purposes, swap out the promise to resolve
-          // after the transition has been finalized.
-          newTransition.promise = newTransition.promise.then(function(result) {
-            return finalizeTransition(newTransition, result.state);
-          }, null, promiseLabel("Settle transition promise when transition is finalized"));
-
-          if (!wasTransitioning) {
-            notifyExistingHandlers(this, newState, newTransition);
-          }
-
-          fireQueryParamDidChange(this, newState, queryParamChangelist);
-
-          return newTransition;
+          return getTransitionByIntent.apply(this, arguments);
         } catch(e) {
           return new Transition(this, intent, null, e);
         }
@@ -44501,7 +44831,9 @@ define("router/router",
       var handler = handlerInfo.handler,
           context = handlerInfo.context;
 
-      callHook(handler, 'enter', transition);
+      if (enter) {
+        callHook(handler, 'enter', transition);
+      }
       if (transition && transition.isAborted) {
         throw new TransitionAborted();
       }
