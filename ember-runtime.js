@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.dc0d8570
+ * @version   1.9.0-beta.1+canary.57e3cee3
  */
 
 (function() {
@@ -4763,7 +4763,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.dc0d8570
+      @version 1.9.0-beta.1+canary.57e3cee3
     */
 
     if ('undefined' === typeof Ember) {
@@ -4790,10 +4790,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.dc0d8570'
+      @default '1.9.0-beta.1+canary.57e3cee3'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.dc0d8570';
+    Ember.VERSION = '1.9.0-beta.1+canary.57e3cee3';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -7205,6 +7205,10 @@ define("ember-metal/mixin",
       return property;
     }
 
+    var sourceAvailable = (function() {
+      return this;
+    }).toString().indexOf('return this;') > -1;
+
     function giveMethodSuper(obj, key, method, values, descs) {
       var superMethod;
 
@@ -7223,14 +7227,17 @@ define("ember-metal/mixin",
         return method;
       }
 
-      var hasSuper = method.__hasSuper;
+      var hasSuper;
+      if (sourceAvailable) {
+        hasSuper = method.__hasSuper;
 
-      if (hasSuper === undefined) {
-        hasSuper = method.toString().indexOf('_super') > -1;
-        method.__hasSuper = hasSuper;
+        if (hasSuper === undefined) {
+          hasSuper = method.toString().indexOf('_super') > -1;
+          method.__hasSuper = hasSuper;
+        }
       }
 
-      if (hasSuper) {
+      if (sourceAvailable === false || hasSuper) {
         return wrap(method, superMethod);
       } else {
         return method;
