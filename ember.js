@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.ee0407f4
+ * @version   1.9.0-beta.1+canary.5a0545c9
  */
 
 (function() {
@@ -9175,24 +9175,29 @@ define("ember-handlebars/helpers/loc",
     @submodule ember-handlebars
     */
 
-    // ES6TODO:
-    // Pretty sure this can be expressed as
-    // var locHelper EmberStringUtils.loc ?
-
     /**
       Calls [Ember.String.loc](/api/classes/Ember.String.html#method_loc) with the
       provided string.
 
-      This is a convenient way to localize text. For example:
+      This is a convenient way to localize text within a template:
 
-      ```html
-      <script type="text/x-handlebars" data-template-name="home">
-        {{loc "welcome"}}
-      </script>
+      ```javascript
+      Ember.STRINGS = {
+        '_welcome_': 'Bonjour'
+      };
       ```
 
-      Take note that `"welcome"` is a string and not an object
-      reference.
+      ```handlebars
+      <div class='message'>
+        {{loc '_welcome_'}}
+      </div>
+      ```
+
+      ```html
+      <div class='message'>
+        Bonjour
+      </div>
+      ```
 
       See [Ember.String.loc](/api/classes/Ember.String.html#method_loc) for how to
       set up localized string references.
@@ -9202,9 +9207,7 @@ define("ember-handlebars/helpers/loc",
       @param {String} str The string to format
       @see {Ember.String#loc}
     */
-    __exports__["default"] = function locHelper(str) {
-      return loc(str);
-    }
+    __exports__["default"] = loc;
   });
 define("ember-handlebars/helpers/partial",
   ["ember-metal/core","ember-metal/is_none","ember-handlebars/ext","ember-handlebars/helpers/binding","exports"],
@@ -13622,7 +13625,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.ee0407f4
+      @version 1.9.0-beta.1+canary.5a0545c9
     */
 
     if ('undefined' === typeof Ember) {
@@ -13649,10 +13652,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.ee0407f4'
+      @default '1.9.0-beta.1+canary.5a0545c9'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.ee0407f4';
+    Ember.VERSION = '1.9.0-beta.1+canary.5a0545c9';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
