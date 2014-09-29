@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.9aa47829
+ * @version   1.9.0-beta.1+canary.ca024623
  */
 
 (function() {
@@ -4762,7 +4762,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.9aa47829
+      @version 1.9.0-beta.1+canary.ca024623
     */
 
     if ('undefined' === typeof Ember) {
@@ -4789,10 +4789,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.9aa47829'
+      @default '1.9.0-beta.1+canary.ca024623'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.9aa47829';
+    Ember.VERSION = '1.9.0-beta.1+canary.ca024623';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -22091,10 +22091,10 @@ define("rsvp.umd",
     };
 
     /* global define:true module:true window: true */
-    if (typeof define === 'function' && define.amd) {
+    if (typeof define === 'function' && define['amd']) {
       define(function() { return RSVP; });
-    } else if (typeof module !== 'undefined' && module.exports) {
-      module.exports = RSVP;
+    } else if (typeof module !== 'undefined' && module['exports']) {
+      module['exports'] = RSVP;
     } else if (typeof this !== 'undefined') {
       this['RSVP'] = RSVP;
     }
@@ -22109,6 +22109,10 @@ define("rsvp/-internal",
     var instrument = __dependency2__["default"];
 
     var config = __dependency3__.config;
+
+    function  withOwnPromise() {
+      return new TypeError('A promises callback cannot return that same promise.');
+    }
 
     function noop() {}
 
@@ -22309,7 +22313,7 @@ define("rsvp/-internal",
         }
 
         if (promise === value) {
-          reject(promise, new TypeError('A promises callback cannot return that same promise.'));
+          reject(promise, withOwnPromise());
           return;
         }
 
@@ -22470,7 +22474,8 @@ define("rsvp/asap",
       }
     }
 
-    var browserGlobal = (typeof window !== 'undefined') ? window : {};
+    var browserWindow = (typeof window !== 'undefined') ? window : undefined
+    var browserGlobal = browserWindow || {};
     var BrowserMutationObserver = browserGlobal.MutationObserver || browserGlobal.WebKitMutationObserver;
 
     // test for web worker but not in IE10
@@ -22482,6 +22487,13 @@ define("rsvp/asap",
     function useNextTick() {
       return function() {
         process.nextTick(flush);
+      };
+    }
+
+    // vertx
+    function useVertxTimer() {
+      return function() {
+        vertxNext(flush);
       };
     }
 
@@ -22526,8 +22538,17 @@ define("rsvp/asap",
       len = 0;
     }
 
-    var scheduleFlush;
+    function attemptVertex() {
+      try {
+        var vertx = require('vertx');
+        var vertxNext = vertx.runOnLoop || vertx.runOnContext;
+        return useVertxTimer();
+      } catch(e) {
+        return useSetTimeout();
+      }
+    }
 
+    var scheduleFlush;
     // Decide what async method to use to triggering processing of queued callbacks:
     if (typeof process !== 'undefined' && {}.toString.call(process) === '[object process]') {
       scheduleFlush = useNextTick();
@@ -22535,6 +22556,8 @@ define("rsvp/asap",
       scheduleFlush = useMutationObserver();
     } else if (isWorker) {
       scheduleFlush = useMessageChannel();
+    } else if (browserWindow === undefined && typeof require === 'function') {
+      scheduleFlush = attemptVertex();
     } else {
       scheduleFlush = useSetTimeout();
     }
@@ -22612,9 +22635,9 @@ define("rsvp/defer",
     __exports__["default"] = function defer(label) {
       var deferred = { };
 
-      deferred.promise = new Promise(function(resolve, reject) {
-        deferred.resolve = resolve;
-        deferred.reject = reject;
+      deferred['promise'] = new Promise(function(resolve, reject) {
+        deferred['resolve'] = resolve;
+        deferred['reject'] = reject;
       }, label);
 
       return deferred;
@@ -23310,27 +23333,40 @@ define("rsvp/instrument",
 
     var queue = [];
 
+    function scheduleFlush() {
+      setTimeout(function() {
+        var entry;
+        for (var i = 0; i < queue.length; i++) {
+          entry = queue[i];
+
+          var payload = entry.payload;
+
+          payload.guid = payload.key + payload.id;
+          payload.childGuid = payload.key + payload.childId;
+          if (payload.error) {
+            payload.stack = payload.error.stack;
+          }
+
+          config.trigger(entry.name, entry.payload);
+        }
+        queue.length = 0;
+      }, 50);
+    }
+
     __exports__["default"] = function instrument(eventName, promise, child) {
       if (1 === queue.push({
           name: eventName,
           payload: {
-            guid: promise._guidKey + promise._id,
+            key: promise._guidKey,
+            id:  promise._id,
             eventName: eventName,
             detail: promise._result,
-            childGuid: child && promise._guidKey + child._id,
+            childId: child && child._id,
             label: promise._label,
             timeStamp: now(),
-            stack: new Error(promise._label).stack
+            error: config["instrument-with-stack"] ? new Error(promise._label) : null
           }})) {
-
-            setTimeout(function() {
-              var entry;
-              for (var i = 0; i < queue.length; i++) {
-                entry = queue[i];
-                config.trigger(entry.name, entry.payload);
-              }
-              queue.length = 0;
-            }, 50);
+            scheduleFlush();
           }
       }
   });
