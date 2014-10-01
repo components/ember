@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.9a02a7da
+ * @version   1.9.0-beta.1+canary.4ead95e7
  */
 
 (function() {
@@ -13593,7 +13593,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.9a02a7da
+      @version 1.9.0-beta.1+canary.4ead95e7
     */
 
     if ('undefined' === typeof Ember) {
@@ -13620,10 +13620,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.9a02a7da'
+      @default '1.9.0-beta.1+canary.4ead95e7'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.9a02a7da';
+    Ember.VERSION = '1.9.0-beta.1+canary.4ead95e7';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -39557,15 +39557,15 @@ define("ember-views/system/render_buffer",
           tagString = tagName;
         }
 
-        var element = this.dom.createElement(tagString);
+        var element = this.dom.createElement(tagString, this._contextualElement);
         var $element = jQuery(element);
 
         if (id) {
-          $element.attr('id', id);
+          this.dom.setAttribute(element, 'id', id);
           this.elementId = null;
         }
         if (classes) {
-          $element.attr('class', classes.join(' '));
+          this.dom.setAttribute(element, 'class', classes.join(' '));
           this.classes = null;
           this.elementClasses = null;
         }
@@ -39577,7 +39577,7 @@ define("ember-views/system/render_buffer",
             }
           }
 
-          $element.attr('style', styleBuffer);
+          this.dom.setAttribute(element, 'style', styleBuffer);
 
           this.elementStyle = null;
         }
@@ -39585,7 +39585,7 @@ define("ember-views/system/render_buffer",
         if (attrs) {
           for (attr in attrs) {
             if (attrs.hasOwnProperty(attr)) {
-              $element.attr(attr, attrs[attr]);
+              this.dom.setAttribute(element, attr, attrs[attr]);
             }
           }
 
@@ -39620,6 +39620,7 @@ define("ember-views/system/render_buffer",
         var nodes;
         if (this._element) {
           if (html) {
+            this.dom.detectNamespace(this._element);
             nodes = this.dom.parseHTML(html, this._element);
             while (nodes[0]) {
               this._element.appendChild(nodes[0]);
@@ -39630,6 +39631,7 @@ define("ember-views/system/render_buffer",
           if (html) {
             var omittedStartTag = detectOmittedStartTag(html, this._contextualElement);
             var contextualElement = omittedStartTag || this._contextualElement;
+            this.dom.detectNamespace(contextualElement);
             nodes = this.dom.parseHTML(html, contextualElement);
             var frag = this._element = document.createDocumentFragment();
             while (nodes[0]) {
@@ -43644,6 +43646,8 @@ define("morph/dom-helper",
     "use strict";
     var Morph = __dependency1__["default"];
     var buildHTMLDOM = __dependency2__.buildHTMLDOM;
+    var svgNamespace = __dependency2__.svgNamespace;
+    var svgHTMLIntegrationPoints = __dependency2__.svgHTMLIntegrationPoints;
 
     var deletesBlankTextNodes = (function(){
       var element = document.createElement('div');
@@ -43658,9 +43662,6 @@ define("morph/dom-helper",
       var clonedElement = element.cloneNode(false);
       return !clonedElement.checked;
     })();
-
-    var svgNamespace = 'http://www.w3.org/2000/svg',
-        svgHTMLIntegrationPoints = {foreignObject: 1, desc: 1, title: 1};
 
     function isSVG(ns){
       return ns === svgNamespace;
@@ -43768,9 +43769,19 @@ define("morph/dom-helper",
     };
 
     if (document.createElementNS) {
-      prototype.createElement = function(tagName) {
-        if (this.namespace) {
-          return this.document.createElementNS(this.namespace, tagName);
+      // Only opt into namespace detection if a contextualElement
+      // is passed.
+      prototype.createElement = function(tagName, contextualElement) {
+        var namespace = this.namespace;
+        if (contextualElement) {
+          if (tagName === 'svg') {
+            namespace = svgNamespace;
+          } else {
+            namespace = interiorNamespace(contextualElement);
+          }
+        }
+        if (namespace) {
+          return this.document.createElementNS(namespace, tagName);
         } else {
           return this.document.createElement(tagName);
         }
@@ -43880,6 +43891,17 @@ define("morph/dom-helper/build-html-dom",
   ["exports"],
   function(__exports__) {
     "use strict";
+    var svgHTMLIntegrationPoints = {foreignObject: 1, desc: 1, title: 1};
+    __exports__.svgHTMLIntegrationPoints = svgHTMLIntegrationPoints;var svgNamespace = 'http://www.w3.org/2000/svg';
+    __exports__.svgNamespace = svgNamespace;
+    // Safari does not like using innerHTML on SVG HTML integration
+    // points.
+    var needsIntegrationPointFix = document.createElementNS && (function() {
+      var testEl = document.createElementNS(svgNamespace, 'foreignObject');
+      testEl.innerHTML = "<div></div>";
+      return testEl.childNodes.length === 0;
+    })();
+
     // Internet Explorer prior to 9 does not allow setting innerHTML if the first element
     // is a "zero-scope" element. This problem can be worked around by making
     // the first node an invisible text node. We, like Modernizr, use &shy;
@@ -43999,15 +44021,25 @@ define("morph/dom-helper/build-html-dom",
       return element ? element.childNodes : [];
     }
 
-    function buildDOM(html, contextualElement, dom){
-      contextualElement = dom.cloneNode(contextualElement, false);
-      scriptSafeInnerHTML(contextualElement, html);
-      return contextualElement.childNodes;
+    var buildDOM;
+    if (needsShy) {
+      buildDOM = function buildDOM(html, contextualElement, dom){
+        contextualElement = dom.cloneNode(contextualElement, false);
+        scriptSafeInnerHTML(contextualElement, html);
+        return contextualElement.childNodes;
+      };
+    } else {
+      buildDOM = function buildDOM(html, contextualElement, dom){
+        contextualElement = dom.cloneNode(contextualElement, false);
+        contextualElement.innerHTML = html;
+        return contextualElement.childNodes;
+      };
     }
+
 
     var buildHTMLDOM;
     // Really, this just means IE8 and IE9 get a slower buildHTMLDOM
-    if (tagNamesRequiringInnerHTMLFix.length > 0 || needsShy || movesWhitespace) {
+    if (tagNamesRequiringInnerHTMLFix.length > 0 || movesWhitespace) {
       buildHTMLDOM = function buildHTMLDOM(html, contextualElement, dom) {
         // Make a list of the leading text on script nodes. Include
         // script tags without any whitespace for easier processing later.
@@ -44067,6 +44099,14 @@ define("morph/dom-helper/build-html-dom",
         }
 
         return nodes;
+      };
+    } else if (needsIntegrationPointFix) {
+      buildHTMLDOM = function buildHTMLDOM(html, contextualElement, dom){
+        if (svgHTMLIntegrationPoints[contextualElement.tagName]) {
+          return buildDOM(html, document.createElement('div'), dom);
+        } else {
+          return buildDOM(html, contextualElement, dom);
+        }
       };
     } else {
       buildHTMLDOM = buildDOM;

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.9a02a7da
+ * @version   1.9.0-beta.1+canary.4ead95e7
  */
 
 (function() {
@@ -13599,7 +13599,7 @@ define("ember-metal-views/tests/test_helpers",
       if (view.element) {
         el = view.element;
       } else {
-        el = view.element = this._dom.createElement(view.tagName || 'div');
+        el = view.element = this._dom.createElement(view.tagName || 'div', contextualElement);
       }
       var classNames = view.classNames;
       if (typeof classNames === 'string') {
@@ -13624,6 +13624,7 @@ define("ember-metal-views/tests/test_helpers",
       } else if (view.textContent) {
         setElementText(el, view.textContent);
       } else if (view.innerHTML) {
+        this._dom.detectNamespace(el);
         var nodes = this._dom.parseHTML(view.innerHTML, el);
         while (nodes[0]) {
           el.appendChild(nodes[0]);
@@ -46112,6 +46113,8 @@ define("ember-views/tests/system/render_buffer_test",
     var jQuery = __dependency1__["default"];
     var RenderBuffer = __dependency2__["default"];
 
+    var svgNamespace = "http://www.w3.org/2000/svg";
+    var xhtmlNamespace = "http://www.w3.org/1999/xhtml";
     var trim = jQuery.trim;
 
     // .......................................................
@@ -46157,6 +46160,16 @@ define("ember-views/tests/system/render_buffer_test",
       buffer.generateElement();
       el = buffer.element();
       strictEqual(el.value, '0', "generated element has value of '0'");
+    });
+
+    test("sets attributes with camelCase", function() {
+      var buffer = new RenderBuffer('div', document.body);
+      var content = "javascript:someCode()"; //jshint ignore:line
+
+      buffer.attr('onClick', content);
+      buffer.generateElement();
+      var el = buffer.element();
+      strictEqual(el.getAttribute('onClick'), content, "attribute with camelCase was set");
     });
 
     test("prevents XSS injection via `id`", function() {
@@ -46335,6 +46348,64 @@ define("ember-views/tests/system/render_buffer_test",
       ok(jQuery(element).html().match(/script/i), "should have script tag");
       ok(!jQuery(element).html().match(/&shy;/), "should not have &shy;");
     });
+
+    if ('namespaceURI' in document.createElement('div')) {
+
+    QUnit.module("RenderBuffer namespaces");
+
+    test("properly makes a content string SVG namespace inside an SVG tag", function() {
+      var buffer = new RenderBuffer('svg', document.body);
+      buffer.generateElement();
+      buffer.push('<path></path>foo');
+
+      var element = buffer.element();
+      ok(element.tagName, 'SVG', 'element is svg');
+      equal(element.namespaceURI, svgNamespace, 'element is svg namespace');
+
+      ok(element.childNodes[0].tagName, 'PATH', 'element is path');
+      equal(element.childNodes[0].namespaceURI, svgNamespace, 'element is svg namespace');
+    });
+
+    test("properly makes a path element svg namespace inside SVG context", function() {
+      var buffer = new RenderBuffer('path', document.createElementNS(svgNamespace, 'svg'));
+      buffer.generateElement();
+      buffer.push('<g></g>');
+
+      var element = buffer.element();
+      ok(element.tagName, 'PATH', 'element is PATH');
+      equal(element.namespaceURI, svgNamespace, 'element is svg namespace');
+
+      ok(element.childNodes[0].tagName, 'G', 'element is g');
+      equal(element.childNodes[0].namespaceURI, svgNamespace, 'element is svg namespace');
+    });
+
+    test("properly makes a foreignObject svg namespace inside SVG context", function() {
+      var buffer = new RenderBuffer('foreignObject', document.createElementNS(svgNamespace, 'svg'));
+      buffer.generateElement();
+      buffer.push('<div></div>');
+
+      var element = buffer.element();
+      ok(element.tagName, 'FOREIGNOBJECT', 'element is foreignObject');
+      equal(element.namespaceURI, svgNamespace, 'element is svg namespace');
+
+      ok(element.childNodes[0].tagName, 'DIV', 'element is div');
+      equal(element.childNodes[0].namespaceURI, xhtmlNamespace, 'element is xhtml namespace');
+    });
+
+    test("properly makes a div xhtml namespace inside foreignObject context", function() {
+      var buffer = new RenderBuffer('div', document.createElementNS(svgNamespace, 'foreignObject'));
+      buffer.generateElement();
+      buffer.push('<div></div>');
+
+      var element = buffer.element();
+      ok(element.tagName, 'DIV', 'element is div');
+      equal(element.namespaceURI, xhtmlNamespace, 'element is xhtml namespace');
+
+      ok(element.childNodes[0].tagName, 'DIV', 'element is div');
+      equal(element.childNodes[0].namespaceURI, xhtmlNamespace, 'element is xhtml namespace');
+    });
+
+    }
   });
 define("ember-views/tests/system/render_buffer_test.jshint",
   [],
@@ -48715,6 +48786,25 @@ define("ember-views/tests/views/view/attribute_bindings_test",
       ok(!view.$().attr('nothing'), "removes nothing attribute when null");
       ok(!view.$().attr('notDefined'), "removes notDefined attribute when undefined");
       ok(!view.$().attr('notNumber'), "removes notNumber attribute when NaN");
+    });
+
+    test("should update attribute bindings on svg", function() {
+      view = EmberView.create({
+        attributeBindings: ['viewBox'],
+        viewBox: null
+      });
+
+      run(function() {
+        view.createElement();
+      });
+
+      equal(view.$().attr('viewBox'), null, "viewBox can be null");
+
+      run(function() {
+        view.set('viewBox', '0 0 100 100');
+      });
+
+      equal(view.$().attr('viewBox'), '0 0 100 100', "viewBox can be updated");
     });
 
     // This comes into play when using the {{#each}} helper. If the
