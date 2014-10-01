@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.4d0cd833
+ * @version   1.9.0-beta.1+canary.9a02a7da
  */
 
 (function() {
@@ -4762,7 +4762,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.4d0cd833
+      @version 1.9.0-beta.1+canary.9a02a7da
     */
 
     if ('undefined' === typeof Ember) {
@@ -4789,10 +4789,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.4d0cd833'
+      @default '1.9.0-beta.1+canary.9a02a7da'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.4d0cd833';
+    Ember.VERSION = '1.9.0-beta.1+canary.9a02a7da';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -9563,8 +9563,7 @@ define("ember-metal/run_loop",
         target at the time the method is invoked.
       @param {Object} [args*] Optional arguments to pass to the timeout.
       @param {Number} wait Number of milliseconds to wait.
-      @return {String} a string you can use to cancel the timer in
-        `run.cancel` later.
+      @return {Object} Timer information for use in cancelling, see `run.cancel`.
     */
     run.later = function(target, method) {
       return apply(backburner, backburner.later, arguments);
