@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.c819c5af
+ * @version   1.9.0-beta.1+canary.4d0cd833
  */
 
 (function() {
@@ -5896,6 +5896,32 @@ define("ember-handlebars/tests/handlebars_test",
       appendView();
 
       ok(view.$('#twas-called').length, "the named template was called");
+    });
+
+    test("{{view}} should not override class bindings defined on a child view", function() {
+      var LabelView = EmberView.extend({
+        container:         container,
+        templateName:      'nested',
+        classNameBindings: ['something'],
+        something:         'visible'
+      });
+
+      container.register('controller:label', ObjectController, { instantiate: true });
+      container.register('view:label',       LabelView);
+      container.register('template:label',   EmberHandlebars.compile('<div id="child-view"></div>'));
+      container.register('template:nester', EmberHandlebars.compile('{{render "label"}}'));
+
+      view = EmberView.create({
+        container:    container,
+        templateName: 'nester',
+        controller:   ObjectController.create({
+          container: container
+        })
+      });
+
+      appendView();
+
+      ok(view.$('.visible').length > 0, 'class bindings are not overriden');
     });
 
     test("template view should call the function of the associated template with itself as the context", function() {

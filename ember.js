@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.c819c5af
+ * @version   1.9.0-beta.1+canary.4d0cd833
  */
 
 (function() {
@@ -9477,13 +9477,13 @@ define("ember-handlebars/helpers/view",
 
     var ViewHelper = EmberObject.create({
       propertiesFromHTMLOptions: function(options) {
-        var hash = options.hash;
-        var data = options.data;
-        var extensions = {
-          classNameBindings: [],
-          helperName:        options.helperName || ''
-        };
+        var hash    = options.hash;
+        var data    = options.data;
         var classes = hash['class'];
+
+        var extensions = {
+          helperName: options.helperName || ''
+        };
 
         if (hash.id) {
           extensions.elementId = hash.id;
@@ -9503,6 +9503,9 @@ define("ember-handlebars/helpers/view",
         }
 
         if (hash.classNameBindings) {
+          if (extensions.classNameBindings === undefined) {
+            extensions.classNameBindings = [];
+          }
           extensions.classNameBindings = extensions.classNameBindings.concat(hash.classNameBindings.split(' '));
         }
 
@@ -9534,23 +9537,25 @@ define("ember-handlebars/helpers/view",
           }
         }
 
-        // Evaluate the context of class name bindings:
-        for (var j = 0, k = extensions.classNameBindings.length; j < k; j++) {
-          var full = extensions.classNameBindings[j];
+        if (extensions.classNameBindings) {
+          // Evaluate the context of class name bindings:
+          for (var j = 0, k = extensions.classNameBindings.length; j < k; j++) {
+            var full = extensions.classNameBindings[j];
 
-          if (typeof full === 'string') {
-            // Contextualize the path of classNameBinding so this:
-            //
-            //     classNameBinding="isGreen:green"
-            //
-            // is converted to this:
-            //
-            //     classNameBinding="_parentView.context.isGreen:green"
-            var parsedPath = View._parsePropertyPath(full);
-            if (parsedPath.path !== '') {
-              path = this.contextualizeBindingPath(parsedPath.path, data);
-              if (path) {
-                extensions.classNameBindings[j] = path + parsedPath.classNames;
+            if (typeof full === 'string') {
+              // Contextualize the path of classNameBinding so this:
+              //
+              //     classNameBinding="isGreen:green"
+              //
+              // is converted to this:
+              //
+              //     classNameBinding="_parentView.context.isGreen:green"
+              var parsedPath = View._parsePropertyPath(full);
+              if (parsedPath.path !== '') {
+                path = this.contextualizeBindingPath(parsedPath.path, data);
+                if (path) {
+                  extensions.classNameBindings[j] = path + parsedPath.classNames;
+                }
               }
             }
           }
@@ -13588,7 +13593,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.c819c5af
+      @version 1.9.0-beta.1+canary.4d0cd833
     */
 
     if ('undefined' === typeof Ember) {
@@ -13615,10 +13620,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.c819c5af'
+      @default '1.9.0-beta.1+canary.4d0cd833'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.c819c5af';
+    Ember.VERSION = '1.9.0-beta.1+canary.4d0cd833';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
