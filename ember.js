@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.4ead95e7
+ * @version   1.9.0-beta.1+canary.f4ce5333
  */
 
 (function() {
@@ -82,6 +82,7 @@ define("backburner",
     var isNumber = __dependency1__.isNumber;
     var isCoercableNumber = __dependency1__.isCoercableNumber;
     var wrapInTryCatch = __dependency1__.wrapInTryCatch;
+    var now = __dependency1__.now;
 
     var needsIETryCatchFix = __dependency2__.needsIETryCatchFix;
 
@@ -251,9 +252,11 @@ define("backburner",
       setTimeout: function() {
         var l = arguments.length;
         var args = new Array(l);
+
         for (var x = 0; x < l; x++) {
           args[x] = arguments[x];
         }
+
         var length = args.length,
             method, wait, target,
             methodOrTarget, methodOrWait, methodOrArgs;
@@ -300,7 +303,7 @@ define("backburner",
           }
         }
 
-        var executeAt = (+new Date()) + parseInt(wait, 10);
+        var executeAt = now() + parseInt(wait, 10);
 
         if (isString(method)) {
           method = target[method];
@@ -331,7 +334,7 @@ define("backburner",
       },
 
       throttle: function(target, method /* , args, wait, [immediate] */) {
-        var self = this;
+        var backburner = this;
         var args = arguments;
         var immediate = pop.call(args);
         var wait, throttler, index, timer;
@@ -350,16 +353,16 @@ define("backburner",
 
         timer = global.setTimeout(function() {
           if (!immediate) {
-            self.run.apply(self, args);
+            backburner.run.apply(backburner, args);
           }
-          var index = findThrottler(target, method, self._throttlers);
+          var index = findThrottler(target, method, backburner._throttlers);
           if (index > -1) {
-            self._throttlers.splice(index, 1);
+            backburner._throttlers.splice(index, 1);
           }
         }, wait);
 
         if (immediate) {
-          self.run.apply(self, args);
+          this.run.apply(this, args);
         }
 
         throttler = [target, method, timer];
@@ -370,7 +373,7 @@ define("backburner",
       },
 
       debounce: function(target, method /* , args, wait, [immediate] */) {
-        var self = this;
+        var backburner = this;
         var args = arguments;
         var immediate = pop.call(args);
         var wait, index, debouncee, timer;
@@ -394,16 +397,16 @@ define("backburner",
 
         timer = global.setTimeout(function() {
           if (!immediate) {
-            self.run.apply(self, args);
+            backburner.run.apply(backburner, args);
           }
-          var index = findDebouncee(target, method, self._debouncees);
+          var index = findDebouncee(target, method, backburner._debouncees);
           if (index > -1) {
-            self._debouncees.splice(index, 1);
+            backburner._debouncees.splice(index, 1);
           }
         }, wait);
 
         if (immediate && index === -1) {
-          self.run.apply(self, args);
+          backburner.run.apply(backburner, args);
         }
 
         debouncee = [
@@ -412,7 +415,7 @@ define("backburner",
           timer
         ];
 
-        self._debouncees.push(debouncee);
+        backburner._debouncees.push(debouncee);
 
         return debouncee;
       },
@@ -459,7 +462,7 @@ define("backburner",
                   this._laterTimer = null;
                 }
                 if (this._timers.length > 0) { // Update to next available timer when available
-                  updateLaterTimer(this, this._timers[0], this._timers[0] - (+new Date()));
+                  updateLaterTimer(this, this._timers[0], this._timers[0] - now());
                 }
               }
               return true;
@@ -519,48 +522,48 @@ define("backburner",
       });
     }
 
-    function updateLaterTimer(self, executeAt, wait) {
-      var now = (+new Date());
-      if (!self._laterTimer || executeAt < self._laterTimerExpiresAt || self._laterTimerExpiresAt < now) {
+    function updateLaterTimer(backburner, executeAt, wait) {
+      var n = now();
+      if (!backburner._laterTimer || executeAt < backburner._laterTimerExpiresAt || backburner._laterTimerExpiresAt < n) {
 
-        if (self._laterTimer) {
+        if (backburner._laterTimer) {
           // Clear when:
           // - Already expired
           // - New timer is earlier
-          clearTimeout(self._laterTimer);
+          clearTimeout(backburner._laterTimer);
 
-          if (self._laterTimerExpiresAt < now) { // If timer was never triggered
+          if (backburner._laterTimerExpiresAt < n) { // If timer was never triggered
             // Calculate the left-over wait-time
-            wait = Math.max(0, executeAt - now);
+            wait = Math.max(0, executeAt - n);
           }
         }
 
-        self._laterTimer = global.setTimeout(function() {
-          self._laterTimer = null;
-          self._laterTimerExpiresAt = null;
-          executeTimers(self);
+        backburner._laterTimer = global.setTimeout(function() {
+          backburner._laterTimer = null;
+          backburner._laterTimerExpiresAt = null;
+          executeTimers(backburner);
         }, wait);
 
-        self._laterTimerExpiresAt = now + wait;
+        backburner._laterTimerExpiresAt = n + wait;
       }
     }
 
-    function executeTimers(self) {
-      var now = +new Date();
+    function executeTimers(backburner) {
+      var n = now();
       var fns, i, l;
 
-      self.run(function() {
-        i = searchTimer(now, self._timers);
+      backburner.run(function() {
+        i = searchTimer(n, backburner._timers);
 
-        fns = self._timers.splice(0, i);
+        fns = backburner._timers.splice(0, i);
 
         for (i = 1, l = fns.length; i < l; i += 2) {
-          self.schedule(self.options.defaultQueue, null, fns[i]);
+          backburner.schedule(backburner.options.defaultQueue, null, fns[i]);
         }
       });
 
-      if (self._timers.length) {
-        updateLaterTimer(self, self._timers[0], self._timers[0] - now);
+      if (backburner._timers.length) {
+        updateLaterTimer(backburner, backburner._timers[0], backburner._timers[0] - n);
       }
     }
 
@@ -713,7 +716,9 @@ define("backburner/deferred-action-queues",
           var queueIndex = 0;
           var numberOfQueueItems = queueItems.length;
 
-          if (numberOfQueueItems && before) { before(); }
+          if (numberOfQueueItems && before) {
+            before();
+          }
 
           while (queueIndex < numberOfQueueItems) {
             target                = queueItems[queueIndex];
@@ -721,10 +726,26 @@ define("backburner/deferred-action-queues",
             args                  = queueItems[queueIndex+2];
             errorRecordedForStack = queueItems[queueIndex+3]; // Debugging assistance
 
-            if (isString(method)) { method = target[method]; }
+            //
+
+            if (isString(method)) {
+              method = target[method];
+            }
 
             // method could have been nullified / canceled during flush
             if (method) {
+              //
+              //    ** Attention intrepid developer **
+              //
+              //    To find out the stack of this task when it was scheduled onto
+              //    the run loop, add the following to your app.js:
+              //
+              //    Ember.run.backburner.DEBUG = true; // NOTE: This slows your app, don't leave it on in production.
+              //
+              //    Once that is in place, when you are at a breakpoint and navigate
+              //    here in the stack explorer, you can look at `errorRecordedForStack.stack`,
+              //    which will be the captured stack when this job was scheduled.
+              //
               invoke(target, method, args, onError, errorRecordedForStack);
             }
 
@@ -732,7 +753,9 @@ define("backburner/deferred-action-queues",
           }
 
           queue._queueBeingFlushed = null;
-          if (numberOfQueueItems && after) { after(); }
+          if (numberOfQueueItems && after) {
+            after();
+          }
 
           if ((priorQueueNameIndex = indexOfPriorQueueWithActions(this, queueNameIndex)) !== -1) {
             queueNameIndex = priorQueueNameIndex;
@@ -927,12 +950,28 @@ define("backburner/queue",
 
       cancel: function(actionToCancel) {
         var queue = this._queue, currentTarget, currentMethod, i, l;
+        var target = actionToCancel.target;
+        var method = actionToCancel.method;
+        var GUID_KEY = this.globalOptions.GUID_KEY;
+
+        if (GUID_KEY && this.targetQueues && target) {
+          var targetQueue = this.targetQueues[target[GUID_KEY]];
+
+          if (targetQueue) {
+            for (i = 0, l = targetQueue.length; i < l; i++) {
+              if (targetQueue[i] === method) {
+                targetQueue.splice(i, 1);
+              }
+            }
+          }
+        }
 
         for (i = 0, l = queue.length; i < l; i += 4) {
           currentTarget = queue[i];
           currentMethod = queue[i+1];
 
-          if (currentTarget === actionToCancel.target && currentMethod === actionToCancel.method) {
+          if (currentTarget === target &&
+              currentMethod === method) {
             queue.splice(i, 4);
             return true;
           }
@@ -948,7 +987,8 @@ define("backburner/queue",
           currentTarget = queue[i];
           currentMethod = queue[i+1];
 
-          if (currentTarget === actionToCancel.target && currentMethod === actionToCancel.method) {
+          if (currentTarget === target &&
+              currentMethod === method) {
             // don't mess with array during flush
             // just nullify the method
             queue[i+1] = null;
@@ -972,7 +1012,11 @@ define("backburner/utils",
       }
     }
 
-    __exports__.each = each;function isString(suspect) {
+    __exports__.each = each;// Date.now is not available in browsers < IE9
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now#Compatibility
+    var now = Date.now || function() { return new Date().getTime(); };
+    __exports__.now = now;
+    function isString(suspect) {
       return typeof suspect === 'string';
     }
 
@@ -13593,7 +13637,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.4ead95e7
+      @version 1.9.0-beta.1+canary.f4ce5333
     */
 
     if ('undefined' === typeof Ember) {
@@ -13620,10 +13664,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.4ead95e7'
+      @default '1.9.0-beta.1+canary.f4ce5333'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.4ead95e7';
+    Ember.VERSION = '1.9.0-beta.1+canary.f4ce5333';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
