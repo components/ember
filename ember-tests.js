@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.f4ce5333
+ * @version   1.9.0-beta.1+canary.f1f78e97
  */
 
 (function() {
@@ -17733,6 +17733,11 @@ define("ember-metal/tests/map_test",
         mapHasEntries([]);
       });
 
+      test("has empty collection", function() {
+        equal(map.has('foo'), false);
+        equal(map.has(), false);
+      });
+
       test("delete", function() {
         expectNoDeprecation();
 
@@ -18026,6 +18031,49 @@ define("ember-metal/tests/map_test",
         });
         equal(iterations, 0);
       });
+
+      test("-0", function() {
+        equal(map.has(-0), false);
+        equal(map.has(0), false);
+
+        map.set(-0, 'zero');
+
+        equal(map.has(-0), true);
+        equal(map.has(0), true);
+
+        equal(map.get(0), 'zero');
+        equal(map.get(-0), 'zero');
+
+        map.forEach(function(value, key) {
+          equal(1/key, Infinity, 'spec says key should be positive zero');
+        });
+      });
+
+      test("NaN", function() {
+        equal(map.has(NaN), false);
+
+        map.set(NaN, 'not-a-number');
+
+        equal(map.has(NaN), true);
+
+        equal(map.get(NaN), 'not-a-number');
+
+      });
+
+      test("NaN Boxed", function() {
+        //jshint -W053
+        var boxed = new Number(NaN);
+        equal(map.has(boxed), false);
+
+        map.set(boxed, 'not-a-number');
+
+        equal(map.has(boxed), true);
+        equal(map.has(NaN), false);
+
+        equal(map.get(NaN), undefined);
+        equal(map.get(boxed), 'not-a-number');
+      });
+
     }
 
     for (var i = 0;  i < varieties.length;  i++) {

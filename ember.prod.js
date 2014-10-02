@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.f4ce5333
+ * @version   1.9.0-beta.1+canary.f1f78e97
  */
 
 (function() {
@@ -13335,7 +13335,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.f4ce5333
+      @version 1.9.0-beta.1+canary.f1f78e97
     */
 
     if ('undefined' === typeof Ember) {
@@ -13362,10 +13362,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.f4ce5333'
+      @default '1.9.0-beta.1+canary.f1f78e97'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.f4ce5333';
+    Ember.VERSION = '1.9.0-beta.1+canary.f1f78e97';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -15376,7 +15376,7 @@ define("ember-metal/map",
         @return {Boolean}
       */
       has: function(obj) {
-        if (this.size === 0) { return; }
+        if (this.size === 0) { return false; }
 
         var guid = guidFor(obj);
         var presenceSet = this.presenceSet;
@@ -15522,7 +15522,11 @@ define("ember-metal/map",
         var values = this.values;
         var guid = guidFor(key);
 
-        keys.add(key, guid);
+        // ensure we don't store -0
+        var k = key === -0 ? 0 : key;
+
+        keys.add(k, guid);
+
         values[guid] = value;
 
         this.size = keys.size;
@@ -15576,7 +15580,7 @@ define("ember-metal/map",
         @return {Boolean} true if the item was present, false otherwise
       */
       has: function(key) {
-        if (this.size === 0) { return; }
+        if (this.size === 0) { return false; }
         return this.keys.has(key);
       },
 
