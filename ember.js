@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.a9613803
+ * @version   1.9.0-beta.1+canary.8697554e
  */
 
 (function() {
@@ -2009,9 +2009,208 @@ define("container/container",
 
     __exports__["default"] = Container;
   });
+define("dag-map",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    function visit(vertex, fn, visited, path) {
+      var name = vertex.name;
+      var vertices = vertex.incoming;
+      var names = vertex.incomingNames;
+      var len = names.length;
+      var i;
+
+      if (!visited) {
+        visited = {};
+      }
+      if (!path) {
+        path = [];
+      }
+      if (visited.hasOwnProperty(name)) {
+        return;
+      }
+      path.push(name);
+      visited[name] = true;
+      for (i = 0; i < len; i++) {
+        visit(vertices[names[i]], fn, visited, path);
+      }
+      fn(vertex, path);
+      path.pop();
+    }
+
+
+    /**
+     * DAG stands for Directed acyclic graph.
+     *
+     * It is used to build a graph of dependencies checking that there isn't circular
+     * dependencies. p.e Registering initializers with a certain precedence order.
+     *
+     * @class DAG
+     * @constructor
+     */
+    function DAG() {
+      this.names = [];
+      this.vertices = Object.create(null);
+    }
+
+    /**
+     * DAG Vertex
+     *
+     * @class Vertex
+     * @constructor
+     */
+
+    function Vertex(name) {
+      this.name = name;
+      this.incoming = {};
+      this.incomingNames = [];
+      this.hasOutgoing = false;
+      this.value = null;
+    }
+
+    /**
+     * Adds a vertex entry to the graph unless it is already added.
+     *
+     * @private
+     * @method add
+     * @param {String} name The name of the vertex to add
+     */
+    DAG.prototype.add = function(name) {
+      if (!name) {
+        throw new Error("Can't add Vertex without name");
+      }
+      if (this.vertices[name] !== undefined) {
+        return this.vertices[name];
+      }
+      var vertex = new Vertex(name);
+      this.vertices[name] = vertex;
+      this.names.push(name);
+      return vertex;
+    };
+
+    /**
+     * Adds a vertex to the graph and sets its value.
+     *
+     * @private
+     * @method map
+     * @param {String} name The name of the vertex.
+     * @param         value The value to put in the vertex.
+     */
+    DAG.prototype.map = function(name, value) {
+      this.add(name).value = value;
+    };
+
+    /**
+     * Connects the vertices with the given names, adding them to the graph if
+     * necessary, only if this does not produce is any circular dependency.
+     *
+     * @private
+     * @method addEdge
+     * @param {String} fromName The name the vertex where the edge starts.
+     * @param {String} toName The name the vertex where the edge ends.
+     */
+    DAG.prototype.addEdge = function(fromName, toName) {
+      if (!fromName || !toName || fromName === toName) {
+        return;
+      }
+      var from = this.add(fromName);
+      var to = this.add(toName);
+      if (to.incoming.hasOwnProperty(fromName)) {
+        return;
+      }
+      function checkCycle(vertex, path) {
+        if (vertex.name === toName) {
+          throw new Error("cycle detected: " + toName + " <- " + path.join(" <- "));
+        }
+      }
+      visit(from, checkCycle);
+      from.hasOutgoing = true;
+      to.incoming[fromName] = from;
+      to.incomingNames.push(fromName);
+    };
+
+    /**
+     * Visits all the vertex of the graph calling the given function with each one,
+     * ensuring that the vertices are visited respecting their precedence.
+     *
+     * @method  topsort
+     * @param {Function} fn The function to be invoked on each vertex.
+     */
+    DAG.prototype.topsort = function(fn) {
+      var visited = {};
+      var vertices = this.vertices;
+      var names = this.names;
+      var len = names.length;
+      var i, vertex;
+
+      for (i = 0; i < len; i++) {
+        vertex = vertices[names[i]];
+        if (!vertex.hasOutgoing) {
+          visit(vertex, fn, visited);
+        }
+      }
+    };
+
+    /**
+     * Adds a vertex with the given name and value to the graph and joins it with the
+     * vertices referenced in _before_ and _after_. If there isn't vertices with those
+     * names, they are added too.
+     *
+     * If either _before_ or _after_ are falsy/empty, the added vertex will not have
+     * an incoming/outgoing edge.
+     *
+     * @method addEdges
+     * @param {String} name The name of the vertex to be added.
+     * @param         value The value of that vertex.
+     * @param        before An string or array of strings with the names of the vertices before
+     *                      which this vertex must be visited.
+     * @param         after An string or array of strings with the names of the vertex after
+     *                      which this vertex must be visited.
+     *
+     */
+    DAG.prototype.addEdges = function(name, value, before, after) {
+      var i;
+      this.map(name, value);
+      if (before) {
+        if (typeof before === 'string') {
+          this.addEdge(name, before);
+        } else {
+          for (i = 0; i < before.length; i++) {
+            this.addEdge(name, before[i]);
+          }
+        }
+      }
+      if (after) {
+        if (typeof after === 'string') {
+          this.addEdge(after, name);
+        } else {
+          for (i = 0; i < after.length; i++) {
+            this.addEdge(after[i], name);
+          }
+        }
+      }
+    };
+
+    __exports__["default"] = DAG;
+  });
+define("dag-map.umd",
+  ["./dag-map"],
+  function(__dependency1__) {
+    "use strict";
+    var DAG = __dependency1__["default"];
+
+    /* global define:true module:true window: true */
+    if (typeof define === 'function' && define.amd) {
+      define(function() { return DAG; });
+    } else if (typeof module !== 'undefined' && module.exports) {
+      module.exports = DAG;
+    } else if (typeof this !== 'undefined') {
+      this['DAG'] = DAG;
+    }
+  });
 define("ember-application",
-  ["ember-metal/core","ember-runtime/system/lazy_load","ember-application/system/dag","ember-application/system/resolver","ember-application/system/application","ember-application/ext/controller"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
+  ["ember-metal/core","ember-runtime/system/lazy_load","ember-application/system/resolver","ember-application/system/application","ember-application/ext/controller"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var runLoadHooks = __dependency2__.runLoadHooks;
@@ -2024,14 +2223,12 @@ define("ember-application",
     @requires ember-views, ember-routing
     */
 
-    var DAG = __dependency3__["default"];
-    var Resolver = __dependency4__.Resolver;
-    var DefaultResolver = __dependency4__["default"];
-    var Application = __dependency5__["default"];
+    var Resolver = __dependency3__.Resolver;
+    var DefaultResolver = __dependency3__["default"];
+    var Application = __dependency4__["default"];
     // side effect of extending ControllerMixin
 
     Ember.Application = Application;
-    Ember.DAG = DAG;
     Ember.Resolver = Resolver;
     Ember.DefaultResolver = DefaultResolver;
 
@@ -2217,27 +2414,28 @@ define("ember-application/ext/controller",
     __exports__["default"] = ControllerMixin;
   });
 define("ember-application/system/application",
-  ["ember-metal","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/lazy_load","ember-application/system/dag","ember-runtime/system/namespace","ember-runtime/mixins/deferred","ember-application/system/resolver","ember-metal/platform","ember-metal/run_loop","ember-metal/utils","container/container","ember-runtime/controllers/controller","ember-metal/enumerable_utils","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-handlebars/controls/select","ember-views/system/event_dispatcher","ember-views/system/jquery","ember-routing/system/route","ember-routing/system/router","ember-routing/location/hash_location","ember-routing/location/history_location","ember-routing/location/auto_location","ember-routing/location/none_location","ember-routing/system/cache","ember-extension-support/container_debug_adapter","ember-metal/core","ember-handlebars-compiler","exports"],
+  ["dag-map","container/container","ember-metal","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/lazy_load","ember-runtime/system/namespace","ember-runtime/mixins/deferred","ember-application/system/resolver","ember-metal/platform","ember-metal/run_loop","ember-metal/utils","ember-runtime/controllers/controller","ember-metal/enumerable_utils","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-handlebars/controls/select","ember-views/system/event_dispatcher","ember-views/system/jquery","ember-routing/system/route","ember-routing/system/router","ember-routing/location/hash_location","ember-routing/location/history_location","ember-routing/location/auto_location","ember-routing/location/none_location","ember-routing/system/cache","ember-extension-support/container_debug_adapter","ember-metal/core","ember-handlebars-compiler","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __exports__) {
     "use strict";
     /**
     @module ember
     @submodule ember-application
     */
+    var DAG = __dependency1__["default"];
+    var Container = __dependency2__["default"];
 
-    var Ember = __dependency1__["default"];
+
+    var Ember = __dependency3__["default"];
     // Ember.FEATURES, Ember.deprecate, Ember.assert, Ember.libraries, LOG_VERSION, Namespace, BOOTED
-    var get = __dependency2__.get;
-    var set = __dependency3__.set;
-    var runLoadHooks = __dependency4__.runLoadHooks;
-    var DAG = __dependency5__["default"];
-    var Namespace = __dependency6__["default"];
-    var DeferredMixin = __dependency7__["default"];
-    var DefaultResolver = __dependency8__["default"];
-    var create = __dependency9__.create;
-    var run = __dependency10__["default"];
-    var canInvoke = __dependency11__.canInvoke;
-    var Container = __dependency12__["default"];
+    var get = __dependency4__.get;
+    var set = __dependency5__.set;
+    var runLoadHooks = __dependency6__.runLoadHooks;
+    var Namespace = __dependency7__["default"];
+    var DeferredMixin = __dependency8__["default"];
+    var DefaultResolver = __dependency9__["default"];
+    var create = __dependency10__.create;
+    var run = __dependency11__["default"];
+    var canInvoke = __dependency12__.canInvoke;
     var Controller = __dependency13__["default"];
     var EnumerableUtils = __dependency14__["default"];
     var ObjectController = __dependency15__["default"];
@@ -3553,26 +3751,26 @@ define("ember-application/system/resolver",
       Some examples of how names are resolved:
 
       ```
-      'template:post' //=> Ember.TEMPLATES['post']
-      'template:posts/byline' //=> Ember.TEMPLATES['posts/byline']
-      'template:posts.byline' //=> Ember.TEMPLATES['posts/byline']
-      'template:blogPost' //=> Ember.TEMPLATES['blogPost']
-                          //   OR
-                          //   Ember.TEMPLATES['blog_post']
-      'controller:post' //=> App.PostController
-      'controller:posts.index' //=> App.PostsIndexController
-      'controller:blog/post' //=> Blog.PostController
-      'controller:basic' //=> Ember.Controller
-      'route:post' //=> App.PostRoute
-      'route:posts.index' //=> App.PostsIndexRoute
-      'route:blog/post' //=> Blog.PostRoute
-      'route:basic' //=> Ember.Route
-      'view:post' //=> App.PostView
-      'view:posts.index' //=> App.PostsIndexView
-      'view:blog/post' //=> Blog.PostView
-      'view:basic' //=> Ember.View
-      'foo:post' //=> App.PostFoo
-      'model:post' //=> App.Post
+      'template:post'           //=> Ember.TEMPLATES['post']
+      'template:posts/byline'   //=> Ember.TEMPLATES['posts/byline']
+      'template:posts.byline'   //=> Ember.TEMPLATES['posts/byline']
+      'template:blogPost'       //=> Ember.TEMPLATES['blogPost']
+                                //   OR
+                                //   Ember.TEMPLATES['blog_post']
+      'controller:post'         //=> App.PostController
+      'controller:posts.index'  //=> App.PostsIndexController
+      'controller:blog/post'    //=> Blog.PostController
+      'controller:basic'        //=> Ember.Controller
+      'route:post'              //=> App.PostRoute
+      'route:posts.index'       //=> App.PostsIndexRoute
+      'route:blog/post'         //=> Blog.PostRoute
+      'route:basic'             //=> Ember.Route
+      'view:post'               //=> App.PostView
+      'view:posts.index'        //=> App.PostsIndexView
+      'view:blog/post'          //=> Blog.PostView
+      'view:basic'              //=> Ember.View
+      'foo:post'                //=> App.PostFoo
+      'model:post'              //=> App.Post
       ```
 
       @class DefaultResolver
@@ -13637,7 +13835,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.a9613803
+      @version 1.9.0-beta.1+canary.8697554e
     */
 
     if ('undefined' === typeof Ember) {
@@ -13664,10 +13862,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.a9613803'
+      @default '1.9.0-beta.1+canary.8697554e'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.a9613803';
+    Ember.VERSION = '1.9.0-beta.1+canary.8697554e';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
