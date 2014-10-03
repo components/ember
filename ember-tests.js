@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.8697554e
+ * @version   1.9.0-beta.1+canary.b9a18c69
  */
 
 (function() {
@@ -15143,6 +15143,72 @@ define("ember-metal/tests/binding/sync_test.jshint",
     module('JSHint - ember-metal/tests/binding');
     test('ember-metal/tests/binding/sync_test.js should pass jshint', function() { 
       ok(true, 'ember-metal/tests/binding/sync_test.js should pass jshint.'); 
+    });
+  });
+define("ember-metal/tests/cache_test",
+  ["ember-metal/cache"],
+  function(__dependency1__) {
+    "use strict";
+    var Cache = __dependency1__["default"];
+
+    QUnit.module("Cache");
+
+    test("basic", function() {
+      var cache = new Cache(100, function(key) {
+        return key.toUpperCase();
+      });
+
+      equal(cache.get("foo"), "FOO");
+      equal(cache.get("bar"), "BAR");
+      equal(cache.get("foo"), "FOO");
+    });
+
+    test("caches computation correctly", function() {
+      var count = 0;
+      var cache = new Cache(100, function(key) {
+        count++;
+        return key.toUpperCase();
+      });
+
+      equal(count, 0);
+      cache.get("foo");
+      equal(count, 1);
+      cache.get("bar");
+      equal(count, 2);
+      cache.get("bar");
+      equal(count, 2);
+      cache.get("foo");
+      equal(count, 2);
+    });
+
+    test("handles undefined value correctly", function() {
+      var cache = new Cache(100, function(key) {});
+
+      equal(cache.get("foo"), undefined);
+    });
+
+    test("continues working after reaching cache limit", function() {
+      var cache = new Cache(3, function(key) {
+        return key.toUpperCase();
+      });
+
+      cache.get("a");
+      cache.get("b");
+      cache.get("c");
+
+      equal(cache.get("d"), "D");
+      equal(cache.get("a"), "A");
+      equal(cache.get("b"), "B");
+      equal(cache.get("c"), "C");
+    });
+  });
+define("ember-metal/tests/cache_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal/tests');
+    test('ember-metal/tests/cache_test.js should pass jshint', function() { 
+      ok(true, 'ember-metal/tests/cache_test.js should pass jshint.'); 
     });
   });
 define("ember-metal/tests/chains_test",
