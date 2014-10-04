@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.b9a18c69
+ * @version   1.9.0-beta.1+canary.471f2576
  */
 
 (function() {
@@ -42359,6 +42359,12 @@ define("ember-runtime/tests/system/object/toString_test",
 
       obj = Foo.Bar.create();
       equal(obj.toString(), "<Foo.Bar:" + guidFor(obj) + ">");
+    });
+
+    test("toString on a namespace falls back to modulePrefix, if defined", function() {
+      var Foo = Namespace.create({ modulePrefix: 'foo' });
+
+      equal(Foo.toString(), "foo");
     });
 
     test('toString includes toStringExtension if defined', function() {

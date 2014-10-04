@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.b9a18c69
+ * @version   1.9.0-beta.1+canary.471f2576
  */
 
 (function() {
@@ -13835,7 +13835,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.b9a18c69
+      @version 1.9.0-beta.1+canary.471f2576
     */
 
     if ('undefined' === typeof Ember) {
@@ -13862,10 +13862,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.b9a18c69'
+      @default '1.9.0-beta.1+canary.471f2576'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.b9a18c69';
+    Ember.VERSION = '1.9.0-beta.1+canary.471f2576';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -35794,7 +35794,7 @@ define("ember-runtime/system/namespace",
       },
 
       toString: function() {
-        var name = get(this, 'name');
+        var name = get(this, 'name') || get(this, 'modulePrefix');
         if (name) { return name; }
 
         findNamespaces();
