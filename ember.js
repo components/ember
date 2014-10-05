@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.4+pre.fbf006f9
+ * @version   1.8.0-beta.4+pre.3bfbaaa7
  */
 
 (function() {
@@ -82,6 +82,7 @@ define("backburner",
     var isNumber = __dependency1__.isNumber;
     var isCoercableNumber = __dependency1__.isCoercableNumber;
     var wrapInTryCatch = __dependency1__.wrapInTryCatch;
+    var now = __dependency1__.now;
 
     var needsIETryCatchFix = __dependency2__.needsIETryCatchFix;
 
@@ -251,9 +252,11 @@ define("backburner",
       setTimeout: function() {
         var l = arguments.length;
         var args = new Array(l);
+
         for (var x = 0; x < l; x++) {
           args[x] = arguments[x];
         }
+
         var length = args.length,
             method, wait, target,
             methodOrTarget, methodOrWait, methodOrArgs;
@@ -300,7 +303,7 @@ define("backburner",
           }
         }
 
-        var executeAt = (+new Date()) + parseInt(wait, 10);
+        var executeAt = now() + parseInt(wait, 10);
 
         if (isString(method)) {
           method = target[method];
@@ -331,7 +334,7 @@ define("backburner",
       },
 
       throttle: function(target, method /* , args, wait, [immediate] */) {
-        var self = this;
+        var backburner = this;
         var args = arguments;
         var immediate = pop.call(args);
         var wait, throttler, index, timer;
@@ -350,16 +353,16 @@ define("backburner",
 
         timer = global.setTimeout(function() {
           if (!immediate) {
-            self.run.apply(self, args);
+            backburner.run.apply(backburner, args);
           }
-          var index = findThrottler(target, method, self._throttlers);
+          var index = findThrottler(target, method, backburner._throttlers);
           if (index > -1) {
-            self._throttlers.splice(index, 1);
+            backburner._throttlers.splice(index, 1);
           }
         }, wait);
 
         if (immediate) {
-          self.run.apply(self, args);
+          this.run.apply(this, args);
         }
 
         throttler = [target, method, timer];
@@ -370,7 +373,7 @@ define("backburner",
       },
 
       debounce: function(target, method /* , args, wait, [immediate] */) {
-        var self = this;
+        var backburner = this;
         var args = arguments;
         var immediate = pop.call(args);
         var wait, index, debouncee, timer;
@@ -394,16 +397,16 @@ define("backburner",
 
         timer = global.setTimeout(function() {
           if (!immediate) {
-            self.run.apply(self, args);
+            backburner.run.apply(backburner, args);
           }
-          var index = findDebouncee(target, method, self._debouncees);
+          var index = findDebouncee(target, method, backburner._debouncees);
           if (index > -1) {
-            self._debouncees.splice(index, 1);
+            backburner._debouncees.splice(index, 1);
           }
         }, wait);
 
         if (immediate && index === -1) {
-          self.run.apply(self, args);
+          backburner.run.apply(backburner, args);
         }
 
         debouncee = [
@@ -412,7 +415,7 @@ define("backburner",
           timer
         ];
 
-        self._debouncees.push(debouncee);
+        backburner._debouncees.push(debouncee);
 
         return debouncee;
       },
@@ -459,7 +462,7 @@ define("backburner",
                   this._laterTimer = null;
                 }
                 if (this._timers.length > 0) { // Update to next available timer when available
-                  updateLaterTimer(this, this._timers[0], this._timers[0] - (+new Date()));
+                  updateLaterTimer(this, this._timers[0], this._timers[0] - now());
                 }
               }
               return true;
@@ -519,48 +522,48 @@ define("backburner",
       });
     }
 
-    function updateLaterTimer(self, executeAt, wait) {
-      var now = (+new Date());
-      if (!self._laterTimer || executeAt < self._laterTimerExpiresAt || self._laterTimerExpiresAt < now) {
+    function updateLaterTimer(backburner, executeAt, wait) {
+      var n = now();
+      if (!backburner._laterTimer || executeAt < backburner._laterTimerExpiresAt || backburner._laterTimerExpiresAt < n) {
 
-        if (self._laterTimer) {
+        if (backburner._laterTimer) {
           // Clear when:
           // - Already expired
           // - New timer is earlier
-          clearTimeout(self._laterTimer);
+          clearTimeout(backburner._laterTimer);
 
-          if (self._laterTimerExpiresAt < now) { // If timer was never triggered
+          if (backburner._laterTimerExpiresAt < n) { // If timer was never triggered
             // Calculate the left-over wait-time
-            wait = Math.max(0, executeAt - now);
+            wait = Math.max(0, executeAt - n);
           }
         }
 
-        self._laterTimer = global.setTimeout(function() {
-          self._laterTimer = null;
-          self._laterTimerExpiresAt = null;
-          executeTimers(self);
+        backburner._laterTimer = global.setTimeout(function() {
+          backburner._laterTimer = null;
+          backburner._laterTimerExpiresAt = null;
+          executeTimers(backburner);
         }, wait);
 
-        self._laterTimerExpiresAt = now + wait;
+        backburner._laterTimerExpiresAt = n + wait;
       }
     }
 
-    function executeTimers(self) {
-      var now = +new Date();
+    function executeTimers(backburner) {
+      var n = now();
       var fns, i, l;
 
-      self.run(function() {
-        i = searchTimer(now, self._timers);
+      backburner.run(function() {
+        i = searchTimer(n, backburner._timers);
 
-        fns = self._timers.splice(0, i);
+        fns = backburner._timers.splice(0, i);
 
         for (i = 1, l = fns.length; i < l; i += 2) {
-          self.schedule(self.options.defaultQueue, null, fns[i]);
+          backburner.schedule(backburner.options.defaultQueue, null, fns[i]);
         }
       });
 
-      if (self._timers.length) {
-        updateLaterTimer(self, self._timers[0], self._timers[0] - now);
+      if (backburner._timers.length) {
+        updateLaterTimer(backburner, backburner._timers[0], backburner._timers[0] - n);
       }
     }
 
@@ -713,7 +716,9 @@ define("backburner/deferred-action-queues",
           var queueIndex = 0;
           var numberOfQueueItems = queueItems.length;
 
-          if (numberOfQueueItems && before) { before(); }
+          if (numberOfQueueItems && before) {
+            before();
+          }
 
           while (queueIndex < numberOfQueueItems) {
             target                = queueItems[queueIndex];
@@ -721,10 +726,26 @@ define("backburner/deferred-action-queues",
             args                  = queueItems[queueIndex+2];
             errorRecordedForStack = queueItems[queueIndex+3]; // Debugging assistance
 
-            if (isString(method)) { method = target[method]; }
+            //
+
+            if (isString(method)) {
+              method = target[method];
+            }
 
             // method could have been nullified / canceled during flush
             if (method) {
+              //
+              //    ** Attention intrepid developer **
+              //
+              //    To find out the stack of this task when it was scheduled onto
+              //    the run loop, add the following to your app.js:
+              //
+              //    Ember.run.backburner.DEBUG = true; // NOTE: This slows your app, don't leave it on in production.
+              //
+              //    Once that is in place, when you are at a breakpoint and navigate
+              //    here in the stack explorer, you can look at `errorRecordedForStack.stack`,
+              //    which will be the captured stack when this job was scheduled.
+              //
               invoke(target, method, args, onError, errorRecordedForStack);
             }
 
@@ -732,7 +753,9 @@ define("backburner/deferred-action-queues",
           }
 
           queue._queueBeingFlushed = null;
-          if (numberOfQueueItems && after) { after(); }
+          if (numberOfQueueItems && after) {
+            after();
+          }
 
           if ((priorQueueNameIndex = indexOfPriorQueueWithActions(this, queueNameIndex)) !== -1) {
             queueNameIndex = priorQueueNameIndex;
@@ -927,12 +950,28 @@ define("backburner/queue",
 
       cancel: function(actionToCancel) {
         var queue = this._queue, currentTarget, currentMethod, i, l;
+        var target = actionToCancel.target;
+        var method = actionToCancel.method;
+        var GUID_KEY = this.globalOptions.GUID_KEY;
+
+        if (GUID_KEY && this.targetQueues && target) {
+          var targetQueue = this.targetQueues[target[GUID_KEY]];
+
+          if (targetQueue) {
+            for (i = 0, l = targetQueue.length; i < l; i++) {
+              if (targetQueue[i] === method) {
+                targetQueue.splice(i, 1);
+              }
+            }
+          }
+        }
 
         for (i = 0, l = queue.length; i < l; i += 4) {
           currentTarget = queue[i];
           currentMethod = queue[i+1];
 
-          if (currentTarget === actionToCancel.target && currentMethod === actionToCancel.method) {
+          if (currentTarget === target &&
+              currentMethod === method) {
             queue.splice(i, 4);
             return true;
           }
@@ -948,7 +987,8 @@ define("backburner/queue",
           currentTarget = queue[i];
           currentMethod = queue[i+1];
 
-          if (currentTarget === actionToCancel.target && currentMethod === actionToCancel.method) {
+          if (currentTarget === target &&
+              currentMethod === method) {
             // don't mess with array during flush
             // just nullify the method
             queue[i+1] = null;
@@ -972,7 +1012,11 @@ define("backburner/utils",
       }
     }
 
-    __exports__.each = each;function isString(suspect) {
+    __exports__.each = each;// Date.now is not available in browsers < IE9
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now#Compatibility
+    var now = Date.now || function() { return new Date().getTime(); };
+    __exports__.now = now;
+    function isString(suspect) {
       return typeof suspect === 'string';
     }
 
@@ -8513,6 +8557,8 @@ define("ember-handlebars/helpers/collection",
       var viewOptions = ViewHelper.propertiesFromHTMLOptions({ data: data, hash: itemHash }, this);
       hash.itemViewClass = itemViewClass.extend(viewOptions);
 
+      options.helperName = options.helperName || 'collection';
+
       return helpers.view.call(this, collectionClass, options);
     }
 
@@ -9126,24 +9172,29 @@ define("ember-handlebars/helpers/loc",
     @submodule ember-handlebars
     */
 
-    // ES6TODO:
-    // Pretty sure this can be expressed as
-    // var locHelper EmberStringUtils.loc ?
-
     /**
       Calls [Ember.String.loc](/api/classes/Ember.String.html#method_loc) with the
       provided string.
 
-      This is a convenient way to localize text. For example:
+      This is a convenient way to localize text within a template:
 
-      ```html
-      <script type="text/x-handlebars" data-template-name="home">
-        {{loc "welcome"}}
-      </script>
+      ```javascript
+      Ember.STRINGS = {
+        '_welcome_': 'Bonjour'
+      };
       ```
 
-      Take note that `"welcome"` is a string and not an object
-      reference.
+      ```handlebars
+      <div class='message'>
+        {{loc '_welcome_'}}
+      </div>
+      ```
+
+      ```html
+      <div class='message'>
+        Bonjour
+      </div>
+      ```
 
       See [Ember.String.loc](/api/classes/Ember.String.html#method_loc) for how to
       set up localized string references.
@@ -9153,9 +9204,7 @@ define("ember-handlebars/helpers/loc",
       @param {String} str The string to format
       @see {Ember.String#loc}
     */
-    __exports__["default"] = function locHelper(str) {
-      return loc(str);
-    }
+    __exports__["default"] = loc;
   });
 define("ember-handlebars/helpers/partial",
   ["ember-metal/core","ember-metal/is_none","ember-handlebars/ext","ember-handlebars/helpers/binding","exports"],
@@ -9292,7 +9341,7 @@ define("ember-handlebars/helpers/template",
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
-    // var emberDeprecate = Ember.deprecate;
+    // Ember.deprecate;
 
     var EmberHandlebars = __dependency2__["default"];
     var helpers = EmberHandlebars.helpers;
@@ -9302,43 +9351,6 @@ define("ember-handlebars/helpers/template",
     */
 
     /**
-      `template` allows you to render a template from inside another template.
-      This allows you to re-use the same template in multiple places. For example:
-
-      ```html
-      <script type="text/x-handlebars" data-template-name="logged_in_user">
-        {{#with loggedInUser}}
-          Last Login: {{lastLogin}}
-          User Info: {{template "user_info"}}
-        {{/with}}
-      </script>
-      ```
-
-      ```html
-      <script type="text/x-handlebars" data-template-name="user_info">
-        Name: <em>{{name}}</em>
-        Karma: <em>{{karma}}</em>
-      </script>
-      ```
-
-      ```handlebars
-      {{#if isUser}}
-        {{template "user_info"}}
-      {{else}}
-        {{template "unlogged_user_info"}}
-      {{/if}}
-      ```
-
-      This helper looks for templates in the global `Ember.TEMPLATES` hash. If you
-      add `<script>` tags to your page with the `data-template-name` attribute set,
-      they will be compiled and placed in this hash automatically.
-
-      You can also manually register templates by adding them to the hash:
-
-      ```javascript
-      Ember.TEMPLATES["my_cool_template"] = Ember.Handlebars.compile('<b>{{user}}</b>');
-      ```
-
       @deprecated
       @method template
       @for Ember.Handlebars.helpers
@@ -9473,13 +9485,13 @@ define("ember-handlebars/helpers/view",
 
     var ViewHelper = EmberObject.create({
       propertiesFromHTMLOptions: function(options) {
-        var hash = options.hash;
-        var data = options.data;
-        var extensions = {
-          classNameBindings: [],
-          helperName:        options.helperName || ''
-        };
+        var hash    = options.hash;
+        var data    = options.data;
         var classes = hash['class'];
+
+        var extensions = {
+          helperName: options.helperName || ''
+        };
 
         if (hash.id) {
           extensions.elementId = hash.id;
@@ -9499,6 +9511,9 @@ define("ember-handlebars/helpers/view",
         }
 
         if (hash.classNameBindings) {
+          if (extensions.classNameBindings === undefined) {
+            extensions.classNameBindings = [];
+          }
           extensions.classNameBindings = extensions.classNameBindings.concat(hash.classNameBindings.split(' '));
         }
 
@@ -9530,26 +9545,25 @@ define("ember-handlebars/helpers/view",
           }
         }
 
-        // Evaluate the context of class name bindings:
-        var classNameBindingsKeys = keys(extensions.classNameBindings);
+        if (extensions.classNameBindings) {
+          // Evaluate the context of class name bindings:
+          for (var j = 0, k = extensions.classNameBindings.length; j < k; j++) {
+            var full = extensions.classNameBindings[j];
 
-        for (var j = 0, k = classNameBindingsKeys.length; j < k; j++) {
-          var classKey = classNameBindingsKeys[j];
-          var full     = extensions.classNameBindings[classKey];
-
-          if (typeof full === 'string') {
-            // Contextualize the path of classNameBinding so this:
-            //
-            //     classNameBinding="isGreen:green"
-            //
-            // is converted to this:
-            //
-            //     classNameBinding="_parentView.context.isGreen:green"
-            var parsedPath = View._parsePropertyPath(full);
-            if (parsedPath.path !== '') {
-              path = this.contextualizeBindingPath(parsedPath.path, data);
-              if (path) {
-                extensions.classNameBindings[classKey] = path + parsedPath.classNames;
+            if (typeof full === 'string') {
+              // Contextualize the path of classNameBinding so this:
+              //
+              //     classNameBinding="isGreen:green"
+              //
+              // is converted to this:
+              //
+              //     classNameBinding="_parentView.context.isGreen:green"
+              var parsedPath = View._parsePropertyPath(full);
+              if (parsedPath.path !== '') {
+                path = this.contextualizeBindingPath(parsedPath.path, data);
+                if (path) {
+                  extensions.classNameBindings[j] = path + parsedPath.classNames;
+                }
               }
             }
           }
@@ -11350,7 +11364,7 @@ define("ember-metal/binding",
     var set = __dependency3__.set;
     var trySet = __dependency3__.trySet;
     var guidFor = __dependency4__.guidFor;
-    var Map = __dependency5__.Map;
+    var Map = __dependency5__["default"];
     var addObserver = __dependency6__.addObserver;
     var removeObserver = __dependency6__.removeObserver;
     var _suspendObserver = __dependency6__._suspendObserver;
@@ -11402,7 +11416,7 @@ define("ember-metal/binding",
       this._direction = 'fwd';
       this._from = fromPath;
       this._to   = toPath;
-      this._directionMap = Map.create();
+      this._directionMap = new Map();
       this._readyToSync = undefined;
       this._oneWay = undefined;
     }
@@ -11588,7 +11602,7 @@ define("ember-metal/binding",
         var fromPath = this._from;
         var toPath = this._to;
 
-        directionMap.remove(obj);
+        directionMap["delete"](obj);
 
         // if we're synchronizing from the remote object...
         if (direction === 'fwd') {
@@ -11883,7 +11897,7 @@ define("ember-metal/cache",
           value = this.set(key, this.func(key));
         } else if (value === UNDEFINED) {
           this.hits ++;
-          value = UNDEFINED;
+          value = undefined;
         } else {
           this.hits ++;
           // nothing to translate
@@ -13602,7 +13616,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0-beta.4+pre.fbf006f9
+      @version 1.8.0-beta.4+pre.3bfbaaa7
     */
 
     if ('undefined' === typeof Ember) {
@@ -13629,10 +13643,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0-beta.4+pre.fbf006f9'
+      @default '1.8.0-beta.4+pre.3bfbaaa7'
       @static
     */
-    Ember.VERSION = '1.8.0-beta.4+pre.fbf006f9';
+    Ember.VERSION = '1.8.0-beta.4+pre.3bfbaaa7';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -15418,8 +15432,8 @@ define("ember-metal/logger",
     };
   });
 define("ember-metal/map",
-  ["ember-metal/utils","ember-metal/array","ember-metal/platform","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["ember-metal/utils","ember-metal/array","ember-metal/platform","ember-metal/deprecate_property","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     /**
     @module ember-metal
@@ -15436,9 +15450,7 @@ define("ember-metal/map",
 
       This implementation follows the current iteration of the ES6 proposal for
       maps (http://wiki.ecmascript.org/doku.php?id=harmony:simple_maps_and_sets),
-      with two exceptions. First, because we need our implementation to be pleasant
-      on older browsers, we do not use the `delete` name (using `remove` instead).
-      Second, as we do not have the luxury of in-VM iteration, we implement a
+      with one exception:  as we do not have the luxury of in-VM iteration, we implement a
       forEach method for iteration.
 
       Map is mocked out to look like an Ember object, so you can do
@@ -15448,6 +15460,7 @@ define("ember-metal/map",
     var guidFor = __dependency1__.guidFor;
     var indexOf = __dependency2__.indexOf;
     var create = __dependency3__.create;
+    var deprecateProperty = __dependency4__.deprecateProperty;
 
     function missingFunction(fn) {
       throw new TypeError('' + Object.prototype.toString.call(fn) + " is not a function");
@@ -15493,6 +15506,7 @@ define("ember-metal/map",
 
       if (this instanceof OrderedSet) {
         this.clear();
+        this._silenceRemoveDeprecation = false;
       } else {
         missingNew("OrderedSet");
       }
@@ -15551,7 +15565,9 @@ define("ember-metal/map",
         @return {Boolean}
       */
       remove: function(obj, _guid) {
-        return this['delete'](obj, _guid);
+        Ember.deprecate('Calling `OrderedSet.prototype.remove` has been deprecated, please use `OrderedSet.prototype.delete` instead.', this._silenceRemoveDeprecation);
+
+        return this["delete"](obj, _guid);
       },
 
       /**
@@ -15560,7 +15576,7 @@ define("ember-metal/map",
         @param _guid (optional and for internal use only)
         @return {Boolean}
       */
-      'delete': function(obj, _guid) {
+      "delete": function(obj, _guid) {
         var guid = _guid || guidFor(obj);
         var presenceSet = this.presenceSet;
         var list = this.list;
@@ -15592,6 +15608,8 @@ define("ember-metal/map",
         @return {Boolean}
       */
       has: function(obj) {
+        if (this.size === 0) { return false; }
+
         var guid = guidFor(obj);
         var presenceSet = this.presenceSet;
 
@@ -15603,14 +15621,20 @@ define("ember-metal/map",
         @param {Function} fn
         @param self
       */
-      forEach: function(fn, thisArg) {
+      forEach: function(fn /*, thisArg*/) {
+        if (typeof fn !== 'function') {
+          missingFunction(fn);
+        }
+
+        if (this.size === 0) { return; }
+
         var list = this.list;
         var length = arguments.length;
         var i;
 
         if (length === 2) {
           for (i = 0; i < list.length; i++) {
-            fn.call(thisArg, list[i]);
+            fn.call(arguments[1], list[i]);
           }
         } else {
           for (i = 0; i < list.length; i++) {
@@ -15635,12 +15659,16 @@ define("ember-metal/map",
         var Constructor = this.constructor;
         var set = new Constructor();
 
+        set._silenceRemoveDeprecation = this._silenceRemoveDeprecation;
         set.presenceSet = copyNull(this.presenceSet);
         set.list = this.toArray();
+        set.size = this.size;
 
         return set;
       }
     };
+
+    deprecateProperty(OrderedSet.prototype, 'length', 'size');
 
     /**
       A Map stores values indexed by keys. Unlike JavaScript's
@@ -15665,6 +15693,7 @@ define("ember-metal/map",
     function Map() {
       if (this instanceof this.constructor) {
         this.keys = OrderedSet.create();
+        this.keys._silenceRemoveDeprecation = true;
         this.values = Object.create(null);
         this.size = 0;
       } else {
@@ -15703,6 +15732,8 @@ define("ember-metal/map",
         @return {*} the value associated with the key, or `undefined`
       */
       get: function(key) {
+        if (this.size === 0) { return; }
+
         var values = this.values;
         var guid = guidFor(key);
 
@@ -15723,7 +15754,11 @@ define("ember-metal/map",
         var values = this.values;
         var guid = guidFor(key);
 
-        keys.add(key, guid);
+        // ensure we don't store -0
+        var k = key === -0 ? 0 : key;
+
+        keys.add(k, guid);
+
         values[guid] = value;
 
         this.size = keys.size;
@@ -15740,7 +15775,9 @@ define("ember-metal/map",
         @return {Boolean} true if an item was removed, false otherwise
       */
       remove: function(key) {
-        return this['delete'](key);
+        Ember.deprecate('Calling `Map.prototype.remove` has been deprecated, please use `Map.prototype.delete` instead.');
+
+        return this["delete"](key);
       },
 
       /**
@@ -15750,7 +15787,8 @@ define("ember-metal/map",
         @param {*} key
         @return {Boolean} true if an item was removed, false otherwise
       */
-      'delete': function(key) {
+      "delete": function(key) {
+        if (this.size === 0) { return false; }
         // don't use ES6 "delete" because it will be annoying
         // to use in browsers that are not ES6 friendly;
         var keys = this.keys;
@@ -15758,7 +15796,7 @@ define("ember-metal/map",
         var guid = guidFor(key);
 
         if (values[guid]) {
-          keys.remove(key, guid);
+          keys["delete"](key, guid);
           delete values[guid];
           this.size = keys.size;
           return true;
@@ -15775,6 +15813,7 @@ define("ember-metal/map",
         @return {Boolean} true if the item was present, false otherwise
       */
       has: function(key) {
+        if (this.size === 0) { return false; }
         return this.keys.has(key);
       },
 
@@ -15789,16 +15828,19 @@ define("ember-metal/map",
         @param {*} self if passed, the `this` value inside the
           callback. By default, `this` is the map.
       */
-      forEach: function(callback, thisArg) {
+      forEach: function(callback /*, thisArg*/) {
         if (typeof callback !== 'function') {
           missingFunction(callback);
         }
 
+        if (this.size === 0) { return; }
+
         var length = arguments.length;
         var map = this;
-        var cb;
+        var cb, thisArg;
 
         if (length === 2) {
+          thisArg = arguments[1];
           cb = function(key) {
             callback.call(thisArg, map.get(key), key);
           };
@@ -15812,6 +15854,15 @@ define("ember-metal/map",
       },
 
       /**
+        @method clear
+      */
+      clear: function() {
+        this.keys.clear();
+        this.values = Object.create(null);
+        this.size = 0;
+      },
+
+      /**
         @method copy
         @return {Ember.Map}
       */
@@ -15819,6 +15870,8 @@ define("ember-metal/map",
         return copyMap(this, new Map());
       }
     };
+
+    deprecateProperty(Map.prototype, 'length', 'size');
 
     /**
       @class MapWithDefault
@@ -15884,6 +15937,8 @@ define("ember-metal/map",
         defaultValue: this.defaultValue
       }));
     };
+
+    __exports__["default"] = Map;
 
     __exports__.OrderedSet = OrderedSet;
     __exports__.Map = Map;
@@ -18298,8 +18353,7 @@ define("ember-metal/run_loop",
         target at the time the method is invoked.
       @param {Object} [args*] Optional arguments to pass to the timeout.
       @param {Number} wait Number of milliseconds to wait.
-      @return {String} a string you can use to cancel the timer in
-        `run.cancel` later.
+      @return {Object} Timer information for use in cancelling, see `run.cancel`.
     */
     run.later = function(target, method) {
       return apply(backburner, backburner.later, arguments);
@@ -18615,11 +18669,12 @@ define("ember-metal/run_loop",
     };
   });
 define("ember-metal/set_properties",
-  ["ember-metal/property_events","ember-metal/property_set","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["ember-metal/property_events","ember-metal/property_set","ember-metal/keys","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     var changeProperties = __dependency1__.changeProperties;
     var set = __dependency2__.set;
+    var keys = __dependency3__["default"];
 
     /**
       Set a list of properties on an object. These properties are set inside
@@ -18643,8 +18698,13 @@ define("ember-metal/set_properties",
     */
     __exports__["default"] = function setProperties(self, hash) {
       changeProperties(function() {
-        for(var prop in hash) {
-          if (hash.hasOwnProperty(prop)) { set(self, prop, hash[prop]); }
+        var props = keys(hash);
+        var prop;
+
+        for (var i = 0, l = props.length; i < l; i++) {
+          prop = props[i];
+
+          set(self, prop, hash[prop]);
         }
       });
       return self;
@@ -39072,15 +39132,15 @@ define("ember-views/system/render_buffer",
           tagString = tagName;
         }
 
-        var element = this.dom.createElement(tagString);
+        var element = this.dom.createElement(tagString, this._contextualElement);
         var $element = jQuery(element);
 
         if (id) {
-          $element.attr('id', id);
+          this.dom.setAttribute(element, 'id', id);
           this.elementId = null;
         }
         if (classes) {
-          $element.attr('class', classes.join(' '));
+          this.dom.setAttribute(element, 'class', classes.join(' '));
           this.classes = null;
           this.elementClasses = null;
         }
@@ -39092,7 +39152,7 @@ define("ember-views/system/render_buffer",
             }
           }
 
-          $element.attr('style', styleBuffer);
+          this.dom.setAttribute(element, 'style', styleBuffer);
 
           this.elementStyle = null;
         }
@@ -39100,7 +39160,7 @@ define("ember-views/system/render_buffer",
         if (attrs) {
           for (attr in attrs) {
             if (attrs.hasOwnProperty(attr)) {
-              $element.attr(attr, attrs[attr]);
+              this.dom.setAttribute(element, attr, attrs[attr]);
             }
           }
 
@@ -39135,6 +39195,7 @@ define("ember-views/system/render_buffer",
         var nodes;
         if (this._element) {
           if (html) {
+            this.dom.detectNamespace(this._element);
             nodes = this.dom.parseHTML(html, this._element);
             while (nodes[0]) {
               this._element.appendChild(nodes[0]);
@@ -39145,6 +39206,7 @@ define("ember-views/system/render_buffer",
           if (html) {
             var omittedStartTag = detectOmittedStartTag(html, this._contextualElement);
             var contextualElement = omittedStartTag || this._contextualElement;
+            this.dom.detectNamespace(contextualElement);
             nodes = this.dom.parseHTML(html, contextualElement);
             var frag = this._element = document.createDocumentFragment();
             while (nodes[0]) {
@@ -43205,6 +43267,8 @@ define("morph/dom-helper",
     "use strict";
     var Morph = __dependency1__["default"];
     var buildHTMLDOM = __dependency2__.buildHTMLDOM;
+    var svgNamespace = __dependency2__.svgNamespace;
+    var svgHTMLIntegrationPoints = __dependency2__.svgHTMLIntegrationPoints;
 
     var deletesBlankTextNodes = (function(){
       var element = document.createElement('div');
@@ -43219,9 +43283,6 @@ define("morph/dom-helper",
       var clonedElement = element.cloneNode(false);
       return !clonedElement.checked;
     })();
-
-    var svgNamespace = 'http://www.w3.org/2000/svg',
-        svgHTMLIntegrationPoints = {foreignObject: 1, desc: 1, title: 1};
 
     function isSVG(ns){
       return ns === svgNamespace;
@@ -43329,9 +43390,19 @@ define("morph/dom-helper",
     };
 
     if (document.createElementNS) {
-      prototype.createElement = function(tagName) {
-        if (this.namespace) {
-          return this.document.createElementNS(this.namespace, tagName);
+      // Only opt into namespace detection if a contextualElement
+      // is passed.
+      prototype.createElement = function(tagName, contextualElement) {
+        var namespace = this.namespace;
+        if (contextualElement) {
+          if (tagName === 'svg') {
+            namespace = svgNamespace;
+          } else {
+            namespace = interiorNamespace(contextualElement);
+          }
+        }
+        if (namespace) {
+          return this.document.createElementNS(namespace, tagName);
         } else {
           return this.document.createElement(tagName);
         }
@@ -43441,6 +43512,17 @@ define("morph/dom-helper/build-html-dom",
   ["exports"],
   function(__exports__) {
     "use strict";
+    var svgHTMLIntegrationPoints = {foreignObject: 1, desc: 1, title: 1};
+    __exports__.svgHTMLIntegrationPoints = svgHTMLIntegrationPoints;var svgNamespace = 'http://www.w3.org/2000/svg';
+    __exports__.svgNamespace = svgNamespace;
+    // Safari does not like using innerHTML on SVG HTML integration
+    // points.
+    var needsIntegrationPointFix = document.createElementNS && (function() {
+      var testEl = document.createElementNS(svgNamespace, 'foreignObject');
+      testEl.innerHTML = "<div></div>";
+      return testEl.childNodes.length === 0;
+    })();
+
     // Internet Explorer prior to 9 does not allow setting innerHTML if the first element
     // is a "zero-scope" element. This problem can be worked around by making
     // the first node an invisible text node. We, like Modernizr, use &shy;
@@ -43560,15 +43642,25 @@ define("morph/dom-helper/build-html-dom",
       return element ? element.childNodes : [];
     }
 
-    function buildDOM(html, contextualElement, dom){
-      contextualElement = dom.cloneNode(contextualElement, false);
-      scriptSafeInnerHTML(contextualElement, html);
-      return contextualElement.childNodes;
+    var buildDOM;
+    if (needsShy) {
+      buildDOM = function buildDOM(html, contextualElement, dom){
+        contextualElement = dom.cloneNode(contextualElement, false);
+        scriptSafeInnerHTML(contextualElement, html);
+        return contextualElement.childNodes;
+      };
+    } else {
+      buildDOM = function buildDOM(html, contextualElement, dom){
+        contextualElement = dom.cloneNode(contextualElement, false);
+        contextualElement.innerHTML = html;
+        return contextualElement.childNodes;
+      };
     }
+
 
     var buildHTMLDOM;
     // Really, this just means IE8 and IE9 get a slower buildHTMLDOM
-    if (tagNamesRequiringInnerHTMLFix.length > 0 || needsShy || movesWhitespace) {
+    if (tagNamesRequiringInnerHTMLFix.length > 0 || movesWhitespace) {
       buildHTMLDOM = function buildHTMLDOM(html, contextualElement, dom) {
         // Make a list of the leading text on script nodes. Include
         // script tags without any whitespace for easier processing later.
@@ -43628,6 +43720,14 @@ define("morph/dom-helper/build-html-dom",
         }
 
         return nodes;
+      };
+    } else if (needsIntegrationPointFix) {
+      buildHTMLDOM = function buildHTMLDOM(html, contextualElement, dom){
+        if (svgHTMLIntegrationPoints[contextualElement.tagName]) {
+          return buildDOM(html, document.createElement('div'), dom);
+        } else {
+          return buildDOM(html, contextualElement, dom);
+        }
       };
     } else {
       buildHTMLDOM = buildDOM;
@@ -46758,10 +46858,10 @@ define("rsvp.umd",
     };
 
     /* global define:true module:true window: true */
-    if (typeof define === 'function' && define.amd) {
+    if (typeof define === 'function' && define['amd']) {
       define(function() { return RSVP; });
-    } else if (typeof module !== 'undefined' && module.exports) {
-      module.exports = RSVP;
+    } else if (typeof module !== 'undefined' && module['exports']) {
+      module['exports'] = RSVP;
     } else if (typeof this !== 'undefined') {
       this['RSVP'] = RSVP;
     }
@@ -46776,6 +46876,10 @@ define("rsvp/-internal",
     var instrument = __dependency2__["default"];
 
     var config = __dependency3__.config;
+
+    function  withOwnPromise() {
+      return new TypeError('A promises callback cannot return that same promise.');
+    }
 
     function noop() {}
 
@@ -46976,7 +47080,7 @@ define("rsvp/-internal",
         }
 
         if (promise === value) {
-          reject(promise, new TypeError('A promises callback cannot return that same promise.'));
+          reject(promise, withOwnPromise());
           return;
         }
 
@@ -47137,7 +47241,8 @@ define("rsvp/asap",
       }
     }
 
-    var browserGlobal = (typeof window !== 'undefined') ? window : {};
+    var browserWindow = (typeof window !== 'undefined') ? window : undefined
+    var browserGlobal = browserWindow || {};
     var BrowserMutationObserver = browserGlobal.MutationObserver || browserGlobal.WebKitMutationObserver;
 
     // test for web worker but not in IE10
@@ -47149,6 +47254,13 @@ define("rsvp/asap",
     function useNextTick() {
       return function() {
         process.nextTick(flush);
+      };
+    }
+
+    // vertx
+    function useVertxTimer() {
+      return function() {
+        vertxNext(flush);
       };
     }
 
@@ -47193,8 +47305,17 @@ define("rsvp/asap",
       len = 0;
     }
 
-    var scheduleFlush;
+    function attemptVertex() {
+      try {
+        var vertx = require('vertx');
+        var vertxNext = vertx.runOnLoop || vertx.runOnContext;
+        return useVertxTimer();
+      } catch(e) {
+        return useSetTimeout();
+      }
+    }
 
+    var scheduleFlush;
     // Decide what async method to use to triggering processing of queued callbacks:
     if (typeof process !== 'undefined' && {}.toString.call(process) === '[object process]') {
       scheduleFlush = useNextTick();
@@ -47202,6 +47323,8 @@ define("rsvp/asap",
       scheduleFlush = useMutationObserver();
     } else if (isWorker) {
       scheduleFlush = useMessageChannel();
+    } else if (browserWindow === undefined && typeof require === 'function') {
+      scheduleFlush = attemptVertex();
     } else {
       scheduleFlush = useSetTimeout();
     }
@@ -47279,9 +47402,9 @@ define("rsvp/defer",
     __exports__["default"] = function defer(label) {
       var deferred = { };
 
-      deferred.promise = new Promise(function(resolve, reject) {
-        deferred.resolve = resolve;
-        deferred.reject = reject;
+      deferred['promise'] = new Promise(function(resolve, reject) {
+        deferred['resolve'] = resolve;
+        deferred['reject'] = reject;
       }, label);
 
       return deferred;
@@ -47977,27 +48100,40 @@ define("rsvp/instrument",
 
     var queue = [];
 
+    function scheduleFlush() {
+      setTimeout(function() {
+        var entry;
+        for (var i = 0; i < queue.length; i++) {
+          entry = queue[i];
+
+          var payload = entry.payload;
+
+          payload.guid = payload.key + payload.id;
+          payload.childGuid = payload.key + payload.childId;
+          if (payload.error) {
+            payload.stack = payload.error.stack;
+          }
+
+          config.trigger(entry.name, entry.payload);
+        }
+        queue.length = 0;
+      }, 50);
+    }
+
     __exports__["default"] = function instrument(eventName, promise, child) {
       if (1 === queue.push({
           name: eventName,
           payload: {
-            guid: promise._guidKey + promise._id,
+            key: promise._guidKey,
+            id:  promise._id,
             eventName: eventName,
             detail: promise._result,
-            childGuid: child && promise._guidKey + child._id,
+            childId: child && child._id,
             label: promise._label,
             timeStamp: now(),
-            stack: new Error(promise._label).stack
+            error: config["instrument-with-stack"] ? new Error(promise._label) : null
           }})) {
-
-            setTimeout(function() {
-              var entry;
-              for (var i = 0; i < queue.length; i++) {
-                entry = queue[i];
-                config.trigger(entry.name, entry.payload);
-              }
-              queue.length = 0;
-            }, 50);
+            scheduleFlush();
           }
       }
   });

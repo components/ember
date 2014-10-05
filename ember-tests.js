@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0-beta.4+pre.fbf006f9
+ * @version   1.8.0-beta.4+pre.3bfbaaa7
  */
 
 (function() {
@@ -5841,6 +5841,32 @@ define("ember-handlebars/tests/handlebars_test",
       appendView();
 
       ok(view.$('#twas-called').length, "the named template was called");
+    });
+
+    test("{{view}} should not override class bindings defined on a child view", function() {
+      var LabelView = EmberView.extend({
+        container:         container,
+        templateName:      'nested',
+        classNameBindings: ['something'],
+        something:         'visible'
+      });
+
+      container.register('controller:label', ObjectController, { instantiate: true });
+      container.register('view:label',       LabelView);
+      container.register('template:label',   EmberHandlebars.compile('<div id="child-view"></div>'));
+      container.register('template:nester', EmberHandlebars.compile('{{render "label"}}'));
+
+      view = EmberView.create({
+        container:    container,
+        templateName: 'nester',
+        controller:   ObjectController.create({
+          container: container
+        })
+      });
+
+      appendView();
+
+      ok(view.$('.visible').length > 0, 'class bindings are not overriden');
     });
 
     test("template view should call the function of the associated template with itself as the context", function() {
@@ -13540,7 +13566,7 @@ define("ember-metal-views/tests/test_helpers",
       if (view.element) {
         el = view.element;
       } else {
-        el = view.element = this._dom.createElement(view.tagName || 'div');
+        el = view.element = this._dom.createElement(view.tagName || 'div', contextualElement);
       }
       var classNames = view.classNames;
       if (typeof classNames === 'string') {
@@ -13565,6 +13591,7 @@ define("ember-metal-views/tests/test_helpers",
       } else if (view.textContent) {
         setElementText(el, view.textContent);
       } else if (view.innerHTML) {
+        this._dom.detectNamespace(el);
         var nodes = this._dom.parseHTML(view.innerHTML, el);
         while (nodes[0]) {
           el.appendChild(nodes[0]);
@@ -15160,6 +15187,72 @@ define("ember-metal/tests/binding/sync_test.jshint",
     module('JSHint - ember-metal/tests/binding');
     test('ember-metal/tests/binding/sync_test.js should pass jshint', function() { 
       ok(true, 'ember-metal/tests/binding/sync_test.js should pass jshint.'); 
+    });
+  });
+define("ember-metal/tests/cache_test",
+  ["ember-metal/cache"],
+  function(__dependency1__) {
+    "use strict";
+    var Cache = __dependency1__["default"];
+
+    QUnit.module("Cache");
+
+    test("basic", function() {
+      var cache = new Cache(100, function(key) {
+        return key.toUpperCase();
+      });
+
+      equal(cache.get("foo"), "FOO");
+      equal(cache.get("bar"), "BAR");
+      equal(cache.get("foo"), "FOO");
+    });
+
+    test("caches computation correctly", function() {
+      var count = 0;
+      var cache = new Cache(100, function(key) {
+        count++;
+        return key.toUpperCase();
+      });
+
+      equal(count, 0);
+      cache.get("foo");
+      equal(count, 1);
+      cache.get("bar");
+      equal(count, 2);
+      cache.get("bar");
+      equal(count, 2);
+      cache.get("foo");
+      equal(count, 2);
+    });
+
+    test("handles undefined value correctly", function() {
+      var cache = new Cache(100, function(key) {});
+
+      equal(cache.get("foo"), undefined);
+    });
+
+    test("continues working after reaching cache limit", function() {
+      var cache = new Cache(3, function(key) {
+        return key.toUpperCase();
+      });
+
+      cache.get("a");
+      cache.get("b");
+      cache.get("c");
+
+      equal(cache.get("d"), "D");
+      equal(cache.get("a"), "A");
+      equal(cache.get("b"), "B");
+      equal(cache.get("c"), "C");
+    });
+  });
+define("ember-metal/tests/cache_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal/tests');
+    test('ember-metal/tests/cache_test.js should pass jshint', function() { 
+      ok(true, 'ember-metal/tests/cache_test.js should pass jshint.'); 
     });
   });
 define("ember-metal/tests/chains_test",
@@ -17571,17 +17664,50 @@ define("ember-metal/tests/map_test",
         equal(map.size, 1);
       });
 
+      test("arity of forEach is 1 – es6 23.1.3.5", function() {
+        equal(map.forEach.length, 1, 'expected arity for map.forEach is 1');
+      });
+
+      test("forEach throws without a callback as the first argument", function() {
+        
+        equal(map.forEach.length, 1, 'expected arity for map.forEach is 1');
+      });
+
       test("remove", function() {
         map.set(object, "winning");
         map.set(number, "winning");
         map.set(string, "winning");
 
-        map.remove(object);
-        map.remove(number);
-        map.remove(string);
+        expectDeprecation(function() {
+          map.remove(object);
+          map.remove(number);
+          map.remove(string);
+
+          // doesn't explode
+          map.remove({});
+        }, 'Calling `Map.prototype.remove` has been deprecated, please use `Map.prototype.delete` instead.');
+
+        mapHasEntries([]);
+      });
+
+      test("has empty collection", function() {
+        equal(map.has('foo'), false);
+        equal(map.has(), false);
+      });
+
+      test("delete", function() {
+        expectNoDeprecation();
+
+        map.set(object, "winning");
+        map.set(number, "winning");
+        map.set(string, "winning");
+
+        map["delete"](object);
+        map["delete"](number);
+        map["delete"](string);
 
         // doesn't explode
-        map.remove({});
+        map["delete"]({});
 
         mapHasEntries([]);
       });
@@ -17610,16 +17736,16 @@ define("ember-metal/tests/map_test",
         ], map2);
       });
 
-      test("copy and then remove", function() {
+      test("copy and then delete", function() {
         map.set(object, "winning");
         map.set(number, "winning");
         map.set(string, "winning");
 
         var map2 = map.copy();
 
-        map2.remove(object);
-        map2.remove(number);
-        map2.remove(string);
+        map2["delete"](object);
+        map2["delete"](number);
+        map2["delete"](string);
 
         mapHasEntries([
           [ object, "winning" ],
@@ -17628,6 +17754,41 @@ define("ember-metal/tests/map_test",
         ]);
 
         mapHasEntries([ ], map2);
+      });
+
+      test("length", function() {
+        expectDeprecation('Usage of `length` is deprecated, use `size` instead.');
+
+        //Add a key twice
+        equal(map.length, 0);
+        map.set(string, "a string");
+        equal(map.length, 1);
+        map.set(string, "the same string");
+        equal(map.length, 1);
+
+        //Add another
+        map.set(number, "a number");
+        equal(map.length, 2);
+
+        //Remove one that doesn't exist
+        map["delete"]('does not exist');
+        equal(map.length, 2);
+
+        //Check copy
+        var copy = map.copy();
+        equal(copy.length, 2);
+
+        //Remove a key twice
+        map["delete"](number);
+        equal(map.length, 1);
+        map["delete"](number);
+        equal(map.length, 1);
+
+        //Remove the last key
+        map["delete"](string);
+        equal(map.length, 0);
+        map["delete"](string);
+        equal(map.length, 0);
       });
 
       test("size", function() {
@@ -17643,7 +17804,7 @@ define("ember-metal/tests/map_test",
         equal(map.size, 2);
 
         //Remove one that doesn't exist
-        map.remove('does not exist');
+        map["delete"]('does not exist');
         equal(map.size, 2);
 
         //Check copy
@@ -17651,15 +17812,15 @@ define("ember-metal/tests/map_test",
         equal(copy.size, 2);
 
         //Remove a key twice
-        map.remove(number);
+        map["delete"](number);
         equal(map.size, 1);
-        map.remove(number);
+        map["delete"](number);
         equal(map.size, 1);
 
         //Remove the last key
-        map.remove(string);
+        map["delete"](string);
         equal(map.size, 0);
-        map.remove(string);
+        map["delete"](string);
         equal(map.size, 0);
       });
 
@@ -17676,6 +17837,15 @@ define("ember-metal/tests/map_test",
           map.forEach(1);
         }, '[object Number] is not a function');
 
+        QUnit["throws"](function() {
+          map.forEach({});
+        }, '[object Object] is not a function');
+
+        map.forEach(function(value, key) {
+          map["delete"](key);
+        });
+        // ensure the error happens even if no data is present
+        equal(map.size, 0);
         QUnit["throws"](function() {
           map.forEach({});
         }, '[object Object] is not a function');
@@ -17794,6 +17964,73 @@ define("ember-metal/tests/map_test",
 
         equal(iteration, 4, 'expected 3 iterations');
       });
+
+      test("clear", function() {
+        var iterations = 0;
+
+        map.set("a", 1);
+        map.set("b", 2);
+        map.set("c", 3);
+        map.set("d", 4);
+
+        equal(map.size, 4);
+
+        map.forEach(function() {
+          iterations++;
+        });
+        equal(iterations, 4);
+
+        map.clear();
+        equal(map.size, 0);
+        iterations = 0;
+        map.forEach(function() {
+          iterations++;
+        });
+        equal(iterations, 0);
+      });
+
+      test("-0", function() {
+        equal(map.has(-0), false);
+        equal(map.has(0), false);
+
+        map.set(-0, 'zero');
+
+        equal(map.has(-0), true);
+        equal(map.has(0), true);
+
+        equal(map.get(0), 'zero');
+        equal(map.get(-0), 'zero');
+
+        map.forEach(function(value, key) {
+          equal(1/key, Infinity, 'spec says key should be positive zero');
+        });
+      });
+
+      test("NaN", function() {
+        equal(map.has(NaN), false);
+
+        map.set(NaN, 'not-a-number');
+
+        equal(map.has(NaN), true);
+
+        equal(map.get(NaN), 'not-a-number');
+
+      });
+
+      test("NaN Boxed", function() {
+        //jshint -W053
+        var boxed = new Number(NaN);
+        equal(map.has(boxed), false);
+
+        map.set(boxed, 'not-a-number');
+
+        equal(map.has(boxed), true);
+        equal(map.has(NaN), false);
+
+        equal(map.get(NaN), undefined);
+        equal(map.get(boxed), 'not-a-number');
+      });
+
     }
 
     for (var i = 0;  i < varieties.length;  i++) {
@@ -17813,6 +18050,18 @@ define("ember-metal/tests/map_test",
       deepEqual(value, [ 'ohai' ]);
 
       strictEqual(value, map.get('ohai'));
+    });
+
+    test("Map.prototype.constructor", function() {
+      var map = new Map();
+      equal(map.constructor, Map);
+    });
+
+    test("MapWithDefault.prototype.constructor", function() {
+      var map = new MapWithDefault({
+        defaultValue: function(key) { return key; }
+      });
+      equal(map.constructor, MapWithDefault);
     });
 
     test("Copying a MapWithDefault copies the default value", function() {
@@ -45701,6 +45950,8 @@ define("ember-views/tests/system/render_buffer_test",
     var jQuery = __dependency3__["default"];
     var RenderBuffer = __dependency4__["default"];
 
+    var svgNamespace = "http://www.w3.org/2000/svg";
+    var xhtmlNamespace = "http://www.w3.org/1999/xhtml";
     var trim = jQuery.trim;
 
     // .......................................................
@@ -45746,6 +45997,16 @@ define("ember-views/tests/system/render_buffer_test",
       buffer.generateElement();
       el = buffer.element();
       strictEqual(el.value, '0', "generated element has value of '0'");
+    });
+
+    test("sets attributes with camelCase", function() {
+      var buffer = new RenderBuffer('div', document.body);
+      var content = "javascript:someCode()"; //jshint ignore:line
+
+      buffer.attr('onClick', content);
+      buffer.generateElement();
+      var el = buffer.element();
+      strictEqual(el.getAttribute('onClick'), content, "attribute with camelCase was set");
     });
 
     test("prevents XSS injection via `id`", function() {
@@ -45924,6 +46185,64 @@ define("ember-views/tests/system/render_buffer_test",
       ok(jQuery(element).html().match(/script/i), "should have script tag");
       ok(!jQuery(element).html().match(/&shy;/), "should not have &shy;");
     });
+
+    if ('namespaceURI' in document.createElement('div')) {
+
+    QUnit.module("RenderBuffer namespaces");
+
+    test("properly makes a content string SVG namespace inside an SVG tag", function() {
+      var buffer = new RenderBuffer('svg', document.body);
+      buffer.generateElement();
+      buffer.push('<path></path>foo');
+
+      var element = buffer.element();
+      ok(element.tagName, 'SVG', 'element is svg');
+      equal(element.namespaceURI, svgNamespace, 'element is svg namespace');
+
+      ok(element.childNodes[0].tagName, 'PATH', 'element is path');
+      equal(element.childNodes[0].namespaceURI, svgNamespace, 'element is svg namespace');
+    });
+
+    test("properly makes a path element svg namespace inside SVG context", function() {
+      var buffer = new RenderBuffer('path', document.createElementNS(svgNamespace, 'svg'));
+      buffer.generateElement();
+      buffer.push('<g></g>');
+
+      var element = buffer.element();
+      ok(element.tagName, 'PATH', 'element is PATH');
+      equal(element.namespaceURI, svgNamespace, 'element is svg namespace');
+
+      ok(element.childNodes[0].tagName, 'G', 'element is g');
+      equal(element.childNodes[0].namespaceURI, svgNamespace, 'element is svg namespace');
+    });
+
+    test("properly makes a foreignObject svg namespace inside SVG context", function() {
+      var buffer = new RenderBuffer('foreignObject', document.createElementNS(svgNamespace, 'svg'));
+      buffer.generateElement();
+      buffer.push('<div></div>');
+
+      var element = buffer.element();
+      ok(element.tagName, 'FOREIGNOBJECT', 'element is foreignObject');
+      equal(element.namespaceURI, svgNamespace, 'element is svg namespace');
+
+      ok(element.childNodes[0].tagName, 'DIV', 'element is div');
+      equal(element.childNodes[0].namespaceURI, xhtmlNamespace, 'element is xhtml namespace');
+    });
+
+    test("properly makes a div xhtml namespace inside foreignObject context", function() {
+      var buffer = new RenderBuffer('div', document.createElementNS(svgNamespace, 'foreignObject'));
+      buffer.generateElement();
+      buffer.push('<div></div>');
+
+      var element = buffer.element();
+      ok(element.tagName, 'DIV', 'element is div');
+      equal(element.namespaceURI, xhtmlNamespace, 'element is xhtml namespace');
+
+      ok(element.childNodes[0].tagName, 'DIV', 'element is div');
+      equal(element.childNodes[0].namespaceURI, xhtmlNamespace, 'element is xhtml namespace');
+    });
+
+    }
   });
 define("ember-views/tests/system/render_buffer_test.jshint",
   [],
@@ -48290,6 +48609,25 @@ define("ember-views/tests/views/view/attribute_bindings_test",
       ok(!view.$().attr('nothing'), "removes nothing attribute when null");
       ok(!view.$().attr('notDefined'), "removes notDefined attribute when undefined");
       ok(!view.$().attr('notNumber'), "removes notNumber attribute when NaN");
+    });
+
+    test("should update attribute bindings on svg", function() {
+      view = EmberView.create({
+        attributeBindings: ['viewBox'],
+        viewBox: null
+      });
+
+      run(function() {
+        view.createElement();
+      });
+
+      equal(view.$().attr('viewBox'), null, "viewBox can be null");
+
+      run(function() {
+        view.set('viewBox', '0 0 100 100');
+      });
+
+      equal(view.$().attr('viewBox'), '0 0 100 100', "viewBox can be updated");
     });
 
     // This comes into play when using the {{#each}} helper. If the
