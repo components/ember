@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.30f5e73b
+ * @version   1.9.0-beta.1+canary.7d0e7cdc
  */
 
 (function() {
@@ -13533,7 +13533,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.30f5e73b
+      @version 1.9.0-beta.1+canary.7d0e7cdc
     */
 
     if ('undefined' === typeof Ember) {
@@ -13560,10 +13560,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.30f5e73b'
+      @default '1.9.0-beta.1+canary.7d0e7cdc'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.30f5e73b';
+    Ember.VERSION = '1.9.0-beta.1+canary.7d0e7cdc';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -15512,13 +15512,12 @@ define("ember-metal/map",
         var presenceSet = this.presenceSet;
         var list = this.list;
 
-        if (presenceSet[guid]) {
+        if (presenceSet[guid] === true) {
           return;
         }
 
         presenceSet[guid] = true;
-        list.push(obj);
-        this.size++;
+        this.size = list.push(obj);
 
         return this;
       },
@@ -15547,13 +15546,13 @@ define("ember-metal/map",
         var presenceSet = this.presenceSet;
         var list = this.list;
 
-        if (presenceSet[guid] !== undefined) {
+        if (presenceSet[guid] === true) {
           delete presenceSet[guid];
           var index = indexOf.call(list, obj);
           if (index > -1) {
             list.splice(index, 1);
           }
-          this.size--;
+          this.size = list.length;
           return true;
         } else {
           return false;
@@ -15579,7 +15578,7 @@ define("ember-metal/map",
         var guid = guidFor(obj);
         var presenceSet = this.presenceSet;
 
-        return !!presenceSet[guid];
+        return presenceSet[guid] === true;
       },
 
       /**
@@ -15760,8 +15759,7 @@ define("ember-metal/map",
         var values = this.values;
         var guid = guidFor(key);
 
-        if (values[guid]) {
-          keys["delete"](key, guid);
+        if (keys["delete"](key, guid)) {
           delete values[guid];
           this.size = keys.size;
           return true;
@@ -15778,7 +15776,6 @@ define("ember-metal/map",
         @return {Boolean} true if the item was present, false otherwise
       */
       has: function(key) {
-        if (this.size === 0) { return false; }
         return this.keys.has(key);
       },
 

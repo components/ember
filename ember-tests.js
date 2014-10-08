@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.30f5e73b
+ * @version   1.9.0-beta.1+canary.7d0e7cdc
  */
 
 (function() {
@@ -18053,6 +18053,22 @@ define("ember-metal/tests/map_test",
         equal(map.get(boxed), 'not-a-number');
       });
 
+      test("0 value", function() {
+        var obj = {};
+        equal(map.has(obj), false);
+
+        equal(map.size, 0);
+        map.set(obj, 0);
+        equal(map.size, 1);
+
+        equal(map.has(obj), true);
+        equal(map.get(obj), 0);
+
+        map["delete"](obj);
+        equal(map.has(obj), false);
+        equal(map.get(obj), undefined);
+        equal(map.size, 0);
+      });
     }
 
     for (var i = 0;  i < varieties.length;  i++) {
