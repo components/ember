@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.7d0e7cdc
+ * @version   1.9.0-beta.1+canary.48a40f2a
  */
 
 (function() {
@@ -14949,17 +14949,15 @@ define("ember-metal/tests/binding/oneWay_test.jshint",
     });
   });
 define("ember-metal/tests/binding/sync_test",
-  ["ember-metal/tests/props_helper","ember-metal/run_loop","ember-metal/observer","ember-metal/platform","ember-metal/binding","ember-metal/watching","ember-metal/computed","ember-metal/properties"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
+  ["ember-metal/tests/props_helper","ember-metal/run_loop","ember-metal/observer","ember-metal/binding","ember-metal/computed","ember-metal/properties"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
     var testBoth = __dependency1__["default"];
     var run = __dependency2__["default"];
     var addObserver = __dependency3__.addObserver;
-    var create = __dependency4__.create;
-    var bind = __dependency5__.bind;
-    var rewatch = __dependency6__.rewatch;
-    var computed = __dependency7__.computed;
-    var defineProperty = __dependency8__.defineProperty;
+    var bind = __dependency4__.bind;
+    var computed = __dependency5__.computed;
+    var defineProperty = __dependency6__.defineProperty;
 
     QUnit.module("system/binding/sync_test.js");
 
@@ -15053,49 +15051,6 @@ define("ember-metal/tests/binding/sync_test",
       });
 
       equal(get(a, 'foo'), "what is going on");
-    });
-
-    testBoth("bindings should do the right thing when binding is in prototype", function(get, set) {
-      var obj, proto, a, b, selectionChanged;
-      run(function() {
-        obj = {
-          selection: null
-        };
-
-        selectionChanged = 0;
-
-        addObserver(obj, 'selection', function () {
-          selectionChanged++;
-        });
-
-        proto = {
-          obj: obj,
-          changeSelection: function (value) {
-            set(this, 'selection', value);
-          }
-        };
-        bind(proto, 'selection', 'obj.selection');
-
-        a = create(proto);
-        b = create(proto);
-        rewatch(a);
-        rewatch(b);
-      });
-
-      run(function () {
-        set(a, 'selection', 'a');
-      });
-
-      run(function () {
-        set(b, 'selection', 'b');
-      });
-
-      run(function () {
-        set(a, 'selection', 'a');
-      });
-
-      equal(selectionChanged, 3);
-      equal(get(obj, 'selection'), 'a');
     });
 
     testBoth("bindings should not try to sync destroyed objects", function(get, set) {
