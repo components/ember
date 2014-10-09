@@ -111,7 +111,8 @@ EmberHandlebars.helper = function(name, value) {
   if (!View) { View = requireModule('ember-views/views/view')['default']; } // ES6TODO: stupid circular dep
   if (!Component) { Component = requireModule('ember-views/views/component')['default']; } // ES6TODO: stupid circular dep
 
-  Ember.assert("You tried to register a component named '" + name + "', but component names must include a '-'", !Component.detect(value) || name.match(/-/));
+  Ember.assert("You tried to register a component named '" + name +
+               "', but component names must include a '-'", !Component.detect(value) || name.match(/-/));
 
   if (View.detect(value)) {
     EmberHandlebars.registerHelper(name, EmberHandlebars.makeViewHelper(value));
@@ -134,7 +135,8 @@ EmberHandlebars.helper = function(name, value) {
 */
 EmberHandlebars.makeViewHelper = function(ViewClass) {
   return function(options) {
-    Ember.assert("You can only pass attributes (such as name=value) not bare values to a helper for a View found in '" + ViewClass.toString() + "'", arguments.length < 2);
+    Ember.assert("You can only pass attributes (such as name=value) not bare " +
+                 "values to a helper for a View found in '" + ViewClass.toString() + "'", arguments.length < 2);
     return EmberHandlebars.helpers.view.call(this, ViewClass, options);
   };
 };

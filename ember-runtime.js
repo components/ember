@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.d18dba73
+ * @version   1.9.0-beta.1+canary.3eb83a22
  */
 
 (function() {
@@ -1496,7 +1496,10 @@ define("container/container",
 
         var fullNameType = fullName.split(':')[0];
         if (fullNameType === type) {
-          throw new Error('Cannot inject a `' + fullName + '` on other ' + type + '(s). Register the `' + fullName + '` as a different type and perform the typeInjection.');
+          throw new Error('Cannot inject a `' + fullName +
+                          '` on other ' + type +
+                          '(s). Register the `' + fullName +
+                          '` as a different type and perform the typeInjection.');
         }
 
         addTypeInjection(this.typeInjections, type, property, fullName);
@@ -1560,7 +1563,10 @@ define("container/container",
         var normalizedName = this.normalize(fullName);
 
         if (this.cache[normalizedName]) {
-          throw new Error("Attempted to register an injection for a type that has already been looked up. ('" + normalizedName + "', '" + property + "', '" + injectionName + "')");
+          throw new Error("Attempted to register an injection for a type that has already been looked up. ('" +
+                          normalizedName + "', '" +
+                          property + "', '" +
+                          injectionName + "')");
         }
 
         addInjection(initRules(this.injections, normalizedName), property, normalizedInjectionName);
@@ -1980,90 +1986,90 @@ define("ember-metal",
     var Ember = __dependency1__["default"];
     var merge = __dependency2__["default"];
     var instrument = __dependency3__.instrument;
+    var reset = __dependency3__.reset;
     var subscribe = __dependency3__.subscribe;
     var unsubscribe = __dependency3__.unsubscribe;
-    var reset = __dependency3__.reset;
-    var generateGuid = __dependency4__.generateGuid;
-    var GUID_KEY = __dependency4__.GUID_KEY;
-    var guidFor = __dependency4__.guidFor;
-    var META_DESC = __dependency4__.META_DESC;
     var EMPTY_META = __dependency4__.EMPTY_META;
-    var meta = __dependency4__.meta;
-    var getMeta = __dependency4__.getMeta;
-    var setMeta = __dependency4__.setMeta;
-    var metaPath = __dependency4__.metaPath;
-    var inspect = __dependency4__.inspect;
-    var typeOf = __dependency4__.typeOf;
-    var tryCatchFinally = __dependency4__.tryCatchFinally;
-    var isArray = __dependency4__.isArray;
-    var makeArray = __dependency4__.makeArray;
-    var canInvoke = __dependency4__.canInvoke;
-    var tryInvoke = __dependency4__.tryInvoke;
-    var tryFinally = __dependency4__.tryFinally;
-    var wrap = __dependency4__.wrap;
+    var GUID_KEY = __dependency4__.GUID_KEY;
+    var META_DESC = __dependency4__.META_DESC;
     var apply = __dependency4__.apply;
     var applyStr = __dependency4__.applyStr;
+    var canInvoke = __dependency4__.canInvoke;
+    var generateGuid = __dependency4__.generateGuid;
+    var getMeta = __dependency4__.getMeta;
+    var guidFor = __dependency4__.guidFor;
+    var inspect = __dependency4__.inspect;
+    var isArray = __dependency4__.isArray;
+    var makeArray = __dependency4__.makeArray;
+    var meta = __dependency4__.meta;
+    var metaPath = __dependency4__.metaPath;
+    var setMeta = __dependency4__.setMeta;
+    var tryCatchFinally = __dependency4__.tryCatchFinally;
+    var tryFinally = __dependency4__.tryFinally;
+    var tryInvoke = __dependency4__.tryInvoke;
+    var typeOf = __dependency4__.typeOf;
     var uuid = __dependency4__.uuid;
+    var wrap = __dependency4__.wrap;
     var EmberError = __dependency5__["default"];
     var EnumerableUtils = __dependency6__["default"];
     var Cache = __dependency7__["default"];
     var create = __dependency8__.create;
     var platform = __dependency8__.platform;
-    var map = __dependency9__.map;
-    var forEach = __dependency9__.forEach;
     var filter = __dependency9__.filter;
+    var forEach = __dependency9__.forEach;
     var indexOf = __dependency9__.indexOf;
+    var map = __dependency9__.map;
     var Logger = __dependency10__["default"];
 
+    var _getPath = __dependency11__._getPath;
     var get = __dependency11__.get;
     var getWithDefault = __dependency11__.getWithDefault;
     var normalizeTuple = __dependency11__.normalizeTuple;
-    var _getPath = __dependency11__._getPath;
 
-    var on = __dependency12__.on;
     var addListener = __dependency12__.addListener;
+    var hasListeners = __dependency12__.hasListeners;
+    var listenersDiff = __dependency12__.listenersDiff;
+    var listenersFor = __dependency12__.listenersFor;
+    var listenersUnion = __dependency12__.listenersUnion;
+    var on = __dependency12__.on;
     var removeListener = __dependency12__.removeListener;
+    var sendEvent = __dependency12__.sendEvent;
     var suspendListener = __dependency12__.suspendListener;
     var suspendListeners = __dependency12__.suspendListeners;
-    var sendEvent = __dependency12__.sendEvent;
-    var hasListeners = __dependency12__.hasListeners;
     var watchedEvents = __dependency12__.watchedEvents;
-    var listenersFor = __dependency12__.listenersFor;
-    var listenersDiff = __dependency12__.listenersDiff;
-    var listenersUnion = __dependency12__.listenersUnion;
 
     var ObserverSet = __dependency13__["default"];
 
-    var propertyWillChange = __dependency14__.propertyWillChange;
-    var propertyDidChange = __dependency14__.propertyDidChange;
-    var overrideChains = __dependency14__.overrideChains;
     var beginPropertyChanges = __dependency14__.beginPropertyChanges;
-    var endPropertyChanges = __dependency14__.endPropertyChanges;
     var changeProperties = __dependency14__.changeProperties;
+    var endPropertyChanges = __dependency14__.endPropertyChanges;
+    var overrideChains = __dependency14__.overrideChains;
+    var propertyDidChange = __dependency14__.propertyDidChange;
+    var propertyWillChange = __dependency14__.propertyWillChange;
 
     var Descriptor = __dependency15__.Descriptor;
     var defineProperty = __dependency15__.defineProperty;
     var set = __dependency16__.set;
     var trySet = __dependency16__.trySet;
 
-    var OrderedSet = __dependency17__.OrderedSet;
     var Map = __dependency17__.Map;
     var MapWithDefault = __dependency17__.MapWithDefault;
+    var OrderedSet = __dependency17__.OrderedSet;
     var getProperties = __dependency18__["default"];
     var setProperties = __dependency19__["default"];
     var watchKey = __dependency20__.watchKey;
     var unwatchKey = __dependency20__.unwatchKey;
-    var flushPendingChains = __dependency21__.flushPendingChains;
-    var removeChainWatcher = __dependency21__.removeChainWatcher;
     var ChainNode = __dependency21__.ChainNode;
     var finishChains = __dependency21__.finishChains;
+    var flushPendingChains = __dependency21__.flushPendingChains;
+    var removeChainWatcher = __dependency21__.removeChainWatcher;
     var watchPath = __dependency22__.watchPath;
     var unwatchPath = __dependency22__.unwatchPath;
-    var watch = __dependency23__.watch;
-    var isWatching = __dependency23__.isWatching;
-    var unwatch = __dependency23__.unwatch;
-    var rewatch = __dependency23__.rewatch;
     var destroy = __dependency23__.destroy;
+    var isWatching = __dependency23__.isWatching;
+    var rewatch = __dependency23__.rewatch;
+    var unwatch = __dependency23__.unwatch;
+    var watch = __dependency23__.watch;
     var expandProperties = __dependency24__["default"];
     var ComputedProperty = __dependency25__.ComputedProperty;
     var computed = __dependency25__.computed;
@@ -2071,27 +2077,27 @@ define("ember-metal",
 
     // side effect of defining the computed.* macros
 
-    var addObserver = __dependency27__.addObserver;
-    var observersFor = __dependency27__.observersFor;
-    var removeObserver = __dependency27__.removeObserver;
-    var addBeforeObserver = __dependency27__.addBeforeObserver;
     var _suspendBeforeObserver = __dependency27__._suspendBeforeObserver;
-    var _suspendObserver = __dependency27__._suspendObserver;
     var _suspendBeforeObservers = __dependency27__._suspendBeforeObservers;
+    var _suspendObserver = __dependency27__._suspendObserver;
     var _suspendObservers = __dependency27__._suspendObservers;
+    var addBeforeObserver = __dependency27__.addBeforeObserver;
+    var addObserver = __dependency27__.addObserver;
     var beforeObserversFor = __dependency27__.beforeObserversFor;
+    var observersFor = __dependency27__.observersFor;
     var removeBeforeObserver = __dependency27__.removeBeforeObserver;
+    var removeObserver = __dependency27__.removeObserver;
     var IS_BINDING = __dependency28__.IS_BINDING;
-    var mixin = __dependency28__.mixin;
     var Mixin = __dependency28__.Mixin;
-    var required = __dependency28__.required;
     var aliasMethod = __dependency28__.aliasMethod;
-    var observer = __dependency28__.observer;
-    var immediateObserver = __dependency28__.immediateObserver;
     var beforeObserver = __dependency28__.beforeObserver;
+    var immediateObserver = __dependency28__.immediateObserver;
+    var mixin = __dependency28__.mixin;
+    var observer = __dependency28__.observer;
+    var required = __dependency28__.required;
     var Binding = __dependency29__.Binding;
-    var isGlobalPath = __dependency29__.isGlobalPath;
     var bind = __dependency29__.bind;
+    var isGlobalPath = __dependency29__.isGlobalPath;
     var oneWay = __dependency29__.oneWay;
     var run = __dependency30__["default"];
     var libraries = __dependency31__["default"];
@@ -3088,7 +3094,8 @@ define("ember-metal/chains",
 
       forEach.call(queue, function(q) { q[0].add(q[1]); });
 
-      warn('Watching an undefined global, Ember expects watched globals to be setup by the time the run loop is flushed, check for typos', pendingQueue.length === 0);
+      warn('Watching an undefined global, Ember expects watched globals to be' +
+           ' setup by the time the run loop is flushed, check for typos', pendingQueue.length === 0);
     }
 
     __exports__.flushPendingChains = flushPendingChains;function addChainWatcher(obj, keyName, node) {
@@ -3435,8 +3442,8 @@ define("ember-metal/computed",
     @module ember-metal
     */
 
-    Ember.warn("The CP_DEFAULT_CACHEABLE flag has been removed and computed properties are always cached by default. Use `volatile` if you don't want caching.", Ember.ENV.CP_DEFAULT_CACHEABLE !== false);
-
+    Ember.warn("The CP_DEFAULT_CACHEABLE flag has been removed and computed properties" +
+               "are always cached by default. Use `volatile` if you don't want caching.", Ember.ENV.CP_DEFAULT_CACHEABLE !== false);
 
     var metaFor = meta;
     var a_slice = [].slice;
@@ -3532,6 +3539,10 @@ define("ember-metal/computed",
       func.__ember_arity__ = func.length;
       this.func = func;
 
+      this._dependentKeys = undefined;
+      this._suspended = undefined;
+      this._meta = undefined;
+
       this._cacheable = (opts && opts.cacheable !== undefined) ? opts.cacheable : true;
       this._dependentKeys = opts && opts.dependentKeys;
       this._readOnly = opts && (opts.readOnly !== undefined || !!opts.readOnly) || false;
@@ -3540,9 +3551,6 @@ define("ember-metal/computed",
     ComputedProperty.prototype = new Descriptor();
 
     var ComputedPropertyPrototype = ComputedProperty.prototype;
-    ComputedPropertyPrototype._dependentKeys = undefined;
-    ComputedPropertyPrototype._suspended = undefined;
-    ComputedPropertyPrototype._meta = undefined;
 
     /**
       Properties are cacheable by default. Computed property will automatically
@@ -4755,7 +4763,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.d18dba73
+      @version 1.9.0-beta.1+canary.3eb83a22
     */
 
     if ('undefined' === typeof Ember) {
@@ -4782,10 +4790,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.d18dba73'
+      @default '1.9.0-beta.1+canary.3eb83a22'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.d18dba73';
+    Ember.VERSION = '1.9.0-beta.1+canary.3eb83a22';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -6284,7 +6292,8 @@ define("ember-metal/is_empty",
       @return {Boolean}
     */
     function isEmpty(obj) {
-      return isNone(obj) || (obj.length === 0 && typeof obj !== 'function') || (typeof obj === 'object' && get(obj, 'length') === 0);
+      return isNone(obj) || (obj.length === 0 && typeof obj !== 'function') ||
+        (typeof obj === 'object' && get(obj, 'length') === 0);
     }
 
     var empty = Ember.deprecateFunc("Ember.empty is deprecated. Please use Ember.isEmpty instead.", isEmpty);
@@ -7255,7 +7264,12 @@ define("ember-metal/mixin",
     function isMethod(obj) {
       return 'function' === typeof obj &&
              obj.isMethod !== false &&
-             obj !== Boolean && obj !== Object && obj !== Number && obj !== Array && obj !== Date && obj !== String;
+             obj !== Boolean &&
+             obj !== Object &&
+             obj !== Number &&
+             obj !== Array &&
+             obj !== Date &&
+             obj !== String;
     }
 
     var CONTINUE = {};
@@ -7714,7 +7728,8 @@ define("ember-metal/mixin",
       for(idx=0; idx < len; idx++) {
         mixin = arguments[idx];
         Ember.assert('Expected hash or Mixin instance, got ' + Object.prototype.toString.call(mixin),
-                     typeof mixin === 'object' && mixin !== null && Object.prototype.toString.call(mixin) !== '[object Array]');
+                     typeof mixin === 'object' && mixin !== null &&
+                       Object.prototype.toString.call(mixin) !== '[object Array]');
 
         if (mixin instanceof Mixin) {
           mixins.push(mixin);
@@ -7948,7 +7963,8 @@ define("ember-metal/mixin",
     function immediateObserver() {
       for (var i=0, l=arguments.length; i<l; i++) {
         var arg = arguments[i];
-        Ember.assert("Immediate observers must observe internal properties only, not properties on other objects.", typeof arg !== "string" || arg.indexOf('.') === -1);
+        Ember.assert("Immediate observers must observe internal properties only, not properties on other objects.",
+                     typeof arg !== "string" || arg.indexOf('.') === -1);
       }
 
       return observer.apply(this, arguments);
@@ -8647,6 +8663,7 @@ define("ember-metal/properties",
 
       return this;
     }
+
     __exports__.defineProperty = defineProperty;
   });
 define("ember-metal/property_events",
@@ -9575,10 +9592,14 @@ define("ember-metal/run_loop",
       @param {Object} [args*] Optional arguments to pass to the timeout.
       @return {Object} Timer information for use in cancelling, see `run.cancel`.
     */
-    run.once = function(target, method) {
+    run.once = function(/*target, method */) {
       checkAutoRun();
-      var args = slice.call(arguments);
-      args.unshift('actions');
+      var length = arguments.length;
+      var args = new Array(length);
+      args[0] = 'actions';
+      for (var i = 0; i < length; i++) {
+        args[i + 1] = arguments[i];
+      }
       return apply(backburner, backburner.scheduleOnce, args);
     };
 
@@ -9852,7 +9873,8 @@ define("ember-metal/run_loop",
     // Make sure it's not an autorun during testing
     function checkAutoRun() {
       if (!run.currentRunLoop) {
-        Ember.assert("You have turned on testing mode, which disabled the run-loop's autorun. You will need to wrap any code with asynchronous side-effects in an run", !Ember.testing);
+        Ember.assert("You have turned on testing mode, which disabled the run-loop's autorun." +
+                     " You will need to wrap any code with asynchronous side-effects in an run", !Ember.testing);
       }
     }
 
@@ -10197,7 +10219,6 @@ define("ember-metal/utils",
       @return {Object} the meta hash for an object
     */
     function meta(obj, writable) {
-
       var ret = obj['__ember_meta__'];
       if (writable===false) return ret || EMPTY_META;
 
@@ -14329,7 +14350,8 @@ define("ember-runtime/mixins/-proxy",
         }
 
         var content = get(this, 'content');
-        Ember.assert(fmt("Cannot delegate set('%@', %@) to the 'content' property of object proxy %@: its 'content' is undefined.", [key, value, this]), content);
+        Ember.assert(fmt("Cannot delegate set('%@', %@) to the 'content' property of" +
+                         " object proxy %@: its 'content' is undefined.", [key, value, this]), content);
         return set(content, key, value);
       }
 
@@ -14509,7 +14531,8 @@ define("ember-runtime/mixins/action_handler",
           if (typeOf(props.actions) === 'object') {
             hashName = 'actions';
           } else if (typeOf(props.events) === 'object') {
-            Ember.deprecate('Action handlers contained in an `events` object are deprecated in favor of putting them in an `actions` object', false);
+            Ember.deprecate('Action handlers contained in an `events` object are deprecated in favor' +
+                            ' of putting them in an `actions` object', false);
             hashName = 'events';
           }
 
@@ -14563,7 +14586,8 @@ define("ember-runtime/mixins/action_handler",
         }
 
         if (target = get(this, 'target')) {
-          Ember.assert("The `target` for " + this + " (" + target + ") does not have a `send` method", typeof target.send === 'function');
+          Ember.assert("The `target` for " + this + " (" + target +
+                       ") does not have a `send` method", typeof target.send === 'function');
           target.send.apply(target, arguments);
         }
       }

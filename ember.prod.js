@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.d18dba73
+ * @version   1.9.0-beta.1+canary.3eb83a22
  */
 
 (function() {
@@ -1489,7 +1489,10 @@ define("container/container",
 
         var fullNameType = fullName.split(':')[0];
         if (fullNameType === type) {
-          throw new Error('Cannot inject a `' + fullName + '` on other ' + type + '(s). Register the `' + fullName + '` as a different type and perform the typeInjection.');
+          throw new Error('Cannot inject a `' + fullName +
+                          '` on other ' + type +
+                          '(s). Register the `' + fullName +
+                          '` as a different type and perform the typeInjection.');
         }
 
         addTypeInjection(this.typeInjections, type, property, fullName);
@@ -1552,7 +1555,10 @@ define("container/container",
                 var normalizedName = this.normalize(fullName);
 
         if (this.cache[normalizedName]) {
-          throw new Error("Attempted to register an injection for a type that has already been looked up. ('" + normalizedName + "', '" + property + "', '" + injectionName + "')");
+          throw new Error("Attempted to register an injection for a type that has already been looked up. ('" +
+                          normalizedName + "', '" +
+                          property + "', '" +
+                          injectionName + "')");
         }
 
         addInjection(initRules(this.injections, normalizedName), property, normalizedInjectionName);
@@ -2217,7 +2223,8 @@ define("ember-application/ext/controller",
         }
       }
       if (missing.length) {
-        throw new EmberError(inspect(controller) + " needs [ " + missing.join(', ') + " ] but " + (missing.length > 1 ? 'they' : 'it') + " could not be found");
+        throw new EmberError(inspect(controller) + " needs [ " + missing.join(', ') +
+                             " ] but " + (missing.length > 1 ? 'they' : 'it') + " could not be found");
       }
     }
 
@@ -2238,7 +2245,12 @@ define("ember-application/ext/controller",
             }
           }
 
-          var errorMessage = inspect(controller) + '#needs does not include `' + controllerName + '`. To access the ' + controllerName + ' controller from ' + inspect(controller) + ', ' + inspect(controller) + ' should have a `needs` property that is an array of the controllers it has access to.';
+          var errorMessage = inspect(controller) + '#needs does not include `' +
+                             controllerName + '`. To access the ' +
+                             controllerName + ' controller from ' +
+                             inspect(controller) + ', ' +
+                             inspect(controller) +
+                             ' should have a `needs` property that is an array of the controllers it has access to.';
           throw new ReferenceError(errorMessage);
         },
         setUnknownProperty: function (key, value) {
@@ -2620,7 +2632,9 @@ define("ember-application/system/application",
       _readinessDeferrals: 1,
 
       init: function() {
-        if (!this.$) { this.$ = jQuery; }
+        if (!this.$) {
+          this.$ = jQuery;
+        }
         this.__container__ = this.buildContainer();
 
         this.Router = this.defaultRouter();
@@ -5002,7 +5016,6 @@ define("ember-handlebars",
     var inputHelper = __dependency23__.inputHelper;
     var textareaHelper = __dependency23__.textareaHelper;
 
-
     var ComponentLookup = __dependency24__["default"];
     var _HandlebarsBoundView = __dependency25__._HandlebarsBoundView;
     var SimpleHandlebarsView = __dependency25__.SimpleHandlebarsView;
@@ -5092,7 +5105,7 @@ define("ember-handlebars/component_lookup",
     "use strict";
     var EmberObject = __dependency1__["default"];
 
-    var ComponentLookup = EmberObject.extend({
+    __exports__["default"] = EmberObject.extend({
       lookupFactory: function(name, container) {
 
         container = container || this.container;
@@ -5118,8 +5131,6 @@ define("ember-handlebars/component_lookup",
         }
       }
     });
-
-    __exports__["default"] = ComponentLookup;
   });
 define("ember-handlebars/controls",
   ["ember-handlebars/controls/checkbox","ember-handlebars/controls/text_field","ember-handlebars/controls/text_area","ember-metal/core","ember-handlebars-compiler","ember-handlebars/ext","exports"],
@@ -6330,7 +6341,16 @@ define("ember-handlebars/controls/text_area",
       classNames: ['ember-text-area'],
 
       tagName: "textarea",
-      attributeBindings: ['rows', 'cols', 'name', 'selectionEnd', 'selectionStart', 'wrap', 'lang', 'dir'],
+      attributeBindings: [
+        'rows',
+        'cols',
+        'name',
+        'selectionEnd',
+        'selectionStart',
+        'wrap',
+        'lang',
+        'dir'
+      ],
       rows: null,
       cols: null,
 
@@ -6383,11 +6403,31 @@ define("ember-handlebars/controls/text_field",
 
       classNames: ['ember-text-field'],
       tagName: "input",
-      attributeBindings: ['type', 'value', 'size', 'pattern', 'name', 'min', 'max',
-                          'accept', 'autocomplete', 'autosave', 'formaction',
-                          'formenctype', 'formmethod', 'formnovalidate', 'formtarget',
-                          'height', 'inputmode', 'list', 'multiple', 'step', 'lang', 'dir',
-                          'width'],
+      attributeBindings: [
+        'accept',
+        'autocomplete',
+        'autosave',
+        'dir',
+        'formaction',
+        'formenctype',
+        'formmethod',
+        'formnovalidate',
+        'formtarget',
+        'height',
+        'inputmode',
+        'lang',
+        'list',
+        'max',
+        'min',
+        'multiple',
+        'name',
+        'pattern',
+        'size',
+        'step',
+        'type',
+        'value',
+        'width'
+      ],
 
       /**
         The `value` attribute of the input element. As the user inputs text, this
@@ -6473,9 +6513,21 @@ define("ember-handlebars/controls/text_support",
     var TextSupport = Mixin.create(TargetActionSupport, {
       value: "",
 
-      attributeBindings: ['placeholder', 'disabled', 'maxlength', 'tabindex', 'readonly',
-                          'autofocus', 'form', 'selectionDirection', 'spellcheck', 'required',
-                          'title', 'autocapitalize', 'autocorrect'],
+      attributeBindings: [
+        'autocapitalize',
+        'autocorrect',
+        'autofocus',
+        'disabled',
+        'form',
+        'maxlength',
+        'placeholder',
+        'readonly',
+        'required',
+        'selectionDirection',
+        'spellcheck',
+        'tabindex',
+        'title'
+      ],
       placeholder: null,
       disabled: false,
       maxlength: null,
@@ -6937,7 +6989,9 @@ define("ember-handlebars/ext",
       @param {Hash} options
     */
     function helperMissingHelper(path) {
-      if (!resolveHelper) { resolveHelper = requireModule('ember-handlebars/helpers/binding')['resolveHelper']; } // ES6TODO: stupid circular dep
+      if (!resolveHelper) {
+        resolveHelper = requireModule('ember-handlebars/helpers/binding')['resolveHelper'];
+      } // ES6TODO: stupid circular dep
 
       var error, view = "";
 
@@ -6971,7 +7025,9 @@ define("ember-handlebars/ext",
       @param {Hash} options
     */
     function blockHelperMissingHelper(path) {
-      if (!resolveHelper) { resolveHelper = requireModule('ember-handlebars/helpers/binding')['resolveHelper']; } // ES6TODO: stupid circular dep
+      if (!resolveHelper) {
+        resolveHelper = requireModule('ember-handlebars/helpers/binding')['resolveHelper'];
+      } // ES6TODO: stupid circular dep
 
       var options = arguments[arguments.length - 1];
 
@@ -7126,7 +7182,9 @@ define("ember-handlebars/ext",
       @since 1.2.0
     */
     function makeBoundHelper(fn) {
-      if (!SimpleHandlebarsView) { SimpleHandlebarsView = requireModule('ember-handlebars/views/handlebars_bound_view')['SimpleHandlebarsView']; } // ES6TODO: stupid circular dep
+      if (!SimpleHandlebarsView) {
+        SimpleHandlebarsView = requireModule('ember-handlebars/views/handlebars_bound_view')['SimpleHandlebarsView'];
+      } // ES6TODO: stupid circular dep
 
       var dependentKeys = slice.call(arguments, 1);
 
@@ -7681,7 +7739,10 @@ define("ember-handlebars/helpers/binding",
 
       fn.helperName = fn.helperName || 'boundIf';
 
-      return bind.call(context, property, fn, true, shouldDisplayIfHelperContent, shouldDisplayIfHelperContent, ['isTruthy', 'length']);
+      return bind.call(context, property, fn, true, shouldDisplayIfHelperContent, shouldDisplayIfHelperContent, [
+                         'isTruthy',
+                         'length'
+                       ]);
     }
 
     /**
@@ -9050,7 +9111,9 @@ define("ember-handlebars/helpers/each",
 
         helperName += ' ' + keywordName + ' in ' + path;
 
-        if (path === '') { path = "this"; }
+        if (path === '') {
+          path = "this";
+        }
 
         options.hash.keyword = keywordName;
 
@@ -9233,7 +9296,9 @@ define("ember-handlebars/helpers/partial",
       
       template = template || deprecatedTemplate;
 
-      template(context, { data: options.data });
+      template(context, {
+        data: options.data
+      });
     }
   });
 define("ember-handlebars/helpers/shared",
@@ -9540,7 +9605,8 @@ define("ember-handlebars/helpers/view",
 
         // We only want to override the `_context` computed property if there is
         // no specified controller. See View#_context for more information.
-        if (!newView.controller && !newView.controllerBinding && !viewOptions.controller && !viewOptions.controllerBinding) {
+        if (!newView.controller && !newView.controllerBinding &&
+            !viewOptions.controller && !viewOptions.controllerBinding) {
           viewOptions._context = thisContext;
         }
 
@@ -10524,7 +10590,7 @@ define("ember-metal-views/renderer",
 
       this.insertElement(view, _parentView, element, insertAt);
 
-      for (i=total-1;i>=0;i--) {
+      for (i=total-1; i>=0; i--) {
         if (willInsert) {
           views[i]._elementInserted = true;
           this.didInsertElement(views[i]);
@@ -10713,90 +10779,90 @@ define("ember-metal",
     var Ember = __dependency1__["default"];
     var merge = __dependency2__["default"];
     var instrument = __dependency3__.instrument;
+    var reset = __dependency3__.reset;
     var subscribe = __dependency3__.subscribe;
     var unsubscribe = __dependency3__.unsubscribe;
-    var reset = __dependency3__.reset;
-    var generateGuid = __dependency4__.generateGuid;
-    var GUID_KEY = __dependency4__.GUID_KEY;
-    var guidFor = __dependency4__.guidFor;
-    var META_DESC = __dependency4__.META_DESC;
     var EMPTY_META = __dependency4__.EMPTY_META;
-    var meta = __dependency4__.meta;
-    var getMeta = __dependency4__.getMeta;
-    var setMeta = __dependency4__.setMeta;
-    var metaPath = __dependency4__.metaPath;
-    var inspect = __dependency4__.inspect;
-    var typeOf = __dependency4__.typeOf;
-    var tryCatchFinally = __dependency4__.tryCatchFinally;
-    var isArray = __dependency4__.isArray;
-    var makeArray = __dependency4__.makeArray;
-    var canInvoke = __dependency4__.canInvoke;
-    var tryInvoke = __dependency4__.tryInvoke;
-    var tryFinally = __dependency4__.tryFinally;
-    var wrap = __dependency4__.wrap;
+    var GUID_KEY = __dependency4__.GUID_KEY;
+    var META_DESC = __dependency4__.META_DESC;
     var apply = __dependency4__.apply;
     var applyStr = __dependency4__.applyStr;
+    var canInvoke = __dependency4__.canInvoke;
+    var generateGuid = __dependency4__.generateGuid;
+    var getMeta = __dependency4__.getMeta;
+    var guidFor = __dependency4__.guidFor;
+    var inspect = __dependency4__.inspect;
+    var isArray = __dependency4__.isArray;
+    var makeArray = __dependency4__.makeArray;
+    var meta = __dependency4__.meta;
+    var metaPath = __dependency4__.metaPath;
+    var setMeta = __dependency4__.setMeta;
+    var tryCatchFinally = __dependency4__.tryCatchFinally;
+    var tryFinally = __dependency4__.tryFinally;
+    var tryInvoke = __dependency4__.tryInvoke;
+    var typeOf = __dependency4__.typeOf;
     var uuid = __dependency4__.uuid;
+    var wrap = __dependency4__.wrap;
     var EmberError = __dependency5__["default"];
     var EnumerableUtils = __dependency6__["default"];
     var Cache = __dependency7__["default"];
     var create = __dependency8__.create;
     var platform = __dependency8__.platform;
-    var map = __dependency9__.map;
-    var forEach = __dependency9__.forEach;
     var filter = __dependency9__.filter;
+    var forEach = __dependency9__.forEach;
     var indexOf = __dependency9__.indexOf;
+    var map = __dependency9__.map;
     var Logger = __dependency10__["default"];
 
+    var _getPath = __dependency11__._getPath;
     var get = __dependency11__.get;
     var getWithDefault = __dependency11__.getWithDefault;
     var normalizeTuple = __dependency11__.normalizeTuple;
-    var _getPath = __dependency11__._getPath;
 
-    var on = __dependency12__.on;
     var addListener = __dependency12__.addListener;
+    var hasListeners = __dependency12__.hasListeners;
+    var listenersDiff = __dependency12__.listenersDiff;
+    var listenersFor = __dependency12__.listenersFor;
+    var listenersUnion = __dependency12__.listenersUnion;
+    var on = __dependency12__.on;
     var removeListener = __dependency12__.removeListener;
+    var sendEvent = __dependency12__.sendEvent;
     var suspendListener = __dependency12__.suspendListener;
     var suspendListeners = __dependency12__.suspendListeners;
-    var sendEvent = __dependency12__.sendEvent;
-    var hasListeners = __dependency12__.hasListeners;
     var watchedEvents = __dependency12__.watchedEvents;
-    var listenersFor = __dependency12__.listenersFor;
-    var listenersDiff = __dependency12__.listenersDiff;
-    var listenersUnion = __dependency12__.listenersUnion;
 
     var ObserverSet = __dependency13__["default"];
 
-    var propertyWillChange = __dependency14__.propertyWillChange;
-    var propertyDidChange = __dependency14__.propertyDidChange;
-    var overrideChains = __dependency14__.overrideChains;
     var beginPropertyChanges = __dependency14__.beginPropertyChanges;
-    var endPropertyChanges = __dependency14__.endPropertyChanges;
     var changeProperties = __dependency14__.changeProperties;
+    var endPropertyChanges = __dependency14__.endPropertyChanges;
+    var overrideChains = __dependency14__.overrideChains;
+    var propertyDidChange = __dependency14__.propertyDidChange;
+    var propertyWillChange = __dependency14__.propertyWillChange;
 
     var Descriptor = __dependency15__.Descriptor;
     var defineProperty = __dependency15__.defineProperty;
     var set = __dependency16__.set;
     var trySet = __dependency16__.trySet;
 
-    var OrderedSet = __dependency17__.OrderedSet;
     var Map = __dependency17__.Map;
     var MapWithDefault = __dependency17__.MapWithDefault;
+    var OrderedSet = __dependency17__.OrderedSet;
     var getProperties = __dependency18__["default"];
     var setProperties = __dependency19__["default"];
     var watchKey = __dependency20__.watchKey;
     var unwatchKey = __dependency20__.unwatchKey;
-    var flushPendingChains = __dependency21__.flushPendingChains;
-    var removeChainWatcher = __dependency21__.removeChainWatcher;
     var ChainNode = __dependency21__.ChainNode;
     var finishChains = __dependency21__.finishChains;
+    var flushPendingChains = __dependency21__.flushPendingChains;
+    var removeChainWatcher = __dependency21__.removeChainWatcher;
     var watchPath = __dependency22__.watchPath;
     var unwatchPath = __dependency22__.unwatchPath;
-    var watch = __dependency23__.watch;
-    var isWatching = __dependency23__.isWatching;
-    var unwatch = __dependency23__.unwatch;
-    var rewatch = __dependency23__.rewatch;
     var destroy = __dependency23__.destroy;
+    var isWatching = __dependency23__.isWatching;
+    var rewatch = __dependency23__.rewatch;
+    var unwatch = __dependency23__.unwatch;
+    var watch = __dependency23__.watch;
     var expandProperties = __dependency24__["default"];
     var ComputedProperty = __dependency25__.ComputedProperty;
     var computed = __dependency25__.computed;
@@ -10804,27 +10870,27 @@ define("ember-metal",
 
     // side effect of defining the computed.* macros
 
-    var addObserver = __dependency27__.addObserver;
-    var observersFor = __dependency27__.observersFor;
-    var removeObserver = __dependency27__.removeObserver;
-    var addBeforeObserver = __dependency27__.addBeforeObserver;
     var _suspendBeforeObserver = __dependency27__._suspendBeforeObserver;
-    var _suspendObserver = __dependency27__._suspendObserver;
     var _suspendBeforeObservers = __dependency27__._suspendBeforeObservers;
+    var _suspendObserver = __dependency27__._suspendObserver;
     var _suspendObservers = __dependency27__._suspendObservers;
+    var addBeforeObserver = __dependency27__.addBeforeObserver;
+    var addObserver = __dependency27__.addObserver;
     var beforeObserversFor = __dependency27__.beforeObserversFor;
+    var observersFor = __dependency27__.observersFor;
     var removeBeforeObserver = __dependency27__.removeBeforeObserver;
+    var removeObserver = __dependency27__.removeObserver;
     var IS_BINDING = __dependency28__.IS_BINDING;
-    var mixin = __dependency28__.mixin;
     var Mixin = __dependency28__.Mixin;
-    var required = __dependency28__.required;
     var aliasMethod = __dependency28__.aliasMethod;
-    var observer = __dependency28__.observer;
-    var immediateObserver = __dependency28__.immediateObserver;
     var beforeObserver = __dependency28__.beforeObserver;
+    var immediateObserver = __dependency28__.immediateObserver;
+    var mixin = __dependency28__.mixin;
+    var observer = __dependency28__.observer;
+    var required = __dependency28__.required;
     var Binding = __dependency29__.Binding;
-    var isGlobalPath = __dependency29__.isGlobalPath;
     var bind = __dependency29__.bind;
+    var isGlobalPath = __dependency29__.isGlobalPath;
     var oneWay = __dependency29__.oneWay;
     var run = __dependency30__["default"];
     var libraries = __dependency31__["default"];
@@ -11818,7 +11884,8 @@ define("ember-metal/chains",
 
       forEach.call(queue, function(q) { q[0].add(q[1]); });
 
-      warn('Watching an undefined global, Ember expects watched globals to be setup by the time the run loop is flushed, check for typos', pendingQueue.length === 0);
+      warn('Watching an undefined global, Ember expects watched globals to be' +
+           ' setup by the time the run loop is flushed, check for typos', pendingQueue.length === 0);
     }
 
     __exports__.flushPendingChains = flushPendingChains;function addChainWatcher(obj, keyName, node) {
@@ -12166,7 +12233,6 @@ define("ember-metal/computed",
     */
 
     
-
     var metaFor = meta;
     var a_slice = [].slice;
 
@@ -12261,6 +12327,10 @@ define("ember-metal/computed",
       func.__ember_arity__ = func.length;
       this.func = func;
 
+      this._dependentKeys = undefined;
+      this._suspended = undefined;
+      this._meta = undefined;
+
       this._cacheable = (opts && opts.cacheable !== undefined) ? opts.cacheable : true;
       this._dependentKeys = opts && opts.dependentKeys;
       this._readOnly = opts && (opts.readOnly !== undefined || !!opts.readOnly) || false;
@@ -12269,9 +12339,6 @@ define("ember-metal/computed",
     ComputedProperty.prototype = new Descriptor();
 
     var ComputedPropertyPrototype = ComputedProperty.prototype;
-    ComputedPropertyPrototype._dependentKeys = undefined;
-    ComputedPropertyPrototype._suspended = undefined;
-    ComputedPropertyPrototype._meta = undefined;
 
     /**
       Properties are cacheable by default. Computed property will automatically
@@ -13482,7 +13549,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.d18dba73
+      @version 1.9.0-beta.1+canary.3eb83a22
     */
 
     if ('undefined' === typeof Ember) {
@@ -13509,10 +13576,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.d18dba73'
+      @default '1.9.0-beta.1+canary.3eb83a22'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.d18dba73';
+    Ember.VERSION = '1.9.0-beta.1+canary.3eb83a22';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -15005,7 +15072,8 @@ define("ember-metal/is_empty",
       @return {Boolean}
     */
     function isEmpty(obj) {
-      return isNone(obj) || (obj.length === 0 && typeof obj !== 'function') || (typeof obj === 'object' && get(obj, 'length') === 0);
+      return isNone(obj) || (obj.length === 0 && typeof obj !== 'function') ||
+        (typeof obj === 'object' && get(obj, 'length') === 0);
     }
 
     var empty = Ember.deprecateFunc("Ember.empty is deprecated. Please use Ember.isEmpty instead.", isEmpty);
@@ -15974,7 +16042,12 @@ define("ember-metal/mixin",
     function isMethod(obj) {
       return 'function' === typeof obj &&
              obj.isMethod !== false &&
-             obj !== Boolean && obj !== Object && obj !== Number && obj !== Array && obj !== Date && obj !== String;
+             obj !== Boolean &&
+             obj !== Object &&
+             obj !== Number &&
+             obj !== Array &&
+             obj !== Date &&
+             obj !== String;
     }
 
     var CONTINUE = {};
@@ -17343,6 +17416,7 @@ define("ember-metal/properties",
 
       return this;
     }
+
     __exports__.defineProperty = defineProperty;
   });
 define("ember-metal/property_events",
@@ -18244,10 +18318,14 @@ define("ember-metal/run_loop",
       @param {Object} [args*] Optional arguments to pass to the timeout.
       @return {Object} Timer information for use in cancelling, see `run.cancel`.
     */
-    run.once = function(target, method) {
+    run.once = function(/*target, method */) {
       checkAutoRun();
-      var args = slice.call(arguments);
-      args.unshift('actions');
+      var length = arguments.length;
+      var args = new Array(length);
+      args[0] = 'actions';
+      for (var i = 0; i < length; i++) {
+        args[i + 1] = arguments[i];
+      }
       return apply(backburner, backburner.scheduleOnce, args);
     };
 
@@ -18860,7 +18938,6 @@ define("ember-metal/utils",
       @return {Object} the meta hash for an object
     */
     function meta(obj, writable) {
-
       var ret = obj['__ember_meta__'];
       if (writable===false) return ret || EMPTY_META;
 
@@ -38725,15 +38802,14 @@ define("ember-views/system/ext",
     run._addQueue('afterRender', 'render');
   });
 define("ember-views/system/jquery",
-  ["ember-metal/core","ember-runtime/system/string","ember-metal/enumerable_utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["ember-metal/core","ember-metal/enumerable_utils","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.assert
-    var w = __dependency2__.w;
 
     // ES6TODO: the functions on EnumerableUtils need their own exports
-    var forEach = __dependency3__.forEach;
+    var forEach = __dependency2__.forEach;
 
     /**
     Ember Views
@@ -38756,12 +38832,22 @@ define("ember-views/system/jquery",
     */
     if (jQuery) {
       // http://www.whatwg.org/specs/web-apps/current-work/multipage/dnd.html#dndevents
-      var dragEvents = w('dragstart drag dragenter dragleave dragover drop dragend');
+      var dragEvents = [
+        'dragstart',
+        'drag',
+        'dragenter',
+        'dragleave',
+        'dragover',
+        'drop',
+        'dragend'
+      ];
 
       // Copies the `dataTransfer` property from a browser event object onto the
       // jQuery event object for the specified events
       forEach(dragEvents, function(eventName) {
-        jQuery.event.fixHooks[eventName] = { props: ['dataTransfer'] };
+        jQuery.event.fixHooks[eventName] = {
+          props: ['dataTransfer']
+        };
       });
     }
 
@@ -38827,20 +38913,16 @@ define("ember-views/system/render_buffer",
     }
 
     function ClassSet() {
-      this.seen = {};
+      this.seen = Object.create(null);
       this.list = [];
     }
 
     ClassSet.prototype = {
       add: function(string) {
-        if (string in this.seen) { return; }
+        if (this.seen[string] === true) { return; }
         this.seen[string] = true;
 
         this.list.push(string);
-      },
-
-      toDOM: function() {
-        return this.list.join(" ");
       }
     };
 

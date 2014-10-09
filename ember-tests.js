@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.d18dba73
+ * @version   1.9.0-beta.1+canary.3eb83a22
  */
 
 (function() {
@@ -13244,9 +13244,9 @@ define("ember-metal-views/tests/attributes_test",
   ["ember-metal-views/tests/test_helpers"],
   function(__dependency1__) {
     "use strict";
-    var testsFor = __dependency1__.testsFor;
-    var subject = __dependency1__.subject;
     var appendTo = __dependency1__.appendTo;
+    var subject = __dependency1__.subject;
+    var testsFor = __dependency1__.testsFor;
 
     testsFor("ember-metal-views - attributes");
 
@@ -13277,10 +13277,10 @@ define("ember-metal-views/tests/children_test",
   ["ember-metal-views/tests/test_helpers"],
   function(__dependency1__) {
     "use strict";
-    var testsFor = __dependency1__.testsFor;
-    var subject = __dependency1__.subject;
-    var equalHTML = __dependency1__.equalHTML;
     var appendTo = __dependency1__.appendTo;
+    var equalHTML = __dependency1__.equalHTML;
+    var subject = __dependency1__.subject;
+    var testsFor = __dependency1__.testsFor;
 
     testsFor("ember-metal-views - children");
 
@@ -13331,10 +13331,10 @@ define("ember-metal-views/tests/main_test",
   ["ember-metal-views/tests/test_helpers"],
   function(__dependency1__) {
     "use strict";
-    var testsFor = __dependency1__.testsFor;
-    var setElementText = __dependency1__.setElementText;
-    var equalHTML = __dependency1__.equalHTML;
     var appendTo = __dependency1__.appendTo;
+    var equalHTML = __dependency1__.equalHTML;
+    var setElementText = __dependency1__.setElementText;
+    var testsFor = __dependency1__.testsFor;
 
     var view;
 
