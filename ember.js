@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.48a40f2a
+ * @version   1.9.0-beta.1+canary.d18dba73
  */
 
 (function() {
@@ -640,11 +640,10 @@ define("backburner/deferred-action-queues",
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     var each = __dependency1__.each;
-    var isString = __dependency1__.isString;
     var Queue = __dependency2__["default"];
 
     function DeferredActionQueues(queueNames, options) {
-      var queues = this.queues = {};
+      var queues = this.queues = Object.create(null);
       this.queueNames = queueNames = queueNames || [];
 
       this.options = options;
@@ -663,32 +662,14 @@ define("backburner/deferred-action-queues",
         var queues = this.queues;
         var queue = queues[name];
 
-        if (!queue) { noSuchQueue(name); }
+        if (!queue) {
+          noSuchQueue(name);
+        }
 
         if (onceFlag) {
           return queue.pushUnique(target, method, args, stack);
         } else {
           return queue.push(target, method, args, stack);
-        }
-      },
-
-      invoke: function(target, method, args, _, _errorRecordedForStack) {
-        if (args && args.length > 0) {
-          method.apply(target, args);
-        } else {
-          method.call(target);
-        }
-      },
-
-      invokeWithOnError: function(target, method, args, onError, errorRecordedForStack) {
-        try {
-          if (args && args.length > 0) {
-            method.apply(target, args);
-          } else {
-            method.call(target);
-          }
-        } catch(error) {
-          onError(error, errorRecordedForStack);
         }
       },
 
@@ -699,84 +680,22 @@ define("backburner/deferred-action-queues",
         var queueNameIndex = 0;
         var numberOfQueues = queueNames.length;
         var options = this.options;
-        var onError = options.onError || (options.onErrorTarget && options.onErrorTarget[options.onErrorMethod]);
-        var invoke = onError ? this.invokeWithOnError : this.invoke;
 
         while (queueNameIndex < numberOfQueues) {
           queueName = queueNames[queueNameIndex];
           queue = queues[queueName];
-          queueItems = queue._queueBeingFlushed = queue._queue.slice();
-          queue._queue = [];
-          queue.targetQueues = Object.create(null);
 
-          var queueOptions = queue.options; // TODO: write a test for this
-          var before = queueOptions && queueOptions.before;
-          var after = queueOptions && queueOptions.after;
-          var target, method, args, errorRecordedForStack;
-          var queueIndex = 0;
-          var numberOfQueueItems = queueItems.length;
+          var numberOfQueueItems = queue._queue.length;
 
-          if (numberOfQueueItems && before) {
-            before();
-          }
-
-          while (queueIndex < numberOfQueueItems) {
-            target                = queueItems[queueIndex];
-            method                = queueItems[queueIndex+1];
-            args                  = queueItems[queueIndex+2];
-            errorRecordedForStack = queueItems[queueIndex+3]; // Debugging assistance
-
-            //
-
-            if (isString(method)) {
-              method = target[method];
-            }
-
-            // method could have been nullified / canceled during flush
-            if (method) {
-              //
-              //    ** Attention intrepid developer **
-              //
-              //    To find out the stack of this task when it was scheduled onto
-              //    the run loop, add the following to your app.js:
-              //
-              //    Ember.run.backburner.DEBUG = true; // NOTE: This slows your app, don't leave it on in production.
-              //
-              //    Once that is in place, when you are at a breakpoint and navigate
-              //    here in the stack explorer, you can look at `errorRecordedForStack.stack`,
-              //    which will be the captured stack when this job was scheduled.
-              //
-              invoke(target, method, args, onError, errorRecordedForStack);
-            }
-
-            queueIndex += 4;
-          }
-
-          queue._queueBeingFlushed = null;
-          if (numberOfQueueItems && after) {
-            after();
-          }
-
-          if ((priorQueueNameIndex = indexOfPriorQueueWithActions(this, queueNameIndex)) !== -1) {
-            queueNameIndex = priorQueueNameIndex;
-          } else {
+          if (numberOfQueueItems === 0) {
             queueNameIndex++;
+          } else {
+            queue.flush(false /* async */);
+            queueNameIndex = 0;
           }
         }
       }
     };
-
-    function indexOfPriorQueueWithActions(daq, currentQueueIndex) {
-      var queueName, queue;
-
-      for (var i = 0, l = currentQueueIndex; i <= l; i++) {
-        queueName = daq.queueNames[i];
-        queue = daq.queues[queueName];
-        if (queue._queue.length) { return i; }
-      }
-
-      return -1;
-    }
 
     __exports__["default"] = DeferredActionQueues;
   });
@@ -795,9 +714,11 @@ define("backburner/platform",
     __exports__.needsIETryCatchFix = needsIETryCatchFix;
   });
 define("backburner/queue",
-  ["exports"],
-  function(__exports__) {
+  ["./utils","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
+    var isString = __dependency1__.isString;
+
     function Queue(name, options, globalOptions) {
       this.name = name;
       this.globalOptions = globalOptions || {};
@@ -895,56 +816,89 @@ define("backburner/queue",
         };
       },
 
-      // TODO: remove me, only being used for Ember.run.sync
-      flush: function() {
+      invoke: function(target, method, args, _, _errorRecordedForStack) {
+        if (args && args.length > 0) {
+          method.apply(target, args);
+        } else {
+          method.call(target);
+        }
+      },
+
+      invokeWithOnError: function(target, method, args, onError, errorRecordedForStack) {
+        try {
+          if (args && args.length > 0) {
+            method.apply(target, args);
+          } else {
+            method.call(target);
+          }
+        } catch(error) {
+          onError(error, errorRecordedForStack);
+        }
+      },
+
+      flush: function(sync) {
         var queue = this._queue;
+        var length = queue.length;
+
+        if (length === 0) {
+          return;
+        }
+
         var globalOptions = this.globalOptions;
         var options = this.options;
         var before = options && options.before;
         var after = options && options.after;
-        var onError = globalOptions.onError || (globalOptions.onErrorTarget && globalOptions.onErrorTarget[globalOptions.onErrorMethod]);
-        var target, method, args, stack, i, l = queue.length;
+        var onError = globalOptions.onError || (globalOptions.onErrorTarget &&
+                                                globalOptions.onErrorTarget[globalOptions.onErrorMethod]);
+        var target, method, args, errorRecordedForStack;
+        var invoke = onError ? this.invokeWithOnError : this.invoke;
 
         this.targetQueues = Object.create(null);
+        var queueItems = this._queueBeingFlushed = this._queue.slice();
+        this._queue = [];
 
-        if (l && before) { before(); }
-        for (i = 0; i < l; i += 4) {
-          target = queue[i];
-          method = queue[i+1];
-          args   = queue[i+2];
-          stack  = queue[i+3]; // Debugging assistance
+        if (before) {
+          before();
+        }
 
-          // TODO: error handling
-          if (args && args.length > 0) {
-            if (onError) {
-              try {
-                method.apply(target, args);
-              } catch (e) {
-                onError(e);
-              }
-            } else {
-              method.apply(target, args);
-            }
-          } else {
-            if (onError) {
-              try {
-                method.call(target);
-              } catch(e) {
-                onError(e);
-              }
-            } else {
-              method.call(target);
-            }
+        for (var i = 0; i < length; i += 4) {
+          target                = queueItems[i];
+          method                = queueItems[i+1];
+          args                  = queueItems[i+2];
+          errorRecordedForStack = queueItems[i+3]; // Debugging assistance
+
+          if (isString(method)) {
+            method = target[method];
+          }
+
+          // method could have been nullified / canceled during flush
+          if (method) {
+            //
+            //    ** Attention intrepid developer **
+            //
+            //    To find out the stack of this task when it was scheduled onto
+            //    the run loop, add the following to your app.js:
+            //
+            //    Ember.run.backburner.DEBUG = true; // NOTE: This slows your app, don't leave it on in production.
+            //
+            //    Once that is in place, when you are at a breakpoint and navigate
+            //    here in the stack explorer, you can look at `errorRecordedForStack.stack`,
+            //    which will be the captured stack when this job was scheduled.
+            //
+            invoke(target, method, args, onError, errorRecordedForStack);
           }
         }
-        if (l && after) { after(); }
 
-        // check if new items have been added
-        if (queue.length > l) {
-          this._queue = queue.slice(l);
-          this.flush();
-        } else {
-          this._queue.length = 0;
+        if (after) {
+          after();
+        }
+
+        this._queueBeingFlushed = undefined;
+
+        if (sync !== false &&
+            this._queue.length > 0) {
+          // check if new items have been added
+          this.flush(true);
         }
       },
 
@@ -980,9 +934,11 @@ define("backburner/queue",
         // if not found in current queue
         // could be in the queue that is being flushed
         queue = this._queueBeingFlushed;
+
         if (!queue) {
           return;
         }
+
         for (i = 0, l = queue.length; i < l; i += 4) {
           currentTarget = queue[i];
           currentMethod = queue[i+1];
@@ -13828,7 +13784,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.48a40f2a
+      @version 1.9.0-beta.1+canary.d18dba73
     */
 
     if ('undefined' === typeof Ember) {
@@ -13855,10 +13811,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.48a40f2a'
+      @default '1.9.0-beta.1+canary.d18dba73'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.48a40f2a';
+    Ember.VERSION = '1.9.0-beta.1+canary.d18dba73';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
