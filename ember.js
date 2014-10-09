@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.3eb83a22
+ * @version   1.9.0-beta.1+canary.39f6e258
  */
 
 (function() {
@@ -13880,7 +13880,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.3eb83a22
+      @version 1.9.0-beta.1+canary.39f6e258
     */
 
     if ('undefined' === typeof Ember) {
@@ -13907,10 +13907,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.3eb83a22'
+      @default '1.9.0-beta.1+canary.39f6e258'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.3eb83a22';
+    Ember.VERSION = '1.9.0-beta.1+canary.39f6e258';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -23667,7 +23667,7 @@ define("ember-routing/system/dsl",
           route(dsl, 'loading');
           route(dsl, 'error', { path: "/_unused_dummy_error_path_route_" + name + "/:error" });
 
-          if (callback) { callback.call(dsl); }
+          callback.call(dsl);
 
           this.push(options.path, name, dsl.generate());
         } else {
