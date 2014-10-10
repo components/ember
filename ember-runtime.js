@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.39f6e258
+ * @version   1.9.0-beta.1+canary.97b43456
  */
 
 (function() {
@@ -4763,7 +4763,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.39f6e258
+      @version 1.9.0-beta.1+canary.97b43456
     */
 
     if ('undefined' === typeof Ember) {
@@ -4790,10 +4790,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.39f6e258'
+      @default '1.9.0-beta.1+canary.97b43456'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.39f6e258';
+    Ember.VERSION = '1.9.0-beta.1+canary.97b43456';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -17143,7 +17143,7 @@ define("ember-runtime/mixins/mutable_array",
       },
 
       /**
-        Replace all the the receiver's content with content of the argument.
+        Replace all the receiver's content with content of the argument.
         If argument is an empty array receiver will be cleared.
 
         ```javascript
