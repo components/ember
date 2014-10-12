@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.97b43456
+ * @version   1.9.0-beta.1+canary.8105a1bb
  */
 
 (function() {
@@ -4036,8 +4036,8 @@ define("ember-application/system/resolver",
     });
   });
 define("ember-debug",
-  ["ember-metal/core","ember-metal/error","ember-metal/logger"],
-  function(__dependency1__, __dependency2__, __dependency3__) {
+  ["ember-metal/core","ember-metal/error","ember-metal/logger","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     /*global __fail__*/
 
@@ -4206,8 +4206,39 @@ define("ember-debug",
       func();
     };
 
-    // Inform the developer about the Ember Inspector if not installed.
-    if (!Ember.testing) {
+    /**
+      Will call `Ember.warn()` if ENABLE_ALL_FEATURES, ENABLE_OPTIONAL_FEATURES, or
+      any specific FEATURES flag is truthy.
+
+      This method is called automatically in debug canary builds.
+      
+      @private
+      @method _warnIfUsingStrippedFeatureFlags
+      @return {void}
+    */
+    function _warnIfUsingStrippedFeatureFlags(FEATURES, featuresWereStripped) {
+      if (featuresWereStripped) {
+        Ember.warn('Ember.ENV.ENABLE_ALL_FEATURES is only available in canary builds.', !Ember.ENV.ENABLE_ALL_FEATURES);
+        Ember.warn('Ember.ENV.ENABLE_OPTIONAL_FEATURES is only available in canary builds.', !Ember.ENV.ENABLE_OPTIONAL_FEATURES);
+
+        for (var key in FEATURES) {
+          if (FEATURES.hasOwnProperty(key)) {
+            Ember.warn('FEATURE["' + key + '"] is set as enabled, but FEATURE flags are only available in canary builds.', !FEATURES[key]);
+          }
+        }
+      }
+    }
+
+    __exports__._warnIfUsingStrippedFeatureFlags = _warnIfUsingStrippedFeatureFlags;if (!Ember.testing) {
+      // Complain if they're using FEATURE flags in builds other than canary
+      Ember.FEATURES['features-stripped-test'] = true;
+      var featuresWereStripped = true;
+      
+      
+      delete Ember.FEATURES['features-stripped-test'];
+      _warnIfUsingStrippedFeatureFlags(Ember.ENV.FEATURES, featuresWereStripped);
+
+      // Inform the developer about the Ember Inspector if not installed.
       var isFirefox = typeof InstallTrigger !== 'undefined';
       var isChrome = !!window.chrome && !window.opera;
 
@@ -13880,7 +13911,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.97b43456
+      @version 1.9.0-beta.1+canary.8105a1bb
     */
 
     if ('undefined' === typeof Ember) {
@@ -13907,10 +13938,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.97b43456'
+      @default '1.9.0-beta.1+canary.8105a1bb'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.97b43456';
+    Ember.VERSION = '1.9.0-beta.1+canary.8105a1bb';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`

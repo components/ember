@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.97b43456
+ * @version   1.9.0-beta.1+canary.8105a1bb
  */
 
 (function() {
@@ -2849,6 +2849,107 @@ define("ember-application/tests/system/reset_test.jshint",
     module('JSHint - ember-application/tests/system');
     test('ember-application/tests/system/reset_test.js should pass jshint', function() { 
       ok(true, 'ember-application/tests/system/reset_test.js should pass jshint.'); 
+    });
+  });
+define("ember-debug.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - .');
+    test('ember-debug.js should pass jshint', function() { 
+      ok(true, 'ember-debug.js should pass jshint.'); 
+    });
+  });
+define("ember-debug/tests/warn_if_using_stripped_feature_flags_test",
+  ["ember-metal/core","ember-debug"],
+  function(__dependency1__, __dependency2__) {
+    "use strict";
+    var Ember = __dependency1__["default"];
+    var _warnIfUsingStrippedFeatureFlags = __dependency2__._warnIfUsingStrippedFeatureFlags;
+
+    var oldWarn, oldRunInDebug, origEnvFeatures, origEnableAll, origEnableOptional;
+
+    function confirmWarns(expectedMsg) {
+      var featuresWereStripped = true;
+      var FEATURES = Ember.ENV.FEATURES;
+
+      Ember.warn = function(msg, test) {
+        if (!test) {
+          equal(msg, expectedMsg);
+        }
+      };
+
+      Ember.runInDebug = function (func) {
+        func();
+      };
+
+      // Should trigger our 1 warning
+      _warnIfUsingStrippedFeatureFlags(FEATURES, featuresWereStripped);
+
+      // Shouldn't trigger any warnings now that we're "in canary"
+      featuresWereStripped = false;
+      _warnIfUsingStrippedFeatureFlags(FEATURES, featuresWereStripped);
+    }
+
+    QUnit.module("ember-debug - _warnIfUsingStrippedFeatureFlags", {
+      setup: function() {
+        oldWarn            = Ember.warn;
+        oldRunInDebug      = Ember.runInDebug;
+        origEnvFeatures    = Ember.ENV.FEATURES;
+        origEnableAll      = Ember.ENV.ENABLE_ALL_FEATURES;
+        origEnableOptional = Ember.ENV.ENABLE_OPTIONAL_FEATURES;
+      },
+
+      teardown: function() {
+        Ember.warn                         = oldWarn;
+        Ember.runInDebug                   = oldRunInDebug;
+        Ember.ENV.FEATURES                 = origEnvFeatures;
+        Ember.ENV.ENABLE_ALL_FEATURES      = origEnableAll;
+        Ember.ENV.ENABLE_OPTIONAL_FEATURES = origEnableOptional;
+      }
+    });
+
+    test("Setting Ember.ENV.ENABLE_ALL_FEATURES truthy in non-canary, debug build causes a warning", function() {
+      expect(1);
+
+      Ember.ENV.ENABLE_ALL_FEATURES = true;
+      Ember.ENV.ENABLE_OPTIONAL_FEATURES = false;
+      Ember.ENV.FEATURES = {};
+
+      confirmWarns('Ember.ENV.ENABLE_ALL_FEATURES is only available in canary builds.');
+    });
+
+    test("Setting Ember.ENV.ENABLE_OPTIONAL_FEATURES truthy in non-canary, debug build causes a warning", function() {
+      expect(1);
+
+      Ember.ENV.ENABLE_ALL_FEATURES = false;
+      Ember.ENV.ENABLE_OPTIONAL_FEATURES = true;
+      Ember.ENV.FEATURES = {};
+
+      confirmWarns('Ember.ENV.ENABLE_OPTIONAL_FEATURES is only available in canary builds.');
+    });
+
+    test("Enabling a FEATURES flag in non-canary, debug build causes a warning", function() {
+      expect(1);
+
+      Ember.ENV.ENABLE_ALL_FEATURES = false;
+      Ember.ENV.ENABLE_OPTIONAL_FEATURES = false;
+      Ember.ENV.FEATURES = {
+        'fred': true,
+        'barney': false,
+        'wilma': null
+      };
+
+      confirmWarns('FEATURE["fred"] is set as enabled, but FEATURE flags are only available in canary builds.');
+    });
+  });
+define("ember-debug/tests/warn_if_using_stripped_feature_flags_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-debug/tests');
+    test('ember-debug/tests/warn_if_using_stripped_feature_flags_test.js should pass jshint', function() { 
+      ok(true, 'ember-debug/tests/warn_if_using_stripped_feature_flags_test.js should pass jshint.'); 
     });
   });
 define("ember-extension-support.jshint",
