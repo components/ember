@@ -11060,8 +11060,8 @@ define("ember-metal/array",
     __exports__.lastIndexOf = lastIndexOf;
   });
 define("ember-metal/binding",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/map","ember-metal/observer","ember-metal/run_loop","ember-metal/path_cache","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/observer","ember-metal/run_loop","ember-metal/path_cache","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.Logger, Ember.LOG_BINDINGS, assert
@@ -11069,12 +11069,11 @@ define("ember-metal/binding",
     var set = __dependency3__.set;
     var trySet = __dependency3__.trySet;
     var guidFor = __dependency4__.guidFor;
-    var Map = __dependency5__["default"];
-    var addObserver = __dependency6__.addObserver;
-    var removeObserver = __dependency6__.removeObserver;
-    var _suspendObserver = __dependency6__._suspendObserver;
-    var run = __dependency7__["default"];
-    var isGlobalPath = __dependency8__.isGlobal;
+    var addObserver = __dependency5__.addObserver;
+    var removeObserver = __dependency5__.removeObserver;
+    var _suspendObserver = __dependency5__._suspendObserver;
+    var run = __dependency6__["default"];
+    var isGlobalPath = __dependency7__.isGlobal;
 
 
     // ES6TODO: where is Ember.lookup defined?
@@ -11118,10 +11117,9 @@ define("ember-metal/binding",
     //
 
     function Binding(toPath, fromPath) {
-      this._direction = 'fwd';
+      this._direction = undefined;
       this._from = fromPath;
       this._to   = toPath;
-      this._directionMap = new Map();
       this._readyToSync = undefined;
       this._oneWay = undefined;
     }
@@ -11275,19 +11273,18 @@ define("ember-metal/binding",
       },
 
       _scheduleSync: function(obj, dir) {
-        var directionMap = this._directionMap;
-        var existingDir = directionMap.get(obj);
+        var existingDir = this._direction;
 
         // if we haven't scheduled the binding yet, schedule it
-        if (!existingDir) {
+        if (existingDir === undefined) {
           run.schedule('sync', this, this._sync, obj);
-          directionMap.set(obj, dir);
+          this._direction  = dir;
         }
 
         // If both a 'back' and 'fwd' sync have been scheduled on the same object,
         // default to a 'fwd' sync so that it remains deterministic.
         if (existingDir === 'back' && dir === 'fwd') {
-          directionMap.set(obj, 'fwd');
+          this._direction = 'fwd';
         }
       },
 
@@ -11299,13 +11296,12 @@ define("ember-metal/binding",
 
         // get the direction of the binding for the object we are
         // synchronizing from
-        var directionMap = this._directionMap;
-        var direction = directionMap.get(obj);
+        var direction = this._direction;
 
         var fromPath = this._from;
         var toPath = this._to;
 
-        directionMap["delete"](obj);
+        this._direction = undefined;
 
         // if we're synchronizing from the remote object...
         if (direction === 'fwd') {
@@ -11350,10 +11346,9 @@ define("ember-metal/binding",
         @method from
         @static
       */
-      from: function() {
+      from: function(from) {
         var C = this;
-        var binding = new C();
-        return binding.from.apply(binding, arguments);
+        return new C(undefined, from);
       },
 
       /*
@@ -11362,10 +11357,9 @@ define("ember-metal/binding",
         @method to
         @static
       */
-      to: function() {
+      to: function(to) {
         var C = this;
-        var binding = new C();
-        return binding.to.apply(binding, arguments);
+        return new C(to, undefined);
       },
 
       /**
@@ -11386,8 +11380,7 @@ define("ember-metal/binding",
       */
       oneWay: function(from, flag) {
         var C = this;
-        var binding = new C(null, from);
-        return binding.oneWay(flag);
+        return new C(undefined, from).oneWay(flag);
       }
 
     });
@@ -15242,13 +15235,12 @@ define("ember-metal/map",
         var presenceSet = this.presenceSet;
         var list = this.list;
 
-        if (presenceSet[guid]) {
+        if (presenceSet[guid] === true) {
           return;
         }
 
         presenceSet[guid] = true;
-        list.push(obj);
-        this.size++;
+        this.size = list.push(obj);
 
         return this;
       },
@@ -15277,13 +15269,13 @@ define("ember-metal/map",
         var presenceSet = this.presenceSet;
         var list = this.list;
 
-        if (presenceSet[guid] !== undefined) {
+        if (presenceSet[guid] === true) {
           delete presenceSet[guid];
           var index = indexOf.call(list, obj);
           if (index > -1) {
             list.splice(index, 1);
           }
-          this.size--;
+          this.size = list.length;
           return true;
         } else {
           return false;
@@ -15309,7 +15301,7 @@ define("ember-metal/map",
         var guid = guidFor(obj);
         var presenceSet = this.presenceSet;
 
-        return !!presenceSet[guid];
+        return presenceSet[guid] === true;
       },
 
       /**
@@ -15490,8 +15482,7 @@ define("ember-metal/map",
         var values = this.values;
         var guid = guidFor(key);
 
-        if (values[guid]) {
-          keys["delete"](key, guid);
+        if (keys["delete"](key, guid)) {
           delete values[guid];
           this.size = keys.size;
           return true;
@@ -15508,7 +15499,6 @@ define("ember-metal/map",
         @return {Boolean} true if the item was present, false otherwise
       */
       has: function(key) {
-        if (this.size === 0) { return false; }
         return this.keys.has(key);
       },
 
@@ -19650,17 +19640,18 @@ define("ember-routing-handlebars/helpers/action",
     };
 
     /**
-      The `{{action}}` helper registers an HTML element within a template for DOM
-      event handling and forwards that interaction to the templates's controller
-      or supplied `target` option (see 'Specifying a Target').
 
-      If the controller does not implement the event, the event is sent
+      The `{{action}}` helper provides a useful shortcut for registering an HTML
+      element within a template for a single DOM event and forwarding that
+      interaction to the template's controller or specified `target` option.
+
+      If the controller does not implement the specified action, the event is sent
       to the current route, and it bubbles up the route hierarchy from there.
 
-      User interaction with that element will invoke the supplied action name on
-      the appropriate target. Specifying a non-quoted action name will result in
-      a bound property lookup at the time the event will be triggered.
+      For more advanced event handling see [Ember.Component](/api/classes/Ember.Component.html)
 
+
+      ### Use
       Given the following application Handlebars template on the page
 
       ```handlebars
@@ -19740,12 +19731,6 @@ define("ember-routing-handlebars/helpers/action",
       See `Ember.View` 'Responding to Browser Events' for a list of
       acceptable DOM event names.
 
-      NOTE: Because `{{action}}` depends on Ember's event dispatch system it will
-      only function if an `Ember.EventDispatcher` instance is available. An
-      `Ember.EventDispatcher` instance will be created when a new `Ember.Application`
-      is created. Having an instance of `Ember.Application` will satisfy this
-      requirement.
-
       ### Specifying whitelisted modifier keys
 
       By default the `{{action}}` helper will ignore click event with pressed modifier
@@ -19771,7 +19756,7 @@ define("ember-routing-handlebars/helpers/action",
 
       There are several possible target objects for `{{action}}` helpers:
 
-      In a typical Ember application, where views are managed through use of the
+      In a typical Ember application, where templates are managed through use of the
       `{{outlet}}` helper, actions will bubble to the current controller, then
       to the current route, and then up the route hierarchy.
 
@@ -31699,7 +31684,7 @@ define("ember-runtime/mixins/mutable_array",
       },
 
       /**
-        Replace all the the receiver's content with content of the argument.
+        Replace all the receiver's content with content of the argument.
         If argument is an empty array receiver will be cleared.
 
         ```javascript
@@ -34676,7 +34661,7 @@ define("ember-runtime/system/namespace",
       },
 
       toString: function() {
-        var name = get(this, 'name');
+        var name = get(this, 'name') || get(this, 'modulePrefix');
         if (name) { return name; }
 
         findNamespaces();
@@ -38225,13 +38210,13 @@ define("ember-views/system/render_buffer",
     }
 
     function ClassSet() {
-      this.seen = {};
+      this.seen = Object.create(null);
       this.list = [];
     }
 
     ClassSet.prototype = {
       add: function(string) {
-        if (string in this.seen) { return; }
+        if (this.seen[string] === true) { return; }
         this.seen[string] = true;
 
         this.list.push(string);

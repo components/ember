@@ -2508,8 +2508,8 @@ define("ember-metal/array",
     __exports__.lastIndexOf = lastIndexOf;
   });
 define("ember-metal/binding",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/map","ember-metal/observer","ember-metal/run_loop","ember-metal/path_cache","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/observer","ember-metal/run_loop","ember-metal/path_cache","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.Logger, Ember.LOG_BINDINGS, assert
@@ -2517,12 +2517,11 @@ define("ember-metal/binding",
     var set = __dependency3__.set;
     var trySet = __dependency3__.trySet;
     var guidFor = __dependency4__.guidFor;
-    var Map = __dependency5__["default"];
-    var addObserver = __dependency6__.addObserver;
-    var removeObserver = __dependency6__.removeObserver;
-    var _suspendObserver = __dependency6__._suspendObserver;
-    var run = __dependency7__["default"];
-    var isGlobalPath = __dependency8__.isGlobal;
+    var addObserver = __dependency5__.addObserver;
+    var removeObserver = __dependency5__.removeObserver;
+    var _suspendObserver = __dependency5__._suspendObserver;
+    var run = __dependency6__["default"];
+    var isGlobalPath = __dependency7__.isGlobal;
 
 
     // ES6TODO: where is Ember.lookup defined?
@@ -2566,10 +2565,9 @@ define("ember-metal/binding",
     //
 
     function Binding(toPath, fromPath) {
-      this._direction = 'fwd';
+      this._direction = undefined;
       this._from = fromPath;
       this._to   = toPath;
-      this._directionMap = new Map();
       this._readyToSync = undefined;
       this._oneWay = undefined;
     }
@@ -2725,19 +2723,18 @@ define("ember-metal/binding",
       },
 
       _scheduleSync: function(obj, dir) {
-        var directionMap = this._directionMap;
-        var existingDir = directionMap.get(obj);
+        var existingDir = this._direction;
 
         // if we haven't scheduled the binding yet, schedule it
-        if (!existingDir) {
+        if (existingDir === undefined) {
           run.schedule('sync', this, this._sync, obj);
-          directionMap.set(obj, dir);
+          this._direction  = dir;
         }
 
         // If both a 'back' and 'fwd' sync have been scheduled on the same object,
         // default to a 'fwd' sync so that it remains deterministic.
         if (existingDir === 'back' && dir === 'fwd') {
-          directionMap.set(obj, 'fwd');
+          this._direction = 'fwd';
         }
       },
 
@@ -2749,13 +2746,12 @@ define("ember-metal/binding",
 
         // get the direction of the binding for the object we are
         // synchronizing from
-        var directionMap = this._directionMap;
-        var direction = directionMap.get(obj);
+        var direction = this._direction;
 
         var fromPath = this._from;
         var toPath = this._to;
 
-        directionMap.delete(obj);
+        this._direction = undefined;
 
         // if we're synchronizing from the remote object...
         if (direction === 'fwd') {
@@ -2800,10 +2796,9 @@ define("ember-metal/binding",
         @method from
         @static
       */
-      from: function() {
+      from: function(from) {
         var C = this;
-        var binding = new C();
-        return binding.from.apply(binding, arguments);
+        return new C(undefined, from);
       },
 
       /*
@@ -2812,10 +2807,9 @@ define("ember-metal/binding",
         @method to
         @static
       */
-      to: function() {
+      to: function(to) {
         var C = this;
-        var binding = new C();
-        return binding.to.apply(binding, arguments);
+        return new C(to, undefined);
       },
 
       /**
@@ -2836,8 +2830,7 @@ define("ember-metal/binding",
       */
       oneWay: function(from, flag) {
         var C = this;
-        var binding = new C(null, from);
-        return binding.oneWay(flag);
+        return new C(undefined, from).oneWay(flag);
       }
 
     });
@@ -6698,13 +6691,12 @@ define("ember-metal/map",
         var presenceSet = this.presenceSet;
         var list = this.list;
 
-        if (presenceSet[guid]) {
+        if (presenceSet[guid] === true) {
           return;
         }
 
         presenceSet[guid] = true;
-        list.push(obj);
-        this.size++;
+        this.size = list.push(obj);
 
         return this;
       },
@@ -6734,13 +6726,13 @@ define("ember-metal/map",
         var presenceSet = this.presenceSet;
         var list = this.list;
 
-        if (presenceSet[guid] !== undefined) {
+        if (presenceSet[guid] === true) {
           delete presenceSet[guid];
           var index = indexOf.call(list, obj);
           if (index > -1) {
             list.splice(index, 1);
           }
-          this.size--;
+          this.size = list.length;
           return true;
         } else {
           return false;
@@ -6766,7 +6758,7 @@ define("ember-metal/map",
         var guid = guidFor(obj);
         var presenceSet = this.presenceSet;
 
-        return !!presenceSet[guid];
+        return presenceSet[guid] === true;
       },
 
       /**
@@ -6948,8 +6940,7 @@ define("ember-metal/map",
         var values = this.values;
         var guid = guidFor(key);
 
-        if (values[guid]) {
-          keys.delete(key, guid);
+        if (keys.delete(key, guid)) {
           delete values[guid];
           this.size = keys.size;
           return true;
@@ -6966,7 +6957,6 @@ define("ember-metal/map",
         @return {Boolean} true if the item was present, false otherwise
       */
       has: function(key) {
-        if (this.size === 0) { return false; }
         return this.keys.has(key);
       },
 
@@ -16788,7 +16778,7 @@ define("ember-runtime/mixins/mutable_array",
       },
 
       /**
-        Replace all the the receiver's content with content of the argument.
+        Replace all the receiver's content with content of the argument.
         If argument is an empty array receiver will be cleared.
 
         ```javascript
@@ -19790,7 +19780,7 @@ define("ember-runtime/system/namespace",
       },
 
       toString: function() {
-        var name = get(this, 'name');
+        var name = get(this, 'name') || get(this, 'modulePrefix');
         if (name) { return name; }
 
         findNamespaces();
