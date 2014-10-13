@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.4b9de3fb
+ * @version   1.9.0-beta.1+canary.bfff16b3
  */
 
 (function() {
@@ -4763,7 +4763,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.4b9de3fb
+      @version 1.9.0-beta.1+canary.bfff16b3
     */
 
     if ('undefined' === typeof Ember) {
@@ -4790,10 +4790,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.4b9de3fb'
+      @default '1.9.0-beta.1+canary.bfff16b3'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.4b9de3fb';
+    Ember.VERSION = '1.9.0-beta.1+canary.bfff16b3';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -7184,8 +7184,8 @@ define("ember-metal/merge",
     }
   });
 define("ember-metal/mixin",
-  ["ember-metal/core","ember-metal/merge","ember-metal/array","ember-metal/platform","ember-metal/utils","ember-metal/expand_properties","ember-metal/properties","ember-metal/computed","ember-metal/binding","ember-metal/observer","ember-metal/events","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
+  ["ember-metal/core","ember-metal/merge","ember-metal/array","ember-metal/platform","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/expand_properties","ember-metal/properties","ember-metal/computed","ember-metal/binding","ember-metal/observer","ember-metal/events","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -7199,22 +7199,26 @@ define("ember-metal/mixin",
     var a_indexOf = __dependency3__.indexOf;
     var a_forEach = __dependency3__.forEach;
     var o_create = __dependency4__.create;
-    var guidFor = __dependency5__.guidFor;
-    var metaFor = __dependency5__.meta;
-    var wrap = __dependency5__.wrap;
-    var makeArray = __dependency5__.makeArray;
-    var apply = __dependency5__.apply;
-    var expandProperties = __dependency6__["default"];
-    var Descriptor = __dependency7__.Descriptor;
-    var defineProperty = __dependency7__.defineProperty;
-    var ComputedProperty = __dependency8__.ComputedProperty;
-    var Binding = __dependency9__.Binding;
-    var addObserver = __dependency10__.addObserver;
-    var removeObserver = __dependency10__.removeObserver;
-    var addBeforeObserver = __dependency10__.addBeforeObserver;
-    var removeBeforeObserver = __dependency10__.removeBeforeObserver;
-    var addListener = __dependency11__.addListener;
-    var removeListener = __dependency11__.removeListener;
+    var get = __dependency5__.get;
+    var set = __dependency6__.set;
+    var trySet = __dependency6__.trySet;
+    var guidFor = __dependency7__.guidFor;
+    var metaFor = __dependency7__.meta;
+    var wrap = __dependency7__.wrap;
+    var makeArray = __dependency7__.makeArray;
+    var apply = __dependency7__.apply;
+    var expandProperties = __dependency8__["default"];
+    var Descriptor = __dependency9__.Descriptor;
+    var defineProperty = __dependency9__.defineProperty;
+    var ComputedProperty = __dependency10__.ComputedProperty;
+    var Binding = __dependency11__.Binding;
+    var addObserver = __dependency12__.addObserver;
+    var removeObserver = __dependency12__.removeObserver;
+    var addBeforeObserver = __dependency12__.addBeforeObserver;
+    var removeBeforeObserver = __dependency12__.removeBeforeObserver;
+    var _suspendObserver = __dependency12__._suspendObserver;
+    var addListener = __dependency13__.addListener;
+    var removeListener = __dependency13__.removeListener;
 
     var REQUIRED;
     var a_slice = [].slice;
@@ -7485,6 +7489,31 @@ define("ember-metal/mixin",
       }
     }
 
+    function connectStreamBinding(obj, key, stream) {
+      var onNotify = function(stream) {
+        _suspendObserver(obj, key, null, didChange, function() {
+          trySet(obj, key, stream.value());
+        });
+      };
+
+      var didChange = function() {
+        stream.setValue(get(obj, key), onNotify);
+      };
+
+      // Initialize value
+      set(obj, key, stream.value());
+
+      addObserver(obj, key, null, didChange);
+
+      stream.subscribe(onNotify);
+
+      if (obj._streamBindingSubscriptions === undefined) {
+        obj._streamBindingSubscriptions = Object.create(null);
+      }
+
+      obj._streamBindingSubscriptions[key] = onNotify;
+    }
+
     function connectBindings(obj, m) {
       // TODO Mixin.apply(instance) should disconnect binding if exists
       var bindings = m.bindings;
@@ -7494,7 +7523,10 @@ define("ember-metal/mixin",
           binding = bindings[key];
           if (binding) {
             to = key.slice(0, -7); // strip Binding off end
-            if (binding instanceof Binding) {
+            if (binding.isStream) {
+              connectStreamBinding(obj, to, binding);
+              continue;
+            } else if (binding instanceof Binding) {
               binding = binding.copy(); // copy prototypes' instance
               binding.to(to);
             } else { // binding is string path
@@ -8244,16 +8276,34 @@ define("ember-metal/path_cache",
     var IS_GLOBAL_PATH = /^([A-Z$]|([0-9][A-Z$])).*[\.]/;
     var HAS_THIS       = 'this.';
 
-    var isGlobalCache     = new Cache(1000, function(key) { return IS_GLOBAL.test(key);          });
-    var isGlobalPathCache = new Cache(1000, function(key) { return IS_GLOBAL_PATH.test(key);     });
-    var hasThisCache      = new Cache(1000, function(key) { return key.indexOf(HAS_THIS) !== -1; });
-    var isPathCache       = new Cache(1000, function(key) { return key.indexOf('.')      !== -1; });
+    var isGlobalCache       = new Cache(1000, function(key) { return IS_GLOBAL.test(key);          });
+    var isGlobalPathCache   = new Cache(1000, function(key) { return IS_GLOBAL_PATH.test(key);     });
+    var hasThisCache        = new Cache(1000, function(key) { return key.indexOf(HAS_THIS) !== -1; });
+    var firstDotIndexCache  = new Cache(1000, function(key) { return key.indexOf('.');             });
+
+    var firstKeyCache = new Cache(1000, function(path) {
+      var index = firstDotIndexCache.get(path);
+      if (index === -1) {
+        return path;
+      } else {
+        return path.slice(0, index);
+      }
+    });
+
+    var tailPathCache = new Cache(1000, function(path) {
+      var index = firstDotIndexCache.get(path);
+      if (index !== -1) {
+        return path.slice(index + 1);
+      }
+    });
 
     var caches = {
-      isGlobalCache:     isGlobalCache,
-      isGlobalPathCache: isGlobalPathCache,
-      hasThisCache:      hasThisCache,
-      isPathCache:       isPathCache
+      isGlobalCache:      isGlobalCache,
+      isGlobalPathCache:  isGlobalPathCache,
+      hasThisCache:       hasThisCache,
+      firstDotIndexCache: firstDotIndexCache,
+      firstKeyCache:      firstKeyCache,
+      tailPathCache:      tailPathCache
     };
     __exports__.caches = caches;
     function isGlobal(path) {
@@ -8269,10 +8319,18 @@ define("ember-metal/path_cache",
     }
 
     __exports__.hasThis = hasThis;function isPath(path) {
-      return isPathCache.get(path);
+      return firstDotIndexCache.get(path) !== -1;
     }
 
-    __exports__.isPath = isPath;
+    __exports__.isPath = isPath;function getFirstKey(path) {
+      return firstKeyCache.get(path);
+    }
+
+    __exports__.getFirstKey = getFirstKey;function getTailPath(path) {
+      return tailPathCache.get(path);
+    }
+
+    __exports__.getTailPath = getTailPath;
   });
 define("ember-metal/platform",
   ["exports"],
@@ -9935,6 +9993,304 @@ define("ember-metal/set_properties",
       });
       return self;
     }
+  });
+define("ember-metal/streams/read",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    function read(object) {
+      if (object && object.isStream) {
+        return object.value();
+      } else {
+        return object;
+      }
+    }
+
+    __exports__.read = read;function readArray(array) {
+      var length = array.length;
+      var ret = new Array(length);
+      for (var i = 0; i < length; i++) {
+        ret[i] = read(array[i]);
+      }
+      return ret;
+    }
+
+    __exports__.readArray = readArray;function readHash(object) {
+      var ret = {};
+      for (var key in object) {
+        ret[key] = read(object[key]);
+      }
+      return ret;
+    }
+
+    __exports__.readHash = readHash;
+  });
+define("ember-metal/streams/simple",
+  ["ember-metal/merge","ember-metal/streams/stream","ember-metal/platform","ember-metal/streams/read","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+    "use strict";
+    var merge = __dependency1__["default"];
+    var Stream = __dependency2__["default"];
+    var create = __dependency3__.create;
+    var read = __dependency4__.read;
+
+    function SimpleStream(source) {
+      this.source = source;
+
+      if (source && source.isStream) {
+        source.subscribe(this._didChange, this);
+      }
+    }
+
+    SimpleStream.prototype = create(Stream.prototype);
+
+    merge(SimpleStream.prototype, {
+      valueFn: function() {
+        return read(this.source);
+      },
+
+      setSource: function(nextSource) {
+        var prevSource = this.source;
+        if (nextSource !== prevSource) {
+          if (prevSource && prevSource.isStream) {
+            prevSource.unsubscribe(this._didChange, this);
+          }
+
+          if (nextSource && nextSource.isStream) {
+            nextSource.subscribe(this._didChange, this);
+          }
+
+          this.source = nextSource;
+          this.notify();
+        }
+      },
+
+      _didChange: function() {
+        this.notify();
+      },
+
+      destroy: function() {
+        if (this.source && this.source.isStream) {
+          this.source.unsubscribe(this._didChange, this);
+        }
+
+        this.source = undefined;
+        Stream.prototype.destroy.call(this);
+      }
+    });
+
+    __exports__["default"] = SimpleStream;
+  });
+define("ember-metal/streams/stream",
+  ["ember-metal/path_cache","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    var getFirstKey = __dependency1__.getFirstKey;
+    var getTailPath = __dependency1__.getTailPath;
+
+    var NIL = function NIL(){};
+
+    function Stream(fn) {
+      this.valueFn = fn;
+      this.cache = NIL;
+      this.subscribers = undefined;
+      this.children = undefined;
+      this.destroyed = false;
+    }
+
+    Stream.prototype = {
+      isStream: true,
+
+      cache: NIL,
+
+      get: function(path) {
+        var firstKey = getFirstKey(path);
+        var tailPath = getTailPath(path);
+
+        if (this.children === undefined) {
+          this.children = Object.create(null);
+        }
+
+        var keyStream = this.children[firstKey];
+
+        if (keyStream === undefined) {
+          keyStream = this._makeChildStream(firstKey, path);
+          this.children[firstKey] = keyStream;
+        }
+
+        if (tailPath === undefined) {
+          return keyStream;
+        } else {
+          return keyStream.get(tailPath);
+        }
+      },
+
+      value: function() {
+        if (this.cache !== NIL) {
+          return this.cache;
+        } else {
+          return this.cache = this.valueFn();
+        }
+      },
+
+      setValue: function() {
+        throw new Error("Stream error: setValue not implemented");
+      },
+
+      notifyAll: function() {
+        this.notify();
+      },
+
+      notify: function(callbackToSkip, contextToSkip) {
+        if (this.cache !== NIL) {
+          this.cache = NIL;
+          this.notifySubscribers(callbackToSkip, contextToSkip);
+        }
+      },
+
+      subscribe: function(callback, context) {
+        if (this.subscribers === undefined) {
+          this.subscribers = [callback, context];
+        } else {
+          this.subscribers.push(callback, context);
+        }
+      },
+
+      unsubscribe: function(callback, context) {
+        var subscribers = this.subscribers;
+
+        if (subscribers !== undefined) {
+          for (var i = 0, l = subscribers.length; i < l; i += 2) {
+            if (subscribers[i] === callback && subscribers[i+1] === context) {
+              subscribers.splice(i, 2);
+              return;
+            }
+          }
+        }
+      },
+
+      notifySubscribers: function(callbackToSkip, contextToSkip) {
+        var subscribers = this.subscribers;
+
+        if (subscribers !== undefined) {
+          for (var i = 0, l = subscribers.length; i < l; i += 2) {
+            var callback = subscribers[i];
+            var context = subscribers[i+1];
+
+            if (callback === callbackToSkip && context === contextToSkip) {
+              continue;
+            }
+
+            if (context === undefined) {
+              callback(this);
+            } else {
+              callback.call(context, this);
+            }
+          }
+        }
+      },
+
+      destroy: function() {
+        if (this.destroyed) return;
+        this.destroyed = true;
+
+        var children = this.children;
+        for (var key in children) {
+          children[key].destroy();
+        }
+      },
+
+      isGlobal: function() {
+        var stream = this;
+        while (stream !== undefined) {
+          if (stream._isRoot) {
+            return stream._isGlobal;
+          }
+          stream = stream.source;
+        }
+      }
+    };
+
+    __exports__["default"] = Stream;
+  });
+define("ember-metal/streams/stream_binding",
+  ["ember-metal/platform","ember-metal/merge","ember-metal/run_loop","ember-metal/streams/stream","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+    "use strict";
+    var create = __dependency1__.create;
+    var merge = __dependency2__["default"];
+    var run = __dependency3__["default"];
+    var Stream = __dependency4__["default"];
+
+    function StreamBinding(stream) {
+      Ember.assert("StreamBinding error: tried to bind to object that is not a stream", stream && stream.isStream);
+
+      this.stream = stream;
+      this.senderCallback = undefined;
+      this.senderContext = undefined;
+      this.senderValue = undefined;
+      this.destroyed = false;
+
+      stream.subscribe(this._onNotify, this);
+    }
+
+    StreamBinding.prototype = create(Stream.prototype);
+
+    merge(StreamBinding.prototype, {
+      valueFn: function() {
+        return this.stream.value();
+      },
+
+      _onNotify: function() {
+        this._scheduleSync(undefined, undefined, this);
+      },
+
+      setValue: function(value, callback, context) {
+        this._scheduleSync(value, callback, context);
+      },
+
+      _scheduleSync: function(value, callback, context) {
+        if (this.senderCallback === undefined && this.senderContext === undefined) {
+          this.senderCallback = callback;
+          this.senderContext = context;
+          this.senderValue = value;
+          run.schedule('sync', this, this._sync);
+        } else if (this.senderContext !== this) {
+          this.senderCallback = callback;
+          this.senderContext = context;
+          this.senderValue = value;
+        }
+      },
+
+      _sync: function() {
+        if (this.destroyed) {
+          return;
+        }
+
+        if (this.senderContext !== this) {
+          this.stream.setValue(this.senderValue);
+        }
+
+        var senderCallback = this.senderCallback;
+        var senderContext = this.senderContext;
+        this.senderCallback = undefined;
+        this.senderContext = undefined;
+        this.senderValue = undefined;
+
+        this.notify(senderCallback, senderContext);
+      },
+
+      destroy: function() {
+        if (this.destroyed) {
+          return;
+        }
+
+        this.destroyed = true;
+        this.stream.unsubscribe(this._onNotify, this);
+      }
+    });
+
+    __exports__["default"] = StreamBinding;
   });
 define("ember-metal/utils",
   ["ember-metal/core","ember-metal/platform","ember-metal/array","exports"],
