@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.8105a1bb
+ * @version   1.9.0-beta.1+canary.9c0addba
  */
 
 (function() {
@@ -13549,7 +13549,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.8105a1bb
+      @version 1.9.0-beta.1+canary.9c0addba
     */
 
     if ('undefined' === typeof Ember) {
@@ -13576,10 +13576,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.8105a1bb'
+      @default '1.9.0-beta.1+canary.9c0addba'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.8105a1bb';
+    Ember.VERSION = '1.9.0-beta.1+canary.9c0addba';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -23173,30 +23173,22 @@ define("ember-routing/system/dsl",
 
         var type = options.resetNamespace === true ? 'resource' : 'route';
         
-
-        if (typeof options.path !== 'string') {
-          options.path = "/" + name;
-        }
-
-        if (canNest(this) && options.resetNamespace !== true) {
-          name = this.parent + "." + name;
+        if (Ember.FEATURES.isEnabled("ember-routing-named-substates")) {
+          createRoute(this, name + '_loading', {resetNamespace: options.resetNamespace});
+          createRoute(this, name + '_error', { path: "/_unused_dummy_error_path_route_" + name + "/:error"});
         }
 
         if (callback) {
-          var dsl = new DSL(name);
-          route(dsl, 'loading');
-          route(dsl, 'error', { path: "/_unused_dummy_error_path_route_" + name + "/:error" });
+          var fullName = getFullName(this, name, options.resetNamespace);
+          var dsl = new DSL(fullName);
+          createRoute(dsl, 'loading');
+          createRoute(dsl, 'error', { path: "/_unused_dummy_error_path_route_" + name + "/:error" });
 
           callback.call(dsl);
 
-          this.push(options.path, name, dsl.generate());
+          createRoute(this, name, options, dsl.generate());
         } else {
-          this.push(options.path, name, null);
-        }
-
-        if (Ember.FEATURES.isEnabled("ember-routing-named-substates")) {
-          route(this, name + '_loading', {resetNamespace: options.resetNamespace});
-          route(this, name + '_error', { path: "/_unused_dummy_error_path_route_" + name + "/:error"});
+          createRoute(this, name, options);
         }
       },
 
@@ -23225,7 +23217,7 @@ define("ember-routing/system/dsl",
         var dslMatches = this.matches;
 
         if (!this.explicitIndex) {
-          route(this, "index", { path: "/" });
+          this.route("index", { path: "/" });
         }
 
         return function(match) {
@@ -23241,19 +23233,24 @@ define("ember-routing/system/dsl",
       return dsl.parent && dsl.parent !== 'application';
     }
 
-    function route(dsl, name, options) {
-      
+    function getFullName(dsl, name, resetNamespace) {
+      if (canNest(dsl) && resetNamespace !== true) {
+        return dsl.parent + "." + name;
+      } else {
+        return name;
+      }
+    }
+
+    function createRoute(dsl, name, options, callback) {
       options = options || {};
+
+      var fullName = getFullName(dsl, name, options.resetNamespace);
 
       if (typeof options.path !== 'string') {
         options.path = "/" + name;
       }
 
-      if (canNest(dsl) && options.resetNamespace !== true) {
-        name = dsl.parent + "." + name;
-      }
-
-      dsl.push(options.path, name, null);
+      dsl.push(options.path, fullName, callback);
     }
 
     DSL.map = function(callback) {
