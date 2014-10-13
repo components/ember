@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.9c0addba
+ * @version   1.9.0-beta.1+canary.4b9de3fb
  */
 
 (function() {
@@ -17629,11 +17629,13 @@ define("ember-metal/tests/libraries_test.jshint",
     });
   });
 define("ember-metal/tests/map_test",
-  ["ember-metal/map"],
-  function(__dependency1__) {
+  ["ember-metal/map","ember-metal/platform"],
+  function(__dependency1__, __dependency2__) {
     "use strict";
     var Map = __dependency1__.Map;
     var MapWithDefault = __dependency1__.MapWithDefault;
+
+    var hasPropertyAccessors = __dependency2__.hasPropertyAccessors;
 
     var object, number, string, map, variety;
     var varieties = [['Map', Map], ['MapWithDefault', MapWithDefault]];
@@ -17834,40 +17836,42 @@ define("ember-metal/tests/map_test",
         mapHasEntries([ ], map2);
       });
 
-      test("length", function() {
-        expectDeprecation('Usage of `length` is deprecated, use `size` instead.');
+      if (hasPropertyAccessors) {
+        test("length", function() {
+          expectDeprecation('Usage of `length` is deprecated, use `size` instead.');
 
-        //Add a key twice
-        equal(map.length, 0);
-        map.set(string, "a string");
-        equal(map.length, 1);
-        map.set(string, "the same string");
-        equal(map.length, 1);
+          //Add a key twice
+          equal(map.length, 0);
+          map.set(string, "a string");
+          equal(map.length, 1);
+          map.set(string, "the same string");
+          equal(map.length, 1);
 
-        //Add another
-        map.set(number, "a number");
-        equal(map.length, 2);
+          //Add another
+          map.set(number, "a number");
+          equal(map.length, 2);
 
-        //Remove one that doesn't exist
-        map["delete"]('does not exist');
-        equal(map.length, 2);
+          //Remove one that doesn't exist
+          map["delete"]('does not exist');
+          equal(map.length, 2);
 
-        //Check copy
-        var copy = map.copy();
-        equal(copy.length, 2);
+          //Check copy
+          var copy = map.copy();
+          equal(copy.length, 2);
 
-        //Remove a key twice
-        map["delete"](number);
-        equal(map.length, 1);
-        map["delete"](number);
-        equal(map.length, 1);
+          //Remove a key twice
+          map["delete"](number);
+          equal(map.length, 1);
+          map["delete"](number);
+          equal(map.length, 1);
 
-        //Remove the last key
-        map["delete"](string);
-        equal(map.length, 0);
-        map["delete"](string);
-        equal(map.length, 0);
-      });
+          //Remove the last key
+          map["delete"](string);
+          equal(map.length, 0);
+          map["delete"](string);
+          equal(map.length, 0);
+        });
+      }
 
       test("size", function() {
         //Add a key twice
