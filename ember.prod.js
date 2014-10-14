@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.2178406b
+ * @version   1.9.0-beta.1+canary.eaad0fad
  */
 
 (function() {
@@ -12937,7 +12937,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.2178406b
+      @version 1.9.0-beta.1+canary.eaad0fad
     */
 
     if ('undefined' === typeof Ember) {
@@ -12964,10 +12964,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.2178406b'
+      @default '1.9.0-beta.1+canary.eaad0fad'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.2178406b';
+    Ember.VERSION = '1.9.0-beta.1+canary.eaad0fad';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -18159,6 +18159,14 @@ define("ember-metal/streams/simple",
     merge(SimpleStream.prototype, {
       valueFn: function() {
         return read(this.source);
+      },
+
+      setValue: function(value) {
+        var source = this.source;
+
+        if (source && source.isStream) {
+          source.setValue(value);
+        }
       },
 
       setSource: function(nextSource) {

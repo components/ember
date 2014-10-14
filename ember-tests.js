@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.2178406b
+ * @version   1.9.0-beta.1+canary.eaad0fad
  */
 
 (function() {
@@ -21678,6 +21678,59 @@ define("ember-metal/tests/run_loop/unwind_test.jshint",
     module('JSHint - ember-metal/tests/run_loop');
     test('ember-metal/tests/run_loop/unwind_test.js should pass jshint', function() { 
       ok(true, 'ember-metal/tests/run_loop/unwind_test.js should pass jshint.'); 
+    });
+  });
+define("ember-metal/tests/streams/simple_stream_test",
+  ["ember-metal/streams/stream","ember-metal/streams/simple"],
+  function(__dependency1__, __dependency2__) {
+    "use strict";
+    var Stream = __dependency1__["default"];
+    var SimpleStream = __dependency2__["default"];
+
+    var source, value;
+
+    QUnit.module('Simple Stream', {
+      setup: function() {
+        value = "zlurp";
+
+        source = new Stream(function() {
+          return value;
+        });
+
+        source.setValue = function(_value, callback, context) {
+          value = _value;
+          this.notify(callback, context);
+        };
+      },
+      teardown: function() {
+        value = undefined;
+        source = undefined;
+      }
+    });
+
+    test('supports a stream argument', function() {
+      var stream = new SimpleStream(source);
+      equal(stream.value(), "zlurp");
+
+      stream.setValue("blorg");
+      equal(stream.value(), "blorg");
+    });
+
+    test('supports a non-stream argument', function() {
+      var stream = new SimpleStream(value);
+      equal(stream.value(), "zlurp");
+
+      stream.setValue("blorg");
+      equal(stream.value(), "zlurp");
+    });
+  });
+define("ember-metal/tests/streams/simple_stream_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal/tests/streams');
+    test('ember-metal/tests/streams/simple_stream_test.js should pass jshint', function() { 
+      ok(true, 'ember-metal/tests/streams/simple_stream_test.js should pass jshint.'); 
     });
   });
 define("ember-metal/tests/streams/stream_binding_test",
