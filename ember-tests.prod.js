@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.eaad0fad
+ * @version   1.9.0-beta.1+canary.fd0c1bfd
  */
 
 (function() {
@@ -10969,9 +10969,34 @@ define("ember-handlebars/tests/helpers/view_test",
 
     test("Should apply class without condition always", function() {
       view = EmberView.create({
-        context: [],
         controller: Ember.Object.create(),
         template: Ember.Handlebars.compile('{{#view id="foo" classBinding=":foo"}} Foo{{/view}}')
+      });
+
+      run(view, 'appendTo', '#qunit-fixture');
+
+      ok(jQuery('#foo').hasClass('foo'), "Always applies classbinding without condition");
+    });
+
+    test("Should apply classes when bound controller.* property specified", function() {
+      view = EmberView.create({
+        controller: {
+          someProp: 'foo'
+        },
+        template: Ember.Handlebars.compile('{{#view id="foo" class=controller.someProp}} Foo{{/view}}')
+      });
+
+      run(view, 'appendTo', '#qunit-fixture');
+
+      ok(jQuery('#foo').hasClass('foo'), "Always applies classbinding without condition");
+    });
+
+    test("Should apply classes when bound property specified", function() {
+      view = EmberView.create({
+        controller: {
+          someProp: 'foo'
+        },
+        template: Ember.Handlebars.compile('{{#view id="foo" class=someProp}} Foo{{/view}}')
       });
 
       run(view, 'appendTo', '#qunit-fixture');
