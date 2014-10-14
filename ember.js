@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.bfff16b3
+ * @version   1.9.0-beta.1+canary.2178406b
  */
 
 (function() {
@@ -4222,7 +4222,7 @@ define("ember-debug",
         Ember.warn('Ember.ENV.ENABLE_OPTIONAL_FEATURES is only available in canary builds.', !Ember.ENV.ENABLE_OPTIONAL_FEATURES);
 
         for (var key in FEATURES) {
-          if (FEATURES.hasOwnProperty(key)) {
+          if (FEATURES.hasOwnProperty(key) && key !== 'isEnabled') {
             Ember.warn('FEATURE["' + key + '"] is set as enabled, but FEATURE flags are only available in canary builds.', !FEATURES[key]);
           }
         }
@@ -4234,7 +4234,10 @@ define("ember-debug",
       Ember.FEATURES['features-stripped-test'] = true;
       var featuresWereStripped = true;
       
-      
+      if (Ember.FEATURES.isEnabled('features-stripped-test')) {
+        featuresWereStripped = false;
+      }
+
       delete Ember.FEATURES['features-stripped-test'];
       _warnIfUsingStrippedFeatureFlags(Ember.ENV.FEATURES, featuresWereStripped);
 
@@ -13302,7 +13305,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.bfff16b3
+      @version 1.9.0-beta.1+canary.2178406b
     */
 
     if ('undefined' === typeof Ember) {
@@ -13329,10 +13332,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.bfff16b3'
+      @default '1.9.0-beta.1+canary.2178406b'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.bfff16b3';
+    Ember.VERSION = '1.9.0-beta.1+canary.2178406b';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
