@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.7dd08daa
+ * @version   1.9.0-beta.1+canary.38403775
  */
 
 (function() {
@@ -7063,7 +7063,7 @@ define("ember-handlebars/ext",
           var globalViewClass = get(path);
           Ember.deprecate('Resolved the view "'+path+'" on the global context. Pass a view name to be looked' +
                           ' up on the container instead, such as {{view "select"}}.' +
-                          ' http://emberjs.com/guides/deprecations#toc_global-lookup-of-views-since-1-8', !globalViewClass);
+                          ' http://emberjs.com/guides/deprecations#toc_global-lookup-of-views', !globalViewClass);
           if (globalViewClass) {
             viewClass = globalViewClass;
           }
@@ -8461,7 +8461,7 @@ define("ember-handlebars/helpers/collection",
       } else if (hash.itemViewClass) {
         if (hashTypes.itemViewClass === 'ID') {
           var itemViewClassStream = view.getStream(hash.itemViewClass);
-          Ember.deprecate('Resolved the view "'+hash.itemViewClass+'" on the global context. Pass a view name to be looked up on the container instead, such as {{view "select"}}. http://emberjs.com/guides/deprecations#toc_global-lookup-of-views-since-1-8', !itemViewClassStream.isGlobal());
+          Ember.deprecate('Resolved the view "'+hash.itemViewClass+'" on the global context. Pass a view name to be looked up on the container instead, such as {{view "select"}}. http://emberjs.com/guides/deprecations#toc_global-lookup-of-views', !itemViewClassStream.isGlobal());
           itemViewClass = itemViewClassStream.value();
         } else {
           itemViewClass = hash.itemViewClass;
@@ -9599,7 +9599,7 @@ define("ember-handlebars/helpers/view",
         var pathStream;
         if (typeof path === 'string' && types[0] === 'ID') {
           pathStream = view.getStream(path);
-          Ember.deprecate('Resolved the view "'+path+'" on the global context. Pass a view name to be looked up on the container instead, such as {{view "select"}}. http://emberjs.com/guides/deprecations#toc_global-lookup-of-views-since-1-8', !pathStream.isGlobal());
+          Ember.deprecate('Resolved the view "'+path+'" on the global context. Pass a view name to be looked up on the container instead, such as {{view "select"}}. http://emberjs.com/guides/deprecations#toc_global-lookup-of-views', !pathStream.isGlobal());
         } else {
           pathStream = path;
         }
@@ -13309,7 +13309,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.7dd08daa
+      @version 1.9.0-beta.1+canary.38403775
     */
 
     if ('undefined' === typeof Ember) {
@@ -13336,10 +13336,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.7dd08daa'
+      @default '1.9.0-beta.1+canary.38403775'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.7dd08daa';
+    Ember.VERSION = '1.9.0-beta.1+canary.38403775';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -38997,7 +38997,7 @@ define("ember-views/streams/read",
       if (typeof value === 'string') {
         if (isGlobal(value)) {
           viewClass = get(null, value);
-          Ember.deprecate('Resolved the view "'+value+'" on the global context. Pass a view name to be looked up on the container instead, such as {{view "select"}}. http://emberjs.com/guides/deprecations#toc_global-lookup-of-views-since-1-8', !viewClass);
+          Ember.deprecate('Resolved the view "'+value+'" on the global context. Pass a view name to be looked up on the container instead, such as {{view "select"}}. http://emberjs.com/guides/deprecations#toc_global-lookup-of-views', !viewClass);
         } else {
           Ember.assert("View requires a container to resolve views not passed in through the context", !!container);
           viewClass = container.lookupFactory('view:'+value);
