@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.fd0c1bfd
+ * @version   1.9.0-beta.1+canary.fbf91df2
  */
 
 (function() {
@@ -4763,7 +4763,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.fd0c1bfd
+      @version 1.9.0-beta.1+canary.fbf91df2
     */
 
     if ('undefined' === typeof Ember) {
@@ -4790,10 +4790,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.fd0c1bfd'
+      @default '1.9.0-beta.1+canary.fbf91df2'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.fd0c1bfd';
+    Ember.VERSION = '1.9.0-beta.1+canary.fbf91df2';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -5127,7 +5127,7 @@ define("ember-metal/enumerable_utils",
      * @return {Array} An array of mapped values.
      */
     function map(obj, callback, thisArg) {
-      return obj.map ? obj.map.call(obj, callback, thisArg) : _map.call(obj, callback, thisArg);
+      return obj.map ? obj.map(callback, thisArg) : _map.call(obj, callback, thisArg);
     }
 
     __exports__.map = map;/**
@@ -5141,7 +5141,7 @@ define("ember-metal/enumerable_utils",
      *
      */
     function forEach(obj, callback, thisArg) {
-      return obj.forEach ? obj.forEach.call(obj, callback, thisArg) : a_forEach.call(obj, callback, thisArg);
+      return obj.forEach ? obj.forEach(callback, thisArg) : a_forEach.call(obj, callback, thisArg);
     }
 
     __exports__.forEach = forEach;/**
@@ -5157,7 +5157,7 @@ define("ember-metal/enumerable_utils",
      * @since 1.4.0
      */
     function filter(obj, callback, thisArg) {
-      return obj.filter ? obj.filter.call(obj, callback, thisArg) : _filter.call(obj, callback, thisArg);
+      return obj.filter ? obj.filter(callback, thisArg) : _filter.call(obj, callback, thisArg);
     }
 
     __exports__.filter = filter;/**
@@ -5171,7 +5171,7 @@ define("ember-metal/enumerable_utils",
      *
      */
     function indexOf(obj, element, index) {
-      return obj.indexOf ? obj.indexOf.call(obj, element, index) : _indexOf.call(obj, element, index);
+      return obj.indexOf ? obj.indexOf(element, index) : _indexOf.call(obj, element, index);
     }
 
     __exports__.indexOf = indexOf;/**
