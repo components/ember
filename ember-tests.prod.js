@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.38403775
+ * @version   1.9.0-beta.1+canary.21156e02
  */
 
 (function() {
@@ -10874,6 +10874,33 @@ define("ember-handlebars/tests/helpers/view_test",
 
       view = EmberView.extend({
         template: Ember.Handlebars.compile("{{view 'fu'}}"),
+        container: container
+      }).create();
+
+      run(view, 'appendTo', '#qunit-fixture');
+
+      equal(jQuery('#fu').text(), 'bro');
+    });
+
+    test("View lookup - 'fu' when fu is a property and a view name", function() {
+      var FuView = viewClass({
+        elementId: "fu",
+        template: Ember.Handlebars.compile("bro")
+      });
+
+      function lookupFactory(fullName) {
+        equal(fullName, 'view:fu');
+
+        return FuView;
+      }
+
+      var container = {
+        lookupFactory: lookupFactory
+      };
+
+      view = EmberView.extend({
+        template: Ember.Handlebars.compile("{{view 'fu'}}"),
+        context: {fu: 'boom!'},
         container: container
       }).create();
 
