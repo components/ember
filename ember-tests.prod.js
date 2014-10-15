@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.fbf91df2
+ * @version   1.9.0-beta.1+canary.1d232eb9
  */
 
 (function() {
@@ -18322,6 +18322,22 @@ define("ember-metal/tests/mixin/concatenatedProperties_test",
       var obj = Ember.mixin({}, MixinA, MixinB);
       deepEqual(Ember.get(obj, 'foo'), ['a', 'b', 'c', 'd', 'e', 'f']);
     });
+
+    test('defining concatenated properties should concat future version', function() {
+
+      var MixinA = Ember.Mixin.create({
+        concatenatedProperties: null,
+      });
+
+      var MixinB = Ember.Mixin.create({
+        concatenatedProperties: null,
+      });
+
+      var obj = Ember.mixin({}, MixinA, MixinB);
+
+      deepEqual(obj.concatenatedProperties, []);
+    });
+
 
     test('concatenatedProperties should be concatenated', function() {
 

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.fbf91df2
+ * @version   1.9.0-beta.1+canary.1d232eb9
  */
 
 (function() {
@@ -13309,7 +13309,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.fbf91df2
+      @version 1.9.0-beta.1+canary.1d232eb9
     */
 
     if ('undefined' === typeof Ember) {
@@ -13336,10 +13336,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.fbf91df2'
+      @default '1.9.0-beta.1+canary.1d232eb9'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.fbf91df2';
+    Ember.VERSION = '1.9.0-beta.1+canary.1d232eb9';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -15919,7 +15919,11 @@ define("ember-metal/mixin",
 
       if (baseValue) {
         if ('function' === typeof baseValue.concat) {
-          return baseValue.concat(value);
+          if (value === null || value === undefined) {
+            return baseValue;
+          } else {
+            return baseValue.concat(value);
+          }
         } else {
           return makeArray(baseValue).concat(value);
         }
@@ -34447,8 +34451,6 @@ define("ember-runtime/system/core_object",
 
             for (var j = 0, ll = keyNames.length; j < ll; j++) {
               var keyName = keyNames[j];
-              if (!properties.hasOwnProperty(keyName)) { continue; }
-
               var value = properties[keyName];
 
               if (IS_BINDING.test(keyName)) {
@@ -34469,7 +34471,9 @@ define("ember-runtime/system/core_object",
                            "time, when Ember.ActionHandler is used (i.e. views, " +
                            "controllers & routes).", !((keyName === 'actions') && ActionHandler.detect(this)));
 
-              if (concatenatedProperties && indexOf(concatenatedProperties, keyName) >= 0) {
+              if (concatenatedProperties && 
+                  concatenatedProperties.length > 0 &&
+                  indexOf(concatenatedProperties, keyName) >= 0) {
                 var baseValue = this[keyName];
 
                 if (baseValue) {
