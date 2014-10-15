@@ -6823,6 +6823,20 @@ define("ember-handlebars/ext",
       return value;
     }
 
+    function lookupViewInContainer(container, path) {
+      Ember.assert("View requires a container to resolve views not passed in through the context", !!container);
+      return container.lookupFactory('view:'+path);
+    }
+
+    function lookupViewByClassName(path) {
+      var viewClass;
+      if (detectIsGlobal(path)) {
+        viewClass = get(path);
+        Ember.deprecate('Resolved the view "'+path+'" on the global context. Pass a view name to be looked up on the container instead, such as {{view "select"}}. http://emberjs.com/guides/deprecations#toc_global-lookup-of-views-since-1-8', !viewClass);
+        return viewClass;
+      }
+    }
+
     /**
       handlebarsGetView resolves a view based on strings passed into a template.
       For example:
@@ -6847,31 +6861,42 @@ define("ember-handlebars/ext",
       @param {Object} context The context of the template being rendered
       @param {String} path The path to be lookedup
       @param {Object} container The container
-      @param {Object} data The template's data hash
+      @param {Object} options The options from the template
     */
-    function handlebarsGetView(context, path, container, data) {
+    function handlebarsGetView(context, path, container, options) {
       var viewClass;
+      var data;
+      var pathType;
+      if (options) {
+        data      = options.data;
+        pathType  = options.types && options.types[0];
+      }
+
       if ('string' === typeof path) {
-        if (data) {
-          var normalizedPath = normalizePath(context, path, data);
-          context = normalizedPath.root;
-          path = normalizedPath.path;
+        if('STRING' === pathType && container) {
+          viewClass = lookupViewInContainer(container, path);
+          Ember.deprecate('Quoted view names must refer to a view in the container.', viewClass);
+
         }
 
-        // Only lookup view class on context if there is a context. If not,
-        // the global lookup path on get may kick in.
-        viewClass = context && get(context, path);
-        var isGlobal = detectIsGlobal(path);
-
-        if (!viewClass && !isGlobal) {
-          Ember.assert("View requires a container to resolve views not passed in through the context", !!container);
-          viewClass = container.lookupFactory('view:'+path);
+        if(!viewClass) {
+          viewClass = lookupViewByClassName(path);
         }
-        if (!viewClass && isGlobal) {
-          var globalViewClass = get(path);
-          Ember.deprecate('Resolved the view "'+path+'" on the global context. Pass a view name to be looked up on the container instead, such as {{view "select"}}. http://emberjs.com/guides/deprecations#toc_global-lookup-of-views-since-1-8', !globalViewClass);
-          if (globalViewClass) {
-            viewClass = globalViewClass;
+
+        if(!viewClass) {
+          if (data) {
+            var normalizedPath = normalizePath(context, path, data);
+            context = normalizedPath.root;
+            path = normalizedPath.path;
+          }
+
+          // Only lookup view class on context if there is a context. If not,
+          // the global lookup path on get may kick in.
+          viewClass = context && get(context, path);
+
+          if(!viewClass) {
+            // try the container once more with the normalized path
+            viewClass = lookupViewInContainer(container, path);
           }
         }
       } else {
@@ -6880,7 +6905,10 @@ define("ember-handlebars/ext",
 
       // Sometimes a view's value is yet another path
       if ('string' === typeof viewClass && data && data.view) {
-        viewClass = handlebarsGetView(data.view, viewClass, container, data);
+        viewClass = handlebarsGetView(data.view, viewClass, container, {
+          data: data,
+          types: ['ID']
+        });
       }
 
       Ember.assert(
@@ -8487,7 +8515,7 @@ define("ember-handlebars/helpers/collection",
       // Otherwise, just default to the standard class.
       var collectionClass;
       if (path) {
-        collectionClass = handlebarsGetView(this, path, container, options.data);
+        collectionClass = handlebarsGetView(this, path, container, options);
         Ember.assert(fmt("%@ #collection: Could not find collection class %@", [data.view, path]), !!collectionClass);
       }
       else {
@@ -8503,11 +8531,11 @@ define("ember-handlebars/helpers/collection",
       var itemViewClass;
 
       if (hash.itemView) {
-        itemViewClass = handlebarsGetView(this, hash.itemView, container, options.data);
+        itemViewClass = handlebarsGetView(this, hash.itemView, container, options);
       } else if (hash.itemViewClass) {
-        itemViewClass = handlebarsGetView(collectionPrototype, hash.itemViewClass, container, options.data);
+        itemViewClass = handlebarsGetView(collectionPrototype, hash.itemViewClass, container, options);
       } else {
-        itemViewClass = handlebarsGetView(collectionPrototype, collectionPrototype.itemViewClass, container, options.data);
+        itemViewClass = handlebarsGetView(collectionPrototype, collectionPrototype.itemViewClass, container, options);
       }
 
       Ember.assert(fmt("%@ #collection: Could not find itemViewClass %@", [data.view, itemViewClass]), !!itemViewClass);
@@ -8544,7 +8572,7 @@ define("ember-handlebars/helpers/collection",
               tagName: itemHash.tagName
         });
       } else if (hash.emptyViewClass) {
-        emptyViewClass = handlebarsGetView(this, hash.emptyViewClass, container, options.data);
+        emptyViewClass = handlebarsGetView(this, hash.emptyViewClass, container, options);
       }
       if (emptyViewClass) { hash.emptyView = emptyViewClass; }
 
@@ -9597,7 +9625,7 @@ define("ember-handlebars/helpers/view",
         makeBindings(thisContext, options);
 
         var container = this.container || (data && data.view && data.view.container);
-        newView = handlebarsGetView(thisContext, path, container, options.data);
+        newView = handlebarsGetView(thisContext, path, container, options);
 
         var viewOptions = this.propertiesFromHTMLOptions(options, thisContext);
         var currentView = data.view;

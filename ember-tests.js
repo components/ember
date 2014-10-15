@@ -10958,7 +10958,7 @@ define("ember-handlebars/tests/helpers/view_test",
       equal(jQuery('#fu').text(), 'bro');
     });
 
-    test("View lookup - view.computed", function() {
+    test("View lookup - 'fu' when fu is a keyword and a view name", function() {
       var FuView = viewClass({
         elementId: "fu",
         template: Ember.Handlebars.compile("bro")
@@ -10975,12 +10975,89 @@ define("ember-handlebars/tests/helpers/view_test",
       };
 
       view = EmberView.extend({
+        template: Ember.Handlebars.compile("{{view 'fu'}}"),
+        templateData: { keywords: {fu: 'boom!'} },
+        container: container
+      }).create();
+
+      run(view, 'appendTo', '#qunit-fixture');
+
+      equal(jQuery('#fu').text(), 'bro');
+    });
+
+    test("View lookup - view.computed", function() {
+      var FuView = viewClass({
+        elementId: "fu",
+        template: Ember.Handlebars.compile("bro")
+      });
+
+      function lookupFactory(fullName) {
+        return fullName === 'view:fu' && FuView;
+      }
+
+      var container = {
+        lookupFactory: lookupFactory
+      };
+
+      view = EmberView.extend({
         template: Ember.Handlebars.compile("{{view view.computed}}"),
         container: container,
         computed: 'fu'
       }).create();
 
       run(view, 'appendTo', '#qunit-fixture');
+
+      equal(jQuery('#fu').text(), 'bro');
+    });
+
+    test("View lookup - bar when bar is a keyword and a view name", function() {
+      var FuView = viewClass({
+        elementId: "fu",
+        template: Ember.Handlebars.compile("bro")
+      });
+
+      function lookupFactory(fullName) {
+        return fullName === 'view:fu' && FuView;
+      }
+
+      var container = {
+        lookupFactory: lookupFactory
+      };
+
+      view = EmberView.extend({
+        template: Ember.Handlebars.compile("{{view bar}}"),
+        templateData: { keywords: {bar: 'fu'} },
+        container: container
+      }).create();
+
+      run(view, 'appendTo', '#qunit-fixture');
+
+      equal(jQuery('#fu').text(), 'bro');
+    });
+
+    test("View lookup - 'view.computed' (DEPRECATED)", function() {
+      var FuView = viewClass({
+        elementId: "fu",
+        template: Ember.Handlebars.compile("bro")
+      });
+
+      function lookupFactory(fullName) {
+        return fullName === 'view:fu' && FuView;
+      }
+
+      var container = {
+        lookupFactory: lookupFactory
+      };
+
+      view = EmberView.extend({
+        template: Ember.Handlebars.compile("{{view 'view.computed'}}"),
+        container: container,
+        computed: 'fu'
+      }).create();
+
+      expectDeprecation(function(){
+        run(view, 'appendTo', '#qunit-fixture');
+      }, /Quoted view names must refer to a view in the container/);
 
       equal(jQuery('#fu').text(), 'bro');
     });

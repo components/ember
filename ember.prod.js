@@ -6587,6 +6587,18 @@ define("ember-handlebars/ext",
       return value;
     }
 
+    function lookupViewInContainer(container, path) {
+            return container.lookupFactory('view:'+path);
+    }
+
+    function lookupViewByClassName(path) {
+      var viewClass;
+      if (detectIsGlobal(path)) {
+        viewClass = get(path);
+                return viewClass;
+      }
+    }
+
     /**
       handlebarsGetView resolves a view based on strings passed into a template.
       For example:
@@ -6611,29 +6623,41 @@ define("ember-handlebars/ext",
       @param {Object} context The context of the template being rendered
       @param {String} path The path to be lookedup
       @param {Object} container The container
-      @param {Object} data The template's data hash
+      @param {Object} options The options from the template
     */
-    function handlebarsGetView(context, path, container, data) {
+    function handlebarsGetView(context, path, container, options) {
       var viewClass;
+      var data;
+      var pathType;
+      if (options) {
+        data      = options.data;
+        pathType  = options.types && options.types[0];
+      }
+
       if ('string' === typeof path) {
-        if (data) {
-          var normalizedPath = normalizePath(context, path, data);
-          context = normalizedPath.root;
-          path = normalizedPath.path;
+        if('STRING' === pathType && container) {
+          viewClass = lookupViewInContainer(container, path);
+          
         }
 
-        // Only lookup view class on context if there is a context. If not,
-        // the global lookup path on get may kick in.
-        viewClass = context && get(context, path);
-        var isGlobal = detectIsGlobal(path);
-
-        if (!viewClass && !isGlobal) {
-                    viewClass = container.lookupFactory('view:'+path);
+        if(!viewClass) {
+          viewClass = lookupViewByClassName(path);
         }
-        if (!viewClass && isGlobal) {
-          var globalViewClass = get(path);
-                    if (globalViewClass) {
-            viewClass = globalViewClass;
+
+        if(!viewClass) {
+          if (data) {
+            var normalizedPath = normalizePath(context, path, data);
+            context = normalizedPath.root;
+            path = normalizedPath.path;
+          }
+
+          // Only lookup view class on context if there is a context. If not,
+          // the global lookup path on get may kick in.
+          viewClass = context && get(context, path);
+
+          if(!viewClass) {
+            // try the container once more with the normalized path
+            viewClass = lookupViewInContainer(container, path);
           }
         }
       } else {
@@ -6642,7 +6666,10 @@ define("ember-handlebars/ext",
 
       // Sometimes a view's value is yet another path
       if ('string' === typeof viewClass && data && data.view) {
-        viewClass = handlebarsGetView(data.view, viewClass, container, data);
+        viewClass = handlebarsGetView(data.view, viewClass, container, {
+          data: data,
+          types: ['ID']
+        });
       }
 
       
@@ -8218,7 +8245,7 @@ define("ember-handlebars/helpers/collection",
       // Otherwise, just default to the standard class.
       var collectionClass;
       if (path) {
-        collectionClass = handlebarsGetView(this, path, container, options.data);
+        collectionClass = handlebarsGetView(this, path, container, options);
               }
       else {
         collectionClass = CollectionView;
@@ -8233,11 +8260,11 @@ define("ember-handlebars/helpers/collection",
       var itemViewClass;
 
       if (hash.itemView) {
-        itemViewClass = handlebarsGetView(this, hash.itemView, container, options.data);
+        itemViewClass = handlebarsGetView(this, hash.itemView, container, options);
       } else if (hash.itemViewClass) {
-        itemViewClass = handlebarsGetView(collectionPrototype, hash.itemViewClass, container, options.data);
+        itemViewClass = handlebarsGetView(collectionPrototype, hash.itemViewClass, container, options);
       } else {
-        itemViewClass = handlebarsGetView(collectionPrototype, collectionPrototype.itemViewClass, container, options.data);
+        itemViewClass = handlebarsGetView(collectionPrototype, collectionPrototype.itemViewClass, container, options);
       }
 
       
@@ -8273,7 +8300,7 @@ define("ember-handlebars/helpers/collection",
               tagName: itemHash.tagName
         });
       } else if (hash.emptyViewClass) {
-        emptyViewClass = handlebarsGetView(this, hash.emptyViewClass, container, options.data);
+        emptyViewClass = handlebarsGetView(this, hash.emptyViewClass, container, options);
       }
       if (emptyViewClass) { hash.emptyView = emptyViewClass; }
 
@@ -9313,7 +9340,7 @@ define("ember-handlebars/helpers/view",
         makeBindings(thisContext, options);
 
         var container = this.container || (data && data.view && data.view.container);
-        newView = handlebarsGetView(thisContext, path, container, options.data);
+        newView = handlebarsGetView(thisContext, path, container, options);
 
         var viewOptions = this.propertiesFromHTMLOptions(options, thisContext);
         var currentView = data.view;
