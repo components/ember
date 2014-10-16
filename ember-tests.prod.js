@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.33502699
+ * @version   1.9.0-beta.1+canary.bef4abc7
  */
 
 (function() {
@@ -21925,6 +21925,33 @@ define("ember-metal/tests/streams/stream_binding_test",
 
       equal(source.value(), "hoopla", "value has synced after run loop");
       equal(get(obj, 'to'), "hoopla", "value has synced after run loop");
+    });
+
+    test('continues to notify subscribers after first consumption, even if not consumed', function() {
+      var counter = 0;
+      var binding = new StreamBinding(source);
+
+      binding.value();
+
+      binding.subscribe(function() {
+        source.value();
+        counter++;
+      });
+
+      equal(counter, 0);
+
+      run(function() {
+        source.setValue("blorg");
+        equal(counter, 0);
+      });
+      equal(counter, 1);
+
+      run(function() {
+        source.setValue("hoopla");
+        source.setValue("zlurp");
+        equal(counter, 1);
+      });
+      equal(counter, 2);
     });
   });
 define("ember-metal/tests/streams/stream_binding_test.jshint",

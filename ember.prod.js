@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.33502699
+ * @version   1.9.0-beta.1+canary.bef4abc7
  */
 
 (function() {
@@ -12941,7 +12941,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.33502699
+      @version 1.9.0-beta.1+canary.bef4abc7
     */
 
     if ('undefined' === typeof Ember) {
@@ -12968,10 +12968,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.33502699'
+      @default '1.9.0-beta.1+canary.bef4abc7'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.33502699';
+    Ember.VERSION = '1.9.0-beta.1+canary.bef4abc7';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -18403,6 +18403,9 @@ define("ember-metal/streams/stream_binding",
         this.senderCallback = undefined;
         this.senderContext = undefined;
         this.senderValue = undefined;
+
+        // Force StreamBindings to always notify
+        this.cache = undefined;
 
         this.notify(senderCallback, senderContext);
       },
