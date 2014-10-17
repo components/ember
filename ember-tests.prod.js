@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.bef4abc7
+ * @version   1.9.0-beta.1+canary.846307e7
  */
 
 (function() {
@@ -5763,6 +5763,149 @@ define("ember-handlebars/tests/controls/text_field_test.jshint",
     module('JSHint - ember-handlebars/tests/controls');
     test('ember-handlebars/tests/controls/text_field_test.js should pass jshint', function() { 
       ok(true, 'ember-handlebars/tests/controls/text_field_test.js should pass jshint.'); 
+    });
+  });
+define("ember-handlebars/tests/handlebars_get_test",
+  ["ember-metal/core","ember-handlebars/views/metamorph_view","ember-views/views/view","ember-metal/run_loop","ember-handlebars","ember-handlebars/ext","ember-runtime/system/container"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
+    "use strict";
+    var Ember = __dependency1__["default"];
+    // Ember.lookup
+    var _MetamorphView = __dependency2__["default"];
+    var EmberView = __dependency3__["default"];
+    var run = __dependency4__["default"];
+    var EmberHandlebars = __dependency5__["default"];
+    var handlebarsGet = __dependency6__.handlebarsGet;
+    var Container = __dependency7__["default"];
+
+    var compile = EmberHandlebars.compile;
+    var originalLookup = Ember.lookup;
+    var TemplateTests, container, lookup, view;
+
+    function appendView() {
+      run(view, 'appendTo', '#qunit-fixture');
+    }
+
+    QUnit.module("Ember.Handlebars.get", {
+      setup: function() {
+        Ember.lookup = lookup = {};
+        container = new Container();
+        container.optionsForType('template', { instantiate: false });
+        container.optionsForType('helper', { instantiate: false });
+        container.register('view:default', _MetamorphView);
+        container.register('view:toplevel', EmberView.extend());
+      },
+
+      teardown: function() {
+        run(function() {
+            if (container) {
+              container.destroy();
+            }
+            if (view) {
+              view.destroy();
+            }
+            container = view = null;
+        });
+        Ember.lookup = lookup = originalLookup;
+        TemplateTests = null;
+      }
+    });
+
+    test('it can lookup a path from the current context', function() {
+      expect(1);
+
+      container.register('helper:handlebars-get', function(path, options) {
+        var context = options.contexts && options.contexts[0] || this;
+
+        ignoreDeprecation(function() {
+          equal(handlebarsGet(context, path, options), 'bar');
+        });
+      });
+
+      view = EmberView.create({
+        container: container,
+        controller: {
+          foo: 'bar'
+        },
+        template: compile('{{handlebars-get "foo"}}')
+      });
+
+      appendView();
+    });
+
+    test('it can lookup a path from the current keywords', function() {
+      expect(1);
+
+      container.register('helper:handlebars-get', function(path, options) {
+        var context = options.contexts && options.contexts[0] || this;
+
+        ignoreDeprecation(function() {
+          equal(handlebarsGet(context, path, options), 'bar');
+        });
+      });
+
+      view = EmberView.create({
+        container: container,
+        controller: {
+          foo: 'bar'
+        },
+        template: compile('{{#with foo as bar}}{{handlebars-get "bar"}}{{/with}}')
+      });
+
+      appendView();
+    });
+
+    test('it can lookup a path from globals', function() {
+      expect(1);
+
+      lookup.Blammo = { foo: 'blah'};
+
+      container.register('helper:handlebars-get', function(path, options) {
+        var context = options.contexts && options.contexts[0] || this;
+
+        ignoreDeprecation(function() {
+          equal(handlebarsGet(context, path, options), lookup.Blammo.foo);
+        });
+      });
+
+      view = EmberView.create({
+        container: container,
+        controller: { },
+        template: compile('{{handlebars-get "Blammo.foo"}}')
+      });
+
+      appendView();
+    });
+
+    test('it raises a deprecation warning on use', function() {
+      expect(1);
+
+      container.register('helper:handlebars-get', function(path, options) {
+        var context = options.contexts && options.contexts[0] || this;
+
+        expectDeprecation(function() {
+          handlebarsGet(context, path, options);
+        }, 'Usage of Ember.Handlebars.get is deprecated, use a Component or Ember.Handlebars.makeBoundHelper instead.');
+      });
+
+      view = EmberView.create({
+        container: container,
+        controller: {
+          foo: 'bar'
+        },
+        template: compile('{{handlebars-get "foo"}}')
+      });
+
+      appendView();
+    });
+  });
+define("ember-handlebars/tests/handlebars_get_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-handlebars/tests');
+    test('ember-handlebars/tests/handlebars_get_test.js should pass jshint', function() { 
+      ok(true, 'ember-handlebars/tests/handlebars_get_test.js should pass jshint.'); 
     });
   });
 define("ember-handlebars/tests/handlebars_test",

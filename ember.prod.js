@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.bef4abc7
+ * @version   1.9.0-beta.1+canary.846307e7
  */
 
 (function() {
@@ -6739,6 +6739,23 @@ define("ember-handlebars/ext",
     var originalTemplate = EmberHandlebars.template;
 
     /**
+      Lookup both on root and on window. If the path starts with
+      a keyword, the corresponding object will be looked up in the
+      template's data hash and used to resolve the path.
+
+      @method get
+      @for Ember.Handlebars
+      @param {Object} root The object to look up the property on
+      @param {String} path The path to be lookedup
+      @param {Object} options The template's option hash
+      @deprecated
+    */
+    function handlebarsGet(root, path, options) {
+      
+      return options.data.view.getStream(path).value();
+    }
+
+    /**
       handlebarsGetView resolves a view based on strings passed into a template.
       For example:
 
@@ -7132,6 +7149,7 @@ define("ember-handlebars/ext",
 
     __exports__.template = template;__exports__.makeBoundHelper = makeBoundHelper;
     __exports__.handlebarsGetView = handlebarsGetView;
+    __exports__.handlebarsGet = handlebarsGet;
   });
 define("ember-handlebars/helpers/binding",
   ["ember-metal/core","ember-handlebars-compiler","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-runtime/system/string","ember-metal/platform","ember-metal/is_none","ember-metal/array","ember-views/views/view","ember-metal/run_loop","ember-metal/keys","ember-metal/cache","ember-metal/streams/simple","ember-views/streams/key_stream","ember-handlebars/views/handlebars_bound_view","exports"],
@@ -12941,7 +12959,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.bef4abc7
+      @version 1.9.0-beta.1+canary.846307e7
     */
 
     if ('undefined' === typeof Ember) {
@@ -12968,10 +12986,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.bef4abc7'
+      @default '1.9.0-beta.1+canary.846307e7'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.bef4abc7';
+    Ember.VERSION = '1.9.0-beta.1+canary.846307e7';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
