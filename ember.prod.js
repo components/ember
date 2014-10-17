@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.846307e7
+ * @version   1.9.0-beta.1+canary.289fdbd0
  */
 
 (function() {
@@ -7858,7 +7858,8 @@ define("ember-handlebars/helpers/binding",
       @return {String} HTML string
     */
     function bindAttrHelperDeprecated() {
-            return helpers['bind-attr'].apply(this, arguments);
+      
+      return helpers['bind-attr'].apply(this, arguments);
     }
 
     /**
@@ -12959,7 +12960,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.846307e7
+      @version 1.9.0-beta.1+canary.289fdbd0
     */
 
     if ('undefined' === typeof Ember) {
@@ -12986,10 +12987,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.846307e7'
+      @default '1.9.0-beta.1+canary.289fdbd0'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.846307e7';
+    Ember.VERSION = '1.9.0-beta.1+canary.289fdbd0';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -20876,7 +20877,8 @@ define("ember-routing-handlebars/helpers/link_to",
       @return {String} HTML string
     */
     function deprecatedLinkToHelper() {
-            return linkToHelper.apply(this, arguments);
+      
+      return linkToHelper.apply(this, arguments);
     }
 
     function getResolvedQueryParams(linkView, targetRouteName) {

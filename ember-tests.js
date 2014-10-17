@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.846307e7
+ * @version   1.9.0-beta.1+canary.289fdbd0
  */
 
 (function() {
@@ -7099,7 +7099,7 @@ define("ember-handlebars/tests/handlebars_test",
       equal(view.$().text(), "common", "tries to look up view name locally");
     });
 
-    test("{{view}} should evaluate class bindings set to global paths", function() {
+    test("{{view}} should evaluate class bindings set to global paths DEPRECATED", function() {
       var App;
 
       run(function() {
@@ -7116,7 +7116,9 @@ define("ember-handlebars/tests/handlebars_test",
         template: EmberHandlebars.compile('{{view view.textField class="unbound" classBinding="App.isGreat:great App.directClass App.isApp App.isEnabled:enabled:disabled"}}')
       });
 
-      appendView();
+      expectDeprecation(function() {
+        appendView();
+      });
 
       ok(view.$('input').hasClass('unbound'),     "sets unbound classes directly");
       ok(view.$('input').hasClass('great'),       "evaluates classes bound to global paths");
@@ -7168,7 +7170,7 @@ define("ember-handlebars/tests/handlebars_test",
       ok(view.$('input').hasClass('disabled'),    "evaluates ternary operator in classBindings");
     });
 
-    test("{{view}} should evaluate class bindings set with either classBinding or classNameBindings", function() {
+    test("{{view}} should evaluate class bindings set with either classBinding or classNameBindings from globals DEPRECATED", function() {
       var App;
 
       run(function() {
@@ -7183,7 +7185,9 @@ define("ember-handlebars/tests/handlebars_test",
         template: EmberHandlebars.compile('{{view view.textField class="unbound" classBinding="App.isGreat:great App.isEnabled:enabled:disabled" classNameBindings="App.isGreat:really-great App.isEnabled:really-enabled:really-disabled"}}')
       });
 
-      appendView();
+      expectDeprecation(function() {
+        appendView();
+      });
 
       ok(view.$('input').hasClass('unbound'),          "sets unbound classes directly");
       ok(view.$('input').hasClass('great'),            "evaluates classBinding");
@@ -7219,7 +7223,9 @@ define("ember-handlebars/tests/handlebars_test",
         template: EmberHandlebars.compile('{{view view.textField valueBinding="App.name"}}')
       });
 
-      appendView();
+      expectDeprecation(function() {
+        appendView();
+      }, 'Global lookup of App.name from a Handlebars template is deprecated.');
 
       equal(view.$('input').val(), "myApp", "evaluates attributes bound to global paths");
 
@@ -7440,24 +7446,25 @@ define("ember-handlebars/tests/handlebars_test",
     });
 
     test("{{bindAttr}} is aliased to {{bind-attr}}", function() {
+      expect(4);
 
       var originalBindAttr = EmberHandlebars.helpers['bind-attr'];
-      var originalWarn = Ember.warn;
 
-      Ember.warn = function(msg) {
-        equal(msg, "The 'bindAttr' view helper is deprecated in favor of 'bind-attr'", 'Warning called');
-      };
+      try {
+        EmberHandlebars.helpers['bind-attr'] = function() {
+          equal(arguments[0], 'foo', 'First arg match');
+          equal(arguments[1], 'bar', 'Second arg match');
 
-      EmberHandlebars.helpers['bind-attr'] = function() {
-        equal(arguments[0], 'foo', 'First arg match');
-        equal(arguments[1], 'bar', 'Second arg match');
-        return 'result';
-      };
-      var result = EmberHandlebars.helpers.bindAttr('foo', 'bar');
-      equal(result, 'result', 'Result match');
+          return 'result';
+        };
 
-      EmberHandlebars.helpers['bind-attr'] = originalBindAttr;
-      Ember.warn = originalWarn;
+        expectDeprecation(function() {
+          var result = EmberHandlebars.helpers.bindAttr('foo', 'bar');
+          equal(result, 'result', 'Result match');
+        }, "The 'bindAttr' view helper is deprecated in favor of 'bind-attr'");
+      } finally {
+        EmberHandlebars.helpers['bind-attr'] = originalBindAttr;
+      }
     });
 
     test("should not reset cursor position when text field receives keyUp event", function() {
@@ -8088,7 +8095,7 @@ define("ember-handlebars/tests/handlebars_test",
 
     test("views within an if statement should be sane on re-render", function() {
       view = EmberView.create({
-        template: EmberHandlebars.compile('{{#if view.display}}{{view Ember.TextField}}{{/if}}'),
+        template: EmberHandlebars.compile('{{#if view.display}}{{input}}{{/if}}'),
         display: false
       });
 
@@ -8196,13 +8203,6 @@ define("ember-handlebars/tests/handlebars_test",
     // https://github.com/emberjs/ember.js/issues/120
 
     test("should not enter an infinite loop when binding an attribute in Handlebars", function() {
-      var App;
-
-      run(function() {
-        lookup.App = App = Namespace.create();
-      });
-
-      App.test = EmberObject.create({ href: 'test' });
       var LinkView = EmberView.extend({
         classNames: ['app-link'],
         tagName: 'a',
@@ -8216,7 +8216,8 @@ define("ember-handlebars/tests/handlebars_test",
 
       var parentView = EmberView.create({
         linkView: LinkView,
-        template: EmberHandlebars.compile('{{#view view.linkView hrefBinding="App.test.href"}} Test {{/view}}')
+        test: EmberObject.create({ href: 'test' }),
+        template: EmberHandlebars.compile('{{#view view.linkView hrefBinding="view.test.href"}} Test {{/view}}')
       });
 
 
@@ -8230,10 +8231,6 @@ define("ember-handlebars/tests/handlebars_test",
 
       run(function() {
         parentView.destroy();
-      });
-
-      run(function() {
-        lookup.App.destroy();
       });
     });
 
@@ -12368,12 +12365,6 @@ define("ember-handlebars/tests/views/collection_view_test",
     });
 
     test("empty views should be removed when content is added to the collection (regression, ht: msofaer)", function() {
-      var App;
-
-      run(function() {
-        lookup.App = App = Namespace.create();
-      });
-
       var EmptyView = EmberView.extend({
         template : EmberHandlebars.compile("<td>No Rows Yet</td>")
       });
@@ -12382,13 +12373,14 @@ define("ember-handlebars/tests/views/collection_view_test",
         emptyView: EmptyView
       });
 
-      App.listController = ArrayProxy.create({
+      var listController = ArrayProxy.create({
         content : A()
       });
 
       view = EmberView.create({
         listView: ListView,
-        template: EmberHandlebars.compile('{{#collection view.listView contentBinding="App.listController" tagName="table"}} <td>{{view.content.title}}</td> {{/collection}}')
+        listController: listController,
+        template: EmberHandlebars.compile('{{#collection view.listView content=view.listController tagName="table"}} <td>{{view.content.title}}</td> {{/collection}}')
       });
 
       run(function() {
@@ -12398,13 +12390,11 @@ define("ember-handlebars/tests/views/collection_view_test",
       equal(view.$('tr').length, 1, 'Make sure the empty view is there (regression)');
 
       run(function() {
-        App.listController.pushObject({title : "Go Away, Placeholder Row!"});
+        listController.pushObject({title : "Go Away, Placeholder Row!"});
       });
 
       equal(view.$('tr').length, 1, 'has one row');
       equal(view.$('tr:nth-child(1) td').text(), 'Go Away, Placeholder Row!', 'The content is the updated data.');
-
-      run(function() { App.destroy(); });
     });
 
     test("should be able to specify which class should be used for the empty view", function() {
@@ -12883,15 +12873,11 @@ define("ember-handlebars/tests/views/collection_view_test",
     });
 
     test("context should be content", function() {
-      var App, view;
-
-      run(function() {
-        lookup.App = App = Namespace.create();
-      });
+      var view;
 
       var container = new Container();
 
-      App.items = A([
+      var items = A([
         EmberObject.create({name: 'Dave'}),
         EmberObject.create({name: 'Mary'}),
         EmberObject.create({name: 'Sara'})
@@ -12901,14 +12887,12 @@ define("ember-handlebars/tests/views/collection_view_test",
         template: EmberHandlebars.compile("Greetings {{name}}")
       }));
 
-      App.AView = EmberView.extend({
-        template: EmberHandlebars.compile('{{collection contentBinding="App.items" itemViewClass="an-item"}}')
-      });
-
-      run(function() {
-        view = App.AView.create({
-          container: container
-        });
+      view = EmberView.create({
+        container: container,
+        controller: {
+          items: items
+        },
+        template: EmberHandlebars.compile('{{collection contentBinding="items" itemViewClass="an-item"}}')
       });
 
       run(function() {
@@ -12917,10 +12901,7 @@ define("ember-handlebars/tests/views/collection_view_test",
 
       equal(view.$().text(), "Greetings DaveGreetings MaryGreetings Sara");
 
-      run(function() {
-        view.destroy();
-        App.destroy();
-      });
+      run(view, 'destroy');
     });
   });
 define("ember-handlebars/tests/views/collection_view_test.jshint",
@@ -47376,7 +47357,7 @@ define("ember-views/tests/views/collection_test",
     test("when a collection view is emptied, deeply nested views elements are not removed from the DOM and then destroyed again", function() {
       var assertProperDestruction = Mixin.create({
         destroyElement: function() {
-          if (this.state === 'inDOM') {
+          if (this._state === 'inDOM') {
             ok(this.get('element'), this + ' still exists in DOM');
           }
           return this._super();
@@ -53784,7 +53765,7 @@ define("ember/tests/helpers/link_to_test",
       });
 
       test("The {{link-to}} helper should not transition if target is not equal to _self or empty", function() {
-        Ember.TEMPLATES.index = Ember.Handlebars.compile("{{#linkTo 'about' id='about-link' replace=true target='_blank'}}About{{/linkTo}}");
+        Ember.TEMPLATES.index = Ember.Handlebars.compile("{{#link-to 'about' id='about-link' replace=true target='_blank'}}About{{/link-to}}");
 
         Router.map(function() {
           this.route("about");
@@ -54096,19 +54077,15 @@ define("ember/tests/helpers/link_to_test",
     });
 
     test("{{linkTo}} is aliased", function() {
-      var originalWarn = Ember.warn;
-
-      Ember.warn = function(msg) {
-        equal(msg, "The 'linkTo' view helper is deprecated in favor of 'link-to'", 'Warning called');
-      };
-
       Ember.TEMPLATES.index = Ember.Handlebars.compile("<h3>Home</h3>{{#linkTo 'about' id='about-link' replace=true}}About{{/linkTo}}");
 
       Router.map(function() {
         this.route("about");
       });
 
-      bootApplication();
+      expectDeprecation(function() {
+        bootApplication();
+      }, "The 'linkTo' view helper is deprecated in favor of 'link-to'");
 
       Ember.run(function() {
         router.handleURL("/");
@@ -54119,8 +54096,6 @@ define("ember/tests/helpers/link_to_test",
       });
 
       equal(container.lookup('controller:application').get('currentRouteName'), 'about', 'linkTo worked properly');
-
-      Ember.warn = originalWarn;
     });
 
     test("The {{link-to}} helper is active when a resource is active", function() {
@@ -56132,7 +56107,9 @@ define("ember/tests/routing/basic_test",
     });
 
     test("ApplicationRoute's default error handler can be overridden (with DEPRECATED `events`)", function() {
-      testOverridableErrorHandler('events');
+      ignoreDeprecation(function() {
+        testOverridableErrorHandler('events');
+      });
     });
 
     asyncTest("Moving from one page to another triggers the correct callbacks", function() {
