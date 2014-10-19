@@ -26058,6 +26058,27 @@ define("ember-routing/tests/location/history_location_test",
       location = HistoryTestLocation.create(options);
     }
 
+    function mockBrowserLocation(path) {
+      // This is a neat trick to auto-magically extract the hostname from any
+      // url by letting the browser do the work ;)
+      var tmp = document.createElement ('a');
+      tmp.href = path;
+
+      var protocol = (!tmp.protocol || tmp.protocol === ':') ? 'http' : tmp.protocol;
+      var pathname = (tmp.pathname.match(/^\//)) ? tmp.pathname : '/' + tmp.pathname;
+
+      return {
+          hash: tmp.hash,
+          host: tmp.host || 'localhost',
+          hostname: tmp.hostname || 'localhost',
+          href: tmp.href,
+          pathname: pathname,
+          port: tmp.port || '',
+          protocol: protocol,
+          search: tmp.search
+      };
+    }
+
     QUnit.module("Ember.HistoryLocation", {
       setup: function() {
         FakeHistory = {
@@ -26124,7 +26145,7 @@ define("ember-routing/tests/location/history_location_test",
             init: function() {
                 this._super();
 
-                set(this, 'location', { pathname: '/base/foo/bar' });
+                set(this, 'location', mockBrowserLocation('/base/foo/bar'));
                 set(this, 'baseURL', '/base/');
             },
 
@@ -26146,7 +26167,7 @@ define("ember-routing/tests/location/history_location_test",
             init: function() {
                 this._super();
 
-                set(this, 'location', { pathname: '/base/foo/bar' });
+                set(this, 'location', mockBrowserLocation('/base/foo/bar'));
                 set(this, 'baseURL', '/base/');
             }
         });
@@ -26186,18 +26207,63 @@ define("ember-routing/tests/location/history_location_test",
         expect(1);
 
         HistoryTestLocation.reopen({
-            init: function() {
-                this._super();
+          init: function() {
+            this._super();
 
-                set(this, 'location', { pathname: '/base/foo/bar' });
-                set(this, 'rootURL', '/app/');
-                set(this, 'baseURL', '/base/');
-            }
+            set(this, 'location', mockBrowserLocation('/base/foo/bar'));
+            set(this, 'rootURL', '/app/');
+            set(this, 'baseURL', '/base/');
+          }
         });
 
         createLocation();
 
         equal(location.getURL(), '/foo/bar');
+    });
+
+    test("HistoryLocation.getURL() includes location.search", function() {
+        expect(1);
+
+        HistoryTestLocation.reopen({  
+          init: function() {
+            this._super();
+            set(this, 'location', mockBrowserLocation('/foo/bar?time=morphin'));
+          }
+        });
+
+        createLocation();
+
+        equal(location.getURL(), '/foo/bar?time=morphin');
+    });
+
+    test("HistoryLocation.getURL() includes location.hash", function() {
+        expect(1);
+
+        HistoryTestLocation.reopen({  
+          init: function() {
+            this._super();
+            set(this, 'location', mockBrowserLocation('/foo/bar#pink-power-ranger'));
+          }
+        });
+
+        createLocation();
+
+        equal(location.getURL(), '/foo/bar#pink-power-ranger');
+    });
+
+    test("HistoryLocation.getURL() includes location.hash and location.search", function() {
+        expect(1);
+
+        HistoryTestLocation.reopen({  
+          init: function() {
+            this._super();
+            set(this, 'location', mockBrowserLocation('/foo/bar?time=morphin#pink-power-ranger'));
+          }
+        });
+
+        createLocation();
+
+        equal(location.getURL(), '/foo/bar?time=morphin#pink-power-ranger');
     });
   });
 define("ember-routing/tests/location/history_location_test.jshint",
@@ -26834,6 +26900,21 @@ define("ember-routing/tests/system/router_test",
         location: 'auto',
         rootURL: '/rootdir/'
       });
+    });
+
+    test("Router#handleURL should remove any #hashes before doing URL transition", function() {
+      expect(2);
+
+      router = Router.create({
+        container: container,
+
+        _doURLTransition: function (routerJsMethod, url) {
+          equal(routerJsMethod, 'handleURL');
+          equal(url, '/foo/bar?time=morphin');
+        }
+      });
+
+      router.handleURL('/foo/bar?time=morphin#pink-power-ranger');
     });
   });
 define("ember-routing/tests/system/router_test.jshint",
@@ -57227,7 +57308,8 @@ define("ember/tests/routing/basic_test",
 
           setHistory(this, path);
           this.set('location', {
-            pathname: path
+            pathname: path,
+            href: 'http://localhost/' + path
           });
         },
 

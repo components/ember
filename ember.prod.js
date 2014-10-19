@@ -22440,15 +22440,16 @@ define("ember-routing/location/hash_location",
     });
   });
 define("ember-routing/location/history_location",
-  ["ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-runtime/system/object","ember-views/system/jquery","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
+  ["ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-runtime/system/object","ember-routing/location/api","ember-views/system/jquery","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     var get = __dependency1__.get;
     var set = __dependency2__.set;
     var guidFor = __dependency3__.guidFor;
 
     var EmberObject = __dependency4__["default"];
-    var jQuery = __dependency5__["default"];
+    var EmberLocation = __dependency5__["default"];
+    var jQuery = __dependency6__["default"];
 
     /**
     @module ember
@@ -22513,6 +22514,7 @@ define("ember-routing/location/history_location",
         var search = location.search || '';
 
         url += search;
+        url += this.getHash();
 
         return url;
       },
@@ -22594,7 +22596,6 @@ define("ember-routing/location/history_location",
       */
       replaceState: function(path) {
         var state = { path: path };
-
         get(this, 'history').replaceState(state, null, path);
 
         // store state if browser doesn't support `history.state`
@@ -22660,7 +22661,16 @@ define("ember-routing/location/history_location",
         var guid = guidFor(this);
 
         jQuery(window).off('popstate.ember-location-'+guid);
-      }
+      },
+
+      /**
+        @private
+
+        Returns normalized location.hash
+
+        @method getHash
+      */
+      getHash: EmberLocation._getHash,
     });
   });
 define("ember-routing/location/none_location",
@@ -25167,6 +25177,9 @@ define("ember-routing/system/router",
       },
 
       handleURL: function(url) {
+        // Until we have an ember-idiomatic way of accessing #hashes, we need to
+        // remove it because router.js doesn't know how to handle it.
+        url = url.split(/#(.+)?/)[0];
         return this._doURLTransition('handleURL', url);
       },
 
