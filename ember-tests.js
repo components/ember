@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.12e2ea41
+ * @version   1.9.0-beta.1+canary.d049a732
  */
 
 (function() {
@@ -8419,6 +8419,74 @@ define("ember-handlebars/tests/handlebars_test.jshint",
       ok(true, 'ember-handlebars/tests/handlebars_test.js should pass jshint.'); 
     });
   });
+define("ember-handlebars/tests/helpers/bind_test",
+  ["ember-views/views/view","ember-runtime/system/object","ember-metal/run_loop"],
+  function(__dependency1__, __dependency2__, __dependency3__) {
+    "use strict";
+    var EmberView = __dependency1__["default"];
+    var EmberObject = __dependency2__["default"];
+    var run = __dependency3__["default"];
+
+    function appendView(view) {
+      run(function() { view.appendTo('#qunit-fixture'); });
+    }
+
+    var view;
+
+    QUnit.module("Handlebars {{#bind}} helper", {
+      teardown: function() {
+        if (view) {
+          run(view, view.destroy);
+          view = null;
+        }
+      }
+    });
+
+    test("it should render the current value of a property on the context", function() {
+      view = EmberView.create({
+        template: Ember.Handlebars.compile('{{bind "foo"}}'),
+        context: EmberObject.create({
+          foo: "BORK"
+        })
+      });
+
+      appendView(view);
+
+      equal(view.$().text(), "BORK", "initial value is rendered");
+
+      run(view, view.set, 'context.foo', 'MWEEER');
+
+      equal(view.$().text(), "MWEEER", "value can be updated");
+    });
+
+    test("it should render the current value of a path on the context", function() {
+      view = EmberView.create({
+        template: Ember.Handlebars.compile('{{bind "foo.bar"}}'),
+        context: EmberObject.create({
+          foo: {
+            bar: "BORK"
+          }
+        })
+      });
+
+      appendView(view);
+
+      equal(view.$().text(), "BORK", "initial value is rendered");
+
+      run(view, view.set, 'context.foo.bar', 'MWEEER');
+
+      equal(view.$().text(), "MWEEER", "value can be updated");
+    });
+  });
+define("ember-handlebars/tests/helpers/bind_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-handlebars/tests/helpers');
+    test('ember-handlebars/tests/helpers/bind_test.js should pass jshint', function() { 
+      ok(true, 'ember-handlebars/tests/helpers/bind_test.js should pass jshint.'); 
+    });
+  });
 define("ember-handlebars/tests/helpers/bound_helper_test",
   ["ember-views/views/view","ember-metal/run_loop","ember-runtime/system/object","ember-runtime/system/native_array","ember-metal/property_get","ember-metal/property_set","ember-handlebars-compiler"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
@@ -8720,28 +8788,38 @@ define("ember-handlebars/tests/helpers/bound_helper_test",
 
     test("should observe dependent keys passed to registerBoundHelper", function() {
       try {
-        expect(2);
+        expect(3);
 
-        var SimplyObject = EmberObject.create({
+        var simplyObject = EmberObject.create({
           firstName: 'Jim',
-          lastName: 'Owen'
+          lastName: 'Owen',
+          birthday: EmberObject.create({
+            year: '2009'
+          })
         });
 
         EmberHandlebars.registerBoundHelper('fullName', function(value){
-          return value.get('firstName') + ' ' + value.get('lastName');
-        }, 'firstName', 'lastName');
+          return [
+            value.get('firstName'),
+            value.get('lastName'),
+            value.get('birthday.year') ].join(' ');
+        }, 'firstName', 'lastName', 'birthday.year');
 
         view = EmberView.create({
           template: compile('{{fullName this}}'),
-          context: SimplyObject
+          context: simplyObject
         });
         appendView(view);
 
-        equal(view.$().text(), 'Jim Owen', 'simply render the helper');
+        equal(view.$().text(), 'Jim Owen 2009', 'simply render the helper');
 
-        run(SimplyObject, SimplyObject.set, 'firstName', 'Tom');
+        run(simplyObject, simplyObject.set, 'firstName', 'Tom');
 
-        equal(view.$().text(), 'Tom Owen', 'simply render the helper');
+        equal(view.$().text(), 'Tom Owen 2009', 'render the helper after prop change');
+
+        run(simplyObject, simplyObject.set, 'birthday.year', '1692');
+
+        equal(view.$().text(), 'Tom Owen 1692', 'render the helper after path change');
       } finally {
         delete EmberHandlebars.helpers['fullName'];
       }

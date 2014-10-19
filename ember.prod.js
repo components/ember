@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.12e2ea41
+ * @version   1.9.0-beta.1+canary.d049a732
  */
 
 (function() {
@@ -6709,8 +6709,8 @@ define("ember-handlebars/controls/text_support",
     __exports__["default"] = TextSupport;
   });
 define("ember-handlebars/ext",
-  ["ember-metal/core","ember-runtime/system/string","ember-handlebars-compiler","ember-metal/property_get","ember-metal/error","ember-metal/mixin","ember-views/views/view","ember-metal/path_cache","ember-metal/streams/stream","ember-views/streams/key_stream","ember-metal/streams/read","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
+  ["ember-metal/core","ember-runtime/system/string","ember-handlebars-compiler","ember-metal/property_get","ember-metal/error","ember-metal/mixin","ember-views/views/view","ember-metal/path_cache","ember-metal/streams/stream","ember-metal/streams/read","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.FEATURES, Ember.assert, Ember.Handlebars, Ember.lookup
@@ -6731,9 +6731,8 @@ define("ember-handlebars/ext",
     var resolveHelper, SimpleHandlebarsView;
 
     var Stream = __dependency9__["default"];
-    var KeyStream = __dependency10__["default"];
-    var readArray = __dependency11__.readArray;
-    var readHash = __dependency11__.readHash;
+    var readArray = __dependency10__.readArray;
+    var readHash = __dependency10__.readHash;
 
     var slice = [].slice;
     var originalTemplate = EmberHandlebars.template;
@@ -7115,15 +7114,19 @@ define("ember-handlebars/ext",
           }
 
           if (numParams > 0) {
-            var onDependentKeyNotify = function onDependentKeyNotify(stream) {
-              stream.value();
-              lazyValue.notify();
-            };
-
-            for (i = 0; i < dependentKeys.length; i++) {
-              param = new KeyStream(params[0], dependentKeys[i]);
-              param.value();
-              param.subscribe(onDependentKeyNotify);
+            var firstParam = params[0];
+            // Only bother with subscriptions if the first argument
+            // is a stream itself, and not a primitive.
+            if (firstParam && firstParam.isStream) {
+              var onDependentKeyNotify = function onDependentKeyNotify(stream) {
+                stream.value();
+                lazyValue.notify();
+              };
+              for (i = 0; i < dependentKeys.length; i++) {
+                var childParam = firstParam.get(dependentKeys[i]);
+                childParam.value();
+                childParam.subscribe(onDependentKeyNotify);
+              }
             }
           }
         }
@@ -12960,7 +12963,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.12e2ea41
+      @version 1.9.0-beta.1+canary.d049a732
     */
 
     if ('undefined' === typeof Ember) {
@@ -12987,10 +12990,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.12e2ea41'
+      @default '1.9.0-beta.1+canary.d049a732'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.12e2ea41';
+    Ember.VERSION = '1.9.0-beta.1+canary.d049a732';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
