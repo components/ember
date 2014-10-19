@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.d049a732
+ * @version   1.9.0-beta.1+canary.0ca6a21e
  */
 
 (function() {
@@ -21967,9 +21967,9 @@ define("ember-metal/tests/streams/simple_stream_test",
           return value;
         });
 
-        source.setValue = function(_value, callback, context) {
+        source.setValue = function(_value) {
           value = _value;
-          this.notify(callback, context);
+          this.notify();
         };
       },
       teardown: function() {
@@ -22024,9 +22024,9 @@ define("ember-metal/tests/streams/stream_binding_test",
           return value;
         });
 
-        source.setValue = function(_value, callback, context) {
+        source.setValue = function(_value) {
           value = _value;
-          this.notify(callback, context);
+          this.notify();
         };
       },
       teardown: function() {

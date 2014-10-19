@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.d049a732
+ * @version   1.9.0-beta.1+canary.0ca6a21e
  */
 
 (function() {
@@ -4763,7 +4763,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.d049a732
+      @version 1.9.0-beta.1+canary.0ca6a21e
     */
 
     if ('undefined' === typeof Ember) {
@@ -4790,10 +4790,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.d049a732'
+      @default '1.9.0-beta.1+canary.0ca6a21e'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.d049a732';
+    Ember.VERSION = '1.9.0-beta.1+canary.0ca6a21e';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -10149,11 +10149,11 @@ define("ember-metal/streams/stream",
         throw new Error("Stream error: setValue not implemented");
       },
 
-      notifyAll: function() {
-        this.notify();
+      notify: function() {
+        this.notifyExcept();
       },
 
-      notify: function(callbackToSkip, contextToSkip) {
+      notifyExcept: function(callbackToSkip, contextToSkip) {
         if (this.cache !== NIL) {
           this.cache = NIL;
           this.notifySubscribers(callbackToSkip, contextToSkip);
@@ -10292,7 +10292,7 @@ define("ember-metal/streams/stream_binding",
         // Force StreamBindings to always notify
         this.cache = undefined;
 
-        this.notify(senderCallback, senderContext);
+        this.notifyExcept(senderCallback, senderContext);
       },
 
       destroy: function() {

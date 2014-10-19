@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.d049a732
+ * @version   1.9.0-beta.1+canary.0ca6a21e
  */
 
 (function() {
@@ -7395,14 +7395,14 @@ define("ember-handlebars/ext",
           for (i = 0; i < numParams; i++) {
             param = params[i];
             if (param && param.isStream) {
-              param.subscribe(lazyValue.notifyAll, lazyValue);
+              param.subscribe(lazyValue.notify, lazyValue);
             }
           }
 
           for (prop in hash) {
             param = hash[prop];
             if (param && param.isStream) {
-              param.subscribe(lazyValue.notifyAll, lazyValue);
+              param.subscribe(lazyValue.notify, lazyValue);
             }
           }
 
@@ -7448,8 +7448,8 @@ define("ember-handlebars/ext",
     __exports__.handlebarsGet = handlebarsGet;
   });
 define("ember-handlebars/helpers/binding",
-  ["ember-metal/core","ember-handlebars-compiler","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-runtime/system/string","ember-metal/platform","ember-metal/is_none","ember-metal/array","ember-views/views/view","ember-metal/run_loop","ember-metal/keys","ember-metal/cache","ember-metal/streams/simple","ember-views/streams/key_stream","ember-handlebars/views/handlebars_bound_view","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __exports__) {
+  ["ember-metal/core","ember-handlebars-compiler","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-runtime/system/string","ember-metal/platform","ember-metal/is_none","ember-metal/array","ember-views/views/view","ember-metal/run_loop","ember-metal/keys","ember-metal/cache","ember-metal/streams/simple","ember-handlebars/views/handlebars_bound_view","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -7476,10 +7476,9 @@ define("ember-handlebars/helpers/binding",
     var keys = __dependency12__["default"];
     var Cache = __dependency13__["default"];
     var SimpleStream = __dependency14__["default"];
-    var KeyStream = __dependency15__["default"];
 
-    var _HandlebarsBoundView = __dependency16__._HandlebarsBoundView;
-    var SimpleHandlebarsView = __dependency16__.SimpleHandlebarsView;
+    var _HandlebarsBoundView = __dependency15__._HandlebarsBoundView;
+    var SimpleHandlebarsView = __dependency15__.SimpleHandlebarsView;
 
     var helpers = EmberHandlebars.helpers;
     var SafeString = EmberHandlebars.SafeString;
@@ -7553,7 +7552,7 @@ define("ember-handlebars/helpers/binding",
         };
 
         for (var i = 0; i < childProperties.length; i++) {
-          var childStream = new KeyStream(valueStream, childProperties[i]);
+          var childStream = valueStream.get(childProperties[i]);
           childStream.value();
           childStream.subscribe(subscriber);
         }
@@ -13332,7 +13331,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.d049a732
+      @version 1.9.0-beta.1+canary.0ca6a21e
     */
 
     if ('undefined' === typeof Ember) {
@@ -13359,10 +13358,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.d049a732'
+      @default '1.9.0-beta.1+canary.0ca6a21e'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.d049a732';
+    Ember.VERSION = '1.9.0-beta.1+canary.0ca6a21e';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -18718,11 +18717,11 @@ define("ember-metal/streams/stream",
         throw new Error("Stream error: setValue not implemented");
       },
 
-      notifyAll: function() {
-        this.notify();
+      notify: function() {
+        this.notifyExcept();
       },
 
-      notify: function(callbackToSkip, contextToSkip) {
+      notifyExcept: function(callbackToSkip, contextToSkip) {
         if (this.cache !== NIL) {
           this.cache = NIL;
           this.notifySubscribers(callbackToSkip, contextToSkip);
@@ -18861,7 +18860,7 @@ define("ember-metal/streams/stream_binding",
         // Force StreamBindings to always notify
         this.cache = undefined;
 
-        this.notify(senderCallback, senderContext);
+        this.notifyExcept(senderCallback, senderContext);
       },
 
       destroy: function() {
