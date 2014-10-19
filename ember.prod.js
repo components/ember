@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.0ca6a21e
+ * @version   1.9.0-beta.1+canary.cabcbed4
  */
 
 (function() {
@@ -4683,7 +4683,7 @@ define("ember-handlebars-compiler",
       @class Handlebars
       @namespace Ember
     */
-    var EmberHandlebars = Ember.Handlebars = objectCreate(Handlebars);
+    var EmberHandlebars = Ember.Handlebars = Handlebars.create();
 
     /**
       Register a bound helper or custom view helper.
@@ -4825,44 +4825,6 @@ define("ember-handlebars-compiler",
       return "data.buffer.push("+string+");";
     };
 
-    // Hacks ahead:
-    // Handlebars presently has a bug where the `blockHelperMissing` hook
-    // doesn't get passed the name of the missing helper name, but rather
-    // gets passed the value of that missing helper evaluated on the current
-    // context, which is most likely `undefined` and totally useless.
-    //
-    // So we alter the compiled template function to pass the name of the helper
-    // instead, as expected.
-    //
-    // This can go away once the following is closed:
-    // https://github.com/wycats/handlebars.js/issues/634
-
-    var DOT_LOOKUP_REGEX = /helpers\.(.*?)\)/;
-    var BRACKET_STRING_LOOKUP_REGEX = /helpers\['(.*?)'/;
-    var INVOCATION_SPLITTING_REGEX = /(.*blockHelperMissing\.call\(.*)(stack[0-9]+)(,.*)/;
-
-    EmberHandlebars.JavaScriptCompiler.stringifyLastBlockHelperMissingInvocation = function(source) {
-      var helperInvocation = source[source.length - 1];
-      var helperName = (DOT_LOOKUP_REGEX.exec(helperInvocation) || BRACKET_STRING_LOOKUP_REGEX.exec(helperInvocation))[1];
-      var matches = INVOCATION_SPLITTING_REGEX.exec(helperInvocation);
-
-      source[source.length - 1] = matches[1] + "'" + helperName + "'" + matches[3];
-    };
-
-    var stringifyBlockHelperMissing = EmberHandlebars.JavaScriptCompiler.stringifyLastBlockHelperMissingInvocation;
-
-    var originalBlockValue = EmberHandlebars.JavaScriptCompiler.prototype.blockValue;
-    EmberHandlebars.JavaScriptCompiler.prototype.blockValue = function() {
-      originalBlockValue.apply(this, arguments);
-      stringifyBlockHelperMissing(this.source);
-    };
-
-    var originalAmbiguousBlockValue = EmberHandlebars.JavaScriptCompiler.prototype.ambiguousBlockValue;
-    EmberHandlebars.JavaScriptCompiler.prototype.ambiguousBlockValue = function() {
-      originalAmbiguousBlockValue.apply(this, arguments);
-      stringifyBlockHelperMissing(this.source);
-    };
-
     /**
       Rewrite simple mustaches from `{{foo}}` to `{{bind "foo"}}`. This means that
       all simple mustaches in Ember's Handlebars will also set up an observer to
@@ -4962,7 +4924,6 @@ define("ember-handlebars",
     var runLoadHooks = __dependency3__.runLoadHooks;
     var bootstrap = __dependency4__["default"];
 
-    var template = __dependency5__.template;
     var makeBoundHelper = __dependency5__.makeBoundHelper;
     var registerBoundHelper = __dependency5__.registerBoundHelper;
     var helperMissingHelper = __dependency5__.helperMissingHelper;
@@ -5026,7 +4987,6 @@ define("ember-handlebars",
 
     // Ember.Handlebars.Globals
     EmberHandlebars.bootstrap = bootstrap;
-    EmberHandlebars.template = template;
     EmberHandlebars.makeBoundHelper = makeBoundHelper;
     EmberHandlebars.registerBoundHelper = registerBoundHelper;
     EmberHandlebars.resolveHelper = resolveHelper;
@@ -5944,59 +5904,42 @@ define("ember-handlebars/controls/select",
 
       tagName: 'select',
       classNames: ['ember-select'],
-      defaultTemplate: Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
-    this.compilerInfo = [4,'>= 1.0.0'];
-    helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
-      var buffer = '', stack1, escapeExpression=this.escapeExpression, self=this;
-
-    function program1(depth0,data) {
-      
-      var buffer = '', stack1;
+      defaultTemplate: Ember.Handlebars.template({"1":function(depth0,helpers,partials,data) {
+      var stack1, buffer = '';
       data.buffer.push("<option value=\"\">");
-      stack1 = helpers._triageMustache.call(depth0, "view.prompt", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data});
-      if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+      stack1 = helpers._triageMustache.call(depth0, "view.prompt", {"name":"_triageMustache","hash":{},"hashTypes":{},"hashContexts":{},"types":["ID"],"contexts":[depth0],"data":data});
+      if (stack1 != null) { data.buffer.push(stack1); }
       data.buffer.push("</option>");
       return buffer;
-      }
-
-    function program3(depth0,data) {
-      
+    },"3":function(depth0,helpers,partials,data) {
       var stack1;
-      stack1 = helpers.each.call(depth0, "view.groupedContent", {hash:{},hashTypes:{},hashContexts:{},inverse:self.noop,fn:self.program(4, program4, data),contexts:[depth0],types:["ID"],data:data});
-      if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+      stack1 = helpers.each.call(depth0, "view.groupedContent", {"name":"each","hash":{},"hashTypes":{},"hashContexts":{},"fn":this.program(4, data),"inverse":this.noop,"types":["ID"],"contexts":[depth0],"data":data});
+      if (stack1 != null) { data.buffer.push(stack1); }
       else { data.buffer.push(''); }
-      }
-    function program4(depth0,data) {
-      
-      
-      data.buffer.push(escapeExpression(helpers.view.call(depth0, "view.groupView", {hash:{
-        'content': ("content"),
-        'label': ("label")
-      },hashTypes:{'content': "ID",'label': "ID"},hashContexts:{'content': depth0,'label': depth0},contexts:[depth0],types:["ID"],data:data})));
-      }
-
-    function program6(depth0,data) {
-      
+      },"4":function(depth0,helpers,partials,data) {
+      var escapeExpression=this.escapeExpression;
+      data.buffer.push(escapeExpression(helpers.view.call(depth0, "view.groupView", {"name":"view","hash":{
+        'label': ("label"),
+        'content': ("content")
+      },"hashTypes":{'label': "ID",'content': "ID"},"hashContexts":{'label': depth0,'content': depth0},"types":["ID"],"contexts":[depth0],"data":data})));
+      },"6":function(depth0,helpers,partials,data) {
       var stack1;
-      stack1 = helpers.each.call(depth0, "view.content", {hash:{},hashTypes:{},hashContexts:{},inverse:self.noop,fn:self.program(7, program7, data),contexts:[depth0],types:["ID"],data:data});
-      if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+      stack1 = helpers.each.call(depth0, "view.content", {"name":"each","hash":{},"hashTypes":{},"hashContexts":{},"fn":this.program(7, data),"inverse":this.noop,"types":["ID"],"contexts":[depth0],"data":data});
+      if (stack1 != null) { data.buffer.push(stack1); }
       else { data.buffer.push(''); }
-      }
-    function program7(depth0,data) {
-      
-      
-      data.buffer.push(escapeExpression(helpers.view.call(depth0, "view.optionView", {hash:{
+      },"7":function(depth0,helpers,partials,data) {
+      var escapeExpression=this.escapeExpression;
+      data.buffer.push(escapeExpression(helpers.view.call(depth0, "view.optionView", {"name":"view","hash":{
         'content': ("")
-      },hashTypes:{'content': "ID"},hashContexts:{'content': depth0},contexts:[depth0],types:["ID"],data:data})));
-      }
-
-      stack1 = helpers['if'].call(depth0, "view.prompt", {hash:{},hashTypes:{},hashContexts:{},inverse:self.noop,fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],data:data});
-      if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-      stack1 = helpers['if'].call(depth0, "view.optionGroupPath", {hash:{},hashTypes:{},hashContexts:{},inverse:self.program(6, program6, data),fn:self.program(3, program3, data),contexts:[depth0],types:["ID"],data:data});
-      if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+      },"hashTypes":{'content': "ID"},"hashContexts":{'content': depth0},"types":["ID"],"contexts":[depth0],"data":data})));
+      },"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
+      var stack1, buffer = '';
+      stack1 = helpers['if'].call(depth0, "view.prompt", {"name":"if","hash":{},"hashTypes":{},"hashContexts":{},"fn":this.program(1, data),"inverse":this.noop,"types":["ID"],"contexts":[depth0],"data":data});
+      if (stack1 != null) { data.buffer.push(stack1); }
+      stack1 = helpers['if'].call(depth0, "view.optionGroupPath", {"name":"if","hash":{},"hashTypes":{},"hashContexts":{},"fn":this.program(3, data),"inverse":this.program(6, data),"types":["ID"],"contexts":[depth0],"data":data});
+      if (stack1 != null) { data.buffer.push(stack1); }
       return buffer;
-      
-    }),
+    },"useData":true}),
       attributeBindings: ['multiple', 'disabled', 'tabindex', 'name', 'required', 'autofocus',
                           'form', 'size'],
 
@@ -6735,7 +6678,6 @@ define("ember-handlebars/ext",
     var readHash = __dependency10__.readHash;
 
     var slice = [].slice;
-    var originalTemplate = EmberHandlebars.template;
 
     /**
       Lookup both on root and on window. If the path starts with
@@ -6851,18 +6793,22 @@ define("ember-handlebars/ext",
       var error, view = "";
 
       var options = arguments[arguments.length - 1];
+      if (options.fn) {
+        // NOP for block helpers as they are handled by the block helper (in all cases)
+        return;
+      }
 
-      var helper = resolveHelper(options.data.view.container, path);
+      var helper = resolveHelper(options.data.view.container, options.name);
 
       if (helper) {
-        return helper.apply(this, slice.call(arguments, 1));
+        return helper.apply(this, arguments);
       }
 
       error = "%@ Handlebars error: Could not find property '%@' on object %@.";
       if (options.data) {
         view = options.data.view;
       }
-      throw new EmberError(fmt(error, [view, path, this]));
+      throw new EmberError(fmt(error, [view, options.name, this]));
     }
 
     __exports__.helperMissingHelper = helperMissingHelper;/**
@@ -6876,10 +6822,9 @@ define("ember-handlebars/ext",
       @private
       @method helperMissing
       @for Ember.Handlebars.helpers
-      @param {String} path
       @param {Hash} options
     */
-    function blockHelperMissingHelper(path) {
+    function blockHelperMissingHelper(/* ..., options */) {
       if (!resolveHelper) {
         resolveHelper = requireModule('ember-handlebars/helpers/binding')['resolveHelper'];
       } // ES6TODO: stupid circular dep
@@ -6887,12 +6832,13 @@ define("ember-handlebars/ext",
       var options = arguments[arguments.length - 1];
 
       
-      var helper = resolveHelper(options.data.view.container, path);
+      var helper = resolveHelper(options.data.view.container, options.name);
 
       if (helper) {
         return helper.apply(this, slice.call(arguments, 1));
       } else {
-        return EmberHandlebars.helpers.helperMissing.call(this, path);
+        // Someone is actually trying to call something, blow up.
+        throw new EmberError("Missing helper: '" + options.name + "'");
       }
     }
 
@@ -7135,22 +7081,7 @@ define("ember-handlebars/ext",
       return helper;
     }
 
-    /**
-      Overrides Handlebars.template so that we can distinguish
-      user-created, top-level templates from inner contexts.
-
-      @private
-      @method template
-      @for Ember.Handlebars
-      @param {String} spec
-    */
-    function template(spec) {
-      var t = originalTemplate(spec);
-      t.isTop = true;
-      return t;
-    }
-
-    __exports__.template = template;__exports__.makeBoundHelper = makeBoundHelper;
+    __exports__.makeBoundHelper = makeBoundHelper;
     __exports__.handlebarsGetView = handlebarsGetView;
     __exports__.handlebarsGet = handlebarsGet;
   });
@@ -8879,6 +8810,10 @@ define("ember-handlebars/helpers/unbound",
         }
 
         var helper = resolveHelper(container, property) || EmberHandlebars.helpers.helperMissing;
+
+        // Attempt to exec the first field as a helper
+        options.name = arguments[0];
+
         var result = helper.apply(this, args);
 
         delete options.data.isUnbound;
@@ -12962,7 +12897,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.0ca6a21e
+      @version 1.9.0-beta.1+canary.cabcbed4
     */
 
     if ('undefined' === typeof Ember) {
@@ -12989,10 +12924,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.0ca6a21e'
+      @default '1.9.0-beta.1+canary.cabcbed4'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.0ca6a21e';
+    Ember.VERSION = '1.9.0-beta.1+canary.cabcbed4';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`

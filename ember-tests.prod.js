@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.0ca6a21e
+ * @version   1.9.0-beta.1+canary.cabcbed4
  */
 
 (function() {
@@ -3289,68 +3289,6 @@ define("ember-handlebars-compiler.jshint",
       ok(true, 'ember-handlebars-compiler.js should pass jshint.'); 
     });
   });
-define("ember-handlebars-compiler/tests/block_helper_missing_test",
-  ["ember-handlebars-compiler"],
-  function(__dependency1__) {
-    "use strict";
-    var EmberHandlebars = __dependency1__["default"];
-
-    var stringify = EmberHandlebars.JavaScriptCompiler.stringifyLastBlockHelperMissingInvocation;
-    var s;
-
-    QUnit.module("stringifyLastBlockHelperMissingInvocation", {
-      setup: function() {
-      },
-
-      teardown: function() {
-      }
-    });
-
-    function shouldBecome(expected) {
-      var source = [s];
-      stringify(source);
-      equal(source[0], expected);
-    }
-
-    test('basic', function() {
-      s = "if (!helpers['expand']) { stack1 = blockHelperMissing.call(depth0, stack1, options); }";
-      shouldBecome("if (!helpers['expand']) { stack1 = blockHelperMissing.call(depth0, 'expand', options); }");
-    });
-
-    test('dot lookup', function() {
-      s = "if (!helpers.expand) { stack1 = blockHelperMissing.call(depth0, stack1, options); }";
-      shouldBecome("if (!helpers.expand) { stack1 = blockHelperMissing.call(depth0, 'expand', options); }");
-    });
-
-    test('dot lookup', function() {
-      s = "if (!helpers.view) { stack1 = blockHelperMissing.call(depth0, stack1, options); }";
-      shouldBecome("if (!helpers.view) { stack1 = blockHelperMissing.call(depth0, 'view', options); }");
-    });
-
-    test('dashed helper invocation', function() {
-      s = "if (!helpers['expand-it']) { stack1 = blockHelperMissing.call(depth0, stack1, options); }";
-      shouldBecome("if (!helpers['expand-it']) { stack1 = blockHelperMissing.call(depth0, 'expand-it', options); }");
-    });
-
-    test('weird chars invocation', function() {
-      s = "if (!helpers['blorg/snork']) { stack1 = blockHelperMissing.call(depth0, stack1, options); }";
-      shouldBecome("if (!helpers['blorg/snork']) { stack1 = blockHelperMissing.call(depth0, 'blorg/snork', options); }");
-    });
-
-    test('large stack/depth numbers', function() {
-      s = "if (!helpers['blorg/snork']) { stack6236 = blockHelperMissing.call(depth512, stack6129, options); }";
-      shouldBecome("if (!helpers['blorg/snork']) { stack6236 = blockHelperMissing.call(depth512, 'blorg/snork', options); }");
-    });
-  });
-define("ember-handlebars-compiler/tests/block_helper_missing_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars-compiler/tests');
-    test('ember-handlebars-compiler/tests/block_helper_missing_test.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars-compiler/tests/block_helper_missing_test.js should pass jshint.'); 
-    });
-  });
 define("ember-handlebars-compiler/tests/make_view_helper_test",
   ["ember-handlebars-compiler"],
   function(__dependency1__) {
@@ -3390,14 +3328,14 @@ define("ember-handlebars-compiler/tests/precompile_type_test",
 
     QUnit.module("Ember.Handlebars.precompileType");
 
-    test("precompile creates a function when asObject isn't defined", function(){
+    test("precompile creates an object when asObject isn't defined", function(){
       result = precompile(template);
-      equal(typeof(result), "function");
+      equal(typeof(result), "object");
     });
 
-    test("precompile creates a function when asObject is true", function(){
+    test("precompile creates an object when asObject is true", function(){
       result = precompile(template, true);
-      equal(typeof(result), "function");
+      equal(typeof(result), "object");
     });
 
     test("precompile creates a string when asObject is false", function(){
@@ -3405,10 +3343,10 @@ define("ember-handlebars-compiler/tests/precompile_type_test",
       equal(typeof(result), "string");
     });
 
-    test("precompile creates a function when passed an AST", function(){
+    test("precompile creates an object when passed an AST", function(){
       var ast = parse(template);
       result = precompile(ast);
-      equal(typeof(result), "function");
+      equal(typeof(result), "object");
     });
   });
 define("ember-handlebars-compiler/tests/precompile_type_test.jshint",
