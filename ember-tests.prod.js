@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.e6234e3d
+ * @version   1.9.0-beta.1+canary.62e9c49b
  */
 
 (function() {
@@ -58127,6 +58127,66 @@ define("ember/tests/routing/basic_test",
 
       bootApplication();
     });
+
+    if (Ember.FEATURES.isEnabled("ember-routing-fire-activate-deactivate-events")) {
+      test("`activate` event fires on the route", function() {
+        expect(2);
+
+        var eventFired = 0;
+
+        Router.map(function(){
+          this.route("nork");
+        });
+
+        App.NorkRoute = Ember.Route.extend({
+          init: function() {
+            this._super();
+
+            this.on("activate", function() {
+              equal(++eventFired, 1, "activate event is fired once");
+            });
+          },
+
+          activate: function() {
+            ok(true, "activate hook is called");
+          }
+        });
+
+        bootApplication();
+
+        Ember.run(router, 'transitionTo', 'nork');
+      });
+
+      test("`deactivate` event fires on the route", function() {
+        expect(2);
+
+        var eventFired = 0;
+
+        Router.map(function(){
+          this.route("nork");
+          this.route("dork");
+        });
+
+        App.NorkRoute = Ember.Route.extend({
+          init: function() {
+            this._super();
+
+            this.on("deactivate", function() {
+              equal(++eventFired, 1, "deactivate event is fired once");
+            });
+          },
+
+          deactivate: function() {
+            ok(true, "deactivate hook is called");
+          }
+        });
+
+        bootApplication();
+
+        Ember.run(router, 'transitionTo', 'nork');
+        Ember.run(router, 'transitionTo', 'dork');
+      });
+    }
 
     test("Actions can be handled by inherited action handlers", function() {
 

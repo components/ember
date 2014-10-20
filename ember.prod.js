@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.e6234e3d
+ * @version   1.9.0-beta.1+canary.62e9c49b
  */
 
 (function() {
@@ -12907,7 +12907,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.e6234e3d
+      @version 1.9.0-beta.1+canary.62e9c49b
     */
 
     if ('undefined' === typeof Ember) {
@@ -12934,10 +12934,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.e6234e3d'
+      @default '1.9.0-beta.1+canary.62e9c49b'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.e6234e3d';
+    Ember.VERSION = '1.9.0-beta.1+canary.62e9c49b';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -23033,8 +23033,8 @@ define("ember-routing/system/generate_controller",
     }
   });
 define("ember-routing/system/route",
-  ["ember-metal/core","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/get_properties","ember-metal/enumerable_utils","ember-metal/is_none","ember-metal/computed","ember-metal/merge","ember-metal/utils","ember-metal/run_loop","ember-metal/keys","ember-runtime/copy","ember-runtime/system/string","ember-runtime/system/object","ember-runtime/mixins/action_handler","ember-routing/system/generate_controller","ember-routing/utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __exports__) {
+  ["ember-metal/core","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/get_properties","ember-metal/enumerable_utils","ember-metal/is_none","ember-metal/computed","ember-metal/merge","ember-metal/utils","ember-metal/run_loop","ember-metal/keys","ember-runtime/copy","ember-runtime/system/string","ember-runtime/system/object","ember-runtime/mixins/evented","ember-runtime/mixins/action_handler","ember-routing/system/generate_controller","ember-routing/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // FEATURES, K, A, deprecate, assert, Logger
@@ -23054,9 +23054,10 @@ define("ember-routing/system/route",
     var copy = __dependency13__["default"];
     var classify = __dependency14__.classify;
     var EmberObject = __dependency15__["default"];
-    var ActionHandler = __dependency16__["default"];
-    var generateController = __dependency17__["default"];
-    var stashParamNames = __dependency18__.stashParamNames;
+    var Evented = __dependency16__["default"];
+    var ActionHandler = __dependency17__["default"];
+    var generateController = __dependency18__["default"];
+    var stashParamNames = __dependency19__.stashParamNames;
 
     /**
     @module ember
@@ -23373,6 +23374,9 @@ define("ember-routing/system/route",
       */
       exit: function() {
         this.deactivate();
+        if (Ember.FEATURES.isEnabled("ember-routing-fire-activate-deactivate-events")) {
+          this.trigger('deactivate');
+        }
         this.teardownViews();
       },
 
@@ -23397,6 +23401,9 @@ define("ember-routing/system/route",
       */
       enter: function() {
         this.activate();
+        if (Ember.FEATURES.isEnabled("ember-routing-fire-activate-deactivate-events")) {
+          this.trigger('activate');
+        }
       },
 
       /**
@@ -24862,6 +24869,12 @@ define("ember-routing/system/route",
         delete this.lastRenderedTemplate;
       }
     });
+
+    if (Ember.FEATURES.isEnabled("ember-routing-fire-activate-deactivate-events")) {
+      // TODO add mixin directly to `Route` class definition above, once this
+      // feature is merged:
+      Route.reopen(Evented);
+    }
 
     var defaultQPMeta = {
       qps: [],
