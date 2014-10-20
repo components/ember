@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.f19149b4
+ * @version   1.9.0-beta.1+canary.a84d58d2
  */
 
 (function() {
@@ -5201,6 +5201,7 @@ define("ember-handlebars",
     var registerBoundHelper = __dependency5__.registerBoundHelper;
     var helperMissingHelper = __dependency5__.helperMissingHelper;
     var blockHelperMissingHelper = __dependency5__.blockHelperMissingHelper;
+    var handlebarsGet = __dependency5__.handlebarsGet;
 
 
     // side effect of extending StringUtils of htmlSafe
@@ -5271,6 +5272,7 @@ define("ember-handlebars",
 
     // Ember Globals
     Ember.Handlebars = EmberHandlebars;
+    EmberHandlebars.get = handlebarsGet;
     Ember.ComponentLookup = ComponentLookup;
     Ember._SimpleHandlebarsView = SimpleHandlebarsView;
     Ember._HandlebarsBoundView = _HandlebarsBoundView;
@@ -13265,7 +13267,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.f19149b4
+      @version 1.9.0-beta.1+canary.a84d58d2
     */
 
     if ('undefined' === typeof Ember) {
@@ -13292,10 +13294,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.f19149b4'
+      @default '1.9.0-beta.1+canary.a84d58d2'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.f19149b4';
+    Ember.VERSION = '1.9.0-beta.1+canary.a84d58d2';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
