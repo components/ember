@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.62e9c49b
+ * @version   1.9.0-beta.1+canary.0aede5f7
  */
 
 (function() {
@@ -28320,7 +28320,7 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
         deepEqual(sorted.mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], "sorted array is updated");
       });
 
-      test("guid sort-order fallback with a serach proxy is not confused by non-search ObjectProxys", function() {
+      test("guid sort-order fallback with a search proxy is not confused by non-search ObjectProxys", function() {
         var tyrion = { fname: "Tyrion", lname: "Lannister" };
         var tyrionInDisguise = ObjectProxy.create({
               fname: "Yollo",
@@ -28329,9 +28329,9 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
             });
 
         items = get(obj, 'items');
-        sorted = get(obj, 'sortedItems');
 
         run(function() {
+          sorted = get(obj, 'sortedItems');
           items.pushObject(tyrion);
         });
 
@@ -28653,6 +28653,108 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
       deepEqual(sorted.mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], "updating an unspecified property on an item does not resort it");
     });
 
+    QUnit.module('computedSort - stability', {
+      setup: function() {
+        run(function() {
+          obj = EmberObject.createWithMixins({
+            items: Ember.A(Ember.A([{
+              name: "A", count: 1
+            }, {
+              name: "B", count: 1
+            }, {
+              name: "C", count: 1
+            }, {
+              name: "D", count: 1
+            }]).map(function(elt){return EmberObject.create(elt);})),
+
+            sortProps: Ember.A(['count', 'name']),
+            sortedItems: computedSort('items', 'sortProps')
+          });
+        });
+      },
+      teardown: function() {
+        run(function() {
+          obj.destroy();
+        });
+      }
+    });
+
+    test("sorts correctly as only one property changes", function(){
+      var sorted;
+      run(function() {
+        sorted = obj.get('sortedItems');
+      });
+      deepEqual(sorted.mapBy('name'), ['A', 'B', 'C', 'D'], "initial");
+      obj.get('items').objectAt(3).set('count', 2);
+      run(function() {
+        sorted = obj.get('sortedItems');
+      });
+      deepEqual(sorted.mapBy('name'), ['A', 'B', 'C', 'D'], "final");
+    });
+
+    QUnit.module('computedSort - concurrency', {
+      setup: function() {
+        run(function() {
+          obj = EmberObject.createWithMixins({
+            items: Ember.A(Ember.A([{
+              name: "A", count: 1
+            }, {
+              name: "B", count: 2
+            }, {
+              name: "C", count: 3
+            }, {
+              name: "D", count: 4
+            }]).map(function(elt){return EmberObject.create(elt);})),
+
+            sortProps: Ember.A(['count']),
+            sortedItems: computedSort('items', 'sortProps'),
+            customSortedItems: computedSort('items.@each.count', function(a,b){
+              return get(a, 'count') - get(b, 'count');
+            })
+          });
+        });
+      },
+      teardown: function() {
+        run(function() {
+          obj.destroy();
+        });
+      }
+    });
+
+    test("sorts correctly when there are concurrent changes", function(){
+      var sorted;
+      run(function() {
+        sorted = obj.get('sortedItems');
+      });
+      deepEqual(sorted.mapBy('name'), ['A', 'B', 'C', 'D'], "initial");
+      Ember.changeProperties(function(){
+        obj.get('items').objectAt(1).set('count', 5);
+        obj.get('items').objectAt(2).set('count', 6);
+      });
+      run(function() {
+        sorted = obj.get('sortedItems');
+      });
+      deepEqual(sorted.mapBy('name'), ['A', 'D', 'B', 'C'], "final");
+    });
+
+    test("sorts correctly with a user-provided comparator when there are concurrent changes", function(){
+      var sorted;
+      run(function() {
+        sorted = obj.get('customSortedItems');
+      });
+      deepEqual(sorted.mapBy('name'), ['A', 'B', 'C', 'D'], "initial");
+      run(function() {
+        Ember.changeProperties(function(){
+          obj.get('items').objectAt(1).set('count', 5);
+          obj.get('items').objectAt(2).set('count', 6);
+        });
+        sorted = obj.get('customSortedItems');
+      });
+      deepEqual(sorted.mapBy('name'), ['A', 'D', 'B', 'C'], "final");
+    });
+
+
+
     QUnit.module('computedMax', {
       setup: function() {
         run(function() {
@@ -28861,9 +28963,11 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
     });
 
     test("it can filter and sort when both depend on the same item property", function() {
-      filtered = get(obj, 'filtered');
-      sorted = get(obj, 'sorted');
-      todos = get(obj, 'todos');
+      run(function(){
+        filtered = get(obj, 'filtered');
+        sorted = get(obj, 'sorted');
+        todos = get(obj, 'todos');
+      });
 
       deepEqual(todos.mapProperty('name'), ['E', 'D', 'C', 'B', 'A'], "precond - todos initially correct");
       deepEqual(sorted.mapProperty('name'), ['A', 'B', 'C', 'D', 'E'], "precond - sorted initially correct");
