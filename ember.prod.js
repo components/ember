@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.0aede5f7
+ * @version   1.9.0-beta.1+canary.2552e0eb
  */
 
 (function() {
@@ -6495,7 +6495,7 @@ define("ember-handlebars/controls/text_support",
       onEvent: 'enter',
 
       /**
-        Whether they `keyUp` event that triggers an `action` to be sent continues
+        Whether the `keyUp` event that triggers an `action` to be sent continues
         propagating to other views.
 
         By default, when the user presses the return key on their keyboard and
@@ -12907,7 +12907,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.0aede5f7
+      @version 1.9.0-beta.1+canary.2552e0eb
     */
 
     if ('undefined' === typeof Ember) {
@@ -12934,10 +12934,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.0aede5f7'
+      @default '1.9.0-beta.1+canary.2552e0eb'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.0aede5f7';
+    Ember.VERSION = '1.9.0-beta.1+canary.2552e0eb';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
