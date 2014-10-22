@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.55ae502e
+ * @version   1.9.0-beta.1+canary.5d4fe76e
  */
 
 (function() {
@@ -13275,7 +13275,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.55ae502e
+      @version 1.9.0-beta.1+canary.5d4fe76e
     */
 
     if ('undefined' === typeof Ember) {
@@ -13302,10 +13302,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.55ae502e'
+      @default '1.9.0-beta.1+canary.5d4fe76e'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.55ae502e';
+    Ember.VERSION = '1.9.0-beta.1+canary.5d4fe76e';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -23598,7 +23598,7 @@ define("ember-routing/system/route",
         configuration options and their defaults are as follows
         (assuming a query param whose URL key is `page`):
 
-        ```js
+        ```javascript
         queryParams: {
           page: {
             // By default, controller query param properties don't
@@ -23866,7 +23866,7 @@ define("ember-routing/system/route",
         A hook you can use to reset controller values either when the model
         changes or the route is exiting.
 
-        ```js
+        ```javascript
         App.ArticlesRoute = Ember.Route.extend({
           // ...
 
@@ -23936,7 +23936,7 @@ define("ember-routing/system/route",
         because it doesn't require a custom `renderTemplate` method. For example,
         the following routes will all render using the `App.PostsListView` view:
 
-        ```js
+        ```javascript
         var PostsList = Ember.Route.extend({
           viewName: 'postsList'
         });
@@ -23959,7 +23959,7 @@ define("ember-routing/system/route",
         This is similar with `viewName`, but is useful when you just want a custom
         template without a view.
 
-        ```js
+        ```javascript
         var PostsList = Ember.Route.extend({
           templateName: 'posts/list'
         });
@@ -24005,7 +24005,7 @@ define("ember-routing/system/route",
         A good example is preventing navigation when a form is
         half-filled out:
 
-        ```js
+        ```javascript
         App.ContactFormRoute = Ember.Route.extend({
           actions: {
             willTransition: function(transition) {
@@ -24039,7 +24039,7 @@ define("ember-routing/system/route",
         however, it can be useful for tracking page views or resetting
         state on the controller.
 
-        ```js
+        ```javascript
         App.LoginRoute = Ember.Route.extend({
           actions: {
             didTransition: function() {
@@ -24060,7 +24060,7 @@ define("ember-routing/system/route",
         `Transition` object is the first parameter and the route that
         triggered the loading event is the second parameter.
 
-        ```js
+        ```javascript
         App.ApplicationRoute = Ember.Route.extend({
           actions: {
             loading: function(transition, route) {
@@ -24069,9 +24069,10 @@ define("ember-routing/system/route",
               })
               .append();
 
-              this.router.one('didTransition', function () {
+              this.router.one('didTransition', function() {
                 view.destroy();
               });
+              
               return true; // Bubble the loading event
             }
           }
@@ -24095,10 +24096,10 @@ define("ember-routing/system/route",
         for rejected promises from the various hooks on the route,
         as well as any unhandled errors from child routes:
 
-        ```js
+        ```javascript
         App.AdminRoute = Ember.Route.extend({
           beforeModel: function() {
-            return Ember.RSVP.reject("bad things!");
+            return Ember.RSVP.reject('bad things!');
           },
 
           actions: {
@@ -24124,7 +24125,7 @@ define("ember-routing/system/route",
         specify your own global default error handler by overriding the
         `error` handler on `ApplicationRoute`:
 
-        ```js
+        ```javascript
         App.ApplicationRoute = Ember.Route.extend({
           actions: {
             error: function(error, transition) {
@@ -24148,7 +24149,7 @@ define("ember-routing/system/route",
           actions: {
             willTransition: function(transition) {
               if (this.controller.get('userHasEnteredData') &&
-                  !confirm("Are you sure you want to abandon progress?")) {
+                  !confirm('Are you sure you want to abandon progress?')) {
                 transition.abort();
               } else {
                 // Bubble the `willTransition` action so that
@@ -24319,8 +24320,8 @@ define("ember-routing/system/route",
 
         ```javascript
         App.Router.map(function() {
-          this.resource('blogPost', {path:':blogPostId'}, function(){
-            this.resource('blogComment', {path: ':blogCommentId'});
+          this.resource('blogPost', { path:':blogPostId' }, function() {
+            this.resource('blogComment', { path: ':blogCommentId' });
           });
         });
 
@@ -24343,18 +24344,19 @@ define("ember-routing/system/route",
 
         ```javascript
         App.Router.map(function() {
-          this.route("index");
-          this.route("secret");
-          this.route("fourOhFour", { path: "*:"});
+          this.route('index');
+          this.route('secret');
+          this.route('fourOhFour', { path: '*:' });
         });
 
         App.IndexRoute = Ember.Route.extend({
           actions: {
-            moveToSecret: function(context){
-              if (authorized()){
+            moveToSecret: function(context) {
+              if (authorized()) {
                 this.transitionTo('secret', context);
-              }
+              } else {
                 this.transitionTo('fourOhFour');
+              }
             }
           }
         });
@@ -24382,17 +24384,18 @@ define("ember-routing/system/route",
 
         ```javascript
         App.Router.map(function() {
-          this.route("index");
-          this.resource('breakfast', {path:':breakfastId'}, function(){
-            this.resource('cereal', {path: ':cerealId'});
+          this.route('index');
+          
+          this.resource('breakfast', { path: ':breakfastId' }, function() {
+            this.resource('cereal', { path: ':cerealId' });
           });
         });
 
         App.IndexRoute = Ember.Route.extend({
           actions: {
-            moveToChocolateCereal: function(){
-              var cereal = { cerealId: "ChocolateYumminess"},
-                  breakfast = {breakfastId: "CerealAndMilk"};
+            moveToChocolateCereal: function() {
+              var cereal = { cerealId: 'ChocolateYumminess' };
+              var breakfast = { breakfastId: 'CerealAndMilk' };
 
               this.transitionTo('cereal', breakfast, cereal);
             }
@@ -24468,8 +24471,8 @@ define("ember-routing/system/route",
 
         ```javascript
         App.Router.map(function() {
-          this.route("index");
-          this.route("secret");
+          this.route('index');
+          this.route('secret');
         });
 
         App.SecretRoute = Ember.Route.extend({
@@ -24601,7 +24604,7 @@ define("ember-routing/system/route",
         be useful, for instance, for retrieving async code from
         the server that is required to enter a route.
 
-        ```js
+        ```javascript
         App.PostRoute = Ember.Route.extend({
           beforeModel: function(transition) {
             if (!App.Post) {
@@ -24622,7 +24625,7 @@ define("ember-routing/system/route",
         from the shared error handling behavior of the `error`
         hook):
 
-        ```js
+        ```javascript
         App.PostRoute = Ember.Route.extend({
           beforeModel: function(transition) {
             if (!App.Post) {
@@ -24663,7 +24666,7 @@ define("ember-routing/system/route",
         logic that can only take place after the model has already
         resolved.
 
-        ```js
+        ```javascript
         App.PostsRoute = Ember.Route.extend({
           afterModel: function(posts, transition) {
             if (posts.get('length') === 1) {
@@ -24729,9 +24732,9 @@ define("ember-routing/system/route",
         A hook you can implement to convert the URL into the model for
         this route.
 
-        ```js
+        ```javascript
         App.Router.map(function() {
-          this.resource('post', {path: '/posts/:post_id'});
+          this.resource('post', { path: '/posts/:post_id' });
         });
         ```
 
@@ -24755,7 +24758,7 @@ define("ember-routing/system/route",
 
         Routes without dynamic segments will always execute the model hook.
 
-        ```js
+        ```javascript
         // no dynamic segment, model hook always called
         this.transitionTo('posts');
 
@@ -24775,7 +24778,7 @@ define("ember-routing/system/route",
 
         Example
 
-        ```js
+        ```javascript
         App.PostRoute = Ember.Route.extend({
           model: function(params) {
             return App.Post.find(params.post_id);
@@ -24885,15 +24888,15 @@ define("ember-routing/system/route",
         A hook you can implement to convert the route's model into parameters
         for the URL.
 
-        ```js
+        ```javascript
         App.Router.map(function() {
-          this.resource('post', {path: '/posts/:post_id'});
+          this.resource('post', { path: '/posts/:post_id' });
         });
 
         App.PostRoute = Ember.Route.extend({
           model: function(params) {
             // the server returns `{ id: 12 }`
-            return jQuery.getJSON("/posts/" + params.post_id);
+            return Ember.$.getJSON('/posts/' + params.post_id);
           },
 
           serialize: function(model) {
@@ -24946,7 +24949,7 @@ define("ember-routing/system/route",
         when implementing your `setupController` function, make sure to call
         `_super`:
 
-        ```js
+        ```javascript
         App.PhotosRoute = Ember.Route.extend({
           model: function() {
             return App.Photo.find();
@@ -24976,9 +24979,9 @@ define("ember-routing/system/route",
 
         As an example, consider the router:
 
-        ```js
+        ```javascript
         App.Router.map(function() {
-          this.resource('post', {path: '/posts/:post_id'});
+          this.resource('post', { path: '/posts/:post_id' });
         });
         ```
 
@@ -24988,7 +24991,7 @@ define("ember-routing/system/route",
 
         Example
 
-        ```js
+        ```javascript
         App.PostRoute = Ember.Route.extend({
           setupController: function(controller, model) {
             controller.set('model', model);
@@ -25012,7 +25015,7 @@ define("ember-routing/system/route",
         The controller instance must already have been created, either through entering the
         associated route or using `generateController`.
 
-        ```js
+        ```javascript
         App.PostRoute = Ember.Route.extend({
           setupController: function(controller, post) {
             this._super(controller, post);
@@ -25056,7 +25059,7 @@ define("ember-routing/system/route",
 
         Example
 
-        ```js
+        ```javascript
         App.PostRoute = Ember.Route.extend({
           setupController: function(controller, post) {
             this._super(controller, post);
@@ -25088,7 +25091,7 @@ define("ember-routing/system/route",
 
         Example
 
-        ```js
+        ```javascript
         App.Router.map(function() {
             this.resource('post', { path: '/post/:post_id' }, function() {
                 this.resource('comments');
@@ -25132,7 +25135,7 @@ define("ember-routing/system/route",
         This method can be overridden to set up and render additional or
         alternative templates.
 
-        ```js
+        ```javascript
         App.PostsRoute = Ember.Route.extend({
           renderTemplate: function(controller, model) {
             var favController = this.controllerFor('favoritePost');
@@ -25164,7 +25167,7 @@ define("ember-routing/system/route",
 
         For example, given the following minimal router and templates:
 
-        ```js
+        ```javascript
         Router.map(function() {
           this.resource('photos');
         });
@@ -25185,7 +25188,7 @@ define("ember-routing/system/route",
         You can render `photos.hbs` into the `"anOutletName"` outlet of
         `application.hbs` by calling `render`:
 
-        ```js
+        ```javascript
         // posts route
         Ember.Route.extend({
           renderTemplate: function(){
@@ -25201,7 +25204,7 @@ define("ember-routing/system/route",
         `model` objects should be loaded and associated with the rendered template.
 
 
-        ```js
+        ```javascript
         // posts route
         Ember.Route.extend({
           renderTemplate: function(controller, model){
@@ -25227,15 +25230,15 @@ define("ember-routing/system/route",
 
         For example:
 
-        ```js
+        ```javascript
         // router
         Router.map(function() {
           this.route('index');
-          this.resource('post', {path: '/posts/:post_id'});
+          this.resource('post', { path: '/posts/:post_id' });
         });
         ```
 
-        ```js
+        ```javascript
         // post route
         PostRoute = App.Route.extend({
           renderTemplate: function() {
@@ -25249,7 +25252,7 @@ define("ember-routing/system/route",
         The following equivalent default options will be applied when
         the Route calls `render`:
 
-        ```js
+        ```javascript
         //
         this.render('post', {  // the template name associated with 'post' Route
           into: 'application', // the parent route to 'post' Route
@@ -25334,7 +25337,7 @@ define("ember-routing/system/route",
 
         Example:
 
-        ```js
+        ```javascript
         App.ApplicationRoute = App.Route.extend({
           actions: {
             showModal: function(evt) {
@@ -25357,7 +25360,7 @@ define("ember-routing/system/route",
 
         Example:
 
-        ```js
+        ```javascript
         hideModal: function(evt) {
           this.disconnectOutlet('modal');
         }
