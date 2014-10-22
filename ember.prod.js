@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.2552e0eb
+ * @version   1.9.0-beta.1+canary.55ae502e
  */
 
 (function() {
@@ -12907,7 +12907,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.2552e0eb
+      @version 1.9.0-beta.1+canary.55ae502e
     */
 
     if ('undefined' === typeof Ember) {
@@ -12934,10 +12934,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.2552e0eb'
+      @default '1.9.0-beta.1+canary.55ae502e'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.2552e0eb';
+    Ember.VERSION = '1.9.0-beta.1+canary.55ae502e';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -26736,6 +26736,7 @@ define("ember-runtime/computed/reduce_computed",
           this.setValue(removedItem.call(
             this.instanceMeta.context, this.getValue(), item, changeMeta, this.instanceMeta.sugarMeta));
         }
+        this.callbacks.flushedChanges.call(this.instanceMeta.context, this.getValue(), this.instanceMeta.sugarMeta);
       },
 
       dependentArrayDidChange: function (dependentArray, index, removedCount, addedCount) {
@@ -26767,7 +26768,7 @@ define("ember-runtime/computed/reduce_computed",
           this.setValue(addedItem.call(
             this.instanceMeta.context, this.getValue(), item, changeMeta, this.instanceMeta.sugarMeta));
         }, this);
-
+        this.callbacks.flushedChanges.call(this.instanceMeta.context, this.getValue(), this.instanceMeta.sugarMeta);
         this.trackAdd(dependentKey, normalizedIndex, observerContexts);
       },
 
@@ -26811,6 +26812,7 @@ define("ember-runtime/computed/reduce_computed",
         }
 
         this.changedItems = {};
+        this.callbacks.flushedChanges.call(this.instanceMeta.context, this.getValue(), this.instanceMeta.sugarMeta);
       }
     };
 
@@ -26847,6 +26849,7 @@ define("ember-runtime/computed/reduce_computed",
         meta.setValue( callbacks.addedItem.call(
           this, meta.getValue(), item, new ChangeMeta(dependentArray, item, index, propertyName, cp, dependentArray.length), meta.sugarMeta));
       }, this);
+      callbacks.flushedChanges.call(this, meta.getValue(), meta.sugarMeta);
     }
 
     function reset(cp, propertyName) {
@@ -27017,7 +27020,8 @@ define("ember-runtime/computed/reduce_computed",
 
         this.callbacks = {
           removedItem: options.removedItem || defaultCallback,
-          addedItem: options.addedItem || defaultCallback
+          addedItem: options.addedItem || defaultCallback,
+          flushedChanges: options.flushedChanges || defaultCallback
         };
       }
 
@@ -28025,7 +28029,6 @@ define("ember-runtime/computed/reduce_computed_macros",
           };
           instanceMeta.insertLater = function(item) {
             this.waitingInsertions.push(item);
-            run.once(this, 'insertWaiting');
           };
         },
 
@@ -28037,6 +28040,10 @@ define("ember-runtime/computed/reduce_computed_macros",
         removedItem: function (array, item, changeMeta, instanceMeta) {
           array.removeObject(item);
           return array;
+        },
+
+        flushedChanges: function(array, instanceMeta) {
+          instanceMeta.insertWaiting();
         }
       });
     }

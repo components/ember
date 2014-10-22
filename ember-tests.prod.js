@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.2552e0eb
+ * @version   1.9.0-beta.1+canary.55ae502e
  */
 
 (function() {
@@ -28741,16 +28741,17 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
       var sorted;
       run(function() {
         sorted = obj.get('customSortedItems');
+        deepEqual(sorted.mapBy('name'), ['A', 'B', 'C', 'D'], "initial");
       });
-      deepEqual(sorted.mapBy('name'), ['A', 'B', 'C', 'D'], "initial");
+
       run(function() {
         Ember.changeProperties(function(){
           obj.get('items').objectAt(1).set('count', 5);
           obj.get('items').objectAt(2).set('count', 6);
         });
         sorted = obj.get('customSortedItems');
+        deepEqual(sorted.mapBy('name'), ['A', 'D', 'B', 'C'], "final");
       });
-      deepEqual(sorted.mapBy('name'), ['A', 'D', 'B', 'C'], "final");
     });
 
 
