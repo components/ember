@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.3d484fa1
+ * @version   1.9.0-beta.1+canary.5efa34e5
  */
 
 (function() {
@@ -25865,16 +25865,16 @@ define("ember-routing/tests/location/auto_location_test",
           hash: '',
           search: '',
           replace: function () {
-            ok(false, 'location.replace should not be called');
+            ok(false, 'location.replace should not be called during testing');
           }
         };
 
         AutoTestLocation._history = {
           pushState: function () {
-            ok(false, 'history.pushState should not be called');
+            ok(false, 'history.pushState should not be called during testing');
           },
           replaceState: function () {
-            ok(false, 'history.replaceState should not be called');
+            ok(false, 'history.replaceState should not be called during testing');
           }
         };
       },
@@ -26277,28 +26277,24 @@ define("ember-routing/tests/location/hash_location_test",
         equal(location.getURL(), '/foo#bar#car');
     });
 
-    test("HashLocation.getURL() a non-empty location.hash without #/ signals deprecation warning", function() {
-        expect(2);
+    test("HashLocation.getURL() assumes location.hash without #/ prefix is not a route path", function() {
+        expect(1);
 
         createLocation({
-          _location: mockBrowserLocation('/#foo')
+          _location: mockBrowserLocation('/#foo#bar')
         });
 
-        expectDeprecation(function() {
-          equal(location.getURL(), 'foo');
-        }, /location.hash value is ambiguous. Support for this will be removed soon. When using location: "hash|auto" your hash paths MUST begin with a forward slash. e.g. #\/foo NOT #foo/);
+        equal(location.getURL(), '/#foo#bar');
     });
 
-
-    test("HashLocation.getURL() an empty location.hash does NOT trigger deprecation warning related to missing forward slash", function() {
-        expect(2);
-        expectNoDeprecation();
+    test("HashLocation.getURL() returns a normal forward slash when there is no location.hash", function() {
+        expect(1);
 
         createLocation({
           _location: mockBrowserLocation('/')
         });
-
-        equal(location.getURL(), '');
+        
+        equal(location.getURL(), '/');
     });
 
     test("HashLocation.setURL() correctly sets the url", function() {
