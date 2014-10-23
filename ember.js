@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.67b49f55
+ * @version   1.9.0-beta.1+canary.ea97d96c
  */
 
 (function() {
@@ -13275,7 +13275,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.67b49f55
+      @version 1.9.0-beta.1+canary.ea97d96c
     */
 
     if ('undefined' === typeof Ember) {
@@ -13302,10 +13302,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.67b49f55'
+      @default '1.9.0-beta.1+canary.ea97d96c'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.67b49f55';
+    Ember.VERSION = '1.9.0-beta.1+canary.ea97d96c';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -25226,7 +25226,7 @@ define("ember-routing/system/route",
 
         Not all options need to be passed to `render`. Default values will be used
         based on the name of the route specified in the router or the Route's
-        `controllerName`, `viewName` and and `templateName` properties.
+        `controllerName`, `viewName` and `templateName` properties.
 
         For example:
 
