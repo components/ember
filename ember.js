@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.8f258293
+ * @version   1.9.0-beta.1+canary.67b49f55
  */
 
 (function() {
@@ -13275,7 +13275,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.8f258293
+      @version 1.9.0-beta.1+canary.67b49f55
     */
 
     if ('undefined' === typeof Ember) {
@@ -13302,10 +13302,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.8f258293'
+      @default '1.9.0-beta.1+canary.67b49f55'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.8f258293';
+    Ember.VERSION = '1.9.0-beta.1+canary.67b49f55';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -29514,6 +29514,7 @@ define("ember-runtime/ext/rsvp",
 
           if (Test && Test.adapter) {
             Test.adapter.exception(error);
+            Logger.error(error.stack);
           } else {
             throw error;
           }
