@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.221a1219
+ * @version   1.9.0-beta.1+canary.7b16a20a
  */
 
 (function() {
@@ -12907,7 +12907,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.221a1219
+      @version 1.9.0-beta.1+canary.7b16a20a
     */
 
     if ('undefined' === typeof Ember) {
@@ -12934,10 +12934,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.221a1219'
+      @default '1.9.0-beta.1+canary.7b16a20a'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.221a1219';
+    Ember.VERSION = '1.9.0-beta.1+canary.7b16a20a';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -37742,7 +37742,7 @@ define("ember-views/system/render_buffer",
 
     function _RenderBuffer(tagName, contextualElement) {
       this.tagName = tagName;
-      this._contextualElement = contextualElement;
+      this._outerContextualElement = contextualElement;
       this.buffer = null;
       this.childViews = [];
       this.dom = new DOMHelper();
@@ -37754,7 +37754,7 @@ define("ember-views/system/render_buffer",
         this.tagName = tagName;
         this.buffer = null;
         this._element = null;
-        this._contextualElement = contextualElement;
+        this._outerContextualElement = contextualElement;
         this.elementClasses = null;
         this.elementId = null;
         this.elementAttributes = null;
@@ -37768,7 +37768,7 @@ define("ember-views/system/render_buffer",
       _element: null,
 
       // The root view's contextualElement
-      _contextualElement: null,
+      _outerContextualElement: null,
 
       /**
         An internal set used to de-dupe class names when `addClass()` is
@@ -37899,11 +37899,11 @@ define("ember-views/system/render_buffer",
         @param {String} string HTML to push into the buffer
         @chainable
       */
-      push: function(string) {
+      push: function(content) {
         if (this.buffer === null) {
           this.buffer = '';
         }
-        this.buffer += string;
+        this.buffer += content;
         return this;
       },
 
@@ -38049,7 +38049,7 @@ define("ember-views/system/render_buffer",
           tagString = tagName;
         }
 
-        var element = this.dom.createElement(tagString, this._contextualElement);
+        var element = this.dom.createElement(tagString, this.outerContextualElement());
         var $element = jQuery(element);
 
         if (id) {
@@ -38103,36 +38103,24 @@ define("ember-views/system/render_buffer",
           of this buffer
       */
       element: function() {
-        if (!this._contextualElement) {
-                    this._contextualElement = document.body;
+        var content = this.innerContent();
+        if (content === null)  {
+          return this._element;
         }
-        var html = this.innerString();
 
-        var nodes;
-        if (this._element) {
-          if (html) {
-            this.dom.detectNamespace(this._element);
-            nodes = this.dom.parseHTML(html, this._element);
-            while (nodes[0]) {
-              this._element.appendChild(nodes[0]);
-            }
-            this.hydrateMorphs(this._element);
-          }
-        } else {
-          if (html) {
-            var omittedStartTag = detectOmittedStartTag(html, this._contextualElement);
-            var contextualElement = omittedStartTag || this._contextualElement;
-            this.dom.detectNamespace(contextualElement);
-            nodes = this.dom.parseHTML(html, contextualElement);
-            var frag = this._element = document.createDocumentFragment();
-            while (nodes[0]) {
-              frag.appendChild(nodes[0]);
-            }
-            this.hydrateMorphs(contextualElement);
-          } else if (html === '') {
-            this._element = html;
-          }
+        var contextualElement = this.innerContextualElement(content);
+        this.dom.detectNamespace(contextualElement);
+
+        if (!this._element) {
+          this._element = document.createDocumentFragment();
         }
+
+        var nodes = this.dom.parseHTML(content, contextualElement);
+        while (nodes[0]) {
+          this._element.appendChild(nodes[0]);
+        }
+        this.hydrateMorphs(contextualElement);
+
         return this._element;
       },
 
@@ -38156,7 +38144,36 @@ define("ember-views/system/render_buffer",
         }
       },
 
+      outerContextualElement: function() {
+        if (!this._outerContextualElement) {
+                    this.outerContextualElement = document.body;
+        }
+        return this._outerContextualElement;
+      },
+
+      innerContextualElement: function(html) {
+        var innerContextualElement;
+        if (this._element && this._element.nodeType === 1) {
+          innerContextualElement = this._element;
+        } else {
+          innerContextualElement = this.outerContextualElement();
+        }
+
+        var omittedStartTag;
+        if (html) {
+          omittedStartTag = detectOmittedStartTag(html, innerContextualElement);
+        }
+        return omittedStartTag || innerContextualElement;
+      },
+
       innerString: function() {
+        var content = this.innerContent();
+        if (content && !content.nodeType) {
+          return content;
+        }
+      },
+
+      innerContent: function() {
         return this.buffer;
       }
     };

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.221a1219
+ * @version   1.9.0-beta.1+canary.7b16a20a
  */
 
 (function() {
@@ -46821,21 +46821,21 @@ define("ember-views/tests/system/render_buffer_test",
 
     test("RenderBuffers raise a deprecation warning without a contextualElement", function() {
       var buffer = new RenderBuffer('div');
-      buffer.generateElement();
       expectDeprecation(function(){
+        buffer.generateElement();
         var el = buffer.element();
         equal(el.tagName.toLowerCase(), 'div');
-      }, /buffer.element expects a contextualElement to exist/);
+      }, /The render buffer expects an outer contextualElement to exist/);
     });
 
     test("reset RenderBuffers raise a deprecation warning without a contextualElement", function() {
       var buffer = new RenderBuffer('div', document.body);
       buffer.reset('span');
-      buffer.generateElement();
       expectDeprecation(function(){
+        buffer.generateElement();
         var el = buffer.element();
         equal(el.tagName.toLowerCase(), 'span');
-      }, /buffer.element expects a contextualElement to exist/);
+      }, /The render buffer expects an outer contextualElement to exist/);
     });
 
     test("RenderBuffers combine strings", function() {
@@ -46999,6 +46999,15 @@ define("ember-views/tests/system/render_buffer_test",
 
       var el = buffer.element();
       equal(el.childNodes[1].tagName, 'TR');
+    });
+
+    test("generates a tr from a tr innerString on rerender", function() {
+      var buffer = new RenderBuffer('table', document.body);
+      buffer.generateElement();
+      buffer.buffer = '<tr></tr>';
+
+      var el = buffer.element();
+      equal(el.childNodes[0].tagName.toLowerCase(), 'tr');
     });
 
     test("generates a tbody from a tbody innerString", function() {
@@ -51830,6 +51839,50 @@ define("ember-views/tests/views/view/render_test",
       });
 
       equal(jQuery('#qunit-fixture #template-context-test').text(), "bang baz", "re-renders the view with the updated context");
+    });
+
+    test("renders contained view with omitted start tag and parent view context", function() {
+      view = ContainerView.createWithMixins({
+        tagName: 'table',
+        childViews: ["row"],
+        row: EmberView.createWithMixins({
+          tagName: 'tr'
+        })
+      });
+
+      run(view, view.append);
+
+      equal(view.element.tagName, 'TABLE', 'container view is table');
+      equal(view.element.childNodes[0].tagName, 'TR', 'inner view is tr');
+
+      run(view, view.rerender);
+
+      equal(view.element.tagName, 'TABLE', 'container view is table');
+      equal(view.element.childNodes[0].tagName, 'TR', 'inner view is tr');
+    });
+
+    test("renders a contained view with omitted start tag and tagless parent view context", function() {
+      view = EmberView.createWithMixins({
+        tagName: 'table',
+        template: Ember.Handlebars.compile("{{view view.pivot}}"),
+        pivot: EmberView.extend({
+          tagName: '',
+          template: Ember.Handlebars.compile("{{view view.row}}"),
+          row: EmberView.extend({
+            tagName: 'tr'
+          })
+        })
+      });
+
+      run(view, view.append);
+
+      equal(view.element.tagName, 'TABLE', 'container view is table');
+      ok(view.$('tr').length, 'inner view is tr');
+
+      run(view, view.rerender);
+
+      equal(view.element.tagName, 'TABLE', 'container view is table');
+      ok(view.$('tr').length, 'inner view is tr');
     });
   });
 define("ember-views/tests/views/view/render_test.jshint",
