@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0+pre.e8c5719d
+ * @version   1.8.0+pre.29140559
  */
 
 (function() {
@@ -6571,7 +6571,7 @@ define("ember-handlebars/controls/text_support",
       onEvent: 'enter',
 
       /**
-        Whether they `keyUp` event that triggers an `action` to be sent continues
+        Whether the `keyUp` event that triggers an `action` to be sent continues
         propagating to other views.
 
         By default, when the user presses the return key on their keyboard and
@@ -13637,7 +13637,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0+pre.e8c5719d
+      @version 1.8.0+pre.29140559
     */
 
     if ('undefined' === typeof Ember) {
@@ -13664,10 +13664,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0+pre.e8c5719d'
+      @default '1.8.0+pre.29140559'
       @static
     */
-    Ember.VERSION = '1.8.0+pre.e8c5719d';
+    Ember.VERSION = '1.8.0+pre.29140559';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -14003,7 +14003,7 @@ define("ember-metal/enumerable_utils",
      * @return {Array} An array of mapped values.
      */
     function map(obj, callback, thisArg) {
-      return obj.map ? obj.map.call(obj, callback, thisArg) : _map.call(obj, callback, thisArg);
+      return obj.map ? obj.map(callback, thisArg) : _map.call(obj, callback, thisArg);
     }
 
     __exports__.map = map;/**
@@ -14017,7 +14017,7 @@ define("ember-metal/enumerable_utils",
      *
      */
     function forEach(obj, callback, thisArg) {
-      return obj.forEach ? obj.forEach.call(obj, callback, thisArg) : a_forEach.call(obj, callback, thisArg);
+      return obj.forEach ? obj.forEach(callback, thisArg) : a_forEach.call(obj, callback, thisArg);
     }
 
     __exports__.forEach = forEach;/**
@@ -14033,7 +14033,7 @@ define("ember-metal/enumerable_utils",
      * @since 1.4.0
      */
     function filter(obj, callback, thisArg) {
-      return obj.filter ? obj.filter.call(obj, callback, thisArg) : _filter.call(obj, callback, thisArg);
+      return obj.filter ? obj.filter(callback, thisArg) : _filter.call(obj, callback, thisArg);
     }
 
     __exports__.filter = filter;/**
@@ -14047,7 +14047,7 @@ define("ember-metal/enumerable_utils",
      *
      */
     function indexOf(obj, element, index) {
-      return obj.indexOf ? obj.indexOf.call(obj, element, index) : _indexOf.call(obj, element, index);
+      return obj.indexOf ? obj.indexOf(element, index) : _indexOf.call(obj, element, index);
     }
 
     __exports__.indexOf = indexOf;/**
@@ -18125,7 +18125,7 @@ define("ember-metal/run_loop",
     */
     __exports__["default"] = run;
     function run() {
-      return apply(backburner, backburner.run, arguments);
+      return backburner.run.apply(backburner, arguments);
     }
 
     /**
@@ -18167,12 +18167,12 @@ define("ember-metal/run_loop",
     */
     run.join = function(target, method /* args */) {
       if (!run.currentRunLoop) {
-        return apply(Ember, run, arguments);
+        return Ember.run.apply(Ember, arguments);
       }
 
       var args = slice.call(arguments);
       args.unshift('actions');
-      apply(run, run.schedule, args);
+      run.schedule.apply(run, args);
     };
 
     /**
@@ -18219,7 +18219,7 @@ define("ember-metal/run_loop",
     run.bind = function(target, method /* args*/) {
       var args = slice.call(arguments);
       return function() {
-        return apply(run, run.join, args.concat(slice.call(arguments)));
+        return run.join.apply(run, args.concat(slice.call(arguments)));
       };
     };
 
@@ -18313,7 +18313,7 @@ define("ember-metal/run_loop",
     */
     run.schedule = function(queue, target, method) {
       checkAutoRun();
-      apply(backburner, backburner.schedule, arguments);
+      backburner.schedule.apply(backburner, arguments);
     };
 
     // Used by global test teardown
@@ -18373,8 +18373,8 @@ define("ember-metal/run_loop",
       @param {Number} wait Number of milliseconds to wait.
       @return {Object} Timer information for use in cancelling, see `run.cancel`.
     */
-    run.later = function(target, method) {
-      return apply(backburner, backburner.later, arguments);
+    run.later = function(/*target, method*/) {
+      return backburner.later.apply(backburner, arguments);
     };
 
     /**
@@ -18440,9 +18440,9 @@ define("ember-metal/run_loop",
       @param {Object} [args*] Optional arguments to pass to the timeout.
       @return {Object} Timer information for use in cancelling, see `run.cancel`.
     */
-    run.scheduleOnce = function(queue, target, method) {
+    run.scheduleOnce = function(/*queue, target, method*/) {
       checkAutoRun();
-      return apply(backburner, backburner.scheduleOnce, arguments);
+      return backburner.scheduleOnce.apply(backburner, arguments);
     };
 
     /**
@@ -18621,7 +18621,7 @@ define("ember-metal/run_loop",
       @return {Array} Timer information for use in cancelling, see `run.cancel`.
     */
     run.debounce = function() {
-      return apply(backburner, backburner.debounce, arguments);
+      return backburner.debounce.apply(backburner, arguments);
     };
 
     /**
@@ -18660,7 +18660,7 @@ define("ember-metal/run_loop",
       @return {Array} Timer information for use in cancelling, see `run.cancel`.
     */
     run.throttle = function() {
-      return apply(backburner, backburner.throttle, arguments);
+      return backburner.throttle.apply(backburner, arguments);
     };
 
     // Make sure it's not an autorun during testing
@@ -18710,22 +18710,23 @@ define("ember-metal/set_properties",
       ```
 
       @method setProperties
-      @param self
-      @param {Object} hash
-      @return self
+      @param obj
+      @param {Object} properties
+      @return obj
     */
-    __exports__["default"] = function setProperties(self, hash) {
+    __exports__["default"] = function setProperties(obj, properties) {
+      if (!properties || typeof properties !== "object") { return obj; }
       changeProperties(function() {
-        var props = keys(hash);
-        var prop;
+        var props = keys(properties);
+        var propertyName;
 
         for (var i = 0, l = props.length; i < l; i++) {
-          prop = props[i];
+          propertyName = props[i];
 
-          set(self, prop, hash[prop]);
+          set(obj, propertyName, properties[propertyName]);
         }
       });
-      return self;
+      return obj;
     }
   });
 define("ember-metal/utils",
@@ -27762,8 +27763,8 @@ define("ember-runtime/computed/reduce_computed",
     __exports__.reduceComputed = reduceComputed;
   });
 define("ember-runtime/computed/reduce_computed_macros",
-  ["ember-metal/core","ember-metal/merge","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/error","ember-metal/enumerable_utils","ember-metal/run_loop","ember-metal/observer","ember-runtime/computed/array_computed","ember-runtime/computed/reduce_computed","ember-runtime/system/object_proxy","ember-runtime/system/subarray","ember-metal/keys","ember-runtime/compare","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/error","ember-metal/enumerable_utils","ember-metal/run_loop","ember-metal/observer","ember-runtime/computed/array_computed","ember-runtime/computed/reduce_computed","ember-runtime/system/subarray","ember-metal/keys","ember-runtime/compare","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -27772,21 +27773,19 @@ define("ember-runtime/computed/reduce_computed_macros",
 
     var Ember = __dependency1__["default"];
     // Ember.assert
-    var merge = __dependency2__["default"];
-    var get = __dependency3__.get;
-    var set = __dependency4__.set;
-    var isArray = __dependency5__.isArray;
-    var guidFor = __dependency5__.guidFor;
-    var EmberError = __dependency6__["default"];
-    var forEach = __dependency7__.forEach;
-    var run = __dependency8__["default"];
-    var addObserver = __dependency9__.addObserver;
-    var arrayComputed = __dependency10__.arrayComputed;
-    var reduceComputed = __dependency11__.reduceComputed;
-    var ObjectProxy = __dependency12__["default"];
-    var SubArray = __dependency13__["default"];
-    var keys = __dependency14__["default"];
-    var compare = __dependency15__["default"];
+    var get = __dependency2__.get;
+    var set = __dependency3__.set;
+    var isArray = __dependency4__.isArray;
+    var guidFor = __dependency4__.guidFor;
+    var EmberError = __dependency5__["default"];
+    var forEach = __dependency6__.forEach;
+    var run = __dependency7__["default"];
+    var addObserver = __dependency8__.addObserver;
+    var arrayComputed = __dependency9__.arrayComputed;
+    var reduceComputed = __dependency10__.reduceComputed;
+    var SubArray = __dependency11__["default"];
+    var keys = __dependency12__["default"];
+    var compare = __dependency13__["default"];
 
     var a_slice = [].slice;
 
@@ -28366,8 +28365,8 @@ define("ember-runtime/computed/reduce_computed_macros",
       mid = low + Math.floor((high - low) / 2);
       midItem = array.objectAt(mid);
 
-      guidMid = _guidFor(midItem);
-      guidItem = _guidFor(item);
+      guidMid = guidFor(midItem);
+      guidItem = guidFor(item);
 
       if (guidMid === guidItem) {
         return mid;
@@ -28387,18 +28386,8 @@ define("ember-runtime/computed/reduce_computed_macros",
       }
 
       return mid;
-
-      function _guidFor(item) {
-        if (SearchProxy.detectInstance(item)) {
-          return guidFor(get(item, 'content'));
-        }
-
-        return guidFor(item);
-      }
     }
 
-
-    var SearchProxy = ObjectProxy.extend();
 
     /**
       A computed property which returns a new array with all the
@@ -28468,17 +28457,50 @@ define("ember-runtime/computed/reduce_computed_macros",
       Ember.assert('Ember.computed.sort requires two arguments: an array key to sort and ' +
         'either a sort properties key or sort function', arguments.length === 2);
 
-      var initFn, sortPropertiesKey;
-
       if (typeof sortDefinition === 'function') {
-        initFn = function (array, changeMeta, instanceMeta) {
-          instanceMeta.order = sortDefinition;
-          instanceMeta.binarySearch = binarySearch;
-        };
+        return customSort(itemsKey, sortDefinition);
       } else {
-        sortPropertiesKey = sortDefinition;
+        return propertySort(itemsKey, sortDefinition);
+      }
+    }
 
-        initFn = function (array, changeMeta, instanceMeta) {
+    __exports__.sort = sort;function customSort(itemsKey, comparator) {
+      return arrayComputed(itemsKey, {
+        initialize: function (array, changeMeta, instanceMeta) {
+          instanceMeta.order = comparator;
+          instanceMeta.binarySearch = binarySearch;
+          instanceMeta.waitingInsertions = [];
+          instanceMeta.insertWaiting = function() {
+            var index, item;
+            var waiting = instanceMeta.waitingInsertions;
+            instanceMeta.waitingInsertions = [];
+            for (var i=0; i<waiting.length; i++) {
+              item = waiting[i];
+              index = instanceMeta.binarySearch(array, item);
+              array.insertAt(index, item);
+            }
+          };
+          instanceMeta.insertLater = function(item) {
+            this.waitingInsertions.push(item);
+            run.once(this, 'insertWaiting');
+          };
+        },
+
+        addedItem: function (array, item, changeMeta, instanceMeta) {
+          instanceMeta.insertLater(item);
+          return array;
+        },
+
+        removedItem: function (array, item, changeMeta, instanceMeta) {
+          array.removeObject(item);
+          return array;
+        }
+      });
+    }
+
+    function propertySort(itemsKey, sortPropertiesKey) {
+      return arrayComputed(itemsKey, {
+        initialize: function (array, changeMeta, instanceMeta) {
           function setupSortProperties() {
             var sortPropertyDefinitions = get(this, sortPropertiesKey);
             var sortProperties = instanceMeta.sortProperties = [];
@@ -28486,7 +28508,7 @@ define("ember-runtime/computed/reduce_computed_macros",
             var sortProperty, idx, asc;
 
             Ember.assert('Cannot sort: \'' + sortPropertiesKey + '\' is not an array.',
-              isArray(sortPropertyDefinitions));
+                         isArray(sortPropertyDefinitions));
 
             changeMeta.property.clearItemPropertyKeys(itemsKey);
 
@@ -28520,12 +28542,14 @@ define("ember-runtime/computed/reduce_computed_macros",
           setupSortProperties.call(this);
 
           instanceMeta.order = function (itemA, itemB) {
-            var isProxy = itemB instanceof SearchProxy;
             var sortProperty, result, asc;
+            var keyA = this.keyFor(itemA);
+            var keyB = this.keyFor(itemB);
 
             for (var i = 0; i < this.sortProperties.length; ++i) {
               sortProperty = this.sortProperties[i];
-              result = compare(get(itemA, sortProperty), isProxy ? itemB[sortProperty] : get(itemB, sortProperty));
+
+              result = compare(keyA[sortProperty], keyB[sortProperty]);
 
               if (result !== 0) {
                 asc = this.sortPropertyAscending[sortProperty];
@@ -28537,39 +28561,46 @@ define("ember-runtime/computed/reduce_computed_macros",
           };
 
           instanceMeta.binarySearch = binarySearch;
-        };
-      }
-
-      return arrayComputed(itemsKey, {
-        initialize: initFn,
+          setupKeyCache(instanceMeta);
+        },
 
         addedItem: function (array, item, changeMeta, instanceMeta) {
           var index = instanceMeta.binarySearch(array, item);
           array.insertAt(index, item);
-
           return array;
         },
 
         removedItem: function (array, item, changeMeta, instanceMeta) {
-          var proxyProperties, index, searchItem;
-
-          if (changeMeta.previousValues) {
-            proxyProperties = merge({ content: item }, changeMeta.previousValues);
-
-            searchItem = SearchProxy.create(proxyProperties);
-          } else {
-            searchItem = item;
-          }
-
-          index = instanceMeta.binarySearch(array, searchItem);
+          var index = instanceMeta.binarySearch(array, item);
           array.removeAt(index);
-
+          instanceMeta.dropKeyFor(item);
           return array;
         }
       });
     }
 
-    __exports__.sort = sort;
+    function setupKeyCache(instanceMeta) {
+      instanceMeta.keyFor = function(item) {
+        var guid = guidFor(item);
+        if (this.keyCache[guid]) {
+          return this.keyCache[guid];
+        }
+        var sortProperty;
+        var key = {};
+        for (var i = 0; i < this.sortProperties.length; ++i) {
+          sortProperty = this.sortProperties[i];
+          key[sortProperty] = get(item, sortProperty);
+        }
+        return this.keyCache[guid] = key;
+      };
+
+      instanceMeta.dropKeyFor = function(item) {
+        var guid = guidFor(item);
+        this.keyCache[guid] = null;
+      };
+
+      instanceMeta.keyCache = {};
+    }
   });
 define("ember-runtime/controllers/array_controller",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/enumerable_utils","ember-runtime/system/array_proxy","ember-runtime/mixins/sortable","ember-runtime/mixins/controller","ember-metal/computed","ember-metal/error","exports"],
@@ -38840,7 +38871,7 @@ define("ember-views/system/render_buffer",
 
     function _RenderBuffer(tagName, contextualElement) {
       this.tagName = tagName;
-      this._contextualElement = contextualElement;
+      this._outerContextualElement = contextualElement;
       this.buffer = null;
       this.childViews = [];
       this.dom = new DOMHelper();
@@ -38852,7 +38883,7 @@ define("ember-views/system/render_buffer",
         this.tagName = tagName;
         this.buffer = null;
         this._element = null;
-        this._contextualElement = contextualElement;
+        this._outerContextualElement = contextualElement;
         this.elementClasses = null;
         this.elementId = null;
         this.elementAttributes = null;
@@ -38866,7 +38897,7 @@ define("ember-views/system/render_buffer",
       _element: null,
 
       // The root view's contextualElement
-      _contextualElement: null,
+      _outerContextualElement: null,
 
       /**
         An internal set used to de-dupe class names when `addClass()` is
@@ -38977,6 +39008,14 @@ define("ember-views/system/render_buffer",
         for (var i=0,l=childViews.length; i<l; i++) {
           var childView = childViews[i];
           var ref = el.querySelector('#morph-'+i);
+
+          Ember.assert('An error occured while setting up template bindings. Please check ' +
+                       (childView && childView._parentView && childView._parentView._debugTemplateName ?
+                            '"' + childView._parentView._debugTemplateName + '" template ' :
+                            ''
+                       )  + 'for invalid markup or bindings within HTML comments.',
+                       ref);
+
           var parent = ref.parentNode;
 
           childView._morph = this.dom.insertMorphBefore(
@@ -38995,11 +39034,11 @@ define("ember-views/system/render_buffer",
         @param {String} string HTML to push into the buffer
         @chainable
       */
-      push: function(string) {
+      push: function(content) {
         if (this.buffer === null) {
           this.buffer = '';
         }
-        this.buffer += string;
+        this.buffer += content;
         return this;
       },
 
@@ -39145,7 +39184,7 @@ define("ember-views/system/render_buffer",
           tagString = tagName;
         }
 
-        var element = this.dom.createElement(tagString, this._contextualElement);
+        var element = this.dom.createElement(tagString, this.outerContextualElement());
         var $element = jQuery(element);
 
         if (id) {
@@ -39199,37 +39238,24 @@ define("ember-views/system/render_buffer",
           of this buffer
       */
       element: function() {
-        if (!this._contextualElement) {
-          Ember.deprecate("buffer.element expects a contextualElement to exist. This ensures DOM that requires context is correctly generated (tr, SVG tags). Defaulting to document.body, but this will be removed in the future");
-          this._contextualElement = document.body;
+        var content = this.innerContent();
+        if (content === null)  {
+          return this._element;
         }
-        var html = this.innerString();
 
-        var nodes;
-        if (this._element) {
-          if (html) {
-            this.dom.detectNamespace(this._element);
-            nodes = this.dom.parseHTML(html, this._element);
-            while (nodes[0]) {
-              this._element.appendChild(nodes[0]);
-            }
-            this.hydrateMorphs(this._element);
-          }
-        } else {
-          if (html) {
-            var omittedStartTag = detectOmittedStartTag(html, this._contextualElement);
-            var contextualElement = omittedStartTag || this._contextualElement;
-            this.dom.detectNamespace(contextualElement);
-            nodes = this.dom.parseHTML(html, contextualElement);
-            var frag = this._element = document.createDocumentFragment();
-            while (nodes[0]) {
-              frag.appendChild(nodes[0]);
-            }
-            this.hydrateMorphs(contextualElement);
-          } else if (html === '') {
-            this._element = html;
-          }
+        var contextualElement = this.innerContextualElement(content);
+        this.dom.detectNamespace(contextualElement);
+
+        if (!this._element) {
+          this._element = document.createDocumentFragment();
         }
+
+        var nodes = this.dom.parseHTML(content, contextualElement);
+        while (nodes[0]) {
+          this._element.appendChild(nodes[0]);
+        }
+        this.hydrateMorphs(contextualElement);
+
         return this._element;
       },
 
@@ -39253,7 +39279,39 @@ define("ember-views/system/render_buffer",
         }
       },
 
+      outerContextualElement: function() {
+        if (!this._outerContextualElement) {
+          Ember.deprecate("The render buffer expects an outer contextualElement to exist." +
+                          " This ensures DOM that requires context is correctly generated (tr, SVG tags)." +
+                          " Defaulting to document.body, but this will be removed in the future");
+          this.outerContextualElement = document.body;
+        }
+        return this._outerContextualElement;
+      },
+
+      innerContextualElement: function(html) {
+        var innerContextualElement;
+        if (this._element && this._element.nodeType === 1) {
+          innerContextualElement = this._element;
+        } else {
+          innerContextualElement = this.outerContextualElement();
+        }
+
+        var omittedStartTag;
+        if (html) {
+          omittedStartTag = detectOmittedStartTag(html, innerContextualElement);
+        }
+        return omittedStartTag || innerContextualElement;
+      },
+
       innerString: function() {
+        var content = this.innerContent();
+        if (content && !content.nodeType) {
+          return content;
+        }
+      },
+
+      innerContent: function() {
         return this.buffer;
       }
     };

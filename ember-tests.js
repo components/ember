@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0+pre.e8c5719d
+ * @version   1.8.0+pre.29140559
  */
 
 (function() {
@@ -8315,6 +8315,18 @@ define("ember-handlebars/tests/handlebars_test",
       });
 
       equal(observersFor(view, 'foo').length, 2);
+    });
+
+    test("should provide a helpful assertion for bindings within HTML comments", function() {
+      view = EmberView.create({
+        template: EmberHandlebars.compile('<!-- {{view.someThing}} -->'),
+        someThing: 'foo',
+        _debugTemplateName: 'blahzorz'
+      });
+
+      expectAssertion(function() {
+        appendView();
+      }, 'An error occured while setting up template bindings. Please check "blahzorz" template for invalid markup or bindings within HTML comments.');
     });
   });
 define("ember-handlebars/tests/handlebars_test.jshint",
@@ -21878,6 +21890,46 @@ define("ember-metal/tests/run_loop/unwind_test.jshint",
       ok(true, 'ember-metal/tests/run_loop/unwind_test.js should pass jshint.'); 
     });
   });
+define("ember-metal/tests/set_properties_test",
+  ["ember-metal/set_properties"],
+  function(__dependency1__) {
+    "use strict";
+    var setProperties = __dependency1__["default"];
+
+    QUnit.module('Ember.setProperties');
+
+    test("supports setting multiple attributes at once", function() {
+      deepEqual(setProperties(null, null),    null, 'noop for null properties and null object');
+      deepEqual(setProperties(undefined, undefined),    undefined, 'noop for undefined properties and undefined object');
+
+      deepEqual(setProperties({}),            {}, 'noop for no properties');
+      deepEqual(setProperties({}, undefined), {}, 'noop for undefined');
+      deepEqual(setProperties({}, null),      {}, 'noop for null');
+      deepEqual(setProperties({}, NaN),       {}, 'noop for NaN');
+      deepEqual(setProperties({}, {}),        {}, 'meh');
+
+      deepEqual(setProperties({}, {foo: 1}),  {foo: 1}, 'Set a single property');
+
+      deepEqual(setProperties({}, {foo:1, bar: 1}), {foo: 1, bar: 1}, 'Set multiple properties');
+
+      deepEqual(setProperties({foo: 2, baz: 2}, {foo: 1}), {foo: 1, baz: 2}, 'Set one of multiple properties');
+
+      deepEqual(setProperties({foo: 2, baz: 2}, {bar: 2}), {
+        bar: 2,
+        foo: 2,
+        baz: 2
+      }, 'Set an additional, previously unset property');
+    });
+  });
+define("ember-metal/tests/set_properties_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal/tests');
+    test('ember-metal/tests/set_properties_test.js should pass jshint', function() { 
+      ok(true, 'ember-metal/tests/set_properties_test.js should pass jshint.'); 
+    });
+  });
 define("ember-metal/tests/utils/can_invoke_test",
   ["ember-metal/utils"],
   function(__dependency1__) {
@@ -27803,7 +27855,7 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
         deepEqual(sorted.mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], "sorted array is updated");
       });
 
-      test("guid sort-order fallback with a serach proxy is not confused by non-search ObjectProxys", function() {
+      test("guid sort-order fallback with a search proxy is not confused by non-search ObjectProxys", function() {
         var tyrion = { fname: "Tyrion", lname: "Lannister" };
         var tyrionInDisguise = ObjectProxy.create({
               fname: "Yollo",
@@ -27812,9 +27864,9 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
             });
 
         items = get(obj, 'items');
-        sorted = get(obj, 'sortedItems');
 
         run(function() {
+          sorted = get(obj, 'sortedItems');
           items.pushObject(tyrion);
         });
 
@@ -28140,6 +28192,108 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
       deepEqual(sorted.mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], "updating an unspecified property on an item does not resort it");
     });
 
+    QUnit.module('computedSort - stability', {
+      setup: function() {
+        run(function() {
+          obj = EmberObject.createWithMixins({
+            items: Ember.A(Ember.A([{
+              name: "A", count: 1
+            }, {
+              name: "B", count: 1
+            }, {
+              name: "C", count: 1
+            }, {
+              name: "D", count: 1
+            }]).map(function(elt){return EmberObject.create(elt);})),
+
+            sortProps: Ember.A(['count', 'name']),
+            sortedItems: computedSort('items', 'sortProps')
+          });
+        });
+      },
+      teardown: function() {
+        run(function() {
+          obj.destroy();
+        });
+      }
+    });
+
+    test("sorts correctly as only one property changes", function(){
+      var sorted;
+      run(function() {
+        sorted = obj.get('sortedItems');
+      });
+      deepEqual(sorted.mapBy('name'), ['A', 'B', 'C', 'D'], "initial");
+      obj.get('items').objectAt(3).set('count', 2);
+      run(function() {
+        sorted = obj.get('sortedItems');
+      });
+      deepEqual(sorted.mapBy('name'), ['A', 'B', 'C', 'D'], "final");
+    });
+
+    QUnit.module('computedSort - concurrency', {
+      setup: function() {
+        run(function() {
+          obj = EmberObject.createWithMixins({
+            items: Ember.A(Ember.A([{
+              name: "A", count: 1
+            }, {
+              name: "B", count: 2
+            }, {
+              name: "C", count: 3
+            }, {
+              name: "D", count: 4
+            }]).map(function(elt){return EmberObject.create(elt);})),
+
+            sortProps: Ember.A(['count']),
+            sortedItems: computedSort('items', 'sortProps'),
+            customSortedItems: computedSort('items.@each.count', function(a,b){
+              return get(a, 'count') - get(b, 'count');
+            })
+          });
+        });
+      },
+      teardown: function() {
+        run(function() {
+          obj.destroy();
+        });
+      }
+    });
+
+    test("sorts correctly when there are concurrent changes", function(){
+      var sorted;
+      run(function() {
+        sorted = obj.get('sortedItems');
+      });
+      deepEqual(sorted.mapBy('name'), ['A', 'B', 'C', 'D'], "initial");
+      Ember.changeProperties(function(){
+        obj.get('items').objectAt(1).set('count', 5);
+        obj.get('items').objectAt(2).set('count', 6);
+      });
+      run(function() {
+        sorted = obj.get('sortedItems');
+      });
+      deepEqual(sorted.mapBy('name'), ['A', 'D', 'B', 'C'], "final");
+    });
+
+    test("sorts correctly with a user-provided comparator when there are concurrent changes", function(){
+      var sorted;
+      run(function() {
+        sorted = obj.get('customSortedItems');
+      });
+      deepEqual(sorted.mapBy('name'), ['A', 'B', 'C', 'D'], "initial");
+      run(function() {
+        Ember.changeProperties(function(){
+          obj.get('items').objectAt(1).set('count', 5);
+          obj.get('items').objectAt(2).set('count', 6);
+        });
+        sorted = obj.get('customSortedItems');
+      });
+      deepEqual(sorted.mapBy('name'), ['A', 'D', 'B', 'C'], "final");
+    });
+
+
+
     QUnit.module('computedMax', {
       setup: function() {
         run(function() {
@@ -28348,9 +28502,11 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
     });
 
     test("it can filter and sort when both depend on the same item property", function() {
-      filtered = get(obj, 'filtered');
-      sorted = get(obj, 'sorted');
-      todos = get(obj, 'todos');
+      run(function(){
+        filtered = get(obj, 'filtered');
+        sorted = get(obj, 'sorted');
+        todos = get(obj, 'todos');
+      });
 
       deepEqual(todos.mapProperty('name'), ['E', 'D', 'C', 'B', 'A'], "precond - todos initially correct");
       deepEqual(sorted.mapProperty('name'), ['A', 'B', 'C', 'D', 'E'], "precond - sorted initially correct");
@@ -46013,21 +46169,21 @@ define("ember-views/tests/system/render_buffer_test",
 
     test("RenderBuffers raise a deprecation warning without a contextualElement", function() {
       var buffer = new RenderBuffer('div');
-      buffer.generateElement();
       expectDeprecation(function(){
+        buffer.generateElement();
         var el = buffer.element();
         equal(el.tagName.toLowerCase(), 'div');
-      }, /buffer.element expects a contextualElement to exist/);
+      }, /The render buffer expects an outer contextualElement to exist/);
     });
 
     test("reset RenderBuffers raise a deprecation warning without a contextualElement", function() {
       var buffer = new RenderBuffer('div', document.body);
       buffer.reset('span');
-      buffer.generateElement();
       expectDeprecation(function(){
+        buffer.generateElement();
         var el = buffer.element();
         equal(el.tagName.toLowerCase(), 'span');
-      }, /buffer.element expects a contextualElement to exist/);
+      }, /The render buffer expects an outer contextualElement to exist/);
     });
 
     test("RenderBuffers combine strings", function() {
@@ -46191,6 +46347,15 @@ define("ember-views/tests/system/render_buffer_test",
 
       var el = buffer.element();
       equal(el.childNodes[1].tagName, 'TR');
+    });
+
+    test("generates a tr from a tr innerString on rerender", function() {
+      var buffer = new RenderBuffer('table', document.body);
+      buffer.generateElement();
+      buffer.buffer = '<tr></tr>';
+
+      var el = buffer.element();
+      equal(el.childNodes[0].tagName.toLowerCase(), 'tr');
     });
 
     test("generates a tbody from a tbody innerString", function() {
@@ -51009,6 +51174,50 @@ define("ember-views/tests/views/view/render_test",
       });
 
       equal(jQuery('#qunit-fixture #template-context-test').text(), "bang baz", "re-renders the view with the updated context");
+    });
+
+    test("renders contained view with omitted start tag and parent view context", function() {
+      view = ContainerView.createWithMixins({
+        tagName: 'table',
+        childViews: ["row"],
+        row: EmberView.createWithMixins({
+          tagName: 'tr'
+        })
+      });
+
+      run(view, view.append);
+
+      equal(view.element.tagName, 'TABLE', 'container view is table');
+      equal(view.element.childNodes[0].tagName, 'TR', 'inner view is tr');
+
+      run(view, view.rerender);
+
+      equal(view.element.tagName, 'TABLE', 'container view is table');
+      equal(view.element.childNodes[0].tagName, 'TR', 'inner view is tr');
+    });
+
+    test("renders a contained view with omitted start tag and tagless parent view context", function() {
+      view = EmberView.createWithMixins({
+        tagName: 'table',
+        template: Ember.Handlebars.compile("{{view view.pivot}}"),
+        pivot: EmberView.extend({
+          tagName: '',
+          template: Ember.Handlebars.compile("{{view view.row}}"),
+          row: EmberView.extend({
+            tagName: 'tr'
+          })
+        })
+      });
+
+      run(view, view.append);
+
+      equal(view.element.tagName, 'TABLE', 'container view is table');
+      ok(view.$('tr').length, 'inner view is tr');
+
+      run(view, view.rerender);
+
+      equal(view.element.tagName, 'TABLE', 'container view is table');
+      ok(view.$('tr').length, 'inner view is tr');
     });
   });
 define("ember-views/tests/views/view/render_test.jshint",
