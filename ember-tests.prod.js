@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.5d4fe76e
+ * @version   1.9.0-beta.1+canary.8f258293
  */
 
 (function() {
@@ -8346,6 +8346,18 @@ define("ember-handlebars/tests/handlebars_test",
       });
 
       equal(observersFor(view, 'foo').length, 1);
+    });
+
+    test("should provide a helpful assertion for bindings within HTML comments", function() {
+      view = EmberView.create({
+        template: EmberHandlebars.compile('<!-- {{view.someThing}} -->'),
+        someThing: 'foo',
+        _debugTemplateName: 'blahzorz'
+      });
+
+      expectAssertion(function() {
+        appendView();
+      }, 'An error occured while setting up template bindings. Please check "blahzorz" template for invalid markup or bindings within HTML comments.');
     });
   });
 define("ember-handlebars/tests/handlebars_test.jshint",

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.5d4fe76e
+ * @version   1.9.0-beta.1+canary.8f258293
  */
 
 (function() {
@@ -13275,7 +13275,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.5d4fe76e
+      @version 1.9.0-beta.1+canary.8f258293
     */
 
     if ('undefined' === typeof Ember) {
@@ -13302,10 +13302,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.5d4fe76e'
+      @default '1.9.0-beta.1+canary.8f258293'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.5d4fe76e';
+    Ember.VERSION = '1.9.0-beta.1+canary.8f258293';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -39694,6 +39694,14 @@ define("ember-views/system/render_buffer",
         for (var i=0,l=childViews.length; i<l; i++) {
           var childView = childViews[i];
           var ref = el.querySelector('#morph-'+i);
+
+          Ember.assert('An error occured while setting up template bindings. Please check ' +
+                       (childView && childView._parentView && childView._parentView._debugTemplateName ?
+                            '"' + childView._parentView._debugTemplateName + '" template ' :
+                            ''
+                       )  + 'for invalid markup or bindings within HTML comments.',
+                       ref);
+
           var parent = ref.parentNode;
 
           childView._morph = this.dom.insertMorphBefore(
