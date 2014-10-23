@@ -1,6 +1,6 @@
 {
   "name": "components-ember",
-  "version": "1.8.0-beta.5",
+  "version": "1.8.0+pre.e8c5719d",
   "description": "Ember Application Framework",
   "keywords": [
     "ember"
