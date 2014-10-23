@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.ea97d96c
+ * @version   1.9.0-beta.1+canary.221a1219
  */
 
 (function() {
@@ -4763,7 +4763,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.ea97d96c
+      @version 1.9.0-beta.1+canary.221a1219
     */
 
     if ('undefined' === typeof Ember) {
@@ -4790,10 +4790,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.ea97d96c'
+      @default '1.9.0-beta.1+canary.221a1219'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.ea97d96c';
+    Ember.VERSION = '1.9.0-beta.1+canary.221a1219';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -9980,22 +9980,23 @@ define("ember-metal/set_properties",
       ```
 
       @method setProperties
-      @param self
-      @param {Object} hash
-      @return self
+      @param obj
+      @param {Object} properties
+      @return obj
     */
-    __exports__["default"] = function setProperties(self, hash) {
+    __exports__["default"] = function setProperties(obj, properties) {
+      if (!properties || typeof properties !== "object") { return obj; }
       changeProperties(function() {
-        var props = keys(hash);
-        var prop;
+        var props = keys(properties);
+        var propertyName;
 
         for (var i = 0, l = props.length; i < l; i++) {
-          prop = props[i];
+          propertyName = props[i];
 
-          set(self, prop, hash[prop]);
+          set(obj, propertyName, properties[propertyName]);
         }
       });
-      return self;
+      return obj;
     }
   });
 define("ember-metal/streams/read",

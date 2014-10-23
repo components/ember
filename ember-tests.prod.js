@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.ea97d96c
+ * @version   1.9.0-beta.1+canary.221a1219
  */
 
 (function() {
@@ -22000,6 +22000,46 @@ define("ember-metal/tests/run_loop/unwind_test.jshint",
     module('JSHint - ember-metal/tests/run_loop');
     test('ember-metal/tests/run_loop/unwind_test.js should pass jshint', function() { 
       ok(true, 'ember-metal/tests/run_loop/unwind_test.js should pass jshint.'); 
+    });
+  });
+define("ember-metal/tests/set_properties_test",
+  ["ember-metal/set_properties"],
+  function(__dependency1__) {
+    "use strict";
+    var setProperties = __dependency1__["default"];
+
+    QUnit.module('Ember.setProperties');
+
+    test("supports setting multiple attributes at once", function() {
+      deepEqual(setProperties(null, null),    null, 'noop for null properties and null object');
+      deepEqual(setProperties(undefined, undefined),    undefined, 'noop for undefined properties and undefined object');
+
+      deepEqual(setProperties({}),            {}, 'noop for no properties');
+      deepEqual(setProperties({}, undefined), {}, 'noop for undefined');
+      deepEqual(setProperties({}, null),      {}, 'noop for null');
+      deepEqual(setProperties({}, NaN),       {}, 'noop for NaN');
+      deepEqual(setProperties({}, {}),        {}, 'meh');
+
+      deepEqual(setProperties({}, {foo: 1}),  {foo: 1}, 'Set a single property');
+
+      deepEqual(setProperties({}, {foo:1, bar: 1}), {foo: 1, bar: 1}, 'Set multiple properties');
+
+      deepEqual(setProperties({foo: 2, baz: 2}, {foo: 1}), {foo: 1, baz: 2}, 'Set one of multiple properties');
+
+      deepEqual(setProperties({foo: 2, baz: 2}, {bar: 2}), {
+        bar: 2,
+        foo: 2,
+        baz: 2
+      }, 'Set an additional, previously unset property');
+    });
+  });
+define("ember-metal/tests/set_properties_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal/tests');
+    test('ember-metal/tests/set_properties_test.js should pass jshint', function() { 
+      ok(true, 'ember-metal/tests/set_properties_test.js should pass jshint.'); 
     });
   });
 define("ember-metal/tests/streams/simple_stream_test",
