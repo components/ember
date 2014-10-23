@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0+pre.29140559
+ * @version   1.8.0+pre.a850085d
  */
 
 (function() {
@@ -13637,7 +13637,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0+pre.29140559
+      @version 1.8.0+pre.a850085d
     */
 
     if ('undefined' === typeof Ember) {
@@ -13664,10 +13664,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0+pre.29140559'
+      @default '1.8.0+pre.a850085d'
       @static
     */
-    Ember.VERSION = '1.8.0+pre.29140559';
+    Ember.VERSION = '1.8.0+pre.a850085d';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -22842,17 +22842,17 @@ define("ember-routing/location/auto_location",
     };
   });
 define("ember-routing/location/hash_location",
-  ["ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-metal/utils","ember-runtime/system/object","ember-routing/location/api","ember-views/system/jquery","exports"],
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-metal/utils","ember-runtime/system/object","ember-routing/location/api","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
-    var get = __dependency1__.get;
-    var set = __dependency2__.set;
-    var run = __dependency3__["default"];
-    var guidFor = __dependency4__.guidFor;
+    var Ember = __dependency1__["default"];
+    var get = __dependency2__.get;
+    var set = __dependency3__.set;
+    var run = __dependency4__["default"];
+    var guidFor = __dependency5__.guidFor;
 
-    var EmberObject = __dependency5__["default"];
-    var EmberLocation = __dependency6__["default"];
-    var jQuery = __dependency7__["default"];
+    var EmberObject = __dependency6__["default"];
+    var EmberLocation = __dependency7__["default"];
 
     /**
     @module ember
@@ -22892,7 +22892,9 @@ define("ember-routing/location/hash_location",
         @method getURL
       */
       getURL: function() {
-        return this.getHash().substr(1);
+        var path = this.getHash().substr(1);
+        Ember.deprecate('location.hash value is ambiguous. Support for this will be removed soon. When using location: "hash|auto" your hash paths MUST begin with a forward slash. e.g. #/' + path + ' NOT #' + path, path.length === 0 || path.charAt(0) === '/');
+        return path;
       },
 
       /**
@@ -22935,7 +22937,7 @@ define("ember-routing/location/hash_location",
         var self = this;
         var guid = guidFor(this);
 
-        jQuery(window).on('hashchange.ember-location-'+guid, function() {
+        Ember.$(window).on('hashchange.ember-location-'+guid, function() {
           run(function() {
             var path = self.getURL();
             if (get(self, 'lastSetURL') === path) { return; }
@@ -22971,7 +22973,7 @@ define("ember-routing/location/hash_location",
       willDestroy: function() {
         var guid = guidFor(this);
 
-        jQuery(window).off('hashchange.ember-location-'+guid);
+        Ember.$(window).off('hashchange.ember-location-'+guid);
       }
     });
   });
