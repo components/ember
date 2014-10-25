@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.258e5bb3
+ * @version   1.9.0-beta.1+canary.da6c1e21
  */
 
 (function() {
@@ -4914,8 +4914,8 @@ define("ember-handlebars-compiler",
     __exports__["default"] = EmberHandlebars;
   });
 define("ember-handlebars",
-  ["ember-handlebars-compiler","ember-metal/core","ember-runtime/system/lazy_load","ember-handlebars/loader","ember-handlebars/ext","ember-handlebars/string","ember-handlebars/helpers/binding","ember-handlebars/helpers/collection","ember-handlebars/helpers/view","ember-handlebars/helpers/unbound","ember-handlebars/helpers/debug","ember-handlebars/helpers/each","ember-handlebars/helpers/template","ember-handlebars/helpers/partial","ember-handlebars/helpers/yield","ember-handlebars/helpers/loc","ember-handlebars/controls/checkbox","ember-handlebars/controls/select","ember-handlebars/controls/text_area","ember-handlebars/controls/text_field","ember-handlebars/controls/text_support","ember-handlebars/controls","ember-handlebars/component_lookup","ember-handlebars/views/handlebars_bound_view","ember-handlebars/views/metamorph_view","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __exports__) {
+  ["ember-handlebars-compiler","ember-metal/core","ember-runtime/system/lazy_load","ember-handlebars/loader","ember-handlebars/ext","ember-handlebars/string","ember-handlebars/helpers/binding","ember-handlebars/helpers/if_unless","ember-handlebars/helpers/with","ember-handlebars/helpers/bind_attr","ember-handlebars/helpers/collection","ember-handlebars/helpers/view","ember-handlebars/helpers/unbound","ember-handlebars/helpers/debug","ember-handlebars/helpers/each","ember-handlebars/helpers/template","ember-handlebars/helpers/partial","ember-handlebars/helpers/yield","ember-handlebars/helpers/loc","ember-handlebars/controls/checkbox","ember-handlebars/controls/select","ember-handlebars/controls/text_area","ember-handlebars/controls/text_field","ember-handlebars/controls/text_support","ember-handlebars/controls","ember-handlebars/component_lookup","ember-handlebars/views/handlebars_bound_view","ember-handlebars/views/metamorph_view","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __exports__) {
     "use strict";
     var EmberHandlebars = __dependency1__["default"];
     var Ember = __dependency2__["default"];
@@ -4937,45 +4937,48 @@ define("ember-handlebars",
     var _triageMustacheHelper = __dependency7__._triageMustacheHelper;
     var resolveHelper = __dependency7__.resolveHelper;
     var bindHelper = __dependency7__.bindHelper;
-    var boundIfHelper = __dependency7__.boundIfHelper;
-    var unboundIfHelper = __dependency7__.unboundIfHelper;
-    var withHelper = __dependency7__.withHelper;
-    var ifHelper = __dependency7__.ifHelper;
-    var unlessHelper = __dependency7__.unlessHelper;
-    var bindAttrHelper = __dependency7__.bindAttrHelper;
-    var bindAttrHelperDeprecated = __dependency7__.bindAttrHelperDeprecated;
-    var bindClasses = __dependency7__.bindClasses;
 
-    var collectionHelper = __dependency8__["default"];
-    var ViewHelper = __dependency9__.ViewHelper;
-    var viewHelper = __dependency9__.viewHelper;
-    var unboundHelper = __dependency10__["default"];
-    var logHelper = __dependency11__.logHelper;
-    var debuggerHelper = __dependency11__.debuggerHelper;
-    var EachView = __dependency12__.EachView;
-    var eachHelper = __dependency12__.eachHelper;
-    var templateHelper = __dependency13__["default"];
-    var partialHelper = __dependency14__["default"];
-    var yieldHelper = __dependency15__["default"];
-    var locHelper = __dependency16__["default"];
+    var ifHelper = __dependency8__.ifHelper;
+    var boundIfHelper = __dependency8__.boundIfHelper;
+    var unboundIfHelper = __dependency8__.unboundIfHelper;
+    var unlessHelper = __dependency8__.unlessHelper;
+
+    var withHelper = __dependency9__["default"];
+
+    var bindAttrHelper = __dependency10__.bindAttrHelper;
+    var bindAttrHelperDeprecated = __dependency10__.bindAttrHelperDeprecated;
+    var bindClasses = __dependency10__.bindClasses;
+
+    var collectionHelper = __dependency11__["default"];
+    var ViewHelper = __dependency12__.ViewHelper;
+    var viewHelper = __dependency12__.viewHelper;
+    var unboundHelper = __dependency13__["default"];
+    var logHelper = __dependency14__.logHelper;
+    var debuggerHelper = __dependency14__.debuggerHelper;
+    var EachView = __dependency15__.EachView;
+    var eachHelper = __dependency15__.eachHelper;
+    var templateHelper = __dependency16__["default"];
+    var partialHelper = __dependency17__["default"];
+    var yieldHelper = __dependency18__["default"];
+    var locHelper = __dependency19__["default"];
 
 
-    var Checkbox = __dependency17__["default"];
-    var Select = __dependency18__.Select;
-    var SelectOption = __dependency18__.SelectOption;
-    var SelectOptgroup = __dependency18__.SelectOptgroup;
-    var TextArea = __dependency19__["default"];
-    var TextField = __dependency20__["default"];
-    var TextSupport = __dependency21__["default"];
-    var inputHelper = __dependency22__.inputHelper;
-    var textareaHelper = __dependency22__.textareaHelper;
+    var Checkbox = __dependency20__["default"];
+    var Select = __dependency21__.Select;
+    var SelectOption = __dependency21__.SelectOption;
+    var SelectOptgroup = __dependency21__.SelectOptgroup;
+    var TextArea = __dependency22__["default"];
+    var TextField = __dependency23__["default"];
+    var TextSupport = __dependency24__["default"];
+    var inputHelper = __dependency25__.inputHelper;
+    var textareaHelper = __dependency25__.textareaHelper;
 
-    var ComponentLookup = __dependency23__["default"];
-    var _HandlebarsBoundView = __dependency24__._HandlebarsBoundView;
-    var SimpleHandlebarsView = __dependency24__.SimpleHandlebarsView;
-    var _MetamorphView = __dependency25__["default"];
-    var _SimpleMetamorphView = __dependency25__._SimpleMetamorphView;
-    var _Metamorph = __dependency25__._Metamorph;
+    var ComponentLookup = __dependency26__["default"];
+    var _HandlebarsBoundView = __dependency27__._HandlebarsBoundView;
+    var SimpleHandlebarsView = __dependency27__.SimpleHandlebarsView;
+    var _MetamorphView = __dependency28__["default"];
+    var _SimpleMetamorphView = __dependency28__._SimpleMetamorphView;
+    var _Metamorph = __dependency28__._Metamorph;
 
 
     /**
@@ -7095,9 +7098,9 @@ define("ember-handlebars/ext",
     __exports__.handlebarsGetView = handlebarsGetView;
     __exports__.handlebarsGet = handlebarsGet;
   });
-define("ember-handlebars/helpers/binding",
-  ["ember-metal/core","ember-handlebars-compiler","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-runtime/system/string","ember-metal/platform","ember-metal/is_none","ember-metal/array","ember-views/views/view","ember-metal/run_loop","ember-metal/keys","ember-metal/cache","ember-metal/streams/simple","ember-handlebars/views/handlebars_bound_view","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __exports__) {
+define("ember-handlebars/helpers/bind_attr",
+  ["ember-metal/core","ember-handlebars-compiler","ember-metal/utils","ember-runtime/system/string","ember-metal/array","ember-views/views/view","ember-metal/keys","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -7105,503 +7108,18 @@ define("ember-handlebars/helpers/binding",
     */
 
     var Ember = __dependency1__["default"];
-    // Ember.assert, Ember.warn, uuid
-    // var emberAssert = Ember.assert, Ember.warn = Ember.warn;
-
+    // Ember.assert
     var EmberHandlebars = __dependency2__["default"];
-    var get = __dependency3__.get;
-    var set = __dependency4__.set;
-    var apply = __dependency5__.apply;
-    var uuid = __dependency5__.uuid;
-    var fmt = __dependency6__.fmt;
-    var o_create = __dependency7__.create;
-    var typeOf = __dependency5__.typeOf;
-    var isNone = __dependency8__["default"];
-    var forEach = __dependency9__.forEach;
-    var View = __dependency10__["default"];
-    var run = __dependency11__["default"];
-    var isArray = __dependency5__.isArray;
-    var keys = __dependency12__["default"];
-    var Cache = __dependency13__["default"];
-    var SimpleStream = __dependency14__["default"];
 
-    var _HandlebarsBoundView = __dependency15__._HandlebarsBoundView;
-    var SimpleHandlebarsView = __dependency15__.SimpleHandlebarsView;
+    var uuid = __dependency3__.uuid;
+    var fmt = __dependency4__.fmt;
+    var typeOf = __dependency3__.typeOf;
+    var forEach = __dependency5__.forEach;
+    var View = __dependency6__["default"];
+    var keys = __dependency7__["default"];
 
     var helpers = EmberHandlebars.helpers;
     var SafeString = EmberHandlebars.SafeString;
-
-    function exists(value) {
-      return !isNone(value);
-    }
-
-    var WithView = _HandlebarsBoundView.extend({
-      init: function() {
-        apply(this, this._super, arguments);
-
-        var keywordName     = this.templateHash.keywordName;
-        var controllerName  = this.templateHash.controller;
-
-        if (controllerName) {
-          var previousContext = this.previousContext;
-          var controller = this.container.lookupFactory('controller:'+controllerName).create({
-            parentController: previousContext,
-            target: previousContext
-          });
-
-          this._generatedController = controller;
-
-          if (this.preserveContext) {
-            this._keywords[keywordName] = controller;
-            this.lazyValue.subscribe(function(modelStream) {
-              set(controller, 'model', modelStream.value());
-            });
-          } else {
-            set(this, 'controller', controller);
-            this.valueNormalizerFunc = function(result) {
-              controller.set('model', result);
-              return controller;
-            };
-          }
-
-          set(controller, 'model', this.lazyValue.value());
-        }
-      },
-
-      willDestroy: function() {
-        this._super();
-
-        if (this._generatedController) {
-          this._generatedController.destroy();
-        }
-      }
-    });
-
-    // Binds a property into the DOM. This will create a hook in DOM that the
-    // KVO system will look for and update if the property changes.
-    function bind(property, options, preserveContext, shouldDisplay, valueNormalizer, childProperties) {
-      var data = options.data;
-      var view = data.view;
-
-      // we relied on the behavior of calling without
-      // context to mean this === window, but when running
-      // "use strict", it's possible for this to === undefined;
-      var currentContext = this || window;
-
-      var valueStream = view.getStream(property);
-      var lazyValue;
-
-      if (childProperties) {
-        lazyValue = new SimpleStream(valueStream);
-
-        var subscriber = function(childStream) {
-          childStream.value();
-          lazyValue.notify();
-        };
-
-        for (var i = 0; i < childProperties.length; i++) {
-          var childStream = valueStream.get(childProperties[i]);
-          childStream.value();
-          childStream.subscribe(subscriber);
-        }
-      } else {
-        lazyValue = valueStream;
-      }
-
-      // Set up observers for observable objects
-      var viewClass = _HandlebarsBoundView;
-      var viewOptions = {
-        preserveContext: preserveContext,
-        shouldDisplayFunc: shouldDisplay,
-        valueNormalizerFunc: valueNormalizer,
-        displayTemplate: options.fn,
-        inverseTemplate: options.inverse,
-        lazyValue: lazyValue,
-        previousContext: currentContext,
-        isEscaped: !options.hash.unescaped,
-        templateData: options.data,
-        templateHash: options.hash,
-        helperName: options.helperName
-      };
-
-      if (options.keywords) {
-        viewOptions._keywords = options.keywords;
-      }
-
-      if (options.isWithHelper) {
-        viewClass = WithView;
-      }
-
-      // Create the view that will wrap the output of this template/property
-      // and add it to the nearest view's childViews array.
-      // See the documentation of Ember._HandlebarsBoundView for more.
-      var bindView = view.createChildView(viewClass, viewOptions);
-
-      view.appendChild(bindView);
-
-      lazyValue.subscribe(view._wrapAsScheduled(function() {
-        run.scheduleOnce('render', bindView, 'rerenderIfNeeded');
-      }));
-    }
-
-    function simpleBind(currentContext, lazyValue, options) {
-      var data = options.data;
-      var view = data.view;
-
-      var bindView = new SimpleHandlebarsView(
-        lazyValue, !options.hash.unescaped
-      );
-
-      bindView._parentView = view;
-      view.appendChild(bindView);
-
-      lazyValue.subscribe(view._wrapAsScheduled(function() {
-        run.scheduleOnce('render', bindView, 'rerender');
-      }));
-    }
-
-    function shouldDisplayIfHelperContent(result) {
-      var truthy = result && get(result, 'isTruthy');
-      if (typeof truthy === 'boolean') { return truthy; }
-
-      if (isArray(result)) {
-        return get(result, 'length') !== 0;
-      } else {
-        return !!result;
-      }
-    }
-
-    /**
-      '_triageMustache' is used internally select between a binding, helper, or component for
-      the given context. Until this point, it would be hard to determine if the
-      mustache is a property reference or a regular helper reference. This triage
-      helper resolves that.
-
-      This would not be typically invoked by directly.
-
-      @private
-      @method _triageMustache
-      @for Ember.Handlebars.helpers
-      @param {String} property Property/helperID to triage
-      @param {Object} options hash of template/rendering options
-      @return {String} HTML string
-    */
-    function _triageMustacheHelper(property, options) {
-      
-      var helper = EmberHandlebars.resolveHelper(options.data.view.container, property);
-      if (helper) {
-        return helper.call(this, options);
-      }
-
-      return helpers.bind.call(this, property, options);
-    }
-
-    var ISNT_HELPER_CACHE = new Cache(1000, function(key) {
-      return key.indexOf('-') === -1;
-    });
-    __exports__.ISNT_HELPER_CACHE = ISNT_HELPER_CACHE;
-    /**
-      Used to lookup/resolve handlebars helpers. The lookup order is:
-
-      * Look for a registered helper
-      * If a dash exists in the name:
-        * Look for a helper registed in the container
-        * Use Ember.ComponentLookup to find an Ember.Component that resolves
-          to the given name
-
-      @private
-      @method resolveHelper
-      @param {Container} container
-      @param {String} name the name of the helper to lookup
-      @return {Handlebars Helper}
-    */
-    function resolveHelper(container, name) {
-      if (helpers[name]) {
-        return helpers[name];
-      }
-
-      if (!container || ISNT_HELPER_CACHE.get(name)) {
-        return;
-      }
-
-      var helper = container.lookup('helper:' + name);
-      if (!helper) {
-        var componentLookup = container.lookup('component-lookup:main');
-        
-        var Component = componentLookup.lookupFactory(name, container);
-        if (Component) {
-          helper = EmberHandlebars.makeViewHelper(Component);
-          container.register('helper:' + name, helper);
-        }
-      }
-      return helper;
-    }
-
-
-    /**
-      `bind` can be used to display a value, then update that value if it
-      changes. For example, if you wanted to print the `title` property of
-      `content`:
-
-      ```handlebars
-      {{bind "content.title"}}
-      ```
-
-      This will return the `title` property as a string, then create a new observer
-      at the specified path. If it changes, it will update the value in DOM. Note
-      that if you need to support IE7 and IE8 you must modify the model objects
-      properties using `Ember.get()` and `Ember.set()` for this to work as it
-      relies on Ember's KVO system. For all other browsers this will be handled for
-      you automatically.
-
-      @private
-      @method bind
-      @for Ember.Handlebars.helpers
-      @param {String} property Property to bind
-      @param {Function} fn Context to provide for rendering
-      @return {String} HTML string
-    */
-    function bindHelper(property, options) {
-      
-      var context = (options.contexts && options.contexts.length) ? options.contexts[0] : this;
-
-      if (!options.fn) {
-        var lazyValue = options.data.view.getStream(property);
-        return simpleBind(context, lazyValue, options);
-      }
-
-      options.helperName = 'bind';
-
-      return bind.call(context, property, options, false, exists);
-    }
-
-    /**
-      Use the `boundIf` helper to create a conditional that re-evaluates
-      whenever the truthiness of the bound value changes.
-
-      ```handlebars
-      {{#boundIf "content.shouldDisplayTitle"}}
-        {{content.title}}
-      {{/boundIf}}
-      ```
-
-      @private
-      @method boundIf
-      @for Ember.Handlebars.helpers
-      @param {String} property Property to bind
-      @param {Function} fn Context to provide for rendering
-      @return {String} HTML string
-    */
-    function boundIfHelper(property, fn) {
-      var context = (fn.contexts && fn.contexts.length) ? fn.contexts[0] : this;
-
-      fn.helperName = fn.helperName || 'boundIf';
-
-      return bind.call(context, property, fn, true, shouldDisplayIfHelperContent, shouldDisplayIfHelperContent, [
-                         'isTruthy',
-                         'length'
-                       ]);
-    }
-
-    /**
-      @private
-
-      Use the `unboundIf` helper to create a conditional that evaluates once.
-
-      ```handlebars
-      {{#unboundIf "content.shouldDisplayTitle"}}
-        {{content.title}}
-      {{/unboundIf}}
-      ```
-
-      @method unboundIf
-      @for Ember.Handlebars.helpers
-      @param {String} property Property to bind
-      @param {Function} fn Context to provide for rendering
-      @return {String} HTML string
-      @since 1.4.0
-    */
-    function unboundIfHelper(property, fn) {
-      var context = (fn.contexts && fn.contexts.length) ? fn.contexts[0] : this;
-      var data = fn.data;
-      var view = data.view;
-      var template = fn.fn;
-      var inverse = fn.inverse;
-
-      var propertyValue = view.getStream(property).value();
-
-      if (!shouldDisplayIfHelperContent(propertyValue)) {
-        template = inverse;
-      }
-
-      template(context, { data: data });
-    }
-
-    /**
-      Use the `{{with}}` helper when you want to scope context. Take the following code as an example:
-
-      ```handlebars
-      <h5>{{user.name}}</h5>
-
-      <div class="role">
-        <h6>{{user.role.label}}</h6>
-        <span class="role-id">{{user.role.id}}</span>
-
-        <p class="role-desc">{{user.role.description}}</p>
-      </div>
-      ```
-
-      `{{with}}` can be our best friend in these cases,
-      instead of writing `user.role.*` over and over, we use `{{#with user.role}}`.
-      Now the context within the `{{#with}} .. {{/with}}` block is `user.role` so you can do the following:
-
-      ```handlebars
-      <h5>{{user.name}}</h5>
-
-      <div class="role">
-        {{#with user.role}}
-          <h6>{{label}}</h6>
-          <span class="role-id">{{id}}</span>
-
-          <p class="role-desc">{{description}}</p>
-        {{/with}}
-      </div>
-      ```
-
-      ### `as` operator
-
-      This operator aliases the scope to a new name. It's helpful for semantic clarity and to retain
-      default scope or to reference from another `{{with}}` block.
-
-      ```handlebars
-      // posts might not be
-      {{#with user.posts as blogPosts}}
-        <div class="notice">
-          There are {{blogPosts.length}} blog posts written by {{user.name}}.
-        </div>
-
-        {{#each post in blogPosts}}
-          <li>{{post.title}}</li>
-        {{/each}}
-      {{/with}}
-      ```
-
-      Without the `as` operator, it would be impossible to reference `user.name` in the example above.
-
-      NOTE: The alias should not reuse a name from the bound property path.
-      For example: `{{#with foo.bar as foo}}` is not supported because it attempts to alias using
-      the first part of the property path, `foo`. Instead, use `{{#with foo.bar as baz}}`.
-
-      ### `controller` option
-
-      Adding `controller='something'` instructs the `{{with}}` helper to create and use an instance of
-      the specified controller with the new context as its content.
-
-      This is very similar to using an `itemController` option with the `{{each}}` helper.
-
-      ```handlebars
-      {{#with users.posts controller='userBlogPosts'}}
-        {{!- The current context is wrapped in our controller instance }}
-      {{/with}}
-      ```
-
-      In the above example, the template provided to the `{{with}}` block is now wrapped in the
-      `userBlogPost` controller, which provides a very elegant way to decorate the context with custom
-      functions/properties.
-
-      @method with
-      @for Ember.Handlebars.helpers
-      @param {Function} context
-      @param {Hash} options
-      @return {String} HTML string
-    */
-    function withHelper(contextPath) {
-      var options = arguments[arguments.length - 1];
-      var view = options.data.view;
-      var bindContext, preserveContext;
-      var helperName = 'with';
-
-      if (arguments.length === 4) {
-        
-        var keywordName = arguments[2];
-
-        if (contextPath) {
-          helperName += ' ' + contextPath + ' as ' + keywordName;
-        }
-
-        
-        var localizedOptions = o_create(options);
-        localizedOptions.data = o_create(options.data);
-
-        localizedOptions.keywords = {};
-        localizedOptions.keywords[keywordName] = view.getStream(contextPath);
-
-        localizedOptions.hash.keywordName = keywordName;
-
-        bindContext = this;
-        options = localizedOptions;
-        preserveContext = true;
-      } else {
-                
-        helperName += ' ' + contextPath;
-        bindContext = options.contexts[0];
-        preserveContext = false;
-      }
-
-      options.helperName = helperName;
-      options.isWithHelper = true;
-
-      return bind.call(bindContext, contextPath, options, preserveContext, exists);
-    }
-    /**
-      See [boundIf](/api/classes/Ember.Handlebars.helpers.html#method_boundIf)
-      and [unboundIf](/api/classes/Ember.Handlebars.helpers.html#method_unboundIf)
-
-      @method if
-      @for Ember.Handlebars.helpers
-      @param {Function} context
-      @param {Hash} options
-      @return {String} HTML string
-    */
-    function ifHelper(context, options) {
-            
-      options.helperName = options.helperName || ('if ' + context);
-
-      if (options.data.isUnbound) {
-        return helpers.unboundIf.call(options.contexts[0], context, options);
-      } else {
-        return helpers.boundIf.call(options.contexts[0], context, options);
-      }
-    }
-
-    /**
-      @method unless
-      @for Ember.Handlebars.helpers
-      @param {Function} context
-      @param {Hash} options
-      @return {String} HTML string
-    */
-    function unlessHelper(context, options) {
-            
-      var fn = options.fn;
-      var inverse = options.inverse;
-      var helperName = 'unless';
-
-      if (context) {
-        helperName += ' ' + context;
-      }
-
-      options.fn = inverse;
-      options.inverse = fn;
-
-      options.helperName = options.helperName || helperName;
-
-      if (options.data.isUnbound) {
-        return helpers.unboundIf.call(options.contexts[0], context, options);
-      } else {
-        return helpers.boundIf.call(options.contexts[0], context, options);
-      }
-    }
 
     /**
       `bind-attr` allows you to create a binding between DOM element attributes and
@@ -7895,18 +7413,226 @@ define("ember-handlebars/helpers/binding",
       return View._classStringForValue(parsedPath.path, value, parsedPath.className, parsedPath.falsyClassName);
     }
 
+    __exports__["default"] = bindAttrHelper;
+
+    __exports__.bindAttrHelper = bindAttrHelper;
+    __exports__.bindAttrHelperDeprecated = bindAttrHelperDeprecated;
+    __exports__.bindClasses = bindClasses;
+  });
+define("ember-handlebars/helpers/binding",
+  ["ember-metal/core","ember-handlebars-compiler","ember-metal/is_none","ember-metal/run_loop","ember-metal/cache","ember-metal/streams/simple","ember-handlebars/views/handlebars_bound_view","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-handlebars
+    */
+
+    var Ember = __dependency1__["default"];
+    // Ember.assert
+    var EmberHandlebars = __dependency2__["default"];
+
+    var isNone = __dependency3__["default"];
+    var run = __dependency4__["default"];
+    var Cache = __dependency5__["default"];
+    var SimpleStream = __dependency6__["default"];
+
+    var _HandlebarsBoundView = __dependency7__._HandlebarsBoundView;
+    var SimpleHandlebarsView = __dependency7__.SimpleHandlebarsView;
+
+    var helpers = EmberHandlebars.helpers;
+
+    function exists(value) {
+      return !isNone(value);
+    }
+
+    // Binds a property into the DOM. This will create a hook in DOM that the
+    // KVO system will look for and update if the property changes.
+    function bind(property, options, preserveContext, shouldDisplay, valueNormalizer, childProperties, _viewClass) {
+      var data = options.data;
+      var view = data.view;
+
+      // we relied on the behavior of calling without
+      // context to mean this === window, but when running
+      // "use strict", it's possible for this to === undefined;
+      var currentContext = this || window;
+
+      var valueStream = view.getStream(property);
+      var lazyValue;
+
+      if (childProperties) {
+        lazyValue = new SimpleStream(valueStream);
+
+        var subscriber = function(childStream) {
+          childStream.value();
+          lazyValue.notify();
+        };
+
+        for (var i = 0; i < childProperties.length; i++) {
+          var childStream = valueStream.get(childProperties[i]);
+          childStream.value();
+          childStream.subscribe(subscriber);
+        }
+      } else {
+        lazyValue = valueStream;
+      }
+
+      // Set up observers for observable objects
+      var viewClass = _viewClass || _HandlebarsBoundView;
+      var viewOptions = {
+        preserveContext: preserveContext,
+        shouldDisplayFunc: shouldDisplay,
+        valueNormalizerFunc: valueNormalizer,
+        displayTemplate: options.fn,
+        inverseTemplate: options.inverse,
+        lazyValue: lazyValue,
+        previousContext: currentContext,
+        isEscaped: !options.hash.unescaped,
+        templateData: options.data,
+        templateHash: options.hash,
+        helperName: options.helperName
+      };
+
+      if (options.keywords) {
+        viewOptions._keywords = options.keywords;
+      }
+
+      // Create the view that will wrap the output of this template/property
+      // and add it to the nearest view's childViews array.
+      // See the documentation of Ember._HandlebarsBoundView for more.
+      var bindView = view.createChildView(viewClass, viewOptions);
+
+      view.appendChild(bindView);
+
+      lazyValue.subscribe(view._wrapAsScheduled(function() {
+        run.scheduleOnce('render', bindView, 'rerenderIfNeeded');
+      }));
+    }
+
+    function simpleBind(currentContext, lazyValue, options) {
+      var data = options.data;
+      var view = data.view;
+
+      var bindView = new SimpleHandlebarsView(
+        lazyValue, !options.hash.unescaped
+      );
+
+      bindView._parentView = view;
+      view.appendChild(bindView);
+
+      lazyValue.subscribe(view._wrapAsScheduled(function() {
+        run.scheduleOnce('render', bindView, 'rerender');
+      }));
+    }
+
+    /**
+      '_triageMustache' is used internally select between a binding, helper, or component for
+      the given context. Until this point, it would be hard to determine if the
+      mustache is a property reference or a regular helper reference. This triage
+      helper resolves that.
+
+      This would not be typically invoked by directly.
+
+      @private
+      @method _triageMustache
+      @for Ember.Handlebars.helpers
+      @param {String} property Property/helperID to triage
+      @param {Object} options hash of template/rendering options
+      @return {String} HTML string
+    */
+    function _triageMustacheHelper(property, options) {
+      
+      var helper = EmberHandlebars.resolveHelper(options.data.view.container, property);
+      if (helper) {
+        return helper.call(this, options);
+      }
+
+      return helpers.bind.call(this, property, options);
+    }
+
+    var ISNT_HELPER_CACHE = new Cache(1000, function(key) {
+      return key.indexOf('-') === -1;
+    });
+    __exports__.ISNT_HELPER_CACHE = ISNT_HELPER_CACHE;
+    /**
+      Used to lookup/resolve handlebars helpers. The lookup order is:
+
+      * Look for a registered helper
+      * If a dash exists in the name:
+        * Look for a helper registed in the container
+        * Use Ember.ComponentLookup to find an Ember.Component that resolves
+          to the given name
+
+      @private
+      @method resolveHelper
+      @param {Container} container
+      @param {String} name the name of the helper to lookup
+      @return {Handlebars Helper}
+    */
+    function resolveHelper(container, name) {
+      if (helpers[name]) {
+        return helpers[name];
+      }
+
+      if (!container || ISNT_HELPER_CACHE.get(name)) {
+        return;
+      }
+
+      var helper = container.lookup('helper:' + name);
+      if (!helper) {
+        var componentLookup = container.lookup('component-lookup:main');
+        
+        var Component = componentLookup.lookupFactory(name, container);
+        if (Component) {
+          helper = EmberHandlebars.makeViewHelper(Component);
+          container.register('helper:' + name, helper);
+        }
+      }
+      return helper;
+    }
+
+
+    /**
+      `bind` can be used to display a value, then update that value if it
+      changes. For example, if you wanted to print the `title` property of
+      `content`:
+
+      ```handlebars
+      {{bind "content.title"}}
+      ```
+
+      This will return the `title` property as a string, then create a new observer
+      at the specified path. If it changes, it will update the value in DOM. Note
+      that if you need to support IE7 and IE8 you must modify the model objects
+      properties using `Ember.get()` and `Ember.set()` for this to work as it
+      relies on Ember's KVO system. For all other browsers this will be handled for
+      you automatically.
+
+      @private
+      @method bind
+      @for Ember.Handlebars.helpers
+      @param {String} property Property to bind
+      @param {Function} fn Context to provide for rendering
+      @return {String} HTML string
+    */
+    function bindHelper(property, options) {
+      
+      var context = (options.contexts && options.contexts.length) ? options.contexts[0] : this;
+
+      if (!options.fn) {
+        var lazyValue = options.data.view.getStream(property);
+        return simpleBind(context, lazyValue, options);
+      }
+
+      options.helperName = 'bind';
+
+      return bind.call(context, property, options, false, exists);
+    }
+
     __exports__.bind = bind;
     __exports__._triageMustacheHelper = _triageMustacheHelper;
     __exports__.resolveHelper = resolveHelper;
     __exports__.bindHelper = bindHelper;
-    __exports__.boundIfHelper = boundIfHelper;
-    __exports__.unboundIfHelper = unboundIfHelper;
-    __exports__.withHelper = withHelper;
-    __exports__.ifHelper = ifHelper;
-    __exports__.unlessHelper = unlessHelper;
-    __exports__.bindAttrHelper = bindAttrHelper;
-    __exports__.bindAttrHelperDeprecated = bindAttrHelperDeprecated;
-    __exports__.bindClasses = bindClasses;
   });
 define("ember-handlebars/helpers/collection",
   ["ember-metal/core","ember-handlebars-compiler","ember-metal/mixin","ember-runtime/system/string","ember-metal/property_get","ember-metal/streams/simple","ember-handlebars/ext","ember-handlebars/helpers/view","ember-metal/alias","ember-views/views/view","ember-views/views/collection_view","exports"],
@@ -8586,6 +8312,154 @@ define("ember-handlebars/helpers/each",
     __exports__.EachView = EachView;
     __exports__.eachHelper = eachHelper;
   });
+define("ember-handlebars/helpers/if_unless",
+  ["ember-metal/core","ember-handlebars-compiler","ember-handlebars/helpers/binding","ember-metal/property_get","ember-metal/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-handlebars
+    */
+
+    var Ember = __dependency1__["default"];
+    // Ember.assert
+    var EmberHandlebars = __dependency2__["default"];
+
+    var bind = __dependency3__.bind;
+
+    var get = __dependency4__.get;
+    var isArray = __dependency5__.isArray;
+
+    var helpers = EmberHandlebars.helpers;
+
+    function shouldDisplayIfHelperContent(result) {
+      var truthy = result && get(result, 'isTruthy');
+      if (typeof truthy === 'boolean') { return truthy; }
+
+      if (isArray(result)) {
+        return get(result, 'length') !== 0;
+      } else {
+        return !!result;
+      }
+    }
+
+    /**
+      Use the `boundIf` helper to create a conditional that re-evaluates
+      whenever the truthiness of the bound value changes.
+
+      ```handlebars
+      {{#boundIf "content.shouldDisplayTitle"}}
+        {{content.title}}
+      {{/boundIf}}
+      ```
+
+      @private
+      @method boundIf
+      @for Ember.Handlebars.helpers
+      @param {String} property Property to bind
+      @param {Function} fn Context to provide for rendering
+      @return {String} HTML string
+    */
+    function boundIfHelper(property, fn) {
+      var context = (fn.contexts && fn.contexts.length) ? fn.contexts[0] : this;
+
+      fn.helperName = fn.helperName || 'boundIf';
+
+      return bind.call(context, property, fn, true, shouldDisplayIfHelperContent, shouldDisplayIfHelperContent, [
+       'isTruthy',
+       'length'
+     ]);
+    }
+
+    /**
+      @private
+
+      Use the `unboundIf` helper to create a conditional that evaluates once.
+
+      ```handlebars
+      {{#unboundIf "content.shouldDisplayTitle"}}
+        {{content.title}}
+      {{/unboundIf}}
+      ```
+
+      @method unboundIf
+      @for Ember.Handlebars.helpers
+      @param {String} property Property to bind
+      @param {Function} fn Context to provide for rendering
+      @return {String} HTML string
+      @since 1.4.0
+    */
+    function unboundIfHelper(property, fn) {
+      var context = (fn.contexts && fn.contexts.length) ? fn.contexts[0] : this;
+      var data = fn.data;
+      var view = data.view;
+      var template = fn.fn;
+      var inverse = fn.inverse;
+
+      var propertyValue = view.getStream(property).value();
+
+      if (!shouldDisplayIfHelperContent(propertyValue)) {
+        template = inverse;
+      }
+
+      template(context, { data: data });
+    }
+
+    /**
+      See [boundIf](/api/classes/Ember.Handlebars.helpers.html#method_boundIf)
+      and [unboundIf](/api/classes/Ember.Handlebars.helpers.html#method_unboundIf)
+
+      @method if
+      @for Ember.Handlebars.helpers
+      @param {Function} context
+      @param {Hash} options
+      @return {String} HTML string
+    */
+    function ifHelper(context, options) {
+            
+      options.helperName = options.helperName || ('if ' + context);
+
+      if (options.data.isUnbound) {
+        return helpers.unboundIf.call(options.contexts[0], context, options);
+      } else {
+        return helpers.boundIf.call(options.contexts[0], context, options);
+      }
+    }
+
+    /**
+      @method unless
+      @for Ember.Handlebars.helpers
+      @param {Function} context
+      @param {Hash} options
+      @return {String} HTML string
+    */
+    function unlessHelper(context, options) {
+            
+      var fn = options.fn;
+      var inverse = options.inverse;
+      var helperName = 'unless';
+
+      if (context) {
+        helperName += ' ' + context;
+      }
+
+      options.fn = inverse;
+      options.inverse = fn;
+
+      options.helperName = options.helperName || helperName;
+
+      if (options.data.isUnbound) {
+        return helpers.unboundIf.call(options.contexts[0], context, options);
+      } else {
+        return helpers.boundIf.call(options.contexts[0], context, options);
+      }
+    }
+
+    __exports__.ifHelper = ifHelper;
+    __exports__.boundIfHelper = boundIfHelper;
+    __exports__.unboundIfHelper = unboundIfHelper;
+    __exports__.unlessHelper = unlessHelper;
+  });
 define("ember-handlebars/helpers/loc",
   ["ember-runtime/system/string","exports"],
   function(__dependency1__, __exports__) {
@@ -9223,6 +9097,187 @@ define("ember-handlebars/helpers/view",
     }
 
     __exports__.viewHelper = viewHelper;
+  });
+define("ember-handlebars/helpers/with",
+  ["ember-metal/core","ember-metal/property_set","ember-metal/utils","ember-metal/platform","ember-metal/is_none","ember-handlebars/helpers/binding","ember-handlebars/views/handlebars_bound_view","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-handlebars
+    */
+
+    var Ember = __dependency1__["default"];
+    // Ember.assert
+
+    var set = __dependency2__.set;
+    var apply = __dependency3__.apply;
+    var o_create = __dependency4__.create;
+    var isNone = __dependency5__["default"];
+    var bind = __dependency6__.bind;
+    var _HandlebarsBoundView = __dependency7__._HandlebarsBoundView;
+
+    function exists(value) {
+      return !isNone(value);
+    }
+
+    var WithView = _HandlebarsBoundView.extend({
+      init: function() {
+        apply(this, this._super, arguments);
+
+        var keywordName     = this.templateHash.keywordName;
+        var controllerName  = this.templateHash.controller;
+
+        if (controllerName) {
+          var previousContext = this.previousContext;
+          var controller = this.container.lookupFactory('controller:'+controllerName).create({
+            parentController: previousContext,
+            target: previousContext
+          });
+
+          this._generatedController = controller;
+
+          if (this.preserveContext) {
+            this._keywords[keywordName] = controller;
+            this.lazyValue.subscribe(function(modelStream) {
+              set(controller, 'model', modelStream.value());
+            });
+          } else {
+            set(this, 'controller', controller);
+            this.valueNormalizerFunc = function(result) {
+              controller.set('model', result);
+              return controller;
+            };
+          }
+
+          set(controller, 'model', this.lazyValue.value());
+        }
+      },
+
+      willDestroy: function() {
+        this._super();
+
+        if (this._generatedController) {
+          this._generatedController.destroy();
+        }
+      }
+    });
+
+    /**
+      Use the `{{with}}` helper when you want to scope context. Take the following code as an example:
+
+      ```handlebars
+      <h5>{{user.name}}</h5>
+
+      <div class="role">
+        <h6>{{user.role.label}}</h6>
+        <span class="role-id">{{user.role.id}}</span>
+
+        <p class="role-desc">{{user.role.description}}</p>
+      </div>
+      ```
+
+      `{{with}}` can be our best friend in these cases,
+      instead of writing `user.role.*` over and over, we use `{{#with user.role}}`.
+      Now the context within the `{{#with}} .. {{/with}}` block is `user.role` so you can do the following:
+
+      ```handlebars
+      <h5>{{user.name}}</h5>
+
+      <div class="role">
+        {{#with user.role}}
+          <h6>{{label}}</h6>
+          <span class="role-id">{{id}}</span>
+
+          <p class="role-desc">{{description}}</p>
+        {{/with}}
+      </div>
+      ```
+
+      ### `as` operator
+
+      This operator aliases the scope to a new name. It's helpful for semantic clarity and to retain
+      default scope or to reference from another `{{with}}` block.
+
+      ```handlebars
+      // posts might not be
+      {{#with user.posts as blogPosts}}
+        <div class="notice">
+          There are {{blogPosts.length}} blog posts written by {{user.name}}.
+        </div>
+
+        {{#each post in blogPosts}}
+          <li>{{post.title}}</li>
+        {{/each}}
+      {{/with}}
+      ```
+
+      Without the `as` operator, it would be impossible to reference `user.name` in the example above.
+
+      NOTE: The alias should not reuse a name from the bound property path.
+      For example: `{{#with foo.bar as foo}}` is not supported because it attempts to alias using
+      the first part of the property path, `foo`. Instead, use `{{#with foo.bar as baz}}`.
+
+      ### `controller` option
+
+      Adding `controller='something'` instructs the `{{with}}` helper to create and use an instance of
+      the specified controller with the new context as its content.
+
+      This is very similar to using an `itemController` option with the `{{each}}` helper.
+
+      ```handlebars
+      {{#with users.posts controller='userBlogPosts'}}
+        {{!- The current context is wrapped in our controller instance }}
+      {{/with}}
+      ```
+
+      In the above example, the template provided to the `{{with}}` block is now wrapped in the
+      `userBlogPost` controller, which provides a very elegant way to decorate the context with custom
+      functions/properties.
+
+      @method with
+      @for Ember.Handlebars.helpers
+      @param {Function} context
+      @param {Hash} options
+      @return {String} HTML string
+    */
+    __exports__["default"] = function withHelper(contextPath) {
+      var options = arguments[arguments.length - 1];
+      var view = options.data.view;
+      var bindContext, preserveContext;
+      var helperName = 'with';
+
+      if (arguments.length === 4) {
+        
+        var keywordName = arguments[2];
+
+        if (contextPath) {
+          helperName += ' ' + contextPath + ' as ' + keywordName;
+        }
+
+        
+        var localizedOptions = o_create(options);
+        localizedOptions.data = o_create(options.data);
+
+        localizedOptions.keywords = {};
+        localizedOptions.keywords[keywordName] = view.getStream(contextPath);
+
+        localizedOptions.hash.keywordName = keywordName;
+
+        bindContext = this;
+        options = localizedOptions;
+        preserveContext = true;
+      } else {
+                
+        helperName += ' ' + contextPath;
+        bindContext = options.contexts[0];
+        preserveContext = false;
+      }
+
+      options.helperName = helperName;
+
+      return bind.call(bindContext, contextPath, options, preserveContext, exists, undefined, undefined, WithView);
+    }
   });
 define("ember-handlebars/helpers/yield",
   ["ember-metal/core","ember-metal/property_get","exports"],
@@ -12907,7 +12962,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.258e5bb3
+      @version 1.9.0-beta.1+canary.da6c1e21
     */
 
     if ('undefined' === typeof Ember) {
@@ -12934,10 +12989,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.258e5bb3'
+      @default '1.9.0-beta.1+canary.da6c1e21'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.258e5bb3';
+    Ember.VERSION = '1.9.0-beta.1+canary.da6c1e21';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`

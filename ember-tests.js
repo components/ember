@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.258e5bb3
+ * @version   1.9.0-beta.1+canary.da6c1e21
  */
 
 (function() {
@@ -3439,6 +3439,15 @@ define("ember-handlebars/ext.jshint",
       ok(true, 'ember-handlebars/ext.js should pass jshint.'); 
     });
   });
+define("ember-handlebars/helpers/bind_attr.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-handlebars/helpers');
+    test('ember-handlebars/helpers/bind_attr.js should pass jshint', function() { 
+      ok(true, 'ember-handlebars/helpers/bind_attr.js should pass jshint.'); 
+    });
+  });
 define("ember-handlebars/helpers/binding.jshint",
   [],
   function() {
@@ -3473,6 +3482,15 @@ define("ember-handlebars/helpers/each.jshint",
     module('JSHint - ember-handlebars/helpers');
     test('ember-handlebars/helpers/each.js should pass jshint', function() { 
       ok(true, 'ember-handlebars/helpers/each.js should pass jshint.'); 
+    });
+  });
+define("ember-handlebars/helpers/if_unless.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-handlebars/helpers');
+    test('ember-handlebars/helpers/if_unless.js should pass jshint', function() { 
+      ok(true, 'ember-handlebars/helpers/if_unless.js should pass jshint.'); 
     });
   });
 define("ember-handlebars/helpers/loc.jshint",
@@ -3518,6 +3536,15 @@ define("ember-handlebars/helpers/view.jshint",
     module('JSHint - ember-handlebars/helpers');
     test('ember-handlebars/helpers/view.js should pass jshint', function() { 
       ok(true, 'ember-handlebars/helpers/view.js should pass jshint.'); 
+    });
+  });
+define("ember-handlebars/helpers/with.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-handlebars/helpers');
+    test('ember-handlebars/helpers/with.js should pass jshint', function() { 
+      ok(true, 'ember-handlebars/helpers/with.js should pass jshint.'); 
     });
   });
 define("ember-handlebars/helpers/yield.jshint",
@@ -8487,6 +8514,18 @@ define("ember-handlebars/tests/helpers/bound_helper_test",
       }
     });
 
+    test("primitives should work correctly", function() {
+      view = EmberView.create({
+        prims: Ember.A(["string", 12]),
+
+        template: compile('{{#each view.prims}}{{#if this}}inside-if{{/if}}{{#with this}}inside-with{{/with}}{{/each}}')
+      });
+
+      appendView(view);
+
+      equal(view.$().text(), 'inside-ifinside-withinside-ifinside-with');
+    });
+
     test("should update bound helpers when properties change", function() {
       EmberHandlebars.helper('capitalize', function(value) {
         return value.toUpperCase();
@@ -8885,6 +8924,21 @@ define("ember-handlebars/tests/helpers/bound_helper_test",
 
       run(view.controller.things, 'pushObject', 'wallace');
       equal(view.$().text(), 'wallace!', "helper output is correct");
+    });
+
+    test("should have correct argument types", function() {
+      EmberHandlebars.helper('getType', function(value) {
+        return typeof value;
+      });
+
+      view = EmberView.create({
+        controller: EmberObject.create(),
+        template: EmberHandlebars.compile('{{getType null}}, {{getType undefProp}}, {{getType "string"}}, {{getType 1}}, {{getType}}')
+      });
+
+      appendView();
+
+      equal(view.$().text(), 'undefined, undefined, string, number, object', "helper output is correct");
     });
   });
 define("ember-handlebars/tests/helpers/bound_helper_test.jshint",
@@ -45257,24 +45311,23 @@ define("ember-testing/tests/helper_registration_test.jshint",
     });
   });
 define("ember-testing/tests/helpers_test",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/run_loop","ember-runtime/system/object","ember-runtime/ext/rsvp","ember-views/views/view","ember-views/system/jquery","ember-testing/test","ember-testing/helpers","ember-testing/initializers","ember-testing/setup_for_testing","ember-routing/system/router","ember-routing/system/route","ember-application/system/application"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__) {
+  ["ember-metal/core","ember-metal/run_loop","ember-runtime/system/object","ember-runtime/ext/rsvp","ember-views/views/view","ember-views/system/jquery","ember-testing/test","ember-testing/helpers","ember-testing/initializers","ember-testing/setup_for_testing","ember-routing/system/router","ember-routing/system/route","ember-application/system/application"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__) {
     "use strict";
     var Ember = __dependency1__["default"];
-    var get = __dependency2__.get;
-    var run = __dependency3__["default"];
-    var EmberObject = __dependency4__["default"];
-    var RSVP = __dependency5__["default"];
-    var EmberView = __dependency6__["default"];
-    var jQuery = __dependency7__["default"];
+    var run = __dependency2__["default"];
+    var EmberObject = __dependency3__["default"];
+    var RSVP = __dependency4__["default"];
+    var EmberView = __dependency5__["default"];
+    var jQuery = __dependency6__["default"];
 
-    var Test = __dependency8__["default"];
+    var Test = __dependency7__["default"];
      // ensure that the helpers are loaded
     // ensure the initializer is setup
-    var setupForTesting = __dependency11__["default"];
-    var EmberRouter = __dependency12__["default"];
-    var EmberRoute = __dependency13__["default"];
-    var EmberApplication = __dependency14__["default"];
+    var setupForTesting = __dependency10__["default"];
+    var EmberRouter = __dependency11__["default"];
+    var EmberRoute = __dependency12__["default"];
+    var EmberApplication = __dependency13__["default"];
 
     var App, originalAdapter = Test.adapter;
 
@@ -45324,27 +45377,15 @@ define("ember-testing/tests/helpers_test",
     }
 
     function currentRouteName(app){
-      
-        var appController = app.__container__.lookup('controller:application');
-
-        return get(appController, 'currentRouteName');
-      
+      return app.testHelpers.currentRouteName();
     }
 
     function currentPath(app){
-      
-        var appController = app.__container__.lookup('controller:application');
-
-        return get(appController, 'currentPath');
-      
+      return app.testHelpers.currentPath();
     }
 
     function currentURL(app){
-      
-        var router = app.__container__.lookup('router:main');
-
-        return get(router, 'location').getURL();
-      
+      return app.testHelpers.currentURL();
     }
 
     QUnit.module("ember-testing Helpers", {
