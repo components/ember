@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.da6c1e21
+ * @version   1.9.0-beta.1+canary.d33364b9
  */
 
 (function() {
@@ -45741,6 +45741,43 @@ define("ember-testing/tests/helpers_test",
 
 
     });
+
+    if (Ember.FEATURES.isEnabled("ember-testing-pause-test")) {
+
+      QUnit.module("ember-testing debugging helpers", {
+        setup: function(){
+          cleanup();
+
+          run(function() {
+            App = EmberApplication.create();
+            App.Router = EmberRouter.extend({
+              location: 'none'
+            });
+
+            App.setupForTesting();
+          });
+
+          App.injectTestHelpers();
+          run(App, 'advanceReadiness');
+        },
+
+        teardown: function(){
+          cleanup();
+        }
+      });
+
+      test("pauseTest pauses", function() {
+        expect(1);
+        function fakeAdapterAsyncStart() {
+          ok(true, 'Async start should be called');
+        }
+
+        Test.adapter.asyncStart = fakeAdapterAsyncStart;
+
+        App.testHelpers.pauseTest();
+      });
+
+    }
 
     QUnit.module("ember-testing routing helpers", {
       setup: function(){
