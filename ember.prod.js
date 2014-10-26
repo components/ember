@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.b981f1fa
+ * @version   1.9.0-beta.1+canary.c41ce1ed
  */
 
 (function() {
@@ -12962,7 +12962,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.b981f1fa
+      @version 1.9.0-beta.1+canary.c41ce1ed
     */
 
     if ('undefined' === typeof Ember) {
@@ -12989,10 +12989,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.b981f1fa'
+      @default '1.9.0-beta.1+canary.c41ce1ed'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.b981f1fa';
+    Ember.VERSION = '1.9.0-beta.1+canary.c41ce1ed';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -42521,11 +42521,12 @@ define("morph/dom-helper/build-html-dom",
     __exports__.svgHTMLIntegrationPoints = svgHTMLIntegrationPoints;var svgNamespace = 'http://www.w3.org/2000/svg';
     __exports__.svgNamespace = svgNamespace;
     // Safari does not like using innerHTML on SVG HTML integration
-    // points.
+    // points (desc/title/foreignObject).
     var needsIntegrationPointFix = document.createElementNS && (function() {
-      var testEl = document.createElementNS(svgNamespace, 'foreignObject');
+      // In FF title will not accept innerHTML.
+      var testEl = document.createElementNS(svgNamespace, 'title');
       testEl.innerHTML = "<div></div>";
-      return testEl.childNodes.length === 0;
+      return testEl.childNodes.length === 0 || testEl.childNodes[0].nodeType !== 1;
     })();
 
     // Internet Explorer prior to 9 does not allow setting innerHTML if the first element
@@ -42571,8 +42572,6 @@ define("morph/dom-helper/build-html-dom",
         thead: ['table'],
         tr: ['table', 'tbody']
       };
-    } else {
-      tagNamesRequiringInnerHTMLFix = {};
     }
 
     // IE 8 doesn't allow setting innerHTML on a select tag. Detect this and
@@ -42581,6 +42580,7 @@ define("morph/dom-helper/build-html-dom",
     var selectInnerHTMLTestElement = document.createElement('select');
     selectInnerHTMLTestElement.innerHTML = '<option></option>';
     if (selectInnerHTMLTestElement) {
+      tagNamesRequiringInnerHTMLFix = tagNamesRequiringInnerHTMLFix || {};
       tagNamesRequiringInnerHTMLFix.select = [];
     }
 
@@ -42663,10 +42663,9 @@ define("morph/dom-helper/build-html-dom",
     }
 
 
-    var buildHTMLDOM;
-    // Really, this just means IE8 and IE9 get a slower buildHTMLDOM
-    if (tagNamesRequiringInnerHTMLFix.length > 0 || movesWhitespace) {
-      buildHTMLDOM = function buildHTMLDOM(html, contextualElement, dom) {
+    var buildIESafeDOM;
+    if (tagNamesRequiringInnerHTMLFix || movesWhitespace) {
+      buildIESafeDOM = function buildIESafeDOM(html, contextualElement, dom) {
         // Make a list of the leading text on script nodes. Include
         // script tags without any whitespace for easier processing later.
         var spacesBefore = [];
@@ -42709,7 +42708,7 @@ define("morph/dom-helper/build-html-dom",
         }
 
         // Walk the script tags and put back their leading text nodes.
-        var textNode, spaceBefore, spaceAfter;
+        var scriptNode, textNode, spaceBefore, spaceAfter;
         for (i=0;scriptNode=scriptNodes[i];i++) {
           spaceBefore = spacesBefore[i];
           if (spaceBefore && spaceBefore.length > 0) {
@@ -42726,16 +42725,21 @@ define("morph/dom-helper/build-html-dom",
 
         return nodes;
       };
-    } else if (needsIntegrationPointFix) {
+    } else {
+      buildIESafeDOM = buildDOM;
+    }
+
+    var buildHTMLDOM;
+    if (needsIntegrationPointFix) {
       buildHTMLDOM = function buildHTMLDOM(html, contextualElement, dom){
         if (svgHTMLIntegrationPoints[contextualElement.tagName]) {
-          return buildDOM(html, document.createElement('div'), dom);
+          return buildIESafeDOM(html, document.createElement('div'), dom);
         } else {
-          return buildDOM(html, contextualElement, dom);
+          return buildIESafeDOM(html, contextualElement, dom);
         }
       };
     } else {
-      buildHTMLDOM = buildDOM;
+      buildHTMLDOM = buildIESafeDOM;
     }
 
     __exports__.buildHTMLDOM = buildHTMLDOM;

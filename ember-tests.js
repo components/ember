@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.b981f1fa
+ * @version   1.9.0-beta.1+canary.c41ce1ed
  */
 
 (function() {
@@ -3941,29 +3941,29 @@ define("ember-handlebars/tests/controls/select_test",
       select.set('required', true);
       append();
 
-      equal(select.$().attr('required'), 'required');
+      ok(select.element.required, 'required property is truthy');
     });
 
     test("should become required if the required attribute is changed", function() {
       append();
-      equal(select.$().attr('required'), undefined);
+      ok(!select.element.required, 'required property is falsy');
 
       run(function() { select.set('required', true); });
-      equal(select.$().attr('required'), 'required');
+      ok(select.element.required, 'required property is truthy');
 
       run(function() { select.set('required', false); });
-      equal(select.$().attr('required'), undefined);
+      ok(!select.element.required, 'required property is falsy');
     });
 
     test("should become disabled if the disabled attribute is changed", function() {
       append();
-      ok(select.$().is(":not(:disabled)"));
+      ok(!select.element.disabled, 'disabled property is falsy');
 
       run(function() { select.set('disabled', true); });
-      ok(select.$().is(":disabled"));
+      ok(select.element.disabled, 'disabled property is truthy');
 
       run(function() { select.set('disabled', false); });
-      ok(select.$().is(":not(:disabled)"));
+      ok(!select.element.disabled, 'disabled property is falsy');
     });
 
     test("can have options", function() {
@@ -50793,8 +50793,10 @@ define("ember-views/tests/views/view/create_element_test",
 
       var elem = get(view, 'element');
       ok(elem, 'has element now');
-      equalHTML(elem.childNodes, '<script></script><tr><td>snorfblax</td></tr>', 'has innerHTML from context');
       equal(elem.tagName.toString().toLowerCase(), 'table', 'has tagName from view');
+      equal(elem.childNodes[0].tagName, 'SCRIPT', 'script tag first');
+      equal(elem.childNodes[1].tagName, 'TR', 'tr tag second');
+      equalHTML(elem.childNodes, '<script></script><tr><td>snorfblax</td></tr>', 'has innerHTML from context');
     });
 
     test("does not wrap many tr children in tbody elements", function() {
