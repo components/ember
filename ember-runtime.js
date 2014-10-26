@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.d33364b9
+ * @version   1.9.0-beta.1+canary.b981f1fa
  */
 
 (function() {
@@ -4763,7 +4763,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.d33364b9
+      @version 1.9.0-beta.1+canary.b981f1fa
     */
 
     if ('undefined' === typeof Ember) {
@@ -4790,10 +4790,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.d33364b9'
+      @default '1.9.0-beta.1+canary.b981f1fa'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.d33364b9';
+    Ember.VERSION = '1.9.0-beta.1+canary.b981f1fa';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -8604,8 +8604,10 @@ define("ember-metal/properties",
     // DEFINING PROPERTIES API
     //
 
-    function MANDATORY_SETTER_FUNCTION(value) {
-      Ember.assert("You must use Ember.set() to access this property (of " + this + ")", false);
+    function MANDATORY_SETTER_FUNCTION(name) {
+      return function SETTER_FUNCTION(value) {
+        Ember.assert("You must use Ember.set() to set the `" + name + "` property (of " + this + ") to `" + value + "`.", false);
+      };
     }
 
     __exports__.MANDATORY_SETTER_FUNCTION = MANDATORY_SETTER_FUNCTION;function DEFAULT_GETTER_FUNCTION(name) {
@@ -8701,7 +8703,7 @@ define("ember-metal/properties",
               objectDefineProperty(obj, keyName, {
                 configurable: true,
                 enumerable: true,
-                set: MANDATORY_SETTER_FUNCTION,
+                set: MANDATORY_SETTER_FUNCTION(keyName),
                 get: DEFAULT_GETTER_FUNCTION(keyName)
               });
             } else {
@@ -11228,7 +11230,7 @@ define("ember-metal/watch_key",
           o_defineProperty(obj, keyName, {
             configurable: true,
             enumerable: obj.propertyIsEnumerable(keyName),
-            set: MANDATORY_SETTER_FUNCTION,
+            set: MANDATORY_SETTER_FUNCTION(keyName),
             get: DEFAULT_GETTER_FUNCTION(keyName)
           });
         }

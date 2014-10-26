@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.d33364b9
+ * @version   1.9.0-beta.1+canary.b981f1fa
  */
 
 (function() {
@@ -14581,6 +14581,67 @@ define("ember-metal/tests/accessors/isGlobalPath_test.jshint",
     module('JSHint - ember-metal/tests/accessors');
     test('ember-metal/tests/accessors/isGlobalPath_test.js should pass jshint', function() { 
       ok(true, 'ember-metal/tests/accessors/isGlobalPath_test.js should pass jshint.'); 
+    });
+  });
+define("ember-metal/tests/accessors/mandatory_setters_test",
+  ["ember-metal/property_get","ember-metal/property_set","ember-metal/watching"],
+  function(__dependency1__, __dependency2__, __dependency3__) {
+    "use strict";
+    var get = __dependency1__.get;
+    var set = __dependency2__.set;
+    var watch = __dependency3__.watch;
+
+    QUnit.module('mandatory-setters');
+
+    
+      test('does not assert if property is not being watched', function() {
+        var obj = {
+          someProp: null,
+          toString: function() {
+            return 'custom-object';
+          }
+        };
+
+        obj.someProp = 'blastix';
+        equal(get(obj, 'someProp'), 'blastix');
+      });
+
+      test('should assert if set without Ember.set when property is being watched', function() {
+        var obj = {
+          someProp: null,
+          toString: function() {
+            return 'custom-object';
+          }
+        };
+
+        watch(obj, 'someProp');
+
+        expectAssertion(function() {
+          obj.someProp = 'foo-bar';
+        }, 'You must use Ember.set() to set the `someProp` property (of custom-object) to `foo-bar`.');
+      });
+
+      test('should not assert if set with Ember.set when property is being watched', function() {
+        var obj = {
+          someProp: null,
+          toString: function() {
+            return 'custom-object';
+          }
+        };
+
+        watch(obj, 'someProp');
+        set(obj, 'someProp', 'foo-bar');
+
+        equal(get(obj, 'someProp'), 'foo-bar');
+      });
+      });
+define("ember-metal/tests/accessors/mandatory_setters_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal/tests/accessors');
+    test('ember-metal/tests/accessors/mandatory_setters_test.js should pass jshint', function() { 
+      ok(true, 'ember-metal/tests/accessors/mandatory_setters_test.js should pass jshint.'); 
     });
   });
 define("ember-metal/tests/accessors/normalizeTuple_test",
