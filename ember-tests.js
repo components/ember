@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.978c8a47
+ * @version   1.9.0-beta.1+canary.ae4cc29a
  */
 
 (function() {
@@ -977,15 +977,6 @@ define("ember-application/system/application.jshint",
     module('JSHint - ember-application/system');
     test('ember-application/system/application.js should pass jshint', function() { 
       ok(true, 'ember-application/system/application.js should pass jshint.'); 
-    });
-  });
-define("ember-application/system/dag.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-application/system');
-    test('ember-application/system/dag.js should pass jshint', function() { 
-      ok(true, 'ember-application/system/dag.js should pass jshint.'); 
     });
   });
 define("ember-application/system/resolver.jshint",
