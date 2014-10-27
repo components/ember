@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.fe6679a9
+ * @version   1.9.0-beta.1+canary.fc26db2a
  */
 
 (function() {
@@ -4766,7 +4766,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.fe6679a9
+      @version 1.9.0-beta.1+canary.fc26db2a
     */
 
     if ('undefined' === typeof Ember) {
@@ -4793,10 +4793,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.fe6679a9'
+      @default '1.9.0-beta.1+canary.fc26db2a'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.fe6679a9';
+    Ember.VERSION = '1.9.0-beta.1+canary.fc26db2a';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -5083,16 +5083,18 @@ define("ember-metal/deprecate_property",
     __exports__.deprecateProperty = deprecateProperty;
   });
 define("ember-metal/dictionary",
-  ["exports"],
-  function(__exports__) {
+  ["ember-metal/platform","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
+    var create = __dependency1__.create;
+
     // the delete is meant to hint at runtimes that this object should remain in
     // dictionary mode. This is clearly a runtime specific hack, but currently it
     // appears worthwile in some usecases. Please note, these deletes do increase
     // the cost of creation dramatically over a plain Object.create. And as this
     // only makes sense for long-lived dictionaries that aren't instantiated often.
     __exports__["default"] = function makeDictionary(parent) {
-      var dict = Object.create(parent);
+      var dict = create(parent);
       dict['_dict'] = null;
       delete dict['_dict'];
       return dict;
@@ -6678,7 +6680,7 @@ define("ember-metal/map",
     }
 
     function copyNull(obj) {
-      var output = Object.create(null);
+      var output = create(null);
 
       for (var prop in obj) {
         // hasOwnPropery is not needed because obj is Object.create(null);
@@ -6736,7 +6738,7 @@ define("ember-metal/map",
         @method clear
       */
       clear: function() {
-        this.presenceSet = Object.create(null);
+        this.presenceSet = create(null);
         this.list = [];
         this.size = 0;
       },
@@ -6900,7 +6902,7 @@ define("ember-metal/map",
       if (this instanceof this.constructor) {
         this.keys = OrderedSet.create();
         this.keys._silenceRemoveDeprecation = true;
-        this.values = Object.create(null);
+        this.values = create(null);
         this.size = 0;
       } else {
         missingNew("OrderedSet");
@@ -7062,7 +7064,7 @@ define("ember-metal/map",
       */
       clear: function() {
         this.keys.clear();
-        this.values = Object.create(null);
+        this.values = create(null);
         this.size = 0;
       },
 
@@ -7515,7 +7517,7 @@ define("ember-metal/mixin",
       stream.subscribe(onNotify);
 
       if (obj._streamBindingSubscriptions === undefined) {
-        obj._streamBindingSubscriptions = Object.create(null);
+        obj._streamBindingSubscriptions = o_create(null);
       }
 
       obj._streamBindingSubscriptions[key] = onNotify;
@@ -10133,11 +10135,12 @@ define("ember-metal/streams/simple",
     __exports__["default"] = SimpleStream;
   });
 define("ember-metal/streams/stream",
-  ["ember-metal/path_cache","exports"],
-  function(__dependency1__, __exports__) {
+  ["ember-metal/platform","ember-metal/path_cache","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
-    var getFirstKey = __dependency1__.getFirstKey;
-    var getTailPath = __dependency1__.getTailPath;
+    var create = __dependency1__.create;
+    var getFirstKey = __dependency2__.getFirstKey;
+    var getTailPath = __dependency2__.getTailPath;
 
     var NIL = function NIL(){};
 
@@ -10159,7 +10162,7 @@ define("ember-metal/streams/stream",
         var tailPath = getTailPath(path);
 
         if (this.children === undefined) {
-          this.children = Object.create(null);
+          this.children = create(null);
         }
 
         var keyStream = this.children[firstKey];

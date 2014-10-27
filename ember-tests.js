@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.fe6679a9
+ * @version   1.9.0-beta.1+canary.fc26db2a
  */
 
 (function() {
@@ -13678,10 +13678,11 @@ define("ember-metal-views/tests/main_test.jshint",
     });
   });
 define("ember-metal-views/tests/test_helpers",
-  ["ember-metal-views","exports"],
-  function(__dependency1__, __exports__) {
+  ["ember-metal/platform","ember-metal-views","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
-    var Renderer = __dependency1__.Renderer;
+    var create = __dependency1__.create;
+    var Renderer = __dependency2__.Renderer;
 
     var renderer;
 
@@ -13689,7 +13690,7 @@ define("ember-metal-views/tests/test_helpers",
       MetalRenderer._super.call(this);
     }
     MetalRenderer._super = Renderer;
-    MetalRenderer.prototype = Object.create(Renderer.prototype, {
+    MetalRenderer.prototype = create(Renderer.prototype, {
       constructor: {
         value: MetalRenderer,
         enumerable: false,
@@ -31290,10 +31291,11 @@ define("ember-runtime/tests/core/compare_test.jshint",
     });
   });
 define("ember-runtime/tests/core/copy_test",
-  ["ember-runtime/copy"],
-  function(__dependency1__) {
+  ["ember-metal/platform","ember-runtime/copy"],
+  function(__dependency1__, __dependency2__) {
     "use strict";
-    var copy = __dependency1__["default"];
+    var create = __dependency1__.create;
+    var copy = __dependency2__["default"];
 
     QUnit.module("Ember Copy Method");
 
@@ -31311,7 +31313,7 @@ define("ember-runtime/tests/core/copy_test",
     });
 
     test("Ember.copy null prototype object", function() {
-      var obj = Object.create(null);
+      var obj = create(null);
 
       obj.foo = 'bar';
 

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.fe6679a9
+ * @version   1.9.0-beta.1+canary.fc26db2a
  */
 
 (function() {
@@ -3181,7 +3181,7 @@ define("ember-application/system/application",
     });
 
     Application.reopenClass({
-      initializers: Object.create(null),
+      initializers: create(null),
 
       /**
         Initializer receives an object which has the following attributes:
@@ -13108,7 +13108,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.fe6679a9
+      @version 1.9.0-beta.1+canary.fc26db2a
     */
 
     if ('undefined' === typeof Ember) {
@@ -13135,10 +13135,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.fe6679a9'
+      @default '1.9.0-beta.1+canary.fc26db2a'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.fe6679a9';
+    Ember.VERSION = '1.9.0-beta.1+canary.fc26db2a';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -13425,16 +13425,18 @@ define("ember-metal/deprecate_property",
     __exports__.deprecateProperty = deprecateProperty;
   });
 define("ember-metal/dictionary",
-  ["exports"],
-  function(__exports__) {
+  ["ember-metal/platform","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
+    var create = __dependency1__.create;
+
     // the delete is meant to hint at runtimes that this object should remain in
     // dictionary mode. This is clearly a runtime specific hack, but currently it
     // appears worthwile in some usecases. Please note, these deletes do increase
     // the cost of creation dramatically over a plain Object.create. And as this
     // only makes sense for long-lived dictionaries that aren't instantiated often.
     __exports__["default"] = function makeDictionary(parent) {
-      var dict = Object.create(parent);
+      var dict = create(parent);
       dict['_dict'] = null;
       delete dict['_dict'];
       return dict;
@@ -15020,7 +15022,7 @@ define("ember-metal/map",
     }
 
     function copyNull(obj) {
-      var output = Object.create(null);
+      var output = create(null);
 
       for (var prop in obj) {
         // hasOwnPropery is not needed because obj is Object.create(null);
@@ -15078,7 +15080,7 @@ define("ember-metal/map",
         @method clear
       */
       clear: function() {
-        this.presenceSet = Object.create(null);
+        this.presenceSet = create(null);
         this.list = [];
         this.size = 0;
       },
@@ -15242,7 +15244,7 @@ define("ember-metal/map",
       if (this instanceof this.constructor) {
         this.keys = OrderedSet.create();
         this.keys._silenceRemoveDeprecation = true;
-        this.values = Object.create(null);
+        this.values = create(null);
         this.size = 0;
       } else {
         missingNew("OrderedSet");
@@ -15404,7 +15406,7 @@ define("ember-metal/map",
       */
       clear: function() {
         this.keys.clear();
-        this.values = Object.create(null);
+        this.values = create(null);
         this.size = 0;
       },
 
@@ -15857,7 +15859,7 @@ define("ember-metal/mixin",
       stream.subscribe(onNotify);
 
       if (obj._streamBindingSubscriptions === undefined) {
-        obj._streamBindingSubscriptions = Object.create(null);
+        obj._streamBindingSubscriptions = o_create(null);
       }
 
       obj._streamBindingSubscriptions[key] = onNotify;
@@ -18475,11 +18477,12 @@ define("ember-metal/streams/simple",
     __exports__["default"] = SimpleStream;
   });
 define("ember-metal/streams/stream",
-  ["ember-metal/path_cache","exports"],
-  function(__dependency1__, __exports__) {
+  ["ember-metal/platform","ember-metal/path_cache","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
-    var getFirstKey = __dependency1__.getFirstKey;
-    var getTailPath = __dependency1__.getTailPath;
+    var create = __dependency1__.create;
+    var getFirstKey = __dependency2__.getFirstKey;
+    var getTailPath = __dependency2__.getTailPath;
 
     var NIL = function NIL(){};
 
@@ -18501,7 +18504,7 @@ define("ember-metal/streams/stream",
         var tailPath = getTailPath(path);
 
         if (this.children === undefined) {
-          this.children = Object.create(null);
+          this.children = create(null);
         }
 
         var keyStream = this.children[firstKey];
@@ -25472,8 +25475,8 @@ define("ember-routing/system/route",
     __exports__["default"] = Route;
   });
 define("ember-routing/system/router",
-  ["ember-metal/core","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/properties","ember-metal/computed","ember-metal/merge","ember-metal/run_loop","ember-runtime/system/string","ember-runtime/system/object","ember-runtime/mixins/evented","ember-routing/system/dsl","ember-views/views/view","ember-routing/location/api","ember-handlebars/views/metamorph_view","ember-routing/utils","router","router/transition","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __exports__) {
+  ["ember-metal/core","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/properties","ember-metal/computed","ember-metal/merge","ember-metal/run_loop","ember-runtime/system/string","ember-runtime/system/object","ember-runtime/mixins/evented","ember-routing/system/dsl","ember-views/views/view","ember-routing/location/api","ember-handlebars/views/metamorph_view","ember-routing/utils","ember-metal/platform","router","router/transition","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // FEATURES, Logger, K, assert
@@ -25495,13 +25498,14 @@ define("ember-routing/system/router",
     var routeArgs = __dependency16__.routeArgs;
     var getActiveTargetName = __dependency16__.getActiveTargetName;
     var stashParamNames = __dependency16__.stashParamNames;
+    var create = __dependency17__.create;
 
     /**
     @module ember
     @submodule ember-routing
     */
 
-    var Router = __dependency17__["default"];
+    var Router = __dependency18__["default"];
 
     var slice = [].slice;
 
@@ -25794,7 +25798,7 @@ define("ember-routing/system/router",
       },
 
       _getHandlerFunction: function() {
-        var seen = Object.create(null);
+        var seen = create(null);
         var container = this.container;
         var DefaultRoute = container.lookupFactory('route:basic');
         var self = this;
@@ -39329,8 +39333,8 @@ define("ember-views/system/jquery",
     __exports__["default"] = jQuery;
   });
 define("ember-views/system/render_buffer",
-  ["ember-views/system/jquery","morph","ember-metal/core","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["ember-views/system/jquery","morph","ember-metal/core","ember-metal/platform","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -39340,6 +39344,7 @@ define("ember-views/system/render_buffer",
     var jQuery = __dependency1__["default"];
     var DOMHelper = __dependency2__.DOMHelper;
     var Ember = __dependency3__["default"];
+    var create = __dependency4__.create;
 
     // The HTML spec allows for "omitted start tags". These tags are optional
     // when their intended child is the first thing in the parent tag. For
@@ -39388,7 +39393,7 @@ define("ember-views/system/render_buffer",
     }
 
     function ClassSet() {
-      this.seen = Object.create(null);
+      this.seen = create(null);
       this.list = [];
     }
 
@@ -41679,56 +41684,57 @@ define("ember-views/views/states/pre_render",
     __exports__["default"] = preRender;
   });
 define("ember-views/views/view",
-  ["ember-metal/core","ember-runtime/mixins/evented","ember-runtime/system/object","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/set_properties","ember-metal/run_loop","ember-metal/observer","ember-metal/properties","ember-metal/utils","ember-metal/computed","ember-metal/mixin","ember-metal/streams/simple","ember-views/streams/key_stream","ember-metal/streams/stream_binding","ember-views/streams/context_stream","ember-metal/is_none","ember-metal/deprecate_property","ember-runtime/system/native_array","ember-runtime/system/string","ember-metal/enumerable_utils","ember-metal/property_events","ember-views/system/jquery","ember-views/system/ext","ember-views/views/core_view","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __exports__) {
+  ["ember-metal/core","ember-metal/platform","ember-runtime/mixins/evented","ember-runtime/system/object","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/set_properties","ember-metal/run_loop","ember-metal/observer","ember-metal/properties","ember-metal/utils","ember-metal/computed","ember-metal/mixin","ember-metal/streams/simple","ember-views/streams/key_stream","ember-metal/streams/stream_binding","ember-views/streams/context_stream","ember-metal/is_none","ember-metal/deprecate_property","ember-runtime/system/native_array","ember-runtime/system/string","ember-metal/enumerable_utils","ember-metal/property_events","ember-views/system/jquery","ember-views/system/ext","ember-views/views/core_view","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __exports__) {
     "use strict";
     // Ember.assert, Ember.deprecate, Ember.warn, Ember.TEMPLATES,
     // Ember.K, jQuery, Ember.lookup,
     // Ember.ContainerView circular dependency
     // Ember.ENV
     var Ember = __dependency1__["default"];
+    var create = __dependency2__.create;
 
-    var Evented = __dependency2__["default"];
-    var EmberObject = __dependency3__["default"];
-    var EmberError = __dependency4__["default"];
-    var get = __dependency5__.get;
-    var set = __dependency6__.set;
-    var setProperties = __dependency7__["default"];
-    var run = __dependency8__["default"];
-    var addObserver = __dependency9__.addObserver;
-    var removeObserver = __dependency9__.removeObserver;
-    var defineProperty = __dependency10__.defineProperty;
-    var guidFor = __dependency11__.guidFor;
-    var computed = __dependency12__.computed;
-    var observer = __dependency13__.observer;
-    var SimpleStream = __dependency14__["default"];
-    var KeyStream = __dependency15__["default"];
-    var StreamBinding = __dependency16__["default"];
-    var ContextStream = __dependency17__["default"];
+    var Evented = __dependency3__["default"];
+    var EmberObject = __dependency4__["default"];
+    var EmberError = __dependency5__["default"];
+    var get = __dependency6__.get;
+    var set = __dependency7__.set;
+    var setProperties = __dependency8__["default"];
+    var run = __dependency9__["default"];
+    var addObserver = __dependency10__.addObserver;
+    var removeObserver = __dependency10__.removeObserver;
+    var defineProperty = __dependency11__.defineProperty;
+    var guidFor = __dependency12__.guidFor;
+    var computed = __dependency13__.computed;
+    var observer = __dependency14__.observer;
+    var SimpleStream = __dependency15__["default"];
+    var KeyStream = __dependency16__["default"];
+    var StreamBinding = __dependency17__["default"];
+    var ContextStream = __dependency18__["default"];
 
-    var typeOf = __dependency11__.typeOf;
-    var isArray = __dependency11__.isArray;
-    var isNone = __dependency18__.isNone;
-    var Mixin = __dependency13__.Mixin;
-    var deprecateProperty = __dependency19__.deprecateProperty;
-    var emberA = __dependency20__.A;
+    var typeOf = __dependency12__.typeOf;
+    var isArray = __dependency12__.isArray;
+    var isNone = __dependency19__.isNone;
+    var Mixin = __dependency14__.Mixin;
+    var deprecateProperty = __dependency20__.deprecateProperty;
+    var emberA = __dependency21__.A;
 
-    var dasherize = __dependency21__.dasherize;
+    var dasherize = __dependency22__.dasherize;
 
     // ES6TODO: functions on EnumerableUtils should get their own export
-    var forEach = __dependency22__.forEach;
-    var addObject = __dependency22__.addObject;
-    var removeObject = __dependency22__.removeObject;
+    var forEach = __dependency23__.forEach;
+    var addObject = __dependency23__.addObject;
+    var removeObject = __dependency23__.removeObject;
 
-    var beforeObserver = __dependency13__.beforeObserver;
+    var beforeObserver = __dependency14__.beforeObserver;
 
-    var propertyWillChange = __dependency23__.propertyWillChange;
-    var propertyDidChange = __dependency23__.propertyDidChange;
+    var propertyWillChange = __dependency24__.propertyWillChange;
+    var propertyDidChange = __dependency24__.propertyDidChange;
 
-    var jQuery = __dependency24__["default"];
+    var jQuery = __dependency25__["default"];
      // for the side effect of extending Ember.run.queues
 
-    var CoreView = __dependency26__["default"];
+    var CoreView = __dependency27__["default"];
 
 
     /**
@@ -43388,7 +43394,7 @@ define("ember-views/views/view",
         this._streamBindings = undefined;
 
         if (!this._keywords) {
-          this._keywords = Object.create(null);
+          this._keywords = create(null);
         }
         this._keywords.view = new SimpleStream();
         this._keywords._view = this;
@@ -43685,7 +43691,7 @@ define("ember-views/views/view",
 
       _getBindingForStream: function(path) {
         if (this._streamBindings === undefined) {
-          this._streamBindings = Object.create(null);
+          this._streamBindings = create(null);
           this.one('willDestroyElement', this, this._destroyStreamBindings);
         }
 
