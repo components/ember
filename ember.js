@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.00c94ee8
+ * @version   1.9.0-beta.1+canary.6c38442a
  */
 
 (function() {
@@ -6934,8 +6934,8 @@ define("ember-handlebars/controls/text_support",
     __exports__["default"] = TextSupport;
   });
 define("ember-handlebars/ext",
-  ["ember-metal/core","ember-runtime/system/string","ember-handlebars-compiler","ember-metal/property_get","ember-metal/error","ember-metal/mixin","ember-views/views/view","ember-metal/path_cache","ember-metal/streams/stream","ember-metal/streams/read","ember-metal/keys","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
+  ["ember-metal/core","ember-runtime/system/string","ember-handlebars-compiler","ember-metal/property_get","ember-metal/error","ember-metal/mixin","ember-views/views/view","ember-metal/path_cache","ember-metal/streams/stream","ember-metal/streams/read","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.FEATURES, Ember.assert, Ember.Handlebars, Ember.lookup
@@ -6958,7 +6958,6 @@ define("ember-handlebars/ext",
     var Stream = __dependency9__["default"];
     var readArray = __dependency10__.readArray;
     var readHash = __dependency10__.readHash;
-    var keys = __dependency11__["default"];
 
     var slice = [].slice;
 
@@ -7086,17 +7085,6 @@ define("ember-handlebars/ext",
 
       var options = arguments[arguments.length - 1];
 
-      // due to the issue reported in https://github.com/wycats/handlebars.js/issues/885
-      // we must check to see if we have hash arguments manually
-      //
-      // This should be removed once Handlebars properly calls `blockHelperMissing` when
-      // hash arguments are present.
-      var hashArgs = keys(options.hash);
-      if (options.fn && hashArgs.length === 0) {
-        // NOP for block helpers as they are handled by the block helper (when hash arguments are not present)
-        return;
-      }
-
       var helper = resolveHelper(options.data.view.container, options.name);
 
       if (helper) {
@@ -7111,39 +7099,12 @@ define("ember-handlebars/ext",
     }
 
     __exports__.helperMissingHelper = helperMissingHelper;/**
-      Registers a helper in Handlebars that will be called if no property with the
-      given name can be found on the current context object, and no helper with
-      that name is registered.
-
-      This throws an exception with a more helpful error message so the user can
-      track down where the problem is happening.
-
       @private
-      @method helperMissing
+      @method blockHelperMissingHelper
       @for Ember.Handlebars.helpers
-      @param {Hash} options
     */
-    function blockHelperMissingHelper(/* ..., options */) {
-      if (!resolveHelper) {
-        resolveHelper = requireModule('ember-handlebars/helpers/binding')['resolveHelper'];
-      } // ES6TODO: stupid circular dep
-
-      var options = arguments[arguments.length - 1];
-
-      Ember.assert("`blockHelperMissing` was invoked without a helper name, which " +
-                   "is most likely due to a mismatch between the version of " +
-                   "Ember.js you're running now and the one used to precompile your " +
-                   "templates. Please make sure the version of " +
-                   "`ember-handlebars-compiler` you're using is up to date.", options.name);
-
-      var helper = resolveHelper(options.data.view.container, options.name);
-
-      if (helper) {
-        return helper.apply(this, slice.call(arguments, 1));
-      } else {
-        // Someone is actually trying to call something, blow up.
-        throw new EmberError("Missing helper: '" + options.name + "'");
-      }
+    function blockHelperMissingHelper() {
+      return;
     }
 
     __exports__.blockHelperMissingHelper = blockHelperMissingHelper;/**
@@ -13330,7 +13291,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.00c94ee8
+      @version 1.9.0-beta.1+canary.6c38442a
     */
 
     if ('undefined' === typeof Ember) {
@@ -13357,10 +13318,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.00c94ee8'
+      @default '1.9.0-beta.1+canary.6c38442a'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.00c94ee8';
+    Ember.VERSION = '1.9.0-beta.1+canary.6c38442a';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
