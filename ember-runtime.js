@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.68e33d86
+ * @version   1.9.0-beta.1+canary.fe6679a9
  */
 
 (function() {
@@ -2014,7 +2014,7 @@ define("ember-metal",
     var EnumerableUtils = __dependency6__["default"];
     var Cache = __dependency7__["default"];
     var create = __dependency8__.create;
-    var platform = __dependency8__.platform;
+    var hasPropertyAccessors = __dependency8__.hasPropertyAccessors;
     var filter = __dependency9__.filter;
     var forEach = __dependency9__.forEach;
     var indexOf = __dependency9__.indexOf;
@@ -2127,7 +2127,10 @@ define("ember-metal",
     Ember.GUID_KEY        = GUID_KEY;
     Ember.create          = create;
     Ember.keys            = keys;
-    Ember.platform        = platform;
+    Ember.platform        = {
+      defineProperty: defineProperty,
+      hasPropertyAccessors: hasPropertyAccessors
+    };
 
     var EmberArrayPolyfills = Ember.ArrayPolyfills = {};
 
@@ -4763,7 +4766,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.68e33d86
+      @version 1.9.0-beta.1+canary.fe6679a9
     */
 
     if ('undefined' === typeof Ember) {
@@ -4790,10 +4793,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.68e33d86'
+      @default '1.9.0-beta.1+canary.fe6679a9'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.68e33d86';
+    Ember.VERSION = '1.9.0-beta.1+canary.fe6679a9';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -8337,108 +8340,44 @@ define("ember-metal/path_cache",
     __exports__.getTailPath = getTailPath;
   });
 define("ember-metal/platform",
-  ["exports"],
-  function(__exports__) {
+  ["ember-metal/platform/define_property","ember-metal/platform/define_properties","ember-metal/platform/create","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
-    /*globals Node */
+    var hasES5CompliantDefineProperty = __dependency1__.hasES5CompliantDefineProperty;
+    var defineProperty = __dependency1__.defineProperty;
+    var defineProperties = __dependency2__["default"];
+    var create = __dependency3__["default"];
 
     /**
     @module ember-metal
     */
-    var defineProperty = (function checkCompliance(defineProperty) {
-      if (!defineProperty) return;
-      try {
-        var a = 5;
-        var obj = {};
-        defineProperty(obj, 'a', {
-          configurable: true,
-          enumerable: true,
-          get: function () {
-            return a;
-          },
-          set: function (v) {
-            a = v;
-          }
-        });
-        if (obj.a !== 5) return;
-        obj.a = 10;
-        if (a !== 10) return;
 
-        // check non-enumerability
-        defineProperty(obj, 'a', {
-          configurable: true,
-          enumerable: false,
-          writable: true,
-          value: true
-        });
-        for (var key in obj) {
-          if (key === 'a') return;
-        }
+    var hasPropertyAccessors = hasES5CompliantDefineProperty;
+    var canDefineNonEnumerableProperties = hasES5CompliantDefineProperty;
 
-        // Detects a bug in Android <3.2 where you cannot redefine a property using
-        // Object.defineProperty once accessors have already been set.
-        if (obj.a !== true) return;
+    /**
+      Platform specific methods and feature detectors needed by the framework.
 
-        // defineProperty is compliant
-        return defineProperty;
-      } catch (e) {
-        // IE8 defines Object.defineProperty but calling it on an Object throws
-        return;
-      }
-    })(Object.defineProperty);
+      @class platform
+      @namespace Ember
+      @static
+    */
 
-    var hasES5CompliantDefineProperty = !!defineProperty;
-
-    if (hasES5CompliantDefineProperty && typeof document !== 'undefined') {
-      // This is for Safari 5.0, which supports Object.defineProperty, but not
-      // on DOM nodes.
-      var canDefinePropertyOnDOM = (function() {
-        try {
-          defineProperty(document.createElement('div'), 'definePropertyOnDOM', {});
-          return true;
-        } catch(e) { }
-
-        return false;
-      })();
-
-      if (!canDefinePropertyOnDOM) {
-        defineProperty = function(obj, keyName, desc) {
-          var isNode;
-
-          if (typeof Node === "object") {
-            isNode = obj instanceof Node;
-          } else {
-            isNode = typeof obj === "object" && typeof obj.nodeType === "number" && typeof obj.nodeName === "string";
-          }
-
-          if (isNode) {
-            // TODO: Should we have a warning here?
-            return (obj[keyName] = desc.value);
-          } else {
-            return Object.defineProperty(obj, keyName, desc);
-          }
-        };
-      }
-    }
-
-    if (!hasES5CompliantDefineProperty) {
-      defineProperty = function defineProperty(obj, keyName, desc) {
-        if (!desc.get) { obj[keyName] = desc.value; }
-      };
-    }
-
-    // ES5 15.2.3.7
-    // http://es5.github.com/#x15.2.3.7
-    if (!Object.defineProperties) {
-      Object.defineProperties = function defineProperties(object, properties) {
-        for (var property in properties) {
-          if (properties.hasOwnProperty(property) && property !== "__proto__") {
-            defineProperty(object, property, properties[property]);
-          }
-        }
-        return object;
-      };
-    }
+    __exports__.create = create;
+    __exports__.defineProperty = defineProperty;
+    __exports__.defineProperties = defineProperties;
+    __exports__.hasPropertyAccessors = hasPropertyAccessors;
+    __exports__.canDefineNonEnumerableProperties = canDefineNonEnumerableProperties;
+  });
+define("ember-metal/platform/create",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    /**
+    @class platform
+    @namespace Ember
+    @static
+    */
 
     /**
       Identical to `Object.create()`. Implements if not available natively.
@@ -8526,23 +8465,51 @@ define("ember-metal/platform",
       create = Object.create;
     }
 
-    var hasPropertyAccessors = hasES5CompliantDefineProperty;
-    var canDefineNonEnumerableProperties = hasES5CompliantDefineProperty;
+    __exports__["default"] = create;
+  });
+define("ember-metal/platform/define_properties",
+  ["ember-metal/platform/define_property","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    var defineProperty = __dependency1__.defineProperty;
+
+    var defineProperties = Object.defineProperties;
+
+    // ES5 15.2.3.7
+    // http://es5.github.com/#x15.2.3.7
+    if (!defineProperties) {
+      defineProperties = function defineProperties(object, properties) {
+        for (var property in properties) {
+          if (properties.hasOwnProperty(property) && property !== "__proto__") {
+            defineProperty(object, property, properties[property]);
+          }
+        }
+        return object;
+      };
+
+      Object.defineProperties = defineProperties;
+    }
+
+    __exports__["default"] = defineProperties;
+  });
+define("ember-metal/platform/define_property",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    /*globals Node */
 
     /**
     @class platform
     @namespace Ember
+    @static
     */
 
     /**
-      Platform specific methods and feature detectors needed by the framework.
+      Set to true if the platform supports native getters and setters.
 
-      @class platform
-      @namespace Ember
-      @static
+      @property hasPropertyAccessors
+      @final
     */
-    // TODO remove this
-    var platform = {};
 
     /**
       Identical to `Object.defineProperty()`. Implements as much functionality
@@ -8554,21 +8521,90 @@ define("ember-metal/platform",
       @param {Object} desc descriptor hash
       @return {void}
     */
-    platform.defineProperty = defineProperty;
+    var defineProperty = (function checkCompliance(defineProperty) {
+      if (!defineProperty) return;
+      try {
+        var a = 5;
+        var obj = {};
+        defineProperty(obj, 'a', {
+          configurable: true,
+          enumerable: true,
+          get: function () {
+            return a;
+          },
+          set: function (v) {
+            a = v;
+          }
+        });
+        if (obj.a !== 5) return;
+        obj.a = 10;
+        if (a !== 10) return;
 
-    /**
-      Set to true if the platform supports native getters and setters.
+        // check non-enumerability
+        defineProperty(obj, 'a', {
+          configurable: true,
+          enumerable: false,
+          writable: true,
+          value: true
+        });
+        for (var key in obj) {
+          if (key === 'a') return;
+        }
 
-      @property hasPropertyAccessors
-      @final
-    */
-    platform.hasPropertyAccessors = hasPropertyAccessors;
+        // Detects a bug in Android <3.2 where you cannot redefine a property using
+        // Object.defineProperty once accessors have already been set.
+        if (obj.a !== true) return;
 
-    __exports__.create = create;
+        // defineProperty is compliant
+        return defineProperty;
+      } catch (e) {
+        // IE8 defines Object.defineProperty but calling it on an Object throws
+        return;
+      }
+    })(Object.defineProperty);
+
+    var hasES5CompliantDefineProperty = !!defineProperty;
+
+    if (hasES5CompliantDefineProperty && typeof document !== 'undefined') {
+      // This is for Safari 5.0, which supports Object.defineProperty, but not
+      // on DOM nodes.
+      var canDefinePropertyOnDOM = (function() {
+        try {
+          defineProperty(document.createElement('div'), 'definePropertyOnDOM', {});
+          return true;
+        } catch(e) { }
+
+        return false;
+      })();
+
+      if (!canDefinePropertyOnDOM) {
+        defineProperty = function(obj, keyName, desc) {
+          var isNode;
+
+          if (typeof Node === "object") {
+            isNode = obj instanceof Node;
+          } else {
+            isNode = typeof obj === "object" && typeof obj.nodeType === "number" && typeof obj.nodeName === "string";
+          }
+
+          if (isNode) {
+            // TODO: Should we have a warning here?
+            return (obj[keyName] = desc.value);
+          } else {
+            return Object.defineProperty(obj, keyName, desc);
+          }
+        };
+      }
+    }
+
+    if (!hasES5CompliantDefineProperty) {
+      defineProperty = function defineProperty(obj, keyName, desc) {
+        if (!desc.get) { obj[keyName] = desc.value; }
+      };
+    }
+
+    __exports__.hasES5CompliantDefineProperty = hasES5CompliantDefineProperty;
     __exports__.defineProperty = defineProperty;
-    __exports__.hasPropertyAccessors = hasPropertyAccessors;
-    __exports__.canDefineNonEnumerableProperties = canDefineNonEnumerableProperties;
-    __exports__.platform = platform;
   });
 define("ember-metal/properties",
   ["ember-metal/core","ember-metal/utils","ember-metal/platform","ember-metal/property_events","exports"],

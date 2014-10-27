@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.68e33d86
+ * @version   1.9.0-beta.1+canary.fe6679a9
  */
 
 (function() {
@@ -14124,6 +14124,33 @@ define("ember-metal/platform.jshint",
     module('JSHint - ember-metal');
     test('ember-metal/platform.js should pass jshint', function() { 
       ok(true, 'ember-metal/platform.js should pass jshint.'); 
+    });
+  });
+define("ember-metal/platform/create.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal/platform');
+    test('ember-metal/platform/create.js should pass jshint', function() { 
+      ok(true, 'ember-metal/platform/create.js should pass jshint.'); 
+    });
+  });
+define("ember-metal/platform/define_properties.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal/platform');
+    test('ember-metal/platform/define_properties.js should pass jshint', function() { 
+      ok(true, 'ember-metal/platform/define_properties.js should pass jshint.'); 
+    });
+  });
+define("ember-metal/platform/define_property.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal/platform');
+    test('ember-metal/platform/define_property.js should pass jshint', function() { 
+      ok(true, 'ember-metal/platform/define_property.js should pass jshint.'); 
     });
   });
 define("ember-metal/properties.jshint",
