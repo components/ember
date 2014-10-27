@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0+pre.a850085d
+ * @version   1.8.0+pre.1d6953f3
  */
 
 (function() {
@@ -8389,6 +8389,18 @@ define("ember-handlebars/tests/helpers/bound_helper_test",
       }
     });
 
+    test("primitives should work correctly", function() {
+      view = EmberView.create({
+        prims: Ember.A(["string", 12]),
+
+        template: compile('{{#each view.prims}}{{#if this}}inside-if{{/if}}{{#with this}}inside-with{{/with}}{{/each}}')
+      });
+
+      appendView(view);
+
+      equal(view.$().text(), 'inside-ifinside-withinside-ifinside-with');
+    });
+
     test("should update bound helpers when properties change", function() {
       EmberHandlebars.helper('capitalize', function(value) {
         return value.toUpperCase();
@@ -8777,6 +8789,21 @@ define("ember-handlebars/tests/helpers/bound_helper_test",
 
       run(view.controller.things, 'pushObject', 'wallace');
       equal(view.$().text(), 'wallace!', "helper output is correct");
+    });
+
+    test("should have correct argument types", function() {
+      EmberHandlebars.helper('getType', function(value) {
+        return typeof value;
+      });
+
+      view = EmberView.create({
+        controller: EmberObject.create(),
+        template: EmberHandlebars.compile('{{getType null}}, {{getType undefProp}}, {{getType "string"}}, {{getType 1}}, {{getType}}')
+      });
+
+      appendView();
+
+      equal(view.$().text(), 'undefined, undefined, string, number, object', "helper output is correct");
     });
   });
 define("ember-handlebars/tests/helpers/bound_helper_test.jshint",
@@ -28484,16 +28511,17 @@ define("ember-runtime/tests/computed/reduce_computed_macros_test",
       var sorted;
       run(function() {
         sorted = obj.get('customSortedItems');
+        deepEqual(sorted.mapBy('name'), ['A', 'B', 'C', 'D'], "initial");
       });
-      deepEqual(sorted.mapBy('name'), ['A', 'B', 'C', 'D'], "initial");
+
       run(function() {
         Ember.changeProperties(function(){
           obj.get('items').objectAt(1).set('count', 5);
           obj.get('items').objectAt(2).set('count', 6);
         });
         sorted = obj.get('customSortedItems');
+        deepEqual(sorted.mapBy('name'), ['A', 'D', 'B', 'C'], "final");
       });
-      deepEqual(sorted.mapBy('name'), ['A', 'D', 'B', 'C'], "final");
     });
 
 
