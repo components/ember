@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.6c38442a
+ * @version   1.9.0-beta.1+canary.978c8a47
  */
 
 (function() {
@@ -4763,7 +4763,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.6c38442a
+      @version 1.9.0-beta.1+canary.978c8a47
     */
 
     if ('undefined' === typeof Ember) {
@@ -4790,10 +4790,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.6c38442a'
+      @default '1.9.0-beta.1+canary.978c8a47'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.6c38442a';
+    Ember.VERSION = '1.9.0-beta.1+canary.978c8a47';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -6273,7 +6273,7 @@ define("ember-metal/is_empty",
       Verifies that a value is `null` or an empty string, empty array,
       or empty function.
 
-      Constrains the rules on `Ember.isNone` by returning false for empty
+      Constrains the rules on `Ember.isNone` by returning true for empty
       string and empty arrays.
 
       ```javascript
