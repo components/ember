@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.ae4cc29a
+ * @version   1.9.0-beta.1+canary.68e33d86
  */
 
 (function() {
@@ -11717,7 +11717,7 @@ define("ember-handlebars/tests/helpers/with_test",
           template: EmberHandlebars.compile("We have: {{#with view.thing as fromView}}{{fromView.name}} and {{fromContext.name}}{{/with}}"),
           thing: { name: 'this is from the view' },
           context: {
-            fromContext: { name: "this is from the context" },
+            fromContext: { name: "this is from the context" }
           }
         });
 
@@ -14575,12 +14575,13 @@ define("ember-metal/tests/accessors/isGlobalPath_test.jshint",
     });
   });
 define("ember-metal/tests/accessors/mandatory_setters_test",
-  ["ember-metal/property_get","ember-metal/property_set","ember-metal/watching"],
-  function(__dependency1__, __dependency2__, __dependency3__) {
+  ["ember-metal/property_get","ember-metal/property_set","ember-metal/watching","ember-metal/platform"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
     var get = __dependency1__.get;
     var set = __dependency2__.set;
     var watch = __dependency3__.watch;
+    var hasPropertyAccessors = __dependency4__.hasPropertyAccessors;
 
     QUnit.module('mandatory-setters');
 
@@ -18693,11 +18694,11 @@ define("ember-metal/tests/mixin/concatenatedProperties_test",
     test('defining concatenated properties should concat future version', function() {
 
       var MixinA = Ember.Mixin.create({
-        concatenatedProperties: null,
+        concatenatedProperties: null
       });
 
       var MixinB = Ember.Mixin.create({
-        concatenatedProperties: null,
+        concatenatedProperties: null
       });
 
       var obj = Ember.mixin({}, MixinA, MixinB);
@@ -52602,7 +52603,7 @@ define("ember-views/tests/views/view/template_test",
       var View;
 
       View = EmberView.extend({
-        templateName: 'foobar',
+        templateName: 'foobar'
       });
 
       raises(function() {
@@ -60732,7 +60733,7 @@ define("ember/tests/routing/query_params_test",
       });
 
       App.ParentController = Ember.Controller.extend(HasPage, {
-        queryParams: { page: 'yespage' },
+        queryParams: { page: 'yespage' }
       });
 
       App.ParentChildController = Ember.Controller.extend(HasPage);
