@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.fc26db2a
+ * @version   1.9.0-beta.1+canary.36a53abc
  */
 
 (function() {
@@ -4714,8 +4714,12 @@ define("ember-extension-support/initializers",
 define("ember-handlebars-compiler",
   ["ember-metal/core","exports"],
   function(__dependency1__, __exports__) {
-    "use strict";
-    /* global Handlebars:true */
+        /* global Handlebars:true */
+
+    // Remove "use strict"; from transpiled module (in browser builds only) until
+    // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
+    //
+    // REMOVE_USE_STRICT: true
 
     /**
     @module ember
@@ -13108,7 +13112,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.fc26db2a
+      @version 1.9.0-beta.1+canary.36a53abc
     */
 
     if ('undefined' === typeof Ember) {
@@ -13135,10 +13139,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.fc26db2a'
+      @default '1.9.0-beta.1+canary.36a53abc'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.fc26db2a';
+    Ember.VERSION = '1.9.0-beta.1+canary.36a53abc';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -16716,7 +16720,11 @@ define("ember-metal/platform",
 define("ember-metal/platform/create",
   ["exports"],
   function(__exports__) {
-    "use strict";
+        // Remove "use strict"; from transpiled module until
+    // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
+    //
+    // REMOVE_USE_STRICT: true
+
     /**
     @class platform
     @namespace Ember
@@ -34276,7 +34284,11 @@ define("ember-runtime/system/container",
 define("ember-runtime/system/core_object",
   ["ember-metal/core","ember-metal/property_get","ember-metal/utils","ember-metal/platform","ember-metal/watching","ember-metal/chains","ember-metal/events","ember-metal/mixin","ember-metal/enumerable_utils","ember-metal/error","ember-metal/keys","ember-runtime/mixins/action_handler","ember-metal/properties","ember-metal/binding","ember-metal/computed","ember-metal/injected_property","ember-metal/run_loop","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __exports__) {
-    "use strict";
+        // Remove "use strict"; from transpiled module until
+    // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
+    //
+    // REMOVE_USE_STRICT: true
+
     /**
       @module ember
       @submodule ember-runtime
