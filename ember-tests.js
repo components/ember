@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.140db714
+ * @version   1.9.0-beta.1+canary.a1e90727
  */
 
 (function() {
@@ -19109,6 +19109,24 @@ define("ember-metal/tests/mixin/mergedProperties_test",
 
       var obj = mixin({}, MixinA, MixinB, MixinC);
       equal(obj.foo.meth("WOOT"), "WAT");
+    });
+
+    test('Merging an Array should raise an error', function() {
+
+      expect(1);
+
+      var MixinA = Mixin.create({
+        mergedProperties: ['foo'],
+        foo: { a: true, b: true, c: true }
+      });
+
+      var MixinB = Mixin.create({
+        foo: ["a"]
+      });
+
+      expectAssertion(function() {
+        mixin({}, MixinA, MixinB);
+      }, 'You passed in `["a"]` as the value for `foo` but `foo` cannot be an Array');
     });
   });
 define("ember-metal/tests/mixin/mergedProperties_test.jshint",
@@ -59843,6 +59861,20 @@ define("ember/tests/routing/query_params_test",
 
       var indexController = container.lookup('controller:index');
       equal(indexController.get('omg'), 'lol');
+    });
+
+    test("warn user that routes query params configuration must be an Object, not an Array", function() {
+      expect(1);
+
+      App.ApplicationRoute = Ember.Route.extend({
+        queryParams: [
+          {'commitBy': { replace: true }}
+        ]
+      });
+
+      expectAssertion(function() {
+        bootApplication();
+      }, 'You passed in `[{"commitBy":{"replace":true}}]` as the value for `queryParams` but `queryParams` cannot be an Array');
     });
 
     test("can opt into a replace query by specifying replace:true in the Router config hash", function() {

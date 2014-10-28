@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.140db714
+ * @version   1.9.0-beta.1+canary.a1e90727
  */
 
 (function() {
@@ -12749,7 +12749,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.140db714
+      @version 1.9.0-beta.1+canary.a1e90727
     */
 
     if ('undefined' === typeof Ember) {
@@ -12776,10 +12776,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.140db714'
+      @default '1.9.0-beta.1+canary.a1e90727'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.140db714';
+    Ember.VERSION = '1.9.0-beta.1+canary.a1e90727';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -15215,6 +15215,7 @@ define("ember-metal/mixin",
     var wrap = __dependency7__.wrap;
     var makeArray = __dependency7__.makeArray;
     var apply = __dependency7__.apply;
+    var isArray = __dependency7__.isArray;
     var expandProperties = __dependency8__["default"];
     var Descriptor = __dependency9__.Descriptor;
     var defineProperty = __dependency9__.defineProperty;
@@ -15397,6 +15398,7 @@ define("ember-metal/mixin",
     function applyMergedProperties(obj, key, value, values) {
       var baseValue = values[key] || obj[key];
 
+      
       if (!baseValue) { return value; }
 
       var newBase = merge({}, baseValue);
