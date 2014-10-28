@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0+pre.1d6953f3
+ * @version   1.8.0+pre.7ca6ddc8
  */
 
 (function() {
@@ -3964,29 +3964,29 @@ define("ember-handlebars/tests/controls/select_test",
       select.set('required', true);
       append();
 
-      equal(select.$().attr('required'), 'required');
+      ok(select.element.required, 'required property is truthy');
     });
 
     test("should become required if the required attribute is changed", function() {
       append();
-      equal(select.$().attr('required'), undefined);
+      ok(!select.element.required, 'required property is falsy');
 
       run(function() { select.set('required', true); });
-      equal(select.$().attr('required'), 'required');
+      ok(select.element.required, 'required property is truthy');
 
       run(function() { select.set('required', false); });
-      equal(select.$().attr('required'), undefined);
+      ok(!select.element.required, 'required property is falsy');
     });
 
     test("should become disabled if the disabled attribute is changed", function() {
       append();
-      ok(select.$().is(":not(:disabled)"));
+      ok(!select.element.disabled, 'disabled property is falsy');
 
       run(function() { select.set('disabled', true); });
-      ok(select.$().is(":disabled"));
+      ok(select.element.disabled, 'disabled property is truthy');
 
       run(function() { select.set('disabled', false); });
-      ok(select.$().is(":not(:disabled)"));
+      ok(!select.element.disabled, 'disabled property is falsy');
     });
 
     test("can have options", function() {
@@ -11646,7 +11646,7 @@ define("ember-handlebars/tests/helpers/with_test",
           template: EmberHandlebars.compile("We have: {{#with view.thing as fromView}}{{fromView.name}} and {{fromContext.name}}{{/with}}"),
           thing: { name: 'this is from the view' },
           context: {
-            fromContext: { name: "this is from the context" },
+            fromContext: { name: "this is from the context" }
           }
         });
 
@@ -13651,11 +13651,11 @@ define("ember-metal-views/tests/main_test.jshint",
     });
   });
 define("ember-metal-views/tests/test_helpers",
-  ["ember-metal-views","exports"],
-  function(__dependency1__, __exports__) {
+  ["ember-metal/platform","ember-metal-views","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
-    /*globals Node */
-    var Renderer = __dependency1__.Renderer;
+    var create = __dependency1__.create;
+    var Renderer = __dependency2__.Renderer;
 
     var renderer;
 
@@ -13663,7 +13663,7 @@ define("ember-metal-views/tests/test_helpers",
       MetalRenderer._super.call(this);
     }
     MetalRenderer._super = Renderer;
-    MetalRenderer.prototype = Object.create(Renderer.prototype, {
+    MetalRenderer.prototype = create(Renderer.prototype, {
       constructor: {
         value: MetalRenderer,
         enumerable: false,
@@ -14091,6 +14091,33 @@ define("ember-metal/platform.jshint",
       ok(true, 'ember-metal/platform.js should pass jshint.'); 
     });
   });
+define("ember-metal/platform/create.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal/platform');
+    test('ember-metal/platform/create.js should pass jshint', function() { 
+      ok(true, 'ember-metal/platform/create.js should pass jshint.'); 
+    });
+  });
+define("ember-metal/platform/define_properties.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal/platform');
+    test('ember-metal/platform/define_properties.js should pass jshint', function() { 
+      ok(true, 'ember-metal/platform/define_properties.js should pass jshint.'); 
+    });
+  });
+define("ember-metal/platform/define_property.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal/platform');
+    test('ember-metal/platform/define_property.js should pass jshint', function() { 
+      ok(true, 'ember-metal/platform/define_property.js should pass jshint.'); 
+    });
+  });
 define("ember-metal/properties.jshint",
   [],
   function() {
@@ -14501,6 +14528,70 @@ define("ember-metal/tests/accessors/isGlobalPath_test.jshint",
     module('JSHint - ember-metal/tests/accessors');
     test('ember-metal/tests/accessors/isGlobalPath_test.js should pass jshint', function() { 
       ok(true, 'ember-metal/tests/accessors/isGlobalPath_test.js should pass jshint.'); 
+    });
+  });
+define("ember-metal/tests/accessors/mandatory_setters_test",
+  ["ember-metal/property_get","ember-metal/property_set","ember-metal/watching","ember-metal/platform"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+    "use strict";
+    var get = __dependency1__.get;
+    var set = __dependency2__.set;
+    var watch = __dependency3__.watch;
+    var hasPropertyAccessors = __dependency4__.hasPropertyAccessors;
+
+    QUnit.module('mandatory-setters');
+
+    
+      if (hasPropertyAccessors) {
+        test('does not assert if property is not being watched', function() {
+          var obj = {
+            someProp: null,
+            toString: function() {
+              return 'custom-object';
+            }
+          };
+
+          obj.someProp = 'blastix';
+          equal(get(obj, 'someProp'), 'blastix');
+        });
+
+        test('should assert if set without Ember.set when property is being watched', function() {
+          var obj = {
+            someProp: null,
+            toString: function() {
+              return 'custom-object';
+            }
+          };
+
+          watch(obj, 'someProp');
+
+          expectAssertion(function() {
+            obj.someProp = 'foo-bar';
+          }, 'You must use Ember.set() to set the `someProp` property (of custom-object) to `foo-bar`.');
+        });
+
+        test('should not assert if set with Ember.set when property is being watched', function() {
+          var obj = {
+            someProp: null,
+            toString: function() {
+              return 'custom-object';
+            }
+          };
+
+          watch(obj, 'someProp');
+          set(obj, 'someProp', 'foo-bar');
+
+          equal(get(obj, 'someProp'), 'foo-bar');
+        });
+      }
+      });
+define("ember-metal/tests/accessors/mandatory_setters_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal/tests/accessors');
+    test('ember-metal/tests/accessors/mandatory_setters_test.js should pass jshint', function() { 
+      ok(true, 'ember-metal/tests/accessors/mandatory_setters_test.js should pass jshint.'); 
     });
   });
 define("ember-metal/tests/accessors/normalizeTuple_test",
@@ -17314,10 +17405,12 @@ define("ember-metal/tests/is_blank_test.jshint",
     });
   });
 define("ember-metal/tests/is_empty_test",
-  ["ember-metal/is_empty"],
-  function(__dependency1__) {
+  ["ember-metal/is_empty","ember-metal/map"],
+  function(__dependency1__, __dependency2__) {
     "use strict";
     var isEmpty = __dependency1__["default"];
+    var Map = __dependency2__.Map;
+    var OrderedSet = __dependency2__.OrderedSet;
 
     QUnit.module("Ember.isEmpty");
 
@@ -17337,6 +17430,20 @@ define("ember-metal/tests/is_empty_test",
       equal(true,  isEmpty([]),        "for an empty Array");
       equal(false, isEmpty({}),        "for an empty Object");
       equal(true,  isEmpty(object),     "for an Object that has zero 'length'");
+    });
+
+    test("Ember.isEmpty Ember.Map", function() {
+      var map = new Map();
+      equal(true, isEmpty(map), "Empty map is empty");
+      map.set('foo', 'bar');
+      equal(false, isEmpty(map), "Map is not empty");
+    });
+
+    test("Ember.isEmpty Ember.OrderedSet", function() {
+      var orderedSet = new OrderedSet();
+      equal(true, isEmpty(orderedSet), "Empty ordered set is empty");
+      orderedSet.add('foo');
+      equal(false, isEmpty(orderedSet), "Ordered set is not empty");
     });
   });
 define("ember-metal/tests/is_empty_test.jshint",
@@ -30612,10 +30719,11 @@ define("ember-runtime/tests/core/compare_test.jshint",
     });
   });
 define("ember-runtime/tests/core/copy_test",
-  ["ember-runtime/copy"],
-  function(__dependency1__) {
+  ["ember-metal/platform","ember-runtime/copy"],
+  function(__dependency1__, __dependency2__) {
     "use strict";
-    var copy = __dependency1__["default"];
+    var create = __dependency1__.create;
+    var copy = __dependency2__["default"];
 
     QUnit.module("Ember Copy Method");
 
@@ -30633,7 +30741,7 @@ define("ember-runtime/tests/core/copy_test",
     });
 
     test("Ember.copy null prototype object", function() {
-      var obj = Object.create(null);
+      var obj = create(null);
 
       obj.foo = 'bar';
 
@@ -50010,8 +50118,10 @@ define("ember-views/tests/views/view/create_element_test",
 
       var elem = get(view, 'element');
       ok(elem, 'has element now');
-      equalHTML(elem.childNodes, '<script></script><tr><td>snorfblax</td></tr>', 'has innerHTML from context');
       equal(elem.tagName.toString().toLowerCase(), 'table', 'has tagName from view');
+      equal(elem.childNodes[0].tagName, 'SCRIPT', 'script tag first');
+      equal(elem.childNodes[1].tagName, 'TR', 'tr tag second');
+      equalHTML(elem.childNodes, '<script></script><tr><td>snorfblax</td></tr>', 'has innerHTML from context');
     });
 
     test("does not wrap many tr children in tbody elements", function() {
@@ -51857,7 +51967,7 @@ define("ember-views/tests/views/view/template_test",
       var View;
 
       View = EmberView.extend({
-        templateName: 'foobar',
+        templateName: 'foobar'
       });
 
       raises(function() {
@@ -59918,7 +60028,7 @@ define("ember/tests/routing/query_params_test",
       });
 
       App.ParentController = Ember.Controller.extend(HasPage, {
-        queryParams: { page: 'yespage' },
+        queryParams: { page: 'yespage' }
       });
 
       App.ParentChildController = Ember.Controller.extend(HasPage);

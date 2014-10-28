@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0+pre.1d6953f3
+ * @version   1.8.0+pre.7ca6ddc8
  */
 
 (function() {
@@ -2944,7 +2944,7 @@ define("ember-application/system/application",
     });
 
     Application.reopenClass({
-      initializers: Object.create(null),
+      initializers: create(null),
 
       /**
         Initializer receives an object which has the following attributes:
@@ -4431,8 +4431,12 @@ define("ember-extension-support/initializers",
 define("ember-handlebars-compiler",
   ["ember-metal/core","exports"],
   function(__dependency1__, __exports__) {
-    "use strict";
-    /* global Handlebars:true */
+        /* global Handlebars:true */
+
+    // Remove "use strict"; from transpiled module (in browser builds only) until
+    // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
+    //
+    // REMOVE_USE_STRICT: true
 
     /**
     @module ember
@@ -10582,11 +10586,11 @@ define("ember-metal",
     var EnumerableUtils = __dependency6__["default"];
     var Cache = __dependency7__["default"];
     var create = __dependency8__.create;
-    var platform = __dependency8__.platform;
-    var map = __dependency9__.map;
-    var forEach = __dependency9__.forEach;
+    var hasPropertyAccessors = __dependency8__.hasPropertyAccessors;
     var filter = __dependency9__.filter;
+    var forEach = __dependency9__.forEach;
     var indexOf = __dependency9__.indexOf;
+    var map = __dependency9__.map;
     var Logger = __dependency10__["default"];
 
     var get = __dependency11__.get;
@@ -10695,7 +10699,10 @@ define("ember-metal",
     Ember.GUID_KEY        = GUID_KEY;
     Ember.create          = create;
     Ember.keys            = keys;
-    Ember.platform        = platform;
+    Ember.platform        = {
+      defineProperty: defineProperty,
+      hasPropertyAccessors: hasPropertyAccessors
+    };
 
     var EmberArrayPolyfills = Ember.ArrayPolyfills = {};
 
@@ -13327,7 +13334,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0+pre.1d6953f3
+      @version 1.8.0+pre.7ca6ddc8
     */
 
     if ('undefined' === typeof Ember) {
@@ -13354,10 +13361,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0+pre.1d6953f3'
+      @default '1.8.0+pre.7ca6ddc8'
       @static
     */
-    Ember.VERSION = '1.8.0+pre.1d6953f3';
+    Ember.VERSION = '1.8.0+pre.7ca6ddc8';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -13645,16 +13652,18 @@ define("ember-metal/deprecate_property",
     __exports__.deprecateProperty = deprecateProperty;
   });
 define("ember-metal/dictionary",
-  ["exports"],
-  function(__exports__) {
+  ["ember-metal/platform","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
+    var create = __dependency1__.create;
+
     // the delete is meant to hint at runtimes that this object should remain in
     // dictionary mode. This is clearly a runtime specific hack, but currently it
     // appears worthwile in some usecases. Please note, these deletes do increase
     // the cost of creation dramatically over a plain Object.create. And as this
     // only makes sense for long-lived dictionaries that aren't instantiated often.
     __exports__["default"] = function makeDictionary(parent) {
-      var dict = Object.create(parent);
+      var dict = create(parent);
       dict['_dict'] = null;
       delete dict['_dict'];
       return dict;
@@ -14778,7 +14787,7 @@ define("ember-metal/is_empty",
       Verifies that a value is `null` or an empty string, empty array,
       or empty function.
 
-      Constrains the rules on `Ember.isNone` by returning false for empty
+      Constrains the rules on `Ember.isNone` by returning true for empty
       string and empty arrays.
 
       ```javascript
@@ -14797,7 +14806,36 @@ define("ember-metal/is_empty",
       @return {Boolean}
     */
     function isEmpty(obj) {
-      return isNone(obj) || (obj.length === 0 && typeof obj !== 'function') || (typeof obj === 'object' && get(obj, 'length') === 0);
+      var none = isNone(obj);
+      if (none) {
+        return none;
+      }
+
+      if (typeof obj.size === 'number') {
+        return !obj.size;
+      }
+
+      var objectType = typeof obj;
+
+      if (objectType === 'object') {
+        var size = get(obj, 'size');
+        if (typeof size === 'number') {
+          return !size;
+        }
+      }
+
+      if (typeof obj.length === 'number' && objectType !== 'function') {
+        return !obj.length;
+      }
+
+      if (objectType === 'object') {
+        var length = get(obj, 'length');
+        if (typeof length === 'number') {
+          return !length;
+        }
+      }
+
+      return false;
     }
 
     var empty = Ember.deprecateFunc("Ember.empty is deprecated. Please use Ember.isEmpty instead.", isEmpty);
@@ -15179,7 +15217,7 @@ define("ember-metal/map",
     }
 
     function copyNull(obj) {
-      var output = Object.create(null);
+      var output = create(null);
 
       for (var prop in obj) {
         // hasOwnPropery is not needed because obj is Object.create(null);
@@ -15237,7 +15275,7 @@ define("ember-metal/map",
         @method clear
       */
       clear: function() {
-        this.presenceSet = Object.create(null);
+        this.presenceSet = create(null);
         this.list = [];
         this.size = 0;
       },
@@ -15400,7 +15438,7 @@ define("ember-metal/map",
       if (this instanceof this.constructor) {
         this.keys = OrderedSet.create();
         this.keys._silenceRemoveDeprecation = true;
-        this.values = Object.create(null);
+        this.values = create(null);
         this.size = 0;
       } else {
         missingNew("OrderedSet");
@@ -15561,7 +15599,7 @@ define("ember-metal/map",
       */
       clear: function() {
         this.keys.clear();
-        this.values = Object.create(null);
+        this.values = create(null);
         this.size = 0;
       },
 
@@ -16752,108 +16790,48 @@ define("ember-metal/path_cache",
     __exports__.isPath = isPath;
   });
 define("ember-metal/platform",
-  ["exports"],
-  function(__exports__) {
+  ["ember-metal/platform/define_property","ember-metal/platform/define_properties","ember-metal/platform/create","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
-    /*globals Node */
+    var hasES5CompliantDefineProperty = __dependency1__.hasES5CompliantDefineProperty;
+    var defineProperty = __dependency1__.defineProperty;
+    var defineProperties = __dependency2__["default"];
+    var create = __dependency3__["default"];
 
     /**
     @module ember-metal
     */
-    var defineProperty = (function checkCompliance(defineProperty) {
-      if (!defineProperty) return;
-      try {
-        var a = 5;
-        var obj = {};
-        defineProperty(obj, 'a', {
-          configurable: true,
-          enumerable: true,
-          get: function () {
-            return a;
-          },
-          set: function (v) {
-            a = v;
-          }
-        });
-        if (obj.a !== 5) return;
-        obj.a = 10;
-        if (a !== 10) return;
 
-        // check non-enumerability
-        defineProperty(obj, 'a', {
-          configurable: true,
-          enumerable: false,
-          writable: true,
-          value: true
-        });
-        for (var key in obj) {
-          if (key === 'a') return;
-        }
+    var hasPropertyAccessors = hasES5CompliantDefineProperty;
+    var canDefineNonEnumerableProperties = hasES5CompliantDefineProperty;
 
-        // Detects a bug in Android <3.2 where you cannot redefine a property using
-        // Object.defineProperty once accessors have already been set.
-        if (obj.a !== true) return;
+    /**
+      Platform specific methods and feature detectors needed by the framework.
 
-        // defineProperty is compliant
-        return defineProperty;
-      } catch (e) {
-        // IE8 defines Object.defineProperty but calling it on an Object throws
-        return;
-      }
-    })(Object.defineProperty);
+      @class platform
+      @namespace Ember
+      @static
+    */
 
-    var hasES5CompliantDefineProperty = !!defineProperty;
+    __exports__.create = create;
+    __exports__.defineProperty = defineProperty;
+    __exports__.defineProperties = defineProperties;
+    __exports__.hasPropertyAccessors = hasPropertyAccessors;
+    __exports__.canDefineNonEnumerableProperties = canDefineNonEnumerableProperties;
+  });
+define("ember-metal/platform/create",
+  ["exports"],
+  function(__exports__) {
+        // Remove "use strict"; from transpiled module until
+    // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
+    //
+    // REMOVE_USE_STRICT: true
 
-    if (hasES5CompliantDefineProperty && typeof document !== 'undefined') {
-      // This is for Safari 5.0, which supports Object.defineProperty, but not
-      // on DOM nodes.
-      var canDefinePropertyOnDOM = (function() {
-        try {
-          defineProperty(document.createElement('div'), 'definePropertyOnDOM', {});
-          return true;
-        } catch(e) { }
-
-        return false;
-      })();
-
-      if (!canDefinePropertyOnDOM) {
-        defineProperty = function(obj, keyName, desc) {
-          var isNode;
-
-          if (typeof Node === "object") {
-            isNode = obj instanceof Node;
-          } else {
-            isNode = typeof obj === "object" && typeof obj.nodeType === "number" && typeof obj.nodeName === "string";
-          }
-
-          if (isNode) {
-            // TODO: Should we have a warning here?
-            return (obj[keyName] = desc.value);
-          } else {
-            return Object.defineProperty(obj, keyName, desc);
-          }
-        };
-      }
-    }
-
-    if (!hasES5CompliantDefineProperty) {
-      defineProperty = function defineProperty(obj, keyName, desc) {
-        if (!desc.get) { obj[keyName] = desc.value; }
-      };
-    }
-
-    // ES5 15.2.3.7
-    // http://es5.github.com/#x15.2.3.7
-    if (!Object.defineProperties) {
-      Object.defineProperties = function defineProperties(object, properties) {
-        for (var property in properties) {
-          if (properties.hasOwnProperty(property) && property !== "__proto__") {
-            defineProperty(object, property, properties[property]);
-          }
-        }
-        return object;
-      };
-    }
+    /**
+    @class platform
+    @namespace Ember
+    @static
+    */
 
     /**
       Identical to `Object.create()`. Implements if not available natively.
@@ -16941,23 +16919,51 @@ define("ember-metal/platform",
       create = Object.create;
     }
 
-    var hasPropertyAccessors = hasES5CompliantDefineProperty;
-    var canDefineNonEnumerableProperties = hasES5CompliantDefineProperty;
+    __exports__["default"] = create;
+  });
+define("ember-metal/platform/define_properties",
+  ["ember-metal/platform/define_property","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    var defineProperty = __dependency1__.defineProperty;
+
+    var defineProperties = Object.defineProperties;
+
+    // ES5 15.2.3.7
+    // http://es5.github.com/#x15.2.3.7
+    if (!defineProperties) {
+      defineProperties = function defineProperties(object, properties) {
+        for (var property in properties) {
+          if (properties.hasOwnProperty(property) && property !== "__proto__") {
+            defineProperty(object, property, properties[property]);
+          }
+        }
+        return object;
+      };
+
+      Object.defineProperties = defineProperties;
+    }
+
+    __exports__["default"] = defineProperties;
+  });
+define("ember-metal/platform/define_property",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    /*globals Node */
 
     /**
     @class platform
     @namespace Ember
+    @static
     */
 
     /**
-      Platform specific methods and feature detectors needed by the framework.
+      Set to true if the platform supports native getters and setters.
 
-      @class platform
-      @namespace Ember
-      @static
+      @property hasPropertyAccessors
+      @final
     */
-    // TODO remove this
-    var platform = {};
 
     /**
       Identical to `Object.defineProperty()`. Implements as much functionality
@@ -16969,21 +16975,90 @@ define("ember-metal/platform",
       @param {Object} desc descriptor hash
       @return {void}
     */
-    platform.defineProperty = defineProperty;
+    var defineProperty = (function checkCompliance(defineProperty) {
+      if (!defineProperty) return;
+      try {
+        var a = 5;
+        var obj = {};
+        defineProperty(obj, 'a', {
+          configurable: true,
+          enumerable: true,
+          get: function () {
+            return a;
+          },
+          set: function (v) {
+            a = v;
+          }
+        });
+        if (obj.a !== 5) return;
+        obj.a = 10;
+        if (a !== 10) return;
 
-    /**
-      Set to true if the platform supports native getters and setters.
+        // check non-enumerability
+        defineProperty(obj, 'a', {
+          configurable: true,
+          enumerable: false,
+          writable: true,
+          value: true
+        });
+        for (var key in obj) {
+          if (key === 'a') return;
+        }
 
-      @property hasPropertyAccessors
-      @final
-    */
-    platform.hasPropertyAccessors = hasPropertyAccessors;
+        // Detects a bug in Android <3.2 where you cannot redefine a property using
+        // Object.defineProperty once accessors have already been set.
+        if (obj.a !== true) return;
 
-    __exports__.create = create;
+        // defineProperty is compliant
+        return defineProperty;
+      } catch (e) {
+        // IE8 defines Object.defineProperty but calling it on an Object throws
+        return;
+      }
+    })(Object.defineProperty);
+
+    var hasES5CompliantDefineProperty = !!defineProperty;
+
+    if (hasES5CompliantDefineProperty && typeof document !== 'undefined') {
+      // This is for Safari 5.0, which supports Object.defineProperty, but not
+      // on DOM nodes.
+      var canDefinePropertyOnDOM = (function() {
+        try {
+          defineProperty(document.createElement('div'), 'definePropertyOnDOM', {});
+          return true;
+        } catch(e) { }
+
+        return false;
+      })();
+
+      if (!canDefinePropertyOnDOM) {
+        defineProperty = function(obj, keyName, desc) {
+          var isNode;
+
+          if (typeof Node === "object") {
+            isNode = obj instanceof Node;
+          } else {
+            isNode = typeof obj === "object" && typeof obj.nodeType === "number" && typeof obj.nodeName === "string";
+          }
+
+          if (isNode) {
+            // TODO: Should we have a warning here?
+            return (obj[keyName] = desc.value);
+          } else {
+            return Object.defineProperty(obj, keyName, desc);
+          }
+        };
+      }
+    }
+
+    if (!hasES5CompliantDefineProperty) {
+      defineProperty = function defineProperty(obj, keyName, desc) {
+        if (!desc.get) { obj[keyName] = desc.value; }
+      };
+    }
+
+    __exports__.hasES5CompliantDefineProperty = hasES5CompliantDefineProperty;
     __exports__.defineProperty = defineProperty;
-    __exports__.hasPropertyAccessors = hasPropertyAccessors;
-    __exports__.canDefineNonEnumerableProperties = canDefineNonEnumerableProperties;
-    __exports__.platform = platform;
   });
 define("ember-metal/properties",
   ["ember-metal/core","ember-metal/utils","ember-metal/platform","ember-metal/property_events","exports"],
@@ -17019,8 +17094,10 @@ define("ember-metal/properties",
     // DEFINING PROPERTIES API
     //
 
-    function MANDATORY_SETTER_FUNCTION(value) {
-          }
+    function MANDATORY_SETTER_FUNCTION(name) {
+      return function SETTER_FUNCTION(value) {
+              };
+    }
 
     __exports__.MANDATORY_SETTER_FUNCTION = MANDATORY_SETTER_FUNCTION;function DEFAULT_GETTER_FUNCTION(name) {
       return function GETTER_FUNCTION() {
@@ -25089,8 +25166,8 @@ define("ember-routing/system/route",
     __exports__["default"] = Route;
   });
 define("ember-routing/system/router",
-  ["ember-metal/core","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/properties","ember-metal/computed","ember-metal/merge","ember-metal/run_loop","ember-metal/enumerable_utils","ember-runtime/system/string","ember-runtime/system/object","ember-runtime/mixins/evented","ember-routing/system/dsl","ember-views/views/view","ember-routing/location/api","ember-handlebars/views/metamorph_view","ember-routing-handlebars/helpers/shared","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __exports__) {
+  ["ember-metal/core","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/properties","ember-metal/computed","ember-metal/merge","ember-metal/run_loop","ember-metal/enumerable_utils","ember-runtime/system/string","ember-runtime/system/object","ember-runtime/mixins/evented","ember-routing/system/dsl","ember-views/views/view","ember-routing/location/api","ember-handlebars/views/metamorph_view","ember-routing-handlebars/helpers/shared","ember-metal/platform","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // FEATURES, Logger, K, assert
@@ -25113,10 +25190,7 @@ define("ember-routing/system/router",
     var routeArgs = __dependency17__.routeArgs;
     var getActiveTargetName = __dependency17__.getActiveTargetName;
     var stashParamNames = __dependency17__.stashParamNames;
-
-    // requireModule("ember-handlebars");
-    // requireModule("ember-runtime");
-    // requireModule("ember-views");
+    var create = __dependency18__.create;
 
     /**
     @module ember
@@ -33499,7 +33573,11 @@ define("ember-runtime/system/container",
 define("ember-runtime/system/core_object",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/platform","ember-metal/watching","ember-metal/chains","ember-metal/events","ember-metal/mixin","ember-metal/enumerable_utils","ember-metal/error","ember-metal/keys","ember-runtime/mixins/action_handler","ember-metal/properties","ember-metal/binding","ember-metal/computed","ember-metal/run_loop","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __exports__) {
-    "use strict";
+        // Remove "use strict"; from transpiled module until
+    // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
+    //
+    // REMOVE_USE_STRICT: true
+
     /**
       @module ember
       @submodule ember-runtime
@@ -37005,8 +37083,8 @@ define("ember-views/system/jquery",
     __exports__["default"] = jQuery;
   });
 define("ember-views/system/render_buffer",
-  ["ember-views/system/jquery","morph","ember-metal/core","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["ember-views/system/jquery","morph","ember-metal/core","ember-metal/platform","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -37016,6 +37094,7 @@ define("ember-views/system/render_buffer",
     var jQuery = __dependency1__["default"];
     var DOMHelper = __dependency2__.DOMHelper;
     var Ember = __dependency3__["default"];
+    var create = __dependency4__.create;
 
     // The HTML spec allows for "omitted start tags". These tags are optional
     // when their intended child is the first thing in the parent tag. For
@@ -37064,7 +37143,7 @@ define("ember-views/system/render_buffer",
     }
 
     function ClassSet() {
-      this.seen = Object.create(null);
+      this.seen = create(null);
       this.list = [];
     }
 
@@ -41825,11 +41904,12 @@ define("morph/dom-helper/build-html-dom",
     __exports__.svgHTMLIntegrationPoints = svgHTMLIntegrationPoints;var svgNamespace = 'http://www.w3.org/2000/svg';
     __exports__.svgNamespace = svgNamespace;
     // Safari does not like using innerHTML on SVG HTML integration
-    // points.
+    // points (desc/title/foreignObject).
     var needsIntegrationPointFix = document.createElementNS && (function() {
-      var testEl = document.createElementNS(svgNamespace, 'foreignObject');
+      // In FF title will not accept innerHTML.
+      var testEl = document.createElementNS(svgNamespace, 'title');
       testEl.innerHTML = "<div></div>";
-      return testEl.childNodes.length === 0;
+      return testEl.childNodes.length === 0 || testEl.childNodes[0].nodeType !== 1;
     })();
 
     // Internet Explorer prior to 9 does not allow setting innerHTML if the first element
@@ -41875,8 +41955,6 @@ define("morph/dom-helper/build-html-dom",
         thead: ['table'],
         tr: ['table', 'tbody']
       };
-    } else {
-      tagNamesRequiringInnerHTMLFix = {};
     }
 
     // IE 8 doesn't allow setting innerHTML on a select tag. Detect this and
@@ -41885,6 +41963,7 @@ define("morph/dom-helper/build-html-dom",
     var selectInnerHTMLTestElement = document.createElement('select');
     selectInnerHTMLTestElement.innerHTML = '<option></option>';
     if (selectInnerHTMLTestElement) {
+      tagNamesRequiringInnerHTMLFix = tagNamesRequiringInnerHTMLFix || {};
       tagNamesRequiringInnerHTMLFix.select = [];
     }
 
@@ -41967,10 +42046,9 @@ define("morph/dom-helper/build-html-dom",
     }
 
 
-    var buildHTMLDOM;
-    // Really, this just means IE8 and IE9 get a slower buildHTMLDOM
-    if (tagNamesRequiringInnerHTMLFix.length > 0 || movesWhitespace) {
-      buildHTMLDOM = function buildHTMLDOM(html, contextualElement, dom) {
+    var buildIESafeDOM;
+    if (tagNamesRequiringInnerHTMLFix || movesWhitespace) {
+      buildIESafeDOM = function buildIESafeDOM(html, contextualElement, dom) {
         // Make a list of the leading text on script nodes. Include
         // script tags without any whitespace for easier processing later.
         var spacesBefore = [];
@@ -42013,7 +42091,7 @@ define("morph/dom-helper/build-html-dom",
         }
 
         // Walk the script tags and put back their leading text nodes.
-        var textNode, spaceBefore, spaceAfter;
+        var scriptNode, textNode, spaceBefore, spaceAfter;
         for (i=0;scriptNode=scriptNodes[i];i++) {
           spaceBefore = spacesBefore[i];
           if (spaceBefore && spaceBefore.length > 0) {
@@ -42030,16 +42108,21 @@ define("morph/dom-helper/build-html-dom",
 
         return nodes;
       };
-    } else if (needsIntegrationPointFix) {
+    } else {
+      buildIESafeDOM = buildDOM;
+    }
+
+    var buildHTMLDOM;
+    if (needsIntegrationPointFix) {
       buildHTMLDOM = function buildHTMLDOM(html, contextualElement, dom){
         if (svgHTMLIntegrationPoints[contextualElement.tagName]) {
-          return buildDOM(html, document.createElement('div'), dom);
+          return buildIESafeDOM(html, document.createElement('div'), dom);
         } else {
-          return buildDOM(html, contextualElement, dom);
+          return buildIESafeDOM(html, contextualElement, dom);
         }
       };
     } else {
-      buildHTMLDOM = buildDOM;
+      buildHTMLDOM = buildIESafeDOM;
     }
 
     __exports__.buildHTMLDOM = buildHTMLDOM;

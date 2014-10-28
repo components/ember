@@ -1,7 +1,7 @@
 {
   "name": "ember",
   "repo": "components/ember",
-  "version": "1.8.0+pre.1d6953f3",
+  "version": "1.8.0+pre.7ca6ddc8",
   "main": "ember.js",
   "scripts": [
     "ember.js"
