@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.a1e90727
+ * @version   1.9.0-beta.1+canary.1484644a
  */
 
 (function() {
@@ -5254,7 +5254,7 @@ define("ember-handlebars/controls",
 
       The helper can send multiple actions based on user events.
 
-      The action property defines the action which is send when
+      The action property defines the action which is sent when
       the user presses the return key.
 
       ```handlebars
@@ -5269,6 +5269,7 @@ define("ember-handlebars/controls",
     * `focus-in`
     * `focus-out`
     * `key-press`
+
 
       For example, if you desire an action to be sent when the input is blurred,
       you only need to setup the action name to the event name property.
@@ -13112,7 +13113,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.a1e90727
+      @version 1.9.0-beta.1+canary.1484644a
     */
 
     if ('undefined' === typeof Ember) {
@@ -13139,10 +13140,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.a1e90727'
+      @default '1.9.0-beta.1+canary.1484644a'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.a1e90727';
+    Ember.VERSION = '1.9.0-beta.1+canary.1484644a';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
