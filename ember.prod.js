@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0+pre.7ca6ddc8
+ * @version   1.8.0+pre.e14821f5
  */
 
 (function() {
@@ -13334,7 +13334,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.8.0+pre.7ca6ddc8
+      @version 1.8.0+pre.e14821f5
     */
 
     if ('undefined' === typeof Ember) {
@@ -13361,10 +13361,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.8.0+pre.7ca6ddc8'
+      @default '1.8.0+pre.e14821f5'
       @static
     */
-    Ember.VERSION = '1.8.0+pre.7ca6ddc8';
+    Ember.VERSION = '1.8.0+pre.e14821f5';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -15744,6 +15744,7 @@ define("ember-metal/mixin",
     var wrap = __dependency5__.wrap;
     var makeArray = __dependency5__.makeArray;
     var apply = __dependency5__.apply;
+    var isArray = __dependency5__.isArray;
     var expandProperties = __dependency6__["default"];
     var Descriptor = __dependency7__.Descriptor;
     var defineProperty = __dependency7__.defineProperty;
@@ -15903,6 +15904,7 @@ define("ember-metal/mixin",
     function applyMergedProperties(obj, key, value, values) {
       var baseValue = values[key] || obj[key];
 
+      
       if (!baseValue) { return value; }
 
       var newBase = merge({}, baseValue);
