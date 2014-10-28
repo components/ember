@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.97004f19
+ * @version   1.10.0-beta.1+canary.b8d2067d
  */
 
 (function() {
@@ -12750,7 +12750,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.97004f19
+      @version 1.10.0-beta.1+canary.b8d2067d
     */
 
     if ('undefined' === typeof Ember) {
@@ -12777,10 +12777,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.97004f19'
+      @default '1.10.0-beta.1+canary.b8d2067d'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.97004f19';
+    Ember.VERSION = '1.10.0-beta.1+canary.b8d2067d';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -24153,7 +24153,7 @@ enifed("ember-routing/system/route",
         });
         ```
 
-        The model for the `post` route is `App.Post.find(params.post_id)`.
+        The model for the `post` route is `store.find('post', params.post_id)`.
 
         By default, if your route has a dynamic segment ending in `_id`:
 
@@ -24196,7 +24196,7 @@ enifed("ember-routing/system/route",
         ```javascript
         App.PostRoute = Ember.Route.extend({
           model: function(params) {
-            return App.Post.find(params.post_id);
+            return this.store.find('post', params.post_id);
           }
         });
         ```
@@ -24362,7 +24362,7 @@ enifed("ember-routing/system/route",
         ```javascript
         App.PhotosRoute = Ember.Route.extend({
           model: function() {
-            return App.Photo.find();
+            return this.store.find('photo');
           },
 
           setupController: function (controller, model) {
