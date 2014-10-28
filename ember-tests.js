@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.36a53abc
+ * @version   1.9.0-beta.1+canary.5f2f6e1f
  */
 
 (function() {
@@ -17546,10 +17546,12 @@ define("ember-metal/tests/is_blank_test.jshint",
     });
   });
 define("ember-metal/tests/is_empty_test",
-  ["ember-metal/is_empty"],
-  function(__dependency1__) {
+  ["ember-metal/is_empty","ember-metal/map"],
+  function(__dependency1__, __dependency2__) {
     "use strict";
     var isEmpty = __dependency1__["default"];
+    var Map = __dependency2__.Map;
+    var OrderedSet = __dependency2__.OrderedSet;
 
     QUnit.module("Ember.isEmpty");
 
@@ -17569,6 +17571,20 @@ define("ember-metal/tests/is_empty_test",
       equal(true,  isEmpty([]),        "for an empty Array");
       equal(false, isEmpty({}),        "for an empty Object");
       equal(true,  isEmpty(object),     "for an Object that has zero 'length'");
+    });
+
+    test("Ember.isEmpty Ember.Map", function() {
+      var map = new Map();
+      equal(true, isEmpty(map), "Empty map is empty");
+      map.set('foo', 'bar');
+      equal(false, isEmpty(map), "Map is not empty");
+    });
+
+    test("Ember.isEmpty Ember.OrderedSet", function() {
+      var orderedSet = new OrderedSet();
+      equal(true, isEmpty(orderedSet), "Empty ordered set is empty");
+      orderedSet.add('foo');
+      equal(false, isEmpty(orderedSet), "Ordered set is not empty");
     });
   });
 define("ember-metal/tests/is_empty_test.jshint",

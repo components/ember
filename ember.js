@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.1+canary.36a53abc
+ * @version   1.9.0-beta.1+canary.5f2f6e1f
  */
 
 (function() {
@@ -13112,7 +13112,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.1+canary.36a53abc
+      @version 1.9.0-beta.1+canary.5f2f6e1f
     */
 
     if ('undefined' === typeof Ember) {
@@ -13139,10 +13139,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.1+canary.36a53abc'
+      @default '1.9.0-beta.1+canary.5f2f6e1f'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.1+canary.36a53abc';
+    Ember.VERSION = '1.9.0-beta.1+canary.5f2f6e1f';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -14643,8 +14643,36 @@ define("ember-metal/is_empty",
       @return {Boolean}
     */
     function isEmpty(obj) {
-      return isNone(obj) || (obj.length === 0 && typeof obj !== 'function') ||
-        (typeof obj === 'object' && get(obj, 'length') === 0);
+      var none = isNone(obj);
+      if (none) {
+        return none;
+      }
+
+      if (typeof obj.size === 'number') {
+        return !obj.size;
+      }
+
+      var objectType = typeof obj;
+
+      if (objectType === 'object') {
+        var size = get(obj, 'size');
+        if (typeof size === 'number') {
+          return !size;
+        }
+      }
+
+      if (typeof obj.length === 'number' && objectType !== 'function') {
+        return !obj.length;
+      }
+
+      if (objectType === 'object') {
+        var length = get(obj, 'length');
+        if (typeof length === 'number') {
+          return !length;
+        }
+      }
+
+      return false;
     }
 
     var empty = Ember.deprecateFunc("Ember.empty is deprecated. Please use Ember.isEmpty instead.", isEmpty);
