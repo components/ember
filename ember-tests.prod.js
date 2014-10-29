@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.365ab161
+ * @version   1.10.0-beta.1+canary.22f0e76e
  */
 
 (function() {
@@ -50041,6 +50041,16 @@ enifed("ember-views/tests/views/view/attribute_bindings_test",
         error = e;
       }
       ok(!error, error);
+    });
+
+    test("asserts if an attributeBinding is setup on class", function() {
+      view = EmberView.create({
+        attributeBindings: ['class']
+      });
+
+      expectAssertion(function() {
+        appendView();
+      }, 'You cannot use class as an attributeBinding, use classNameBindings instead.');
     });
   });
 enifed("ember-views/tests/views/view/attribute_bindings_test.jshint",
