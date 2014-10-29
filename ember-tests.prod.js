@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.b8d2067d
+ * @version   1.10.0-beta.1+canary.59504c13
  */
 
 (function() {
@@ -59851,6 +59851,31 @@ enifed("ember/tests/routing/query_params_test",
       var appController = container.lookup('controller:application');
       expectedReplaceURL = "/?alex=wallace";
       setAndFlush(appController, 'alex', 'wallace');
+    });
+
+    test("Route query params config can be configured using property name instead of URL key", function() {
+      expect(2);
+      App.ApplicationController = Ember.Controller.extend({
+        queryParams: [
+          {commitBy: "commit_by"}
+        ]
+      });
+
+      App.ApplicationRoute = Ember.Route.extend({
+        queryParams: {
+          commitBy: {
+            replace: true
+          }
+        }
+      });
+
+      bootApplication();
+
+      equal(router.get('location.path'), "");
+
+      var appController = container.lookup('controller:application');
+      expectedReplaceURL = "/?commit_by=igor_seb";
+      setAndFlush(appController, 'commitBy', 'igor_seb');
     });
 
     test("An explicit replace:false on a changed QP always wins and causes a pushState", function() {
