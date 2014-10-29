@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.22f0e76e
+ * @version   1.10.0-beta.1+canary.165508aa
  */
 
 (function() {
@@ -12750,7 +12750,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.22f0e76e
+      @version 1.10.0-beta.1+canary.165508aa
     */
 
     if ('undefined' === typeof Ember) {
@@ -12777,10 +12777,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.22f0e76e'
+      @default '1.10.0-beta.1+canary.165508aa'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.22f0e76e';
+    Ember.VERSION = '1.10.0-beta.1+canary.165508aa';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -24606,7 +24606,7 @@ enifed("ember-routing/system/route",
         // posts route
         Ember.Route.extend({
           renderTemplate: function(){
-            this.render('posts', {
+            this.render('photos', {
               into: 'application',
               outlet: 'anOutletName'
             })
