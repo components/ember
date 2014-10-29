@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.59504c13
+ * @version   1.10.0-beta.1+canary.365ab161
  */
 
 (function() {
@@ -50807,6 +50807,22 @@ enifed("ember-views/tests/views/view/create_element_test",
       });
 
       equal(ret, view, 'returns receiver');
+    });
+
+    test('should assert if `tagName` is an empty string and `classNameBindings` are specified', function() {
+      expect(1);
+
+      view = EmberView.create({
+        tagName: '',
+        foo: true,
+        classNameBindings: ['foo:is-foo:is-bar']
+      });
+
+      expectAssertion(function(){
+        run(function(){
+          view.createElement();
+        });
+      }, /You cannot use `classNameBindings` on a tag-less view/);
     });
 
     test("calls render and turns resultant string into element", function() {

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.59504c13
+ * @version   1.10.0-beta.1+canary.365ab161
  */
 
 (function() {
@@ -13113,7 +13113,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.59504c13
+      @version 1.10.0-beta.1+canary.365ab161
     */
 
     if ('undefined' === typeof Ember) {
@@ -13140,10 +13140,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.59504c13'
+      @default '1.10.0-beta.1+canary.365ab161'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.59504c13';
+    Ember.VERSION = '1.10.0-beta.1+canary.365ab161';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -39977,16 +39977,17 @@ enifed("ember-views/system/render_buffer",
     };
   });
 enifed("ember-views/system/renderer",
-  ["ember-metal-views/renderer","ember-metal/platform","ember-views/system/render_buffer","ember-metal/run_loop","ember-metal/property_set","ember-metal/instrumentation","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+  ["ember-metal/core","ember-metal-views/renderer","ember-metal/platform","ember-views/system/render_buffer","ember-metal/run_loop","ember-metal/property_set","ember-metal/instrumentation","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
-    var Renderer = __dependency1__["default"];
-    var create = __dependency2__.create;
-    var renderBuffer = __dependency3__["default"];
-    var run = __dependency4__["default"];
-    var set = __dependency5__.set;
-    var _instrumentStart = __dependency6__._instrumentStart;
-    var subscribers = __dependency6__.subscribers;
+    var Ember = __dependency1__["default"];
+    var Renderer = __dependency2__["default"];
+    var create = __dependency3__.create;
+    var renderBuffer = __dependency4__["default"];
+    var run = __dependency5__["default"];
+    var set = __dependency6__.set;
+    var _instrumentStart = __dependency7__._instrumentStart;
+    var subscribers = __dependency7__.subscribers;
 
     function EmberRenderer() {
       this.buffer = renderBuffer();
@@ -40014,9 +40015,14 @@ enifed("ember-views/system/renderer",
         // provided buffer operation (for example, `insertAfter` will
         // insert a new buffer after the "parent buffer").
         var tagName = view.tagName;
+        var classNameBindings = view.classNameBindings;
+        var taglessViewWithClassBindings = tagName === '' && classNameBindings.length > 0;
+
         if (tagName === null || tagName === undefined) {
           tagName = 'div';
         }
+
+        Ember.assert('You cannot use `classNameBindings` on a tag-less view: ' + view.toString(), !taglessViewWithClassBindings);
 
         var buffer = view.buffer = this.buffer;
         buffer.reset(tagName, contextualElement);
@@ -40025,7 +40031,7 @@ enifed("ember-views/system/renderer",
           view.beforeRender(buffer);
         }
 
-        if (view.tagName !== '') {
+        if (tagName !== '') {
           if (view.applyAttributesToBuffer) {
             view.applyAttributesToBuffer(buffer);
           }
