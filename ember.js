@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.63eabab2
+ * @version   1.10.0-beta.1+canary.b2970ff1
  */
 
 (function() {
@@ -13117,7 +13117,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.63eabab2
+      @version 1.10.0-beta.1+canary.b2970ff1
     */
 
     if ('undefined' === typeof Ember) {
@@ -13144,10 +13144,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.63eabab2'
+      @default '1.10.0-beta.1+canary.b2970ff1'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.63eabab2';
+    Ember.VERSION = '1.10.0-beta.1+canary.b2970ff1';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -17690,7 +17690,10 @@ enifed("ember-metal/property_set",
             propertyWillChange(obj, keyName);
             
               if (hasPropertyAccessors) {
-                if ((currentValue === undefined && !(keyName in obj)) || !obj.propertyIsEnumerable(keyName)) {
+                if (
+                  (currentValue === undefined && !(keyName in obj)) ||
+                  !Object.prototype.propertyIsEnumerable.call(obj, keyName)
+                ) {
                   defineProperty(obj, keyName, null, value); // setup mandatory setter
                 } else {
                   meta.values[keyName] = value;
@@ -19671,7 +19674,7 @@ enifed("ember-metal/watch_key",
           m.values[keyName] = obj[keyName];
           o_defineProperty(obj, keyName, {
             configurable: true,
-            enumerable: obj.propertyIsEnumerable(keyName),
+            enumerable: Object.prototype.propertyIsEnumerable.call(obj, keyName),
             set: MANDATORY_SETTER_FUNCTION(keyName),
             get: DEFAULT_GETTER_FUNCTION(keyName)
           });
@@ -19696,7 +19699,7 @@ enifed("ember-metal/watch_key",
           if (hasPropertyAccessors && keyName in obj) {
             o_defineProperty(obj, keyName, {
               configurable: true,
-              enumerable: obj.propertyIsEnumerable(keyName),
+              enumerable: Object.prototype.propertyIsEnumerable.call(obj, keyName),
               set: function(val) {
                 // redefine to set as enumerable
                 o_defineProperty(obj, keyName, {
