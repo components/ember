@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.165508aa
+ * @version   1.10.0-beta.1+canary.1271f805
  */
 
 (function() {
@@ -13113,7 +13113,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.165508aa
+      @version 1.10.0-beta.1+canary.1271f805
     */
 
     if ('undefined' === typeof Ember) {
@@ -13140,10 +13140,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.165508aa'
+      @default '1.10.0-beta.1+canary.1271f805'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.165508aa';
+    Ember.VERSION = '1.10.0-beta.1+canary.1271f805';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -38661,6 +38661,8 @@ enifed("ember-views",
     var Ember = __dependency1__["default"];
     var jQuery = __dependency2__["default"];
     var isSimpleClick = __dependency3__.isSimpleClick;
+    var getViewClientRects = __dependency3__.getViewClientRects;
+    var getViewBoundingClientRect = __dependency3__.getViewBoundingClientRect;
     var RenderBuffer = __dependency4__["default"];
      // for the side effect of extending Ember.run.queues
     var cloneStates = __dependency6__.cloneStates;
@@ -38691,6 +38693,8 @@ enifed("ember-views",
 
     var ViewUtils = Ember.ViewUtils = {};
     ViewUtils.isSimpleClick = isSimpleClick;
+    ViewUtils.getViewClientRects = getViewClientRects;
+    ViewUtils.getViewBoundingClientRect = getViewBoundingClientRect;
 
     Ember.CoreView = CoreView;
     Ember.View = View;
@@ -40128,7 +40132,51 @@ enifed("ember-views/system/utils",
       return !modifier && !secondaryClick;
     }
 
-    __exports__.isSimpleClick = isSimpleClick;
+    __exports__.isSimpleClick = isSimpleClick;/**
+      @private
+      @method getViewRange
+      @param {Ember.View} view
+    */
+    function getViewRange(view) {
+      var range = document.createRange();
+      range.setStartAfter(view._morph.start);
+      range.setEndBefore(view._morph.end);
+      return range;
+    }
+
+    /**
+      `getViewClientRects` provides information about the position of the border
+      box edges of a view relative to the viewport.
+
+      It is only intended to be used by development tools like the Ember Inpsector
+      and may not work on older browsers.
+
+      @private
+      @method getViewClientRects
+      @param {Ember.View} view
+    */
+    function getViewClientRects(view) {
+      var range = getViewRange(view);
+      return range.getClientRects();
+    }
+
+    __exports__.getViewClientRects = getViewClientRects;/**
+      `getViewBoundingClientRect` provides information about the position of the
+      bounding border box edges of a view relative to the viewport.
+
+      It is only intended to be used by development tools like the Ember Inpsector
+      and may not work on older browsers.
+
+      @private
+      @method getViewBoundingClientRect
+      @param {Ember.View} view
+    */
+    function getViewBoundingClientRect(view) {
+      var range = getViewRange(view);
+      return range.getBoundingClientRect();
+    }
+
+    __exports__.getViewBoundingClientRect = getViewBoundingClientRect;
   });
 enifed("ember-views/views/collection_view",
   ["ember-metal/core","ember-metal/binding","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/string","ember-views/views/container_view","ember-views/views/core_view","ember-views/views/view","ember-metal/mixin","ember-views/streams/read","ember-runtime/mixins/array","exports"],

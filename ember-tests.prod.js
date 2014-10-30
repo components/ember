@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.165508aa
+ * @version   1.10.0-beta.1+canary.1271f805
  */
 
 (function() {
@@ -47494,6 +47494,66 @@ enifed("ember-views/tests/system/render_buffer_test.jshint",
     module('JSHint - ember-views/tests/system');
     test('ember-views/tests/system/render_buffer_test.js should pass jshint', function() { 
       ok(true, 'ember-views/tests/system/render_buffer_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/tests/system/view_utils_test",
+  ["ember-metal/run_loop","ember-views/views/view"],
+  function(__dependency1__, __dependency2__) {
+    "use strict";
+    var run = __dependency1__["default"];
+    var View = __dependency2__["default"];
+
+    var view;
+
+    QUnit.module("ViewUtils", {
+      teardown: function() {
+        run(function() {
+          if (view) { view.destroy(); }
+        });
+      }
+    });
+
+    test("getViewClientRects", function() {
+      if (!(window.Range && window.Range.prototype.getClientRects)) {
+        ok(true, "The test environment does not support the DOM API required for getViewClientRects.");
+        return;
+      }
+
+      view = View.create({
+        render: function(buffer) {
+          buffer.push("Hello, world!");
+        }
+      });
+
+      run(function() { view.appendTo('#qunit-fixture'); });
+
+      ok(Ember.ViewUtils.getViewClientRects(view) instanceof window.ClientRectList);
+    });
+
+    test("getViewBoundingClientRect", function() {
+      if (!(window.Range && window.Range.prototype.getBoundingClientRect)) {
+        ok(true, "The test environment does not support the DOM API required for getViewBoundingClientRect.");
+        return;
+      }
+
+      view = View.create({
+        render: function(buffer) {
+          buffer.push("Hello, world!");
+        }
+      });
+
+      run(function() { view.appendTo('#qunit-fixture'); });
+
+      ok(Ember.ViewUtils.getViewBoundingClientRect(view) instanceof window.ClientRect);
+    });
+  });
+enifed("ember-views/tests/system/view_utils_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/tests/system');
+    test('ember-views/tests/system/view_utils_test.js should pass jshint', function() { 
+      ok(true, 'ember-views/tests/system/view_utils_test.js should pass jshint.'); 
     });
   });
 enifed("ember-views/tests/views/collection_test",
