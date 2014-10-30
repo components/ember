@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.52c337dd
+ * @version   1.10.0-beta.1+canary.63eabab2
  */
 
 (function() {
@@ -9647,6 +9647,9 @@ enifed("ember-handlebars/string",
       @return {Handlebars.SafeString} a string that will not be html escaped by Handlebars
     */
     function htmlSafe(str) {
+      if (typeof str !== 'string') {
+        str = ''+str;
+      }
       return new Handlebars.SafeString(str);
     }
 
@@ -9674,8 +9677,8 @@ enifed("ember-handlebars/string",
     __exports__["default"] = htmlSafe;
   });
 enifed("ember-handlebars/views/handlebars_bound_view",
-  ["ember-handlebars-compiler","ember-metal/core","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/merge","ember-metal/run_loop","ember-views/views/states","ember-handlebars/views/metamorph_view","ember-metal/utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __exports__) {
+  ["ember-handlebars-compiler","ember-metal/core","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/merge","ember-metal/run_loop","ember-handlebars/string","ember-views/views/states","ember-handlebars/views/metamorph_view","ember-metal/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
     "use strict";
     /*jshint newcap:false*/
 
@@ -9697,11 +9700,12 @@ enifed("ember-handlebars/views/handlebars_bound_view",
     var set = __dependency5__.set;
     var merge = __dependency6__["default"];
     var run = __dependency7__["default"];
-    var cloneStates = __dependency8__.cloneStates;
-    var viewStates = __dependency8__.states;
+    var htmlSafe = __dependency8__["default"];
+    var cloneStates = __dependency9__.cloneStates;
+    var viewStates = __dependency9__.states;
 
-    var _MetamorphView = __dependency9__["default"];
-    var uuid = __dependency10__.uuid;
+    var _MetamorphView = __dependency10__["default"];
+    var uuid = __dependency11__.uuid;
 
     function SimpleHandlebarsView(lazyValue, isEscaped) {
       this.lazyValue = lazyValue;
@@ -9741,7 +9745,7 @@ enifed("ember-handlebars/views/handlebars_bound_view",
         if (result === null || result === undefined) {
           result = "";
         } else if (!this.isEscaped && !(result instanceof EmberHandlebars.SafeString)) {
-          result = new EmberHandlebars.SafeString(result);
+          result = htmlSafe(result);
         }
 
         return result;
@@ -13113,7 +13117,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.52c337dd
+      @version 1.10.0-beta.1+canary.63eabab2
     */
 
     if ('undefined' === typeof Ember) {
@@ -13140,10 +13144,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.52c337dd'
+      @default '1.10.0-beta.1+canary.63eabab2'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.52c337dd';
+    Ember.VERSION = '1.10.0-beta.1+canary.63eabab2';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -39919,6 +39923,8 @@ enifed("ember-views/system/render_buffer",
       */
       element: function() {
         var content = this.innerContent();
+        // No content means a text node buffer, with the content
+        // in _element. HandlebarsBoundView is an example.
         if (content === null)  {
           return this._element;
         }

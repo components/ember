@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.52c337dd
+ * @version   1.10.0-beta.1+canary.63eabab2
  */
 
 (function() {
@@ -6127,6 +6127,38 @@ enifed("ember-handlebars/tests/handlebars_test",
       appendView();
 
       equal(view.$().text(), 'Gwar');
+    });
+
+    test("should read a number value", function() {
+      var context = { aNumber: 1 };
+      view = EmberView.create({
+        context: context,
+        template: EmberHandlebars.compile('{{aNumber}}')
+      });
+
+      appendView();
+      equal(view.$().text(), '1');
+
+      Ember.run(function(){
+        Ember.set(context, 'aNumber', 2);
+      });
+      equal(view.$().text(), '2');
+    });
+
+    test("should read an escaped number value", function() {
+      var context = { aNumber: 1 };
+      view = EmberView.create({
+        context: context,
+        template: EmberHandlebars.compile('{{{aNumber}}}')
+      });
+
+      appendView();
+      equal(view.$().text(), '1');
+
+      Ember.run(function(){
+        Ember.set(context, 'aNumber', 2);
+      });
+      equal(view.$().text(), '2');
     });
 
     test("htmlSafe should return an instance of Handlebars.SafeString", function() {
