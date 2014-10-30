@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.1271f805
+ * @version   1.10.0-beta.1+canary.52c337dd
  */
 
 (function() {
@@ -4766,7 +4766,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.1271f805
+      @version 1.10.0-beta.1+canary.52c337dd
     */
 
     if ('undefined' === typeof Ember) {
@@ -4793,10 +4793,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.1271f805'
+      @default '1.10.0-beta.1+canary.52c337dd'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.1271f805';
+    Ember.VERSION = '1.10.0-beta.1+canary.52c337dd';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -4956,7 +4956,11 @@ define("ember-metal/core",
 define("ember-metal/dependent_keys",
   ["ember-metal/platform","ember-metal/watching","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
-    "use strict";
+        // Remove "use strict"; from transpiled module until
+    // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
+    //
+    // REMOVE_USE_STRICT: true
+
     var o_create = __dependency1__.create;
     var watch = __dependency2__.watch;
     var unwatch = __dependency2__.unwatch;
@@ -5390,7 +5394,11 @@ define("ember-metal/error",
 define("ember-metal/events",
   ["ember-metal/core","ember-metal/utils","ember-metal/platform","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
-    "use strict";
+        // Remove "use strict"; from transpiled module until
+    // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
+    //
+    // REMOVE_USE_STRICT: true
+
     /**
     @module ember-metal
     */
@@ -7219,7 +7227,11 @@ define("ember-metal/merge",
 define("ember-metal/mixin",
   ["ember-metal/core","ember-metal/merge","ember-metal/array","ember-metal/platform","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/expand_properties","ember-metal/properties","ember-metal/computed","ember-metal/binding","ember-metal/observer","ember-metal/events","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __exports__) {
-    "use strict";
+        // Remove "use strict"; from transpiled module until
+    // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
+    //
+    // REMOVE_USE_STRICT: true
+
     /**
     @module ember
     @submodule ember-metal
@@ -10388,7 +10400,11 @@ define("ember-metal/streams/stream_binding",
 define("ember-metal/utils",
   ["ember-metal/core","ember-metal/platform","ember-metal/array","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
-    "use strict";
+        // Remove "use strict"; from transpiled module until
+    // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
+    //
+    // REMOVE_USE_STRICT: true
+
     var Ember = __dependency1__["default"];
     var o_defineProperty = __dependency2__.defineProperty;
     var canDefineNonEnumerableProperties = __dependency2__.canDefineNonEnumerableProperties;
