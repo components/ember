@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.b2ee28ec
+ * @version   1.10.0-beta.1+canary.7b79f11b
  */
 
 (function() {
@@ -13941,7 +13941,7 @@ enifed("ember-metal/computed.jshint",
     "use strict";
     module('JSHint - ember-metal');
     test('ember-metal/computed.js should pass jshint', function() { 
-      ok(true, 'ember-metal/computed.js should pass jshint.'); 
+      ok(false, 'ember-metal/computed.js should pass jshint.\nember-metal/computed.js: line 1, col 8, \'Ember\' is defined but never used.\n\n1 error'); 
     });
   });
 enifed("ember-metal/computed_macros.jshint",

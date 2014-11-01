@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.b2ee28ec
+ * @version   1.10.0-beta.1+canary.7b79f11b
  */
 
 (function() {
@@ -11796,9 +11796,6 @@ enifed("ember-metal/computed",
     @module ember-metal
     */
 
-    Ember.warn("The CP_DEFAULT_CACHEABLE flag has been removed and computed properties" +
-               "are always cached by default. Use `volatile` if you don't want caching.", Ember.ENV.CP_DEFAULT_CACHEABLE !== false);
-
     var metaFor = meta;
     var a_slice = [].slice;
 
@@ -13117,7 +13114,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.b2ee28ec
+      @version 1.10.0-beta.1+canary.7b79f11b
     */
 
     if ('undefined' === typeof Ember) {
@@ -13144,10 +13141,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.b2ee28ec'
+      @default '1.10.0-beta.1+canary.7b79f11b'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.b2ee28ec';
+    Ember.VERSION = '1.10.0-beta.1+canary.7b79f11b';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
