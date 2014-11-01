@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.313b10a9
+ * @version   1.10.0-beta.1+canary.1ec13e3e
  */
 
 (function() {
@@ -2101,10 +2101,8 @@ define("ember-metal",
     var oneWay = __dependency29__.oneWay;
     var run = __dependency30__["default"];
     var libraries = __dependency31__["default"];
-    var isNone = __dependency32__.isNone;
-    var none = __dependency32__.none;
-    var isEmpty = __dependency33__.isEmpty;
-    var empty = __dependency33__.empty;
+    var isNone = __dependency32__["default"];
+    var isEmpty = __dependency33__["default"];
     var isBlank = __dependency34__["default"];
     var isPresent = __dependency35__["default"];
     var keys = __dependency36__["default"];
@@ -2257,11 +2255,7 @@ define("ember-metal",
     Ember.libraries.registerCoreLibrary('Ember', Ember.VERSION);
 
     Ember.isNone = isNone;
-    Ember.none = none;
-
     Ember.isEmpty = isEmpty;
-    Ember.empty = empty;
-
     Ember.isBlank = isBlank;
 
     
@@ -4038,7 +4032,7 @@ define("ember-metal/computed_macros",
     var set = __dependency3__.set;
     var computed = __dependency4__.computed;
     var isEmpty = __dependency5__["default"];
-    var isNone = __dependency6__.isNone;
+    var isNone = __dependency6__["default"];
     var alias = __dependency7__["default"];
 
     /**
@@ -4762,7 +4756,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.313b10a9
+      @version 1.10.0-beta.1+canary.1ec13e3e
     */
 
     if ('undefined' === typeof Ember) {
@@ -4789,10 +4783,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.313b10a9'
+      @default '1.10.0-beta.1+canary.1ec13e3e'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.313b10a9';
+    Ember.VERSION = '1.10.0-beta.1+canary.1ec13e3e';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -6270,13 +6264,11 @@ define("ember-metal/is_blank",
     }
   });
 define("ember-metal/is_empty",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/is_none","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["ember-metal/property_get","ember-metal/is_none","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
-    var Ember = __dependency1__["default"];
-    // deprecateFunc
-    var get = __dependency2__.get;
-    var isNone = __dependency3__["default"];
+    var get = __dependency1__.get;
+    var isNone = __dependency2__["default"];
 
     /**
       Verifies that a value is `null` or an empty string, empty array,
@@ -6333,19 +6325,12 @@ define("ember-metal/is_empty",
       return false;
     }
 
-    var empty = Ember.deprecateFunc("Ember.empty is deprecated. Please use Ember.isEmpty instead.", isEmpty);
-
     __exports__["default"] = isEmpty;
-    __exports__.isEmpty = isEmpty;
-    __exports__.empty = empty;
   });
 define("ember-metal/is_none",
-  ["ember-metal/core","exports"],
-  function(__dependency1__, __exports__) {
+  ["exports"],
+  function(__exports__) {
     "use strict";
-    var Ember = __dependency1__["default"];
-    // deprecateFunc
-
     /**
       Returns true if the passed value is null or undefined. This avoids errors
       from JSLint complaining about use of ==, which can be technically
@@ -6369,10 +6354,7 @@ define("ember-metal/is_none",
       return obj === null || obj === undefined;
     }
 
-    var none = Ember.deprecateFunc("Ember.none is deprecated. Please use Ember.isNone instead.", isNone);
-    __exports__.none = none;
     __exports__["default"] = isNone;
-    __exports__.isNone = isNone;
   });
 define("ember-metal/is_present",
   ["ember-metal/is_blank","exports"],
@@ -11764,16 +11746,17 @@ define("ember-runtime/compare",
       var type2 = typeOf(w);
 
       if (Comparable) {
-        if (type1 ==='instance' && Comparable.detect(v.constructor)) {
+        if (type1 === 'instance' && Comparable.detect(v) && v.constructor.compare) {
           return v.constructor.compare(v, w);
         }
 
-        if (type2 === 'instance' && Comparable.detect(w.constructor)) {
-          return 1 - w.constructor.compare(w, v);
+        if (type2 === 'instance' && Comparable.detect(w) && w.constructor.compare) {
+          return w.constructor.compare(w, v) * -1;
         }
       }
 
       var res = spaceship(TYPE_ORDER[type1], TYPE_ORDER[type2]);
+
       if (res !== 0) {
         return res;
       }
@@ -15089,7 +15072,7 @@ define("ember-runtime/mixins/array",
     var get = __dependency2__.get;
     var computed = __dependency3__.computed;
     var cacheFor = __dependency3__.cacheFor;
-    var isNone = __dependency4__.isNone;
+    var isNone = __dependency4__["default"];
     var Enumerable = __dependency5__["default"];
     var map = __dependency6__.map;
     var Mixin = __dependency7__.Mixin;
@@ -17838,7 +17821,7 @@ define("ember-runtime/mixins/observable",
     var removeObserver = __dependency10__.removeObserver;
     var observersFor = __dependency10__.observersFor;
     var cacheFor = __dependency11__.cacheFor;
-    var isNone = __dependency12__.isNone;
+    var isNone = __dependency12__["default"];
 
 
     var slice = Array.prototype.slice;
@@ -21190,7 +21173,7 @@ define("ember-runtime/system/set",
     var get = __dependency2__.get;
     var set = __dependency3__.set;
     var guidFor = __dependency4__.guidFor;
-    var isNone = __dependency5__.isNone;
+    var isNone = __dependency5__["default"];
     var fmt = __dependency6__.fmt;
     var CoreObject = __dependency7__["default"];
     var MutableEnumerable = __dependency8__["default"];

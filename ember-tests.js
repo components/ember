@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.313b10a9
+ * @version   1.10.0-beta.1+canary.1ec13e3e
  */
 
 (function() {
@@ -31271,16 +31271,24 @@ enifed("ember-runtime/tests/controllers/object_controller_test.jshint",
     });
   });
 enifed("ember-runtime/tests/core/compare_test",
-  ["ember-metal/utils","ember-runtime/system/object","ember-runtime/compare"],
-  function(__dependency1__, __dependency2__, __dependency3__) {
+  ["ember-metal/utils","ember-runtime/system/object","ember-runtime/compare","ember-runtime/mixins/comparable"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
     var typeOf = __dependency1__.typeOf;
     var EmberObject = __dependency2__["default"];
     var compare = __dependency3__["default"];
+    var Comparable = __dependency4__["default"];
 
     var data = [];
+    var Comp = EmberObject.extend(Comparable);
 
-    QUnit.module("Ember.compare()", {
+    Comp.reopenClass({
+      compare: function (obj) {
+        return obj.get('val');
+      }
+    });
+
+    QUnit.module('Ember.compare()', {
       setup: function() {
         data[0]  = null;
         data[1]  = false;
@@ -31301,7 +31309,7 @@ enifed("ember-runtime/tests/core/compare_test",
       }
     });
 
-    test("ordering should work", function() {
+    test('ordering should work', function() {
       var suspect, comparable, failureMessage,
           suspectIndex, comparableIndex;
 
@@ -31320,6 +31328,28 @@ enifed("ember-runtime/tests/core/compare_test",
           equal(compare(suspect, comparable), -1, failureMessage);
         }
       }
+    });
+
+    test('comparables should return values in the range of -1, 0, 1', function() {
+      var negOne = Comp.create({
+        val: -1
+      });
+
+      var zero = Comp.create({
+        val: 0
+      });
+
+      var one = Comp.create({
+        val: 1
+      });
+
+      equal(compare(negOne, 'a'), -1, 'First item comparable - returns -1 (not negated)');
+      equal(compare(zero, 'b'),    0, 'First item comparable - returns  0 (not negated)');
+      equal(compare(one, 'c'),     1, 'First item comparable - returns  1 (not negated)');
+
+      equal(compare('a', negOne),  1, 'Second item comparable - returns -1 (negated)');
+      equal(compare('b', zero),    0, 'Second item comparable - returns  0 (negated)');
+      equal(compare('c', one),    -1, 'Second item comparable - returns  1 (negated)');
     });
   });
 enifed("ember-runtime/tests/core/compare_test.jshint",
@@ -31452,7 +31482,7 @@ enifed("ember-runtime/tests/core/is_empty_test",
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
     var Ember = __dependency1__["default"];
-    var isEmpty = __dependency2__.isEmpty;
+    var isEmpty = __dependency2__["default"];
     var ArrayProxy = __dependency3__["default"];
 
     QUnit.module("Ember.isEmpty");
@@ -34071,7 +34101,7 @@ enifed("ember-runtime/tests/legacy_1x/system/set_test",
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
     var Ember = __dependency1__["default"];
-    var isNone = __dependency2__.isNone;
+    var isNone = __dependency2__["default"];
     var Set = __dependency3__["default"];
     var EmberObject = __dependency4__["default"];
     var EmberArray = __dependency5__["default"];
