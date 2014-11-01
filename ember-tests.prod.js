@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.1ec13e3e
+ * @version   1.10.0-beta.1+canary.6670a174
  */
 
 (function() {
@@ -31460,7 +31460,7 @@ enifed("ember-runtime/tests/core/is_empty_test",
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
     var Ember = __dependency1__["default"];
-    var isEmpty = __dependency2__["default"];
+    var isEmpty = __dependency2__.isEmpty;
     var ArrayProxy = __dependency3__["default"];
 
     QUnit.module("Ember.isEmpty");
@@ -34079,7 +34079,7 @@ enifed("ember-runtime/tests/legacy_1x/system/set_test",
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
     var Ember = __dependency1__["default"];
-    var isNone = __dependency2__["default"];
+    var isNone = __dependency2__.isNone;
     var Set = __dependency3__["default"];
     var EmberObject = __dependency4__["default"];
     var EmberArray = __dependency5__["default"];
