@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.d34a208b
+ * @version   1.10.0-beta.1+canary.313b10a9
  */
 
 (function() {
@@ -11417,21 +11417,20 @@ enifed("ember-metal/chains",
     __exports__.ChainNode = ChainNode;
   });
 enifed("ember-metal/computed",
-  ["ember-metal/core","ember-metal/property_set","ember-metal/utils","ember-metal/expand_properties","ember-metal/error","ember-metal/properties","ember-metal/property_events","ember-metal/dependent_keys","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
+  ["ember-metal/property_set","ember-metal/utils","ember-metal/expand_properties","ember-metal/error","ember-metal/properties","ember-metal/property_events","ember-metal/dependent_keys","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
-    var Ember = __dependency1__["default"];
-    var set = __dependency2__.set;
-    var meta = __dependency3__.meta;
-    var inspect = __dependency3__.inspect;
-    var expandProperties = __dependency4__["default"];
-    var EmberError = __dependency5__["default"];
-    var Descriptor = __dependency6__.Descriptor;
-    var defineProperty = __dependency6__.defineProperty;
-    var propertyWillChange = __dependency7__.propertyWillChange;
-    var propertyDidChange = __dependency7__.propertyDidChange;
-    var addDependentKeys = __dependency8__.addDependentKeys;
-    var removeDependentKeys = __dependency8__.removeDependentKeys;
+    var set = __dependency1__.set;
+    var meta = __dependency2__.meta;
+    var inspect = __dependency2__.inspect;
+    var expandProperties = __dependency3__["default"];
+    var EmberError = __dependency4__["default"];
+    var Descriptor = __dependency5__.Descriptor;
+    var defineProperty = __dependency5__.defineProperty;
+    var propertyWillChange = __dependency6__.propertyWillChange;
+    var propertyDidChange = __dependency6__.propertyDidChange;
+    var addDependentKeys = __dependency7__.addDependentKeys;
+    var removeDependentKeys = __dependency7__.removeDependentKeys;
 
     /**
     @module ember-metal
@@ -12753,7 +12752,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.d34a208b
+      @version 1.10.0-beta.1+canary.313b10a9
     */
 
     if ('undefined' === typeof Ember) {
@@ -12780,10 +12779,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.d34a208b'
+      @default '1.10.0-beta.1+canary.313b10a9'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.d34a208b';
+    Ember.VERSION = '1.10.0-beta.1+canary.313b10a9';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
