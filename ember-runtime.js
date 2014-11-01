@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.7b79f11b
+ * @version   1.10.0-beta.1+canary.d34a208b
  */
 
 (function() {
@@ -4763,7 +4763,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.7b79f11b
+      @version 1.10.0-beta.1+canary.d34a208b
     */
 
     if ('undefined' === typeof Ember) {
@@ -4790,10 +4790,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.7b79f11b'
+      @default '1.10.0-beta.1+canary.d34a208b'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.7b79f11b';
+    Ember.VERSION = '1.10.0-beta.1+canary.d34a208b';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -11426,9 +11426,7 @@ define("ember-metal/watching",
     @module ember-metal
     */
 
-    var GUID_KEY = __dependency1__.GUID_KEY;
     var typeOf = __dependency1__.typeOf;
-    var generateGuid = __dependency1__.generateGuid;
     var removeChainWatcher = __dependency2__.removeChainWatcher;
     var flushPendingChains = __dependency2__.flushPendingChains;
     var watchKey = __dependency3__.watchKey;
@@ -11482,31 +11480,7 @@ define("ember-metal/watching",
       }
     }
 
-    __exports__.unwatch = unwatch;/**
-      Call on an object when you first beget it from another object. This will
-      setup any chained watchers on the object instance as needed. This method is
-      safe to call multiple times.
-
-      @private
-      @method rewatch
-      @for Ember
-      @param obj
-    */
-    function rewatch(obj) {
-      var m = obj['__ember_meta__'], chains = m && m.chains;
-
-      // make sure the object has its own guid.
-      if (GUID_KEY in obj && !obj.hasOwnProperty(GUID_KEY)) {
-        generateGuid(obj);
-      }
-
-      // make sure any chained watchers update.
-      if (chains && chains.value() !== obj) {
-        m.chains = chains.copy(obj);
-      }
-    }
-
-    __exports__.rewatch = rewatch;var NODE_STACK = [];
+    __exports__.unwatch = unwatch;var NODE_STACK = [];
 
     /**
       Tears down the meta on an object so that it can be garbage collected.
@@ -19412,7 +19386,7 @@ define("ember-runtime/system/container",
     __exports__["default"] = Container;
   });
 define("ember-runtime/system/core_object",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/utils","ember-metal/platform","ember-metal/watching","ember-metal/chains","ember-metal/events","ember-metal/mixin","ember-metal/enumerable_utils","ember-metal/error","ember-metal/keys","ember-runtime/mixins/action_handler","ember-metal/properties","ember-metal/binding","ember-metal/computed","ember-metal/injected_property","ember-metal/run_loop","exports"],
+  ["ember-metal/core","ember-metal/property_get","ember-metal/utils","ember-metal/platform","ember-metal/chains","ember-metal/events","ember-metal/mixin","ember-metal/enumerable_utils","ember-metal/error","ember-metal/keys","ember-runtime/mixins/action_handler","ember-metal/properties","ember-metal/binding","ember-metal/computed","ember-metal/injected_property","ember-metal/run_loop","ember-metal/watching","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __exports__) {
         // Remove "use strict"; from transpiled module until
     // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
@@ -19437,24 +19411,23 @@ define("ember-runtime/system/core_object",
     var GUID_KEY = __dependency3__.GUID_KEY;
     var meta = __dependency3__.meta;
     var makeArray = __dependency3__.makeArray;
-    var rewatch = __dependency5__.rewatch;
-    var finishChains = __dependency6__.finishChains;
-    var sendEvent = __dependency7__.sendEvent;
-    var IS_BINDING = __dependency8__.IS_BINDING;
-    var Mixin = __dependency8__.Mixin;
-    var required = __dependency8__.required;
-    var indexOf = __dependency9__.indexOf;
-    var EmberError = __dependency10__["default"];
+    var finishChains = __dependency5__.finishChains;
+    var sendEvent = __dependency6__.sendEvent;
+    var IS_BINDING = __dependency7__.IS_BINDING;
+    var Mixin = __dependency7__.Mixin;
+    var required = __dependency7__.required;
+    var indexOf = __dependency8__.indexOf;
+    var EmberError = __dependency9__["default"];
     var o_defineProperty = __dependency4__.defineProperty;
-    var keys = __dependency11__["default"];
-    var ActionHandler = __dependency12__["default"];
-    var defineProperty = __dependency13__.defineProperty;
-    var Binding = __dependency14__.Binding;
-    var ComputedProperty = __dependency15__.ComputedProperty;
-    var computed = __dependency15__.computed;
-    var InjectedProperty = __dependency16__["default"];
-    var run = __dependency17__["default"];
-    var destroy = __dependency5__.destroy;
+    var keys = __dependency10__["default"];
+    var ActionHandler = __dependency11__["default"];
+    var defineProperty = __dependency12__.defineProperty;
+    var Binding = __dependency13__.Binding;
+    var ComputedProperty = __dependency14__.ComputedProperty;
+    var computed = __dependency14__.computed;
+    var InjectedProperty = __dependency15__["default"];
+    var run = __dependency16__["default"];
+    var destroy = __dependency17__.destroy;
     var K = __dependency1__.K;
     var hasPropertyAccessors = __dependency4__.hasPropertyAccessors;
 
@@ -19607,7 +19580,6 @@ define("ember-runtime/system/core_object",
         if (!wasApplied) {
           wasApplied = true;
           Class.PrototypeMixin.applyPartial(Class.prototype);
-          rewatch(Class.prototype);
         }
 
         return this.prototype;

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.7b79f11b
+ * @version   1.10.0-beta.1+canary.d34a208b
  */
 
 (function() {
@@ -15088,18 +15088,16 @@ enifed("ember-metal/tests/alias_test.jshint",
     });
   });
 enifed("ember-metal/tests/binding/connect_test",
-  ["ember-metal/core","ember-metal/tests/props_helper","ember-metal/binding","ember-metal/run_loop","ember-metal/platform","ember-metal/property_set","ember-metal/property_get","ember-metal/watching"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
+  ["ember-metal/core","ember-metal/tests/props_helper","ember-metal/binding","ember-metal/run_loop","ember-metal/property_set","ember-metal/property_get"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var testBoth = __dependency2__["default"];
     var Binding = __dependency3__.Binding;
     var bind = __dependency3__.bind;
     var run = __dependency4__["default"];
-    var create = __dependency5__.create;
-    var set = __dependency6__.set;
-    var get = __dependency7__.get;
-    var rewatch = __dependency8__.rewatch;
+    var set = __dependency5__.set;
+    var get = __dependency6__.get;
 
     function performTest(binding, a, b, get, set, connect) {
       if (connect === undefined) connect = function() {binding.connect(a);};
@@ -15193,31 +15191,6 @@ enifed("ember-metal/tests/binding/connect_test",
 
         binding.connect(a);
       });
-    });
-
-    testBoth('Bindings should be inherited', function(get, set) {
-
-      var a = { foo: 'FOO', b: { bar: 'BAR' } };
-      var binding = new Binding('foo', 'b.bar');
-      var a2;
-
-      run(function () {
-        binding.connect(a);
-
-        a2 = create(a);
-        rewatch(a2);
-      });
-
-      equal(get(a2, 'foo'), "BAR", "Should have synced binding on child");
-      equal(get(a,  'foo'), "BAR", "Should NOT have synced binding on parent");
-
-      run(function () {
-        set(a2, 'b', { bar: 'BAZZ' });
-      });
-
-      equal(get(a2, 'foo'), "BAZZ", "Should have synced binding on child");
-      equal(get(a,  'foo'), "BAR", "Should NOT have synced binding on parent");
-
     });
 
     test('inherited bindings should sync on create', function() {
@@ -22527,11 +22500,10 @@ enifed("ember-metal/tests/utils/generate_guid_test.jshint",
     });
   });
 enifed("ember-metal/tests/utils/guidFor_test",
-  ["ember-metal/utils","ember-metal/watching"],
-  function(__dependency1__, __dependency2__) {
+  ["ember-metal/utils"],
+  function(__dependency1__) {
     "use strict";
     var guidFor = __dependency1__.guidFor;
-    var rewatch = __dependency2__.rewatch;
 
     QUnit.module("guidFor");
 
@@ -22555,22 +22527,6 @@ enifed("ember-metal/tests/utils/guidFor_test",
       sameGuid( a, a, "same object always yields same guid" );
       diffGuid( a, b, "different objects yield different guids" );
       nanGuid( a );
-    });
-
-    test("Object with prototype", function() {
-      var Class = function() { };
-
-      guidFor(Class.prototype);
-
-      var a = new Class();
-      var b = new Class();
-
-      sameGuid( a, b , "without calling rewatch, objects copy the guid from their prototype");
-
-      rewatch(a);
-      rewatch(b);
-
-      diffGuid( a, b, "after calling rewatch, objects don't share guids" );
     });
 
     test("strings", function() {
