@@ -1,7 +1,7 @@
 {
   "name": "ember",
   "repo": "components/ember",
-  "version": "1.10.0-beta.1+canary.ffa99a01",
+  "version": "1.10.0-beta.1+canary.566a9eac",
   "main": "ember.js",
   "scripts": [
     "ember.js"

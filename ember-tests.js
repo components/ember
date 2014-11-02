@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.ffa99a01
+ * @version   1.10.0-beta.1+canary.566a9eac
  */
 
 (function() {
@@ -45207,6 +45207,22 @@ enifed("ember-testing/tests/acceptance_test",
       });
 
       asyncHandled = click(".does-not-exist");
+    });
+
+    test("Unhandled exceptions in `andThen` are logged via Ember.Test.adapter#exception", function () {
+      expect(1);
+
+      Test.adapter = QUnitAdapter.create({
+        exception: function(error) {
+          equal(error.message, "Catch me", "Exception successfully caught and passed to Ember.Test.adapter.exception");
+        }
+      });
+
+      visit('/posts');
+
+      andThen(function() {
+        throw new Error('Catch me');
+      });
     });
 
     test("should not start routing on the root URL when visiting another", function(){
