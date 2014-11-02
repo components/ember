@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.1ec13e3e
+ * @version   1.10.0-beta.1+canary.ffa99a01
  */
 
 (function() {
@@ -4756,7 +4756,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.1ec13e3e
+      @version 1.10.0-beta.1+canary.ffa99a01
     */
 
     if ('undefined' === typeof Ember) {
@@ -4783,10 +4783,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.1ec13e3e'
+      @default '1.10.0-beta.1+canary.ffa99a01'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.1ec13e3e';
+    Ember.VERSION = '1.10.0-beta.1+canary.ffa99a01';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -11296,8 +11296,11 @@ define("ember-metal/watch_key",
     __exports__.watchKey = watchKey;
     
       var handleMandatorySetter = function handleMandatorySetter(m, obj, keyName) {
+        var descriptor = Object.getOwnPropertyDescriptor && Object.getOwnPropertyDescriptor(obj, keyName);
+        var configurable = descriptor ? descriptor.configurable : true;
+
         // this x in Y deopts, so keeping it in this function is better;
-        if (keyName in obj) {
+        if (configurable && keyName in obj) {
           m.values[keyName] = obj[keyName];
           o_defineProperty(obj, keyName, {
             configurable: true,

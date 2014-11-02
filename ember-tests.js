@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.1ec13e3e
+ * @version   1.10.0-beta.1+canary.ffa99a01
  */
 
 (function() {
@@ -14654,13 +14654,16 @@ enifed("ember-metal/tests/accessors/isGlobalPath_test.jshint",
     });
   });
 enifed("ember-metal/tests/accessors/mandatory_setters_test",
-  ["ember-metal/property_get","ember-metal/property_set","ember-metal/watching","ember-metal/platform"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+  ["ember-metal/property_get","ember-metal/property_set","ember-metal/watching","ember-metal/platform","ember-metal/utils"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
     var get = __dependency1__.get;
     var set = __dependency2__.set;
     var watch = __dependency3__.watch;
     var hasPropertyAccessors = __dependency4__.hasPropertyAccessors;
+    var defineProperty = __dependency4__.defineProperty;
+    var create = __dependency4__.create;
+    var metaFor = __dependency5__.meta;
 
     QUnit.module('mandatory-setters');
 
@@ -14705,6 +14708,47 @@ enifed("ember-metal/tests/accessors/mandatory_setters_test",
           set(obj, 'someProp', 'foo-bar');
 
           equal(get(obj, 'someProp'), 'foo-bar');
+        });
+
+        test('does not setup mandatory-setter if non-configurable', function() {
+          var obj = {
+            someProp: null,
+            toString: function() {
+              return 'custom-object';
+            }
+          };
+          var meta = metaFor(obj);
+
+          defineProperty(obj, 'someProp', {
+            configurable: false,
+            enumerable: true,
+            value: 'blastix'
+          });
+
+          watch(obj, 'someProp');
+
+          ok(!('someProp' in meta.values), 'blastix');
+        });
+
+        test('sets up mandatory-setter if property comes from prototype', function() {
+          expect(2);
+
+          var obj = {
+            someProp: null,
+            toString: function() {
+              return 'custom-object';
+            }
+          };
+          var obj2 = create(obj);
+
+          watch(obj2, 'someProp');
+          var meta = metaFor(obj2);
+
+          ok(('someProp' in meta.values), 'mandatory setter has been setup');
+
+          expectAssertion(function() {
+            obj2.someProp = 'foo-bar';
+          }, 'You must use Ember.set() to set the `someProp` property (of custom-object) to `foo-bar`.');
         });
       }
       });

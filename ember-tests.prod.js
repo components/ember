@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.1ec13e3e
+ * @version   1.10.0-beta.1+canary.ffa99a01
  */
 
 (function() {
@@ -14654,13 +14654,16 @@ enifed("ember-metal/tests/accessors/isGlobalPath_test.jshint",
     });
   });
 enifed("ember-metal/tests/accessors/mandatory_setters_test",
-  ["ember-metal/property_get","ember-metal/property_set","ember-metal/watching","ember-metal/platform"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+  ["ember-metal/property_get","ember-metal/property_set","ember-metal/watching","ember-metal/platform","ember-metal/utils"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
     var get = __dependency1__.get;
     var set = __dependency2__.set;
     var watch = __dependency3__.watch;
     var hasPropertyAccessors = __dependency4__.hasPropertyAccessors;
+    var defineProperty = __dependency4__.defineProperty;
+    var create = __dependency4__.create;
+    var metaFor = __dependency5__.meta;
 
     QUnit.module('mandatory-setters');
 
