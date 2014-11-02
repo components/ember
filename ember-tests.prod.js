@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.566a9eac
+ * @version   1.10.0-beta.1+canary.429e634f
  */
 
 (function() {
@@ -1284,7 +1284,7 @@ enifed("ember-application/tests/system/application_test",
       });
 
       expectDeprecation(function() {
-        run(app, 'then', Ember.K);
+        run(app, 'then', function() { return this; });
       }, /Do not use `.then` on an instance of Ember.Application.  Please use the `.ready` hook instead./);
     });
 
@@ -5024,26 +5024,24 @@ enifed("ember-handlebars/tests/controls/text_area_test.jshint",
     });
   });
 enifed("ember-handlebars/tests/controls/text_field_test",
-  ["ember-metal/core","ember-metal/run_loop","ember-metal/property_get","ember-metal/property_set","ember-handlebars","ember-runtime/system/object","ember-views/views/view","ember-handlebars/controls/text_field","ember-views/system/event_dispatcher","ember-views/system/jquery"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
+  ["ember-metal/run_loop","ember-metal/property_get","ember-metal/property_set","ember-handlebars","ember-runtime/system/object","ember-views/views/view","ember-handlebars/controls/text_field","ember-views/system/event_dispatcher","ember-views/system/jquery"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
     "use strict";
     /*globals TestObject:true */
 
-    var Ember = __dependency1__["default"];
-    // Ember.K
+    var run = __dependency1__["default"];
+    var get = __dependency2__.get;
+    var o_set = __dependency3__.set;
+    var EmberHandlebars = __dependency4__["default"];
+    var EmberObject = __dependency5__["default"];
+    var View = __dependency6__["default"];
+    var TextField = __dependency7__["default"];
+    var EventDispatcher = __dependency8__["default"];
+    var jQuery = __dependency9__["default"];
 
-    var run = __dependency2__["default"];
-    var get = __dependency3__.get;
-    var o_set = __dependency4__.set;
-    var EmberHandlebars = __dependency5__["default"];
-    var EmberObject = __dependency6__["default"];
-    var View = __dependency7__["default"];
-    var TextField = __dependency8__["default"];
-    var EventDispatcher = __dependency9__["default"];
-    var jQuery = __dependency10__["default"];
+    function K() { return this; }
 
     var textField;
-    var K = Ember.K;
     var controller;
     var TestObject;
 
@@ -5542,9 +5540,9 @@ enifed("ember-handlebars/tests/controls/text_field_test",
             equal(actionName, 'doSomething', "text field sent correct action name");
           }
         });
-     
+
       },
-     
+
       teardown: function() {
         run(function() {
           dispatcher.destroy();
@@ -5555,7 +5553,7 @@ enifed("ember-handlebars/tests/controls/text_field_test",
         });
       }
     });
-     
+
     test("when the text field is blurred, the `focus-out` action is sent to the controller", function() {
       expect(1);
 
@@ -5566,7 +5564,7 @@ enifed("ember-handlebars/tests/controls/text_field_test",
 
       append();
 
-      run(function() { 
+      run(function() {
         textField.$().blur();
       });
 
@@ -5582,7 +5580,7 @@ enifed("ember-handlebars/tests/controls/text_field_test",
 
       append();
 
-      run(function() { 
+      run(function() {
         textField.$().focusin();
       });
 
@@ -5598,8 +5596,8 @@ enifed("ember-handlebars/tests/controls/text_field_test",
       });
 
       append();
-      
-      run(function() { 
+
+      run(function() {
         var event = jQuery.Event("keypress");
         event.keyCode = event.which = 13;
         textField.$().trigger(event);
@@ -5616,8 +5614,8 @@ enifed("ember-handlebars/tests/controls/text_field_test",
       });
 
       append();
-      
-      run(function() { 
+
+      run(function() {
         var event = jQuery.Event("keyup");
         event.keyCode = event.which = 13;
         textField.$().trigger(event);
@@ -5635,8 +5633,8 @@ enifed("ember-handlebars/tests/controls/text_field_test",
       });
 
       append();
-      
-      run(function() { 
+
+      run(function() {
         var event = jQuery.Event("keyup");
         event.keyCode = event.which = 13;
         textField.$().trigger(event);
@@ -5653,8 +5651,8 @@ enifed("ember-handlebars/tests/controls/text_field_test",
       });
 
       append();
-      
-      run(function() { 
+
+      run(function() {
         var event = jQuery.Event("keyup");
         event.keyCode = event.which = 27;
         textField.$().trigger(event);
@@ -16678,13 +16676,11 @@ enifed("ember-metal/tests/computed_test.jshint",
     });
   });
 enifed("ember-metal/tests/core/inspect_test",
-  ["ember-metal/utils","ember-metal/platform","ember-metal/core"],
-  function(__dependency1__, __dependency2__, __dependency3__) {
+  ["ember-metal/utils","ember-metal/platform"],
+  function(__dependency1__, __dependency2__) {
     "use strict";
     var inspect = __dependency1__.inspect;
     var create = __dependency2__.create;
-
-    var Ember = __dependency3__["default"];
 
     QUnit.module("Ember.inspect");
 
@@ -16715,7 +16711,7 @@ enifed("ember-metal/tests/core/inspect_test",
     test("object", function() {
       equal(inspect({}), "{}");
       equal(inspect({ foo: 'bar' }), "{foo: bar}");
-      equal(inspect({ foo: Ember.K }), "{foo: function() { ... }}");
+      equal(inspect({ foo: function() { return this; } }), "{foo: function() { ... }}");
     });
 
     test("objects without a prototype", function() {
@@ -17677,15 +17673,15 @@ enifed("ember-metal/tests/is_present_test.jshint",
     });
   });
 enifed("ember-metal/tests/keys_test",
-  ["ember-metal/core","ember-metal/property_set","ember-metal/keys","ember-metal/observer"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+  ["ember-metal/property_set","ember-metal/keys","ember-metal/observer"],
+  function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
-    var Ember = __dependency1__["default"];
-    // Ember.K
-    var set = __dependency2__.set;
-    var keys = __dependency3__["default"];
-    var addObserver = __dependency4__.addObserver;
-    var removeObserver = __dependency4__.removeObserver;
+    var set = __dependency1__.set;
+    var keys = __dependency2__["default"];
+    var addObserver = __dependency3__.addObserver;
+    var removeObserver = __dependency3__.removeObserver;
+
+    function K() { return this; }
 
     QUnit.module("Fetch Keys ");
 
@@ -17740,9 +17736,9 @@ enifed("ember-metal/tests/keys_test",
 
       var beer = new Beer();
 
-      addObserver(beer, 'type', Ember.K);
+      addObserver(beer, 'type', K);
       deepEqual(keys(beer), []);
-      removeObserver(beer, 'type', Ember.K);
+      removeObserver(beer, 'type', K);
     });
 
     test('observing a non existent property', function () {
@@ -17751,14 +17747,14 @@ enifed("ember-metal/tests/keys_test",
 
       var beer = new Beer();
 
-      addObserver(beer, 'brand', Ember.K);
+      addObserver(beer, 'brand', K);
 
       deepEqual(keys(beer), []);
 
       set(beer, 'brand', 'Corona');
       deepEqual(keys(beer), ['brand']);
 
-      removeObserver(beer, 'brand', Ember.K);
+      removeObserver(beer, 'brand', K);
     });
 
     test('with observers switched on and off', function () {
@@ -17767,8 +17763,8 @@ enifed("ember-metal/tests/keys_test",
 
       var beer = new Beer();
 
-      addObserver(beer, 'type', Ember.K);
-      removeObserver(beer, 'type', Ember.K);
+      addObserver(beer, 'type', K);
+      removeObserver(beer, 'type', K);
 
       deepEqual(keys(beer), []);
     });
@@ -17779,9 +17775,9 @@ enifed("ember-metal/tests/keys_test",
 
       var beer = new Beer();
 
-      addObserver(beer, 'type', Ember.K);
+      addObserver(beer, 'type', K);
       set(beer, 'type', 'ale');
-      removeObserver(beer, 'type', Ember.K);
+      removeObserver(beer, 'type', K);
 
       deepEqual(keys(beer), ['type']);
     });
@@ -17792,8 +17788,8 @@ enifed("ember-metal/tests/keys_test",
 
       var beer = new Beer();
 
-      addObserver(beer, 'type', Ember.K);
-      removeObserver(beer, 'type', Ember.K);
+      addObserver(beer, 'type', K);
+      removeObserver(beer, 'type', K);
       set(beer, 'type', 'ale');
 
       deepEqual(keys(beer), ['type']);
@@ -18586,16 +18582,16 @@ enifed("ember-metal/tests/mixin/apply_test.jshint",
     });
   });
 enifed("ember-metal/tests/mixin/computed_test",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/mixin","ember-metal/computed","ember-metal/properties"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
+  ["ember-metal/property_get","ember-metal/property_set","ember-metal/mixin","ember-metal/computed","ember-metal/properties"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
-    var Ember = __dependency1__["default"];
-    // Ember.K
-    var get = __dependency2__.get;
-    var set = __dependency3__.set;
-    var Mixin = __dependency4__.Mixin;
-    var computed = __dependency5__.computed;
-    var defineProperty = __dependency6__.defineProperty;
+    var get = __dependency1__.get;
+    var set = __dependency2__.set;
+    var Mixin = __dependency3__.Mixin;
+    var computed = __dependency4__.computed;
+    var defineProperty = __dependency5__.defineProperty;
+
+    function K() { return this; }
 
     QUnit.module('Mixin Computed Properties');
 
@@ -18695,9 +18691,9 @@ enifed("ember-metal/tests/mixin/computed_test",
       var obj = {};
 
       var MixinA = Mixin.create({
-        cpWithSetter2: computed(Ember.K),
-        cpWithSetter3: computed(Ember.K),
-        cpWithoutSetter: computed(Ember.K)
+        cpWithSetter2: computed(K),
+        cpWithSetter3: computed(K),
+        cpWithoutSetter: computed(K)
       });
 
       var cpWasCalled = false;
@@ -20866,7 +20862,7 @@ enifed("ember-metal/tests/observer_test",
 
     testBoth("immediate observers are for internal properties only", function(get, set) {
       expectAssertion(function() {
-        immediateObserver('foo.bar', Ember.K);
+        immediateObserver('foo.bar', function() { return this; });
       }, 'Immediate observers must observe internal properties only, not properties on other objects.');
     });
 
@@ -21215,14 +21211,13 @@ enifed("ember-metal/tests/platform/defineProperty_test.jshint",
     });
   });
 enifed("ember-metal/tests/properties_test",
-  ["ember-metal/core","ember-metal/platform","ember-metal/computed","ember-metal/properties","ember-metal/deprecate_property"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
+  ["ember-metal/platform","ember-metal/computed","ember-metal/properties","ember-metal/deprecate_property"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
-    var Ember = __dependency1__["default"];
-    var hasPropertyAccessors = __dependency2__.hasPropertyAccessors;
-    var computed = __dependency3__.computed;
-    var defineProperty = __dependency4__.defineProperty;
-    var deprecateProperty = __dependency5__.deprecateProperty;
+    var hasPropertyAccessors = __dependency1__.hasPropertyAccessors;
+    var computed = __dependency2__.computed;
+    var defineProperty = __dependency3__.defineProperty;
+    var deprecateProperty = __dependency4__.deprecateProperty;
 
     QUnit.module('Ember.defineProperty');
 
@@ -21249,7 +21244,7 @@ enifed("ember-metal/tests/properties_test",
     test("for descriptor properties, didDefineProperty hook should be called if implemented", function() {
       expect(2);
 
-      var computedProperty = computed(Ember.K);
+      var computedProperty = computed(function() { return this; });
 
       var obj = {
         didDefineProperty: function(obj, keyName, value) {
@@ -31133,7 +31128,7 @@ enifed("ember-runtime/tests/controllers/item_controller_class_test",
       var arrayObserverCalled = false;
 
       arrayController.reopen({
-        lannistersWillChange: Ember.K,
+        lannistersWillChange: function() { return this; },
         lannistersDidChange: function(_, idx, removedAmt, addedAmt) {
           arrayObserverCalled = true;
           equal(this.objectAt(idx).get('name'), "Tyrion", "Array observers get the right object via `objectAt`");
@@ -33840,13 +33835,12 @@ enifed("ember-runtime/tests/legacy_1x/system/object/bindings_test.jshint",
     });
   });
 enifed("ember-runtime/tests/legacy_1x/system/object/concatenated_test",
-  ["ember-metal/core","ember-metal/property_get","ember-runtime/system/string","ember-runtime/system/object"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+  ["ember-metal/property_get","ember-runtime/system/string","ember-runtime/system/object"],
+  function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
-    var Ember = __dependency1__["default"];
-    var get = __dependency2__.get;
-    var EmberStringUtils = __dependency3__["default"];
-    var EmberObject = __dependency4__["default"];
+    var get = __dependency1__.get;
+    var EmberStringUtils = __dependency2__["default"];
+    var EmberObject = __dependency3__["default"];
 
     /*
       NOTE: This test is adapted from the 1.x series of unit tests.  The tests
@@ -33860,7 +33854,7 @@ enifed("ember-runtime/tests/legacy_1x/system/object/concatenated_test",
         always defined
     */
 
-
+    function K() { return this; }
 
       var klass;
 
@@ -33869,7 +33863,7 @@ enifed("ember-runtime/tests/legacy_1x/system/object/concatenated_test",
           klass = EmberObject.extend({
             concatenatedProperties: ['values', 'functions'],
             values: ['a', 'b', 'c'],
-            functions: [Ember.K]
+            functions: [K]
           });
         }
       });
@@ -33937,12 +33931,12 @@ enifed("ember-runtime/tests/legacy_1x/system/object/concatenated_test",
 
       test("concatenates subclasses when the values are functions", function() {
         var subKlass = klass.extend({
-          functions: Ember.K
+          functions: K
         });
         var obj = subKlass.create();
 
         var values = get(obj, 'functions');
-        var expected = [Ember.K, Ember.K];
+        var expected = [K, K];
 
         deepEqual(values, expected, EmberStringUtils.fmt("should concatenate functions property (expected: %@, got: %@)", [expected, values]));
       });
@@ -35423,7 +35417,7 @@ enifed("ember-runtime/tests/mixins/enumerable_test",
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
     "use strict";
     var Ember = __dependency1__["default"];
-    // for Ember.K and Ember.A
+    // for Ember.A
     var EnumerableTests = __dependency2__["default"];
     var indexOf = __dependency3__.indexOf;
     var EmberObject = __dependency4__["default"];
@@ -35432,6 +35426,10 @@ enifed("ember-runtime/tests/mixins/enumerable_test",
     var get = __dependency7__.get;
     var computed = __dependency8__.computed;
     var emberObserver = __dependency9__.observer;
+
+
+    function K() { return this; }
+
 
     /*
       Implement a basic fake enumerable.  This validates that any non-native
@@ -35490,25 +35488,25 @@ enifed("ember-runtime/tests/mixins/enumerable_test",
 
     test("should apply Ember.Array to return value of map", function() {
       var x = EmberObject.createWithMixins(Enumerable);
-      var y = x.map(Ember.K);
+      var y = x.map(K);
       equal(EmberArray.detect(y), true, "should have mixin applied");
     });
 
     test("should apply Ember.Array to return value of filter", function() {
       var x = EmberObject.createWithMixins(Enumerable);
-      var y = x.filter(Ember.K);
+      var y = x.filter(K);
       equal(EmberArray.detect(y), true, "should have mixin applied");
     });
 
     test("should apply Ember.Array to return value of invoke", function() {
       var x = EmberObject.createWithMixins(Enumerable);
-      var y = x.invoke(Ember.K);
+      var y = x.invoke(K);
       equal(EmberArray.detect(y), true, "should have mixin applied");
     });
 
     test("should apply Ember.Array to return value of toArray", function() {
       var x = EmberObject.createWithMixins(Enumerable);
-      var y = x.toArray(Ember.K);
+      var y = x.toArray(K);
       equal(EmberArray.detect(y), true, "should have mixin applied");
     });
 
@@ -35518,13 +35516,13 @@ enifed("ember-runtime/tests/mixins/enumerable_test",
           return true;
         }
       });
-      var y = x.without(Ember.K);
+      var y = x.without(K);
       equal(EmberArray.detect(y), true, "should have mixin applied");
     });
 
     test("should apply Ember.Array to return value of uniq", function() {
       var x = EmberObject.createWithMixins(Enumerable);
-      var y = x.uniq(Ember.K);
+      var y = x.uniq(K);
       equal(EmberArray.detect(y), true, "should have mixin applied");
     });
 
@@ -36054,16 +36052,15 @@ enifed("ember-runtime/tests/mixins/observable_test.jshint",
     });
   });
 enifed("ember-runtime/tests/mixins/promise_proxy_test",
-  ["ember-metal/core","ember-metal/platform","ember-metal/property_get","ember-metal/run_loop","ember-runtime/system/object_proxy","ember-runtime/mixins/promise_proxy","ember-runtime/ext/rsvp"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
+  ["ember-metal/platform","ember-metal/property_get","ember-metal/run_loop","ember-runtime/system/object_proxy","ember-runtime/mixins/promise_proxy","ember-runtime/ext/rsvp"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
-    var Ember = __dependency1__["default"];
-    var create = __dependency2__.create;
-    var get = __dependency3__.get;
-    var run = __dependency4__["default"];
-    var ObjectProxy = __dependency5__["default"];
-    var PromiseProxyMixin = __dependency6__["default"];
-    var EmberRSVP = __dependency7__["default"];
+    var create = __dependency1__.create;
+    var get = __dependency2__.get;
+    var run = __dependency3__["default"];
+    var ObjectProxy = __dependency4__["default"];
+    var PromiseProxyMixin = __dependency5__["default"];
+    var EmberRSVP = __dependency6__["default"];
     var RSVP = requireModule("rsvp"); // jshint ignore:line
 
     var ObjectPromiseProxy;
@@ -36082,7 +36079,7 @@ enifed("ember-runtime/tests/mixins/promise_proxy_test",
       var proxy = ObjectPromiseProxy.create();
 
       raises(function(){
-        proxy.then(Ember.K, Ember.K);
+        proxy.then(function() { return this; }, function() { return this; });
       }, new RegExp("PromiseProxy's promise must be set"));
     });
 
@@ -41750,6 +41747,8 @@ enifed("ember-runtime/tests/system/object/computed_test",
     var testWithDefault = __dependency4__.testWithDefault;
     var EmberObject = __dependency5__["default"];
 
+    function K() { return this; }
+
     QUnit.module('EmberObject computed property');
 
     testWithDefault('computed property on instance', function(get, set) {
@@ -41953,13 +41952,13 @@ enifed("ember-runtime/tests/system/object/computed_test",
 
     test("list of properties updates when an additional property is added (such cache busting)", function() {
       var MyClass = EmberObject.extend({
-        foo: computed(Ember.K),
+        foo: computed(K),
 
         fooDidChange: observer('foo', function() {
 
         }),
 
-        bar: computed(Ember.K)
+        bar: computed(K)
       });
 
       var list = [];
@@ -41971,7 +41970,7 @@ enifed("ember-runtime/tests/system/object/computed_test",
       deepEqual(list.sort(), ['bar', 'foo'].sort(), 'expected two computed properties');
 
       MyClass.reopen({
-        baz: computed(Ember.K)
+        baz: computed(K)
       });
 
       MyClass.create(); // force apply mixins
@@ -45164,13 +45163,11 @@ enifed("ember-testing/tests/acceptance_test.jshint",
     });
   });
 enifed("ember-testing/tests/adapters/adapter_test",
-  ["ember-metal/core","ember-metal/run_loop","ember-testing/adapters/adapter"],
-  function(__dependency1__, __dependency2__, __dependency3__) {
+  ["ember-metal/run_loop","ember-testing/adapters/adapter"],
+  function(__dependency1__, __dependency2__) {
     "use strict";
-    var Ember = __dependency1__["default"];
-    // Ember.K
-    var run = __dependency2__["default"];
-    var Adapter = __dependency3__["default"];
+    var run = __dependency1__["default"];
+    var Adapter = __dependency2__["default"];
 
     var adapter;
 
@@ -45183,13 +45180,14 @@ enifed("ember-testing/tests/adapters/adapter_test",
       }
     });
 
-    test("asyncStart is a noop", function() {
-      equal(adapter.asyncStart, Ember.K);
-    });
+    // Can't test these this way anymore since we have nothing to compare to
+    // test("asyncStart is a noop", function() {
+    //   equal(adapter.asyncStart, K);
+    // });
 
-    test("asyncEnd is a noop", function() {
-      equal(adapter.asyncEnd, Ember.K);
-    });
+    // test("asyncEnd is a noop", function() {
+    //   equal(adapter.asyncEnd, K);
+    // });
 
     test("exception throws", function() {
       var error = "Hai", thrown;

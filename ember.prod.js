@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.566a9eac
+ * @version   1.10.0-beta.1+canary.429e634f
  */
 
 (function() {
@@ -3946,17 +3946,16 @@ enifed("ember-extension-support/container_debug_adapter",
     });
   });
 enifed("ember-extension-support/data_adapter",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/run_loop","ember-runtime/system/string","ember-runtime/system/namespace","ember-runtime/system/object","ember-runtime/system/native_array","ember-application/system/application","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
+  ["ember-metal/property_get","ember-metal/run_loop","ember-runtime/system/string","ember-runtime/system/namespace","ember-runtime/system/object","ember-runtime/system/native_array","ember-application/system/application","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
-    var Ember = __dependency1__["default"];
-    var get = __dependency2__.get;
-    var run = __dependency3__["default"];
-    var dasherize = __dependency4__.dasherize;
-    var Namespace = __dependency5__["default"];
-    var EmberObject = __dependency6__["default"];
-    var emberA = __dependency7__.A;
-    var Application = __dependency8__["default"];
+    var get = __dependency1__.get;
+    var run = __dependency2__["default"];
+    var dasherize = __dependency3__.dasherize;
+    var Namespace = __dependency4__["default"];
+    var EmberObject = __dependency5__["default"];
+    var emberA = __dependency6__.A;
+    var Application = __dependency7__["default"];
 
     /**
     @module ember
@@ -4160,7 +4159,7 @@ enifed("ember-extension-support/data_adapter",
           }
         };
 
-        var observer = { didChange: contentDidChange, willChange: Ember.K };
+        var observer = { didChange: contentDidChange, willChange: function() { return this; } };
         records.addArrayObserver(self, observer);
 
         release = function() {
@@ -4237,7 +4236,7 @@ enifed("ember-extension-support/data_adapter",
           didChange: function() {
             run.scheduleOnce('actions', this, onChange);
           },
-          willChange: Ember.K
+          willChange: function() { return this; }
         };
 
         records.addArrayObserver(this, observer);
@@ -7807,7 +7806,7 @@ enifed("ember-handlebars/helpers/each",
     @submodule ember-handlebars
     */
     var Ember = __dependency1__["default"];
-    // Ember.assert;, Ember.K
+    // Ember.assert;
 
     var EmberHandlebars = __dependency2__["default"];
 
@@ -9340,8 +9339,9 @@ enifed("ember-handlebars/views/handlebars_bound_view",
     // EmberHandlebars.SafeString;
 
     var Ember = __dependency2__["default"];
-    // Ember.K
-    var K = Ember.K;
+    // Ember.GUID_KEY
+
+    function K() { return this; }
 
     var EmberError = __dependency3__["default"];
     var get = __dependency4__.get;
@@ -12746,7 +12746,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.566a9eac
+      @version 1.10.0-beta.1+canary.429e634f
     */
 
     if ('undefined' === typeof Ember) {
@@ -12773,10 +12773,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.566a9eac'
+      @default '1.10.0-beta.1+canary.429e634f'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.566a9eac';
+    Ember.VERSION = '1.10.0-beta.1+canary.429e634f';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -12922,11 +12922,11 @@ enifed("ember-metal/core",
 
     // Stub out the methods defined by the ember-debug package in case it's not loaded
 
-    if ('undefined' === typeof Ember.assert) { Ember.assert = Ember.K; }
-    if ('undefined' === typeof Ember.warn) { Ember.warn = Ember.K; }
-    if ('undefined' === typeof Ember.debug) { Ember.debug = Ember.K; }
-    if ('undefined' === typeof Ember.runInDebug) { Ember.runInDebug = Ember.K; }
-    if ('undefined' === typeof Ember.deprecate) { Ember.deprecate = Ember.K; }
+    if ('undefined' === typeof Ember.assert) { Ember.assert = K; }
+    if ('undefined' === typeof Ember.warn) { Ember.warn = K; }
+    if ('undefined' === typeof Ember.debug) { Ember.debug = K; }
+    if ('undefined' === typeof Ember.runInDebug) { Ember.runInDebug = K; }
+    if ('undefined' === typeof Ember.deprecate) { Ember.deprecate = K; }
     if ('undefined' === typeof Ember.deprecateFunc) {
       Ember.deprecateFunc = function(_, func) { return func; };
     }
@@ -14495,7 +14495,10 @@ enifed("ember-metal/logger",
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
+    // Ember.imports
     var EmberError = __dependency2__["default"];
+
+    function K() { return this; }
 
     function consoleMethod(name) {
       var consoleObj, logToConsole;
@@ -14559,7 +14562,7 @@ enifed("ember-metal/logger",
        @for Ember.Logger
        @param {*} arguments
       */
-      log:   consoleMethod('log')   || Ember.K,
+      log:   consoleMethod('log')   || K,
 
       /**
        Prints the arguments to the console with a warning icon.
@@ -14574,7 +14577,7 @@ enifed("ember-metal/logger",
        @for Ember.Logger
        @param {*} arguments
       */
-      warn:  consoleMethod('warn')  || Ember.K,
+      warn:  consoleMethod('warn')  || K,
 
       /**
        Prints the arguments to the console with an error icon, red text and a stack trace.
@@ -14589,7 +14592,7 @@ enifed("ember-metal/logger",
        @for Ember.Logger
        @param {*} arguments
       */
-      error: consoleMethod('error') || Ember.K,
+      error: consoleMethod('error') || K,
 
       /**
        Logs the arguments to the console.
@@ -14605,7 +14608,7 @@ enifed("ember-metal/logger",
        @for Ember.Logger
        @param {*} arguments
       */
-      info:  consoleMethod('info')  || Ember.K,
+      info:  consoleMethod('info')  || K,
 
       /**
        Logs the arguments to the console in blue text.
@@ -14621,7 +14624,7 @@ enifed("ember-metal/logger",
        @for Ember.Logger
        @param {*} arguments
       */
-      debug: consoleMethod('debug') || consoleMethod('info') || Ember.K,
+      debug: consoleMethod('debug') || consoleMethod('info') || K,
 
       /**
        If the value passed into `Ember.Logger.assert` is not truthy it will throw an error with a stack trace.
@@ -18791,7 +18794,7 @@ enifed("ember-metal/utils",
       Checks to see if the `methodName` exists on the `obj`.
 
       ```javascript
-      var foo = { bar: Ember.K, baz: null };
+      var foo = { bar: function() { return 'bar'; }, baz: null };
 
       Ember.canInvoke(foo, 'bar'); // true
       Ember.canInvoke(foo, 'baz'); // false
@@ -22947,7 +22950,7 @@ enifed("ember-routing/system/route",
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
-    // FEATURES, K, A, deprecate, assert, Logger
+    // FEATURES, A, deprecate, assert, Logger
     var EmberError = __dependency2__["default"];
     var get = __dependency3__.get;
     var set = __dependency4__.set;
@@ -22968,6 +22971,8 @@ enifed("ember-routing/system/route",
     var ActionHandler = __dependency17__["default"];
     var generateController = __dependency18__["default"];
     var stashParamNames = __dependency19__.stashParamNames;
+
+    function K() { return this; }
 
     /**
     @module ember
@@ -23284,7 +23289,7 @@ enifed("ember-routing/system/route",
         @param {Object} transition
         @since 1.7.0
       */
-      resetController: Ember.K,
+      resetController: K,
 
       /**
         @private
@@ -23680,7 +23685,7 @@ enifed("ember-routing/system/route",
 
         @method deactivate
       */
-      deactivate: Ember.K,
+      deactivate: K,
 
       /**
         This hook is executed when the router enters the route. It is not executed
@@ -23688,7 +23693,7 @@ enifed("ember-routing/system/route",
 
         @method activate
       */
-      activate: Ember.K,
+      activate: K,
 
       /**
         Transition the application into another route. The route may
@@ -24054,7 +24059,7 @@ enifed("ember-routing/system/route",
           resolves. Otherwise, non-promise return values are not
           utilized in any way.
       */
-      beforeModel: Ember.K,
+      beforeModel: K,
 
       /**
         This hook is called after this route's model has resolved.
@@ -24088,7 +24093,7 @@ enifed("ember-routing/system/route",
           resolves. Otherwise, non-promise return values are not
           utilized in any way.
        */
-      afterModel: Ember.K,
+      afterModel: K,
 
       /**
         A hook you can implement to optionally redirect to another route.
@@ -24114,7 +24119,7 @@ enifed("ember-routing/system/route",
         @param {Object} model the model for this route
         @param {Transition} transition the transition object associated with the current transition
       */
-      redirect: Ember.K,
+      redirect: K,
 
       /**
         Called when the context is changed by router.js.
@@ -24969,7 +24974,7 @@ enifed("ember-routing/system/router",
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
-    // FEATURES, Logger, K, assert
+    // FEATURES, Logger, assert
     var EmberError = __dependency2__["default"];
     var get = __dependency3__.get;
     var set = __dependency4__.set;
@@ -24996,6 +25001,8 @@ enifed("ember-routing/system/router",
     */
 
     var Router = __dependency18__["default"];
+
+    function K() { return this; }
 
     var slice = [].slice;
 
@@ -25034,7 +25041,7 @@ enifed("ember-routing/system/router",
       rootURL: '/',
 
       init: function() {
-        this.router = this.constructor.router || this.constructor.map(Ember.K);
+        this.router = this.constructor.router || this.constructor.map(K);
         this._activeViews = {};
         this._setupLocation();
         this._qpCache = {};
@@ -25066,7 +25073,7 @@ enifed("ember-routing/system/router",
         @private
       */
       startRouting: function() {
-        this.router = this.router || this.constructor.map(Ember.K);
+        this.router = this.router || this.constructor.map(K);
 
         var router = this.router;
         var location = get(this, 'location');
@@ -25757,8 +25764,8 @@ enifed("ember-routing/system/router",
           if (Ember.FEATURES.isEnabled("ember-routing-will-change-hooks")) {
             router._willChangeContextEvent = 'willChangeModel';
           } else {
-            router._triggerWillChangeContext = Ember.K;
-            router._triggerWillLeave = Ember.K;
+            router._triggerWillChangeContext = K;
+            router._triggerWillLeave = K;
           }
 
           router.callbacks = [];
@@ -33343,7 +33350,7 @@ enifed("ember-runtime/system/array_proxy",
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
-    // Ember.K, Ember.assert
+    // Ember.assert
     var get = __dependency2__.get;
     var isArray = __dependency3__.isArray;
     var apply = __dependency3__.apply;
@@ -33366,7 +33373,8 @@ enifed("ember-runtime/system/array_proxy",
 
     var OUT_OF_RANGE_EXCEPTION = "Index out of range";
     var EMPTY = [];
-    var K = Ember.K;
+
+    function K() { return this; }
 
     /**
       An ArrayProxy wraps any other object that implements `Ember.Array` and/or
@@ -33731,7 +33739,7 @@ enifed("ember-runtime/system/core_object",
     */
 
     var Ember = __dependency1__["default"];
-    // Ember.assert, Ember.K, Ember.config
+    // Ember.assert, Ember.config
 
     // NOTE: this object should never be included directly. Instead use `Ember.Object`.
     // We only define this separately so that `Ember.Set` can depend on it.
@@ -33843,7 +33851,7 @@ enifed("ember-runtime/system/core_object",
               var desc = m.descs[keyName];
 
                                           
-              if (concatenatedProperties && 
+              if (concatenatedProperties &&
                   concatenatedProperties.length > 0 &&
                   indexOf(concatenatedProperties, keyName) >= 0) {
                 var baseValue = this[keyName];
@@ -39051,7 +39059,7 @@ enifed("ember-views/views/container_view",
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
-    // Ember.assert, Ember.K
+    // Ember.assert, Ember.deprecate
 
     var merge = __dependency2__["default"];
     var MutableArray = __dependency3__["default"];
@@ -39073,6 +39081,8 @@ enifed("ember-views/views/container_view",
     var observer = __dependency13__.observer;
     var beforeObserver = __dependency13__.beforeObserver;
     var emberA = __dependency14__.A;
+
+    function K() { return this; }
 
     /**
     @module ember
@@ -39414,9 +39424,9 @@ enifed("ember-views/views/container_view",
     });
 
     merge(states._default, {
-      childViewsWillChange: Ember.K,
-      childViewsDidChange: Ember.K,
-      ensureChildrenAreInDOM: Ember.K
+      childViewsWillChange: K,
+      childViewsDidChange: K,
+      ensureChildrenAreInDOM: K
     });
 
     merge(states.inBuffer, {
@@ -39470,6 +39480,9 @@ enifed("ember-views/views/core_view",
     var computed = __dependency7__.computed;
 
     var typeOf = __dependency8__.typeOf;
+
+    function K() { return this; }
+
     /**
       `Ember.CoreView` is an abstract class that exists to give view-like behavior
       to both Ember's main view class `Ember.View` and other classes like
@@ -39581,9 +39594,9 @@ enifed("ember-views/views/core_view",
         return this;
       },
 
-      clearRenderedChildren: Ember.K,
-      _transitionTo: Ember.K,
-      destroyElement: Ember.K
+      clearRenderedChildren: K,
+      _transitionTo: K,
+      destroyElement: K
     });
 
     CoreView.reopenClass({
@@ -39634,12 +39647,12 @@ enifed("ember-views/views/states",
     __exports__.states = states;
   });
 enifed("ember-views/views/states/default",
-  ["ember-metal/core","ember-metal/error","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["ember-metal/error","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
-    var Ember = __dependency1__["default"];
-    // Ember.K
-    var EmberError = __dependency2__["default"];
+    var EmberError = __dependency1__["default"];
+
+    function K() { return this; }
 
     /**
     @module ember
@@ -39670,8 +39683,8 @@ enifed("ember-views/views/states/default",
         return view;
       },
 
-      rerender: Ember.K,
-      invokeObserver: Ember.K
+      rerender: K,
+      invokeObserver: K
     };
   });
 enifed("ember-views/views/states/destroying",
@@ -39905,7 +39918,7 @@ enifed("ember-views/views/view",
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __exports__) {
     "use strict";
     // Ember.assert, Ember.deprecate, Ember.warn, Ember.TEMPLATES,
-    // Ember.K, jQuery, Ember.lookup,
+    // jQuery, Ember.lookup,
     // Ember.ContainerView circular dependency
     // Ember.ENV
     var Ember = __dependency1__["default"];
@@ -39953,6 +39966,7 @@ enifed("ember-views/views/view",
 
     var CoreView = __dependency27__["default"];
 
+    function K() { return this; }
 
     /**
     @module ember
@@ -41352,7 +41366,7 @@ enifed("ember-views/views/view",
 
         @event willInsertElement
       */
-      willInsertElement: Ember.K,
+      willInsertElement: K,
 
       /**
         Called when the element of the view has been inserted into the DOM
@@ -41364,7 +41378,7 @@ enifed("ember-views/views/view",
 
         @event didInsertElement
       */
-      didInsertElement: Ember.K,
+      didInsertElement: K,
 
       /**
         Called when the view is about to rerender, but before anything has
@@ -41373,7 +41387,7 @@ enifed("ember-views/views/view",
 
         @event willClearRender
       */
-      willClearRender: Ember.K,
+      willClearRender: K,
 
       /**
         Destroys any existing element along with the element for any child views
@@ -41407,14 +41421,14 @@ enifed("ember-views/views/view",
 
         @event willDestroyElement
       */
-      willDestroyElement: Ember.K,
+      willDestroyElement: K,
 
       /**
         Called when the parentView property has changed.
 
         @event parentViewDidChange
       */
-      parentViewDidChange: Ember.K,
+      parentViewDidChange: K,
 
       instrumentName: 'view',
 
@@ -41757,8 +41771,8 @@ enifed("ember-views/views/view",
         return view;
       },
 
-      becameVisible: Ember.K,
-      becameHidden: Ember.K,
+      becameVisible: K,
+      becameHidden: K,
 
       /**
         When the view's `isVisible` property changes, toggle the visibility

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.566a9eac
+ * @version   1.10.0-beta.1+canary.429e634f
  */
 
 (function() {
@@ -4756,7 +4756,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.566a9eac
+      @version 1.10.0-beta.1+canary.429e634f
     */
 
     if ('undefined' === typeof Ember) {
@@ -4783,10 +4783,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.566a9eac'
+      @default '1.10.0-beta.1+canary.429e634f'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.566a9eac';
+    Ember.VERSION = '1.10.0-beta.1+canary.429e634f';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -4932,11 +4932,11 @@ define("ember-metal/core",
 
     // Stub out the methods defined by the ember-debug package in case it's not loaded
 
-    if ('undefined' === typeof Ember.assert) { Ember.assert = Ember.K; }
-    if ('undefined' === typeof Ember.warn) { Ember.warn = Ember.K; }
-    if ('undefined' === typeof Ember.debug) { Ember.debug = Ember.K; }
-    if ('undefined' === typeof Ember.runInDebug) { Ember.runInDebug = Ember.K; }
-    if ('undefined' === typeof Ember.deprecate) { Ember.deprecate = Ember.K; }
+    if ('undefined' === typeof Ember.assert) { Ember.assert = K; }
+    if ('undefined' === typeof Ember.warn) { Ember.warn = K; }
+    if ('undefined' === typeof Ember.debug) { Ember.debug = K; }
+    if ('undefined' === typeof Ember.runInDebug) { Ember.runInDebug = K; }
+    if ('undefined' === typeof Ember.deprecate) { Ember.deprecate = K; }
     if ('undefined' === typeof Ember.deprecateFunc) {
       Ember.deprecateFunc = function(_, func) { return func; };
     }
@@ -6511,7 +6511,10 @@ define("ember-metal/logger",
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
+    // Ember.imports
     var EmberError = __dependency2__["default"];
+
+    function K() { return this; }
 
     function consoleMethod(name) {
       var consoleObj, logToConsole;
@@ -6575,7 +6578,7 @@ define("ember-metal/logger",
        @for Ember.Logger
        @param {*} arguments
       */
-      log:   consoleMethod('log')   || Ember.K,
+      log:   consoleMethod('log')   || K,
 
       /**
        Prints the arguments to the console with a warning icon.
@@ -6590,7 +6593,7 @@ define("ember-metal/logger",
        @for Ember.Logger
        @param {*} arguments
       */
-      warn:  consoleMethod('warn')  || Ember.K,
+      warn:  consoleMethod('warn')  || K,
 
       /**
        Prints the arguments to the console with an error icon, red text and a stack trace.
@@ -6605,7 +6608,7 @@ define("ember-metal/logger",
        @for Ember.Logger
        @param {*} arguments
       */
-      error: consoleMethod('error') || Ember.K,
+      error: consoleMethod('error') || K,
 
       /**
        Logs the arguments to the console.
@@ -6621,7 +6624,7 @@ define("ember-metal/logger",
        @for Ember.Logger
        @param {*} arguments
       */
-      info:  consoleMethod('info')  || Ember.K,
+      info:  consoleMethod('info')  || K,
 
       /**
        Logs the arguments to the console in blue text.
@@ -6637,7 +6640,7 @@ define("ember-metal/logger",
        @for Ember.Logger
        @param {*} arguments
       */
-      debug: consoleMethod('debug') || consoleMethod('info') || Ember.K,
+      debug: consoleMethod('debug') || consoleMethod('info') || K,
 
       /**
        If the value passed into `Ember.Logger.assert` is not truthy it will throw an error with a stack trace.
@@ -10885,7 +10888,7 @@ define("ember-metal/utils",
       Checks to see if the `methodName` exists on the `obj`.
 
       ```javascript
-      var foo = { bar: Ember.K, baz: null };
+      var foo = { bar: function() { return 'bar'; }, baz: null };
 
       Ember.canInvoke(foo, 'bar'); // true
       Ember.canInvoke(foo, 'baz'); // false
@@ -18987,7 +18990,7 @@ define("ember-runtime/system/array_proxy",
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
-    // Ember.K, Ember.assert
+    // Ember.assert
     var get = __dependency2__.get;
     var isArray = __dependency3__.isArray;
     var apply = __dependency3__.apply;
@@ -19010,7 +19013,8 @@ define("ember-runtime/system/array_proxy",
 
     var OUT_OF_RANGE_EXCEPTION = "Index out of range";
     var EMPTY = [];
-    var K = Ember.K;
+
+    function K() { return this; }
 
     /**
       An ArrayProxy wraps any other object that implements `Ember.Array` and/or
@@ -19384,7 +19388,7 @@ define("ember-runtime/system/core_object",
     */
 
     var Ember = __dependency1__["default"];
-    // Ember.assert, Ember.K, Ember.config
+    // Ember.assert, Ember.config
 
     // NOTE: this object should never be included directly. Instead use `Ember.Object`.
     // We only define this separately so that `Ember.Set` can depend on it.
@@ -19502,7 +19506,7 @@ define("ember-runtime/system/core_object",
                            "time, when Ember.ActionHandler is used (i.e. views, " +
                            "controllers & routes).", !((keyName === 'actions') && ActionHandler.detect(this)));
 
-              if (concatenatedProperties && 
+              if (concatenatedProperties &&
                   concatenatedProperties.length > 0 &&
                   indexOf(concatenatedProperties, keyName) >= 0) {
                 var baseValue = this[keyName];

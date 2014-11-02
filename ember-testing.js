@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.566a9eac
+ * @version   1.10.0-beta.1+canary.429e634f
  */
 
 (function() {
@@ -328,12 +328,12 @@ enifed("ember-testing",
     Ember.setupForTesting = setupForTesting;
   });
 enifed("ember-testing/adapters/adapter",
-  ["ember-metal/core","ember-runtime/system/object","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["ember-runtime/system/object","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
-    var Ember = __dependency1__["default"];
-    // Ember.K
-    var EmberObject = __dependency2__["default"];
+    var EmberObject = __dependency1__["default"];
+
+    function K() { return this; }
 
     /**
      @module ember
@@ -357,7 +357,7 @@ enifed("ember-testing/adapters/adapter",
         @public
         @method asyncStart
       */
-      asyncStart: Ember.K,
+      asyncStart: K,
 
       /**
         This callback will be called whenever an async operation has completed.
@@ -365,7 +365,7 @@ enifed("ember-testing/adapters/adapter",
         @public
         @method asyncEnd
       */
-      asyncEnd: Ember.K,
+      asyncEnd: K,
 
       /**
         Override this method with your testing framework's false assertion.
