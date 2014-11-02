@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.429e634f
+ * @version   1.10.0-beta.1+canary.06cdbab7
  */
 
 (function() {
@@ -8275,6 +8275,8 @@ enifed("ember-handlebars/tests/handlebars_test",
     });
 
     test("should update bound values after view's parent is removed and then re-appended", function() {
+      expectDeprecation("Setting `childViews` on a Container is deprecated.");
+
       var controller = EmberObject.create();
 
       var parentView = ContainerView.create({
@@ -23636,7 +23638,7 @@ enifed("ember-routing-handlebars/tests/helpers/action_test",
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__) {
     "use strict";
     var Ember = __dependency1__["default"];
-    // A, FEATURES, assert, TESTING_DEPRECATION
+    // A, FEATURES, assert
     var set = __dependency2__.set;
     var run = __dependency3__["default"];
     var EventDispatcher = __dependency4__["default"];
@@ -46684,7 +46686,7 @@ enifed("ember-views/tests/system/event_dispatcher_test",
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
     "use strict";
     var Ember = __dependency1__["default"];
-    // A, FEATURES, assert, TESTING_DEPRECATION
+    // A, FEATURES, assert
     var get = __dependency2__.get;
     var run = __dependency3__["default"];
 
@@ -46914,6 +46916,7 @@ enifed("ember-views/tests/system/event_dispatcher_test",
     });
 
     test("event manager should be able to re-dispatch events to view", function() {
+      expectDeprecation("Setting `childViews` on a Container is deprecated.");
 
       var receivedEvent=0;
       view = ContainerView.createWithMixins({
@@ -48651,6 +48654,8 @@ enifed("ember-views/tests/views/container_view_test",
     });
 
     test("should be able to observe properties that contain child views", function() {
+      expectDeprecation("Setting `childViews` on a Container is deprecated.");
+
       run(function() {
         var Container = ContainerView.extend({
           childViews: ['displayView'],
@@ -49262,6 +49267,8 @@ enifed("ember-views/tests/views/container_view_test",
     });
 
     test("should invalidate `element` on itself and childViews when being rendered by ensureChildrenAreInDOM", function () {
+      expectDeprecation("Setting `childViews` on a Container is deprecated.");
+
       var root = ContainerView.create();
 
       view = View.create({ template: function() {} });
@@ -49724,6 +49731,8 @@ enifed("ember-views/tests/views/view/append_to_test",
 
     QUnit.module("EmberView - append() and appendTo() in a view hierarchy", {
       setup: function() {
+        expectDeprecation("Setting `childViews` on a Container is deprecated.");
+
         View = ContainerView.extend({
           childViews: ['child'],
           child: EmberView.extend({
@@ -49771,6 +49780,8 @@ enifed("ember-views/tests/views/view/append_to_test",
 
     QUnit.module("EmberView - removing views in a view hierarchy", {
       setup: function() {
+        expectDeprecation("Setting `childViews` on a Container is deprecated.");
+
         willDestroyCalled = 0;
 
         view = ContainerView.create({
@@ -50923,6 +50934,8 @@ enifed("ember-views/tests/views/view/create_element_test",
     });
 
     test("calls render and parses the buffer string in the right context", function() {
+      expectDeprecation("Setting `childViews` on a Container is deprecated.");
+
       view = ContainerView.create({
         tagName: 'table',
         childViews: [ EmberView.create({
@@ -50949,6 +50962,8 @@ enifed("ember-views/tests/views/view/create_element_test",
     });
 
     test("does not wrap many tr children in tbody elements", function() {
+      expectDeprecation("Setting `childViews` on a Container is deprecated.");
+
       view = ContainerView.create({
         tagName: 'table',
         childViews: [
@@ -50980,6 +50995,8 @@ enifed("ember-views/tests/views/view/create_element_test",
     });
 
     test("generated element include HTML from child views as well", function() {
+      expectDeprecation("Setting `childViews` on a Container is deprecated.");
+
       view = ContainerView.create({
         childViews: [ EmberView.create({ elementId: "foo" })]
       });
@@ -51035,6 +51052,8 @@ enifed("ember-views/tests/views/view/destroy_element_test",
     });
 
     test("if it has a element, calls willDestroyElement on receiver and child views then deletes the element", function() {
+      expectDeprecation("Setting `childViews` on a Container is deprecated.");
+
       var parentCount = 0;
       var childCount = 0;
 
@@ -51170,6 +51189,8 @@ enifed("ember-views/tests/views/view/element_test",
     });
 
     test("returns null if the view has no element and parent view has no element", function() {
+      expectDeprecation("Setting `childViews` on a Container is deprecated.");
+
       parentView = ContainerView.create({
         childViews: [ EmberView.extend() ]
       });
@@ -51408,33 +51429,6 @@ enifed("ember-views/tests/views/view/is_visible_test",
     var parentBecameHidden, childBecameHidden, grandchildBecameHidden;
 
     QUnit.module("EmberView#isVisible", {
-      setup: function() {
-        parentBecameVisible=0;
-        childBecameVisible=0;
-        grandchildBecameVisible=0;
-        parentBecameHidden=0;
-        childBecameHidden=0;
-        grandchildBecameHidden=0;
-
-        View = ContainerView.extend({
-          childViews: ['child'],
-          becameVisible: function() { parentBecameVisible++; },
-          becameHidden: function() { parentBecameHidden++; },
-
-          child: ContainerView.extend({
-            childViews: ['grandchild'],
-            becameVisible: function() { childBecameVisible++; },
-            becameHidden: function() { childBecameHidden++; },
-
-            grandchild: EmberView.extend({
-              template: function() { return "seems weird bro"; },
-              becameVisible: function() { grandchildBecameVisible++; },
-              becameHidden: function() { grandchildBecameHidden++; }
-            })
-          })
-        });
-      },
-
       teardown: function() {
         if (view) {
           run(function() { view.destroy(); });
@@ -51495,6 +51489,43 @@ enifed("ember-views/tests/views/view/is_visible_test",
       run(function() {
         view.remove();
       });
+    });
+
+    QUnit.module("EmberView#isVisible with Container", {
+      setup: function() {
+        expectDeprecation("Setting `childViews` on a Container is deprecated.");
+
+        parentBecameVisible=0;
+        childBecameVisible=0;
+        grandchildBecameVisible=0;
+        parentBecameHidden=0;
+        childBecameHidden=0;
+        grandchildBecameHidden=0;
+
+        View = ContainerView.extend({
+          childViews: ['child'],
+          becameVisible: function() { parentBecameVisible++; },
+          becameHidden: function() { parentBecameHidden++; },
+
+          child: ContainerView.extend({
+            childViews: ['grandchild'],
+            becameVisible: function() { childBecameVisible++; },
+            becameHidden: function() { childBecameHidden++; },
+
+            grandchild: EmberView.extend({
+              template: function() { return "seems weird bro"; },
+              becameVisible: function() { grandchildBecameVisible++; },
+              becameHidden: function() { grandchildBecameHidden++; }
+            })
+          })
+        });
+      },
+
+      teardown: function() {
+        if (view) {
+          run(function() { view.destroy(); });
+        }
+      }
     });
 
     test("view should be notified after isVisible is set to false and the element has been hidden", function() {
@@ -52039,6 +52070,8 @@ enifed("ember-views/tests/views/view/remove_test",
     var parentView, child;
     QUnit.module("View#removeChild", {
       setup: function() {
+        expectDeprecation("Setting `childViews` on a Container is deprecated.");
+
         parentView = ContainerView.create({ childViews: [View] });
         child = get(parentView, 'childViews').objectAt(0);
       },
@@ -52072,6 +52105,8 @@ enifed("ember-views/tests/views/view/remove_test",
     var view, childViews;
     QUnit.module("View#removeAllChildren", {
       setup: function() {
+        expectDeprecation("Setting `childViews` on a Container is deprecated.");
+
         view = ContainerView.create({
           childViews: [View, View, View]
         });
@@ -52110,6 +52145,8 @@ enifed("ember-views/tests/views/view/remove_test",
     });
 
     test("removes view from parent view", function() {
+      expectDeprecation("Setting `childViews` on a Container is deprecated.");
+
       parentView = ContainerView.create({ childViews: [View] });
       child = get(parentView, 'childViews').objectAt(0);
       ok(get(child, 'parentView'), 'precond - has parentView');
@@ -52130,6 +52167,8 @@ enifed("ember-views/tests/views/view/remove_test",
     });
 
     test("returns receiver", function() {
+      expectDeprecation("Setting `childViews` on a Container is deprecated.");
+
       parentView = ContainerView.create({ childViews: [View] });
       child = get(parentView, 'childViews').objectAt(0);
       var removed = run(function() {
@@ -52210,6 +52249,8 @@ enifed("ember-views/tests/views/view/render_test",
     });
 
     test("default implementation does not render child views", function() {
+      expectDeprecation("Setting `childViews` on a Container is deprecated.");
+
       var rendered = 0;
       var parentRendered = 0;
 
@@ -52239,6 +52280,8 @@ enifed("ember-views/tests/views/view/render_test",
     });
 
     test("should invoke renderChildViews if layer is destroyed then re-rendered", function() {
+      expectDeprecation("Setting `childViews` on a Container is deprecated.");
+
       var rendered = 0;
       var parentRendered = 0;
 
@@ -52280,6 +52323,8 @@ enifed("ember-views/tests/views/view/render_test",
     });
 
     test("should render child views with a different tagName", function() {
+      expectDeprecation("Setting `childViews` on a Container is deprecated.");
+
       view = ContainerView.create({
         childViews: ["child"],
 
@@ -52306,6 +52351,7 @@ enifed("ember-views/tests/views/view/render_test",
     });
 
     test("should allow hX tags as tagName", function() {
+      expectDeprecation("Setting `childViews` on a Container is deprecated.");
 
       view = ContainerView.create({
         childViews: ["child"],
@@ -52358,6 +52404,8 @@ enifed("ember-views/tests/views/view/render_test",
     });
 
     test("renders contained view with omitted start tag and parent view context", function() {
+      expectDeprecation("Setting `childViews` on a Container is deprecated.");
+
       view = ContainerView.createWithMixins({
         tagName: 'table',
         childViews: ["row"],
@@ -52489,6 +52537,8 @@ enifed("ember-views/tests/views/view/replace_in_test",
 
     QUnit.module("EmberView - replaceIn() in a view hierarchy", {
       setup: function() {
+        expectDeprecation("Setting `childViews` on a Container is deprecated.");
+
         View = ContainerView.extend({
           childViews: ['child'],
           child: EmberView.extend({
