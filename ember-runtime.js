@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.acd90344
+ * @version   1.10.0-beta.1+canary.9e77de5a
  */
 
 (function() {
@@ -4756,7 +4756,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.acd90344
+      @version 1.10.0-beta.1+canary.9e77de5a
     */
 
     if ('undefined' === typeof Ember) {
@@ -4783,10 +4783,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.acd90344'
+      @default '1.10.0-beta.1+canary.9e77de5a'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.acd90344';
+    Ember.VERSION = '1.10.0-beta.1+canary.9e77de5a';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -18545,13 +18545,13 @@ define("ember-runtime/mixins/sortable",
     var computed = __dependency8__.computed;
     var beforeObserver = __dependency4__.beforeObserver;
     var observer = __dependency4__.observer;
-    //ES6TODO: should we access these directly from their package or from how thier exposed in ember-metal?
+    //ES6TODO: should we access these directly from their package or from how their exposed in ember-metal?
 
     /**
       `Ember.SortableMixin` provides a standard interface for array proxies
       to specify a sort order and maintain this sorting when objects are added,
       removed, or updated without changing the implicit order of their underlying
-      modelarray:
+      model array:
 
       ```javascript
       songs = [
@@ -18583,8 +18583,8 @@ define("ember-runtime/mixins/sortable",
       songsController.get('firstObject'); // {trackNumber: 4, title: 'Ob-La-Di, Ob-La-Da'}
       ```
 
-      SortableMixin works by sorting the arrangedContent array, which is the array that
-      arrayProxy displays. Due to the fact that the underlying 'content' array is not changed, that
+      `SortableMixin` works by sorting the `arrangedContent` array, which is the array that
+      `ArrayProxy` displays. Due to the fact that the underlying 'content' array is not changed, that
       array will not display the sorted list:
 
        ```javascript
@@ -18592,8 +18592,8 @@ define("ember-runtime/mixins/sortable",
       songsController.get('firstObject'); // Returns the sorted content.
       ```
 
-      Although the sorted content can also be accessed through the arrangedContent property,
-      it is preferable to use the proxied class and not the arrangedContent array directly.
+      Although the sorted content can also be accessed through the `arrangedContent` property,
+      it is preferable to use the proxied class and not the `arrangedContent` array directly.
 
       @class SortableMixin
       @namespace Ember
@@ -18602,7 +18602,7 @@ define("ember-runtime/mixins/sortable",
     __exports__["default"] = Mixin.create(MutableEnumerable, {
 
       /**
-        Specifies which properties dictate the arrangedContent's sort order.
+        Specifies which properties dictate the `arrangedContent`'s sort order.
 
         When specifying multiple properties the sorting will use properties
         from the `sortProperties` array prioritized from first to last.
@@ -18612,7 +18612,7 @@ define("ember-runtime/mixins/sortable",
       sortProperties: null,
 
       /**
-        Specifies the arrangedContent's sort direction.
+        Specifies the `arrangedContent`'s sort direction.
         Sorts the content in ascending order by default. Set to `false` to
         use descending order.
 
@@ -18624,13 +18624,14 @@ define("ember-runtime/mixins/sortable",
       /**
         The function used to compare two values. You can override this if you
         want to do custom comparisons. Functions must be of the type expected by
-        Array#sort, i.e.
-          return 0 if the two parameters are equal,
-          return a negative value if the first parameter is smaller than the second or
-          return a positive value otherwise:
+        Array#sort, i.e.,
+
+        *  return 0 if the two parameters are equal,
+        *  return a negative value if the first parameter is smaller than the second or
+        *  return a positive value otherwise:
 
         ```javascript
-        function(x,y) { // These are assumed to be integers
+        function(x, y) { // These are assumed to be integers
           if (x === y)
             return 0;
           return x < y ? -1 : 1;
@@ -18681,12 +18682,11 @@ define("ember-runtime/mixins/sortable",
       isSorted: computed.notEmpty('sortProperties'),
 
       /**
-        Overrides the default arrangedContent from arrayProxy in order to sort by sortFunction.
-        Also sets up observers for each sortProperty on each item in the content Array.
+        Overrides the default `arrangedContent` from `ArrayProxy` in order to sort by `sortFunction`.
+        Also sets up observers for each `sortProperty` on each item in the content Array.
 
         @property arrangedContent
       */
-
       arrangedContent: computed('content', 'sortProperties.@each', function(key, value) {
         var content = get(this, 'content');
         var isSorted = get(this, 'isSorted');
