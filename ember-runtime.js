@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.081152aa
+ * @version   1.10.0-beta.1+canary.69d1e2d4
  */
 
 (function() {
@@ -4756,7 +4756,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.081152aa
+      @version 1.10.0-beta.1+canary.69d1e2d4
     */
 
     if ('undefined' === typeof Ember) {
@@ -4783,10 +4783,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.081152aa'
+      @default '1.10.0-beta.1+canary.69d1e2d4'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.081152aa';
+    Ember.VERSION = '1.10.0-beta.1+canary.69d1e2d4';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -10859,8 +10859,8 @@ define("ember-metal/utils",
 
     /**
       Forces the passed object to be part of an array. If the object is already
-      an array or array-like, returns the object. Otherwise adds the object to
-      an array. If obj is `null` or `undefined`, returns an empty array.
+      an array or array-like, it will return the object. Otherwise, it will add the object to
+      an array. If obj is `null` or `undefined`, it will return an empty array.
 
       ```javascript
       Ember.makeArray();            // []
