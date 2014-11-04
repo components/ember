@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.69d1e2d4
+ * @version   1.10.0-beta.1+canary.c22643cf
  */
 
 (function() {
@@ -6114,7 +6114,7 @@ enifed("ember-handlebars/controls/select",
 
       /**
         In single selection mode (when `multiple` is `false`), value can be used to
-        get the current selection's value or set the selection by it's value.
+        get the current selection's value or set the selection by its value.
 
         It is not currently supported in multiple selection mode.
 
@@ -11810,7 +11810,7 @@ enifed("ember-metal/computed",
       `.property()` on the fullName function) and setup the properties
       dependencies (depending on firstName and lastName). The fullName function
       will be called once (regardless of how many times it is accessed) as long
-      as it's dependencies have not been changed. Once firstName or lastName are updated
+      as its dependencies have not been changed. Once firstName or lastName are updated
       any future calls (or anything bound) to fullName will incorporate the new
       values.
 
@@ -13107,7 +13107,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.69d1e2d4
+      @version 1.10.0-beta.1+canary.c22643cf
     */
 
     if ('undefined' === typeof Ember) {
@@ -13134,10 +13134,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.69d1e2d4'
+      @default '1.10.0-beta.1+canary.c22643cf'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.69d1e2d4';
+    Ember.VERSION = '1.10.0-beta.1+canary.c22643cf';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -20391,7 +20391,7 @@ enifed("ember-routing-handlebars/helpers/link_to",
 
       /**
         By default the `{{link-to}}` helper will bind to the `href` and
-        `title` attributes. It's discourage that you override these defaults,
+        `title` attributes. It's discouraged that you override these defaults,
         however you can push onto the array if needed.
 
         @property attributeBindings
@@ -30641,7 +30641,7 @@ enifed("ember-runtime/mixins/controller_content_model_alias_deprecation",
 
       This change reduces many caveats with model/content, and also sets a
       simple ground rule: Never set a controllers content, rather always set
-      it's model and ember will do the right thing.
+      its model and ember will do the right thing.
 
 
       `Ember.ControllerContentModelAliasDeprecation` is used internally by Ember in
@@ -33209,7 +33209,7 @@ enifed("ember-runtime/mixins/observable",
       },
 
       /**
-        Set the value of a boolean property to the opposite of it's
+        Set the value of a boolean property to the opposite of its
         current value.
 
         ```javascript

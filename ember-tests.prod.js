@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.69d1e2d4
+ * @version   1.10.0-beta.1+canary.c22643cf
  */
 
 (function() {
@@ -2578,7 +2578,7 @@ enifed("ember-application/tests/system/reset_test",
       }
     });
 
-    test("Brings it's own run-loop if not provided", function() {
+    test("Brings its own run-loop if not provided", function() {
       application = run(Application, 'create');
       application.ready = function() {
         QUnit.start();
@@ -2589,7 +2589,7 @@ enifed("ember-application/tests/system/reset_test",
       application.reset();
     });
 
-    test("does not bring it's own run loop if one is already provided", function() {
+    test("does not bring its own run loop if one is already provided", function() {
       expect(3);
 
       var didBecomeReady = false;
@@ -24196,7 +24196,7 @@ enifed("ember-routing-handlebars/tests/helpers/action_test",
 
       view.$('button').trigger('click');
 
-      ok(eventHandlerWasCalled, "Event on a child element triggered the action of it's parent");
+      ok(eventHandlerWasCalled, "Event on a child element triggered the action of its parent");
     });
 
     test("should allow bubbling of events from action helper to original parent event", function() {
@@ -30549,9 +30549,9 @@ enifed("ember-runtime/tests/controllers/array_controller_test",
       }
     }).run();
 
-    test("defaults it's `model` to an empty array", function () {
+    test("defaults its `model` to an empty array", function () {
       var Controller = ArrayController.extend();
-      deepEqual(Controller.create().get("model"), [], "`ArrayController` defaults it's model to an empty array");
+      deepEqual(Controller.create().get("model"), [], "`ArrayController` defaults its model to an empty array");
       equal(Controller.create().get('firstObject'), undefined, 'can fetch firstObject');
       equal(Controller.create().get('lastObject'), undefined, 'can fetch lastObject');
     });
@@ -33546,7 +33546,7 @@ enifed("ember-runtime/tests/legacy_1x/system/object/base_test",
 
     });
 
-    test("Should return it's properties when requested using EmberObject#get", function() {
+    test("Should return its properties when requested using EmberObject#get", function() {
       equal(get(obj, 'foo'), 'bar') ;
       equal(get(obj, 'total'), 12345) ;
     });
@@ -42855,8 +42855,8 @@ enifed("ember-runtime/tests/system/object/extend_test",
       var another = new AnotherClass();
       var yetAnother = new YetAnotherClass();
       deepEqual(some.get('things'), ['foo'], 'base class should have just its value');
-      deepEqual(another.get('things'), ['foo', 'bar'], "subclass should have base class' and it's own");
-      deepEqual(yetAnother.get('things'), ['foo', 'baz'], "subclass should have base class' and it's own");
+      deepEqual(another.get('things'), ['foo', 'bar'], "subclass should have base class' and its own");
+      deepEqual(yetAnother.get('things'), ['foo', 'baz'], "subclass should have base class' and its own");
     });
 
     test('With concatenatedProperties class properties', function(){
@@ -42873,8 +42873,8 @@ enifed("ember-runtime/tests/system/object/extend_test",
       var another = new AnotherClass();
       var yetAnother = new YetAnotherClass();
       deepEqual(get(some.constructor, 'things'), ['foo'], 'base class should have just its value');
-      deepEqual(get(another.constructor, 'things'), ['foo', 'bar'], "subclass should have base class' and it's own");
-      deepEqual(get(yetAnother.constructor, 'things'), ['foo', 'baz'], "subclass should have base class' and it's own");
+      deepEqual(get(another.constructor, 'things'), ['foo', 'bar'], "subclass should have base class' and its own");
+      deepEqual(get(yetAnother.constructor, 'things'), ['foo', 'baz'], "subclass should have base class' and its own");
     });
   });
 enifed("ember-runtime/tests/system/object/extend_test.jshint",
