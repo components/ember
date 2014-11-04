@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.9e77de5a
+ * @version   1.10.0-beta.1+canary.081152aa
  */
 
 (function() {
@@ -13107,7 +13107,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.9e77de5a
+      @version 1.10.0-beta.1+canary.081152aa
     */
 
     if ('undefined' === typeof Ember) {
@@ -13134,10 +13134,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.9e77de5a'
+      @default '1.10.0-beta.1+canary.081152aa'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.9e77de5a';
+    Ember.VERSION = '1.10.0-beta.1+canary.081152aa';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -29434,7 +29434,7 @@ enifed("ember-runtime/ext/rsvp",
     };
 
     RSVP.onerrorDefault = function (error) {
-      if (error instanceof Error) {
+      if (error && error.name !== 'TransitionAborted') {
         if (Ember.testing) {
           // ES6TODO: remove when possible
           if (!Test && Ember.__loader.registry[testModuleName]) {

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.9e77de5a
+ * @version   1.10.0-beta.1+canary.081152aa
  */
 
 (function() {
@@ -31814,6 +31814,15 @@ enifed("ember-runtime/tests/ext/rsvp_test",
         equal(asyncEnded, 2);
       });
     });
+
+    test('TransitionAborted errors are not re-thrown', function() {
+      expect(1);
+      var fakeTransitionAbort = { name: 'TransitionAborted' };
+
+      run(RSVP, 'reject', fakeTransitionAbort);
+
+      ok(true, 'did not throw an error when dealing with TransitionAborted');
+    });
   });
 enifed("ember-runtime/tests/ext/rsvp_test.jshint",
   [],
@@ -36303,6 +36312,7 @@ enifed("ember-runtime/tests/mixins/promise_proxy_test",
     });
 
     test("should have reason when isRejected is set", function() {
+      var error = new Error('Y U REJECT?!?');
       var deferred = EmberRSVP.defer();
 
       var proxy = ObjectPromiseProxy.create({
@@ -36310,10 +36320,14 @@ enifed("ember-runtime/tests/mixins/promise_proxy_test",
       });
 
       proxy.addObserver('isRejected', function() {
-        equal(get(proxy, 'reason'), true);
+        equal(get(proxy, 'reason'), error);
       });
 
-      run(deferred, 'reject', true);
+      try {
+        run(deferred, 'reject', error);
+      } catch(e) {
+        equal(e, error);
+      }
     });
   });
 enifed("ember-runtime/tests/mixins/promise_proxy_test.jshint",
