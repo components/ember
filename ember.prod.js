@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.4ada1be0
+ * @version   1.10.0-beta.1+canary.694dfbcf
  */
 
 (function() {
@@ -1870,19 +1870,17 @@ enifed("container/container",
       return factoryInjections;
     }
 
-    if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
-      var normalizeInjectionsHash = function(hash) {
-        var injections = [];
+    function normalizeInjectionsHash(hash) {
+      var injections = [];
 
-        for (var key in hash) {
-          if (hash.hasOwnProperty(key)) {
-            
-            addInjection(injections, key, hash[key]);
-          }
+      for (var key in hash) {
+        if (hash.hasOwnProperty(key)) {
+          
+          addInjection(injections, key, hash[key]);
         }
+      }
 
-        return injections;
-      };
+      return injections;
     }
 
     function instantiate(container, fullName) {
@@ -12763,7 +12761,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.4ada1be0
+      @version 1.10.0-beta.1+canary.694dfbcf
     */
 
     if ('undefined' === typeof Ember) {
@@ -12790,10 +12788,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.4ada1be0'
+      @default '1.10.0-beta.1+canary.694dfbcf'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.4ada1be0';
+    Ember.VERSION = '1.10.0-beta.1+canary.694dfbcf';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -28428,6 +28426,9 @@ enifed("ember-runtime/controllers/controller",
     */
     var Controller = EmberObject.extend(Mixin);
 
+    function controllerInjectionHelper(factory) {
+          }
+
     if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
       /**
         Creates a property that lazily looks up another controller in the container.
@@ -28458,8 +28459,7 @@ enifed("ember-runtime/controllers/controller",
                to the property's name
         @return {Ember.InjectedProperty} injection descriptor instance
         */
-      createInjectionHelper('controller', function(factory) {
-              });
+      createInjectionHelper('controller', controllerInjectionHelper);
     }
 
     __exports__["default"] = Controller;
@@ -35376,6 +35376,11 @@ enifed("ember-runtime/system/object",
       return "Ember.Object";
     };
 
+    function injectedPropertyAssertion(props) {
+      // Injection validations are a debugging aid only, so ensure that they are
+      // not performed in production builds by invoking from an assertion
+          }
+
     if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
       EmberObject.reopen({
         /**
@@ -35384,10 +35389,7 @@ enifed("ember-runtime/system/object",
           @private
           @method willMergeMixin
         */
-        willMergeMixin: function(props) {
-          // Injection validations are a debugging aid only, so ensure that they are
-          // not performed in production builds by invoking from an assertion
-                  }
+        willMergeMixin: injectedPropertyAssertion
       });
     }
 
