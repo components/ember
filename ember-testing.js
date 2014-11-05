@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.0+pre.579fe6a3
+ * @version   1.9.0-beta.1
  */
 
 (function() {
@@ -73,8 +73,8 @@ var enifed, requireModule, eriuqer, requirejs, Ember;
 })();
 
 enifed("ember-debug",
-  ["ember-metal/core","ember-metal/error","ember-metal/logger"],
-  function(__dependency1__, __dependency2__, __dependency3__) {
+  ["ember-metal/core","ember-metal/error","ember-metal/logger","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     /*global __fail__*/
 
@@ -243,8 +243,39 @@ enifed("ember-debug",
       func();
     };
 
-    // Inform the developer about the Ember Inspector if not installed.
-    if (!Ember.testing) {
+    /**
+      Will call `Ember.warn()` if ENABLE_ALL_FEATURES, ENABLE_OPTIONAL_FEATURES, or
+      any specific FEATURES flag is truthy.
+
+      This method is called automatically in debug canary builds.
+      
+      @private
+      @method _warnIfUsingStrippedFeatureFlags
+      @return {void}
+    */
+    function _warnIfUsingStrippedFeatureFlags(FEATURES, featuresWereStripped) {
+      if (featuresWereStripped) {
+        Ember.warn('Ember.ENV.ENABLE_ALL_FEATURES is only available in canary builds.', !Ember.ENV.ENABLE_ALL_FEATURES);
+        Ember.warn('Ember.ENV.ENABLE_OPTIONAL_FEATURES is only available in canary builds.', !Ember.ENV.ENABLE_OPTIONAL_FEATURES);
+
+        for (var key in FEATURES) {
+          if (FEATURES.hasOwnProperty(key) && key !== 'isEnabled') {
+            Ember.warn('FEATURE["' + key + '"] is set as enabled, but FEATURE flags are only available in canary builds.', !FEATURES[key]);
+          }
+        }
+      }
+    }
+
+    __exports__._warnIfUsingStrippedFeatureFlags = _warnIfUsingStrippedFeatureFlags;if (!Ember.testing) {
+      // Complain if they're using FEATURE flags in builds other than canary
+      Ember.FEATURES['features-stripped-test'] = true;
+      var featuresWereStripped = true;
+      
+      
+      delete Ember.FEATURES['features-stripped-test'];
+      _warnIfUsingStrippedFeatureFlags(Ember.ENV.FEATURES, featuresWereStripped);
+
+      // Inform the developer about the Ember Inspector if not installed.
       var isFirefox = typeof InstallTrigger !== 'undefined';
       var isChrome = !!window.chrome && !window.opera;
 
@@ -294,13 +325,12 @@ enifed("ember-testing",
     Ember.setupForTesting = setupForTesting;
   });
 enifed("ember-testing/adapters/adapter",
-  ["ember-metal/core","ember-metal/utils","ember-runtime/system/object","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["ember-metal/core","ember-runtime/system/object","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.K
-    var inspect = __dependency2__.inspect;
-    var EmberObject = __dependency3__["default"];
+    var EmberObject = __dependency2__["default"];
 
     /**
      @module ember
@@ -420,6 +450,11 @@ enifed("ember-testing/helpers",
       var router = app.__container__.lookup('router:main');
 
       return get(router, 'location').getURL();
+    }
+
+    function pauseTest(){
+      Test.adapter.asyncStart();
+      return new Ember.RSVP.Promise(function(){ }, 'TestAdapter paused promise');
     }
 
     function visit(app, url) {
@@ -782,6 +817,7 @@ enifed("ember-testing/helpers",
     */
     helper('currentURL', currentURL);
 
+    
     /**
       Triggers the given DOM event on the element identified by the provided selector.
 
