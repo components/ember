@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.1a14916e
+ * @version   1.10.0-beta.1+canary.6e42b600
  */
 
 (function() {
@@ -190,6 +190,23 @@ define("backburner",
               this.end();
             }
           }
+        }
+      },
+
+      join: function(target, method /*, args */) {
+        if (this.currentInstance) {
+          if (!method) {
+            method = target;
+            target = null;
+          }
+
+          if (isString(method)) {
+            method = target[method];
+          }
+
+          return method.apply(target, slice.call(arguments, 2));
+        } else {
+          return this.run.apply(this, arguments);
         }
       },
 
@@ -4756,7 +4773,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.1a14916e
+      @version 1.10.0-beta.1+canary.6e42b600
     */
 
     if ('undefined' === typeof Ember) {
@@ -4783,10 +4800,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.1a14916e'
+      @default '1.10.0-beta.1+canary.6e42b600'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.1a14916e';
+    Ember.VERSION = '1.10.0-beta.1+canary.6e42b600';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -9502,14 +9519,8 @@ define("ember-metal/run_loop",
       @return {Object} Return value from invoking the passed function. Please note,
       when called within an existing loop, no return value is possible.
     */
-    run.join = function(target, method /* args */) {
-      if (!run.currentRunLoop) {
-        return Ember.run.apply(Ember, arguments);
-      }
-
-      var args = slice.call(arguments);
-      args.unshift('actions');
-      run.schedule.apply(run, args);
+    run.join = function() {
+      return backburner.join.apply(backburner, arguments);
     };
 
     /**

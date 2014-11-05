@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.1a14916e
+ * @version   1.10.0-beta.1+canary.6e42b600
  */
 
 (function() {
@@ -21433,70 +21433,6 @@ enifed("ember-metal/tests/run_loop/debounce_test.jshint",
     module('JSHint - ember-metal/tests/run_loop');
     test('ember-metal/tests/run_loop/debounce_test.js should pass jshint', function() { 
       ok(true, 'ember-metal/tests/run_loop/debounce_test.js should pass jshint.'); 
-    });
-  });
-enifed("ember-metal/tests/run_loop/join_test",
-  ["ember-metal/run_loop"],
-  function(__dependency1__) {
-    "use strict";
-    var run = __dependency1__["default"];
-
-    QUnit.module('system/run_loop/join_test');
-
-    test('run.join brings its own run loop if none provided', function() {
-      ok(!run.currentRunLoop, 'expects no existing run-loop');
-
-      run.join(function() {
-        ok(run.currentRunLoop, 'brings its own run loop');
-      });
-    });
-
-    test('run.join joins and existing run-loop, and fires its action queue.', function() {
-      var outerRunLoop, wasInvoked;
-
-      run(function() {
-        outerRunLoop = run.currentRunLoop;
-
-        run.join(function() {
-          wasInvoked = true;
-          deepEqual(outerRunLoop, run.currentRunLoop, 'joined the existing run-loop');
-        });
-
-        ok(!wasInvoked, 'expected the joined callback not be invoked yet');
-      });
-      ok(wasInvoked, 'expected the joined callback to have invoked');
-    });
-
-    test('run.join returns a value if creating a new run-loop', function() {
-      var value = 'returned value';
-
-      var result = run.join(function() {
-        return value;
-      });
-
-      equal(value, result, 'returns expected output');
-    });
-
-    test('run.join returns undefined if joining another run-loop', function() {
-      var value = 'returned value';
-      var result;
-
-      run(function() {
-        result = run.join(function() {
-          return value;
-        });
-      });
-
-      equal(result, undefined, 'returns nothing');
-    });
-  });
-enifed("ember-metal/tests/run_loop/join_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-metal/tests/run_loop');
-    test('ember-metal/tests/run_loop/join_test.js should pass jshint', function() { 
-      ok(true, 'ember-metal/tests/run_loop/join_test.js should pass jshint.'); 
     });
   });
 enifed("ember-metal/tests/run_loop/later_test",
