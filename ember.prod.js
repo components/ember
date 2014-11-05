@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.694dfbcf
+ * @version   1.10.0-beta.1+canary.491ef7b9
  */
 
 (function() {
@@ -12761,7 +12761,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.694dfbcf
+      @version 1.10.0-beta.1+canary.491ef7b9
     */
 
     if ('undefined' === typeof Ember) {
@@ -12788,10 +12788,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.694dfbcf'
+      @default '1.10.0-beta.1+canary.491ef7b9'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.694dfbcf';
+    Ember.VERSION = '1.10.0-beta.1+canary.491ef7b9';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -19570,7 +19570,6 @@ enifed("ember-routing-handlebars/helpers/action",
     };
 
     /**
-
       The `{{action}}` helper provides a useful shortcut for registering an HTML
       element within a template for a single DOM event and forwarding that
       interaction to the template's controller or specified `target` option.
