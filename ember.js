@@ -23794,7 +23794,10 @@ enifed("ember-routing/system/route",
       */
       exit: function() {
         this.deactivate();
-                this.teardownViews();
+        
+          this.trigger('deactivate');
+        
+        this.teardownViews();
       },
 
       /**
@@ -23818,7 +23821,10 @@ enifed("ember-routing/system/route",
       */
       enter: function() {
         this.activate();
-              },
+        
+          this.trigger('activate');
+        
+      },
 
       /**
         The name of the view to use by default when rendering this routes template.
@@ -25303,6 +25309,11 @@ enifed("ember-routing/system/route",
     });
 
     
+      // TODO add mixin directly to `Route` class definition above, once this
+      // feature is merged:
+      Route.reopen(Evented);
+    
+
     var defaultQPMeta = {
       qps: [],
       map: {},
@@ -37744,6 +37755,25 @@ enifed("ember-testing/helpers",
     helper('currentURL', currentURL);
 
     
+      /**
+       Pauses the current test - this is useful for debugging while testing or for test-driving.
+       It allows you to inspect the state of your application at any point.
+
+       Example (The test will pause before clicking the button):
+
+       ```javascript
+       visit('/')
+       return pauseTest();
+
+       click('.btn');
+       ```
+
+       @method pauseTest
+       @return {Object} A promise that will never resolve
+       */
+      helper('pauseTest', pauseTest);
+    
+
     /**
       Triggers the given DOM event on the element identified by the provided selector.
 

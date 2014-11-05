@@ -818,6 +818,25 @@ enifed("ember-testing/helpers",
     helper('currentURL', currentURL);
 
     
+      /**
+       Pauses the current test - this is useful for debugging while testing or for test-driving.
+       It allows you to inspect the state of your application at any point.
+
+       Example (The test will pause before clicking the button):
+
+       ```javascript
+       visit('/')
+       return pauseTest();
+
+       click('.btn');
+       ```
+
+       @method pauseTest
+       @return {Object} A promise that will never resolve
+       */
+      helper('pauseTest', pauseTest);
+    
+
     /**
       Triggers the given DOM event on the element identified by the provided selector.
 

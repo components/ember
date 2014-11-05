@@ -23275,7 +23275,10 @@ enifed("ember-routing/system/route",
       */
       exit: function() {
         this.deactivate();
-                this.teardownViews();
+        
+          this.trigger('deactivate');
+        
+        this.teardownViews();
       },
 
       /**
@@ -23299,7 +23302,10 @@ enifed("ember-routing/system/route",
       */
       enter: function() {
         this.activate();
-              },
+        
+          this.trigger('activate');
+        
+      },
 
       /**
         The name of the view to use by default when rendering this routes template.
@@ -24769,6 +24775,11 @@ enifed("ember-routing/system/route",
     });
 
     
+      // TODO add mixin directly to `Route` class definition above, once this
+      // feature is merged:
+      Route.reopen(Evented);
+    
+
     var defaultQPMeta = {
       qps: [],
       map: {},

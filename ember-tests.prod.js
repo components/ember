@@ -45602,6 +45602,42 @@ enifed("ember-testing/tests/helpers_test",
     });
 
     
+
+      QUnit.module("ember-testing debugging helpers", {
+        setup: function(){
+          cleanup();
+
+          run(function() {
+            App = EmberApplication.create();
+            App.Router = EmberRouter.extend({
+              location: 'none'
+            });
+
+            App.setupForTesting();
+          });
+
+          App.injectTestHelpers();
+          run(App, 'advanceReadiness');
+        },
+
+        teardown: function(){
+          cleanup();
+        }
+      });
+
+      test("pauseTest pauses", function() {
+        expect(1);
+        function fakeAdapterAsyncStart() {
+          ok(true, 'Async start should be called');
+        }
+
+        Test.adapter.asyncStart = fakeAdapterAsyncStart;
+
+        App.testHelpers.pauseTest();
+      });
+
+    
+
     QUnit.module("ember-testing routing helpers", {
       setup: function(){
         cleanup();
@@ -58521,6 +58557,65 @@ enifed("ember/tests/routing/basic_test",
     });
 
     
+      test("`activate` event fires on the route", function() {
+        expect(2);
+
+        var eventFired = 0;
+
+        Router.map(function(){
+          this.route("nork");
+        });
+
+        App.NorkRoute = Ember.Route.extend({
+          init: function() {
+            this._super();
+
+            this.on("activate", function() {
+              equal(++eventFired, 1, "activate event is fired once");
+            });
+          },
+
+          activate: function() {
+            ok(true, "activate hook is called");
+          }
+        });
+
+        bootApplication();
+
+        Ember.run(router, 'transitionTo', 'nork');
+      });
+
+      test("`deactivate` event fires on the route", function() {
+        expect(2);
+
+        var eventFired = 0;
+
+        Router.map(function(){
+          this.route("nork");
+          this.route("dork");
+        });
+
+        App.NorkRoute = Ember.Route.extend({
+          init: function() {
+            this._super();
+
+            this.on("deactivate", function() {
+              equal(++eventFired, 1, "deactivate event is fired once");
+            });
+          },
+
+          deactivate: function() {
+            ok(true, "deactivate hook is called");
+          }
+        });
+
+        bootApplication();
+
+        Ember.run(router, 'transitionTo', 'nork');
+        Ember.run(router, 'transitionTo', 'dork');
+      });
+    
+
     test("Actions can be handled by inherited action handlers", function() {
 
       expect(4);
