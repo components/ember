@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.38e9eb4b
+ * @version   1.10.0-beta.1+canary.cae3c27b
  */
 
 (function() {
@@ -12761,7 +12761,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.38e9eb4b
+      @version 1.10.0-beta.1+canary.cae3c27b
     */
 
     if ('undefined' === typeof Ember) {
@@ -12788,10 +12788,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.38e9eb4b'
+      @default '1.10.0-beta.1+canary.cae3c27b'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.38e9eb4b';
+    Ember.VERSION = '1.10.0-beta.1+canary.cae3c27b';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -23306,9 +23306,9 @@ enifed("ember-routing/system/route",
       */
       exit: function() {
         this.deactivate();
-        if (Ember.FEATURES.isEnabled("ember-routing-fire-activate-deactivate-events")) {
+        
           this.trigger('deactivate');
-        }
+        
         this.teardownViews();
       },
 
@@ -23333,9 +23333,9 @@ enifed("ember-routing/system/route",
       */
       enter: function() {
         this.activate();
-        if (Ember.FEATURES.isEnabled("ember-routing-fire-activate-deactivate-events")) {
+        
           this.trigger('activate');
-        }
+        
       },
 
       /**
@@ -24805,11 +24805,11 @@ enifed("ember-routing/system/route",
       }
     });
 
-    if (Ember.FEATURES.isEnabled("ember-routing-fire-activate-deactivate-events")) {
+    
       // TODO add mixin directly to `Route` class definition above, once this
       // feature is merged:
       Route.reopen(Evented);
-    }
+    
 
     var defaultQPMeta = {
       qps: [],

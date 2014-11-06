@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.38e9eb4b
+ * @version   1.10.0-beta.1+canary.cae3c27b
  */
 
 (function() {
@@ -58879,7 +58879,7 @@ enifed("ember/tests/routing/basic_test",
       bootApplication();
     });
 
-    if (Ember.FEATURES.isEnabled("ember-routing-fire-activate-deactivate-events")) {
+    
       test("`activate` event fires on the route", function() {
         expect(2);
 
@@ -58937,7 +58937,7 @@ enifed("ember/tests/routing/basic_test",
         Ember.run(router, 'transitionTo', 'nork');
         Ember.run(router, 'transitionTo', 'dork');
       });
-    }
+    
 
     test("Actions can be handled by inherited action handlers", function() {
 
