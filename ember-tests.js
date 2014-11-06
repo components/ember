@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.cae3c27b
+ * @version   1.10.0-beta.1+canary.b7ca6e81
  */
 
 (function() {
@@ -1933,6 +1933,23 @@ enifed("ember-application/tests/system/initializers_test",
           run(function() { app.destroy(); });
         }
       }
+    });
+
+    test("initializers require proper 'name' and 'initialize' properties", function() {
+      var MyApplication = Application.extend();
+
+      expectAssertion(function() {
+        run(function() {
+          MyApplication.initializer({name:'initializer'});
+        });
+      });
+
+      expectAssertion(function() {
+        run(function() {
+          MyApplication.initializer({initialize:Ember.K});
+        });
+      });
+
     });
 
     test("initializers can be registered in a specified order", function() {

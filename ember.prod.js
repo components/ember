@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.cae3c27b
+ * @version   1.10.0-beta.1+canary.b7ca6e81
  */
 
 (function() {
@@ -2499,10 +2499,10 @@ enifed("ember-application/system/application",
       names by setting the application's `customEvents` property:
 
       ```javascript
-      App = Ember.Application.create({
+      var App = Ember.Application.create({
         customEvents: {
           // add support for the paste event
-          paste: "paste"
+          paste: 'paste'
         }
       });
       ```
@@ -2516,7 +2516,7 @@ enifed("ember-application/system/application",
       should be delegated, set your application's `rootElement` property:
 
       ```javascript
-      window.App = Ember.Application.create({
+      var App = Ember.Application.create({
         rootElement: '#ember-app'
       });
       ```
@@ -2559,7 +2559,7 @@ enifed("ember-application/system/application",
       the `LOG_TRANSITIONS_INTERNAL` flag:
 
       ```javascript
-      window.App = Ember.Application.create({
+      var App = Ember.Application.create({
         LOG_TRANSITIONS: true, // basic logging of successful transitions
         LOG_TRANSITIONS_INTERNAL: true // detailed logging of all routing steps
       });
@@ -2628,10 +2628,10 @@ enifed("ember-application/system/application",
         corresponding view method name as the value. For example:
 
         ```javascript
-        App = Ember.Application.create({
+        var App = Ember.Application.create({
           customEvents: {
             // add support for the paste event
-            paste: "paste"
+            paste: 'paste'
           }
         });
         ```
@@ -2758,10 +2758,11 @@ enifed("ember-application/system/application",
         Example:
 
         ```javascript
-        App = Ember.Application.create();
+        var App = Ember.Application.create();
+        
         App.deferReadiness();
-
-        jQuery.getJSON("/auth-token", function(token) {
+        // Ember.$ is a reference to the jQuery object/function
+        Ember.$.getJSON('/auth-token', function(token) {
           App.token = token;
           App.advanceReadiness();
         });
@@ -2804,7 +2805,8 @@ enifed("ember-application/system/application",
 
         ```javascript
         var App = Ember.Application.create();
-        App.Orange  = Ember.Object.extend();
+        
+        App.Orange = Ember.Object.extend();
         App.register('fruit:favorite', App.Orange);
         ```
 
@@ -2815,8 +2817,8 @@ enifed("ember-application/system/application",
         An example of registering a controller with a non-standard name:
 
         ```javascript
-        var App = Ember.Application.create(),
-            Session  = Ember.Controller.extend();
+        var App = Ember.Application.create();
+        var Session = Ember.Controller.extend();
 
         App.register('controller:session', Session);
 
@@ -2841,10 +2843,10 @@ enifed("ember-application/system/application",
         App.Email   = Ember.Object.extend();
         App.session = Ember.Object.create();
 
-        App.register('model:user', App.Person, {singleton: false });
+        App.register('model:user', App.Person, { singleton: false });
         App.register('fruit:favorite', App.Orange);
-        App.register('communication:main', App.Email, {singleton: false});
-        App.register('session', App.session, {instantiate: false});
+        App.register('communication:main', App.Email, { singleton: false });
+        App.register('session', App.session, { instantiate: false });
         ```
 
         @method register
@@ -2868,8 +2870,8 @@ enifed("ember-application/system/application",
         An example of providing a session object to all controllers:
 
         ```javascript
-        var App = Ember.Application.create(),
-            Session = Ember.Object.extend({ isAuthenticated: false });
+        var App = Ember.Application.create();
+        var Session = Ember.Object.extend({ isAuthenticated: false });
 
         // A factory must be registered before it can be injected
         App.register('session:main', Session);
@@ -2896,7 +2898,7 @@ enifed("ember-application/system/application",
         directly (via `create` or `new`) bypasses the dependency injection
         system.
 
-        Ember-Data instantiates its models in a unique manner, and consequently
+        **Note:** Ember-Data instantiates its models in a unique manner, and consequently
         injections onto models (or all models) will not work as expected. Injections
         on models can be enabled by setting `Ember.MODEL_FACTORY_INJECTIONS`
         to `true`.
@@ -2967,24 +2969,23 @@ enifed("ember-application/system/application",
         Typical Example:
 
         ```javascript
-
         var App;
 
         run(function() {
           App = Ember.Application.create();
         });
 
-        module("acceptance test", {
+        module('acceptance test', {
           setup: function() {
             App.reset();
           }
         });
 
-        test("first test", function() {
+        test('first test', function() {
           // App is freshly reset
         });
 
-        test("first test", function() {
+        test('second test', function() {
           // App is again freshly reset
         });
         ```
@@ -2996,14 +2997,13 @@ enifed("ember-application/system/application",
         to the app becoming ready.
 
         ```javascript
-
         var App;
 
         run(function() {
           App = Ember.Application.create();
         });
 
-        module("acceptance test", {
+        module('acceptance test', {
           setup: function() {
             run(function() {
               App.reset();
@@ -3012,12 +3012,13 @@ enifed("ember-application/system/application",
           }
         });
 
-        test("first test", function() {
+        test('first test', function() {
           ok(true, 'something before app is initialized');
 
           run(function() {
             App.advanceReadiness();
           });
+          
           ok(true, 'something after app is initialized');
         });
         ```
@@ -3184,8 +3185,9 @@ enifed("ember-application/system/application",
         ```javascript
         Ember.Application.initializer({
           name: 'namedInitializer',
+          
           initialize: function(container, application) {
-            Ember.debug("Running namedInitializer!");
+            Ember.debug('Running namedInitializer!');
           }
         });
         ```
@@ -3199,8 +3201,9 @@ enifed("ember-application/system/application",
         ```javascript
         Ember.Application.initializer({
           name: 'first',
+          
           initialize: function(container, application) {
-            Ember.debug("First initializer!");
+            Ember.debug('First initializer!');
           }
         });
 
@@ -3216,7 +3219,7 @@ enifed("ember-application/system/application",
           after: 'first',
 
           initialize: function(container, application) {
-            Ember.debug("Second initializer!");
+            Ember.debug('Second initializer!');
           }
         });
 
@@ -3233,7 +3236,7 @@ enifed("ember-application/system/application",
           before: 'first',
 
           initialize: function(container, application) {
-            Ember.debug("Pre initializer!");
+            Ember.debug('Pre initializer!');
           }
         });
 
@@ -3251,7 +3254,7 @@ enifed("ember-application/system/application",
           after: ['first', 'second'],
 
           initialize: function(container, application) {
-            Ember.debug("Post initializer!");
+            Ember.debug('Post initializer!');
           }
         });
 
@@ -3268,10 +3271,11 @@ enifed("ember-application/system/application",
 
         ```javascript
         Ember.Application.initializer({
-          name: "preload-data",
+          name: 'preload-data',
 
           initialize: function(container, application) {
             var store = container.lookup('store:main');
+            
             store.pushPayload(preloadedData);
           }
         });
@@ -3303,7 +3307,7 @@ enifed("ember-application/system/application",
           });
         }
 
-                
+                        
         this.initializers[initializer.name] = initializer;
       },
 
@@ -12761,7 +12765,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.cae3c27b
+      @version 1.10.0-beta.1+canary.b7ca6e81
     */
 
     if ('undefined' === typeof Ember) {
@@ -12788,10 +12792,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.cae3c27b'
+      @default '1.10.0-beta.1+canary.b7ca6e81'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.cae3c27b';
+    Ember.VERSION = '1.10.0-beta.1+canary.b7ca6e81';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
