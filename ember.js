@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.491ef7b9
+ * @version   1.10.0-beta.1+canary.139ff6a3
  */
 
 (function() {
@@ -13122,7 +13122,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.491ef7b9
+      @version 1.10.0-beta.1+canary.139ff6a3
     */
 
     if ('undefined' === typeof Ember) {
@@ -13149,10 +13149,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.491ef7b9'
+      @default '1.10.0-beta.1+canary.139ff6a3'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.491ef7b9';
+    Ember.VERSION = '1.10.0-beta.1+canary.139ff6a3';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -37938,7 +37938,7 @@ enifed("ember-testing/helpers",
     */
     helper('currentURL', currentURL);
 
-    if (Ember.FEATURES.isEnabled("ember-testing-pause-test")) {
+    
       /**
        Pauses the current test - this is useful for debugging while testing or for test-driving.
        It allows you to inspect the state of your application at any point.
@@ -37956,7 +37956,7 @@ enifed("ember-testing/helpers",
        @return {Object} A promise that will never resolve
        */
       helper('pauseTest', pauseTest);
-    }
+    
 
     /**
       Triggers the given DOM event on the element identified by the provided selector.

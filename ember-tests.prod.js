@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.491ef7b9
+ * @version   1.10.0-beta.1+canary.139ff6a3
  */
 
 (function() {
@@ -45843,7 +45843,7 @@ enifed("ember-testing/tests/helpers_test",
 
     });
 
-    if (Ember.FEATURES.isEnabled("ember-testing-pause-test")) {
+    
 
       QUnit.module("ember-testing debugging helpers", {
         setup: function(){
@@ -45878,7 +45878,7 @@ enifed("ember-testing/tests/helpers_test",
         App.testHelpers.pauseTest();
       });
 
-    }
+    
 
     QUnit.module("ember-testing routing helpers", {
       setup: function(){
