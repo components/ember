@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.46926d46
+ * @version   1.10.0-beta.1+canary.4460f88a
  */
 
 (function() {
@@ -2959,6 +2959,542 @@ enifed("ember-debug/tests/warn_if_using_stripped_feature_flags_test.jshint",
     test('ember-debug/tests/warn_if_using_stripped_feature_flags_test.js should pass jshint', function() { 
       ok(true, 'ember-debug/tests/warn_if_using_stripped_feature_flags_test.js should pass jshint.'); 
     });
+  });
+enifed("ember-dev/test-helper/assertion",
+  ["./method-call-expectation","./utils","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
+    "use strict";
+    /* globals QUnit */
+
+    var MethodCallExpectation = __dependency1__["default"];
+    var o_create = __dependency2__.o_create;
+
+    function AssertExpectation(Ember, message){
+      MethodCallExpectation.call(this, Ember, 'assert');
+      this.expectedMessage = message;
+    }
+    AssertExpectation.Error = function(){};
+    AssertExpectation.prototype = o_create(MethodCallExpectation.prototype);
+    AssertExpectation.prototype.handleCall = function(message, test){
+      this.sawCall = true;
+      if (test) {
+        return; // Only get message for failures
+      }
+      this.actualMessage = message;
+      // Halt execution
+      throw new AssertExpectation.Error();
+    };
+    AssertExpectation.prototype.assert = function(fn){
+      try {
+        this.runWithStub(fn);
+      } catch (e) {
+        if (!(e instanceof AssertExpectation.Error)) {
+          throw e;
+        }
+      }
+
+      // Run assertions in an order that is useful when debugging a test failure.
+      //
+      if (!this.sawCall) {
+        QUnit.ok(false, "Expected Ember.assert to be called (Not called with any value).");
+      } else if (!this.actualMessage) {
+        QUnit.ok(false, 'Expected a failing Ember.assert (Ember.assert called, but without a failing test).');
+      } else {
+        if (this.expectedMessage) {
+          if (this.expectedMessage instanceof RegExp) {
+            QUnit.ok(this.expectedMessage.test(this.actualMessage), "Expected failing Ember.assert: '" + this.expectedMessage + "', but got '" + this.actualMessage + "'.");
+          } else {
+            QUnit.equal(this.actualMessage, this.expectedMessage, "Expected failing Ember.assert: '" + this.expectedMessage + "', but got '" + this.actualMessage + "'.");
+          }
+        } else {
+          // Positive assertion that assert was called
+          QUnit.ok(true, 'Expected a failing Ember.assert.');
+        }
+      }
+    };
+
+    var AssertionAssert = function(env){
+      this.env = env;
+    };
+
+    AssertionAssert.prototype = {
+
+      reset: function(){
+      },
+
+      inject: function(){
+
+        var assertion = this;
+
+        // Looks for an exception raised within the fn.
+        //
+        // expectAssertion(function(){
+        //   Ember.assert("Homie don't roll like that");
+        // } /* , optionalMessageStringOrRegex */);
+        //
+        window.expectAssertion = function expectAssertion(fn, message){
+          if (assertion.env.runningProdBuild){
+            QUnit.ok(true, 'Assertions disabled in production builds.');
+            return;
+          }
+
+          // do not assert as the production builds do not contain Ember.assert
+          (new AssertExpectation(assertion.env.Ember, message)).assert(fn);
+        };
+
+        window.ignoreAssertion = function ignoreAssertion(fn){
+          var stubber = new MethodCallExpectation(assertion.env.Ember, 'assert'),
+              noop = function(){};
+
+          stubber.runWithStub(fn, noop);
+        };
+
+      },
+
+      assert: function(){
+      },
+
+      restore: function(){
+        window.expectAssertion = null;
+        window.ignoreAssertion = null;
+      }
+
+    };
+
+    __exports__["default"] = AssertionAssert;
+  });
+enifed("ember-dev/test-helper/deprecation",
+  ["./method-call-expectation","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    /* globals QUnit */
+
+    var MethodCallExpectation = __dependency1__["default"];
+
+    var NONE = function(){};
+
+    var DeprecationAssert = function(env){
+      this.env = env;
+
+      this.reset();
+    };
+
+    DeprecationAssert.prototype = {
+
+      reset: function(){
+        this.expecteds = null;
+        this.actuals = null;
+      },
+
+      stubEmber: function(){
+        if (!this._previousEmberDeprecate && this._previousEmberDeprecate !== this.env.Ember.deprecate) {
+          this._previousEmberDeprecate = this.env.Ember.deprecate;
+        }
+        var assertion = this;
+        this.env.Ember.deprecate = function(msg, test) {
+          assertion.actuals = assertion.actuals || [];
+          if (!test) {
+            assertion.actuals.push([msg, test]);
+          }
+        };
+      },
+
+      inject: function(){
+        var assertion = this;
+
+        // Expects no deprecation to happen from the time of calling until
+        // the end of the test.
+        //
+        // expectNoDeprecation(/* optionalStringOrRegex */);
+        // Ember.deprecate("Old And Busted");
+        //
+        window.expectNoDeprecation = function() {
+          if (assertion.expecteds != null && typeof assertion.expecteds === 'object') {
+            throw new Error("expectNoDeprecation was called after expectDeprecation was called!");
+          }
+          assertion.stubEmber();
+          assertion.expecteds = NONE;
+        };
+
+        // Expect a deprecation to happen within a function, or if no function
+        // is pass, from the time of calling until the end of the test. Can be called
+        // multiple times to assert deprecations with different specific messages
+        // were fired.
+        //
+        // expectDeprecation(function(){
+        //   Ember.deprecate("Old And Busted");
+        // }, /* optionalStringOrRegex */);
+        //
+        // expectDeprecation(/* optionalStringOrRegex */);
+        // Ember.deprecate("Old And Busted");
+        //
+        window.expectDeprecation = function(fn, message) {
+          if (assertion.expecteds === NONE) {
+            throw new Error("expectDeprecation was called after expectNoDeprecation was called!");
+          }
+          assertion.stubEmber();
+          assertion.expecteds = assertion.expecteds || [];
+          if (fn && typeof fn !== 'function') {
+            // fn is a message
+            assertion.expecteds.push(fn);
+          } else {
+            assertion.expecteds.push(message || /.*/);
+            if (fn) {
+              fn();
+              assertion.assert();
+              assertion.expecteds.pop();
+            }
+          }
+        };
+
+        window.ignoreDeprecation = function ignoreDeprecation(fn){
+          var stubber = new MethodCallExpectation(assertion.env.Ember, 'deprecate'),
+              noop = function(){};
+
+          stubber.runWithStub(fn, noop);
+        };
+
+      },
+
+      // Forces an assert the deprecations occurred, and resets the globals
+      // storing asserts for the next run.
+      //
+      // expectNoDeprecation(/Old/);
+      // setTimeout(function(){
+      //   Ember.deprecate("Old And Busted");
+      //   assertDeprecation();
+      // });
+      //
+      // assertDeprecation is called after each test run to catch any expectations
+      // without explicit asserts.
+      //
+      assert: function(){
+        var expecteds = this.expecteds || [],
+            actuals   = this.actuals || [];
+        var o, i;
+
+        if (expecteds !== NONE && expecteds.length === 0 && actuals.length === 0) {
+          return;
+        }
+
+        if (this.env.runningProdBuild){
+          QUnit.ok(true, 'deprecations disabled in production builds.');
+          return;
+        }
+
+        if (expecteds === NONE) {
+          var actualMessages = [];
+          for (i=0;i<actuals.length;i++) {
+            actualMessages.push(actuals[i][0]);
+          }
+          QUnit.ok(actuals.length === 0, "Expected no deprecation calls, got "+actuals.length+": "+actualMessages.join(', '));
+          return;
+        }
+
+        var expected, actual, match;
+
+        for (o=0;o < expecteds.length; o++) {
+          expected = expecteds[o];
+          for (i=0;i < actuals.length; i++) {
+            actual = actuals[i];
+            if (!actual[1]) {
+              if (expected instanceof RegExp) {
+                if (expected.test(actual[0])) {
+                  match = actual;
+                  break;
+                }
+              } else {
+                if (expected === actual[0]) {
+                  match = actual;
+                  break;
+                }
+              }
+            }
+          }
+
+          if (!actual) {
+            QUnit.ok(false, "Recieved no deprecate calls at all, expecting: "+expected);
+          } else if (match && !match[1]) {
+            QUnit.ok(true, "Recieved failing deprecation with message: "+match[0]);
+          } else if (match && match[1]) {
+            QUnit.ok(false, "Expected failing deprecation, got succeeding with message: "+match[0]);
+          } else if (actual[1]) {
+            QUnit.ok(false, "Did not receive failing deprecation matching '"+expected+"', last was success with '"+actual[0]+"'");
+          } else if (!actual[1]) {
+            QUnit.ok(false, "Did not receive failing deprecation matching '"+expected+"', last was failure with '"+actual[0]+"'");
+          }
+        }
+      },
+
+      restore: function(){
+        if (this._previousEmberDeprecate) {
+          this.env.Ember.deprecate = this._previousEmberDeprecate;
+          this._previousEmberDeprecate = null;
+        }
+        window.expectNoDeprecation = null;
+      }
+
+    };
+
+    __exports__["default"] = DeprecationAssert;
+  });
+enifed("ember-dev/test-helper/index",
+  ["./deprecation","./remaining-view","./remaining-template","./assertion","./run-loop","./utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+    "use strict";
+    var DeprecationAssert = __dependency1__["default"];
+    var RemainingViewAssert = __dependency2__["default"];
+    var RemainingTemplateAssert = __dependency3__["default"];
+    var AssertionAssert = __dependency4__["default"];
+    var RunLoopAssert = __dependency5__["default"];
+
+    var buildCompositeAssert = __dependency6__.buildCompositeAssert;
+
+    var EmberDevTestHelperAssert = buildCompositeAssert([
+      DeprecationAssert,
+      RemainingViewAssert,
+      RemainingTemplateAssert,
+      AssertionAssert,
+      RunLoopAssert
+    ]);
+
+    __exports__["default"] = EmberDevTestHelperAssert;
+  });
+enifed("ember-dev/test-helper/method-call-expectation",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    /* globals QUnit */
+
+    // A light class for stubbing
+    //
+    function MethodCallExpectation(target, property){
+      this.target = target;
+      this.property = property;
+    }
+
+    MethodCallExpectation.prototype = {
+      handleCall: function(){
+        this.sawCall = true;
+        return this.originalMethod.apply(this.target, arguments);
+      },
+      stubMethod: function(replacementFunc){
+        var context = this,
+            property = this.property;
+
+        this.originalMethod = this.target[property];
+
+        if (typeof replacementFunc === 'function') {
+          this.target[property] = replacementFunc;
+        } else {
+          this.target[property] = function(){
+            return context.handleCall.apply(context, arguments);
+          };
+        }
+      },
+      restoreMethod: function(){
+        this.target[this.property] = this.originalMethod;
+      },
+      runWithStub: function(fn, replacementFunc){
+        try {
+          this.stubMethod(replacementFunc);
+          fn();
+        } finally {
+          this.restoreMethod();
+        }
+      },
+      assert: function() {
+        this.runWithStub.apply(this, arguments);
+        QUnit.ok(this.sawCall, "Expected "+this.property+" to be called.");
+      }
+    };
+
+    __exports__["default"] = MethodCallExpectation;
+  });
+enifed("ember-dev/test-helper/remaining-template",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    /* globals QUnit */
+
+    var RemainingTemplateAssert = function(env){
+      this.env = env;
+    };
+
+    RemainingTemplateAssert.prototype = {
+      reset: function(){},
+      inject: function(){},
+      assert: function(){
+        if (this.env.Ember && this.env.Ember.TEMPLATES) {
+          var templateNames = [], name;
+          for (name in this.env.Ember.TEMPLATES) {
+            if (this.env.Ember.TEMPLATES[name] != null) {
+              templateNames.push(name);
+            }
+          }
+
+          if (templateNames.length > 0) {
+            QUnit.deepEqual(templateNames, [], "Ember.TEMPLATES should be empty");
+            this.env.Ember.TEMPLATES = {};
+          }
+        }
+      },
+      restore: function(){}
+    };
+
+    __exports__["default"] = RemainingTemplateAssert;
+  });
+enifed("ember-dev/test-helper/remaining-view",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    /* globals QUnit */
+
+    var RemainingViewAssert = function(env){
+      this.env = env;
+    };
+
+    RemainingViewAssert.prototype = {
+      reset: function(){},
+      inject: function(){},
+      assert: function(){
+        if (this.env.Ember && this.env.Ember.View) {
+          var viewIds = [], id;
+          for (id in this.env.Ember.View.views) {
+            if (this.env.Ember.View.views[id] != null) {
+              viewIds.push(id);
+            }
+          }
+
+          if (viewIds.length > 0) {
+            QUnit.deepEqual(viewIds, [], "Ember.View.views should be empty");
+            this.env.Ember.View.views = [];
+          }
+        }
+      },
+      restore: function(){}
+    };
+
+    __exports__["default"] = RemainingViewAssert;
+  });
+enifed("ember-dev/test-helper/run-loop",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    /* globals QUnit */
+
+    function RunLoopAssertion(env){
+      this.env = env;
+    }
+
+    RunLoopAssertion.prototype = {
+      reset: function(){},
+      inject: function(){},
+      assert: function(){
+        var run = this.env.Ember.run;
+
+        if (run.currentRunLoop) {
+          QUnit.ok(false, "Should not be in a run loop at end of test");
+          while (run.currentRunLoop) {
+            run.end();
+          }
+        }
+
+        if (run.hasScheduledTimers()) {
+          QUnit.ok(false, "Ember run should not have scheduled timers at end of test");
+          run.cancelTimers();
+        }
+      },
+      restore: function(){}
+    };
+
+    __exports__["default"] = RunLoopAssertion;
+  });
+enifed("ember-dev/test-helper/setup-qunit",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    /* globals QUnit */
+
+    __exports__["default"] = function setupQUnit(assertion, _qunitGlobal) {
+      var qunitGlobal = QUnit;
+
+      if (_qunitGlobal) {
+        qunitGlobal = _qunitGlobal;
+      }
+
+      var originalModule = qunitGlobal.module;
+
+      qunitGlobal.module = function(name, _options) {
+        var options = _options || {};
+        var originalSetup = options.setup || function() { };
+        var originalTeardown = options.teardown || function() { };
+
+        options.setup = function() {
+          assertion.reset();
+          assertion.inject();
+
+          originalSetup.call(this);
+        };
+
+        options.teardown = function() {
+          originalTeardown.call(this);
+
+          assertion.assert();
+          assertion.restore();
+        };
+
+        return originalModule(name, options);
+      };
+    }
+  });
+enifed("ember-dev/test-helper/utils",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    function callForEach(prop, func) {
+      return function() {
+        for (var i=0, l=this[prop].length;i<l;i++) {
+          this[prop][i][func]();
+        }
+      };
+    }
+
+    function buildCompositeAssert(klasses){
+      var Composite = function(emberKlass, runningProdBuild){
+        this.asserts = [];
+        for (var i=0, l=klasses.length;i<l;i++) {
+          this.asserts.push(new klasses[i]({
+            Ember: emberKlass,
+            runningProdBuild: runningProdBuild
+          }));
+        }
+      };
+
+      Composite.prototype = {
+        reset: callForEach('asserts', 'reset'),
+        inject: callForEach('asserts', 'inject'),
+        assert: callForEach('asserts', 'assert'),
+        restore: callForEach('asserts', 'restore')
+      };
+
+      return Composite;
+    }
+
+    __exports__.buildCompositeAssert = buildCompositeAssert;var o_create = Object.create || (function(){
+      function F(){}
+
+      return function(o) {
+        if (arguments.length !== 1) {
+          throw new Error('Object.create implementation only accepts one parameter.');
+        }
+        F.prototype = o;
+        return new F();
+      };
+    }());
+
+    var o_create;
+    __exports__.o_create = o_create;
   });
 enifed("ember-extension-support.jshint",
   [],
@@ -30569,8 +31105,8 @@ enifed("ember-runtime/tests/controllers/array_controller_test.jshint",
     });
   });
 enifed("ember-runtime/tests/controllers/controller_test",
-  ["ember-runtime/controllers/controller","ember-runtime/system/service","ember-runtime/controllers/object_controller","ember-metal/mixin","ember-runtime/system/object","ember-runtime/system/container","ember-runtime/inject"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
+  ["ember-runtime/controllers/controller","ember-runtime/system/service","ember-runtime/controllers/object_controller","ember-metal/mixin","ember-runtime/system/object","ember-runtime/system/container","ember-runtime/inject","ember-metal/property_get"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
     "use strict";
     var Controller = __dependency1__["default"];
     var Service = __dependency2__["default"];
@@ -30579,6 +31115,7 @@ enifed("ember-runtime/tests/controllers/controller_test",
     var Object = __dependency5__["default"];
     var Container = __dependency6__["default"];
     var inject = __dependency7__["default"];
+    var get = __dependency8__.get;
 
     QUnit.module('Controller event handling');
 
@@ -30739,13 +31276,16 @@ enifed("ember-runtime/tests/controllers/controller_test",
     });
 
     test("specifying `content` (with `model` specified) does not result in deprecation", function() {
-      expect(1);
+      expect(3);
       expectNoDeprecation();
 
-      Controller.extend({
+      var controller = Controller.extend({
         content: 'foo-bar',
         model: 'blammo'
       }).create();
+
+      equal(get(controller, 'content'), 'foo-bar');
+      equal(get(controller, 'model'), 'blammo');
     });
 
     if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
@@ -34419,6 +34959,8 @@ enifed("ember-runtime/tests/mixins/action_handler_test",
     "use strict";
     var run = __dependency1__["default"];
     var Controller = __dependency2__["default"];
+
+    QUnit.module("ActionHandler");
 
     test("passing a function for the actions hash triggers an assertion", function() {
       expect(1);
@@ -43632,7 +44174,6 @@ enifed("ember-runtime/tests/system/set/copyable_suite_test",
     var generateGuid = __dependency3__.generateGuid;
     var get = __dependency4__.get;
 
-    ignoreDeprecation(function() {
     CopyableTests.extend({
       name: 'Ember.Set Copyable',
 
@@ -43666,8 +44207,6 @@ enifed("ember-runtime/tests/system/set/copyable_suite_test",
 
       shouldBeFreezable: true
     }).run();
-
-    });
   });
 enifed("ember-runtime/tests/system/set/copyable_suite_test.jshint",
   [],
@@ -48373,8 +48912,8 @@ enifed("ember-views/tests/views/collection_test.jshint",
     });
   });
 enifed("ember-views/tests/views/component_test",
-  ["ember-metal/property_set","ember-metal/run_loop","ember-runtime/system/object","ember-runtime/system/service","ember-runtime/system/container","ember-runtime/inject","ember-views/views/view","ember-views/views/component"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
+  ["ember-metal/property_set","ember-metal/run_loop","ember-runtime/system/object","ember-runtime/system/service","ember-runtime/system/container","ember-runtime/inject","ember-metal/property_get","ember-views/views/view","ember-views/views/component"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
     "use strict";
     var set = __dependency1__.set;
     var run = __dependency2__["default"];
@@ -48382,9 +48921,10 @@ enifed("ember-views/tests/views/component_test",
     var Service = __dependency4__["default"];
     var Container = __dependency5__["default"];
     var inject = __dependency6__["default"];
+    var get = __dependency7__.get;
 
-    var EmberView = __dependency7__["default"];
-    var Component = __dependency8__["default"];
+    var EmberView = __dependency8__["default"];
+    var Component = __dependency9__["default"];
 
     var a_slice = Array.prototype.slice;
 
@@ -48450,6 +48990,9 @@ enifed("ember-views/tests/views/component_test",
         templateName: 'blah-blah',
         layoutName: 'hum-drum'
       }).create();
+
+      equal(get(component, 'templateName'), 'blah-blah');
+      equal(get(component, 'layoutName'), 'hum-drum');
     });
 
     test("Specifying a templateName on a component with a layoutName specified in a superclass is NOT deprecated", function(){
@@ -48457,9 +49000,13 @@ enifed("ember-views/tests/views/component_test",
       var Parent = Component.extend({
         layoutName: 'hum-drum'
       });
+
       component = Parent.extend({
         templateName: 'blah-blah'
       }).create();
+
+      equal(get(component, 'templateName'), 'blah-blah');
+      equal(get(component, 'layoutName'), 'hum-drum');
     });
 
     QUnit.module("Ember.Component - Actions", {
@@ -52609,10 +53156,12 @@ enifed("ember-views/tests/views/view/state_deprecation_test",
     }
 
     test("no deprecation is printed if view.state or view._state is not looked up", function() {
-      expect(1);
+      expect(2);
       expectNoDeprecation();
 
-      EmberView.create();
+      var view = EmberView.create();
+
+      ok(view, 'view was created');
     });
   });
 enifed("ember-views/tests/views/view/state_deprecation_test.jshint",
