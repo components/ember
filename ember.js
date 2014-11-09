@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.43423f6a
+ * @version   1.10.0-beta.1+canary.c47efba7
  */
 
 (function() {
@@ -11049,7 +11049,9 @@ enifed("ember-metal/binding",
         addObserver(obj, fromPath, this, this.fromDidChange);
 
         // if the binding is a two-way binding, also set up an observer on the target
-        if (!this._oneWay) { addObserver(obj, toPath, this, this.toDidChange); }
+        if (!this._oneWay) {
+          addObserver(obj, toPath, this, this.toDidChange);
+        }
 
         this._readyToSync = true;
 
@@ -11074,7 +11076,9 @@ enifed("ember-metal/binding",
         removeObserver(obj, this._from, this, this.fromDidChange);
 
         // if the binding is two-way, remove the observer from the target as well
-        if (twoWay) { removeObserver(obj, this._to, this, this.toDidChange); }
+        if (twoWay) {
+          removeObserver(obj, this._to, this, this.toDidChange);
+        }
 
         this._readyToSync = false; // disable scheduled syncs...
         return this;
@@ -11460,7 +11464,9 @@ enifed("ember-metal/chains",
       var queue = pendingQueue;
       pendingQueue = [];
 
-      forEach.call(queue, function(q) { q[0].add(q[1]); });
+      forEach.call(queue, function(q) {
+        q[0].add(q[1]);
+      });
 
       warn('Watching an undefined global, Ember expects watched globals to be' +
            ' setup by the time the run loop is flushed, check for typos', pendingQueue.length === 0);
@@ -11476,7 +11482,9 @@ enifed("ember-metal/chains",
         nodes = m.chainWatchers = {};
       }
 
-      if (!nodes[keyName]) { nodes[keyName] = []; }
+      if (!nodes[keyName]) {
+        nodes[keyName] = [];
+      }
       nodes[keyName].push(node);
       watchKey(obj, keyName, m);
     }
@@ -11520,7 +11528,9 @@ enifed("ember-metal/chains",
       this._paths = {};
       if (this._watching) {
         this._object = parent.value();
-        if (this._object) { addChainWatcher(this._object, this._key, this); }
+        if (this._object) {
+          addChainWatcher(this._object, this._key, this);
+        }
       }
 
       // Special-case: the EachProxy relies on immediate evaluation to
@@ -11540,9 +11550,13 @@ enifed("ember-metal/chains",
 
       var meta = obj['__ember_meta__'];
       // check if object meant only to be a prototype
-      if (meta && meta.proto === obj) return undefined;
+      if (meta && meta.proto === obj) {
+        return undefined;
+      }
 
-      if (key === "@each") return get(obj, key);
+      if (key === "@each") {
+        return get(obj, key);
+      }
 
       // if a CP only return cached value
       var desc = meta && meta.descs[key];
@@ -11568,7 +11582,9 @@ enifed("ember-metal/chains",
     ChainNodePrototype.destroy = function() {
       if (this._watching) {
         var obj = this._object;
-        if (obj) { removeChainWatcher(obj, this._key, this); }
+        if (obj) {
+          removeChainWatcher(obj, this._key, this);
+        }
         this._watching = false; // so future calls do nothing
       }
     };
@@ -11580,7 +11596,10 @@ enifed("ember-metal/chains",
       var path;
 
       for (path in paths) {
-        if (paths[path] <= 0) { continue; } // this check will also catch non-number vals.
+        // this check will also catch non-number vals.
+        if (paths[path] <= 0) {
+          continue;
+        }
         ret.add(path);
       }
       return ret;
@@ -11627,7 +11646,9 @@ enifed("ember-metal/chains",
       var obj, tuple, key, src, paths;
 
       paths = this._paths;
-      if (paths[path] > 0) { paths[path]--; }
+      if (paths[path] > 0) {
+        paths[path]--;
+      }
 
       obj = this.value();
       tuple = normalizeTuple(obj, path);
@@ -11650,10 +11671,14 @@ enifed("ember-metal/chains",
     ChainNodePrototype.chain = function(key, path, src) {
       var chains = this._chains;
       var node;
-      if (!chains) { chains = this._chains = {}; }
+      if (!chains) {
+        chains = this._chains = {};
+      }
 
       node = chains[key];
-      if (!node) { node = chains[key] = new ChainNode(this, key, src); }
+      if (!node) {
+        node = chains[key] = new ChainNode(this, key, src);
+      }
       node.count++; // count chains...
 
       // chain rest of path if there is one
@@ -11688,16 +11713,22 @@ enifed("ember-metal/chains",
       var chains = this._chains;
       if (chains) {
         for(var key in chains) {
-          if (!chains.hasOwnProperty(key)) { continue; }
+          if (!chains.hasOwnProperty(key)) {
+            continue;
+          }
           chains[key].willChange(events);
         }
       }
 
-      if (this._parent) { this._parent.chainWillChange(this, this._key, 1, events); }
+      if (this._parent) {
+        this._parent.chainWillChange(this, this._key, 1, events);
+      }
     };
 
     ChainNodePrototype.chainWillChange = function(chain, path, depth, events) {
-      if (this._key) { path = this._key + '.' + path; }
+      if (this._key) {
+        path = this._key + '.' + path;
+      }
 
       if (this._parent) {
         this._parent.chainWillChange(this, path, depth+1, events);
@@ -11713,7 +11744,10 @@ enifed("ember-metal/chains",
     };
 
     ChainNodePrototype.chainDidChange = function(chain, path, depth, events) {
-      if (this._key) { path = this._key + '.' + path; }
+      if (this._key) {
+        path = this._key + '.' + path;
+      }
+
       if (this._parent) {
         this._parent.chainDidChange(this, path, depth+1, events);
       } else {
@@ -11740,8 +11774,9 @@ enifed("ember-metal/chains",
 
         // Special-case: the EachProxy relies on immediate evaluation to
         // establish its observers.
-        if (this._parent && this._parent._key === '@each')
+        if (this._parent && this._parent._key === '@each') {
           this.value();
+        }
       }
 
       // then notify chains...
@@ -11754,22 +11789,30 @@ enifed("ember-metal/chains",
       }
 
       // if no events are passed in then we only care about the above wiring update
-      if (events === null) { return; }
+      if (events === null) {
+        return;
+      }
 
       // and finally tell parent about my path changing...
-      if (this._parent) { this._parent.chainDidChange(this, this._key, 1, events); }
+      if (this._parent) {
+        this._parent.chainDidChange(this, this._key, 1, events);
+      }
     };
 
     function finishChains(obj) {
       // We only create meta if we really have to
-      var m = obj['__ember_meta__'],
-        chains, chainWatchers, chainNodes;
+      var m = obj['__ember_meta__'];
+      var chains, chainWatchers, chainNodes;
+
       if (m) {
         // finish any current chains node watchers that reference obj
         chainWatchers = m.chainWatchers;
         if (chainWatchers) {
           for(var key in chainWatchers) {
-            if (!chainWatchers.hasOwnProperty(key)) { continue; }
+            if (!chainWatchers.hasOwnProperty(key)) {
+              continue;
+            }
+
             chainNodes = chainWatchers[key];
             if (chainNodes) {
               for (var i=0,l=chainNodes.length;i<l;i++) {
@@ -12126,7 +12169,9 @@ enifed("ember-metal/computed",
         }
 
         chainNodes = meta.chainWatchers && meta.chainWatchers[keyName];
-        if (chainNodes) { finishChains(chainNodes); }
+        if (chainNodes) {
+          finishChains(chainNodes);
+        }
         addDependentKeys(this, obj, keyName, meta);
       } else {
         ret = this.func.call(obj, keyName);
@@ -12368,7 +12413,9 @@ enifed("ember-metal/computed",
       var cache = meta && meta.cache;
       var ret = cache && cache[key];
 
-      if (ret === UNDEFINED) { return undefined; }
+      if (ret === UNDEFINED) {
+        return undefined;
+      }
       return ret;
     }
 
@@ -12382,7 +12429,9 @@ enifed("ember-metal/computed",
 
     cacheFor.get = function(cache, key) {
       var ret = cache[key];
-      if (ret === UNDEFINED) { return undefined; }
+      if (ret === UNDEFINED) {
+        return undefined;
+      }
       return ret;
     };
 
@@ -13127,7 +13176,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.43423f6a
+      @version 1.10.0-beta.1+canary.c47efba7
     */
 
     if ('undefined' === typeof Ember) {
@@ -13154,10 +13203,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.43423f6a'
+      @default '1.10.0-beta.1+canary.c47efba7'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.43423f6a';
+    Ember.VERSION = '1.10.0-beta.1+canary.c47efba7';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -14805,7 +14854,8 @@ enifed("ember-metal/keys",
             throw new TypeError('Object.keys called on non-object');
           }
 
-          var result = [], prop, i;
+          var result = [];
+          var prop, i;
 
           for (prop in obj) {
             if (prop !== '_super' &&
@@ -17212,9 +17262,18 @@ enifed("ember-metal/property_events",
       var proto = m && m.proto;
       var desc = m && m.descs[keyName];
 
-      if (!watching) { return; }
-      if (proto === obj) { return; }
-      if (desc && desc.willChange) { desc.willChange(obj, keyName); }
+      if (!watching) {
+        return;
+      }
+
+      if (proto === obj) {
+        return;
+      }
+
+      if (desc && desc.willChange) {
+        desc.willChange(obj, keyName);
+      }
+
       dependentKeysWillChange(obj, keyName, m);
       chainsWillChange(obj, keyName, m);
       notifyBeforeObservers(obj, keyName);
@@ -17241,11 +17300,18 @@ enifed("ember-metal/property_events",
       var proto = m && m.proto;
       var desc = m && m.descs[keyName];
 
-      if (proto === obj) { return; }
+      if (proto === obj) {
+        return;
+      }
 
       // shouldn't this mean that we're watching this key?
-      if (desc && desc.didChange) { desc.didChange(obj, keyName); }
-      if (!watching && keyName !== 'length') { return; }
+      if (desc && desc.didChange) {
+        desc.didChange(obj, keyName);
+      }
+
+      if (!watching && keyName !== 'length') {
+        return;
+      }
 
       if (m && m.deps && m.deps[keyName]) {
         dependentKeysDidChange(obj, keyName, m);
@@ -17264,9 +17330,16 @@ enifed("ember-metal/property_events",
       if (meta && meta.deps && (deps = meta.deps[depKey])) {
         var seen = WILL_SEEN;
         var top = !seen;
-        if (top) { seen = WILL_SEEN = {}; }
+
+        if (top) {
+          seen = WILL_SEEN = {};
+        }
+
         iterDeps(propertyWillChange, obj, deps, depKey, seen, meta);
-        if (top) { WILL_SEEN = null; }
+
+        if (top) {
+          WILL_SEEN = null;
+        }
       }
     }
 
@@ -17278,15 +17351,26 @@ enifed("ember-metal/property_events",
       if (meta && meta.deps && (deps = meta.deps[depKey])) {
         var seen = DID_SEEN;
         var top = !seen;
-        if (top) { seen = DID_SEEN = {}; }
+
+        if (top) {
+          seen = DID_SEEN = {};
+        }
+
         iterDeps(propertyDidChange, obj, deps, depKey, seen, meta);
-        if (top) { DID_SEEN = null; }
+
+        if (top) {
+          DID_SEEN = null;
+        }
       }
     }
 
     function keysOf(obj) {
       var keys = [];
-      for (var key in obj) keys.push(key);
+
+      for (var key in obj) {
+        keys.push(key);
+      }
+
       return keys;
     }
 
@@ -17294,8 +17378,15 @@ enifed("ember-metal/property_events",
       var keys, key, i, desc;
       var guid = guidFor(obj);
       var current = seen[guid];
-      if (!current) current = seen[guid] = {};
-      if (current[depKey]) return;
+
+      if (!current) {
+        current = seen[guid] = {};
+      }
+
+      if (current[depKey]) {
+        return;
+      }
+
       current[depKey] = true;
 
       if (deps) {
@@ -17304,7 +17395,11 @@ enifed("ember-metal/property_events",
         for (i=0; i<keys.length; i++) {
           key = keys[i];
           desc = descs[key];
-          if (desc && desc._suspended === obj) continue;
+
+          if (desc && desc._suspended === obj) {
+            continue;
+          }
+
           method(obj, key);
         }
       }
@@ -19685,7 +19780,8 @@ enifed("ember-metal/watch_key",
     
 
     function unwatchKey(obj, keyName, meta) {
-      var m = meta || metaFor(obj), watching = m.watching;
+      var m = meta || metaFor(obj);
+      var watching = m.watching;
 
       if (watching[keyName] === 1) {
         watching[keyName] = 0;
