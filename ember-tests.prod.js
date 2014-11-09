@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.c47efba7
+ * @version   1.10.0-beta.1+canary.3e632008
  */
 
 (function() {
@@ -43731,8 +43731,7 @@ enifed("ember-runtime/tests/system/object/reopen_test",
       equal(get(new SubSub(), 'bar'), 'BAR', 'Adds property');
     });
 
-    // We plan to allow this in the future
-    test('does not allow reopening already instantiated classes', function() {
+    test('allows reopening already instantiated classes', function() {
       var Subclass = EmberObject.extend();
 
       Subclass.create();
