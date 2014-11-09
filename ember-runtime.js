@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.aa408d58
+ * @version   1.10.0-beta.1+canary.43423f6a
  */
 
 (function() {
@@ -4771,7 +4771,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.aa408d58
+      @version 1.10.0-beta.1+canary.43423f6a
     */
 
     if ('undefined' === typeof Ember) {
@@ -4798,10 +4798,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.aa408d58'
+      @default '1.10.0-beta.1+canary.43423f6a'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.aa408d58';
+    Ember.VERSION = '1.10.0-beta.1+canary.43423f6a';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -6542,8 +6542,12 @@ define("ember-metal/logger",
       var method = typeof consoleObj === 'object' ? consoleObj[name] : null;
 
       if (method) {
-        // Older IE doesn't support apply, but Chrome needs it
-        if (typeof method.apply === 'function') {
+        // Older IE doesn't support bind, but Chrome needs it
+        if (typeof method.bind === 'function') {
+          logToConsole = method.bind(consoleObj);
+          logToConsole.displayName = 'console.' + name;
+          return logToConsole;
+        } else if (typeof method.apply === 'function') {
           logToConsole = function() {
             method.apply(consoleObj, arguments);
           };
