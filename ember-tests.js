@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.7f7293ac
+ * @version   1.10.0-beta.1+canary.fcb989d9
  */
 
 (function() {
@@ -10990,201 +10990,6 @@ enifed("ember-handlebars/tests/helpers/group_test.jshint",
       ok(true, 'ember-handlebars/tests/helpers/group_test.js should pass jshint.'); 
     });
   });
-enifed("ember-handlebars/tests/helpers/if_unless_test",
-  ["ember-runtime/system/object","ember-metal/run_loop","ember-views/views/view","ember-runtime/system/object_proxy"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
-    "use strict";
-    var EmberObject = __dependency1__["default"];
-    var run = __dependency2__["default"];
-    var EmberView = __dependency3__["default"];
-    var ObjectProxy = __dependency4__["default"];
-
-    function appendView(view) {
-      run(function() { view.appendTo('#qunit-fixture'); });
-    }
-
-    var compile = Ember.Handlebars.compile;
-
-    var view;
-
-    QUnit.module("Handlebars {{#if}} and {{#unless}} helpers", {
-      teardown: function() {
-        run(function() {
-          if (view) {
-            view.destroy();
-          }
-        });
-      }
-    });
-
-    test("unless should keep the current context (#784) [DEPRECATED]", function() {
-      view = EmberView.create({
-        o: EmberObject.create({foo: '42'}),
-
-        template: compile('{{#with view.o}}{{#view}}{{#unless view.doesNotExist}}foo: {{foo}}{{/unless}}{{/view}}{{/with}}')
-      });
-
-      expectDeprecation(function() {
-        appendView(view);
-      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
-
-      equal(view.$().text(), 'foo: 42');
-    });
-
-    test("The `if` helper tests for `isTruthy` if available", function() {
-      view = EmberView.create({
-        truthy: EmberObject.create({ isTruthy: true }),
-        falsy: EmberObject.create({ isTruthy: false }),
-
-        template: compile('{{#if view.truthy}}Yep{{/if}}{{#if view.falsy}}Nope{{/if}}')
-      });
-
-      appendView(view);
-
-      equal(view.$().text(), 'Yep');
-    });
-
-    test("The `if` helper does not print the contents for an object proxy without content", function() {
-      view = EmberView.create({
-        truthy: ObjectProxy.create({ content: {} }),
-        falsy: ObjectProxy.create({ content: null }),
-
-        template: compile('{{#if view.truthy}}Yep{{/if}}{{#if view.falsy}}Nope{{/if}}')
-      });
-
-      appendView(view);
-
-      equal(view.$().text(), 'Yep');
-    });
-
-    test("The `if` helper updates if an object proxy gains or loses context", function() {
-      view = EmberView.create({
-        proxy: ObjectProxy.create({ content: null }),
-
-        template: compile('{{#if view.proxy}}Yep{{/if}}')
-      });
-
-      appendView(view);
-
-      equal(view.$().text(), '');
-
-      run(function() {
-        view.set('proxy.content', {});
-      });
-
-      equal(view.$().text(), 'Yep');
-
-      run(function() {
-        view.set('proxy.content', null);
-      });
-
-      equal(view.$().text(), '');
-    });
-
-    test("The `if` helper updates if an array is empty or not", function() {
-      view = EmberView.create({
-        array: Ember.A(),
-
-        template: compile('{{#if view.array}}Yep{{/if}}')
-      });
-
-      appendView(view);
-
-      equal(view.$().text(), '');
-
-      run(function() {
-        view.get('array').pushObject(1);
-      });
-
-      equal(view.$().text(), 'Yep');
-
-      run(function() {
-        view.get('array').removeObject(1);
-      });
-
-      equal(view.$().text(), '');
-    });
-
-    test("The `if` helper updates when the value changes", function() {
-      view = EmberView.create({
-        conditional: true,
-        template: compile('{{#if view.conditional}}Yep{{/if}}')
-      });
-      appendView(view);
-      equal(view.$().text(), 'Yep');
-      run(function(){
-        view.set('conditional', false);
-      });
-      equal(view.$().text(), '');
-    });
-
-    test("The `unbound if` helper does not update when the value changes", function() {
-      view = EmberView.create({
-        conditional: true,
-        template: compile('{{#unbound if view.conditional}}Yep{{/unbound}}')
-      });
-      appendView(view);
-      equal(view.$().text(), 'Yep');
-      run(function(){
-        view.set('conditional', false);
-      });
-      equal(view.$().text(), 'Yep');
-    });
-
-    test("The `unless` helper updates when the value changes", function() {
-      view = EmberView.create({
-        conditional: false,
-        template: compile('{{#unless view.conditional}}Nope{{/unless}}')
-      });
-      appendView(view);
-      equal(view.$().text(), 'Nope');
-      run(function(){
-        view.set('conditional', true);
-      });
-      equal(view.$().text(), '');
-    });
-
-    test("The `unbound if` helper does not update when the value changes", function() {
-      view = EmberView.create({
-        conditional: false,
-        template: compile('{{#unbound unless view.conditional}}Nope{{/unbound}}')
-      });
-      appendView(view);
-      equal(view.$().text(), 'Nope');
-      run(function(){
-        view.set('conditional', true);
-      });
-      equal(view.$().text(), 'Nope');
-    });
-
-    test("The `if` helper ignores a controller option", function() {
-      var lookupCalled = false;
-
-      view = EmberView.create({
-        container: {
-          lookup: function() {
-            lookupCalled = true;
-          }
-        },
-        truthy: true,
-
-        template: compile('{{#if view.truthy controller="foo"}}Yep{{/if}}')
-      });
-
-      appendView(view);
-
-      equal(lookupCalled, false, 'controller option should NOT be used');
-    });
-  });
-enifed("ember-handlebars/tests/helpers/if_unless_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/tests/helpers');
-    test('ember-handlebars/tests/helpers/if_unless_test.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/tests/helpers/if_unless_test.js should pass jshint.'); 
-    });
-  });
 enifed("ember-handlebars/tests/helpers/loc_test",
   ["ember-metal/run_loop","ember-views/views/view"],
   function(__dependency1__, __dependency2__) {
@@ -14425,22 +14230,28 @@ enifed("ember-htmlbars/tests/helpers/bind_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helpers/if_unless_test",
-  ["ember-runtime/system/object","ember-metal/run_loop","ember-views/views/view","ember-runtime/system/object_proxy","htmlbars-compiler/compiler"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
+  ["ember-runtime/system/object","ember-metal/run_loop","ember-views/views/view","ember-runtime/system/object_proxy","ember-handlebars","htmlbars-compiler/compiler"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
     var EmberObject = __dependency1__["default"];
     var run = __dependency2__["default"];
     var EmberView = __dependency3__["default"];
     var ObjectProxy = __dependency4__["default"];
-    var compile = __dependency5__.compile;
+    var EmberHandlebars = __dependency5__["default"];
+    var htmlbarsCompile = __dependency6__.compile;
+
+    var compile;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      compile = htmlbarsCompile;
+    } else {
+      compile = EmberHandlebars.compile;
+    }
 
     function appendView(view) {
       run(function() { view.appendTo('#qunit-fixture'); });
     }
 
     var view;
-
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
 
     QUnit.module("Handlebars {{#if}} and {{#unless}} helpers", {
       teardown: function() {
@@ -14452,19 +14263,19 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
       }
     });
 
-    /* requires with
-    test("unless should keep the current context (#784)", function() {
+    test("unless should keep the current context (#784) [DEPRECATED]", function() {
       view = EmberView.create({
         o: EmberObject.create({foo: '42'}),
 
         template: compile('{{#with view.o}}{{#view}}{{#unless view.doesNotExist}}foo: {{foo}}{{/unless}}{{/view}}{{/with}}')
       });
 
-      appendView(view);
+      expectDeprecation(function() {
+        appendView(view);
+      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
 
       equal(view.$().text(), 'foo: 42');
     });
-    */
 
     test("The `if` helper tests for `isTruthy` if available", function() {
       view = EmberView.create({
@@ -14553,7 +14364,9 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
       equal(view.$().text(), '');
     });
 
-    /* requires unbound helper
+    // requires the unbound helper
+    if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
+
     test("The `unbound if` helper does not update when the value changes", function() {
       view = EmberView.create({
         conditional: true,
@@ -14566,7 +14379,8 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
       });
       equal(view.$().text(), 'Yep');
     });
-    */
+
+    }
 
     test("The `unless` helper updates when the value changes", function() {
       view = EmberView.create({
@@ -14581,7 +14395,9 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
       equal(view.$().text(), '');
     });
 
-    /* requires unbound helper
+    // requires unbound helper
+    if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
+
     test("The `unbound if` helper does not update when the value changes", function() {
       view = EmberView.create({
         conditional: false,
@@ -14594,7 +14410,8 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
       });
       equal(view.$().text(), 'Nope');
     });
-    */
+
+    }
 
     test("The `if` helper ignores a controller option", function() {
       var lookupCalled = false;
@@ -14614,8 +14431,6 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
 
       equal(lookupCalled, false, 'controller option should NOT be used');
     });
-
-    }
   });
 enifed("ember-htmlbars/tests/helpers/if_unless_test.jshint",
   [],
