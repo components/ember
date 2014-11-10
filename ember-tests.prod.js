@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.1a454f94
+ * @version   1.10.0-beta.1+canary.7f7293ac
  */
 
 (function() {
@@ -4352,7 +4352,7 @@ enifed("ember-handlebars/tests/bind_attr_test",
     });
 
     test("should be able to bind element attributes using {{bind-attr}} inside a block", function() {
-      var template = EmberHandlebars.compile('{{#with view.content}}<img {{bind-attr src="url" alt="title"}}>{{/with}}');
+      var template = EmberHandlebars.compile('{{#with view.content as image}}<img {{bind-attr src=image.url alt=image.title}}>{{/with}}');
 
       view = EmberView.create({
         template: template,
@@ -7084,7 +7084,7 @@ enifed("ember-handlebars/tests/handlebars_test",
 
     test("should allow values from normal JavaScript hash objects to be used", function() {
       view = EmberView.create({
-        template: EmberHandlebars.compile('{{#with view.person}}{{firstName}} {{lastName}} (and {{pet.name}}){{/with}}'),
+        template: EmberHandlebars.compile('{{#with view.person as person}}{{person.firstName}} {{person.lastName}} (and {{person.pet.name}}){{/with}}'),
 
         person: {
           firstName: 'Señor',
@@ -7299,7 +7299,7 @@ enifed("ember-handlebars/tests/handlebars_test",
 
     test("child views can be inserted inside a bind block", function() {
       container.register('template:nester', EmberHandlebars.compile("<h1 id='hello-world'>Hello {{world}}</h1>{{view view.bqView}}"));
-      container.register('template:nested', EmberHandlebars.compile("<div id='child-view'>Goodbye {{#with content}}{{blah}} {{view view.otherView}}{{/with}} {{world}}</div>"));
+      container.register('template:nested', EmberHandlebars.compile("<div id='child-view'>Goodbye {{#with content as thing}}{{thing.blah}} {{view view.otherView}}{{/with}} {{world}}</div>"));
       container.register('template:other', EmberHandlebars.compile("cruel"));
 
       var context = {
@@ -7350,7 +7350,7 @@ enifed("ember-handlebars/tests/handlebars_test",
     });
 
     test("View should update when a property changes and the bind helper is used", function() {
-      container.register('template:foo', EmberHandlebars.compile('<h1 id="first">{{#with view.content}}{{bind "wham"}}{{/with}}</h1>'));
+      container.register('template:foo', EmberHandlebars.compile('<h1 id="first">{{#with view.content as thing}}{{bind "thing.wham"}}{{/with}}</h1>'));
 
       view = EmberView.create({
         container: container,
@@ -7390,7 +7390,7 @@ enifed("ember-handlebars/tests/handlebars_test",
     });
 
     test("View should update when a property changes and no bind helper is used", function() {
-      container.register('template:foo', EmberHandlebars.compile('<h1 id="first">{{#with view.content}}{{wham}}{{/with}}</h1>'));
+      container.register('template:foo', EmberHandlebars.compile('<h1 id="first">{{#with view.content as thing}}{{thing.wham}}{{/with}}</h1>'));
 
       view = EmberView.create({
         container: container,
@@ -7411,7 +7411,7 @@ enifed("ember-handlebars/tests/handlebars_test",
       equal(view.$('#first').text(), "bazam", "view updates when a bound property changes");
     });
 
-    test("View should update when the property used with the #with helper changes", function() {
+    test("View should update when the property used with the #with helper changes [DEPRECATED]", function() {
       container.register('template:foo', EmberHandlebars.compile('<h1 id="first">{{#with view.content}}{{wham}}{{/with}}</h1>'));
 
       view = EmberView.create({
@@ -7424,7 +7424,9 @@ enifed("ember-handlebars/tests/handlebars_test",
         })
       });
 
-      appendView();
+      expectDeprecation(function() {
+        appendView();
+      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
 
       equal(view.$('#first').text(), "bam", "precond - view renders Handlebars template");
 
@@ -7780,7 +7782,7 @@ enifed("ember-handlebars/tests/handlebars_test",
     });
 
     test("views render their template in the context of the parent view's context", function() {
-      container.register('template:parent', EmberHandlebars.compile('<h1>{{#with content}}{{#view}}{{firstName}} {{lastName}}{{/view}}{{/with}}</h1>'));
+      container.register('template:parent', EmberHandlebars.compile('<h1>{{#with content as person}}{{#view}}{{person.firstName}} {{person.lastName}}{{/view}}{{/with}}</h1>'));
 
       var context = {
         content: {
@@ -7800,7 +7802,7 @@ enifed("ember-handlebars/tests/handlebars_test",
     });
 
     test("views make a view keyword available that allows template to reference view context", function() {
-      container.register('template:parent', EmberHandlebars.compile('<h1>{{#with view.content}}{{#view subview}}{{view.firstName}} {{lastName}}{{/view}}{{/with}}</h1>'));
+      container.register('template:parent', EmberHandlebars.compile('<h1>{{#with view.content as person}}{{#view person.subview}}{{view.firstName}} {{person.lastName}}{{/view}}{{/with}}</h1>'));
 
       view = EmberView.create({
         container: container,
@@ -8528,7 +8530,7 @@ enifed("ember-handlebars/tests/handlebars_test",
       equal(trim(viewInstanceToBeInserted.$().text()), "bar", "renders value from parent's controller");
     });
 
-    test("should expose a view keyword", function() {
+    test("should expose a view keyword [DEPRECATED]", function() {
       var templateString = '{{#with view.differentContent}}{{view.foo}}{{#view baz="bang"}}{{view.baz}}{{/view}}{{/with}}';
       view = EmberView.create({
         container: container,
@@ -8544,7 +8546,9 @@ enifed("ember-handlebars/tests/handlebars_test",
         template: EmberHandlebars.compile(templateString)
       });
 
-      appendView();
+      expectDeprecation(function() {
+        appendView();
+      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
 
       equal(view.$().text(), "barbang", "renders values from view and child view");
     });
@@ -8829,7 +8833,7 @@ enifed("ember-handlebars/tests/handlebars_test",
       equal(trim(view.$().text()), "Name: SFMoMA Price: $20", "should print baz twice");
     });
 
-    test("bindings can be 'this', in which case they *are* the current context", function() {
+    test("bindings can be 'this', in which case they *are* the current context [DEPRECATED]", function() {
       view = EmberView.create({
         museumOpen: true,
 
@@ -8842,10 +8846,12 @@ enifed("ember-handlebars/tests/handlebars_test",
         }),
 
 
-        template: EmberHandlebars.compile('{{#if view.museumOpen}} {{#with view.museumDetails}}{{view museumView museumBinding="this"}} {{/with}}{{/if}}')
+        template: EmberHandlebars.compile('{{#if view.museumOpen}} {{#with view.museumDetails}}{{view museumView museum=this}} {{/with}}{{/if}}')
       });
 
-      appendView();
+      expectDeprecation(function() {
+        appendView();
+      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
 
       equal(trim(view.$().text()), "Name: SFMoMA Price: $20", "should print baz twice");
     });
@@ -9185,15 +9191,16 @@ enifed("ember-handlebars/tests/helpers/bound_helper_test",
     });
 
     test("primitives should work correctly [DEPRECATED]", function() {
+      expectDeprecation('Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+      expectDeprecation('Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+
       view = EmberView.create({
         prims: Ember.A(["string", 12]),
 
         template: compile('{{#each view.prims}}{{#if this}}inside-if{{/if}}{{#with this}}inside-with{{/with}}{{/each}}')
       });
 
-      expectDeprecation(function() {
-        appendView(view);
-      }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+      appendView(view);
 
       equal(view.$().text(), 'inside-ifinside-withinside-ifinside-with');
     });
@@ -11010,14 +11017,16 @@ enifed("ember-handlebars/tests/helpers/if_unless_test",
       }
     });
 
-    test("unless should keep the current context (#784)", function() {
+    test("unless should keep the current context (#784) [DEPRECATED]", function() {
       view = EmberView.create({
         o: EmberObject.create({foo: '42'}),
 
         template: compile('{{#with view.o}}{{#view}}{{#unless view.doesNotExist}}foo: {{foo}}{{/unless}}{{/view}}{{/with}}')
       });
 
-      appendView(view);
+      expectDeprecation(function() {
+        appendView(view);
+      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
 
       equal(view.$().text(), 'foo: 42');
     });
@@ -12256,7 +12265,7 @@ enifed("ember-handlebars/tests/helpers/with_test",
 
     QUnit.module("Handlebars {{#with foo}} insideGroup");
 
-    test("it should render without fail", function() {
+    test("it should render without fail [DEPRECATED]", function() {
       var View = EmberView.extend({
         template: EmberHandlebars.compile("{{#view view.childView}}{{#with person}}{{name}}{{/with}}{{/view}}"),
         controller: EmberObject.create({ person: { name: "Ivan IV Vasilyevich" } }),
@@ -12269,7 +12278,11 @@ enifed("ember-handlebars/tests/helpers/with_test",
       });
 
       var view = View.create();
-      appendView(view);
+
+      expectDeprecation(function(){
+        appendView(view);
+      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+
       equal(view.$().text(), "Ivan IV Vasilyevich", "should be properly scoped");
 
       run(function() {
@@ -12285,7 +12298,7 @@ enifed("ember-handlebars/tests/helpers/with_test",
 
     QUnit.module("Handlebars {{#with foo}} with defined controller");
 
-    test("it should wrap context with object controller", function() {
+    test("it should wrap context with object controller [DEPRECATED]", function() {
       var Controller = ObjectController.extend({
         controllerName: computed(function() {
           return "controller:"+this.get('model.name') + ' and ' + this.get('parentController.name');
@@ -12309,7 +12322,9 @@ enifed("ember-handlebars/tests/helpers/with_test",
 
       container.register('controller:person', Controller);
 
-      appendView(view);
+      expectDeprecation(function(){
+        appendView(view);
+      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
 
       equal(view.$().text(), "controller:Steve Holt and Bob Loblaw");
 
@@ -12338,7 +12353,7 @@ enifed("ember-handlebars/tests/helpers/with_test",
       run(function() { view.destroy(); }); // destroy existing view
     });
 
-    test("it should still have access to original parentController within an {{#each}}", function() {
+    test("it should still have access to original parentController within an {{#each}} [DEPRECATED]", function() {
       var Controller = ObjectController.extend({
         controllerName: computed(function() {
           return "controller:"+this.get('model.name') + ' and ' + this.get('parentController.name');
@@ -12362,7 +12377,9 @@ enifed("ember-handlebars/tests/helpers/with_test",
 
       container.register('controller:person', Controller);
 
-      appendView(view);
+      expectDeprecation(function() {
+        appendView(view);
+      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
 
       equal(view.$().text(), "controller:Steve Holt and Bob Loblawcontroller:Carl Weathers and Bob Loblaw");
 
@@ -12420,7 +12437,7 @@ enifed("ember-handlebars/tests/helpers/with_test",
       run(function() { view.destroy(); }); // destroy existing view
     });
 
-    test("destroys the controller generated with {{with foo controller='blah'}}", function() {
+    test("destroys the controller generated with {{with foo as bar controller='blah'}}", function() {
       var destroyed = false;
       var Controller = ObjectController.extend({
         willDestroy: function() {
@@ -12440,7 +12457,7 @@ enifed("ember-handlebars/tests/helpers/with_test",
 
       view = EmberView.create({
         container: container,
-        template: EmberHandlebars.compile('{{#with person controller="person"}}{{controllerName}}{{/with}}'),
+        template: EmberHandlebars.compile('{{#with person as otherPerson controller="person"}}{{controllerName}}{{/with}}'),
         controller: parentController
       });
 
@@ -12672,7 +12689,7 @@ enifed("ember-handlebars/tests/helpers/yield_test",
       equal(view.$('div p:contains(inner) + p:contains(outer)').length, 1, "Yield points at the right context");
     });
 
-    test("yield inside a conditional uses the outer context", function() {
+    test("yield inside a conditional uses the outer context [DEPRECATED]", function() {
       var component = Component.extend({
         boundText: "inner",
         truthy: true,
@@ -12685,9 +12702,9 @@ enifed("ember-handlebars/tests/helpers/yield_test",
         template: EmberHandlebars.compile('{{#with obj}}{{#if truthy}}{{#view component}}{{#if truthy}}{{boundText}}{{/if}}{{/view}}{{/if}}{{/with}}')
       });
 
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
+      expectDeprecation(function() {
+        run(view, 'appendTo', '#qunit-fixture');
+      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
 
       equal(view.$('div p:contains(inner) + p:contains(insideWith)').length, 1, "Yield points at the right context");
     });
@@ -12752,7 +12769,7 @@ enifed("ember-handlebars/tests/helpers/yield_test",
       equal(view.$('div p:contains(update) + p:contains(update)').length, 1, "keyword has correctly propagated update");
     });
 
-    test("yield uses the layout context for non component", function() {
+    test("yield uses the layout context for non component [DEPRECATED]", function() {
       view = EmberView.create({
         controller: {
           boundText: "outer",
@@ -12764,9 +12781,9 @@ enifed("ember-handlebars/tests/helpers/yield_test",
         template: EmberHandlebars.compile('{{boundText}}')
       });
 
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
+      expectDeprecation(function() {
+        run(view, 'appendTo', '#qunit-fixture');
+      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
 
       equal('outerinner', view.$('p').text(), "Yield points at the right context");
     });
@@ -15118,7 +15135,7 @@ enifed("ember-htmlbars/tests/helpers/with_test",
 
     QUnit.module("Handlebars {{#with foo}} insideGroup");
 
-    test("it should render without fail", function() {
+    test("it should render without fail [DEPRECATED]", function() {
       var View = EmberView.extend({
         template: compile("{{#view view.childView}}{{#with person}}{{name}}{{/with}}{{/view}}"),
         controller: EmberObject.create({ person: { name: "Ivan IV Vasilyevich" } }),
@@ -15131,7 +15148,9 @@ enifed("ember-htmlbars/tests/helpers/with_test",
       });
 
       var view = View.create();
-      appendView(view);
+      expectDeprecation(function(){
+        appendView(view);
+      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
       equal(view.$().text(), "Ivan IV Vasilyevich", "should be properly scoped");
 
       run(function() {
@@ -15147,7 +15166,7 @@ enifed("ember-htmlbars/tests/helpers/with_test",
 
     QUnit.module("Handlebars {{#with foo}} with defined controller");
 
-    test("it should wrap context with object controller", function() {
+    test("it should wrap context with object controller [DEPRECATED]", function() {
       var Controller = ObjectController.extend({
         controllerName: computed(function() {
           return "controller:"+this.get('model.name') + ' and ' + this.get('parentController.name');
@@ -15171,7 +15190,9 @@ enifed("ember-htmlbars/tests/helpers/with_test",
 
       container.register('controller:person', Controller);
 
-      appendView(view);
+      expectDeprecation(function(){
+        appendView(view);
+      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
 
       equal(view.$().text(), "controller:Steve Holt and Bob Loblaw");
 
@@ -15284,7 +15305,7 @@ enifed("ember-htmlbars/tests/helpers/with_test",
       run(function() { view.destroy(); }); // destroy existing view
     });
 
-    test("destroys the controller generated with {{with foo controller='blah'}}", function() {
+    test("destroys the controller generated with {{with foo controller='blah'}} [DEPRECATED]", function() {
       var destroyed = false;
       var Controller = ObjectController.extend({
         willDestroy: function() {
@@ -15310,7 +15331,9 @@ enifed("ember-htmlbars/tests/helpers/with_test",
 
       container.register('controller:person', Controller);
 
-      appendView(view);
+      expectDeprecation(function(){
+        appendView(view);
+      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
 
       run(view, 'destroy'); // destroy existing view
 
@@ -26141,7 +26164,7 @@ enifed("ember-routing-handlebars/tests/helpers/action_test",
         boundText: "inner",
         truthy: true,
         obj: {},
-        layout: EmberHandlebars.compile("<div>{{boundText}}</div><div>{{#if truthy}}{{#with obj}}{{yield}}{{/with}}{{/if}}</div>")
+        layout: EmberHandlebars.compile("<div>{{boundText}}</div><div>{{#if truthy}}{{yield}}{{/if}}</div>")
       });
 
       view = EmberView.create({
@@ -26151,13 +26174,9 @@ enifed("ember-routing-handlebars/tests/helpers/action_test",
           wat: function() {
             watted = true;
           },
-          obj: {
-            component: component,
-            truthy: true,
-            boundText: 'insideWith'
-          }
+          component: component
         },
-        template: EmberHandlebars.compile('{{#with obj}}{{#if truthy}}{{#view component}}{{#if truthy}}<div {{action "wat"}} class="wat">{{boundText}}</div>{{/if}}{{/view}}{{/if}}{{/with}}')
+        template: EmberHandlebars.compile('{{#if truthy}}{{#view component}}{{#if truthy}}<div {{action "wat"}} class="wat">{{boundText}}</div>{{/if}}{{/view}}{{/if}}')
       });
 
       appendView();
@@ -26203,7 +26222,7 @@ enifed("ember-routing-handlebars/tests/helpers/action_test",
       ActionHelper.registerAction = originalRegisterAction;
     });
 
-    test("should target the with-controller inside an {{#with controller='person'}}", function() {
+    test("should target the with-controller inside an {{#with controller='person'}} [DEPRECATED]", function() {
       var registeredTarget;
 
       ActionHelper.registerAction = function(actionName, options) {
@@ -26225,7 +26244,9 @@ enifed("ember-routing-handlebars/tests/helpers/action_test",
 
       container.register('controller:person', PersonController);
 
-      appendView();
+      expectDeprecation(function() {
+        appendView();
+      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
 
       ok(registeredTarget instanceof PersonController, "the with-controller is the target of action");
 
@@ -26233,6 +26254,9 @@ enifed("ember-routing-handlebars/tests/helpers/action_test",
     });
 
     test("should target the with-controller inside an {{each}} in a {{#with controller='person'}} [DEPRECATED]", function() {
+      expectDeprecation('Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+      expectDeprecation('Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+
       var eventsCalled = [];
 
       var PeopleController = EmberArrayController.extend({
@@ -26259,9 +26283,7 @@ enifed("ember-routing-handlebars/tests/helpers/action_test",
 
       container.register('controller:people', PeopleController);
 
-      expectDeprecation(function() {
-        appendView();
-      }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+      appendView();
 
       view.$('a').trigger('click');
 
@@ -26502,7 +26524,27 @@ enifed("ember-routing-handlebars/tests/helpers/action_test",
       ok(eventHandlerWasCalled, "The event handler was called");
     });
 
-    test("should work properly in a #with block", function() {
+    test("should work properly in a {{#with foo as bar}} block", function() {
+      var eventHandlerWasCalled = false;
+
+      var controller = EmberController.extend({
+        actions: { edit: function() { eventHandlerWasCalled = true; } }
+      }).create();
+
+      view = EmberView.create({
+        controller: controller,
+        something: {ohai: 'there'},
+        template: EmberHandlebars.compile('{{#with view.something as somethingElse}}<a href="#" {{action "edit"}}>click me</a>{{/with}}')
+      });
+
+      appendView();
+
+      view.$('a').trigger('click');
+
+      ok(eventHandlerWasCalled, "The event handler was called");
+    });
+
+    test("should work properly in a #with block [DEPRECATED]", function() {
       var eventHandlerWasCalled = false;
 
       var controller = EmberController.extend({
@@ -26515,7 +26557,9 @@ enifed("ember-routing-handlebars/tests/helpers/action_test",
         template: EmberHandlebars.compile('{{#with view.something}}<a href="#" {{action "edit"}}>click me</a>{{/with}}')
       });
 
-      appendView();
+      expectDeprecation(function() {
+        appendView();
+      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
 
       view.$('a').trigger('click');
 
@@ -26665,8 +26709,8 @@ enifed("ember-routing-handlebars/tests/helpers/action_test",
       var aContext = { aTarget: aTarget };
 
       view = EmberView.create({
-        aContext: aContext,
-        template: EmberHandlebars.compile('{{#with view.aContext}}<a id="edit" href="#" {{action "edit" this target="aTarget"}}>edit</a>{{/with}}')
+        context: aContext,
+        template: EmberHandlebars.compile('<a id="edit" href="#" {{action "edit" this target="aTarget"}}>edit</a>')
       });
 
       appendView();
@@ -27565,7 +27609,7 @@ enifed("ember-routing-handlebars/tests/helpers/outlet_test",
       equal(trim(view.$().text()), 'HI');
     });
 
-    test("Outlets bind to the current template's view, not inner contexts", function() {
+    test("Outlets bind to the current template's view, not inner contexts [DEPRECATED]", function() {
       var parentTemplate = "<h1>HI</h1>{{#if view.alwaysTrue}}{{#with this}}{{outlet}}{{/with}}{{/if}}";
       var bottomTemplate = "<h3>BOTTOM</h3>";
 
@@ -27578,7 +27622,9 @@ enifed("ember-routing-handlebars/tests/helpers/outlet_test",
         template: compile(bottomTemplate)
       });
 
-      appendView(view);
+      expectDeprecation(function() {
+        appendView(view);
+      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
 
       run(function() {
         view.connectOutlet('main', bottomView);

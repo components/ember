@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.1a454f94
+ * @version   1.10.0-beta.1+canary.7f7293ac
  */
 
 (function() {
@@ -8350,16 +8350,6 @@ enifed("ember-handlebars/helpers/partial",
       changes, the partial will be re-rendered using the new template
       name.
 
-      ## Setting the partial's context with `with`
-
-      The `partial` helper can be used in conjunction with the `with`
-      helper to set a context that will be used by the partial:
-
-      ```handlebars
-      {{#with currentUser}}
-        {{partial "user_info"}}
-      {{/with}}
-      ```
 
       @method partial
       @for Ember.Handlebars.helpers
@@ -8959,40 +8949,9 @@ enifed("ember-handlebars/helpers/with",
     });
 
     /**
-      Use the `{{with}}` helper when you want to scope context. Take the following code as an example:
-
-      ```handlebars
-      <h5>{{user.name}}</h5>
-
-      <div class="role">
-        <h6>{{user.role.label}}</h6>
-        <span class="role-id">{{user.role.id}}</span>
-
-        <p class="role-desc">{{user.role.description}}</p>
-      </div>
-      ```
-
-      `{{with}}` can be our best friend in these cases,
-      instead of writing `user.role.*` over and over, we use `{{#with user.role}}`.
-      Now the context within the `{{#with}} .. {{/with}}` block is `user.role` so you can do the following:
-
-      ```handlebars
-      <h5>{{user.name}}</h5>
-
-      <div class="role">
-        {{#with user.role}}
-          <h6>{{label}}</h6>
-          <span class="role-id">{{id}}</span>
-
-          <p class="role-desc">{{description}}</p>
-        {{/with}}
-      </div>
-      ```
-
-      ### `as` operator
-
-      This operator aliases the scope to a new name. It's helpful for semantic clarity and to retain
-      default scope or to reference from another `{{with}}` block.
+      Use the `{{with}}` helper when you want to aliases the to a new name. It's helpful
+      for semantic clarity and to retain default scope or to reference from another
+      `{{with}}` block.
 
       ```handlebars
       // posts might not be
@@ -9016,18 +8975,18 @@ enifed("ember-handlebars/helpers/with",
       ### `controller` option
 
       Adding `controller='something'` instructs the `{{with}}` helper to create and use an instance of
-      the specified controller with the new context as its content.
+      the specified controller wrapping the aliased keyword.
 
       This is very similar to using an `itemController` option with the `{{each}}` helper.
 
       ```handlebars
-      {{#with users.posts controller='userBlogPosts'}}
-        {{!- The current context is wrapped in our controller instance }}
+      {{#with users.posts as posts controller='userBlogPosts'}}
+        {{!- `posts` is wrapped in our controller instance }}
       {{/with}}
       ```
 
-      In the above example, the template provided to the `{{with}}` block is now wrapped in the
-      `userBlogPost` controller, which provides a very elegant way to decorate the context with custom
+      In the above example, the `posts` keyword is now wrapped in the `userBlogPost` controller,
+      which provides an elegant way to decorate the context with custom
       functions/properties.
 
       @method with
@@ -9063,6 +9022,7 @@ enifed("ember-handlebars/helpers/with",
         options = localizedOptions;
         preserveContext = true;
       } else {
+        
                 
         helperName += ' ' + contextPath;
         bindContext = options.contexts[0];
@@ -10511,40 +10471,9 @@ enifed("ember-htmlbars/helpers/with",
     });
 
     /**
-      Use the `{{with}}` helper when you want to scope context. Take the following code as an example:
-
-      ```handlebars
-      <h5>{{user.name}}</h5>
-
-      <div class="role">
-        <h6>{{user.role.label}}</h6>
-        <span class="role-id">{{user.role.id}}</span>
-
-        <p class="role-desc">{{user.role.description}}</p>
-      </div>
-      ```
-
-      `{{with}}` can be our best friend in these cases,
-      instead of writing `user.role.*` over and over, we use `{{#with user.role}}`.
-      Now the context within the `{{#with}} .. {{/with}}` block is `user.role` so you can do the following:
-
-      ```handlebars
-      <h5>{{user.name}}</h5>
-
-      <div class="role">
-        {{#with user.role}}
-          <h6>{{label}}</h6>
-          <span class="role-id">{{id}}</span>
-
-          <p class="role-desc">{{description}}</p>
-        {{/with}}
-      </div>
-      ```
-
-      ### `as` operator
-
-      This operator aliases the scope to a new name. It's helpful for semantic clarity and to retain
-      default scope or to reference from another `{{with}}` block.
+      Use the `{{with}}` helper when you want to aliases the to a new name. It's helpful
+      for semantic clarity and to retain default scope or to reference from another
+      `{{with}}` block.
 
       ```handlebars
       // posts might not be
@@ -10568,18 +10497,18 @@ enifed("ember-htmlbars/helpers/with",
       ### `controller` option
 
       Adding `controller='something'` instructs the `{{with}}` helper to create and use an instance of
-      the specified controller with the new context as its content.
+      the specified controller wrapping the aliased keyword.
 
       This is very similar to using an `itemController` option with the `{{each}}` helper.
 
       ```handlebars
-      {{#with users.posts controller='userBlogPosts'}}
-        {{!- The current context is wrapped in our controller instance }}
+      {{#with users.posts as posts controller='userBlogPosts'}}
+        {{!- `posts` is wrapped in our controller instance }}
       {{/with}}
       ```
 
-      In the above example, the template provided to the `{{with}}` block is now wrapped in the
-      `userBlogPost` controller, which provides a very elegant way to decorate the context with custom
+      In the above example, the `posts` keyword is now wrapped in the `userBlogPost` controller,
+      which provides an elegant way to decorate the context with custom
       functions/properties.
 
       @method with
@@ -10595,6 +10524,7 @@ enifed("ember-htmlbars/helpers/with",
       var source, keyword;
       var preserveContext, context;
       if (options.types[0] === 'id') {
+        
         source = params[0];
         preserveContext = false;
         context = source.value();
@@ -13991,7 +13921,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.1a454f94
+      @version 1.10.0-beta.1+canary.7f7293ac
     */
 
     if ('undefined' === typeof Ember) {
@@ -14018,10 +13948,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.1a454f94'
+      @default '1.10.0-beta.1+canary.7f7293ac'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.1a454f94';
+    Ember.VERSION = '1.10.0-beta.1+canary.7f7293ac';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
