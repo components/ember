@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.e0dacbc5
+ * @version   1.10.0-beta.1+canary.1a454f94
  */
 
 (function() {
@@ -5755,24 +5755,24 @@ enifed("ember-handlebars/controls/select",
       return buffer;
     },"3":function(depth0,helpers,partials,data) {
       var stack1;
-      stack1 = helpers.each.call(depth0, "view.groupedContent", {"name":"each","hash":{},"hashTypes":{},"hashContexts":{},"fn":this.program(4, data),"inverse":this.noop,"types":["ID"],"contexts":[depth0],"data":data});
+      stack1 = helpers.each.call(depth0, "group", "in", "view.groupedContent", {"name":"each","hash":{},"hashTypes":{},"hashContexts":{},"fn":this.program(4, data),"inverse":this.noop,"types":["ID","ID","ID"],"contexts":[depth0,depth0,depth0],"data":data});
       if (stack1 != null) { data.buffer.push(stack1); }
       else { data.buffer.push(''); }
       },"4":function(depth0,helpers,partials,data) {
       var escapeExpression=this.escapeExpression;
       data.buffer.push(escapeExpression(helpers.view.call(depth0, "view.groupView", {"name":"view","hash":{
-        'label': ("label"),
-        'content': ("content")
+        'label': ("group.label"),
+        'content': ("group.content")
       },"hashTypes":{'label': "ID",'content': "ID"},"hashContexts":{'label': depth0,'content': depth0},"types":["ID"],"contexts":[depth0],"data":data})));
       },"6":function(depth0,helpers,partials,data) {
       var stack1;
-      stack1 = helpers.each.call(depth0, "view.content", {"name":"each","hash":{},"hashTypes":{},"hashContexts":{},"fn":this.program(7, data),"inverse":this.noop,"types":["ID"],"contexts":[depth0],"data":data});
+      stack1 = helpers.each.call(depth0, "item", "in", "view.content", {"name":"each","hash":{},"hashTypes":{},"hashContexts":{},"fn":this.program(7, data),"inverse":this.noop,"types":["ID","ID","ID"],"contexts":[depth0,depth0,depth0],"data":data});
       if (stack1 != null) { data.buffer.push(stack1); }
       else { data.buffer.push(''); }
       },"7":function(depth0,helpers,partials,data) {
       var escapeExpression=this.escapeExpression;
       data.buffer.push(escapeExpression(helpers.view.call(depth0, "view.optionView", {"name":"view","hash":{
-        'content': ("")
+        'content': ("item")
       },"hashTypes":{'content': "ID"},"hashContexts":{'content': depth0},"types":["ID"],"contexts":[depth0],"data":data})));
       },"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
       var stack1, buffer = '';
@@ -7931,21 +7931,11 @@ enifed("ember-handlebars/helpers/each",
       of the base Handlebars `{{#each}}` helper.
 
       The default behavior of `{{#each}}` is to yield its inner block once for every
-      item in an array. Each yield will provide the item as the context of the block.
+      item in an array.
 
       ```javascript
       var developers = [{name: 'Yehuda'},{name: 'Tom'}, {name: 'Paul'}];
       ```
-
-      ```handlebars
-      {{#each developers}}
-        {{name}}
-        {{! `this` is each developer }}
-      {{/each}}
-      ```
-
-      `{{#each}}` supports an alternative syntax with element naming. This preserves
-      context of the yielded block:
 
       ```handlebars
       {{#each person in developers}}
@@ -7962,8 +7952,8 @@ enifed("ember-handlebars/helpers/each",
       ```
 
       ```handlebars
-      {{#each developerNames}}
-        {{this}}
+      {{#each name in developerNames}}
+        {{name}}
       {{/each}}
       ```
 
@@ -7989,8 +7979,8 @@ enifed("ember-handlebars/helpers/each",
 
       ```handlebars
       <ul>
-      {{#each developers itemViewClass="person"}}
-        {{name}}
+      {{#each developer in developers itemViewClass="person"}}
+        {{developer.name}}
       {{/each}}
       </ul>
       ```
@@ -8021,13 +8011,13 @@ enifed("ember-handlebars/helpers/each",
       ```javascript
       App.PersonView = Ember.View.extend({
         tagName: 'li',
-        template: '{{name}}'
+        template: '{{developer.name}}'
       });
       ```
 
       ```handlebars
       <ul>
-        {{each developers itemViewClass="person"}}
+        {{each developer in developers itemViewClass="person"}}
       </ul>
       ```
 
@@ -8045,8 +8035,8 @@ enifed("ember-handlebars/helpers/each",
 
       ```handlebars
       <ul>
-      {{#each developers emptyViewClass="no-people"}}
-        <li>{{name}}</li>
+      {{#each developer in developers emptyViewClass="no-people"}}
+        <li>{{developer.name}}</li>
       {{/each}}
       </ul>
       ```
@@ -8089,10 +8079,11 @@ enifed("ember-handlebars/helpers/each",
     function eachHelper(path) {
       var options = arguments[arguments.length - 1];
       var helperName = 'each';
+      var keywordName;
 
       if (arguments.length === 4) {
         
-        var keywordName = arguments[0];
+        keywordName = arguments[0];
         path = arguments[2];
 
         helperName += ' ' + keywordName + ' in ' + path;
@@ -8104,6 +8095,7 @@ enifed("ember-handlebars/helpers/each",
         helperName += ' ' + path;
       }
 
+      
       options.hash.emptyViewClass = Ember._MetamorphView;
       options.hash.dataSourceBinding = path;
       options.hashTypes.dataSourceBinding = 'STRING';
@@ -13999,7 +13991,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.e0dacbc5
+      @version 1.10.0-beta.1+canary.1a454f94
     */
 
     if ('undefined' === typeof Ember) {
@@ -14026,10 +14018,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.e0dacbc5'
+      @default '1.10.0-beta.1+canary.1a454f94'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.e0dacbc5';
+    Ember.VERSION = '1.10.0-beta.1+canary.1a454f94';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -29425,8 +29417,8 @@ enifed("ember-runtime/controllers/array_controller",
       Then, create a view that binds to your new controller:
 
       ```handlebars
-      {{#each MyApp.listController}}
-        {{firstName}} {{lastName}}
+      {{#each person in MyApp.listController}}
+        {{person.firstName}} {{person.lastName}}
       {{/each}}
       ```
 

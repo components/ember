@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.e0dacbc5
+ * @version   1.10.0-beta.1+canary.1a454f94
  */
 
 (function() {
@@ -4820,7 +4820,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.e0dacbc5
+      @version 1.10.0-beta.1+canary.1a454f94
     */
 
     if ('undefined' === typeof Ember) {
@@ -4847,10 +4847,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.e0dacbc5'
+      @default '1.10.0-beta.1+canary.1a454f94'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.e0dacbc5';
+    Ember.VERSION = '1.10.0-beta.1+canary.1a454f94';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -13849,8 +13849,8 @@ define("ember-runtime/controllers/array_controller",
       Then, create a view that binds to your new controller:
 
       ```handlebars
-      {{#each MyApp.listController}}
-        {{firstName}} {{lastName}}
+      {{#each person in MyApp.listController}}
+        {{person.firstName}} {{person.lastName}}
       {{/each}}
       ```
 

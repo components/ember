@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.e0dacbc5
+ * @version   1.10.0-beta.1+canary.1a454f94
  */
 
 (function() {
@@ -4518,7 +4518,9 @@ enifed("ember-handlebars/tests/bind_attr_test",
       ok(view.$('img').hasClass('is-open'), "sets classname to the dasherized value of the global property");
     });
 
-    test("should be able to bind-attr to 'this' in an {{#each}} block", function() {
+    test("should be able to bind-attr to 'this' in an {{#each}} block [DEPRECATED]", function() {
+      expectDeprecation('Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+
       view = EmberView.create({
         template: EmberHandlebars.compile('{{#each view.images}}<img {{bind-attr src="this"}}>{{/each}}'),
         images: A(['one.png', 'two.jpg', 'three.gif'])
@@ -4532,7 +4534,9 @@ enifed("ember-handlebars/tests/bind_attr_test",
       ok(/three\.gif$/.test(images[2].src));
     });
 
-    test("should be able to bind classes to 'this' in an {{#each}} block with {{bind-attr class}}", function() {
+    test("should be able to bind classes to 'this' in an {{#each}} block with {{bind-attr class}} [DEPRECATED]", function() {
+      expectDeprecation('Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+
       view = EmberView.create({
         template: EmberHandlebars.compile('{{#each view.items}}<li {{bind-attr class="this"}}>Item</li>{{/each}}'),
         items: A(['a', 'b', 'c'])
@@ -8397,7 +8401,7 @@ enifed("ember-handlebars/tests/handlebars_test",
       view = EmberView.create({
         items: A(['a', 'b', 'c', 1, 2, 3]),
         template: EmberHandlebars.compile(
-          "<ul>{{#each view.items}}<li>{{unbound this}}</li>{{/each}}</ul>")
+          "<ul>{{#each item in view.items}}<li>{{unbound item}}</li>{{/each}}</ul>")
       });
 
       appendView();
@@ -8410,7 +8414,7 @@ enifed("ember-handlebars/tests/handlebars_test",
       view = EmberView.create({
         items: A([{wham: 'bam'}, {wham: 1}]),
         template: EmberHandlebars.compile(
-          "<ul>{{#each view.items}}<li>{{unbound wham}}</li>{{/each}}</ul>")
+          "<ul>{{#each item in view.items}}<li>{{unbound item.wham}}</li>{{/each}}</ul>")
       });
 
       appendView();
@@ -8567,30 +8571,33 @@ enifed("ember-handlebars/tests/handlebars_test",
 
     test("should escape HTML in primitive value contexts when using normal mustaches", function() {
       view = EmberView.create({
-        template: EmberHandlebars.compile('{{#each view.kiddos}}{{this}}{{/each}}'),
-        kiddos: A(['<b>Max</b>', '<b>James</b>'])
+        context: '<b>Max</b><b>James</b>',
+        template: EmberHandlebars.compile('{{this}}'),
       });
 
       appendView();
+
       equal(view.$('b').length, 0, "does not create an element");
       equal(view.$().text(), '<b>Max</b><b>James</b>', "inserts entities, not elements");
 
-      run(function() { set(view, 'kiddos', A(['<i>Max</i>','<i>James</i>'])); });
+      run(function() { set(view, 'context', '<i>Max</i><i>James</i>'); });
+
       equal(view.$().text(), '<i>Max</i><i>James</i>', "updates with entities, not elements");
       equal(view.$('i').length, 0, "does not create an element when value is updated");
     });
 
     test("should not escape HTML in primitive value contexts when using triple mustaches", function() {
       view = EmberView.create({
-        template: EmberHandlebars.compile('{{#each view.kiddos}}{{{this}}}{{/each}}'),
-        kiddos: A(['<b>Max</b>', '<b>James</b>'])
+        context: '<b>Max</b><b>James</b>',
+        template: EmberHandlebars.compile('{{{this}}}'),
       });
 
       appendView();
 
       equal(view.$('b').length, 2, "creates an element");
 
-      run(function() { set(view, 'kiddos', A(['<i>Max</i>','<i>James</i>'])); });
+      run(function() { set(view, 'context', '<i>Max</i><i>James</i>'); });
+
       equal(view.$('i').length, 2, "creates an element when value is updated");
     });
 
@@ -8646,15 +8653,14 @@ enifed("ember-handlebars/tests/handlebars_test",
 
     test("should be able to log `this`", function() {
       view = EmberView.create({
-        template: EmberHandlebars.compile('{{#each view.items}}{{log this}}{{/each}}'),
-        items: A(['one', 'two'])
+        context: 'one',
+        template: EmberHandlebars.compile('{{log this}}'),
       });
 
       appendView();
 
       equal(view.$().text(), "", "shouldn't render any text");
       equal(logCalls[0], 'one', "should call log with item one");
-      equal(logCalls[1], 'two', "should call log with item two");
     });
 
     var MyApp;
@@ -8762,9 +8768,9 @@ enifed("ember-handlebars/tests/handlebars_test",
 
     test("the {{this}} helper should not fail on removal", function() {
       view = EmberView.create({
-        template: EmberHandlebars.compile('{{#if view.show}}{{#each view.list}}{{this}}{{/each}}{{/if}}'),
-        show: true,
-        list: A(['a', 'b', 'c'])
+        context: 'abc',
+        template: EmberHandlebars.compile('{{#if view.show}}{{this}}{{/if}}'),
+        show: true
       });
 
       appendView();
@@ -9178,14 +9184,16 @@ enifed("ember-handlebars/tests/helpers/bound_helper_test",
       }
     });
 
-    test("primitives should work correctly", function() {
+    test("primitives should work correctly [DEPRECATED]", function() {
       view = EmberView.create({
         prims: Ember.A(["string", 12]),
 
         template: compile('{{#each view.prims}}{{#if this}}inside-if{{/if}}{{#with this}}inside-with{{/with}}{{/each}}')
       });
 
-      appendView(view);
+      expectDeprecation(function() {
+        appendView(view);
+      }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
 
       equal(view.$().text(), 'inside-ifinside-withinside-ifinside-with');
     });
@@ -9521,7 +9529,7 @@ enifed("ember-handlebars/tests/helpers/bound_helper_test",
       equal(helperCount, 5, "changing controller property with same name as quoted string doesn't re-render helper");
     });
 
-    test("bound helpers can handle nulls in array (with primitives)", function() {
+    test("bound helpers can handle nulls in array (with primitives) [DEPRECATED]", function() {
       EmberHandlebars.helper('reverse', function(val) {
         return val ? val.split('').reverse().join('') : "NOPE";
       });
@@ -9533,7 +9541,9 @@ enifed("ember-handlebars/tests/helpers/bound_helper_test",
         template: compile("{{#each things}}{{this}}|{{reverse this}} {{/each}}{{#each thing in things}}{{thing}}|{{reverse thing}} {{/each}}")
       });
 
-      appendView();
+      expectDeprecation(function() {
+        appendView();
+      }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
 
       equal(view.$().text(), '|NOPE 0|NOPE |NOPE false|NOPE OMG|GMO |NOPE 0|NOPE |NOPE false|NOPE OMG|GMO ', "helper output is correct");
 
@@ -9557,7 +9567,9 @@ enifed("ember-handlebars/tests/helpers/bound_helper_test",
         template: compile("{{#each things}}{{foo}}|{{print-foo this}} {{/each}}{{#each thing in things}}{{thing.foo}}|{{print-foo thing}} {{/each}}")
       });
 
-      appendView();
+      expectDeprecation(function() {
+        appendView();
+      }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
 
       equal(view.$().text(), '|NOPE 5|5 |NOPE 5|5 ', "helper output is correct");
 
@@ -9573,20 +9585,24 @@ enifed("ember-handlebars/tests/helpers/bound_helper_test",
       });
 
       view = EmberView.create({
-        controller: EmberObject.create({
-          things: A(['alex'])
-        }),
-        template: compile("{{#each things}}{{shout this}}{{/each}}")
+        context: 'alex',
+        template: compile("{{shout this}}")
       });
 
       appendView();
 
       equal(view.$().text(), 'alex!', "helper output is correct");
 
-      run(view.controller.things, 'shiftObject');
-      equal(view.$().text(), '', "helper output is correct");
+      run(function() {
+        set(view, 'context', '');
+      });
 
-      run(view.controller.things, 'pushObject', 'wallace');
+      equal(view.$().text(), '!', "helper output is correct");
+
+      run(function() {
+        set(view, 'context', 'wallace');
+      });
+
       equal(view.$().text(), 'wallace!', "helper output is correct");
     });
 
@@ -9832,7 +9848,7 @@ enifed("ember-handlebars/tests/helpers/each_test",
     var originalLookup = Ember.lookup;
     var lookup;
 
-    QUnit.module("the #each helper", {
+    QUnit.module("the #each helper [DEPRECATED]", {
       setup: function() {
         Ember.lookup = lookup = { Ember: Ember };
 
@@ -9854,7 +9870,9 @@ enifed("ember-handlebars/tests/helpers/each_test",
           template: templateMyView
         });
 
-        append(view);
+        expectDeprecation(function() {
+          append(view);
+        },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
       },
 
       teardown: function() {
@@ -10358,6 +10376,8 @@ enifed("ember-handlebars/tests/helpers/each_test",
     });
 
     test("it works with the controller keyword", function() {
+      run(view, 'destroy'); // destroy existing view
+
       var controller = ArrayController.create({
         model: A(["foo", "bar", "baz"])
       });
@@ -10372,6 +10392,55 @@ enifed("ember-handlebars/tests/helpers/each_test",
       append(view);
 
       equal(view.$().text(), "foobarbaz");
+    });
+
+    test("views inside #each preserve the new context [DEPRECATED]", function() {
+      run(view, 'destroy'); // destroy existing view
+
+      var controller = A([ { name: "Adam" }, { name: "Steve" } ]);
+
+      view = EmberView.create({
+        container: container,
+        controller: controller,
+        template: templateFor('{{#each controller}}{{#view}}{{name}}{{/view}}{{/each}}')
+      });
+
+
+      expectDeprecation(function() {
+        append(view);
+      },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+
+      equal(view.$().text(), "AdamSteve");
+    });
+
+    test("single-arg each defaults to current context [DEPRECATED]", function() {
+      run(view, 'destroy'); // destroy existing view
+
+      view = EmberView.create({
+        context: A([ { name: "Adam" }, { name: "Steve" } ]),
+        template: templateFor('{{#each}}{{name}}{{/each}}')
+      });
+
+      expectDeprecation(function() {
+        append(view);
+      },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+
+      equal(view.$().text(), "AdamSteve");
+    });
+
+    test("single-arg each will iterate over controller if present [DEPRECATED]", function() {
+      run(view, 'destroy'); // destroy existing view
+
+      view = EmberView.create({
+        controller: A([ { name: "Adam" }, { name: "Steve" } ]),
+        template: templateFor('{{#each}}{{name}}{{/each}}')
+      });
+
+      expectDeprecation(function() {
+        append(view);
+      },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+
+      equal(view.$().text(), "AdamSteve");
     });
 
     QUnit.module("{{#each foo in bar}}", {
@@ -10450,7 +10519,7 @@ enifed("ember-handlebars/tests/helpers/each_test",
       equal(view.$().text(), "My Cool Each Test 1My Cool Each Test 2");
     });
 
-    test("views inside #each preserve the new context", function() {
+    test("views inside #each preserve the new context [DEPRECATED]", function() {
       var controller = A([ { name: "Adam" }, { name: "Steve" } ]);
 
       view = EmberView.create({
@@ -10459,7 +10528,9 @@ enifed("ember-handlebars/tests/helpers/each_test",
         template: templateFor('{{#each controller}}{{#view}}{{name}}{{/view}}{{/each}}')
       });
 
-      append(view);
+      expectDeprecation(function() {
+        append(view);
+      },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
 
       equal(view.$().text(), "AdamSteve");
     });
@@ -10480,32 +10551,10 @@ enifed("ember-handlebars/tests/helpers/each_test",
       equal(view.$().text(), "AdamSteve");
     });
 
-    test("single-arg each defaults to current context", function() {
-      view = EmberView.create({
-        context: A([ { name: "Adam" }, { name: "Steve" } ]),
-        template: templateFor('{{#each}}{{name}}{{/each}}')
-      });
-
-      append(view);
-
-      equal(view.$().text(), "AdamSteve");
-    });
-
-    test("single-arg each will iterate over controller if present", function() {
-      view = EmberView.create({
-        controller: A([ { name: "Adam" }, { name: "Steve" } ]),
-        template: templateFor('{{#each}}{{name}}{{/each}}')
-      });
-
-      append(view);
-
-      equal(view.$().text(), "AdamSteve");
-    });
-
     test("it doesn't assert when the morph tags have the same parent", function() {
       view = EmberView.create({
         controller: A(['Cyril', 'David']),
-        template: templateFor('<table><tbody>{{#each}}<tr><td>{{this}}</td></tr>{{/each}}<tbody></table>')
+        template: templateFor('<table><tbody>{{#each name in this}}<tr><td>{{name}}</td></tr>{{/each}}<tbody></table>')
       });
 
       append(view);
@@ -10588,6 +10637,36 @@ enifed("ember-handlebars/tests/helpers/each_test",
       append(view);
 
       equal(view.$().text(), "controller:people - controller:Steve Holt of Yapp - controller:people - controller:Annabelle of Yapp - ");
+    });
+
+    test("{{each}} without arguments [DEPRECATED]", function() {
+      expect(2);
+
+      view = EmberView.create({
+        controller: A([ { name: "Adam" }, { name: "Steve" } ]),
+        template: templateFor('{{#each}}{{name}}{{/each}}')
+      });
+
+      expectDeprecation(function() {
+        append(view);
+      },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+
+      equal(view.$().text(), "AdamSteve");
+    });
+
+    test("{{each this}} without keyword [DEPRECATED]", function() {
+      expect(2);
+
+      view = EmberView.create({
+        controller: A([ { name: "Adam" }, { name: "Steve" } ]),
+        template: templateFor('{{#each this}}{{name}}{{/each}}')
+      });
+
+      expectDeprecation(function() {
+        append(view);
+      },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+
+      equal(view.$().text(), "AdamSteve");
     });
   });
 enifed("ember-handlebars/tests/helpers/each_test.jshint",
@@ -10734,7 +10813,7 @@ enifed("ember-handlebars/tests/helpers/group_test",
     test("#each with no content", function() {
       expect(0);
       createGroupedView(
-        "{{#each missing}}{{this}}{{/each}}"
+        "{{#each item in missing}}{{item}}{{/each}}"
       );
       appendView();
     });
@@ -10743,7 +10822,7 @@ enifed("ember-handlebars/tests/helpers/group_test",
       expect(0);
 
       createGroupedView(
-        "{{#each numbers}}{{this}}{{/each}}",
+        "{{#each number in numbers}}{{number}}{{/each}}",
         {numbers: A([1,2,3])}
       );
       appendView();
@@ -10756,7 +10835,7 @@ enifed("ember-handlebars/tests/helpers/group_test",
 
     test("#each can be nested", function() {
       createGroupedView(
-        "{{#each numbers}}{{this}}{{/each}}",
+        "{{#each number in numbers}}{{number}}{{/each}}",
         {numbers: A([1, 2, 3])}
       );
       appendView();
@@ -10777,7 +10856,7 @@ enifed("ember-handlebars/tests/helpers/group_test",
 
     test("#each can be used with an ArrayProxy", function() {
       createGroupedView(
-        "{{#each numbers}}{{this}}{{/each}}",
+        "{{#each number in numbers}}{{number}}{{/each}}",
         {numbers: ArrayProxy.create({content: A([1, 2, 3])})}
       );
       appendView();
@@ -10813,7 +10892,7 @@ enifed("ember-handlebars/tests/helpers/group_test",
     test("an #each can be nested with a view inside", function() {
       var yehuda = {name: 'Yehuda'};
       createGroupedView(
-        '{{#each people}}{{#view}}{{name}}{{/view}}{{/each}}',
+        '{{#each person in people}}{{#view}}{{person.name}}{{/view}}{{/each}}',
         {people: A([yehuda, {name: 'Tom'}])}
       );
       appendView();
@@ -10830,7 +10909,7 @@ enifed("ember-handlebars/tests/helpers/group_test",
       var yehuda = {name: 'Yehuda'};
       container.register('view:test', Component.extend());
       createGroupedView(
-        '{{#each people}}{{#view "test"}}{{name}}{{/view}}{{/each}}',
+        '{{#each person in people}}{{#view "test"}}{{person.name}}{{/view}}{{/each}}',
         {people: A([yehuda, {name: 'Tom'}])}
       );
 
@@ -10846,7 +10925,7 @@ enifed("ember-handlebars/tests/helpers/group_test",
 
     test("#each with groupedRows=true behaves like a normal bound #each", function() {
       createGroupedView(
-        '{{#each numbers groupedRows=true}}{{this}}{{/each}}',
+        '{{#each number in numbers groupedRows=true}}{{number}}{{/each}}',
         {numbers: A([1, 2, 3])}
       );
       appendView();
@@ -10862,7 +10941,7 @@ enifed("ember-handlebars/tests/helpers/group_test",
     test("#each with itemViewClass behaves like a normal bound #each", function() {
       container.register('view:nothing-special-view', Ember.View);
       createGroupedView(
-        '{{#each people itemViewClass="nothing-special-view"}}{{name}}{{/each}}',
+        '{{#each person in people itemViewClass="nothing-special-view"}}{{person.name}}{{/each}}',
         {people: A([{name: 'Erik'}, {name: 'Peter'}])}
       );
       appendView();
@@ -12517,7 +12596,7 @@ enifed("ember-handlebars/tests/helpers/yield_test",
 
     test("templates should yield to block, when the yield is embedded in a hierarchy of virtual views", function() {
       var TimesView = EmberView.extend({
-        layout: EmberHandlebars.compile('<div class="times">{{#each view.index}}{{yield}}{{/each}}</div>'),
+        layout: EmberHandlebars.compile('<div class="times">{{#each item in view.index}}{{yield}}{{/each}}</div>'),
         n: null,
         index: computed(function() {
           var n = get(this, 'n');
@@ -13427,7 +13506,7 @@ enifed("ember-handlebars/tests/views/collection_view_test",
       equal(view.$('ul li').length, 3, "collection renders when conditional changes to true");
     });
 
-    test("should pass content as context when using {{#each}} helper", function() {
+    test("should pass content as context when using {{#each}} helper [DEPRECATED]", function() {
       view = EmberView.create({
         template: EmberHandlebars.compile('{{#each view.releases}}Mac OS X {{version}}: {{name}} {{/each}}'),
 
@@ -13441,7 +13520,9 @@ enifed("ember-handlebars/tests/views/collection_view_test",
                   ])
       });
 
-      run(function() { view.appendTo('#qunit-fixture'); });
+      expectDeprecation(function() {
+        run(view, 'appendTo', '#qunit-fixture');
+      }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
 
       equal(view.$().text(), "Mac OS X 10.7: Lion Mac OS X 10.6: Snow Leopard Mac OS X 10.5: Leopard ", "prints each item in sequence");
     });
@@ -26088,7 +26169,7 @@ enifed("ember-routing-handlebars/tests/helpers/action_test",
       equal(watted, true, "The action was called on the right context");
     });
 
-    test("should target the current controller inside an {{each}} loop", function() {
+    test("should target the current controller inside an {{each}} loop [DEPRECATED]", function() {
       var registeredTarget;
 
       ActionHelper.registerAction = function(actionName, options) {
@@ -26113,7 +26194,9 @@ enifed("ember-routing-handlebars/tests/helpers/action_test",
         template: EmberHandlebars.compile('{{#each controller}}{{action "editTodo"}}{{/each}}')
       });
 
-      appendView();
+      expectDeprecation(function() {
+        appendView();
+      }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
 
       equal(registeredTarget, itemController, "the item controller is the target of action");
 
@@ -26149,7 +26232,7 @@ enifed("ember-routing-handlebars/tests/helpers/action_test",
       ActionHelper.registerAction = originalRegisterAction;
     });
 
-    test("should target the with-controller inside an {{each}} in a {{#with controller='person'}}", function() {
+    test("should target the with-controller inside an {{each}} in a {{#with controller='person'}} [DEPRECATED]", function() {
       var eventsCalled = [];
 
       var PeopleController = EmberArrayController.extend({
@@ -26176,7 +26259,9 @@ enifed("ember-routing-handlebars/tests/helpers/action_test",
 
       container.register('controller:people', PeopleController);
 
-      appendView();
+      expectDeprecation(function() {
+        appendView();
+      }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
 
       view.$('a').trigger('click');
 
@@ -26407,7 +26492,7 @@ enifed("ember-routing-handlebars/tests/helpers/action_test",
       view = EmberView.create({
         controller: controller,
         items: Ember.A([1, 2, 3, 4]),
-        template: EmberHandlebars.compile('{{#each view.items}}<a href="#" {{action "edit"}}>click me</a>{{/each}}')
+        template: EmberHandlebars.compile('{{#each item in view.items}}<a href="#" {{action "edit"}}>click me</a>{{/each}}')
       });
 
       appendView();
@@ -26467,7 +26552,7 @@ enifed("ember-routing-handlebars/tests/helpers/action_test",
         }
       ]);
       view = EmberView.create({
-        template: EmberHandlebars.compile('{{#each view.things}}<a href="#" {{action "edit"}}>click me</a>{{/each}}'),
+        template: EmberHandlebars.compile('{{#each thing in view.things}}<a href="#" {{action "edit"}}>click me</a>{{/each}}'),
         things: things
       });
 
@@ -26904,8 +26989,8 @@ enifed("ember-routing-handlebars/tests/helpers/action_test",
       deepEqual(actionOrder, ['whompWhomp', 'sloopyDookie', 'biggityBoom'], 'action name was looked up properly');
     });
 
-    test("a quoteless parameter should lookup actionName in context", function(){
-      expect(4);
+    test("a quoteless parameter should lookup actionName in context [DEPRECATED]", function(){
+      expect(5);
       var lastAction;
       var actionOrder = [];
 
@@ -26933,10 +27018,12 @@ enifed("ember-routing-handlebars/tests/helpers/action_test",
         }
       }).create();
 
-      run(function() {
-        view.set('controller', controller);
-        view.appendTo('#qunit-fixture');
-      });
+      expectDeprecation(function() {
+        run(function() {
+          view.set('controller', controller);
+          view.appendTo('#qunit-fixture');
+        });
+      }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
 
       var testBoundAction = function(propertyValue){
         run(function(){
@@ -56972,7 +57059,7 @@ enifed("ember/tests/helpers/link_to_test",
         this.resource("item", { path: "/item/:id" });
       });
 
-      Ember.TEMPLATES.about = Ember.Handlebars.compile("<h3>List</h3><ul>{{#each controller}}<li>{{#link-to 'item' this}}{{name}}{{/link-to}}</li>{{/each}}</ul>{{#link-to 'index' id='home-link'}}Home{{/link-to}}");
+      Ember.TEMPLATES.about = Ember.Handlebars.compile("<h3>List</h3><ul>{{#each person in controller}}<li>{{#link-to 'item' person}}{{person.name}}{{/link-to}}</li>{{/each}}</ul>{{#link-to 'index' id='home-link'}}Home{{/link-to}}");
 
       App.AboutRoute = Ember.Route.extend({
         model: function() {
@@ -57452,7 +57539,9 @@ enifed("ember/tests/helpers/link_to_test",
         index: compile('{{#each routeName in routeNames}}{{#link-to routeName}}{{routeName}}{{/link-to}}{{/each}}{{#each routeNames}}{{#link-to this}}{{this}}{{/link-to}}{{/each}}{{#link-to route1}}a{{/link-to}}{{#link-to route2}}b{{/link-to}}')
       };
 
-      bootApplication();
+      expectDeprecation(function() {
+        bootApplication();
+      }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
 
       function linksEqual($links, expected) {
         equal($links.length, expected.length, "Has correct number of links");
@@ -57567,7 +57656,7 @@ enifed("ember/tests/helpers/link_to_test",
         }
       });
 
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("<h3>Home</h3><ul>{{#each controller}}<li>{{link-to name 'item' this}}</li>{{/each}}</ul>");
+      Ember.TEMPLATES.index = Ember.Handlebars.compile("<h3>Home</h3><ul>{{#each person in controller}}<li>{{link-to person.name 'item' person}}</li>{{/each}}</ul>");
       Ember.TEMPLATES.item = Ember.Handlebars.compile("<h3>Item</h3><p>{{name}}</p>{{#link-to 'index' id='home-link'}}Home{{/link-to}}");
 
       bootApplication();
@@ -58299,7 +58388,7 @@ enifed("ember/tests/homepage_example_test",
     function setupExample() {
       // setup templates
       Ember.TEMPLATES.application = Ember.Handlebars.compile("{{outlet}}");
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("<h1>People</h1><ul>{{#each model}}<li>Hello, <b>{{fullName}}</b>!</li>{{/each}}</ul>");
+      Ember.TEMPLATES.index = Ember.Handlebars.compile("<h1>People</h1><ul>{{#each person in model}}<li>Hello, <b>{{person.fullName}}</b>!</li>{{/each}}</ul>");
 
 
       App.Person = Ember.Object.extend({
@@ -59096,7 +59185,7 @@ enifed("ember/tests/routing/basic_test",
       });
 
       Ember.TEMPLATES.home = Ember.Handlebars.compile(
-        "<ul>{{#each}}<li>{{this}}</li>{{/each}}</ul>"
+        "<ul>{{#each passage in model}}<li>{{passage}}</li>{{/each}}</ul>"
       );
 
       bootApplication();
