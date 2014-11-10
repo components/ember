@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.fcb989d9
+ * @version   1.10.0-beta.1+canary.9a8d9a88
  */
 
 (function() {
@@ -4119,7 +4119,7 @@ enifed("ember-handlebars/string.jshint",
     });
   });
 enifed("ember-handlebars/tests/bind_attr_test",
-  ["ember-metal/core","ember-metal/run_loop","ember-runtime/system/namespace","ember-views/views/view","ember-handlebars/views/metamorph_view","ember-handlebars","ember-runtime/system/object","ember-runtime/system/native_array","ember-metal/computed","ember-metal/observer","ember-runtime/system/container","ember-metal/property_set"],
+  ["ember-metal/core","ember-metal/run_loop","ember-runtime/system/namespace","ember-views/views/view","ember-views/views/metamorph_view","ember-handlebars","ember-runtime/system/object","ember-runtime/system/native_array","ember-metal/computed","ember-metal/observer","ember-runtime/system/container","ember-metal/property_set"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__) {
     "use strict";
     /*jshint newcap:false*/
@@ -6754,7 +6754,7 @@ enifed("ember-handlebars/tests/controls/text_field_test.jshint",
     });
   });
 enifed("ember-handlebars/tests/handlebars_get_test",
-  ["ember-metal/core","ember-handlebars/views/metamorph_view","ember-views/views/view","ember-metal/run_loop","ember-handlebars","ember-handlebars/ext","ember-runtime/system/container"],
+  ["ember-metal/core","ember-views/views/metamorph_view","ember-views/views/view","ember-metal/run_loop","ember-handlebars","ember-handlebars/ext","ember-runtime/system/container"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
     "use strict";
     var Ember = __dependency1__["default"];
@@ -6897,7 +6897,7 @@ enifed("ember-handlebars/tests/handlebars_get_test.jshint",
     });
   });
 enifed("ember-handlebars/tests/handlebars_test",
-  ["ember-metal/core","ember-views/system/jquery","ember-metal/enumerable_utils","ember-metal/run_loop","ember-runtime/system/namespace","ember-views/views/view","ember-handlebars/views/metamorph_view","ember-handlebars","ember-runtime/system/object","ember-runtime/controllers/object_controller","ember-runtime/system/native_array","ember-metal/computed","ember-runtime/system/string","ember-metal/utils","ember-runtime/system/array_proxy","ember-views/views/collection_view","ember-views/views/container_view","ember-metal/binding","ember-metal/observer","ember-handlebars/controls/text_field","ember-runtime/system/container","ember-metal/platform","ember-handlebars/string","ember-metal/property_get","ember-metal/property_set"],
+  ["ember-metal/core","ember-views/system/jquery","ember-metal/enumerable_utils","ember-metal/run_loop","ember-runtime/system/namespace","ember-views/views/view","ember-views/views/metamorph_view","ember-handlebars","ember-runtime/system/object","ember-runtime/controllers/object_controller","ember-runtime/system/native_array","ember-metal/computed","ember-runtime/system/string","ember-metal/utils","ember-runtime/system/array_proxy","ember-views/views/collection_view","ember-views/views/container_view","ember-metal/binding","ember-metal/observer","ember-handlebars/controls/text_field","ember-runtime/system/container","ember-metal/platform","ember-handlebars/string","ember-metal/property_get","ember-metal/property_set"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__) {
     "use strict";
     /*jshint newcap:false*/
@@ -9823,7 +9823,7 @@ enifed("ember-handlebars/tests/helpers/debug_test.jshint",
     });
   });
 enifed("ember-handlebars/tests/helpers/each_test",
-  ["ember-metal/core","ember-runtime/system/object","ember-metal/run_loop","ember-views/views/view","ember-handlebars/views/metamorph_view","ember-metal/computed","ember-runtime/controllers/array_controller","ember-handlebars-compiler","ember-runtime/system/native_array","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/system/container","ember-metal/property_get","ember-metal/property_set"],
+  ["ember-metal/core","ember-runtime/system/object","ember-metal/run_loop","ember-views/views/view","ember-views/views/metamorph_view","ember-metal/computed","ember-runtime/controllers/array_controller","ember-handlebars-compiler","ember-runtime/system/native_array","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/system/container","ember-metal/property_get","ember-metal/property_set"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__) {
     "use strict";
     /*jshint newcap:false*/
@@ -10686,7 +10686,7 @@ enifed("ember-handlebars/tests/helpers/each_test.jshint",
     });
   });
 enifed("ember-handlebars/tests/helpers/group_test",
-  ["ember-metal/run_loop","ember-views/system/jquery","ember-views/views/view","ember-handlebars/views/metamorph_view","ember-handlebars-compiler","ember-runtime/system/array_proxy","ember-runtime/system/native_array","ember-runtime/system/container","ember-metal/property_set","ember-views/views/component"],
+  ["ember-metal/run_loop","ember-views/system/jquery","ember-views/views/view","ember-views/views/metamorph_view","ember-handlebars-compiler","ember-runtime/system/array_proxy","ember-runtime/system/native_array","ember-runtime/system/container","ember-metal/property_set","ember-views/views/component"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
     "use strict";
     /*jshint newcap:false*/
@@ -13687,336 +13687,6 @@ enifed("ember-handlebars/tests/views/component_test.jshint",
     module('JSHint - ember-handlebars/tests/views');
     test('ember-handlebars/tests/views/component_test.js should pass jshint', function() { 
       ok(true, 'ember-handlebars/tests/views/component_test.js should pass jshint.'); 
-    });
-  });
-enifed("ember-handlebars/tests/views/handlebars_bound_view_test",
-  ["ember-metal/streams/stream","ember-handlebars/views/handlebars_bound_view"],
-  function(__dependency1__, __dependency2__) {
-    "use strict";
-    var Stream = __dependency1__["default"];
-    var SimpleHandlebarsView = __dependency2__.SimpleHandlebarsView;
-
-    QUnit.module('SimpleHandlebarsView');
-
-    test('does not render if update is triggured by normalizedValue is the same as the previous normalizedValue', function(){
-      var value = null;
-      var obj = { 'foo': 'bar' };
-      var lazyValue = new Stream(function() {
-        return obj.foo;
-      });
-      var isEscaped = true;
-      var view = new SimpleHandlebarsView(lazyValue, isEscaped);
-      view._morph = {
-        update: function(newValue) {
-          value = newValue;
-        }
-      };
-
-      equal(value, null);
-
-      view.update();
-
-      equal(value, 'bar', 'expected call to morph.update with "bar"');
-      value = null;
-
-      view.update();
-
-      equal(value, null, 'expected no call to morph.update');
-
-      obj.foo = 'baz'; // change property
-      lazyValue.notify();
-
-      view.update();
-
-      equal(value, 'baz', 'expected call to morph.update with "baz"');
-    });
-  });
-enifed("ember-handlebars/tests/views/handlebars_bound_view_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/tests/views');
-    test('ember-handlebars/tests/views/handlebars_bound_view_test.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/tests/views/handlebars_bound_view_test.js should pass jshint.'); 
-    });
-  });
-enifed("ember-handlebars/tests/views/metamorph_view_test",
-  ["ember-views/system/jquery","ember-metal/run_loop","ember-views/views/view","ember-metal/property_get","ember-metal/property_set","ember-metal/mixin","ember-handlebars-compiler","ember-handlebars/views/metamorph_view"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
-    "use strict";
-    var jQuery = __dependency1__["default"];
-    var run = __dependency2__["default"];
-    var EmberView = __dependency3__["default"];
-    var get = __dependency4__.get;
-    var set = __dependency5__.set;
-    var observer = __dependency6__.observer;
-    var EmberHandlebars = __dependency7__["default"];
-
-    var _MetamorphView = __dependency8__["default"];
-
-    var view, childView, metamorphView;
-
-    QUnit.module("Metamorph views", {
-      setup: function() {
-        view = EmberView.create({
-          render: function(buffer) {
-            buffer.push("<h1>View</h1>");
-            this.appendChild(metamorphView);
-          }
-        });
-      },
-
-      teardown: function() {
-        run(function() {
-          view.destroy();
-          if (childView && !childView.isDestroyed) {
-            childView.destroy();
-          }
-
-          if (metamorphView && !metamorphView.isDestroyed) {
-            metamorphView.destroy();
-          }
-        });
-      }
-    });
-
-    test("a Metamorph view is not a view's parentView", function() {
-      childView = EmberView.create({
-        render: function(buffer) {
-          buffer.push("<p>Bye bros</p>");
-        }
-      });
-
-      metamorphView = _MetamorphView.create({
-        render: function(buffer) {
-          buffer.push("<h2>Meta</h2>");
-          this.appendChild(childView);
-        }
-      });
-
-      run(function() {
-        view.appendTo("#qunit-fixture");
-      });
-
-      equal(get(childView, 'parentView'), view, "A child of a metamorph view cannot see the metamorph view as its parent");
-
-      var children = get(view, 'childViews');
-
-      equal(get(children, 'length'), 1, "precond - there is only one child of the main node");
-      equal(children.objectAt(0), childView, "... and it is not the metamorph");
-    });
-
-    QUnit.module("Metamorph views correctly handle DOM", {
-      setup: function() {
-        view = EmberView.create({
-          render: function(buffer) {
-            buffer.push("<h1>View</h1>");
-            this.appendChild(metamorphView);
-          }
-        });
-
-        metamorphView = _MetamorphView.create({
-          powerRanger: "Jason",
-
-          render: function(buffer) {
-            buffer.push("<h2 id='from-meta'>"+get(this, 'powerRanger')+"</h2>");
-          }
-        });
-
-        run(function() {
-          view.appendTo("#qunit-fixture");
-        });
-      },
-
-      teardown: function() {
-        run(function() {
-          view.destroy();
-          if (!metamorphView.isDestroyed) {
-            metamorphView.destroy();
-          }
-        });
-      }
-    });
-
-    test("a metamorph view generates without a DOM node", function() {
-      var meta = jQuery("> h2", "#" + get(view, 'elementId'));
-
-      equal(meta.length, 1, "The metamorph element should be directly inside its parent");
-    });
-
-    test("a metamorph view can be removed from the DOM", function() {
-      run(function() {
-        metamorphView.destroy();
-      });
-
-      var meta = jQuery('#from-morph');
-      equal(meta.length, 0, "the associated DOM was removed");
-    });
-
-    test("a metamorph view can be rerendered", function() {
-      equal(jQuery('#from-meta').text(), "Jason", "precond - renders to the DOM");
-
-      set(metamorphView, 'powerRanger', 'Trini');
-      run(function() {
-        metamorphView.rerender();
-      });
-
-      equal(jQuery('#from-meta').text(), "Trini", "updates value when re-rendering");
-    });
-
-
-    // Redefining without setup/teardown
-    QUnit.module("Metamorph views correctly handle DOM");
-
-    test("a metamorph view calls its childrens' willInsertElement and didInsertElement", function() {
-      var parentView;
-      var willInsertElementCalled = false;
-      var didInsertElementCalled = false;
-      var didInsertElementSawElement = false;
-
-      parentView = EmberView.create({
-        ViewWithCallback: EmberView.extend({
-          template: EmberHandlebars.compile('<div id="do-i-exist"></div>'),
-
-          willInsertElement: function() {
-            willInsertElementCalled = true;
-          },
-          didInsertElement: function() {
-            didInsertElementCalled = true;
-            didInsertElementSawElement = (this.$('div').length === 1);
-          }
-        }),
-
-        template: EmberHandlebars.compile('{{#if view.condition}}{{view view.ViewWithCallback}}{{/if}}'),
-        condition: false
-      });
-
-      run(function() {
-        parentView.append();
-      });
-      run(function() {
-        parentView.set('condition', true);
-      });
-
-      ok(willInsertElementCalled, "willInsertElement called");
-      ok(didInsertElementCalled, "didInsertElement called");
-      ok(didInsertElementSawElement, "didInsertElement saw element");
-
-      run(function() {
-        parentView.destroy();
-      });
-
-    });
-
-    test("replacing a Metamorph should invalidate childView elements", function() {
-      var elementOnDidChange, elementOnDidInsert;
-
-      view = EmberView.create({
-        show: false,
-
-        CustomView: EmberView.extend({
-          init: function() {
-            this._super();
-            // This will be called in preRender
-            // We want it to cache a null value
-            // Hopefully it will be invalidated when `show` is toggled
-            this.get('element');
-          },
-
-          elementDidChange: observer('element', function() {
-            elementOnDidChange = this.get('element');
-          }),
-
-          didInsertElement: function() {
-            elementOnDidInsert = this.get('element');
-          }
-        }),
-
-        template: EmberHandlebars.compile("{{#if view.show}}{{view view.CustomView}}{{/if}}")
-      });
-
-      run(function() { view.append(); });
-
-      run(function() { view.set('show', true); });
-
-      ok(elementOnDidChange, "should have an element on change");
-      ok(elementOnDidInsert, "should have an element on insert");
-
-      run(function() { view.destroy(); });
-    });
-
-    test("trigger rerender of parent and SimpleHandlebarsView", function () {
-      var view = EmberView.create({
-        show: true,
-        foo: 'bar',
-        template: EmberHandlebars.compile("{{#if view.show}}{{#if view.foo}}{{view.foo}}{{/if}}{{/if}}")
-      });
-
-      run(function() { view.append(); });
-
-      equal(view.$().text(), 'bar');
-
-      run(function() {
-        view.set('foo', 'baz'); // schedule render of simple bound
-        view.set('show', false); // destroy tree
-      });
-
-      equal(view.$().text(), '');
-
-      run(function() {
-        view.destroy();
-      });
-    });
-
-    test("re-rendering and then changing the property does not raise an exception", function() {
-      view = EmberView.create({
-        show: true,
-        foo: 'bar',
-        metamorphView: _MetamorphView,
-        template: EmberHandlebars.compile("{{#view view.metamorphView}}truth{{/view}}")
-      });
-
-      run(function() { view.appendTo('#qunit-fixture'); });
-
-      equal(view.$().text(), 'truth');
-
-      run(function() {
-        view.get('_childViews')[0].rerender();
-        view.get('_childViews')[0].rerender();
-      });
-
-      equal(view.$().text(), 'truth');
-
-      run(function() {
-        view.destroy();
-      });
-    });
-  });
-enifed("ember-handlebars/tests/views/metamorph_view_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/tests/views');
-    test('ember-handlebars/tests/views/metamorph_view_test.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/tests/views/metamorph_view_test.js should pass jshint.'); 
-    });
-  });
-enifed("ember-handlebars/views/handlebars_bound_view.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/views');
-    test('ember-handlebars/views/handlebars_bound_view.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/views/handlebars_bound_view.js should pass jshint.'); 
-    });
-  });
-enifed("ember-handlebars/views/metamorph_view.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/views');
-    test('ember-handlebars/views/metamorph_view.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/views/metamorph_view.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars.jshint",
@@ -27110,7 +26780,7 @@ enifed("ember-routing-handlebars/tests/helpers/link_to_test.jshint",
     });
   });
 enifed("ember-routing-handlebars/tests/helpers/outlet_test",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","container/container","ember-runtime/system/namespace","ember-runtime/system/string","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-routing/system/router","ember-routing/location/hash_location","ember-handlebars","ember-handlebars/views/metamorph_view","ember-routing/ext/view","ember-views/views/container_view","ember-views/system/jquery","ember-routing-handlebars/helpers/outlet"],
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","container/container","ember-runtime/system/namespace","ember-runtime/system/string","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-routing/system/router","ember-routing/location/hash_location","ember-handlebars","ember-views/views/metamorph_view","ember-routing/ext/view","ember-views/views/container_view","ember-views/system/jquery","ember-routing-handlebars/helpers/outlet"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__) {
     "use strict";
     var Ember = __dependency1__["default"];
@@ -27481,7 +27151,7 @@ enifed("ember-routing-handlebars/tests/helpers/outlet_test.jshint",
     });
   });
 enifed("ember-routing-handlebars/tests/helpers/render_test",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-metal/platform","ember-metal/mixin","container/container","ember-runtime/system/namespace","ember-runtime/system/string","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-routing/system/router","ember-routing/location/hash_location","ember-handlebars","ember-routing/ext/view","ember-handlebars/views/metamorph_view","ember-views/system/jquery","ember-views/system/action_manager","ember-routing-handlebars/helpers/render","ember-routing-handlebars/helpers/action","ember-routing-handlebars/helpers/outlet"],
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-metal/platform","ember-metal/mixin","container/container","ember-runtime/system/namespace","ember-runtime/system/string","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-routing/system/router","ember-routing/location/hash_location","ember-handlebars","ember-routing/ext/view","ember-views/views/metamorph_view","ember-views/system/jquery","ember-views/system/action_manager","ember-routing-handlebars/helpers/render","ember-routing-handlebars/helpers/action","ember-routing-handlebars/helpers/outlet"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__) {
     "use strict";
     var Ember = __dependency1__["default"];
@@ -51700,6 +51370,57 @@ enifed("ember-views/tests/views/container_view_test.jshint",
       ok(true, 'ember-views/tests/views/container_view_test.js should pass jshint.'); 
     });
   });
+enifed("ember-views/tests/views/handlebars_bound_view_test",
+  ["ember-metal/streams/stream","ember-views/views/handlebars_bound_view"],
+  function(__dependency1__, __dependency2__) {
+    "use strict";
+    var Stream = __dependency1__["default"];
+    var SimpleHandlebarsView = __dependency2__.SimpleHandlebarsView;
+
+    QUnit.module('SimpleHandlebarsView');
+
+    test('does not render if update is triggured by normalizedValue is the same as the previous normalizedValue', function(){
+      var value = null;
+      var obj = { 'foo': 'bar' };
+      var lazyValue = new Stream(function() {
+        return obj.foo;
+      });
+      var isEscaped = true;
+      var view = new SimpleHandlebarsView(lazyValue, isEscaped);
+      view._morph = {
+        update: function(newValue) {
+          value = newValue;
+        }
+      };
+
+      equal(value, null);
+
+      view.update();
+
+      equal(value, 'bar', 'expected call to morph.update with "bar"');
+      value = null;
+
+      view.update();
+
+      equal(value, null, 'expected no call to morph.update');
+
+      obj.foo = 'baz'; // change property
+      lazyValue.notify();
+
+      view.update();
+
+      equal(value, 'baz', 'expected call to morph.update with "baz"');
+    });
+  });
+enifed("ember-views/tests/views/handlebars_bound_view_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/tests/views');
+    test('ember-views/tests/views/handlebars_bound_view_test.js should pass jshint', function() { 
+      ok(true, 'ember-views/tests/views/handlebars_bound_view_test.js should pass jshint.'); 
+    });
+  });
 enifed("ember-views/tests/views/instrumentation_test",
   ["ember-metal/instrumentation","ember-metal/run_loop","ember-views/views/view"],
   function(__dependency1__, __dependency2__, __dependency3__) {
@@ -51768,6 +51489,267 @@ enifed("ember-views/tests/views/instrumentation_test.jshint",
     module('JSHint - ember-views/tests/views');
     test('ember-views/tests/views/instrumentation_test.js should pass jshint', function() { 
       ok(true, 'ember-views/tests/views/instrumentation_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/tests/views/metamorph_view_test",
+  ["ember-views/system/jquery","ember-metal/run_loop","ember-views/views/view","ember-metal/property_get","ember-metal/property_set","ember-metal/mixin","ember-handlebars-compiler","ember-views/views/metamorph_view"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
+    "use strict";
+    var jQuery = __dependency1__["default"];
+    var run = __dependency2__["default"];
+    var EmberView = __dependency3__["default"];
+    var get = __dependency4__.get;
+    var set = __dependency5__.set;
+    var observer = __dependency6__.observer;
+    var EmberHandlebars = __dependency7__["default"];
+
+    var _MetamorphView = __dependency8__["default"];
+
+    var view, childView, metamorphView;
+
+    QUnit.module("Metamorph views", {
+      setup: function() {
+        view = EmberView.create({
+          render: function(buffer) {
+            buffer.push("<h1>View</h1>");
+            this.appendChild(metamorphView);
+          }
+        });
+      },
+
+      teardown: function() {
+        run(function() {
+          view.destroy();
+          if (childView && !childView.isDestroyed) {
+            childView.destroy();
+          }
+
+          if (metamorphView && !metamorphView.isDestroyed) {
+            metamorphView.destroy();
+          }
+        });
+      }
+    });
+
+    test("a Metamorph view is not a view's parentView", function() {
+      childView = EmberView.create({
+        render: function(buffer) {
+          buffer.push("<p>Bye bros</p>");
+        }
+      });
+
+      metamorphView = _MetamorphView.create({
+        render: function(buffer) {
+          buffer.push("<h2>Meta</h2>");
+          this.appendChild(childView);
+        }
+      });
+
+      run(function() {
+        view.appendTo("#qunit-fixture");
+      });
+
+      equal(get(childView, 'parentView'), view, "A child of a metamorph view cannot see the metamorph view as its parent");
+
+      var children = get(view, 'childViews');
+
+      equal(get(children, 'length'), 1, "precond - there is only one child of the main node");
+      equal(children.objectAt(0), childView, "... and it is not the metamorph");
+    });
+
+    QUnit.module("Metamorph views correctly handle DOM", {
+      setup: function() {
+        view = EmberView.create({
+          render: function(buffer) {
+            buffer.push("<h1>View</h1>");
+            this.appendChild(metamorphView);
+          }
+        });
+
+        metamorphView = _MetamorphView.create({
+          powerRanger: "Jason",
+
+          render: function(buffer) {
+            buffer.push("<h2 id='from-meta'>"+get(this, 'powerRanger')+"</h2>");
+          }
+        });
+
+        run(function() {
+          view.appendTo("#qunit-fixture");
+        });
+      },
+
+      teardown: function() {
+        run(function() {
+          view.destroy();
+          if (!metamorphView.isDestroyed) {
+            metamorphView.destroy();
+          }
+        });
+      }
+    });
+
+    test("a metamorph view generates without a DOM node", function() {
+      var meta = jQuery("> h2", "#" + get(view, 'elementId'));
+
+      equal(meta.length, 1, "The metamorph element should be directly inside its parent");
+    });
+
+    test("a metamorph view can be removed from the DOM", function() {
+      run(function() {
+        metamorphView.destroy();
+      });
+
+      var meta = jQuery('#from-morph');
+      equal(meta.length, 0, "the associated DOM was removed");
+    });
+
+    test("a metamorph view can be rerendered", function() {
+      equal(jQuery('#from-meta').text(), "Jason", "precond - renders to the DOM");
+
+      set(metamorphView, 'powerRanger', 'Trini');
+      run(function() {
+        metamorphView.rerender();
+      });
+
+      equal(jQuery('#from-meta').text(), "Trini", "updates value when re-rendering");
+    });
+
+
+    // Redefining without setup/teardown
+    QUnit.module("Metamorph views correctly handle DOM");
+
+    test("a metamorph view calls its childrens' willInsertElement and didInsertElement", function() {
+      var parentView;
+      var willInsertElementCalled = false;
+      var didInsertElementCalled = false;
+      var didInsertElementSawElement = false;
+
+      parentView = EmberView.create({
+        ViewWithCallback: EmberView.extend({
+          template: EmberHandlebars.compile('<div id="do-i-exist"></div>'),
+
+          willInsertElement: function() {
+            willInsertElementCalled = true;
+          },
+          didInsertElement: function() {
+            didInsertElementCalled = true;
+            didInsertElementSawElement = (this.$('div').length === 1);
+          }
+        }),
+
+        template: EmberHandlebars.compile('{{#if view.condition}}{{view view.ViewWithCallback}}{{/if}}'),
+        condition: false
+      });
+
+      run(function() {
+        parentView.append();
+      });
+      run(function() {
+        parentView.set('condition', true);
+      });
+
+      ok(willInsertElementCalled, "willInsertElement called");
+      ok(didInsertElementCalled, "didInsertElement called");
+      ok(didInsertElementSawElement, "didInsertElement saw element");
+
+      run(function() {
+        parentView.destroy();
+      });
+
+    });
+
+    test("replacing a Metamorph should invalidate childView elements", function() {
+      var elementOnDidChange, elementOnDidInsert;
+
+      view = EmberView.create({
+        show: false,
+
+        CustomView: EmberView.extend({
+          init: function() {
+            this._super();
+            // This will be called in preRender
+            // We want it to cache a null value
+            // Hopefully it will be invalidated when `show` is toggled
+            this.get('element');
+          },
+
+          elementDidChange: observer('element', function() {
+            elementOnDidChange = this.get('element');
+          }),
+
+          didInsertElement: function() {
+            elementOnDidInsert = this.get('element');
+          }
+        }),
+
+        template: EmberHandlebars.compile("{{#if view.show}}{{view view.CustomView}}{{/if}}")
+      });
+
+      run(function() { view.append(); });
+
+      run(function() { view.set('show', true); });
+
+      ok(elementOnDidChange, "should have an element on change");
+      ok(elementOnDidInsert, "should have an element on insert");
+
+      run(function() { view.destroy(); });
+    });
+
+    test("trigger rerender of parent and SimpleHandlebarsView", function () {
+      var view = EmberView.create({
+        show: true,
+        foo: 'bar',
+        template: EmberHandlebars.compile("{{#if view.show}}{{#if view.foo}}{{view.foo}}{{/if}}{{/if}}")
+      });
+
+      run(function() { view.append(); });
+
+      equal(view.$().text(), 'bar');
+
+      run(function() {
+        view.set('foo', 'baz'); // schedule render of simple bound
+        view.set('show', false); // destroy tree
+      });
+
+      equal(view.$().text(), '');
+
+      run(function() {
+        view.destroy();
+      });
+    });
+
+    test("re-rendering and then changing the property does not raise an exception", function() {
+      view = EmberView.create({
+        show: true,
+        foo: 'bar',
+        metamorphView: _MetamorphView,
+        template: EmberHandlebars.compile("{{#view view.metamorphView}}truth{{/view}}")
+      });
+
+      run(function() { view.appendTo('#qunit-fixture'); });
+
+      equal(view.$().text(), 'truth');
+
+      run(function() {
+        view.get('_childViews')[0].rerender();
+        view.get('_childViews')[0].rerender();
+      });
+
+      equal(view.$().text(), 'truth');
+
+      run(function() {
+        view.destroy();
+      });
+    });
+  });
+enifed("ember-views/tests/views/metamorph_view_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/tests/views');
+    test('ember-views/tests/views/metamorph_view_test.js should pass jshint', function() { 
+      ok(true, 'ember-views/tests/views/metamorph_view_test.js should pass jshint.'); 
     });
   });
 enifed("ember-views/tests/views/view/actions_test",
@@ -55772,6 +55754,24 @@ enifed("ember-views/views/core_view.jshint",
       ok(true, 'ember-views/views/core_view.js should pass jshint.'); 
     });
   });
+enifed("ember-views/views/handlebars_bound_view.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/views');
+    test('ember-views/views/handlebars_bound_view.js should pass jshint', function() { 
+      ok(true, 'ember-views/views/handlebars_bound_view.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/views/metamorph_view.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/views');
+    test('ember-views/views/metamorph_view.js should pass jshint', function() { 
+      ok(true, 'ember-views/views/metamorph_view.js should pass jshint.'); 
+    });
+  });
 enifed("ember-views/views/states.jshint",
   [],
   function() {
@@ -55842,6 +55842,15 @@ enifed("ember-views/views/view.jshint",
     module('JSHint - ember-views/views');
     test('ember-views/views/view.js should pass jshint', function() { 
       ok(true, 'ember-views/views/view.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/views/with_view.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/views');
+    test('ember-views/views/with_view.js should pass jshint', function() { 
+      ok(true, 'ember-views/views/with_view.js should pass jshint.'); 
     });
   });
 enifed("ember.jshint",
