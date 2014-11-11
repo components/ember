@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.386940ee
+ * @version   1.10.0-beta.1+canary.7b1418a4
  */
 
 (function() {
@@ -9072,74 +9072,6 @@ enifed("ember-handlebars/tests/handlebars_test.jshint",
       ok(true, 'ember-handlebars/tests/handlebars_test.js should pass jshint.'); 
     });
   });
-enifed("ember-handlebars/tests/helpers/bind_test",
-  ["ember-views/views/view","ember-runtime/system/object","ember-metal/run_loop"],
-  function(__dependency1__, __dependency2__, __dependency3__) {
-    "use strict";
-    var EmberView = __dependency1__["default"];
-    var EmberObject = __dependency2__["default"];
-    var run = __dependency3__["default"];
-
-    function appendView(view) {
-      run(function() { view.appendTo('#qunit-fixture'); });
-    }
-
-    var view;
-
-    QUnit.module("Handlebars {{#bind}} helper", {
-      teardown: function() {
-        if (view) {
-          run(view, view.destroy);
-          view = null;
-        }
-      }
-    });
-
-    test("it should render the current value of a property on the context", function() {
-      view = EmberView.create({
-        template: Ember.Handlebars.compile('{{bind "foo"}}'),
-        context: EmberObject.create({
-          foo: "BORK"
-        })
-      });
-
-      appendView(view);
-
-      equal(view.$().text(), "BORK", "initial value is rendered");
-
-      run(view, view.set, 'context.foo', 'MWEEER');
-
-      equal(view.$().text(), "MWEEER", "value can be updated");
-    });
-
-    test("it should render the current value of a path on the context", function() {
-      view = EmberView.create({
-        template: Ember.Handlebars.compile('{{bind "foo.bar"}}'),
-        context: EmberObject.create({
-          foo: {
-            bar: "BORK"
-          }
-        })
-      });
-
-      appendView(view);
-
-      equal(view.$().text(), "BORK", "initial value is rendered");
-
-      run(view, view.set, 'context.foo.bar', 'MWEEER');
-
-      equal(view.$().text(), "MWEEER", "value can be updated");
-    });
-  });
-enifed("ember-handlebars/tests/helpers/bind_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/tests/helpers');
-    test('ember-handlebars/tests/helpers/bind_test.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/tests/helpers/bind_test.js should pass jshint.'); 
-    });
-  });
 enifed("ember-handlebars/tests/helpers/bound_helper_test",
   ["ember-views/views/view","ember-metal/run_loop","ember-runtime/system/object","ember-runtime/system/native_array","ember-metal/property_get","ember-metal/property_set","ember-handlebars-compiler"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
@@ -11568,1194 +11500,6 @@ enifed("ember-handlebars/tests/helpers/unbound_test.jshint",
       ok(true, 'ember-handlebars/tests/helpers/unbound_test.js should pass jshint.'); 
     });
   });
-enifed("ember-handlebars/tests/helpers/view_test",
-  ["ember-views/views/view","container/container","ember-metal/run_loop","ember-views/system/jquery"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
-    "use strict";
-    /*globals EmberDev */
-    var EmberView = __dependency1__["default"];
-    var Container = __dependency2__["default"];
-    var run = __dependency3__["default"];
-    var jQuery = __dependency4__["default"];
-
-    var view, originalLookup;
-
-    var container = {
-      lookupFactory: function() { }
-    };
-
-    function viewClass(options) {
-      options.container = options.container || container;
-      return EmberView.extend(options);
-    }
-
-    QUnit.module("Handlebars {{#view}} helper", {
-      setup: function() {
-        originalLookup = Ember.lookup;
-      },
-
-      teardown: function() {
-        Ember.lookup = originalLookup;
-
-        if (view) {
-          run(view, 'destroy');
-        }
-      }
-    });
-
-    test("By default view:toplevel is used", function() {
-      var DefaultView = viewClass({
-        elementId: 'toplevel-view',
-        template: Ember.Handlebars.compile('hello world')
-      });
-
-      function lookupFactory(fullName) {
-        equal(fullName, 'view:toplevel');
-
-        return DefaultView;
-      }
-
-      var container = {
-        lookupFactory: lookupFactory
-      };
-
-      view = EmberView.extend({
-        template: Ember.Handlebars.compile('{{view}}'),
-        container: container
-      }).create();
-
-      run(view, 'appendTo', '#qunit-fixture');
-
-      equal(jQuery('#toplevel-view').text(), 'hello world');
-    });
-
-    test("By default, without a container, EmberView is used", function() {
-      view = EmberView.extend({
-        template: Ember.Handlebars.compile('{{view tagName="span"}}')
-      }).create();
-
-      run(view, 'appendTo', '#qunit-fixture');
-
-      ok(jQuery('#qunit-fixture').html().toUpperCase().match(/<SPAN/), 'contains view with span');
-    });
-
-    test("View lookup - App.FuView (DEPRECATED)", function() {
-      Ember.lookup = {
-        App: {
-          FuView: viewClass({
-            elementId: "fu",
-            template: Ember.Handlebars.compile("bro")
-          })
-        }
-      };
-
-      view = viewClass({
-        template: Ember.Handlebars.compile("{{view App.FuView}}")
-      }).create();
-
-      expectDeprecation(function(){
-        run(view, 'appendTo', '#qunit-fixture');
-      }, /Resolved the view "App.FuView" on the global context/);
-
-      equal(jQuery('#fu').text(), 'bro');
-    });
-
-    test("View lookup - 'fu'", function() {
-      var FuView = viewClass({
-        elementId: "fu",
-        template: Ember.Handlebars.compile("bro")
-      });
-
-      function lookupFactory(fullName) {
-        equal(fullName, 'view:fu');
-
-        return FuView;
-      }
-
-      var container = {
-        lookupFactory: lookupFactory
-      };
-
-      view = EmberView.extend({
-        template: Ember.Handlebars.compile("{{view 'fu'}}"),
-        container: container
-      }).create();
-
-      run(view, 'appendTo', '#qunit-fixture');
-
-      equal(jQuery('#fu').text(), 'bro');
-    });
-
-    test("View lookup - 'fu' when fu is a property and a view name", function() {
-      var FuView = viewClass({
-        elementId: "fu",
-        template: Ember.Handlebars.compile("bro")
-      });
-
-      function lookupFactory(fullName) {
-        equal(fullName, 'view:fu');
-
-        return FuView;
-      }
-
-      var container = {
-        lookupFactory: lookupFactory
-      };
-
-      view = EmberView.extend({
-        template: Ember.Handlebars.compile("{{view 'fu'}}"),
-        context: {fu: 'boom!'},
-        container: container
-      }).create();
-
-      run(view, 'appendTo', '#qunit-fixture');
-
-      equal(jQuery('#fu').text(), 'bro');
-    });
-
-    test("View lookup - view.computed", function() {
-      var FuView = viewClass({
-        elementId: "fu",
-        template: Ember.Handlebars.compile("bro")
-      });
-
-      function lookupFactory(fullName) {
-        equal(fullName, 'view:fu');
-
-        return FuView;
-      }
-
-      var container = {
-        lookupFactory: lookupFactory
-      };
-
-      view = EmberView.extend({
-        template: Ember.Handlebars.compile("{{view view.computed}}"),
-        container: container,
-        computed: 'fu'
-      }).create();
-
-      run(view, 'appendTo', '#qunit-fixture');
-
-      equal(jQuery('#fu').text(), 'bro');
-    });
-
-    test("id bindings downgrade to one-time property lookup", function() {
-      view = EmberView.extend({
-        template: Ember.Handlebars.compile("{{#view id=view.meshuggah}}{{view.parentView.meshuggah}}{{/view}}"),
-        meshuggah: 'stengah'
-      }).create();
-
-      run(view, 'appendTo', '#qunit-fixture');
-
-      equal(jQuery('#stengah').text(), 'stengah', "id binding performed property lookup");
-      run(view, 'set', 'meshuggah', 'omg');
-      equal(jQuery('#stengah').text(), 'omg', "id didn't change");
-    });
-
-    test("mixing old and new styles of property binding fires a warning, treats value as if it were quoted", function() {
-      if (EmberDev && EmberDev.runningProdBuild){
-        ok(true, 'Logging does not occur in production builds');
-        return;
-      }
-
-      expect(2);
-
-      var oldWarn = Ember.warn;
-
-      Ember.warn = function(msg) {
-        equal(msg, "You're attempting to render a view by passing borfBinding=view.snork to a view helper, but this syntax is ambiguous. You should either surround view.snork in quotes or remove `Binding` from borfBinding.");
-      };
-
-      view = EmberView.extend({
-        template: Ember.Handlebars.compile("{{#view borfBinding=view.snork}}<p id='lol'>{{view.borf}}</p>{{/view}}"),
-        snork: "nerd"
-      }).create();
-
-      run(view, 'appendTo', '#qunit-fixture');
-
-      equal(jQuery('#lol').text(), "nerd", "awkward mixed syntax treated like binding");
-
-      Ember.warn = oldWarn;
-    });
-
-    test("allows you to pass attributes that will be assigned to the class instance, like class=\"foo\"", function() {
-      expect(4);
-
-      var container = new Container();
-      container.register('view:toplevel', EmberView.extend());
-
-      view = EmberView.extend({
-        template: Ember.Handlebars.compile('{{view id="foo" tagName="h1" class="foo"}}{{#view id="bar" class="bar"}}Bar{{/view}}'),
-        container: container
-      }).create();
-
-      run(view, 'appendTo', '#qunit-fixture');
-
-      ok(jQuery('#foo').hasClass('foo'));
-      ok(jQuery('#foo').is('h1'));
-      ok(jQuery('#bar').hasClass('bar'));
-      equal(jQuery('#bar').text(), 'Bar');
-    });
-
-    test("Should apply class without condition always", function() {
-      view = EmberView.create({
-        controller: Ember.Object.create(),
-        template: Ember.Handlebars.compile('{{#view id="foo" classBinding=":foo"}} Foo{{/view}}')
-      });
-
-      run(view, 'appendTo', '#qunit-fixture');
-
-      ok(jQuery('#foo').hasClass('foo'), "Always applies classbinding without condition");
-    });
-
-    test("Should apply classes when bound controller.* property specified", function() {
-      view = EmberView.create({
-        controller: {
-          someProp: 'foo'
-        },
-        template: Ember.Handlebars.compile('{{#view id="foo" class=controller.someProp}} Foo{{/view}}')
-      });
-
-      run(view, 'appendTo', '#qunit-fixture');
-
-      ok(jQuery('#foo').hasClass('foo'), "Always applies classbinding without condition");
-    });
-
-    test("Should apply classes when bound property specified", function() {
-      view = EmberView.create({
-        controller: {
-          someProp: 'foo'
-        },
-        template: Ember.Handlebars.compile('{{#view id="foo" class=someProp}} Foo{{/view}}')
-      });
-
-      run(view, 'appendTo', '#qunit-fixture');
-
-      ok(jQuery('#foo').hasClass('foo'), "Always applies classbinding without condition");
-    });
-  });
-enifed("ember-handlebars/tests/helpers/view_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/tests/helpers');
-    test('ember-handlebars/tests/helpers/view_test.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/tests/helpers/view_test.js should pass jshint.'); 
-    });
-  });
-enifed("ember-handlebars/tests/helpers/with_test",
-  ["ember-views/views/view","ember-metal/run_loop","ember-runtime/system/object","ember-metal/computed","ember-handlebars-compiler","ember-metal/property_set","ember-metal/property_get","ember-runtime/controllers/object_controller","ember-runtime/system/container","ember-runtime/system/native_array"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
-    "use strict";
-    /*jshint newcap:false*/
-    var EmberView = __dependency1__["default"];
-    var run = __dependency2__["default"];
-    var EmberObject = __dependency3__["default"];
-    var computed = __dependency4__.computed;
-    var EmberHandlebars = __dependency5__["default"];
-    var set = __dependency6__.set;
-    var get = __dependency7__.get;
-    var ObjectController = __dependency8__["default"];
-    var Container = __dependency9__["default"];
-    var A = __dependency10__.A;
-
-    function appendView(view) {
-      run(function() { view.appendTo('#qunit-fixture'); });
-    }
-
-    var view, lookup;
-    var originalLookup = Ember.lookup;
-
-    QUnit.module("Handlebars {{#with}} helper", {
-      setup: function() {
-        Ember.lookup = lookup = { Ember: Ember };
-
-        view = EmberView.create({
-          template: EmberHandlebars.compile("{{#with person as tom}}{{title}}: {{tom.name}}{{/with}}"),
-          context: {
-            title: "Señor Engineer",
-            person: { name: "Tom Dale" }
-          }
-        });
-
-        appendView(view);
-      },
-
-      teardown: function() {
-        run(function() {
-          view.destroy();
-        });
-        Ember.lookup = originalLookup;
-      }
-    });
-
-    test("it should support #with foo as bar", function() {
-      equal(view.$().text(), "Señor Engineer: Tom Dale", "should be properly scoped");
-    });
-
-    test("updating the context should update the alias", function() {
-      run(function() {
-        view.set('context.person', {
-          name: "Yehuda Katz"
-        });
-      });
-
-      equal(view.$().text(), "Señor Engineer: Yehuda Katz", "should be properly scoped after updating");
-    });
-
-    test("updating a property on the context should update the HTML", function() {
-      run(function() {
-        set(view, 'context.person.name', "Yehuda Katz");
-      });
-
-      equal(view.$().text(), "Señor Engineer: Yehuda Katz", "should be properly scoped after updating");
-    });
-
-    test("updating a property on the view should update the HTML", function() {
-      run(function() {
-        view.set('context.title', "Señorette Engineer");
-      });
-
-      equal(view.$().text(), "Señorette Engineer: Tom Dale", "should be properly scoped after updating");
-    });
-
-    QUnit.module("Multiple Handlebars {{with}} helpers with 'as'", {
-      setup: function() {
-        Ember.lookup = lookup = { Ember: Ember };
-
-        view = EmberView.create({
-          template: EmberHandlebars.compile("Admin: {{#with admin as person}}{{person.name}}{{/with}} User: {{#with user as person}}{{person.name}}{{/with}}"),
-          context: {
-            admin: { name: "Tom Dale" },
-            user: { name: "Yehuda Katz"}
-          }
-        });
-
-        appendView(view);
-      },
-
-      teardown: function() {
-        run(function() {
-          view.destroy();
-        });
-        Ember.lookup = originalLookup;
-      }
-    });
-
-    test("re-using the same variable with different #with blocks does not override each other", function(){
-      equal(view.$().text(), "Admin: Tom Dale User: Yehuda Katz", "should be properly scoped");
-    });
-
-    test("the scoped variable is not available outside the {{with}} block.", function(){
-      run(function() {
-        view.set('template', EmberHandlebars.compile("{{name}}-{{#with other as name}}{{name}}{{/with}}-{{name}}"));
-        view.set('context', {
-          name: 'Stef',
-          other: 'Yehuda'
-        });
-      });
-
-      equal(view.$().text(), "Stef-Yehuda-Stef", "should be properly scoped after updating");
-    });
-
-    test("nested {{with}} blocks shadow the outer scoped variable properly.", function(){
-      run(function() {
-        view.set('template', EmberHandlebars.compile("{{#with first as ring}}{{ring}}-{{#with fifth as ring}}{{ring}}-{{#with ninth as ring}}{{ring}}-{{/with}}{{ring}}-{{/with}}{{ring}}{{/with}}"));
-        view.set('context', {
-          first: 'Limbo',
-          fifth: 'Wrath',
-          ninth: 'Treachery'
-        });
-      });
-
-      equal(view.$().text(), "Limbo-Wrath-Treachery-Wrath-Limbo", "should be properly scoped after updating");
-    });
-
-    QUnit.module("Handlebars {{#with}} globals helper [DEPRECATED]", {
-      setup: function() {
-        Ember.lookup = lookup = { Ember: Ember };
-
-        lookup.Foo = { bar: 'baz' };
-        view = EmberView.create({
-          template: EmberHandlebars.compile("{{#with Foo.bar as qux}}{{qux}}{{/with}}")
-        });
-      },
-
-      teardown: function() {
-        run(function() {
-          view.destroy();
-        });
-        Ember.lookup = originalLookup;
-      }
-    });
-
-    test("it should support #with Foo.bar as qux [DEPRECATED]", function() {
-      expectDeprecation(function() {
-        appendView(view);
-      }, /Global lookup of Foo.bar from a Handlebars template is deprecated/);
-
-      equal(view.$().text(), "baz", "should be properly scoped");
-
-      run(function() {
-        set(lookup.Foo, 'bar', 'updated');
-      });
-
-      equal(view.$().text(), "updated", "should update");
-    });
-
-    QUnit.module("Handlebars {{#with keyword as foo}}");
-
-    test("it should support #with view as foo", function() {
-      var view = EmberView.create({
-        template: EmberHandlebars.compile("{{#with view as myView}}{{myView.name}}{{/with}}"),
-        name: "Sonics"
-      });
-
-      appendView(view);
-      equal(view.$().text(), "Sonics", "should be properly scoped");
-
-      run(function() {
-        set(view, 'name', "Thunder");
-      });
-
-      equal(view.$().text(), "Thunder", "should update");
-
-      run(function() {
-        view.destroy();
-      });
-    });
-
-    test("it should support #with name as food, then #with foo as bar", function() {
-      var view = EmberView.create({
-        template: EmberHandlebars.compile("{{#with name as foo}}{{#with foo as bar}}{{bar}}{{/with}}{{/with}}"),
-        context: { name: "caterpillar" }
-      });
-
-      appendView(view);
-      equal(view.$().text(), "caterpillar", "should be properly scoped");
-
-      run(function() {
-        set(view, 'context.name', "butterfly");
-      });
-
-      equal(view.$().text(), "butterfly", "should update");
-
-      run(function() {
-        view.destroy();
-      });
-    });
-
-    QUnit.module("Handlebars {{#with this as foo}}");
-
-    test("it should support #with this as qux", function() {
-      var view = EmberView.create({
-        template: EmberHandlebars.compile("{{#with this as person}}{{person.name}}{{/with}}"),
-        controller: EmberObject.create({ name: "Los Pivots" })
-      });
-
-      appendView(view);
-      equal(view.$().text(), "Los Pivots", "should be properly scoped");
-
-      run(function() {
-        set(view, 'controller.name', "l'Pivots");
-      });
-
-      equal(view.$().text(), "l'Pivots", "should update");
-
-      run(function() {
-        view.destroy();
-      });
-    });
-
-    QUnit.module("Handlebars {{#with foo}} insideGroup");
-
-    test("it should render without fail [DEPRECATED]", function() {
-      var View = EmberView.extend({
-        template: EmberHandlebars.compile("{{#view view.childView}}{{#with person}}{{name}}{{/with}}{{/view}}"),
-        controller: EmberObject.create({ person: { name: "Ivan IV Vasilyevich" } }),
-        childView: EmberView.extend({
-          render: function(){
-            this.set('templateData.insideGroup', true);
-            return this._super.apply(this, arguments);
-          }
-        })
-      });
-
-      var view = View.create();
-
-      expectDeprecation(function(){
-        appendView(view);
-      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
-
-      equal(view.$().text(), "Ivan IV Vasilyevich", "should be properly scoped");
-
-      run(function() {
-        set(view, 'controller.person.name', "Ivan the Terrible");
-      });
-
-      equal(view.$().text(), "Ivan the Terrible", "should update");
-
-      run(function() {
-        view.destroy();
-      });
-    });
-
-    QUnit.module("Handlebars {{#with foo}} with defined controller");
-
-    test("it should wrap context with object controller [DEPRECATED]", function() {
-      var Controller = ObjectController.extend({
-        controllerName: computed(function() {
-          return "controller:"+this.get('model.name') + ' and ' + this.get('parentController.name');
-        })
-      });
-
-      var person = EmberObject.create({name: 'Steve Holt'});
-      var container = new Container();
-
-      var parentController = EmberObject.create({
-        container: container,
-        name: 'Bob Loblaw'
-      });
-
-      view = EmberView.create({
-        container: container,
-        template: EmberHandlebars.compile('{{#with view.person controller="person"}}{{controllerName}}{{/with}}'),
-        person: person,
-        controller: parentController
-      });
-
-      container.register('controller:person', Controller);
-
-      expectDeprecation(function(){
-        appendView(view);
-      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
-
-      equal(view.$().text(), "controller:Steve Holt and Bob Loblaw");
-
-      run(function() {
-        view.rerender();
-      });
-
-      equal(view.$().text(), "controller:Steve Holt and Bob Loblaw");
-
-      run(function() {
-        parentController.set('name', 'Carl Weathers');
-        view.rerender();
-      });
-
-      equal(view.$().text(), "controller:Steve Holt and Carl Weathers");
-
-      run(function() {
-        person.set('name', 'Gob');
-        view.rerender();
-      });
-
-      equal(view.$().text(), "controller:Gob and Carl Weathers");
-
-      strictEqual(view.get('_childViews')[0].get('controller.target'), parentController, "the target property of the child controllers are set correctly");
-
-      run(function() { view.destroy(); }); // destroy existing view
-    });
-
-    test("it should still have access to original parentController within an {{#each}} [DEPRECATED]", function() {
-      var Controller = ObjectController.extend({
-        controllerName: computed(function() {
-          return "controller:"+this.get('model.name') + ' and ' + this.get('parentController.name');
-        })
-      });
-
-      var people = A([{ name: "Steve Holt" }, { name: "Carl Weathers" }]);
-      var container = new Container();
-
-      var parentController = EmberObject.create({
-        container: container,
-        name: 'Bob Loblaw',
-        people: people
-      });
-
-      view = EmberView.create({
-        container: container,
-        template: EmberHandlebars.compile('{{#each person in people}}{{#with person controller="person"}}{{controllerName}}{{/with}}{{/each}}'),
-        controller: parentController
-      });
-
-      container.register('controller:person', Controller);
-
-      expectDeprecation(function() {
-        appendView(view);
-      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
-
-      equal(view.$().text(), "controller:Steve Holt and Bob Loblawcontroller:Carl Weathers and Bob Loblaw");
-
-      run(function() { view.destroy(); }); // destroy existing view
-    });
-
-    test("it should wrap keyword with object controller", function() {
-      var PersonController = ObjectController.extend({
-        name: computed('model.name', function() {
-          return get(this, 'model.name').toUpperCase();
-        })
-      });
-
-      var person = EmberObject.create({name: 'Steve Holt'});
-      var container = new Container();
-
-      var parentController = EmberObject.create({
-        container: container,
-        person: person,
-        name: 'Bob Loblaw'
-      });
-
-      view = EmberView.create({
-        container: container,
-        template: EmberHandlebars.compile('{{#with person as steve controller="person"}}{{name}} - {{steve.name}}{{/with}}'),
-        controller: parentController
-      });
-
-      container.register('controller:person', PersonController);
-
-      appendView(view);
-
-      equal(view.$().text(), "Bob Loblaw - STEVE HOLT");
-
-      run(function() {
-        view.rerender();
-      });
-
-      equal(view.$().text(), "Bob Loblaw - STEVE HOLT");
-
-      run(function() {
-        parentController.set('name', 'Carl Weathers');
-        view.rerender();
-      });
-
-      equal(view.$().text(), "Carl Weathers - STEVE HOLT");
-
-      run(function() {
-        person.set('name', 'Gob');
-        view.rerender();
-      });
-
-      equal(view.$().text(), "Carl Weathers - GOB");
-
-      run(function() { view.destroy(); }); // destroy existing view
-    });
-
-    test("destroys the controller generated with {{with foo as bar controller='blah'}}", function() {
-      var destroyed = false;
-      var Controller = ObjectController.extend({
-        willDestroy: function() {
-          this._super();
-          destroyed = true;
-        }
-      });
-
-      var person = EmberObject.create({name: 'Steve Holt'});
-      var container = new Container();
-
-      var parentController = EmberObject.create({
-        container: container,
-        person: person,
-        name: 'Bob Loblaw'
-      });
-
-      view = EmberView.create({
-        container: container,
-        template: EmberHandlebars.compile('{{#with person as otherPerson controller="person"}}{{controllerName}}{{/with}}'),
-        controller: parentController
-      });
-
-      container.register('controller:person', Controller);
-
-      appendView(view);
-
-      run(view, 'destroy'); // destroy existing view
-
-      ok(destroyed, 'controller was destroyed properly');
-    });
-
-    test("destroys the controller generated with {{with foo as bar controller='blah'}}", function() {
-      var destroyed = false;
-      var Controller = ObjectController.extend({
-        willDestroy: function() {
-          this._super();
-          destroyed = true;
-        }
-      });
-
-      var person = EmberObject.create({name: 'Steve Holt'});
-      var container = new Container();
-
-      var parentController = EmberObject.create({
-        container: container,
-        person: person,
-        name: 'Bob Loblaw'
-      });
-
-      view = EmberView.create({
-        container: container,
-        template: EmberHandlebars.compile('{{#with person as steve controller="person"}}{{controllerName}}{{/with}}'),
-        controller: parentController
-      });
-
-      container.register('controller:person', Controller);
-
-      appendView(view);
-
-      run(view, 'destroy'); // destroy existing view
-
-      ok(destroyed, 'controller was destroyed properly');
-    });
-
-    QUnit.module("{{#with}} helper binding to view keyword", {
-      setup: function() {
-        Ember.lookup = lookup = { Ember: Ember };
-
-        view = EmberView.create({
-          template: EmberHandlebars.compile("We have: {{#with view.thing as fromView}}{{fromView.name}} and {{fromContext.name}}{{/with}}"),
-          thing: { name: 'this is from the view' },
-          context: {
-            fromContext: { name: "this is from the context" }
-          }
-        });
-
-        appendView(view);
-      },
-
-      teardown: function() {
-        run(function() {
-          view.destroy();
-        });
-        Ember.lookup = originalLookup;
-      }
-    });
-
-    test("{{with}} helper can bind to keywords with 'as'", function(){
-      equal(view.$().text(), "We have: this is from the view and this is from the context", "should render");
-    });
-  });
-enifed("ember-handlebars/tests/helpers/with_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/tests/helpers');
-    test('ember-handlebars/tests/helpers/with_test.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/tests/helpers/with_test.js should pass jshint.'); 
-    });
-  });
-enifed("ember-handlebars/tests/helpers/yield_test",
-  ["ember-metal/run_loop","ember-views/views/view","ember-metal/computed","ember-runtime/system/container","ember-handlebars-compiler","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/native_array","ember-views/views/component","ember-metal/error"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
-    "use strict";
-    /*jshint newcap:false*/
-    var run = __dependency1__["default"];
-    var EmberView = __dependency2__["default"];
-    var computed = __dependency3__.computed;
-    var Container = __dependency4__["default"];
-    var EmberHandlebars = __dependency5__["default"];
-    var get = __dependency6__.get;
-    var set = __dependency7__.set;
-    var A = __dependency8__.A;
-    var Component = __dependency9__["default"];
-    var EmberError = __dependency10__["default"];
-
-    var view, container;
-
-    QUnit.module("Support for {{yield}} helper", {
-      setup: function() {
-        container = new Container();
-        container.optionsForType('template', { instantiate: false });
-      },
-      teardown: function() {
-        run(function() {
-          Ember.TEMPLATES = {};
-          if (view) {
-            view.destroy();
-          }
-        });
-      }
-    });
-
-    test("a view with a layout set renders its template where the {{yield}} helper appears", function() {
-      var ViewWithLayout = EmberView.extend({
-        layout: EmberHandlebars.compile('<div class="wrapper"><h1>{{title}}</h1>{{yield}}</div>')
-      });
-
-      view = EmberView.create({
-        withLayout: ViewWithLayout,
-        template: EmberHandlebars.compile('{{#view view.withLayout title="My Fancy Page"}}<div class="page-body">Show something interesting here</div>{{/view}}')
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(view.$('div.wrapper div.page-body').length, 1, 'page-body is embedded within wrapping my-page');
-    });
-
-    test("block should work properly even when templates are not hard-coded", function() {
-      container.register('template:nester', EmberHandlebars.compile('<div class="wrapper"><h1>{{title}}</h1>{{yield}}</div>'));
-      container.register('template:nested', EmberHandlebars.compile('{{#view "with-layout" title="My Fancy Page"}}<div class="page-body">Show something interesting here</div>{{/view}}'));
-
-      container.register('view:with-layout', EmberView.extend({
-        container: container,
-        layoutName: 'nester'
-      }));
-
-      view = EmberView.create({
-        container: container,
-        templateName: 'nested'
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(view.$('div.wrapper div.page-body').length, 1, 'page-body is embedded within wrapping my-page');
-
-    });
-
-    test("templates should yield to block, when the yield is embedded in a hierarchy of virtual views", function() {
-      var TimesView = EmberView.extend({
-        layout: EmberHandlebars.compile('<div class="times">{{#each item in view.index}}{{yield}}{{/each}}</div>'),
-        n: null,
-        index: computed(function() {
-          var n = get(this, 'n');
-          var indexArray = A();
-          for (var i=0; i < n; i++) {
-            indexArray[i] = i;
-          }
-          return indexArray;
-        })
-      });
-
-      view = EmberView.create({
-        timesView: TimesView,
-        template: EmberHandlebars.compile('<div id="container"><div class="title">Counting to 5</div>{{#view view.timesView n=5}}<div class="times-item">Hello</div>{{/view}}</div>')
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(view.$('div#container div.times-item').length, 5, 'times-item is embedded within wrapping container 5 times, as expected');
-    });
-
-    test("templates should yield to block, when the yield is embedded in a hierarchy of non-virtual views", function() {
-      var NestingView = EmberView.extend({
-        layout: EmberHandlebars.compile('{{#view tagName="div" classNames="nesting"}}{{yield}}{{/view}}')
-      });
-
-      view = EmberView.create({
-        nestingView: NestingView,
-        template: EmberHandlebars.compile('<div id="container">{{#view view.nestingView}}<div id="block">Hello</div>{{/view}}</div>')
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(view.$('div#container div.nesting div#block').length, 1, 'nesting view yields correctly even within a view hierarchy in the nesting view');
-    });
-
-    test("block should not be required", function() {
-      var YieldingView = EmberView.extend({
-        layout: EmberHandlebars.compile('{{#view tagName="div" classNames="yielding"}}{{yield}}{{/view}}')
-      });
-
-      view = EmberView.create({
-        yieldingView: YieldingView,
-        template: EmberHandlebars.compile('<div id="container">{{view view.yieldingView}}</div>')
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(view.$('div#container div.yielding').length, 1, 'yielding view is rendered as expected');
-    });
-
-    test("yield uses the outer context", function() {
-      var component = Component.extend({
-        boundText: "inner",
-        layout: EmberHandlebars.compile("<p>{{boundText}}</p><p>{{yield}}</p>")
-      });
-
-      view = EmberView.create({
-        controller: { boundText: "outer", component: component },
-        template: EmberHandlebars.compile('{{#view component}}{{boundText}}{{/view}}')
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(view.$('div p:contains(inner) + p:contains(outer)').length, 1, "Yield points at the right context");
-    });
-
-    test("yield inside a conditional uses the outer context [DEPRECATED]", function() {
-      var component = Component.extend({
-        boundText: "inner",
-        truthy: true,
-        obj: {},
-        layout: EmberHandlebars.compile("<p>{{boundText}}</p><p>{{#if truthy}}{{#with obj}}{{yield}}{{/with}}{{/if}}</p>")
-      });
-
-      view = EmberView.create({
-        controller: { boundText: "outer", truthy: true, obj: { component: component, truthy: true, boundText: 'insideWith' } },
-        template: EmberHandlebars.compile('{{#with obj}}{{#if truthy}}{{#view component}}{{#if truthy}}{{boundText}}{{/if}}{{/view}}{{/if}}{{/with}}')
-      });
-
-      expectDeprecation(function() {
-        run(view, 'appendTo', '#qunit-fixture');
-      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
-
-      equal(view.$('div p:contains(inner) + p:contains(insideWith)').length, 1, "Yield points at the right context");
-    });
-
-    test("outer keyword doesn't mask inner component property", function () {
-      var component = Component.extend({
-        item: "inner",
-        layout: EmberHandlebars.compile("<p>{{item}}</p><p>{{yield}}</p>")
-      });
-
-      view = EmberView.create({
-        controller: { boundText: "outer", component: component },
-        template: EmberHandlebars.compile('{{#with boundText as item}}{{#view component}}{{item}}{{/view}}{{/with}}')
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(view.$('div p:contains(inner) + p:contains(outer)').length, 1, "inner component property isn't masked by outer keyword");
-    });
-
-    test("inner keyword doesn't mask yield property", function() {
-      var component = Component.extend({
-        boundText: "inner",
-        layout: EmberHandlebars.compile("{{#with boundText as item}}<p>{{item}}</p><p>{{yield}}</p>{{/with}}")
-      });
-
-      view = EmberView.create({
-        controller: { item: "outer", component: component },
-        template: EmberHandlebars.compile('{{#view component}}{{item}}{{/view}}')
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(view.$('div p:contains(inner) + p:contains(outer)').length, 1, "outer property isn't masked by inner keyword");
-    });
-
-    test("can bind a keyword to a component and use it in yield", function() {
-      var component = Component.extend({
-        content: null,
-        layout: EmberHandlebars.compile("<p>{{content}}</p><p>{{yield}}</p>")
-      });
-
-      view = EmberView.create({
-        controller: { boundText: "outer", component: component },
-        template: EmberHandlebars.compile('{{#with boundText as item}}{{#view component contentBinding="item"}}{{item}}{{/view}}{{/with}}')
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(view.$('div p:contains(outer) + p:contains(outer)').length, 1, "component and yield have keyword");
-
-      run(function() {
-        view.set('controller.boundText', 'update');
-      });
-
-      equal(view.$('div p:contains(update) + p:contains(update)').length, 1, "keyword has correctly propagated update");
-    });
-
-    test("yield uses the layout context for non component [DEPRECATED]", function() {
-      view = EmberView.create({
-        controller: {
-          boundText: "outer",
-          inner: {
-            boundText: "inner"
-          }
-        },
-        layout: EmberHandlebars.compile("<p>{{boundText}}</p>{{#with inner}}<p>{{yield}}</p>{{/with}}"),
-        template: EmberHandlebars.compile('{{boundText}}')
-      });
-
-      expectDeprecation(function() {
-        run(view, 'appendTo', '#qunit-fixture');
-      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
-
-      equal('outerinner', view.$('p').text(), "Yield points at the right context");
-    });
-
-    test("yield view should be a virtual view", function() {
-      var component = Component.extend({
-        isParentComponent: true,
-
-        layout: EmberHandlebars.compile('{{yield}}')
-      });
-
-      view = EmberView.create({
-        template: EmberHandlebars.compile('{{#view component}}{{view includedComponent}}{{/view}}'),
-        controller: {
-          component: component,
-          includedComponent: Component.extend({
-            didInsertElement: function() {
-              var parentView = this.get('parentView');
-
-              ok(parentView.get('isParentComponent'), "parent view is the parent component");
-            }
-          })
-        }
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-    });
-
-
-    test("adding a layout should not affect the context of normal views", function() {
-      var parentView = EmberView.create({
-        context: "ParentContext"
-      });
-
-      view = EmberView.create({
-        template:     EmberHandlebars.compile("View context: {{this}}"),
-        context:      "ViewContext",
-        _parentView:  parentView
-      });
-
-      run(function() {
-        view.createElement();
-      });
-
-      equal(view.$().text(), "View context: ViewContext");
-
-
-      set(view, 'layout', EmberHandlebars.compile("Layout: {{yield}}"));
-
-      run(function() {
-        view.destroyElement();
-        view.createElement();
-      });
-
-      equal(view.$().text(), "Layout: View context: ViewContext");
-
-      run(function() {
-        parentView.destroy();
-      });
-    });
-
-    test("yield should work for views even if _parentView is null", function() {
-      view = EmberView.create({
-        layout:   EmberHandlebars.compile('Layout: {{yield}}'),
-        template: EmberHandlebars.compile("View Content")
-      });
-
-      run(function() {
-        view.createElement();
-      });
-
-      equal(view.$().text(), "Layout: View Content");
-
-    });
-
-    QUnit.module("Component {{yield}}", {
-      setup: function() {},
-      teardown: function() {
-        run(function() {
-          if (view) {
-            view.destroy();
-          }
-          delete EmberHandlebars.helpers['inner-component'];
-          delete EmberHandlebars.helpers['outer-component'];
-        });
-      }
-    });
-
-    test("yield with nested components (#3220)", function(){
-      var count = 0;
-      var InnerComponent = Component.extend({
-        layout: EmberHandlebars.compile("{{yield}}"),
-        _yield: function (context, options) {
-          count++;
-          if (count > 1) throw new EmberError('is looping');
-          return this._super(context, options);
-        }
-      });
-
-      EmberHandlebars.helper('inner-component', InnerComponent);
-
-      var OuterComponent = Component.extend({
-        layout: EmberHandlebars.compile("{{#inner-component}}<span>{{yield}}</span>{{/inner-component}}")
-      });
-
-      EmberHandlebars.helper('outer-component', OuterComponent);
-
-      view = EmberView.create({
-        template: EmberHandlebars.compile(
-          "{{#outer-component}}Hello world{{/outer-component}}"
-        )
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(view.$('div > span').text(), "Hello world");
-    });
-
-    test("yield works inside a conditional in a component that has Ember._Metamorph mixed in", function() {
-      var component = Component.extend(Ember._Metamorph, {
-        item: "inner",
-        layout: Ember.Handlebars.compile("<p>{{item}}</p>{{#if item}}<p>{{yield}}</p>{{/if}}")
-      });
-
-      view = Ember.View.create({
-        controller: { item: "outer", component: component },
-        template: Ember.Handlebars.compile('{{#view component}}{{item}}{{/view}}')
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(view.$().text(), 'innerouter', "{{yield}} renders yielded content inside metamorph component");
-    });
-
-    test("view keyword works inside component yield", function () {
-      var component = Component.extend({
-        layout: EmberHandlebars.compile("<p>{{yield}}</p>")
-      });
-
-      view = EmberView.create({
-        dummyText: 'hello',
-        component: component,
-        template: EmberHandlebars.compile('{{#view view.component}}{{view.dummyText}}{{/view}}')
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(view.$('div > p').text(), "hello", "view keyword inside component yield block should refer to the correct view");
-    });
-  });
-enifed("ember-handlebars/tests/helpers/yield_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/tests/helpers');
-    test('ember-handlebars/tests/helpers/yield_test.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/tests/helpers/yield_test.js should pass jshint.'); 
-    });
-  });
 enifed("ember-handlebars/tests/loader_test",
   ["ember-views/system/jquery","ember-metal/run_loop","ember-views/views/view"],
   function(__dependency1__, __dependency2__, __dependency3__) {
@@ -13827,13 +12571,14 @@ enifed("ember-htmlbars/tests/helpers",
     __exports__.isCheckedInputHTML = isCheckedInputHTML;
   });
 enifed("ember-htmlbars/tests/helpers/bind_test",
-  ["ember-views/views/view","ember-runtime/system/object","ember-metal/run_loop","htmlbars-compiler/compiler"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+  ["ember-views/views/view","ember-runtime/system/object","ember-metal/run_loop","ember-handlebars","htmlbars-compiler/compiler"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
     var EmberView = __dependency1__["default"];
     var EmberObject = __dependency2__["default"];
     var run = __dependency3__["default"];
-    var compile = __dependency4__.compile;
+    var EmberHandlebars = __dependency4__["default"];
+    var htmlbarsCompile = __dependency5__.compile;
 
     function appendView(view) {
       run(function() { view.appendTo('#qunit-fixture'); });
@@ -13841,7 +12586,12 @@ enifed("ember-htmlbars/tests/helpers/bind_test",
 
     var view;
 
+    var compile;
     if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      compile = htmlbarsCompile;
+    } else {
+      compile = EmberHandlebars.compile;
+    }
 
     QUnit.module("ember-htmlbars: {{#bind}} helper", {
       teardown: function() {
@@ -13887,8 +12637,6 @@ enifed("ember-htmlbars/tests/helpers/bind_test",
 
       equal(view.$().text(), "MWEEER", "value can be updated");
     });
-
-    }
   });
 enifed("ember-htmlbars/tests/helpers/bind_test.jshint",
   [],
@@ -14112,15 +12860,23 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helpers/view_test",
-  ["ember-views/views/view","container/container","ember-metal/run_loop","ember-views/system/jquery","htmlbars-compiler/compiler"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
+  ["ember-views/views/view","container/container","ember-metal/run_loop","ember-views/system/jquery","ember-handlebars","htmlbars-compiler/compiler"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
     /*globals EmberDev */
     var EmberView = __dependency1__["default"];
     var Container = __dependency2__["default"];
     var run = __dependency3__["default"];
     var jQuery = __dependency4__["default"];
-    var compile = __dependency5__.compile;
+    var EmberHandlebars = __dependency5__["default"];
+    var htmlbarsCompile = __dependency6__.compile;
+
+    var compile;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      compile = htmlbarsCompile;
+    } else {
+      compile = EmberHandlebars.compile;
+    }
 
     var view, originalLookup;
 
@@ -14132,8 +12888,6 @@ enifed("ember-htmlbars/tests/helpers/view_test",
       options.container = options.container || container;
       return EmberView.extend(options);
     }
-
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
 
     QUnit.module("ember-htmlbars: {{#view}} helper", {
       setup: function() {
@@ -14310,7 +13064,7 @@ enifed("ember-htmlbars/tests/helpers/view_test",
       var oldWarn = Ember.warn;
 
       Ember.warn = function(msg) {
-        equal(msg, "You're attempting to render a view by passing borfBinding to a view helper without a quoted value, but this syntax is ambiguous. You should either surround borfBinding's value in quotes or remove `Binding` from borfBinding.");
+        ok(msg.match(/You're attempting to render a view by passing borfBinding.+, but this syntax is ambiguous./));
       };
 
       view = EmberView.extend({
@@ -14380,8 +13134,6 @@ enifed("ember-htmlbars/tests/helpers/view_test",
 
       ok(jQuery('#foo').hasClass('foo'), "Always applies classbinding without condition");
     });
-
-    }
   });
 enifed("ember-htmlbars/tests/helpers/view_test.jshint",
   [],
@@ -14393,8 +13145,8 @@ enifed("ember-htmlbars/tests/helpers/view_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helpers/with_test",
-  ["ember-views/views/view","ember-metal/run_loop","ember-runtime/system/object","ember-metal/computed","ember-metal/property_set","ember-metal/property_get","ember-runtime/controllers/object_controller","ember-runtime/system/container","htmlbars-compiler/compiler"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
+  ["ember-views/views/view","ember-metal/run_loop","ember-runtime/system/object","ember-metal/computed","ember-metal/property_set","ember-metal/property_get","ember-runtime/controllers/object_controller","ember-runtime/system/container","ember-handlebars","htmlbars-compiler/compiler"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
     "use strict";
     /*jshint newcap:false*/
     var EmberView = __dependency1__["default"];
@@ -14406,7 +13158,15 @@ enifed("ember-htmlbars/tests/helpers/with_test",
     var ObjectController = __dependency7__["default"];
     var Container = __dependency8__["default"];
     // import { A } from "ember-runtime/system/native_array";
-    var compile = __dependency9__.compile;
+    var EmberHandlebars = __dependency9__["default"];
+    var htmlbarsCompile = __dependency10__.compile;
+
+    var compile;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      compile = htmlbarsCompile;
+    } else {
+      compile = EmberHandlebars.compile;
+    }
 
     function appendView(view) {
       run(function() { view.appendTo('#qunit-fixture'); });
@@ -14414,8 +13174,6 @@ enifed("ember-htmlbars/tests/helpers/with_test",
 
     var view, lookup;
     var originalLookup = Ember.lookup;
-
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
 
     QUnit.module("ember-htmlbars: {{#with}} helper", {
       setup: function() {
@@ -14884,8 +13642,6 @@ enifed("ember-htmlbars/tests/helpers/with_test",
     test("{{with}} helper can bind to keywords with 'as'", function(){
       equal(view.$().text(), "We have: this is from the view and this is from the context", "should render");
     });
-
-    }
   });
 enifed("ember-htmlbars/tests/helpers/with_test.jshint",
   [],
@@ -14897,26 +13653,35 @@ enifed("ember-htmlbars/tests/helpers/with_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helpers/yield_test",
-  ["ember-metal/run_loop","ember-views/views/view","ember-runtime/system/container","ember-metal/property_set","ember-views/views/component","ember-metal/error","htmlbars-compiler/compiler","ember-htmlbars/helpers"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
+  ["ember-metal/run_loop","ember-views/views/view","ember-metal/computed","ember-runtime/system/container","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/native_array","ember-views/views/component","ember-metal/error","ember-htmlbars/helpers","ember-handlebars","htmlbars-compiler/compiler"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__) {
     "use strict";
     /*jshint newcap:false*/
     var run = __dependency1__["default"];
     var EmberView = __dependency2__["default"];
-    // import { computed } from "ember-metal/computed";
-    var Container = __dependency3__["default"];
-    // import { get } from "ember-metal/property_get";
-    var set = __dependency4__.set;
-    // import { A } from "ember-runtime/system/native_array";
-    var Component = __dependency5__["default"];
-    var EmberError = __dependency6__["default"];
-    var compile = __dependency7__.compile;
-    var helper = __dependency8__.helper;
-    var helpers = __dependency8__["default"];
+    var computed = __dependency3__.computed;
+    var Container = __dependency4__["default"];
+    var get = __dependency5__.get;
+    var set = __dependency6__.set;
+    var A = __dependency7__.A;
+    var Component = __dependency8__["default"];
+    var EmberError = __dependency9__["default"];
+    var htmlbarsHelper = __dependency10__.helper;
+    var helpers = __dependency10__["default"];
+
+    var EmberHandlebars = __dependency11__["default"];
+    var htmlbarsCompile = __dependency12__.compile;
+
+    var compile, helper;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      compile = htmlbarsCompile;
+      helper = htmlbarsHelper;
+    } else {
+      compile = EmberHandlebars.compile;
+      helper = EmberHandlebars.helper;
+    }
 
     var view, container;
-
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
 
     QUnit.module("ember-htmlbars: Support for {{yield}} helper", {
       setup: function() {
@@ -14972,10 +13737,11 @@ enifed("ember-htmlbars/tests/helpers/yield_test",
 
     });
 
-    /* NOPE
+    if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
+
     test("templates should yield to block, when the yield is embedded in a hierarchy of virtual views", function() {
       var TimesView = EmberView.extend({
-        layout: compile('<div class="times">{{#each view.index}}{{yield}}{{/each}}</div>'),
+        layout: compile('<div class="times">{{#each item in view.index}}{{yield}}{{/each}}</div>'),
         n: null,
         index: computed(function() {
           var n = get(this, 'n');
@@ -14999,7 +13765,8 @@ enifed("ember-htmlbars/tests/helpers/yield_test",
       equal(view.$('div#container div.times-item').length, 5, 'times-item is embedded within wrapping container 5 times, as expected');
     });
 
-    */
+    }
+
     test("templates should yield to block, when the yield is embedded in a hierarchy of non-virtual views", function() {
       var NestingView = EmberView.extend({
         layout: compile('{{#view tagName="div" classNames="nesting"}}{{yield}}{{/view}}')
@@ -15052,8 +13819,8 @@ enifed("ember-htmlbars/tests/helpers/yield_test",
       equal(view.$('div p:contains(inner) + p:contains(outer)').length, 1, "Yield points at the right context");
     });
 
-    /* requires with helper
-    test("yield inside a conditional uses the outer context", function() {
+
+    test("yield inside a conditional uses the outer context [DEPRECATED]", function() {
       var component = Component.extend({
         boundText: "inner",
         truthy: true,
@@ -15066,15 +13833,13 @@ enifed("ember-htmlbars/tests/helpers/yield_test",
         template: compile('{{#with obj}}{{#if truthy}}{{#view component}}{{#if truthy}}{{boundText}}{{/if}}{{/view}}{{/if}}{{/with}}')
       });
 
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
+      expectDeprecation(function() {
+        run(view, 'appendTo', '#qunit-fixture');
+      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
 
       equal(view.$('div p:contains(inner) + p:contains(insideWith)').length, 1, "Yield points at the right context");
     });
-    */
 
-    /* requires with helper
     test("outer keyword doesn't mask inner component property", function () {
       var component = Component.extend({
         item: "inner",
@@ -15092,9 +13857,7 @@ enifed("ember-htmlbars/tests/helpers/yield_test",
 
       equal(view.$('div p:contains(inner) + p:contains(outer)').length, 1, "inner component property isn't masked by outer keyword");
     });
-    */
 
-    /* requires with helper
     test("inner keyword doesn't mask yield property", function() {
       var component = Component.extend({
         boundText: "inner",
@@ -15112,9 +13875,7 @@ enifed("ember-htmlbars/tests/helpers/yield_test",
 
       equal(view.$('div p:contains(inner) + p:contains(outer)').length, 1, "outer property isn't masked by inner keyword");
     });
-    */
 
-    /* requires with helper
     test("can bind a keyword to a component and use it in yield", function() {
       var component = Component.extend({
         content: null,
@@ -15138,10 +13899,10 @@ enifed("ember-htmlbars/tests/helpers/yield_test",
 
       equal(view.$('div p:contains(update) + p:contains(update)').length, 1, "keyword has correctly propagated update");
     });
-    */
 
-    /* requires with helper
-    test("yield uses the layout context for non component", function() {
+    if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
+
+    test("yield uses the layout context for non component [DEPRECATED]", function() {
       view = EmberView.create({
         controller: {
           boundText: "outer",
@@ -15153,13 +13914,14 @@ enifed("ember-htmlbars/tests/helpers/yield_test",
         template: compile('{{boundText}}')
       });
 
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
+      expectDeprecation(function() {
+        run(view, 'appendTo', '#qunit-fixture');
+      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
 
       equal('outerinner', view.$('p').text(), "Yield points at the right context");
     });
-    */
+
+    }
 
     test("yield view should be a virtual view", function() {
       var component = Component.extend({
@@ -15314,8 +14076,6 @@ enifed("ember-htmlbars/tests/helpers/yield_test",
 
       equal(view.$('div > p').text(), "hello", "view keyword inside component yield block should refer to the correct view");
     });
-
-    }
   });
 enifed("ember-htmlbars/tests/helpers/yield_test.jshint",
   [],
