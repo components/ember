@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.7b1418a4
+ * @version   1.10.0-beta.1+canary.d0292c05
  */
 
 (function() {
@@ -12172,18 +12172,18 @@ enifed("ember-metal/computed",
     //
 
     /**
-      A computed property transforms an objects function into a property.
+      A computed property transforms an object's function into a property.
 
       By default the function backing the computed property will only be called
       once and the result will be cached. You can specify various properties
-      that your computed property is dependent on. This will force the cached
+      that your computed property depends on. This will force the cached
       result to be recomputed if the dependencies are modified.
 
       In the following example we declare a computed property (by calling
-      `.property()` on the fullName function) and setup the properties
+      `.property()` on the fullName function) and setup the property
       dependencies (depending on firstName and lastName). The fullName function
       will be called once (regardless of how many times it is accessed) as long
-      as its dependencies have not been changed. Once firstName or lastName are updated
+      as its dependencies have not changed. Once firstName or lastName are updated
       any future calls (or anything bound) to fullName will incorporate the new
       values.
 
@@ -13484,7 +13484,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.7b1418a4
+      @version 1.10.0-beta.1+canary.d0292c05
     */
 
     if ('undefined' === typeof Ember) {
@@ -13511,10 +13511,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.7b1418a4'
+      @default '1.10.0-beta.1+canary.d0292c05'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.7b1418a4';
+    Ember.VERSION = '1.10.0-beta.1+canary.d0292c05';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
