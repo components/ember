@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.3d6c303d
+ * @version   1.10.0-beta.1+canary.d93a6ccc
  */
 
 (function() {
@@ -13783,7 +13783,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.3d6c303d
+      @version 1.10.0-beta.1+canary.d93a6ccc
     */
 
     if ('undefined' === typeof Ember) {
@@ -13810,10 +13810,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.3d6c303d'
+      @default '1.10.0-beta.1+canary.d93a6ccc'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.3d6c303d';
+    Ember.VERSION = '1.10.0-beta.1+canary.d93a6ccc';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -16245,6 +16245,7 @@ enifed("ember-metal/mixin",
     var Ember = __dependency1__["default"];
     // warn, assert, wrap, et;
     var merge = __dependency2__["default"];
+    var a_map = __dependency3__.map;
     var a_indexOf = __dependency3__.indexOf;
     var a_forEach = __dependency3__.forEach;
     var o_create = __dependency4__.create;
@@ -16297,6 +16298,22 @@ enifed("ember-metal/mixin",
         ret = m.mixins = o_create(ret);
       }
       return ret;
+    }
+
+    function initMixin(mixin, args) {
+      if (args && args.length > 0) {
+        mixin.mixins = a_map.call(args, function(x) {
+          if (x instanceof Mixin) { return x; }
+
+          // Note: Manually setup a primitive mixin here. This is the only
+          // way to actually get a primitive mixin. This way normal creation
+          // of mixins will give you combined mixins...
+          var mixin = new Mixin();
+          mixin.properties = x;
+          return mixin;
+        });
+      }
+      return mixin;
     }
 
     function isMethod(obj) {
@@ -16741,29 +16758,12 @@ enifed("ember-metal/mixin",
       @namespace Ember
     */
     __exports__["default"] = Mixin;
-    function Mixin(args, properties) {
-      this.properties = properties;
-
-      var length = args && args.length;
-
-      if (length > 0) {
-        var m = new Array(length);
-
-        for (var i = 0; i < length; i++) {
-          var x = args[i];
-          if (x instanceof Mixin) {
-            m[i] = x;
-          } else {
-            m[i] = new Mixin(undefined, x);
-          }
-        }
-
-        this.mixins = m;
-      } else {
-        this.mixins = undefined;
-      }
-      this.ownerConstructor = undefined;
-    }
+    function Mixin() { return initMixin(this, arguments); }
+    Mixin.prototype = {
+      properties: null,
+      mixins: null,
+      ownerConstructor: null
+    };
 
     Mixin._apply = applyMixin;
 
@@ -16786,12 +16786,7 @@ enifed("ember-metal/mixin",
       // ES6TODO: this relies on a global state?
       Ember.anyUnprocessedMixins = true;
       var M = this;
-      var length = arguments.length;
-      var args = new Array(length);
-      for (var i = 0; i < length; i++) {
-        args[i] = arguments[i];
-      }
-      return new M(args, undefined);
+      return initMixin(new M(), arguments);
     };
 
     var MixinPrototype = Mixin.prototype;
@@ -16801,11 +16796,12 @@ enifed("ember-metal/mixin",
       @param arguments*
     */
     MixinPrototype.reopen = function() {
-      var mixin;
+      var mixin, tmp;
 
       if (this.properties) {
-        mixin = new Mixin(undefined, this.properties);
-        this.properties = undefined;
+        mixin = Mixin.create();
+        mixin.properties = this.properties;
+        delete this.properties;
         this.mixins = [mixin];
       } else if (!this.mixins) {
         this.mixins = [];
@@ -16821,7 +16817,9 @@ enifed("ember-metal/mixin",
         if (mixin instanceof Mixin) {
           mixins.push(mixin);
         } else {
-          mixins.push(new Mixin(undefined, mixin));
+          tmp = Mixin.create();
+          tmp.properties = mixin;
+          mixins.push(tmp);
         }
       }
 
@@ -16873,7 +16871,7 @@ enifed("ember-metal/mixin",
     };
 
     MixinPrototype.without = function() {
-      var ret = new Mixin([this]);
+      var ret = new Mixin(this);
       ret._without = a_slice.call(arguments);
       return ret;
     };
@@ -16898,9 +16896,7 @@ enifed("ember-metal/mixin",
       var ret = [];
       _keys(keys, this, seen);
       for(var key in keys) {
-        if (keys.hasOwnProperty(key)) {
-          ret.push(key);
-        }
+        if (keys.hasOwnProperty(key)) { ret.push(key); }
       }
       return ret;
     };
