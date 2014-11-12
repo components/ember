@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.3d6c303d
+ * @version   1.10.0-beta.1+canary.533a5e91
  */
 
 (function() {
@@ -3087,7 +3087,7 @@ enifed("ember-application/system/application",
 
         graph.topsort(function (vertex) {
           var initializer = vertex.value;
-          Ember.assert("No application initializer named '" + vertex.name + "'", initializer);
+          Ember.assert("No application initializer named '" + vertex.name + "'", !!initializer);
           initializer(container, namespace);
         });
       },
@@ -3910,7 +3910,15 @@ enifed("ember-debug",
         falsy, an exception will be thrown.
     */
     Ember.assert = function(desc, test) {
-      if (!test) {
+      var throwAssertion;
+
+      if (typeof test === 'function') {
+        throwAssertion = !test();
+      } else {
+        throwAssertion = !test;
+      }
+
+      if (throwAssertion) {
         throw new EmberError("Assertion Failed: " + desc);
       }
     };
@@ -3958,7 +3966,15 @@ enifed("ember-debug",
         will be displayed.
     */
     Ember.deprecate = function(message, test) {
-      if (test) { return; }
+      var noDeprecation;
+
+      if (typeof test === 'function') {
+        noDeprecation = test();
+      } else {
+        noDeprecation = test;
+      }
+
+      if (noDeprecation) { return; }
 
       if (Ember.ENV.RAISE_ON_DEPRECATION) { throw new EmberError(message); }
 
@@ -8723,7 +8739,7 @@ enifed("ember-handlebars/helpers/partial",
       var template = view.templateForName(underscoredName);
       var deprecatedTemplate = !template && view.templateForName(name);
 
-      Ember.assert("Unable to find partial with name '"+name+"'.", template || deprecatedTemplate);
+      Ember.assert("Unable to find partial with name '"+name+"'.", !!template || !!deprecatedTemplate);
 
       template = template || deprecatedTemplate;
 
@@ -10032,7 +10048,7 @@ enifed("ember-htmlbars/helpers/if_unless",
     */
     function ifHelper(params, options, env) {
       Ember.assert("You must pass exactly one argument to the if helper", params.length === 1);
-      Ember.assert("You must pass a block to the if helper", options.render);
+      Ember.assert("You must pass a block to the if helper", !!options.render);
 
       options.helperName = options.helperName || ('if ');
 
@@ -10054,7 +10070,7 @@ enifed("ember-htmlbars/helpers/if_unless",
     */
     function unlessHelper(params, options, env) {
       Ember.assert("You must pass exactly one argument to the unless helper", params.length === 1);
-      Ember.assert("You must pass a block to the unless helper", options.render);
+      Ember.assert("You must pass a block to the unless helper", !!options.render);
 
       var fn = options.render;
       var inverse = options.inverse || function(){ return ''; };
@@ -10122,16 +10138,14 @@ enifed("ember-htmlbars/helpers/loc",
       @see {Ember.String#loc}
     */
     function locHelper(params, options, env) {
-      function ifParamsContainBindings() {
+      Ember.assert('You cannot pass bindings to `loc` helper', function ifParamsContainBindings() {
         for (var i = 0, l = params.length; i < l; i++) {
           if (options.types[i] === 'id') {
             return false;
           }
         }
         return true;
-      }
-
-      Ember.assert('You cannot pass bindings to `loc` helper', ifParamsContainBindings());
+      });
 
       options.morph.update(loc.apply(this, params));
     }
@@ -10270,7 +10284,7 @@ enifed("ember-htmlbars/helpers/partial",
         template = view.templateForName(templateName);
       }
 
-      Ember.assert('Unable to find partial with name "'+templateName+'"', template);
+      Ember.assert('Unable to find partial with name "'+templateName+'"', !!template);
 
       return template;
     }
@@ -10768,7 +10782,7 @@ enifed("ember-htmlbars/helpers/with",
         params.length === 1
       );
 
-      Ember.assert("The {{#with}} helper must be called with a block", options.render);
+      Ember.assert("The {{#with}} helper must be called with a block", !!options.render);
 
       var source, keyword;
       var preserveContext, context;
@@ -14183,7 +14197,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.3d6c303d
+      @version 1.10.0-beta.1+canary.533a5e91
     */
 
     if ('undefined' === typeof Ember) {
@@ -14210,10 +14224,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.3d6c303d'
+      @default '1.10.0-beta.1+canary.533a5e91'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.3d6c303d';
+    Ember.VERSION = '1.10.0-beta.1+canary.533a5e91';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -22668,7 +22682,7 @@ enifed("ember-routing-handlebars/helpers/render",
 
       var templateName = 'template:' + name;
       Ember.assert("You used `{{render '" + name + "'}}`, but '" + name + "' can not be found as either" +
-                   " a template or a view.", container.has("view:" + name) || container.has(templateName) || options.fn);
+                   " a template or a view.", container.has("view:" + name) || container.has(templateName) || !!options.fn);
       options.hash.template = container.lookup(templateName);
 
       options.hash.controller = controller;
@@ -25922,7 +25936,7 @@ enifed("ember-routing/system/route",
             Ember.assert("You used the dynamic segment " + name + "_id in your route " +
                          routeName + ", but " + namespace + "." + classify(name) +
                          " did not exist and you did not override your route's `model` " +
-                         "hook.", modelClass);
+                         "hook.", !!modelClass);
 
             if (!modelClass) { return; }
 
@@ -41899,7 +41913,7 @@ enifed("ember-views/views/component",
         var templateName = get(this, 'templateName');
         var template = this.templateForName(templateName, 'template');
 
-        Ember.assert("You specified the templateName " + templateName + " for " + this + ", but it did not exist.", !templateName || template);
+        Ember.assert("You specified the templateName " + templateName + " for " + this + ", but it did not exist.", !templateName || !!template);
 
         return template || get(this, 'defaultTemplate');
       }).property('templateName'),
@@ -44062,7 +44076,7 @@ enifed("ember-views/views/view",
         var templateName = get(this, 'templateName');
         var template = this.templateForName(templateName, 'template');
 
-        Ember.assert("You specified the templateName " + templateName + " for " + this + ", but it did not exist.", !templateName || template);
+        Ember.assert("You specified the templateName " + templateName + " for " + this + ", but it did not exist.", !templateName || !!template);
 
         return template || get(this, 'defaultTemplate');
       }),
@@ -44097,7 +44111,7 @@ enifed("ember-views/views/view",
         var layoutName = get(this, 'layoutName');
         var layout = this.templateForName(layoutName, 'layout');
 
-        Ember.assert("You specified the layoutName " + layoutName + " for " + this + ", but it did not exist.", !layoutName || layout);
+        Ember.assert("You specified the layoutName " + layoutName + " for " + this + ", but it did not exist.", !layoutName || !!layout);
 
         return layout || get(this, 'defaultLayout');
       }).property('layoutName'),

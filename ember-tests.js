@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.3d6c303d
+ * @version   1.10.0-beta.1+canary.533a5e91
  */
 
 (function() {
@@ -2868,6 +2868,115 @@ enifed("ember-debug.jshint",
       ok(true, 'ember-debug.js should pass jshint.'); 
     });
   });
+enifed("ember-debug/tests/main_test",
+  ["ember-metal/core"],
+  function(__dependency1__) {
+    "use strict";
+    var Ember = __dependency1__["default"];
+
+    QUnit.module('ember-debug');
+
+    test('Ember.deprecate throws deprecation if second argument is falsy', function() {
+      expect(3);
+
+      throws(function() {
+        Ember.deprecate('Deprecation is thrown', false);
+      });
+
+      throws(function() {
+        Ember.deprecate('Deprecation is thrown', '');
+      });
+
+      throws(function() {
+        Ember.deprecate('Deprecation is thrown', 0);
+      });
+    });
+
+    test('Ember.deprecate does not throw deprecation if second argument is a function and it returns true', function() {
+      expect(1);
+
+      Ember.deprecate('Deprecation is thrown', function() {
+        return true;
+      });
+
+      ok(true, 'deprecation was not thrown');
+    });
+
+    test('Ember.deprecate throws if second argument is a function and it returns false', function() {
+      expect(1);
+
+      throws(function() {
+        Ember.deprecate('Deprecation is thrown', function() {
+          return false;
+        });
+      });
+    });
+
+    test('Ember.deprecate does not throw deprecations if second argument is truthy', function() {
+      expect(1);
+
+      Ember.deprecate('Deprecation is thrown', true);
+      Ember.deprecate('Deprecation is thrown', '1');
+      Ember.deprecate('Deprecation is thrown', 1);
+
+      ok(true, 'deprecations were not thrown');
+    });
+
+    test('Ember.assert throws if second argument is falsy', function() {
+      expect(3);
+
+      throws(function() {
+        Ember.assert('Assertion is thrown', false);
+      });
+
+      throws(function() {
+        Ember.assert('Assertion is thrown', '');
+      });
+
+      throws(function() {
+        Ember.assert('Assertion is thrown', 0);
+      });
+    });
+
+    test('Ember.assert does not throw if second argument is a function and it returns true', function() {
+      expect(1);
+
+      Ember.assert('Assertion is thrown', function() {
+        return true;
+      });
+
+      ok(true, 'assertion was not thrown');
+    });
+
+    test('Ember.assert throws if second argument is a function and it returns false', function() {
+      expect(1);
+
+      throws(function() {
+        Ember.assert('Assertion is thrown', function() {
+          return false;
+        });
+      });
+    });
+
+    test('Ember.assert does not throw if second argument is truthy', function() {
+      expect(1);
+
+      Ember.assert('Assertion is thrown', true);
+      Ember.assert('Assertion is thrown', '1');
+      Ember.assert('Assertion is thrown', 1);
+
+      ok(true, 'assertions were not thrown');
+    });
+  });
+enifed("ember-debug/tests/main_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-debug/tests');
+    test('ember-debug/tests/main_test.js should pass jshint', function() { 
+      ok(true, 'ember-debug/tests/main_test.js should pass jshint.'); 
+    });
+  });
 enifed("ember-debug/tests/warn_if_using_stripped_feature_flags_test",
   ["ember-metal/core","ember-debug"],
   function(__dependency1__, __dependency2__) {
@@ -2976,10 +3085,14 @@ enifed("ember-dev/test-helper/assertion",
     AssertExpectation.Error = function(){};
     AssertExpectation.prototype = o_create(MethodCallExpectation.prototype);
     AssertExpectation.prototype.handleCall = function(message, test){
+      var noAssertion = typeof test === 'function' ? test() : test;
+
       this.sawCall = true;
-      if (test) {
-        return; // Only get message for failures
+
+      if (noAssertion) {
+        return;
       }
+
       this.actualMessage = message;
       // Halt execution
       throw new AssertExpectation.Error();
@@ -3092,8 +3205,10 @@ enifed("ember-dev/test-helper/deprecation",
         }
         var assertion = this;
         this.env.Ember.deprecate = function(msg, test) {
+          var pushDeprecation = typeof test === 'function' ? !test() : !test;
+
           assertion.actuals = assertion.actuals || [];
-          if (!test) {
+          if (pushDeprecation) {
             assertion.actuals.push([msg, test]);
           }
         };

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.3d6c303d
+ * @version   1.10.0-beta.1+canary.533a5e91
  */
 
 (function() {
@@ -113,7 +113,15 @@ enifed("ember-debug",
         falsy, an exception will be thrown.
     */
     Ember.assert = function(desc, test) {
-      if (!test) {
+      var throwAssertion;
+
+      if (typeof test === 'function') {
+        throwAssertion = !test();
+      } else {
+        throwAssertion = !test;
+      }
+
+      if (throwAssertion) {
         throw new EmberError("Assertion Failed: " + desc);
       }
     };
@@ -161,7 +169,15 @@ enifed("ember-debug",
         will be displayed.
     */
     Ember.deprecate = function(message, test) {
-      if (test) { return; }
+      var noDeprecation;
+
+      if (typeof test === 'function') {
+        noDeprecation = test();
+      } else {
+        noDeprecation = test;
+      }
+
+      if (noDeprecation) { return; }
 
       if (Ember.ENV.RAISE_ON_DEPRECATION) { throw new EmberError(message); }
 
