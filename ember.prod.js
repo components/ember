@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.1a131484
+ * @version   1.10.0-beta.1+canary.facd8cc2
  */
 
 (function() {
@@ -9251,8 +9251,8 @@ enifed("ember-handlebars/string",
     __exports__["default"] = htmlSafe;
   });
 enifed("ember-htmlbars",
-  ["ember-htmlbars/hooks","morph","ember-htmlbars/helpers","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
+  ["ember-htmlbars/hooks","morph","ember-htmlbars/helpers","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/partial","ember-htmlbars/helpers/template","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __exports__) {
     "use strict";
     var content = __dependency1__.content;
     var element = __dependency1__.element;
@@ -9273,6 +9273,8 @@ enifed("ember-htmlbars",
     var unboundIfHelper = __dependency10__.unboundIfHelper;
     var boundIfHelper = __dependency10__.boundIfHelper;
     var locHelper = __dependency11__.locHelper;
+    var partialHelper = __dependency12__.partialHelper;
+    var templateHelper = __dependency13__.templateHelper;
 
     registerHelper('bindHelper', bindHelper);
     registerHelper('bind', bindHelper);
@@ -9286,6 +9288,8 @@ enifed("ember-htmlbars",
     registerHelper('log', logHelper);
     registerHelper('debugger', debuggerHelper);
     registerHelper('loc', locHelper);
+    registerHelper('partial', partialHelper);
+    registerHelper('template', templateHelper);
 
     var defaultEnv = {
       dom: new DOMHelper(),
@@ -9387,8 +9391,8 @@ enifed("ember-htmlbars/helpers",
     __exports__.registerHelper = registerHelper;__exports__["default"] = helpers;
   });
 enifed("ember-htmlbars/helpers/binding",
-  ["ember-metal/is_none","ember-metal/run_loop","ember-metal/streams/simple","ember-views/views/handlebars_bound_view","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+  ["ember-metal/is_none","ember-metal/run_loop","ember-metal/property_get","ember-metal/streams/simple","ember-views/views/handlebars_bound_view","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -9397,10 +9401,11 @@ enifed("ember-htmlbars/helpers/binding",
 
     var isNone = __dependency1__["default"];
     var run = __dependency2__["default"];
-    var SimpleStream = __dependency3__["default"];
+    var get = __dependency3__.get;
+    var SimpleStream = __dependency4__["default"];
 
-    var _HandlebarsBoundView = __dependency4__._HandlebarsBoundView;
-    var SimpleHandlebarsView = __dependency4__.SimpleHandlebarsView;
+    var _HandlebarsBoundView = __dependency5__._HandlebarsBoundView;
+    var SimpleHandlebarsView = __dependency5__.SimpleHandlebarsView;
 
     function exists(value) {
       return !isNone(value);
@@ -9439,7 +9444,7 @@ enifed("ember-htmlbars/helpers/binding",
         displayTemplate: options.render,
         inverseTemplate: options.inverse,
         lazyValue: lazyValue,
-        previousContext: this.get('context'),
+        previousContext: get(this, 'context'),
         isEscaped: !options.hash.unescaped,
         templateData: env.data,
         templateHash: options.hash,
@@ -9809,6 +9814,136 @@ enifed("ember-htmlbars/helpers/log",
     }
 
     __exports__.logHelper = logHelper;
+  });
+enifed("ember-htmlbars/helpers/partial",
+  ["ember-metal/core","ember-metal/is_none","./binding","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+    "use strict";
+    var Ember = __dependency1__["default"];
+    // Ember.assert
+
+    var isNone = __dependency2__["default"];
+    var bind = __dependency3__.bind;
+
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
+    /**
+      The `partial` helper renders another template without
+      changing the template context:
+
+      ```handlebars
+      {{foo}}
+      {{partial "nav"}}
+      ```
+
+      The above example template will render a template named
+      "_nav", which has the same context as the parent template
+      it's rendered into, so if the "_nav" template also referenced
+      `{{foo}}`, it would print the same thing as the `{{foo}}`
+      in the above example.
+
+      If a "_nav" template isn't found, the `partial` helper will
+      fall back to a template named "nav".
+
+      ## Bound template names
+
+      The parameter supplied to `partial` can also be a path
+      to a property containing a template name, e.g.:
+
+      ```handlebars
+      {{partial someTemplateName}}
+      ```
+
+      The above example will look up the value of `someTemplateName`
+      on the template context (e.g. a controller) and use that
+      value as the name of the template to render. If the resolved
+      value is falsy, nothing will be rendered. If `someTemplateName`
+      changes, the partial will be re-rendered using the new template
+      name.
+
+
+      @method partial
+      @for Ember.Handlebars.helpers
+      @param {String} partialName the name of the template to render minus the leading underscore
+    */
+
+    function partialHelper(params, options, env) {
+      var parentView = this;
+
+      options.helperName = options.helperName || 'partial';
+
+      if (options.types[0] === "id") {
+        var partialNameStream = params[0];
+        // Helper was passed a property path; we need to
+        // create a binding that will re-render whenever
+        // this property changes.
+        options.render = function(renderView, renderEnv, renderContextualElement) {
+          renderPartial(renderView, partialNameStream.value(), renderView._morph, renderEnv);
+        };
+
+        return bind.call(parentView, partialNameStream, options, env, true, exists);
+      } else {
+        // Render the partial right into parent template.
+        renderPartial(parentView, params[0], options.morph, env);
+      }
+    }
+
+    __exports__.partialHelper = partialHelper;function exists(value) {
+      return !isNone(value);
+    }
+
+    function lookupPartial(view, templateName) {
+      var nameParts = templateName.split("/");
+      var lastPart = nameParts[nameParts.length - 1];
+
+      nameParts[nameParts.length - 1] = "_" + lastPart;
+
+      var underscoredName = nameParts.join('/');
+      var template = view.templateForName(underscoredName);
+      if (!template) {
+        template = view.templateForName(templateName);
+      }
+
+      
+      return template;
+    }
+
+    function renderPartial(view, name, morph, env) {
+      var template = lookupPartial(view, name);
+      var fragment = template(view, env, morph.contextualElement); 
+      morph.update(fragment);
+    }
+  });
+enifed("ember-htmlbars/helpers/template",
+  ["ember-metal/core","ember-htmlbars/helpers","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
+    "use strict";
+    var Ember = __dependency1__["default"];
+    // Ember.deprecate;
+    var helpers = __dependency2__["default"];
+
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
+    /**
+      @deprecated
+      @method template
+      @for Ember.Handlebars.helpers
+      @param {String} templateName the template to render
+    */
+    function templateHelper(params, options, env) {
+      
+      options.helperName = options.helperName || 'template';
+
+      helpers.partial.call(this, params, options, env);
+    }
+
+    __exports__.templateHelper = templateHelper;
   });
 enifed("ember-htmlbars/helpers/view",
   ["ember-metal/core","ember-runtime/system/object","ember-metal/property_get","ember-metal/keys","ember-metal/mixin","ember-metal/streams/read","ember-views/streams/read","ember-views/views/view","ember-metal/streams/simple","exports"],
@@ -13648,7 +13783,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.1a131484
+      @version 1.10.0-beta.1+canary.facd8cc2
     */
 
     if ('undefined' === typeof Ember) {
@@ -13675,10 +13810,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.1a131484'
+      @default '1.10.0-beta.1+canary.facd8cc2'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.1a131484';
+    Ember.VERSION = '1.10.0-beta.1+canary.facd8cc2';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`

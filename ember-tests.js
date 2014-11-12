@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.1a131484
+ * @version   1.10.0-beta.1+canary.facd8cc2
  */
 
 (function() {
@@ -10826,207 +10826,6 @@ enifed("ember-handlebars/tests/helpers/group_test.jshint",
       ok(true, 'ember-handlebars/tests/helpers/group_test.js should pass jshint.'); 
     });
   });
-enifed("ember-handlebars/tests/helpers/partial_test",
-  ["ember-runtime/system/object","ember-metal/run_loop","ember-views/views/view","ember-views/system/jquery","ember-runtime/system/container","ember-handlebars-compiler"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
-    "use strict";
-    var EmberObject = __dependency1__["default"];
-    var run = __dependency2__["default"];
-    var EmberView = __dependency3__["default"];
-    var jQuery = __dependency4__["default"];
-    var trim = jQuery.trim;
-    var Container = __dependency5__["default"];
-    var EmberHandlebars = __dependency6__["default"];
-
-    var compile = EmberHandlebars.compile;
-
-    var MyApp, lookup, view, container;
-    var originalLookup = Ember.lookup;
-
-    QUnit.module("Support for {{partial}} helper", {
-      setup: function() {
-        Ember.lookup = lookup = { Ember: Ember };
-        MyApp = lookup.MyApp = EmberObject.create({});
-        container = new Container();
-        container.optionsForType('template', { instantiate: false });
-      },
-      teardown: function() {
-        run(function() {
-          if (view) {
-            view.destroy();
-          }
-        });
-        Ember.lookup = originalLookup;
-      }
-    });
-
-    test("should render other templates registered with the container", function() {
-      container.register('template:_subTemplateFromContainer', compile('sub-template'));
-
-      view = EmberView.create({
-        container: container,
-        template: compile('This {{partial "subTemplateFromContainer"}} is pretty great.')
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(trim(view.$().text()), "This sub-template is pretty great.");
-    });
-
-    test("should render other slash-separated templates registered with the container", function() {
-      container.register('template:child/_subTemplateFromContainer', compile("sub-template"));
-
-      view = EmberView.create({
-        container: container,
-        template: compile('This {{partial "child/subTemplateFromContainer"}} is pretty great.')
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(trim(view.$().text()), "This sub-template is pretty great.");
-    });
-
-    test("should use the current view's context", function() {
-      container.register('template:_person_name', compile("{{firstName}} {{lastName}}"));
-
-      view = EmberView.create({
-        container: container,
-        template: compile('Who is {{partial "person_name"}}?')
-      });
-      view.set('controller', EmberObject.create({
-        firstName: 'Kris',
-        lastName: 'Selden'
-      }));
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(trim(view.$().text()), "Who is Kris Selden?");
-    });
-
-    test("Quoteless parameters passed to {{template}} perform a bound property lookup of the partial name", function() {
-      container.register('template:_subTemplate', compile("sub-template"));
-      container.register('template:_otherTemplate', compile("other-template"));
-
-      view = EmberView.create({
-        container: container,
-        template: compile('This {{partial view.partialName}} is pretty {{partial nonexistent}}great.'),
-        partialName: 'subTemplate'
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(trim(view.$().text()), "This sub-template is pretty great.");
-
-      run(function() {
-        view.set('partialName', 'otherTemplate');
-      });
-
-      equal(trim(view.$().text()), "This other-template is pretty great.");
-
-      run(function() {
-        view.set('partialName', null);
-      });
-
-      equal(trim(view.$().text()), "This  is pretty great.");
-    });
-  });
-enifed("ember-handlebars/tests/helpers/partial_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/tests/helpers');
-    test('ember-handlebars/tests/helpers/partial_test.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/tests/helpers/partial_test.js should pass jshint.'); 
-    });
-  });
-enifed("ember-handlebars/tests/helpers/template_test",
-  ["ember-metal/run_loop","ember-views/views/view","ember-runtime/system/object","ember-views/system/jquery","ember-runtime/system/container","ember-handlebars-compiler"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
-    "use strict";
-    var run = __dependency1__["default"];
-    var EmberView = __dependency2__["default"];
-    var EmberObject = __dependency3__["default"];
-    var jQuery = __dependency4__["default"];
-    var trim = jQuery.trim;
-
-    var Container = __dependency5__["default"];
-    var EmberHandlebars = __dependency6__["default"];
-
-    var MyApp, lookup, view, container;
-    var originalLookup = Ember.lookup;
-
-    QUnit.module("Support for {{template}} helper", {
-      setup: function() {
-        Ember.lookup = lookup = { Ember: Ember };
-        MyApp = lookup.MyApp = EmberObject.create({});
-        container = new Container();
-        container.optionsForType('template', { instantiate: false });
-      },
-      teardown: function() {
-        run(function() {
-          if (view) {
-            view.destroy();
-          }
-        });
-        Ember.lookup = originalLookup;
-      }
-    });
-
-    test("should render other templates via the container (DEPRECATED)", function() {
-      container.register('template:sub_template_from_container', EmberHandlebars.compile('sub-template'));
-
-      view = EmberView.create({
-        container: container,
-        template: EmberHandlebars.compile('This {{template "sub_template_from_container"}} is pretty great.')
-      });
-
-      expectDeprecation(/The `template` helper has been deprecated in favor of the `partial` helper./);
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(trim(view.$().text()), "This sub-template is pretty great.");
-    });
-
-    test("should use the current view's context (DEPRECATED)", function() {
-      container.register('template:person_name', EmberHandlebars.compile("{{firstName}} {{lastName}}"));
-
-      view = EmberView.create({
-        container: container,
-        template: EmberHandlebars.compile('Who is {{template "person_name"}}?')
-      });
-      view.set('controller', EmberObject.create({
-        firstName: 'Kris',
-        lastName: 'Selden'
-      }));
-
-      expectDeprecation(/The `template` helper has been deprecated in favor of the `partial` helper./);
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(trim(view.$().text()), "Who is Kris Selden?");
-    });
-  });
-enifed("ember-handlebars/tests/helpers/template_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/tests/helpers');
-    test('ember-handlebars/tests/helpers/template_test.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/tests/helpers/template_test.js should pass jshint.'); 
-    });
-  });
 enifed("ember-handlebars/tests/helpers/unbound_test",
   ["ember-views/views/view","ember-runtime/system/object","ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-handlebars-compiler","ember-metal/error","ember-runtime/system/container","ember-handlebars/ext"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
@@ -12332,6 +12131,24 @@ enifed("ember-htmlbars/helpers/log.jshint",
       ok(true, 'ember-htmlbars/helpers/log.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/helpers/partial.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/helpers');
+    test('ember-htmlbars/helpers/partial.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/helpers/partial.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/helpers/template.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/helpers');
+    test('ember-htmlbars/helpers/template.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/helpers/template.js should pass jshint.'); 
+    });
+  });
 enifed("ember-htmlbars/helpers/view.jshint",
   [],
   function() {
@@ -12936,6 +12753,221 @@ enifed("ember-htmlbars/tests/helpers/loc_test.jshint",
     module('JSHint - ember-htmlbars/tests/helpers');
     test('ember-htmlbars/tests/helpers/loc_test.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/tests/helpers/loc_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/tests/helpers/partial_test",
+  ["ember-runtime/system/object","ember-metal/run_loop","ember-views/views/view","ember-views/system/jquery","ember-runtime/system/container","ember-handlebars-compiler","htmlbars-compiler/compiler"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
+    "use strict";
+    var EmberObject = __dependency1__["default"];
+    var run = __dependency2__["default"];
+    var EmberView = __dependency3__["default"];
+    var jQuery = __dependency4__["default"];
+    var trim = jQuery.trim;
+    var Container = __dependency5__["default"];
+    var EmberHandlebars = __dependency6__["default"];
+    var htmlbarsCompile = __dependency7__.compile;
+
+    var MyApp, lookup, view, container;
+    var originalLookup = Ember.lookup;
+
+    var compile;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      compile = htmlbarsCompile;
+    } else {
+      compile = EmberHandlebars.compile;
+    }
+
+    QUnit.module("Support for {{partial}} helper", {
+      setup: function() {
+        Ember.lookup = lookup = { Ember: Ember };
+        MyApp = lookup.MyApp = EmberObject.create({});
+        container = new Container();
+        container.optionsForType('template', { instantiate: false });
+      },
+      teardown: function() {
+        run(function() {
+          if (view) {
+            view.destroy();
+          }
+        });
+        Ember.lookup = originalLookup;
+      }
+    });
+
+    test("should render other templates registered with the container", function() {
+      container.register('template:_subTemplateFromContainer', compile('sub-template'));
+
+      view = EmberView.create({
+        container: container,
+        template: compile('This {{partial "subTemplateFromContainer"}} is pretty great.')
+      });
+
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+
+      equal(trim(view.$().text()), "This sub-template is pretty great.");
+    });
+
+    test("should render other slash-separated templates registered with the container", function() {
+      container.register('template:child/_subTemplateFromContainer', compile("sub-template"));
+
+      view = EmberView.create({
+        container: container,
+        template: compile('This {{partial "child/subTemplateFromContainer"}} is pretty great.')
+      });
+
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+
+      equal(trim(view.$().text()), "This sub-template is pretty great.");
+    });
+
+    test("should use the current view's context", function() {
+      container.register('template:_person_name', compile("{{firstName}} {{lastName}}"));
+
+      view = EmberView.create({
+        container: container,
+        template: compile('Who is {{partial "person_name"}}?')
+      });
+      view.set('controller', EmberObject.create({
+        firstName: 'Kris',
+        lastName: 'Selden'
+      }));
+
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+
+      equal(trim(view.$().text()), "Who is Kris Selden?");
+    });
+
+    test("Quoteless parameters passed to {{template}} perform a bound property lookup of the partial name", function() {
+      container.register('template:_subTemplate', compile("sub-template"));
+      container.register('template:_otherTemplate', compile("other-template"));
+
+      view = EmberView.create({
+        container: container,
+        template: compile('This {{partial view.partialName}} is pretty {{partial nonexistent}}great.'),
+        partialName: 'subTemplate'
+      });
+
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+
+      equal(trim(view.$().text()), "This sub-template is pretty great.");
+
+      run(function() {
+        view.set('partialName', 'otherTemplate');
+      });
+
+      equal(trim(view.$().text()), "This other-template is pretty great.");
+
+      run(function() {
+        view.set('partialName', null);
+      });
+
+      equal(trim(view.$().text()), "This  is pretty great.");
+    });
+  });
+enifed("ember-htmlbars/tests/helpers/partial_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/tests/helpers');
+    test('ember-htmlbars/tests/helpers/partial_test.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/tests/helpers/partial_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/tests/helpers/template_test",
+  ["ember-metal/run_loop","ember-views/views/view","ember-runtime/system/object","ember-views/system/jquery","ember-runtime/system/container","ember-handlebars-compiler","htmlbars-compiler/compiler"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
+    "use strict";
+    var run = __dependency1__["default"];
+    var EmberView = __dependency2__["default"];
+    var EmberObject = __dependency3__["default"];
+    var jQuery = __dependency4__["default"];
+    var trim = jQuery.trim;
+
+    var Container = __dependency5__["default"];
+    var EmberHandlebars = __dependency6__["default"];
+    var htmlbarsCompile = __dependency7__.compile;
+
+    var MyApp, lookup, view, container;
+    var originalLookup = Ember.lookup;
+
+    var compile;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      compile = htmlbarsCompile;
+    } else {
+      compile = EmberHandlebars.compile;
+    }
+
+    QUnit.module("Support for {{template}} helper", {
+      setup: function() {
+        Ember.lookup = lookup = { Ember: Ember };
+        MyApp = lookup.MyApp = EmberObject.create({});
+        container = new Container();
+        container.optionsForType('template', { instantiate: false });
+      },
+      teardown: function() {
+        run(function() {
+          if (view) {
+            view.destroy();
+          }
+        });
+        Ember.lookup = originalLookup;
+      }
+    });
+
+    test("should render other templates via the container (DEPRECATED)", function() {
+      container.register('template:sub_template_from_container', compile('sub-template'));
+
+      view = EmberView.create({
+        container: container,
+        template: compile('This {{template "sub_template_from_container"}} is pretty great.')
+      });
+
+      expectDeprecation(/The `template` helper has been deprecated in favor of the `partial` helper./);
+
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+
+      equal(trim(view.$().text()), "This sub-template is pretty great.");
+    });
+
+    test("should use the current view's context (DEPRECATED)", function() {
+      container.register('template:person_name', compile("{{firstName}} {{lastName}}"));
+
+      view = EmberView.create({
+        container: container,
+        template: compile('Who is {{template "person_name"}}?')
+      });
+      view.set('controller', EmberObject.create({
+        firstName: 'Kris',
+        lastName: 'Selden'
+      }));
+
+      expectDeprecation(/The `template` helper has been deprecated in favor of the `partial` helper./);
+
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+
+      equal(trim(view.$().text()), "Who is Kris Selden?");
+    });
+  });
+enifed("ember-htmlbars/tests/helpers/template_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/tests/helpers');
+    test('ember-htmlbars/tests/helpers/template_test.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/tests/helpers/template_test.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/tests/helpers/view_test",
