@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.be3f84ae
+ * @version   1.10.0-beta.1+canary.1a131484
  */
 
 (function() {
@@ -9606,8 +9606,8 @@ enifed("ember-handlebars/string",
     __exports__["default"] = htmlSafe;
   });
 enifed("ember-htmlbars",
-  ["ember-htmlbars/hooks","morph","ember-htmlbars/helpers","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/if_unless","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __exports__) {
+  ["ember-htmlbars/hooks","morph","ember-htmlbars/helpers","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
     "use strict";
     var content = __dependency1__.content;
     var element = __dependency1__.element;
@@ -9627,6 +9627,7 @@ enifed("ember-htmlbars",
     var unlessHelper = __dependency10__.unlessHelper;
     var unboundIfHelper = __dependency10__.unboundIfHelper;
     var boundIfHelper = __dependency10__.boundIfHelper;
+    var locHelper = __dependency11__.locHelper;
 
     registerHelper('bindHelper', bindHelper);
     registerHelper('bind', bindHelper);
@@ -9639,6 +9640,7 @@ enifed("ember-htmlbars",
     registerHelper('boundIf', boundIfHelper);
     registerHelper('log', logHelper);
     registerHelper('debugger', debuggerHelper);
+    registerHelper('loc', locHelper);
 
     var defaultEnv = {
       dom: new DOMHelper(),
@@ -10069,6 +10071,67 @@ enifed("ember-htmlbars/helpers/if_unless",
     __exports__.boundIfHelper = boundIfHelper;
     __exports__.unboundIfHelper = unboundIfHelper;
     __exports__.unlessHelper = unlessHelper;
+  });
+enifed("ember-htmlbars/helpers/loc",
+  ["ember-metal/core","ember-runtime/system/string","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
+    "use strict";
+    var Ember = __dependency1__["default"];
+    var loc = __dependency2__.loc;
+
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
+    /**
+      Calls [Ember.String.loc](/api/classes/Ember.String.html#method_loc) with the
+      provided string.
+
+      This is a convenient way to localize text within a template:
+
+      ```javascript
+      Ember.STRINGS = {
+        '_welcome_': 'Bonjour'
+      };
+      ```
+
+      ```handlebars
+      <div class='message'>
+        {{loc '_welcome_'}}
+      </div>
+      ```
+
+      ```html
+      <div class='message'>
+        Bonjour
+      </div>
+      ```
+
+      See [Ember.String.loc](/api/classes/Ember.String.html#method_loc) for how to
+      set up localized string references.
+
+      @method loc
+      @for Ember.Handlebars.helpers
+      @param {String} str The string to format
+      @see {Ember.String#loc}
+    */
+    function locHelper(params, options, env) {
+      function ifParamsContainBindings() {
+        for (var i = 0, l = params.length; i < l; i++) {
+          if (options.types[i] === 'id') {
+            return false;
+          }
+        }
+        return true;
+      }
+
+      Ember.assert('You cannot pass bindings to `loc` helper', ifParamsContainBindings());
+
+      options.morph.update(loc.apply(this, params));
+    }
+
+    __exports__.locHelper = locHelper;
   });
 enifed("ember-htmlbars/helpers/log",
   ["ember-metal/logger","exports"],
@@ -13982,7 +14045,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.be3f84ae
+      @version 1.10.0-beta.1+canary.1a131484
     */
 
     if ('undefined' === typeof Ember) {
@@ -14009,10 +14072,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.be3f84ae'
+      @default '1.10.0-beta.1+canary.1a131484'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.be3f84ae';
+    Ember.VERSION = '1.10.0-beta.1+canary.1a131484';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`

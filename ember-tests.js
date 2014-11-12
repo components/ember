@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.be3f84ae
+ * @version   1.10.0-beta.1+canary.1a131484
  */
 
 (function() {
@@ -10826,74 +10826,6 @@ enifed("ember-handlebars/tests/helpers/group_test.jshint",
       ok(true, 'ember-handlebars/tests/helpers/group_test.js should pass jshint.'); 
     });
   });
-enifed("ember-handlebars/tests/helpers/loc_test",
-  ["ember-metal/run_loop","ember-views/views/view"],
-  function(__dependency1__, __dependency2__) {
-    "use strict";
-    var run = __dependency1__["default"];
-    var EmberView = __dependency2__["default"];
-
-    function buildView(template, context) {
-      return EmberView.create({
-        template: Ember.Handlebars.compile(template),
-        context: (context || {})
-      });
-    }
-
-    function appendView(view) {
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-    }
-
-    function destroyView(view) {
-      run(function() {
-        view.destroy();
-      });
-    }
-
-    var oldString;
-
-    QUnit.module('Handlebars {{loc valueToLocalize}} helper', {
-      setup: function() {
-        oldString = Ember.STRINGS;
-        Ember.STRINGS = {
-          '_Howdy Friend': 'Hallo Freund'
-        };
-      },
-
-      teardown: function() {
-        Ember.STRINGS = oldString;
-      }
-    });
-
-    test("let the original value through by default", function() {
-      var view = buildView('{{loc "Hiya buddy!"}}');
-      appendView(view);
-
-      equal(view.$().text(), "Hiya buddy!");
-
-      destroyView(view);
-    });
-
-    test("localize a simple string", function() {
-      var view = buildView('{{loc "_Howdy Friend"}}');
-      appendView(view);
-
-      equal(view.$().text(), "Hallo Freund");
-
-      destroyView(view);
-    });
-  });
-enifed("ember-handlebars/tests/helpers/loc_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/tests/helpers');
-    test('ember-handlebars/tests/helpers/loc_test.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/tests/helpers/loc_test.js should pass jshint.'); 
-    });
-  });
 enifed("ember-handlebars/tests/helpers/partial_test",
   ["ember-runtime/system/object","ember-metal/run_loop","ember-views/views/view","ember-views/system/jquery","ember-runtime/system/container","ember-handlebars-compiler"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
@@ -12382,6 +12314,15 @@ enifed("ember-htmlbars/helpers/if_unless.jshint",
       ok(true, 'ember-htmlbars/helpers/if_unless.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/helpers/loc.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/helpers');
+    test('ember-htmlbars/helpers/loc.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/helpers/loc.js should pass jshint.'); 
+    });
+  });
 enifed("ember-htmlbars/helpers/log.jshint",
   [],
   function() {
@@ -12883,6 +12824,118 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test.jshint",
     module('JSHint - ember-htmlbars/tests/helpers');
     test('ember-htmlbars/tests/helpers/if_unless_test.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/tests/helpers/if_unless_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/tests/helpers/loc_test",
+  ["ember-metal/run_loop","ember-views/views/view","ember-handlebars-compiler","htmlbars-compiler/compiler"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+    "use strict";
+    var run = __dependency1__["default"];
+    var EmberView = __dependency2__["default"];
+    var EmberHandlebars = __dependency3__["default"];
+    var htmlbarsCompile = __dependency4__.compile;
+
+    var compile;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      compile = htmlbarsCompile;
+    } else {
+      compile = EmberHandlebars.compile;
+    }
+
+    function buildView(template, context) {
+      return EmberView.create({
+        template: compile(template),
+        context: (context || {})
+      });
+    }
+
+    function appendView(view) {
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+    }
+
+    function destroyView(view) {
+      run(function() {
+        view.destroy();
+      });
+    }
+
+    var oldString;
+
+    QUnit.module('ember-htmlbars: {{#loc}} helper', {
+      setup: function() {
+        oldString = Ember.STRINGS;
+        Ember.STRINGS = {
+          '_Howdy Friend': 'Hallo Freund'
+        };
+      },
+
+      teardown: function() {
+        Ember.STRINGS = oldString;
+      }
+    });
+
+    test('let the original value through by default', function() {
+      var view = buildView('{{loc "Hiya buddy!"}}');
+      appendView(view);
+
+      equal(view.$().text(), 'Hiya buddy!');
+
+      destroyView(view);
+    });
+
+    test('localize a simple string', function() {
+      var view = buildView('{{loc "_Howdy Friend"}}');
+      appendView(view);
+
+      equal(view.$().text(), 'Hallo Freund');
+
+      destroyView(view);
+    });
+
+    test('localize takes passed formats into an account', function() {
+      var view = buildView('{{loc "%@, %@" "Hello" "Mr. Pitkin"}}');
+      appendView(view);
+
+      equal(view.$().text(), 'Hello, Mr. Pitkin', 'the value of localizationKey is correct');
+
+      destroyView(view);
+    });
+
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    test('localize throws an assertion if the second parameter is a binding', function() {
+      var view = buildView('{{loc "Hello %@" name}}', {
+        name: 'Bob Foster'
+      });
+
+      expectAssertion(function() {
+        appendView(view);
+      }, /You cannot pass bindings to `loc` helper/);
+
+      destroyView(view);
+    });
+
+    test('localize a binding throws an assertion', function() {
+      var view = buildView('{{loc localizationKey}}', {
+        localizationKey: 'villain'
+      });
+
+      expectAssertion(function() {
+        appendView(view);
+      }, /You cannot pass bindings to `loc` helper/);
+
+      destroyView(view);
+    });
+    }
+  });
+enifed("ember-htmlbars/tests/helpers/loc_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/tests/helpers');
+    test('ember-htmlbars/tests/helpers/loc_test.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/tests/helpers/loc_test.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/tests/helpers/view_test",
