@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.ac75d2d4
+ * @version   1.10.0-beta.1+canary.be3f84ae
  */
 
 (function() {
@@ -49440,6 +49440,44 @@ enifed("ember-views/tests/views/component_test",
         equal(profilerService, appComponent.get('profilerService'), "service.profiler is injected");
       });
     }
+
+
+    QUnit.module('Ember.Component - subscribed and sent actions trigger errors');
+
+    test('something', function() {
+      expect(2);
+
+      var appComponent = Component.extend({
+        actions: {
+          foo: function(message) {
+            equal('bar', message);
+          }
+        }
+      }).create();
+
+      appComponent.send('foo', 'bar');
+     
+      throws(function() {
+        appComponent.send('baz', 'bar');
+      }, /had no action handler for: baz/, 'asdf');
+    });
+
+    test('component with target', function() {
+      expect(2);
+
+      var target = {
+        send: function(message, payload) {
+          equal('foo', message);
+          equal('baz', payload);
+        }
+      };
+
+      var appComponent = Component.create({
+        target: target
+      });
+
+      appComponent.send('foo', 'baz');
+    });
   });
 enifed("ember-views/tests/views/component_test.jshint",
   [],

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.ac75d2d4
+ * @version   1.10.0-beta.1+canary.be3f84ae
  */
 
 (function() {
@@ -13982,7 +13982,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.ac75d2d4
+      @version 1.10.0-beta.1+canary.be3f84ae
     */
 
     if ('undefined' === typeof Ember) {
@@ -14009,10 +14009,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.ac75d2d4'
+      @default '1.10.0-beta.1+canary.be3f84ae'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.ac75d2d4';
+    Ember.VERSION = '1.10.0-beta.1+canary.be3f84ae';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -41851,6 +41851,30 @@ enifed("ember-views/views/component",
           action: actionName,
           actionContext: contexts
         });
+      },
+
+      send: function(actionName) {
+        var args = [].slice.call(arguments, 1);
+        var target;
+        var hasAction = this._actions && this._actions[actionName];
+
+        if (hasAction) {
+          if (this._actions[actionName].apply(this, args) === true) {
+            // handler returned true, so this action will bubble
+          } else {
+            return;
+          }
+        }
+
+        if (target = get(this, 'target')) {
+          Ember.assert("The `target` for " + this + " (" + target +
+                       ") does not have a `send` method", typeof target.send === 'function');
+          target.send.apply(target, arguments);
+        } else {
+          if (!hasAction) {
+            throw new Error(Ember.inspect(this) + ' had no action handler for: ' + actionName);
+          }
+        }
       }
     });
 
