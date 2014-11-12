@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.facd8cc2
+ * @version   1.10.0-beta.1+canary.d93a6ccc
  */
 
 (function() {
@@ -13783,7 +13783,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.facd8cc2
+      @version 1.10.0-beta.1+canary.d93a6ccc
     */
 
     if ('undefined' === typeof Ember) {
@@ -13810,10 +13810,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.facd8cc2'
+      @default '1.10.0-beta.1+canary.d93a6ccc'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.facd8cc2';
+    Ember.VERSION = '1.10.0-beta.1+canary.d93a6ccc';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -13928,7 +13928,7 @@ enifed("ember-metal/core",
     Ember.LOG_STACKTRACE_ON_DEPRECATION = (Ember.ENV.LOG_STACKTRACE_ON_DEPRECATION !== false);
 
     /**
-      Determines whether Ember should add ECMAScript 5 shims to older browsers.
+      Determines whether Ember should add ECMAScript 5 Array shims to older browsers.
 
       @property SHIM_ES5
       @type Boolean
