@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.4933466f
+ * @version   1.10.0-beta.1+canary.ac75d2d4
  */
 
 (function() {
@@ -9251,8 +9251,8 @@ enifed("ember-handlebars/string",
     __exports__["default"] = htmlSafe;
   });
 enifed("ember-htmlbars",
-  ["ember-htmlbars/hooks","morph","ember-htmlbars/helpers","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/if_unless","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
+  ["ember-htmlbars/hooks","morph","ember-htmlbars/helpers","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/if_unless","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __exports__) {
     "use strict";
     var content = __dependency1__.content;
     var element = __dependency1__.element;
@@ -9266,10 +9266,12 @@ enifed("ember-htmlbars",
     var viewHelper = __dependency5__.viewHelper;
     var yieldHelper = __dependency6__.yieldHelper;
     var withHelper = __dependency7__.withHelper;
-    var ifHelper = __dependency8__.ifHelper;
-    var unlessHelper = __dependency8__.unlessHelper;
-    var unboundIfHelper = __dependency8__.unboundIfHelper;
-    var boundIfHelper = __dependency8__.boundIfHelper;
+    var logHelper = __dependency8__.logHelper;
+    var debuggerHelper = __dependency9__.debuggerHelper;
+    var ifHelper = __dependency10__.ifHelper;
+    var unlessHelper = __dependency10__.unlessHelper;
+    var unboundIfHelper = __dependency10__.unboundIfHelper;
+    var boundIfHelper = __dependency10__.boundIfHelper;
 
     registerHelper('bindHelper', bindHelper);
     registerHelper('bind', bindHelper);
@@ -9280,6 +9282,8 @@ enifed("ember-htmlbars",
     registerHelper('unless', unlessHelper);
     registerHelper('unboundIf', unboundIfHelper);
     registerHelper('boundIf', boundIfHelper);
+    registerHelper('log', logHelper);
+    registerHelper('debugger', debuggerHelper);
 
     var defaultEnv = {
       dom: new DOMHelper(),
@@ -9511,6 +9515,64 @@ enifed("ember-htmlbars/helpers/binding",
     __exports__.simpleBind = simpleBind;
     __exports__.bindHelper = bindHelper;
   });
+enifed("ember-htmlbars/helpers/debugger",
+  ["ember-metal/logger","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    /*jshint debug:true*/
+
+    /**
+    @module ember
+    @submodule ember-handlebars
+    */
+    var Logger = __dependency1__["default"];
+
+    /**
+      Execute the `debugger` statement in the current context.
+
+      ```handlebars
+      {{debugger}}
+      ```
+
+      Before invoking the `debugger` statement, there
+      are a few helpful variables defined in the
+      body of this helper that you can inspect while
+      debugging that describe how and where this
+      helper was invoked:
+
+      - templateContext: this is most likely a controller
+        from which this template looks up / displays properties
+      - typeOfTemplateContext: a string description of
+        what the templateContext is
+
+      For example, if you're wondering why a value `{{foo}}`
+      isn't rendering as expected within a template, you
+      could place a `{{debugger}}` statement, and when
+      the `debugger;` breakpoint is hit, you can inspect
+      `templateContext`, determine if it's the object you
+      expect, and/or evaluate expressions in the console
+      to perform property lookups on the `templateContext`:
+
+      ```
+        > templateContext.get('foo') // -> "<value of {{foo}}>"
+      ```
+
+      @method debugger
+      @for Ember.Handlebars.helpers
+      @param {String} property
+    */
+    function debuggerHelper(options) {
+
+      // These are helpful values you can inspect while debugging.
+      /* jshint unused: false */
+      var view = this;
+      Logger.info('Use `this` to access the view context.');
+
+      debugger;
+    }
+
+    __exports__.debuggerHelper = debuggerHelper;
+  });
 enifed("ember-htmlbars/helpers/if_unless",
   ["ember-metal/core","ember-htmlbars/helpers","ember-htmlbars/helpers/binding","ember-metal/property_get","ember-metal/utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
@@ -9645,6 +9707,46 @@ enifed("ember-htmlbars/helpers/if_unless",
     __exports__.boundIfHelper = boundIfHelper;
     __exports__.unboundIfHelper = unboundIfHelper;
     __exports__.unlessHelper = unlessHelper;
+  });
+enifed("ember-htmlbars/helpers/log",
+  ["ember-metal/logger","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-handlebars
+    */
+    var Logger = __dependency1__["default"];
+
+    /**
+      `log` allows you to output the value of variables in the current rendering
+      context. `log` also accepts primitive types such as strings or numbers.
+
+      ```handlebars
+      {{log "myVariable:" myVariable }}
+      ```
+
+      @method log
+      @for Ember.Handlebars.helpers
+      @param {String} property
+    */
+    function logHelper(params, options, env) {
+      var logger = Logger.log;
+      var values = [];
+
+      for (var i = 0; i < params.length; i++) {
+        if (options.types[i] === 'id') {
+          var stream = params[i];
+          values.push(stream.value());
+        } else {
+          values.push(params[i]);
+        }
+      }
+
+      logger.apply(logger, values);
+    }
+
+    __exports__.logHelper = logHelper;
   });
 enifed("ember-htmlbars/helpers/view",
   ["ember-metal/core","ember-runtime/system/object","ember-metal/property_get","ember-metal/keys","ember-metal/mixin","ember-metal/streams/read","ember-views/streams/read","ember-views/views/view","ember-metal/streams/simple","exports"],
@@ -13484,7 +13586,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.4933466f
+      @version 1.10.0-beta.1+canary.ac75d2d4
     */
 
     if ('undefined' === typeof Ember) {
@@ -13511,10 +13613,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.4933466f'
+      @default '1.10.0-beta.1+canary.ac75d2d4'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.4933466f';
+    Ember.VERSION = '1.10.0-beta.1+canary.ac75d2d4';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`

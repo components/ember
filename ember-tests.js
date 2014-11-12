@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.4933466f
+ * @version   1.10.0-beta.1+canary.ac75d2d4
  */
 
 (function() {
@@ -9658,102 +9658,6 @@ enifed("ember-handlebars/tests/helpers/custom_view_helper_test.jshint",
       ok(true, 'ember-handlebars/tests/helpers/custom_view_helper_test.js should pass jshint.'); 
     });
   });
-enifed("ember-handlebars/tests/helpers/debug_test",
-  ["ember-metal/core","ember-metal/logger","ember-metal/run_loop","ember-views/views/view","ember-handlebars-compiler","ember-handlebars/helpers/debug"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
-    "use strict";
-    var Ember = __dependency1__["default"];
-    // Ember.lookup
-    var EmberLogger = __dependency2__["default"];
-    var run = __dependency3__["default"];
-    var EmberView = __dependency4__["default"];
-    var EmberHandlebars = __dependency5__["default"];
-    var logHelper = __dependency6__.logHelper;
-
-    var originalLookup = Ember.lookup;
-    var lookup;
-    var originalLog, logCalls;
-    var originalLogHelper;
-    var view;
-
-    function appendView() {
-      run(function() { view.appendTo('#qunit-fixture'); });
-    }
-
-    QUnit.module("Handlebars {{log}} helper", {
-      setup: function() {
-        Ember.lookup = lookup = { Ember: Ember };
-
-        originalLogHelper = EmberHandlebars.helpers.log;
-        EmberHandlebars.registerHelper("log", logHelper);
-
-        originalLog = EmberLogger.log;
-        logCalls = [];
-        EmberLogger.log = function() { logCalls.push.apply(logCalls, arguments); };
-      },
-
-      teardown: function() {
-        if (view) {
-          run(function() {
-            view.destroy();
-          });
-          view = null;
-        }
-
-        EmberLogger.log = originalLog;
-        EmberHandlebars.helpers.log = originalLogHelper;
-        Ember.lookup = originalLookup;
-      }
-    });
-
-    test("should be able to log multiple properties", function() {
-      var context = {
-        value: 'one',
-        valueTwo: 'two'
-      };
-
-      view = EmberView.create({
-        context: context,
-        template: EmberHandlebars.compile('{{log value valueTwo}}')
-      });
-
-      appendView();
-
-      equal(view.$().text(), "", "shouldn't render any text");
-      equal(logCalls[0], 'one');
-      equal(logCalls[1], 'two');
-    });
-
-    test("should be able to log primitives", function() {
-      var context = {
-        value: 'one',
-        valueTwo: 'two'
-      };
-
-      view = EmberView.create({
-        context: context,
-        template: EmberHandlebars.compile('{{log value "foo" 0 valueTwo true}}')
-      });
-
-      appendView();
-
-      equal(view.$().text(), "", "shouldn't render any text");
-      strictEqual(logCalls[0], 'one');
-      strictEqual(logCalls[1], 'foo');
-      strictEqual(logCalls[2], 0);
-      strictEqual(logCalls[3], 'two');
-      strictEqual(logCalls[4], true);
-    });
-  });
-enifed("ember-handlebars/tests/helpers/debug_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/tests/helpers');
-    test('ember-handlebars/tests/helpers/debug_test.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/tests/helpers/debug_test.js should pass jshint.'); 
-    });
-  });
 enifed("ember-handlebars/tests/helpers/each_test",
   ["ember-metal/core","ember-runtime/system/object","ember-metal/run_loop","ember-views/views/view","ember-views/views/metamorph_view","ember-metal/computed","ember-runtime/controllers/array_controller","ember-handlebars-compiler","ember-runtime/system/native_array","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/system/container","ember-metal/property_get","ember-metal/property_set"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__) {
@@ -12460,6 +12364,15 @@ enifed("ember-htmlbars/helpers/binding.jshint",
       ok(true, 'ember-htmlbars/helpers/binding.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/helpers/debugger.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/helpers');
+    test('ember-htmlbars/helpers/debugger.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/helpers/debugger.js should pass jshint.'); 
+    });
+  });
 enifed("ember-htmlbars/helpers/if_unless.jshint",
   [],
   function() {
@@ -12467,6 +12380,15 @@ enifed("ember-htmlbars/helpers/if_unless.jshint",
     module('JSHint - ember-htmlbars/helpers');
     test('ember-htmlbars/helpers/if_unless.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/helpers/if_unless.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/helpers/log.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/helpers');
+    test('ember-htmlbars/helpers/log.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/helpers/log.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/helpers/view.jshint",
@@ -12645,6 +12567,110 @@ enifed("ember-htmlbars/tests/helpers/bind_test.jshint",
     module('JSHint - ember-htmlbars/tests/helpers');
     test('ember-htmlbars/tests/helpers/bind_test.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/tests/helpers/bind_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/tests/helpers/debug_test",
+  ["ember-metal/core","ember-metal/logger","ember-metal/run_loop","ember-views/views/view","ember-handlebars-compiler","ember-handlebars/helpers/debug","htmlbars-compiler/compiler"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
+    "use strict";
+    var Ember = __dependency1__["default"];
+    // Ember.lookup
+    var EmberLogger = __dependency2__["default"];
+    var run = __dependency3__["default"];
+    var EmberView = __dependency4__["default"];
+    var EmberHandlebars = __dependency5__["default"];
+    var logHelper = __dependency6__.logHelper;
+    var htmlbarsCompile = __dependency7__.compile;
+
+    var compile;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      compile = htmlbarsCompile;
+    } else {
+      compile = EmberHandlebars.compile;
+    }
+
+    var originalLookup = Ember.lookup;
+    var lookup;
+    var originalLog, logCalls;
+    var originalLogHelper;
+    var view;
+
+    function appendView() {
+      run(function() { view.appendTo('#qunit-fixture'); });
+    }
+
+    QUnit.module("Handlebars {{log}} helper", {
+      setup: function() {
+        Ember.lookup = lookup = { Ember: Ember };
+
+        originalLogHelper = EmberHandlebars.helpers.log;
+        EmberHandlebars.registerHelper("log", logHelper);
+
+        originalLog = EmberLogger.log;
+        logCalls = [];
+        EmberLogger.log = function() { logCalls.push.apply(logCalls, arguments); };
+      },
+
+      teardown: function() {
+        if (view) {
+          run(function() {
+            view.destroy();
+          });
+          view = null;
+        }
+
+        EmberLogger.log = originalLog;
+        EmberHandlebars.helpers.log = originalLogHelper;
+        Ember.lookup = originalLookup;
+      }
+    });
+
+    test("should be able to log multiple properties", function() {
+      var context = {
+        value: 'one',
+        valueTwo: 'two'
+      };
+
+      view = EmberView.create({
+        context: context,
+        template: compile('{{log value valueTwo}}')
+      });
+
+      appendView();
+
+      equal(view.$().text(), "", "shouldn't render any text");
+      equal(logCalls[0], 'one');
+      equal(logCalls[1], 'two');
+    });
+
+    test("should be able to log primitives", function() {
+      var context = {
+        value: 'one',
+        valueTwo: 'two'
+      };
+
+      view = EmberView.create({
+        context: context,
+        template: compile('{{log value "foo" 0 valueTwo true}}')
+      });
+
+      appendView();
+
+      equal(view.$().text(), "", "shouldn't render any text");
+      strictEqual(logCalls[0], 'one');
+      strictEqual(logCalls[1], 'foo');
+      strictEqual(logCalls[2], 0);
+      strictEqual(logCalls[3], 'two');
+      strictEqual(logCalls[4], true);
+    });
+  });
+enifed("ember-htmlbars/tests/helpers/debug_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/tests/helpers');
+    test('ember-htmlbars/tests/helpers/debug_test.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/tests/helpers/debug_test.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/tests/helpers/if_unless_test",
