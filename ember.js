@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.79da97aa
+ * @version   1.10.0-beta.1+canary.47d16cc4
  */
 
 (function() {
@@ -14183,7 +14183,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.79da97aa
+      @version 1.10.0-beta.1+canary.47d16cc4
     */
 
     if ('undefined' === typeof Ember) {
@@ -14210,10 +14210,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.79da97aa'
+      @default '1.10.0-beta.1+canary.47d16cc4'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.79da97aa';
+    Ember.VERSION = '1.10.0-beta.1+canary.47d16cc4';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -35605,16 +35605,22 @@ enifed("ember-runtime/system/core_object",
             }
           }
         }
+
         finishPartial(this, m);
+
         var length = arguments.length;
-        var args = new Array(length);
-        for (var x = 0; x < length; x++) {
-          args[x] = arguments[x];
+
+        if (length === 0) {
+          this.init();
+        } else if (length === 1) {
+          this.init(arguments[0]);
+        } else {
+          this.init.apply(this, arguments);
         }
-        apply(this, this.init, args);
+
         m.proto = proto;
         finishChains(this);
-        sendEvent(this, "init");
+        sendEvent(this, 'init');
       };
 
       Class.toString = Mixin.prototype.toString;
