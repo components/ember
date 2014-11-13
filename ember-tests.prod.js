@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.ba644338
+ * @version   1.10.0-beta.1+canary.5ae9bbac
  */
 
 (function() {
@@ -646,6 +646,28 @@ enifed("container/tests/container_test",
       container.injection('controller:post', 'user', 'controller:normalized');
 
       deepEqual(container.lookup('controller:post'), user, "Normalizes the name when injecting");
+    });
+
+    test("The container can get options that should be applied to a given factory", function(){
+      var container = new Container();
+
+      var PostView = factory();
+
+      container.resolver = function(fullName) {
+        if (fullName === 'view:post') {
+          return PostView;
+        }
+      };
+
+      container.options('view:post', {instantiate: true, singleton: false});
+
+      var postView1 = container.lookup('view:post');
+      var postView2 = container.lookup('view:post');
+
+      ok(postView1 instanceof PostView, "The correct factory was provided");
+      ok(postView2 instanceof PostView, "The correct factory was provided");
+
+      ok(postView1 !== postView2, "The two lookups are different");
     });
 
     test("The container can get options that should be applied to all factories for a given type", function() {
