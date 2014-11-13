@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.47d16cc4
+ * @version   1.10.0-beta.1+canary.ba644338
  */
 
 (function() {
@@ -4468,6 +4468,7 @@ enifed("ember-handlebars-compiler",
     */
 
     var Ember = __dependency1__["default"];
+    // Ember.assert
 
     // ES6Todo: you'll need to import debugger once debugger is es6'd.
     if (typeof Ember.assert === 'undefined')   { Ember.assert = function(){}; }
@@ -4482,8 +4483,6 @@ enifed("ember-handlebars-compiler",
     // set up for circular references later
     var View, Component;
 
-    // ES6Todo: when ember-debug is es6'ed import this.
-    // var emberAssert = Ember.assert;
     var Handlebars = (Ember.imports && Ember.imports.Handlebars) || (this && this.Handlebars);
     if (!Handlebars && typeof eriuqer === 'function') {
       Handlebars = eriuqer('handlebars');
@@ -4913,7 +4912,6 @@ enifed("ember-handlebars/controls",
 
     var Ember = __dependency4__["default"];
     // Ember.assert
-    // var emberAssert = Ember.assert;
 
     var EmberHandlebars = __dependency5__["default"];
 
@@ -6485,7 +6483,6 @@ enifed("ember-handlebars/ext",
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.FEATURES, Ember.assert, Ember.Handlebars, Ember.lookup
-    // var emberAssert = Ember.assert;
 
     var fmt = __dependency2__.fmt;
 
@@ -7434,10 +7431,6 @@ enifed("ember-handlebars/helpers/collection",
 
     var Ember = __dependency1__["default"];
     // Ember.assert, Ember.deprecate
-
-    // var emberAssert = Ember.assert;
-        // emberDeprecate = Ember.deprecate;
-
     var EmberHandlebars = __dependency2__["default"];
 
     var IS_BINDING = __dependency3__.IS_BINDING;
@@ -8292,7 +8285,6 @@ enifed("ember-handlebars/helpers/partial",
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.assert
-    // var emberAssert = Ember.assert;
 
     var isNone = __dependency2__["default"];
     var bind = __dependency3__.bind;
@@ -8487,7 +8479,6 @@ enifed("ember-handlebars/helpers/view",
 
     var Ember = __dependency1__["default"];
     // Ember.warn, Ember.assert
-    // var emberWarn = Ember.warn, emberAssert = Ember.assert;
 
     var EmberObject = __dependency2__["default"];
     var get = __dependency3__.get;
@@ -8986,7 +8977,7 @@ enifed("ember-handlebars/helpers/yield",
     */
 
     var Ember = __dependency1__["default"];
-    // var emberAssert = Ember.assert;
+    // Ember.assert
 
     var get = __dependency2__.get;
 
@@ -9933,7 +9924,6 @@ enifed("ember-htmlbars/helpers/view",
 
     var Ember = __dependency1__["default"];
     // Ember.warn, Ember.assert
-    // var emberWarn = Ember.warn, emberAssert = Ember.assert;
 
     var EmberObject = __dependency2__["default"];
     var get = __dependency3__.get;
@@ -10397,7 +10387,6 @@ enifed("ember-htmlbars/helpers/yield",
     */
 
     var Ember = __dependency1__["default"];
-    // var emberAssert = Ember.assert;
 
     var get = __dependency2__.get;
 
@@ -13760,7 +13749,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.47d16cc4
+      @version 1.10.0-beta.1+canary.ba644338
     */
 
     if ('undefined' === typeof Ember) {
@@ -13787,10 +13776,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.47d16cc4'
+      @default '1.10.0-beta.1+canary.ba644338'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.47d16cc4';
+    Ember.VERSION = '1.10.0-beta.1+canary.ba644338';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
