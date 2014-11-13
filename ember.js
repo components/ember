@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.5ae9bbac
+ * @version   1.10.0-beta.1+canary.54c51f26
  */
 
 (function() {
@@ -3426,9 +3426,7 @@ enifed("ember-application/system/application",
       @return {*} the resolved value for a given lookup
     */
     function resolverFor(namespace) {
-      if (namespace.get('resolver')) {
-        Ember.deprecate('Application.resolver is deprecated in favor of Application.Resolver', false);
-      }
+      Ember.deprecate('Application.resolver is deprecated in favor of Application.Resolver', !namespace.get('resolver'));
 
       var ResolverClass = namespace.get('resolver') || namespace.get('Resolver') || DefaultResolver;
       var resolver = ResolverClass.create({
@@ -14174,7 +14172,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.5ae9bbac
+      @version 1.10.0-beta.1+canary.54c51f26
     */
 
     if ('undefined' === typeof Ember) {
@@ -14201,10 +14199,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.5ae9bbac'
+      @default '1.10.0-beta.1+canary.54c51f26'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.5ae9bbac';
+    Ember.VERSION = '1.10.0-beta.1+canary.54c51f26';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -39885,9 +39883,7 @@ enifed("ember-views/mixins/component_template_deprecation",
           delete props['template'];
         }
 
-        if (deprecatedProperty) {
-          Ember.deprecate('Do not specify ' + deprecatedProperty + ' on a Component, use ' + replacementProperty + ' instead.', false);
-        }
+        Ember.deprecate('Do not specify ' + deprecatedProperty + ' on a Component, use ' + replacementProperty + ' instead.', !deprecatedProperty);
       }
     });
   });
