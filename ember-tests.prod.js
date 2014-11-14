@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.5ad69afc
+ * @version   1.10.0-beta.1+canary.dd1c3f3c
  */
 
 (function() {
@@ -55575,6 +55575,14 @@ enifed("ember/tests/component_registration_test",
       });
 
       equal(Ember.$('#wrapper').text(), "inner-outer", "The component is composed correctly");
+    });
+
+    test('Using name of component that does not exist', function () {
+      Ember.TEMPLATES.application = compile("<div id='wrapper'>{{#no-good}} {{/no-good}}</div>");
+
+      throws(function () {
+        boot();
+      }, /Could not find component or helper named 'no-good'/);
     });
 
     QUnit.module("Application Lifecycle - Component Context", {

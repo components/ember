@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.5ad69afc
+ * @version   1.10.0-beta.1+canary.dd1c3f3c
  */
 
 (function() {
@@ -6580,7 +6580,7 @@ enifed("ember-handlebars/ext",
         resolveHelper = requireModule('ember-handlebars/helpers/binding')['resolveHelper'];
       } // ES6TODO: stupid circular dep
 
-      var error, view = "";
+      var error, fmtError, view = "";
 
       var options = arguments[arguments.length - 1];
 
@@ -6590,11 +6590,19 @@ enifed("ember-handlebars/ext",
         return helper.apply(this, arguments);
       }
 
-      error = "%@ Handlebars error: Could not find property '%@' on object %@.";
       if (options.data) {
         view = options.data.view;
       }
-      throw new EmberError(fmt(error, [view, options.name, this]));
+
+      if (options.name.match(/-/)) {
+        error = "%@ Handlebars error: Could not find component or helper named '%@'";
+        fmtError = fmt(error, [view, options.name]);
+      } else {
+        error = "%@ Handlebars error: Could not find property '%@' on object %@.";
+        fmtError = fmt(error, [view, options.name, this]);
+      }
+
+      throw new EmberError(fmtError);
     }
 
     __exports__.helperMissingHelper = helperMissingHelper;/**
@@ -14109,7 +14117,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.5ad69afc
+      @version 1.10.0-beta.1+canary.dd1c3f3c
     */
 
     if ('undefined' === typeof Ember) {
@@ -14136,10 +14144,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.5ad69afc'
+      @default '1.10.0-beta.1+canary.dd1c3f3c'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.5ad69afc';
+    Ember.VERSION = '1.10.0-beta.1+canary.dd1c3f3c';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
