@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.19a64847
+ * @version   1.10.0-beta.1+canary.78dc9e9b
  */
 
 (function() {
@@ -4735,8 +4735,8 @@ enifed("ember-handlebars-compiler",
     __exports__["default"] = EmberHandlebars;
   });
 enifed("ember-handlebars",
-  ["ember-handlebars-compiler","ember-metal/core","ember-runtime/system/lazy_load","ember-handlebars/loader","ember-handlebars/ext","ember-handlebars/string","ember-handlebars/helpers/binding","ember-handlebars/helpers/if_unless","ember-handlebars/helpers/with","ember-handlebars/helpers/bind_attr","ember-handlebars/helpers/collection","ember-handlebars/helpers/view","ember-handlebars/helpers/unbound","ember-handlebars/helpers/debug","ember-handlebars/helpers/each","ember-handlebars/helpers/template","ember-handlebars/helpers/partial","ember-handlebars/helpers/yield","ember-handlebars/helpers/loc","ember-handlebars/controls/checkbox","ember-handlebars/controls/select","ember-handlebars/controls/text_area","ember-handlebars/controls/text_field","ember-handlebars/controls/text_support","ember-handlebars/controls","ember-handlebars/component_lookup","ember-views/views/handlebars_bound_view","ember-views/views/metamorph_view","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __exports__) {
+  ["ember-handlebars-compiler","ember-metal/core","ember-runtime/system/lazy_load","ember-handlebars/loader","ember-handlebars/ext","ember-handlebars/string","ember-handlebars/helpers/binding","ember-handlebars/helpers/if_unless","ember-handlebars/helpers/with","ember-handlebars/helpers/bind_attr","ember-handlebars/helpers/collection","ember-handlebars/helpers/view","ember-handlebars/helpers/unbound","ember-handlebars/helpers/debug","ember-handlebars/helpers/each","ember-handlebars/helpers/template","ember-handlebars/helpers/partial","ember-handlebars/helpers/yield","ember-handlebars/helpers/loc","ember-handlebars/controls/checkbox","ember-handlebars/controls/select","ember-handlebars/controls/text_area","ember-handlebars/controls/text_field","ember-handlebars/controls/text_support","ember-handlebars/controls","ember-views/views/handlebars_bound_view","ember-views/views/metamorph_view","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __exports__) {
     "use strict";
     var EmberHandlebars = __dependency1__["default"];
     var Ember = __dependency2__["default"];
@@ -4794,12 +4794,11 @@ enifed("ember-handlebars",
     var inputHelper = __dependency25__.inputHelper;
     var textareaHelper = __dependency25__.textareaHelper;
 
-    var ComponentLookup = __dependency26__["default"];
-    var _HandlebarsBoundView = __dependency27__._HandlebarsBoundView;
-    var SimpleHandlebarsView = __dependency27__.SimpleHandlebarsView;
-    var _MetamorphView = __dependency28__["default"];
-    var _SimpleMetamorphView = __dependency28__._SimpleMetamorphView;
-    var _Metamorph = __dependency28__._Metamorph;
+    var _HandlebarsBoundView = __dependency26__._HandlebarsBoundView;
+    var SimpleHandlebarsView = __dependency26__.SimpleHandlebarsView;
+    var _MetamorphView = __dependency27__["default"];
+    var _SimpleMetamorphView = __dependency27__._SimpleMetamorphView;
+    var _Metamorph = __dependency27__._Metamorph;
 
 
     /**
@@ -4824,7 +4823,6 @@ enifed("ember-handlebars",
     // Ember Globals
     Ember.Handlebars = EmberHandlebars;
     EmberHandlebars.get = handlebarsGet;
-    Ember.ComponentLookup = ComponentLookup;
     Ember._SimpleHandlebarsView = SimpleHandlebarsView;
     Ember._HandlebarsBoundView = _HandlebarsBoundView;
     Ember._SimpleMetamorphView = _SimpleMetamorphView;
@@ -4868,39 +4866,6 @@ enifed("ember-handlebars",
     runLoadHooks('Ember.Handlebars', EmberHandlebars);
 
     __exports__["default"] = EmberHandlebars;
-  });
-enifed("ember-handlebars/component_lookup",
-  ["ember-runtime/system/object","exports"],
-  function(__dependency1__, __exports__) {
-    "use strict";
-    var EmberObject = __dependency1__["default"];
-
-    __exports__["default"] = EmberObject.extend({
-      lookupFactory: function(name, container) {
-
-        container = container || this.container;
-
-        var fullName = 'component:' + name;
-        var templateFullName = 'template:components/' + name;
-        var templateRegistered = container && container.has(templateFullName);
-
-        if (templateRegistered) {
-          container.injection(fullName, 'layout', templateFullName);
-        }
-
-        var Component = container.lookupFactory(fullName);
-
-        // Only treat as a component if either the component
-        // or a template has been registered.
-        if (templateRegistered || Component) {
-          if (!Component) {
-            container.register(fullName, Ember.Component);
-            Component = container.lookupFactory(fullName);
-          }
-          return Component;
-        }
-      }
-    });
   });
 enifed("ember-handlebars/controls",
   ["ember-handlebars/controls/checkbox","ember-handlebars/controls/text_field","ember-handlebars/controls/text_area","ember-metal/core","ember-handlebars-compiler","exports"],
@@ -9079,7 +9044,7 @@ enifed("ember-handlebars/helpers/yield",
     }
   });
 enifed("ember-handlebars/loader",
-  ["ember-handlebars/component_lookup","ember-views/system/jquery","ember-metal/error","ember-runtime/system/lazy_load","ember-handlebars-compiler","exports"],
+  ["ember-views/component_lookup","ember-views/system/jquery","ember-metal/error","ember-runtime/system/lazy_load","ember-handlebars-compiler","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     /*globals Handlebars */
@@ -9234,7 +9199,6 @@ enifed("ember-htmlbars",
     var content = __dependency1__.content;
     var element = __dependency1__.element;
     var subexpr = __dependency1__.subexpr;
-    var lookupHelper = __dependency1__.lookupHelper;
     var DOMHelper = __dependency2__.DOMHelper;
 
     var registerHelper = __dependency3__.registerHelper;
@@ -9274,8 +9238,7 @@ enifed("ember-htmlbars",
       hooks: {
         content: content,
         element: element,
-        subexpr: subexpr,
-        lookupHelper: lookupHelper
+        subexpr: subexpr
       },
 
       helpers: helpers
@@ -10491,11 +10454,10 @@ enifed("ember-htmlbars/helpers/yield",
     __exports__.yieldHelper = yieldHelper;
   });
 enifed("ember-htmlbars/hooks",
-  ["ember-metal/streams/stream","ember-metal/streams/read","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["ember-htmlbars/system/lookup-helper","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
-    var Stream = __dependency1__["default"];
-    var readArray = __dependency2__.readArray;
+    var lookupHelper = __dependency1__.lookupHelper;
 
     function streamifyArgs(view, params, options, env) {
       if (params.length === 3 && params[1] === "as") {
@@ -10525,13 +10487,11 @@ enifed("ember-htmlbars/hooks",
     }
 
     function content(morph, path, view, params, options, env) {
-      var hooks = env.hooks;
-
       // TODO: just set escaped on the morph in HTMLBars
       morph.escaped = options.escaped;
-      var helper = hooks.lookupHelper(path, env);
+      var helper = lookupHelper(path, view, env);
       if (!helper) {
-        helper = hooks.lookupHelper('bindHelper', env);
+        helper = lookupHelper('bindHelper', view, env);
         // Modify params to include the first word
         params.unshift(path);
         options.types = ['id'];
@@ -10542,8 +10502,7 @@ enifed("ember-htmlbars/hooks",
     }
 
     __exports__.content = content;function element(element, path, view, params, options, env) { //jshint ignore:line
-      var hooks = env.hooks;
-      var helper = hooks.lookupHelper(path, env);
+      var helper = lookupHelper(path, view, env);
 
       if (helper) {
         streamifyArgs(view, params, options, env);
@@ -10554,8 +10513,7 @@ enifed("ember-htmlbars/hooks",
     }
 
     __exports__.element = element;function subexpr(path, view, params, options, env) {
-      var hooks = env.hooks;
-      var helper = hooks.lookupHelper(path, env);
+      var helper = lookupHelper(path, view, env);
 
       if (helper) {
         streamifyArgs(view, params, options, env);
@@ -10565,24 +10523,35 @@ enifed("ember-htmlbars/hooks",
       }
     }
 
-    __exports__.subexpr = subexpr;function lookupHelper(name, env) {
-      if (name === 'concat') { return concat; }
-      if (name === 'attribute') { return attribute; }
-      return env.helpers[name];
-    }
+    __exports__.subexpr = subexpr;
+  });
+enifed("ember-htmlbars/system/lookup-helper",
+  ["ember-metal/core","ember-metal/cache","ember-htmlbars/system/make-view-helper","ember-metal/streams/stream","ember-metal/streams/read","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
+    "use strict";
+    var Ember = __dependency1__["default"];
+    var Cache = __dependency2__["default"];
+    var makeViewHelper = __dependency3__["default"];
+    var Stream = __dependency4__["default"];
+    var readArray = __dependency5__.readArray;
 
-    __exports__.lookupHelper = lookupHelper;function attribute(element, params, options) {
+    var ISNT_HELPER_CACHE = new Cache(1000, function(key) {
+      return key.indexOf('-') === -1;
+    });
+    __exports__.ISNT_HELPER_CACHE = ISNT_HELPER_CACHE;
+    function attribute(element, params, options, env) {
+      var dom = env.dom;
       var name = params[0];
       var value = params[1];
 
       value.subscribe(function(lazyValue) {
-        element.setAttribute(name, lazyValue.value());
+        dom.setAttribute(element, name, lazyValue.value());
       });
 
-      element.setAttribute(name, value.value());
+      dom.setAttribute(element, name, value.value());
     }
 
-    function concat(params, options) {
+    __exports__.attribute = attribute;function concat(params, options) {
       var stream = new Stream(function() {
         return readArray(params).join('');
       });
@@ -10597,6 +10566,56 @@ enifed("ember-htmlbars/hooks",
 
       return stream;
     }
+
+    __exports__.concat = concat;/**
+      Used to lookup/resolve handlebars helpers. The lookup order is:
+
+      * Look for a registered helper
+      * If a dash exists in the name:
+        * Look for a helper registed in the container
+        * Use Ember.ComponentLookup to find an Ember.Component that resolves
+          to the given name
+
+      @private
+      @method resolveHelper
+      @param {Container} container
+      @param {String} name the name of the helper to lookup
+      @return {Handlebars Helper}
+    */
+    function lookupHelper(name, view, env) {
+      if (name === 'concat') {
+        return concat;
+      }
+
+      if (name === 'attribute') {
+        return attribute;
+      }
+
+      if (env.helpers[name]) {
+        return env.helpers[name];
+      }
+
+      var container = view.container;
+
+      if (!container || ISNT_HELPER_CACHE.get(name)) {
+        return;
+      }
+
+      var helper = container.lookup('helper:' + name);
+      if (!helper) {
+        var componentLookup = container.lookup('component-lookup:main');
+        
+        var Component = componentLookup.lookupFactory(name, container);
+        if (Component) {
+          helper = makeViewHelper(Component);
+          container.register('helper:' + name, helper);
+        }
+      }
+
+      return helper;
+    }
+
+    __exports__.lookupHelper = lookupHelper;
   });
 enifed("ember-htmlbars/system/make-view-helper",
   ["ember-metal/core","ember-htmlbars/helpers/view","exports"],
@@ -13749,7 +13768,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.19a64847
+      @version 1.10.0-beta.1+canary.78dc9e9b
     */
 
     if ('undefined' === typeof Ember) {
@@ -13776,10 +13795,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.19a64847'
+      @default '1.10.0-beta.1+canary.78dc9e9b'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.19a64847';
+    Ember.VERSION = '1.10.0-beta.1+canary.78dc9e9b';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -37930,8 +37949,8 @@ enifed("ember-runtime/system/tracked_array",
     }
   });
 enifed("ember-views",
-  ["ember-runtime","ember-views/system/jquery","ember-views/system/utils","ember-views/system/render_buffer","ember-views/system/ext","ember-views/views/states","ember-views/views/core_view","ember-views/views/view","ember-views/views/container_view","ember-views/views/collection_view","ember-views/views/component","ember-views/system/event_dispatcher","ember-views/mixins/view_target_action_support","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __exports__) {
+  ["ember-runtime","ember-views/system/jquery","ember-views/system/utils","ember-views/system/render_buffer","ember-views/system/ext","ember-views/views/states","ember-views/views/core_view","ember-views/views/view","ember-views/views/container_view","ember-views/views/collection_view","ember-views/views/component","ember-views/system/event_dispatcher","ember-views/mixins/view_target_action_support","ember-views/component_lookup","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __exports__) {
     "use strict";
     /**
     Ember Views
@@ -37961,6 +37980,7 @@ enifed("ember-views",
 
     var EventDispatcher = __dependency12__["default"];
     var ViewTargetActionSupport = __dependency13__["default"];
+    var ComponentLookup = __dependency14__["default"];
     // END IMPORTS
 
     /**
@@ -37986,6 +38006,7 @@ enifed("ember-views",
     Ember.View.states = states;
     Ember.View.cloneStates = cloneStates;
 
+    Ember.ComponentLookup = ComponentLookup;
     Ember.ContainerView = ContainerView;
     Ember.CollectionView = CollectionView;
     Ember.Component = Component;
@@ -37993,6 +38014,39 @@ enifed("ember-views",
     // END EXPORTS
 
     __exports__["default"] = Ember;
+  });
+enifed("ember-views/component_lookup",
+  ["ember-runtime/system/object","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    var EmberObject = __dependency1__["default"];
+
+    __exports__["default"] = EmberObject.extend({
+      lookupFactory: function(name, container) {
+
+        container = container || this.container;
+
+        var fullName = 'component:' + name;
+        var templateFullName = 'template:components/' + name;
+        var templateRegistered = container && container.has(templateFullName);
+
+        if (templateRegistered) {
+          container.injection(fullName, 'layout', templateFullName);
+        }
+
+        var Component = container.lookupFactory(fullName);
+
+        // Only treat as a component if either the component
+        // or a template has been registered.
+        if (templateRegistered || Component) {
+          if (!Component) {
+            container.register(fullName, Ember.Component);
+            Component = container.lookupFactory(fullName);
+          }
+          return Component;
+        }
+      }
+    });
   });
 enifed("ember-views/mixins/component_template_deprecation",
   ["ember-metal/core","ember-metal/property_get","ember-metal/mixin","exports"],

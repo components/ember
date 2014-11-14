@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.19a64847
+ * @version   1.10.0-beta.1+canary.78dc9e9b
  */
 
 (function() {
@@ -4046,15 +4046,6 @@ enifed("ember-handlebars.jshint",
     module('JSHint - .');
     test('ember-handlebars.js should pass jshint', function() { 
       ok(true, 'ember-handlebars.js should pass jshint.'); 
-    });
-  });
-enifed("ember-handlebars/component_lookup.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars');
-    test('ember-handlebars/component_lookup.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/component_lookup.js should pass jshint.'); 
     });
   });
 enifed("ember-handlebars/controls.jshint",
@@ -12104,7 +12095,7 @@ enifed("ember-handlebars/tests/views/collection_view_test.jshint",
     });
   });
 enifed("ember-handlebars/tests/views/component_test",
-  ["ember-views/views/view","container/container","ember-metal/run_loop","ember-views/system/jquery","ember-handlebars-compiler","ember-handlebars/component_lookup"],
+  ["ember-views/views/view","container/container","ember-metal/run_loop","ember-views/system/jquery","ember-handlebars-compiler","ember-views/component_lookup"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
     var EmberView = __dependency1__["default"];
@@ -12320,6 +12311,15 @@ enifed("ember-htmlbars/hooks.jshint",
     module('JSHint - ember-htmlbars');
     test('ember-htmlbars/hooks.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/hooks.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/system/lookup-helper.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/system');
+    test('ember-htmlbars/system/lookup-helper.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/system/lookup-helper.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/system/make-view-helper.jshint",
@@ -14430,6 +14430,129 @@ enifed("ember-htmlbars/tests/htmlbars_test.jshint",
     module('JSHint - ember-htmlbars/tests');
     test('ember-htmlbars/tests/htmlbars_test.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/tests/htmlbars_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/tests/system/lookup-helper_test",
+  ["ember-htmlbars/system/lookup-helper","ember-views/component_lookup","container","ember-views/views/component"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+    "use strict";
+    var concat = __dependency1__.concat;
+    var attribute = __dependency1__.attribute;
+    var lookupHelper = __dependency1__.lookupHelper;
+    var ComponentLookup = __dependency2__["default"];
+    var Container = __dependency3__["default"];
+    var Component = __dependency4__["default"];
+
+    function generateEnv(helpers) {
+      return {
+        helpers: (helpers ? helpers : {})
+      };
+    }
+
+    function generateContainer() {
+      var container = new Container();
+
+      container.optionsForType('helper', { instantiate: false });
+      container.register('component-lookup:main', ComponentLookup);
+
+      return container;
+    }
+
+    QUnit.module('ember-htmlbars: lookupHelper hook');
+
+    test('returns concat when helper is `concat`', function() {
+      var actual = lookupHelper('concat');
+
+      equal(actual, concat, 'concat is a hard-coded helper');
+    });
+
+    test('returns attribute when helper is `attribute`', function() {
+      var actual = lookupHelper('attribute');
+
+      equal(actual, attribute, 'attribute is a hard-coded helper');
+    });
+
+    test('looks for helpers in the provided `env.helpers`', function() {
+      var env = generateEnv({
+        'flubarb': function() { }
+      });
+
+      var actual = lookupHelper('flubarb', null, env);
+
+      equal(actual, env.helpers.flubarb, 'helpers are looked up on env');
+    });
+
+    test('returns undefined if no container exists (and helper is not found in env)', function() {
+      var env = generateEnv();
+      var view = {};
+
+      var actual = lookupHelper('flubarb', view, env);
+
+      equal(actual, undefined, 'does not blow up if view does not have a container');
+    });
+
+    test('does not lookup in the container if the name does not contain a dash (and helper is not found in env)', function() {
+      var env = generateEnv();
+      var view = {
+        container: {
+          lookup: function() {
+            ok(false, 'should not lookup in the container');
+          }
+        }
+      };
+
+      var actual = lookupHelper('flubarb', view, env);
+
+      equal(actual, undefined, 'does not blow up if view does not have a container');
+    });
+
+    test('does a lookup in the container if the name contains a dash (and helper is not found in env)', function() {
+      var env = generateEnv();
+      var view = {
+        container: generateContainer()
+      };
+
+      function someName() {}
+      view.container.register('helper:some-name', someName);
+
+      var actual = lookupHelper('some-name', view, env);
+
+      equal(actual, someName, 'does not blow up if view does not have a container');
+    });
+
+    test('asserts if component-lookup:main cannot be found', function() {
+      var env = generateEnv();
+      var view = {
+        container: generateContainer()
+      };
+
+      view.container.unregister('component-lookup:main');
+
+      expectAssertion(function() {
+        lookupHelper('some-name', view, env);
+      }, 'Could not find \'component-lookup:main\' on the provided container, which is necessary for performing component lookups');
+    });
+
+    test('registers a helper in the container if component is found', function() {
+      var env = generateEnv();
+      var view = {
+        container: generateContainer()
+      };
+
+      view.container.register('component:some-name', Component);
+
+      lookupHelper('some-name', view, env);
+
+      ok(view.container.lookup('helper:some-name'), 'new helper was registered');
+    });
+  });
+enifed("ember-htmlbars/tests/system/lookup-helper_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/tests/system');
+    test('ember-htmlbars/tests/system/lookup-helper_test.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/tests/system/lookup-helper_test.js should pass jshint.'); 
     });
   });
 enifed("ember-metal-views.jshint",
@@ -47610,6 +47733,15 @@ enifed("ember-views.jshint",
     module('JSHint - .');
     test('ember-views.js should pass jshint', function() { 
       ok(true, 'ember-views.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/component_lookup.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views');
+    test('ember-views/component_lookup.js should pass jshint', function() { 
+      ok(true, 'ember-views/component_lookup.js should pass jshint.'); 
     });
   });
 enifed("ember-views/mixins/component_template_deprecation.jshint",
