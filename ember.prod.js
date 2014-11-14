@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.7249b609
+ * @version   1.10.0-beta.1+canary.5ad69afc
  */
 
 (function() {
@@ -9193,8 +9193,8 @@ enifed("ember-handlebars/string",
     __exports__["default"] = htmlSafe;
   });
 enifed("ember-htmlbars",
-  ["ember-htmlbars/hooks","morph","ember-htmlbars/helpers","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/partial","ember-htmlbars/helpers/template","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __exports__) {
+  ["ember-htmlbars/hooks","morph","ember-htmlbars/helpers","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/bind-attr","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/partial","ember-htmlbars/helpers/template","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __exports__) {
     "use strict";
     var content = __dependency1__.content;
     var element = __dependency1__.element;
@@ -9209,13 +9209,15 @@ enifed("ember-htmlbars",
     var withHelper = __dependency7__.withHelper;
     var logHelper = __dependency8__.logHelper;
     var debuggerHelper = __dependency9__.debuggerHelper;
-    var ifHelper = __dependency10__.ifHelper;
-    var unlessHelper = __dependency10__.unlessHelper;
-    var unboundIfHelper = __dependency10__.unboundIfHelper;
-    var boundIfHelper = __dependency10__.boundIfHelper;
-    var locHelper = __dependency11__.locHelper;
-    var partialHelper = __dependency12__.partialHelper;
-    var templateHelper = __dependency13__.templateHelper;
+    var bindAttrHelper = __dependency10__.bindAttrHelper;
+    var bindAttrHelperDeprecated = __dependency10__.bindAttrHelperDeprecated;
+    var ifHelper = __dependency11__.ifHelper;
+    var unlessHelper = __dependency11__.unlessHelper;
+    var unboundIfHelper = __dependency11__.unboundIfHelper;
+    var boundIfHelper = __dependency11__.boundIfHelper;
+    var locHelper = __dependency12__.locHelper;
+    var partialHelper = __dependency13__.partialHelper;
+    var templateHelper = __dependency14__.templateHelper;
 
     registerHelper('bindHelper', bindHelper);
     registerHelper('bind', bindHelper);
@@ -9231,6 +9233,8 @@ enifed("ember-htmlbars",
     registerHelper('loc', locHelper);
     registerHelper('partial', partialHelper);
     registerHelper('template', templateHelper);
+    registerHelper('bind-attr', bindAttrHelper);
+    registerHelper('bindAttr', bindAttrHelperDeprecated);
 
     var defaultEnv = {
       dom: new DOMHelper(),
@@ -9329,6 +9333,310 @@ enifed("ember-htmlbars/helpers",
     }
 
     __exports__.registerHelper = registerHelper;__exports__["default"] = helpers;
+  });
+enifed("ember-htmlbars/helpers/bind-attr",
+  ["ember-metal/core","ember-runtime/system/string","ember-metal/utils","ember-metal/array","ember-views/views/view","ember-metal/keys","ember-htmlbars/helpers","ember-views/system/jquery","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-handlebars
+    */
+
+    var Ember = __dependency1__["default"];
+    // Ember.assert
+
+    var fmt = __dependency2__.fmt;
+    var typeOf = __dependency3__.typeOf;
+    var forEach = __dependency4__.forEach;
+    var View = __dependency5__["default"];
+    var keys = __dependency6__["default"];
+    var helpers = __dependency7__["default"];
+    var jQuery = __dependency8__["default"];
+
+    /**
+      `bind-attr` allows you to create a binding between DOM element attributes and
+      Ember objects. For example:
+
+      ```handlebars
+      <img {{bind-attr src=imageUrl alt=imageTitle}}>
+      ```
+
+      The above handlebars template will fill the `<img>`'s `src` attribute with
+      the value of the property referenced with `imageUrl` and its `alt`
+      attribute with the value of the property referenced with `imageTitle`.
+
+      If the rendering context of this template is the following object:
+
+      ```javascript
+      {
+        imageUrl: 'http://lolcats.info/haz-a-funny',
+        imageTitle: 'A humorous image of a cat'
+      }
+      ```
+
+      The resulting HTML output will be:
+
+      ```html
+      <img src="http://lolcats.info/haz-a-funny" alt="A humorous image of a cat">
+      ```
+
+      `bind-attr` cannot redeclare existing DOM element attributes. The use of `src`
+      in the following `bind-attr` example will be ignored and the hard coded value
+      of `src="/failwhale.gif"` will take precedence:
+
+      ```handlebars
+      <img src="/failwhale.gif" {{bind-attr src=imageUrl alt=imageTitle}}>
+      ```
+
+      ### `bind-attr` and the `class` attribute
+
+      `bind-attr` supports a special syntax for handling a number of cases unique
+      to the `class` DOM element attribute. The `class` attribute combines
+      multiple discrete values into a single attribute as a space-delimited
+      list of strings. Each string can be:
+
+      * a string return value of an object's property.
+      * a boolean return value of an object's property
+      * a hard-coded value
+
+      A string return value works identically to other uses of `bind-attr`. The
+      return value of the property will become the value of the attribute. For
+      example, the following view and template:
+
+      ```javascript
+        AView = View.extend({
+          someProperty: function() {
+            return "aValue";
+          }.property()
+        })
+      ```
+
+      ```handlebars
+      <img {{bind-attr class=view.someProperty}}>
+      ```
+
+      Result in the following rendered output:
+
+      ```html
+      <img class="aValue">
+      ```
+
+      A boolean return value will insert a specified class name if the property
+      returns `true` and remove the class name if the property returns `false`.
+
+      A class name is provided via the syntax
+      `somePropertyName:class-name-if-true`.
+
+      ```javascript
+      AView = View.extend({
+        someBool: true
+      })
+      ```
+
+      ```handlebars
+      <img {{bind-attr class="view.someBool:class-name-if-true"}}>
+      ```
+
+      Result in the following rendered output:
+
+      ```html
+      <img class="class-name-if-true">
+      ```
+
+      An additional section of the binding can be provided if you want to
+      replace the existing class instead of removing it when the boolean
+      value changes:
+
+      ```handlebars
+      <img {{bind-attr class="view.someBool:class-name-if-true:class-name-if-false"}}>
+      ```
+
+      A hard-coded value can be used by prepending `:` to the desired
+      class name: `:class-name-to-always-apply`.
+
+      ```handlebars
+      <img {{bind-attr class=":class-name-to-always-apply"}}>
+      ```
+
+      Results in the following rendered output:
+
+      ```html
+      <img class="class-name-to-always-apply">
+      ```
+
+      All three strategies - string return value, boolean return value, and
+      hard-coded value – can be combined in a single declaration:
+
+      ```handlebars
+      <img {{bind-attr class=":class-name-to-always-apply view.someBool:class-name-if-true view.someProperty"}}>
+      ```
+
+      @method bind-attr
+      @for Ember.Handlebars.helpers
+      @param {Hash} options
+      @return {String} HTML string
+    */
+    function bindAttrHelper(params, options, env) {
+      var element  = jQuery(options.element);
+      var attrs = options.hash;
+
+      
+      var view = this;
+
+      // Handle classes differently, as we can bind multiple classes
+      var classBindings = attrs['class'];
+      if (classBindings != null) {
+
+        var classResults = bindClasses(element, classBindings, view, options);
+
+        View.applyAttributeBindings(element, 'class', classResults.join(' '));
+
+        delete attrs['class'];
+      }
+
+      var attrKeys = keys(attrs);
+
+      // For each attribute passed, create an observer and emit the
+      // current value of the property as an attribute.
+      forEach.call(attrKeys, function(attr) {
+        var path = attrs[attr];
+
+        var lazyValue;
+
+        if (path.isStream) {
+          lazyValue = path;
+        } else {
+          
+          lazyValue = view.getStream(path);
+        }
+
+        var value = lazyValue.value();
+        var type = typeOf(value);
+
+        
+
+        lazyValue.subscribe(view._wrapAsScheduled(function applyAttributeBindings() {
+          var result = lazyValue.value();
+
+          
+          View.applyAttributeBindings(element, attr, result);
+        }));
+
+        if (value && type === 'boolean') {
+          value = attr;
+        }
+
+        View.applyAttributeBindings(element, attr, value);
+      }, this);
+    }
+
+    /**
+      See `bind-attr`
+
+      @method bindAttr
+      @for Ember.Handlebars.helpers
+      @deprecated
+      @param {Function} context
+      @param {Hash} options
+      @return {String} HTML string
+    */
+    function bindAttrHelperDeprecated() {
+      
+      return helpers['bind-attr'].apply(this, arguments);
+    }
+
+    /**
+      Helper that, given a space-separated string of property paths and a context,
+      returns an array of class names. Calling this method also has the side
+      effect of setting up observers at those property paths, such that if they
+      change, the correct class name will be reapplied to the DOM element.
+
+      For example, if you pass the string "fooBar", it will first look up the
+      "fooBar" value of the context. If that value is true, it will add the
+      "foo-bar" class to the current element (i.e., the dasherized form of
+      "fooBar"). If the value is a string, it will add that string as the class.
+      Otherwise, it will not add any new class name.
+
+      @private
+      @method bindClasses
+      @for Ember.Handlebars
+      @param {String} classBindings A string, space-separated, of class bindings
+        to use
+      @param {View} view The view in which observers should look for the
+        element to update
+      @return {Array} An array of class names to add
+    */
+    function bindClasses(element, classBindings, view, options) {
+      var ret = [];
+      var newClass, value;
+
+      // For each property passed, loop through and setup
+      // an observer.
+      forEach.call(classBindings.split(' '), function(binding) {
+
+        // Variable in which the old class value is saved. The observer function
+        // closes over this variable, so it knows which string to remove when
+        // the property changes.
+        var oldClass;
+        var parsedPath = View._parsePropertyPath(binding);
+        var path = parsedPath.path;
+        var initialValue;
+
+        if (path === '') {
+          initialValue = true;
+        } else {
+          var lazyValue = view.getStream(path);
+          initialValue = lazyValue.value();
+
+          // Set up an observer on the context. If the property changes, toggle the
+          // class name.
+          lazyValue.subscribe(view._wrapAsScheduled(function applyClassNameBindings() {
+            // Get the current value of the property
+            var value = lazyValue.value();
+            newClass = classStringForParsedPath(parsedPath, value);
+
+            // If we had previously added a class to the element, remove it.
+            if (oldClass) {
+              element.removeClass(oldClass);
+            }
+
+            // If necessary, add a new class. Make sure we keep track of it so
+            // it can be removed in the future.
+            if (newClass) {
+              element.addClass(newClass);
+              oldClass = newClass;
+            } else {
+              oldClass = null;
+            }
+          }));
+        }
+
+        // We've already setup the observer; now we just need to figure out the
+        // correct behavior right now on the first pass through.
+        value = classStringForParsedPath(parsedPath, initialValue);
+
+        if (value) {
+          ret.push(value);
+
+          // Make sure we save the current value so that it can be removed if the
+          // observer fires.
+          oldClass = value;
+        }
+      });
+
+      return ret;
+    }
+
+    function classStringForParsedPath(parsedPath, value) {
+      return View._classStringForValue(parsedPath.path, value, parsedPath.className, parsedPath.falsyClassName);
+    }
+
+    __exports__["default"] = bindAttrHelper;
+
+    __exports__.bindAttrHelper = bindAttrHelper;
+    __exports__.bindAttrHelperDeprecated = bindAttrHelperDeprecated;
+    __exports__.bindClasses = bindClasses;
   });
 enifed("ember-htmlbars/helpers/binding",
   ["ember-metal/is_none","ember-metal/run_loop","ember-metal/property_get","ember-metal/streams/simple","ember-views/views/handlebars_bound_view","exports"],
@@ -10509,7 +10817,7 @@ enifed("ember-htmlbars/hooks",
       if (helper) {
         streamifyArgs(view, params, options, env);
         sanitizeOptionsForHelper(options);
-        return helper.call(view, element, params, options, env);
+        return helper.call(view, params, options, env);
       } else {
         return view.getStream(path);
       }
@@ -13801,7 +14109,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.7249b609
+      @version 1.10.0-beta.1+canary.5ad69afc
     */
 
     if ('undefined' === typeof Ember) {
@@ -13828,10 +14136,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.7249b609'
+      @default '1.10.0-beta.1+canary.5ad69afc'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.7249b609';
+    Ember.VERSION = '1.10.0-beta.1+canary.5ad69afc';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
