@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.78dc9e9b
+ * @version   1.10.0-beta.1+canary.7249b609
  */
 
 (function() {
@@ -12331,6 +12331,15 @@ enifed("ember-htmlbars/system/make-view-helper.jshint",
       ok(true, 'ember-htmlbars/system/make-view-helper.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/system/sanitize-for-helper.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/system');
+    test('ember-htmlbars/system/sanitize-for-helper.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/system/sanitize-for-helper.js should pass jshint.'); 
+    });
+  });
 enifed("ember-htmlbars/tests/helpers",
   ["exports"],
   function(__exports__) {
@@ -14553,6 +14562,91 @@ enifed("ember-htmlbars/tests/system/lookup-helper_test.jshint",
     module('JSHint - ember-htmlbars/tests/system');
     test('ember-htmlbars/tests/system/lookup-helper_test.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/tests/system/lookup-helper_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/tests/system/sanitize-for-helper_test",
+  ["ember-htmlbars/system/sanitize-for-helper"],
+  function(__dependency1__) {
+    "use strict";
+    var sanitizeOptionsForHelper = __dependency1__.sanitizeOptionsForHelper;
+
+    var options;
+    QUnit.module('ember-htmlbars: sanitize-for-helper', {
+      setup: function() {
+        options = {};
+      },
+
+      teardown: function() {
+        ok(options.types, 'types is present');
+        ok(options.hash, 'hash is present');
+        ok(options.hashTypes, 'hashTypes is present');
+      }
+    });
+
+    test('will not override `types` if present', function() {
+      expect(4);
+
+      var types = [];
+      options.types = types;
+
+      sanitizeOptionsForHelper(options);
+
+      equal(options.types, types, 'types is not changed when present');
+    });
+
+    test('will add `types` if not present', function() {
+      expect(4);
+
+      sanitizeOptionsForHelper(options);
+
+      deepEqual(options.types, [], 'types is added when not present');
+    });
+
+    test('will not override `hash` if present', function() {
+      expect(4);
+
+      var hash = {};
+      options.hash = hash;
+
+      sanitizeOptionsForHelper(options);
+
+      equal(options.hash, hash, 'hash is not changed when present');
+    });
+
+    test('will add `hash` if not present', function() {
+      expect(4);
+
+      sanitizeOptionsForHelper(options);
+
+      deepEqual(options.hash, {}, 'hash is added when not present');
+    });
+
+    test('will not override `hashTypes` if present', function() {
+      expect(4);
+
+      var hashTypes = {};
+      options.hashTypes = hashTypes;
+
+      sanitizeOptionsForHelper(options);
+
+      equal(options.hashTypes, hashTypes, 'hashTypes is not changed when present');
+    });
+
+    test('will add `hashTypes` if not present', function() {
+      expect(4);
+
+      sanitizeOptionsForHelper(options);
+
+      deepEqual(options.hashTypes, {}, 'hashTypes is added when not present');
+    });
+  });
+enifed("ember-htmlbars/tests/system/sanitize-for-helper_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/tests/system');
+    test('ember-htmlbars/tests/system/sanitize-for-helper_test.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/tests/system/sanitize-for-helper_test.js should pass jshint.'); 
     });
   });
 enifed("ember-metal-views.jshint",

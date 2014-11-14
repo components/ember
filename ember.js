@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.78dc9e9b
+ * @version   1.10.0-beta.1+canary.7249b609
  */
 
 (function() {
@@ -10868,10 +10868,11 @@ enifed("ember-htmlbars/helpers/yield",
     __exports__.yieldHelper = yieldHelper;
   });
 enifed("ember-htmlbars/hooks",
-  ["ember-htmlbars/system/lookup-helper","exports"],
-  function(__dependency1__, __exports__) {
+  ["ember-htmlbars/system/lookup-helper","ember-htmlbars/system/sanitize-for-helper","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     var lookupHelper = __dependency1__.lookupHelper;
+    var sanitizeOptionsForHelper = __dependency2__.sanitizeOptionsForHelper;
 
     function streamifyArgs(view, params, options, env) {
       if (params.length === 3 && params[1] === "as") {
@@ -10912,6 +10913,7 @@ enifed("ember-htmlbars/hooks",
       }
 
       streamifyArgs(view, params, options, env);
+      sanitizeOptionsForHelper(options);
       return helper.call(view, params, options, env);
     }
 
@@ -10920,6 +10922,7 @@ enifed("ember-htmlbars/hooks",
 
       if (helper) {
         streamifyArgs(view, params, options, env);
+        sanitizeOptionsForHelper(options);
         return helper.call(view, element, params, options, env);
       } else {
         return view.getStream(path);
@@ -10931,6 +10934,7 @@ enifed("ember-htmlbars/hooks",
 
       if (helper) {
         streamifyArgs(view, params, options, env);
+        sanitizeOptionsForHelper(options);
         return helper.call(view, params, options, env);
       } else {
         return view.getStream(path);
@@ -11060,6 +11064,35 @@ enifed("ember-htmlbars/system/make-view-helper",
         return viewHelper.call(this, [ViewClass], options, env);
       };
     }
+  });
+enifed("ember-htmlbars/system/sanitize-for-helper",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    /**
+      Sanitize options so that all helpers have `types`, `hash`, and `hashTypes`.
+
+      @private
+      @method sanitizeOptionsForHelper
+      @param {Object} options The options hash provided by the template engine.
+    */
+    function sanitizeOptionsForHelper(options) {
+      if (!options.types) {
+        options.types = [];
+      }
+
+      if (!options.hash) {
+        options.hash = {};
+      }
+
+      if (!options.hashTypes) {
+        options.hashTypes = {};
+      }
+
+      return options;
+    }
+
+    __exports__.sanitizeOptionsForHelper = sanitizeOptionsForHelper;
   });
 enifed("ember-metal-views",
   ["ember-metal-views/renderer","exports"],
@@ -14193,7 +14226,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.78dc9e9b
+      @version 1.10.0-beta.1+canary.7249b609
     */
 
     if ('undefined' === typeof Ember) {
@@ -14220,10 +14253,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.78dc9e9b'
+      @default '1.10.0-beta.1+canary.7249b609'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.78dc9e9b';
+    Ember.VERSION = '1.10.0-beta.1+canary.7249b609';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
