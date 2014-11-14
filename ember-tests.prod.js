@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.9e7966d8
+ * @version   1.10.0-beta.1+canary.19a64847
  */
 
 (function() {
@@ -24523,6 +24523,15 @@ enifed("ember-routing-handlebars/helpers/outlet.jshint",
       ok(true, 'ember-routing-handlebars/helpers/outlet.js should pass jshint.'); 
     });
   });
+enifed("ember-routing-handlebars/helpers/query_params.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-routing-handlebars/helpers');
+    test('ember-routing-handlebars/helpers/query_params.js should pass jshint', function() { 
+      ok(true, 'ember-routing-handlebars/helpers/query_params.js should pass jshint.'); 
+    });
+  });
 enifed("ember-routing-handlebars/helpers/render.jshint",
   [],
   function() {
@@ -26188,7 +26197,7 @@ enifed("ember-routing-handlebars/tests/helpers/render_test",
     var jQuery = __dependency18__["default"];
     var ActionManager = __dependency19__["default"];
 
-    var renderHelper = __dependency20__["default"];
+    var renderHelper = __dependency20__.renderHelper;
     var actionHelper = __dependency21__.actionHelper;
     var outletHelper = __dependency22__.outletHelper;
 
@@ -26743,6 +26752,55 @@ enifed("ember-routing-handlebars/tests/helpers/render_test.jshint",
       ok(true, 'ember-routing-handlebars/tests/helpers/render_test.js should pass jshint.'); 
     });
   });
+enifed("ember-routing-views.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - .');
+    test('ember-routing-views.js should pass jshint', function() { 
+      ok(true, 'ember-routing-views.js should pass jshint.'); 
+    });
+  });
+enifed("ember-routing-views/tests/main_test",
+  ["ember-routing-views","ember-metal/core"],
+  function(__dependency1__, __dependency2__) {
+    "use strict";
+    var Ember = __dependency2__["default"];
+
+    QUnit.module("ember-routing-views");
+
+    test("exports correctly", function() {
+      ok(Ember.LinkView, "LinkView is exported correctly");
+      ok(Ember.OutletView, "OutletView is exported correctly");
+    });
+  });
+enifed("ember-routing-views/tests/main_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-routing-views/tests');
+    test('ember-routing-views/tests/main_test.js should pass jshint', function() { 
+      ok(true, 'ember-routing-views/tests/main_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-routing-views/views/link.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-routing-views/views');
+    test('ember-routing-views/views/link.js should pass jshint', function() { 
+      ok(true, 'ember-routing-views/views/link.js should pass jshint.'); 
+    });
+  });
+enifed("ember-routing-views/views/outlet.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-routing-views/views');
+    test('ember-routing-views/views/outlet.js should pass jshint', function() { 
+      ok(true, 'ember-routing-views/views/outlet.js should pass jshint.'); 
+    });
+  });
 enifed("ember-routing.jshint",
   [],
   function() {
@@ -26858,6 +26916,15 @@ enifed("ember-routing/system/generate_controller.jshint",
     module('JSHint - ember-routing/system');
     test('ember-routing/system/generate_controller.js should pass jshint', function() { 
       ok(true, 'ember-routing/system/generate_controller.js should pass jshint.'); 
+    });
+  });
+enifed("ember-routing/system/query_params.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-routing/system');
+    test('ember-routing/system/query_params.js should pass jshint', function() { 
+      ok(true, 'ember-routing/system/query_params.js should pass jshint.'); 
     });
   });
 enifed("ember-routing/system/route.jshint",

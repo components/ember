@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.9e7966d8
+ * @version   1.10.0-beta.1+canary.19a64847
  */
 
 (function() {
@@ -13749,7 +13749,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.9e7966d8
+      @version 1.10.0-beta.1+canary.19a64847
     */
 
     if ('undefined' === typeof Ember) {
@@ -13776,10 +13776,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.9e7966d8'
+      @default '1.10.0-beta.1+canary.19a64847'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.9e7966d8';
+    Ember.VERSION = '1.10.0-beta.1+canary.19a64847';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -20430,15 +20430,15 @@ enifed("ember-metal/watching",
     __exports__.destroy = destroy;
   });
 enifed("ember-routing-handlebars",
-  ["ember-metal/core","ember-handlebars","ember-routing-handlebars/helpers/link_to","ember-routing-handlebars/helpers/outlet","ember-routing-handlebars/helpers/render","ember-routing-handlebars/helpers/action","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+  ["ember-metal/core","ember-handlebars","ember-routing-handlebars/helpers/link_to","ember-routing-handlebars/helpers/query_params","ember-routing-handlebars/helpers/outlet","ember-routing-handlebars/helpers/render","ember-routing-handlebars/helpers/action","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
     /**
     Ember Routing Handlebars
 
     @module ember
     @submodule ember-routing-handlebars
-    @requires ember-views
+    @requires ember-routing
     */
 
     var Ember = __dependency1__["default"];
@@ -20446,20 +20446,15 @@ enifed("ember-routing-handlebars",
 
     var deprecatedLinkToHelper = __dependency3__.deprecatedLinkToHelper;
     var linkToHelper = __dependency3__.linkToHelper;
-    var LinkView = __dependency3__.LinkView;
-    var queryParamsHelper = __dependency3__.queryParamsHelper;
 
-    var outletHelper = __dependency4__.outletHelper;
-    var OutletView = __dependency4__.OutletView;
+    var queryParamsHelper = __dependency4__.queryParamsHelper;
+    var outletHelper = __dependency5__.outletHelper;
+    var renderHelper = __dependency6__.renderHelper;
 
-    var renderHelper = __dependency5__["default"];
+    var ActionHelper = __dependency7__.ActionHelper;
+    var actionHelper = __dependency7__.actionHelper;
 
-    var ActionHelper = __dependency6__.ActionHelper;
-    var actionHelper = __dependency6__.actionHelper;
-
-    Ember.LinkView = LinkView;
     EmberHandlebars.ActionHelper = ActionHelper;
-    EmberHandlebars.OutletView = OutletView;
 
     EmberHandlebars.registerHelper('render', renderHelper);
     EmberHandlebars.registerHelper('action', actionHelper);
@@ -20471,24 +20466,23 @@ enifed("ember-routing-handlebars",
     __exports__["default"] = Ember;
   });
 enifed("ember-routing-handlebars/helpers/action",
-  ["ember-metal/core","ember-metal/array","ember-metal/utils","ember-metal/run_loop","ember-views/streams/read","ember-views/system/utils","ember-views/system/action_manager","ember-handlebars","exports"],
+  ["ember-metal/core","ember-handlebars","ember-metal/array","ember-metal/utils","ember-metal/run_loop","ember-views/streams/read","ember-views/system/utils","ember-views/system/action_manager","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
-    var Ember = __dependency1__["default"];
-    // Handlebars, uuid, FEATURES, assert, deprecate
-    var forEach = __dependency2__.forEach;
-    var uuid = __dependency3__.uuid;
-    var run = __dependency4__["default"];
-
-    var readUnwrappedModel = __dependency5__.readUnwrappedModel;
-    var isSimpleClick = __dependency6__.isSimpleClick;
-    var ActionManager = __dependency7__["default"];
-    var EmberHandlebars = __dependency8__["default"];
-
     /**
     @module ember
-    @submodule ember-routing
+    @submodule ember-routing-handlebars
     */
+
+    var Ember = __dependency1__["default"];
+    // Handlebars, uuid, FEATURES, assert, deprecate
+    var EmberHandlebars = __dependency2__["default"];
+    var forEach = __dependency3__.forEach;
+    var uuid = __dependency4__.uuid;
+    var run = __dependency5__["default"];
+    var readUnwrappedModel = __dependency6__.readUnwrappedModel;
+    var isSimpleClick = __dependency7__.isSimpleClick;
+    var ActionManager = __dependency8__["default"];
 
     function actionArgs(parameters, actionName) {
       var ret, i;
@@ -20819,34 +20813,738 @@ enifed("ember-routing-handlebars/helpers/action",
     __exports__.actionHelper = actionHelper;
   });
 enifed("ember-routing-handlebars/helpers/link_to",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/merge","ember-metal/run_loop","ember-metal/computed","ember-runtime/system/string","ember-runtime/system/object","ember-runtime/mixins/controller","ember-metal/keys","ember-views/system/utils","ember-views/views/component","ember-handlebars/helpers/view","ember-routing/utils","ember-handlebars/ext","ember-metal/streams/read","ember-handlebars","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __exports__) {
+  ["ember-metal/core","ember-runtime/mixins/controller","ember-handlebars/helpers/view","ember-handlebars/ext","ember-routing-views/views/link","ember-handlebars","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
+    /**
+    @module ember
+    @submodule ember-routing-handlebars
+    */
+
     var Ember = __dependency1__["default"];
-    // FEATURES, Logger, Handlebars, warn, assert
+    // assert
+    var ControllerMixin = __dependency2__["default"];
+    var viewHelper = __dependency3__.viewHelper;
+    var stringifyValue = __dependency4__.stringifyValue;
+    var LinkView = __dependency5__.LinkView;
+
+
+    var slice = [].slice;
+
+    /**
+      The `{{link-to}}` helper renders a link to the supplied
+      `routeName` passing an optionally supplied model to the
+      route as its `model` context of the route. The block
+      for `{{link-to}}` becomes the innerHTML of the rendered
+      element:
+
+      ```handlebars
+      {{#link-to 'photoGallery'}}
+        Great Hamster Photos
+      {{/link-to}}
+      ```
+
+      ```html
+      <a href="/hamster-photos">
+        Great Hamster Photos
+      </a>
+      ```
+
+      ### Supplying a tagName
+      By default `{{link-to}}` renders an `<a>` element. This can
+      be overridden for a single use of `{{link-to}}` by supplying
+      a `tagName` option:
+
+      ```handlebars
+      {{#link-to 'photoGallery' tagName="li"}}
+        Great Hamster Photos
+      {{/link-to}}
+      ```
+
+      ```html
+      <li>
+        Great Hamster Photos
+      </li>
+      ```
+
+      To override this option for your entire application, see
+      "Overriding Application-wide Defaults".
+
+      ### Disabling the `link-to` helper
+      By default `{{link-to}}` is enabled.
+      any passed value to `disabled` helper property will disable the `link-to` helper.
+
+      static use: the `disabled` option:
+
+      ```handlebars
+      {{#link-to 'photoGallery' disabled=true}}
+        Great Hamster Photos
+      {{/link-to}}
+      ```
+
+      dynamic use: the `disabledWhen` option:
+
+      ```handlebars
+      {{#link-to 'photoGallery' disabledWhen=controller.someProperty}}
+        Great Hamster Photos
+      {{/link-to}}
+      ```
+
+      any passed value to `disabled` will disable it except `undefined`.
+      to ensure that only `true` disable the `link-to` helper you can
+      override the global behaviour of `Ember.LinkView`.
+
+      ```javascript
+      Ember.LinkView.reopen({
+        disabled: Ember.computed(function(key, value) {
+          if (value !== undefined) {
+            this.set('_isDisabled', value === true);
+          }
+          return value === true ? get(this, 'disabledClass') : false;
+        })
+      });
+      ```
+
+      see "Overriding Application-wide Defaults" for more.
+
+      ### Handling `href`
+      `{{link-to}}` will use your application's Router to
+      fill the element's `href` property with a url that
+      matches the path to the supplied `routeName` for your
+      routers's configured `Location` scheme, which defaults
+      to Ember.HashLocation.
+
+      ### Handling current route
+      `{{link-to}}` will apply a CSS class name of 'active'
+      when the application's current route matches
+      the supplied routeName. For example, if the application's
+      current route is 'photoGallery.recent' the following
+      use of `{{link-to}}`:
+
+      ```handlebars
+      {{#link-to 'photoGallery.recent'}}
+        Great Hamster Photos from the last week
+      {{/link-to}}
+      ```
+
+      will result in
+
+      ```html
+      <a href="/hamster-photos/this-week" class="active">
+        Great Hamster Photos
+      </a>
+      ```
+
+      The CSS class name used for active classes can be customized
+      for a single use of `{{link-to}}` by passing an `activeClass`
+      option:
+
+      ```handlebars
+      {{#link-to 'photoGallery.recent' activeClass="current-url"}}
+        Great Hamster Photos from the last week
+      {{/link-to}}
+      ```
+
+      ```html
+      <a href="/hamster-photos/this-week" class="current-url">
+        Great Hamster Photos
+      </a>
+      ```
+
+      To override this option for your entire application, see
+      "Overriding Application-wide Defaults".
+
+      ### Supplying a model
+      An optional model argument can be used for routes whose
+      paths contain dynamic segments. This argument will become
+      the model context of the linked route:
+
+      ```javascript
+      App.Router.map(function() {
+        this.resource("photoGallery", {path: "hamster-photos/:photo_id"});
+      });
+      ```
+
+      ```handlebars
+      {{#link-to 'photoGallery' aPhoto}}
+        {{aPhoto.title}}
+      {{/link-to}}
+      ```
+
+      ```html
+      <a href="/hamster-photos/42">
+        Tomster
+      </a>
+      ```
+
+      ### Supplying multiple models
+      For deep-linking to route paths that contain multiple
+      dynamic segments, multiple model arguments can be used.
+      As the router transitions through the route path, each
+      supplied model argument will become the context for the
+      route with the dynamic segments:
+
+      ```javascript
+      App.Router.map(function() {
+        this.resource("photoGallery", {path: "hamster-photos/:photo_id"}, function() {
+          this.route("comment", {path: "comments/:comment_id"});
+        });
+      });
+      ```
+      This argument will become the model context of the linked route:
+
+      ```handlebars
+      {{#link-to 'photoGallery.comment' aPhoto comment}}
+        {{comment.body}}
+      {{/link-to}}
+      ```
+
+      ```html
+      <a href="/hamster-photos/42/comment/718">
+        A+++ would snuggle again.
+      </a>
+      ```
+
+      ### Supplying an explicit dynamic segment value
+      If you don't have a model object available to pass to `{{link-to}}`,
+      an optional string or integer argument can be passed for routes whose
+      paths contain dynamic segments. This argument will become the value
+      of the dynamic segment:
+
+      ```javascript
+      App.Router.map(function() {
+        this.resource("photoGallery", {path: "hamster-photos/:photo_id"});
+      });
+      ```
+
+      ```handlebars
+      {{#link-to 'photoGallery' aPhotoId}}
+        {{aPhoto.title}}
+      {{/link-to}}
+      ```
+
+      ```html
+      <a href="/hamster-photos/42">
+        Tomster
+      </a>
+      ```
+
+      When transitioning into the linked route, the `model` hook will
+      be triggered with parameters including this passed identifier.
+
+      ### Allowing Default Action
+
+     By default the `{{link-to}}` helper prevents the default browser action
+     by calling `preventDefault()` as this sort of action bubbling is normally
+     handled internally and we do not want to take the browser to a new URL (for
+     example).
+
+     If you need to override this behavior specify `preventDefault=false` in
+     your template:
+
+      ```handlebars
+      {{#link-to 'photoGallery' aPhotoId preventDefault=false}}
+        {{aPhotoId.title}}
+      {{/link-to}}
+      ```
+
+      ### Overriding attributes
+      You can override any given property of the Ember.LinkView
+      that is generated by the `{{link-to}}` helper by passing
+      key/value pairs, like so:
+
+      ```handlebars
+      {{#link-to  aPhoto tagName='li' title='Following this link will change your life' classNames='pic sweet'}}
+        Uh-mazing!
+      {{/link-to}}
+      ```
+
+      See [Ember.LinkView](/api/classes/Ember.LinkView.html) for a
+      complete list of overrideable properties. Be sure to also
+      check out inherited properties of `LinkView`.
+
+      ### Overriding Application-wide Defaults
+      ``{{link-to}}`` creates an instance of Ember.LinkView
+      for rendering. To override options for your entire
+      application, reopen Ember.LinkView and supply the
+      desired values:
+
+      ``` javascript
+      Ember.LinkView.reopen({
+        activeClass: "is-active",
+        tagName: 'li'
+      })
+      ```
+
+      It is also possible to override the default event in
+      this manner:
+
+      ``` javascript
+      Ember.LinkView.reopen({
+        eventName: 'customEventName'
+      });
+      ```
+
+      @method link-to
+      @for Ember.Handlebars.helpers
+      @param {String} routeName
+      @param {Object} [context]*
+      @param [options] {Object} Handlebars key/value pairs of options, you can override any property of Ember.LinkView
+      @return {String} HTML string
+      @see {Ember.LinkView}
+    */
+    function linkToHelper(name) {
+      var options = slice.call(arguments, -1)[0];
+      var params = slice.call(arguments, 0, -1);
+      var view = options.data.view;
+      var hash = options.hash;
+      var hashTypes = options.hashTypes;
+      var types = options.types;
+      var shouldEscape = !hash.unescaped;
+      var queryParamsObject;
+
+      
+      var lastParam = params[params.length - 1];
+
+      if (lastParam && lastParam.isQueryParams) {
+        hash.queryParamsObject = queryParamsObject = params.pop();
+      }
+
+      if (hash.disabledWhen) {
+        hash.disabledBinding = hash.disabledWhen;
+        hashTypes.disabledBinding = hashTypes.disabledWhen;
+        delete hash.disabledWhen;
+        delete hashTypes.disabledWhen;
+      }
+
+      if (!options.fn) {
+        var linkTitle = params.shift();
+        var linkTitleType = types.shift();
+        if (linkTitleType === 'ID') {
+          hash.linkTitle = linkTitle = view.getStream(linkTitle);
+          options.fn = function() {
+            return stringifyValue(linkTitle.value(), shouldEscape);
+          };
+        } else {
+          options.fn = function() {
+            return linkTitle;
+          };
+        }
+      }
+
+      // Setup route & param streams
+      for (var i = 0; i < params.length; i++) {
+        var paramPath = params[i];
+        if (types[i] === 'ID') {
+          var lazyValue = view.getStream(paramPath);
+
+          // TODO: Consider a better approach to unwrapping controllers.
+          if (paramPath !== 'controller') {
+            while (ControllerMixin.detect(lazyValue.value())) {
+              paramPath = (paramPath === '') ? 'model' : paramPath + '.model';
+              lazyValue = view.getStream(paramPath);
+            }
+          }
+          params[i] = lazyValue;
+        }
+      }
+
+      hash.params = params;
+
+      options.helperName = options.helperName || 'link-to';
+
+      return viewHelper.call(this, LinkView, options);
+    }
+
+    /**
+      See [link-to](/api/classes/Ember.Handlebars.helpers.html#method_link-to)
+
+      @method linkTo
+      @for Ember.Handlebars.helpers
+      @deprecated
+      @param {String} routeName
+      @param {Object} [context]*
+      @return {String} HTML string
+    */
+    function deprecatedLinkToHelper() {
+      
+      return linkToHelper.apply(this, arguments);
+    }
+
+    __exports__.deprecatedLinkToHelper = deprecatedLinkToHelper;
+    __exports__.linkToHelper = linkToHelper;
+  });
+enifed("ember-routing-handlebars/helpers/outlet",
+  ["ember-metal/core","ember-metal/property_set","ember-handlebars/helpers/view","ember-routing-views/views/outlet","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-routing-handlebars
+    */
+
+    var Ember = __dependency1__["default"];
+    // assert
+    var set = __dependency2__.set;
+    var viewHelper = __dependency3__.viewHelper;
+    var OutletView = __dependency4__.OutletView;
+
+    /**
+      The `outlet` helper is a placeholder that the router will fill in with
+      the appropriate template based on the current state of the application.
+
+      ``` handlebars
+      {{outlet}}
+      ```
+
+      By default, a template based on Ember's naming conventions will be rendered
+      into the `outlet` (e.g. `App.PostsRoute` will render the `posts` template).
+
+      You can render a different template by using the `render()` method in the
+      route's `renderTemplate` hook. The following will render the `favoritePost`
+      template into the `outlet`.
+
+      ``` javascript
+      App.PostsRoute = Ember.Route.extend({
+        renderTemplate: function() {
+          this.render('favoritePost');
+        }
+      });
+      ```
+
+      You can create custom named outlets for more control.
+
+      ``` handlebars
+      {{outlet 'favoritePost'}}
+      {{outlet 'posts'}}
+      ```
+
+      Then you can define what template is rendered into each outlet in your
+      route.
+
+
+      ``` javascript
+      App.PostsRoute = Ember.Route.extend({
+        renderTemplate: function() {
+          this.render('favoritePost', { outlet: 'favoritePost' });
+          this.render('posts', { outlet: 'posts' });
+        }
+      });
+      ```
+
+      You can specify the view that the outlet uses to contain and manage the
+      templates rendered into it.
+
+      ``` handlebars
+      {{outlet view='sectionContainer'}}
+      ```
+
+      ``` javascript
+      App.SectionContainer = Ember.ContainerView.extend({
+        tagName: 'section',
+        classNames: ['special']
+      });
+      ```
+
+      @method outlet
+      @for Ember.Handlebars.helpers
+      @param {String} property the property on the controller
+        that holds the view for this outlet
+      @return {String} HTML string
+    */
+    function outletHelper(property, options) {
+      var outletSource;
+      var viewName;
+      var viewClass;
+      var viewFullName;
+
+      if (property && property.data && property.data.isRenderData) {
+        options = property;
+        property = 'main';
+      }
+
+      var view = options.data.view;
+      var container = view.container;
+
+      outletSource = view;
+      while (!outletSource.get('template.isTop')) {
+        outletSource = outletSource.get('_parentView');
+      }
+      set(view, 'outletSource', outletSource);
+
+      // provide controller override
+      viewName = options.hash.view;
+
+      if (viewName) {
+        viewFullName = 'view:' + viewName;
+                      }
+
+      viewClass = viewName ? container.lookupFactory(viewFullName) : options.hash.viewClass || OutletView;
+      options.types = [ 'ID' ];
+
+      options.hash.currentViewBinding = '_view.outletSource._outlets.' + property;
+      options.hashTypes.currentViewBinding = 'STRING';
+
+      options.helperName = options.helperName || 'outlet';
+
+      return viewHelper.call(this, viewClass, options);
+    }
+
+    __exports__.outletHelper = outletHelper;
+  });
+enifed("ember-routing-handlebars/helpers/query_params",
+  ["ember-metal/core","ember-runtime/system/string","ember-routing/system/query_params","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-routing-handlebars
+    */
+
+    var Ember = __dependency1__["default"];
+    // assert
+    var fmt = __dependency2__.fmt;
+    var QueryParams = __dependency3__["default"];
+
+    /**
+      This is a sub-expression to be used in conjunction with the link-to helper.
+      It will supply url query parameters to the target route.
+
+      Example
+
+      {#link-to 'posts' (query-params direction="asc")}}Sort{{/link-to}}
+
+      @method query-params
+      @for Ember.Handlebars.helpers
+      @param {Object} hash takes a hash of query parameters
+      @return {String} HTML string
+    */
+    function queryParamsHelper(options) {
+      
+      var view = options.data.view;
+      var hash = options.hash;
+      var hashTypes = options.hashTypes;
+
+      for (var k in hash) {
+        if (hashTypes[k] === 'ID') {
+          hash[k] = view.getStream(hash[k]);
+        }
+      }
+
+      return QueryParams.create({
+        values: options.hash
+      });
+    }
+    __exports__.queryParamsHelper = queryParamsHelper;
+  });
+enifed("ember-routing-handlebars/helpers/render",
+  ["ember-metal/core","ember-metal/error","ember-runtime/system/string","ember-routing/system/generate_controller","ember-handlebars/helpers/view","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-routing-handlebars
+    */
+
+    var Ember = __dependency1__["default"];
+    // assert, deprecate
+    var EmberError = __dependency2__["default"];
+    var camelize = __dependency3__.camelize;
+    var generateControllerFactory = __dependency4__.generateControllerFactory;
+    var generateController = __dependency4__["default"];
+    var ViewHelper = __dependency5__.ViewHelper;
+
+    /**
+      Calling ``{{render}}`` from within a template will insert another
+      template that matches the provided name. The inserted template will
+      access its properties on its own controller (rather than the controller
+      of the parent template).
+
+      If a view class with the same name exists, the view class also will be used.
+
+      Note: A given controller may only be used *once* in your app in this manner.
+      A singleton instance of the controller will be created for you.
+
+      Example:
+
+      ```javascript
+      App.NavigationController = Ember.Controller.extend({
+        who: "world"
+      });
+      ```
+
+      ```handlebars
+      <!-- navigation.hbs -->
+      Hello, {{who}}.
+      ```
+
+      ```handlebars
+      <!-- application.hbs -->
+      <h1>My great app</h1>
+      {{render "navigation"}}
+      ```
+
+      ```html
+      <h1>My great app</h1>
+      <div class='ember-view'>
+        Hello, world.
+      </div>
+      ```
+
+      Optionally you may provide a second argument: a property path
+      that will be bound to the `model` property of the controller.
+
+      If a `model` property path is specified, then a new instance of the
+      controller will be created and `{{render}}` can be used multiple times
+      with the same name.
+
+     For example if you had this `author` template.
+
+     ```handlebars
+    <div class="author">
+    Written by {{firstName}} {{lastName}}.
+    Total Posts: {{postCount}}
+    </div>
+    ```
+
+    You could render it inside the `post` template using the `render` helper.
+
+    ```handlebars
+    <div class="post">
+    <h1>{{title}}</h1>
+    <div>{{body}}</div>
+    {{render "author" author}}
+    </div>
+     ```
+
+      @method render
+      @for Ember.Handlebars.helpers
+      @param {String} name
+      @param {Object?} contextString
+      @param {Hash} options
+      @return {String} HTML string
+    */
+    function renderHelper(name, contextString, options) {
+      var length = arguments.length;
+      var container, router, controller, view, initialContext;
+
+      container = (options || contextString).data.view._keywords.controller.value().container;
+      router = container.lookup('router:main');
+
+      if (length === 2) {
+        // use the singleton controller
+        options = contextString;
+        contextString = undefined;
+              } else if (length === 3) {
+        // create a new controller
+        initialContext = options.data.view.getStream(contextString).value();
+      } else {
+        throw new EmberError("You must pass a templateName to render");
+      }
+
+      
+      // # legacy namespace
+      name = name.replace(/\//g, '.');
+      // \ legacy slash as namespace support
+
+
+      view = container.lookup('view:' + name) || container.lookup('view:default');
+
+      // provide controller override
+      var controllerName = options.hash.controller || name;
+      var controllerFullName = 'controller:' + controllerName;
+
+      if (options.hash.controller) {
+              }
+
+      var parentController = options.data.view._keywords.controller.value();
+
+      // choose name
+      if (length > 2) {
+        var factory = container.lookupFactory(controllerFullName) ||
+                      generateControllerFactory(container, controllerName, initialContext);
+
+        controller = factory.create({
+          modelBinding: options.data.view._getBindingForStream(contextString),
+          parentController: parentController,
+          target: parentController
+        });
+
+        view.one('willDestroyElement', function() {
+          controller.destroy();
+        });
+      } else {
+        controller = container.lookup(controllerFullName) ||
+                     generateController(container, controllerName);
+
+        controller.setProperties({
+          target: parentController,
+          parentController: parentController
+        });
+      }
+
+      options.hash.viewName = camelize(name);
+
+      var templateName = 'template:' + name;
+            options.hash.template = container.lookup(templateName);
+
+      options.hash.controller = controller;
+
+      if (router && !initialContext) {
+        router._connectActiveView(name, view);
+      }
+
+      options.helperName = options.helperName || ('render "' + name + '"');
+
+      ViewHelper.instanceHelper(this, view, options);
+    }
+
+    __exports__.renderHelper = renderHelper;
+  });
+enifed("ember-routing-views",
+  ["ember-metal/core","ember-routing-views/views/link","ember-routing-views/views/outlet","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+    "use strict";
+    /**
+    Ember Routing Views
+
+    @module ember
+    @submodule ember-routing-views
+    @requires ember-routing
+    */
+
+    var Ember = __dependency1__["default"];
+
+    var LinkView = __dependency2__.LinkView;
+    var OutletView = __dependency3__.OutletView;
+
+    Ember.LinkView = LinkView;
+    Ember.OutletView = OutletView;
+
+    __exports__["default"] = Ember;
+  });
+enifed("ember-routing-views/views/link",
+  ["ember-metal/core","ember-metal/property_get","ember-metal/merge","ember-metal/run_loop","ember-metal/computed","ember-runtime/system/string","ember-metal/keys","ember-views/system/utils","ember-views/views/component","ember-routing/utils","ember-metal/streams/read","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-routing-views
+    */
+
+    var Ember = __dependency1__["default"];
+    // FEATURES, Logger, assert
+
     var get = __dependency2__.get;
     var merge = __dependency3__["default"];
     var run = __dependency4__["default"];
     var computed = __dependency5__.computed;
-
     var fmt = __dependency6__.fmt;
-    var EmberObject = __dependency7__["default"];
-    var ControllerMixin = __dependency8__["default"];
-    var keys = __dependency9__["default"];
-    var isSimpleClick = __dependency10__.isSimpleClick;
-    var EmberComponent = __dependency11__["default"];
-    var viewHelper = __dependency12__.viewHelper;
-    var routeArgs = __dependency13__.routeArgs;
-    var stringifyValue = __dependency14__.stringifyValue;
-    var read = __dependency15__.read;
-
-
-    /**
-    @module ember
-    @submodule ember-routing
-    */
-
-    var slice = [].slice;
+    var keys = __dependency7__["default"];
+    var isSimpleClick = __dependency8__.isSimpleClick;
+    var EmberComponent = __dependency9__["default"];
+    var routeArgs = __dependency10__.routeArgs;
+    var read = __dependency11__.read;
 
     var numberOfContextsAcceptedByHandler = function(handler, handlerInfos) {
       var req = 0;
@@ -20858,11 +21556,6 @@ enifed("ember-routing-handlebars/helpers/link_to",
 
       return req;
     };
-
-    var QueryParams = EmberObject.extend({
-      isQueryParams: true,
-      values: null
-    });
 
     /**
       `Ember.LinkView` renders an element whose `click` event triggers a
@@ -21405,376 +22098,6 @@ enifed("ember-routing-handlebars/helpers/link_to",
       });
     
 
-    /**
-      The `{{link-to}}` helper renders a link to the supplied
-      `routeName` passing an optionally supplied model to the
-      route as its `model` context of the route. The block
-      for `{{link-to}}` becomes the innerHTML of the rendered
-      element:
-
-      ```handlebars
-      {{#link-to 'photoGallery'}}
-        Great Hamster Photos
-      {{/link-to}}
-      ```
-
-      ```html
-      <a href="/hamster-photos">
-        Great Hamster Photos
-      </a>
-      ```
-
-      ### Supplying a tagName
-      By default `{{link-to}}` renders an `<a>` element. This can
-      be overridden for a single use of `{{link-to}}` by supplying
-      a `tagName` option:
-
-      ```handlebars
-      {{#link-to 'photoGallery' tagName="li"}}
-        Great Hamster Photos
-      {{/link-to}}
-      ```
-
-      ```html
-      <li>
-        Great Hamster Photos
-      </li>
-      ```
-
-      To override this option for your entire application, see
-      "Overriding Application-wide Defaults".
-
-      ### Disabling the `link-to` helper
-      By default `{{link-to}}` is enabled.
-      any passed value to `disabled` helper property will disable the `link-to` helper.
-
-      static use: the `disabled` option:
-
-      ```handlebars
-      {{#link-to 'photoGallery' disabled=true}}
-        Great Hamster Photos
-      {{/link-to}}
-      ```
-
-      dynamic use: the `disabledWhen` option:
-
-      ```handlebars
-      {{#link-to 'photoGallery' disabledWhen=controller.someProperty}}
-        Great Hamster Photos
-      {{/link-to}}
-      ```
-
-      any passed value to `disabled` will disable it except `undefined`.
-      to ensure that only `true` disable the `link-to` helper you can
-      override the global behaviour of `Ember.LinkView`.
-
-      ```javascript
-      Ember.LinkView.reopen({
-        disabled: Ember.computed(function(key, value) {
-          if (value !== undefined) {
-            this.set('_isDisabled', value === true);
-          }
-          return value === true ? get(this, 'disabledClass') : false;
-        })
-      });
-      ```
-
-      see "Overriding Application-wide Defaults" for more.
-
-      ### Handling `href`
-      `{{link-to}}` will use your application's Router to
-      fill the element's `href` property with a url that
-      matches the path to the supplied `routeName` for your
-      routers's configured `Location` scheme, which defaults
-      to Ember.HashLocation.
-
-      ### Handling current route
-      `{{link-to}}` will apply a CSS class name of 'active'
-      when the application's current route matches
-      the supplied routeName. For example, if the application's
-      current route is 'photoGallery.recent' the following
-      use of `{{link-to}}`:
-
-      ```handlebars
-      {{#link-to 'photoGallery.recent'}}
-        Great Hamster Photos from the last week
-      {{/link-to}}
-      ```
-
-      will result in
-
-      ```html
-      <a href="/hamster-photos/this-week" class="active">
-        Great Hamster Photos
-      </a>
-      ```
-
-      The CSS class name used for active classes can be customized
-      for a single use of `{{link-to}}` by passing an `activeClass`
-      option:
-
-      ```handlebars
-      {{#link-to 'photoGallery.recent' activeClass="current-url"}}
-        Great Hamster Photos from the last week
-      {{/link-to}}
-      ```
-
-      ```html
-      <a href="/hamster-photos/this-week" class="current-url">
-        Great Hamster Photos
-      </a>
-      ```
-
-      To override this option for your entire application, see
-      "Overriding Application-wide Defaults".
-
-      ### Supplying a model
-      An optional model argument can be used for routes whose
-      paths contain dynamic segments. This argument will become
-      the model context of the linked route:
-
-      ```javascript
-      App.Router.map(function() {
-        this.resource("photoGallery", {path: "hamster-photos/:photo_id"});
-      });
-      ```
-
-      ```handlebars
-      {{#link-to 'photoGallery' aPhoto}}
-        {{aPhoto.title}}
-      {{/link-to}}
-      ```
-
-      ```html
-      <a href="/hamster-photos/42">
-        Tomster
-      </a>
-      ```
-
-      ### Supplying multiple models
-      For deep-linking to route paths that contain multiple
-      dynamic segments, multiple model arguments can be used.
-      As the router transitions through the route path, each
-      supplied model argument will become the context for the
-      route with the dynamic segments:
-
-      ```javascript
-      App.Router.map(function() {
-        this.resource("photoGallery", {path: "hamster-photos/:photo_id"}, function() {
-          this.route("comment", {path: "comments/:comment_id"});
-        });
-      });
-      ```
-      This argument will become the model context of the linked route:
-
-      ```handlebars
-      {{#link-to 'photoGallery.comment' aPhoto comment}}
-        {{comment.body}}
-      {{/link-to}}
-      ```
-
-      ```html
-      <a href="/hamster-photos/42/comment/718">
-        A+++ would snuggle again.
-      </a>
-      ```
-
-      ### Supplying an explicit dynamic segment value
-      If you don't have a model object available to pass to `{{link-to}}`,
-      an optional string or integer argument can be passed for routes whose
-      paths contain dynamic segments. This argument will become the value
-      of the dynamic segment:
-
-      ```javascript
-      App.Router.map(function() {
-        this.resource("photoGallery", {path: "hamster-photos/:photo_id"});
-      });
-      ```
-
-      ```handlebars
-      {{#link-to 'photoGallery' aPhotoId}}
-        {{aPhoto.title}}
-      {{/link-to}}
-      ```
-
-      ```html
-      <a href="/hamster-photos/42">
-        Tomster
-      </a>
-      ```
-
-      When transitioning into the linked route, the `model` hook will
-      be triggered with parameters including this passed identifier.
-
-      ### Allowing Default Action
-
-     By default the `{{link-to}}` helper prevents the default browser action
-     by calling `preventDefault()` as this sort of action bubbling is normally
-     handled internally and we do not want to take the browser to a new URL (for
-     example).
-
-     If you need to override this behavior specify `preventDefault=false` in
-     your template:
-
-      ```handlebars
-      {{#link-to 'photoGallery' aPhotoId preventDefault=false}}
-        {{aPhotoId.title}}
-      {{/link-to}}
-      ```
-
-      ### Overriding attributes
-      You can override any given property of the Ember.LinkView
-      that is generated by the `{{link-to}}` helper by passing
-      key/value pairs, like so:
-
-      ```handlebars
-      {{#link-to  aPhoto tagName='li' title='Following this link will change your life' classNames='pic sweet'}}
-        Uh-mazing!
-      {{/link-to}}
-      ```
-
-      See [Ember.LinkView](/api/classes/Ember.LinkView.html) for a
-      complete list of overrideable properties. Be sure to also
-      check out inherited properties of `LinkView`.
-
-      ### Overriding Application-wide Defaults
-      ``{{link-to}}`` creates an instance of Ember.LinkView
-      for rendering. To override options for your entire
-      application, reopen Ember.LinkView and supply the
-      desired values:
-
-      ``` javascript
-      Ember.LinkView.reopen({
-        activeClass: "is-active",
-        tagName: 'li'
-      })
-      ```
-
-      It is also possible to override the default event in
-      this manner:
-
-      ``` javascript
-      Ember.LinkView.reopen({
-        eventName: 'customEventName'
-      });
-      ```
-
-      @method link-to
-      @for Ember.Handlebars.helpers
-      @param {String} routeName
-      @param {Object} [context]*
-      @param [options] {Object} Handlebars key/value pairs of options, you can override any property of Ember.LinkView
-      @return {String} HTML string
-      @see {Ember.LinkView}
-    */
-    function linkToHelper(name) {
-      var options = slice.call(arguments, -1)[0];
-      var params = slice.call(arguments, 0, -1);
-      var view = options.data.view;
-      var hash = options.hash;
-      var hashTypes = options.hashTypes;
-      var types = options.types;
-      var shouldEscape = !hash.unescaped;
-      var queryParamsObject;
-
-      
-      var lastParam = params[params.length - 1];
-
-      if (lastParam && lastParam.isQueryParams) {
-        hash.queryParamsObject = queryParamsObject = params.pop();
-      }
-
-      if (hash.disabledWhen) {
-        hash.disabledBinding = hash.disabledWhen;
-        hashTypes.disabledBinding = hashTypes.disabledWhen;
-        delete hash.disabledWhen;
-        delete hashTypes.disabledWhen;
-      }
-
-      if (!options.fn) {
-        var linkTitle = params.shift();
-        var linkTitleType = types.shift();
-        if (linkTitleType === 'ID') {
-          hash.linkTitle = linkTitle = view.getStream(linkTitle);
-          options.fn = function() {
-            return stringifyValue(linkTitle.value(), shouldEscape);
-          };
-        } else {
-          options.fn = function() {
-            return linkTitle;
-          };
-        }
-      }
-
-      // Setup route & param streams
-      for (var i = 0; i < params.length; i++) {
-        var paramPath = params[i];
-        if (types[i] === 'ID') {
-          var lazyValue = view.getStream(paramPath);
-
-          // TODO: Consider a better approach to unwrapping controllers.
-          if (paramPath !== 'controller') {
-            while (ControllerMixin.detect(lazyValue.value())) {
-              paramPath = (paramPath === '') ? 'model' : paramPath + '.model';
-              lazyValue = view.getStream(paramPath);
-            }
-          }
-          params[i] = lazyValue;
-        }
-      }
-
-      hash.params = params;
-
-      options.helperName = options.helperName || 'link-to';
-
-      return viewHelper.call(this, LinkView, options);
-    }
-
-    /**
-      This is a sub-expression to be used in conjunction with the link-to helper.
-      It will supply url query parameters to the target route.
-
-      Example
-
-      {#link-to 'posts' (query-params direction="asc")}}Sort{{/link-to}}
-
-      @method query-params
-      @for Ember.Handlebars.helpers
-      @param {Object} hash takes a hash of query parameters
-      @return {String} HTML string
-    */
-    function queryParamsHelper(options) {
-      
-      var view = options.data.view;
-      var hash = options.hash;
-      var hashTypes = options.hashTypes;
-
-      for (var k in hash) {
-        if (hashTypes[k] === 'ID') {
-          hash[k] = view.getStream(hash[k]);
-        }
-      }
-
-      return QueryParams.create({
-        values: options.hash
-      });
-    }
-
-    __exports__.queryParamsHelper = queryParamsHelper;/**
-      See [link-to](/api/classes/Ember.Handlebars.helpers.html#method_link-to)
-
-      @method linkTo
-      @for Ember.Handlebars.helpers
-      @deprecated
-      @param {String} routeName
-      @param {Object} [context]*
-      @return {String} HTML string
-    */
-    function deprecatedLinkToHelper() {
-      
-      return linkToHelper.apply(this, arguments);
-    }
-
     function getResolvedQueryParams(linkView, targetRouteName) {
       var queryParamsObject = linkView.queryParamsObject;
       var resolvedQueryParams = {};
@@ -21812,296 +22135,21 @@ enifed("ember-routing-handlebars/helpers/link_to",
     }
 
     __exports__.LinkView = LinkView;
-    __exports__.deprecatedLinkToHelper = deprecatedLinkToHelper;
-    __exports__.linkToHelper = linkToHelper;
   });
-enifed("ember-routing-handlebars/helpers/outlet",
-  ["ember-metal/core","ember-metal/property_set","ember-views/views/container_view","ember-views/views/metamorph_view","ember-handlebars/helpers/view","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
+enifed("ember-routing-views/views/outlet",
+  ["ember-views/views/container_view","ember-views/views/metamorph_view","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
-    var Ember = __dependency1__["default"];
-    // assert
-    var set = __dependency2__.set;
-    var ContainerView = __dependency3__["default"];
-    var _Metamorph = __dependency4__._Metamorph;
-    var viewHelper = __dependency5__.viewHelper;
-
     /**
     @module ember
-    @submodule ember-routing
+    @submodule ember-routing-views
     */
 
-      /**
-      @module ember
-      @submodule ember-routing
-      */
+    var ContainerView = __dependency1__["default"];
+    var _Metamorph = __dependency2__._Metamorph;
 
     var OutletView = ContainerView.extend(_Metamorph);
     __exports__.OutletView = OutletView;
-    /**
-      The `outlet` helper is a placeholder that the router will fill in with
-      the appropriate template based on the current state of the application.
-
-      ``` handlebars
-      {{outlet}}
-      ```
-
-      By default, a template based on Ember's naming conventions will be rendered
-      into the `outlet` (e.g. `App.PostsRoute` will render the `posts` template).
-
-      You can render a different template by using the `render()` method in the
-      route's `renderTemplate` hook. The following will render the `favoritePost`
-      template into the `outlet`.
-
-      ``` javascript
-      App.PostsRoute = Ember.Route.extend({
-        renderTemplate: function() {
-          this.render('favoritePost');
-        }
-      });
-      ```
-
-      You can create custom named outlets for more control.
-
-      ``` handlebars
-      {{outlet 'favoritePost'}}
-      {{outlet 'posts'}}
-      ```
-
-      Then you can define what template is rendered into each outlet in your
-      route.
-
-
-      ``` javascript
-      App.PostsRoute = Ember.Route.extend({
-        renderTemplate: function() {
-          this.render('favoritePost', { outlet: 'favoritePost' });
-          this.render('posts', { outlet: 'posts' });
-        }
-      });
-      ```
-
-      You can specify the view that the outlet uses to contain and manage the
-      templates rendered into it.
-
-      ``` handlebars
-      {{outlet view='sectionContainer'}}
-      ```
-
-      ``` javascript
-      App.SectionContainer = Ember.ContainerView.extend({
-        tagName: 'section',
-        classNames: ['special']
-      });
-      ```
-
-      @method outlet
-      @for Ember.Handlebars.helpers
-      @param {String} property the property on the controller
-        that holds the view for this outlet
-      @return {String} HTML string
-    */
-    function outletHelper(property, options) {
-      var outletSource;
-      var viewName;
-      var viewClass;
-      var viewFullName;
-
-      if (property && property.data && property.data.isRenderData) {
-        options = property;
-        property = 'main';
-      }
-
-      var view = options.data.view;
-      var container = view.container;
-
-      outletSource = view;
-      while (!outletSource.get('template.isTop')) {
-        outletSource = outletSource.get('_parentView');
-      }
-      set(view, 'outletSource', outletSource);
-
-      // provide controller override
-      viewName = options.hash.view;
-
-      if (viewName) {
-        viewFullName = 'view:' + viewName;
-                      }
-
-      viewClass = viewName ? container.lookupFactory(viewFullName) : options.hash.viewClass || OutletView;
-      options.types = [ 'ID' ];
-
-      options.hash.currentViewBinding = '_view.outletSource._outlets.' + property;
-      options.hashTypes.currentViewBinding = 'STRING';
-
-      options.helperName = options.helperName || 'outlet';
-
-      return viewHelper.call(this, viewClass, options);
-    }
-
-    __exports__.outletHelper = outletHelper;
-  });
-enifed("ember-routing-handlebars/helpers/render",
-  ["ember-metal/core","ember-metal/error","ember-runtime/system/string","ember-routing/system/generate_controller","ember-handlebars/helpers/view","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
-    "use strict";
-    var Ember = __dependency1__["default"];
-    // assert, deprecate
-    var EmberError = __dependency2__["default"];
-    var camelize = __dependency3__.camelize;
-    var generateControllerFactory = __dependency4__.generateControllerFactory;
-    var generateController = __dependency4__["default"];
-    var ViewHelper = __dependency5__.ViewHelper;
-
-    /**
-    @module ember
-    @submodule ember-routing
-    */
-
-    /**
-      Calling ``{{render}}`` from within a template will insert another
-      template that matches the provided name. The inserted template will
-      access its properties on its own controller (rather than the controller
-      of the parent template).
-
-      If a view class with the same name exists, the view class also will be used.
-
-      Note: A given controller may only be used *once* in your app in this manner.
-      A singleton instance of the controller will be created for you.
-
-      Example:
-
-      ```javascript
-      App.NavigationController = Ember.Controller.extend({
-        who: "world"
-      });
-      ```
-
-      ```handlebars
-      <!-- navigation.hbs -->
-      Hello, {{who}}.
-      ```
-
-      ```handlebars
-      <!-- application.hbs -->
-      <h1>My great app</h1>
-      {{render "navigation"}}
-      ```
-
-      ```html
-      <h1>My great app</h1>
-      <div class='ember-view'>
-        Hello, world.
-      </div>
-      ```
-
-      Optionally you may provide a second argument: a property path
-      that will be bound to the `model` property of the controller.
-
-      If a `model` property path is specified, then a new instance of the
-      controller will be created and `{{render}}` can be used multiple times
-      with the same name.
-
-     For example if you had this `author` template.
-
-     ```handlebars
-    <div class="author">
-    Written by {{firstName}} {{lastName}}.
-    Total Posts: {{postCount}}
-    </div>
-    ```
-
-    You could render it inside the `post` template using the `render` helper.
-
-    ```handlebars
-    <div class="post">
-    <h1>{{title}}</h1>
-    <div>{{body}}</div>
-    {{render "author" author}}
-    </div>
-     ```
-
-      @method render
-      @for Ember.Handlebars.helpers
-      @param {String} name
-      @param {Object?} contextString
-      @param {Hash} options
-      @return {String} HTML string
-    */
-    __exports__["default"] = function renderHelper(name, contextString, options) {
-      var length = arguments.length;
-      var container, router, controller, view, initialContext;
-
-      container = (options || contextString).data.view._keywords.controller.value().container;
-      router = container.lookup('router:main');
-
-      if (length === 2) {
-        // use the singleton controller
-        options = contextString;
-        contextString = undefined;
-              } else if (length === 3) {
-        // create a new controller
-        initialContext = options.data.view.getStream(contextString).value();
-      } else {
-        throw new EmberError("You must pass a templateName to render");
-      }
-
-      
-      // # legacy namespace
-      name = name.replace(/\//g, '.');
-      // \ legacy slash as namespace support
-
-
-      view = container.lookup('view:' + name) || container.lookup('view:default');
-
-      // provide controller override
-      var controllerName = options.hash.controller || name;
-      var controllerFullName = 'controller:' + controllerName;
-
-      if (options.hash.controller) {
-              }
-
-      var parentController = options.data.view._keywords.controller.value();
-
-      // choose name
-      if (length > 2) {
-        var factory = container.lookupFactory(controllerFullName) ||
-                      generateControllerFactory(container, controllerName, initialContext);
-
-        controller = factory.create({
-          modelBinding: options.data.view._getBindingForStream(contextString),
-          parentController: parentController,
-          target: parentController
-        });
-
-        view.one('willDestroyElement', function() {
-          controller.destroy();
-        });
-      } else {
-        controller = container.lookup(controllerFullName) ||
-                     generateController(container, controllerName);
-
-        controller.setProperties({
-          target: parentController,
-          parentController: parentController
-        });
-      }
-
-      options.hash.viewName = camelize(name);
-
-      var templateName = 'template:' + name;
-            options.hash.template = container.lookup(templateName);
-
-      options.hash.controller = controller;
-
-      if (router && !initialContext) {
-        router._connectActiveView(name, view);
-      }
-
-      options.helperName = options.helperName || ('render "' + name + '"');
-
-      ViewHelper.instanceHelper(this, view, options);
-    }
   });
 enifed("ember-routing",
   ["ember-metal/core","ember-routing/ext/run_loop","ember-routing/ext/controller","ember-routing/ext/view","ember-routing/location/api","ember-routing/location/none_location","ember-routing/location/hash_location","ember-routing/location/history_location","ember-routing/location/auto_location","ember-routing/system/generate_controller","ember-routing/system/controller_for","ember-routing/system/dsl","ember-routing/system/router","ember-routing/system/route","exports"],
@@ -23998,6 +24046,17 @@ enifed("ember-routing/system/generate_controller",
 
       return instance;
     }
+  });
+enifed("ember-routing/system/query_params",
+  ["ember-runtime/system/object","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    var EmberObject = __dependency1__["default"];
+
+    __exports__["default"] = EmberObject.extend({
+      isQueryParams: true,
+      values: null
+    });
   });
 enifed("ember-routing/system/route",
   ["ember-metal/core","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/get_properties","ember-metal/enumerable_utils","ember-metal/is_none","ember-metal/computed","ember-metal/merge","ember-metal/utils","ember-metal/run_loop","ember-metal/keys","ember-runtime/copy","ember-runtime/system/string","ember-runtime/system/object","ember-runtime/mixins/evented","ember-runtime/mixins/action_handler","ember-routing/system/generate_controller","ember-routing/utils","exports"],
