@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.dd1c3f3c
+ * @version   1.10.0-beta.1+canary.8facc28d
  */
 
 (function() {
@@ -14625,13 +14625,12 @@ enifed("ember-htmlbars/tests/system/sanitize-for-helper_test",
 
       teardown: function() {
         ok(options.types, 'types is present');
-        ok(options.hash, 'hash is present');
         ok(options.hashTypes, 'hashTypes is present');
       }
     });
 
     test('will not override `types` if present', function() {
-      expect(4);
+      expect(3);
 
       var types = [];
       options.types = types;
@@ -14642,34 +14641,15 @@ enifed("ember-htmlbars/tests/system/sanitize-for-helper_test",
     });
 
     test('will add `types` if not present', function() {
-      expect(4);
+      expect(3);
 
       sanitizeOptionsForHelper(options);
 
       deepEqual(options.types, [], 'types is added when not present');
     });
 
-    test('will not override `hash` if present', function() {
-      expect(4);
-
-      var hash = {};
-      options.hash = hash;
-
-      sanitizeOptionsForHelper(options);
-
-      equal(options.hash, hash, 'hash is not changed when present');
-    });
-
-    test('will add `hash` if not present', function() {
-      expect(4);
-
-      sanitizeOptionsForHelper(options);
-
-      deepEqual(options.hash, {}, 'hash is added when not present');
-    });
-
     test('will not override `hashTypes` if present', function() {
-      expect(4);
+      expect(3);
 
       var hashTypes = {};
       options.hashTypes = hashTypes;
@@ -14680,7 +14660,7 @@ enifed("ember-htmlbars/tests/system/sanitize-for-helper_test",
     });
 
     test('will add `hashTypes` if not present', function() {
-      expect(4);
+      expect(3);
 
       sanitizeOptionsForHelper(options);
 
