@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.de1f76d0
+ * @version   1.10.0-beta.1+canary.e15f1f1f
  */
 
 (function() {
@@ -8702,6 +8702,7 @@ enifed("ember-htmlbars",
     var content = __dependency2__.content;
     var element = __dependency2__.element;
     var subexpr = __dependency2__.subexpr;
+    var component = __dependency2__.component;
     var DOMHelper = __dependency3__.DOMHelper;
     var template = __dependency4__["default"];
     var compile = __dependency5__["default"];
@@ -8754,7 +8755,8 @@ enifed("ember-htmlbars",
       hooks: {
         content: content,
         element: element,
-        subexpr: subexpr
+        subexpr: subexpr,
+        component: component
       },
 
       helpers: helpers
@@ -10269,11 +10271,12 @@ enifed("ember-htmlbars/helpers/yield",
     __exports__.yieldHelper = yieldHelper;
   });
 enifed("ember-htmlbars/hooks",
-  ["ember-htmlbars/system/lookup-helper","ember-htmlbars/system/sanitize-for-helper","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["ember-metal/core","ember-htmlbars/system/lookup-helper","ember-htmlbars/system/sanitize-for-helper","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
-    var lookupHelper = __dependency1__.lookupHelper;
-    var sanitizeOptionsForHelper = __dependency2__.sanitizeOptionsForHelper;
+    var Ember = __dependency1__["default"];
+    var lookupHelper = __dependency2__.lookupHelper;
+    var sanitizeOptionsForHelper = __dependency3__.sanitizeOptionsForHelper;
 
     function streamifyArgs(view, params, hash, options, env) {
       if (params.length === 3 && params[1] === "as") {
@@ -10317,7 +10320,17 @@ enifed("ember-htmlbars/hooks",
       return helper.call(view, params, hash, options, env);
     }
 
-    __exports__.content = content;function element(element, path, view, params, hash, options, env) { //jshint ignore:line
+    __exports__.content = content;function component(morph, tagName, view, hash, options, env) {
+      var params = [];
+      var helper = lookupHelper(tagName, view, env);
+
+      
+      streamifyArgs(view, params, hash, options, env);
+      sanitizeOptionsForHelper(options);
+      return helper.call(view, params, hash, options, env);
+    }
+
+    __exports__.component = component;function element(element, path, view, params, hash, options, env) { //jshint ignore:line
       var helper = lookupHelper(path, view, env);
 
       if (helper) {
@@ -13654,7 +13667,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.de1f76d0
+      @version 1.10.0-beta.1+canary.e15f1f1f
     */
 
     if ('undefined' === typeof Ember) {
@@ -13681,10 +13694,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.de1f76d0'
+      @default '1.10.0-beta.1+canary.e15f1f1f'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.de1f76d0';
+    Ember.VERSION = '1.10.0-beta.1+canary.e15f1f1f';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
