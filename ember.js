@@ -193,6 +193,23 @@ enifed("backburner",
         }
       },
 
+      join: function(target, method /*, args */) {
+        if (this.currentInstance) {
+          if (!method) {
+            method = target;
+            target = null;
+          }
+
+          if (isString(method)) {
+            method = target[method];
+          }
+
+          return method.apply(target, slice.call(arguments, 2));
+        } else {
+          return this.run.apply(this, arguments);
+        }
+      },
+
       defer: function(queueName, target, method /* , args */) {
         if (!method) {
           method = target;
@@ -1179,20 +1196,6 @@ enifed("container/container",
       },
 
       /**
-        Sets a key-value pair on the current container. If a parent container,
-        has the same key, once set on a child, the parent and child will diverge
-        as expected.
-
-        @method set
-        @param {Object} object
-        @param {String} key
-        @param {any} value
-      */
-      set: function(object, key, value) {
-        object[key] = value;
-      },
-
-      /**
         Registers a factory for later injection.
 
         Example:
@@ -1447,11 +1450,13 @@ enifed("container/container",
 
       /**
         @method options
-        @param {String} type
+        @param {String} fullName
         @param {Object} options
       */
-      options: function(type, options) {
-        this.optionsForType(type, options);
+      options: function(fullName, options) {
+        options = options || {};
+        var normalizedName = this.normalize(fullName);
+        this._options[normalizedName] = options;
       },
 
       /**
@@ -6006,24 +6011,24 @@ enifed("ember-handlebars/controls/select",
       return buffer;
     },"3":function(depth0,helpers,partials,data) {
       var stack1;
-      stack1 = helpers.each.call(depth0, "view.groupedContent", {"name":"each","hash":{},"hashTypes":{},"hashContexts":{},"fn":this.program(4, data),"inverse":this.noop,"types":["ID"],"contexts":[depth0],"data":data});
+      stack1 = helpers.each.call(depth0, "group", "in", "view.groupedContent", {"name":"each","hash":{},"hashTypes":{},"hashContexts":{},"fn":this.program(4, data),"inverse":this.noop,"types":["ID","ID","ID"],"contexts":[depth0,depth0,depth0],"data":data});
       if (stack1 != null) { data.buffer.push(stack1); }
       else { data.buffer.push(''); }
       },"4":function(depth0,helpers,partials,data) {
       var escapeExpression=this.escapeExpression;
       data.buffer.push(escapeExpression(helpers.view.call(depth0, "view.groupView", {"name":"view","hash":{
-        'label': ("label"),
-        'content': ("content")
+        'label': ("group.label"),
+        'content': ("group.content")
       },"hashTypes":{'label': "ID",'content': "ID"},"hashContexts":{'label': depth0,'content': depth0},"types":["ID"],"contexts":[depth0],"data":data})));
       },"6":function(depth0,helpers,partials,data) {
       var stack1;
-      stack1 = helpers.each.call(depth0, "view.content", {"name":"each","hash":{},"hashTypes":{},"hashContexts":{},"fn":this.program(7, data),"inverse":this.noop,"types":["ID"],"contexts":[depth0],"data":data});
+      stack1 = helpers.each.call(depth0, "item", "in", "view.content", {"name":"each","hash":{},"hashTypes":{},"hashContexts":{},"fn":this.program(7, data),"inverse":this.noop,"types":["ID","ID","ID"],"contexts":[depth0,depth0,depth0],"data":data});
       if (stack1 != null) { data.buffer.push(stack1); }
       else { data.buffer.push(''); }
       },"7":function(depth0,helpers,partials,data) {
       var escapeExpression=this.escapeExpression;
       data.buffer.push(escapeExpression(helpers.view.call(depth0, "view.optionView", {"name":"view","hash":{
-        'content': ("")
+        'content': ("item")
       },"hashTypes":{'content': "ID"},"hashContexts":{'content': depth0},"types":["ID"],"contexts":[depth0],"data":data})));
       },"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
       var stack1, buffer = '';
@@ -6892,7 +6897,7 @@ enifed("ember-handlebars/ext",
         resolveHelper = requireModule('ember-handlebars/helpers/binding')['resolveHelper'];
       } // ES6TODO: stupid circular dep
 
-      var error, view = "";
+      var error, fmtError, view = "";
 
       var options = arguments[arguments.length - 1];
 
@@ -6902,11 +6907,19 @@ enifed("ember-handlebars/ext",
         return helper.apply(this, arguments);
       }
 
-      error = "%@ Handlebars error: Could not find property '%@' on object %@.";
       if (options.data) {
         view = options.data.view;
       }
-      throw new EmberError(fmt(error, [view, options.name, this]));
+
+      if (options.name.match(/-/)) {
+        error = "%@ Handlebars error: Could not find component or helper named '%@'";
+        fmtError = fmt(error, [view, options.name]);
+      } else {
+        error = "%@ Handlebars error: Could not find property '%@' on object %@.";
+        fmtError = fmt(error, [view, options.name, this]);
+      }
+
+      throw new EmberError(fmtError);
     }
 
     __exports__.helperMissingHelper = helperMissingHelper;/**
@@ -8226,21 +8239,11 @@ enifed("ember-handlebars/helpers/each",
       of the base Handlebars `{{#each}}` helper.
 
       The default behavior of `{{#each}}` is to yield its inner block once for every
-      item in an array. Each yield will provide the item as the context of the block.
+      item in an array.
 
       ```javascript
       var developers = [{name: 'Yehuda'},{name: 'Tom'}, {name: 'Paul'}];
       ```
-
-      ```handlebars
-      {{#each developers}}
-        {{name}}
-        {{! `this` is each developer }}
-      {{/each}}
-      ```
-
-      `{{#each}}` supports an alternative syntax with element naming. This preserves
-      context of the yielded block:
 
       ```handlebars
       {{#each person in developers}}
@@ -8257,8 +8260,8 @@ enifed("ember-handlebars/helpers/each",
       ```
 
       ```handlebars
-      {{#each developerNames}}
-        {{this}}
+      {{#each name in developerNames}}
+        {{name}}
       {{/each}}
       ```
 
@@ -8284,8 +8287,8 @@ enifed("ember-handlebars/helpers/each",
 
       ```handlebars
       <ul>
-      {{#each developers itemViewClass="person"}}
-        {{name}}
+      {{#each developer in developers itemViewClass="person"}}
+        {{developer.name}}
       {{/each}}
       </ul>
       ```
@@ -8316,13 +8319,13 @@ enifed("ember-handlebars/helpers/each",
       ```javascript
       App.PersonView = Ember.View.extend({
         tagName: 'li',
-        template: '{{name}}'
+        template: '{{developer.name}}'
       });
       ```
 
       ```handlebars
       <ul>
-        {{each developers itemViewClass="person"}}
+        {{each developer in developers itemViewClass="person"}}
       </ul>
       ```
 
@@ -8340,8 +8343,8 @@ enifed("ember-handlebars/helpers/each",
 
       ```handlebars
       <ul>
-      {{#each developers emptyViewClass="no-people"}}
-        <li>{{name}}</li>
+      {{#each developer in developers emptyViewClass="no-people"}}
+        <li>{{developer.name}}</li>
       {{/each}}
       </ul>
       ```
@@ -8384,12 +8387,13 @@ enifed("ember-handlebars/helpers/each",
     function eachHelper(path) {
       var options = arguments[arguments.length - 1];
       var helperName = 'each';
+      var keywordName;
 
       if (arguments.length === 4) {
         Ember.assert("If you pass more than one argument to the each helper," +
                      " it must be in the form #each foo in bar", arguments[1] === "in");
 
-        var keywordName = arguments[0];
+        keywordName = arguments[0];
         path = arguments[2];
 
         helperName += ' ' + keywordName + ' in ' + path;
@@ -8400,6 +8404,8 @@ enifed("ember-handlebars/helpers/each",
       } else {
         helperName += ' ' + path;
       }
+
+      Ember.deprecate('Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.', keywordName);
 
       options.hash.emptyViewClass = Ember._MetamorphView;
       options.hash.dataSourceBinding = path;
@@ -8659,16 +8665,6 @@ enifed("ember-handlebars/helpers/partial",
       changes, the partial will be re-rendered using the new template
       name.
 
-      ## Setting the partial's context with `with`
-
-      The `partial` helper can be used in conjunction with the `with`
-      helper to set a context that will be used by the partial:
-
-      ```handlebars
-      {{#with currentUser}}
-        {{partial "user_info"}}
-      {{/with}}
-      ```
 
       @method partial
       @for Ember.Handlebars.helpers
@@ -9287,40 +9283,9 @@ enifed("ember-handlebars/helpers/with",
     });
 
     /**
-      Use the `{{with}}` helper when you want to scope context. Take the following code as an example:
-
-      ```handlebars
-      <h5>{{user.name}}</h5>
-
-      <div class="role">
-        <h6>{{user.role.label}}</h6>
-        <span class="role-id">{{user.role.id}}</span>
-
-        <p class="role-desc">{{user.role.description}}</p>
-      </div>
-      ```
-
-      `{{with}}` can be our best friend in these cases,
-      instead of writing `user.role.*` over and over, we use `{{#with user.role}}`.
-      Now the context within the `{{#with}} .. {{/with}}` block is `user.role` so you can do the following:
-
-      ```handlebars
-      <h5>{{user.name}}</h5>
-
-      <div class="role">
-        {{#with user.role}}
-          <h6>{{label}}</h6>
-          <span class="role-id">{{id}}</span>
-
-          <p class="role-desc">{{description}}</p>
-        {{/with}}
-      </div>
-      ```
-
-      ### `as` operator
-
-      This operator aliases the scope to a new name. It's helpful for semantic clarity and to retain
-      default scope or to reference from another `{{with}}` block.
+      Use the `{{with}}` helper when you want to aliases the to a new name. It's helpful
+      for semantic clarity and to retain default scope or to reference from another
+      `{{with}}` block.
 
       ```handlebars
       // posts might not be
@@ -9344,18 +9309,18 @@ enifed("ember-handlebars/helpers/with",
       ### `controller` option
 
       Adding `controller='something'` instructs the `{{with}}` helper to create and use an instance of
-      the specified controller with the new context as its content.
+      the specified controller wrapping the aliased keyword.
 
       This is very similar to using an `itemController` option with the `{{each}}` helper.
 
       ```handlebars
-      {{#with users.posts controller='userBlogPosts'}}
-        {{!- The current context is wrapped in our controller instance }}
+      {{#with users.posts as posts controller='userBlogPosts'}}
+        {{!- `posts` is wrapped in our controller instance }}
       {{/with}}
       ```
 
-      In the above example, the template provided to the `{{with}}` block is now wrapped in the
-      `userBlogPost` controller, which provides a very elegant way to decorate the context with custom
+      In the above example, the `posts` keyword is now wrapped in the `userBlogPost` controller,
+      which provides an elegant way to decorate the context with custom
       functions/properties.
 
       @method with
@@ -9394,6 +9359,8 @@ enifed("ember-handlebars/helpers/with",
         options = localizedOptions;
         preserveContext = true;
       } else {
+        Ember.deprecate('Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+
         Ember.assert("You must pass exactly one argument to the with helper", arguments.length === 2);
         Ember.assert("You must pass a block to the with helper", options.fn && options.fn !== Handlebars.VM.noop);
 
@@ -11021,7 +10988,9 @@ enifed("ember-metal/binding",
         addObserver(obj, fromPath, this, this.fromDidChange);
 
         // if the binding is a two-way binding, also set up an observer on the target
-        if (!this._oneWay) { addObserver(obj, toPath, this, this.toDidChange); }
+        if (!this._oneWay) {
+          addObserver(obj, toPath, this, this.toDidChange);
+        }
 
         this._readyToSync = true;
 
@@ -11046,7 +11015,9 @@ enifed("ember-metal/binding",
         removeObserver(obj, this._from, this, this.fromDidChange);
 
         // if the binding is two-way, remove the observer from the target as well
-        if (twoWay) { removeObserver(obj, this._to, this, this.toDidChange); }
+        if (twoWay) {
+          removeObserver(obj, this._to, this, this.toDidChange);
+        }
 
         this._readyToSync = false; // disable scheduled syncs...
         return this;
@@ -11432,7 +11403,9 @@ enifed("ember-metal/chains",
       var queue = pendingQueue;
       pendingQueue = [];
 
-      forEach.call(queue, function(q) { q[0].add(q[1]); });
+      forEach.call(queue, function(q) {
+        q[0].add(q[1]);
+      });
 
       warn('Watching an undefined global, Ember expects watched globals to be' +
            ' setup by the time the run loop is flushed, check for typos', pendingQueue.length === 0);
@@ -11448,7 +11421,9 @@ enifed("ember-metal/chains",
         nodes = m.chainWatchers = {};
       }
 
-      if (!nodes[keyName]) { nodes[keyName] = []; }
+      if (!nodes[keyName]) {
+        nodes[keyName] = [];
+      }
       nodes[keyName].push(node);
       watchKey(obj, keyName, m);
     }
@@ -11492,7 +11467,9 @@ enifed("ember-metal/chains",
       this._paths = {};
       if (this._watching) {
         this._object = parent.value();
-        if (this._object) { addChainWatcher(this._object, this._key, this); }
+        if (this._object) {
+          addChainWatcher(this._object, this._key, this);
+        }
       }
 
       // Special-case: the EachProxy relies on immediate evaluation to
@@ -11512,9 +11489,13 @@ enifed("ember-metal/chains",
 
       var meta = obj['__ember_meta__'];
       // check if object meant only to be a prototype
-      if (meta && meta.proto === obj) return undefined;
+      if (meta && meta.proto === obj) {
+        return undefined;
+      }
 
-      if (key === "@each") return get(obj, key);
+      if (key === "@each") {
+        return get(obj, key);
+      }
 
       // if a CP only return cached value
       var desc = meta && meta.descs[key];
@@ -11540,7 +11521,9 @@ enifed("ember-metal/chains",
     ChainNodePrototype.destroy = function() {
       if (this._watching) {
         var obj = this._object;
-        if (obj) { removeChainWatcher(obj, this._key, this); }
+        if (obj) {
+          removeChainWatcher(obj, this._key, this);
+        }
         this._watching = false; // so future calls do nothing
       }
     };
@@ -11552,7 +11535,10 @@ enifed("ember-metal/chains",
       var path;
 
       for (path in paths) {
-        if (paths[path] <= 0) { continue; } // this check will also catch non-number vals.
+        // this check will also catch non-number vals.
+        if (paths[path] <= 0) {
+          continue;
+        }
         ret.add(path);
       }
       return ret;
@@ -11599,7 +11585,9 @@ enifed("ember-metal/chains",
       var obj, tuple, key, src, paths;
 
       paths = this._paths;
-      if (paths[path] > 0) { paths[path]--; }
+      if (paths[path] > 0) {
+        paths[path]--;
+      }
 
       obj = this.value();
       tuple = normalizeTuple(obj, path);
@@ -11622,10 +11610,14 @@ enifed("ember-metal/chains",
     ChainNodePrototype.chain = function(key, path, src) {
       var chains = this._chains;
       var node;
-      if (!chains) { chains = this._chains = {}; }
+      if (!chains) {
+        chains = this._chains = {};
+      }
 
       node = chains[key];
-      if (!node) { node = chains[key] = new ChainNode(this, key, src); }
+      if (!node) {
+        node = chains[key] = new ChainNode(this, key, src);
+      }
       node.count++; // count chains...
 
       // chain rest of path if there is one
@@ -11641,10 +11633,10 @@ enifed("ember-metal/chains",
       var node = chains[key];
 
       // unchain rest of path first...
-      if (path && path.length>1) {
-        key  = firstKey(path);
-        path = path.slice(key.length+1);
-        node.unchain(key, path);
+      if (path && path.length > 1) {
+        var nextKey  = firstKey(path);
+        var nextPath = path.slice(nextKey.length + 1);
+        node.unchain(nextKey, nextPath);
       }
 
       // delete node if needed.
@@ -11660,16 +11652,22 @@ enifed("ember-metal/chains",
       var chains = this._chains;
       if (chains) {
         for(var key in chains) {
-          if (!chains.hasOwnProperty(key)) { continue; }
+          if (!chains.hasOwnProperty(key)) {
+            continue;
+          }
           chains[key].willChange(events);
         }
       }
 
-      if (this._parent) { this._parent.chainWillChange(this, this._key, 1, events); }
+      if (this._parent) {
+        this._parent.chainWillChange(this, this._key, 1, events);
+      }
     };
 
     ChainNodePrototype.chainWillChange = function(chain, path, depth, events) {
-      if (this._key) { path = this._key + '.' + path; }
+      if (this._key) {
+        path = this._key + '.' + path;
+      }
 
       if (this._parent) {
         this._parent.chainWillChange(this, path, depth+1, events);
@@ -11685,7 +11683,10 @@ enifed("ember-metal/chains",
     };
 
     ChainNodePrototype.chainDidChange = function(chain, path, depth, events) {
-      if (this._key) { path = this._key + '.' + path; }
+      if (this._key) {
+        path = this._key + '.' + path;
+      }
+
       if (this._parent) {
         this._parent.chainDidChange(this, path, depth+1, events);
       } else {
@@ -11712,8 +11713,9 @@ enifed("ember-metal/chains",
 
         // Special-case: the EachProxy relies on immediate evaluation to
         // establish its observers.
-        if (this._parent && this._parent._key === '@each')
+        if (this._parent && this._parent._key === '@each') {
           this.value();
+        }
       }
 
       // then notify chains...
@@ -11726,22 +11728,30 @@ enifed("ember-metal/chains",
       }
 
       // if no events are passed in then we only care about the above wiring update
-      if (events === null) { return; }
+      if (events === null) {
+        return;
+      }
 
       // and finally tell parent about my path changing...
-      if (this._parent) { this._parent.chainDidChange(this, this._key, 1, events); }
+      if (this._parent) {
+        this._parent.chainDidChange(this, this._key, 1, events);
+      }
     };
 
     function finishChains(obj) {
       // We only create meta if we really have to
-      var m = obj['__ember_meta__'],
-        chains, chainWatchers, chainNodes;
+      var m = obj['__ember_meta__'];
+      var chains, chainWatchers, chainNodes;
+
       if (m) {
         // finish any current chains node watchers that reference obj
         chainWatchers = m.chainWatchers;
         if (chainWatchers) {
           for(var key in chainWatchers) {
-            if (!chainWatchers.hasOwnProperty(key)) { continue; }
+            if (!chainWatchers.hasOwnProperty(key)) {
+              continue;
+            }
+
             chainNodes = chainWatchers[key];
             if (chainNodes) {
               for (var i=0,l=chainNodes.length;i<l;i++) {
@@ -11794,18 +11804,18 @@ enifed("ember-metal/computed",
     //
 
     /**
-      A computed property transforms an objects function into a property.
+      A computed property transforms an object's function into a property.
 
       By default the function backing the computed property will only be called
       once and the result will be cached. You can specify various properties
-      that your computed property is dependent on. This will force the cached
+      that your computed property depends on. This will force the cached
       result to be recomputed if the dependencies are modified.
 
       In the following example we declare a computed property (by calling
-      `.property()` on the fullName function) and setup the properties
+      `.property()` on the fullName function) and setup the property
       dependencies (depending on firstName and lastName). The fullName function
       will be called once (regardless of how many times it is accessed) as long
-      as it's dependencies have not been changed. Once firstName or lastName are updated
+      as its dependencies have not changed. Once firstName or lastName are updated
       any future calls (or anything bound) to fullName will incorporate the new
       values.
 
@@ -12101,7 +12111,9 @@ enifed("ember-metal/computed",
         }
 
         chainNodes = meta.chainWatchers && meta.chainWatchers[keyName];
-        if (chainNodes) { finishChains(chainNodes); }
+        if (chainNodes) {
+          finishChains(chainNodes);
+        }
         addDependentKeys(this, obj, keyName, meta);
       } else {
         ret = this.func.call(obj, keyName);
@@ -12343,7 +12355,9 @@ enifed("ember-metal/computed",
       var cache = meta && meta.cache;
       var ret = cache && cache[key];
 
-      if (ret === UNDEFINED) { return undefined; }
+      if (ret === UNDEFINED) {
+        return undefined;
+      }
       return ret;
     }
 
@@ -12357,7 +12371,9 @@ enifed("ember-metal/computed",
 
     cacheFor.get = function(cache, key) {
       var ret = cache[key];
-      if (ret === UNDEFINED) { return undefined; }
+      if (ret === UNDEFINED) {
+        return undefined;
+      }
       return ret;
     };
 
@@ -13247,7 +13263,7 @@ enifed("ember-metal/core",
     Ember.LOG_STACKTRACE_ON_DEPRECATION = (Ember.ENV.LOG_STACKTRACE_ON_DEPRECATION !== false);
 
     /**
-      Determines whether Ember should add ECMAScript 5 shims to older browsers.
+      Determines whether Ember should add ECMAScript 5 Array shims to older browsers.
 
       @property SHIM_ES5
       @type Boolean
@@ -14780,7 +14796,8 @@ enifed("ember-metal/keys",
             throw new TypeError('Object.keys called on non-object');
           }
 
-          var result = [], prop, i;
+          var result = [];
+          var prop, i;
 
           for (prop in obj) {
             if (prop !== '_super' &&
@@ -14870,8 +14887,12 @@ enifed("ember-metal/logger",
       var method = typeof consoleObj === 'object' ? consoleObj[name] : null;
 
       if (method) {
-        // Older IE doesn't support apply, but Chrome needs it
-        if (typeof method.apply === 'function') {
+        // Older IE doesn't support bind, but Chrome needs it
+        if (typeof method.bind === 'function') {
+          logToConsole = method.bind(consoleObj);
+          logToConsole.displayName = 'console.' + name;
+          return logToConsole;
+        } else if (typeof method.apply === 'function') {
           logToConsole = function() {
             method.apply(consoleObj, arguments);
           };
@@ -15564,7 +15585,6 @@ enifed("ember-metal/mixin",
     var Ember = __dependency1__["default"];
     // warn, assert, wrap, et;
     var merge = __dependency2__["default"];
-    var a_map = __dependency3__.map;
     var a_indexOf = __dependency3__.indexOf;
     var a_forEach = __dependency3__.forEach;
     var o_create = __dependency4__.create;
@@ -15617,22 +15637,6 @@ enifed("ember-metal/mixin",
         ret = m.mixins = o_create(ret);
       }
       return ret;
-    }
-
-    function initMixin(mixin, args) {
-      if (args && args.length > 0) {
-        mixin.mixins = a_map.call(args, function(x) {
-          if (x instanceof Mixin) { return x; }
-
-          // Note: Manually setup a primitive mixin here. This is the only
-          // way to actually get a primitive mixin. This way normal creation
-          // of mixins will give you combined mixins...
-          var mixin = new Mixin();
-          mixin.properties = x;
-          return mixin;
-        });
-      }
-      return mixin;
     }
 
     function isMethod(obj) {
@@ -16081,12 +16085,29 @@ enifed("ember-metal/mixin",
       @namespace Ember
     */
     __exports__["default"] = Mixin;
-    function Mixin() { return initMixin(this, arguments); }
-    Mixin.prototype = {
-      properties: null,
-      mixins: null,
-      ownerConstructor: null
-    };
+    function Mixin(args, properties) {
+      this.properties = properties;
+
+      var length = args && args.length;
+
+      if (length > 0) {
+        var m = new Array(length);
+
+        for (var i = 0; i < length; i++) {
+          var x = args[i];
+          if (x instanceof Mixin) {
+            m[i] = x;
+          } else {
+            m[i] = new Mixin(undefined, x);
+          }
+        }
+
+        this.mixins = m;
+      } else {
+        this.mixins = undefined;
+      }
+      this.ownerConstructor = undefined;
+    }
 
     Mixin._apply = applyMixin;
 
@@ -16109,7 +16130,12 @@ enifed("ember-metal/mixin",
       // ES6TODO: this relies on a global state?
       Ember.anyUnprocessedMixins = true;
       var M = this;
-      return initMixin(new M(), arguments);
+      var length = arguments.length;
+      var args = new Array(length);
+      for (var i = 0; i < length; i++) {
+        args[i] = arguments[i];
+      }
+      return new M(args, undefined);
     };
 
     var MixinPrototype = Mixin.prototype;
@@ -16119,12 +16145,11 @@ enifed("ember-metal/mixin",
       @param arguments*
     */
     MixinPrototype.reopen = function() {
-      var mixin, tmp;
+      var mixin;
 
       if (this.properties) {
-        mixin = Mixin.create();
-        mixin.properties = this.properties;
-        delete this.properties;
+        mixin = new Mixin(undefined, this.properties);
+        this.properties = undefined;
         this.mixins = [mixin];
       } else if (!this.mixins) {
         this.mixins = [];
@@ -16143,9 +16168,7 @@ enifed("ember-metal/mixin",
         if (mixin instanceof Mixin) {
           mixins.push(mixin);
         } else {
-          tmp = Mixin.create();
-          tmp.properties = mixin;
-          mixins.push(tmp);
+          mixins.push(new Mixin(undefined, mixin));
         }
       }
 
@@ -16197,7 +16220,7 @@ enifed("ember-metal/mixin",
     };
 
     MixinPrototype.without = function() {
-      var ret = new Mixin(this);
+      var ret = new Mixin([this]);
       ret._without = a_slice.call(arguments);
       return ret;
     };
@@ -16222,7 +16245,9 @@ enifed("ember-metal/mixin",
       var ret = [];
       _keys(keys, this, seen);
       for(var key in keys) {
-        if (keys.hasOwnProperty(key)) { ret.push(key); }
+        if (keys.hasOwnProperty(key)) {
+          ret.push(key);
+        }
       }
       return ret;
     };
@@ -17180,9 +17205,18 @@ enifed("ember-metal/property_events",
       var proto = m && m.proto;
       var desc = m && m.descs[keyName];
 
-      if (!watching) { return; }
-      if (proto === obj) { return; }
-      if (desc && desc.willChange) { desc.willChange(obj, keyName); }
+      if (!watching) {
+        return;
+      }
+
+      if (proto === obj) {
+        return;
+      }
+
+      if (desc && desc.willChange) {
+        desc.willChange(obj, keyName);
+      }
+
       dependentKeysWillChange(obj, keyName, m);
       chainsWillChange(obj, keyName, m);
       notifyBeforeObservers(obj, keyName);
@@ -17209,11 +17243,18 @@ enifed("ember-metal/property_events",
       var proto = m && m.proto;
       var desc = m && m.descs[keyName];
 
-      if (proto === obj) { return; }
+      if (proto === obj) {
+        return;
+      }
 
       // shouldn't this mean that we're watching this key?
-      if (desc && desc.didChange) { desc.didChange(obj, keyName); }
-      if (!watching && keyName !== 'length') { return; }
+      if (desc && desc.didChange) {
+        desc.didChange(obj, keyName);
+      }
+
+      if (!watching && keyName !== 'length') {
+        return;
+      }
 
       if (m && m.deps && m.deps[keyName]) {
         dependentKeysDidChange(obj, keyName, m);
@@ -17232,9 +17273,16 @@ enifed("ember-metal/property_events",
       if (meta && meta.deps && (deps = meta.deps[depKey])) {
         var seen = WILL_SEEN;
         var top = !seen;
-        if (top) { seen = WILL_SEEN = {}; }
+
+        if (top) {
+          seen = WILL_SEEN = {};
+        }
+
         iterDeps(propertyWillChange, obj, deps, depKey, seen, meta);
-        if (top) { WILL_SEEN = null; }
+
+        if (top) {
+          WILL_SEEN = null;
+        }
       }
     }
 
@@ -17246,15 +17294,26 @@ enifed("ember-metal/property_events",
       if (meta && meta.deps && (deps = meta.deps[depKey])) {
         var seen = DID_SEEN;
         var top = !seen;
-        if (top) { seen = DID_SEEN = {}; }
+
+        if (top) {
+          seen = DID_SEEN = {};
+        }
+
         iterDeps(propertyDidChange, obj, deps, depKey, seen, meta);
-        if (top) { DID_SEEN = null; }
+
+        if (top) {
+          DID_SEEN = null;
+        }
       }
     }
 
     function keysOf(obj) {
       var keys = [];
-      for (var key in obj) keys.push(key);
+
+      for (var key in obj) {
+        keys.push(key);
+      }
+
       return keys;
     }
 
@@ -17262,8 +17321,15 @@ enifed("ember-metal/property_events",
       var keys, key, i, desc;
       var guid = guidFor(obj);
       var current = seen[guid];
-      if (!current) current = seen[guid] = {};
-      if (current[depKey]) return;
+
+      if (!current) {
+        current = seen[guid] = {};
+      }
+
+      if (current[depKey]) {
+        return;
+      }
+
       current[depKey] = true;
 
       if (deps) {
@@ -17272,7 +17338,11 @@ enifed("ember-metal/property_events",
         for (i=0; i<keys.length; i++) {
           key = keys[i];
           desc = descs[key];
-          if (desc && desc._suspended === obj) continue;
+
+          if (desc && desc._suspended === obj) {
+            continue;
+          }
+
           method(obj, key);
         }
       }
@@ -17845,14 +17915,8 @@ enifed("ember-metal/run_loop",
       @return {Object} Return value from invoking the passed function. Please note,
       when called within an existing loop, no return value is possible.
     */
-    run.join = function(target, method /* args */) {
-      if (!run.currentRunLoop) {
-        return Ember.run.apply(Ember, arguments);
-      }
-
-      var args = slice.call(arguments);
-      args.unshift('actions');
-      run.schedule.apply(run, args);
+    run.join = function() {
+      return backburner.join.apply(backburner, arguments);
     };
 
     /**
@@ -19659,7 +19723,8 @@ enifed("ember-metal/watch_key",
     
 
     function unwatchKey(obj, keyName, meta) {
-      var m = meta || metaFor(obj), watching = m.watching;
+      var m = meta || metaFor(obj);
+      var watching = m.watching;
 
       if (watching[keyName] === 1) {
         watching[keyName] = 0;
@@ -25434,11 +25499,15 @@ enifed("ember-routing/system/route",
     }
 
     function generateTopLevelTeardown(view) {
-      return function() { view.destroy(); };
+      return function() {
+        view.destroy();
+      };
     }
 
     function generateOutletTeardown(parentView, outlet) {
-      return function() { parentView.disconnectOutlet(outlet); };
+      return function() {
+        parentView.disconnectOutlet(outlet);
+      };
     }
 
     function getFullQueryParams(router, state) {
@@ -28638,8 +28707,8 @@ enifed("ember-runtime/controllers/array_controller",
       Then, create a view that binds to your new controller:
 
       ```handlebars
-      {{#each MyApp.listController}}
-        {{firstName}} {{lastName}}
+      {{#each person in MyApp.listController}}
+        {{person.firstName}} {{person.lastName}}
       {{/each}}
       ```
 
@@ -39125,7 +39194,7 @@ enifed("ember-views/system/event_dispatcher",
       },
 
       _bubbleEvent: function(view, evt, eventName) {
-        return run(view, view.handleEvent, eventName, evt);
+        return run.join(view, view.handleEvent, eventName, evt);
       },
 
       destroy: function() {
@@ -40748,6 +40817,30 @@ enifed("ember-views/views/component",
           action: actionName,
           actionContext: contexts
         });
+      },
+
+      send: function(actionName) {
+        var args = [].slice.call(arguments, 1);
+        var target;
+        var hasAction = this._actions && this._actions[actionName];
+
+        if (hasAction) {
+          if (this._actions[actionName].apply(this, args) === true) {
+            // handler returned true, so this action will bubble
+          } else {
+            return;
+          }
+        }
+
+        if (target = get(this, 'target')) {
+          Ember.assert("The `target` for " + this + " (" + target +
+                       ") does not have a `send` method", typeof target.send === 'function');
+          target.send.apply(target, arguments);
+        } else {
+          if (!hasAction) {
+            throw new Error(Ember.inspect(this) + ' had no action handler for: ' + actionName);
+          }
+        }
       }
     });
 

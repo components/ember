@@ -193,6 +193,23 @@ define("backburner",
         }
       },
 
+      join: function(target, method /*, args */) {
+        if (this.currentInstance) {
+          if (!method) {
+            method = target;
+            target = null;
+          }
+
+          if (isString(method)) {
+            method = target[method];
+          }
+
+          return method.apply(target, slice.call(arguments, 2));
+        } else {
+          return this.run.apply(this, arguments);
+        }
+      },
+
       defer: function(queueName, target, method /* , args */) {
         if (!method) {
           method = target;
@@ -1179,20 +1196,6 @@ define("container/container",
       },
 
       /**
-        Sets a key-value pair on the current container. If a parent container,
-        has the same key, once set on a child, the parent and child will diverge
-        as expected.
-
-        @method set
-        @param {Object} object
-        @param {String} key
-        @param {any} value
-      */
-      set: function(object, key, value) {
-        object[key] = value;
-      },
-
-      /**
         Registers a factory for later injection.
 
         Example:
@@ -1447,11 +1450,13 @@ define("container/container",
 
       /**
         @method options
-        @param {String} type
+        @param {String} fullName
         @param {Object} options
       */
-      options: function(type, options) {
-        this.optionsForType(type, options);
+      options: function(fullName, options) {
+        options = options || {};
+        var normalizedName = this.normalize(fullName);
+        this._options[normalizedName] = options;
       },
 
       /**
@@ -2668,7 +2673,9 @@ define("ember-metal/binding",
         addObserver(obj, fromPath, this, this.fromDidChange);
 
         // if the binding is a two-way binding, also set up an observer on the target
-        if (!this._oneWay) { addObserver(obj, toPath, this, this.toDidChange); }
+        if (!this._oneWay) {
+          addObserver(obj, toPath, this, this.toDidChange);
+        }
 
         this._readyToSync = true;
 
@@ -2693,7 +2700,9 @@ define("ember-metal/binding",
         removeObserver(obj, this._from, this, this.fromDidChange);
 
         // if the binding is two-way, remove the observer from the target as well
-        if (twoWay) { removeObserver(obj, this._to, this, this.toDidChange); }
+        if (twoWay) {
+          removeObserver(obj, this._to, this, this.toDidChange);
+        }
 
         this._readyToSync = false; // disable scheduled syncs...
         return this;
@@ -3079,7 +3088,9 @@ define("ember-metal/chains",
       var queue = pendingQueue;
       pendingQueue = [];
 
-      forEach.call(queue, function(q) { q[0].add(q[1]); });
+      forEach.call(queue, function(q) {
+        q[0].add(q[1]);
+      });
 
       warn('Watching an undefined global, Ember expects watched globals to be' +
            ' setup by the time the run loop is flushed, check for typos', pendingQueue.length === 0);
@@ -3095,7 +3106,9 @@ define("ember-metal/chains",
         nodes = m.chainWatchers = {};
       }
 
-      if (!nodes[keyName]) { nodes[keyName] = []; }
+      if (!nodes[keyName]) {
+        nodes[keyName] = [];
+      }
       nodes[keyName].push(node);
       watchKey(obj, keyName, m);
     }
@@ -3139,7 +3152,9 @@ define("ember-metal/chains",
       this._paths = {};
       if (this._watching) {
         this._object = parent.value();
-        if (this._object) { addChainWatcher(this._object, this._key, this); }
+        if (this._object) {
+          addChainWatcher(this._object, this._key, this);
+        }
       }
 
       // Special-case: the EachProxy relies on immediate evaluation to
@@ -3159,9 +3174,13 @@ define("ember-metal/chains",
 
       var meta = obj['__ember_meta__'];
       // check if object meant only to be a prototype
-      if (meta && meta.proto === obj) return undefined;
+      if (meta && meta.proto === obj) {
+        return undefined;
+      }
 
-      if (key === "@each") return get(obj, key);
+      if (key === "@each") {
+        return get(obj, key);
+      }
 
       // if a CP only return cached value
       var desc = meta && meta.descs[key];
@@ -3187,7 +3206,9 @@ define("ember-metal/chains",
     ChainNodePrototype.destroy = function() {
       if (this._watching) {
         var obj = this._object;
-        if (obj) { removeChainWatcher(obj, this._key, this); }
+        if (obj) {
+          removeChainWatcher(obj, this._key, this);
+        }
         this._watching = false; // so future calls do nothing
       }
     };
@@ -3199,7 +3220,10 @@ define("ember-metal/chains",
       var path;
 
       for (path in paths) {
-        if (paths[path] <= 0) { continue; } // this check will also catch non-number vals.
+        // this check will also catch non-number vals.
+        if (paths[path] <= 0) {
+          continue;
+        }
         ret.add(path);
       }
       return ret;
@@ -3246,7 +3270,9 @@ define("ember-metal/chains",
       var obj, tuple, key, src, paths;
 
       paths = this._paths;
-      if (paths[path] > 0) { paths[path]--; }
+      if (paths[path] > 0) {
+        paths[path]--;
+      }
 
       obj = this.value();
       tuple = normalizeTuple(obj, path);
@@ -3269,10 +3295,14 @@ define("ember-metal/chains",
     ChainNodePrototype.chain = function(key, path, src) {
       var chains = this._chains;
       var node;
-      if (!chains) { chains = this._chains = {}; }
+      if (!chains) {
+        chains = this._chains = {};
+      }
 
       node = chains[key];
-      if (!node) { node = chains[key] = new ChainNode(this, key, src); }
+      if (!node) {
+        node = chains[key] = new ChainNode(this, key, src);
+      }
       node.count++; // count chains...
 
       // chain rest of path if there is one
@@ -3288,10 +3318,10 @@ define("ember-metal/chains",
       var node = chains[key];
 
       // unchain rest of path first...
-      if (path && path.length>1) {
-        key  = firstKey(path);
-        path = path.slice(key.length+1);
-        node.unchain(key, path);
+      if (path && path.length > 1) {
+        var nextKey  = firstKey(path);
+        var nextPath = path.slice(nextKey.length + 1);
+        node.unchain(nextKey, nextPath);
       }
 
       // delete node if needed.
@@ -3307,16 +3337,22 @@ define("ember-metal/chains",
       var chains = this._chains;
       if (chains) {
         for(var key in chains) {
-          if (!chains.hasOwnProperty(key)) { continue; }
+          if (!chains.hasOwnProperty(key)) {
+            continue;
+          }
           chains[key].willChange(events);
         }
       }
 
-      if (this._parent) { this._parent.chainWillChange(this, this._key, 1, events); }
+      if (this._parent) {
+        this._parent.chainWillChange(this, this._key, 1, events);
+      }
     };
 
     ChainNodePrototype.chainWillChange = function(chain, path, depth, events) {
-      if (this._key) { path = this._key + '.' + path; }
+      if (this._key) {
+        path = this._key + '.' + path;
+      }
 
       if (this._parent) {
         this._parent.chainWillChange(this, path, depth+1, events);
@@ -3332,7 +3368,10 @@ define("ember-metal/chains",
     };
 
     ChainNodePrototype.chainDidChange = function(chain, path, depth, events) {
-      if (this._key) { path = this._key + '.' + path; }
+      if (this._key) {
+        path = this._key + '.' + path;
+      }
+
       if (this._parent) {
         this._parent.chainDidChange(this, path, depth+1, events);
       } else {
@@ -3359,8 +3398,9 @@ define("ember-metal/chains",
 
         // Special-case: the EachProxy relies on immediate evaluation to
         // establish its observers.
-        if (this._parent && this._parent._key === '@each')
+        if (this._parent && this._parent._key === '@each') {
           this.value();
+        }
       }
 
       // then notify chains...
@@ -3373,22 +3413,30 @@ define("ember-metal/chains",
       }
 
       // if no events are passed in then we only care about the above wiring update
-      if (events === null) { return; }
+      if (events === null) {
+        return;
+      }
 
       // and finally tell parent about my path changing...
-      if (this._parent) { this._parent.chainDidChange(this, this._key, 1, events); }
+      if (this._parent) {
+        this._parent.chainDidChange(this, this._key, 1, events);
+      }
     };
 
     function finishChains(obj) {
       // We only create meta if we really have to
-      var m = obj['__ember_meta__'],
-        chains, chainWatchers, chainNodes;
+      var m = obj['__ember_meta__'];
+      var chains, chainWatchers, chainNodes;
+
       if (m) {
         // finish any current chains node watchers that reference obj
         chainWatchers = m.chainWatchers;
         if (chainWatchers) {
           for(var key in chainWatchers) {
-            if (!chainWatchers.hasOwnProperty(key)) { continue; }
+            if (!chainWatchers.hasOwnProperty(key)) {
+              continue;
+            }
+
             chainNodes = chainWatchers[key];
             if (chainNodes) {
               for (var i=0,l=chainNodes.length;i<l;i++) {
@@ -3441,18 +3489,18 @@ define("ember-metal/computed",
     //
 
     /**
-      A computed property transforms an objects function into a property.
+      A computed property transforms an object's function into a property.
 
       By default the function backing the computed property will only be called
       once and the result will be cached. You can specify various properties
-      that your computed property is dependent on. This will force the cached
+      that your computed property depends on. This will force the cached
       result to be recomputed if the dependencies are modified.
 
       In the following example we declare a computed property (by calling
-      `.property()` on the fullName function) and setup the properties
+      `.property()` on the fullName function) and setup the property
       dependencies (depending on firstName and lastName). The fullName function
       will be called once (regardless of how many times it is accessed) as long
-      as it's dependencies have not been changed. Once firstName or lastName are updated
+      as its dependencies have not changed. Once firstName or lastName are updated
       any future calls (or anything bound) to fullName will incorporate the new
       values.
 
@@ -3748,7 +3796,9 @@ define("ember-metal/computed",
         }
 
         chainNodes = meta.chainWatchers && meta.chainWatchers[keyName];
-        if (chainNodes) { finishChains(chainNodes); }
+        if (chainNodes) {
+          finishChains(chainNodes);
+        }
         addDependentKeys(this, obj, keyName, meta);
       } else {
         ret = this.func.call(obj, keyName);
@@ -3990,7 +4040,9 @@ define("ember-metal/computed",
       var cache = meta && meta.cache;
       var ret = cache && cache[key];
 
-      if (ret === UNDEFINED) { return undefined; }
+      if (ret === UNDEFINED) {
+        return undefined;
+      }
       return ret;
     }
 
@@ -4004,7 +4056,9 @@ define("ember-metal/computed",
 
     cacheFor.get = function(cache, key) {
       var ret = cache[key];
-      if (ret === UNDEFINED) { return undefined; }
+      if (ret === UNDEFINED) {
+        return undefined;
+      }
       return ret;
     };
 
@@ -4894,7 +4948,7 @@ define("ember-metal/core",
     Ember.LOG_STACKTRACE_ON_DEPRECATION = (Ember.ENV.LOG_STACKTRACE_ON_DEPRECATION !== false);
 
     /**
-      Determines whether Ember should add ECMAScript 5 shims to older browsers.
+      Determines whether Ember should add ECMAScript 5 Array shims to older browsers.
 
       @property SHIM_ES5
       @type Boolean
@@ -6427,7 +6481,8 @@ define("ember-metal/keys",
             throw new TypeError('Object.keys called on non-object');
           }
 
-          var result = [], prop, i;
+          var result = [];
+          var prop, i;
 
           for (prop in obj) {
             if (prop !== '_super' &&
@@ -6517,8 +6572,12 @@ define("ember-metal/logger",
       var method = typeof consoleObj === 'object' ? consoleObj[name] : null;
 
       if (method) {
-        // Older IE doesn't support apply, but Chrome needs it
-        if (typeof method.apply === 'function') {
+        // Older IE doesn't support bind, but Chrome needs it
+        if (typeof method.bind === 'function') {
+          logToConsole = method.bind(consoleObj);
+          logToConsole.displayName = 'console.' + name;
+          return logToConsole;
+        } else if (typeof method.apply === 'function') {
           logToConsole = function() {
             method.apply(consoleObj, arguments);
           };
@@ -7211,7 +7270,6 @@ define("ember-metal/mixin",
     var Ember = __dependency1__["default"];
     // warn, assert, wrap, et;
     var merge = __dependency2__["default"];
-    var a_map = __dependency3__.map;
     var a_indexOf = __dependency3__.indexOf;
     var a_forEach = __dependency3__.forEach;
     var o_create = __dependency4__.create;
@@ -7264,22 +7322,6 @@ define("ember-metal/mixin",
         ret = m.mixins = o_create(ret);
       }
       return ret;
-    }
-
-    function initMixin(mixin, args) {
-      if (args && args.length > 0) {
-        mixin.mixins = a_map.call(args, function(x) {
-          if (x instanceof Mixin) { return x; }
-
-          // Note: Manually setup a primitive mixin here. This is the only
-          // way to actually get a primitive mixin. This way normal creation
-          // of mixins will give you combined mixins...
-          var mixin = new Mixin();
-          mixin.properties = x;
-          return mixin;
-        });
-      }
-      return mixin;
     }
 
     function isMethod(obj) {
@@ -7728,12 +7770,29 @@ define("ember-metal/mixin",
       @namespace Ember
     */
     __exports__["default"] = Mixin;
-    function Mixin() { return initMixin(this, arguments); }
-    Mixin.prototype = {
-      properties: null,
-      mixins: null,
-      ownerConstructor: null
-    };
+    function Mixin(args, properties) {
+      this.properties = properties;
+
+      var length = args && args.length;
+
+      if (length > 0) {
+        var m = new Array(length);
+
+        for (var i = 0; i < length; i++) {
+          var x = args[i];
+          if (x instanceof Mixin) {
+            m[i] = x;
+          } else {
+            m[i] = new Mixin(undefined, x);
+          }
+        }
+
+        this.mixins = m;
+      } else {
+        this.mixins = undefined;
+      }
+      this.ownerConstructor = undefined;
+    }
 
     Mixin._apply = applyMixin;
 
@@ -7756,7 +7815,12 @@ define("ember-metal/mixin",
       // ES6TODO: this relies on a global state?
       Ember.anyUnprocessedMixins = true;
       var M = this;
-      return initMixin(new M(), arguments);
+      var length = arguments.length;
+      var args = new Array(length);
+      for (var i = 0; i < length; i++) {
+        args[i] = arguments[i];
+      }
+      return new M(args, undefined);
     };
 
     var MixinPrototype = Mixin.prototype;
@@ -7766,12 +7830,11 @@ define("ember-metal/mixin",
       @param arguments*
     */
     MixinPrototype.reopen = function() {
-      var mixin, tmp;
+      var mixin;
 
       if (this.properties) {
-        mixin = Mixin.create();
-        mixin.properties = this.properties;
-        delete this.properties;
+        mixin = new Mixin(undefined, this.properties);
+        this.properties = undefined;
         this.mixins = [mixin];
       } else if (!this.mixins) {
         this.mixins = [];
@@ -7790,9 +7853,7 @@ define("ember-metal/mixin",
         if (mixin instanceof Mixin) {
           mixins.push(mixin);
         } else {
-          tmp = Mixin.create();
-          tmp.properties = mixin;
-          mixins.push(tmp);
+          mixins.push(new Mixin(undefined, mixin));
         }
       }
 
@@ -7844,7 +7905,7 @@ define("ember-metal/mixin",
     };
 
     MixinPrototype.without = function() {
-      var ret = new Mixin(this);
+      var ret = new Mixin([this]);
       ret._without = a_slice.call(arguments);
       return ret;
     };
@@ -7869,7 +7930,9 @@ define("ember-metal/mixin",
       var ret = [];
       _keys(keys, this, seen);
       for(var key in keys) {
-        if (keys.hasOwnProperty(key)) { ret.push(key); }
+        if (keys.hasOwnProperty(key)) {
+          ret.push(key);
+        }
       }
       return ret;
     };
@@ -8827,9 +8890,18 @@ define("ember-metal/property_events",
       var proto = m && m.proto;
       var desc = m && m.descs[keyName];
 
-      if (!watching) { return; }
-      if (proto === obj) { return; }
-      if (desc && desc.willChange) { desc.willChange(obj, keyName); }
+      if (!watching) {
+        return;
+      }
+
+      if (proto === obj) {
+        return;
+      }
+
+      if (desc && desc.willChange) {
+        desc.willChange(obj, keyName);
+      }
+
       dependentKeysWillChange(obj, keyName, m);
       chainsWillChange(obj, keyName, m);
       notifyBeforeObservers(obj, keyName);
@@ -8856,11 +8928,18 @@ define("ember-metal/property_events",
       var proto = m && m.proto;
       var desc = m && m.descs[keyName];
 
-      if (proto === obj) { return; }
+      if (proto === obj) {
+        return;
+      }
 
       // shouldn't this mean that we're watching this key?
-      if (desc && desc.didChange) { desc.didChange(obj, keyName); }
-      if (!watching && keyName !== 'length') { return; }
+      if (desc && desc.didChange) {
+        desc.didChange(obj, keyName);
+      }
+
+      if (!watching && keyName !== 'length') {
+        return;
+      }
 
       if (m && m.deps && m.deps[keyName]) {
         dependentKeysDidChange(obj, keyName, m);
@@ -8879,9 +8958,16 @@ define("ember-metal/property_events",
       if (meta && meta.deps && (deps = meta.deps[depKey])) {
         var seen = WILL_SEEN;
         var top = !seen;
-        if (top) { seen = WILL_SEEN = {}; }
+
+        if (top) {
+          seen = WILL_SEEN = {};
+        }
+
         iterDeps(propertyWillChange, obj, deps, depKey, seen, meta);
-        if (top) { WILL_SEEN = null; }
+
+        if (top) {
+          WILL_SEEN = null;
+        }
       }
     }
 
@@ -8893,15 +8979,26 @@ define("ember-metal/property_events",
       if (meta && meta.deps && (deps = meta.deps[depKey])) {
         var seen = DID_SEEN;
         var top = !seen;
-        if (top) { seen = DID_SEEN = {}; }
+
+        if (top) {
+          seen = DID_SEEN = {};
+        }
+
         iterDeps(propertyDidChange, obj, deps, depKey, seen, meta);
-        if (top) { DID_SEEN = null; }
+
+        if (top) {
+          DID_SEEN = null;
+        }
       }
     }
 
     function keysOf(obj) {
       var keys = [];
-      for (var key in obj) keys.push(key);
+
+      for (var key in obj) {
+        keys.push(key);
+      }
+
       return keys;
     }
 
@@ -8909,8 +9006,15 @@ define("ember-metal/property_events",
       var keys, key, i, desc;
       var guid = guidFor(obj);
       var current = seen[guid];
-      if (!current) current = seen[guid] = {};
-      if (current[depKey]) return;
+
+      if (!current) {
+        current = seen[guid] = {};
+      }
+
+      if (current[depKey]) {
+        return;
+      }
+
       current[depKey] = true;
 
       if (deps) {
@@ -8919,7 +9023,11 @@ define("ember-metal/property_events",
         for (i=0; i<keys.length; i++) {
           key = keys[i];
           desc = descs[key];
-          if (desc && desc._suspended === obj) continue;
+
+          if (desc && desc._suspended === obj) {
+            continue;
+          }
+
           method(obj, key);
         }
       }
@@ -9492,14 +9600,8 @@ define("ember-metal/run_loop",
       @return {Object} Return value from invoking the passed function. Please note,
       when called within an existing loop, no return value is possible.
     */
-    run.join = function(target, method /* args */) {
-      if (!run.currentRunLoop) {
-        return Ember.run.apply(Ember, arguments);
-      }
-
-      var args = slice.call(arguments);
-      args.unshift('actions');
-      run.schedule.apply(run, args);
+    run.join = function() {
+      return backburner.join.apply(backburner, arguments);
     };
 
     /**
@@ -11306,7 +11408,8 @@ define("ember-metal/watch_key",
     
 
     function unwatchKey(obj, keyName, meta) {
-      var m = meta || metaFor(obj), watching = m.watching;
+      var m = meta || metaFor(obj);
+      var watching = m.watching;
 
       if (watching[keyName] === 1) {
         watching[keyName] = 0;
@@ -13723,8 +13826,8 @@ define("ember-runtime/controllers/array_controller",
       Then, create a view that binds to your new controller:
 
       ```handlebars
-      {{#each MyApp.listController}}
-        {{firstName}} {{lastName}}
+      {{#each person in MyApp.listController}}
+        {{person.firstName}} {{person.lastName}}
       {{/each}}
       ```
 
