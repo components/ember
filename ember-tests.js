@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.f464514b
+ * @version   1.10.0-beta.1+canary.de1f76d0
  */
 
 (function() {
@@ -4057,15 +4057,6 @@ enifed("ember-handlebars/controls.jshint",
       ok(true, 'ember-handlebars/controls.js should pass jshint.'); 
     });
   });
-enifed("ember-handlebars/controls/checkbox.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/controls');
-    test('ember-handlebars/controls/checkbox.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/controls/checkbox.js should pass jshint.'); 
-    });
-  });
 enifed("ember-handlebars/controls/select.jshint",
   [],
   function() {
@@ -4073,33 +4064,6 @@ enifed("ember-handlebars/controls/select.jshint",
     module('JSHint - ember-handlebars/controls');
     test('ember-handlebars/controls/select.js should pass jshint', function() { 
       ok(true, 'ember-handlebars/controls/select.js should pass jshint.'); 
-    });
-  });
-enifed("ember-handlebars/controls/text_area.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/controls');
-    test('ember-handlebars/controls/text_area.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/controls/text_area.js should pass jshint.'); 
-    });
-  });
-enifed("ember-handlebars/controls/text_field.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/controls');
-    test('ember-handlebars/controls/text_field.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/controls/text_field.js should pass jshint.'); 
-    });
-  });
-enifed("ember-handlebars/controls/text_support.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/controls');
-    test('ember-handlebars/controls/text_support.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/controls/text_support.js should pass jshint.'); 
     });
   });
 enifed("ember-handlebars/ext.jshint",
@@ -4247,15 +4211,13 @@ enifed("ember-handlebars/string.jshint",
     });
   });
 enifed("ember-handlebars/tests/controls/checkbox_test",
-  ["ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-views/views/view","ember-views/system/event_dispatcher","ember-handlebars-compiler"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
+  ["ember-metal/property_set","ember-metal/run_loop","ember-views/views/view","ember-handlebars-compiler"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
-    var get = __dependency1__.get;
-    var o_set = __dependency2__.set;
-    var run = __dependency3__["default"];
-    var EmberView = __dependency4__["default"];
-    var EventDispatcher = __dependency5__["default"];
-    var EmberHandlebars = __dependency6__["default"];
+    var o_set = __dependency1__.set;
+    var run = __dependency2__["default"];
+    var EmberView = __dependency3__["default"];
+    var EmberHandlebars = __dependency4__["default"];
 
     // import {expectAssertion} from "ember-metal/tests/debug_helpers";
 
@@ -4263,7 +4225,14 @@ enifed("ember-handlebars/tests/controls/checkbox_test",
       run(function() { o_set(obj, key, value); });
     }
 
-    var checkboxView, dispatcher, controller;
+    function append() {
+      run(function() {
+        checkboxView.appendTo('#qunit-fixture');
+      });
+    }
+
+
+    var checkboxView, controller;
 
     var compile = EmberHandlebars.compile;
 
@@ -4406,135 +4375,6 @@ enifed("ember-handlebars/tests/controls/checkbox_test",
 
     test("checkbox checked property is updated", function() {
       equal(checkboxView.$('input').prop('checked'), false, "the checkbox isn't checked yet");
-    });
-
-    QUnit.module("Ember.Checkbox", {
-      setup: function() {
-        dispatcher = EventDispatcher.create();
-        dispatcher.setup();
-      },
-
-      teardown: function() {
-        run(function() {
-          dispatcher.destroy();
-          checkboxView.destroy();
-        });
-      }
-    });
-
-    function append() {
-      run(function() {
-        checkboxView.appendTo('#qunit-fixture');
-      });
-    }
-
-    test("should begin disabled if the disabled attribute is true", function() {
-      checkboxView = Ember.Checkbox.create({});
-
-      checkboxView.set('disabled', true);
-      append();
-
-      ok(checkboxView.$().is(":disabled"));
-    });
-
-    test("should become disabled if the disabled attribute is changed", function() {
-      checkboxView = Ember.Checkbox.create({});
-
-      append();
-      ok(checkboxView.$().is(":not(:disabled)"));
-
-      run(function() { checkboxView.set('disabled', true); });
-      ok(checkboxView.$().is(":disabled"));
-
-      run(function() { checkboxView.set('disabled', false); });
-      ok(checkboxView.$().is(":not(:disabled)"));
-    });
-
-    test("should begin indeterminate if the indeterminate attribute is true", function() {
-      checkboxView = Ember.Checkbox.create({});
-
-      checkboxView.set('indeterminate', true);
-      append();
-
-      equal(checkboxView.$().prop('indeterminate'), true, "Checkbox should be indeterminate");
-    });
-
-    test("should become indeterminate if the indeterminate attribute is changed", function() {
-      checkboxView = Ember.Checkbox.create({});
-
-      append();
-
-      equal(checkboxView.$().prop('indeterminate'), false, "Checkbox should not be indeterminate");
-
-      run(function() { checkboxView.set('indeterminate', true); });
-      equal(checkboxView.$().prop('indeterminate'), true, "Checkbox should be indeterminate");
-
-      run(function() { checkboxView.set('indeterminate', false); });
-      equal(checkboxView.$().prop('indeterminate'), false, "Checkbox should not be indeterminate");
-    });
-
-    test("should support the tabindex property", function() {
-      checkboxView = Ember.Checkbox.create({});
-
-      run(function() { checkboxView.set('tabindex', 6); });
-      append();
-
-      equal(checkboxView.$().prop('tabindex'), '6', 'the initial checkbox tabindex is set in the DOM');
-
-      run(function() { checkboxView.set('tabindex', 3); });
-      equal(checkboxView.$().prop('tabindex'), '3', 'the checkbox tabindex changes when it is changed in the view');
-    });
-
-    test("checkbox name is updated when setting name property of view", function() {
-      checkboxView = Ember.Checkbox.create({});
-
-      run(function() { checkboxView.set('name', 'foo'); });
-      append();
-
-      equal(checkboxView.$().attr('name'), "foo", "renders checkbox with the name");
-
-      run(function() { checkboxView.set('name', 'bar'); });
-
-      equal(checkboxView.$().attr('name'), "bar", "updates checkbox after name changes");
-    });
-
-    test("checked property mirrors input value", function() {
-      checkboxView = Ember.Checkbox.create({});
-      run(function() { checkboxView.append(); });
-
-      equal(get(checkboxView, 'checked'), false, "initially starts with a false value");
-      equal(!!checkboxView.$().prop('checked'), false, "the initial checked property is false");
-
-      set(checkboxView, 'checked', true);
-
-      equal(checkboxView.$().prop('checked'), true, "changing the value property changes the DOM");
-
-      run(function() { checkboxView.remove(); });
-      run(function() { checkboxView.append(); });
-
-      equal(checkboxView.$().prop('checked'), true, "changing the value property changes the DOM");
-
-      run(function() { checkboxView.remove(); });
-      run(function() { set(checkboxView, 'checked', false); });
-      run(function() { checkboxView.append(); });
-
-      equal(checkboxView.$().prop('checked'), false, "changing the value property changes the DOM");
-    });
-
-    test("checking the checkbox updates the value", function() {
-      checkboxView = Ember.Checkbox.create({ checked: true });
-      append();
-
-      equal(get(checkboxView, 'checked'), true, "precond - initially starts with a true value");
-      equal(!!checkboxView.$().prop('checked'), true, "precond - the initial checked property is true");
-
-      // IE fires 'change' event on blur.
-      checkboxView.$()[0].focus();
-      checkboxView.$()[0].click();
-      checkboxView.$()[0].blur();
-
-      equal(!!checkboxView.$().prop('checked'), false, "after clicking a checkbox, the checked property changed");
-      equal(get(checkboxView, 'checked'), false, "changing the checkbox causes the view's value to get updated");
     });
   });
 enifed("ember-handlebars/tests/controls/checkbox_test.jshint",
@@ -5418,20 +5258,15 @@ enifed("ember-handlebars/tests/controls/select_test.jshint",
     });
   });
 enifed("ember-handlebars/tests/controls/text_area_test",
-  ["ember-runtime/system/object","ember-metal/array","ember-metal/run_loop","ember-views/views/view","ember-handlebars/controls/text_area","ember-handlebars","ember-metal/property_get","ember-metal/property_set"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
+  ["ember-metal/run_loop","ember-views/views/view","ember-handlebars","ember-metal/property_set"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
-    /*globals TestObject:true */
-    var EmberObject = __dependency1__["default"];
-    var forEach = __dependency2__.forEach;
-    var run = __dependency3__["default"];
-    var View = __dependency4__["default"];
-    var TextArea = __dependency5__["default"];
-    var EmberHandlebars = __dependency6__["default"];
-    var get = __dependency7__.get;
-    var o_set = __dependency8__.set;
+    var run = __dependency1__["default"];
+    var View = __dependency2__["default"];
+    var EmberHandlebars = __dependency3__["default"];
+    var o_set = __dependency4__.set;
 
-    var textArea, controller, TestObject;
+    var textArea, controller;
 
     function set(object, key, value) {
       run(function() { o_set(object, key, value); });
@@ -5485,215 +5320,6 @@ enifed("ember-handlebars/tests/controls/text_area_test",
       set(controller, 'val', "sit amet");
       equal(textArea.$('textarea').val(), "sit amet", "The new contents are included");
     });
-
-    QUnit.module("TextArea", {
-      setup: function() {
-       TestObject = window.TestObject = EmberObject.create({
-          value: null
-        });
-
-        textArea = TextArea.create();
-      },
-
-      teardown: function() {
-        run(function() {
-          textArea.destroy();
-        });
-
-        TestObject = window.TestObject = textArea = null;
-      }
-    });
-
-    test("should become disabled if the disabled attribute is true", function() {
-      textArea.set('disabled', true);
-      append();
-
-      ok(textArea.$().is(":disabled"));
-    });
-
-    test("should become disabled if the disabled attribute is true", function() {
-      append();
-      ok(textArea.$().is(":not(:disabled)"));
-
-      run(function() { textArea.set('disabled', true); });
-      ok(textArea.$().is(":disabled"));
-
-      run(function() { textArea.set('disabled', false); });
-      ok(textArea.$().is(":not(:disabled)"));
-    });
-
-    test("input value is updated when setting value property of view", function() {
-      run(function() {
-        set(textArea, 'value', 'foo');
-        textArea.append();
-      });
-
-      equal(textArea.$().val(), "foo", "renders text field with value");
-
-      run(function() { set(textArea, 'value', 'bar'); });
-
-      equal(textArea.$().val(), "bar", "updates text field after value changes");
-    });
-
-    test("input placeholder is updated when setting placeholder property of view", function() {
-      run(function() {
-        set(textArea, 'placeholder', 'foo');
-        textArea.append();
-      });
-
-      equal(textArea.$().attr('placeholder'), "foo", "renders text area with placeholder");
-
-      run(function() { set(textArea, 'placeholder', 'bar'); });
-
-      equal(textArea.$().attr('placeholder'), "bar", "updates text area after placeholder changes");
-    });
-
-    test("input name is updated when setting name property of view", function() {
-      run(function() {
-        set(textArea, 'name', 'foo');
-        textArea.append();
-      });
-
-      equal(textArea.$().attr('name'), "foo", "renders text area with name");
-
-      run(function() { set(textArea, 'name', 'bar'); });
-
-      equal(textArea.$().attr('name'), "bar", "updates text area after name changes");
-    });
-
-    test("input maxlength is updated when setting maxlength property of view", function() {
-      run(function() {
-        set(textArea, 'maxlength', '300');
-        textArea.append();
-      });
-
-      equal(textArea.$().attr('maxlength'), "300", "renders text area with maxlength");
-
-      run(function() { set(textArea, 'maxlength', '400'); });
-
-      equal(textArea.$().attr('maxlength'), "400", "updates text area after maxlength changes");
-    });
-
-    test("input rows is updated when setting rows property of view", function() {
-      run(function() {
-        set(textArea, 'rows', '3');
-        textArea.append();
-      });
-
-      equal(textArea.$().attr('rows'), "3", "renders text area with rows");
-
-      run(function() { set(textArea, 'rows', '4'); });
-
-      equal(textArea.$().attr('rows'), "4", "updates text area after rows changes");
-    });
-
-    test("input cols is updated when setting cols property of view", function() {
-      run(function() {
-        set(textArea, 'cols', '30');
-        textArea.append();
-      });
-
-      equal(textArea.$().attr('cols'), "30", "renders text area with cols");
-
-      run(function() { set(textArea, 'cols', '40'); });
-
-      equal(textArea.$().attr('cols'), "40", "updates text area after cols changes");
-    });
-
-    test("input tabindex is updated when setting tabindex property of view", function() {
-      run(function() {
-        set(textArea, 'tabindex', '4');
-        textArea.append();
-      });
-
-      equal(textArea.$().attr('tabindex'), "4", "renders text area with the tabindex");
-
-      run(function() { set(textArea, 'tabindex', '1'); });
-
-      equal(textArea.$().attr('tabindex'), "1", "updates text area after tabindex changes");
-    });
-
-    test("input title is updated when setting title property of view", function() {
-      run(function() {
-        set(textArea, 'title', 'FooTitle');
-        textArea.append();
-      });
-      equal(textArea.$().attr('title'), "FooTitle", "renders text area with the title");
-
-      run(function() { set(textArea, 'title', 'BarTitle'); });
-      equal(textArea.$().attr('title'), 'BarTitle', "updates text area after title changes");
-    });
-
-    test("value binding works properly for inputs that haven't been created", function() {
-      run(function() {
-        textArea.destroy(); // destroy existing textarea
-        textArea = TextArea.createWithMixins({
-          valueBinding: 'TestObject.value'
-        });
-      });
-
-      equal(get(textArea, 'value'), null, "precond - default value is null");
-      equal(textArea.$(), undefined, "precond - view doesn't have its layer created yet, thus no input element");
-
-      run(function() {
-        set(TestObject, 'value', 'ohai');
-      });
-
-      equal(get(textArea, 'value'), 'ohai', "value property was properly updated");
-
-      run(function() { textArea.append(); });
-
-      equal(get(textArea, 'value'), 'ohai', "value property remains the same once the view has been appended");
-      equal(textArea.$().val(), 'ohai', "value is reflected in the input element once it is created");
-    });
-
-    forEach.call([ 'cut', 'paste', 'input' ], function(eventName) {
-      test("should update the value on " + eventName + " events", function() {
-
-        run(function() {
-          textArea.append();
-        });
-
-        textArea.$().val('new value');
-        textArea.trigger(eventName, EmberObject.create({
-          type: eventName
-        }));
-
-        equal(textArea.get('value'), 'new value', 'value property updates on ' + eventName + ' events');
-      });
-    });
-
-    test("should call the insertNewline method when return key is pressed", function() {
-      var wasCalled;
-      var event = EmberObject.create({
-        keyCode: 13
-      });
-
-      run(function() { textArea.append(); });
-
-      textArea.insertNewline = function() {
-        wasCalled = true;
-      };
-
-      textArea.trigger('keyUp', event);
-      ok(wasCalled, "invokes insertNewline method");
-    });
-
-    test("should call the cancel method when escape key is pressed", function() {
-      var wasCalled;
-      var event = EmberObject.create({
-        keyCode: 27
-      });
-
-      run(function() { textArea.append(); });
-
-      textArea.cancel = function() {
-        wasCalled = true;
-      };
-
-      textArea.trigger('keyUp', event);
-      ok(wasCalled, "invokes cancel method");
-    });
   });
 enifed("ember-handlebars/tests/controls/text_area_test.jshint",
   [],
@@ -5705,26 +5331,16 @@ enifed("ember-handlebars/tests/controls/text_area_test.jshint",
     });
   });
 enifed("ember-handlebars/tests/controls/text_field_test",
-  ["ember-metal/run_loop","ember-metal/property_get","ember-metal/property_set","ember-handlebars","ember-runtime/system/object","ember-views/views/view","ember-handlebars/controls/text_field","ember-views/system/event_dispatcher","ember-views/system/jquery"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
+  ["ember-metal/run_loop","ember-metal/property_set","ember-handlebars","ember-views/views/view"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
-    /*globals TestObject:true */
-
     var run = __dependency1__["default"];
-    var get = __dependency2__.get;
-    var o_set = __dependency3__.set;
-    var EmberHandlebars = __dependency4__["default"];
-    var EmberObject = __dependency5__["default"];
-    var View = __dependency6__["default"];
-    var TextField = __dependency7__["default"];
-    var EventDispatcher = __dependency8__["default"];
-    var jQuery = __dependency9__["default"];
-
-    function K() { return this; }
+    var o_set = __dependency2__.set;
+    var EmberHandlebars = __dependency3__["default"];
+    var View = __dependency4__["default"];
 
     var textField;
     var controller;
-    var TestObject;
 
     function set(object, key, value) {
       run(function() { o_set(object, key, value); });
@@ -5910,486 +5526,6 @@ enifed("ember-handlebars/tests/controls/text_field_test",
     test("should have the default type", function() {
       equal(textField.$('input').attr('type'), 'text', "Has a default text type");
     });
-
-    QUnit.module("Ember.TextField", {
-      setup: function() {
-        TestObject = window.TestObject = EmberObject.create({
-          value: null
-        });
-
-        textField = TextField.create();
-      },
-
-      teardown: function() {
-        run(function() {
-          textField.destroy();
-        });
-        TestObject = window.TestObject = textField = null;
-      }
-    });
-
-    test("should become disabled if the disabled attribute is true", function() {
-      textField.set('disabled', true);
-      append();
-
-      ok(textField.$().is(":disabled"));
-    });
-
-    test("should become disabled if the disabled attribute is true", function() {
-      append();
-      ok(textField.$().is(":not(:disabled)"));
-
-      run(function() { textField.set('disabled', true); });
-      ok(textField.$().is(":disabled"));
-
-      run(function() { textField.set('disabled', false); });
-      ok(textField.$().is(":not(:disabled)"));
-    });
-
-    test("input value is updated when setting value property of view", function() {
-      run(function() {
-        set(textField, 'value', 'foo');
-        textField.append();
-      });
-
-      equal(textField.$().val(), "foo", "renders text field with value");
-
-      run(function() { set(textField, 'value', 'bar'); });
-
-      equal(textField.$().val(), "bar", "updates text field after value changes");
-    });
-
-    test("input placeholder is updated when setting placeholder property of view", function() {
-      run(function() {
-        set(textField, 'placeholder', 'foo');
-        textField.append();
-      });
-
-      equal(textField.$().attr('placeholder'), "foo", "renders text field with placeholder");
-
-      run(function() { set(textField, 'placeholder', 'bar'); });
-
-      equal(textField.$().attr('placeholder'), "bar", "updates text field after placeholder changes");
-    });
-
-    test("input name is updated when setting name property of view", function() {
-      run(function() {
-        set(textField, 'name', 'foo');
-        textField.append();
-      });
-
-      equal(textField.$().attr('name'), "foo", "renders text field with name");
-
-      run(function() { set(textField, 'name', 'bar'); });
-
-      equal(textField.$().attr('name'), "bar", "updates text field after name changes");
-    });
-
-    test("input maxlength is updated when setting maxlength property of view", function() {
-      run(function() {
-        set(textField, 'maxlength', '30');
-        textField.append();
-      });
-
-      equal(textField.$().attr('maxlength'), "30", "renders text field with maxlength");
-
-      run(function() { set(textField, 'maxlength', '40'); });
-
-      equal(textField.$().attr('maxlength'), "40", "updates text field after maxlength changes");
-    });
-
-    test("input size is updated when setting size property of view", function() {
-      run(function() {
-        set(textField, 'size', '30');
-        textField.append();
-      });
-
-      equal(textField.$().attr('size'), "30", "renders text field with size");
-
-      run(function() { set(textField, 'size', '40'); });
-
-      equal(textField.$().attr('size'), "40", "updates text field after size changes");
-    });
-
-    test("input tabindex is updated when setting tabindex property of view", function() {
-      run(function() {
-        set(textField, 'tabindex', '5');
-        textField.append();
-      });
-
-      equal(textField.$().attr('tabindex'), "5", "renders text field with the tabindex");
-
-      run(function() { set(textField, 'tabindex', '3'); });
-
-      equal(textField.$().attr('tabindex'), "3", "updates text field after tabindex changes");
-    });
-
-    test("input title is updated when setting title property of view", function() {
-      run(function() {
-        set(textField, 'title', 'FooTitle');
-        textField.append();
-      });
-
-      equal(textField.$().attr('title'), "FooTitle", "renders text field with the title");
-
-      run(function() { set(textField, 'title', 'BarTitle'); });
-
-      equal(textField.$().attr('title'), "BarTitle", "updates text field after title changes");
-    });
-
-    test("input type is configurable when creating view", function() {
-      run(function() {
-        set(textField, 'type', 'password');
-        textField.append();
-      });
-
-      equal(textField.$().attr('type'), 'password', "renders text field with type");
-    });
-
-    test("value binding works properly for inputs that haven't been created", function() {
-
-      run(function() {
-        textField.destroy(); // destroy existing textField
-        textField = TextField.createWithMixins({
-          valueBinding: 'TestObject.value'
-        });
-      });
-
-      equal(get(textField, 'value'), null, "precond - default value is null");
-      equal(textField.$(), undefined, "precond - view doesn't have its layer created yet, thus no input element");
-
-      run(function() {
-        set(TestObject, 'value', 'ohai');
-      });
-
-      equal(get(textField, 'value'), 'ohai', "value property was properly updated");
-
-      run(function() { textField.append(); });
-
-      equal(get(textField, 'value'), 'ohai', "value property remains the same once the view has been appended");
-      equal(textField.$().val(), 'ohai', "value is reflected in the input element once it is created");
-    });
-
-    test("value binding sets value on the element", function() {
-      run(function() {
-        textField.destroy(); // destroy existing textField
-        textField = TextField.createWithMixins({
-          valueBinding: 'TestObject.value'
-        });
-        textField.append();
-      });
-
-      // Set the value via the DOM
-      run(function() {
-        textField.$().val('via dom');
-        // Trigger lets the view know we changed this value (like a real user editing)
-        textField.trigger('input', EmberObject.create({
-          type: 'input'
-        }));
-      });
-
-      equal(get(textField, 'value'), 'via dom', "value property was properly updated via dom");
-      equal(textField.$().val(), 'via dom', "dom property was properly updated via dom");
-
-      // Now, set it via the binding
-      run(function() {
-        set(TestObject, 'value', 'via view');
-      });
-
-      equal(get(textField, 'value'), 'via view', "value property was properly updated via view");
-      equal(textField.$().val(), 'via view', "dom property was properly updated via view");
-    });
-
-    test("should call the insertNewline method when return key is pressed", function() {
-      var wasCalled;
-      var event = EmberObject.create({
-        keyCode: 13
-      });
-
-      run(function() { textField.append(); });
-
-      textField.insertNewline = function() {
-        wasCalled = true;
-      };
-
-      textField.trigger('keyUp', event);
-      ok(wasCalled, "invokes insertNewline method");
-    });
-
-    test("should call the cancel method when escape key is pressed", function() {
-      var wasCalled;
-      var event = EmberObject.create({
-        keyCode: 27
-      });
-
-      run(function() { textField.append(); });
-
-      textField.cancel = function() {
-        wasCalled = true;
-      };
-
-      textField.trigger('keyUp', event);
-      ok(wasCalled, "invokes cancel method");
-    });
-
-    test("should send an action if one is defined when the return key is pressed", function() {
-      expect(2);
-
-      var StubController = EmberObject.extend({
-        send: function(actionName, value, sender) {
-          equal(actionName, 'didTriggerAction', "text field sent correct action name");
-          equal(value, "textFieldValue", "text field sent its current value as first argument");
-        }
-      });
-
-      textField.set('action', 'didTriggerAction');
-      textField.set('value', "textFieldValue");
-      textField.set('targetObject', StubController.create());
-
-      run(function() { textField.append(); });
-
-      var event = {
-        keyCode: 13,
-        stopPropagation: K
-      };
-
-      textField.trigger('keyUp', event);
-    });
-
-    test("should send an action on keyPress if one is defined with onEvent=keyPress", function() {
-      expect(2);
-
-      var StubController = EmberObject.extend({
-        send: function(actionName, value, sender) {
-          equal(actionName, 'didTriggerAction', "text field sent correct action name");
-          equal(value, "textFieldValue", "text field sent its current value as first argument");
-        }
-      });
-
-      textField.set('action', 'didTriggerAction');
-      textField.set('onEvent', 'keyPress');
-      textField.set('value', "textFieldValue");
-      textField.set('targetObject', StubController.create());
-
-      run(function() { textField.append(); });
-
-      var event = {
-        keyCode: 48,
-        stopPropagation: K
-      };
-
-      textField.trigger('keyPress', event);
-    });
-
-
-    test("bubbling of handled actions can be enabled via bubbles property", function() {
-      textField.set('bubbles', true);
-      textField.set('action', 'didTriggerAction');
-
-      textField.set('controller', EmberObject.create({
-        send: K
-      }));
-
-      append();
-
-      var stopPropagationCount = 0;
-      var event = {
-        keyCode: 13,
-        stopPropagation: function() {
-          stopPropagationCount++;
-        }
-      };
-
-      textField.trigger('keyUp', event);
-      equal(stopPropagationCount, 0, "propagation was not prevented if bubbles is true");
-
-      textField.set('bubbles', false);
-      textField.trigger('keyUp', event);
-      equal(stopPropagationCount, 1, "propagation was prevented if bubbles is false");
-    });
-
-
-    var dispatcher, StubController;
-    QUnit.module("Ember.TextField - Action events", {
-      setup: function() {
-
-        dispatcher = EventDispatcher.create();
-        dispatcher.setup();
-
-        StubController = EmberObject.extend({
-          send: function(actionName, value, sender) {
-            equal(actionName, 'doSomething', "text field sent correct action name");
-          }
-        });
-
-      },
-
-      teardown: function() {
-        run(function() {
-          dispatcher.destroy();
-
-          if (textField) {
-            textField.destroy();
-          }
-        });
-      }
-    });
-
-    test("when the text field is blurred, the `focus-out` action is sent to the controller", function() {
-      expect(1);
-
-      textField = TextField.create({
-        'focus-out': 'doSomething',
-        targetObject: StubController.create({})
-      });
-
-      append();
-
-      run(function() {
-        textField.$().blur();
-      });
-
-    });
-
-    test("when the text field is focused, the `focus-in` action is sent to the controller", function() {
-      expect(1);
-
-      textField = TextField.create({
-        'focus-in': 'doSomething',
-        targetObject: StubController.create({})
-      });
-
-      append();
-
-      run(function() {
-        textField.$().focusin();
-      });
-
-
-    });
-
-    test("when the user presses a key, the `key-press` action is sent to the controller", function() {
-      expect(1);
-
-      textField = TextField.create({
-        'key-press': 'doSomething',
-        targetObject: StubController.create({})
-      });
-
-      append();
-
-      run(function() {
-        var event = jQuery.Event("keypress");
-        event.keyCode = event.which = 13;
-        textField.$().trigger(event);
-      });
-
-    });
-
-    test("when the user inserts a new line, the `insert-newline` action is sent to the controller", function() {
-      expect(1);
-
-      textField = TextField.create({
-        'insert-newline': 'doSomething',
-        targetObject: StubController.create({})
-      });
-
-      append();
-
-      run(function() {
-        var event = jQuery.Event("keyup");
-        event.keyCode = event.which = 13;
-        textField.$().trigger(event);
-      });
-
-    });
-
-
-    test("when the user presses the `enter` key, the `enter` action is sent to the controller", function() {
-      expect(1);
-
-      textField = TextField.create({
-        'enter': 'doSomething',
-        targetObject: StubController.create({})
-      });
-
-      append();
-
-      run(function() {
-        var event = jQuery.Event("keyup");
-        event.keyCode = event.which = 13;
-        textField.$().trigger(event);
-      });
-
-    });
-
-    test("when the user hits escape, the `escape-press` action is sent to the controller", function() {
-      expect(1);
-
-      textField = TextField.create({
-        'escape-press': 'doSomething',
-        targetObject: StubController.create({})
-      });
-
-      append();
-
-      run(function() {
-        var event = jQuery.Event("keyup");
-        event.keyCode = event.which = 27;
-        textField.$().trigger(event);
-      });
-
-    });
-
-    test("when the user presses a key, the `key-down` action is sent to the controller", function() {
-      expect(3);
-      var event;
-
-      textField = TextField.create({
-        'key-down': 'doSomething',
-        targetObject: StubController.create({
-          send: function(actionName, value, evt) {
-            equal(actionName, 'doSomething', "text field sent correct action name");
-            equal(value, '', 'value was blank in key-down');
-            equal(evt, event, 'event was received as param');
-          }
-        })
-      });
-
-      append();
-
-      run(function() {
-        event = jQuery.Event("keydown");
-        event.keyCode = event.which = 65;
-        textField.$().val('foo');
-        textField.$().trigger(event);
-      });
-    });
-
-    test("when the user releases a key, the `key-up` action is sent to the controller", function() {
-      expect(3);
-      var event;
-
-      textField = TextField.create({
-        'key-up': 'doSomething',
-        targetObject: StubController.create({
-          send: function(actionName, value, evt) {
-            equal(actionName, 'doSomething', "text field sent correct action name");
-            equal(value, 'bar', 'value was received');
-            equal(evt, event, 'event was received as param');
-          }
-        })
-      });
-
-      append();
-
-      run(function() {
-        event = jQuery.Event("keyup");
-        event.keyCode = event.which = 65;
-        textField.$().val('bar');
-        textField.$().trigger(event);
-      });
-    });
   });
 enifed("ember-handlebars/tests/controls/text_field_test.jshint",
   [],
@@ -6544,7 +5680,7 @@ enifed("ember-handlebars/tests/handlebars_get_test.jshint",
     });
   });
 enifed("ember-handlebars/tests/handlebars_test",
-  ["ember-metal/core","ember-views/system/jquery","ember-metal/enumerable_utils","ember-metal/run_loop","ember-runtime/system/namespace","ember-views/views/view","ember-views/views/metamorph_view","ember-handlebars","ember-runtime/system/object","ember-runtime/controllers/object_controller","ember-runtime/system/native_array","ember-metal/computed","ember-runtime/system/string","ember-metal/utils","ember-runtime/system/array_proxy","ember-views/views/collection_view","ember-views/views/container_view","ember-metal/binding","ember-metal/observer","ember-handlebars/controls/text_field","ember-runtime/system/container","ember-metal/platform","ember-handlebars/string","ember-metal/property_get","ember-metal/property_set"],
+  ["ember-metal/core","ember-views/system/jquery","ember-metal/enumerable_utils","ember-metal/run_loop","ember-runtime/system/namespace","ember-views/views/view","ember-views/views/metamorph_view","ember-handlebars","ember-runtime/system/object","ember-runtime/controllers/object_controller","ember-runtime/system/native_array","ember-metal/computed","ember-runtime/system/string","ember-metal/utils","ember-runtime/system/array_proxy","ember-views/views/collection_view","ember-views/views/container_view","ember-metal/binding","ember-metal/observer","ember-views/views/text_field","ember-runtime/system/container","ember-metal/platform","ember-handlebars/string","ember-metal/property_get","ember-metal/property_set"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__) {
     "use strict";
     /*jshint newcap:false*/
@@ -48011,6 +47147,15 @@ enifed("ember-views/mixins/component_template_deprecation.jshint",
       ok(true, 'ember-views/mixins/component_template_deprecation.js should pass jshint.'); 
     });
   });
+enifed("ember-views/mixins/text_support.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/mixins');
+    test('ember-views/mixins/text_support.js should pass jshint', function() { 
+      ok(true, 'ember-views/mixins/text_support.js should pass jshint.'); 
+    });
+  });
 enifed("ember-views/mixins/view_target_action_support.jshint",
   [],
   function() {
@@ -49136,6 +48281,162 @@ enifed("ember-views/tests/system/view_utils_test.jshint",
     module('JSHint - ember-views/tests/system');
     test('ember-views/tests/system/view_utils_test.js should pass jshint', function() { 
       ok(true, 'ember-views/tests/system/view_utils_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/tests/views/checkbox_test",
+  ["ember-views/views/checkbox","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-views/system/event_dispatcher"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
+    "use strict";
+    var Checkbox = __dependency1__["default"];
+
+    var get = __dependency2__.get;
+    var o_set = __dependency3__.set;
+    var run = __dependency4__["default"];
+    var EventDispatcher = __dependency5__["default"];
+
+    function set(obj, key, value) {
+      run(function() { o_set(obj, key, value); });
+    }
+
+    function append() {
+      run(function() {
+        checkboxView.appendTo('#qunit-fixture');
+      });
+    }
+
+
+    var checkboxView, dispatcher;
+
+    QUnit.module("Ember.Checkbox", {
+      setup: function() {
+        dispatcher = EventDispatcher.create();
+        dispatcher.setup();
+      },
+
+      teardown: function() {
+        run(function() {
+          dispatcher.destroy();
+          checkboxView.destroy();
+        });
+      }
+    });
+
+    test("should begin disabled if the disabled attribute is true", function() {
+      checkboxView = Checkbox.create({});
+
+      checkboxView.set('disabled', true);
+      append();
+
+      ok(checkboxView.$().is(":disabled"));
+    });
+
+    test("should become disabled if the disabled attribute is changed", function() {
+      checkboxView = Checkbox.create({});
+
+      append();
+      ok(checkboxView.$().is(":not(:disabled)"));
+
+      run(function() { checkboxView.set('disabled', true); });
+      ok(checkboxView.$().is(":disabled"));
+
+      run(function() { checkboxView.set('disabled', false); });
+      ok(checkboxView.$().is(":not(:disabled)"));
+    });
+
+    test("should begin indeterminate if the indeterminate attribute is true", function() {
+      checkboxView = Checkbox.create({});
+
+      checkboxView.set('indeterminate', true);
+      append();
+
+      equal(checkboxView.$().prop('indeterminate'), true, "Checkbox should be indeterminate");
+    });
+
+    test("should become indeterminate if the indeterminate attribute is changed", function() {
+      checkboxView = Checkbox.create({});
+
+      append();
+
+      equal(checkboxView.$().prop('indeterminate'), false, "Checkbox should not be indeterminate");
+
+      run(function() { checkboxView.set('indeterminate', true); });
+      equal(checkboxView.$().prop('indeterminate'), true, "Checkbox should be indeterminate");
+
+      run(function() { checkboxView.set('indeterminate', false); });
+      equal(checkboxView.$().prop('indeterminate'), false, "Checkbox should not be indeterminate");
+    });
+
+    test("should support the tabindex property", function() {
+      checkboxView = Checkbox.create({});
+
+      run(function() { checkboxView.set('tabindex', 6); });
+      append();
+
+      equal(checkboxView.$().prop('tabindex'), '6', 'the initial checkbox tabindex is set in the DOM');
+
+      run(function() { checkboxView.set('tabindex', 3); });
+      equal(checkboxView.$().prop('tabindex'), '3', 'the checkbox tabindex changes when it is changed in the view');
+    });
+
+    test("checkbox name is updated when setting name property of view", function() {
+      checkboxView = Checkbox.create({});
+
+      run(function() { checkboxView.set('name', 'foo'); });
+      append();
+
+      equal(checkboxView.$().attr('name'), "foo", "renders checkbox with the name");
+
+      run(function() { checkboxView.set('name', 'bar'); });
+
+      equal(checkboxView.$().attr('name'), "bar", "updates checkbox after name changes");
+    });
+
+    test("checked property mirrors input value", function() {
+      checkboxView = Checkbox.create({});
+      run(function() { checkboxView.append(); });
+
+      equal(get(checkboxView, 'checked'), false, "initially starts with a false value");
+      equal(!!checkboxView.$().prop('checked'), false, "the initial checked property is false");
+
+      set(checkboxView, 'checked', true);
+
+      equal(checkboxView.$().prop('checked'), true, "changing the value property changes the DOM");
+
+      run(function() { checkboxView.remove(); });
+      run(function() { checkboxView.append(); });
+
+      equal(checkboxView.$().prop('checked'), true, "changing the value property changes the DOM");
+
+      run(function() { checkboxView.remove(); });
+      run(function() { set(checkboxView, 'checked', false); });
+      run(function() { checkboxView.append(); });
+
+      equal(checkboxView.$().prop('checked'), false, "changing the value property changes the DOM");
+    });
+
+    test("checking the checkbox updates the value", function() {
+      checkboxView = Checkbox.create({ checked: true });
+      append();
+
+      equal(get(checkboxView, 'checked'), true, "precond - initially starts with a true value");
+      equal(!!checkboxView.$().prop('checked'), true, "precond - the initial checked property is true");
+
+      // IE fires 'change' event on blur.
+      checkboxView.$()[0].focus();
+      checkboxView.$()[0].click();
+      checkboxView.$()[0].blur();
+
+      equal(!!checkboxView.$().prop('checked'), false, "after clicking a checkbox, the checked property changed");
+      equal(get(checkboxView, 'checked'), false, "changing the checkbox causes the view's value to get updated");
+    });
+  });
+enifed("ember-views/tests/views/checkbox_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/tests/views');
+    test('ember-views/tests/views/checkbox_test.js should pass jshint', function() { 
+      ok(true, 'ember-views/tests/views/checkbox_test.js should pass jshint.'); 
     });
   });
 enifed("ember-views/tests/views/collection_test",
@@ -51342,6 +50643,763 @@ enifed("ember-views/tests/views/metamorph_view_test.jshint",
     module('JSHint - ember-views/tests/views');
     test('ember-views/tests/views/metamorph_view_test.js should pass jshint', function() { 
       ok(true, 'ember-views/tests/views/metamorph_view_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/tests/views/text_area_test",
+  ["ember-runtime/system/object","ember-metal/array","ember-metal/run_loop","ember-views/views/text_area","ember-metal/property_get","ember-metal/property_set"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
+    "use strict";
+    var EmberObject = __dependency1__["default"];
+    var forEach = __dependency2__.forEach;
+    var run = __dependency3__["default"];
+    var TextArea = __dependency4__["default"];
+    var get = __dependency5__.get;
+    var o_set = __dependency6__.set;
+
+    var textArea, TestObject;
+
+    function set(object, key, value) {
+      run(function() { o_set(object, key, value); });
+    }
+
+    function append() {
+      run(function() {
+        textArea.appendTo('#qunit-fixture');
+      });
+    }
+
+    QUnit.module("TextArea", {
+      setup: function() {
+       TestObject = window.TestObject = EmberObject.create({
+          value: null
+        });
+
+        textArea = TextArea.create();
+      },
+
+      teardown: function() {
+        run(function() {
+          textArea.destroy();
+        });
+
+        TestObject = window.TestObject = textArea = null;
+      }
+    });
+
+    test("should become disabled if the disabled attribute is true", function() {
+      textArea.set('disabled', true);
+      append();
+
+      ok(textArea.$().is(":disabled"));
+    });
+
+    test("should become disabled if the disabled attribute is true", function() {
+      append();
+      ok(textArea.$().is(":not(:disabled)"));
+
+      run(function() { textArea.set('disabled', true); });
+      ok(textArea.$().is(":disabled"));
+
+      run(function() { textArea.set('disabled', false); });
+      ok(textArea.$().is(":not(:disabled)"));
+    });
+
+    test("input value is updated when setting value property of view", function() {
+      run(function() {
+        set(textArea, 'value', 'foo');
+        textArea.append();
+      });
+
+      equal(textArea.$().val(), "foo", "renders text field with value");
+
+      run(function() { set(textArea, 'value', 'bar'); });
+
+      equal(textArea.$().val(), "bar", "updates text field after value changes");
+    });
+
+    test("input placeholder is updated when setting placeholder property of view", function() {
+      run(function() {
+        set(textArea, 'placeholder', 'foo');
+        textArea.append();
+      });
+
+      equal(textArea.$().attr('placeholder'), "foo", "renders text area with placeholder");
+
+      run(function() { set(textArea, 'placeholder', 'bar'); });
+
+      equal(textArea.$().attr('placeholder'), "bar", "updates text area after placeholder changes");
+    });
+
+    test("input name is updated when setting name property of view", function() {
+      run(function() {
+        set(textArea, 'name', 'foo');
+        textArea.append();
+      });
+
+      equal(textArea.$().attr('name'), "foo", "renders text area with name");
+
+      run(function() { set(textArea, 'name', 'bar'); });
+
+      equal(textArea.$().attr('name'), "bar", "updates text area after name changes");
+    });
+
+    test("input maxlength is updated when setting maxlength property of view", function() {
+      run(function() {
+        set(textArea, 'maxlength', '300');
+        textArea.append();
+      });
+
+      equal(textArea.$().attr('maxlength'), "300", "renders text area with maxlength");
+
+      run(function() { set(textArea, 'maxlength', '400'); });
+
+      equal(textArea.$().attr('maxlength'), "400", "updates text area after maxlength changes");
+    });
+
+    test("input rows is updated when setting rows property of view", function() {
+      run(function() {
+        set(textArea, 'rows', '3');
+        textArea.append();
+      });
+
+      equal(textArea.$().attr('rows'), "3", "renders text area with rows");
+
+      run(function() { set(textArea, 'rows', '4'); });
+
+      equal(textArea.$().attr('rows'), "4", "updates text area after rows changes");
+    });
+
+    test("input cols is updated when setting cols property of view", function() {
+      run(function() {
+        set(textArea, 'cols', '30');
+        textArea.append();
+      });
+
+      equal(textArea.$().attr('cols'), "30", "renders text area with cols");
+
+      run(function() { set(textArea, 'cols', '40'); });
+
+      equal(textArea.$().attr('cols'), "40", "updates text area after cols changes");
+    });
+
+    test("input tabindex is updated when setting tabindex property of view", function() {
+      run(function() {
+        set(textArea, 'tabindex', '4');
+        textArea.append();
+      });
+
+      equal(textArea.$().attr('tabindex'), "4", "renders text area with the tabindex");
+
+      run(function() { set(textArea, 'tabindex', '1'); });
+
+      equal(textArea.$().attr('tabindex'), "1", "updates text area after tabindex changes");
+    });
+
+    test("input title is updated when setting title property of view", function() {
+      run(function() {
+        set(textArea, 'title', 'FooTitle');
+        textArea.append();
+      });
+      equal(textArea.$().attr('title'), "FooTitle", "renders text area with the title");
+
+      run(function() { set(textArea, 'title', 'BarTitle'); });
+      equal(textArea.$().attr('title'), 'BarTitle', "updates text area after title changes");
+    });
+
+    test("value binding works properly for inputs that haven't been created", function() {
+      run(function() {
+        textArea.destroy(); // destroy existing textarea
+        textArea = TextArea.createWithMixins({
+          valueBinding: 'TestObject.value'
+        });
+      });
+
+      equal(get(textArea, 'value'), null, "precond - default value is null");
+      equal(textArea.$(), undefined, "precond - view doesn't have its layer created yet, thus no input element");
+
+      run(function() {
+        set(TestObject, 'value', 'ohai');
+      });
+
+      equal(get(textArea, 'value'), 'ohai', "value property was properly updated");
+
+      run(function() { textArea.append(); });
+
+      equal(get(textArea, 'value'), 'ohai', "value property remains the same once the view has been appended");
+      equal(textArea.$().val(), 'ohai', "value is reflected in the input element once it is created");
+    });
+
+    forEach.call([ 'cut', 'paste', 'input' ], function(eventName) {
+      test("should update the value on " + eventName + " events", function() {
+
+        run(function() {
+          textArea.append();
+        });
+
+        textArea.$().val('new value');
+        textArea.trigger(eventName, EmberObject.create({
+          type: eventName
+        }));
+
+        equal(textArea.get('value'), 'new value', 'value property updates on ' + eventName + ' events');
+      });
+    });
+
+    test("should call the insertNewline method when return key is pressed", function() {
+      var wasCalled;
+      var event = EmberObject.create({
+        keyCode: 13
+      });
+
+      run(function() { textArea.append(); });
+
+      textArea.insertNewline = function() {
+        wasCalled = true;
+      };
+
+      textArea.trigger('keyUp', event);
+      ok(wasCalled, "invokes insertNewline method");
+    });
+
+    test("should call the cancel method when escape key is pressed", function() {
+      var wasCalled;
+      var event = EmberObject.create({
+        keyCode: 27
+      });
+
+      run(function() { textArea.append(); });
+
+      textArea.cancel = function() {
+        wasCalled = true;
+      };
+
+      textArea.trigger('keyUp', event);
+      ok(wasCalled, "invokes cancel method");
+    });
+  });
+enifed("ember-views/tests/views/text_area_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/tests/views');
+    test('ember-views/tests/views/text_area_test.js should pass jshint', function() { 
+      ok(true, 'ember-views/tests/views/text_area_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/tests/views/text_field_test",
+  ["ember-metal/run_loop","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/object","ember-views/views/text_field","ember-views/system/event_dispatcher","ember-views/system/jquery"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
+    "use strict";
+    var run = __dependency1__["default"];
+    var get = __dependency2__.get;
+    var o_set = __dependency3__.set;
+    var EmberObject = __dependency4__["default"];
+    var TextField = __dependency5__["default"];
+    var EventDispatcher = __dependency6__["default"];
+    var jQuery = __dependency7__["default"];
+
+    function K() { return this; }
+
+    var textField;
+    var TestObject;
+
+    function set(object, key, value) {
+      run(function() { o_set(object, key, value); });
+    }
+
+    function append() {
+      run(function() {
+        textField.appendTo('#qunit-fixture');
+      });
+    }
+
+    QUnit.module("Ember.TextField", {
+      setup: function() {
+        TestObject = window.TestObject = EmberObject.create({
+          value: null
+        });
+
+        textField = TextField.create();
+      },
+
+      teardown: function() {
+        run(function() {
+          textField.destroy();
+        });
+        TestObject = window.TestObject = textField = null;
+      }
+    });
+
+    test("should become disabled if the disabled attribute is true", function() {
+      textField.set('disabled', true);
+      append();
+
+      ok(textField.$().is(":disabled"));
+    });
+
+    test("should become disabled if the disabled attribute is true", function() {
+      append();
+      ok(textField.$().is(":not(:disabled)"));
+
+      run(function() { textField.set('disabled', true); });
+      ok(textField.$().is(":disabled"));
+
+      run(function() { textField.set('disabled', false); });
+      ok(textField.$().is(":not(:disabled)"));
+    });
+
+    test("input value is updated when setting value property of view", function() {
+      run(function() {
+        set(textField, 'value', 'foo');
+        textField.append();
+      });
+
+      equal(textField.$().val(), "foo", "renders text field with value");
+
+      run(function() { set(textField, 'value', 'bar'); });
+
+      equal(textField.$().val(), "bar", "updates text field after value changes");
+    });
+
+    test("input placeholder is updated when setting placeholder property of view", function() {
+      run(function() {
+        set(textField, 'placeholder', 'foo');
+        textField.append();
+      });
+
+      equal(textField.$().attr('placeholder'), "foo", "renders text field with placeholder");
+
+      run(function() { set(textField, 'placeholder', 'bar'); });
+
+      equal(textField.$().attr('placeholder'), "bar", "updates text field after placeholder changes");
+    });
+
+    test("input name is updated when setting name property of view", function() {
+      run(function() {
+        set(textField, 'name', 'foo');
+        textField.append();
+      });
+
+      equal(textField.$().attr('name'), "foo", "renders text field with name");
+
+      run(function() { set(textField, 'name', 'bar'); });
+
+      equal(textField.$().attr('name'), "bar", "updates text field after name changes");
+    });
+
+    test("input maxlength is updated when setting maxlength property of view", function() {
+      run(function() {
+        set(textField, 'maxlength', '30');
+        textField.append();
+      });
+
+      equal(textField.$().attr('maxlength'), "30", "renders text field with maxlength");
+
+      run(function() { set(textField, 'maxlength', '40'); });
+
+      equal(textField.$().attr('maxlength'), "40", "updates text field after maxlength changes");
+    });
+
+    test("input size is updated when setting size property of view", function() {
+      run(function() {
+        set(textField, 'size', '30');
+        textField.append();
+      });
+
+      equal(textField.$().attr('size'), "30", "renders text field with size");
+
+      run(function() { set(textField, 'size', '40'); });
+
+      equal(textField.$().attr('size'), "40", "updates text field after size changes");
+    });
+
+    test("input tabindex is updated when setting tabindex property of view", function() {
+      run(function() {
+        set(textField, 'tabindex', '5');
+        textField.append();
+      });
+
+      equal(textField.$().attr('tabindex'), "5", "renders text field with the tabindex");
+
+      run(function() { set(textField, 'tabindex', '3'); });
+
+      equal(textField.$().attr('tabindex'), "3", "updates text field after tabindex changes");
+    });
+
+    test("input title is updated when setting title property of view", function() {
+      run(function() {
+        set(textField, 'title', 'FooTitle');
+        textField.append();
+      });
+
+      equal(textField.$().attr('title'), "FooTitle", "renders text field with the title");
+
+      run(function() { set(textField, 'title', 'BarTitle'); });
+
+      equal(textField.$().attr('title'), "BarTitle", "updates text field after title changes");
+    });
+
+    test("input type is configurable when creating view", function() {
+      run(function() {
+        set(textField, 'type', 'password');
+        textField.append();
+      });
+
+      equal(textField.$().attr('type'), 'password', "renders text field with type");
+    });
+
+    test("value binding works properly for inputs that haven't been created", function() {
+
+      run(function() {
+        textField.destroy(); // destroy existing textField
+        textField = TextField.createWithMixins({
+          valueBinding: 'TestObject.value'
+        });
+      });
+
+      equal(get(textField, 'value'), null, "precond - default value is null");
+      equal(textField.$(), undefined, "precond - view doesn't have its layer created yet, thus no input element");
+
+      run(function() {
+        set(TestObject, 'value', 'ohai');
+      });
+
+      equal(get(textField, 'value'), 'ohai', "value property was properly updated");
+
+      run(function() { textField.append(); });
+
+      equal(get(textField, 'value'), 'ohai', "value property remains the same once the view has been appended");
+      equal(textField.$().val(), 'ohai', "value is reflected in the input element once it is created");
+    });
+
+    test("value binding sets value on the element", function() {
+      run(function() {
+        textField.destroy(); // destroy existing textField
+        textField = TextField.createWithMixins({
+          valueBinding: 'TestObject.value'
+        });
+        textField.append();
+      });
+
+      // Set the value via the DOM
+      run(function() {
+        textField.$().val('via dom');
+        // Trigger lets the view know we changed this value (like a real user editing)
+        textField.trigger('input', EmberObject.create({
+          type: 'input'
+        }));
+      });
+
+      equal(get(textField, 'value'), 'via dom', "value property was properly updated via dom");
+      equal(textField.$().val(), 'via dom', "dom property was properly updated via dom");
+
+      // Now, set it via the binding
+      run(function() {
+        set(TestObject, 'value', 'via view');
+      });
+
+      equal(get(textField, 'value'), 'via view', "value property was properly updated via view");
+      equal(textField.$().val(), 'via view', "dom property was properly updated via view");
+    });
+
+    test("should call the insertNewline method when return key is pressed", function() {
+      var wasCalled;
+      var event = EmberObject.create({
+        keyCode: 13
+      });
+
+      run(function() { textField.append(); });
+
+      textField.insertNewline = function() {
+        wasCalled = true;
+      };
+
+      textField.trigger('keyUp', event);
+      ok(wasCalled, "invokes insertNewline method");
+    });
+
+    test("should call the cancel method when escape key is pressed", function() {
+      var wasCalled;
+      var event = EmberObject.create({
+        keyCode: 27
+      });
+
+      run(function() { textField.append(); });
+
+      textField.cancel = function() {
+        wasCalled = true;
+      };
+
+      textField.trigger('keyUp', event);
+      ok(wasCalled, "invokes cancel method");
+    });
+
+    test("should send an action if one is defined when the return key is pressed", function() {
+      expect(2);
+
+      var StubController = EmberObject.extend({
+        send: function(actionName, value, sender) {
+          equal(actionName, 'didTriggerAction', "text field sent correct action name");
+          equal(value, "textFieldValue", "text field sent its current value as first argument");
+        }
+      });
+
+      textField.set('action', 'didTriggerAction');
+      textField.set('value', "textFieldValue");
+      textField.set('targetObject', StubController.create());
+
+      run(function() { textField.append(); });
+
+      var event = {
+        keyCode: 13,
+        stopPropagation: K
+      };
+
+      textField.trigger('keyUp', event);
+    });
+
+    test("should send an action on keyPress if one is defined with onEvent=keyPress", function() {
+      expect(2);
+
+      var StubController = EmberObject.extend({
+        send: function(actionName, value, sender) {
+          equal(actionName, 'didTriggerAction', "text field sent correct action name");
+          equal(value, "textFieldValue", "text field sent its current value as first argument");
+        }
+      });
+
+      textField.set('action', 'didTriggerAction');
+      textField.set('onEvent', 'keyPress');
+      textField.set('value', "textFieldValue");
+      textField.set('targetObject', StubController.create());
+
+      run(function() { textField.append(); });
+
+      var event = {
+        keyCode: 48,
+        stopPropagation: K
+      };
+
+      textField.trigger('keyPress', event);
+    });
+
+
+    test("bubbling of handled actions can be enabled via bubbles property", function() {
+      textField.set('bubbles', true);
+      textField.set('action', 'didTriggerAction');
+
+      textField.set('controller', EmberObject.create({
+        send: K
+      }));
+
+      append();
+
+      var stopPropagationCount = 0;
+      var event = {
+        keyCode: 13,
+        stopPropagation: function() {
+          stopPropagationCount++;
+        }
+      };
+
+      textField.trigger('keyUp', event);
+      equal(stopPropagationCount, 0, "propagation was not prevented if bubbles is true");
+
+      textField.set('bubbles', false);
+      textField.trigger('keyUp', event);
+      equal(stopPropagationCount, 1, "propagation was prevented if bubbles is false");
+    });
+
+
+    var dispatcher, StubController;
+    QUnit.module("Ember.TextField - Action events", {
+      setup: function() {
+
+        dispatcher = EventDispatcher.create();
+        dispatcher.setup();
+
+        StubController = EmberObject.extend({
+          send: function(actionName, value, sender) {
+            equal(actionName, 'doSomething', "text field sent correct action name");
+          }
+        });
+
+      },
+
+      teardown: function() {
+        run(function() {
+          dispatcher.destroy();
+
+          if (textField) {
+            textField.destroy();
+          }
+        });
+      }
+    });
+
+    test("when the text field is blurred, the `focus-out` action is sent to the controller", function() {
+      expect(1);
+
+      textField = TextField.create({
+        'focus-out': 'doSomething',
+        targetObject: StubController.create({})
+      });
+
+      append();
+
+      run(function() {
+        textField.$().blur();
+      });
+
+    });
+
+    test("when the text field is focused, the `focus-in` action is sent to the controller", function() {
+      expect(1);
+
+      textField = TextField.create({
+        'focus-in': 'doSomething',
+        targetObject: StubController.create({})
+      });
+
+      append();
+
+      run(function() {
+        textField.$().focusin();
+      });
+
+
+    });
+
+    test("when the user presses a key, the `key-press` action is sent to the controller", function() {
+      expect(1);
+
+      textField = TextField.create({
+        'key-press': 'doSomething',
+        targetObject: StubController.create({})
+      });
+
+      append();
+
+      run(function() {
+        var event = jQuery.Event("keypress");
+        event.keyCode = event.which = 13;
+        textField.$().trigger(event);
+      });
+
+    });
+
+    test("when the user inserts a new line, the `insert-newline` action is sent to the controller", function() {
+      expect(1);
+
+      textField = TextField.create({
+        'insert-newline': 'doSomething',
+        targetObject: StubController.create({})
+      });
+
+      append();
+
+      run(function() {
+        var event = jQuery.Event("keyup");
+        event.keyCode = event.which = 13;
+        textField.$().trigger(event);
+      });
+
+    });
+
+
+    test("when the user presses the `enter` key, the `enter` action is sent to the controller", function() {
+      expect(1);
+
+      textField = TextField.create({
+        'enter': 'doSomething',
+        targetObject: StubController.create({})
+      });
+
+      append();
+
+      run(function() {
+        var event = jQuery.Event("keyup");
+        event.keyCode = event.which = 13;
+        textField.$().trigger(event);
+      });
+
+    });
+
+    test("when the user hits escape, the `escape-press` action is sent to the controller", function() {
+      expect(1);
+
+      textField = TextField.create({
+        'escape-press': 'doSomething',
+        targetObject: StubController.create({})
+      });
+
+      append();
+
+      run(function() {
+        var event = jQuery.Event("keyup");
+        event.keyCode = event.which = 27;
+        textField.$().trigger(event);
+      });
+
+    });
+
+    test("when the user presses a key, the `key-down` action is sent to the controller", function() {
+      expect(3);
+      var event;
+
+      textField = TextField.create({
+        'key-down': 'doSomething',
+        targetObject: StubController.create({
+          send: function(actionName, value, evt) {
+            equal(actionName, 'doSomething', "text field sent correct action name");
+            equal(value, '', 'value was blank in key-down');
+            equal(evt, event, 'event was received as param');
+          }
+        })
+      });
+
+      append();
+
+      run(function() {
+        event = jQuery.Event("keydown");
+        event.keyCode = event.which = 65;
+        textField.$().val('foo');
+        textField.$().trigger(event);
+      });
+    });
+
+    test("when the user releases a key, the `key-up` action is sent to the controller", function() {
+      expect(3);
+      var event;
+
+      textField = TextField.create({
+        'key-up': 'doSomething',
+        targetObject: StubController.create({
+          send: function(actionName, value, evt) {
+            equal(actionName, 'doSomething', "text field sent correct action name");
+            equal(value, 'bar', 'value was received');
+            equal(evt, event, 'event was received as param');
+          }
+        })
+      });
+
+      append();
+
+      run(function() {
+        event = jQuery.Event("keyup");
+        event.keyCode = event.which = 65;
+        textField.$().val('bar');
+        textField.$().trigger(event);
+      });
+    });
+  });
+enifed("ember-views/tests/views/text_field_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/tests/views');
+    test('ember-views/tests/views/text_field_test.js should pass jshint', function() { 
+      ok(true, 'ember-views/tests/views/text_field_test.js should pass jshint.'); 
     });
   });
 enifed("ember-views/tests/views/view/actions_test",
@@ -55310,6 +55368,15 @@ enifed("ember-views/tests/views/view/virtual_views_test.jshint",
       ok(true, 'ember-views/tests/views/view/virtual_views_test.js should pass jshint.'); 
     });
   });
+enifed("ember-views/views/checkbox.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/views');
+    test('ember-views/views/checkbox.js should pass jshint', function() { 
+      ok(true, 'ember-views/views/checkbox.js should pass jshint.'); 
+    });
+  });
 enifed("ember-views/views/collection_view.jshint",
   [],
   function() {
@@ -55425,6 +55492,24 @@ enifed("ember-views/views/states/pre_render.jshint",
     module('JSHint - ember-views/views/states');
     test('ember-views/views/states/pre_render.js should pass jshint', function() { 
       ok(true, 'ember-views/views/states/pre_render.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/views/text_area.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/views');
+    test('ember-views/views/text_area.js should pass jshint', function() { 
+      ok(true, 'ember-views/views/text_area.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/views/text_field.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/views');
+    test('ember-views/views/text_field.js should pass jshint', function() { 
+      ok(true, 'ember-views/views/text_field.js should pass jshint.'); 
     });
   });
 enifed("ember-views/views/view.jshint",

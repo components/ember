@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.f464514b
+ * @version   1.10.0-beta.1+canary.de1f76d0
  */
 
 (function() {
@@ -5025,8 +5025,8 @@ enifed("ember-handlebars-compiler",
     __exports__["default"] = EmberHandlebars;
   });
 enifed("ember-handlebars",
-  ["ember-handlebars-compiler","ember-metal/core","ember-runtime/system/lazy_load","ember-handlebars/loader","ember-handlebars/ext","ember-handlebars/string","ember-handlebars/helpers/binding","ember-handlebars/helpers/if_unless","ember-handlebars/helpers/with","ember-handlebars/helpers/bind_attr","ember-handlebars/helpers/collection","ember-handlebars/helpers/view","ember-handlebars/helpers/unbound","ember-handlebars/helpers/debug","ember-handlebars/helpers/each","ember-handlebars/helpers/template","ember-handlebars/helpers/partial","ember-handlebars/helpers/yield","ember-handlebars/helpers/loc","ember-handlebars/controls/checkbox","ember-handlebars/controls/select","ember-handlebars/controls/text_area","ember-handlebars/controls/text_field","ember-handlebars/controls/text_support","ember-handlebars/controls","ember-views/views/handlebars_bound_view","ember-views/views/metamorph_view","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __exports__) {
+  ["ember-handlebars-compiler","ember-metal/core","ember-runtime/system/lazy_load","ember-handlebars/loader","ember-handlebars/ext","ember-handlebars/string","ember-handlebars/helpers/binding","ember-handlebars/helpers/if_unless","ember-handlebars/helpers/with","ember-handlebars/helpers/bind_attr","ember-handlebars/helpers/collection","ember-handlebars/helpers/view","ember-handlebars/helpers/unbound","ember-handlebars/helpers/debug","ember-handlebars/helpers/each","ember-handlebars/helpers/template","ember-handlebars/helpers/partial","ember-handlebars/helpers/yield","ember-handlebars/helpers/loc","ember-handlebars/controls/select","ember-handlebars/controls","ember-views/views/handlebars_bound_view","ember-views/views/metamorph_view","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __exports__) {
     "use strict";
     var EmberHandlebars = __dependency1__["default"];
     var Ember = __dependency2__["default"];
@@ -5074,21 +5074,17 @@ enifed("ember-handlebars",
     var locHelper = __dependency19__["default"];
 
 
-    var Checkbox = __dependency20__["default"];
-    var Select = __dependency21__.Select;
-    var SelectOption = __dependency21__.SelectOption;
-    var SelectOptgroup = __dependency21__.SelectOptgroup;
-    var TextArea = __dependency22__["default"];
-    var TextField = __dependency23__["default"];
-    var TextSupport = __dependency24__["default"];
-    var inputHelper = __dependency25__.inputHelper;
-    var textareaHelper = __dependency25__.textareaHelper;
+    var Select = __dependency20__.Select;
+    var SelectOption = __dependency20__.SelectOption;
+    var SelectOptgroup = __dependency20__.SelectOptgroup;
+    var inputHelper = __dependency21__.inputHelper;
+    var textareaHelper = __dependency21__.textareaHelper;
 
-    var _HandlebarsBoundView = __dependency26__._HandlebarsBoundView;
-    var SimpleHandlebarsView = __dependency26__.SimpleHandlebarsView;
-    var _MetamorphView = __dependency27__["default"];
-    var _SimpleMetamorphView = __dependency27__._SimpleMetamorphView;
-    var _Metamorph = __dependency27__._Metamorph;
+    var _HandlebarsBoundView = __dependency22__._HandlebarsBoundView;
+    var SimpleHandlebarsView = __dependency22__.SimpleHandlebarsView;
+    var _MetamorphView = __dependency23__["default"];
+    var _SimpleMetamorphView = __dependency23__._SimpleMetamorphView;
+    var _Metamorph = __dependency23__._Metamorph;
 
 
     /**
@@ -5118,14 +5114,9 @@ enifed("ember-handlebars",
     Ember._SimpleMetamorphView = _SimpleMetamorphView;
     Ember._MetamorphView = _MetamorphView;
     Ember._Metamorph = _Metamorph;
-    Ember.TextSupport = TextSupport;
-    Ember.Checkbox = Checkbox;
     Ember.Select = Select;
     Ember.SelectOption = SelectOption;
     Ember.SelectOptgroup = SelectOptgroup;
-    Ember.TextArea = TextArea;
-    Ember.TextField = TextField;
-    Ember.TextSupport = TextSupport;
 
     // register helpers
     EmberHandlebars.registerHelper('helperMissing', helperMissingHelper);
@@ -5158,7 +5149,7 @@ enifed("ember-handlebars",
     __exports__["default"] = EmberHandlebars;
   });
 enifed("ember-handlebars/controls",
-  ["ember-handlebars/controls/checkbox","ember-handlebars/controls/text_field","ember-handlebars/controls/text_area","ember-metal/core","ember-handlebars-compiler","exports"],
+  ["ember-views/views/checkbox","ember-views/views/text_field","ember-views/views/text_area","ember-metal/core","ember-handlebars-compiler","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     var Checkbox = __dependency1__["default"];
@@ -5574,82 +5565,6 @@ enifed("ember-handlebars/controls",
     }
 
     __exports__.textareaHelper = textareaHelper;
-  });
-enifed("ember-handlebars/controls/checkbox",
-  ["ember-metal/property_get","ember-metal/property_set","ember-views/views/view","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
-    "use strict";
-    var get = __dependency1__.get;
-    var set = __dependency2__.set;
-    var View = __dependency3__["default"];
-
-    /**
-    @module ember
-    @submodule ember-handlebars
-    */
-
-    /**
-      The internal class used to create text inputs when the `{{input}}`
-      helper is used with `type` of `checkbox`.
-
-      See [handlebars.helpers.input](/api/classes/Ember.Handlebars.helpers.html#method_input)  for usage details.
-
-      ## Direct manipulation of `checked`
-
-      The `checked` attribute of an `Ember.Checkbox` object should always be set
-      through the Ember object or by interacting with its rendered element
-      representation via the mouse, keyboard, or touch. Updating the value of the
-      checkbox via jQuery will result in the checked value of the object and its
-      element losing synchronization.
-
-      ## Layout and LayoutName properties
-
-      Because HTML `input` elements are self closing `layout` and `layoutName`
-      properties will not be applied. See [Ember.View](/api/classes/Ember.View.html)'s
-      layout section for more information.
-
-      @class Checkbox
-      @namespace Ember
-      @extends Ember.View
-    */
-    __exports__["default"] = View.extend({
-      instrumentDisplay: '{{input type="checkbox"}}',
-
-      classNames: ['ember-checkbox'],
-
-      tagName: 'input',
-
-      attributeBindings: [
-        'type',
-        'checked',
-        'indeterminate',
-        'disabled',
-        'tabindex',
-        'name',
-        'autofocus',
-        'required',
-        'form'
-      ],
-
-      type: 'checkbox',
-      checked: false,
-      disabled: false,
-      indeterminate: false,
-
-      init: function() {
-        this._super();
-        this.on('change', this, this._updateElementValue);
-      },
-
-      didInsertElement: function() {
-        this._super();
-        get(this, 'element').indeterminate = !!get(this, 'indeterminate');
-      },
-
-      _updateElementValue: function() {
-        set(this, 'checked', this.$().prop('checked'));
-      }
-    });
   });
 enifed("ember-handlebars/controls/select",
   ["ember-handlebars-compiler","ember-metal/enumerable_utils","ember-metal/property_get","ember-metal/property_set","ember-views/views/view","ember-views/views/collection_view","ember-metal/utils","ember-metal/is_none","ember-metal/computed","ember-runtime/system/native_array","ember-metal/mixin","ember-metal/properties","exports"],
@@ -6314,427 +6229,6 @@ enifed("ember-handlebars/controls/select",
     __exports__.Select = Select;
     __exports__.SelectOption = SelectOption;
     __exports__.SelectOptgroup = SelectOptgroup;
-  });
-enifed("ember-handlebars/controls/text_area",
-  ["ember-metal/property_get","ember-views/views/component","ember-handlebars/controls/text_support","ember-metal/mixin","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
-    "use strict";
-
-    /**
-    @module ember
-    @submodule ember-handlebars
-    */
-    var get = __dependency1__.get;
-    var Component = __dependency2__["default"];
-    var TextSupport = __dependency3__["default"];
-    var observer = __dependency4__.observer;
-
-    /**
-      The internal class used to create textarea element when the `{{textarea}}`
-      helper is used.
-
-      See [handlebars.helpers.textarea](/api/classes/Ember.Handlebars.helpers.html#method_textarea)  for usage details.
-
-      ## Layout and LayoutName properties
-
-      Because HTML `textarea` elements do not contain inner HTML the `layout` and
-      `layoutName` properties will not be applied. See [Ember.View](/api/classes/Ember.View.html)'s
-      layout section for more information.
-
-      @class TextArea
-      @namespace Ember
-      @extends Ember.Component
-      @uses Ember.TextSupport
-    */
-    __exports__["default"] = Component.extend(TextSupport, {
-      instrumentDisplay: '{{textarea}}',
-
-      classNames: ['ember-text-area'],
-
-      tagName: "textarea",
-      attributeBindings: [
-        'rows',
-        'cols',
-        'name',
-        'selectionEnd',
-        'selectionStart',
-        'wrap',
-        'lang',
-        'dir'
-      ],
-      rows: null,
-      cols: null,
-
-      _updateElementValue: observer('value', function() {
-        // We do this check so cursor position doesn't get affected in IE
-        var value = get(this, 'value');
-        var $el = this.$();
-        if ($el && value !== $el.val()) {
-          $el.val(value);
-        }
-      }),
-
-      init: function() {
-        this._super();
-        this.on("didInsertElement", this, this._updateElementValue);
-      }
-    });
-  });
-enifed("ember-handlebars/controls/text_field",
-  ["ember-views/views/component","ember-handlebars/controls/text_support","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-handlebars
-    */
-    var Component = __dependency1__["default"];
-    var TextSupport = __dependency2__["default"];
-
-    /**
-
-      The internal class used to create text inputs when the `{{input}}`
-      helper is used with `type` of `text`.
-
-      See [Handlebars.helpers.input](/api/classes/Ember.Handlebars.helpers.html#method_input)  for usage details.
-
-      ## Layout and LayoutName properties
-
-      Because HTML `input` elements are self closing `layout` and `layoutName`
-      properties will not be applied. See [Ember.View](/api/classes/Ember.View.html)'s
-      layout section for more information.
-
-      @class TextField
-      @namespace Ember
-      @extends Ember.Component
-      @uses Ember.TextSupport
-    */
-    __exports__["default"] = Component.extend(TextSupport, {
-      instrumentDisplay: '{{input type="text"}}',
-
-      classNames: ['ember-text-field'],
-      tagName: "input",
-      attributeBindings: [
-        'accept',
-        'autocomplete',
-        'autosave',
-        'dir',
-        'formaction',
-        'formenctype',
-        'formmethod',
-        'formnovalidate',
-        'formtarget',
-        'height',
-        'inputmode',
-        'lang',
-        'list',
-        'max',
-        'min',
-        'multiple',
-        'name',
-        'pattern',
-        'size',
-        'step',
-        'type',
-        'value',
-        'width'
-      ],
-
-      /**
-        The `value` attribute of the input element. As the user inputs text, this
-        property is updated live.
-
-        @property value
-        @type String
-        @default ""
-      */
-      value: "",
-
-      /**
-        The `type` attribute of the input element.
-
-        @property type
-        @type String
-        @default "text"
-      */
-      type: "text",
-
-      /**
-        The `size` of the text field in characters.
-
-        @property size
-        @type String
-        @default null
-      */
-      size: null,
-
-      /**
-        The `pattern` attribute of input element.
-
-        @property pattern
-        @type String
-        @default null
-      */
-      pattern: null,
-
-      /**
-        The `min` attribute of input element used with `type="number"` or `type="range"`.
-
-        @property min
-        @type String
-        @default null
-        @since 1.4.0
-      */
-      min: null,
-
-      /**
-        The `max` attribute of input element used with `type="number"` or `type="range"`.
-
-        @property max
-        @type String
-        @default null
-        @since 1.4.0
-      */
-      max: null
-    });
-  });
-enifed("ember-handlebars/controls/text_support",
-  ["ember-metal/property_get","ember-metal/property_set","ember-metal/mixin","ember-runtime/mixins/target_action_support","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-handlebars
-    */
-
-    var get = __dependency1__.get;
-    var set = __dependency2__.set;
-    var Mixin = __dependency3__.Mixin;
-    var TargetActionSupport = __dependency4__["default"];
-
-    /**
-      Shared mixin used by `Ember.TextField` and `Ember.TextArea`.
-
-      @class TextSupport
-      @namespace Ember
-      @uses Ember.TargetActionSupport
-      @extends Ember.Mixin
-      @private
-    */
-    var TextSupport = Mixin.create(TargetActionSupport, {
-      value: "",
-
-      attributeBindings: [
-        'autocapitalize',
-        'autocorrect',
-        'autofocus',
-        'disabled',
-        'form',
-        'maxlength',
-        'placeholder',
-        'readonly',
-        'required',
-        'selectionDirection',
-        'spellcheck',
-        'tabindex',
-        'title'
-      ],
-      placeholder: null,
-      disabled: false,
-      maxlength: null,
-
-      init: function() {
-        this._super();
-        this.on("paste", this, this._elementValueDidChange);
-        this.on("cut", this, this._elementValueDidChange);
-        this.on("input", this, this._elementValueDidChange);
-      },
-
-      /**
-        The action to be sent when the user presses the return key.
-
-        This is similar to the `{{action}}` helper, but is fired when
-        the user presses the return key when editing a text field, and sends
-        the value of the field as the context.
-
-        @property action
-        @type String
-        @default null
-      */
-      action: null,
-
-      /**
-        The event that should send the action.
-
-        Options are:
-
-        * `enter`: the user pressed enter
-        * `keyPress`: the user pressed a key
-
-        @property onEvent
-        @type String
-        @default enter
-      */
-      onEvent: 'enter',
-
-      /**
-        Whether the `keyUp` event that triggers an `action` to be sent continues
-        propagating to other views.
-
-        By default, when the user presses the return key on their keyboard and
-        the text field has an `action` set, the action will be sent to the view's
-        controller and the key event will stop propagating.
-
-        If you would like parent views to receive the `keyUp` event even after an
-        action has been dispatched, set `bubbles` to true.
-
-        @property bubbles
-        @type Boolean
-        @default false
-      */
-      bubbles: false,
-
-      interpretKeyEvents: function(event) {
-        var map = TextSupport.KEY_EVENTS;
-        var method = map[event.keyCode];
-
-        this._elementValueDidChange();
-        if (method) { return this[method](event); }
-      },
-
-      _elementValueDidChange: function() {
-        set(this, 'value', this.$().val());
-      },
-
-      /**
-        Called when the user inserts a new line.
-
-        Called by the `Ember.TextSupport` mixin on keyUp if keycode matches 13.
-        Uses sendAction to send the `enter` action.
-
-        @method insertNewline
-        @param {Event} event
-      */
-      insertNewline: function(event) {
-        sendAction('enter', this, event);
-        sendAction('insert-newline', this, event);
-      },
-
-      /**
-        Called when the user hits escape.
-
-        Called by the `Ember.TextSupport` mixin on keyUp if keycode matches 27.
-        Uses sendAction to send the `escape-press` action.
-
-        @method cancel
-        @param {Event} event
-      */
-      cancel: function(event) {
-        sendAction('escape-press', this, event);
-      },
-
-      change: function(event) {
-        this._elementValueDidChange(event);
-      },
-
-      /**
-        Called when the text area is focused.
-
-        Uses sendAction to send the `focus-in` action.
-
-        @method focusIn
-        @param {Event} event
-      */
-      focusIn: function(event) {
-        sendAction('focus-in', this, event);
-      },
-
-      /**
-        Called when the text area is blurred.
-
-        Uses sendAction to send the `focus-out` action.
-
-        @method focusOut
-        @param {Event} event
-      */
-      focusOut: function(event) {
-        this._elementValueDidChange(event);
-        sendAction('focus-out', this, event);
-      },
-
-      /**
-        Called when the user presses a key. Enabled by setting
-        the `onEvent` property to `keyPress`.
-
-        Uses sendAction to send the `key-press` action.
-
-        @method keyPress
-        @param {Event} event
-      */
-      keyPress: function(event) {
-        sendAction('key-press', this, event);
-      },
-
-      /**
-        Called when the browser triggers a `keyup` event on the element.
-
-        Uses sendAction to send the `key-up` action passing the current value
-        and event as parameters.
-
-        @method keyUp
-        @param {Event} event
-      */
-      keyUp: function(event) {
-        this.interpretKeyEvents(event);
-
-        this.sendAction('key-up', get(this, 'value'), event);
-      },
-
-      /**
-        Called when the browser triggers a `keydown` event on the element.
-
-        Uses sendAction to send the `key-down` action passing the current value
-        and event as parameters. Note that generally in key-down the value is unchanged
-        (as the key pressing has not completed yet).
-
-        @method keyDown
-        @param {Event} event
-      */
-      keyDown: function(event) {
-        this.sendAction('key-down', get(this, 'value'), event);
-      }
-    });
-
-    TextSupport.KEY_EVENTS = {
-      13: 'insertNewline',
-      27: 'cancel'
-    };
-
-    // In principle, this shouldn't be necessary, but the legacy
-    // sendAction semantics for TextField are different from
-    // the component semantics so this method normalizes them.
-    function sendAction(eventName, view, event) {
-      var action = get(view, eventName);
-      var on = get(view, 'onEvent');
-      var value = get(view, 'value');
-
-      // back-compat support for keyPress as an event name even though
-      // it's also a method name that consumes the event (and therefore
-      // incompatible with sendAction semantics).
-      if (on === eventName || (on === 'keyPress' && eventName === 'key-press')) {
-        view.sendAction('action', value);
-      }
-
-      view.sendAction(eventName, value);
-
-      if (action || on === eventName) {
-        if(!get(view, 'bubbles')) {
-          event.stopPropagation();
-        }
-      }
-    }
-
-    __exports__["default"] = TextSupport;
   });
 enifed("ember-handlebars/ext",
   ["ember-metal/core","ember-runtime/system/string","ember-handlebars-compiler","ember-metal/property_get","ember-metal/error","ember-metal/mixin","ember-views/views/view","ember-metal/path_cache","ember-metal/streams/stream","ember-metal/streams/read","exports"],
@@ -14594,7 +14088,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.f464514b
+      @version 1.10.0-beta.1+canary.de1f76d0
     */
 
     if ('undefined' === typeof Ember) {
@@ -14621,10 +14115,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.f464514b'
+      @default '1.10.0-beta.1+canary.de1f76d0'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.f464514b';
+    Ember.VERSION = '1.10.0-beta.1+canary.de1f76d0';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -40384,8 +39878,8 @@ enifed("ember-testing/test",
     __exports__["default"] = Test;
   });
 enifed("ember-views",
-  ["ember-runtime","ember-views/system/jquery","ember-views/system/utils","ember-views/system/render_buffer","ember-views/system/ext","ember-views/views/states","ember-views/views/core_view","ember-views/views/view","ember-views/views/container_view","ember-views/views/collection_view","ember-views/views/component","ember-views/system/event_dispatcher","ember-views/mixins/view_target_action_support","ember-views/component_lookup","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __exports__) {
+  ["ember-runtime","ember-views/system/jquery","ember-views/system/utils","ember-views/system/render_buffer","ember-views/system/ext","ember-views/views/states","ember-views/views/core_view","ember-views/views/view","ember-views/views/container_view","ember-views/views/collection_view","ember-views/views/component","ember-views/system/event_dispatcher","ember-views/mixins/view_target_action_support","ember-views/component_lookup","ember-views/views/checkbox","ember-views/mixins/text_support","ember-views/views/text_field","ember-views/views/text_area","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __exports__) {
     "use strict";
     /**
     Ember Views
@@ -40416,6 +39910,10 @@ enifed("ember-views",
     var EventDispatcher = __dependency12__["default"];
     var ViewTargetActionSupport = __dependency13__["default"];
     var ComponentLookup = __dependency14__["default"];
+    var Checkbox = __dependency15__["default"];
+    var TextSupport = __dependency16__["default"];
+    var TextField = __dependency17__["default"];
+    var TextArea = __dependency18__["default"];
     // END IMPORTS
 
     /**
@@ -40440,7 +39938,11 @@ enifed("ember-views",
     Ember.View = View;
     Ember.View.states = states;
     Ember.View.cloneStates = cloneStates;
+    Ember.Checkbox = Checkbox;
+    Ember.TextField = TextField;
+    Ember.TextArea = TextArea;
 
+    Ember.TextSupport = TextSupport;
     Ember.ComponentLookup = ComponentLookup;
     Ember.ContainerView = ContainerView;
     Ember.CollectionView = CollectionView;
@@ -40548,6 +40050,244 @@ enifed("ember-views/mixins/component_template_deprecation",
         Ember.deprecate('Do not specify ' + deprecatedProperty + ' on a Component, use ' + replacementProperty + ' instead.', !deprecatedProperty);
       }
     });
+  });
+enifed("ember-views/mixins/text_support",
+  ["ember-metal/property_get","ember-metal/property_set","ember-metal/mixin","ember-runtime/mixins/target_action_support","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-handlebars
+    */
+
+    var get = __dependency1__.get;
+    var set = __dependency2__.set;
+    var Mixin = __dependency3__.Mixin;
+    var TargetActionSupport = __dependency4__["default"];
+
+    /**
+      Shared mixin used by `Ember.TextField` and `Ember.TextArea`.
+
+      @class TextSupport
+      @namespace Ember
+      @uses Ember.TargetActionSupport
+      @extends Ember.Mixin
+      @private
+    */
+    var TextSupport = Mixin.create(TargetActionSupport, {
+      value: "",
+
+      attributeBindings: [
+        'autocapitalize',
+        'autocorrect',
+        'autofocus',
+        'disabled',
+        'form',
+        'maxlength',
+        'placeholder',
+        'readonly',
+        'required',
+        'selectionDirection',
+        'spellcheck',
+        'tabindex',
+        'title'
+      ],
+      placeholder: null,
+      disabled: false,
+      maxlength: null,
+
+      init: function() {
+        this._super();
+        this.on("paste", this, this._elementValueDidChange);
+        this.on("cut", this, this._elementValueDidChange);
+        this.on("input", this, this._elementValueDidChange);
+      },
+
+      /**
+        The action to be sent when the user presses the return key.
+
+        This is similar to the `{{action}}` helper, but is fired when
+        the user presses the return key when editing a text field, and sends
+        the value of the field as the context.
+
+        @property action
+        @type String
+        @default null
+      */
+      action: null,
+
+      /**
+        The event that should send the action.
+
+        Options are:
+
+        * `enter`: the user pressed enter
+        * `keyPress`: the user pressed a key
+
+        @property onEvent
+        @type String
+        @default enter
+      */
+      onEvent: 'enter',
+
+      /**
+        Whether the `keyUp` event that triggers an `action` to be sent continues
+        propagating to other views.
+
+        By default, when the user presses the return key on their keyboard and
+        the text field has an `action` set, the action will be sent to the view's
+        controller and the key event will stop propagating.
+
+        If you would like parent views to receive the `keyUp` event even after an
+        action has been dispatched, set `bubbles` to true.
+
+        @property bubbles
+        @type Boolean
+        @default false
+      */
+      bubbles: false,
+
+      interpretKeyEvents: function(event) {
+        var map = TextSupport.KEY_EVENTS;
+        var method = map[event.keyCode];
+
+        this._elementValueDidChange();
+        if (method) { return this[method](event); }
+      },
+
+      _elementValueDidChange: function() {
+        set(this, 'value', this.$().val());
+      },
+
+      /**
+        Called when the user inserts a new line.
+
+        Called by the `Ember.TextSupport` mixin on keyUp if keycode matches 13.
+        Uses sendAction to send the `enter` action.
+
+        @method insertNewline
+        @param {Event} event
+      */
+      insertNewline: function(event) {
+        sendAction('enter', this, event);
+        sendAction('insert-newline', this, event);
+      },
+
+      /**
+        Called when the user hits escape.
+
+        Called by the `Ember.TextSupport` mixin on keyUp if keycode matches 27.
+        Uses sendAction to send the `escape-press` action.
+
+        @method cancel
+        @param {Event} event
+      */
+      cancel: function(event) {
+        sendAction('escape-press', this, event);
+      },
+
+      change: function(event) {
+        this._elementValueDidChange(event);
+      },
+
+      /**
+        Called when the text area is focused.
+
+        Uses sendAction to send the `focus-in` action.
+
+        @method focusIn
+        @param {Event} event
+      */
+      focusIn: function(event) {
+        sendAction('focus-in', this, event);
+      },
+
+      /**
+        Called when the text area is blurred.
+
+        Uses sendAction to send the `focus-out` action.
+
+        @method focusOut
+        @param {Event} event
+      */
+      focusOut: function(event) {
+        this._elementValueDidChange(event);
+        sendAction('focus-out', this, event);
+      },
+
+      /**
+        Called when the user presses a key. Enabled by setting
+        the `onEvent` property to `keyPress`.
+
+        Uses sendAction to send the `key-press` action.
+
+        @method keyPress
+        @param {Event} event
+      */
+      keyPress: function(event) {
+        sendAction('key-press', this, event);
+      },
+
+      /**
+        Called when the browser triggers a `keyup` event on the element.
+
+        Uses sendAction to send the `key-up` action passing the current value
+        and event as parameters.
+
+        @method keyUp
+        @param {Event} event
+      */
+      keyUp: function(event) {
+        this.interpretKeyEvents(event);
+
+        this.sendAction('key-up', get(this, 'value'), event);
+      },
+
+      /**
+        Called when the browser triggers a `keydown` event on the element.
+
+        Uses sendAction to send the `key-down` action passing the current value
+        and event as parameters. Note that generally in key-down the value is unchanged
+        (as the key pressing has not completed yet).
+
+        @method keyDown
+        @param {Event} event
+      */
+      keyDown: function(event) {
+        this.sendAction('key-down', get(this, 'value'), event);
+      }
+    });
+
+    TextSupport.KEY_EVENTS = {
+      13: 'insertNewline',
+      27: 'cancel'
+    };
+
+    // In principle, this shouldn't be necessary, but the legacy
+    // sendAction semantics for TextField are different from
+    // the component semantics so this method normalizes them.
+    function sendAction(eventName, view, event) {
+      var action = get(view, eventName);
+      var on = get(view, 'onEvent');
+      var value = get(view, 'value');
+
+      // back-compat support for keyPress as an event name even though
+      // it's also a method name that consumes the event (and therefore
+      // incompatible with sendAction semantics).
+      if (on === eventName || (on === 'keyPress' && eventName === 'key-press')) {
+        view.sendAction('action', value);
+      }
+
+      view.sendAction(eventName, value);
+
+      if (action || on === eventName) {
+        if(!get(view, 'bubbles')) {
+          event.stopPropagation();
+        }
+      }
+    }
+
+    __exports__["default"] = TextSupport;
   });
 enifed("ember-views/mixins/view_target_action_support",
   ["ember-metal/mixin","ember-runtime/mixins/target_action_support","ember-metal/alias","exports"],
@@ -41962,6 +41702,82 @@ enifed("ember-views/system/utils",
     }
 
     __exports__.getViewBoundingClientRect = getViewBoundingClientRect;
+  });
+enifed("ember-views/views/checkbox",
+  ["ember-metal/property_get","ember-metal/property_set","ember-views/views/view","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+    "use strict";
+    var get = __dependency1__.get;
+    var set = __dependency2__.set;
+    var View = __dependency3__["default"];
+
+    /**
+    @module ember
+    @submodule ember-handlebars
+    */
+
+    /**
+      The internal class used to create text inputs when the `{{input}}`
+      helper is used with `type` of `checkbox`.
+
+      See [handlebars.helpers.input](/api/classes/Ember.Handlebars.helpers.html#method_input)  for usage details.
+
+      ## Direct manipulation of `checked`
+
+      The `checked` attribute of an `Ember.Checkbox` object should always be set
+      through the Ember object or by interacting with its rendered element
+      representation via the mouse, keyboard, or touch. Updating the value of the
+      checkbox via jQuery will result in the checked value of the object and its
+      element losing synchronization.
+
+      ## Layout and LayoutName properties
+
+      Because HTML `input` elements are self closing `layout` and `layoutName`
+      properties will not be applied. See [Ember.View](/api/classes/Ember.View.html)'s
+      layout section for more information.
+
+      @class Checkbox
+      @namespace Ember
+      @extends Ember.View
+    */
+    __exports__["default"] = View.extend({
+      instrumentDisplay: '{{input type="checkbox"}}',
+
+      classNames: ['ember-checkbox'],
+
+      tagName: 'input',
+
+      attributeBindings: [
+        'type',
+        'checked',
+        'indeterminate',
+        'disabled',
+        'tabindex',
+        'name',
+        'autofocus',
+        'required',
+        'form'
+      ],
+
+      type: 'checkbox',
+      checked: false,
+      disabled: false,
+      indeterminate: false,
+
+      init: function() {
+        this._super();
+        this.on('change', this, this._updateElementValue);
+      },
+
+      didInsertElement: function() {
+        this._super();
+        get(this, 'element').indeterminate = !!get(this, 'indeterminate');
+      },
+
+      _updateElementValue: function() {
+        set(this, 'checked', this.$().prop('checked'));
+      }
+    });
   });
 enifed("ember-views/views/collection_view",
   ["ember-metal/core","ember-metal/binding","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/string","ember-views/views/container_view","ember-views/views/core_view","ember-views/views/view","ember-metal/mixin","ember-views/streams/read","ember-runtime/mixins/array","exports"],
@@ -43954,6 +43770,189 @@ enifed("ember-views/views/states/pre_render",
     var preRender = create(_default);
 
     __exports__["default"] = preRender;
+  });
+enifed("ember-views/views/text_area",
+  ["ember-metal/property_get","ember-views/views/component","ember-views/mixins/text_support","ember-metal/mixin","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+    "use strict";
+
+    /**
+    @module ember
+    @submodule ember-handlebars
+    */
+    var get = __dependency1__.get;
+    var Component = __dependency2__["default"];
+    var TextSupport = __dependency3__["default"];
+    var observer = __dependency4__.observer;
+
+    /**
+      The internal class used to create textarea element when the `{{textarea}}`
+      helper is used.
+
+      See [handlebars.helpers.textarea](/api/classes/Ember.Handlebars.helpers.html#method_textarea)  for usage details.
+
+      ## Layout and LayoutName properties
+
+      Because HTML `textarea` elements do not contain inner HTML the `layout` and
+      `layoutName` properties will not be applied. See [Ember.View](/api/classes/Ember.View.html)'s
+      layout section for more information.
+
+      @class TextArea
+      @namespace Ember
+      @extends Ember.Component
+      @uses Ember.TextSupport
+    */
+    __exports__["default"] = Component.extend(TextSupport, {
+      instrumentDisplay: '{{textarea}}',
+
+      classNames: ['ember-text-area'],
+
+      tagName: "textarea",
+      attributeBindings: [
+        'rows',
+        'cols',
+        'name',
+        'selectionEnd',
+        'selectionStart',
+        'wrap',
+        'lang',
+        'dir'
+      ],
+      rows: null,
+      cols: null,
+
+      _updateElementValue: observer('value', function() {
+        // We do this check so cursor position doesn't get affected in IE
+        var value = get(this, 'value');
+        var $el = this.$();
+        if ($el && value !== $el.val()) {
+          $el.val(value);
+        }
+      }),
+
+      init: function() {
+        this._super();
+        this.on("didInsertElement", this, this._updateElementValue);
+      }
+    });
+  });
+enifed("ember-views/views/text_field",
+  ["ember-views/views/component","ember-views/mixins/text_support","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-handlebars
+    */
+    var Component = __dependency1__["default"];
+    var TextSupport = __dependency2__["default"];
+
+    /**
+
+      The internal class used to create text inputs when the `{{input}}`
+      helper is used with `type` of `text`.
+
+      See [Handlebars.helpers.input](/api/classes/Ember.Handlebars.helpers.html#method_input)  for usage details.
+
+      ## Layout and LayoutName properties
+
+      Because HTML `input` elements are self closing `layout` and `layoutName`
+      properties will not be applied. See [Ember.View](/api/classes/Ember.View.html)'s
+      layout section for more information.
+
+      @class TextField
+      @namespace Ember
+      @extends Ember.Component
+      @uses Ember.TextSupport
+    */
+    __exports__["default"] = Component.extend(TextSupport, {
+      instrumentDisplay: '{{input type="text"}}',
+
+      classNames: ['ember-text-field'],
+      tagName: "input",
+      attributeBindings: [
+        'accept',
+        'autocomplete',
+        'autosave',
+        'dir',
+        'formaction',
+        'formenctype',
+        'formmethod',
+        'formnovalidate',
+        'formtarget',
+        'height',
+        'inputmode',
+        'lang',
+        'list',
+        'max',
+        'min',
+        'multiple',
+        'name',
+        'pattern',
+        'size',
+        'step',
+        'type',
+        'value',
+        'width'
+      ],
+
+      /**
+        The `value` attribute of the input element. As the user inputs text, this
+        property is updated live.
+
+        @property value
+        @type String
+        @default ""
+      */
+      value: "",
+
+      /**
+        The `type` attribute of the input element.
+
+        @property type
+        @type String
+        @default "text"
+      */
+      type: "text",
+
+      /**
+        The `size` of the text field in characters.
+
+        @property size
+        @type String
+        @default null
+      */
+      size: null,
+
+      /**
+        The `pattern` attribute of input element.
+
+        @property pattern
+        @type String
+        @default null
+      */
+      pattern: null,
+
+      /**
+        The `min` attribute of input element used with `type="number"` or `type="range"`.
+
+        @property min
+        @type String
+        @default null
+        @since 1.4.0
+      */
+      min: null,
+
+      /**
+        The `max` attribute of input element used with `type="number"` or `type="range"`.
+
+        @property max
+        @type String
+        @default null
+        @since 1.4.0
+      */
+      max: null
+    });
   });
 enifed("ember-views/views/view",
   ["ember-metal/core","ember-metal/platform","ember-runtime/mixins/evented","ember-runtime/system/object","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/set_properties","ember-metal/run_loop","ember-metal/observer","ember-metal/properties","ember-metal/utils","ember-metal/computed","ember-metal/mixin","ember-metal/streams/simple","ember-views/streams/key_stream","ember-metal/streams/stream_binding","ember-views/streams/context_stream","ember-metal/is_none","ember-metal/deprecate_property","ember-runtime/system/native_array","ember-runtime/system/string","ember-metal/enumerable_utils","ember-metal/property_events","ember-views/system/jquery","ember-views/system/ext","ember-views/views/core_view","exports"],
