@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.e15f1f1f
+ * @version   1.10.0-beta.1+canary.bf4b41dc
  */
 
 (function() {
@@ -11022,62 +11022,6 @@ enifed("ember-htmlbars/system/template.jshint",
       ok(true, 'ember-htmlbars/system/template.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/helpers",
-  ["exports"],
-  function(__exports__) {
-    "use strict";
-    function equalInnerHTML(fragment, html) {
-      var actualHTML = normalizeInnerHTML(fragment.innerHTML);
-      QUnit.push(actualHTML === html, actualHTML, html);
-    }
-
-    __exports__.equalInnerHTML = equalInnerHTML;function equalHTML(node, html) {
-      var fragment;
-      if (!node.nodeType && node.length) {
-        fragment = document.createDocumentFragment();
-        while (node[0]) {
-          fragment.appendChild(node[0]);
-        }
-      } else {
-        fragment = node;
-      }
-
-      var div = document.createElement("div");
-      div.appendChild(fragment.cloneNode(true));
-
-      equalInnerHTML(div, html);
-    }
-
-    __exports__.equalHTML = equalHTML;// detect weird IE8 html strings
-    var ie8InnerHTMLTestElement = document.createElement('div');
-    ie8InnerHTMLTestElement.setAttribute('id', 'womp');
-    var ie8InnerHTML = (ie8InnerHTMLTestElement.outerHTML.indexOf('id=womp') > -1);
-    function normalizeInnerHTML(actualHTML) {
-      if (ie8InnerHTML) {
-        // drop newlines in IE8
-        actualHTML = actualHTML.replace(/\r\n/gm, '');
-        // downcase ALLCAPS tags in IE8
-        actualHTML = actualHTML.replace(/<\/?[A-Z]+/gi, function(tag){
-          return tag.toLowerCase();
-        });
-        // quote ids in IE8
-        actualHTML = actualHTML.replace(/id=([^ >]+)/gi, function(match, id){
-          return 'id="'+id+'"';
-        });
-      }
-      return actualHTML;
-    }
-
-    __exports__.normalizeInnerHTML = normalizeInnerHTML;// detect weird IE8 checked element string
-    var checkedInput = document.createElement('input');
-    checkedInput.setAttribute('checked', 'checked');
-    var checkedInputString = checkedInput.outerHTML;
-    function isCheckedInputHTML(element) {
-      equal(element.outerHTML, checkedInputString);
-    }
-
-    __exports__.isCheckedInputHTML = isCheckedInputHTML;
-  });
 enifed("ember-htmlbars/tests/helpers/bind_attr_test",
   ["ember-metal/core","ember-metal/run_loop","ember-runtime/system/namespace","ember-views/views/view","ember-views/views/metamorph_view","ember-handlebars","ember-runtime/system/object","ember-runtime/system/native_array","ember-metal/computed","ember-metal/observer","ember-runtime/system/container","ember-metal/property_set","ember-htmlbars/helpers","ember-htmlbars/system/compile"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__) {
@@ -13618,7 +13562,7 @@ enifed("ember-htmlbars/tests/hooks/component_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/hooks/text_node_test",
-  ["ember-views/views/view","ember-metal/run_loop","ember-runtime/system/object","htmlbars-compiler/compiler","../helpers"],
+  ["ember-views/views/view","ember-metal/run_loop","ember-runtime/system/object","htmlbars-compiler/compiler","htmlbars-test-helpers"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
     var EmberView = __dependency1__["default"];
@@ -13688,7 +13632,7 @@ enifed("ember-htmlbars/tests/hooks/text_node_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/htmlbars_test",
-  ["htmlbars-compiler/compiler","ember-htmlbars","./helpers"],
+  ["htmlbars-compiler/compiler","ember-htmlbars","htmlbars-test-helpers"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
     var compile = __dependency1__.compile;
@@ -25948,7 +25892,7 @@ enifed("ember-routing-htmlbars/helpers/outlet.jshint",
     });
   });
 enifed("ember-routing-htmlbars/tests/helpers/outlet_test",
-  ["ember-metal/core","ember-handlebars","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","container/container","ember-runtime/system/namespace","ember-runtime/system/string","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-routing/system/router","ember-routing/location/hash_location","ember-views/views/metamorph_view","ember-routing/ext/view","ember-views/views/container_view","ember-views/system/jquery","ember-routing-handlebars/helpers/outlet","ember-routing-htmlbars/helpers/outlet","htmlbars-compiler/compiler","ember-htmlbars/helpers"],
+  ["ember-metal/core","ember-handlebars","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","container/container","ember-runtime/system/namespace","ember-runtime/system/string","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-routing/system/router","ember-routing/location/hash_location","ember-views/views/metamorph_view","ember-routing/ext/view","ember-views/views/container_view","ember-views/system/jquery","ember-routing-handlebars/helpers/outlet","ember-routing-htmlbars/helpers/outlet","ember-htmlbars/system/compile","ember-htmlbars/helpers"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__) {
     "use strict";
     var Ember = __dependency1__["default"];
@@ -25977,7 +25921,7 @@ enifed("ember-routing-htmlbars/tests/helpers/outlet_test",
     var handlebarsOutletHelper = __dependency18__.outletHelper;
     var htmlbarsOutletHelper = __dependency19__.outletHelper;
 
-    var htmlbarsCompile = __dependency20__.compile;
+    var htmlbarsCompile = __dependency20__["default"];
     var htmlbarsRegisterHelper = __dependency21__.registerHelper;
     var htmlbarsHelpers = __dependency21__["default"];
 

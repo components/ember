@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.e15f1f1f
+ * @version   1.10.0-beta.1+canary.bf4b41dc
  */
 
 (function() {
@@ -14102,7 +14102,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.e15f1f1f
+      @version 1.10.0-beta.1+canary.bf4b41dc
     */
 
     if ('undefined' === typeof Ember) {
@@ -14129,10 +14129,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.e15f1f1f'
+      @default '1.10.0-beta.1+canary.bf4b41dc'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.e15f1f1f';
+    Ember.VERSION = '1.10.0-beta.1+canary.bf4b41dc';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -49519,9 +49519,7 @@ enifed("htmlbars-compiler/compiler",
      */
     function compile(string) {
       var program = compileSpec(string);
-      var template =  new Function("return " + program)();
-      template.isTop = true;
-      return template;
+      return new Function("return " + program)();
     }
 
     __exports__.compile = compile;/*
@@ -51823,150 +51821,61 @@ enifed("htmlbars-compiler/utils",
 
     __exports__.forEach = forEach;
   });
-enifed("htmlbars-runtime",
-  ["htmlbars-runtime/hooks","exports"],
-  function(__dependency1__, __exports__) {
-    "use strict";
-    var hooks = __dependency1__;
-
-    __exports__.hooks = hooks;
-  });
-enifed("htmlbars-runtime/hooks",
-  ["./utils","../htmlbars-util/safe-string","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
-    "use strict";
-    var merge = __dependency1__.merge;
-    var SafeString = __dependency2__["default"];
-
-    function content(morph, helperName, context, params, hash, options, env) {
-      var value, helper = this.lookupHelper(helperName, context, options);
-      if (helper) {
-        value = helper.call(context, params, hash, options, env);
-      } else {
-        value = this.simple(context, helperName, options);
-      }
-      if (!options.escaped) {
-        value = new SafeString(value);
-      }
-      morph.update(value);
-    }
-
-    __exports__.content = content;function component(morph, tagName, context, hash, options, env) {
-      var value, helper = this.lookupHelper(tagName, context, options);
-      if (helper) {
-        value = helper.call(context, null, hash, options, env);
-      } else {
-        value = this.componentFallback(morph, tagName, context, hash, options, env);
-      }
-      morph.update(value);
-    }
-
-    __exports__.component = component;function componentFallback(morph, tagName, context, hash, options, env) {
-      var element = env.dom.createElement(tagName);
-      var hashTypes = options.hashTypes;
-
-      for (var name in hash) {
-        if (hashTypes[name] === 'id') {
-          element.setAttribute(name, this.simple(context, hash[name], options));
-        } else {
-          element.setAttribute(name, hash[name]);
-        }
-      }
-      element.appendChild(options.render(context, env, morph.contextualElement));
-      return element;
-    }
-
-    __exports__.componentFallback = componentFallback;function element(domElement, helperName, context, params, hash, options, env) {
-      var helper = this.lookupHelper(helperName, context, options);
-      if (helper) {
-        helper.call(context, params, hash, options, env);
-      }
-    }
-
-    __exports__.element = element;function attribute(params, hash, options /*, env*/) {
-      var attrName = params[0];
-      var attrValue = params[1];
-
-      if (attrValue === null) {
-        options.element.removeAttribute(attrName);
-      } else {
-        options.element.setAttribute(attrName, attrValue);
-      }
-    }
-
-    __exports__.attribute = attribute;function concat(params, hash, options /*, env*/) {
-      var value = "";
-      for (var i = 0, l = params.length; i < l; i++) {
-        if (options.types[i] === 'id') {
-          value += this.simple(this, params[i], options);
-        } else {
-          value += params[i];
-        }
-      }
-      return value;
-    }
-
-    __exports__.concat = concat;function partial(params, hash, options, env) {
-      return env.partials[params[0]](this, env);
-    }
-
-    __exports__.partial = partial;function subexpr(helperName, context, params, hash, options, env) {
-      var helper = this.lookupHelper(helperName, context, options);
-      if (helper) {
-        return helper.call(context, params, hash, options, env);
-      } else {
-        return this.simple(context, helperName, options);
-      }
-    }
-
-    __exports__.subexpr = subexpr;function lookupHelper(helperName /*, context, options*/) {
-      if (helperName === 'attribute') {
-        return this.attribute;
-      }
-      else if (helperName === 'partial'){
-        return this.partial;
-      }
-      else if (helperName === 'concat') {
-        return this.concat;
-      }
-    }
-
-    __exports__.lookupHelper = lookupHelper;function simple(context, name /*, options*/) {
-      return context[name];
-    }
-
-    __exports__.simple = simple;function hydrationHooks(extensions) {
-      var base = {
-        content: content,
-        component: component,
-        componentFallback: componentFallback,
-        element: element,
-        attribute: attribute,
-        concat: concat,
-        subexpr: subexpr,
-        lookupHelper: lookupHelper,
-        simple: simple,
-        partial: partial
-      };
-
-      return extensions ? merge(extensions, base) : base;
-    }
-
-    __exports__.hydrationHooks = hydrationHooks;
-  });
-enifed("htmlbars-runtime/utils",
+enifed("htmlbars-test-helpers",
   ["exports"],
   function(__exports__) {
     "use strict";
-    function merge(options, defaults) {
-      for (var prop in defaults) {
-        if (options.hasOwnProperty(prop)) { continue; }
-        options[prop] = defaults[prop];
-      }
-      return options;
+    function equalInnerHTML(fragment, html) {
+      var actualHTML = normalizeInnerHTML(fragment.innerHTML);
+      QUnit.push(actualHTML === html, actualHTML, html);
     }
 
-    __exports__.merge = merge;
+    __exports__.equalInnerHTML = equalInnerHTML;function equalHTML(node, html) {
+      var fragment;
+      if (!node.nodeType && node.length) {
+        fragment = document.createDocumentFragment();
+        while (node[0]) {
+          fragment.appendChild(node[0]);
+        }
+      } else {
+        fragment = node;
+      }
+
+      var div = document.createElement("div");
+      div.appendChild(fragment.cloneNode(true));
+
+      equalInnerHTML(div, html);
+    }
+
+    __exports__.equalHTML = equalHTML;// detect weird IE8 html strings
+    var ie8InnerHTMLTestElement = document.createElement('div');
+    ie8InnerHTMLTestElement.setAttribute('id', 'womp');
+    var ie8InnerHTML = (ie8InnerHTMLTestElement.outerHTML.indexOf('id=womp') > -1);
+    function normalizeInnerHTML(actualHTML) {
+      if (ie8InnerHTML) {
+        // drop newlines in IE8
+        actualHTML = actualHTML.replace(/\r\n/gm, '');
+        // downcase ALLCAPS tags in IE8
+        actualHTML = actualHTML.replace(/<\/?[A-Z]+/gi, function(tag){
+          return tag.toLowerCase();
+        });
+        // quote ids in IE8
+        actualHTML = actualHTML.replace(/id=([^ >]+)/gi, function(match, id){
+          return 'id="'+id+'"';
+        });
+      }
+      return actualHTML;
+    }
+
+    __exports__.normalizeInnerHTML = normalizeInnerHTML;// detect weird IE8 checked element string
+    var checkedInput = document.createElement('input');
+    checkedInput.setAttribute('checked', 'checked');
+    var checkedInputString = checkedInput.outerHTML;
+    function isCheckedInputHTML(element) {
+      equal(element.outerHTML, checkedInputString);
+    }
+
+    __exports__.isCheckedInputHTML = isCheckedInputHTML;
   });
 enifed("morph",
   ["./morph/morph","./morph/dom-helper","exports"],
