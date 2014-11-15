@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.d829342d
+ * @version   1.10.0-beta.1+canary.a8b9e2de
  */
 
 (function() {
@@ -14594,7 +14594,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.d829342d
+      @version 1.10.0-beta.1+canary.a8b9e2de
     */
 
     if ('undefined' === typeof Ember) {
@@ -14621,10 +14621,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.d829342d'
+      @default '1.10.0-beta.1+canary.a8b9e2de'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.d829342d';
+    Ember.VERSION = '1.10.0-beta.1+canary.a8b9e2de';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -46164,8 +46164,8 @@ enifed("ember-views/views/with_view",
     });
   });
 enifed("ember",
-  ["ember-metal","ember-runtime","ember-handlebars","ember-views","ember-routing","ember-routing-handlebars","ember-application","ember-extension-support"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
+  ["ember-metal","ember-runtime","ember-handlebars","ember-views","ember-routing","ember-routing-handlebars","ember-application","ember-extension-support","ember-htmlbars"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
     "use strict";
     /* global navigator */
     // require the main entry points for each of these packages
