@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.f7867934
+ * @version   1.10.0-beta.1+canary.4c57b7ce
  */
 
 (function() {
@@ -14160,7 +14160,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.f7867934
+      @version 1.10.0-beta.1+canary.4c57b7ce
     */
 
     if ('undefined' === typeof Ember) {
@@ -14187,10 +14187,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.f7867934'
+      @default '1.10.0-beta.1+canary.4c57b7ce'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.f7867934';
+    Ember.VERSION = '1.10.0-beta.1+canary.4c57b7ce';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -21865,9 +21865,7 @@ enifed("ember-routing-handlebars/helpers/render",
       var controllerName = options.hash.controller || name;
       var controllerFullName = 'controller:' + controllerName;
 
-      if (options.hash.controller) {
-              }
-
+      
       var parentController = options.data.view._keywords.controller.value();
 
       // choose name
@@ -26898,10 +26896,7 @@ enifed("ember-routing/system/router",
 
         for (var key in groupedByUrlKey) {
           var qps = groupedByUrlKey[key];
-          if (qps.length > 1) {
-            var qp0 = qps[0].qp, qp1=qps[1].qp;
-                      }
-          var qp = qps[0].qp;
+                    var qp = qps[0].qp;
           queryParams[qp.urlKey] = qp.route.serializeQueryParam(qps[0].value, qp.urlKey, qp.type);
         }
       },
@@ -27355,8 +27350,7 @@ enifed("ember-routing/system/router",
       transition.then(null, function(error) {
         if (!error || !error.name) { return; }
 
-        if (error.name === "UnrecognizedURLError") {
-                  }
+        
         return error;
       }, 'Ember: Process errors from Router');
     }
@@ -30284,10 +30278,7 @@ enifed("ember-runtime/ext/function",
         @for Function
       */
       FunctionPrototype.observesImmediately = function () {
-        for (var i = 0, l = arguments.length; i < l; i++) {
-          var arg = arguments[i];
-                  }
-
+        
         // observes handles property expansion
         return this.observes.apply(this, arguments);
       };
