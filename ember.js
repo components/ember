@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.4c57b7ce
+ * @version   1.10.0-beta.1+canary.d829342d
  */
 
 (function() {
@@ -14594,7 +14594,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.4c57b7ce
+      @version 1.10.0-beta.1+canary.d829342d
     */
 
     if ('undefined' === typeof Ember) {
@@ -14621,10 +14621,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.4c57b7ce'
+      @default '1.10.0-beta.1+canary.d829342d'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.4c57b7ce';
+    Ember.VERSION = '1.10.0-beta.1+canary.d829342d';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -43695,14 +43695,13 @@ enifed("ember-views/views/states/has_element",
     __exports__["default"] = hasElement;
   });
 enifed("ember-views/views/states/in_buffer",
-  ["ember-views/views/states/default","ember-metal/error","ember-metal/core","ember-metal/platform","ember-metal/merge","exports"],
+  ["ember-views/views/states/default","ember-metal/error","ember-views/system/jquery","ember-metal/platform","ember-metal/merge","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     var _default = __dependency1__["default"];
     var EmberError = __dependency2__["default"];
 
-    var Ember = __dependency3__["default"];
-    // Ember.assert
+    var jQuery = __dependency3__["default"];
     var create = __dependency4__.create;
     var merge = __dependency5__["default"];
 
@@ -43720,7 +43719,7 @@ enifed("ember-views/views/states/in_buffer",
         // rerender the view to allow the render method to reflect the
         // changes.
         view.rerender();
-        return Ember.$();
+        return jQuery();
       },
 
       // when a view is rendered in a buffer, rerendering it simply
