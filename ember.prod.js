@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.a8b9e2de
+ * @version   1.10.0-beta.1+canary.f464514b
  */
 
 (function() {
@@ -14160,7 +14160,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.a8b9e2de
+      @version 1.10.0-beta.1+canary.f464514b
     */
 
     if ('undefined' === typeof Ember) {
@@ -14187,10 +14187,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.a8b9e2de'
+      @default '1.10.0-beta.1+canary.f464514b'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.a8b9e2de';
+    Ember.VERSION = '1.10.0-beta.1+canary.f464514b';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -20845,7 +20845,7 @@ enifed("ember-routing-handlebars",
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
     /**
-    Ember Routing Handlebars
+    Ember Routing Handlebars Helpers
 
     @module ember
     @submodule ember-routing-handlebars
@@ -21909,6 +21909,141 @@ enifed("ember-routing-handlebars/helpers/render",
     }
 
     __exports__.renderHelper = renderHelper;
+  });
+enifed("ember-routing-htmlbars",
+  ["ember-metal/core","ember-htmlbars/helpers","ember-routing-htmlbars/helpers/outlet","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+    "use strict";
+    /**
+    Ember Routing HTMLBars Helpers
+
+    @module ember
+    @submodule ember-routing-htmlbars
+    @requires ember-routing
+    */
+
+    var Ember = __dependency1__["default"];
+
+    var registerHelper = __dependency2__.registerHelper;
+
+    var outletHelper = __dependency3__.outletHelper;
+
+    registerHelper('outlet', outletHelper);
+
+    __exports__["default"] = Ember;
+  });
+enifed("ember-routing-htmlbars/helpers/outlet",
+  ["ember-metal/core","ember-metal/property_set","ember-htmlbars/helpers/view","ember-routing-views/views/outlet","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-routing-htmlbars
+    */
+
+    var Ember = __dependency1__["default"];
+    // assert
+    var set = __dependency2__.set;
+    var viewHelper = __dependency3__.viewHelper;
+    var OutletView = __dependency4__.OutletView;
+
+    /**
+      The `outlet` helper is a placeholder that the router will fill in with
+      the appropriate template based on the current state of the application.
+
+      ``` handlebars
+      {{outlet}}
+      ```
+
+      By default, a template based on Ember's naming conventions will be rendered
+      into the `outlet` (e.g. `App.PostsRoute` will render the `posts` template).
+
+      You can render a different template by using the `render()` method in the
+      route's `renderTemplate` hook. The following will render the `favoritePost`
+      template into the `outlet`.
+
+      ``` javascript
+      App.PostsRoute = Ember.Route.extend({
+        renderTemplate: function() {
+          this.render('favoritePost');
+        }
+      });
+      ```
+
+      You can create custom named outlets for more control.
+
+      ``` handlebars
+      {{outlet 'favoritePost'}}
+      {{outlet 'posts'}}
+      ```
+
+      Then you can define what template is rendered into each outlet in your
+      route.
+
+
+      ``` javascript
+      App.PostsRoute = Ember.Route.extend({
+        renderTemplate: function() {
+          this.render('favoritePost', { outlet: 'favoritePost' });
+          this.render('posts', { outlet: 'posts' });
+        }
+      });
+      ```
+
+      You can specify the view that the outlet uses to contain and manage the
+      templates rendered into it.
+
+      ``` handlebars
+      {{outlet view='sectionContainer'}}
+      ```
+
+      ``` javascript
+      App.SectionContainer = Ember.ContainerView.extend({
+        tagName: 'section',
+        classNames: ['special']
+      });
+      ```
+
+      @method outlet
+      @for Ember.Handlebars.helpers
+      @param {String} property the property on the controller
+        that holds the view for this outlet
+      @return {String} HTML string
+    */
+    function outletHelper(params, hash, options, env) {
+      var outletSource;
+      var viewName;
+      var viewClass;
+      var viewFullName;
+
+      
+      var property = params[0] || 'main';
+
+      outletSource = this;
+      while (!outletSource.get('template.isTop')) {
+        outletSource = outletSource.get('_parentView');
+      }
+      set(this, 'outletSource', outletSource);
+
+      // provide controller override
+      viewName = hash.view;
+
+      if (viewName) {
+        viewFullName = 'view:' + viewName;
+                      }
+
+      viewClass = viewName ? this.container.lookupFactory(viewFullName) : hash.viewClass || OutletView;
+      options.types = ['id'];
+
+      hash.currentViewBinding = '_view.outletSource._outlets.' + property;
+      options.hashTypes.currentViewBinding = 'string';
+
+      options.helperName = options.helperName || 'outlet';
+
+      return viewHelper.call(this, [viewClass], hash, options, env);
+    }
+
+    __exports__.outletHelper = outletHelper;
   });
 enifed("ember-routing-views",
   ["ember-metal/core","ember-routing-views/views/link","ember-routing-views/views/outlet","exports"],
