@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.b921f280
+ * @version   1.10.0-beta.1+canary.7477b307
  */
 
 (function() {
@@ -5255,79 +5255,6 @@ enifed("ember-handlebars/tests/controls/select_test.jshint",
     module('JSHint - ember-handlebars/tests/controls');
     test('ember-handlebars/tests/controls/select_test.js should pass jshint', function() { 
       ok(true, 'ember-handlebars/tests/controls/select_test.js should pass jshint.'); 
-    });
-  });
-enifed("ember-handlebars/tests/controls/text_area_test",
-  ["ember-metal/run_loop","ember-views/views/view","ember-handlebars","ember-metal/property_set"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
-    "use strict";
-    var run = __dependency1__["default"];
-    var View = __dependency2__["default"];
-    var EmberHandlebars = __dependency3__["default"];
-    var o_set = __dependency4__.set;
-
-    var textArea, controller;
-
-    function set(object, key, value) {
-      run(function() { o_set(object, key, value); });
-    }
-
-    var compile = EmberHandlebars.compile;
-
-    function append() {
-      run(function() {
-        textArea.appendTo('#qunit-fixture');
-      });
-    }
-
-    function destroy(object) {
-      run(function() {
-        object.destroy();
-      });
-    }
-
-    QUnit.module("{{textarea}}", {
-      setup: function() {
-        controller = {
-          val: 'Lorem ipsum dolor'
-        };
-
-        textArea = View.extend({
-          controller: controller,
-          template: compile('{{textarea disabled=disabled value=val}}')
-        }).create();
-
-        append();
-      },
-
-      teardown: function() {
-        destroy(textArea);
-      }
-    });
-
-    test("Should insert a textarea", function() {
-      equal(textArea.$('textarea').length, 1, "There is a single textarea");
-    });
-
-    test("Should become disabled when the controller changes", function() {
-      ok(textArea.$('textarea').is(':not(:disabled)'), "Nothing is disabled yet");
-      set(controller, 'disabled', true);
-      ok(textArea.$('textarea').is(':disabled'), "The disabled attribute is updated");
-    });
-
-    test("Should bind its contents to the specified value", function() {
-      equal(textArea.$('textarea').val(), "Lorem ipsum dolor", "The contents are included");
-      set(controller, 'val', "sit amet");
-      equal(textArea.$('textarea').val(), "sit amet", "The new contents are included");
-    });
-  });
-enifed("ember-handlebars/tests/controls/text_area_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/tests/controls');
-    test('ember-handlebars/tests/controls/text_area_test.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/tests/controls/text_area_test.js should pass jshint.'); 
     });
   });
 enifed("ember-handlebars/tests/handlebars_get_test",
@@ -10744,6 +10671,15 @@ enifed("ember-htmlbars/helpers/template.jshint",
       ok(true, 'ember-htmlbars/helpers/template.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/helpers/text_area.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/helpers');
+    test('ember-htmlbars/helpers/text_area.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/helpers/text_area.js should pass jshint.'); 
+    });
+  });
 enifed("ember-htmlbars/helpers/view.jshint",
   [],
   function() {
@@ -12275,6 +12211,85 @@ enifed("ember-htmlbars/tests/helpers/template_test.jshint",
     module('JSHint - ember-htmlbars/tests/helpers');
     test('ember-htmlbars/tests/helpers/template_test.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/tests/helpers/template_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/tests/helpers/text_area_test",
+  ["ember-metal/run_loop","ember-views/views/view","ember-handlebars","ember-metal/property_set","ember-htmlbars/system/compile"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
+    "use strict";
+    var run = __dependency1__["default"];
+    var View = __dependency2__["default"];
+    var EmberHandlebars = __dependency3__["default"];
+    var o_set = __dependency4__.set;
+    var htmlbarsCompile = __dependency5__["default"];
+
+    var compile;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      compile = htmlbarsCompile;
+    } else {
+      compile = EmberHandlebars.compile;
+    }
+
+    var textArea, controller;
+
+    function set(object, key, value) {
+      run(function() { o_set(object, key, value); });
+    }
+
+    function append() {
+      run(function() {
+        textArea.appendTo('#qunit-fixture');
+      });
+    }
+
+    function destroy(object) {
+      run(function() {
+        object.destroy();
+      });
+    }
+
+    QUnit.module("{{textarea}}", {
+      setup: function() {
+        controller = {
+          val: 'Lorem ipsum dolor'
+        };
+
+        textArea = View.extend({
+          controller: controller,
+          template: compile('{{textarea disabled=disabled value=val}}')
+        }).create();
+
+        append();
+      },
+
+      teardown: function() {
+        destroy(textArea);
+      }
+    });
+
+    test("Should insert a textarea", function() {
+      equal(textArea.$('textarea').length, 1, "There is a single textarea");
+    });
+
+    test("Should become disabled when the controller changes", function() {
+      ok(textArea.$('textarea').is(':not(:disabled)'), "Nothing is disabled yet");
+      set(controller, 'disabled', true);
+      ok(textArea.$('textarea').is(':disabled'), "The disabled attribute is updated");
+    });
+
+    test("Should bind its contents to the specified value", function() {
+      equal(textArea.$('textarea').val(), "Lorem ipsum dolor", "The contents are included");
+      set(controller, 'val', "sit amet");
+      equal(textArea.$('textarea').val(), "sit amet", "The new contents are included");
+    });
+  });
+enifed("ember-htmlbars/tests/helpers/text_area_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/tests/helpers');
+    test('ember-htmlbars/tests/helpers/text_area_test.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/tests/helpers/text_area_test.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/tests/helpers/view_test",
