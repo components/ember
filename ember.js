@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.7477b307
+ * @version   1.10.0-beta.1+canary.13ce2e9b
  */
 
 (function() {
@@ -14533,7 +14533,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.7477b307
+      @version 1.10.0-beta.1+canary.13ce2e9b
     */
 
     if ('undefined' === typeof Ember) {
@@ -14560,10 +14560,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.7477b307'
+      @default '1.10.0-beta.1+canary.13ce2e9b'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.7477b307';
+    Ember.VERSION = '1.10.0-beta.1+canary.13ce2e9b';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -22178,6 +22178,12 @@ enifed("ember-routing-handlebars/helpers/outlet",
         property = 'main';
       }
 
+      Ember.deprecate(
+        "Using {{outlet}} with an unquoted name is not supported. " +
+        "Please update to quoted usage '{{outlet \"" + property + "\"}}'.",
+        arguments.length === 1 || options.types[0] === 'STRING'
+      );
+
       var view = options.data.view;
       var container = view.container;
 
@@ -22192,9 +22198,15 @@ enifed("ember-routing-handlebars/helpers/outlet",
 
       if (viewName) {
         viewFullName = 'view:' + viewName;
-        Ember.assert("Using a quoteless view parameter with {{outlet}} is not supported." +
-                     " Please update to quoted usage '{{outlet \"" + viewName + "\"}}.", options.hashTypes.view !== 'ID');
-        Ember.assert("The view name you supplied '" + viewName + "' did not resolve to a view.", container.has(viewFullName));
+        Ember.assert(
+          "Using a quoteless view parameter with {{outlet}} is not supported." +
+          " Please update to quoted usage '{{outlet ... view=\"" + viewName + "\"}}.",
+          options.hashTypes.view !== 'ID'
+        );
+        Ember.assert(
+          "The view name you supplied '" + viewName + "' did not resolve to a view.",
+          container.has(viewFullName)
+        );
       }
 
       viewClass = viewName ? container.lookupFactory(viewFullName) : options.hash.viewClass || OutletView;
@@ -22532,8 +22544,10 @@ enifed("ember-routing-htmlbars/helpers/outlet",
       var viewClass;
       var viewFullName;
 
-      Ember.assert("Outlet names must be a string literal, e.g. {{outlet \"header\"}}",
-        params.length === 0 || options.types[0] === 'string');
+      Ember.assert(
+        "Using {{outlet}} with an unquoted name is not supported.",
+        params.length === 0 || options.types[0] === 'string'
+      );
 
       var property = params[0] || 'main';
 
@@ -22548,9 +22562,15 @@ enifed("ember-routing-htmlbars/helpers/outlet",
 
       if (viewName) {
         viewFullName = 'view:' + viewName;
-        Ember.assert("Using a quoteless view parameter with {{outlet}} is not supported." +
-                     " Please update to quoted usage '{{outlet \"" + viewName + "\"}}.", options.hashTypes.view === 'string');
-        Ember.assert("The view name you supplied '" + viewName + "' did not resolve to a view.", this.container.has(viewFullName));
+        Ember.assert(
+          "Using a quoteless view parameter with {{outlet}} is not supported." +
+          " Please update to quoted usage '{{outlet ... view=\"" + viewName + "\"}}.",
+          options.hashTypes.view === 'string'
+        );
+        Ember.assert(
+          "The view name you supplied '" + viewName + "' did not resolve to a view.",
+          this.container.has(viewFullName)
+        );
       }
 
       viewClass = viewName ? this.container.lookupFactory(viewFullName) : hash.viewClass || OutletView;

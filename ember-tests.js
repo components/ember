@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.7477b307
+ * @version   1.10.0-beta.1+canary.13ce2e9b
  */
 
 (function() {
@@ -26466,6 +26466,42 @@ enifed("ember-routing-htmlbars/tests/helpers/outlet_test",
       // Replace whitespace for older IE
       equal(trim(view.$().text()), 'HIBYE');
     });
+
+    test("should not throw deprecations if {{outlet}} is used without a name", function() {
+      expectNoDeprecation();
+      view = EmberView.create({
+        template: compile("{{outlet}}")
+      });
+      appendView(view);
+    });
+
+    test("should not throw deprecations if {{outlet}} is used with a quoted name", function() {
+      expectNoDeprecation();
+      view = EmberView.create({
+        template: compile("{{outlet \"foo\"}}"),
+      });
+      appendView(view);
+    });
+
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      test("should throw an assertion if {{outlet}} used with unquoted name", function() {
+        view = EmberView.create({
+          template: compile("{{outlet foo}}"),
+        });
+        expectAssertion(function() {
+          appendView(view);
+        }, "Using {{outlet}} with an unquoted name is not supported.");
+      });
+    } else {
+      test("should throw a deprecation if {{outlet}} is used with an unquoted name", function() {
+        view = EmberView.create({
+          template: compile("{{outlet foo}}")
+        });
+        expectDeprecation(function() {
+          appendView(view);
+        }, 'Using {{outlet}} with an unquoted name is not supported. Please update to quoted usage \'{{outlet "foo"}}\'.');
+      });
+    }
   });
 enifed("ember-routing-htmlbars/tests/helpers/outlet_test.jshint",
   [],
