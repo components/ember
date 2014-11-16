@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.bf4b41dc
+ * @version   1.10.0-beta.1+canary.ebf94542
  */
 
 (function() {
@@ -13667,7 +13667,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.bf4b41dc
+      @version 1.10.0-beta.1+canary.ebf94542
     */
 
     if ('undefined' === typeof Ember) {
@@ -13694,10 +13694,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.bf4b41dc'
+      @default '1.10.0-beta.1+canary.ebf94542'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.bf4b41dc';
+    Ember.VERSION = '1.10.0-beta.1+canary.ebf94542';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -30037,7 +30037,17 @@ enifed("ember-runtime/ext/rsvp",
             return this['catch'](callback, label);
     };
 
-    RSVP.onerrorDefault = function (error) {
+    RSVP.onerrorDefault = function (e) {
+      var error;
+
+      if (e && e.errorThrown) {
+        // jqXHR provides this
+        error = e.errorThrown;
+        error.__reason_with_error_thrown__ = e;
+      } else {
+        error = e;
+      }
+
       if (error && error.name !== 'TransitionAborted') {
         if (Ember.testing) {
           // ES6TODO: remove when possible

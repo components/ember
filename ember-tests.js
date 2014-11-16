@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.bf4b41dc
+ * @version   1.10.0-beta.1+canary.ebf94542
  */
 
 (function() {
@@ -32418,6 +32418,31 @@ enifed("ember-runtime/tests/ext/rsvp_test",
       run(RSVP, 'reject', fakeTransitionAbort);
 
       ok(true, 'did not throw an error when dealing with TransitionAborted');
+    });
+
+    test('rejections like jqXHR which have errorThrown property work', function() {
+      expect(2);
+
+      var wasEmberTesting = Ember.testing;
+      var wasOnError      = Ember.onerror;
+
+      try {
+        Ember.testing = false;
+        Ember.onerror = function(error) {
+          equal(error, actualError, 'expected the real error on the jqXHR');
+          equal(error.__reason_with_error_thrown__, jqXHR, 'also retains a helpful reference to the rejection reason');
+        };
+
+        var actualError = new Error("OMG what really happend");
+        var jqXHR = {
+          errorThrown: actualError
+        };
+
+        run(RSVP, 'reject', jqXHR);
+      } finally {
+        Ember.onerror = wasOnError;
+        Ember.testing = wasEmberTesting ;
+      }
     });
   });
 enifed("ember-runtime/tests/ext/rsvp_test.jshint",
