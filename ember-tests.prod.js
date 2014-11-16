@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.ebf94542
+ * @version   1.10.0-beta.1+canary.ed1209f8
  */
 
 (function() {
@@ -12262,16 +12262,17 @@ enifed("ember-htmlbars/tests/helpers/template_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helpers/view_test",
-  ["ember-views/views/view","container/container","ember-metal/run_loop","ember-views/system/jquery","ember-handlebars","ember-htmlbars/system/compile"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
+  ["ember-metal/property_set","ember-views/views/view","container/container","ember-metal/run_loop","ember-views/system/jquery","ember-handlebars","ember-htmlbars/system/compile"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
     "use strict";
     /*globals EmberDev */
-    var EmberView = __dependency1__["default"];
-    var Container = __dependency2__["default"];
-    var run = __dependency3__["default"];
-    var jQuery = __dependency4__["default"];
-    var EmberHandlebars = __dependency5__["default"];
-    var htmlbarsCompile = __dependency6__["default"];
+    var set = __dependency1__.set;
+    var EmberView = __dependency2__["default"];
+    var Container = __dependency3__["default"];
+    var run = __dependency4__["default"];
+    var jQuery = __dependency5__["default"];
+    var EmberHandlebars = __dependency6__["default"];
+    var htmlbarsCompile = __dependency7__["default"];
 
     var compile;
     if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
@@ -12455,6 +12456,17 @@ enifed("ember-htmlbars/tests/helpers/view_test",
       equal(jQuery('#stengah').text(), 'omg', "id didn't change");
     });
 
+    test("specifying `id` as a static value works properly", function() {
+      view = EmberView.extend({
+        template: compile("{{#view id='blah'}}{{view.parentView.meshuggah}}{{/view}}"),
+        meshuggah: 'stengah'
+      }).create();
+
+      run(view, 'appendTo', '#qunit-fixture');
+
+      equal(view.$('#blah').text(), 'stengah', "id binding performed property lookup");
+    });
+
     test("mixing old and new styles of property binding fires a warning, treats value as if it were quoted", function() {
       if (EmberDev && EmberDev.runningProdBuild){
         ok(true, 'Logging does not occur in production builds');
@@ -12535,6 +12547,90 @@ enifed("ember-htmlbars/tests/helpers/view_test",
       run(view, 'appendTo', '#qunit-fixture');
 
       ok(jQuery('#foo').hasClass('foo'), "Always applies classbinding without condition");
+    });
+
+    test("Should not apply classes when bound property specified is false", function() {
+      view = EmberView.create({
+        controller: {
+          someProp: false
+        },
+        template: compile('{{#view id="foo" class=someProp}} Foo{{/view}}')
+      });
+
+      run(view, 'appendTo', '#qunit-fixture');
+
+      ok(!jQuery('#foo').hasClass('some-prop'), "does not add class when value is falsey");
+    });
+
+    test("Should apply classes of the dasherized property name when bound property specified is true", function() {
+      view = EmberView.create({
+        controller: {
+          someProp: true
+        },
+        template: compile('{{#view id="foo" class=someProp}} Foo{{/view}}')
+      });
+
+      run(view, 'appendTo', '#qunit-fixture');
+
+      ok(jQuery('#foo').hasClass('some-prop'), "adds dasherized class when value is true");
+    });
+
+    test("Should update classes from a bound property", function() {
+      var controller = {
+        someProp: true
+      };
+
+      view = EmberView.create({
+        controller: controller,
+        template: compile('{{#view id="foo" class=someProp}} Foo{{/view}}')
+      });
+
+      run(view, 'appendTo', '#qunit-fixture');
+
+      ok(jQuery('#foo').hasClass('some-prop'), "adds dasherized class when value is true");
+
+      run(function() {
+        set(controller, 'someProp', false);
+      });
+
+      ok(!jQuery('#foo').hasClass('some-prop'), "does not add class when value is falsey");
+
+      run(function() {
+        set(controller, 'someProp', 'fooBar');
+      });
+
+      ok(jQuery('#foo').hasClass('fooBar'), "changes property to string value (but does not dasherize)");
+    });
+
+    test("bound properties should be available in the view", function() {
+      var FuView = viewClass({
+        elementId: 'fu',
+        template: compile("{{view.foo}}")
+      });
+
+      function lookupFactory(fullName) {
+        return FuView;
+      }
+
+      var container = {
+        lookupFactory: lookupFactory
+      };
+
+      view = EmberView.extend({
+        template: compile("{{view 'fu' foo=view.someProp}}"),
+        container: container,
+        someProp: 'initial value'
+      }).create();
+
+      run(view, 'appendTo', '#qunit-fixture');
+
+      equal(view.$('#fu').text(), 'initial value');
+
+      run(function() {
+        set(view, 'someProp', 'second value');
+      });
+
+      equal(view.$('#fu').text(), 'second value');
     });
   });
 enifed("ember-htmlbars/tests/helpers/view_test.jshint",

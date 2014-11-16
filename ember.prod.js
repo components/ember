@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.ebf94542
+ * @version   1.10.0-beta.1+canary.ed1209f8
  */
 
 (function() {
@@ -9723,16 +9723,23 @@ enifed("ember-htmlbars/helpers/view",
         var hashType = hashTypes[prop];
         var valueOrStream = hash[prop];
 
-        if (IS_BINDING.test(prop)) {
-          // classBinding is processed separately
-          if (prop === 'classBinding') {
-            continue;
-          }
+        // classBinding is processed separately
+        if (prop === 'classBinding') {
+          continue;
+        }
 
+        if (IS_BINDING.test(prop)) {
           if (hashType === 'id') {
             // valueOrStream is a stream, streamifyArgs took care of it
                       } else if (typeof valueOrStream === 'string') {
             hash[prop] = view._getBindingForStream(valueOrStream);
+          }
+        } else {
+          if (hashType === 'id' && prop !== 'id') {
+            hash[prop + 'Binding'] = valueOrStream;
+
+            delete hash[prop];
+            delete hashTypes[prop];
           }
         }
       }
@@ -10298,7 +10305,7 @@ enifed("ember-htmlbars/hooks",
       // Convert hash ID values to streams
       var hashTypes = options.hashTypes;
       for (var key in hash) {
-        if (hashTypes[key] === 'id' && key !== 'classBinding') {
+        if (hashTypes[key] === 'id' && key !== 'classBinding' && key !== 'class') {
           hash[key] = view.getStream(hash[key]);
         }
       }
@@ -13667,7 +13674,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.ebf94542
+      @version 1.10.0-beta.1+canary.ed1209f8
     */
 
     if ('undefined' === typeof Ember) {
@@ -13694,10 +13701,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.ebf94542'
+      @default '1.10.0-beta.1+canary.ed1209f8'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.ebf94542';
+    Ember.VERSION = '1.10.0-beta.1+canary.ed1209f8';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
