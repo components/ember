@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.107c8aa1
+ * @version   1.10.0-beta.1+canary.a32160f6
  */
 
 (function() {
@@ -14900,7 +14900,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.107c8aa1
+      @version 1.10.0-beta.1+canary.a32160f6
     */
 
     if ('undefined' === typeof Ember) {
@@ -14927,10 +14927,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.107c8aa1'
+      @default '1.10.0-beta.1+canary.a32160f6'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.107c8aa1';
+    Ember.VERSION = '1.10.0-beta.1+canary.a32160f6';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -22605,7 +22605,7 @@ enifed("ember-routing-handlebars/helpers/query_params",
 
       Example
 
-      {#link-to 'posts' (query-params direction="asc")}}Sort{{/link-to}}
+      {{#link-to 'posts' (query-params direction="asc")}}Sort{{/link-to}}
 
       @method query-params
       @for Ember.Handlebars.helpers
@@ -22629,6 +22629,7 @@ enifed("ember-routing-handlebars/helpers/query_params",
         values: options.hash
       });
     }
+
     __exports__.queryParamsHelper = queryParamsHelper;
   });
 enifed("ember-routing-handlebars/helpers/render",
@@ -23672,7 +23673,7 @@ enifed("ember-routing-htmlbars/helpers/query-params",
 
       Example
 
-      {#link-to 'posts' (query-params direction="asc")}}Sort{{/link-to}}
+      {{#link-to 'posts' (query-params direction="asc")}}Sort{{/link-to}}
 
       @method query-params
       @for Ember.Handlebars.helpers
