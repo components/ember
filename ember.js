@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.a1733737
+ * @version   1.10.0-beta.1+canary.a5c93ca3
  */
 
 (function() {
@@ -9677,8 +9677,8 @@ enifed("ember-htmlbars/helpers/binding",
     __exports__.bindHelper = bindHelper;
   });
 enifed("ember-htmlbars/helpers/collection",
-  ["ember-metal/core","ember-handlebars-compiler","ember-metal/mixin","ember-runtime/system/string","ember-metal/property_get","ember-metal/streams/simple","ember-handlebars/helpers/view","ember-metal/alias","ember-views/views/view","ember-views/views/collection_view","ember-htmlbars/helpers/view","ember-views/streams/read","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __exports__) {
+  ["ember-metal/core","ember-handlebars-compiler","ember-metal/mixin","ember-runtime/system/string","ember-metal/property_get","ember-metal/streams/simple","ember-htmlbars/helpers/view","ember-metal/alias","ember-views/views/view","ember-views/views/collection_view","ember-views/streams/read","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -9697,8 +9697,7 @@ enifed("ember-htmlbars/helpers/collection",
     var alias = __dependency8__["default"];
     var View = __dependency9__["default"];
     var CollectionView = __dependency10__["default"];
-    var viewHelper = __dependency11__.viewHelper;
-    var readViewFactory = __dependency12__.readViewFactory;
+    var readViewFactory = __dependency11__.readViewFactory;
 
     /**
       `{{collection}}` is a `Ember.Handlebars` helper for adding instances of
@@ -9924,7 +9923,7 @@ enifed("ember-htmlbars/helpers/collection",
         itemHash._context = alias('content');
       }
 
-      var viewOptions = ViewHelper.propertiesFromHTMLOptions({ data: data, hash: itemHash }, this);
+      var viewOptions = ViewHelper.propertiesFromHTMLOptions(itemHash, {}, { data: data });
 
       if (hash.itemClassBinding) {
         var itemClassBindings = hash.itemClassBinding.split(' ');
@@ -9946,7 +9945,7 @@ enifed("ember-htmlbars/helpers/collection",
 
       options.helperName = options.helperName || 'collection';
 
-      return viewHelper.call(this, [collectionClass], hash, options, env);
+      return env.helpers.view.call(this, [collectionClass], hash, options, env);
     }
 
     __exports__.collectionHelper = collectionHelper;
@@ -10010,8 +10009,8 @@ enifed("ember-htmlbars/helpers/debugger",
     __exports__.debuggerHelper = debuggerHelper;
   });
 enifed("ember-htmlbars/helpers/each",
-  ["ember-metal/core","ember-runtime/system/string","ember-metal/property_get","ember-metal/property_set","ember-views/views/collection_view","ember-metal/binding","ember-runtime/mixins/controller","ember-runtime/controllers/array_controller","ember-runtime/mixins/array","ember-htmlbars/helpers/collection","ember-metal/observer","ember-views/views/metamorph_view","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __exports__) {
+  ["ember-metal/core","ember-runtime/system/string","ember-metal/property_get","ember-metal/property_set","ember-views/views/collection_view","ember-metal/binding","ember-runtime/mixins/controller","ember-runtime/controllers/array_controller","ember-runtime/mixins/array","ember-metal/observer","ember-views/views/metamorph_view","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
     "use strict";
 
     /**
@@ -10030,15 +10029,14 @@ enifed("ember-htmlbars/helpers/each",
     var ControllerMixin = __dependency7__["default"];
     var ArrayController = __dependency8__["default"];
     var EmberArray = __dependency9__["default"];
-    var collectionHelper = __dependency10__.collectionHelper;
 
-    var addObserver = __dependency11__.addObserver;
-    var removeObserver = __dependency11__.removeObserver;
-    var addBeforeObserver = __dependency11__.addBeforeObserver;
-    var removeBeforeObserver = __dependency11__.removeBeforeObserver;
+    var addObserver = __dependency10__.addObserver;
+    var removeObserver = __dependency10__.removeObserver;
+    var addBeforeObserver = __dependency10__.addBeforeObserver;
+    var removeBeforeObserver = __dependency10__.removeBeforeObserver;
 
-    var _MetamorphView = __dependency12__["default"];
-    var _Metamorph = __dependency12__._Metamorph;
+    var _MetamorphView = __dependency11__["default"];
+    var _Metamorph = __dependency11__._Metamorph;
 
     var EachView = CollectionView.extend(_Metamorph, {
 
@@ -10311,7 +10309,7 @@ enifed("ember-htmlbars/helpers/each",
       hash.dataSourceBinding = path;
       options.helperName = options.helperName || helperName;
 
-      return collectionHelper.call(this, [EachView], hash, options, env);
+      return env.helpers.collection.call(this, [EachView], hash, options, env);
     }
 
     __exports__.EachView = EachView;
@@ -15129,7 +15127,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.a1733737
+      @version 1.10.0-beta.1+canary.a5c93ca3
     */
 
     if ('undefined' === typeof Ember) {
@@ -15156,10 +15154,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.a1733737'
+      @default '1.10.0-beta.1+canary.a5c93ca3'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.a1733737';
+    Ember.VERSION = '1.10.0-beta.1+canary.a5c93ca3';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
