@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.f9048493
+ * @version   1.10.0-beta.1+canary.a1733737
  */
 
 (function() {
@@ -25493,59 +25493,6 @@ enifed("ember-routing-handlebars/tests/helpers/action_test.jshint",
       ok(true, 'ember-routing-handlebars/tests/helpers/action_test.js should pass jshint.'); 
     });
   });
-enifed("ember-routing-handlebars/tests/helpers/link_to_test",
-  ["ember-metal/run_loop","ember-handlebars","ember-views/views/view"],
-  function(__dependency1__, __dependency2__, __dependency3__) {
-    "use strict";
-    var run = __dependency1__["default"];
-
-    var EmberHandlebars = __dependency2__["default"];
-    var EmberView = __dependency3__["default"];
-
-    var view;
-
-    var appendView = function(view) {
-      run(function() { view.appendTo('#qunit-fixture'); });
-    };
-
-    var compile = EmberHandlebars.compile;
-
-
-    QUnit.module("Handlebars {{link-to}} helper", {
-      setup: function() {
-
-      },
-
-      teardown: function() {
-        run(function() {
-          if (view) { view.destroy(); }
-        });
-      }
-    });
-
-
-    test("should be able to be inserted in DOM when the router is not present", function() {
-
-      var template = "{{#link-to 'index'}}Go to Index{{/link-to}}";
-      view = EmberView.create({
-        template: compile(template)
-      });
-
-      appendView(view);
-
-      equal(view.$().text(), 'Go to Index');
-
-    });
-  });
-enifed("ember-routing-handlebars/tests/helpers/link_to_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-routing-handlebars/tests/helpers');
-    test('ember-routing-handlebars/tests/helpers/link_to_test.js should pass jshint', function() { 
-      ok(true, 'ember-routing-handlebars/tests/helpers/link_to_test.js should pass jshint.'); 
-    });
-  });
 enifed("ember-routing-handlebars/tests/helpers/render_test",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-metal/platform","ember-metal/mixin","container/container","ember-runtime/system/namespace","ember-runtime/system/string","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-routing/system/router","ember-routing/location/hash_location","ember-handlebars","ember-routing/ext/view","ember-views/views/metamorph_view","ember-views/system/jquery","ember-views/system/action_manager","ember-routing-handlebars/helpers/render","ember-routing-handlebars/helpers/action","ember-routing-handlebars/helpers/outlet"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__) {
@@ -26140,6 +26087,15 @@ enifed("ember-routing-htmlbars.jshint",
       ok(true, 'ember-routing-htmlbars.js should pass jshint.'); 
     });
   });
+enifed("ember-routing-htmlbars/helpers/link-to.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-routing-htmlbars/helpers');
+    test('ember-routing-htmlbars/helpers/link-to.js should pass jshint', function() { 
+      ok(true, 'ember-routing-htmlbars/helpers/link-to.js should pass jshint.'); 
+    });
+  });
 enifed("ember-routing-htmlbars/helpers/outlet.jshint",
   [],
   function() {
@@ -26147,6 +26103,146 @@ enifed("ember-routing-htmlbars/helpers/outlet.jshint",
     module('JSHint - ember-routing-htmlbars/helpers');
     test('ember-routing-htmlbars/helpers/outlet.js should pass jshint', function() { 
       ok(true, 'ember-routing-htmlbars/helpers/outlet.js should pass jshint.'); 
+    });
+  });
+enifed("ember-routing-htmlbars/tests/helpers/link-to_test",
+  ["ember-routing-htmlbars","ember-metal/run_loop","ember-handlebars","ember-views/views/view","ember-htmlbars/system/compile","ember-metal/property_set","ember-runtime/controllers/controller"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
+    "use strict";
+    var run = __dependency2__["default"];
+    var EmberHandlebars = __dependency3__["default"];
+    var EmberView = __dependency4__["default"];
+    var htmlbarsCompile = __dependency5__["default"];
+    var set = __dependency6__.set;
+    var Controller = __dependency7__["default"];
+
+    var compile;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      compile = htmlbarsCompile;
+    } else {
+      compile = EmberHandlebars.compile;
+    }
+
+    var view;
+
+    var appendView = function(view) {
+      run(function() { view.appendTo('#qunit-fixture'); });
+    };
+
+    QUnit.module("Handlebars {{link-to}} helper", {
+      teardown: function() {
+        run(function() {
+          if (view) { view.destroy(); }
+        });
+      }
+    });
+
+
+    test("should be able to be inserted in DOM when the router is not present", function() {
+      var template = "{{#link-to 'index'}}Go to Index{{/link-to}}";
+      view = EmberView.create({
+        template: compile(template)
+      });
+
+      appendView(view);
+
+      equal(view.$().text(), 'Go to Index');
+    });
+
+    test("should be able to be inserted in DOM when the router is not present", function() {
+      var template = "{{#link-to 'index'}}Go to Index{{/link-to}}";
+      view = EmberView.create({
+        template: compile(template)
+      });
+
+      appendView(view);
+
+      equal(view.$().text(), 'Go to Index');
+    });
+
+    test("re-renders when title changes", function() {
+      var template = "{{link-to title routeName}}";
+      view = EmberView.create({
+        controller: {
+          title: 'foo',
+          routeName: 'index'
+        },
+        template: compile(template)
+      });
+
+      appendView(view);
+
+      equal(view.$().text(), 'foo');
+
+      run(function() {
+        set(view, 'controller.title', 'bar');
+      });
+
+      equal(view.$().text(), 'bar');
+    });
+
+    test("can read bound title", function() {
+      var template = "{{link-to title routeName}}";
+      view = EmberView.create({
+        controller: {
+          title: 'foo',
+          routeName: 'index'
+        },
+        template: compile(template)
+      });
+
+      appendView(view);
+
+      equal(view.$().text(), 'foo');
+    });
+
+    test("escapes title in non-block form", function() {
+      view = EmberView.create({
+        title: "<b>blah</b>",
+
+        template: compile("{{link-to view.title}}")
+      });
+
+      appendView(view);
+
+      equal(view.$('b').length, 0, 'no <b> were found');
+    });
+
+    test("does not escape title in non-block form when `unescaped` is true", function() {
+      view = EmberView.create({
+        title: "<b>blah</b>",
+
+        template: compile("{{link-to view.title unescaped=true}}")
+      });
+
+      appendView(view);
+
+      equal(view.$('b').length, 1, '<b> was found');
+    });
+
+    test("unwraps controllers", function() {
+      var template = "{{#link-to 'index' view.otherController}}Text{{/link-to}}";
+
+      view = EmberView.create({
+        otherController: Controller.create({
+          model: 'foo'
+        }),
+
+        template: compile(template)
+      });
+
+      appendView(view);
+
+      equal(view.$().text(), 'Text');
+    });
+  });
+enifed("ember-routing-htmlbars/tests/helpers/link-to_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-routing-htmlbars/tests/helpers');
+    test('ember-routing-htmlbars/tests/helpers/link-to_test.js should pass jshint', function() { 
+      ok(true, 'ember-routing-htmlbars/tests/helpers/link-to_test.js should pass jshint.'); 
     });
   });
 enifed("ember-routing-htmlbars/tests/helpers/outlet_test",
