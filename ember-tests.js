@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.66691b37
+ * @version   1.10.0-beta.1+canary.5546b8f2
  */
 
 (function() {
@@ -55817,6 +55817,15 @@ enifed("ember-views/views/core_view.jshint",
     module('JSHint - ember-views/views');
     test('ember-views/views/core_view.js should pass jshint', function() { 
       ok(true, 'ember-views/views/core_view.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/views/each.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/views');
+    test('ember-views/views/each.js should pass jshint', function() { 
+      ok(true, 'ember-views/views/each.js should pass jshint.'); 
     });
   });
 enifed("ember-views/views/handlebars_bound_view.jshint",
