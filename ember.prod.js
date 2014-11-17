@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.a32160f6
+ * @version   1.10.0-beta.1+canary.683e4f75
  */
 
 (function() {
@@ -8538,53 +8538,10 @@ enifed("ember-handlebars/loader",
     __exports__["default"] = bootstrap;
   });
 enifed("ember-handlebars/string",
-  ["ember-runtime/system/string","exports"],
+  ["ember-htmlbars/utils/string","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
-    // required so we can extend this object.
-    var EmberStringUtils = __dependency1__["default"];
-
-    /**
-      Mark a string as safe for unescaped output with Handlebars. If you
-      return HTML from a Handlebars helper, use this function to
-      ensure Handlebars does not escape the HTML.
-
-      ```javascript
-      Ember.String.htmlSafe('<div>someString</div>')
-      ```
-
-      @method htmlSafe
-      @for Ember.String
-      @static
-      @return {Handlebars.SafeString} a string that will not be html escaped by Handlebars
-    */
-    function htmlSafe(str) {
-      if (typeof str !== 'string') {
-        str = ''+str;
-      }
-      return new Handlebars.SafeString(str);
-    }
-
-    EmberStringUtils.htmlSafe = htmlSafe;
-    if (Ember.EXTEND_PROTOTYPES === true || Ember.EXTEND_PROTOTYPES.String) {
-
-      /**
-        Mark a string as being safe for unescaped output with Handlebars.
-
-        ```javascript
-        '<div>someString</div>'.htmlSafe()
-        ```
-
-        See [Ember.String.htmlSafe](/api/classes/Ember.String.html#method_htmlSafe).
-
-        @method htmlSafe
-        @for String
-        @return {Handlebars.SafeString} a string that will not be html escaped by Handlebars
-      */
-      String.prototype.htmlSafe = function() {
-        return htmlSafe(this);
-      };
-    }
+    var htmlSafe = __dependency1__.htmlSafe;
 
     __exports__["default"] = htmlSafe;
   });
@@ -8602,6 +8559,7 @@ enifed("ember-htmlbars",
     var compile = __dependency5__["default"];
 
     var registerHelper = __dependency6__.registerHelper;
+    var helper = __dependency6__.helper;
     var helpers = __dependency6__["default"];
     var bindHelper = __dependency7__.bindHelper;
     var viewHelper = __dependency8__.viewHelper;
@@ -8646,6 +8604,9 @@ enifed("ember-htmlbars",
 
     if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
       Ember.HTMLBars = {
+        helpers: helpers,
+        helper: helper,
+        registerHelper: registerHelper,
         template: template,
         compile: compile
       };
@@ -8666,9 +8627,16 @@ enifed("ember-htmlbars",
     __exports__.defaultEnv = defaultEnv;
   });
 enifed("ember-htmlbars/helpers",
-  ["ember-views/views/view","ember-views/views/component","./system/make-view-helper","exports"],
+  ["ember-views/views/view","ember-views/views/component","ember-htmlbars/system/make-view-helper","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
+    var helpers = { };
+
     /**
     @module ember
     @submodule ember-htmlbars
@@ -8677,8 +8645,6 @@ enifed("ember-htmlbars/helpers",
     var View = __dependency1__["default"];
     var Component = __dependency2__["default"];
     var makeViewHelper = __dependency3__["default"];
-
-    var helpers = { };
 
     /**
       Register a bound helper or custom view helper.
@@ -8736,7 +8702,7 @@ enifed("ember-htmlbars/helpers",
     function helper(name, value) {
       
       if (View.detect(value)) {
-        registerHelper(name, makeViewHelper(value));
+        helpers[name] = makeViewHelper(value);
       } else {
         // HTMLBars TODO: Support bound helpers
         // EmberHandlebars.registerBoundHelper.apply(null, arguments);
@@ -11338,6 +11304,59 @@ enifed("ember-htmlbars/system/template",
 
       return templateSpec;
     }
+  });
+enifed("ember-htmlbars/utils/string",
+  ["htmlbars-util/safe-string","ember-runtime/system/string","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
+    "use strict";
+    // required so we can extend this object.
+    var SafeString = __dependency1__["default"];
+    var EmberStringUtils = __dependency2__["default"];
+
+    /**
+      Mark a string as safe for unescaped output with Handlebars. If you
+      return HTML from a Handlebars helper, use this function to
+      ensure Handlebars does not escape the HTML.
+
+      ```javascript
+      Ember.String.htmlSafe('<div>someString</div>')
+      ```
+
+      @method htmlSafe
+      @for Ember.String
+      @static
+      @return {Handlebars.SafeString} a string that will not be html escaped by Handlebars
+    */
+    function htmlSafe(str) {
+      if (typeof str !== 'string') {
+        str = ''+str;
+      }
+      return new SafeString(str);
+    }
+
+    EmberStringUtils.htmlSafe = htmlSafe;
+    if (Ember.EXTEND_PROTOTYPES === true || Ember.EXTEND_PROTOTYPES.String) {
+
+      /**
+        Mark a string as being safe for unescaped output with Handlebars.
+
+        ```javascript
+        '<div>someString</div>'.htmlSafe()
+        ```
+
+        See [Ember.String.htmlSafe](/api/classes/Ember.String.html#method_htmlSafe).
+
+        @method htmlSafe
+        @for String
+        @return {Handlebars.SafeString} a string that will not be html escaped by Handlebars
+      */
+      String.prototype.htmlSafe = function() {
+        return htmlSafe(this);
+      };
+    }
+
+    __exports__.SafeString = SafeString;
+    __exports__.htmlSafe = htmlSafe;
   });
 enifed("ember-metal-views",
   ["ember-metal-views/renderer","exports"],
@@ -14464,7 +14483,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.a32160f6
+      @version 1.10.0-beta.1+canary.683e4f75
     */
 
     if ('undefined' === typeof Ember) {
@@ -14491,10 +14510,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.a32160f6'
+      @default '1.10.0-beta.1+canary.683e4f75'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.a32160f6';
+    Ember.VERSION = '1.10.0-beta.1+canary.683e4f75';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -39700,7 +39719,7 @@ enifed("ember-views/mixins/text_support",
     "use strict";
     /**
     @module ember
-    @submodule ember-handlebars
+    @submodule ember-views
     */
 
     var get = __dependency1__.get;
@@ -41329,7 +41348,7 @@ enifed("ember-views/views/checkbox",
 
     /**
     @module ember
-    @submodule ember-handlebars
+    @submodule ember-views
     */
 
     /**
@@ -41957,7 +41976,13 @@ enifed("ember-views/views/component",
       },
 
       defaultLayout: function(context, options){
-        Ember.Handlebars.helpers['yield'].call(context, options);
+        if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+          // ES6TODO: must use global here, to prevent circular require issue
+          // remove and replace with standard import once we have lazy binding
+          Ember.HTMLBars.helpers.yield.call(context, [], {}, options, { data: { view: context }});
+        } else {
+          Ember.Handlebars.helpers['yield'].call(context, options);
+        }
       },
 
       /**
@@ -42814,15 +42839,15 @@ enifed("ember-views/views/each",
     });
   });
 enifed("ember-views/views/handlebars_bound_view",
-  ["ember-handlebars-compiler","ember-metal/core","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/merge","ember-metal/run_loop","ember-handlebars/string","ember-views/views/states","ember-views/views/metamorph_view","ember-metal/utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
+  ["ember-handlebars-compiler","ember-metal/core","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/merge","ember-metal/run_loop","ember-handlebars/string","ember-htmlbars/utils/string","ember-views/views/states","ember-views/views/metamorph_view","ember-metal/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __exports__) {
     "use strict";
     /*jshint newcap:false*/
 
 
     /**
     @module ember
-    @submodule ember-handlebars
+    @submodule ember-views
     */
 
     var EmberHandlebars = __dependency1__["default"];
@@ -42838,12 +42863,24 @@ enifed("ember-views/views/handlebars_bound_view",
     var set = __dependency5__.set;
     var merge = __dependency6__["default"];
     var run = __dependency7__["default"];
-    var htmlSafe = __dependency8__["default"];
-    var cloneStates = __dependency9__.cloneStates;
-    var viewStates = __dependency9__.states;
+    var handlebarsHtmlSafe = __dependency8__["default"];
+    var htmlbarsSafeString = __dependency9__.SafeString;
+    var htmlbarsHtmlSafe = __dependency9__.htmlSafe;
+    var cloneStates = __dependency10__.cloneStates;
+    var viewStates = __dependency10__.states;
 
-    var _MetamorphView = __dependency10__["default"];
-    var uuid = __dependency11__.uuid;
+    var _MetamorphView = __dependency11__["default"];
+    var uuid = __dependency12__.uuid;
+
+    var SafeString, htmlSafe;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      SafeString = htmlbarsSafeString;
+      htmlSafe = htmlbarsHtmlSafe;
+    } else {
+      SafeString = EmberHandlebars.SafeString;
+      htmlSafe = handlebarsHtmlSafe;
+    }
+
 
     function SimpleHandlebarsView(lazyValue, isEscaped) {
       this.lazyValue = lazyValue;
@@ -42882,7 +42919,7 @@ enifed("ember-views/views/handlebars_bound_view",
 
         if (result === null || result === undefined) {
           result = "";
-        } else if (!this.isEscaped && !(result instanceof EmberHandlebars.SafeString)) {
+        } else if (!this.isEscaped && !(result instanceof SafeString)) {
           result = htmlSafe(result);
         }
 
@@ -42913,7 +42950,7 @@ enifed("ember-views/views/handlebars_bound_view",
       update: function () {
         this.updateId = null;
         var value = this.normalizedValue();
-        // doesn't diff EmberHandlebars.SafeString instances
+        // doesn't diff SafeString instances
         if (value !== this._lastNormalizedValue) {
           this._lastNormalizedValue = value;
           this._morph.update(value);
@@ -43077,7 +43114,7 @@ enifed("ember-views/views/handlebars_bound_view",
             // expression to the render context and return.
               if (result === null || result === undefined) {
                 result = "";
-              } else if (!(result instanceof EmberHandlebars.SafeString)) {
+              } else if (!(result instanceof SafeString)) {
                 result = String(result);
               }
 
@@ -43119,7 +43156,7 @@ enifed("ember-views/views/metamorph_view",
 
     /**
     @module ember
-    @submodule ember-handlebars
+    @submodule ember-views
     */
 
     // The `morph` and `outerHTML` properties are internal only
@@ -43474,7 +43511,7 @@ enifed("ember-views/views/text_area",
 
     /**
     @module ember
-    @submodule ember-handlebars
+    @submodule ember-views
     */
     var get = __dependency1__.get;
     var Component = __dependency2__["default"];
@@ -43538,7 +43575,7 @@ enifed("ember-views/views/text_field",
     "use strict";
     /**
     @module ember
-    @submodule ember-handlebars
+    @submodule ember-views
     */
     var Component = __dependency1__["default"];
     var TextSupport = __dependency2__["default"];
@@ -51540,6 +51577,28 @@ enifed("htmlbars-test-helpers",
     }
 
     __exports__.isCheckedInputHTML = isCheckedInputHTML;
+  });
+enifed("htmlbars-util",
+  ["./htmlbars-util/safe-string","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    var SafeString = __dependency1__["default"];
+
+    __exports__.SafeString = SafeString;
+  });
+enifed("htmlbars-util/safe-string",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    function SafeString(string) {
+      this.string = string;
+    }
+
+    SafeString.prototype.toString = function() {
+      return "" + this.string;
+    };
+
+    __exports__["default"] = SafeString;
   });
 enifed("morph",
   ["./morph/morph","./morph/dom-helper","exports"],
