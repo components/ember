@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.eed02ec6
+ * @version   1.10.0-beta.1+canary.0ff9abf8
  */
 
 (function() {
@@ -14669,7 +14669,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.eed02ec6
+      @version 1.10.0-beta.1+canary.0ff9abf8
     */
 
     if ('undefined' === typeof Ember) {
@@ -14696,10 +14696,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.eed02ec6'
+      @default '1.10.0-beta.1+canary.0ff9abf8'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.eed02ec6';
+    Ember.VERSION = '1.10.0-beta.1+canary.0ff9abf8';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -22416,8 +22416,8 @@ enifed("ember-routing-handlebars/helpers/render",
     __exports__.renderHelper = renderHelper;
   });
 enifed("ember-routing-htmlbars",
-  ["ember-metal/core","ember-htmlbars/helpers","ember-routing-htmlbars/helpers/outlet","ember-routing-htmlbars/helpers/link-to","ember-routing-htmlbars/helpers/action","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
+  ["ember-metal/core","ember-htmlbars/helpers","ember-routing-htmlbars/helpers/outlet","ember-routing-htmlbars/helpers/link-to","ember-routing-htmlbars/helpers/action","ember-routing-htmlbars/helpers/query-params","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     /**
     Ember Routing HTMLBars Helpers
@@ -22435,11 +22435,13 @@ enifed("ember-routing-htmlbars",
     var linkToHelper = __dependency4__.linkToHelper;
     var deprecatedLinkToHelper = __dependency4__.deprecatedLinkToHelper;
     var actionHelper = __dependency5__.actionHelper;
+    var queryParamsHelper = __dependency6__.queryParamsHelper;
 
     registerHelper('outlet', outletHelper);
     registerHelper('link-to', linkToHelper);
     registerHelper('linkTo', deprecatedLinkToHelper);
     registerHelper('action', actionHelper);
+    registerHelper('query-params', queryParamsHelper);
 
     __exports__["default"] = Ember;
   });
@@ -23238,6 +23240,41 @@ enifed("ember-routing-htmlbars/helpers/outlet",
     }
 
     __exports__.outletHelper = outletHelper;
+  });
+enifed("ember-routing-htmlbars/helpers/query-params",
+  ["ember-metal/core","ember-routing/system/query_params","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-routing-htmlbars
+    */
+
+    var Ember = __dependency1__["default"];
+    // assert
+    var QueryParams = __dependency2__["default"];
+
+    /**
+      This is a sub-expression to be used in conjunction with the link-to helper.
+      It will supply url query parameters to the target route.
+
+      Example
+
+      {#link-to 'posts' (query-params direction="asc")}}Sort{{/link-to}}
+
+      @method query-params
+      @for Ember.Handlebars.helpers
+      @param {Object} hash takes a hash of query parameters
+      @return {String} HTML string
+    */
+    function queryParamsHelper(params, hash) {
+      
+      return QueryParams.create({
+        values: hash
+      });
+    }
+
+    __exports__.queryParamsHelper = queryParamsHelper;
   });
 enifed("ember-routing-views",
   ["ember-metal/core","ember-routing-views/views/link","ember-routing-views/views/outlet","exports"],
