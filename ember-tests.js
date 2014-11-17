@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.a5c93ca3
+ * @version   1.10.0-beta.1+canary.13625f92
  */
 
 (function() {
@@ -45840,8 +45840,8 @@ enifed("ember-testing/test.jshint",
     });
   });
 enifed("ember-testing/tests/acceptance_test",
-  ["ember-metal/run_loop","ember-views/system/jquery","ember-testing/test","ember-testing/adapters/qunit","ember-views/views/view","ember-testing/initializers","ember-application/system/application","ember-routing/system/route","ember-handlebars","ember-routing"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
+  ["ember-metal/run_loop","ember-views/system/jquery","ember-testing/test","ember-testing/adapters/qunit","ember-views/views/view","ember-testing/initializers","ember-application/system/application","ember-routing/system/route","ember-handlebars","ember-htmlbars/system/compile","ember-routing"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__) {
     "use strict";
     var run = __dependency1__["default"];
     var jQuery = __dependency2__["default"];
@@ -45852,9 +45852,17 @@ enifed("ember-testing/tests/acceptance_test",
     var EmberApplication = __dependency7__["default"];
     var EmberRoute = __dependency8__["default"];
     var EmberHandlebars = __dependency9__["default"];
+    var htmlbarsCompile = __dependency10__["default"];
 
     //ES6TODO: we need {{link-to}}  and {{outlet}} to exist here
     //ES6TODO: fixme?
+
+    var compile;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      compile = htmlbarsCompile;
+    } else {
+      compile = EmberHandlebars.compile;
+    }
 
     var App, find, click, fillIn, currentRoute, visit, originalAdapter, andThen, indexHitCount;
 
@@ -45890,7 +45898,7 @@ enifed("ember-testing/tests/acceptance_test",
           });
 
           App.PostsView = EmberView.extend({
-            defaultTemplate: EmberHandlebars.compile("<a class=\"dummy-link\"></a><div id=\"comments-link\">{{#link-to 'comments'}}Comments{{/link-to}}</div>"),
+            defaultTemplate: compile("<a class=\"dummy-link\"></a><div id=\"comments-link\">{{#link-to 'comments'}}Comments{{/link-to}}</div>"),
             classNames: ['posts-view']
           });
 
@@ -45902,7 +45910,7 @@ enifed("ember-testing/tests/acceptance_test",
           });
 
           App.CommentsView = EmberView.extend({
-            defaultTemplate: EmberHandlebars.compile('{{input type="text"}}')
+            defaultTemplate: compile('{{input type="text"}}')
           });
 
           App.AbortTransitionRoute = EmberRoute.extend({
@@ -46423,8 +46431,8 @@ enifed("ember-testing/tests/helper_registration_test.jshint",
     });
   });
 enifed("ember-testing/tests/helpers_test",
-  ["ember-metal/core","ember-metal/run_loop","ember-runtime/system/object","ember-runtime/ext/rsvp","ember-views/views/view","ember-views/system/jquery","ember-testing/test","ember-testing/helpers","ember-testing/initializers","ember-testing/setup_for_testing","ember-routing/system/router","ember-routing/system/route","ember-application/system/application"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__) {
+  ["ember-metal/core","ember-metal/run_loop","ember-runtime/system/object","ember-runtime/ext/rsvp","ember-views/views/view","ember-views/system/jquery","ember-testing/test","ember-testing/helpers","ember-testing/initializers","ember-testing/setup_for_testing","ember-routing/system/router","ember-routing/system/route","ember-application/system/application","ember-handlebars","ember-htmlbars/system/compile"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var run = __dependency2__["default"];
@@ -46440,8 +46448,17 @@ enifed("ember-testing/tests/helpers_test",
     var EmberRouter = __dependency11__["default"];
     var EmberRoute = __dependency12__["default"];
     var EmberApplication = __dependency13__["default"];
+    var EmberHandlebars = __dependency14__["default"];
+    var htmlbarsCompile = __dependency15__["default"];
 
     var App, originalAdapter = Test.adapter;
+
+    var compile;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      compile = htmlbarsCompile;
+    } else {
+      compile = EmberHandlebars.compile;
+    }
 
     function cleanup(){
       // Teardown setupForTesting
@@ -46636,7 +46653,7 @@ enifed("ember-testing/tests/helpers_test",
         })
       });
 
-      Ember.TEMPLATES.index = Ember.Handlebars.compile('{{input type="text"}} {{view view.Checkbox}} {{textarea}}');
+      Ember.TEMPLATES.index = compile('{{input type="text"}} {{view view.Checkbox}} {{textarea}}');
 
       App.injectTestHelpers();
 
@@ -47011,7 +47028,7 @@ enifed("ember-testing/tests/helpers_test",
       });
 
       App.IndexView = EmberView.extend({
-        template: Ember.Handlebars.compile('{{input type="text" id="outside-scope" class="input"}}<div id="limited">{{input type="text" id="inside-scope" class="input"}}</div>'),
+        template: compile('{{input type="text" id="outside-scope" class="input"}}<div id="limited">{{input type="text" id="inside-scope" class="input"}}</div>'),
 
         didInsertElement: function() {
           this.$('.input').on('blur change', function(e) {
@@ -47048,7 +47065,7 @@ enifed("ember-testing/tests/helpers_test",
       });
 
       App.IndexView = EmberView.extend({
-        template: Ember.Handlebars.compile('{{input type="text" id="scope" class="input"}}'),
+        template: compile('{{input type="text" id="scope" class="input"}}'),
 
         didInsertElement: function() {
           this.$('.input').on('blur change', function(e) {
@@ -47084,7 +47101,7 @@ enifed("ember-testing/tests/helpers_test",
       });
 
       App.IndexView = EmberView.extend({
-        template: Ember.Handlebars.compile('{{input type="text" id="outside-scope" class="input"}}<div id="limited">{{input type="text" id="inside-scope" class="input"}}</div>'),
+        template: compile('{{input type="text" id="outside-scope" class="input"}}<div id="limited">{{input type="text" id="inside-scope" class="input"}}</div>'),
 
         didInsertElement: function() {
           this.$('.input').on('blur change', function(e) {
@@ -47119,7 +47136,7 @@ enifed("ember-testing/tests/helpers_test",
       });
 
       App.IndexView = EmberView.extend({
-        template: Ember.Handlebars.compile('{{input type="text" id="foo"}}'),
+        template: compile('{{input type="text" id="foo"}}'),
 
         didInsertElement: function() {
           this.$('#foo').on('blur change', function(e) {
@@ -47154,7 +47171,7 @@ enifed("ember-testing/tests/helpers_test",
       });
 
       App.IndexView = EmberView.extend({
-        template: Ember.Handlebars.compile('<div id="parent">{{input type="text" id="first" class="current"}}</div>{{input type="text" id="second" class="current"}}')
+        template: compile('<div id="parent">{{input type="text" id="first" class="current"}}</div>{{input type="text" id="second" class="current"}}')
       });
 
       App.injectTestHelpers();
@@ -47325,8 +47342,8 @@ enifed("ember-testing/tests/helpers_test.jshint",
     });
   });
 enifed("ember-testing/tests/integration_test",
-  ["ember-metal/core","ember-metal/run_loop","ember-runtime/system/object","ember-runtime/controllers/array_controller","ember-views/system/jquery","ember-views/views/view","ember-testing/test","ember-routing/system/route","ember-application/system/application","ember-handlebars","ember-application"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__) {
+  ["ember-metal/core","ember-metal/run_loop","ember-runtime/system/object","ember-runtime/controllers/array_controller","ember-views/system/jquery","ember-views/views/view","ember-testing/test","ember-routing/system/route","ember-application/system/application","ember-handlebars","ember-htmlbars/system/compile","ember-application"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var run = __dependency2__["default"];
@@ -47338,7 +47355,15 @@ enifed("ember-testing/tests/integration_test",
     var EmberRoute = __dependency8__["default"];
     var EmberApplication = __dependency9__["default"];
     var EmberHandlebars = __dependency10__["default"];
+    var htmlbarsCompile = __dependency11__["default"];
 
+
+    var compile;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      compile = htmlbarsCompile;
+    } else {
+      compile = EmberHandlebars.compile;
+    }
 
     var App, find, visit, originalAdapter = Test.adapter;
 
@@ -47361,7 +47386,7 @@ enifed("ember-testing/tests/integration_test",
           });
 
           App.PeopleView = EmberView.extend({
-            defaultTemplate: EmberHandlebars.compile("{{#each person in controller}}<div class=\"name\">{{person.firstName}}</div>{{/each}}")
+            defaultTemplate: compile("{{#each person in controller}}<div class=\"name\">{{person.firstName}}</div>{{/each}}")
           });
 
           App.PeopleController = ArrayController.extend({});
@@ -47377,7 +47402,7 @@ enifed("ember-testing/tests/integration_test",
           });
 
           App.ApplicationView = EmberView.extend({
-            defaultTemplate: EmberHandlebars.compile("{{outlet}}")
+            defaultTemplate: compile("{{outlet}}")
           });
 
           App.setupForTesting();
