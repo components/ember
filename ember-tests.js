@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.2f20214e
+ * @version   1.10.0-beta.1+canary.80e56073
  */
 
 (function() {
@@ -1011,8 +1011,8 @@ enifed("ember-application/system/resolver.jshint",
     });
   });
 enifed("ember-application/tests/system/application_test",
-  ["ember-metal/core","ember-metal/run_loop","ember-application/system/application","ember-application/system/resolver","ember-routing/system/router","ember-views/views/view","ember-runtime/controllers/controller","ember-routing/location/none_location","ember-handlebars","ember-runtime/system/object","ember-views/system/jquery"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__) {
+  ["ember-metal/core","ember-metal/run_loop","ember-application/system/application","ember-application/system/resolver","ember-routing/system/router","ember-views/views/view","ember-runtime/controllers/controller","ember-routing/location/none_location","ember-handlebars","ember-runtime/system/object","ember-views/system/jquery","ember-htmlbars/system/compile"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__) {
     "use strict";
     /*globals EmberDev */
 
@@ -1027,10 +1027,19 @@ enifed("ember-application/tests/system/application_test",
     var EmberHandlebars = __dependency9__["default"];
     var EmberObject = __dependency10__["default"];
     var jQuery = __dependency11__["default"];
+    var htmlbarsCompile = __dependency12__["default"];
 
     var trim = jQuery.trim;
 
     var app, application, originalLookup, originalDebug;
+
+    var compile;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      compile = htmlbarsCompile;
+    } else {
+      compile = EmberHandlebars.compile;
+    }
+
 
     QUnit.module("Ember.Application", {
       setup: function() {
@@ -1133,10 +1142,10 @@ enifed("ember-application/tests/system/application_test",
         });
 
         app.register('template:application',
-          EmberHandlebars.compile("{{outlet}}")
+          compile("{{outlet}}")
         );
 
-        Ember.TEMPLATES.index = EmberHandlebars.compile(
+        Ember.TEMPLATES.index = compile(
           "<h1>Hi from index</h1>"
         );
       });
@@ -1546,8 +1555,8 @@ enifed("ember-application/tests/system/dependency_injection/custom_resolver_test
     });
   });
 enifed("ember-application/tests/system/dependency_injection/default_resolver_test",
-  ["ember-metal/core","ember-metal/run_loop","ember-metal/logger","ember-runtime/controllers/controller","ember-runtime/system/object","ember-handlebars","ember-runtime/system/namespace","ember-application/system/application"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
+  ["ember-metal/core","ember-metal/run_loop","ember-metal/logger","ember-runtime/controllers/controller","ember-runtime/system/object","ember-handlebars","ember-runtime/system/namespace","ember-application/system/application","ember-htmlbars/system/compile","ember-htmlbars/helpers"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.TEMPLATES
@@ -1558,6 +1567,19 @@ enifed("ember-application/tests/system/dependency_injection/default_resolver_tes
     var EmberHandlebars = __dependency6__["default"];
     var Namespace = __dependency7__["default"];
     var Application = __dependency8__["default"];
+    var htmlbarsCompile = __dependency9__["default"];
+    var htmlbarsRegisterHelper = __dependency10__.registerHelper;
+
+    var compile, registerHelper;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      registerHelper  = htmlbarsRegisterHelper;
+      compile = htmlbarsCompile;
+    } else {
+      compile = EmberHandlebars.compile;
+      registerHelper = function(name, fn) {
+        EmberHandlebars.registerHelper(name, fn);
+      };
+    }
 
     var locator, application, originalLookup, originalLoggerInfo;
 
@@ -1624,11 +1646,11 @@ enifed("ember-application/tests/system/dependency_injection/default_resolver_tes
       detectEqual(application.Post, locator.lookupFactory('model:post'), "looks up Post model on application");
     });
 
-    test("the default resolver resolves helpers from EmberHandlebars.helpers", function(){
+    test("the default resolver resolves helpers", function(){
       function fooresolvertestHelper(){ return 'FOO'; }
       function barBazResolverTestHelper(){ return 'BAZ'; }
-      EmberHandlebars.registerHelper('fooresolvertest', fooresolvertestHelper);
-      EmberHandlebars.registerHelper('bar-baz-resolver-test', barBazResolverTestHelper);
+      registerHelper('fooresolvertest', fooresolvertestHelper);
+      registerHelper('bar-baz-resolver-test', barBazResolverTestHelper);
       equal(fooresolvertestHelper, locator.lookup('helper:fooresolvertest'), "looks up fooresolvertestHelper helper");
       equal(barBazResolverTestHelper, locator.lookup('helper:bar-baz-resolver-test'), "looks up barBazResolverTestHelper helper");
     });

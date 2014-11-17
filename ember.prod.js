@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.2f20214e
+ * @version   1.10.0-beta.1+canary.80e56073
  */
 
 (function() {
@@ -3431,8 +3431,8 @@ enifed("ember-application/system/application",
     __exports__["default"] = Application;
   });
 enifed("ember-application/system/resolver",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/logger","ember-runtime/system/string","ember-runtime/system/object","ember-runtime/system/namespace","ember-handlebars","ember-metal/dictionary","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/logger","ember-runtime/system/string","ember-runtime/system/object","ember-runtime/system/namespace","ember-handlebars","ember-htmlbars/helpers","ember-metal/dictionary","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -3449,6 +3449,14 @@ enifed("ember-application/system/resolver",
     var EmberObject = __dependency5__["default"];
     var Namespace = __dependency6__["default"];
     var EmberHandlebars = __dependency7__["default"];
+    var htmlbarsHelpers = __dependency8__["default"];
+
+    var helpers;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      helpers = htmlbarsHelpers;
+    } else {
+      helpers = EmberHandlebars.helpers;
+    }
 
     var Resolver = EmberObject.extend({
       /**
@@ -3537,7 +3545,7 @@ enifed("ember-application/system/resolver",
       @namespace Ember
       @extends Ember.Object
     */
-    var dictionary = __dependency8__["default"];
+    var dictionary = __dependency9__["default"];
 
     __exports__["default"] = EmberObject.extend({
       /**
@@ -3779,7 +3787,7 @@ enifed("ember-application/system/resolver",
         @method resolveHelper
       */
       resolveHelper: function(parsedName) {
-        return this.resolveOther(parsedName) || EmberHandlebars.helpers[parsedName.fullNameWithoutType];
+        return this.resolveOther(parsedName) || helpers[parsedName.fullNameWithoutType];
       },
       /**
         Look up the specified object (from parsedName) on the appropriate
@@ -14088,7 +14096,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.2f20214e
+      @version 1.10.0-beta.1+canary.80e56073
     */
 
     if ('undefined' === typeof Ember) {
@@ -14115,10 +14123,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.2f20214e'
+      @default '1.10.0-beta.1+canary.80e56073'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.2f20214e';
+    Ember.VERSION = '1.10.0-beta.1+canary.80e56073';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -44764,8 +44772,8 @@ enifed("ember-views/views/with_view",
     });
   });
 enifed("ember",
-  ["ember-metal","ember-runtime","ember-handlebars","ember-views","ember-routing","ember-routing-handlebars","ember-application","ember-extension-support","ember-htmlbars"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
+  ["ember-metal","ember-runtime","ember-handlebars","ember-views","ember-routing","ember-routing-handlebars","ember-application","ember-extension-support","ember-htmlbars","ember-routing-htmlbars"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
     "use strict";
     /* global navigator */
     // require the main entry points for each of these packages
