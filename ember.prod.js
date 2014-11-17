@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.80e56073
+ * @version   1.10.0-beta.1+canary.f9048493
  */
 
 (function() {
@@ -8697,8 +8697,8 @@ enifed("ember-handlebars/string",
     __exports__["default"] = htmlSafe;
   });
 enifed("ember-htmlbars",
-  ["ember-metal/core","ember-htmlbars/hooks","morph","ember-htmlbars/system/template","ember-htmlbars/system/compile","ember-htmlbars/helpers","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/bind-attr","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/partial","ember-htmlbars/helpers/template","ember-htmlbars/helpers/input","ember-htmlbars/helpers/text_area","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __exports__) {
+  ["ember-metal/core","ember-htmlbars/hooks","morph","ember-htmlbars/system/template","ember-htmlbars/system/compile","ember-htmlbars/helpers","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/bind-attr","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/partial","ember-htmlbars/helpers/template","ember-htmlbars/helpers/input","ember-htmlbars/helpers/text_area","ember-htmlbars/helpers/collection","ember-htmlbars/helpers/each","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var content = __dependency2__.content;
@@ -8728,6 +8728,8 @@ enifed("ember-htmlbars",
     var templateHelper = __dependency17__.templateHelper;
     var inputHelper = __dependency18__.inputHelper;
     var textareaHelper = __dependency19__.textareaHelper;
+    var collectionHelper = __dependency20__.collectionHelper;
+    var eachHelper = __dependency21__.eachHelper;
 
     registerHelper('bindHelper', bindHelper);
     registerHelper('bind', bindHelper);
@@ -8747,6 +8749,8 @@ enifed("ember-htmlbars",
     registerHelper('bindAttr', bindAttrHelperDeprecated);
     registerHelper('input', inputHelper);
     registerHelper('textarea', textareaHelper);
+    registerHelper('collection', collectionHelper);
+    registerHelper('each', eachHelper);
 
     if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
       Ember.HTMLBars = {
@@ -9289,6 +9293,276 @@ enifed("ember-htmlbars/helpers/binding",
     __exports__.simpleBind = simpleBind;
     __exports__.bindHelper = bindHelper;
   });
+enifed("ember-htmlbars/helpers/collection",
+  ["ember-metal/core","ember-handlebars-compiler","ember-metal/mixin","ember-runtime/system/string","ember-metal/property_get","ember-metal/streams/simple","ember-handlebars/helpers/view","ember-metal/alias","ember-views/views/view","ember-views/views/collection_view","ember-htmlbars/helpers/view","ember-views/streams/read","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-handlebars
+    */
+
+    var Ember = __dependency1__["default"];
+    // Ember.assert, Ember.deprecate
+    var EmberHandlebars = __dependency2__["default"];
+
+    var IS_BINDING = __dependency3__.IS_BINDING;
+    var fmt = __dependency4__.fmt;
+    var get = __dependency5__.get;
+    var SimpleStream = __dependency6__["default"];
+    var ViewHelper = __dependency7__.ViewHelper;
+    var alias = __dependency8__["default"];
+    var View = __dependency9__["default"];
+    var CollectionView = __dependency10__["default"];
+    var viewHelper = __dependency11__.viewHelper;
+    var readViewFactory = __dependency12__.readViewFactory;
+
+    /**
+      `{{collection}}` is a `Ember.Handlebars` helper for adding instances of
+      `Ember.CollectionView` to a template. See [Ember.CollectionView](/api/classes/Ember.CollectionView.html)
+       for additional information on how a `CollectionView` functions.
+
+      `{{collection}}`'s primary use is as a block helper with a `contentBinding`
+      option pointing towards an `Ember.Array`-compatible object. An `Ember.View`
+      instance will be created for each item in its `content` property. Each view
+      will have its own `content` property set to the appropriate item in the
+      collection.
+
+      The provided block will be applied as the template for each item's view.
+
+      Given an empty `<body>` the following template:
+
+      ```handlebars
+      {{! application.hbs }}
+      {{#collection content=model}}
+        Hi {{view.content.name}}
+      {{/collection}}
+      ```
+
+      And the following application code
+
+      ```javascript
+      App = Ember.Application.create();
+      App.ApplicationRoute = Ember.Route.extend({
+        model: function(){
+          return [{name: 'Yehuda'},{name: 'Tom'},{name: 'Peter'}];
+        }
+      });
+      ```
+
+      The following HTML will result:
+
+      ```html
+      <div class="ember-view">
+        <div class="ember-view">Hi Yehuda</div>
+        <div class="ember-view">Hi Tom</div>
+        <div class="ember-view">Hi Peter</div>
+      </div>
+      ```
+
+      ### Non-block version of collection
+
+      If you provide an `itemViewClass` option that has its own `template` you may
+      omit the block.
+
+      The following template:
+
+      ```handlebars
+      {{! application.hbs }}
+      {{collection content=model itemViewClass="an-item"}}
+      ```
+
+      And application code
+
+      ```javascript
+      App = Ember.Application.create();
+      App.ApplicationRoute = Ember.Route.extend({
+        model: function(){
+          return [{name: 'Yehuda'},{name: 'Tom'},{name: 'Peter'}];
+        }
+      });
+
+      App.AnItemView = Ember.View.extend({
+        template: Ember.Handlebars.compile("Greetings {{view.content.name}}")
+      });
+      ```
+
+      Will result in the HTML structure below
+
+      ```html
+      <div class="ember-view">
+        <div class="ember-view">Greetings Yehuda</div>
+        <div class="ember-view">Greetings Tom</div>
+        <div class="ember-view">Greetings Peter</div>
+      </div>
+      ```
+
+      ### Specifying a CollectionView subclass
+
+      By default the `{{collection}}` helper will create an instance of
+      `Ember.CollectionView`. You can supply a `Ember.CollectionView` subclass to
+      the helper by passing it as the first argument:
+
+      ```handlebars
+      {{#collection "my-custom-collection" content=model}}
+        Hi {{view.content.name}}
+      {{/collection}}
+      ```
+
+      This example would look for the class `App.MyCustomCollection`.
+
+      ### Forwarded `item.*`-named Options
+
+      As with the `{{view}}`, helper options passed to the `{{collection}}` will be
+      set on the resulting `Ember.CollectionView` as properties. Additionally,
+      options prefixed with `item` will be applied to the views rendered for each
+      item (note the camelcasing):
+
+      ```handlebars
+      {{#collection content=model
+                    itemTagName="p"
+                    itemClassNames="greeting"}}
+        Howdy {{view.content.name}}
+      {{/collection}}
+      ```
+
+      Will result in the following HTML structure:
+
+      ```html
+      <div class="ember-view">
+        <p class="ember-view greeting">Howdy Yehuda</p>
+        <p class="ember-view greeting">Howdy Tom</p>
+        <p class="ember-view greeting">Howdy Peter</p>
+      </div>
+      ```
+
+      @method collection
+      @for Ember.Handlebars.helpers
+      @param {String} path
+      @param {Hash} options
+      @return {String} HTML string
+      @deprecated Use `{{each}}` helper instead.
+    */
+    function collectionHelper(params, hash, options, env) {
+      var path = params[0];
+
+      
+      
+      var fn        = options.render,
+          data      = env.data,
+          inverse   = options.inverse,
+          view      = data.view,
+          // This should be deterministic, and should probably come from a
+          // parent view and not the controller.
+          container = (view.controller && view.controller.container ? view.controller.container : view.container);
+
+      // If passed a path string, convert that into an object.
+      // Otherwise, just default to the standard class.
+      var collectionClass;
+      if (path) {
+        collectionClass = readViewFactory(path, container);
+              }
+      else {
+        collectionClass = CollectionView;
+      }
+
+      var hashTypes = options.hashTypes;
+      var itemHash = {};
+      var match;
+
+      // Extract item view class if provided else default to the standard class
+      var collectionPrototype = collectionClass.proto();
+      var itemViewClass;
+
+      if (hash.itemView) {
+        itemViewClass = readViewFactory(hash.itemView, container);
+      } else if (hash.itemViewClass) {
+        itemViewClass = readViewFactory(hash.itemViewClass, container);
+      } else {
+        itemViewClass = collectionPrototype.itemViewClass;
+      }
+
+      if (typeof itemViewClass === 'string') {
+        itemViewClass = container.lookupFactory('view:'+itemViewClass);
+      }
+
+      
+      delete hash.itemViewClass;
+      delete hash.itemView;
+      delete hashTypes.itemViewClass;
+      delete hashTypes.itemView;
+
+      // Go through options passed to the {{collection}} helper and extract options
+      // that configure item views instead of the collection itself.
+      for (var prop in hash) {
+        if (prop === 'itemController' || prop === 'itemClassBinding') {
+          continue;
+        }
+        if (hash.hasOwnProperty(prop)) {
+          match = prop.match(/^item(.)(.*)$/);
+          if (match) {
+            var childProp = match[1].toLowerCase() + match[2];
+
+            if (IS_BINDING.test(prop)) {
+              itemHash[childProp] = view._getBindingForStream(hash[prop]);
+            } else {
+              itemHash[childProp] = hash[prop];
+            }
+            delete hash[prop];
+          }
+        }
+      }
+
+      if (fn) {
+        itemHash.template = fn;
+        delete options.render;
+      }
+
+      var emptyViewClass;
+      if (inverse && inverse !== EmberHandlebars.VM.noop) {
+        emptyViewClass = get(collectionPrototype, 'emptyViewClass');
+        emptyViewClass = emptyViewClass.extend({
+              template: inverse,
+              tagName: itemHash.tagName
+        });
+      } else if (hash.emptyViewClass) {
+        emptyViewClass = readViewFactory(hash.emptyViewClass, container);
+      }
+      if (emptyViewClass) { hash.emptyView = emptyViewClass; }
+
+      if (hash.keyword) {
+        itemHash._context = alias('_parentView.context');
+      } else {
+        itemHash._context = alias('content');
+      }
+
+      var viewOptions = ViewHelper.propertiesFromHTMLOptions({ data: data, hash: itemHash }, this);
+
+      if (hash.itemClassBinding) {
+        var itemClassBindings = hash.itemClassBinding.split(' ');
+
+        for (var i = 0; i < itemClassBindings.length; i++) {
+          var parsedPath = View._parsePropertyPath(itemClassBindings[i]);
+          if (parsedPath.path === '') {
+            parsedPath.stream = new SimpleStream(true);
+          } else {
+            parsedPath.stream = view.getStream(parsedPath.path);
+          }
+          itemClassBindings[i] = parsedPath;
+        }
+
+        viewOptions.classNameBindings = itemClassBindings;
+      }
+
+      hash.itemViewClass = itemViewClass.extend(viewOptions);
+
+      options.helperName = options.helperName || 'collection';
+
+      return viewHelper.call(this, [collectionClass], hash, options, env);
+    }
+
+    __exports__.collectionHelper = collectionHelper;
+  });
 enifed("ember-htmlbars/helpers/debugger",
   ["ember-metal/logger","exports"],
   function(__dependency1__, __exports__) {
@@ -9346,6 +9620,300 @@ enifed("ember-htmlbars/helpers/debugger",
     }
 
     __exports__.debuggerHelper = debuggerHelper;
+  });
+enifed("ember-htmlbars/helpers/each",
+  ["ember-metal/core","ember-runtime/system/string","ember-metal/property_get","ember-metal/property_set","ember-views/views/collection_view","ember-metal/binding","ember-runtime/mixins/controller","ember-runtime/controllers/array_controller","ember-runtime/mixins/array","ember-htmlbars/helpers/collection","ember-metal/observer","ember-views/views/metamorph_view","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __exports__) {
+    "use strict";
+
+    /**
+    @module ember
+    @submodule ember-handlebars
+    */
+    var Ember = __dependency1__["default"];
+    // Ember.assert;
+
+
+    var fmt = __dependency2__.fmt;
+    var get = __dependency3__.get;
+    var set = __dependency4__.set;
+    var CollectionView = __dependency5__["default"];
+    var Binding = __dependency6__.Binding;
+    var ControllerMixin = __dependency7__["default"];
+    var ArrayController = __dependency8__["default"];
+    var EmberArray = __dependency9__["default"];
+    var collectionHelper = __dependency10__.collectionHelper;
+
+    var addObserver = __dependency11__.addObserver;
+    var removeObserver = __dependency11__.removeObserver;
+    var addBeforeObserver = __dependency11__.addBeforeObserver;
+    var removeBeforeObserver = __dependency11__.removeBeforeObserver;
+
+    var _MetamorphView = __dependency12__["default"];
+    var _Metamorph = __dependency12__._Metamorph;
+
+    var EachView = CollectionView.extend(_Metamorph, {
+
+      init: function() {
+        var itemController = get(this, 'itemController');
+        var binding;
+
+        if (itemController) {
+          var controller = get(this, 'controller.container').lookupFactory('controller:array').create({
+            _isVirtual: true,
+            parentController: get(this, 'controller'),
+            itemController: itemController,
+            target: get(this, 'controller'),
+            _eachView: this
+          });
+
+          this.disableContentObservers(function() {
+            set(this, 'content', controller);
+            binding = new Binding('content', '_eachView.dataSource').oneWay();
+            binding.connect(controller);
+          });
+
+          set(this, '_arrayController', controller);
+        } else {
+          this.disableContentObservers(function() {
+            binding = new Binding('content', 'dataSource').oneWay();
+            binding.connect(this);
+          });
+        }
+
+        return this._super();
+      },
+
+      _assertArrayLike: function(content) {
+                      },
+
+      disableContentObservers: function(callback) {
+        removeBeforeObserver(this, 'content', null, '_contentWillChange');
+        removeObserver(this, 'content', null, '_contentDidChange');
+
+        callback.call(this);
+
+        addBeforeObserver(this, 'content', null, '_contentWillChange');
+        addObserver(this, 'content', null, '_contentDidChange');
+      },
+
+      itemViewClass: _MetamorphView,
+      emptyViewClass: _MetamorphView,
+
+      createChildView: function(view, attrs) {
+        view = this._super(view, attrs);
+
+        var content = get(view, 'content');
+        var keyword = get(this, 'keyword');
+
+        if (keyword) {
+          view._keywords[keyword] = content;
+        }
+
+        // If {{#each}} is looping over an array of controllers,
+        // point each child view at their respective controller.
+        if (content && content.isController) {
+          set(view, 'controller', content);
+        }
+
+        return view;
+      },
+
+      destroy: function() {
+        if (!this._super()) { return; }
+
+        var arrayController = get(this, '_arrayController');
+
+        if (arrayController) {
+          arrayController.destroy();
+        }
+
+        return this;
+      }
+    });
+
+    /**
+      The `{{#each}}` helper loops over elements in a collection. It is an extension
+      of the base Handlebars `{{#each}}` helper.
+
+      The default behavior of `{{#each}}` is to yield its inner block once for every
+      item in an array.
+
+      ```javascript
+      var developers = [{name: 'Yehuda'},{name: 'Tom'}, {name: 'Paul'}];
+      ```
+
+      ```handlebars
+      {{#each person in developers}}
+        {{person.name}}
+        {{! `this` is whatever it was outside the #each }}
+      {{/each}}
+      ```
+
+      The same rules apply to arrays of primitives, but the items may need to be
+      references with `{{this}}`.
+
+      ```javascript
+      var developerNames = ['Yehuda', 'Tom', 'Paul']
+      ```
+
+      ```handlebars
+      {{#each name in developerNames}}
+        {{name}}
+      {{/each}}
+      ```
+
+      ### {{else}} condition
+
+      `{{#each}}` can have a matching `{{else}}`. The contents of this block will render
+      if the collection is empty.
+
+      ```
+      {{#each person in developers}}
+        {{person.name}}
+      {{else}}
+        <p>Sorry, nobody is available for this task.</p>
+      {{/each}}
+      ```
+
+      ### Specifying an alternative view for each item
+
+      `itemViewClass` can control which view will be used during the render of each
+      item's template.
+
+      The following template:
+
+      ```handlebars
+      <ul>
+      {{#each developer in developers itemViewClass="person"}}
+        {{developer.name}}
+      {{/each}}
+      </ul>
+      ```
+
+      Will use the following view for each item
+
+      ```javascript
+      App.PersonView = Ember.View.extend({
+        tagName: 'li'
+      });
+      ```
+
+      Resulting in HTML output that looks like the following:
+
+      ```html
+      <ul>
+        <li class="ember-view">Yehuda</li>
+        <li class="ember-view">Tom</li>
+        <li class="ember-view">Paul</li>
+      </ul>
+      ```
+
+      `itemViewClass` also enables a non-block form of `{{each}}`. The view
+      must {{#crossLink "Ember.View/toc_templates"}}provide its own template{{/crossLink}},
+      and then the block should be dropped. An example that outputs the same HTML
+      as the previous one:
+
+      ```javascript
+      App.PersonView = Ember.View.extend({
+        tagName: 'li',
+        template: '{{developer.name}}'
+      });
+      ```
+
+      ```handlebars
+      <ul>
+        {{each developer in developers itemViewClass="person"}}
+      </ul>
+      ```
+
+      ### Specifying an alternative view for no items (else)
+
+      The `emptyViewClass` option provides the same flexibility to the `{{else}}`
+      case of the each helper.
+
+      ```javascript
+      App.NoPeopleView = Ember.View.extend({
+        tagName: 'li',
+        template: 'No person is available, sorry'
+      });
+      ```
+
+      ```handlebars
+      <ul>
+      {{#each developer in developers emptyViewClass="no-people"}}
+        <li>{{developer.name}}</li>
+      {{/each}}
+      </ul>
+      ```
+
+      ### Wrapping each item in a controller
+
+      Controllers in Ember manage state and decorate data. In many cases,
+      providing a controller for each item in a list can be useful.
+      Specifically, an {{#crossLink "Ember.ObjectController"}}Ember.ObjectController{{/crossLink}}
+      should probably be used. Item controllers are passed the item they
+      will present as a `model` property, and an object controller will
+      proxy property lookups to `model` for us.
+
+      This allows state and decoration to be added to the controller
+      while any other property lookups are delegated to the model. An example:
+
+      ```javascript
+      App.RecruitController = Ember.ObjectController.extend({
+        isAvailableForHire: function() {
+          return !this.get('isEmployed') && this.get('isSeekingWork');
+        }.property('isEmployed', 'isSeekingWork')
+      })
+      ```
+
+      ```handlebars
+      {{#each person in developers itemController="recruit"}}
+        {{person.name}} {{#if person.isAvailableForHire}}Hire me!{{/if}}
+      {{/each}}
+      ```
+
+      @method each
+      @for Ember.Handlebars.helpers
+      @param [name] {String} name for item (used with `in`)
+      @param [path] {String} path
+      @param [options] {Object} Handlebars key/value pairs of options
+      @param [options.itemViewClass] {String} a path to a view class used for each item
+      @param [options.emptyViewClass] {String} a path to a view class used for each item
+      @param [options.itemController] {String} name of a controller to be created for each item
+    */
+    function eachHelper(params, hash, options, env) {
+      var helperName = 'each';
+      var keywordName;
+      var path = params[0];
+
+      
+      if (options.types[0] === 'keyword') {
+        keywordName = path.to;
+
+        helperName += ' ' + keywordName + ' in ' + path.from;
+
+        hash.keyword = keywordName;
+
+        path = path.stream;
+      } else {
+        helperName += ' ' + path;
+      }
+
+      if (!path) {
+        path = env.data.view.getStream('');
+      }
+
+      
+      hash.emptyViewClass = Ember._MetamorphView;
+      hash.dataSourceBinding = path;
+      options.helperName = options.helperName || helperName;
+
+      return collectionHelper.call(this, [EachView], hash, options, env);
+    }
+
+    __exports__.EachView = EachView;
+    __exports__.eachHelper = eachHelper;
   });
 enifed("ember-htmlbars/helpers/if_unless",
   ["ember-metal/core","ember-htmlbars/helpers/binding","ember-metal/property_get","ember-metal/utils","exports"],
@@ -10715,6 +11283,13 @@ enifed("ember-htmlbars/hooks",
           stream: view.getStream(params[0])
         });
         options.types.splice(0, 3, 'keyword');
+      } else if (params.length === 3 && params[1] === "in") {
+        params.splice(0, 3, {
+          from: params[2],
+          to: params[0],
+          stream: view.getStream(params[2])
+        });
+        options.types.splice(0, 3, 'keyword');
       } else {
         // Convert ID params to streams
         for (var i = 0, l = params.length; i < l; i++) {
@@ -10822,19 +11397,19 @@ enifed("ember-htmlbars/system/lookup-helper",
       return key.indexOf('-') === -1;
     });
     __exports__.ISNT_HELPER_CACHE = ISNT_HELPER_CACHE;
-    function attribute(element, params, options, env) {
+    function attribute(params, hash, options, env) {
       var dom = env.dom;
       var name = params[0];
       var value = params[1];
 
       value.subscribe(function(lazyValue) {
-        dom.setAttribute(element, name, lazyValue.value());
+        dom.setAttribute(options.element, name, lazyValue.value());
       });
 
-      dom.setAttribute(element, name, value.value());
+      dom.setAttribute(options.element, name, value.value());
     }
 
-    __exports__.attribute = attribute;function concat(params, options) {
+    __exports__.attribute = attribute;function concat(params, hash, options, env) {
       var stream = new Stream(function() {
         return readArray(params).join('');
       });
@@ -14096,7 +14671,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.80e56073
+      @version 1.10.0-beta.1+canary.f9048493
     */
 
     if ('undefined' === typeof Ember) {
@@ -14123,10 +14698,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.80e56073'
+      @default '1.10.0-beta.1+canary.f9048493'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.80e56073';
+    Ember.VERSION = '1.10.0-beta.1+canary.f9048493';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`

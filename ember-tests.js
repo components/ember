@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.80e56073
+ * @version   1.10.0-beta.1+canary.f9048493
  */
 
 (function() {
@@ -5414,8 +5414,8 @@ enifed("ember-handlebars/tests/handlebars_get_test.jshint",
     });
   });
 enifed("ember-handlebars/tests/handlebars_test",
-  ["ember-metal/core","ember-views/system/jquery","ember-metal/enumerable_utils","ember-metal/run_loop","ember-runtime/system/namespace","ember-views/views/view","ember-views/views/metamorph_view","ember-handlebars","ember-runtime/system/object","ember-runtime/controllers/object_controller","ember-runtime/system/native_array","ember-metal/computed","ember-runtime/system/string","ember-metal/utils","ember-runtime/system/array_proxy","ember-views/views/collection_view","ember-views/views/container_view","ember-metal/binding","ember-metal/observer","ember-views/views/text_field","ember-runtime/system/container","ember-metal/platform","ember-handlebars/string","ember-metal/property_get","ember-metal/property_set"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__) {
+  ["ember-metal/core","ember-views/system/jquery","ember-metal/enumerable_utils","ember-metal/run_loop","ember-runtime/system/namespace","ember-views/views/view","ember-views/views/metamorph_view","ember-handlebars","ember-runtime/system/object","ember-runtime/controllers/object_controller","ember-runtime/system/native_array","ember-metal/computed","ember-runtime/system/string","ember-metal/utils","ember-views/views/container_view","ember-metal/binding","ember-metal/observer","ember-views/views/text_field","ember-runtime/system/container","ember-metal/platform","ember-handlebars/string","ember-metal/property_get","ember-metal/property_set"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__) {
     "use strict";
     /*jshint newcap:false*/
     var Ember = __dependency1__["default"];
@@ -5434,21 +5434,19 @@ enifed("ember-handlebars/tests/handlebars_test",
     var computed = __dependency12__.computed;
     var fmt = __dependency13__.fmt;
     var typeOf = __dependency14__.typeOf;
-    var ArrayProxy = __dependency15__["default"];
-    var CollectionView = __dependency16__["default"];
-    var ContainerView = __dependency17__["default"];
-    var Binding = __dependency18__.Binding;
-    var observersFor = __dependency19__.observersFor;
-    var TextField = __dependency20__["default"];
-    var Container = __dependency21__["default"];
-    var o_create = __dependency22__.create;
+    var ContainerView = __dependency15__["default"];
+    var Binding = __dependency16__.Binding;
+    var observersFor = __dependency17__.observersFor;
+    var TextField = __dependency18__["default"];
+    var Container = __dependency19__["default"];
+    var o_create = __dependency20__.create;
 
-    var htmlSafe = __dependency23__["default"];
+    var htmlSafe = __dependency21__["default"];
 
     var trim = jQuery.trim;
 
-    var get = __dependency24__.get;
-    var set = __dependency25__.set;
+    var get = __dependency22__.get;
+    var set = __dependency23__.set;
 
     function firstGrandchild(view) {
       return get(get(view, 'childViews').objectAt(0), 'childViews').objectAt(0);
@@ -6433,90 +6431,6 @@ enifed("ember-handlebars/tests/handlebars_test",
       var childView  = firstGrandchild(view);
 
       equal(get(parentView, 'ohai'), childView);
-    });
-
-    test("Collection views that specify an example view class have their children be of that class", function() {
-      var ExampleViewCollection = CollectionView.extend({
-        itemViewClass: EmberView.extend({
-          isCustom: true
-        }),
-
-        content: A(['foo'])
-      });
-
-      view = EmberView.create({
-        exampleViewCollection: ExampleViewCollection,
-        template: EmberHandlebars.compile('{{#collection view.exampleViewCollection}}OHAI{{/collection}}')
-      });
-
-      run(function() {
-        view.append();
-      });
-
-      ok(firstGrandchild(view).isCustom, "uses the example view class");
-    });
-
-    test("itemViewClass works in the #collection helper with a global (DEPRECATED)", function() {
-      TemplateTests.ExampleItemView = EmberView.extend({
-        isAlsoCustom: true
-      });
-
-      view = EmberView.create({
-        exampleController: ArrayProxy.create({
-          content: A(['alpha'])
-        }),
-        template: EmberHandlebars.compile('{{#collection content=view.exampleController itemViewClass=TemplateTests.ExampleItemView}}beta{{/collection}}')
-      });
-
-      expectDeprecation(function(){
-        run(view, 'append');
-      }, /Resolved the view "TemplateTests.ExampleItemView" on the global context/);
-
-      ok(firstGrandchild(view).isAlsoCustom, "uses the example view class specified in the #collection helper");
-    });
-
-    test("itemViewClass works in the #collection helper with a property", function() {
-      var ExampleItemView = EmberView.extend({
-        isAlsoCustom: true
-      });
-
-      var ExampleCollectionView = CollectionView;
-
-      view = EmberView.create({
-        possibleItemView: ExampleItemView,
-        exampleCollectionView: ExampleCollectionView,
-        exampleController: ArrayProxy.create({
-          content: A(['alpha'])
-        }),
-        template: EmberHandlebars.compile('{{#collection view.exampleCollectionView content=view.exampleController itemViewClass=view.possibleItemView}}beta{{/collection}}')
-      });
-
-      run(function() {
-        view.append();
-      });
-
-      ok(firstGrandchild(view).isAlsoCustom, "uses the example view class specified in the #collection helper");
-    });
-
-    test("itemViewClass works in the #collection via container", function() {
-      container.register('view:example-item', EmberView.extend({
-        isAlsoCustom: true
-      }));
-
-      view = EmberView.create({
-        container: container,
-        exampleCollectionView: CollectionView.extend(),
-        exampleController: ArrayProxy.create({
-          content: A(['alpha'])
-        }),
-        template: EmberHandlebars.compile('{{#collection view.exampleCollectionView content=view.exampleController itemViewClass="example-item"}}beta{{/collection}}')
-      });
-
-      run(function() {
-        view.append();
-      });
-
-      ok(firstGrandchild(view).isAlsoCustom, "uses the example view class specified in the #collection helper");
     });
 
     test("should update boundIf blocks if the conditional changes", function() {
@@ -8175,869 +8089,6 @@ enifed("ember-handlebars/tests/helpers/custom_view_helper_test.jshint",
       ok(true, 'ember-handlebars/tests/helpers/custom_view_helper_test.js should pass jshint.'); 
     });
   });
-enifed("ember-handlebars/tests/helpers/each_test",
-  ["ember-metal/core","ember-runtime/system/object","ember-metal/run_loop","ember-views/views/view","ember-views/views/metamorph_view","ember-metal/computed","ember-runtime/controllers/array_controller","ember-handlebars-compiler","ember-runtime/system/native_array","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/system/container","ember-metal/property_get","ember-metal/property_set"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__) {
-    "use strict";
-    /*jshint newcap:false*/
-    var Ember = __dependency1__["default"];
-    // Ember.lookup;
-    var EmberObject = __dependency2__["default"];
-    var run = __dependency3__["default"];
-    var EmberView = __dependency4__["default"];
-    var _MetamorphView = __dependency5__["default"];
-    var computed = __dependency6__.computed;
-    var ArrayController = __dependency7__["default"];
-    var EmberHandlebars = __dependency8__["default"];
-    // import {expectAssertion} from "ember-metal/tests/debug_helpers";
-    var A = __dependency9__.A;
-    var EmberController = __dependency10__["default"];
-    var ObjectController = __dependency11__["default"];
-    var Container = __dependency12__["default"];
-
-    var get = __dependency13__.get;
-    var set = __dependency14__.set;
-
-    var people, view, container;
-    var template, templateMyView, MyView;
-
-    function templateFor(template) {
-      return EmberHandlebars.compile(template);
-    }
-
-    var originalLookup = Ember.lookup;
-    var lookup;
-
-    QUnit.module("the #each helper [DEPRECATED]", {
-      setup: function() {
-        Ember.lookup = lookup = { Ember: Ember };
-
-        template = templateFor("{{#each view.people}}{{name}}{{/each}}");
-        people = A([{ name: "Steve Holt" }, { name: "Annabelle" }]);
-
-        container = new Container();
-        container.register('view:default', _MetamorphView);
-        container.register('view:toplevel', EmberView.extend());
-
-        view = EmberView.create({
-          container: container,
-          template: template,
-          people: people
-        });
-
-        templateMyView = templateFor("{{name}}");
-        lookup.MyView = MyView = EmberView.extend({
-          template: templateMyView
-        });
-
-        expectDeprecation(function() {
-          append(view);
-        },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
-      },
-
-      teardown: function() {
-        run(function() {
-            if (container) {
-              container.destroy();
-            }
-            if (view) {
-              view.destroy();
-            }
-            container = view = null;
-        });
-        Ember.lookup = originalLookup;
-      }
-    });
-
-
-    var append = function(view) {
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-    };
-
-    var assertHTML = function(view, expectedHTML) {
-      var html = view.$().html();
-
-      // IE 8 (and prior?) adds the \r\n
-      html = html.replace(/<script[^>]*><\/script>/ig, '').replace(/[\r\n]/g, '');
-
-      equal(html, expectedHTML);
-    };
-
-    var assertText = function(view, expectedText) {
-      equal(view.$().text(), expectedText);
-    };
-
-    test("it renders the template for each item in an array", function() {
-      assertHTML(view, "Steve HoltAnnabelle");
-    });
-
-    test("it updates the view if an item is added", function() {
-      run(function() {
-        people.pushObject({ name: "Tom Dale" });
-      });
-
-      assertHTML(view, "Steve HoltAnnabelleTom Dale");
-    });
-
-    test("it allows you to access the current context using {{this}}", function() {
-      run(function() { view.destroy(); }); // destroy existing view
-      view = EmberView.create({
-        template: templateFor("{{#each view.people}}{{this}}{{/each}}"),
-        people: A(['Black Francis', 'Joey Santiago', 'Kim Deal', 'David Lovering'])
-      });
-
-      append(view);
-
-      assertHTML(view, "Black FrancisJoey SantiagoKim DealDavid Lovering");
-    });
-
-    test("it updates the view if an item is removed", function() {
-      run(function() {
-        people.removeAt(0);
-      });
-
-      assertHTML(view, "Annabelle");
-    });
-
-    test("it updates the view if an item is replaced", function() {
-      run(function() {
-        people.removeAt(0);
-        people.insertAt(0, { name: "Kazuki" });
-      });
-
-      assertHTML(view, "KazukiAnnabelle");
-    });
-
-    test("can add and replace in the same runloop", function() {
-      run(function() {
-        people.pushObject({ name: "Tom Dale" });
-        people.removeAt(0);
-        people.insertAt(0, { name: "Kazuki" });
-      });
-
-      assertHTML(view, "KazukiAnnabelleTom Dale");
-    });
-
-    test("can add and replace the object before the add in the same runloop", function() {
-      run(function() {
-        people.pushObject({ name: "Tom Dale" });
-        people.removeAt(1);
-        people.insertAt(1, { name: "Kazuki" });
-      });
-
-      assertHTML(view, "Steve HoltKazukiTom Dale");
-    });
-
-    test("can add and replace complicatedly", function() {
-      run(function() {
-        people.pushObject({ name: "Tom Dale" });
-        people.removeAt(1);
-        people.insertAt(1, { name: "Kazuki" });
-        people.pushObject({ name: "Firestone" });
-        people.pushObject({ name: "McMunch" });
-        people.removeAt(3);
-      });
-
-      assertHTML(view, "Steve HoltKazukiTom DaleMcMunch");
-    });
-
-    test("can add and replace complicatedly harder", function() {
-      run(function() {
-        people.pushObject({ name: "Tom Dale" });
-        people.removeAt(1);
-        people.insertAt(1, { name: "Kazuki" });
-        people.pushObject({ name: "Firestone" });
-        people.pushObject({ name: "McMunch" });
-        people.removeAt(2);
-      });
-
-      assertHTML(view, "Steve HoltKazukiFirestoneMcMunch");
-    });
-
-    test("it does not mark each option tag as selected", function() {
-      var selectView = EmberView.create({
-        template: templateFor('<select id="people-select"><option value="">Please select a name</option>{{#each view.people}}<option {{bind-attr value=name}}>{{name}}</option>{{/each}}</select>'),
-        people: people
-      });
-
-      append(selectView);
-
-      equal(selectView.$('option').length, 3, "renders 3 <option> elements");
-
-      equal(selectView.$().find(':selected').text(), 'Please select a name', 'first option is selected');
-
-      run(function() {
-        people.pushObject({name: "Black Francis"});
-      });
-
-      equal(selectView.$().find(':selected').text(), 'Please select a name', 'first option is selected');
-
-      equal(selectView.$('option').length, 4, "renders an additional <option> element when an object is added");
-
-      run(function() {
-        selectView.destroy();
-      });
-    });
-
-    test("it works inside a ul element", function() {
-      var ulView = EmberView.create({
-        template: templateFor('<ul>{{#each view.people}}<li>{{name}}</li>{{/each}}</ul>'),
-        people: people
-      });
-
-      append(ulView);
-
-      equal(ulView.$('li').length, 2, "renders two <li> elements");
-
-      run(function() {
-        people.pushObject({name: "Black Francis"});
-      });
-
-      equal(ulView.$('li').length, 3, "renders an additional <li> element when an object is added");
-
-      run(function() {
-        ulView.destroy();
-      });
-    });
-
-    test("it works inside a table element", function() {
-      var tableView = EmberView.create({
-        template: templateFor('<table><tbody>{{#each view.people}}<tr><td>{{name}}</td></tr>{{/each}}</tbody></table>'),
-        people: people
-      });
-
-      append(tableView);
-
-      equal(tableView.$('td').length, 2, "renders two <td> elements");
-
-      run(function() {
-        people.pushObject({name: "Black Francis"});
-      });
-
-      equal(tableView.$('td').length, 3, "renders an additional <td> element when an object is added");
-
-      run(function() {
-        people.insertAt(0, {name: "Kim Deal"});
-      });
-
-      equal(tableView.$('td').length, 4, "renders an additional <td> when an object is inserted at the beginning of the array");
-
-      run(function() {
-        tableView.destroy();
-      });
-    });
-
-    test("it supports itemController", function() {
-      var Controller = EmberController.extend({
-        controllerName: computed(function() {
-          return "controller:"+this.get('model.name');
-        })
-      });
-
-      run(function() { view.destroy(); }); // destroy existing view
-
-      var parentController = {
-        container: container
-      };
-
-      container.register('controller:array', ArrayController.extend());
-
-      view = EmberView.create({
-        container: container,
-        template: templateFor('{{#each view.people itemController="person"}}{{controllerName}}{{/each}}'),
-        people: people,
-        controller: parentController
-      });
-
-      container.register('controller:person', Controller);
-
-      append(view);
-
-      equal(view.$().text(), "controller:Steve Holtcontroller:Annabelle");
-
-      run(function() {
-        view.rerender();
-      });
-
-      assertText(view, "controller:Steve Holtcontroller:Annabelle");
-
-      run(function() {
-        people.pushObject({ name: "Yehuda Katz" });
-      });
-
-      assertText(view, "controller:Steve Holtcontroller:Annabellecontroller:Yehuda Katz");
-
-      run(function() {
-        set(view, 'people', A([{ name: "Trek Glowacki" }, { name: "Geoffrey Grosenbach" }]));
-      });
-
-      assertText(view, "controller:Trek Glowackicontroller:Geoffrey Grosenbach");
-
-      strictEqual(view.get('_childViews')[0].get('_arrayController.target'), parentController, "the target property of the child controllers are set correctly");
-    });
-
-    test("itemController specified in template gets a parentController property", function() {
-      // using an ObjectController for this test to verify that parentController does accidentally get set
-      // on the proxied model.
-      var Controller = ObjectController.extend({
-            controllerName: computed(function() {
-              return "controller:" + get(this, 'model.name') + ' of ' + get(this, 'parentController.company');
-            })
-          });
-      var parentController = {
-            container: container,
-            company: 'Yapp'
-          };
-
-      container.register('controller:array', ArrayController.extend());
-      run(function() { view.destroy(); }); // destroy existing view
-
-      view = EmberView.create({
-        container: container,
-        template: templateFor('{{#each view.people itemController="person"}}{{controllerName}}{{/each}}'),
-        people: people,
-        controller: parentController
-      });
-
-      container.register('controller:person', Controller);
-
-      append(view);
-
-      equal(view.$().text(), "controller:Steve Holt of Yappcontroller:Annabelle of Yapp");
-    });
-
-    test("itemController specified in ArrayController gets a parentController property", function() {
-      var PersonController = ObjectController.extend({
-            controllerName: computed(function() {
-              return "controller:" + get(this, 'model.name') + ' of ' + get(this, 'parentController.company');
-            })
-          });
-      var PeopleController = ArrayController.extend({
-            model: people,
-            itemController: 'person',
-            company: 'Yapp'
-          });
-
-      container.register('controller:people', PeopleController);
-      container.register('controller:person', PersonController);
-      run(function() { view.destroy(); }); // destroy existing view
-
-      view = EmberView.create({
-        container: container,
-        template: templateFor('{{#each}}{{controllerName}}{{/each}}'),
-        controller: container.lookup('controller:people')
-      });
-
-
-      append(view);
-
-      equal(view.$().text(), "controller:Steve Holt of Yappcontroller:Annabelle of Yapp");
-    });
-
-    test("itemController's parentController property, when the ArrayController has a parentController", function() {
-      var PersonController = ObjectController.extend({
-            controllerName: computed(function() {
-              return "controller:" + get(this, 'model.name') + ' of ' + get(this, 'parentController.company');
-            })
-          });
-      var PeopleController = ArrayController.extend({
-            model: people,
-            itemController: 'person',
-            parentController: computed(function(){
-              return this.container.lookup('controller:company');
-            }),
-            company: 'Yapp'
-          });
-       var CompanyController = EmberController.extend();
-
-      container.register('controller:company', CompanyController);
-      container.register('controller:people', PeopleController);
-      container.register('controller:person', PersonController);
-
-      run(function() { view.destroy(); }); // destroy existing view
-      view = EmberView.create({
-        container: container,
-        template: templateFor('{{#each}}{{controllerName}}{{/each}}'),
-        controller: container.lookup('controller:people')
-      });
-
-
-      append(view);
-
-      equal(view.$().text(), "controller:Steve Holt of Yappcontroller:Annabelle of Yapp");
-    });
-
-    test("it supports itemController when using a custom keyword", function() {
-      var Controller = EmberController.extend({
-        controllerName: computed(function() {
-          return "controller:"+this.get('model.name');
-        })
-      });
-
-      container.register('controller:array', ArrayController.extend());
-
-      run(function() { view.destroy(); }); // destroy existing view
-      view = EmberView.create({
-        container: container,
-        template: templateFor('{{#each person in view.people itemController="person"}}{{person.controllerName}}{{/each}}'),
-        people: people,
-        controller: {
-          container: container
-        }
-      });
-
-      container.register('controller:person', Controller);
-
-      append(view);
-
-      equal(view.$().text(), "controller:Steve Holtcontroller:Annabelle");
-
-      run(function() {
-        view.rerender();
-      });
-
-      equal(view.$().text(), "controller:Steve Holtcontroller:Annabelle");
-    });
-
-    test("it supports {{itemView=}}", function() {
-      var itemView = EmberView.extend({
-        template: templateFor('itemView:{{name}}')
-      });
-
-      run(function() { view.destroy(); }); // destroy existing view
-      view = EmberView.create({
-        template: templateFor('{{each view.people itemView="anItemView"}}'),
-        people: people,
-        controller: {
-          container: container
-        }
-      });
-
-      container.register('view:anItemView', itemView);
-
-      append(view);
-
-      assertText(view, "itemView:Steve HoltitemView:Annabelle");
-    });
-
-
-    test("it defers all normalization of itemView names to the resolver", function() {
-      var itemView = EmberView.extend({
-        template: templateFor('itemView:{{name}}')
-      });
-
-      run(function() { view.destroy(); }); // destroy existing view
-      view = EmberView.create({
-        template: templateFor('{{each view.people itemView="an-item-view"}}'),
-        people: people,
-        controller: {
-          container: container
-        }
-      });
-
-      container.register('view:an-item-view', itemView);
-      container.resolve = function(fullname) {
-        equal(fullname, "view:an-item-view", "leaves fullname untouched");
-        return Container.prototype.resolve.call(this, fullname);
-      };
-      append(view);
-
-    });
-
-    test("it supports {{itemViewClass=}} with global (DEPRECATED)", function() {
-      run(function() { view.destroy(); }); // destroy existing view
-      view = EmberView.create({
-        template: templateFor('{{each view.people itemViewClass=MyView}}'),
-        people: people
-      });
-
-
-      expectDeprecation(function(){
-        append(view);
-      }, /Resolved the view "MyView" on the global context/);
-
-      assertText(view, "Steve HoltAnnabelle");
-    });
-
-    test("it supports {{itemViewClass=}} via container", function() {
-      run(function() { view.destroy(); }); // destroy existing view
-      view = EmberView.create({
-        container: {
-          lookupFactory: function(name){
-            equal(name, 'view:my-view');
-            return MyView;
-          }
-        },
-        template: templateFor('{{each view.people itemViewClass="my-view"}}'),
-        people: people
-      });
-
-      append(view);
-
-      assertText(view, "Steve HoltAnnabelle");
-    });
-
-    test("it supports {{itemViewClass=}} with tagName (DEPRECATED)", function() {
-      run(function() { view.destroy(); }); // destroy existing view
-      view = EmberView.create({
-          template: templateFor('{{each view.people itemViewClass=MyView tagName="ul"}}'),
-          people: people
-      });
-
-      expectDeprecation(/Supplying a tagName to Metamorph views is unreliable and is deprecated./);
-
-      append(view);
-      equal(view.$('ul').length, 1, 'rendered ul tag');
-      equal(view.$('ul li').length, 2, 'rendered 2 li tags');
-      equal(view.$('ul li').text(), 'Steve HoltAnnabelle');
-    });
-
-    test("it supports {{itemViewClass=}} with in format", function() {
-
-      MyView = EmberView.extend({
-        template: templateFor("{{person.name}}")
-      });
-
-      run(function() { view.destroy(); }); // destroy existing view
-      view = EmberView.create({
-        container: {
-          lookupFactory: function(name){
-            return MyView;
-          }
-        },
-        template: templateFor('{{each person in view.people itemViewClass="myView"}}'),
-        people: people
-      });
-
-      append(view);
-
-      assertText(view, "Steve HoltAnnabelle");
-
-    });
-
-    test("it supports {{else}}", function() {
-      run(function() { view.destroy(); }); // destroy existing view
-      view = EmberView.create({
-        template: templateFor("{{#each view.items}}{{this}}{{else}}Nothing{{/each}}"),
-        items: A(['one', 'two'])
-      });
-
-      append(view);
-
-      assertHTML(view, "onetwo");
-
-      run(function() {
-        view.set('items', A());
-      });
-
-      assertHTML(view, "Nothing");
-    });
-
-    test("it works with the controller keyword", function() {
-      run(view, 'destroy'); // destroy existing view
-
-      var controller = ArrayController.create({
-        model: A(["foo", "bar", "baz"])
-      });
-
-      run(function() { view.destroy(); }); // destroy existing view
-      view = EmberView.create({
-        container: container,
-        controller: controller,
-        template: templateFor("{{#view}}{{#each controller}}{{this}}{{/each}}{{/view}}")
-      });
-
-      append(view);
-
-      equal(view.$().text(), "foobarbaz");
-    });
-
-    test("views inside #each preserve the new context [DEPRECATED]", function() {
-      run(view, 'destroy'); // destroy existing view
-
-      var controller = A([ { name: "Adam" }, { name: "Steve" } ]);
-
-      view = EmberView.create({
-        container: container,
-        controller: controller,
-        template: templateFor('{{#each controller}}{{#view}}{{name}}{{/view}}{{/each}}')
-      });
-
-
-      expectDeprecation(function() {
-        append(view);
-      },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
-
-      equal(view.$().text(), "AdamSteve");
-    });
-
-    test("single-arg each defaults to current context [DEPRECATED]", function() {
-      run(view, 'destroy'); // destroy existing view
-
-      view = EmberView.create({
-        context: A([ { name: "Adam" }, { name: "Steve" } ]),
-        template: templateFor('{{#each}}{{name}}{{/each}}')
-      });
-
-      expectDeprecation(function() {
-        append(view);
-      },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
-
-      equal(view.$().text(), "AdamSteve");
-    });
-
-    test("single-arg each will iterate over controller if present [DEPRECATED]", function() {
-      run(view, 'destroy'); // destroy existing view
-
-      view = EmberView.create({
-        controller: A([ { name: "Adam" }, { name: "Steve" } ]),
-        template: templateFor('{{#each}}{{name}}{{/each}}')
-      });
-
-      expectDeprecation(function() {
-        append(view);
-      },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
-
-      equal(view.$().text(), "AdamSteve");
-    });
-
-    QUnit.module("{{#each foo in bar}}", {
-      setup: function() {
-        container = new Container();
-        container.register('view:default', _MetamorphView);
-        container.register('view:toplevel', EmberView.extend());
-      },
-      teardown: function() {
-        run(function() {
-            if (container) {
-              container.destroy();
-            }
-            if (view) {
-              view.destroy();
-            }
-            container = view = null;
-        });
-      }
-    });
-
-    test("#each accepts a name binding", function() {
-      view = EmberView.create({
-        template: templateFor("{{#each item in view.items}}{{view.title}} {{item}}{{/each}}"),
-        title: "My Cool Each Test",
-        items: A([1, 2])
-      });
-
-      append(view);
-
-      equal(view.$().text(), "My Cool Each Test 1My Cool Each Test 2");
-    });
-
-    test("#each accepts a name binding and does not change the context", function() {
-      var controller = EmberController.create({
-        name: 'bob the controller'
-      });
-      var obj = EmberObject.create({
-        name: 'henry the item'
-      });
-
-      view = EmberView.create({
-        template: templateFor("{{#each item in view.items}}{{name}}{{/each}}"),
-        title: "My Cool Each Test",
-        items: A([obj]),
-        controller: controller
-      });
-
-      append(view);
-
-      equal(view.$().text(), "bob the controller");
-    });
-
-
-    test("#each accepts a name binding and can display child properties", function() {
-      view = EmberView.create({
-        template: templateFor("{{#each item in view.items}}{{view.title}} {{item.name}}{{/each}}"),
-        title: "My Cool Each Test",
-        items: A([{ name: 1 }, { name: 2 }])
-      });
-
-      append(view);
-
-      equal(view.$().text(), "My Cool Each Test 1My Cool Each Test 2");
-    });
-
-    test("#each accepts 'this' as the right hand side", function() {
-      view = EmberView.create({
-        template: templateFor("{{#each item in this}}{{view.title}} {{item.name}}{{/each}}"),
-        title: "My Cool Each Test",
-        controller: A([{ name: 1 }, { name: 2 }])
-      });
-
-      append(view);
-
-      equal(view.$().text(), "My Cool Each Test 1My Cool Each Test 2");
-    });
-
-    test("views inside #each preserve the new context [DEPRECATED]", function() {
-      var controller = A([ { name: "Adam" }, { name: "Steve" } ]);
-
-      view = EmberView.create({
-        container: container,
-        controller: controller,
-        template: templateFor('{{#each controller}}{{#view}}{{name}}{{/view}}{{/each}}')
-      });
-
-      expectDeprecation(function() {
-        append(view);
-      },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
-
-      equal(view.$().text(), "AdamSteve");
-    });
-
-    test("controller is assignable inside an #each", function() {
-      var controller = ArrayController.create({
-        model: A([ { name: "Adam" }, { name: "Steve" } ])
-      });
-
-      view = EmberView.create({
-        container: container,
-        controller: controller,
-        template: templateFor('{{#each personController in this}}{{#view controllerBinding="personController"}}{{name}}{{/view}}{{/each}}')
-      });
-
-      append(view);
-
-      equal(view.$().text(), "AdamSteve");
-    });
-
-    test("it doesn't assert when the morph tags have the same parent", function() {
-      view = EmberView.create({
-        controller: A(['Cyril', 'David']),
-        template: templateFor('<table><tbody>{{#each name in this}}<tr><td>{{name}}</td></tr>{{/each}}<tbody></table>')
-      });
-
-      append(view);
-
-      ok(true, "No assertion from valid template");
-    });
-
-    test("itemController specified in template with name binding does not change context", function() {
-      var Controller = EmberController.extend({
-        controllerName: computed(function() {
-          return "controller:"+this.get('model.name');
-        })
-      });
-
-      var container = new Container();
-
-      people = A([{ name: "Steve Holt" }, { name: "Annabelle" }]);
-
-      var parentController = {
-        container: container,
-        people: people,
-        controllerName: 'controller:parentController'
-      };
-
-      container.register('controller:array', ArrayController.extend());
-
-      view = EmberView.create({
-        container: container,
-        template: templateFor('{{#each person in people itemController="person"}}{{controllerName}} - {{person.controllerName}} - {{/each}}'),
-        controller: parentController
-      });
-
-      container.register('controller:person', Controller);
-
-      append(view);
-
-      equal(view.$().text(), "controller:parentController - controller:Steve Holt - controller:parentController - controller:Annabelle - ");
-
-      run(function() {
-        people.pushObject({ name: "Yehuda Katz" });
-      });
-
-      assertText(view, "controller:parentController - controller:Steve Holt - controller:parentController - controller:Annabelle - controller:parentController - controller:Yehuda Katz - ");
-
-      run(function() {
-        set(parentController, 'people', A([{ name: "Trek Glowacki" }, { name: "Geoffrey Grosenbach" }]));
-      });
-
-      assertText(view, "controller:parentController - controller:Trek Glowacki - controller:parentController - controller:Geoffrey Grosenbach - ");
-
-      strictEqual(view.get('_childViews')[0].get('_arrayController.target'), parentController, "the target property of the child controllers are set correctly");
-    });
-
-    test("itemController specified in ArrayController with name binding does not change context", function() {
-      people = A([{ name: "Steve Holt" }, { name: "Annabelle" }]);
-
-      var PersonController = ObjectController.extend({
-            controllerName: computed(function() {
-              return "controller:" + get(this, 'model.name') + ' of ' + get(this, 'parentController.company');
-            })
-          });
-      var PeopleController = ArrayController.extend({
-            model: people,
-            itemController: 'person',
-            company: 'Yapp',
-            controllerName: 'controller:people'
-          });
-      var container = new Container();
-
-      container.register('controller:people', PeopleController);
-      container.register('controller:person', PersonController);
-
-      view = EmberView.create({
-        container: container,
-        template: templateFor('{{#each person in this}}{{controllerName}} - {{person.controllerName}} - {{/each}}'),
-        controller: container.lookup('controller:people')
-      });
-
-
-      append(view);
-
-      equal(view.$().text(), "controller:people - controller:Steve Holt of Yapp - controller:people - controller:Annabelle of Yapp - ");
-    });
-
-    test("{{each}} without arguments [DEPRECATED]", function() {
-      expect(2);
-
-      view = EmberView.create({
-        controller: A([ { name: "Adam" }, { name: "Steve" } ]),
-        template: templateFor('{{#each}}{{name}}{{/each}}')
-      });
-
-      expectDeprecation(function() {
-        append(view);
-      },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
-
-      equal(view.$().text(), "AdamSteve");
-    });
-
-    test("{{each this}} without keyword [DEPRECATED]", function() {
-      expect(2);
-
-      view = EmberView.create({
-        controller: A([ { name: "Adam" }, { name: "Steve" } ]),
-        template: templateFor('{{#each this}}{{name}}{{/each}}')
-      });
-
-      expectDeprecation(function() {
-        append(view);
-      },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
-
-      equal(view.$().text(), "AdamSteve");
-    });
-  });
-enifed("ember-handlebars/tests/helpers/each_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/tests/helpers');
-    test('ember-handlebars/tests/helpers/each_test.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/tests/helpers/each_test.js should pass jshint.'); 
-    });
-  });
 enifed("ember-handlebars/tests/helpers/group_test",
   ["ember-metal/run_loop","ember-views/system/jquery","ember-views/views/view","ember-views/views/metamorph_view","ember-handlebars-compiler","ember-runtime/system/array_proxy","ember-runtime/system/native_array","ember-runtime/system/container","ember-metal/property_set","ember-views/views/component"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
@@ -9827,662 +8878,6 @@ enifed("ember-handlebars/tests/loader_test.jshint",
       ok(true, 'ember-handlebars/tests/loader_test.js should pass jshint.'); 
     });
   });
-enifed("ember-handlebars/tests/views/collection_view_test",
-  ["ember-views/views/view","ember-metal/run_loop","ember-views/system/jquery","ember-runtime/system/object","ember-metal/computed","ember-runtime/system/namespace","ember-runtime/system/array_proxy","ember-views/views/collection_view","ember-runtime/system/native_array","ember-runtime/system/container","ember-handlebars-compiler","ember-metal/property_get","ember-metal/property_set"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__) {
-    "use strict";
-    /*jshint newcap:false*/
-
-    var EmberView = __dependency1__["default"];
-    var run = __dependency2__["default"];
-    var jQuery = __dependency3__["default"];
-    var EmberObject = __dependency4__["default"];
-    var computed = __dependency5__.computed;
-    var Namespace = __dependency6__["default"];
-    var ArrayProxy = __dependency7__["default"];
-    var CollectionView = __dependency8__["default"];
-    var A = __dependency9__.A;
-    var Container = __dependency10__["default"];
-    var EmberHandlebars = __dependency11__["default"];
-
-    var trim = jQuery.trim;
-
-    var get = __dependency12__.get;
-    var set = __dependency13__.set;
-
-    function nthChild(view, nth) {
-      return get(view, 'childViews').objectAt(nth || 0);
-    }
-
-    var firstChild = nthChild;
-
-    var originalLookup = Ember.lookup;
-    var lookup, TemplateTests, view;
-
-    QUnit.module("ember-handlebars/tests/views/collection_view_test", {
-      setup: function() {
-        Ember.lookup = lookup = { Ember: Ember };
-        lookup.TemplateTests = TemplateTests = Namespace.create();
-      },
-      teardown: function() {
-        run(function() {
-          if (view) {
-            view.destroy();
-          }
-        });
-
-        Ember.lookup = originalLookup;
-      }
-    });
-
-    test("passing a block to the collection helper sets it as the template for example views", function() {
-      var CollectionTestView = CollectionView.extend({
-        tagName: 'ul',
-        content: A(['foo', 'bar', 'baz'])
-      });
-
-      view = EmberView.create({
-        collectionTestView: CollectionTestView,
-        template: EmberHandlebars.compile('{{#collection view.collectionTestView}} <label></label> {{/collection}}')
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(view.$('label').length, 3, 'one label element is created for each content item');
-    });
-
-    test("collection helper should try to use container to resolve view", function() {
-      var container = new Container();
-
-      var ACollectionView = CollectionView.extend({
-            tagName: 'ul',
-            content: A(['foo', 'bar', 'baz'])
-      });
-
-      container.register('view:collectionTest', ACollectionView);
-
-      var controller = {container: container};
-      view = EmberView.create({
-        controller: controller,
-        template: EmberHandlebars.compile('{{#collection "collectionTest"}} <label></label> {{/collection}}')
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(view.$('label').length, 3, 'one label element is created for each content item');
-    });
-
-    test("collection helper should accept relative paths", function() {
-      view = EmberView.create({
-        template: EmberHandlebars.compile('{{#collection view.collection}} <label></label> {{/collection}}'),
-        collection: CollectionView.extend({
-          tagName: 'ul',
-          content: A(['foo', 'bar', 'baz'])
-        })
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(view.$('label').length, 3, 'one label element is created for each content item');
-    });
-
-    test("empty views should be removed when content is added to the collection (regression, ht: msofaer)", function() {
-      var EmptyView = EmberView.extend({
-        template : EmberHandlebars.compile("<td>No Rows Yet</td>")
-      });
-
-      var ListView = CollectionView.extend({
-        emptyView: EmptyView
-      });
-
-      var listController = ArrayProxy.create({
-        content : A()
-      });
-
-      view = EmberView.create({
-        listView: ListView,
-        listController: listController,
-        template: EmberHandlebars.compile('{{#collection view.listView content=view.listController tagName="table"}} <td>{{view.content.title}}</td> {{/collection}}')
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(view.$('tr').length, 1, 'Make sure the empty view is there (regression)');
-
-      run(function() {
-        listController.pushObject({title : "Go Away, Placeholder Row!"});
-      });
-
-      equal(view.$('tr').length, 1, 'has one row');
-      equal(view.$('tr:nth-child(1) td').text(), 'Go Away, Placeholder Row!', 'The content is the updated data.');
-    });
-
-    test("should be able to specify which class should be used for the empty view", function() {
-      var App;
-
-      run(function() {
-        lookup.App = App = Namespace.create();
-      });
-
-      var EmptyView = EmberView.extend({
-        template: EmberHandlebars.compile('This is an empty view')
-      });
-
-      view = EmberView.create({
-        container: {
-          lookupFactory: function(){
-            return EmptyView;
-          }
-        },
-        template: EmberHandlebars.compile('{{collection emptyViewClass="empty-view"}}')
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(view.$().text(), 'This is an empty view', "Empty view should be rendered.");
-
-      run(function() {
-        App.destroy();
-      });
-    });
-
-    test("if no content is passed, and no 'else' is specified, nothing is rendered", function() {
-      var CollectionTestView = CollectionView.extend({
-        tagName: 'ul',
-        content: A()
-      });
-
-      view = EmberView.create({
-        collectionTestView: CollectionTestView,
-        template: EmberHandlebars.compile('{{#collection view.collectionTestView}} <aside></aside> {{/collection}}')
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(view.$('li').length, 0, 'if no "else" is specified, nothing is rendered');
-    });
-
-    test("if no content is passed, and 'else' is specified, the else block is rendered", function() {
-      var CollectionTestView = CollectionView.extend({
-        tagName: 'ul',
-        content: A()
-      });
-
-      view = EmberView.create({
-        collectionTestView: CollectionTestView,
-        template: EmberHandlebars.compile('{{#collection view.collectionTestView}} <aside></aside> {{ else }} <del></del> {{/collection}}')
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(view.$('li:has(del)').length, 1, 'the else block is rendered');
-    });
-
-    test("a block passed to a collection helper defaults to the content property of the context", function() {
-      var CollectionTestView = CollectionView.extend({
-        tagName: 'ul',
-        content: A(['foo', 'bar', 'baz'])
-      });
-
-      view = EmberView.create({
-        collectionTestView: CollectionTestView,
-        template: EmberHandlebars.compile('{{#collection view.collectionTestView}} <label>{{view.content}}</label> {{/collection}}')
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(view.$('li:nth-child(1) label').length, 1);
-      equal(view.$('li:nth-child(1) label').text(), 'foo');
-      equal(view.$('li:nth-child(2) label').length, 1);
-      equal(view.$('li:nth-child(2) label').text(), 'bar');
-      equal(view.$('li:nth-child(3) label').length, 1);
-      equal(view.$('li:nth-child(3) label').text(), 'baz');
-    });
-
-    test("a block passed to a collection helper defaults to the view", function() {
-      var CollectionTestView = CollectionView.extend({
-        tagName: 'ul',
-        content: A(['foo', 'bar', 'baz'])
-      });
-
-      view = EmberView.create({
-        collectionTestView: CollectionTestView,
-        template: EmberHandlebars.compile('{{#collection view.collectionTestView}} <label>{{view.content}}</label> {{/collection}}')
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      // Preconds
-      equal(view.$('li:nth-child(1) label').length, 1);
-      equal(view.$('li:nth-child(1) label').text(), 'foo');
-      equal(view.$('li:nth-child(2) label').length, 1);
-      equal(view.$('li:nth-child(2) label').text(), 'bar');
-      equal(view.$('li:nth-child(3) label').length, 1);
-      equal(view.$('li:nth-child(3) label').text(), 'baz');
-
-      run(function() {
-        set(firstChild(view), 'content', A());
-      });
-      equal(view.$('label').length, 0, "all list item views should be removed from DOM");
-    });
-
-    test("should include an id attribute if id is set in the options hash", function() {
-      var CollectionTestView = CollectionView.extend({
-        tagName: 'ul',
-        content: A(['foo', 'bar', 'baz'])
-      });
-
-      view = EmberView.create({
-        collectionTestView: CollectionTestView,
-        template: EmberHandlebars.compile('{{#collection view.collectionTestView id="baz"}}foo{{/collection}}')
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(view.$('ul#baz').length, 1, "adds an id attribute");
-    });
-
-    test("should give its item views the class specified by itemClass", function() {
-      var ItemClassTestCollectionView = CollectionView.extend({
-        tagName: 'ul',
-        content: A(['foo', 'bar', 'baz'])
-      });
-      view = EmberView.create({
-        itemClassTestCollectionView: ItemClassTestCollectionView,
-        template: EmberHandlebars.compile('{{#collection view.itemClassTestCollectionView itemClass="baz"}}foo{{/collection}}')
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(view.$('ul li.baz').length, 3, "adds class attribute");
-    });
-
-    test("should give its item views the classBinding specified by itemClassBinding", function() {
-      var ItemClassBindingTestCollectionView = CollectionView.extend({
-        tagName: 'ul',
-        content: A([EmberObject.create({ isBaz: false }), EmberObject.create({ isBaz: true }), EmberObject.create({ isBaz: true })])
-      });
-
-      view = EmberView.create({
-        itemClassBindingTestCollectionView: ItemClassBindingTestCollectionView,
-        isBar: true,
-        template: EmberHandlebars.compile('{{#collection view.itemClassBindingTestCollectionView itemClassBinding="view.isBar"}}foo{{/collection}}')
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(view.$('ul li.is-bar').length, 3, "adds class on initial rendering");
-
-      // NOTE: in order to bind an item's class to a property of the item itself (e.g. `isBaz` above), it will be necessary
-      // to introduce a new keyword that could be used from within `itemClassBinding`. For instance, `itemClassBinding="item.isBaz"`.
-    });
-
-    test("should give its item views the property specified by itemPropertyBinding", function() {
-      var ItemPropertyBindingTestItemView = EmberView.extend({
-        tagName: 'li'
-      });
-
-      // Use preserveContext=false so the itemView handlebars context is the view context
-      // Set itemView bindings using item*
-      view = EmberView.create({
-        baz: "baz",
-        content: A([EmberObject.create(), EmberObject.create(), EmberObject.create()]),
-        container: {
-          lookupFactory: function(){
-            return ItemPropertyBindingTestItemView;
-          }
-        },
-        template: EmberHandlebars.compile('{{#collection contentBinding="view.content" tagName="ul" itemViewClass="item-property-binding-test-item-view" itemPropertyBinding="view.baz" preserveContext=false}}{{view.property}}{{/collection}}')
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(view.$('ul li').length, 3, "adds 3 itemView");
-
-      view.$('ul li').each(function(i, li) {
-        equal(jQuery(li).text(), "baz", "creates the li with the property = baz");
-      });
-
-      run(function() {
-        set(view, 'baz', "yobaz");
-      });
-
-      equal(view.$('ul li:first').text(), "yobaz", "change property of sub view");
-    });
-
-    test("should unsubscribe stream bindings", function() {
-      view = EmberView.create({
-        baz: "baz",
-        content: A([EmberObject.create(), EmberObject.create(), EmberObject.create()]),
-        template: EmberHandlebars.compile('{{#collection contentBinding="view.content" itemPropertyBinding="view.baz"}}{{view.property}}{{/collection}}')
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      var barStreamBinding = view._streamBindings['view.baz'];
-
-      equal(barStreamBinding.subscribers.length, 3*2, "adds 3 subscribers");
-
-      run(function() {
-        view.get('content').popObject();
-      });
-
-      equal(barStreamBinding.subscribers.length, 2*2, "removes 1 subscriber");
-    });
-
-    test("should work inside a bound {{#if}}", function() {
-      var testData = A([EmberObject.create({ isBaz: false }), EmberObject.create({ isBaz: true }), EmberObject.create({ isBaz: true })]);
-      var IfTestCollectionView = CollectionView.extend({
-        tagName: 'ul',
-        content: testData
-      });
-
-      view = EmberView.create({
-        ifTestCollectionView: IfTestCollectionView,
-        template: EmberHandlebars.compile('{{#if view.shouldDisplay}}{{#collection view.ifTestCollectionView}}{{content.isBaz}}{{/collection}}{{/if}}'),
-        shouldDisplay: true
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(view.$('ul li').length, 3, "renders collection when conditional is true");
-
-      run(function() { set(view, 'shouldDisplay', false); });
-      equal(view.$('ul li').length, 0, "removes collection when conditional changes to false");
-
-      run(function() { set(view, 'shouldDisplay', true); });
-      equal(view.$('ul li').length, 3, "collection renders when conditional changes to true");
-    });
-
-    test("should pass content as context when using {{#each}} helper [DEPRECATED]", function() {
-      view = EmberView.create({
-        template: EmberHandlebars.compile('{{#each view.releases}}Mac OS X {{version}}: {{name}} {{/each}}'),
-
-        releases: A([
-                    { version: '10.7',
-                      name: 'Lion' },
-                    { version: '10.6',
-                      name: 'Snow Leopard' },
-                    { version: '10.5',
-                      name: 'Leopard' }
-                  ])
-      });
-
-      expectDeprecation(function() {
-        run(view, 'appendTo', '#qunit-fixture');
-      }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
-
-      equal(view.$().text(), "Mac OS X 10.7: Lion Mac OS X 10.6: Snow Leopard Mac OS X 10.5: Leopard ", "prints each item in sequence");
-    });
-
-    test("should re-render when the content object changes", function() {
-      var RerenderTest = CollectionView.extend({
-        tagName: 'ul',
-        content: A()
-      });
-
-      view = EmberView.create({
-        rerenderTestView: RerenderTest,
-        template: EmberHandlebars.compile('{{#collection view.rerenderTestView}}{{view.content}}{{/collection}}')
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      run(function() {
-        set(firstChild(view), 'content', A(['bing', 'bat', 'bang']));
-      });
-
-      run(function() {
-        set(firstChild(view), 'content', A(['ramalamadingdong']));
-      });
-
-      equal(view.$('li').length, 1, "rerenders with correct number of items");
-      equal(trim(view.$('li:eq(0)').text()), "ramalamadingdong");
-
-    });
-
-    test("select tagName on collection helper automatically sets child tagName to option", function() {
-      var RerenderTest = CollectionView.extend({
-        content: A(['foo'])
-      });
-
-      view = EmberView.create({
-        rerenderTestView: RerenderTest,
-        template: EmberHandlebars.compile('{{#collection view.rerenderTestView tagName="select"}}{{view.content}}{{/collection}}')
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(view.$('option').length, 1, "renders the correct child tag name");
-
-    });
-
-    test("tagName works in the #collection helper", function() {
-      var RerenderTest = CollectionView.extend({
-        content: A(['foo', 'bar'])
-      });
-
-      view = EmberView.create({
-        rerenderTestView: RerenderTest,
-        template: EmberHandlebars.compile('{{#collection view.rerenderTestView tagName="ol"}}{{view.content}}{{/collection}}')
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(view.$('ol').length, 1, "renders the correct tag name");
-      equal(view.$('li').length, 2, "rerenders with correct number of items");
-
-      run(function() {
-        set(firstChild(view), 'content', A(['bing', 'bat', 'bang']));
-      });
-
-      equal(view.$('li').length, 3, "rerenders with correct number of items");
-      equal(trim(view.$('li:eq(0)').text()), "bing");
-    });
-
-    test("should render nested collections", function() {
-
-      var container = new Container();
-      container.register('view:inner-list', CollectionView.extend({
-        tagName: 'ul',
-        content: A(['one','two','three'])
-      }));
-
-      container.register('view:outer-list', CollectionView.extend({
-        tagName: 'ul',
-        content: A(['foo'])
-      }));
-
-      view = EmberView.create({
-        container: container,
-        template: EmberHandlebars.compile('{{#collection "outer-list" class="outer"}}{{content}}{{#collection "inner-list" class="inner"}}{{content}}{{/collection}}{{/collection}}')
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(view.$('ul.outer > li').length, 1, "renders the outer list with correct number of items");
-      equal(view.$('ul.inner').length, 1, "the inner list exsits");
-      equal(view.$('ul.inner > li').length, 3, "renders the inner list with correct number of items");
-
-    });
-
-    test("should render multiple, bound nested collections (#68)", function() {
-      var view;
-
-      run(function() {
-        TemplateTests.contentController = ArrayProxy.create({
-          content: A(['foo','bar'])
-        });
-
-        var InnerList = CollectionView.extend({
-          tagName: 'ul',
-          contentBinding: 'parentView.innerListContent'
-        });
-
-        var OuterListItem = EmberView.extend({
-          innerListView: InnerList,
-          template: EmberHandlebars.compile('{{#collection view.innerListView class="inner"}}{{content}}{{/collection}}{{content}}'),
-          innerListContent: computed(function() {
-            return A([1,2,3]);
-          })
-        });
-
-        var OuterList = CollectionView.extend({
-          tagName: 'ul',
-          contentBinding: 'TemplateTests.contentController',
-          itemViewClass: OuterListItem
-        });
-
-        view = EmberView.create({
-          outerListView: OuterList,
-          template: EmberHandlebars.compile('{{collection view.outerListView class="outer"}}')
-        });
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(view.$('ul.outer > li').length, 2, "renders the outer list with correct number of items");
-      equal(view.$('ul.inner').length, 2, "renders the correct number of inner lists");
-      equal(view.$('ul.inner:first > li').length, 3, "renders the first inner list with correct number of items");
-      equal(view.$('ul.inner:last > li').length, 3, "renders the second list with correct number of items");
-
-      run(function() {
-        view.destroy();
-      });
-    });
-
-    test("should allow view objects to be swapped out without throwing an error (#78)", function() {
-      var view, dataset, secondDataset;
-
-      run(function() {
-        TemplateTests.datasetController = EmberObject.create();
-
-        var ExampleCollectionView = CollectionView.extend({
-          contentBinding: 'parentView.items',
-          tagName: 'ul',
-          template: EmberHandlebars.compile("{{view.content}}")
-        });
-
-        var ReportingView = EmberView.extend({
-          exampleCollectionView: ExampleCollectionView,
-          datasetBinding: 'TemplateTests.datasetController.dataset',
-          readyBinding: 'dataset.ready',
-          itemsBinding: 'dataset.items',
-          template: EmberHandlebars.compile("{{#if view.ready}}{{collection view.exampleCollectionView}}{{else}}Loading{{/if}}")
-        });
-
-        view = ReportingView.create();
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(view.$().text(), "Loading", "renders the loading text when the dataset is not ready");
-
-      run(function() {
-        dataset = EmberObject.create({
-          ready: true,
-          items: A([1,2,3])
-        });
-        TemplateTests.datasetController.set('dataset',dataset);
-      });
-
-      equal(view.$('ul > li').length, 3, "renders the collection with the correct number of items when the dataset is ready");
-
-      run(function() {
-        secondDataset = EmberObject.create({ready: false});
-        TemplateTests.datasetController.set('dataset',secondDataset);
-      });
-
-      equal(view.$().text(), "Loading", "renders the loading text when the second dataset is not ready");
-
-      run(function() {
-        view.destroy();
-      });
-    });
-
-    test("context should be content", function() {
-      var view;
-
-      var container = new Container();
-
-      var items = A([
-        EmberObject.create({name: 'Dave'}),
-        EmberObject.create({name: 'Mary'}),
-        EmberObject.create({name: 'Sara'})
-      ]);
-
-      container.register('view:an-item', EmberView.extend({
-        template: EmberHandlebars.compile("Greetings {{name}}")
-      }));
-
-      view = EmberView.create({
-        container: container,
-        controller: {
-          items: items
-        },
-        template: EmberHandlebars.compile('{{collection contentBinding="items" itemViewClass="an-item"}}')
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      equal(view.$().text(), "Greetings DaveGreetings MaryGreetings Sara");
-
-      run(view, 'destroy');
-    });
-  });
-enifed("ember-handlebars/tests/views/collection_view_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/tests/views');
-    test('ember-handlebars/tests/views/collection_view_test.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/tests/views/collection_view_test.js should pass jshint.'); 
-    });
-  });
 enifed("ember-handlebars/tests/views/component_test",
   ["ember-views/views/view","container/container","ember-metal/run_loop","ember-views/system/jquery","ember-handlebars-compiler","ember-views/component_lookup"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
@@ -10621,6 +9016,15 @@ enifed("ember-htmlbars/helpers/binding.jshint",
       ok(true, 'ember-htmlbars/helpers/binding.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/helpers/collection.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/helpers');
+    test('ember-htmlbars/helpers/collection.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/helpers/collection.js should pass jshint.'); 
+    });
+  });
 enifed("ember-htmlbars/helpers/debugger.jshint",
   [],
   function() {
@@ -10628,6 +9032,15 @@ enifed("ember-htmlbars/helpers/debugger.jshint",
     module('JSHint - ember-htmlbars/helpers');
     test('ember-htmlbars/helpers/debugger.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/helpers/debugger.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/helpers/each.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/helpers');
+    test('ember-htmlbars/helpers/each.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/helpers/each.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/helpers/if_unless.jshint",
@@ -11370,6 +9783,773 @@ enifed("ember-htmlbars/tests/helpers/bind_test.jshint",
       ok(true, 'ember-htmlbars/tests/helpers/bind_test.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/tests/helpers/collection_test",
+  ["ember-views/views/collection_view","ember-runtime/system/object","ember-views/views/view","ember-handlebars","ember-runtime/system/array_proxy","ember-runtime/system/namespace","ember-runtime/system/container","ember-runtime/system/native_array","ember-metal/run_loop","ember-metal/property_get","ember-metal/property_set","ember-views/system/jquery","ember-metal/computed","ember-htmlbars/system/compile"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__) {
+    "use strict";
+    /*jshint newcap:false*/
+    var CollectionView = __dependency1__["default"];
+    var EmberObject = __dependency2__["default"];
+    var EmberView = __dependency3__["default"];
+    var EmberHandlebars = __dependency4__["default"];
+    var ArrayProxy = __dependency5__["default"];
+    var Namespace = __dependency6__["default"];
+    var Container = __dependency7__["default"];
+    var A = __dependency8__.A;
+    var run = __dependency9__["default"];
+    var get = __dependency10__.get;
+    var set = __dependency11__.set;
+    var jQuery = __dependency12__["default"];
+    var computed = __dependency13__.computed;
+
+    var trim = jQuery.trim;
+
+    var htmlbarsCompile = __dependency14__["default"];
+    var compile;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      compile = htmlbarsCompile;
+    } else {
+      compile = EmberHandlebars.compile;
+    }
+
+    var view;
+
+    var originalLookup = Ember.lookup;
+    var TemplateTests, container, lookup;
+
+
+    function nthChild(view, nth) {
+      return get(view, 'childViews').objectAt(nth || 0);
+    }
+
+    var firstChild = nthChild;
+
+    function firstGrandchild(view) {
+      return get(get(view, 'childViews').objectAt(0), 'childViews').objectAt(0);
+    }
+
+    QUnit.module("collection helper", {
+      setup: function() {
+        Ember.lookup = lookup = {};
+        lookup.TemplateTests = TemplateTests = Namespace.create();
+        container = new Container();
+        container.optionsForType('template', { instantiate: false });
+        // container.register('view:default', _MetamorphView);
+        container.register('view:toplevel', EmberView.extend());
+      },
+
+      teardown: function() {
+        run(function() {
+            if (container) {
+              container.destroy();
+            }
+            if (view) {
+              view.destroy();
+            }
+            container = view = null;
+        });
+        Ember.lookup = lookup = originalLookup;
+        TemplateTests = null;
+      }
+    });
+
+    test("Collection views that specify an example view class have their children be of that class", function() {
+      var ExampleViewCollection = CollectionView.extend({
+        itemViewClass: EmberView.extend({
+          isCustom: true
+        }),
+
+        content: A(['foo'])
+      });
+
+      view = EmberView.create({
+        exampleViewCollection: ExampleViewCollection,
+        template: compile('{{#collection view.exampleViewCollection}}OHAI{{/collection}}')
+      });
+
+      run(function() {
+        view.append();
+      });
+
+      ok(firstGrandchild(view).isCustom, "uses the example view class");
+    });
+
+    test("itemViewClass works in the #collection helper with a global (DEPRECATED)", function() {
+      TemplateTests.ExampleItemView = EmberView.extend({
+        isAlsoCustom: true
+      });
+
+      view = EmberView.create({
+        exampleController: ArrayProxy.create({
+          content: A(['alpha'])
+        }),
+        template: compile('{{#collection content=view.exampleController itemViewClass=TemplateTests.ExampleItemView}}beta{{/collection}}')
+      });
+
+      var deprecation = /Resolved the view "TemplateTests.ExampleItemView" on the global context/;
+      if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+        deprecation = /Global lookup of TemplateTests.ExampleItemView from a Handlebars template is deprecated/;
+      }
+      expectDeprecation(function(){
+        run(view, 'append');
+      }, deprecation);
+
+      ok(firstGrandchild(view).isAlsoCustom, "uses the example view class specified in the #collection helper");
+    });
+
+    test("itemViewClass works in the #collection helper with a property", function() {
+      var ExampleItemView = EmberView.extend({
+        isAlsoCustom: true
+      });
+
+      var ExampleCollectionView = CollectionView;
+
+      view = EmberView.create({
+        possibleItemView: ExampleItemView,
+        exampleCollectionView: ExampleCollectionView,
+        exampleController: ArrayProxy.create({
+          content: A(['alpha'])
+        }),
+        template: compile('{{#collection view.exampleCollectionView content=view.exampleController itemViewClass=view.possibleItemView}}beta{{/collection}}')
+      });
+
+      run(function() {
+        view.append();
+      });
+
+      ok(firstGrandchild(view).isAlsoCustom, "uses the example view class specified in the #collection helper");
+    });
+
+    test("itemViewClass works in the #collection via container", function() {
+      container.register('view:example-item', EmberView.extend({
+        isAlsoCustom: true
+      }));
+
+      view = EmberView.create({
+        container: container,
+        exampleCollectionView: CollectionView.extend(),
+        exampleController: ArrayProxy.create({
+          content: A(['alpha'])
+        }),
+        template: compile('{{#collection view.exampleCollectionView content=view.exampleController itemViewClass="example-item"}}beta{{/collection}}')
+      });
+
+      run(function() {
+        view.append();
+      });
+
+      ok(firstGrandchild(view).isAlsoCustom, "uses the example view class specified in the #collection helper");
+    });
+
+
+    test("passing a block to the collection helper sets it as the template for example views", function() {
+      var CollectionTestView = CollectionView.extend({
+        tagName: 'ul',
+        content: A(['foo', 'bar', 'baz'])
+      });
+
+      view = EmberView.create({
+        collectionTestView: CollectionTestView,
+        template: compile('{{#collection view.collectionTestView}} <label></label> {{/collection}}')
+      });
+
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+
+      equal(view.$('label').length, 3, 'one label element is created for each content item');
+    });
+
+    test("collection helper should try to use container to resolve view", function() {
+      var container = new Container();
+
+      var ACollectionView = CollectionView.extend({
+            tagName: 'ul',
+            content: A(['foo', 'bar', 'baz'])
+      });
+
+      container.register('view:collectionTest', ACollectionView);
+
+      var controller = {container: container};
+      view = EmberView.create({
+        controller: controller,
+        template: compile('{{#collection "collectionTest"}} <label></label> {{/collection}}')
+      });
+
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+
+      equal(view.$('label').length, 3, 'one label element is created for each content item');
+    });
+
+    test("collection helper should accept relative paths", function() {
+      view = EmberView.create({
+        template: compile('{{#collection view.collection}} <label></label> {{/collection}}'),
+        collection: CollectionView.extend({
+          tagName: 'ul',
+          content: A(['foo', 'bar', 'baz'])
+        })
+      });
+
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+
+      equal(view.$('label').length, 3, 'one label element is created for each content item');
+    });
+
+    test("empty views should be removed when content is added to the collection (regression, ht: msofaer)", function() {
+      var EmptyView = EmberView.extend({
+        template : compile("<td>No Rows Yet</td>")
+      });
+
+      var ListView = CollectionView.extend({
+        emptyView: EmptyView
+      });
+
+      var listController = ArrayProxy.create({
+        content : A()
+      });
+
+      view = EmberView.create({
+        listView: ListView,
+        listController: listController,
+        template: compile('{{#collection view.listView content=view.listController tagName="table"}} <td>{{view.content.title}}</td> {{/collection}}')
+      });
+
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+
+      equal(view.$('tr').length, 1, 'Make sure the empty view is there (regression)');
+
+      run(function() {
+        listController.pushObject({title : "Go Away, Placeholder Row!"});
+      });
+
+      equal(view.$('tr').length, 1, 'has one row');
+      equal(view.$('tr:nth-child(1) td').text(), 'Go Away, Placeholder Row!', 'The content is the updated data.');
+    });
+
+    test("should be able to specify which class should be used for the empty view", function() {
+      var App;
+
+      run(function() {
+        lookup.App = App = Namespace.create();
+      });
+
+      var EmptyView = EmberView.extend({
+        template: compile('This is an empty view')
+      });
+
+      view = EmberView.create({
+        container: {
+          lookupFactory: function(){
+            return EmptyView;
+          }
+        },
+        template: compile('{{collection emptyViewClass="empty-view"}}')
+      });
+
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+
+      equal(view.$().text(), 'This is an empty view', "Empty view should be rendered.");
+
+      run(function() {
+        App.destroy();
+      });
+    });
+
+    test("if no content is passed, and no 'else' is specified, nothing is rendered", function() {
+      var CollectionTestView = CollectionView.extend({
+        tagName: 'ul',
+        content: A()
+      });
+
+      view = EmberView.create({
+        collectionTestView: CollectionTestView,
+        template: compile('{{#collection view.collectionTestView}} <aside></aside> {{/collection}}')
+      });
+
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+
+      equal(view.$('li').length, 0, 'if no "else" is specified, nothing is rendered');
+    });
+
+    test("if no content is passed, and 'else' is specified, the else block is rendered", function() {
+      var CollectionTestView = CollectionView.extend({
+        tagName: 'ul',
+        content: A()
+      });
+
+      view = EmberView.create({
+        collectionTestView: CollectionTestView,
+        template: compile('{{#collection view.collectionTestView}} <aside></aside> {{ else }} <del></del> {{/collection}}')
+      });
+
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+
+      equal(view.$('li:has(del)').length, 1, 'the else block is rendered');
+    });
+
+    test("a block passed to a collection helper defaults to the content property of the context", function() {
+      var CollectionTestView = CollectionView.extend({
+        tagName: 'ul',
+        content: A(['foo', 'bar', 'baz'])
+      });
+
+      view = EmberView.create({
+        collectionTestView: CollectionTestView,
+        template: compile('{{#collection view.collectionTestView}} <label>{{view.content}}</label> {{/collection}}')
+      });
+
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+
+      equal(view.$('li:nth-child(1) label').length, 1);
+      equal(view.$('li:nth-child(1) label').text(), 'foo');
+      equal(view.$('li:nth-child(2) label').length, 1);
+      equal(view.$('li:nth-child(2) label').text(), 'bar');
+      equal(view.$('li:nth-child(3) label').length, 1);
+      equal(view.$('li:nth-child(3) label').text(), 'baz');
+    });
+
+    test("a block passed to a collection helper defaults to the view", function() {
+      var CollectionTestView = CollectionView.extend({
+        tagName: 'ul',
+        content: A(['foo', 'bar', 'baz'])
+      });
+
+      view = EmberView.create({
+        collectionTestView: CollectionTestView,
+        template: compile('{{#collection view.collectionTestView}} <label>{{view.content}}</label> {{/collection}}')
+      });
+
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+
+      // Preconds
+      equal(view.$('li:nth-child(1) label').length, 1);
+      equal(view.$('li:nth-child(1) label').text(), 'foo');
+      equal(view.$('li:nth-child(2) label').length, 1);
+      equal(view.$('li:nth-child(2) label').text(), 'bar');
+      equal(view.$('li:nth-child(3) label').length, 1);
+      equal(view.$('li:nth-child(3) label').text(), 'baz');
+
+      run(function() {
+        set(firstChild(view), 'content', A());
+      });
+      equal(view.$('label').length, 0, "all list item views should be removed from DOM");
+    });
+
+    test("should include an id attribute if id is set in the options hash", function() {
+      var CollectionTestView = CollectionView.extend({
+        tagName: 'ul',
+        content: A(['foo', 'bar', 'baz'])
+      });
+
+      view = EmberView.create({
+        collectionTestView: CollectionTestView,
+        template: compile('{{#collection view.collectionTestView id="baz"}}foo{{/collection}}')
+      });
+
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+
+      equal(view.$('ul#baz').length, 1, "adds an id attribute");
+    });
+
+    test("should give its item views the class specified by itemClass", function() {
+      var ItemClassTestCollectionView = CollectionView.extend({
+        tagName: 'ul',
+        content: A(['foo', 'bar', 'baz'])
+      });
+      view = EmberView.create({
+        itemClassTestCollectionView: ItemClassTestCollectionView,
+        template: compile('{{#collection view.itemClassTestCollectionView itemClass="baz"}}foo{{/collection}}')
+      });
+
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+
+      equal(view.$('ul li.baz').length, 3, "adds class attribute");
+    });
+
+    test("should give its item views the classBinding specified by itemClassBinding", function() {
+      var ItemClassBindingTestCollectionView = CollectionView.extend({
+        tagName: 'ul',
+        content: A([EmberObject.create({ isBaz: false }), EmberObject.create({ isBaz: true }), EmberObject.create({ isBaz: true })])
+      });
+
+      view = EmberView.create({
+        itemClassBindingTestCollectionView: ItemClassBindingTestCollectionView,
+        isBar: true,
+        template: compile('{{#collection view.itemClassBindingTestCollectionView itemClassBinding="view.isBar"}}foo{{/collection}}')
+      });
+
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+
+      equal(view.$('ul li.is-bar').length, 3, "adds class on initial rendering");
+
+      // NOTE: in order to bind an item's class to a property of the item itself (e.g. `isBaz` above), it will be necessary
+      // to introduce a new keyword that could be used from within `itemClassBinding`. For instance, `itemClassBinding="item.isBaz"`.
+    });
+
+    test("should give its item views the property specified by itemPropertyBinding", function() {
+      var ItemPropertyBindingTestItemView = EmberView.extend({
+        tagName: 'li'
+      });
+
+      // Use preserveContext=false so the itemView handlebars context is the view context
+      // Set itemView bindings using item*
+      view = EmberView.create({
+        baz: "baz",
+        content: A([EmberObject.create(), EmberObject.create(), EmberObject.create()]),
+        container: {
+          lookupFactory: function(){
+            return ItemPropertyBindingTestItemView;
+          }
+        },
+        template: compile('{{#collection contentBinding="view.content" tagName="ul" itemViewClass="item-property-binding-test-item-view" itemPropertyBinding="view.baz" preserveContext=false}}{{view.property}}{{/collection}}')
+      });
+
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+
+      equal(view.$('ul li').length, 3, "adds 3 itemView");
+
+      view.$('ul li').each(function(i, li) {
+        equal(jQuery(li).text(), "baz", "creates the li with the property = baz");
+      });
+
+      run(function() {
+        set(view, 'baz', "yobaz");
+      });
+
+      equal(view.$('ul li:first').text(), "yobaz", "change property of sub view");
+    });
+
+    test("should unsubscribe stream bindings", function() {
+      view = EmberView.create({
+        baz: "baz",
+        content: A([EmberObject.create(), EmberObject.create(), EmberObject.create()]),
+        template: compile('{{#collection contentBinding="view.content" itemPropertyBinding="view.baz"}}{{view.property}}{{/collection}}')
+      });
+
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+
+      var barStreamBinding = view._streamBindings['view.baz'];
+
+      equal(barStreamBinding.subscribers.length, 3*2, "adds 3 subscribers");
+
+      run(function() {
+        view.get('content').popObject();
+      });
+
+      equal(barStreamBinding.subscribers.length, 2*2, "removes 1 subscriber");
+    });
+
+    test("should work inside a bound {{#if}}", function() {
+      var testData = A([EmberObject.create({ isBaz: false }), EmberObject.create({ isBaz: true }), EmberObject.create({ isBaz: true })]);
+      var IfTestCollectionView = CollectionView.extend({
+        tagName: 'ul',
+        content: testData
+      });
+
+      view = EmberView.create({
+        ifTestCollectionView: IfTestCollectionView,
+        template: compile('{{#if view.shouldDisplay}}{{#collection view.ifTestCollectionView}}{{content.isBaz}}{{/collection}}{{/if}}'),
+        shouldDisplay: true
+      });
+
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+
+      equal(view.$('ul li').length, 3, "renders collection when conditional is true");
+
+      run(function() { set(view, 'shouldDisplay', false); });
+      equal(view.$('ul li').length, 0, "removes collection when conditional changes to false");
+
+      run(function() { set(view, 'shouldDisplay', true); });
+      equal(view.$('ul li').length, 3, "collection renders when conditional changes to true");
+    });
+
+    test("should pass content as context when using {{#each}} helper [DEPRECATED]", function() {
+      view = EmberView.create({
+        template: compile('{{#each view.releases}}Mac OS X {{version}}: {{name}} {{/each}}'),
+
+        releases: A([
+                    { version: '10.7',
+                      name: 'Lion' },
+                    { version: '10.6',
+                      name: 'Snow Leopard' },
+                    { version: '10.5',
+                      name: 'Leopard' }
+                  ])
+      });
+
+      expectDeprecation(function() {
+        run(view, 'appendTo', '#qunit-fixture');
+      }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+
+      equal(view.$().text(), "Mac OS X 10.7: Lion Mac OS X 10.6: Snow Leopard Mac OS X 10.5: Leopard ", "prints each item in sequence");
+    });
+
+    test("should re-render when the content object changes", function() {
+      var RerenderTest = CollectionView.extend({
+        tagName: 'ul',
+        content: A()
+      });
+
+      view = EmberView.create({
+        rerenderTestView: RerenderTest,
+        template: compile('{{#collection view.rerenderTestView}}{{view.content}}{{/collection}}')
+      });
+
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+
+      run(function() {
+        set(firstChild(view), 'content', A(['bing', 'bat', 'bang']));
+      });
+
+      run(function() {
+        set(firstChild(view), 'content', A(['ramalamadingdong']));
+      });
+
+      equal(view.$('li').length, 1, "rerenders with correct number of items");
+      equal(trim(view.$('li:eq(0)').text()), "ramalamadingdong");
+
+    });
+
+    test("select tagName on collection helper automatically sets child tagName to option", function() {
+      var RerenderTest = CollectionView.extend({
+        content: A(['foo'])
+      });
+
+      view = EmberView.create({
+        rerenderTestView: RerenderTest,
+        template: compile('{{#collection view.rerenderTestView tagName="select"}}{{view.content}}{{/collection}}')
+      });
+
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+
+      equal(view.$('option').length, 1, "renders the correct child tag name");
+
+    });
+
+    test("tagName works in the #collection helper", function() {
+      var RerenderTest = CollectionView.extend({
+        content: A(['foo', 'bar'])
+      });
+
+      view = EmberView.create({
+        rerenderTestView: RerenderTest,
+        template: compile('{{#collection view.rerenderTestView tagName="ol"}}{{view.content}}{{/collection}}')
+      });
+
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+
+      equal(view.$('ol').length, 1, "renders the correct tag name");
+      equal(view.$('li').length, 2, "rerenders with correct number of items");
+
+      run(function() {
+        set(firstChild(view), 'content', A(['bing', 'bat', 'bang']));
+      });
+
+      equal(view.$('li').length, 3, "rerenders with correct number of items");
+      equal(trim(view.$('li:eq(0)').text()), "bing");
+    });
+
+    test("should render nested collections", function() {
+
+      var container = new Container();
+      container.register('view:inner-list', CollectionView.extend({
+        tagName: 'ul',
+        content: A(['one','two','three'])
+      }));
+
+      container.register('view:outer-list', CollectionView.extend({
+        tagName: 'ul',
+        content: A(['foo'])
+      }));
+
+      view = EmberView.create({
+        container: container,
+        template: compile('{{#collection "outer-list" class="outer"}}{{content}}{{#collection "inner-list" class="inner"}}{{content}}{{/collection}}{{/collection}}')
+      });
+
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+
+      equal(view.$('ul.outer > li').length, 1, "renders the outer list with correct number of items");
+      equal(view.$('ul.inner').length, 1, "the inner list exsits");
+      equal(view.$('ul.inner > li').length, 3, "renders the inner list with correct number of items");
+
+    });
+
+    test("should render multiple, bound nested collections (#68)", function() {
+      var view;
+
+      run(function() {
+        TemplateTests.contentController = ArrayProxy.create({
+          content: A(['foo','bar'])
+        });
+
+        var InnerList = CollectionView.extend({
+          tagName: 'ul',
+          contentBinding: 'parentView.innerListContent'
+        });
+
+        var OuterListItem = EmberView.extend({
+          innerListView: InnerList,
+          template: compile('{{#collection view.innerListView class="inner"}}{{content}}{{/collection}}{{content}}'),
+          innerListContent: computed(function() {
+            return A([1,2,3]);
+          })
+        });
+
+        var OuterList = CollectionView.extend({
+          tagName: 'ul',
+          contentBinding: 'TemplateTests.contentController',
+          itemViewClass: OuterListItem
+        });
+
+        view = EmberView.create({
+          outerListView: OuterList,
+          template: compile('{{collection view.outerListView class="outer"}}')
+        });
+      });
+
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+
+      equal(view.$('ul.outer > li').length, 2, "renders the outer list with correct number of items");
+      equal(view.$('ul.inner').length, 2, "renders the correct number of inner lists");
+      equal(view.$('ul.inner:first > li').length, 3, "renders the first inner list with correct number of items");
+      equal(view.$('ul.inner:last > li').length, 3, "renders the second list with correct number of items");
+
+      run(function() {
+        view.destroy();
+      });
+    });
+
+    test("should allow view objects to be swapped out without throwing an error (#78)", function() {
+      var view, dataset, secondDataset;
+
+      run(function() {
+        TemplateTests.datasetController = EmberObject.create();
+
+        var ExampleCollectionView = CollectionView.extend({
+          contentBinding: 'parentView.items',
+          tagName: 'ul',
+          template: compile("{{view.content}}")
+        });
+
+        var ReportingView = EmberView.extend({
+          exampleCollectionView: ExampleCollectionView,
+          datasetBinding: 'TemplateTests.datasetController.dataset',
+          readyBinding: 'dataset.ready',
+          itemsBinding: 'dataset.items',
+          template: compile("{{#if view.ready}}{{collection view.exampleCollectionView}}{{else}}Loading{{/if}}")
+        });
+
+        view = ReportingView.create();
+      });
+
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+
+      equal(view.$().text(), "Loading", "renders the loading text when the dataset is not ready");
+
+      run(function() {
+        dataset = EmberObject.create({
+          ready: true,
+          items: A([1,2,3])
+        });
+        TemplateTests.datasetController.set('dataset',dataset);
+      });
+
+      equal(view.$('ul > li').length, 3, "renders the collection with the correct number of items when the dataset is ready");
+
+      run(function() {
+        secondDataset = EmberObject.create({ready: false});
+        TemplateTests.datasetController.set('dataset',secondDataset);
+      });
+
+      equal(view.$().text(), "Loading", "renders the loading text when the second dataset is not ready");
+
+      run(function() {
+        view.destroy();
+      });
+    });
+
+    test("context should be content", function() {
+      var view;
+
+      var container = new Container();
+
+      var items = A([
+        EmberObject.create({name: 'Dave'}),
+        EmberObject.create({name: 'Mary'}),
+        EmberObject.create({name: 'Sara'})
+      ]);
+
+      container.register('view:an-item', EmberView.extend({
+        template: compile("Greetings {{name}}")
+      }));
+
+      view = EmberView.create({
+        container: container,
+        controller: {
+          items: items
+        },
+        template: compile('{{collection contentBinding="items" itemViewClass="an-item"}}')
+      });
+
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+
+      equal(view.$().text(), "Greetings DaveGreetings MaryGreetings Sara");
+
+      run(view, 'destroy');
+    });
+  });
+enifed("ember-htmlbars/tests/helpers/collection_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/tests/helpers');
+    test('ember-htmlbars/tests/helpers/collection_test.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/tests/helpers/collection_test.js should pass jshint.'); 
+    });
+  });
 enifed("ember-htmlbars/tests/helpers/debug_test",
   ["ember-metal/core","ember-metal/logger","ember-metal/run_loop","ember-views/views/view","ember-handlebars-compiler","ember-handlebars/helpers/debug","ember-htmlbars/system/compile"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
@@ -11472,6 +10652,881 @@ enifed("ember-htmlbars/tests/helpers/debug_test.jshint",
     module('JSHint - ember-htmlbars/tests/helpers');
     test('ember-htmlbars/tests/helpers/debug_test.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/tests/helpers/debug_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/tests/helpers/each_test",
+  ["ember-metal/core","ember-runtime/system/object","ember-metal/run_loop","ember-views/views/view","ember-views/views/metamorph_view","ember-metal/computed","ember-runtime/controllers/array_controller","ember-handlebars-compiler","ember-runtime/system/native_array","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/system/container","ember-metal/property_get","ember-metal/property_set","ember-htmlbars/system/compile"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__) {
+    "use strict";
+    /*jshint newcap:false*/
+    var Ember = __dependency1__["default"];
+    // Ember.lookup;
+    var EmberObject = __dependency2__["default"];
+    var run = __dependency3__["default"];
+    var EmberView = __dependency4__["default"];
+    var _MetamorphView = __dependency5__["default"];
+    var computed = __dependency6__.computed;
+    var ArrayController = __dependency7__["default"];
+    var EmberHandlebars = __dependency8__["default"];
+    // import {expectAssertion} from "ember-metal/tests/debug_helpers";
+    var A = __dependency9__.A;
+    var EmberController = __dependency10__["default"];
+    var ObjectController = __dependency11__["default"];
+    var Container = __dependency12__["default"];
+
+    var get = __dependency13__.get;
+    var set = __dependency14__.set;
+
+    var htmlbarsCompile = __dependency15__["default"];
+    var compile;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      compile = htmlbarsCompile;
+    } else {
+      compile = EmberHandlebars.compile;
+    }
+
+    var people, view, container;
+    var template, templateMyView, MyView;
+
+    function templateFor(template) {
+      return compile(template);
+    }
+
+    var originalLookup = Ember.lookup;
+    var lookup;
+
+    QUnit.module("the #each helper [DEPRECATED]", {
+      setup: function() {
+        Ember.lookup = lookup = { Ember: Ember };
+
+        template = templateFor("{{#each view.people}}{{name}}{{/each}}");
+        people = A([{ name: "Steve Holt" }, { name: "Annabelle" }]);
+
+        container = new Container();
+        container.register('view:default', _MetamorphView);
+        container.register('view:toplevel', EmberView.extend());
+
+        view = EmberView.create({
+          container: container,
+          template: template,
+          people: people
+        });
+
+        templateMyView = templateFor("{{name}}");
+        lookup.MyView = MyView = EmberView.extend({
+          template: templateMyView
+        });
+
+        expectDeprecation(function() {
+          append(view);
+        },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+      },
+
+      teardown: function() {
+        run(function() {
+            if (container) {
+              container.destroy();
+            }
+            if (view) {
+              view.destroy();
+            }
+            container = view = null;
+        });
+        Ember.lookup = originalLookup;
+      }
+    });
+
+
+    var append = function(view) {
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+    };
+
+    var assertHTML = function(view, expectedHTML) {
+      var html = view.$().html();
+
+      // IE 8 (and prior?) adds the \r\n
+      html = html.replace(/<script[^>]*><\/script>/ig, '').replace(/[\r\n]/g, '');
+
+      equal(html, expectedHTML);
+    };
+
+    var assertText = function(view, expectedText) {
+      equal(view.$().text(), expectedText);
+    };
+
+    test("it renders the template for each item in an array", function() {
+      assertHTML(view, "Steve HoltAnnabelle");
+    });
+
+    test("it updates the view if an item is added", function() {
+      run(function() {
+        people.pushObject({ name: "Tom Dale" });
+      });
+
+      assertHTML(view, "Steve HoltAnnabelleTom Dale");
+    });
+
+    test("it allows you to access the current context using {{this}}", function() {
+      run(function() { view.destroy(); }); // destroy existing view
+      view = EmberView.create({
+        template: templateFor("{{#each view.people}}{{this}}{{/each}}"),
+        people: A(['Black Francis', 'Joey Santiago', 'Kim Deal', 'David Lovering'])
+      });
+
+      append(view);
+
+      assertHTML(view, "Black FrancisJoey SantiagoKim DealDavid Lovering");
+    });
+
+    test("it updates the view if an item is removed", function() {
+      run(function() {
+        people.removeAt(0);
+      });
+
+      assertHTML(view, "Annabelle");
+    });
+
+    test("it updates the view if an item is replaced", function() {
+      run(function() {
+        people.removeAt(0);
+        people.insertAt(0, { name: "Kazuki" });
+      });
+
+      assertHTML(view, "KazukiAnnabelle");
+    });
+
+    test("can add and replace in the same runloop", function() {
+      run(function() {
+        people.pushObject({ name: "Tom Dale" });
+        people.removeAt(0);
+        people.insertAt(0, { name: "Kazuki" });
+      });
+
+      assertHTML(view, "KazukiAnnabelleTom Dale");
+    });
+
+    test("can add and replace the object before the add in the same runloop", function() {
+      run(function() {
+        people.pushObject({ name: "Tom Dale" });
+        people.removeAt(1);
+        people.insertAt(1, { name: "Kazuki" });
+      });
+
+      assertHTML(view, "Steve HoltKazukiTom Dale");
+    });
+
+    test("can add and replace complicatedly", function() {
+      run(function() {
+        people.pushObject({ name: "Tom Dale" });
+        people.removeAt(1);
+        people.insertAt(1, { name: "Kazuki" });
+        people.pushObject({ name: "Firestone" });
+        people.pushObject({ name: "McMunch" });
+        people.removeAt(3);
+      });
+
+      assertHTML(view, "Steve HoltKazukiTom DaleMcMunch");
+    });
+
+    test("can add and replace complicatedly harder", function() {
+      run(function() {
+        people.pushObject({ name: "Tom Dale" });
+        people.removeAt(1);
+        people.insertAt(1, { name: "Kazuki" });
+        people.pushObject({ name: "Firestone" });
+        people.pushObject({ name: "McMunch" });
+        people.removeAt(2);
+      });
+
+      assertHTML(view, "Steve HoltKazukiFirestoneMcMunch");
+    });
+
+    test("it does not mark each option tag as selected", function() {
+      var selectView = EmberView.create({
+        template: templateFor('<select id="people-select"><option value="">Please select a name</option>{{#each view.people}}<option {{bind-attr value=name}}>{{name}}</option>{{/each}}</select>'),
+        people: people
+      });
+
+      append(selectView);
+
+      equal(selectView.$('option').length, 3, "renders 3 <option> elements");
+
+      equal(selectView.$().find(':selected').text(), 'Please select a name', 'first option is selected');
+
+      run(function() {
+        people.pushObject({name: "Black Francis"});
+      });
+
+      equal(selectView.$().find(':selected').text(), 'Please select a name', 'first option is selected');
+
+      equal(selectView.$('option').length, 4, "renders an additional <option> element when an object is added");
+
+      run(function() {
+        selectView.destroy();
+      });
+    });
+
+    test("it works inside a ul element", function() {
+      var ulView = EmberView.create({
+        template: templateFor('<ul>{{#each view.people}}<li>{{name}}</li>{{/each}}</ul>'),
+        people: people
+      });
+
+      append(ulView);
+
+      equal(ulView.$('li').length, 2, "renders two <li> elements");
+
+      run(function() {
+        people.pushObject({name: "Black Francis"});
+      });
+
+      equal(ulView.$('li').length, 3, "renders an additional <li> element when an object is added");
+
+      run(function() {
+        ulView.destroy();
+      });
+    });
+
+    test("it works inside a table element", function() {
+      var tableView = EmberView.create({
+        template: templateFor('<table><tbody>{{#each view.people}}<tr><td>{{name}}</td></tr>{{/each}}</tbody></table>'),
+        people: people
+      });
+
+      append(tableView);
+
+      equal(tableView.$('td').length, 2, "renders two <td> elements");
+
+      run(function() {
+        people.pushObject({name: "Black Francis"});
+      });
+
+      equal(tableView.$('td').length, 3, "renders an additional <td> element when an object is added");
+
+      run(function() {
+        people.insertAt(0, {name: "Kim Deal"});
+      });
+
+      equal(tableView.$('td').length, 4, "renders an additional <td> when an object is inserted at the beginning of the array");
+
+      run(function() {
+        tableView.destroy();
+      });
+    });
+
+    test("it supports itemController", function() {
+      var Controller = EmberController.extend({
+        controllerName: computed(function() {
+          return "controller:"+this.get('model.name');
+        })
+      });
+
+      run(function() { view.destroy(); }); // destroy existing view
+
+      var parentController = {
+        container: container
+      };
+
+      container.register('controller:array', ArrayController.extend());
+
+      view = EmberView.create({
+        container: container,
+        template: templateFor('{{#each view.people itemController="person"}}{{controllerName}}{{/each}}'),
+        people: people,
+        controller: parentController
+      });
+
+      container.register('controller:person', Controller);
+
+      append(view);
+
+      equal(view.$().text(), "controller:Steve Holtcontroller:Annabelle");
+
+      run(function() {
+        view.rerender();
+      });
+
+      assertText(view, "controller:Steve Holtcontroller:Annabelle");
+
+      run(function() {
+        people.pushObject({ name: "Yehuda Katz" });
+      });
+
+      assertText(view, "controller:Steve Holtcontroller:Annabellecontroller:Yehuda Katz");
+
+      run(function() {
+        set(view, 'people', A([{ name: "Trek Glowacki" }, { name: "Geoffrey Grosenbach" }]));
+      });
+
+      assertText(view, "controller:Trek Glowackicontroller:Geoffrey Grosenbach");
+
+      strictEqual(view.get('_childViews')[0].get('_arrayController.target'), parentController, "the target property of the child controllers are set correctly");
+    });
+
+    test("itemController specified in template gets a parentController property", function() {
+      // using an ObjectController for this test to verify that parentController does accidentally get set
+      // on the proxied model.
+      var Controller = ObjectController.extend({
+            controllerName: computed(function() {
+              return "controller:" + get(this, 'model.name') + ' of ' + get(this, 'parentController.company');
+            })
+          });
+      var parentController = {
+            container: container,
+            company: 'Yapp'
+          };
+
+      container.register('controller:array', ArrayController.extend());
+      run(function() { view.destroy(); }); // destroy existing view
+
+      view = EmberView.create({
+        container: container,
+        template: templateFor('{{#each view.people itemController="person"}}{{controllerName}}{{/each}}'),
+        people: people,
+        controller: parentController
+      });
+
+      container.register('controller:person', Controller);
+
+      append(view);
+
+      equal(view.$().text(), "controller:Steve Holt of Yappcontroller:Annabelle of Yapp");
+    });
+
+    test("itemController specified in ArrayController gets a parentController property", function() {
+      var PersonController = ObjectController.extend({
+            controllerName: computed(function() {
+              return "controller:" + get(this, 'model.name') + ' of ' + get(this, 'parentController.company');
+            })
+          });
+      var PeopleController = ArrayController.extend({
+            model: people,
+            itemController: 'person',
+            company: 'Yapp'
+          });
+
+      container.register('controller:people', PeopleController);
+      container.register('controller:person', PersonController);
+      run(function() { view.destroy(); }); // destroy existing view
+
+      view = EmberView.create({
+        container: container,
+        template: templateFor('{{#each}}{{controllerName}}{{/each}}'),
+        controller: container.lookup('controller:people')
+      });
+
+
+      append(view);
+
+      equal(view.$().text(), "controller:Steve Holt of Yappcontroller:Annabelle of Yapp");
+    });
+
+    test("itemController's parentController property, when the ArrayController has a parentController", function() {
+      var PersonController = ObjectController.extend({
+            controllerName: computed(function() {
+              return "controller:" + get(this, 'model.name') + ' of ' + get(this, 'parentController.company');
+            })
+          });
+      var PeopleController = ArrayController.extend({
+            model: people,
+            itemController: 'person',
+            parentController: computed(function(){
+              return this.container.lookup('controller:company');
+            }),
+            company: 'Yapp'
+          });
+       var CompanyController = EmberController.extend();
+
+      container.register('controller:company', CompanyController);
+      container.register('controller:people', PeopleController);
+      container.register('controller:person', PersonController);
+
+      run(function() { view.destroy(); }); // destroy existing view
+      view = EmberView.create({
+        container: container,
+        template: templateFor('{{#each}}{{controllerName}}{{/each}}'),
+        controller: container.lookup('controller:people')
+      });
+
+
+      append(view);
+
+      equal(view.$().text(), "controller:Steve Holt of Yappcontroller:Annabelle of Yapp");
+    });
+
+    test("it supports itemController when using a custom keyword", function() {
+      var Controller = EmberController.extend({
+        controllerName: computed(function() {
+          return "controller:"+this.get('model.name');
+        })
+      });
+
+      container.register('controller:array', ArrayController.extend());
+
+      run(function() { view.destroy(); }); // destroy existing view
+      view = EmberView.create({
+        container: container,
+        template: templateFor('{{#each person in view.people itemController="person"}}{{person.controllerName}}{{/each}}'),
+        people: people,
+        controller: {
+          container: container
+        }
+      });
+
+      container.register('controller:person', Controller);
+
+      append(view);
+
+      equal(view.$().text(), "controller:Steve Holtcontroller:Annabelle");
+
+      run(function() {
+        view.rerender();
+      });
+
+      equal(view.$().text(), "controller:Steve Holtcontroller:Annabelle");
+    });
+
+    test("it supports {{itemView=}}", function() {
+      var itemView = EmberView.extend({
+        template: templateFor('itemView:{{name}}')
+      });
+
+      run(function() { view.destroy(); }); // destroy existing view
+      view = EmberView.create({
+        template: templateFor('{{each view.people itemView="anItemView"}}'),
+        people: people,
+        controller: {
+          container: container
+        }
+      });
+
+      container.register('view:anItemView', itemView);
+
+      append(view);
+
+      assertText(view, "itemView:Steve HoltitemView:Annabelle");
+    });
+
+
+    test("it defers all normalization of itemView names to the resolver", function() {
+      var itemView = EmberView.extend({
+        template: templateFor('itemView:{{name}}')
+      });
+
+      run(function() { view.destroy(); }); // destroy existing view
+      view = EmberView.create({
+        template: templateFor('{{each view.people itemView="an-item-view"}}'),
+        people: people,
+        controller: {
+          container: container
+        }
+      });
+
+      container.register('view:an-item-view', itemView);
+      container.resolve = function(fullname) {
+        equal(fullname, "view:an-item-view", "leaves fullname untouched");
+        return Container.prototype.resolve.call(this, fullname);
+      };
+      append(view);
+
+    });
+
+    test("it supports {{itemViewClass=}} with global (DEPRECATED)", function() {
+      run(function() { view.destroy(); }); // destroy existing view
+      view = EmberView.create({
+        template: templateFor('{{each view.people itemViewClass=MyView}}'),
+        people: people
+      });
+
+      var deprecation = /Resolved the view "MyView" on the global context/;
+      if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+        deprecation = /Global lookup of MyView from a Handlebars template is deprecated/;
+      }
+
+      expectDeprecation(function(){
+        append(view);
+      }, deprecation);
+
+      assertText(view, "Steve HoltAnnabelle");
+    });
+
+    test("it supports {{itemViewClass=}} via container", function() {
+      run(function() { view.destroy(); }); // destroy existing view
+      view = EmberView.create({
+        container: {
+          lookupFactory: function(name){
+            equal(name, 'view:my-view');
+            return MyView;
+          }
+        },
+        template: templateFor('{{each view.people itemViewClass="my-view"}}'),
+        people: people
+      });
+
+      append(view);
+
+      assertText(view, "Steve HoltAnnabelle");
+    });
+
+    test("it supports {{itemViewClass=}} with tagName (DEPRECATED)", function() {
+      run(function() { view.destroy(); }); // destroy existing view
+      view = EmberView.create({
+          template: templateFor('{{each view.people itemViewClass=MyView tagName="ul"}}'),
+          people: people
+      });
+
+      expectDeprecation(/Supplying a tagName to Metamorph views is unreliable and is deprecated./);
+
+      append(view);
+      equal(view.$('ul').length, 1, 'rendered ul tag');
+      equal(view.$('ul li').length, 2, 'rendered 2 li tags');
+      equal(view.$('ul li').text(), 'Steve HoltAnnabelle');
+    });
+
+    test("it supports {{itemViewClass=}} with in format", function() {
+
+      MyView = EmberView.extend({
+        template: templateFor("{{person.name}}")
+      });
+
+      run(function() { view.destroy(); }); // destroy existing view
+      view = EmberView.create({
+        container: {
+          lookupFactory: function(name){
+            return MyView;
+          }
+        },
+        template: templateFor('{{each person in view.people itemViewClass="myView"}}'),
+        people: people
+      });
+
+      append(view);
+
+      assertText(view, "Steve HoltAnnabelle");
+
+    });
+
+    test("it supports {{else}}", function() {
+      run(function() { view.destroy(); }); // destroy existing view
+      view = EmberView.create({
+        template: templateFor("{{#each view.items}}{{this}}{{else}}Nothing{{/each}}"),
+        items: A(['one', 'two'])
+      });
+
+      append(view);
+
+      assertHTML(view, "onetwo");
+
+      run(function() {
+        view.set('items', A());
+      });
+
+      assertHTML(view, "Nothing");
+    });
+
+    test("it works with the controller keyword", function() {
+      run(view, 'destroy'); // destroy existing view
+
+      var controller = ArrayController.create({
+        model: A(["foo", "bar", "baz"])
+      });
+
+      run(function() { view.destroy(); }); // destroy existing view
+      view = EmberView.create({
+        container: container,
+        controller: controller,
+        template: templateFor("{{#view}}{{#each controller}}{{this}}{{/each}}{{/view}}")
+      });
+
+      append(view);
+
+      equal(view.$().text(), "foobarbaz");
+    });
+
+    test("views inside #each preserve the new context [DEPRECATED]", function() {
+      run(view, 'destroy'); // destroy existing view
+
+      var controller = A([ { name: "Adam" }, { name: "Steve" } ]);
+
+      view = EmberView.create({
+        container: container,
+        controller: controller,
+        template: templateFor('{{#each controller}}{{#view}}{{name}}{{/view}}{{/each}}')
+      });
+
+
+      expectDeprecation(function() {
+        append(view);
+      },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+
+      equal(view.$().text(), "AdamSteve");
+    });
+
+    test("single-arg each defaults to current context [DEPRECATED]", function() {
+      run(view, 'destroy'); // destroy existing view
+
+      view = EmberView.create({
+        context: A([ { name: "Adam" }, { name: "Steve" } ]),
+        template: templateFor('{{#each}}{{name}}{{/each}}')
+      });
+
+      expectDeprecation(function() {
+        append(view);
+      },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+
+      equal(view.$().text(), "AdamSteve");
+    });
+
+    test("single-arg each will iterate over controller if present [DEPRECATED]", function() {
+      run(view, 'destroy'); // destroy existing view
+
+      view = EmberView.create({
+        controller: A([ { name: "Adam" }, { name: "Steve" } ]),
+        template: templateFor('{{#each}}{{name}}{{/each}}')
+      });
+
+      expectDeprecation(function() {
+        append(view);
+      },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+
+      equal(view.$().text(), "AdamSteve");
+    });
+
+    QUnit.module("{{#each foo in bar}}", {
+      setup: function() {
+        container = new Container();
+        container.register('view:default', _MetamorphView);
+        container.register('view:toplevel', EmberView.extend());
+      },
+      teardown: function() {
+        run(function() {
+            if (container) {
+              container.destroy();
+            }
+            if (view) {
+              view.destroy();
+            }
+            container = view = null;
+        });
+      }
+    });
+
+    test("#each accepts a name binding", function() {
+      view = EmberView.create({
+        template: templateFor("{{#each item in view.items}}{{view.title}} {{item}}{{/each}}"),
+        title: "My Cool Each Test",
+        items: A([1, 2])
+      });
+
+      append(view);
+
+      equal(view.$().text(), "My Cool Each Test 1My Cool Each Test 2");
+    });
+
+    test("#each accepts a name binding and does not change the context", function() {
+      var controller = EmberController.create({
+        name: 'bob the controller'
+      });
+      var obj = EmberObject.create({
+        name: 'henry the item'
+      });
+
+      view = EmberView.create({
+        template: templateFor("{{#each item in view.items}}{{name}}{{/each}}"),
+        title: "My Cool Each Test",
+        items: A([obj]),
+        controller: controller
+      });
+
+      append(view);
+
+      equal(view.$().text(), "bob the controller");
+    });
+
+
+    test("#each accepts a name binding and can display child properties", function() {
+      view = EmberView.create({
+        template: templateFor("{{#each item in view.items}}{{view.title}} {{item.name}}{{/each}}"),
+        title: "My Cool Each Test",
+        items: A([{ name: 1 }, { name: 2 }])
+      });
+
+      append(view);
+
+      equal(view.$().text(), "My Cool Each Test 1My Cool Each Test 2");
+    });
+
+    test("#each accepts 'this' as the right hand side", function() {
+      view = EmberView.create({
+        template: templateFor("{{#each item in this}}{{view.title}} {{item.name}}{{/each}}"),
+        title: "My Cool Each Test",
+        controller: A([{ name: 1 }, { name: 2 }])
+      });
+
+      append(view);
+
+      equal(view.$().text(), "My Cool Each Test 1My Cool Each Test 2");
+    });
+
+    test("views inside #each preserve the new context [DEPRECATED]", function() {
+      var controller = A([ { name: "Adam" }, { name: "Steve" } ]);
+
+      view = EmberView.create({
+        container: container,
+        controller: controller,
+        template: templateFor('{{#each controller}}{{#view}}{{name}}{{/view}}{{/each}}')
+      });
+
+      expectDeprecation(function() {
+        append(view);
+      },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+
+      equal(view.$().text(), "AdamSteve");
+    });
+
+    test("controller is assignable inside an #each", function() {
+      var controller = ArrayController.create({
+        model: A([ { name: "Adam" }, { name: "Steve" } ])
+      });
+
+      view = EmberView.create({
+        container: container,
+        controller: controller,
+        template: templateFor('{{#each personController in this}}{{#view controllerBinding="personController"}}{{name}}{{/view}}{{/each}}')
+      });
+
+      append(view);
+
+      equal(view.$().text(), "AdamSteve");
+    });
+
+    test("it doesn't assert when the morph tags have the same parent", function() {
+      view = EmberView.create({
+        controller: A(['Cyril', 'David']),
+        template: templateFor('<table><tbody>{{#each name in this}}<tr><td>{{name}}</td></tr>{{/each}}</tbody></table>')
+      });
+
+      append(view);
+
+      ok(true, "No assertion from valid template");
+    });
+
+    test("itemController specified in template with name binding does not change context", function() {
+      var Controller = EmberController.extend({
+        controllerName: computed(function() {
+          return "controller:"+this.get('model.name');
+        })
+      });
+
+      var container = new Container();
+
+      people = A([{ name: "Steve Holt" }, { name: "Annabelle" }]);
+
+      var parentController = {
+        container: container,
+        people: people,
+        controllerName: 'controller:parentController'
+      };
+
+      container.register('controller:array', ArrayController.extend());
+
+      view = EmberView.create({
+        container: container,
+        template: templateFor('{{#each person in people itemController="person"}}{{controllerName}} - {{person.controllerName}} - {{/each}}'),
+        controller: parentController
+      });
+
+      container.register('controller:person', Controller);
+
+      append(view);
+
+      equal(view.$().text(), "controller:parentController - controller:Steve Holt - controller:parentController - controller:Annabelle - ");
+
+      run(function() {
+        people.pushObject({ name: "Yehuda Katz" });
+      });
+
+      assertText(view, "controller:parentController - controller:Steve Holt - controller:parentController - controller:Annabelle - controller:parentController - controller:Yehuda Katz - ");
+
+      run(function() {
+        set(parentController, 'people', A([{ name: "Trek Glowacki" }, { name: "Geoffrey Grosenbach" }]));
+      });
+
+      assertText(view, "controller:parentController - controller:Trek Glowacki - controller:parentController - controller:Geoffrey Grosenbach - ");
+
+      strictEqual(view.get('_childViews')[0].get('_arrayController.target'), parentController, "the target property of the child controllers are set correctly");
+    });
+
+    test("itemController specified in ArrayController with name binding does not change context", function() {
+      people = A([{ name: "Steve Holt" }, { name: "Annabelle" }]);
+
+      var PersonController = ObjectController.extend({
+            controllerName: computed(function() {
+              return "controller:" + get(this, 'model.name') + ' of ' + get(this, 'parentController.company');
+            })
+          });
+      var PeopleController = ArrayController.extend({
+            model: people,
+            itemController: 'person',
+            company: 'Yapp',
+            controllerName: 'controller:people'
+          });
+      var container = new Container();
+
+      container.register('controller:people', PeopleController);
+      container.register('controller:person', PersonController);
+
+      view = EmberView.create({
+        container: container,
+        template: templateFor('{{#each person in this}}{{controllerName}} - {{person.controllerName}} - {{/each}}'),
+        controller: container.lookup('controller:people')
+      });
+
+
+      append(view);
+
+      equal(view.$().text(), "controller:people - controller:Steve Holt of Yapp - controller:people - controller:Annabelle of Yapp - ");
+    });
+
+    test("{{each}} without arguments [DEPRECATED]", function() {
+      expect(2);
+
+      view = EmberView.create({
+        controller: A([ { name: "Adam" }, { name: "Steve" } ]),
+        template: templateFor('{{#each}}{{name}}{{/each}}')
+      });
+
+      expectDeprecation(function() {
+        append(view);
+      },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+
+      equal(view.$().text(), "AdamSteve");
+    });
+
+    test("{{each this}} without keyword [DEPRECATED]", function() {
+      expect(2);
+
+      view = EmberView.create({
+        controller: A([ { name: "Adam" }, { name: "Steve" } ]),
+        template: templateFor('{{#each this}}{{name}}{{/each}}')
+      });
+
+      expectDeprecation(function() {
+        append(view);
+      },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+
+      equal(view.$().text(), "AdamSteve");
+    });
+  });
+enifed("ember-htmlbars/tests/helpers/each_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/tests/helpers');
+    test('ember-htmlbars/tests/helpers/each_test.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/tests/helpers/each_test.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/tests/helpers/if_unless_test",
