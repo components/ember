@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.0ff9abf8
+ * @version   1.10.0-beta.1+canary.66691b37
  */
 
 (function() {
@@ -14669,7 +14669,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.0ff9abf8
+      @version 1.10.0-beta.1+canary.66691b37
     */
 
     if ('undefined' === typeof Ember) {
@@ -14696,10 +14696,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.0ff9abf8'
+      @default '1.10.0-beta.1+canary.66691b37'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.0ff9abf8';
+    Ember.VERSION = '1.10.0-beta.1+canary.66691b37';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -22770,7 +22770,7 @@ enifed("ember-routing-htmlbars/helpers/action",
     __exports__.actionHelper = actionHelper;
   });
 enifed("ember-routing-htmlbars/helpers/link-to",
-  ["ember-metal/core","ember-routing-views/views/link","ember-views/streams/read","ember-metal/streams/read","ember-htmlbars","exports"],
+  ["ember-metal/core","ember-routing-views/views/link","ember-metal/streams/read","ember-runtime/mixins/controller","ember-htmlbars","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     /**
@@ -22781,8 +22781,8 @@ enifed("ember-routing-htmlbars/helpers/link-to",
     var Ember = __dependency1__["default"];
     // assert
     var LinkView = __dependency2__.LinkView;
-    var readUnwrappedModel = __dependency3__.readUnwrappedModel;
-    var read = __dependency4__.read;
+    var read = __dependency3__.read;
+    var ControllerMixin = __dependency4__["default"];
 
     // We need the HTMLBars view helper from ensure ember-htmlbars.
     // This ensures it is loaded first:
@@ -23097,7 +23097,13 @@ enifed("ember-routing-htmlbars/helpers/link-to",
 
       for (var i = 0; i < params.length; i++) {
         if (types[i] === 'id') {
-          var lazyValue = readUnwrappedModel(params[i]);
+          var lazyValue = params[i];
+
+          if (!lazyValue._isController) {
+            while (ControllerMixin.detect(lazyValue.value())) {
+              lazyValue = lazyValue.get('model');
+            }
+          }
 
           params[i] = lazyValue;
         }
