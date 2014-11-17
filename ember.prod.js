@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.683e4f75
+ * @version   1.10.0-beta.1+canary.c7de70c1
  */
 
 (function() {
@@ -4932,9 +4932,11 @@ enifed("ember-handlebars/controls",
       The action property defines the action which is sent when
       the user presses the return key.
 
+
       ```handlebars
       {{input action="submit"}}
       ```
+
 
       The helper allows some user events to send actions.
 
@@ -4949,9 +4951,11 @@ enifed("ember-handlebars/controls",
       For example, if you desire an action to be sent when the input is blurred,
       you only need to setup the action name to the event name property.
 
+
       ```handlebars
       {{input focus-in="alertMessage"}}
       ```
+
 
       See more about [Text Support Actions](/api/classes/Ember.TextField.html)
 
@@ -14483,7 +14487,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.683e4f75
+      @version 1.10.0-beta.1+canary.c7de70c1
     */
 
     if ('undefined' === typeof Ember) {
@@ -14510,10 +14514,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.683e4f75'
+      @default '1.10.0-beta.1+canary.c7de70c1'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.683e4f75';
+    Ember.VERSION = '1.10.0-beta.1+canary.c7de70c1';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
