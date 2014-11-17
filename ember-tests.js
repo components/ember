@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.13ce2e9b
+ * @version   1.10.0-beta.1+canary.2f20214e
  */
 
 (function() {
@@ -3658,15 +3658,6 @@ enifed("ember-extension-support/data_adapter.jshint",
     module('JSHint - ember-extension-support');
     test('ember-extension-support/data_adapter.js should pass jshint', function() { 
       ok(true, 'ember-extension-support/data_adapter.js should pass jshint.'); 
-    });
-  });
-enifed("ember-extension-support/initializers.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-extension-support');
-    test('ember-extension-support/initializers.js should pass jshint', function() { 
-      ok(true, 'ember-extension-support/initializers.js should pass jshint.'); 
     });
   });
 enifed("ember-extension-support/tests/container_debug_adapter_test",
