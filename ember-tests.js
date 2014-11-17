@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.5546b8f2
+ * @version   1.10.0-beta.1+canary.107c8aa1
  */
 
 (function() {
@@ -56082,19 +56082,31 @@ enifed("ember/tests/application_lifecycle.jshint",
     });
   });
 enifed("ember/tests/component_registration_test",
-  ["ember"],
-  function(__dependency1__) {
+  ["ember","ember-handlebars","ember-htmlbars/system/compile","ember-htmlbars/helpers"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
 
+    var EmberHandlebars = __dependency2__["default"];
+    var htmlbarsCompile = __dependency3__["default"];
+    var htmlbarsHelpers = __dependency4__["default"];
+
+    var compile, helpers;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      compile = htmlbarsCompile;
+      helpers = htmlbarsHelpers;
+    } else {
+      compile = EmberHandlebars.compile;
+      helpers = EmberHandlebars.helpers;
+    }
+
     var App, container;
-    var compile = Ember.Handlebars.compile;
     var originalHelpers;
 
     function prepare(){
       Ember.TEMPLATES["components/expand-it"] = compile("<p>hello {{yield}}</p>");
       Ember.TEMPLATES.application = compile("Hello world {{#expand-it}}world{{/expand-it}}");
 
-      originalHelpers = Ember.A(Ember.keys(Ember.Handlebars.helpers));
+      originalHelpers = Ember.A(Ember.keys(helpers));
     }
 
     function cleanup(){
@@ -56108,11 +56120,11 @@ enifed("ember/tests/component_registration_test",
     }
 
     function cleanupHandlebarsHelpers(){
-      var currentHelpers = Ember.A(Ember.keys(Ember.Handlebars.helpers));
+      var currentHelpers = Ember.A(Ember.keys(helpers));
 
       currentHelpers.forEach(function(name){
         if (!originalHelpers.contains(name)) {
-          delete Ember.Handlebars.helpers[name];
+          delete helpers[name];
         }
       });
     }
@@ -56178,7 +56190,7 @@ enifed("ember/tests/component_registration_test",
       });
 
       equal(Ember.$('#wrapper').text(), "there goes watch him as he GOES", "The component is composed correctly");
-      ok(!Ember.Handlebars.helpers['my-hero'], "Component wasn't saved to global Handlebars.helpers hash");
+      ok(!helpers['my-hero'], "Component wasn't saved to global helpers hash");
     });
 
     test("Late-registered components can be rendered with template registered on the container", function() {
@@ -56191,7 +56203,7 @@ enifed("ember/tests/component_registration_test",
       });
 
       equal(Ember.$('#wrapper').text(), "hello world funkytowny-funkytowny!!!", "The component is composed correctly");
-      ok(!Ember.Handlebars.helpers['sally-rutherford'], "Component wasn't saved to global Handlebars.helpers hash");
+      ok(!helpers['sally-rutherford'], "Component wasn't saved to global helpers hash");
     });
 
     test("Late-registered components can be rendered with ONLY the template registered on the container", function() {
@@ -56203,7 +56215,7 @@ enifed("ember/tests/component_registration_test",
       });
 
       equal(Ember.$('#wrapper').text(), "hello world goodfreakingTIMES-goodfreakingTIMES!!!", "The component is composed correctly");
-      ok(!Ember.Handlebars.helpers['borf-snorlax'], "Component wasn't saved to global Handlebars.helpers hash");
+      ok(!helpers['borf-snorlax'], "Component wasn't saved to global helpers hash");
     });
 
     test("Component-like invocations are treated as bound paths if neither template nor component are registered on the container", function() {
@@ -56283,6 +56295,9 @@ enifed("ember/tests/component_registration_test",
       equal(Ember.$('#wrapper').text(), "inner-outer", "The component is composed correctly");
     });
 
+    if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      // ember-htmlbars doesn't throw an exception when a helper is not found
+
     test('Using name of component that does not exist', function () {
       Ember.TEMPLATES.application = compile("<div id='wrapper'>{{#no-good}} {{/no-good}}</div>");
 
@@ -56290,6 +56305,8 @@ enifed("ember/tests/component_registration_test",
         boot();
       }, /Could not find component or helper named 'no-good'/);
     });
+
+    }
 
     QUnit.module("Application Lifecycle - Component Context", {
       setup: prepare,
@@ -56464,12 +56481,24 @@ enifed("ember/tests/global-api-test.jshint",
     });
   });
 enifed("ember/tests/helpers/helper_registration_test",
-  ["ember"],
-  function(__dependency1__) {
+  ["ember","ember-handlebars","ember-htmlbars/system/compile","ember-htmlbars/helpers"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
 
+    var EmberHandlebars = __dependency2__["default"];
+    var htmlbarsCompile = __dependency3__["default"];
+    var htmlbarsHelpers = __dependency4__["default"];
+
+    var compile, helpers;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      compile = htmlbarsCompile;
+      helpers = htmlbarsHelpers;
+    } else {
+      compile = EmberHandlebars.compile;
+      helpers = EmberHandlebars.helpers;
+    }
+
     var App, container;
-    var compile = Ember.Handlebars.compile;
 
     function reverseHelper(value) {
       return arguments.length > 1 ? value.split('').reverse().join('') : "--";
@@ -56512,6 +56541,9 @@ enifed("ember/tests/helpers/helper_registration_test",
       });
     };
 
+    if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      // need to make container lookup of helpers normalize the path to
+      // old format (currently using `params, hash, options, env`)
     test("Unbound dashed helpers registered on the container can be late-invoked", function() {
 
       Ember.TEMPLATES.application = compile("<div id='wrapper'>{{x-borf}} {{x-borf YES}}</div>");
@@ -56523,7 +56555,7 @@ enifed("ember/tests/helpers/helper_registration_test",
       });
 
       equal(Ember.$('#wrapper').text(), "BORF YES", "The helper was invoked from the container");
-      ok(!Ember.Handlebars.helpers['x-borf'], "Container-registered helper doesn't wind up on global helpers hash");
+      ok(!helpers['x-borf'], "Container-registered helper doesn't wind up on global helpers hash");
     });
 
     test("Bound helpers registered on the container can be late-invoked", function() {
@@ -56538,13 +56570,13 @@ enifed("ember/tests/helpers/helper_registration_test",
       });
 
       equal(Ember.$('#wrapper').text(), "-- xela", "The bound helper was invoked from the container");
-      ok(!Ember.Handlebars.helpers['x-reverse'], "Container-registered helper doesn't wind up on global helpers hash");
+      ok(!helpers['x-reverse'], "Container-registered helper doesn't wind up on global helpers hash");
     });
 
     test("Undashed helpers registered on the container can not (presently) be invoked", function() {
 
-      var realHelperMissing = Ember.Handlebars.helpers.helperMissing;
-      Ember.Handlebars.helpers.helperMissing = function() {
+      var realHelperMissing = helpers.helperMissing;
+      helpers.helperMissing = function() {
         return "NOHALPER";
       };
 
@@ -56565,8 +56597,10 @@ enifed("ember/tests/helpers/helper_registration_test",
 
       equal(Ember.$('#wrapper').text(), "|NOHALPER||NOHALPER", "The undashed helper was invoked from the container");
 
-      Ember.Handlebars.helpers.helperMissing = realHelperMissing;
+      helpers.helperMissing = realHelperMissing;
     });
+
+    }
   });
 enifed("ember/tests/helpers/helper_registration_test.jshint",
   [],
@@ -56578,9 +56612,19 @@ enifed("ember/tests/helpers/helper_registration_test.jshint",
     });
   });
 enifed("ember/tests/helpers/link_to_test",
-  ["ember"],
-  function(__dependency1__) {
+  ["ember","ember-handlebars","ember-htmlbars/system/compile"],
+  function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
+
+    var EmberHandlebars = __dependency2__["default"];
+    var htmlbarsCompile = __dependency3__["default"];
+
+    var compile;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      compile = htmlbarsCompile;
+    } else {
+      compile = EmberHandlebars.compile;
+    }
 
     var Router, App, AppView, router, container;
     var set = Ember.set;
@@ -56593,10 +56637,6 @@ enifed("ember/tests/helpers/link_to_test",
     // IE includes the host name
     function normalizeUrl(url) {
       return url.replace(/https?:\/\/[^\/]+/,'');
-    }
-
-    function compile(template) {
-      return Ember.Handlebars.compile(template);
     }
 
     function shouldNotBeActive(selector) {
@@ -56652,10 +56692,10 @@ enifed("ember/tests/helpers/link_to_test",
 
           sharedSetup();
 
-          Ember.TEMPLATES.app = Ember.Handlebars.compile("{{outlet}}");
-          Ember.TEMPLATES.index = Ember.Handlebars.compile("<h3>Home</h3>{{#link-to 'about' id='about-link'}}About{{/link-to}}{{#link-to 'index' id='self-link'}}Self{{/link-to}}");
-          Ember.TEMPLATES.about = Ember.Handlebars.compile("<h3>About</h3>{{#link-to 'index' id='home-link'}}Home{{/link-to}}{{#link-to 'about' id='self-link'}}Self{{/link-to}}");
-          Ember.TEMPLATES.item = Ember.Handlebars.compile("<h3>Item</h3><p>{{name}}</p>{{#link-to 'index' id='home-link'}}Home{{/link-to}}");
+          Ember.TEMPLATES.app = compile("{{outlet}}");
+          Ember.TEMPLATES.index = compile("<h3>Home</h3>{{#link-to 'about' id='about-link'}}About{{/link-to}}{{#link-to 'index' id='self-link'}}Self{{/link-to}}");
+          Ember.TEMPLATES.about = compile("<h3>About</h3>{{#link-to 'index' id='home-link'}}Home{{/link-to}}{{#link-to 'about' id='self-link'}}Self{{/link-to}}");
+          Ember.TEMPLATES.item = compile("<h3>Item</h3><p>{{name}}</p>{{#link-to 'index' id='home-link'}}Home{{/link-to}}");
 
           AppView = Ember.View.extend({
             templateName: 'app'
@@ -56695,7 +56735,7 @@ enifed("ember/tests/helpers/link_to_test",
 
     test("The {{link-to}} helper supports URL replacement", function() {
 
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("<h3>Home</h3>{{#link-to 'about' id='about-link' replace=true}}About{{/link-to}}");
+      Ember.TEMPLATES.index = compile("<h3>Home</h3>{{#link-to 'about' id='about-link' replace=true}}About{{/link-to}}");
 
       Router.map(function() {
         this.route("about");
@@ -56719,7 +56759,7 @@ enifed("ember/tests/helpers/link_to_test",
     });
 
     test("the {{link-to}} helper doesn't add an href when the tagName isn't 'a'", function() {
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("{{#link-to 'about' id='about-link' tagName='div'}}About{{/link-to}}");
+      Ember.TEMPLATES.index = compile("{{#link-to 'about' id='about-link' tagName='div'}}About{{/link-to}}");
 
       Router.map(function() {
         this.route("about");
@@ -56736,7 +56776,7 @@ enifed("ember/tests/helpers/link_to_test",
 
 
     test("the {{link-to}} applies a 'disabled' class when disabled", function () {
-      Ember.TEMPLATES.index = Ember.Handlebars.compile('{{#link-to "about" id="about-link" disabledWhen="shouldDisable"}}About{{/link-to}}');
+      Ember.TEMPLATES.index = compile('{{#link-to "about" id="about-link" disabledWhen="shouldDisable"}}About{{/link-to}}');
       App.IndexController = Ember.Controller.extend({
         shouldDisable: true
       });
@@ -56755,7 +56795,7 @@ enifed("ember/tests/helpers/link_to_test",
     });
 
     test("the {{link-to}} doesn't apply a 'disabled' class if disabledWhen is not provided", function () {
-      Ember.TEMPLATES.index = Ember.Handlebars.compile('{{#link-to "about" id="about-link"}}About{{/link-to}}');
+      Ember.TEMPLATES.index = compile('{{#link-to "about" id="about-link"}}About{{/link-to}}');
 
       Router.map(function() {
         this.route("about");
@@ -56771,7 +56811,7 @@ enifed("ember/tests/helpers/link_to_test",
     });
 
     test("the {{link-to}} helper supports a custom disabledClass", function () {
-      Ember.TEMPLATES.index = Ember.Handlebars.compile('{{#link-to "about" id="about-link" disabledWhen="shouldDisable" disabledClass="do-not-want"}}About{{/link-to}}');
+      Ember.TEMPLATES.index = compile('{{#link-to "about" id="about-link" disabledWhen="shouldDisable" disabledClass="do-not-want"}}About{{/link-to}}');
       App.IndexController = Ember.Controller.extend({
         shouldDisable: true
       });
@@ -56791,7 +56831,7 @@ enifed("ember/tests/helpers/link_to_test",
     });
 
     test("the {{link-to}} helper does not respond to clicks when disabled", function () {
-      Ember.TEMPLATES.index = Ember.Handlebars.compile('{{#link-to "about" id="about-link" disabledWhen="shouldDisable"}}About{{/link-to}}');
+      Ember.TEMPLATES.index = compile('{{#link-to "about" id="about-link" disabledWhen="shouldDisable"}}About{{/link-to}}');
       App.IndexController = Ember.Controller.extend({
         shouldDisable: true
       });
@@ -56814,7 +56854,7 @@ enifed("ember/tests/helpers/link_to_test",
     });
 
     test("The {{link-to}} helper supports a custom activeClass", function() {
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("<h3>Home</h3>{{#link-to 'about' id='about-link'}}About{{/link-to}}{{#link-to 'index' id='self-link' activeClass='zomg-active'}}Self{{/link-to}}");
+      Ember.TEMPLATES.index = compile("<h3>Home</h3>{{#link-to 'about' id='about-link'}}About{{/link-to}}{{#link-to 'index' id='self-link' activeClass='zomg-active'}}Self{{/link-to}}");
 
       Router.map(function() {
         this.route("about");
@@ -56860,8 +56900,8 @@ enifed("ember/tests/helpers/link_to_test",
         this.route("item");
       });
 
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("<h3>Home</h3>{{outlet}}");
-      Ember.TEMPLATES['index/about'] = Ember.Handlebars.compile("{{#link-to 'item' id='other-link' currentWhen='index'}}ITEM{{/link-to}}");
+      Ember.TEMPLATES.index = compile("<h3>Home</h3>{{outlet}}");
+      Ember.TEMPLATES['index/about'] = compile("{{#link-to 'item' id='other-link' currentWhen='index'}}ITEM{{/link-to}}");
 
       bootApplication();
 
@@ -56881,8 +56921,8 @@ enifed("ember/tests/helpers/link_to_test",
         this.route("item");
       });
 
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("<h3>Home</h3>{{outlet}}");
-      Ember.TEMPLATES['index/about'] = Ember.Handlebars.compile("{{#link-to 'item' id='other-link' current-when='index'}}ITEM{{/link-to}}");
+      Ember.TEMPLATES.index = compile("<h3>Home</h3>{{outlet}}");
+      Ember.TEMPLATES['index/about'] = compile("{{#link-to 'item' id='other-link' current-when='index'}}ITEM{{/link-to}}");
 
       bootApplication();
 
@@ -56904,8 +56944,8 @@ enifed("ember/tests/helpers/link_to_test",
         });
       });
 
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("<h3>Home</h3>{{outlet}}");
-      Ember.TEMPLATES['index/about'] = Ember.Handlebars.compile("{{#link-to 'items' id='other-link' current-when='index'}}ITEM{{/link-to}}");
+      Ember.TEMPLATES.index = compile("<h3>Home</h3>{{outlet}}");
+      Ember.TEMPLATES['index/about'] = compile("{{#link-to 'items' id='other-link' current-when='index'}}ITEM{{/link-to}}");
 
       bootApplication();
 
@@ -56926,10 +56966,10 @@ enifed("ember/tests/helpers/link_to_test",
           this.route("foo");
         });
 
-        Ember.TEMPLATES.index = Ember.Handlebars.compile("<h3>Home</h3>{{outlet}}");
-        Ember.TEMPLATES['index/about'] = Ember.Handlebars.compile("{{#link-to 'item' id='link1' current-when='item index'}}ITEM{{/link-to}}");
-        Ember.TEMPLATES['item'] = Ember.Handlebars.compile("{{#link-to 'item' id='link2' current-when='item index'}}ITEM{{/link-to}}");
-        Ember.TEMPLATES['foo'] = Ember.Handlebars.compile("{{#link-to 'item' id='link3' current-when='item index'}}ITEM{{/link-to}}");
+        Ember.TEMPLATES.index = compile("<h3>Home</h3>{{outlet}}");
+        Ember.TEMPLATES['index/about'] = compile("{{#link-to 'item' id='link1' current-when='item index'}}ITEM{{/link-to}}");
+        Ember.TEMPLATES['item'] = compile("{{#link-to 'item' id='link2' current-when='item index'}}ITEM{{/link-to}}");
+        Ember.TEMPLATES['foo'] = compile("{{#link-to 'item' id='link3' current-when='item index'}}ITEM{{/link-to}}");
 
         bootApplication();
 
@@ -56954,8 +56994,8 @@ enifed("ember/tests/helpers/link_to_test",
     
 
     test("The {{link-to}} helper defaults to bubbling", function() {
-      Ember.TEMPLATES.about = Ember.Handlebars.compile("<div {{action 'hide'}}>{{#link-to 'about.contact' id='about-contact'}}About{{/link-to}}</div>{{outlet}}");
-      Ember.TEMPLATES['about/contact'] = Ember.Handlebars.compile("<h1 id='contact'>Contact</h1>");
+      Ember.TEMPLATES.about = compile("<div {{action 'hide'}}>{{#link-to 'about.contact' id='about-contact'}}About{{/link-to}}</div>{{outlet}}");
+      Ember.TEMPLATES['about/contact'] = compile("<h1 id='contact'>Contact</h1>");
 
       Router.map(function() {
         this.resource("about", function() {
@@ -56989,8 +57029,8 @@ enifed("ember/tests/helpers/link_to_test",
     });
 
     test("The {{link-to}} helper supports bubbles=false", function() {
-      Ember.TEMPLATES.about = Ember.Handlebars.compile("<div {{action 'hide'}}>{{#link-to 'about.contact' id='about-contact' bubbles=false}}About{{/link-to}}</div>{{outlet}}");
-      Ember.TEMPLATES['about/contact'] = Ember.Handlebars.compile("<h1 id='contact'>Contact</h1>");
+      Ember.TEMPLATES.about = compile("<div {{action 'hide'}}>{{#link-to 'about.contact' id='about-contact' bubbles=false}}About{{/link-to}}</div>{{outlet}}");
+      Ember.TEMPLATES['about/contact'] = compile("<h1 id='contact'>Contact</h1>");
 
       Router.map(function() {
         this.resource("about", function() {
@@ -57029,7 +57069,7 @@ enifed("ember/tests/helpers/link_to_test",
         this.resource("item", { path: "/item/:id" });
       });
 
-      Ember.TEMPLATES.about = Ember.Handlebars.compile("<h3>List</h3><ul>{{#each person in controller}}<li>{{#link-to 'item' person}}{{person.name}}{{/link-to}}</li>{{/each}}</ul>{{#link-to 'index' id='home-link'}}Home{{/link-to}}");
+      Ember.TEMPLATES.about = compile("<h3>List</h3><ul>{{#each person in controller}}<li>{{#link-to 'item' person}}{{person.name}}{{/link-to}}</li>{{/each}}</ul>{{#link-to 'index' id='home-link'}}Home{{/link-to}}");
 
       App.AboutRoute = Ember.Route.extend({
         model: function() {
@@ -57079,7 +57119,7 @@ enifed("ember/tests/helpers/link_to_test",
     });
 
     test("The {{link-to}} helper binds some anchor html tag common attributes", function() {
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("<h3>Home</h3>{{#link-to 'index' id='self-link' title='title-attr' rel='rel-attr' tabindex='-1'}}Self{{/link-to}}");
+      Ember.TEMPLATES.index = compile("<h3>Home</h3>{{#link-to 'index' id='self-link' title='title-attr' rel='rel-attr' tabindex='-1'}}Self{{/link-to}}");
       bootApplication();
 
       Ember.run(function() {
@@ -57094,7 +57134,7 @@ enifed("ember/tests/helpers/link_to_test",
 
     
       test("The {{link-to}} helper supports `target` attribute", function() {
-        Ember.TEMPLATES.index = Ember.Handlebars.compile("<h3>Home</h3>{{#link-to 'index' id='self-link' target='_blank'}}Self{{/link-to}}");
+        Ember.TEMPLATES.index = compile("<h3>Home</h3>{{#link-to 'index' id='self-link' target='_blank'}}Self{{/link-to}}");
         bootApplication();
 
         Ember.run(function() {
@@ -57106,7 +57146,7 @@ enifed("ember/tests/helpers/link_to_test",
       });
 
       test("The {{link-to}} helper does not call preventDefault if `target` attribute is provided", function() {
-        Ember.TEMPLATES.index = Ember.Handlebars.compile("<h3>Home</h3>{{#link-to 'index' id='self-link' target='_blank'}}Self{{/link-to}}");
+        Ember.TEMPLATES.index = compile("<h3>Home</h3>{{#link-to 'index' id='self-link' target='_blank'}}Self{{/link-to}}");
         bootApplication();
 
         Ember.run(function() {
@@ -57120,7 +57160,7 @@ enifed("ember/tests/helpers/link_to_test",
       });
 
       test("The {{link-to}} helper should preventDefault when `target = _self`", function() {
-        Ember.TEMPLATES.index = Ember.Handlebars.compile("<h3>Home</h3>{{#link-to 'index' id='self-link' target='_self'}}Self{{/link-to}}");
+        Ember.TEMPLATES.index = compile("<h3>Home</h3>{{#link-to 'index' id='self-link' target='_self'}}Self{{/link-to}}");
         bootApplication();
 
         Ember.run(function() {
@@ -57134,7 +57174,7 @@ enifed("ember/tests/helpers/link_to_test",
       });
 
       test("The {{link-to}} helper should not transition if target is not equal to _self or empty", function() {
-        Ember.TEMPLATES.index = Ember.Handlebars.compile("{{#link-to 'about' id='about-link' replace=true target='_blank'}}About{{/link-to}}");
+        Ember.TEMPLATES.index = compile("{{#link-to 'about' id='about-link' replace=true target='_blank'}}About{{/link-to}}");
 
         Router.map(function() {
           this.route("about");
@@ -57250,7 +57290,7 @@ enifed("ember/tests/helpers/link_to_test",
         isTrue: true
       });
 
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("{{view.name}}-{{#link-to 'index' id='self-link'}}Link: {{view.name}}-{{#if view.isTrue}}{{view.name}}{{/if}}{{/link-to}}");
+      Ember.TEMPLATES.index = compile("{{view.name}}-{{#link-to 'index' id='self-link'}}Link: {{view.name}}-{{#if view.isTrue}}{{view.name}}{{/if}}{{/link-to}}");
 
       bootApplication();
 
@@ -57262,7 +57302,7 @@ enifed("ember/tests/helpers/link_to_test",
     });
 
     test("Quoteless route param performs property lookup", function() {
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("{{#link-to 'index' id='string-link'}}string{{/link-to}}{{#link-to foo id='path-link'}}path{{/link-to}}{{#link-to view.foo id='view-link'}}{{view.foo}}{{/link-to}}");
+      Ember.TEMPLATES.index = compile("{{#link-to 'index' id='string-link'}}string{{/link-to}}{{#link-to foo id='path-link'}}path{{/link-to}}{{#link-to view.foo id='view-link'}}{{view.foo}}{{/link-to}}");
 
       function assertEquality(href) {
         equal(normalizeUrl(Ember.$('#string-link', '#qunit-fixture').attr('href')), '/');
@@ -57305,7 +57345,7 @@ enifed("ember/tests/helpers/link_to_test",
 
       var oldWarn = Ember.Logger.warn, warnCalled = false;
       Ember.Logger.warn = function() { warnCalled = true; };
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("{{#link-to destinationRoute routeContext loadingClass='i-am-loading' id='context-link'}}string{{/link-to}}{{#link-to secondRoute loadingClass='i-am-loading' id='static-link'}}string{{/link-to}}");
+      Ember.TEMPLATES.index = compile("{{#link-to destinationRoute routeContext loadingClass='i-am-loading' id='context-link'}}string{{/link-to}}{{#link-to secondRoute loadingClass='i-am-loading' id='static-link'}}string{{/link-to}}");
 
       var thing = Ember.Object.create({ id: 123 });
 
@@ -57446,7 +57486,7 @@ enifed("ember/tests/helpers/link_to_test",
     });
 
     test("{{linkTo}} is aliased", function() {
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("<h3>Home</h3>{{#linkTo 'about' id='about-link' replace=true}}About{{/linkTo}}");
+      Ember.TEMPLATES.index = compile("<h3>Home</h3>{{#linkTo 'about' id='about-link' replace=true}}About{{/linkTo}}");
 
       Router.map(function() {
         this.route("about");
@@ -57542,8 +57582,8 @@ enifed("ember/tests/helpers/link_to_test",
         this.route("contact");
       });
 
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("<h3>Home</h3>{{link-to 'Contact us' 'contact' id='contact-link'}}{{#link-to 'index' id='self-link'}}Self{{/link-to}}");
-      Ember.TEMPLATES.contact = Ember.Handlebars.compile("<h3>Contact</h3>{{link-to 'Home' 'index' id='home-link'}}{{link-to 'Self' 'contact' id='self-link'}}");
+      Ember.TEMPLATES.index = compile("<h3>Home</h3>{{link-to 'Contact us' 'contact' id='contact-link'}}{{#link-to 'index' id='self-link'}}Self{{/link-to}}");
+      Ember.TEMPLATES.contact = compile("<h3>Contact</h3>{{link-to 'Home' 'index' id='home-link'}}{{link-to 'Self' 'contact' id='self-link'}}");
 
       bootApplication();
 
@@ -57566,8 +57606,8 @@ enifed("ember/tests/helpers/link_to_test",
         contactName: 'Jane'
       });
 
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("<h3>Home</h3>{{link-to contactName 'contact' id='contact-link'}}{{#link-to 'index' id='self-link'}}Self{{/link-to}}");
-      Ember.TEMPLATES.contact = Ember.Handlebars.compile("<h3>Contact</h3>{{link-to 'Home' 'index' id='home-link'}}{{link-to 'Self' 'contact' id='self-link'}}");
+      Ember.TEMPLATES.index = compile("<h3>Home</h3>{{link-to contactName 'contact' id='contact-link'}}{{#link-to 'index' id='self-link'}}Self{{/link-to}}");
+      Ember.TEMPLATES.contact = compile("<h3>Contact</h3>{{link-to 'Home' 'index' id='home-link'}}{{link-to 'Self' 'contact' id='self-link'}}");
 
       bootApplication();
 
@@ -57626,8 +57666,8 @@ enifed("ember/tests/helpers/link_to_test",
         }
       });
 
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("<h3>Home</h3><ul>{{#each person in controller}}<li>{{link-to person.name 'item' person}}</li>{{/each}}</ul>");
-      Ember.TEMPLATES.item = Ember.Handlebars.compile("<h3>Item</h3><p>{{name}}</p>{{#link-to 'index' id='home-link'}}Home{{/link-to}}");
+      Ember.TEMPLATES.index = compile("<h3>Home</h3><ul>{{#each person in controller}}<li>{{link-to person.name 'item' person}}</li>{{/each}}</ul>");
+      Ember.TEMPLATES.item = compile("<h3>Item</h3><p>{{name}}</p>{{#link-to 'index' id='home-link'}}Home{{/link-to}}");
 
       bootApplication();
 
@@ -57647,7 +57687,7 @@ enifed("ember/tests/helpers/link_to_test",
     });
 
     test("The non-block form {{link-to}} performs property lookup", function() {
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("{{link-to 'string' 'index' id='string-link'}}{{link-to path foo id='path-link'}}{{link-to view.foo view.foo id='view-link'}}");
+      Ember.TEMPLATES.index = compile("{{link-to 'string' 'index' id='string-link'}}{{link-to path foo id='path-link'}}{{link-to view.foo view.foo id='view-link'}}");
 
       function assertEquality(href) {
         equal(normalizeUrl(Ember.$('#string-link', '#qunit-fixture').attr('href')), '/');
@@ -57685,7 +57725,7 @@ enifed("ember/tests/helpers/link_to_test",
     });
 
     test("The non-block form {{link-to}} protects against XSS", function() {
-      Ember.TEMPLATES.application = Ember.Handlebars.compile("{{link-to display 'index' id='link'}}");
+      Ember.TEMPLATES.application = compile("{{link-to display 'index' id='link'}}");
 
       App.ApplicationController = Ember.Controller.extend({
         display: 'blahzorz'
@@ -57722,7 +57762,7 @@ enifed("ember/tests/helpers/link_to_test",
     });
 
     test("the {{link-to}} helper does not call preventDefault if `preventDefault=false` is passed as an option", function(){
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("{{#link-to 'about' id='about-link' preventDefault=false}}About{{/link-to}}");
+      Ember.TEMPLATES.index = compile("{{#link-to 'about' id='about-link' preventDefault=false}}About{{/link-to}}");
 
       Router.map(function() {
         this.route("about");
@@ -57741,7 +57781,7 @@ enifed("ember/tests/helpers/link_to_test",
     test("the {{link-to}} helper does not throw an error if its route has exited", function(){
       expect(0);
 
-      Ember.TEMPLATES.application = Ember.Handlebars.compile("{{#link-to 'index' id='home-link'}}Home{{/link-to}}{{#link-to 'post' defaultPost id='default-post-link'}}Default Post{{/link-to}}{{#if currentPost}}{{#link-to 'post' id='post-link'}}Post{{/link-to}}{{/if}}");
+      Ember.TEMPLATES.application = compile("{{#link-to 'index' id='home-link'}}Home{{/link-to}}{{#link-to 'post' defaultPost id='default-post-link'}}Default Post{{/link-to}}{{#if currentPost}}{{#link-to 'post' id='post-link'}}Post{{/link-to}}{{/if}}");
 
       App.ApplicationController = Ember.Controller.extend({
         needs: ['post'],
@@ -57770,7 +57810,7 @@ enifed("ember/tests/helpers/link_to_test",
     });
 
     test("{{link-to}} active property respects changing parent route context", function() {
-      Ember.TEMPLATES.application = Ember.Handlebars.compile(
+      Ember.TEMPLATES.application = compile(
         "{{link-to 'OMG' 'things' 'omg' id='omg-link'}} " +
         "{{link-to 'LOL' 'things' 'lol' id='lol-link'}} ");
 
@@ -57799,7 +57839,7 @@ enifed("ember/tests/helpers/link_to_test",
         foo: '123'
       });
 
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("{{#link-to 'index' id='the-link'}}Index{{/link-to}}");
+      Ember.TEMPLATES.index = compile("{{#link-to 'index' id='the-link'}}Index{{/link-to}}");
       bootApplication();
       equal(Ember.$('#the-link').attr('href'), "/", "link has right href");
     });
@@ -57810,7 +57850,7 @@ enifed("ember/tests/helpers/link_to_test",
         foo: '123'
       });
 
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("{{#link-to 'index' (query-params) id='the-link'}}Index{{/link-to}}");
+      Ember.TEMPLATES.index = compile("{{#link-to 'index' (query-params) id='the-link'}}Index{{/link-to}}");
       bootApplication();
       equal(Ember.$('#the-link').attr('href'), "/", "link has right href");
     });
@@ -57821,7 +57861,7 @@ enifed("ember/tests/helpers/link_to_test",
         foo: '123'
       });
 
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("{{#link-to 'index' (query-params foo='456') id='the-link'}}Index{{/link-to}}");
+      Ember.TEMPLATES.index = compile("{{#link-to 'index' (query-params foo='456') id='the-link'}}Index{{/link-to}}");
       bootApplication();
       equal(Ember.$('#the-link').attr('href'), "/?foo=456", "link has right href");
     });
@@ -57833,7 +57873,7 @@ enifed("ember/tests/helpers/link_to_test",
         bar: 'yes'
       });
 
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("{{#link-to 'index' (query-params foo='456') id='the-link'}}Index{{/link-to}}");
+      Ember.TEMPLATES.index = compile("{{#link-to 'index' (query-params foo='456') id='the-link'}}Index{{/link-to}}");
       bootApplication();
       equal(Ember.$('#the-link').attr('href'), "/?foo=456", "link has right href");
     });
@@ -57845,7 +57885,7 @@ enifed("ember/tests/helpers/link_to_test",
         bar: 'yes'
       });
 
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("{{#link-to 'index' (query-params foo='123') id='the-link'}}Index{{/link-to}}");
+      Ember.TEMPLATES.index = compile("{{#link-to 'index' (query-params foo='123') id='the-link'}}Index{{/link-to}}");
       bootApplication();
       equal(Ember.$('#the-link').attr('href'), "/", "link has right href");
     });
@@ -57857,7 +57897,7 @@ enifed("ember/tests/helpers/link_to_test",
         bar: 'yes'
       });
 
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("{{#link-to 'index' (query-params foo='456' bar='NAW') id='the-link'}}Index{{/link-to}}");
+      Ember.TEMPLATES.index = compile("{{#link-to 'index' (query-params foo='456' bar='NAW') id='the-link'}}Index{{/link-to}}");
       bootApplication();
       equal(Ember.$('#the-link').attr('href'), "/?bar=NAW&foo=456", "link has right href");
     });
@@ -57889,7 +57929,7 @@ enifed("ember/tests/helpers/link_to_test",
     });
 
     test("doesn't update controller QP properties on current route when invoked", function() {
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("{{#link-to 'index' id='the-link'}}Index{{/link-to}}");
+      Ember.TEMPLATES.index = compile("{{#link-to 'index' id='the-link'}}Index{{/link-to}}");
       bootApplication();
 
       Ember.run(Ember.$('#the-link'), 'click');
@@ -57898,7 +57938,7 @@ enifed("ember/tests/helpers/link_to_test",
     });
 
     test("doesn't update controller QP properties on current route when invoked (empty query-params obj)", function() {
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("{{#link-to 'index' (query-params) id='the-link'}}Index{{/link-to}}");
+      Ember.TEMPLATES.index = compile("{{#link-to 'index' (query-params) id='the-link'}}Index{{/link-to}}");
       bootApplication();
 
       Ember.run(Ember.$('#the-link'), 'click');
@@ -57907,14 +57947,14 @@ enifed("ember/tests/helpers/link_to_test",
     });
 
     test("link-to with no params throws", function() {
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("{{#link-to id='the-link'}}Index{{/link-to}}");
+      Ember.TEMPLATES.index = compile("{{#link-to id='the-link'}}Index{{/link-to}}");
       expectAssertion(function() {
         bootApplication();
       }, /one or more/);
     });
 
     test("doesn't update controller QP properties on current route when invoked (empty query-params obj, inferred route)", function() {
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("{{#link-to (query-params) id='the-link'}}Index{{/link-to}}");
+      Ember.TEMPLATES.index = compile("{{#link-to (query-params) id='the-link'}}Index{{/link-to}}");
       bootApplication();
 
       Ember.run(Ember.$('#the-link'), 'click');
@@ -57923,7 +57963,7 @@ enifed("ember/tests/helpers/link_to_test",
     });
 
     test("updates controller QP properties on current route when invoked", function() {
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("{{#link-to 'index' (query-params foo='456') id='the-link'}}Index{{/link-to}}");
+      Ember.TEMPLATES.index = compile("{{#link-to 'index' (query-params foo='456') id='the-link'}}Index{{/link-to}}");
       bootApplication();
 
       Ember.run(Ember.$('#the-link'), 'click');
@@ -57932,7 +57972,7 @@ enifed("ember/tests/helpers/link_to_test",
     });
 
     test("updates controller QP properties on current route when invoked (inferred route)", function() {
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("{{#link-to (query-params foo='456') id='the-link'}}Index{{/link-to}}");
+      Ember.TEMPLATES.index = compile("{{#link-to (query-params foo='456') id='the-link'}}Index{{/link-to}}");
       bootApplication();
 
       Ember.run(Ember.$('#the-link'), 'click');
@@ -57945,7 +57985,7 @@ enifed("ember/tests/helpers/link_to_test",
         this.route('about');
       });
 
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("{{#link-to 'about' (query-params baz='lol') id='the-link'}}About{{/link-to}}");
+      Ember.TEMPLATES.index = compile("{{#link-to 'about' (query-params baz='lol') id='the-link'}}About{{/link-to}}");
       bootApplication();
 
       equal(Ember.$('#the-link').attr('href'), '/about?baz=lol');
@@ -57958,7 +57998,7 @@ enifed("ember/tests/helpers/link_to_test",
 
     test("supplied QP properties can be bound", function() {
       var indexController = container.lookup('controller:index');
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("{{#link-to (query-params foo=boundThing) id='the-link'}}Index{{/link-to}}");
+      Ember.TEMPLATES.index = compile("{{#link-to (query-params foo=boundThing) id='the-link'}}Index{{/link-to}}");
 
       bootApplication();
 
@@ -57969,7 +58009,7 @@ enifed("ember/tests/helpers/link_to_test",
 
     test("supplied QP properties can be bound (booleans)", function() {
       var indexController = container.lookup('controller:index');
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("{{#link-to (query-params abool=boundThing) id='the-link'}}Index{{/link-to}}");
+      Ember.TEMPLATES.index = compile("{{#link-to (query-params abool=boundThing) id='the-link'}}Index{{/link-to}}");
 
       bootApplication();
 
@@ -57984,7 +58024,7 @@ enifed("ember/tests/helpers/link_to_test",
 
     test("href updates when unsupplied controller QP props change", function() {
       var indexController = container.lookup('controller:index');
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("{{#link-to (query-params foo='lol') id='the-link'}}Index{{/link-to}}");
+      Ember.TEMPLATES.index = compile("{{#link-to (query-params foo='lol') id='the-link'}}Index{{/link-to}}");
 
       bootApplication();
 
@@ -57996,13 +58036,13 @@ enifed("ember/tests/helpers/link_to_test",
     });
 
     test("The {{link-to}} applies activeClass when query params are not changed", function() {
-      Ember.TEMPLATES.index = Ember.Handlebars.compile(
+      Ember.TEMPLATES.index = compile(
         "{{#link-to (query-params foo='cat') id='cat-link'}}Index{{/link-to}} " +
         "{{#link-to (query-params foo='dog') id='dog-link'}}Index{{/link-to}} " +
         "{{#link-to 'index' id='change-nothing'}}Index{{/link-to}}"
       );
 
-      Ember.TEMPLATES.search = Ember.Handlebars.compile(
+      Ember.TEMPLATES.search = compile(
         "{{#link-to (query-params search='same') id='same-search'}}Index{{/link-to}} " +
         "{{#link-to (query-params search='change') id='change-search'}}Index{{/link-to}} " +
         "{{#link-to (query-params search='same' archive=true) id='same-search-add-archive'}}Index{{/link-to}} " +
@@ -58013,7 +58053,7 @@ enifed("ember/tests/helpers/link_to_test",
         "{{outlet}}"
       );
 
-      Ember.TEMPLATES['search/results'] = Ember.Handlebars.compile(
+      Ember.TEMPLATES['search/results'] = compile(
         "{{#link-to (query-params sort='title') id='same-sort-child-only'}}Index{{/link-to}} " +
         "{{#link-to (query-params search='same') id='same-search-parent-only'}}Index{{/link-to}} " +
         "{{#link-to (query-params search='change') id='change-search-parent-only'}}Index{{/link-to}} " +
@@ -58086,7 +58126,7 @@ enifed("ember/tests/helpers/link_to_test",
     });
 
     test("The {{link-to}} applies active class when query-param is number", function() {
-      Ember.TEMPLATES.index = Ember.Handlebars.compile(
+      Ember.TEMPLATES.index = compile(
         "{{#link-to (query-params page=pageNumber) id='page-link'}}Index{{/link-to}} ");
 
         App.IndexController = Ember.Controller.extend({
@@ -58103,7 +58143,7 @@ enifed("ember/tests/helpers/link_to_test",
     });
 
     test("The {{link-to}} applies active class when query-param is array", function() {
-      Ember.TEMPLATES.index = Ember.Handlebars.compile(
+      Ember.TEMPLATES.index = compile(
         "{{#link-to (query-params pages=pagesArray) id='array-link'}}Index{{/link-to}} " +
         "{{#link-to (query-params pages=biggerArray) id='bigger-link'}}Index{{/link-to}} " +
         "{{#link-to (query-params pages=emptyArray) id='empty-link'}}Index{{/link-to}} "
@@ -58141,7 +58181,7 @@ enifed("ember/tests/helpers/link_to_test",
         });
       });
 
-      Ember.TEMPLATES.application = Ember.Handlebars.compile(
+      Ember.TEMPLATES.application = compile(
         "{{#link-to 'parent' id='parent-link'}}Parent{{/link-to}} " +
         "{{#link-to 'parent.child' id='parent-child-link'}}Child{{/link-to}} " +
         "{{#link-to 'parent' (query-params foo=cat) id='parent-link-qp'}}Parent{{/link-to}} " +
@@ -58167,9 +58207,9 @@ enifed("ember/tests/helpers/link_to_test",
         this.route('parent');
       });
 
-      Ember.TEMPLATES.application = Ember.Handlebars.compile(
+      Ember.TEMPLATES.application = compile(
         "{{#link-to 'parent' (query-params page=1) current-when='parent' id='app-link'}}Parent{{/link-to}} {{outlet}}");
-        Ember.TEMPLATES.parent = Ember.Handlebars.compile(
+        Ember.TEMPLATES.parent = compile(
           "{{#link-to 'parent' (query-params page=1) current-when='parent' id='parent-link'}}Parent{{/link-to}} {{outlet}}");
 
           App.ParentController = Ember.ObjectController.extend({
@@ -58202,7 +58242,7 @@ enifed("ember/tests/helpers/link_to_test",
       expect(6);
 
       if (setTagName) {
-        Ember.TEMPLATES.application = Ember.Handlebars.compile("{{outlet}}{{link-to 'Index' 'index' id='index-link'}}{{link-to 'About' 'about' id='about-link' tagName='span'}}");
+        Ember.TEMPLATES.application = compile("{{outlet}}{{link-to 'Index' 'index' id='index-link'}}{{link-to 'About' 'about' id='about-link' tagName='span'}}");
       }
 
       bootApplication();
@@ -58241,7 +58281,7 @@ enifed("ember/tests/helpers/link_to_test",
             }
           });
 
-          Ember.TEMPLATES.application = Ember.Handlebars.compile("{{outlet}}{{link-to 'Index' 'index' id='index-link'}}{{link-to 'About' 'about' id='about-link'}}");
+          Ember.TEMPLATES.application = compile("{{outlet}}{{link-to 'Index' 'index' id='index-link'}}{{link-to 'About' 'about' id='about-link'}}");
         });
       },
 
@@ -58349,16 +58389,26 @@ enifed("ember/tests/helpers/link_to_test.jshint",
     });
   });
 enifed("ember/tests/homepage_example_test",
-  ["ember"],
-  function(__dependency1__) {
+  ["ember","ember-handlebars","ember-htmlbars/system/compile"],
+  function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
+
+    var EmberHandlebars = __dependency2__["default"];
+    var htmlbarsCompile = __dependency3__["default"];
+
+    var compile;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      compile = htmlbarsCompile;
+    } else {
+      compile = EmberHandlebars.compile;
+    }
 
     var App, $fixture;
 
     function setupExample() {
       // setup templates
-      Ember.TEMPLATES.application = Ember.Handlebars.compile("{{outlet}}");
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("<h1>People</h1><ul>{{#each person in model}}<li>Hello, <b>{{person.fullName}}</b>!</li>{{/each}}</ul>");
+      Ember.TEMPLATES.application = compile("{{outlet}}");
+      Ember.TEMPLATES.index = compile("<h1>People</h1><ul>{{#each person in model}}<li>Hello, <b>{{person.fullName}}</b>!</li>{{/each}}</ul>");
 
 
       App.Person = Ember.Object.extend({
@@ -58504,16 +58554,25 @@ enifed("ember/tests/location_test.jshint",
     });
   });
 enifed("ember/tests/routing/basic_test",
-  ["ember","ember-metal/enumerable_utils","ember-metal/property_get","ember-metal/property_set","ember-views/system/action_manager"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
+  ["ember","ember-metal/enumerable_utils","ember-metal/property_get","ember-metal/property_set","ember-views/system/action_manager","ember-handlebars","ember-htmlbars/system/compile"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
     "use strict";
     var forEach = __dependency2__.forEach;
     var get = __dependency3__.get;
     var set = __dependency4__.set;
     var ActionManager = __dependency5__["default"];
 
+    var EmberHandlebars = __dependency6__["default"];
+    var htmlbarsCompile = __dependency7__["default"];
+
+    var compile;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      compile = htmlbarsCompile;
+    } else {
+      compile = EmberHandlebars.compile;
+    }
+
     var Router, App, router, container, originalLoggerError;
-    var compile = Ember.Handlebars.compile;
 
     function bootApplication() {
       router = container.lookup('router:main');
@@ -58866,7 +58925,7 @@ enifed("ember/tests/routing/basic_test",
         this.route("home", { path: "/" });
       });
 
-      Ember.TEMPLATES.the_real_home_template = Ember.Handlebars.compile(
+      Ember.TEMPLATES.the_real_home_template = compile(
         "<p>THIS IS THE REAL HOME</p>"
       );
 
@@ -58887,7 +58946,7 @@ enifed("ember/tests/routing/basic_test",
       });
 
       App.HomeView = Ember.View.extend({
-        template: Ember.Handlebars.compile("<p>THIS IS THE REAL HOME</p>")
+        template: compile("<p>THIS IS THE REAL HOME</p>")
       });
       App.HomeController = Ember.Controller.extend();
       App.HomeRoute = Ember.Route.extend();
@@ -58906,7 +58965,7 @@ enifed("ember/tests/routing/basic_test",
         this.route("home", { path: "/" });
       });
 
-      Ember.TEMPLATES.the_real_home_template = Ember.Handlebars.compile(
+      Ember.TEMPLATES.the_real_home_template = compile(
         "<p>THIS IS THE REAL HOME</p>"
       );
 
@@ -58925,10 +58984,10 @@ enifed("ember/tests/routing/basic_test",
         this.route("home", { path: "/" });
       });
 
-      Ember.TEMPLATES.alert = Ember.Handlebars.compile(
+      Ember.TEMPLATES.alert = compile(
         "<div class='alert-box'>Invader!</div>"
       );
-      Ember.TEMPLATES.the_real_home_template = Ember.Handlebars.compile(
+      Ember.TEMPLATES.the_real_home_template = compile(
         "<p>THIS IS THE REAL HOME</p>{{outlet 'alert'}}"
       );
 
@@ -58974,7 +59033,7 @@ enifed("ember/tests/routing/basic_test",
       });
 
       App.HomeView = Ember.View.extend({
-        template: Ember.Handlebars.compile("<h3>This should not be rendered</h3><p>{{home}}</p>")
+        template: compile("<h3>This should not be rendered</h3><p>{{home}}</p>")
       });
 
       App.HomepageController = Ember.ObjectController.extend({
@@ -58983,7 +59042,7 @@ enifed("ember/tests/routing/basic_test",
         }
       });
       App.HomepageView = Ember.View.extend({
-        layout: Ember.Handlebars.compile(
+        layout: compile(
           "<span>Outer</span>{{yield}}<span>troll</span>"
         ),
         templateName: 'homepage'
@@ -59011,7 +59070,7 @@ enifed("ember/tests/routing/basic_test",
         }
       });
 
-      Ember.TEMPLATES.home = Ember.Handlebars.compile(
+      Ember.TEMPLATES.home = compile(
         "<ul>{{#each entry in hours}}<li>{{entry}}</li>{{/each}}</ul>"
       );
 
@@ -59044,7 +59103,7 @@ enifed("ember/tests/routing/basic_test",
         this.route("home", { path: "/" });
       });
 
-      Ember.TEMPLATES.home = Ember.Handlebars.compile(
+      Ember.TEMPLATES.home = compile(
         "<p>{{myValue}}</p>"
       );
 
@@ -59067,7 +59126,7 @@ enifed("ember/tests/routing/basic_test",
         this.route("home", { path: "/" });
       });
 
-      Ember.TEMPLATES.alternative_home = Ember.Handlebars.compile(
+      Ember.TEMPLATES.alternative_home = compile(
         "<p>alternative home: {{myValue}}</p>"
       );
 
@@ -59093,7 +59152,7 @@ enifed("ember/tests/routing/basic_test",
         this.route("home", { path: "/" });
       });
 
-      Ember.TEMPLATES.home = Ember.Handlebars.compile(
+      Ember.TEMPLATES.home = compile(
         "<p>home: {{myValue}}</p>"
       );
 
@@ -59130,7 +59189,7 @@ enifed("ember/tests/routing/basic_test",
         }
       });
 
-      Ember.TEMPLATES.home = Ember.Handlebars.compile(
+      Ember.TEMPLATES.home = compile(
         "<ul>{{#each entry in hours}}<li>{{entry}}</li>{{/each}}</ul>"
       );
 
@@ -59154,7 +59213,7 @@ enifed("ember/tests/routing/basic_test",
         })
       });
 
-      Ember.TEMPLATES.home = Ember.Handlebars.compile(
+      Ember.TEMPLATES.home = compile(
         "<ul>{{#each passage in model}}<li>{{passage}}</li>{{/each}}</ul>"
       );
 
@@ -59184,7 +59243,7 @@ enifed("ember/tests/routing/basic_test",
         }
       });
 
-      Ember.TEMPLATES.home = Ember.Handlebars.compile(
+      Ember.TEMPLATES.home = compile(
         "<ul>{{#each entry in hours}}<li>{{entry}}</li>{{/each}}</ul>"
       );
 
@@ -59211,7 +59270,7 @@ enifed("ember/tests/routing/basic_test",
         }
       });
 
-      Ember.TEMPLATES.special = Ember.Handlebars.compile(
+      Ember.TEMPLATES.special = compile(
         "<p>{{model.menuItemId}}</p>"
       );
 
@@ -59245,7 +59304,7 @@ enifed("ember/tests/routing/basic_test",
         }
       });
 
-      Ember.TEMPLATES.special = Ember.Handlebars.compile(
+      Ember.TEMPLATES.special = compile(
         "<p>{{model.id}}</p>"
       );
 
@@ -59287,11 +59346,11 @@ enifed("ember/tests/routing/basic_test",
         }
       });
 
-      Ember.TEMPLATES.special = Ember.Handlebars.compile(
+      Ember.TEMPLATES.special = compile(
         "<p>{{model.id}}</p>"
       );
 
-      Ember.TEMPLATES.loading = Ember.Handlebars.compile(
+      Ember.TEMPLATES.loading = compile(
         "<p>LOADING!</p>"
       );
 
@@ -59335,11 +59394,11 @@ enifed("ember/tests/routing/basic_test",
         }
       });
 
-      Ember.TEMPLATES.special = Ember.Handlebars.compile(
+      Ember.TEMPLATES.special = compile(
         "<p>{{model.id}}</p>"
       );
 
-      Ember.TEMPLATES.loading = Ember.Handlebars.compile(
+      Ember.TEMPLATES.loading = compile(
         "<p>LOADING!</p>"
       );
 
@@ -59499,11 +59558,11 @@ enifed("ember/tests/routing/basic_test",
         }
       });
 
-      Ember.TEMPLATES.home = Ember.Handlebars.compile(
+      Ember.TEMPLATES.home = compile(
         "<h3>Home</h3>"
       );
 
-      Ember.TEMPLATES.special = Ember.Handlebars.compile(
+      Ember.TEMPLATES.special = compile(
         "<p>{{model.id}}</p>"
       );
 
@@ -59589,15 +59648,15 @@ enifed("ember/tests/routing/basic_test",
         }
       });
 
-      Ember.TEMPLATES['root/index'] = Ember.Handlebars.compile(
+      Ember.TEMPLATES['root/index'] = compile(
         "<h3>Home</h3>"
       );
 
-      Ember.TEMPLATES.special = Ember.Handlebars.compile(
+      Ember.TEMPLATES.special = compile(
         "<p>{{model.id}}</p>"
       );
 
-      Ember.TEMPLATES.loading = Ember.Handlebars.compile(
+      Ember.TEMPLATES.loading = compile(
         "<p>LOADING!</p>"
       );
 
@@ -59657,7 +59716,7 @@ enifed("ember/tests/routing/basic_test",
         }
       });
 
-      Ember.TEMPLATES.home = Ember.Handlebars.compile(
+      Ember.TEMPLATES.home = compile(
         "<a {{action 'showStuff' model}}>{{name}}</a>"
       );
 
@@ -59703,7 +59762,7 @@ enifed("ember/tests/routing/basic_test",
         }
       });
 
-      Ember.TEMPLATES.home = Ember.Handlebars.compile(
+      Ember.TEMPLATES.home = compile(
         "<a {{action 'showStuff' model}}>{{name}}</a>"
       );
 
@@ -59741,7 +59800,7 @@ enifed("ember/tests/routing/basic_test",
         }
       });
 
-      Ember.TEMPLATES['root/index'] = Ember.Handlebars.compile(
+      Ember.TEMPLATES['root/index'] = compile(
         "<a {{action 'showStuff' model}}>{{name}}</a>"
       );
 
@@ -59775,7 +59834,7 @@ enifed("ember/tests/routing/basic_test",
         }
       });
 
-      Ember.TEMPLATES.home = Ember.Handlebars.compile(
+      Ember.TEMPLATES.home = compile(
         "<a {{action 'showStuff' model}}>{{name}}</a>"
       );
 
@@ -59814,7 +59873,7 @@ enifed("ember/tests/routing/basic_test",
         }
       });
 
-      Ember.TEMPLATES['root/index'] = Ember.Handlebars.compile(
+      Ember.TEMPLATES['root/index'] = compile(
         "<a {{action 'showStuff' model}}>{{name}}</a>"
       );
 
@@ -59888,7 +59947,7 @@ enifed("ember/tests/routing/basic_test",
         }
       });
 
-      Ember.TEMPLATES.home = Ember.Handlebars.compile(
+      Ember.TEMPLATES.home = compile(
         "<a {{action 'showStuff' model}}>{{name}}</a>"
       );
 
@@ -59936,7 +59995,7 @@ enifed("ember/tests/routing/basic_test",
         model2: model2
       });
 
-      Ember.TEMPLATES['root/index'] = Ember.Handlebars.compile(
+      Ember.TEMPLATES['root/index'] = compile(
         "<a {{action 'showStuff' model1 model2}}>{{model1.name}}</a>"
       );
 
@@ -60521,6 +60580,9 @@ enifed("ember/tests/routing/basic_test",
     });
 
 
+    if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
+        // bizarre error in morph attempting to remove a child it does not have
+
     test("Parent route context change", function() {
       var editCount = 0;
       var editedPostIds = Ember.A();
@@ -60590,6 +60652,8 @@ enifed("ember/tests/routing/basic_test",
       equal(editCount, 2, 'set up the edit route twice without failure');
       deepEqual(editedPostIds, ['1', '2'], 'modelFor posts.post returns the right context');
     });
+
+    }
 
     test("Router accounts for rootURL on page load when using history location", function() {
       var rootURL = window.location.pathname + '/app';
@@ -60841,7 +60905,7 @@ enifed("ember/tests/routing/basic_test",
         }
       });
 
-      Ember.TEMPLATES.page = Ember.Handlebars.compile(
+      Ember.TEMPLATES.page = compile(
         "<p>{{name}}</p>"
       );
 
@@ -60905,7 +60969,7 @@ enifed("ember/tests/routing/basic_test",
       // Extending, in essence, creates a different view
       App.FourthView = App.SharedView.extend();
 
-      Ember.TEMPLATES.shared = Ember.Handlebars.compile(
+      Ember.TEMPLATES.shared = compile(
         "<p>{{message}}</p>"
       );
 
@@ -60973,8 +61037,8 @@ enifed("ember/tests/routing/basic_test",
         }
       });
 
-      Ember.TEMPLATES.index = Ember.Handlebars.compile("<p>INDEX</p>");
-      Ember.TEMPLATES.loading = Ember.Handlebars.compile("<p>LOADING</p>");
+      Ember.TEMPLATES.index = compile("<p>INDEX</p>");
+      Ember.TEMPLATES.loading = compile("<p>LOADING</p>");
 
       bootApplication();
 
@@ -61848,16 +61912,25 @@ enifed("ember/tests/routing/basic_test.jshint",
     });
   });
 enifed("ember/tests/routing/query_params_test",
-  ["ember","ember-metal/computed","ember-metal/platform","ember-runtime/system/string"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+  ["ember","ember-metal/computed","ember-metal/platform","ember-runtime/system/string","ember-handlebars","ember-htmlbars/system/compile"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
     var computed = __dependency2__.computed;
     var canDefineNonEnumerableProperties = __dependency3__.canDefineNonEnumerableProperties;
     var capitalize = __dependency4__.capitalize;
 
+    var EmberHandlebars = __dependency5__["default"];
+    var htmlbarsCompile = __dependency6__["default"];
+
+    var compile;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      compile = htmlbarsCompile;
+    } else {
+      compile = EmberHandlebars.compile;
+    }
+
     var Router, App, router, container;
     var get = Ember.get;
-    var compile = Ember.Handlebars.compile;
 
     function withoutMeta(object) {
       if (canDefineNonEnumerableProperties) {
@@ -62522,9 +62595,12 @@ enifed("ember/tests/routing/query_params_test",
       Ember.run(appController, 'setProperties', { alex: 'sriracha' });
     });
 
+    if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
+        // bizarre error in morph attempting to remove a child it does not have
+
     test("can opt into full transition by setting refreshModel in route queryParams when transitioning from child to parent", function() {
-      Ember.TEMPLATES.parent = Ember.Handlebars.compile('{{outlet}}');
-      Ember.TEMPLATES['parent/child'] = Ember.Handlebars.compile("{{link-to 'Parent' 'parent' (query-params foo='change') id='parent-link'}}");
+      Ember.TEMPLATES.parent = compile('{{outlet}}');
+      Ember.TEMPLATES['parent/child'] = compile("{{link-to 'Parent' 'parent' (query-params foo='change') id='parent-link'}}");
 
       App.Router.map(function() {
         this.resource('parent', function() {
@@ -62560,6 +62636,8 @@ enifed("ember/tests/routing/query_params_test",
 
       equal(parentModelCount, 2);
     });
+
+    }
 
     test("Use Ember.get to retrieve query params 'replace' configuration", function() {
       expect(2);
@@ -62961,7 +63039,7 @@ enifed("ember/tests/routing/query_params_test",
 
     test("opting into replace does not affect transitions between routes", function() {
       expect(5);
-      Ember.TEMPLATES.application = Ember.Handlebars.compile(
+      Ember.TEMPLATES.application = compile(
         "{{link-to 'Foo' 'foo' id='foo-link'}}" +
         "{{link-to 'Bar' 'bar' id='bar-no-qp-link'}}" +
         "{{link-to 'Bar' 'bar' (query-params raytiley='isanerd') id='bar-link'}}" +
@@ -63480,12 +63558,21 @@ enifed("ember/tests/routing/query_params_test.jshint",
     });
   });
 enifed("ember/tests/routing/substates_test",
-  ["ember"],
-  function(__dependency1__) {
+  ["ember","ember-handlebars","ember-htmlbars/system/compile"],
+  function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
 
+    var EmberHandlebars = __dependency2__["default"];
+    var htmlbarsCompile = __dependency3__["default"];
+
+    var compile;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      compile = htmlbarsCompile;
+    } else {
+      compile = EmberHandlebars.compile;
+    }
+
     var Router, App, templates, router, container, counter;
-    var compile = Ember.Handlebars.compile;
 
     function step(expectedValue, description) {
       equal(counter, expectedValue, "Step " + expectedValue + ": " + description);
@@ -63583,6 +63670,8 @@ enifed("ember/tests/routing/substates_test",
       equal(Ember.$('#app', '#qunit-fixture').text(), "BRO", "bro template has loaded and replaced loading template");
     });
 
+    if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
+
     test("Slow promises waterfall on startup", function() {
 
       expect(7);
@@ -63671,6 +63760,8 @@ enifed("ember/tests/routing/substates_test",
       equal(Ember.$('#app', '#qunit-fixture').text(), "GRANDMA MOM");
       equal(appController.get('currentPath'), "grandma.mom", "currentPath reflects final state");
     });
+
+    }
 
     test("Slow promises returned from ApplicationRoute#model don't enter LoadingRoute", function() {
 
@@ -64095,6 +64186,9 @@ enifed("ember/tests/routing/substates_test",
         equal(Ember.$('#app', '#qunit-fixture').text(), "FOOBAR ERROR: did it broke?", "foo.bar_error was entered (as opposed to something like foo/foo/bar_error)");
       });
 
+      if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
+        // bizarre error in morph attempting to remove a child it does not have
+
       test("Prioritized loading substate entry works with auto-generated index routes", function() {
 
         expect(2);
@@ -64131,6 +64225,8 @@ enifed("ember/tests/routing/substates_test",
 
         equal(Ember.$('#app', '#qunit-fixture').text(), "YAY");
       });
+
+      }
 
       test("Prioritized error substate entry works with auto-generated index routes", function() {
 
