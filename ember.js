@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.c7de70c1
+ * @version   1.10.0-beta.1+canary.51a2dd55
  */
 
 (function() {
@@ -11004,7 +11004,7 @@ enifed("ember-htmlbars/helpers/view",
         var data = env.data;
         var fn   = options.render;
 
-        makeBindings(options, env.data.view);
+        makeBindings(hash, options, env.data.view);
 
         Ember.assert(
           'Only a instance of a view may be passed to the ViewHelper.instanceHelper',
@@ -11027,6 +11027,8 @@ enifed("ember-htmlbars/helpers/view",
             !viewOptions.controller && !viewOptions.controllerBinding) {
           viewOptions._context = get(currentView, 'context'); // TODO: is this right?!
         }
+
+        viewOptions._morph = options.morph;
 
         currentView.appendChild(newView, viewOptions);
       }
@@ -14923,7 +14925,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.c7de70c1
+      @version 1.10.0-beta.1+canary.51a2dd55
     */
 
     if ('undefined' === typeof Ember) {
@@ -14950,10 +14952,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.c7de70c1'
+      @default '1.10.0-beta.1+canary.51a2dd55'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.c7de70c1';
+    Ember.VERSION = '1.10.0-beta.1+canary.51a2dd55';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -22826,8 +22828,8 @@ enifed("ember-routing-handlebars/helpers/render",
     __exports__.renderHelper = renderHelper;
   });
 enifed("ember-routing-htmlbars",
-  ["ember-metal/core","ember-htmlbars/helpers","ember-routing-htmlbars/helpers/outlet","ember-routing-htmlbars/helpers/link-to","ember-routing-htmlbars/helpers/action","ember-routing-htmlbars/helpers/query-params","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+  ["ember-metal/core","ember-htmlbars/helpers","ember-routing-htmlbars/helpers/outlet","ember-routing-htmlbars/helpers/render","ember-routing-htmlbars/helpers/link-to","ember-routing-htmlbars/helpers/action","ember-routing-htmlbars/helpers/query-params","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
     /**
     Ember Routing HTMLBars Helpers
@@ -22842,12 +22844,14 @@ enifed("ember-routing-htmlbars",
     var registerHelper = __dependency2__.registerHelper;
 
     var outletHelper = __dependency3__.outletHelper;
-    var linkToHelper = __dependency4__.linkToHelper;
-    var deprecatedLinkToHelper = __dependency4__.deprecatedLinkToHelper;
-    var actionHelper = __dependency5__.actionHelper;
-    var queryParamsHelper = __dependency6__.queryParamsHelper;
+    var renderHelper = __dependency4__.renderHelper;
+    var linkToHelper = __dependency5__.linkToHelper;
+    var deprecatedLinkToHelper = __dependency5__.deprecatedLinkToHelper;
+    var actionHelper = __dependency6__.actionHelper;
+    var queryParamsHelper = __dependency7__.queryParamsHelper;
 
     registerHelper('outlet', outletHelper);
+    registerHelper('render', renderHelper);
     registerHelper('link-to', linkToHelper);
     registerHelper('linkTo', deprecatedLinkToHelper);
     registerHelper('action', actionHelper);
@@ -23712,6 +23716,184 @@ enifed("ember-routing-htmlbars/helpers/query-params",
     }
 
     __exports__.queryParamsHelper = queryParamsHelper;
+  });
+enifed("ember-routing-htmlbars/helpers/render",
+  ["ember-metal/core","ember-metal/error","ember-runtime/system/string","ember-routing/system/generate_controller","ember-htmlbars/helpers/view","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-routing-htmlbars
+    */
+
+    var Ember = __dependency1__["default"];
+    // assert, deprecate
+    var EmberError = __dependency2__["default"];
+    var camelize = __dependency3__.camelize;
+    var generateControllerFactory = __dependency4__.generateControllerFactory;
+    var generateController = __dependency4__["default"];
+    var ViewHelper = __dependency5__.ViewHelper;
+
+    /**
+      Calling ``{{render}}`` from within a template will insert another
+      template that matches the provided name. The inserted template will
+      access its properties on its own controller (rather than the controller
+      of the parent template).
+
+      If a view class with the same name exists, the view class also will be used.
+
+      Note: A given controller may only be used *once* in your app in this manner.
+      A singleton instance of the controller will be created for you.
+
+      Example:
+
+      ```javascript
+      App.NavigationController = Ember.Controller.extend({
+        who: "world"
+      });
+      ```
+
+      ```handlebars
+      <!-- navigation.hbs -->
+      Hello, {{who}}.
+      ```
+
+      ```handlebars
+      <!-- application.hbs -->
+      <h1>My great app</h1>
+      {{render "navigation"}}
+      ```
+
+      ```html
+      <h1>My great app</h1>
+      <div class='ember-view'>
+        Hello, world.
+      </div>
+      ```
+
+      Optionally you may provide a second argument: a property path
+      that will be bound to the `model` property of the controller.
+
+      If a `model` property path is specified, then a new instance of the
+      controller will be created and `{{render}}` can be used multiple times
+      with the same name.
+
+     For example if you had this `author` template.
+
+     ```handlebars
+    <div class="author">
+    Written by {{firstName}} {{lastName}}.
+    Total Posts: {{postCount}}
+    </div>
+    ```
+
+    You could render it inside the `post` template using the `render` helper.
+
+    ```handlebars
+    <div class="post">
+    <h1>{{title}}</h1>
+    <div>{{body}}</div>
+    {{render "author" author}}
+    </div>
+     ```
+
+      @method render
+      @for Ember.Handlebars.helpers
+      @param {String} name
+      @param {Object?} context
+      @param {Hash} options
+      @return {String} HTML string
+    */
+    function renderHelper(params, hash, options, env) {
+      var container, router, controller, view, initialContext;
+
+      var name = params[0];
+      var context = params[1];
+
+      container = this._keywords.controller.value().container;
+      router = container.lookup('router:main');
+
+      Ember.assert(
+        "The first argument of {{render}} must be quoted, e.g. {{render \"sidebar\"}}.",
+        options.types[0] === 'string'
+      );
+
+      Ember.assert(
+        "The second argument of {{render}} must be a path, e.g. {{render \"post\" post}}.",
+        params.length < 2 || options.types[1] === 'id'
+      );
+
+
+      if (params.length === 1) {
+        // use the singleton controller
+        Ember.assert("You can only use the {{render}} helper once without a model object as its" +
+                     " second argument, as in {{render \"post\" post}}.", !router || !router._lookupActiveView(name));
+      } else if (params.length === 2) {
+        // create a new controller
+        initialContext = context.value();
+      } else {
+        throw new EmberError("You must pass a templateName to render");
+      }
+
+      // # legacy namespace
+      name = name.replace(/\//g, '.');
+      // \ legacy slash as namespace support
+
+
+      view = container.lookup('view:' + name) || container.lookup('view:default');
+
+      // provide controller override
+      var controllerName = hash.controller || name;
+      var controllerFullName = 'controller:' + controllerName;
+
+      Ember.assert("The controller name you supplied '" + controllerName +
+                   "' did not resolve to a controller.", !hash.controller || container.has(controllerFullName));
+
+      var parentController = this._keywords.controller.value();
+
+      // choose name
+      if (params.length > 1) {
+        var factory = container.lookupFactory(controllerFullName) ||
+                      generateControllerFactory(container, controllerName, initialContext);
+
+        controller = factory.create({
+          modelBinding: context, // TODO: Use a StreamBinding
+          parentController: parentController,
+          target: parentController
+        });
+
+        view.one('willDestroyElement', function() {
+          controller.destroy();
+        });
+      } else {
+        controller = container.lookup(controllerFullName) ||
+                     generateController(container, controllerName);
+
+        controller.setProperties({
+          target: parentController,
+          parentController: parentController
+        });
+      }
+
+      hash.viewName = camelize(name);
+
+      var templateName = 'template:' + name;
+      Ember.assert("You used `{{render '" + name + "'}}`, but '" + name + "' can not be found as either" +
+                   " a template or a view.", container.has("view:" + name) || container.has(templateName) || !!options.render);
+      hash.template = container.lookup(templateName);
+
+      hash.controller = controller;
+
+      if (router && !initialContext) {
+        router._connectActiveView(name, view);
+      }
+
+      options.helperName = options.helperName || ('render "' + name + '"');
+
+      ViewHelper.instanceHelper(view, hash, options, env);
+    }
+
+    __exports__.renderHelper = renderHelper;
   });
 enifed("ember-routing-views",
   ["ember-metal/core","ember-routing-views/views/link","ember-routing-views/views/outlet","exports"],
