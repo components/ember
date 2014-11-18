@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.be36bd27
+ * @version   1.10.0-beta.1+canary.91741b4d
  */
 
 (function() {
@@ -14612,7 +14612,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.be36bd27
+      @version 1.10.0-beta.1+canary.91741b4d
     */
 
     if ('undefined' === typeof Ember) {
@@ -14639,10 +14639,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.be36bd27'
+      @default '1.10.0-beta.1+canary.91741b4d'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.be36bd27';
+    Ember.VERSION = '1.10.0-beta.1+canary.91741b4d';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -16895,7 +16895,7 @@ enifed("ember-metal/map",
 
       /**
         Iterate over all the keys and values. Calls the function once
-        for each key, passing in the key and value, in that order.
+        for each key, passing in the value and key, in that order.
 
         The keys are guaranteed to be iterated over in insertion order.
 
