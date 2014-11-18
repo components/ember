@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.1a5787d9
+ * @version   1.10.0-beta.1+canary.be36bd27
  */
 
 (function() {
@@ -8337,7 +8337,16 @@ enifed("ember-htmlbars.jshint",
     "use strict";
     module('JSHint - .');
     test('ember-htmlbars.js should pass jshint', function() { 
-      ok(true, 'ember-htmlbars.js should pass jshint.'); 
+      ok(false, 'ember-htmlbars.js should pass jshint.\nember-htmlbars.js: line 18, col 3, \'registerHandlebarsCompatibleHelper\' is defined but never used.\n\n1 error'); 
+    });
+  });
+enifed("ember-htmlbars/compat/helper.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/compat');
+    test('ember-htmlbars/compat/helper.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/compat/helper.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/helpers.jshint",
@@ -8545,6 +8554,91 @@ enifed("ember-htmlbars/system/template.jshint",
     module('JSHint - ember-htmlbars/system');
     test('ember-htmlbars/system/template.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/system/template.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/tests/compat/helper_test",
+  ["ember-htmlbars/compat/helper"],
+  function(__dependency1__) {
+    "use strict";
+    var makeHandlebarsCompatibleHelper = __dependency1__.makeHandlebarsCompatibleHelper;
+
+    var fakeView, fakeParams, fakeHash, fakeOptions, fakeEnv;
+
+    QUnit.module('ember-htmlbars: Handlebars compatible helpers', {
+      setup: function() {
+        fakeView = {};
+        fakeParams = [];
+        fakeHash = {};
+        fakeOptions = {
+          morph: {
+            update: function() { }
+          }
+        };
+        fakeEnv = {};
+      },
+
+      teardown: function() {
+
+      }
+    });
+
+    test('wraps provided function so that original path params are provided to the helper', function() {
+      expect(2);
+
+      function someHelper(param1, param2, options) {
+        equal(param1, 'blammo');
+        equal(param2, 'blazzico');
+      }
+
+      var compatHelper = makeHandlebarsCompatibleHelper(someHelper);
+
+      fakeParams = [ 'blammo', 'blazzico' ];
+      compatHelper._preprocessArguments(fakeView, fakeParams, fakeHash, fakeOptions, fakeEnv);
+
+      compatHelper(fakeParams, fakeHash, fakeOptions, fakeEnv);
+    });
+
+    test('combines `env` and `options` for the wrapped helper', function() {
+      expect(2);
+
+      function someHelper(options) {
+        equal(options.first, 'Max');
+        equal(options.second, 'James');
+      }
+
+      var compatHelper = makeHandlebarsCompatibleHelper(someHelper);
+
+      fakeOptions.first = 'Max';
+      fakeEnv.second = 'James';
+
+      compatHelper._preprocessArguments(fakeView, fakeParams, fakeHash, fakeOptions, fakeEnv);
+      compatHelper(fakeParams, fakeHash, fakeOptions, fakeEnv);
+    });
+
+    test('calls morph.update with the return value from the helper', function() {
+      expect(1);
+
+      function someHelper(options) {
+        return 'Lucy!';
+      }
+
+      var compatHelper = makeHandlebarsCompatibleHelper(someHelper);
+
+      fakeOptions.morph.update = function(value) {
+        equal(value, 'Lucy!');
+      };
+
+      compatHelper._preprocessArguments(fakeView, fakeParams, fakeHash, fakeOptions, fakeEnv);
+      compatHelper(fakeParams, fakeHash, fakeOptions, fakeEnv);
+    });
+  });
+enifed("ember-htmlbars/tests/compat/helper_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/tests/compat');
+    test('ember-htmlbars/tests/compat/helper_test.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/tests/compat/helper_test.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/tests/helpers/bind_attr_test",
@@ -13986,11 +14080,41 @@ enifed("ember-htmlbars/tests/system/lookup-helper_test",
       };
 
       function someName() {}
+      someName._isHTMLBars = true;
       view.container.register('helper:some-name', someName);
 
       var actual = lookupHelper('some-name', view, env);
 
-      equal(actual, someName, 'does not blow up if view does not have a container');
+      equal(actual, someName, 'does not wrap provided function if `_isHTMLBars` is truthy');
+    });
+
+    test('wraps helper from container in a Handlebars compat helper', function() {
+      expect(2);
+      var env = generateEnv();
+      var view = {
+        container: generateContainer()
+      };
+      var called;
+
+      function someName() {
+        called = true;
+      }
+      view.container.register('helper:some-name', someName);
+
+      var actual = lookupHelper('some-name', view, env);
+
+      ok(actual._isHTMLBars, 'wraps provided helper in an HTMLBars compatible helper');
+
+      var fakeParams = [];
+      var fakeHash = {};
+      var fakeOptions = {
+        _raw: { params: []},
+        morph: { update: function() { } }
+      };
+      var fakeEnv = {};
+      actual(fakeParams, fakeHash, fakeOptions, fakeEnv);
+
+      ok(called, 'HTMLBars compatible wrapper is wraping the provided function');
     });
 
     test('asserts if component-lookup:main cannot be found', function() {
@@ -56631,9 +56755,6 @@ enifed("ember/tests/helpers/helper_registration_test",
       });
     };
 
-    if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
-      // need to make container lookup of helpers normalize the path to
-      // old format (currently using `params, hash, options, env`)
     test("Unbound dashed helpers registered on the container can be late-invoked", function() {
 
       Ember.TEMPLATES.application = compile("<div id='wrapper'>{{x-borf}} {{x-borf YES}}</div>");
@@ -56648,6 +56769,8 @@ enifed("ember/tests/helpers/helper_registration_test",
       ok(!helpers['x-borf'], "Container-registered helper doesn't wind up on global helpers hash");
     });
 
+    if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      // need to make `makeBoundHelper` for HTMLBars
     test("Bound helpers registered on the container can be late-invoked", function() {
 
       Ember.TEMPLATES.application = compile("<div id='wrapper'>{{x-reverse}} {{x-reverse foo}}</div>");
