@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.26625b64
+ * @version   1.10.0-beta.1+canary.4e3aa966
  */
 
 (function() {
@@ -10409,7 +10409,7 @@ enifed("ember-htmlbars/helpers/input",
       var onEvent = hash.on;
       var inputType;
 
-      inputType = read(types.type);
+      inputType = read(hash.type);
 
       if (inputType === 'checkbox') {
         delete hash.type;
@@ -10418,12 +10418,12 @@ enifed("ember-htmlbars/helpers/input",
         Ember.assert("{{input type='checkbox'}} does not support setting `value=someBooleanValue`;" +
                      " you must use `checked=someBooleanValue` instead.", options.hashTypes.value !== 'id');
 
-        return env.helpers.view.call(this, [Checkbox], hash, options, env);
+        env.helpers.view.call(this, [Checkbox], hash, options, env);
       } else {
         delete hash.on;
 
         hash.onEvent = onEvent || 'enter';
-        return env.helpers.view.call(this, [TextField], hash, options, env);
+        env.helpers.view.call(this, [TextField], hash, options, env);
       }
     }
 
@@ -14999,7 +14999,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.26625b64
+      @version 1.10.0-beta.1+canary.4e3aa966
     */
 
     if ('undefined' === typeof Ember) {
@@ -15026,10 +15026,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.26625b64'
+      @default '1.10.0-beta.1+canary.4e3aa966'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.26625b64';
+    Ember.VERSION = '1.10.0-beta.1+canary.4e3aa966';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
