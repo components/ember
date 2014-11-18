@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.51a2dd55
+ * @version   1.10.0-beta.1+canary.123d9417
  */
 
 (function() {
@@ -50706,57 +50706,6 @@ enifed("ember-views/tests/views/container_view_test.jshint",
       ok(true, 'ember-views/tests/views/container_view_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/handlebars_bound_view_test",
-  ["ember-metal/streams/stream","ember-views/views/handlebars_bound_view"],
-  function(__dependency1__, __dependency2__) {
-    "use strict";
-    var Stream = __dependency1__["default"];
-    var SimpleHandlebarsView = __dependency2__.SimpleHandlebarsView;
-
-    QUnit.module('SimpleHandlebarsView');
-
-    test('does not render if update is triggured by normalizedValue is the same as the previous normalizedValue', function(){
-      var value = null;
-      var obj = { 'foo': 'bar' };
-      var lazyValue = new Stream(function() {
-        return obj.foo;
-      });
-      var isEscaped = true;
-      var view = new SimpleHandlebarsView(lazyValue, isEscaped);
-      view._morph = {
-        update: function(newValue) {
-          value = newValue;
-        }
-      };
-
-      equal(value, null);
-
-      view.update();
-
-      equal(value, 'bar', 'expected call to morph.update with "bar"');
-      value = null;
-
-      view.update();
-
-      equal(value, null, 'expected no call to morph.update');
-
-      obj.foo = 'baz'; // change property
-      lazyValue.notify();
-
-      view.update();
-
-      equal(value, 'baz', 'expected call to morph.update with "baz"');
-    });
-  });
-enifed("ember-views/tests/views/handlebars_bound_view_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-views/tests/views');
-    test('ember-views/tests/views/handlebars_bound_view_test.js should pass jshint', function() { 
-      ok(true, 'ember-views/tests/views/handlebars_bound_view_test.js should pass jshint.'); 
-    });
-  });
 enifed("ember-views/tests/views/instrumentation_test",
   ["ember-metal/instrumentation","ember-metal/run_loop","ember-views/views/view"],
   function(__dependency1__, __dependency2__, __dependency3__) {
@@ -51039,7 +50988,7 @@ enifed("ember-views/tests/views/metamorph_view_test",
       run(function() { view.destroy(); });
     });
 
-    test("trigger rerender of parent and SimpleHandlebarsView", function () {
+    test("trigger rerender of parent and SimpleBoundView", function () {
       var view = EmberView.create({
         show: true,
         foo: 'bar',
@@ -51093,6 +51042,57 @@ enifed("ember-views/tests/views/metamorph_view_test.jshint",
     module('JSHint - ember-views/tests/views');
     test('ember-views/tests/views/metamorph_view_test.js should pass jshint', function() { 
       ok(true, 'ember-views/tests/views/metamorph_view_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/tests/views/simple_bound_view_test",
+  ["ember-metal/streams/stream","ember-views/views/simple_bound_view"],
+  function(__dependency1__, __dependency2__) {
+    "use strict";
+    var Stream = __dependency1__["default"];
+    var SimpleBoundView = __dependency2__["default"];
+
+    QUnit.module('SimpleBoundView');
+
+    test('does not render if update is triggured by normalizedValue is the same as the previous normalizedValue', function(){
+      var value = null;
+      var obj = { 'foo': 'bar' };
+      var lazyValue = new Stream(function() {
+        return obj.foo;
+      });
+      var isEscaped = true;
+      var view = new SimpleBoundView(lazyValue, isEscaped);
+      view._morph = {
+        update: function(newValue) {
+          value = newValue;
+        }
+      };
+
+      equal(value, null);
+
+      view.update();
+
+      equal(value, 'bar', 'expected call to morph.update with "bar"');
+      value = null;
+
+      view.update();
+
+      equal(value, null, 'expected no call to morph.update');
+
+      obj.foo = 'baz'; // change property
+      lazyValue.notify();
+
+      view.update();
+
+      equal(value, 'baz', 'expected call to morph.update with "baz"');
+    });
+  });
+enifed("ember-views/tests/views/simple_bound_view_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/tests/views');
+    test('ember-views/tests/views/simple_bound_view_test.js should pass jshint', function() { 
+      ok(true, 'ember-views/tests/views/simple_bound_view_test.js should pass jshint.'); 
     });
   });
 enifed("ember-views/tests/views/text_area_test",
@@ -55836,6 +55836,15 @@ enifed("ember-views/tests/views/view/virtual_views_test.jshint",
       ok(true, 'ember-views/tests/views/view/virtual_views_test.js should pass jshint.'); 
     });
   });
+enifed("ember-views/views/bound_view.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/views');
+    test('ember-views/views/bound_view.js should pass jshint', function() { 
+      ok(true, 'ember-views/views/bound_view.js should pass jshint.'); 
+    });
+  });
 enifed("ember-views/views/checkbox.jshint",
   [],
   function() {
@@ -55890,15 +55899,6 @@ enifed("ember-views/views/each.jshint",
       ok(true, 'ember-views/views/each.js should pass jshint.'); 
     });
   });
-enifed("ember-views/views/handlebars_bound_view.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-views/views');
-    test('ember-views/views/handlebars_bound_view.js should pass jshint', function() { 
-      ok(true, 'ember-views/views/handlebars_bound_view.js should pass jshint.'); 
-    });
-  });
 enifed("ember-views/views/metamorph_view.jshint",
   [],
   function() {
@@ -55906,6 +55906,15 @@ enifed("ember-views/views/metamorph_view.jshint",
     module('JSHint - ember-views/views');
     test('ember-views/views/metamorph_view.js should pass jshint', function() { 
       ok(true, 'ember-views/views/metamorph_view.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/views/simple_bound_view.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/views');
+    test('ember-views/views/simple_bound_view.js should pass jshint', function() { 
+      ok(true, 'ember-views/views/simple_bound_view.js should pass jshint.'); 
     });
   });
 enifed("ember-views/views/states.jshint",

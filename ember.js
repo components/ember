@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.51a2dd55
+ * @version   1.10.0-beta.1+canary.123d9417
  */
 
 (function() {
@@ -6243,7 +6243,7 @@ enifed("ember-handlebars/ext",
     var detectIsGlobal = __dependency8__.isGlobal;
 
     // late bound via requireModule because of circular dependencies.
-    var resolveHelper, SimpleHandlebarsView;
+    var resolveHelper, SimpleBoundView;
 
     var Stream = __dependency9__["default"];
     var readArray = __dependency10__.readArray;
@@ -6546,8 +6546,8 @@ enifed("ember-handlebars/ext",
       @since 1.2.0
     */
     function makeBoundHelper(fn) {
-      if (!SimpleHandlebarsView) {
-        SimpleHandlebarsView = requireModule('ember-views/views/handlebars_bound_view')['SimpleHandlebarsView'];
+      if (!SimpleBoundView) {
+        SimpleBoundView = requireModule('ember-views/views/simple_bound_view')['default'];
       } // ES6TODO: stupid circular dep
 
       var dependentKeys = [];
@@ -6601,7 +6601,7 @@ enifed("ember-handlebars/ext",
           return valueFn();
         } else {
           var lazyValue = new Stream(valueFn);
-          var bindView = new SimpleHandlebarsView(lazyValue, !options.hash.unescaped);
+          var bindView = new SimpleBoundView(lazyValue, !options.hash.unescaped);
           view.appendChild(bindView);
 
           var scheduledRerender = view._wrapAsScheduled(bindView.rerender);
@@ -6982,8 +6982,8 @@ enifed("ember-handlebars/helpers/bind_attr",
     __exports__.bindClasses = bindClasses;
   });
 enifed("ember-handlebars/helpers/binding",
-  ["ember-metal/core","ember-handlebars-compiler","ember-metal/is_none","ember-metal/run_loop","ember-metal/cache","ember-metal/streams/simple","ember-views/views/handlebars_bound_view","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
+  ["ember-metal/core","ember-handlebars-compiler","ember-metal/is_none","ember-metal/run_loop","ember-metal/cache","ember-metal/streams/simple","ember-views/views/bound_view","ember-views/views/simple_bound_view","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -6999,8 +6999,8 @@ enifed("ember-handlebars/helpers/binding",
     var Cache = __dependency5__["default"];
     var SimpleStream = __dependency6__["default"];
 
-    var _HandlebarsBoundView = __dependency7__._HandlebarsBoundView;
-    var SimpleHandlebarsView = __dependency7__.SimpleHandlebarsView;
+    var BoundView = __dependency7__["default"];
+    var SimpleBoundView = __dependency8__["default"];
 
     var helpers = EmberHandlebars.helpers;
 
@@ -7040,7 +7040,7 @@ enifed("ember-handlebars/helpers/binding",
       }
 
       // Set up observers for observable objects
-      var viewClass = _viewClass || _HandlebarsBoundView;
+      var viewClass = _viewClass || BoundView;
       var viewOptions = {
         preserveContext: preserveContext,
         shouldDisplayFunc: shouldDisplay,
@@ -7061,7 +7061,7 @@ enifed("ember-handlebars/helpers/binding",
 
       // Create the view that will wrap the output of this template/property
       // and add it to the nearest view's childViews array.
-      // See the documentation of Ember._HandlebarsBoundView for more.
+      // See the documentation of Ember._BoundView for more.
       var bindView = view.createChildView(viewClass, viewOptions);
 
       view.appendChild(bindView);
@@ -7075,7 +7075,7 @@ enifed("ember-handlebars/helpers/binding",
       var data = options.data;
       var view = data.view;
 
-      var bindView = new SimpleHandlebarsView(
+      var bindView = new SimpleBoundView(
         lazyValue, !options.hash.unescaped
       );
 
@@ -9395,8 +9395,8 @@ enifed("ember-htmlbars/helpers/bind-attr",
     __exports__.bindClasses = bindClasses;
   });
 enifed("ember-htmlbars/helpers/binding",
-  ["ember-metal/is_none","ember-metal/run_loop","ember-metal/property_get","ember-metal/streams/simple","ember-views/views/handlebars_bound_view","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
+  ["ember-metal/is_none","ember-metal/run_loop","ember-metal/property_get","ember-metal/streams/simple","ember-views/views/bound_view","ember-views/views/simple_bound_view","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -9408,8 +9408,8 @@ enifed("ember-htmlbars/helpers/binding",
     var get = __dependency3__.get;
     var SimpleStream = __dependency4__["default"];
 
-    var _HandlebarsBoundView = __dependency5__._HandlebarsBoundView;
-    var SimpleHandlebarsView = __dependency5__.SimpleHandlebarsView;
+    var BoundView = __dependency5__["default"];
+    var SimpleBoundView = __dependency6__["default"];
 
     function exists(value) {
       return !isNone(value);
@@ -9439,7 +9439,7 @@ enifed("ember-htmlbars/helpers/binding",
       }
 
       // Set up observers for observable objects
-      var viewClass = _viewClass || _HandlebarsBoundView;
+      var viewClass = _viewClass || BoundView;
       var viewOptions = {
         _morph: options.morph,
         preserveContext: preserveContext,
@@ -9461,7 +9461,7 @@ enifed("ember-htmlbars/helpers/binding",
 
       // Create the view that will wrap the output of this template/property
       // and add it to the nearest view's childViews array.
-      // See the documentation of Ember._HandlebarsBoundView for more.
+      // See the documentation of Ember._BoundView for more.
       var bindView = this.createChildView(viewClass, viewOptions);
 
       this.appendChild(bindView);
@@ -9474,7 +9474,7 @@ enifed("ember-htmlbars/helpers/binding",
     function simpleBind(params, options, env) {
       var lazyValue = params[0];
 
-      var view = new SimpleHandlebarsView(
+      var view = new SimpleBoundView(
         lazyValue, options.escaped
       );
 
@@ -14925,7 +14925,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.51a2dd55
+      @version 1.10.0-beta.1+canary.123d9417
     */
 
     if ('undefined' === typeof Ember) {
@@ -14952,10 +14952,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.51a2dd55'
+      @default '1.10.0-beta.1+canary.123d9417'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.51a2dd55';
+    Ember.VERSION = '1.10.0-beta.1+canary.123d9417';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -41662,8 +41662,8 @@ enifed("ember-testing/test",
     __exports__["default"] = Test;
   });
 enifed("ember-views",
-  ["ember-runtime","ember-views/system/jquery","ember-views/system/utils","ember-views/system/render_buffer","ember-views/system/ext","ember-views/views/states","ember-views/views/core_view","ember-views/views/view","ember-views/views/container_view","ember-views/views/collection_view","ember-views/views/component","ember-views/system/event_dispatcher","ember-views/mixins/view_target_action_support","ember-views/component_lookup","ember-views/views/checkbox","ember-views/mixins/text_support","ember-views/views/text_field","ember-views/views/text_area","ember-views/views/handlebars_bound_view","ember-views/views/metamorph_view","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __exports__) {
+  ["ember-runtime","ember-views/system/jquery","ember-views/system/utils","ember-views/system/render_buffer","ember-views/system/ext","ember-views/views/states","ember-views/views/core_view","ember-views/views/view","ember-views/views/container_view","ember-views/views/collection_view","ember-views/views/component","ember-views/system/event_dispatcher","ember-views/mixins/view_target_action_support","ember-views/component_lookup","ember-views/views/checkbox","ember-views/mixins/text_support","ember-views/views/text_field","ember-views/views/text_area","ember-views/views/bound_view","ember-views/views/simple_bound_view","ember-views/views/metamorph_view","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __exports__) {
     "use strict";
     /**
     Ember Views
@@ -41699,11 +41699,11 @@ enifed("ember-views",
     var TextField = __dependency17__["default"];
     var TextArea = __dependency18__["default"];
 
-    var _HandlebarsBoundView = __dependency19__._HandlebarsBoundView;
-    var SimpleHandlebarsView = __dependency19__.SimpleHandlebarsView;
-    var _MetamorphView = __dependency20__["default"];
-    var _SimpleMetamorphView = __dependency20__._SimpleMetamorphView;
-    var _Metamorph = __dependency20__._Metamorph;
+    var BoundView = __dependency19__["default"];
+    var SimpleBoundView = __dependency20__["default"];
+    var _MetamorphView = __dependency21__["default"];
+    var _SimpleMetamorphView = __dependency21__._SimpleMetamorphView;
+    var _Metamorph = __dependency21__._Metamorph;
     // END IMPORTS
 
     /**
@@ -41732,8 +41732,8 @@ enifed("ember-views",
     Ember.TextField = TextField;
     Ember.TextArea = TextArea;
 
-    Ember._SimpleHandlebarsView = SimpleHandlebarsView;
-    Ember._HandlebarsBoundView = _HandlebarsBoundView;
+    Ember._SimpleBoundView = SimpleBoundView;
+    Ember._BoundView = BoundView;
     Ember._SimpleMetamorphView = _SimpleMetamorphView;
     Ember._MetamorphView = _MetamorphView;
     Ember._Metamorph = _Metamorph;
@@ -43218,7 +43218,7 @@ enifed("ember-views/system/render_buffer",
       element: function() {
         var content = this.innerContent();
         // No content means a text node buffer, with the content
-        // in _element. HandlebarsBoundView is an example.
+        // in _element. Ember._BoundView is an example.
         if (content === null)  {
           return this._element;
         }
@@ -43498,6 +43498,219 @@ enifed("ember-views/system/utils",
     }
 
     __exports__.getViewBoundingClientRect = getViewBoundingClientRect;
+  });
+enifed("ember-views/views/bound_view",
+  ["ember-metal/core","ember-handlebars-compiler","ember-metal/property_get","ember-metal/property_set","ember-metal/merge","ember-handlebars/string","ember-htmlbars/utils/string","ember-views/views/states","ember-views/views/metamorph_view","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-views
+    */
+
+    var Ember = __dependency1__["default"];
+    // Ember.FEATURES
+    var EmberHandlebars = __dependency2__["default"];
+    // EmberHandlebars.SafeString;
+    var get = __dependency3__.get;
+    var set = __dependency4__.set;
+    var merge = __dependency5__["default"];
+    var handlebarsHtmlSafe = __dependency6__["default"];
+    var htmlbarsSafeString = __dependency7__.SafeString;
+    var htmlbarsHtmlSafe = __dependency7__.htmlSafe;
+    var cloneStates = __dependency8__.cloneStates;
+    var viewStates = __dependency8__.states;
+    var _MetamorphView = __dependency9__["default"];
+
+    function K() { return this; }
+
+    var SafeString, htmlSafe;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      SafeString = htmlbarsSafeString;
+      htmlSafe = htmlbarsHtmlSafe;
+    } else {
+      SafeString = EmberHandlebars.SafeString;
+      htmlSafe = handlebarsHtmlSafe;
+    }
+
+    var states = cloneStates(viewStates);
+
+    merge(states._default, {
+      rerenderIfNeeded: K
+    });
+
+    merge(states.inDOM, {
+      rerenderIfNeeded: function(view) {
+        if (view.normalizedValue() !== view._lastNormalizedValue) {
+          view.rerender();
+        }
+      }
+    });
+
+    /**
+      `Ember._BoundView` is a private view created by the Handlebars
+      `{{bind}}` helpers that is used to keep track of bound properties.
+
+      Every time a property is bound using a `{{mustache}}`, an anonymous subclass
+      of `Ember._BoundView` is created with the appropriate sub-template
+      and context set up. When the associated property changes, just the template
+      for this view will re-render.
+
+      @class _BoundView
+      @namespace Ember
+      @extends Ember._MetamorphView
+      @private
+    */
+    var BoundView = _MetamorphView.extend({
+      instrumentName: 'bound',
+
+      _states: states,
+
+      /**
+        The function used to determine if the `displayTemplate` or
+        `inverseTemplate` should be rendered. This should be a function that takes
+        a value and returns a Boolean.
+
+        @property shouldDisplayFunc
+        @type Function
+        @default null
+      */
+      shouldDisplayFunc: null,
+
+      /**
+        Whether the template rendered by this view gets passed the context object
+        of its parent template, or gets passed the value of retrieving `path`
+        from the `pathRoot`.
+
+        For example, this is true when using the `{{#if}}` helper, because the
+        template inside the helper should look up properties relative to the same
+        object as outside the block. This would be `false` when used with `{{#with
+        foo}}` because the template should receive the object found by evaluating
+        `foo`.
+
+        @property preserveContext
+        @type Boolean
+        @default false
+      */
+      preserveContext: false,
+
+      /**
+        If `preserveContext` is true, this is the object that will be used
+        to render the template.
+
+        @property previousContext
+        @type Object
+      */
+      previousContext: null,
+
+      /**
+        The template to render when `shouldDisplayFunc` evaluates to `true`.
+
+        @property displayTemplate
+        @type Function
+        @default null
+      */
+      displayTemplate: null,
+
+      /**
+        The template to render when `shouldDisplayFunc` evaluates to `false`.
+
+        @property inverseTemplate
+        @type Function
+        @default null
+      */
+      inverseTemplate: null,
+
+      lazyValue: null,
+
+      normalizedValue: function() {
+        var value = this.lazyValue.value();
+        var valueNormalizer = get(this, 'valueNormalizerFunc');
+        return valueNormalizer ? valueNormalizer(value) : value;
+      },
+
+      rerenderIfNeeded: function() {
+        this.currentState.rerenderIfNeeded(this);
+      },
+
+      /**
+        Determines which template to invoke, sets up the correct state based on
+        that logic, then invokes the default `Ember.View` `render` implementation.
+
+        This method will first look up the `path` key on `pathRoot`,
+        then pass that value to the `shouldDisplayFunc` function. If that returns
+        `true,` the `displayTemplate` function will be rendered to DOM. Otherwise,
+        `inverseTemplate`, if specified, will be rendered.
+
+        For example, if this `Ember._BoundView` represented the `{{#with
+        foo}}` helper, it would look up the `foo` property of its context, and
+        `shouldDisplayFunc` would always return true. The object found by looking
+        up `foo` would be passed to `displayTemplate`.
+
+        @method render
+        @param {Ember.RenderBuffer} buffer
+      */
+      render: function(buffer) {
+        // If not invoked via a triple-mustache ({{{foo}}}), escape
+        // the content of the template.
+        var escape = get(this, 'isEscaped');
+
+        var shouldDisplay = get(this, 'shouldDisplayFunc');
+        var preserveContext = get(this, 'preserveContext');
+        var context = get(this, 'previousContext');
+
+        var inverseTemplate = get(this, 'inverseTemplate');
+        var displayTemplate = get(this, 'displayTemplate');
+
+        var result = this.normalizedValue();
+
+        this._lastNormalizedValue = result;
+
+        // First, test the conditional to see if we should
+        // render the template or not.
+        if (shouldDisplay(result)) {
+          set(this, 'template', displayTemplate);
+
+          // If we are preserving the context (for example, if this
+          // is an #if block, call the template with the same object.
+          if (preserveContext) {
+            set(this, '_context', context);
+          } else {
+          // Otherwise, determine if this is a block bind or not.
+          // If so, pass the specified object to the template
+            if (displayTemplate) {
+              set(this, '_context', result);
+            } else {
+            // This is not a bind block, just push the result of the
+            // expression to the render context and return.
+              if (result === null || result === undefined) {
+                result = "";
+              } else if (!(result instanceof SafeString)) {
+                result = String(result);
+              }
+
+              if (escape) { result = Handlebars.Utils.escapeExpression(result); }
+              buffer.push(result);
+              return;
+            }
+          }
+        } else if (inverseTemplate) {
+          set(this, 'template', inverseTemplate);
+
+          if (preserveContext) {
+            set(this, '_context', context);
+          } else {
+            set(this, '_context', result);
+          }
+        } else {
+          set(this, 'template', function() { return ''; });
+        }
+
+        return this._super(buffer);
+      }
+    });
+
+    __exports__["default"] = BoundView;
   });
 enifed("ember-views/views/checkbox",
   ["ember-metal/property_get","ember-metal/property_set","ember-views/views/view","exports"],
@@ -45029,39 +45242,85 @@ enifed("ember-views/views/each",
       }
     });
   });
-enifed("ember-views/views/handlebars_bound_view",
-  ["ember-handlebars-compiler","ember-metal/core","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/merge","ember-metal/run_loop","ember-handlebars/string","ember-htmlbars/utils/string","ember-views/views/states","ember-views/views/metamorph_view","ember-metal/utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __exports__) {
+enifed("ember-views/views/metamorph_view",
+  ["ember-metal/core","ember-views/views/core_view","ember-views/views/view","ember-metal/mixin","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     /*jshint newcap:false*/
+    var Ember = __dependency1__["default"];
+    // Ember.deprecate
 
+    var CoreView = __dependency2__["default"];
+    var View = __dependency3__["default"];
+    var Mixin = __dependency4__.Mixin;
 
     /**
     @module ember
     @submodule ember-views
     */
 
-    var EmberHandlebars = __dependency1__["default"];
-    // EmberHandlebars.SafeString;
+    // The `morph` and `outerHTML` properties are internal only
+    // and not observable.
 
-    var Ember = __dependency2__["default"];
-    // Ember.GUID_KEY
+    /**
+      @class _Metamorph
+      @namespace Ember
+      @private
+    */
+    var _Metamorph = Mixin.create({
+      isVirtual: true,
+      tagName: '',
+
+      instrumentName: 'metamorph',
+
+      init: function() {
+        this._super();
+        Ember.deprecate('Supplying a tagName to Metamorph views is unreliable and is deprecated.' +
+                        ' You may be setting the tagName on a Handlebars helper that creates a Metamorph.', !this.tagName);
+      }
+    });
+    __exports__._Metamorph = _Metamorph;
+    /**
+      @class _MetamorphView
+      @namespace Ember
+      @extends Ember.View
+      @uses Ember._Metamorph
+      @private
+    */
+    __exports__["default"] = View.extend(_Metamorph);
+
+    /**
+      @class _SimpleMetamorphView
+      @namespace Ember
+      @extends Ember.CoreView
+      @uses Ember._Metamorph
+      @private
+    */
+    var _SimpleMetamorphView = CoreView.extend(_Metamorph);
+    __exports__._SimpleMetamorphView = _SimpleMetamorphView;
+  });
+enifed("ember-views/views/simple_bound_view",
+  ["ember-metal/core","ember-handlebars-compiler","ember-metal/error","ember-metal/run_loop","ember-handlebars/string","ember-htmlbars/utils/string","ember-metal/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-views
+    */
+
+    var Ember = __dependency1__["default"];
+    // Ember.FEATURES
+    var EmberHandlebars = __dependency2__["default"];
+    // EmberHandlebars.SafeString;
+    var EmberError = __dependency3__["default"];
+    var run = __dependency4__["default"];
+    var handlebarsHtmlSafe = __dependency5__["default"];
+    var htmlbarsSafeString = __dependency6__.SafeString;
+    var htmlbarsHtmlSafe = __dependency6__.htmlSafe;
+    var GUID_KEY = __dependency7__.GUID_KEY;
+    var uuid = __dependency7__.uuid;
 
     function K() { return this; }
-
-    var EmberError = __dependency3__["default"];
-    var get = __dependency4__.get;
-    var set = __dependency5__.set;
-    var merge = __dependency6__["default"];
-    var run = __dependency7__["default"];
-    var handlebarsHtmlSafe = __dependency8__["default"];
-    var htmlbarsSafeString = __dependency9__.SafeString;
-    var htmlbarsHtmlSafe = __dependency9__.htmlSafe;
-    var cloneStates = __dependency10__.cloneStates;
-    var viewStates = __dependency10__.states;
-
-    var _MetamorphView = __dependency11__["default"];
-    var uuid = __dependency12__.uuid;
 
     var SafeString, htmlSafe;
     if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
@@ -45072,11 +45331,10 @@ enifed("ember-views/views/handlebars_bound_view",
       htmlSafe = handlebarsHtmlSafe;
     }
 
-
-    function SimpleHandlebarsView(lazyValue, isEscaped) {
+    function SimpleBoundView(lazyValue, isEscaped) {
       this.lazyValue = lazyValue;
       this.isEscaped = isEscaped;
-      this[Ember.GUID_KEY] = uuid();
+      this[GUID_KEY] = uuid();
       this._lastNormalizedValue = undefined;
       this.state = 'preRender';
       this.updateId = null;
@@ -45085,7 +45343,7 @@ enifed("ember-views/views/handlebars_bound_view",
       this._morph = null;
     }
 
-    SimpleHandlebarsView.prototype = {
+    SimpleBoundView.prototype = {
       isVirtual: true,
       isView: true,
 
@@ -45153,242 +45411,7 @@ enifed("ember-views/views/handlebars_bound_view",
       }
     };
 
-    var states = cloneStates(viewStates);
-
-    merge(states._default, {
-      rerenderIfNeeded: K
-    });
-
-    merge(states.inDOM, {
-      rerenderIfNeeded: function(view) {
-        if (view.normalizedValue() !== view._lastNormalizedValue) {
-          view.rerender();
-        }
-      }
-    });
-
-    /**
-      `Ember._HandlebarsBoundView` is a private view created by the Handlebars
-      `{{bind}}` helpers that is used to keep track of bound properties.
-
-      Every time a property is bound using a `{{mustache}}`, an anonymous subclass
-      of `Ember._HandlebarsBoundView` is created with the appropriate sub-template
-      and context set up. When the associated property changes, just the template
-      for this view will re-render.
-
-      @class _HandlebarsBoundView
-      @namespace Ember
-      @extends Ember._MetamorphView
-      @private
-    */
-    var _HandlebarsBoundView = _MetamorphView.extend({
-      instrumentName: 'boundHandlebars',
-
-      _states: states,
-
-      /**
-        The function used to determine if the `displayTemplate` or
-        `inverseTemplate` should be rendered. This should be a function that takes
-        a value and returns a Boolean.
-
-        @property shouldDisplayFunc
-        @type Function
-        @default null
-      */
-      shouldDisplayFunc: null,
-
-      /**
-        Whether the template rendered by this view gets passed the context object
-        of its parent template, or gets passed the value of retrieving `path`
-        from the `pathRoot`.
-
-        For example, this is true when using the `{{#if}}` helper, because the
-        template inside the helper should look up properties relative to the same
-        object as outside the block. This would be `false` when used with `{{#with
-        foo}}` because the template should receive the object found by evaluating
-        `foo`.
-
-        @property preserveContext
-        @type Boolean
-        @default false
-      */
-      preserveContext: false,
-
-      /**
-        If `preserveContext` is true, this is the object that will be used
-        to render the template.
-
-        @property previousContext
-        @type Object
-      */
-      previousContext: null,
-
-      /**
-        The template to render when `shouldDisplayFunc` evaluates to `true`.
-
-        @property displayTemplate
-        @type Function
-        @default null
-      */
-      displayTemplate: null,
-
-      /**
-        The template to render when `shouldDisplayFunc` evaluates to `false`.
-
-        @property inverseTemplate
-        @type Function
-        @default null
-      */
-      inverseTemplate: null,
-
-      lazyValue: null,
-
-      normalizedValue: function() {
-        var value = this.lazyValue.value();
-        var valueNormalizer = get(this, 'valueNormalizerFunc');
-        return valueNormalizer ? valueNormalizer(value) : value;
-      },
-
-      rerenderIfNeeded: function() {
-        this.currentState.rerenderIfNeeded(this);
-      },
-
-      /**
-        Determines which template to invoke, sets up the correct state based on
-        that logic, then invokes the default `Ember.View` `render` implementation.
-
-        This method will first look up the `path` key on `pathRoot`,
-        then pass that value to the `shouldDisplayFunc` function. If that returns
-        `true,` the `displayTemplate` function will be rendered to DOM. Otherwise,
-        `inverseTemplate`, if specified, will be rendered.
-
-        For example, if this `Ember._HandlebarsBoundView` represented the `{{#with
-        foo}}` helper, it would look up the `foo` property of its context, and
-        `shouldDisplayFunc` would always return true. The object found by looking
-        up `foo` would be passed to `displayTemplate`.
-
-        @method render
-        @param {Ember.RenderBuffer} buffer
-      */
-      render: function(buffer) {
-        // If not invoked via a triple-mustache ({{{foo}}}), escape
-        // the content of the template.
-        var escape = get(this, 'isEscaped');
-
-        var shouldDisplay = get(this, 'shouldDisplayFunc');
-        var preserveContext = get(this, 'preserveContext');
-        var context = get(this, 'previousContext');
-
-        var inverseTemplate = get(this, 'inverseTemplate');
-        var displayTemplate = get(this, 'displayTemplate');
-
-        var result = this.normalizedValue();
-
-        this._lastNormalizedValue = result;
-
-        // First, test the conditional to see if we should
-        // render the template or not.
-        if (shouldDisplay(result)) {
-          set(this, 'template', displayTemplate);
-
-          // If we are preserving the context (for example, if this
-          // is an #if block, call the template with the same object.
-          if (preserveContext) {
-            set(this, '_context', context);
-          } else {
-          // Otherwise, determine if this is a block bind or not.
-          // If so, pass the specified object to the template
-            if (displayTemplate) {
-              set(this, '_context', result);
-            } else {
-            // This is not a bind block, just push the result of the
-            // expression to the render context and return.
-              if (result === null || result === undefined) {
-                result = "";
-              } else if (!(result instanceof SafeString)) {
-                result = String(result);
-              }
-
-              if (escape) { result = Handlebars.Utils.escapeExpression(result); }
-              buffer.push(result);
-              return;
-            }
-          }
-        } else if (inverseTemplate) {
-          set(this, 'template', inverseTemplate);
-
-          if (preserveContext) {
-            set(this, '_context', context);
-          } else {
-            set(this, '_context', result);
-          }
-        } else {
-          set(this, 'template', function() { return ''; });
-        }
-
-        return this._super(buffer);
-      }
-    });
-
-    __exports__._HandlebarsBoundView = _HandlebarsBoundView;
-    __exports__.SimpleHandlebarsView = SimpleHandlebarsView;
-  });
-enifed("ember-views/views/metamorph_view",
-  ["ember-metal/core","ember-views/views/core_view","ember-views/views/view","ember-metal/mixin","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
-    "use strict";
-    /*jshint newcap:false*/
-    var Ember = __dependency1__["default"];
-    // Ember.deprecate
-
-    var CoreView = __dependency2__["default"];
-    var View = __dependency3__["default"];
-    var Mixin = __dependency4__.Mixin;
-
-    /**
-    @module ember
-    @submodule ember-views
-    */
-
-    // The `morph` and `outerHTML` properties are internal only
-    // and not observable.
-
-    /**
-      @class _Metamorph
-      @namespace Ember
-      @private
-    */
-    var _Metamorph = Mixin.create({
-      isVirtual: true,
-      tagName: '',
-
-      instrumentName: 'metamorph',
-
-      init: function() {
-        this._super();
-        Ember.deprecate('Supplying a tagName to Metamorph views is unreliable and is deprecated.' +
-                        ' You may be setting the tagName on a Handlebars helper that creates a Metamorph.', !this.tagName);
-      }
-    });
-    __exports__._Metamorph = _Metamorph;
-    /**
-      @class _MetamorphView
-      @namespace Ember
-      @extends Ember.View
-      @uses Ember._Metamorph
-      @private
-    */
-    __exports__["default"] = View.extend(_Metamorph);
-
-    /**
-      @class _SimpleMetamorphView
-      @namespace Ember
-      @extends Ember.CoreView
-      @uses Ember._Metamorph
-      @private
-    */
-    var _SimpleMetamorphView = CoreView.extend(_Metamorph);
-    __exports__._SimpleMetamorphView = _SimpleMetamorphView;
+    __exports__["default"] = SimpleBoundView;
   });
 enifed("ember-views/views/states",
   ["ember-metal/platform","ember-metal/merge","ember-views/views/states/default","ember-views/views/states/pre_render","ember-views/views/states/in_buffer","ember-views/views/states/has_element","ember-views/views/states/in_dom","ember-views/views/states/destroying","exports"],
@@ -48174,7 +48197,7 @@ enifed("ember-views/views/view",
     __exports__["default"] = View;
   });
 enifed("ember-views/views/with_view",
-  ["ember-metal/property_set","ember-metal/utils","ember-views/views/handlebars_bound_view","exports"],
+  ["ember-metal/property_set","ember-metal/utils","ember-views/views/bound_view","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
 
@@ -48185,9 +48208,9 @@ enifed("ember-views/views/with_view",
 
     var set = __dependency1__.set;
     var apply = __dependency2__.apply;
-    var _HandlebarsBoundView = __dependency3__._HandlebarsBoundView;
+    var BoundView = __dependency3__["default"];
 
-    __exports__["default"] = _HandlebarsBoundView.extend({
+    __exports__["default"] = BoundView.extend({
       init: function() {
         apply(this, this._super, arguments);
 
