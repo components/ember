@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.57c8bdc9
+ * @version   1.10.0-beta.1+canary.26625b64
  */
 
 (function() {
@@ -9677,6 +9677,17 @@ enifed("ember-htmlbars/helpers/each",
       return env.helpers.collection.call(this, [EachView], hash, options, env);
     }
 
+    eachHelper._preprocessArguments = function(view, params, hash, options, env) {
+      if (params.length === 3 && params[1] === "in") {
+        params.splice(0, 3, {
+          from: params[2],
+          to: params[0],
+          stream: view.getStream(params[2])
+        });
+        options.types.splice(0, 3, 'keyword');
+      }
+    };
+
     __exports__.EachView = EachView;
     __exports__.eachHelper = eachHelper;
   });
@@ -10977,7 +10988,19 @@ enifed("ember-htmlbars/helpers/with",
       bind.call(this, source, hash, options, env, preserveContext, exists, undefined, undefined, WithView);
     }
 
-    __exports__.withHelper = withHelper;function exists(value) {
+    __exports__.withHelper = withHelper;withHelper._preprocessArguments = function(view, params, hash, options, env) {
+      if (params.length === 3 && params[1] === "as") {
+        params.splice(0, 3, {
+          from: params[0],
+          to: params[2],
+          stream: view.getStream(params[0])
+        });
+
+        options.types.splice(0, 3, 'keyword');
+      }
+    };
+
+    function exists(value) {
       return !isNone(value);
     }
   });
@@ -11102,27 +11125,15 @@ enifed("ember-htmlbars/hooks",
     var lookupHelper = __dependency2__.lookupHelper;
     var sanitizeOptionsForHelper = __dependency3__.sanitizeOptionsForHelper;
 
-    function streamifyArgs(view, params, hash, options, env) {
-      if (params.length === 3 && params[1] === "as") {
-        params.splice(0, 3, {
-          from: params[0],
-          to: params[2],
-          stream: view.getStream(params[0])
-        });
-        options.types.splice(0, 3, 'keyword');
-      } else if (params.length === 3 && params[1] === "in") {
-        params.splice(0, 3, {
-          from: params[2],
-          to: params[0],
-          stream: view.getStream(params[2])
-        });
-        options.types.splice(0, 3, 'keyword');
-      } else {
-        // Convert ID params to streams
-        for (var i = 0, l = params.length; i < l; i++) {
-          if (options.types[i] === 'id') {
-            params[i] = view.getStream(params[i]);
-          }
+    function streamifyArgs(view, params, hash, options, env, helper) {
+      if (helper._preprocessArguments) {
+        helper._preprocessArguments(view, params, hash, options, env);
+      }
+
+      // Convert ID params to streams
+      for (var i = 0, l = params.length; i < l; i++) {
+        if (options.types[i] === 'id') {
+          params[i] = view.getStream(params[i]);
         }
       }
 
@@ -11146,7 +11157,7 @@ enifed("ember-htmlbars/hooks",
         options.types = ['id'];
       }
 
-      streamifyArgs(view, params, hash, options, env);
+      streamifyArgs(view, params, hash, options, env, helper);
       sanitizeOptionsForHelper(options);
       return helper.call(view, params, hash, options, env);
     }
@@ -11156,7 +11167,7 @@ enifed("ember-htmlbars/hooks",
       var helper = lookupHelper(tagName, view, env);
 
       
-      streamifyArgs(view, params, hash, options, env);
+      streamifyArgs(view, params, hash, options, env, helper);
       sanitizeOptionsForHelper(options);
       return helper.call(view, params, hash, options, env);
     }
@@ -11165,7 +11176,7 @@ enifed("ember-htmlbars/hooks",
       var helper = lookupHelper(path, view, env);
 
       if (helper) {
-        streamifyArgs(view, params, hash, options, env);
+        streamifyArgs(view, params, hash, options, env, helper);
         sanitizeOptionsForHelper(options);
         return helper.call(view, params, hash, options, env);
       } else {
@@ -11177,7 +11188,7 @@ enifed("ember-htmlbars/hooks",
       var helper = lookupHelper(path, view, env);
 
       if (helper) {
-        streamifyArgs(view, params, hash, options, env);
+        streamifyArgs(view, params, hash, options, env, helper);
         sanitizeOptionsForHelper(options);
         return helper.call(view, params, hash, options, env);
       } else {
@@ -14551,7 +14562,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.57c8bdc9
+      @version 1.10.0-beta.1+canary.26625b64
     */
 
     if ('undefined' === typeof Ember) {
@@ -14578,10 +14589,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.57c8bdc9'
+      @default '1.10.0-beta.1+canary.26625b64'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.57c8bdc9';
+    Ember.VERSION = '1.10.0-beta.1+canary.26625b64';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
