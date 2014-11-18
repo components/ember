@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.91741b4d
+ * @version   1.10.0-beta.1+canary.b0b8dc7b
  */
 
 (function() {
@@ -15049,7 +15049,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.91741b4d
+      @version 1.10.0-beta.1+canary.b0b8dc7b
     */
 
     if ('undefined' === typeof Ember) {
@@ -15076,10 +15076,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.91741b4d'
+      @default '1.10.0-beta.1+canary.b0b8dc7b'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.91741b4d';
+    Ember.VERSION = '1.10.0-beta.1+canary.b0b8dc7b';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -17340,7 +17340,8 @@ enifed("ember-metal/map",
 
       /**
         Iterate over all the keys and values. Calls the function once
-        for each key, passing in the value and key, in that order.
+        for each key, passing in value, key, and the map being iterated over,
+        in that order.
 
         The keys are guaranteed to be iterated over in insertion order.
 
@@ -17363,11 +17364,11 @@ enifed("ember-metal/map",
         if (length === 2) {
           thisArg = arguments[1];
           cb = function(key) {
-            callback.call(thisArg, map.get(key), key);
+            callback.call(thisArg, map.get(key), key, map);
           };
         } else {
           cb = function(key) {
-            callback(map.get(key), key);
+            callback(map.get(key), key, map);
           };
         }
 

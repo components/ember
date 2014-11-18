@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.91741b4d
+ * @version   1.10.0-beta.1+canary.b0b8dc7b
  */
 
 (function() {
@@ -19069,12 +19069,13 @@ enifed("ember-metal/tests/map_test",
           { value: 3, key: "c", context: unboundThis },
         ];
 
-        map.forEach(function(value, key) {
+        map.forEach(function(value, key, theMap) {
           var expectation = expectations[iteration];
 
           equal(value, expectation.value, 'value should be correct');
           equal(key, expectation.key, 'key should be correct');
           equal(this, expectation.context, 'context should be as if it was unbound');
+          equal(map, theMap, 'map being iterated over should be passed in');
 
           iteration++;
         });
@@ -19096,12 +19097,13 @@ enifed("ember-metal/tests/map_test",
           { value: 3, key: "c", context: context },
         ];
 
-        map.forEach(function(value, key) {
+        map.forEach(function(value, key, theMap) {
           var expectation = expectations[iteration];
 
           equal(value, expectation.value, 'value should be correct');
           equal(key, expectation.key, 'key should be correct');
           equal(this, expectation.context, 'context should be as if it was unbound');
+          equal(map, theMap, 'map being iterated over should be passed in');
 
           iteration++;
 
@@ -19122,7 +19124,7 @@ enifed("ember-metal/tests/map_test",
           { value: 2, key: "b", context: unboundThis }
         ];
 
-        map.forEach(function(value, key) {
+        map.forEach(function(value, key, theMap) {
           if (iteration === 0) {
             map["delete"]("c");
           }
@@ -19132,6 +19134,7 @@ enifed("ember-metal/tests/map_test",
           equal(value, expectation.value, 'value should be correct');
           equal(key, expectation.key, 'key should be correct');
           equal(this, expectation.context, 'context should be as if it was unbound');
+          equal(map, theMap, 'map being iterated over should be passed in');
 
           iteration++;
         });
@@ -19153,7 +19156,7 @@ enifed("ember-metal/tests/map_test",
           { value: 4, key: "d", context: unboundThis },
         ];
 
-        map.forEach(function(value, key) {
+        map.forEach(function(value, key, theMap) {
           if (iteration === 0) {
             map.set('d', 4);
           }
@@ -19163,6 +19166,7 @@ enifed("ember-metal/tests/map_test",
           equal(value, expectation.value, 'value should be correct');
           equal(key, expectation.key, 'key should be correct');
           equal(this, expectation.context, 'context should be as if it was unbound');
+          equal(map, theMap, 'map being iterated over should be passed in');
 
           iteration++;
         });
