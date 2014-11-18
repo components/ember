@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.3d0e463d
+ * @version   1.10.0-beta.1+canary.01605a1f
  */
 
 (function() {
@@ -8550,8 +8550,8 @@ enifed("ember-handlebars/string",
     __exports__["default"] = htmlSafe;
   });
 enifed("ember-htmlbars",
-  ["ember-metal/core","ember-htmlbars/hooks","morph","ember-htmlbars/system/template","ember-htmlbars/system/compile","ember-htmlbars/helpers","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/bind-attr","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/partial","ember-htmlbars/helpers/template","ember-htmlbars/helpers/input","ember-htmlbars/helpers/text_area","ember-htmlbars/helpers/collection","ember-htmlbars/helpers/each","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __exports__) {
+  ["ember-metal/core","ember-htmlbars/hooks","morph","ember-htmlbars/system/template","ember-htmlbars/system/compile","ember-htmlbars/helpers","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/bind-attr","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/partial","ember-htmlbars/helpers/template","ember-htmlbars/helpers/input","ember-htmlbars/helpers/text_area","ember-htmlbars/helpers/collection","ember-htmlbars/helpers/each","ember-htmlbars/helpers/unbound","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var content = __dependency2__.content;
@@ -8584,6 +8584,7 @@ enifed("ember-htmlbars",
     var textareaHelper = __dependency19__.textareaHelper;
     var collectionHelper = __dependency20__.collectionHelper;
     var eachHelper = __dependency21__.eachHelper;
+    var unboundHelper = __dependency22__.unboundHelper;
 
     registerHelper('bindHelper', bindHelper);
     registerHelper('bind', bindHelper);
@@ -8605,6 +8606,7 @@ enifed("ember-htmlbars",
     registerHelper('textarea', textareaHelper);
     registerHelper('collection', collectionHelper);
     registerHelper('each', eachHelper);
+    registerHelper('unbound', unboundHelper);
 
     if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
       Ember.HTMLBars = {
@@ -10447,6 +10449,66 @@ enifed("ember-htmlbars/helpers/text_area",
     }
 
     __exports__.textareaHelper = textareaHelper;
+  });
+enifed("ember-htmlbars/helpers/unbound",
+  ["ember-htmlbars/system/lookup-helper","ember-metal/streams/read","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
+    "use strict";
+    var lookupHelper = __dependency1__.lookupHelper;
+    var read = __dependency2__.read;
+
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
+    /**
+      `unbound` allows you to output a property without binding. *Important:* The
+      output will not be updated if the property changes. Use with caution.
+
+      ```handlebars
+      <div>{{unbound somePropertyThatDoesntChange}}</div>
+      ```
+
+      `unbound` can also be used in conjunction with a bound helper to
+      render it in its unbound form:
+
+      ```handlebars
+      <div>{{unbound helperName somePropertyThatDoesntChange}}</div>
+      ```
+
+      @method unbound
+      @for Ember.Handlebars.helpers
+      @param {String} property
+      @return {String} HTML string
+    */
+    function unboundHelper(params, hash, options, env) {
+      var length = params.length;
+      var result;
+
+      options.helperName = options.helperName || 'unbound';
+
+      if (length === 1) {
+        result = params[0].value();
+      } else if (length >= 2) {
+        var helperName = params[0];
+        var args = [];
+
+        for (var i = 1, l = params.length; i < l; i++) {
+          var value = read(params[i]);
+
+          args.push(value);
+        }
+
+        var helper = lookupHelper(helperName, this, env);
+
+        result = helper.call(this, args, hash, options, env);
+      }
+
+      options.morph.update(result);
+    }
+
+    __exports__.unboundHelper = unboundHelper;
   });
 enifed("ember-htmlbars/helpers/view",
   ["ember-metal/core","ember-runtime/system/object","ember-metal/property_get","ember-metal/keys","ember-metal/mixin","ember-metal/streams/read","ember-views/streams/read","ember-views/views/view","ember-metal/streams/simple","exports"],
@@ -14489,7 +14551,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.3d0e463d
+      @version 1.10.0-beta.1+canary.01605a1f
     */
 
     if ('undefined' === typeof Ember) {
@@ -14516,10 +14578,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.3d0e463d'
+      @default '1.10.0-beta.1+canary.01605a1f'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.3d0e463d';
+    Ember.VERSION = '1.10.0-beta.1+canary.01605a1f';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
