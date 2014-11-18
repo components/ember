@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.4e3aa966
+ * @version   1.10.0-beta.1+canary.1a5787d9
  */
 
 (function() {
@@ -8959,9 +8959,6 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test",
       ok(view.$('img').hasClass('is-open'), "sets classname to the dasherized value of the global property");
     });
 
-    // HTMLBars TODO: Needs {{#each}} helper
-    if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
-
     test("should be able to bind-attr to 'this' in an {{#each}} block [DEPRECATED]", function() {
       expectDeprecation('Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
 
@@ -9016,8 +9013,6 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test",
       ok(/two\.jpg$/.test(images[0].src));
       ok(/three\.gif$/.test(images[1].src));
     });
-
-    }
 
     test("should teardown observers from bind-attr on rerender", function() {
       view = EmberView.create({
@@ -13354,8 +13349,6 @@ enifed("ember-htmlbars/tests/helpers/yield_test",
 
     });
 
-    if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
-
     test("templates should yield to block, when the yield is embedded in a hierarchy of virtual views", function() {
       var TimesView = EmberView.extend({
         layout: compile('<div class="times">{{#each item in view.index}}{{yield}}{{/each}}</div>'),
@@ -13381,8 +13374,6 @@ enifed("ember-htmlbars/tests/helpers/yield_test",
 
       equal(view.$('div#container div.times-item').length, 5, 'times-item is embedded within wrapping container 5 times, as expected');
     });
-
-    }
 
     test("templates should yield to block, when the yield is embedded in a hierarchy of non-virtual views", function() {
       var NestingView = EmberView.extend({
