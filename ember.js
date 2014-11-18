@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.01605a1f
+ * @version   1.10.0-beta.1+canary.57c8bdc9
  */
 
 (function() {
@@ -9509,7 +9509,7 @@ enifed("ember-htmlbars/helpers/binding",
       @method bind
       @for Ember.Handlebars.helpers
       @param {String} property Property to bind
-      @param {Function} fn Context to provide for rendering
+      @param {Function} render Context to provide for rendering
       @return {String} HTML string
     */
     function bindHelper(params, hash, options, env) {
@@ -9517,8 +9517,9 @@ enifed("ember-htmlbars/helpers/binding",
 
       var property = params[0];
 
-      if (options.fn) {
+      if (options.render) {
         options.helperName = 'bind';
+        Ember.deprecate("The block form of bind, {{#bind foo}}{{/bind}}, has been deprecated and will be removed.");
         bind.call(this, property, hash, options, env, false, exists);
       } else {
         simpleBind.call(this, params, options, env);
@@ -14987,7 +14988,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.01605a1f
+      @version 1.10.0-beta.1+canary.57c8bdc9
     */
 
     if ('undefined' === typeof Ember) {
@@ -15014,10 +15015,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.01605a1f'
+      @default '1.10.0-beta.1+canary.57c8bdc9'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.01605a1f';
+    Ember.VERSION = '1.10.0-beta.1+canary.57c8bdc9';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`

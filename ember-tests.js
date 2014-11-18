@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.01605a1f
+ * @version   1.10.0-beta.1+canary.57c8bdc9
  */
 
 (function() {
@@ -5946,162 +5946,6 @@ enifed("ember-handlebars/tests/handlebars_test",
       equal(view.$('#first').text(), "bazam", "view updates when a bound property changes");
     });
 
-    test("should not update when a property is removed from the view", function() {
-      container.register('template:foo', EmberHandlebars.compile('<h1 id="first">{{#bind "view.content"}}{{#bind "foo"}}{{bind "baz"}}{{/bind}}{{/bind}}</h1>'));
-
-      view = EmberView.create({
-        container: container,
-        templateName: 'foo',
-
-        content: EmberObject.create({
-          foo: EmberObject.create({
-            baz: "unicorns"
-          })
-        })
-      });
-
-      appendView();
-
-      equal(view.$('#first').text(), "unicorns", "precond - renders the bound value");
-
-      var oldContent = get(view, 'content');
-
-      run(function() {
-        set(view, 'content', EmberObject.create({
-          foo: EmberObject.create({
-            baz: "ninjas"
-          })
-        }));
-      });
-
-      equal(view.$('#first').text(), 'ninjas', "updates to new content value");
-
-      run(function() {
-        set(oldContent, 'foo.baz', 'rockstars');
-      });
-
-      run(function() {
-        set(oldContent, 'foo.baz', 'ewoks');
-      });
-
-      equal(view.$('#first').text(), "ninjas", "does not update removed object");
-    });
-
-    test("Handlebars templates update properties if a content object changes", function() {
-      container.register('template:menu', EmberHandlebars.compile('<h1>Today\'s Menu</h1>{{#bind "view.coffee"}}<h2>{{color}} coffee</h2><span id="price">{{bind "price"}}</span>{{/bind}}'));
-
-      run(function() {
-        view = EmberView.create({
-          container: container,
-          templateName: 'menu',
-
-          coffee: EmberObject.create({
-            color: 'brown',
-            price: '$4'
-          })
-        });
-      });
-
-      appendView();
-
-      equal(view.$('h2').text(), "brown coffee", "precond - renders color correctly");
-      equal(view.$('#price').text(), '$4', "precond - renders price correctly");
-
-      run(function() {
-        set(view, 'coffee', EmberObject.create({
-          color: "mauve",
-          price: "$4.50"
-        }));
-      });
-
-      equal(view.$('h2').text(), "mauve coffee", "should update name field when content changes");
-      equal(view.$('#price').text(), "$4.50", "should update price field when content changes");
-
-      run(function() {
-        set(view, 'coffee', EmberObject.create({
-          color: "mauve",
-          price: "$5.50"
-        }));
-      });
-
-      equal(view.$('h2').text(), "mauve coffee", "should update name field when content changes");
-      equal(view.$('#price').text(), "$5.50", "should update price field when content changes");
-
-      run(function() {
-        set(view, 'coffee.price', "$5");
-      });
-
-      equal(view.$('#price').text(), "$5", "should update price field when price property is changed");
-
-      run(function() {
-        view.destroy();
-      });
-    });
-
-    test("Template updates correctly if a path is passed to the bind helper", function() {
-      container.register('template:menu', EmberHandlebars.compile('<h1>{{bind "view.coffee.price"}}</h1>'));
-
-      view = EmberView.create({
-        container: container,
-        templateName: 'menu',
-
-        coffee: EmberObject.create({
-          price: '$4'
-        })
-      });
-
-      appendView();
-
-      equal(view.$('h1').text(), "$4", "precond - renders price");
-
-      run(function() {
-        set(view, 'coffee.price', "$5");
-      });
-
-      equal(view.$('h1').text(), "$5", "updates when property changes");
-
-      run(function() {
-        set(view, 'coffee', { price: "$6" });
-      });
-
-      equal(view.$('h1').text(), "$6", "updates when parent property changes");
-    });
-
-    test("Template updates correctly if a path is passed to the bind helper and the context object is an ObjectController", function() {
-      container.register('template:menu', EmberHandlebars.compile('<h1>{{bind "view.coffee.price"}}</h1>'));
-
-      var controller = ObjectController.create();
-
-      var realObject = EmberObject.create({
-        price: "$4"
-      });
-
-      set(controller, 'model', realObject);
-
-      view = EmberView.create({
-        container: container,
-        templateName: 'menu',
-
-        coffee: controller
-      });
-
-      appendView();
-
-      equal(view.$('h1').text(), "$4", "precond - renders price");
-
-      run(function() {
-        set(realObject, 'price', "$5");
-      });
-
-      equal(view.$('h1').text(), "$5", "updates when property is set on real object");
-
-      run(function() {
-        set(controller, 'price', "$6" );
-      });
-
-      equal(view.$('h1').text(), "$6", "updates when property is set on object controller");
-    });
-
     test("should update the block when object passed to #if helper changes", function() {
       container.register('template:menu', EmberHandlebars.compile('<h1>{{#if view.inception}}{{view.INCEPTION}}{{/if}}</h1>'));
 
@@ -9399,20 +9243,25 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helpers/bind_test",
-  ["ember-views/views/view","ember-runtime/system/object","ember-metal/run_loop","ember-handlebars","ember-htmlbars/system/compile"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
+  ["ember-views/views/view","ember-runtime/system/object","ember-metal/run_loop","ember-handlebars","ember-htmlbars/system/compile","ember-runtime/system/container","ember-runtime/controllers/object_controller","ember-metal/property_get","ember-metal/property_set"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
     "use strict";
     var EmberView = __dependency1__["default"];
     var EmberObject = __dependency2__["default"];
     var run = __dependency3__["default"];
     var EmberHandlebars = __dependency4__["default"];
     var htmlbarsCompile = __dependency5__["default"];
+    var Container = __dependency6__["default"];
+    var ObjectController = __dependency7__["default"];
+
+    var get = __dependency8__.get;
+    var set = __dependency9__.set;
 
     function appendView(view) {
       run(function() { view.appendTo('#qunit-fixture'); });
     }
 
-    var view;
+    var view, container;
 
     var compile;
     if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
@@ -9421,7 +9270,7 @@ enifed("ember-htmlbars/tests/helpers/bind_test",
       compile = EmberHandlebars.compile;
     }
 
-    QUnit.module("ember-htmlbars: {{#bind}} helper", {
+    QUnit.module("ember-htmlbars: {{bind}} helper", {
       teardown: function() {
         if (view) {
           run(view, view.destroy);
@@ -9464,6 +9313,192 @@ enifed("ember-htmlbars/tests/helpers/bind_test",
       run(view, view.set, 'context.foo.bar', 'MWEEER');
 
       equal(view.$().text(), "MWEEER", "value can be updated");
+    });
+
+    QUnit.module("ember-htmlbars: {{bind}} with a container, block forms", {
+      setup: function() {
+        container = new Container();
+        container.optionsForType('template', { instantiate: false });
+      },
+      teardown: function() {
+        Ember.run(function(){
+          if (container) {
+            container.destroy();
+          }
+          if (view) {
+            view.destroy();
+          }
+        });
+        container = view = null;
+      }
+    });
+
+    test("should not update when a property is removed from the view", function() {
+      if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+        expectDeprecation(/block form of bind.*has been deprecated/);
+      }
+      var template = compile(
+        '<h1 id="first">{{#bind view.content}}{{#bind foo}}{{bind baz}}{{/bind}}{{/bind}}</h1>' );
+      container.register('template:foo', template);
+
+      view = EmberView.create({
+        container: container,
+        templateName: 'foo',
+
+        content: EmberObject.create({
+          foo: EmberObject.create({
+            baz: "unicorns"
+          })
+        })
+      });
+
+      appendView(view);
+
+      equal(view.$('#first').text(), "unicorns", "precond - renders the bound value");
+
+      var oldContent = get(view, 'content');
+
+      run(function() {
+        set(view, 'content', EmberObject.create({
+          foo: EmberObject.create({
+            baz: "ninjas"
+          })
+        }));
+      });
+
+      equal(view.$('#first').text(), 'ninjas', "updates to new content value");
+
+      run(function() {
+        set(oldContent, 'foo.baz', 'rockstars');
+      });
+
+      run(function() {
+        set(oldContent, 'foo.baz', 'ewoks');
+      });
+
+      equal(view.$('#first').text(), "ninjas", "does not update removed object");
+    });
+
+    test("Handlebars templates update properties if a content object changes", function() {
+      if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+        expectDeprecation(/block form of bind.*has been deprecated/);
+      }
+      var template = compile(
+        '<h1>Today\'s Menu</h1>{{#bind view.coffee}}<h2>{{color}} coffee</h2><span id="price">{{bind price}}</span>{{/bind}}');
+      container.register('template:menu', template);
+
+      run(function() {
+        view = EmberView.create({
+          container: container,
+          templateName: 'menu',
+
+          coffee: EmberObject.create({
+            color: 'brown',
+            price: '$4'
+          })
+        });
+      });
+
+      appendView(view);
+
+      equal(view.$('h2').text(), "brown coffee", "precond - renders color correctly");
+      equal(view.$('#price').text(), '$4', "precond - renders price correctly");
+
+      run(function() {
+        set(view, 'coffee', EmberObject.create({
+          color: "mauve",
+          price: "$4.50"
+        }));
+      });
+
+      equal(view.$('h2').text(), "mauve coffee", "should update name field when content changes");
+      equal(view.$('#price').text(), "$4.50", "should update price field when content changes");
+
+      run(function() {
+        set(view, 'coffee', EmberObject.create({
+          color: "mauve",
+          price: "$5.50"
+        }));
+      });
+
+      equal(view.$('h2').text(), "mauve coffee", "should update name field when content changes");
+      equal(view.$('#price').text(), "$5.50", "should update price field when content changes");
+
+      run(function() {
+        set(view, 'coffee.price', "$5");
+      });
+
+      equal(view.$('#price').text(), "$5", "should update price field when price property is changed");
+
+      run(function() {
+        view.destroy();
+      });
+    });
+
+    test("Template updates correctly if a path is passed to the bind helper", function() {
+      var template = compile('<h1>{{bind view.coffee.price}}</h1>');
+      container.register('template:menu', template);
+
+      view = EmberView.create({
+        container: container,
+        templateName: 'menu',
+
+        coffee: EmberObject.create({
+          price: '$4'
+        })
+      });
+
+      appendView(view);
+
+      equal(view.$('h1').text(), "$4", "precond - renders price");
+
+      run(function() {
+        set(view, 'coffee.price', "$5");
+      });
+
+      equal(view.$('h1').text(), "$5", "updates when property changes");
+
+      run(function() {
+        set(view, 'coffee', { price: "$6" });
+      });
+
+      equal(view.$('h1').text(), "$6", "updates when parent property changes");
+    });
+
+    test("Template updates correctly if a path is passed to the bind helper and the context object is an ObjectController", function() {
+      var template = compile('<h1>{{bind view.coffee.price}}</h1>');
+      container.register('template:menu', template);
+
+      var controller = ObjectController.create();
+
+      var realObject = EmberObject.create({
+        price: "$4"
+      });
+
+      set(controller, 'model', realObject);
+
+      view = EmberView.create({
+        container: container,
+        templateName: 'menu',
+
+        coffee: controller
+      });
+
+      appendView(view);
+
+      equal(view.$('h1').text(), "$4", "precond - renders price");
+
+      run(function() {
+        set(realObject, 'price', "$5");
+      });
+
+      equal(view.$('h1').text(), "$5", "updates when property is set on real object");
+
+      run(function() {
+        set(controller, 'price', "$6" );
+      });
+
+      equal(view.$('h1').text(), "$6", "updates when property is set on object controller");
     });
   });
 enifed("ember-htmlbars/tests/helpers/bind_test.jshint",
