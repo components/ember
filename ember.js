@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.c2ae1d1b
+ * @version   1.10.0-beta.1+canary.afcc6e37
  */
 
 (function() {
@@ -9031,6 +9031,261 @@ enifed("ember-htmlbars/compat/helper",
 
     __exports__.registerHandlebarsCompatibleHelper = registerHandlebarsCompatibleHelper;__exports__["default"] = HandlebarsCompatibleHelper;
   });
+enifed("ember-htmlbars/compat/make-bound-helper",
+  ["ember-metal/core","ember-metal/mixin","ember-htmlbars/system/simple-bind","ember-metal/merge","ember-htmlbars/system/helper","ember-metal/streams/stream","ember-metal/streams/read","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
+    "use strict";
+    var Ember = __dependency1__["default"];
+    // Ember.FEATURES, Ember.assert, Ember.Handlebars, Ember.lookup
+    var IS_BINDING = __dependency2__.IS_BINDING;
+    var simpleBind = __dependency3__["default"];
+    var merge = __dependency4__["default"];
+    var Helper = __dependency5__["default"];
+
+    var Stream = __dependency6__["default"];
+    var readArray = __dependency7__.readArray;
+    var readHash = __dependency7__.readHash;
+
+    /**
+      A helper function used by `registerBoundHelper`. Takes the
+      provided Handlebars helper function fn and returns it in wrapped
+      bound helper form.
+
+      The main use case for using this outside of `registerBoundHelper`
+      is for registering helpers on the container:
+
+      ```js
+      var boundHelperFn = Ember.Handlebars.makeBoundHelper(function(word) {
+        return word.toUpperCase();
+      });
+
+      container.register('helper:my-bound-helper', boundHelperFn);
+      ```
+
+      In the above example, if the helper function hadn't been wrapped in
+      `makeBoundHelper`, the registered helper would be unbound.
+
+      @method makeBoundHelper
+      @for Ember.Handlebars
+      @param {Function} function
+      @param {String} dependentKeys*
+      @since 1.2.0
+    */
+    __exports__["default"] = function makeBoundHelper(fn, compatMode) {
+      var dependentKeys = [];
+      for (var i = 1; i < arguments.length; i++) {
+        dependentKeys.push(arguments[i]);
+      }
+
+      function helperFunc(params, hash, options, env) {
+        var view = this;
+        var numParams = params.length;
+
+        Ember.assert("registerBoundHelper-generated helpers do not support use with Handlebars blocks.", !options.render);
+
+        for (var prop in hash) {
+          if (IS_BINDING.test(prop)) {
+            hash[prop.slice(0, -7)] = view.getStream(hash[prop]);
+            delete hash[prop];
+          }
+        }
+
+        function valueFn() {
+          var args = readArray(params);
+
+          args.push({
+            hash: readHash(hash),
+            data: { properties: options._raw.params }
+          });
+          return fn.apply(view, args);
+        }
+
+        if (env.data.isUnbound) {
+          return valueFn();
+        } else {
+          var lazyValue = new Stream(valueFn);
+          var bindOptions = {
+            escaped: !hash.unescaped,
+            morph: options.morph
+          };
+
+          simpleBind.call(this, [lazyValue], {}, bindOptions);
+
+          var param;
+
+          for (i = 0; i < numParams; i++) {
+            param = params[i];
+            if (param && param.isStream) {
+              param.subscribe(lazyValue.notify, lazyValue);
+            }
+          }
+
+          for (prop in hash) {
+            param = hash[prop];
+            if (param && param.isStream) {
+              param.subscribe(lazyValue.notify, lazyValue);
+            }
+          }
+
+          if (numParams > 0) {
+            var firstParam = params[0];
+            // Only bother with subscriptions if the first argument
+            // is a stream itself, and not a primitive.
+            if (firstParam && firstParam.isStream) {
+              var onDependentKeyNotify = function onDependentKeyNotify(stream) {
+                stream.value();
+                lazyValue.notify();
+              };
+              for (i = 0; i < dependentKeys.length; i++) {
+                var childParam = firstParam.get(dependentKeys[i]);
+                childParam.value();
+                childParam.subscribe(onDependentKeyNotify);
+              }
+            }
+          }
+        }
+      }
+
+      function preprocessArguments(view, params, hash, options, env) {
+        options._raw = {
+          params: params.slice(),
+          hash: merge({}, hash)
+        };
+      }
+
+      return new Helper(helperFunc, preprocessArguments);
+    }
+  });
+enifed("ember-htmlbars/compat/register-bound-helper",
+  ["ember-htmlbars/helpers","ember-htmlbars/compat/make-bound-helper","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
+    var helpers = __dependency1__["default"];
+    var makeBoundHelper = __dependency2__["default"];
+
+    var slice = [].slice;
+
+    /**
+      Register a bound handlebars helper. Bound helpers behave similarly to regular
+      handlebars helpers, with the added ability to re-render when the underlying data
+      changes.
+
+      ## Simple example
+
+      ```javascript
+      Ember.Handlebars.registerBoundHelper('capitalize', function(value) {
+        return Ember.String.capitalize(value);
+      });
+      ```
+
+      The above bound helper can be used inside of templates as follows:
+
+      ```handlebars
+      {{capitalize name}}
+      ```
+
+      In this case, when the `name` property of the template's context changes,
+      the rendered value of the helper will update to reflect this change.
+
+      ## Example with options
+
+      Like normal handlebars helpers, bound helpers have access to the options
+      passed into the helper call.
+
+      ```javascript
+      Ember.Handlebars.registerBoundHelper('repeat', function(value, options) {
+        var count = options.hash.count;
+        var a = [];
+        while(a.length < count) {
+            a.push(value);
+        }
+        return a.join('');
+      });
+      ```
+
+      This helper could be used in a template as follows:
+
+      ```handlebars
+      {{repeat text count=3}}
+      ```
+
+      ## Example with bound options
+
+      Bound hash options are also supported. Example:
+
+      ```handlebars
+      {{repeat text count=numRepeats}}
+      ```
+
+      In this example, count will be bound to the value of
+      the `numRepeats` property on the context. If that property
+      changes, the helper will be re-rendered.
+
+      ## Example with extra dependencies
+
+      The `Ember.Handlebars.registerBoundHelper` method takes a variable length
+      third parameter which indicates extra dependencies on the passed in value.
+      This allows the handlebars helper to update when these dependencies change.
+
+      ```javascript
+      Ember.Handlebars.registerBoundHelper('capitalizeName', function(value) {
+        return value.get('name').toUpperCase();
+      }, 'name');
+      ```
+
+      ## Example with multiple bound properties
+
+      `Ember.Handlebars.registerBoundHelper` supports binding to
+      multiple properties, e.g.:
+
+      ```javascript
+      Ember.Handlebars.registerBoundHelper('concatenate', function() {
+        var values = Array.prototype.slice.call(arguments, 0, -1);
+        return values.join('||');
+      });
+      ```
+
+      Which allows for template syntax such as `{{concatenate prop1 prop2}}` or
+      `{{concatenate prop1 prop2 prop3}}`. If any of the properties change,
+      the helper will re-render.  Note that dependency keys cannot be
+      using in conjunction with multi-property helpers, since it is ambiguous
+      which property the dependent keys would belong to.
+
+      ## Use with unbound helper
+
+      The `{{unbound}}` helper can be used with bound helper invocations
+      to render them in their unbound form, e.g.
+
+      ```handlebars
+      {{unbound capitalize name}}
+      ```
+
+      In this example, if the name property changes, the helper
+      will not re-render.
+
+      ## Use with blocks not supported
+
+      Bound helpers do not support use with Handlebars blocks or
+      the addition of child views of any kind.
+
+      @method registerBoundHelper
+      @for Ember.Handlebars
+      @param {String} name
+      @param {Function} function
+      @param {String} dependentKeys*
+    */
+    __exports__["default"] = function registerBoundHelper(name, fn) {
+      var boundHelperArgs = slice.call(arguments, 1);
+      var boundFn = makeBoundHelper.apply(this, boundHelperArgs);
+
+      helpers[name] = boundFn;
+    }
+  });
 enifed("ember-htmlbars/helpers",
   ["ember-views/views/view","ember-views/views/component","ember-htmlbars/system/make-view-helper","ember-htmlbars/system/helper","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
@@ -9112,9 +9367,7 @@ enifed("ember-htmlbars/helpers",
       if (View.detect(value)) {
         helpers[name] = makeViewHelper(value);
       } else {
-        // HTMLBars TODO: Support bound helpers
-        // EmberHandlebars.registerBoundHelper.apply(null, arguments);
-        throw new Error('unimplemented');
+        throw new Error('registerBoundHelper not implemented yet.');
       }
     }
 
@@ -9437,7 +9690,7 @@ enifed("ember-htmlbars/helpers/bind-attr",
     __exports__.bindClasses = bindClasses;
   });
 enifed("ember-htmlbars/helpers/binding",
-  ["ember-metal/is_none","ember-metal/run_loop","ember-metal/property_get","ember-metal/streams/simple","ember-views/views/bound_view","ember-views/views/simple_bound_view","exports"],
+  ["ember-metal/is_none","ember-metal/run_loop","ember-metal/property_get","ember-metal/streams/simple","ember-htmlbars/system/simple-bind","ember-views/views/bound_view","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     /**
@@ -9449,9 +9702,9 @@ enifed("ember-htmlbars/helpers/binding",
     var run = __dependency2__["default"];
     var get = __dependency3__.get;
     var SimpleStream = __dependency4__["default"];
+    var simpleBind = __dependency5__["default"];
 
-    var BoundView = __dependency5__["default"];
-    var SimpleBoundView = __dependency6__["default"];
+    var BoundView = __dependency6__["default"];
 
     function exists(value) {
       return !isNone(value);
@@ -9513,22 +9766,6 @@ enifed("ember-htmlbars/helpers/binding",
       }));
     }
 
-    function simpleBind(params, options, env) {
-      var lazyValue = params[0];
-
-      var view = new SimpleBoundView(
-        lazyValue, options.escaped
-      );
-
-      view._parentView = this;
-      view._morph = options.morph;
-      this.appendChild(view);
-
-      lazyValue.subscribe(this._wrapAsScheduled(function() {
-        run.scheduleOnce('render', view, 'rerender');
-      }));
-    }
-
     /**
       `bind` can be used to display a value, then update that value if it
       changes. For example, if you wanted to print the `title` property of
@@ -9562,12 +9799,11 @@ enifed("ember-htmlbars/helpers/binding",
         Ember.deprecate("The block form of bind, {{#bind foo}}{{/bind}}, has been deprecated and will be removed.");
         bind.call(this, property, hash, options, env, false, exists);
       } else {
-        simpleBind.call(this, params, options, env);
+        simpleBind.call(this, params, hash, options, env);
       }
     }
 
     __exports__.bind = bind;
-    __exports__.simpleBind = simpleBind;
     __exports__.bindHelper = bindHelper;
   });
 enifed("ember-htmlbars/helpers/collection",
@@ -11868,6 +12104,27 @@ enifed("ember-htmlbars/system/sanitize-for-helper",
     }
 
     __exports__.sanitizeOptionsForHelper = sanitizeOptionsForHelper;
+  });
+enifed("ember-htmlbars/system/simple-bind",
+  ["ember-metal/run_loop","ember-views/views/simple_bound_view","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
+    "use strict";
+    var run = __dependency1__["default"];
+    var SimpleBoundView = __dependency2__["default"];
+
+    __exports__["default"] = function simpleBind(params, hash, options, env) {
+      var lazyValue = params[0];
+
+      var view = new SimpleBoundView(lazyValue, options.escaped);
+
+      view._parentView = this;
+      view._morph = options.morph;
+      this.appendChild(view);
+
+      lazyValue.subscribe(this._wrapAsScheduled(function() {
+        run.scheduleOnce('render', view, 'rerender');
+      }));
+    }
   });
 enifed("ember-htmlbars/system/template",
   ["exports"],
@@ -15074,7 +15331,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.c2ae1d1b
+      @version 1.10.0-beta.1+canary.afcc6e37
     */
 
     if ('undefined' === typeof Ember) {
@@ -15101,10 +15358,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.c2ae1d1b'
+      @default '1.10.0-beta.1+canary.afcc6e37'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.c2ae1d1b';
+    Ember.VERSION = '1.10.0-beta.1+canary.afcc6e37';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
