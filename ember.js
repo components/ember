@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.4c8afc3e
+ * @version   1.10.0-beta.1+canary.6829dd37
  */
 
 (function() {
@@ -9004,6 +9004,8 @@ enifed("ember-htmlbars/compat/helper",
     var helpers = __dependency2__["default"];
 
     function HandlebarsCompatibleHelper(fn) {
+      this.handlebarsHelperFunction = fn;
+
       this.helperFunction = function helperFunc(params, hash, options, env) {
         var handlebarsOptions = {};
         merge(handlebarsOptions, options);
@@ -9016,8 +9018,6 @@ enifed("ember-htmlbars/compat/helper",
 
         options.morph.update(result);
       };
-
-      this.isHTMLBars = true;
     }
 
     HandlebarsCompatibleHelper.prototype = {
@@ -9026,7 +9026,9 @@ enifed("ember-htmlbars/compat/helper",
           params: params.slice(),
           hash: merge({}, hash)
         };
-      }
+      },
+
+      isHTMLBars: true
     };
 
     function registerHandlebarsCompatibleHelper(name, value) {
@@ -11961,12 +11963,11 @@ enifed("ember-htmlbars/system/helper",
       if (preprocessArguments) {
         this.preprocessArguments = preprocessArguments;
       }
-
-      this.isHTMLBars = true;
     }
 
     Helper.prototype = {
-      preprocessArguments: function() { }
+      preprocessArguments: function() { },
+      isHTMLBars: true
     };
 
     __exports__["default"] = Helper;
@@ -15359,7 +15360,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.4c8afc3e
+      @version 1.10.0-beta.1+canary.6829dd37
     */
 
     if ('undefined' === typeof Ember) {
@@ -15386,10 +15387,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.4c8afc3e'
+      @default '1.10.0-beta.1+canary.6829dd37'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.4c8afc3e';
+    Ember.VERSION = '1.10.0-beta.1+canary.6829dd37';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
