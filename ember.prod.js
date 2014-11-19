@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.afcc6e37
+ * @version   1.10.0-beta.1+canary.20505c37
  */
 
 (function() {
@@ -8643,6 +8643,8 @@ enifed("ember-htmlbars/compat/helper",
     var helpers = __dependency2__["default"];
 
     function HandlebarsCompatibleHelper(fn) {
+      this.handlebarsHelperFunction = fn;
+
       this.helperFunction = function helperFunc(params, hash, options, env) {
         var handlebarsOptions = {};
         merge(handlebarsOptions, options);
@@ -8652,18 +8654,21 @@ enifed("ember-htmlbars/compat/helper",
         args.push(handlebarsOptions);
 
         var result = fn.apply(this, args);
+
         options.morph.update(result);
       };
+    }
 
-      this.preprocessArguments = function(view, params, hash, options, env) {
+    HandlebarsCompatibleHelper.prototype = {
+      preprocessArguments: function(view, params, hash, options, env) {
         options._raw = {
           params: params.slice(),
           hash: merge({}, hash)
         };
-      };
+      },
 
-      this.isHTMLBars = true;
-    }
+      isHTMLBars: true
+    };
 
     function registerHandlebarsCompatibleHelper(name, value) {
       helpers[name] = new HandlebarsCompatibleHelper(value);
@@ -11508,11 +11513,17 @@ enifed("ember-htmlbars/system/helper",
       @namespace Ember.HTMLBars
     */
     function Helper(helper, preprocessArguments) {
-      this.isHTMLBars = true;
       this.helperFunction = helper;
-      this.preprocessArguments = preprocessArguments || function() { };
+
+      if (preprocessArguments) {
+        this.preprocessArguments = preprocessArguments;
+      }
     }
 
+    Helper.prototype = {
+      preprocessArguments: function() { },
+      isHTMLBars: true
+    };
 
     __exports__["default"] = Helper;
   });
@@ -14893,7 +14904,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.afcc6e37
+      @version 1.10.0-beta.1+canary.20505c37
     */
 
     if ('undefined' === typeof Ember) {
@@ -14920,10 +14931,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.afcc6e37'
+      @default '1.10.0-beta.1+canary.20505c37'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.afcc6e37';
+    Ember.VERSION = '1.10.0-beta.1+canary.20505c37';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
