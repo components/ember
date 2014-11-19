@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.20505c37
+ * @version   1.10.0-beta.1+canary.4c8afc3e
  */
 
 (function() {
@@ -12211,8 +12211,8 @@ enifed("ember-htmlbars/tests/helpers/text_area_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helpers/unbound_test",
-  ["ember-views/views/view","ember-runtime/system/object","ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-handlebars-compiler","htmlbars-compiler/compiler","ember-metal/error","ember-htmlbars/helpers","ember-runtime/system/container","ember-handlebars/ext","ember-htmlbars/compat/make-bound-helper"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__) {
+  ["ember-views/views/view","ember-runtime/system/object","ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-handlebars-compiler","htmlbars-compiler/compiler","ember-metal/error","ember-htmlbars/helpers","ember-htmlbars/compat/register-bound-helper","ember-htmlbars/compat/make-bound-helper","ember-runtime/system/container","ember-handlebars/ext"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__) {
     "use strict";
     var EmberView = __dependency1__["default"];
     var EmberObject = __dependency2__["default"];
@@ -12224,13 +12224,14 @@ enifed("ember-htmlbars/tests/helpers/unbound_test",
     var EmberHandlebars = __dependency7__["default"];
     var htmlbarsCompile = __dependency8__.compile;
     var EmberError = __dependency9__["default"];
-    var registerHTMLBarsHelper = __dependency10__.registerHelper;
     var htmlbarsHelpers = __dependency10__["default"];
+    var registerHTMLBarsHelper = __dependency11__["default"];
+    var htmlbarsMakeBoundHelper = __dependency12__["default"];
 
-    var Container = __dependency11__["default"];
+    var Container = __dependency13__["default"];
 
-    var handlebarsMakeBoundHelper = __dependency12__.makeBoundHelper;
-    var htmlbarsMakeBoundHelper = __dependency13__["default"];
+    var handlebarsMakeBoundHelper = __dependency14__.makeBoundHelper;
+    var htmlbarsMakeBoundHelper = __dependency12__["default"];
 
     var compile, helpers, registerBoundHelper, makeBoundHelper;
     if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
@@ -12287,9 +12288,6 @@ enifed("ember-htmlbars/tests/helpers/unbound_test",
       });
       equal(view.$().text(), 'BORK BORK', 'should not re-render if the property changes');
     });
-
-    if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
-      // need registerBoundHelper and makeBoundHelper
 
     test('it should throw the helper missing error if multiple properties are provided', function() {
       throws(function() {
@@ -12436,7 +12434,6 @@ enifed("ember-htmlbars/tests/helpers/unbound_test",
       equal(view.$().text(), "SALLY SHOOBY sallytaylor shoobytaylor", "only bound values change");
     });
 
-
     test("should be able to render an unbound helper invocation in #each helper", function() {
       view = EmberView.create({
         template: compile(
@@ -12459,7 +12456,6 @@ enifed("ember-htmlbars/tests/helpers/unbound_test",
 
       equal(view.$().text(), "SHOOBY SHOOBYCINDY CINDY", "unbound rendered correctly");
     });
-
 
     test("should be able to render an unbound helper invocation with bound hash options", function() {
       try {
@@ -12529,8 +12525,6 @@ enifed("ember-htmlbars/tests/helpers/unbound_test",
 
       equal(view.$().text(), "SUCH AWESOME", "only bound values change");
     });
-
-    }
   });
 enifed("ember-htmlbars/tests/helpers/unbound_test.jshint",
   [],

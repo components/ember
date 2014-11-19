@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.20505c37
+ * @version   1.10.0-beta.1+canary.4c8afc3e
  */
 
 (function() {
@@ -8948,6 +8948,7 @@ enifed("ember-htmlbars",
     var eachHelper = __dependency22__.eachHelper;
     var preprocessArgumentsForEach = __dependency22__.preprocessArgumentsForEach;
     var unboundHelper = __dependency23__.unboundHelper;
+    var preprocessArgumentsForUnbound = __dependency23__.preprocessArgumentsForUnbound;
 
     registerHelper('bindHelper', bindHelper);
     registerHelper('bind', bindHelper);
@@ -8969,7 +8970,7 @@ enifed("ember-htmlbars",
     registerHelper('textarea', textareaHelper);
     registerHelper('collection', collectionHelper);
     registerHelper('each', eachHelper, preprocessArgumentsForEach);
-    registerHelper('unbound', unboundHelper);
+    registerHelper('unbound', unboundHelper, preprocessArgumentsForUnbound);
 
     if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
       Ember.HTMLBars = {
@@ -9003,8 +9004,6 @@ enifed("ember-htmlbars/compat/helper",
     var helpers = __dependency2__["default"];
 
     function HandlebarsCompatibleHelper(fn) {
-      this.handlebarsHelperFunction = fn;
-
       this.helperFunction = function helperFunc(params, hash, options, env) {
         var handlebarsOptions = {};
         merge(handlebarsOptions, options);
@@ -9017,6 +9016,8 @@ enifed("ember-htmlbars/compat/helper",
 
         options.morph.update(result);
       };
+
+      this.isHTMLBars = true;
     }
 
     HandlebarsCompatibleHelper.prototype = {
@@ -9025,9 +9026,7 @@ enifed("ember-htmlbars/compat/helper",
           params: params.slice(),
           hash: merge({}, hash)
         };
-      },
-
-      isHTMLBars: true
+      }
     };
 
     function registerHandlebarsCompatibleHelper(name, value) {
@@ -11143,11 +11142,13 @@ enifed("ember-htmlbars/helpers/text_area",
     __exports__.textareaHelper = textareaHelper;
   });
 enifed("ember-htmlbars/helpers/unbound",
-  ["ember-htmlbars/system/lookup-helper","ember-metal/streams/read","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["ember-htmlbars/system/lookup-helper","ember-metal/streams/read","ember-metal/error","ember-metal/merge","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     var lookupHelper = __dependency1__.lookupHelper;
     var read = __dependency2__.read;
+    var EmberError = __dependency3__["default"];
+    var merge = __dependency4__["default"];
 
     /**
     @module ember
@@ -11183,7 +11184,9 @@ enifed("ember-htmlbars/helpers/unbound",
       if (length === 1) {
         result = params[0].value();
       } else if (length >= 2) {
-        var helperName = params[0];
+        env.data.isUnbound = true;
+
+        var helperName = options._raw.params[0];
         var args = [];
 
         for (var i = 1, l = params.length; i < l; i++) {
@@ -11194,13 +11197,26 @@ enifed("ember-htmlbars/helpers/unbound",
 
         var helper = lookupHelper(helperName, this, env);
 
-        result = helper.call(this, args, hash, options, env);
+        if (!helper) {
+          throw new EmberError('HTMLBars error: Could not find component or helper named ' + helperName + '.');
+        }
+
+        result = helper.helperFunction.call(this, args, hash, options, env);
+
+        delete env.data.isUnbound;
       }
 
       options.morph.update(result);
     }
 
-    __exports__.unboundHelper = unboundHelper;
+    __exports__.unboundHelper = unboundHelper;function preprocessArgumentsForUnbound(view, params, hash, options, env) {
+      options._raw = {
+        params: params.slice(),
+        hash:   merge({}, hash)
+      };
+    }
+
+    __exports__.preprocessArgumentsForUnbound = preprocessArgumentsForUnbound;
   });
 enifed("ember-htmlbars/helpers/view",
   ["ember-metal/core","ember-runtime/system/object","ember-metal/property_get","ember-metal/keys","ember-metal/mixin","ember-metal/streams/read","ember-views/streams/read","ember-views/views/view","ember-metal/streams/simple","exports"],
@@ -11945,11 +11961,12 @@ enifed("ember-htmlbars/system/helper",
       if (preprocessArguments) {
         this.preprocessArguments = preprocessArguments;
       }
+
+      this.isHTMLBars = true;
     }
 
     Helper.prototype = {
-      preprocessArguments: function() { },
-      isHTMLBars: true
+      preprocessArguments: function() { }
     };
 
     __exports__["default"] = Helper;
@@ -15342,7 +15359,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.20505c37
+      @version 1.10.0-beta.1+canary.4c8afc3e
     */
 
     if ('undefined' === typeof Ember) {
@@ -15369,10 +15386,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.20505c37'
+      @default '1.10.0-beta.1+canary.4c8afc3e'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.20505c37';
+    Ember.VERSION = '1.10.0-beta.1+canary.4c8afc3e';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
