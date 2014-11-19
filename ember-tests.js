@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.33f0ee7e
+ * @version   1.10.0-beta.1+canary.c2ae1d1b
  */
 
 (function() {
@@ -1651,8 +1651,19 @@ enifed("ember-application/tests/system/dependency_injection/default_resolver_tes
       function barBazResolverTestHelper(){ return 'BAZ'; }
       registerHelper('fooresolvertest', fooresolvertestHelper);
       registerHelper('bar-baz-resolver-test', barBazResolverTestHelper);
-      equal(fooresolvertestHelper, locator.lookup('helper:fooresolvertest'), "looks up fooresolvertestHelper helper");
-      equal(barBazResolverTestHelper, locator.lookup('helper:bar-baz-resolver-test'), "looks up barBazResolverTestHelper helper");
+
+      var retrievedFooResolverTestHelper, retrievedBarBazResolverTestHelper;
+
+      if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+        retrievedFooResolverTestHelper = locator.lookup('helper:fooresolvertest').helperFunction;
+        retrievedBarBazResolverTestHelper = locator.lookup('helper:bar-baz-resolver-test').helperFunction;
+      } else {
+        retrievedFooResolverTestHelper = locator.lookup('helper:fooresolvertest');
+        retrievedBarBazResolverTestHelper = locator.lookup('helper:bar-baz-resolver-test');
+      }
+
+      equal(fooresolvertestHelper, retrievedFooResolverTestHelper, "looks up fooresolvertestHelper helper");
+      equal(barBazResolverTestHelper, retrievedBarBazResolverTestHelper, "looks up barBazResolverTestHelper helper");
     });
 
     test("the default resolver resolves container-registered helpers", function(){
@@ -8520,6 +8531,15 @@ enifed("ember-htmlbars/system/compile.jshint",
       ok(true, 'ember-htmlbars/system/compile.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/system/helper.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/system');
+    test('ember-htmlbars/system/helper.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/system/helper.js should pass jshint.'); 
+    });
+  });
 enifed("ember-htmlbars/system/lookup-helper.jshint",
   [],
   function() {
@@ -8560,7 +8580,7 @@ enifed("ember-htmlbars/tests/compat/helper_test",
   ["ember-htmlbars/compat/helper"],
   function(__dependency1__) {
     "use strict";
-    var makeHandlebarsCompatibleHelper = __dependency1__.makeHandlebarsCompatibleHelper;
+    var HandlebarsCompatibleHelper = __dependency1__["default"];
 
     var fakeView, fakeParams, fakeHash, fakeOptions, fakeEnv;
 
@@ -8590,12 +8610,12 @@ enifed("ember-htmlbars/tests/compat/helper_test",
         equal(param2, 'blazzico');
       }
 
-      var compatHelper = makeHandlebarsCompatibleHelper(someHelper);
+      var compatHelper = new HandlebarsCompatibleHelper(someHelper);
 
       fakeParams = [ 'blammo', 'blazzico' ];
-      compatHelper._preprocessArguments(fakeView, fakeParams, fakeHash, fakeOptions, fakeEnv);
+      compatHelper.preprocessArguments(fakeView, fakeParams, fakeHash, fakeOptions, fakeEnv);
 
-      compatHelper(fakeParams, fakeHash, fakeOptions, fakeEnv);
+      compatHelper.helperFunction(fakeParams, fakeHash, fakeOptions, fakeEnv);
     });
 
     test('combines `env` and `options` for the wrapped helper', function() {
@@ -8606,13 +8626,13 @@ enifed("ember-htmlbars/tests/compat/helper_test",
         equal(options.second, 'James');
       }
 
-      var compatHelper = makeHandlebarsCompatibleHelper(someHelper);
+      var compatHelper = new HandlebarsCompatibleHelper(someHelper);
 
       fakeOptions.first = 'Max';
       fakeEnv.second = 'James';
 
-      compatHelper._preprocessArguments(fakeView, fakeParams, fakeHash, fakeOptions, fakeEnv);
-      compatHelper(fakeParams, fakeHash, fakeOptions, fakeEnv);
+      compatHelper.preprocessArguments(fakeView, fakeParams, fakeHash, fakeOptions, fakeEnv);
+      compatHelper.helperFunction(fakeParams, fakeHash, fakeOptions, fakeEnv);
     });
 
     test('calls morph.update with the return value from the helper', function() {
@@ -8622,14 +8642,14 @@ enifed("ember-htmlbars/tests/compat/helper_test",
         return 'Lucy!';
       }
 
-      var compatHelper = makeHandlebarsCompatibleHelper(someHelper);
+      var compatHelper = new HandlebarsCompatibleHelper(someHelper);
 
       fakeOptions.morph.update = function(value) {
         equal(value, 'Lucy!');
       };
 
-      compatHelper._preprocessArguments(fakeView, fakeParams, fakeHash, fakeOptions, fakeEnv);
-      compatHelper(fakeParams, fakeHash, fakeOptions, fakeEnv);
+      compatHelper.preprocessArguments(fakeView, fakeParams, fakeHash, fakeOptions, fakeEnv);
+      compatHelper.helperFunction(fakeParams, fakeHash, fakeOptions, fakeEnv);
     });
   });
 enifed("ember-htmlbars/tests/compat/helper_test.jshint",
@@ -8878,7 +8898,13 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test",
         };
 
         expectDeprecation(function() {
-          var result = helpers.bindAttr('foo', 'bar');
+          var result;
+
+          if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+            result = helpers.bindAttr.helperFunction('foo', 'bar');
+          } else {
+            result = helpers.bindAttr('foo', 'bar');
+          }
           equal(result, 'result', 'Result match');
         }, "The 'bindAttr' view helper is deprecated in favor of 'bind-attr'");
       } finally {
@@ -14030,13 +14056,13 @@ enifed("ember-htmlbars/tests/system/lookup-helper_test",
     test('returns concat when helper is `concat`', function() {
       var actual = lookupHelper('concat');
 
-      equal(actual, concat, 'concat is a hard-coded helper');
+      equal(actual.helperFunction, concat, 'concat is a hard-coded helper');
     });
 
     test('returns attribute when helper is `attribute`', function() {
       var actual = lookupHelper('attribute');
 
-      equal(actual, attribute, 'attribute is a hard-coded helper');
+      equal(actual.helperFunction, attribute, 'attribute is a hard-coded helper');
     });
 
     test('looks for helpers in the provided `env.helpers`', function() {
@@ -14080,12 +14106,12 @@ enifed("ember-htmlbars/tests/system/lookup-helper_test",
       };
 
       function someName() {}
-      someName._isHTMLBars = true;
+      someName.isHTMLBars = true;
       view.container.register('helper:some-name', someName);
 
       var actual = lookupHelper('some-name', view, env);
 
-      equal(actual, someName, 'does not wrap provided function if `_isHTMLBars` is truthy');
+      equal(actual, someName, 'does not wrap provided function if `isHTMLBars` is truthy');
     });
 
     test('wraps helper from container in a Handlebars compat helper', function() {
@@ -14103,7 +14129,7 @@ enifed("ember-htmlbars/tests/system/lookup-helper_test",
 
       var actual = lookupHelper('some-name', view, env);
 
-      ok(actual._isHTMLBars, 'wraps provided helper in an HTMLBars compatible helper');
+      ok(actual.isHTMLBars, 'wraps provided helper in an HTMLBars compatible helper');
 
       var fakeParams = [];
       var fakeHash = {};
@@ -14112,7 +14138,7 @@ enifed("ember-htmlbars/tests/system/lookup-helper_test",
         morph: { update: function() { } }
       };
       var fakeEnv = {};
-      actual(fakeParams, fakeHash, fakeOptions, fakeEnv);
+      actual.helperFunction(fakeParams, fakeHash, fakeOptions, fakeEnv);
 
       ok(called, 'HTMLBars compatible wrapper is wraping the provided function');
     });
