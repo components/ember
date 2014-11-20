@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.21f3ca99
+ * @version   1.10.0-beta.1+canary.27128e7c
  */
 
 (function() {
@@ -5555,8 +5555,8 @@ enifed("ember-handlebars/controls",
     __exports__.textareaHelper = textareaHelper;
   });
 enifed("ember-handlebars/ext",
-  ["ember-metal/core","ember-runtime/system/string","ember-handlebars-compiler","ember-metal/property_get","ember-metal/error","ember-metal/mixin","ember-views/views/view","ember-metal/path_cache","ember-metal/streams/stream","ember-metal/streams/read","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __exports__) {
+  ["ember-metal/core","ember-runtime/system/string","ember-handlebars-compiler","ember-metal/property_get","ember-metal/error","ember-metal/mixin","ember-views/views/view","ember-metal/path_cache","ember-metal/streams/stream","ember-metal/streams/read","ember-htmlbars/compat/handlebars-get","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.FEATURES, Ember.assert, Ember.Handlebars, Ember.lookup
@@ -5578,26 +5578,9 @@ enifed("ember-handlebars/ext",
     var Stream = __dependency9__["default"];
     var readArray = __dependency10__.readArray;
     var readHash = __dependency10__.readHash;
+    var handlebarsGet = __dependency11__["default"];
 
     var slice = [].slice;
-
-    /**
-      Lookup both on root and on window. If the path starts with
-      a keyword, the corresponding object will be looked up in the
-      template's data hash and used to resolve the path.
-
-      @method get
-      @for Ember.Handlebars
-      @param {Object} root The object to look up the property on
-      @param {String} path The path to be lookedup
-      @param {Object} options The template's option hash
-      @deprecated
-    */
-    function handlebarsGet(root, path, options) {
-      Ember.deprecate('Usage of Ember.Handlebars.get is deprecated, use a Component or Ember.Handlebars.makeBoundHelper instead.');
-
-      return options.data.view.getStream(path).value();
-    }
 
     /**
       handlebarsGetView resolves a view based on strings passed into a template.
@@ -8368,6 +8351,28 @@ enifed("ember-htmlbars",
       helpers: helpers
     };
     __exports__.defaultEnv = defaultEnv;
+  });
+enifed("ember-htmlbars/compat/handlebars-get",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    /**
+      Lookup both on root and on window. If the path starts with
+      a keyword, the corresponding object will be looked up in the
+      template's data hash and used to resolve the path.
+
+      @method get
+      @for Ember.Handlebars
+      @param {Object} root The object to look up the property on
+      @param {String} path The path to be lookedup
+      @param {Object} options The template's option hash
+      @deprecated
+    */
+    __exports__["default"] = function handlebarsGet(root, path, options) {
+      Ember.deprecate('Usage of Ember.Handlebars.get is deprecated, use a Component or Ember.Handlebars.makeBoundHelper instead.');
+
+      return options.data.view.getStream(path).value();
+    }
   });
 enifed("ember-htmlbars/compat/helper",
   ["ember-metal/merge","ember-htmlbars/helpers","exports"],
@@ -14878,7 +14883,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.21f3ca99
+      @version 1.10.0-beta.1+canary.27128e7c
     */
 
     if ('undefined' === typeof Ember) {
@@ -14905,10 +14910,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.21f3ca99'
+      @default '1.10.0-beta.1+canary.27128e7c'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.21f3ca99';
+    Ember.VERSION = '1.10.0-beta.1+canary.27128e7c';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
