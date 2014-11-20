@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.27128e7c
+ * @version   1.10.0-beta.1+canary.23ce2b3a
  */
 
 (function() {
@@ -8419,6 +8419,25 @@ enifed("ember-htmlbars/tests/helpers/bind_test",
     test("it should render the current value of a path on the context", function() {
       view = EmberView.create({
         template: compile('{{bind foo.bar}}'),
+        context: EmberObject.create({
+          foo: {
+            bar: "BORK"
+          }
+        })
+      });
+
+      appendView(view);
+
+      equal(view.$().text(), "BORK", "initial value is rendered");
+
+      run(view, view.set, 'context.foo.bar', 'MWEEER');
+
+      equal(view.$().text(), "MWEEER", "value can be updated");
+    });
+
+    test("it should render the current value of a string path on the context", function() {
+      view = EmberView.create({
+        template: compile('{{bind "foo.bar"}}'),
         context: EmberObject.create({
           foo: {
             bar: "BORK"
