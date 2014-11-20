@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.b2ced1ca
+ * @version   1.10.0-beta.1+canary.b2bd42b7
  */
 
 (function() {
@@ -15359,7 +15359,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.b2ced1ca
+      @version 1.10.0-beta.1+canary.b2bd42b7
     */
 
     if ('undefined' === typeof Ember) {
@@ -15386,10 +15386,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.b2ced1ca'
+      @default '1.10.0-beta.1+canary.b2bd42b7'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.b2ced1ca';
+    Ember.VERSION = '1.10.0-beta.1+canary.b2bd42b7';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -45277,12 +45277,9 @@ enifed("ember-views/views/container_view",
         var dom = buffer.dom;
 
         if (this.tagName === '') {
-          if (this._morph) {
-            this._childViewsMorph = this._morph;
-          } else {
-            element = dom.createDocumentFragment();
-            this._childViewsMorph = dom.appendMorph(element);
-          }
+          element = dom.createDocumentFragment();
+          buffer._element = element;
+          this._childViewsMorph = dom.appendMorph(element, this._morph.contextualElement);
         } else {
           this._childViewsMorph = dom.createMorph(element, element.lastChild, null);
         }

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.b2ced1ca
+ * @version   1.10.0-beta.1+canary.b2bd42b7
  */
 
 (function() {
@@ -14023,6 +14023,99 @@ enifed("ember-htmlbars/tests/htmlbars_test.jshint",
     module('JSHint - ember-htmlbars/tests');
     test('ember-htmlbars/tests/htmlbars_test.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/tests/htmlbars_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/tests/integration/tagless-views-rerender_test",
+  ["ember-metal/run_loop","ember-views/views/view","ember-handlebars","ember-htmlbars/system/compile"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+    "use strict";
+    var run = __dependency1__["default"];
+    var EmberView = __dependency2__["default"];
+    var EmberHandlebars = __dependency3__["default"];
+    var htmlbarsCompile = __dependency4__["default"];
+
+    var view;
+    var compile;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      compile = htmlbarsCompile;
+    } else {
+      compile = EmberHandlebars.compile;
+    }
+
+
+    function appendView(view) {
+      run(function() { view.appendTo('#qunit-fixture'); });
+    }
+
+    QUnit.module("ember-htmlbars: tagless views should be able to add/remove child views", {
+      teardown: function() {
+        run(function() {
+          if (view) {
+            view.destroy();
+          }
+        });
+      }
+    });
+
+    test("can insert new child views after initial tagless view rendering", function() {
+      view = EmberView.create({
+        shouldShow: false,
+        array: Ember.A([ 1 ]),
+
+        template: compile('{{#if view.shouldShow}}{{#each item in view.array}}{{item}}{{/each}}{{/if}}')
+      });
+
+      appendView(view);
+
+      equal(view.$().text(), '');
+
+      run(function() {
+        view.set('shouldShow', true);
+      });
+
+      equal(view.$().text(), '1');
+
+
+      run(function() {
+        view.get('array').pushObject(2);
+      });
+
+      equal(view.$().text(), '12');
+    });
+
+    test("can remove child views after initial tagless view rendering", function() {
+      view = EmberView.create({
+        shouldShow: false,
+        array: Ember.A([ ]),
+
+        template: compile('{{#if view.shouldShow}}{{#each item in view.array}}{{item}}{{/each}}{{/if}}')
+      });
+
+      appendView(view);
+
+      equal(view.$().text(), '');
+
+      run(function() {
+        view.set('shouldShow', true);
+        view.get('array').pushObject(1);
+      });
+
+      equal(view.$().text(), '1');
+
+      run(function() {
+        view.get('array').removeObject(1);
+      });
+
+      equal(view.$().text(), '');
+    });
+  });
+enifed("ember-htmlbars/tests/integration/tagless-views-rerender_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/tests/integration');
+    test('ember-htmlbars/tests/integration/tagless-views-rerender_test.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/tests/integration/tagless-views-rerender_test.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/tests/system/compile_test",
