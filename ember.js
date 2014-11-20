@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.451851fb
+ * @version   1.10.0-beta.1+canary.21f3ca99
  */
 
 (function() {
@@ -14878,7 +14878,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.451851fb
+      @version 1.10.0-beta.1+canary.21f3ca99
     */
 
     if ('undefined' === typeof Ember) {
@@ -14905,10 +14905,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.451851fb'
+      @default '1.10.0-beta.1+canary.21f3ca99'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.451851fb';
+    Ember.VERSION = '1.10.0-beta.1+canary.21f3ca99';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -17359,7 +17359,6 @@ enifed("ember-metal/mixin",
     var metaFor = __dependency7__.meta;
     var wrap = __dependency7__.wrap;
     var makeArray = __dependency7__.makeArray;
-    var apply = __dependency7__.apply;
     var isArray = __dependency7__.isArray;
     var expandProperties = __dependency8__["default"];
     var Descriptor = __dependency9__.Descriptor;
@@ -17379,18 +17378,32 @@ enifed("ember-metal/mixin",
 
     function superFunction(){
       var func = this.__nextSuper;
-      var ret;
+
       if (func) {
-        var args = new Array(arguments.length);
-        for (var i = 0, l = args.length; i < l; i++) {
-          args[i] = arguments[i];
+        var length = arguments.length;
+
+        if (length === 0){
+          return this.__nextSuper();
+        } else if (length === 1) {
+          return this.__nextSuper(arguments[0]);
+        } else if (length === 2) {
+          return this.__nextSuper(arguments[0], arguments[1]);
+        } else {
+          return this.__nextSuper.apply(this, arguments);
         }
-        this.__nextSuper = null;
-        ret = apply(this, func, args);
-        this.__nextSuper = func;
       }
-      return ret;
     }
+
+    // ensure we prime superFunction to mitigate
+    // v8 bug potentially incorrectly deopts this function: https://code.google.com/p/v8/issues/detail?id=3709
+    var primer = {
+      __nextSuper: function(a,b,c,d ) { }
+    };
+
+    superFunction.call(primer);
+    superFunction.call(primer, 1);
+    superFunction.call(primer, 1, 2);
+    superFunction.call(primer, 1, 2, 3);
 
     function mixinsMeta(obj) {
       var m = metaFor(obj, true);
@@ -20959,17 +20972,35 @@ enifed("ember-metal/utils",
       @param {Function} superFunc The super function.
       @return {Function} wrapped function.
     */
+
     function wrap(func, superFunc) {
       function superWrapper() {
         var ret;
         var sup  = this && this.__nextSuper;
-        var args = new Array(arguments.length);
-        for (var i = 0, l = args.length; i < l; i++) {
-          args[i] = arguments[i];
+        var length = arguments.length;
+
+        if (this) {
+          this.__nextSuper = superFunc;
         }
-        if(this) { this.__nextSuper = superFunc; }
-        ret = apply(this, func, args);
-        if(this) { this.__nextSuper = sup; }
+
+        if (length === 0) {
+          ret = func.call(this);
+        } else if (length === 1) {
+          ret = func.call(this, arguments[0]);
+        } else if (length === 2) {
+          ret = func.call(this, arguments[0], arguments[1]);
+        } else {
+          var args = new Array(length);
+          for (var i = 0; i < length; i++) {
+            args[i] = arguments[i];
+          }
+          ret = apply(this, func, args);
+        }
+
+        if (this) {
+          this.__nextSuper = sup;
+        }
+
         return ret;
       }
 
@@ -37462,7 +37493,13 @@ enifed("ember-runtime/system/core_object",
         } else if (length === 1) {
           this.init(arguments[0]);
         } else {
-          this.init.apply(this, arguments);
+          // v8 bug potentially incorrectly deopts this function: https://code.google.com/p/v8/issues/detail?id=3709
+          // we may want to keep this arround till this ages out on mobile
+          var args = new Array(length);
+          for (var x = 0; x < length; x++) {
+            args[x] = arguments[x];
+          }
+          this.init.apply(this, args);
         }
 
         m.proto = proto;
