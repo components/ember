@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.7d09e73d
+ * @version   1.10.0-beta.1+canary.451851fb
  */
 
 (function() {
@@ -2386,7 +2386,7 @@ enifed("ember-application/ext/controller",
     __exports__["default"] = ControllerMixin;
   });
 enifed("ember-application/system/application",
-  ["dag-map","container/container","ember-metal","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/lazy_load","ember-runtime/system/namespace","ember-runtime/mixins/deferred","ember-application/system/resolver","ember-metal/platform","ember-metal/run_loop","ember-metal/utils","ember-runtime/controllers/controller","ember-metal/enumerable_utils","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-handlebars/controls/select","ember-views/system/event_dispatcher","ember-views/system/jquery","ember-routing/system/route","ember-routing/system/router","ember-routing/location/hash_location","ember-routing/location/history_location","ember-routing/location/auto_location","ember-routing/location/none_location","ember-routing/system/cache","ember-extension-support/container_debug_adapter","ember-metal/core","ember-handlebars-compiler","exports"],
+  ["dag-map","container/container","ember-metal","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/lazy_load","ember-runtime/system/namespace","ember-runtime/mixins/deferred","ember-application/system/resolver","ember-metal/platform","ember-metal/run_loop","ember-metal/utils","ember-runtime/controllers/controller","ember-metal/enumerable_utils","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-views/views/select","ember-views/system/event_dispatcher","ember-views/system/jquery","ember-routing/system/route","ember-routing/system/router","ember-routing/location/hash_location","ember-routing/location/history_location","ember-routing/location/auto_location","ember-routing/location/none_location","ember-routing/system/cache","ember-extension-support/container_debug_adapter","ember-metal/core","ember-handlebars-compiler","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __exports__) {
     "use strict";
     /**
@@ -5027,8 +5027,8 @@ enifed("ember-handlebars-compiler",
     __exports__["default"] = EmberHandlebars;
   });
 enifed("ember-handlebars",
-  ["ember-handlebars-compiler","ember-metal/core","ember-runtime/system/lazy_load","ember-handlebars/loader","ember-handlebars/ext","ember-handlebars/string","ember-handlebars/helpers/binding","ember-handlebars/helpers/if_unless","ember-handlebars/helpers/with","ember-handlebars/helpers/bind_attr","ember-handlebars/helpers/collection","ember-handlebars/helpers/view","ember-handlebars/helpers/unbound","ember-handlebars/helpers/debug","ember-handlebars/helpers/each","ember-handlebars/helpers/template","ember-handlebars/helpers/partial","ember-handlebars/helpers/yield","ember-handlebars/helpers/loc","ember-views/views/each","ember-handlebars/controls/select","ember-handlebars/controls","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __exports__) {
+  ["ember-handlebars-compiler","ember-metal/core","ember-runtime/system/lazy_load","ember-handlebars/loader","ember-handlebars/ext","ember-handlebars/string","ember-handlebars/helpers/binding","ember-handlebars/helpers/if_unless","ember-handlebars/helpers/with","ember-handlebars/helpers/bind_attr","ember-handlebars/helpers/collection","ember-handlebars/helpers/view","ember-handlebars/helpers/unbound","ember-handlebars/helpers/debug","ember-handlebars/helpers/each","ember-handlebars/helpers/template","ember-handlebars/helpers/partial","ember-handlebars/helpers/yield","ember-handlebars/helpers/loc","ember-views/views/each","ember-handlebars/controls","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __exports__) {
     "use strict";
     var EmberHandlebars = __dependency1__["default"];
     var Ember = __dependency2__["default"];
@@ -5075,11 +5075,8 @@ enifed("ember-handlebars",
     var locHelper = __dependency19__["default"];
     var EachView = __dependency20__["default"];
 
-    var Select = __dependency21__.Select;
-    var SelectOption = __dependency21__.SelectOption;
-    var SelectOptgroup = __dependency21__.SelectOptgroup;
-    var inputHelper = __dependency22__.inputHelper;
-    var textareaHelper = __dependency22__.textareaHelper;
+    var inputHelper = __dependency21__.inputHelper;
+    var textareaHelper = __dependency21__.textareaHelper;
 
 
     /**
@@ -5104,9 +5101,6 @@ enifed("ember-handlebars",
 
     // Ember Globals
     Ember.Handlebars = EmberHandlebars;
-    Ember.Select = Select;
-    Ember.SelectOption = SelectOption;
-    Ember.SelectOptgroup = SelectOptgroup;
 
     // register helpers
     EmberHandlebars.registerHelper('helperMissing', helperMissingHelper);
@@ -5559,670 +5553,6 @@ enifed("ember-handlebars/controls",
     }
 
     __exports__.textareaHelper = textareaHelper;
-  });
-enifed("ember-handlebars/controls/select",
-  ["ember-handlebars-compiler","ember-metal/enumerable_utils","ember-metal/property_get","ember-metal/property_set","ember-views/views/view","ember-views/views/collection_view","ember-metal/utils","ember-metal/is_none","ember-metal/computed","ember-runtime/system/native_array","ember-metal/mixin","ember-metal/properties","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-handlebars
-    */
-
-    var EmberHandlebars = __dependency1__["default"];
-
-    var forEach = __dependency2__.forEach;
-    var indexOf = __dependency2__.indexOf;
-    var indexesOf = __dependency2__.indexesOf;
-    var replace = __dependency2__.replace;
-
-    var get = __dependency3__.get;
-    var set = __dependency4__.set;
-    var View = __dependency5__["default"];
-    var CollectionView = __dependency6__["default"];
-    var isArray = __dependency7__.isArray;
-    var isNone = __dependency8__["default"];
-    var computed = __dependency9__.computed;
-    var emberA = __dependency10__.A;
-    var observer = __dependency11__.observer;
-    var defineProperty = __dependency12__.defineProperty;
-
-
-    var SelectOption = View.extend({
-      instrumentDisplay: 'Ember.SelectOption',
-
-      tagName: 'option',
-      attributeBindings: ['value', 'selected'],
-
-      defaultTemplate: function(context, options) {
-        options = { data: options.data, hash: {} };
-        EmberHandlebars.helpers.bind.call(context, "view.label", options);
-      },
-
-      init: function() {
-        this.labelPathDidChange();
-        this.valuePathDidChange();
-
-        this._super();
-      },
-
-      selected: computed(function() {
-        var content = get(this, 'content');
-        var selection = get(this, 'parentView.selection');
-        if (get(this, 'parentView.multiple')) {
-          return selection && indexOf(selection, content.valueOf()) > -1;
-        } else {
-          // Primitives get passed through bindings as objects... since
-          // `new Number(4) !== 4`, we use `==` below
-          return content == selection; // jshint ignore:line
-        }
-      }).property('content', 'parentView.selection'),
-
-      labelPathDidChange: observer('parentView.optionLabelPath', function() {
-        var labelPath = get(this, 'parentView.optionLabelPath');
-
-        if (!labelPath) { return; }
-
-        defineProperty(this, 'label', computed(function() {
-          return get(this, labelPath);
-        }).property(labelPath));
-      }),
-
-      valuePathDidChange: observer('parentView.optionValuePath', function() {
-        var valuePath = get(this, 'parentView.optionValuePath');
-
-        if (!valuePath) { return; }
-
-        defineProperty(this, 'value', computed(function() {
-          return get(this, valuePath);
-        }).property(valuePath));
-      })
-    });
-
-    var SelectOptgroup = CollectionView.extend({
-      instrumentDisplay: 'Ember.SelectOptgroup',
-
-      tagName: 'optgroup',
-      attributeBindings: ['label'],
-
-      selectionBinding: 'parentView.selection',
-      multipleBinding: 'parentView.multiple',
-      optionLabelPathBinding: 'parentView.optionLabelPath',
-      optionValuePathBinding: 'parentView.optionValuePath',
-
-      itemViewClassBinding: 'parentView.optionView'
-    });
-
-    /**
-      The `Ember.Select` view class renders a
-      [select](https://developer.mozilla.org/en/HTML/Element/select) HTML element,
-      allowing the user to choose from a list of options.
-
-      The text and `value` property of each `<option>` element within the
-      `<select>` element are populated from the objects in the `Element.Select`'s
-      `content` property. The underlying data object of the selected `<option>` is
-      stored in the `Element.Select`'s `value` property.
-
-      ## The Content Property (array of strings)
-
-      The simplest version of an `Ember.Select` takes an array of strings as its
-      `content` property. The string will be used as both the `value` property and
-      the inner text of each `<option>` element inside the rendered `<select>`.
-
-      Example:
-
-      ```javascript
-      App.ApplicationController = Ember.ObjectController.extend({
-        names: ["Yehuda", "Tom"]
-      });
-      ```
-
-      ```handlebars
-      {{view "select" content=names}}
-      ```
-
-      Would result in the following HTML:
-
-      ```html
-      <select class="ember-select">
-        <option value="Yehuda">Yehuda</option>
-        <option value="Tom">Tom</option>
-      </select>
-      ```
-
-      You can control which `<option>` is selected through the `Ember.Select`'s
-      `value` property:
-
-      ```javascript
-      App.ApplicationController = Ember.ObjectController.extend({
-        selectedName: 'Tom',
-        names: ["Yehuda", "Tom"]
-      });
-      ```
-
-      ```handlebars
-      {{view "select" content=names value=selectedName}}
-      ```
-
-      Would result in the following HTML with the `<option>` for 'Tom' selected:
-
-      ```html
-      <select class="ember-select">
-        <option value="Yehuda">Yehuda</option>
-        <option value="Tom" selected="selected">Tom</option>
-      </select>
-      ```
-
-      A user interacting with the rendered `<select>` to choose "Yehuda" would
-      update the value of `selectedName` to "Yehuda".
-
-      ## The Content Property (array of Objects)
-
-      An `Ember.Select` can also take an array of JavaScript or Ember objects as
-      its `content` property.
-
-      When using objects you need to tell the `Ember.Select` which property should
-      be accessed on each object to supply the `value` attribute of the `<option>`
-      and which property should be used to supply the element text.
-
-      The `optionValuePath` option is used to specify the path on each object to
-      the desired property for the `value` attribute. The `optionLabelPath`
-      specifies the path on each object to the desired property for the
-      element's text. Both paths must reference each object itself as `content`:
-
-      ```javascript
-      App.ApplicationController = Ember.ObjectController.extend({
-        programmers: [
-          {firstName: "Yehuda", id: 1},
-          {firstName: "Tom",    id: 2}
-        ]
-      });
-      ```
-
-      ```handlebars
-      {{view "select"
-             content=programmers
-             optionValuePath="content.id"
-             optionLabelPath="content.firstName"}}
-      ```
-
-      Would result in the following HTML:
-
-      ```html
-      <select class="ember-select">
-        <option value="1">Yehuda</option>
-        <option value="2">Tom</option>
-      </select>
-      ```
-
-      The `value` attribute of the selected `<option>` within an `Ember.Select`
-      can be bound to a property on another object:
-
-      ```javascript
-      App.ApplicationController = Ember.ObjectController.extend({
-        programmers: [
-          {firstName: "Yehuda", id: 1},
-          {firstName: "Tom",    id: 2}
-        ],
-        currentProgrammer: {
-          id: 2
-        }
-      });
-      ```
-
-      ```handlebars
-      {{view "select"
-             content=programmers
-             optionValuePath="content.id"
-             optionLabelPath="content.firstName"
-             value=currentProgrammer.id}}
-      ```
-
-      Would result in the following HTML with a selected option:
-
-      ```html
-      <select class="ember-select">
-        <option value="1">Yehuda</option>
-        <option value="2" selected="selected">Tom</option>
-      </select>
-      ```
-
-      Interacting with the rendered element by selecting the first option
-      ('Yehuda') will update the `id` of `currentProgrammer`
-      to match the `value` property of the newly selected `<option>`.
-
-      Alternatively, you can control selection through the underlying objects
-      used to render each object by binding the `selection` option. When the selected
-      `<option>` is changed, the property path provided to `selection`
-      will be updated to match the content object of the rendered `<option>`
-      element:
-
-      ```javascript
-
-      var yehuda = {firstName: "Yehuda", id: 1, bff4eva: 'tom'}
-      var tom = {firstName: "Tom", id: 2, bff4eva: 'yehuda'};
-
-      App.ApplicationController = Ember.ObjectController.extend({
-        selectedPerson: tom,
-        programmers: [ yehuda, tom ]
-      });
-      ```
-
-      ```handlebars
-      {{view "select"
-             content=programmers
-             optionValuePath="content.id"
-             optionLabelPath="content.firstName"
-             selection=selectedPerson}}
-      ```
-
-      Would result in the following HTML with a selected option:
-
-      ```html
-      <select class="ember-select">
-        <option value="1">Yehuda</option>
-        <option value="2" selected="selected">Tom</option>
-      </select>
-      ```
-
-      Interacting with the rendered element by selecting the first option
-      ('Yehuda') will update the `selectedPerson` to match the object of
-      the newly selected `<option>`. In this case it is the first object
-      in the `programmers`
-
-      ## Supplying a Prompt
-
-      A `null` value for the `Ember.Select`'s `value` or `selection` property
-      results in there being no `<option>` with a `selected` attribute:
-
-      ```javascript
-      App.ApplicationController = Ember.ObjectController.extend({
-        selectedProgrammer: null,
-        programmers: ["Yehuda", "Tom"]
-      });
-      ```
-
-      ``` handlebars
-      {{view "select"
-             content=programmers
-             value=selectedProgrammer
-      }}
-      ```
-
-      Would result in the following HTML:
-
-      ```html
-      <select class="ember-select">
-        <option value="Yehuda">Yehuda</option>
-        <option value="Tom">Tom</option>
-      </select>
-      ```
-
-      Although `selectedProgrammer` is `null` and no `<option>`
-      has a `selected` attribute the rendered HTML will display the
-      first item as though it were selected. You can supply a string
-      value for the `Ember.Select` to display when there is no selection
-      with the `prompt` option:
-
-      ```javascript
-      App.ApplicationController = Ember.ObjectController.extend({
-        selectedProgrammer: null,
-        programmers: [ "Yehuda", "Tom" ]
-      });
-      ```
-
-      ```handlebars
-      {{view "select"
-             content=programmers
-             value=selectedProgrammer
-             prompt="Please select a name"
-      }}
-      ```
-
-      Would result in the following HTML:
-
-      ```html
-      <select class="ember-select">
-        <option>Please select a name</option>
-        <option value="Yehuda">Yehuda</option>
-        <option value="Tom">Tom</option>
-      </select>
-      ```
-
-      @class Select
-      @namespace Ember
-      @extends Ember.View
-    */
-    var Select = View.extend({
-      instrumentDisplay: 'Ember.Select',
-
-      tagName: 'select',
-      classNames: ['ember-select'],
-      defaultTemplate: Ember.Handlebars.template({"1":function(depth0,helpers,partials,data) {
-      var stack1, buffer = '';
-      data.buffer.push("<option value=\"\">");
-      stack1 = helpers._triageMustache.call(depth0, "view.prompt", {"name":"_triageMustache","hash":{},"hashTypes":{},"hashContexts":{},"types":["ID"],"contexts":[depth0],"data":data});
-      if (stack1 != null) { data.buffer.push(stack1); }
-      data.buffer.push("</option>");
-      return buffer;
-    },"3":function(depth0,helpers,partials,data) {
-      var stack1;
-      stack1 = helpers.each.call(depth0, "group", "in", "view.groupedContent", {"name":"each","hash":{},"hashTypes":{},"hashContexts":{},"fn":this.program(4, data),"inverse":this.noop,"types":["ID","ID","ID"],"contexts":[depth0,depth0,depth0],"data":data});
-      if (stack1 != null) { data.buffer.push(stack1); }
-      else { data.buffer.push(''); }
-      },"4":function(depth0,helpers,partials,data) {
-      var escapeExpression=this.escapeExpression;
-      data.buffer.push(escapeExpression(helpers.view.call(depth0, "view.groupView", {"name":"view","hash":{
-        'label': ("group.label"),
-        'content': ("group.content")
-      },"hashTypes":{'label': "ID",'content': "ID"},"hashContexts":{'label': depth0,'content': depth0},"types":["ID"],"contexts":[depth0],"data":data})));
-      },"6":function(depth0,helpers,partials,data) {
-      var stack1;
-      stack1 = helpers.each.call(depth0, "item", "in", "view.content", {"name":"each","hash":{},"hashTypes":{},"hashContexts":{},"fn":this.program(7, data),"inverse":this.noop,"types":["ID","ID","ID"],"contexts":[depth0,depth0,depth0],"data":data});
-      if (stack1 != null) { data.buffer.push(stack1); }
-      else { data.buffer.push(''); }
-      },"7":function(depth0,helpers,partials,data) {
-      var escapeExpression=this.escapeExpression;
-      data.buffer.push(escapeExpression(helpers.view.call(depth0, "view.optionView", {"name":"view","hash":{
-        'content': ("item")
-      },"hashTypes":{'content': "ID"},"hashContexts":{'content': depth0},"types":["ID"],"contexts":[depth0],"data":data})));
-      },"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
-      var stack1, buffer = '';
-      stack1 = helpers['if'].call(depth0, "view.prompt", {"name":"if","hash":{},"hashTypes":{},"hashContexts":{},"fn":this.program(1, data),"inverse":this.noop,"types":["ID"],"contexts":[depth0],"data":data});
-      if (stack1 != null) { data.buffer.push(stack1); }
-      stack1 = helpers['if'].call(depth0, "view.optionGroupPath", {"name":"if","hash":{},"hashTypes":{},"hashContexts":{},"fn":this.program(3, data),"inverse":this.program(6, data),"types":["ID"],"contexts":[depth0],"data":data});
-      if (stack1 != null) { data.buffer.push(stack1); }
-      return buffer;
-    },"useData":true}),
-      attributeBindings: ['multiple', 'disabled', 'tabindex', 'name', 'required', 'autofocus',
-                          'form', 'size'],
-
-      /**
-        The `multiple` attribute of the select element. Indicates whether multiple
-        options can be selected.
-
-        @property multiple
-        @type Boolean
-        @default false
-      */
-      multiple: false,
-
-      /**
-        The `disabled` attribute of the select element. Indicates whether
-        the element is disabled from interactions.
-
-        @property disabled
-        @type Boolean
-        @default false
-      */
-      disabled: false,
-
-      /**
-        The `required` attribute of the select element. Indicates whether
-        a selected option is required for form validation.
-
-        @property required
-        @type Boolean
-        @default false
-        @since 1.5.0
-      */
-      required: false,
-
-      /**
-        The list of options.
-
-        If `optionLabelPath` and `optionValuePath` are not overridden, this should
-        be a list of strings, which will serve simultaneously as labels and values.
-
-        Otherwise, this should be a list of objects. For instance:
-
-        ```javascript
-        var App = Ember.Application.create();
-        var App.MySelect = Ember.Select.extend({
-          content: Ember.A([
-              { id: 1, firstName: 'Yehuda' },
-              { id: 2, firstName: 'Tom' }
-            ]),
-          optionLabelPath: 'content.firstName',
-          optionValuePath: 'content.id'
-        });
-        ```
-
-        @property content
-        @type Array
-        @default null
-      */
-      content: null,
-
-      /**
-        When `multiple` is `false`, the element of `content` that is currently
-        selected, if any.
-
-        When `multiple` is `true`, an array of such elements.
-
-        @property selection
-        @type Object or Array
-        @default null
-      */
-      selection: null,
-
-      /**
-        In single selection mode (when `multiple` is `false`), value can be used to
-        get the current selection's value or set the selection by its value.
-
-        It is not currently supported in multiple selection mode.
-
-        @property value
-        @type String
-        @default null
-      */
-      value: computed(function(key, value) {
-        if (arguments.length === 2) { return value; }
-        var valuePath = get(this, 'optionValuePath').replace(/^content\.?/, '');
-        return valuePath ? get(this, 'selection.' + valuePath) : get(this, 'selection');
-      }).property('selection'),
-
-      /**
-        If given, a top-most dummy option will be rendered to serve as a user
-        prompt.
-
-        @property prompt
-        @type String
-        @default null
-      */
-      prompt: null,
-
-      /**
-        The path of the option labels. See [content](/api/classes/Ember.Select.html#property_content).
-
-        @property optionLabelPath
-        @type String
-        @default 'content'
-      */
-      optionLabelPath: 'content',
-
-      /**
-        The path of the option values. See [content](/api/classes/Ember.Select.html#property_content).
-
-        @property optionValuePath
-        @type String
-        @default 'content'
-      */
-      optionValuePath: 'content',
-
-      /**
-        The path of the option group.
-        When this property is used, `content` should be sorted by `optionGroupPath`.
-
-        @property optionGroupPath
-        @type String
-        @default null
-      */
-      optionGroupPath: null,
-
-      /**
-        The view class for optgroup.
-
-        @property groupView
-        @type Ember.View
-        @default Ember.SelectOptgroup
-      */
-      groupView: SelectOptgroup,
-
-      groupedContent: computed(function() {
-        var groupPath = get(this, 'optionGroupPath');
-        var groupedContent = emberA();
-        var content = get(this, 'content') || [];
-
-        forEach(content, function(item) {
-          var label = get(item, groupPath);
-
-          if (get(groupedContent, 'lastObject.label') !== label) {
-            groupedContent.pushObject({
-              label: label,
-              content: emberA()
-            });
-          }
-
-          get(groupedContent, 'lastObject.content').push(item);
-        });
-
-        return groupedContent;
-      }).property('optionGroupPath', 'content.@each'),
-
-      /**
-        The view class for option.
-
-        @property optionView
-        @type Ember.View
-        @default Ember.SelectOption
-      */
-      optionView: SelectOption,
-
-      _change: function() {
-        if (get(this, 'multiple')) {
-          this._changeMultiple();
-        } else {
-          this._changeSingle();
-        }
-      },
-
-      selectionDidChange: observer('selection.@each', function() {
-        var selection = get(this, 'selection');
-        if (get(this, 'multiple')) {
-          if (!isArray(selection)) {
-            set(this, 'selection', emberA([selection]));
-            return;
-          }
-          this._selectionDidChangeMultiple();
-        } else {
-          this._selectionDidChangeSingle();
-        }
-      }),
-
-      valueDidChange: observer('value', function() {
-        var content = get(this, 'content');
-        var value = get(this, 'value');
-        var valuePath = get(this, 'optionValuePath').replace(/^content\.?/, '');
-        var selectedValue = (valuePath ? get(this, 'selection.' + valuePath) : get(this, 'selection'));
-        var selection;
-
-        if (value !== selectedValue) {
-          selection = content ? content.find(function(obj) {
-            return value === (valuePath ? get(obj, valuePath) : obj);
-          }) : null;
-
-          this.set('selection', selection);
-        }
-      }),
-
-
-      _triggerChange: function() {
-        var selection = get(this, 'selection');
-        var value = get(this, 'value');
-
-        if (!isNone(selection)) { this.selectionDidChange(); }
-        if (!isNone(value)) { this.valueDidChange(); }
-
-        this._change();
-      },
-
-      _changeSingle: function() {
-        var selectedIndex = this.$()[0].selectedIndex;
-        var content = get(this, 'content');
-        var prompt = get(this, 'prompt');
-
-        if (!content || !get(content, 'length')) { return; }
-        if (prompt && selectedIndex === 0) { set(this, 'selection', null); return; }
-
-        if (prompt) { selectedIndex -= 1; }
-        set(this, 'selection', content.objectAt(selectedIndex));
-      },
-
-
-      _changeMultiple: function() {
-        var options = this.$('option:selected');
-        var prompt = get(this, 'prompt');
-        var offset = prompt ? 1 : 0;
-        var content = get(this, 'content');
-        var selection = get(this, 'selection');
-
-        if (!content) { return; }
-        if (options) {
-          var selectedIndexes = options.map(function() {
-            return this.index - offset;
-          }).toArray();
-          var newSelection = content.objectsAt(selectedIndexes);
-
-          if (isArray(selection)) {
-            replace(selection, 0, get(selection, 'length'), newSelection);
-          } else {
-            set(this, 'selection', newSelection);
-          }
-        }
-      },
-
-      _selectionDidChangeSingle: function() {
-        var el = this.get('element');
-        if (!el) { return; }
-
-        var content = get(this, 'content');
-        var selection = get(this, 'selection');
-        var selectionIndex = content ? indexOf(content, selection) : -1;
-        var prompt = get(this, 'prompt');
-
-        if (prompt) { selectionIndex += 1; }
-        if (el) { el.selectedIndex = selectionIndex; }
-      },
-
-      _selectionDidChangeMultiple: function() {
-        var content = get(this, 'content');
-        var selection = get(this, 'selection');
-        var selectedIndexes = content ? indexesOf(content, selection) : [-1];
-        var prompt = get(this, 'prompt');
-        var offset = prompt ? 1 : 0;
-        var options = this.$('option');
-        var adjusted;
-
-        if (options) {
-          options.each(function() {
-            adjusted = this.index > -1 ? this.index - offset : -1;
-            this.selected = indexOf(selectedIndexes, adjusted) > -1;
-          });
-        }
-      },
-
-      init: function() {
-        this._super();
-        this.on("didInsertElement", this, this._triggerChange);
-        this.on("change", this, this._change);
-      }
-    });
-
-    __exports__["default"] = Select;
-    __exports__.Select = Select;
-    __exports__.SelectOption = SelectOption;
-    __exports__.SelectOptgroup = SelectOptgroup;
   });
 enifed("ember-handlebars/ext",
   ["ember-metal/core","ember-runtime/system/string","ember-handlebars-compiler","ember-metal/property_get","ember-metal/error","ember-metal/mixin","ember-views/views/view","ember-metal/path_cache","ember-metal/streams/stream","ember-metal/streams/read","exports"],
@@ -8908,6 +8238,49 @@ enifed("ember-handlebars/string",
     var htmlSafe = __dependency1__.htmlSafe;
 
     __exports__["default"] = htmlSafe;
+  });
+enifed("ember-handlebars/templates/select",
+  ["ember-handlebars-compiler","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    var EmberHandlebars = __dependency1__["default"];
+    __exports__["default"] = EmberHandlebars.template({"1":function(depth0,helpers,partials,data) {
+      var stack1, buffer = '';
+      data.buffer.push("<option value=\"\">");
+      stack1 = helpers._triageMustache.call(depth0, "view.prompt", {"name":"_triageMustache","hash":{},"hashTypes":{},"hashContexts":{},"types":["ID"],"contexts":[depth0],"data":data});
+      if (stack1 != null) { data.buffer.push(stack1); }
+      data.buffer.push("</option>");
+      return buffer;
+    },"3":function(depth0,helpers,partials,data) {
+      var stack1;
+      stack1 = helpers.each.call(depth0, "group", "in", "view.groupedContent", {"name":"each","hash":{},"hashTypes":{},"hashContexts":{},"fn":this.program(4, data),"inverse":this.noop,"types":["ID","ID","ID"],"contexts":[depth0,depth0,depth0],"data":data});
+      if (stack1 != null) { data.buffer.push(stack1); }
+      else { data.buffer.push(''); }
+      },"4":function(depth0,helpers,partials,data) {
+      var escapeExpression=this.escapeExpression;
+      data.buffer.push(escapeExpression(helpers.view.call(depth0, "view.groupView", {"name":"view","hash":{
+        'label': ("group.label"),
+        'content': ("group.content")
+      },"hashTypes":{'label': "ID",'content': "ID"},"hashContexts":{'label': depth0,'content': depth0},"types":["ID"],"contexts":[depth0],"data":data})));
+      },"6":function(depth0,helpers,partials,data) {
+      var stack1;
+      stack1 = helpers.each.call(depth0, "item", "in", "view.content", {"name":"each","hash":{},"hashTypes":{},"hashContexts":{},"fn":this.program(7, data),"inverse":this.noop,"types":["ID","ID","ID"],"contexts":[depth0,depth0,depth0],"data":data});
+      if (stack1 != null) { data.buffer.push(stack1); }
+      else { data.buffer.push(''); }
+      },"7":function(depth0,helpers,partials,data) {
+      var escapeExpression=this.escapeExpression;
+      data.buffer.push(escapeExpression(helpers.view.call(depth0, "view.optionView", {"name":"view","hash":{
+        'content': ("item")
+      },"hashTypes":{'content': "ID"},"hashContexts":{'content': depth0},"types":["ID"],"contexts":[depth0],"data":data})));
+      },"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
+      var stack1, buffer = '';
+      stack1 = helpers['if'].call(depth0, "view.prompt", {"name":"if","hash":{},"hashTypes":{},"hashContexts":{},"fn":this.program(1, data),"inverse":this.noop,"types":["ID"],"contexts":[depth0],"data":data});
+      if (stack1 != null) { data.buffer.push(stack1); }
+      stack1 = helpers['if'].call(depth0, "view.optionGroupPath", {"name":"if","hash":{},"hashTypes":{},"hashContexts":{},"fn":this.program(3, data),"inverse":this.program(6, data),"types":["ID"],"contexts":[depth0],"data":data});
+      if (stack1 != null) { data.buffer.push(stack1); }
+      data.buffer.push("\n");
+      return buffer;
+    },"useData":true});
   });
 enifed("ember-htmlbars",
   ["ember-metal/core","ember-htmlbars/hooks","morph","ember-htmlbars/system/template","ember-htmlbars/system/compile","ember-htmlbars/helpers","ember-htmlbars/compat/helper","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/bind-attr","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/partial","ember-htmlbars/helpers/template","ember-htmlbars/helpers/input","ember-htmlbars/helpers/text_area","ember-htmlbars/helpers/collection","ember-htmlbars/helpers/each","ember-htmlbars/helpers/unbound","exports"],
@@ -12174,6 +11547,152 @@ enifed("ember-htmlbars/system/template",
       return templateSpec;
     }
   });
+enifed("ember-htmlbars/templates/select",
+  ["ember-htmlbars/system/template","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    var template = __dependency1__["default"];
+    var t = (function() {
+      var child0 = (function() {
+        function build(dom) {
+          var el0 = dom.createElement("option");
+          return el0;
+        }
+        var cachedFragment;
+        return function template(context, env, contextualElement) {
+          var dom = env.dom, hooks = env.hooks;
+          dom.detectNamespace(contextualElement);
+          if (cachedFragment === undefined) {
+            cachedFragment = build(dom);
+          }
+          var fragment = dom.cloneNode(cachedFragment, true);
+          var element0 = fragment;
+          var morph0 = dom.createMorphAt(element0,-1,-1);
+          hooks.element(element0, "attribute", context, ["value",hooks.subexpr("concat", context, [], {},{types:[],hashTypes:{}}, env)], {}, {types:["string","sexpr"],hashTypes:{},element:element0}, env);
+          hooks.content(morph0, "view.prompt", context, [], {}, {escaped:true,morph:morph0}, env);
+          return fragment;
+        };
+      }());
+      var child1 = (function() {
+        var child0 = (function() {
+          function build(dom) {
+            var el0 = dom.createDocumentFragment();
+            var el1 = dom.createTextNode("");
+            dom.appendChild(el0, el1);
+            var el1 = dom.createTextNode("");
+            dom.appendChild(el0, el1);
+            return el0;
+          }
+          var cachedFragment;
+          return function template(context, env, contextualElement) {
+            var dom = env.dom, hooks = env.hooks;
+            dom.detectNamespace(contextualElement);
+            if (cachedFragment === undefined) {
+              cachedFragment = build(dom);
+            }
+            var fragment = dom.cloneNode(cachedFragment, true);
+            dom.repairClonedNode(fragment,[0,1]);
+            var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
+            hooks.content(morph0, "view", context, ["view.groupView"], {"content":"group.content","label":"group.label"}, {types:["id"],hashTypes:{"content":"id","label":"id"},escaped:true,morph:morph0}, env);
+            return fragment;
+          };
+        }());
+        function build(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("");
+          dom.appendChild(el0, el1);
+          return el0;
+        }
+        var cachedFragment;
+        return function template(context, env, contextualElement) {
+          var dom = env.dom, hooks = env.hooks;
+          dom.detectNamespace(contextualElement);
+          if (cachedFragment === undefined) {
+            cachedFragment = build(dom);
+          }
+          var fragment = dom.cloneNode(cachedFragment, true);
+          dom.repairClonedNode(fragment,[0,1]);
+          var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
+          hooks.content(morph0, "each", context, ["group","in","view.groupedContent"], {}, {types:["id","id","id"],hashTypes:{},render:child0,escaped:true,morph:morph0}, env);
+          return fragment;
+        };
+      }());
+      var child2 = (function() {
+        var child0 = (function() {
+          function build(dom) {
+            var el0 = dom.createDocumentFragment();
+            var el1 = dom.createTextNode("");
+            dom.appendChild(el0, el1);
+            var el1 = dom.createTextNode("");
+            dom.appendChild(el0, el1);
+            return el0;
+          }
+          var cachedFragment;
+          return function template(context, env, contextualElement) {
+            var dom = env.dom, hooks = env.hooks;
+            dom.detectNamespace(contextualElement);
+            if (cachedFragment === undefined) {
+              cachedFragment = build(dom);
+            }
+            var fragment = dom.cloneNode(cachedFragment, true);
+            dom.repairClonedNode(fragment,[0,1]);
+            var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
+            hooks.content(morph0, "view", context, ["view.optionView"], {"content":"item"}, {types:["id"],hashTypes:{"content":"id"},escaped:true,morph:morph0}, env);
+            return fragment;
+          };
+        }());
+        function build(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("");
+          dom.appendChild(el0, el1);
+          return el0;
+        }
+        var cachedFragment;
+        return function template(context, env, contextualElement) {
+          var dom = env.dom, hooks = env.hooks;
+          dom.detectNamespace(contextualElement);
+          if (cachedFragment === undefined) {
+            cachedFragment = build(dom);
+          }
+          var fragment = dom.cloneNode(cachedFragment, true);
+          dom.repairClonedNode(fragment,[0,1]);
+          var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
+          hooks.content(morph0, "each", context, ["item","in","view.content"], {}, {types:["id","id","id"],hashTypes:{},render:child0,escaped:true,morph:morph0}, env);
+          return fragment;
+        };
+      }());
+      function build(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createTextNode("");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n");
+        dom.appendChild(el0, el1);
+        return el0;
+      }
+      var cachedFragment;
+      return function template(context, env, contextualElement) {
+        var dom = env.dom, hooks = env.hooks;
+        dom.detectNamespace(contextualElement);
+        if (cachedFragment === undefined) {
+          cachedFragment = build(dom);
+        }
+        var fragment = dom.cloneNode(cachedFragment, true);
+        dom.repairClonedNode(fragment,[0,1]);
+        var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
+        var morph1 = dom.createMorphAt(fragment,1,2,contextualElement);
+        hooks.content(morph0, "if", context, ["view.prompt"], {}, {types:["id"],hashTypes:{},render:child0,escaped:true,morph:morph0}, env);
+        hooks.content(morph1, "if", context, ["view.optionGroupPath"], {}, {types:["id"],hashTypes:{},render:child1,inverse:child2,escaped:true,morph:morph1}, env);
+        return fragment;
+      };
+    }());;
+     __exports__["default"] = template(t);
+  });
 enifed("ember-htmlbars/utils/string",
   ["htmlbars-util/safe-string","ember-runtime/system/string","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
@@ -15359,7 +14878,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.7d09e73d
+      @version 1.10.0-beta.1+canary.451851fb
     */
 
     if ('undefined' === typeof Ember) {
@@ -15386,10 +14905,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.7d09e73d'
+      @default '1.10.0-beta.1+canary.451851fb'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.7d09e73d';
+    Ember.VERSION = '1.10.0-beta.1+canary.451851fb';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -42097,8 +41616,8 @@ enifed("ember-testing/test",
     __exports__["default"] = Test;
   });
 enifed("ember-views",
-  ["ember-runtime","ember-views/system/jquery","ember-views/system/utils","ember-views/system/render_buffer","ember-views/system/ext","ember-views/views/states","ember-views/views/core_view","ember-views/views/view","ember-views/views/container_view","ember-views/views/collection_view","ember-views/views/component","ember-views/system/event_dispatcher","ember-views/mixins/view_target_action_support","ember-views/component_lookup","ember-views/views/checkbox","ember-views/mixins/text_support","ember-views/views/text_field","ember-views/views/text_area","ember-views/views/bound_view","ember-views/views/simple_bound_view","ember-views/views/metamorph_view","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __exports__) {
+  ["ember-runtime","ember-views/system/jquery","ember-views/system/utils","ember-views/system/render_buffer","ember-views/system/ext","ember-views/views/states","ember-views/views/core_view","ember-views/views/view","ember-views/views/container_view","ember-views/views/collection_view","ember-views/views/component","ember-views/system/event_dispatcher","ember-views/mixins/view_target_action_support","ember-views/component_lookup","ember-views/views/checkbox","ember-views/mixins/text_support","ember-views/views/text_field","ember-views/views/text_area","ember-views/views/bound_view","ember-views/views/simple_bound_view","ember-views/views/metamorph_view","ember-views/views/select","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __exports__) {
     "use strict";
     /**
     Ember Views
@@ -42139,6 +41658,9 @@ enifed("ember-views",
     var _MetamorphView = __dependency21__["default"];
     var _SimpleMetamorphView = __dependency21__._SimpleMetamorphView;
     var _Metamorph = __dependency21__._Metamorph;
+    var Select = __dependency22__.Select;
+    var SelectOption = __dependency22__.SelectOption;
+    var SelectOptgroup = __dependency22__.SelectOptgroup;
     // END IMPORTS
 
     /**
@@ -42172,6 +41694,9 @@ enifed("ember-views",
     Ember._SimpleMetamorphView = _SimpleMetamorphView;
     Ember._MetamorphView = _MetamorphView;
     Ember._Metamorph = _Metamorph;
+    Ember.Select = Select;
+    Ember.SelectOption = SelectOption;
+    Ember.SelectOptgroup = SelectOptgroup;
 
     Ember.TextSupport = TextSupport;
     Ember.ComponentLookup = ComponentLookup;
@@ -45730,6 +45255,656 @@ enifed("ember-views/views/metamorph_view",
     */
     var _SimpleMetamorphView = CoreView.extend(_Metamorph);
     __exports__._SimpleMetamorphView = _SimpleMetamorphView;
+  });
+enifed("ember-views/views/select",
+  ["ember-handlebars-compiler","ember-metal/enumerable_utils","ember-metal/property_get","ember-metal/property_set","ember-views/views/view","ember-views/views/collection_view","ember-metal/utils","ember-metal/is_none","ember-metal/computed","ember-runtime/system/native_array","ember-metal/mixin","ember-metal/properties","ember-metal/run_loop","ember-handlebars/templates/select","ember-htmlbars/templates/select","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-handlebars
+    */
+
+    var EmberHandlebars = __dependency1__["default"];
+
+    var forEach = __dependency2__.forEach;
+    var indexOf = __dependency2__.indexOf;
+    var indexesOf = __dependency2__.indexesOf;
+    var replace = __dependency2__.replace;
+
+    var get = __dependency3__.get;
+    var set = __dependency4__.set;
+    var View = __dependency5__["default"];
+    var CollectionView = __dependency6__["default"];
+    var isArray = __dependency7__.isArray;
+    var isNone = __dependency8__["default"];
+    var computed = __dependency9__.computed;
+    var emberA = __dependency10__.A;
+    var observer = __dependency11__.observer;
+    var defineProperty = __dependency12__.defineProperty;
+    var run = __dependency13__["default"];
+
+    var handlebarsTemplate = __dependency14__["default"];
+    var htmlbarsTemplate = __dependency15__["default"];
+
+    var defaultTemplate;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      defaultTemplate = htmlbarsTemplate;
+    } else {
+      defaultTemplate = handlebarsTemplate;
+    }
+
+    var SelectOption = View.extend({
+      instrumentDisplay: 'Ember.SelectOption',
+
+      tagName: 'option',
+      attributeBindings: ['value', 'selected'],
+
+      defaultTemplate: function(context, env, contextualElement) {
+        var options;
+        if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+          var lazyValue = context.getStream('view.label');
+
+          lazyValue.subscribe(context._wrapAsScheduled(function() {
+            run.scheduleOnce('render', context, 'rerender');
+          }));
+
+          return lazyValue.value();
+        } else {
+          options = { data: env.data, hash: {} };
+          EmberHandlebars.helpers.bind.call(context, "view.label", options);
+        }
+      },
+
+      init: function() {
+        this.labelPathDidChange();
+        this.valuePathDidChange();
+
+        this._super();
+      },
+
+      selected: computed(function() {
+        var content = get(this, 'content');
+        var selection = get(this, 'parentView.selection');
+        if (get(this, 'parentView.multiple')) {
+          return selection && indexOf(selection, content.valueOf()) > -1;
+        } else {
+          // Primitives get passed through bindings as objects... since
+          // `new Number(4) !== 4`, we use `==` below
+          return content == selection; // jshint ignore:line
+        }
+      }).property('content', 'parentView.selection'),
+
+      labelPathDidChange: observer('parentView.optionLabelPath', function() {
+        var labelPath = get(this, 'parentView.optionLabelPath');
+
+        if (!labelPath) { return; }
+
+        defineProperty(this, 'label', computed(function() {
+          return get(this, labelPath);
+        }).property(labelPath));
+      }),
+
+      valuePathDidChange: observer('parentView.optionValuePath', function() {
+        var valuePath = get(this, 'parentView.optionValuePath');
+
+        if (!valuePath) { return; }
+
+        defineProperty(this, 'value', computed(function() {
+          return get(this, valuePath);
+        }).property(valuePath));
+      })
+    });
+
+    var SelectOptgroup = CollectionView.extend({
+      instrumentDisplay: 'Ember.SelectOptgroup',
+
+      tagName: 'optgroup',
+      attributeBindings: ['label'],
+
+      selectionBinding: 'parentView.selection',
+      multipleBinding: 'parentView.multiple',
+      optionLabelPathBinding: 'parentView.optionLabelPath',
+      optionValuePathBinding: 'parentView.optionValuePath',
+
+      itemViewClassBinding: 'parentView.optionView'
+    });
+
+    /**
+      The `Ember.Select` view class renders a
+      [select](https://developer.mozilla.org/en/HTML/Element/select) HTML element,
+      allowing the user to choose from a list of options.
+
+      The text and `value` property of each `<option>` element within the
+      `<select>` element are populated from the objects in the `Element.Select`'s
+      `content` property. The underlying data object of the selected `<option>` is
+      stored in the `Element.Select`'s `value` property.
+
+      ## The Content Property (array of strings)
+
+      The simplest version of an `Ember.Select` takes an array of strings as its
+      `content` property. The string will be used as both the `value` property and
+      the inner text of each `<option>` element inside the rendered `<select>`.
+
+      Example:
+
+      ```javascript
+      App.ApplicationController = Ember.ObjectController.extend({
+        names: ["Yehuda", "Tom"]
+      });
+      ```
+
+      ```handlebars
+      {{view "select" content=names}}
+      ```
+
+      Would result in the following HTML:
+
+      ```html
+      <select class="ember-select">
+        <option value="Yehuda">Yehuda</option>
+        <option value="Tom">Tom</option>
+      </select>
+      ```
+
+      You can control which `<option>` is selected through the `Ember.Select`'s
+      `value` property:
+
+      ```javascript
+      App.ApplicationController = Ember.ObjectController.extend({
+        selectedName: 'Tom',
+        names: ["Yehuda", "Tom"]
+      });
+      ```
+
+      ```handlebars
+      {{view "select" content=names value=selectedName}}
+      ```
+
+      Would result in the following HTML with the `<option>` for 'Tom' selected:
+
+      ```html
+      <select class="ember-select">
+        <option value="Yehuda">Yehuda</option>
+        <option value="Tom" selected="selected">Tom</option>
+      </select>
+      ```
+
+      A user interacting with the rendered `<select>` to choose "Yehuda" would
+      update the value of `selectedName` to "Yehuda".
+
+      ## The Content Property (array of Objects)
+
+      An `Ember.Select` can also take an array of JavaScript or Ember objects as
+      its `content` property.
+
+      When using objects you need to tell the `Ember.Select` which property should
+      be accessed on each object to supply the `value` attribute of the `<option>`
+      and which property should be used to supply the element text.
+
+      The `optionValuePath` option is used to specify the path on each object to
+      the desired property for the `value` attribute. The `optionLabelPath`
+      specifies the path on each object to the desired property for the
+      element's text. Both paths must reference each object itself as `content`:
+
+      ```javascript
+      App.ApplicationController = Ember.ObjectController.extend({
+        programmers: [
+          {firstName: "Yehuda", id: 1},
+          {firstName: "Tom",    id: 2}
+        ]
+      });
+      ```
+
+      ```handlebars
+      {{view "select"
+             content=programmers
+             optionValuePath="content.id"
+             optionLabelPath="content.firstName"}}
+      ```
+
+      Would result in the following HTML:
+
+      ```html
+      <select class="ember-select">
+        <option value="1">Yehuda</option>
+        <option value="2">Tom</option>
+      </select>
+      ```
+
+      The `value` attribute of the selected `<option>` within an `Ember.Select`
+      can be bound to a property on another object:
+
+      ```javascript
+      App.ApplicationController = Ember.ObjectController.extend({
+        programmers: [
+          {firstName: "Yehuda", id: 1},
+          {firstName: "Tom",    id: 2}
+        ],
+        currentProgrammer: {
+          id: 2
+        }
+      });
+      ```
+
+      ```handlebars
+      {{view "select"
+             content=programmers
+             optionValuePath="content.id"
+             optionLabelPath="content.firstName"
+             value=currentProgrammer.id}}
+      ```
+
+      Would result in the following HTML with a selected option:
+
+      ```html
+      <select class="ember-select">
+        <option value="1">Yehuda</option>
+        <option value="2" selected="selected">Tom</option>
+      </select>
+      ```
+
+      Interacting with the rendered element by selecting the first option
+      ('Yehuda') will update the `id` of `currentProgrammer`
+      to match the `value` property of the newly selected `<option>`.
+
+      Alternatively, you can control selection through the underlying objects
+      used to render each object by binding the `selection` option. When the selected
+      `<option>` is changed, the property path provided to `selection`
+      will be updated to match the content object of the rendered `<option>`
+      element:
+
+      ```javascript
+
+      var yehuda = {firstName: "Yehuda", id: 1, bff4eva: 'tom'}
+      var tom = {firstName: "Tom", id: 2, bff4eva: 'yehuda'};
+
+      App.ApplicationController = Ember.ObjectController.extend({
+        selectedPerson: tom,
+        programmers: [ yehuda, tom ]
+      });
+      ```
+
+      ```handlebars
+      {{view "select"
+             content=programmers
+             optionValuePath="content.id"
+             optionLabelPath="content.firstName"
+             selection=selectedPerson}}
+      ```
+
+      Would result in the following HTML with a selected option:
+
+      ```html
+      <select class="ember-select">
+        <option value="1">Yehuda</option>
+        <option value="2" selected="selected">Tom</option>
+      </select>
+      ```
+
+      Interacting with the rendered element by selecting the first option
+      ('Yehuda') will update the `selectedPerson` to match the object of
+      the newly selected `<option>`. In this case it is the first object
+      in the `programmers`
+
+      ## Supplying a Prompt
+
+      A `null` value for the `Ember.Select`'s `value` or `selection` property
+      results in there being no `<option>` with a `selected` attribute:
+
+      ```javascript
+      App.ApplicationController = Ember.ObjectController.extend({
+        selectedProgrammer: null,
+        programmers: ["Yehuda", "Tom"]
+      });
+      ```
+
+      ``` handlebars
+      {{view "select"
+             content=programmers
+             value=selectedProgrammer
+      }}
+      ```
+
+      Would result in the following HTML:
+
+      ```html
+      <select class="ember-select">
+        <option value="Yehuda">Yehuda</option>
+        <option value="Tom">Tom</option>
+      </select>
+      ```
+
+      Although `selectedProgrammer` is `null` and no `<option>`
+      has a `selected` attribute the rendered HTML will display the
+      first item as though it were selected. You can supply a string
+      value for the `Ember.Select` to display when there is no selection
+      with the `prompt` option:
+
+      ```javascript
+      App.ApplicationController = Ember.ObjectController.extend({
+        selectedProgrammer: null,
+        programmers: [ "Yehuda", "Tom" ]
+      });
+      ```
+
+      ```handlebars
+      {{view "select"
+             content=programmers
+             value=selectedProgrammer
+             prompt="Please select a name"
+      }}
+      ```
+
+      Would result in the following HTML:
+
+      ```html
+      <select class="ember-select">
+        <option>Please select a name</option>
+        <option value="Yehuda">Yehuda</option>
+        <option value="Tom">Tom</option>
+      </select>
+      ```
+
+      @class Select
+      @namespace Ember
+      @extends Ember.View
+    */
+    var Select = View.extend({
+      instrumentDisplay: 'Ember.Select',
+
+      tagName: 'select',
+      classNames: ['ember-select'],
+      defaultTemplate: defaultTemplate,
+      attributeBindings: ['multiple', 'disabled', 'tabindex', 'name', 'required', 'autofocus',
+                          'form', 'size'],
+
+      /**
+        The `multiple` attribute of the select element. Indicates whether multiple
+        options can be selected.
+
+        @property multiple
+        @type Boolean
+        @default false
+      */
+      multiple: false,
+
+      /**
+        The `disabled` attribute of the select element. Indicates whether
+        the element is disabled from interactions.
+
+        @property disabled
+        @type Boolean
+        @default false
+      */
+      disabled: false,
+
+      /**
+        The `required` attribute of the select element. Indicates whether
+        a selected option is required for form validation.
+
+        @property required
+        @type Boolean
+        @default false
+        @since 1.5.0
+      */
+      required: false,
+
+      /**
+        The list of options.
+
+        If `optionLabelPath` and `optionValuePath` are not overridden, this should
+        be a list of strings, which will serve simultaneously as labels and values.
+
+        Otherwise, this should be a list of objects. For instance:
+
+        ```javascript
+        var App = Ember.Application.create();
+        var App.MySelect = Ember.Select.extend({
+          content: Ember.A([
+              { id: 1, firstName: 'Yehuda' },
+              { id: 2, firstName: 'Tom' }
+            ]),
+          optionLabelPath: 'content.firstName',
+          optionValuePath: 'content.id'
+        });
+        ```
+
+        @property content
+        @type Array
+        @default null
+      */
+      content: null,
+
+      /**
+        When `multiple` is `false`, the element of `content` that is currently
+        selected, if any.
+
+        When `multiple` is `true`, an array of such elements.
+
+        @property selection
+        @type Object or Array
+        @default null
+      */
+      selection: null,
+
+      /**
+        In single selection mode (when `multiple` is `false`), value can be used to
+        get the current selection's value or set the selection by its value.
+
+        It is not currently supported in multiple selection mode.
+
+        @property value
+        @type String
+        @default null
+      */
+      value: computed(function(key, value) {
+        if (arguments.length === 2) { return value; }
+        var valuePath = get(this, 'optionValuePath').replace(/^content\.?/, '');
+        return valuePath ? get(this, 'selection.' + valuePath) : get(this, 'selection');
+      }).property('selection'),
+
+      /**
+        If given, a top-most dummy option will be rendered to serve as a user
+        prompt.
+
+        @property prompt
+        @type String
+        @default null
+      */
+      prompt: null,
+
+      /**
+        The path of the option labels. See [content](/api/classes/Ember.Select.html#property_content).
+
+        @property optionLabelPath
+        @type String
+        @default 'content'
+      */
+      optionLabelPath: 'content',
+
+      /**
+        The path of the option values. See [content](/api/classes/Ember.Select.html#property_content).
+
+        @property optionValuePath
+        @type String
+        @default 'content'
+      */
+      optionValuePath: 'content',
+
+      /**
+        The path of the option group.
+        When this property is used, `content` should be sorted by `optionGroupPath`.
+
+        @property optionGroupPath
+        @type String
+        @default null
+      */
+      optionGroupPath: null,
+
+      /**
+        The view class for optgroup.
+
+        @property groupView
+        @type Ember.View
+        @default Ember.SelectOptgroup
+      */
+      groupView: SelectOptgroup,
+
+      groupedContent: computed(function() {
+        var groupPath = get(this, 'optionGroupPath');
+        var groupedContent = emberA();
+        var content = get(this, 'content') || [];
+
+        forEach(content, function(item) {
+          var label = get(item, groupPath);
+
+          if (get(groupedContent, 'lastObject.label') !== label) {
+            groupedContent.pushObject({
+              label: label,
+              content: emberA()
+            });
+          }
+
+          get(groupedContent, 'lastObject.content').push(item);
+        });
+
+        return groupedContent;
+      }).property('optionGroupPath', 'content.@each'),
+
+      /**
+        The view class for option.
+
+        @property optionView
+        @type Ember.View
+        @default Ember.SelectOption
+      */
+      optionView: SelectOption,
+
+      _change: function() {
+        if (get(this, 'multiple')) {
+          this._changeMultiple();
+        } else {
+          this._changeSingle();
+        }
+      },
+
+      selectionDidChange: observer('selection.@each', function() {
+        var selection = get(this, 'selection');
+        if (get(this, 'multiple')) {
+          if (!isArray(selection)) {
+            set(this, 'selection', emberA([selection]));
+            return;
+          }
+          this._selectionDidChangeMultiple();
+        } else {
+          this._selectionDidChangeSingle();
+        }
+      }),
+
+      valueDidChange: observer('value', function() {
+        var content = get(this, 'content');
+        var value = get(this, 'value');
+        var valuePath = get(this, 'optionValuePath').replace(/^content\.?/, '');
+        var selectedValue = (valuePath ? get(this, 'selection.' + valuePath) : get(this, 'selection'));
+        var selection;
+
+        if (value !== selectedValue) {
+          selection = content ? content.find(function(obj) {
+            return value === (valuePath ? get(obj, valuePath) : obj);
+          }) : null;
+
+          this.set('selection', selection);
+        }
+      }),
+
+
+      _triggerChange: function() {
+        var selection = get(this, 'selection');
+        var value = get(this, 'value');
+
+        if (!isNone(selection)) { this.selectionDidChange(); }
+        if (!isNone(value)) { this.valueDidChange(); }
+
+        this._change();
+      },
+
+      _changeSingle: function() {
+        var selectedIndex = this.$()[0].selectedIndex;
+        var content = get(this, 'content');
+        var prompt = get(this, 'prompt');
+
+        if (!content || !get(content, 'length')) { return; }
+        if (prompt && selectedIndex === 0) { set(this, 'selection', null); return; }
+
+        if (prompt) { selectedIndex -= 1; }
+        set(this, 'selection', content.objectAt(selectedIndex));
+      },
+
+
+      _changeMultiple: function() {
+        var options = this.$('option:selected');
+        var prompt = get(this, 'prompt');
+        var offset = prompt ? 1 : 0;
+        var content = get(this, 'content');
+        var selection = get(this, 'selection');
+
+        if (!content) { return; }
+        if (options) {
+          var selectedIndexes = options.map(function() {
+            return this.index - offset;
+          }).toArray();
+          var newSelection = content.objectsAt(selectedIndexes);
+
+          if (isArray(selection)) {
+            replace(selection, 0, get(selection, 'length'), newSelection);
+          } else {
+            set(this, 'selection', newSelection);
+          }
+        }
+      },
+
+      _selectionDidChangeSingle: function() {
+        var el = this.get('element');
+        if (!el) { return; }
+
+        var content = get(this, 'content');
+        var selection = get(this, 'selection');
+        var selectionIndex = content ? indexOf(content, selection) : -1;
+        var prompt = get(this, 'prompt');
+
+        if (prompt) { selectionIndex += 1; }
+        if (el) { el.selectedIndex = selectionIndex; }
+      },
+
+      _selectionDidChangeMultiple: function() {
+        var content = get(this, 'content');
+        var selection = get(this, 'selection');
+        var selectedIndexes = content ? indexesOf(content, selection) : [-1];
+        var prompt = get(this, 'prompt');
+        var offset = prompt ? 1 : 0;
+        var options = this.$('option');
+        var adjusted;
+
+        if (options) {
+          options.each(function() {
+            adjusted = this.index > -1 ? this.index - offset : -1;
+            this.selected = indexOf(selectedIndexes, adjusted) > -1;
+          });
+        }
+      },
+
+      init: function() {
+        this._super();
+        this.on("didInsertElement", this, this._triggerChange);
+        this.on("change", this, this._change);
+      }
+    });
+
+    __exports__["default"] = Select;
+    __exports__.Select = Select;
+    __exports__.SelectOption = SelectOption;
+    __exports__.SelectOptgroup = SelectOptgroup;
   });
 enifed("ember-views/views/simple_bound_view",
   ["ember-metal/core","ember-handlebars-compiler","ember-metal/error","ember-metal/run_loop","ember-handlebars/string","ember-htmlbars/utils/string","ember-metal/utils","exports"],
