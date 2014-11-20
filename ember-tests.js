@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.b2bd42b7
+ * @version   1.10.0-beta.1+canary.7d09e73d
  */
 
 (function() {
@@ -61050,10 +61050,6 @@ enifed("ember/tests/routing/basic_test",
       equal(Ember.$('#qunit-fixture:contains(profile details!)').length, 1, "The templates were rendered");
     });
 
-
-    if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
-        // bizarre error in morph attempting to remove a child it does not have
-
     test("Parent route context change", function() {
       var editCount = 0;
       var editedPostIds = Ember.A();
@@ -61123,8 +61119,6 @@ enifed("ember/tests/routing/basic_test",
       equal(editCount, 2, 'set up the edit route twice without failure');
       deepEqual(editedPostIds, ['1', '2'], 'modelFor posts.post returns the right context');
     });
-
-    }
 
     test("Router accounts for rootURL on page load when using history location", function() {
       var rootURL = window.location.pathname + '/app';
@@ -63066,9 +63060,6 @@ enifed("ember/tests/routing/query_params_test",
       Ember.run(appController, 'setProperties', { alex: 'sriracha' });
     });
 
-    if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
-        // bizarre error in morph attempting to remove a child it does not have
-
     test("can opt into full transition by setting refreshModel in route queryParams when transitioning from child to parent", function() {
       Ember.TEMPLATES.parent = compile('{{outlet}}');
       Ember.TEMPLATES['parent/child'] = compile("{{link-to 'Parent' 'parent' (query-params foo='change') id='parent-link'}}");
@@ -63107,8 +63098,6 @@ enifed("ember/tests/routing/query_params_test",
 
       equal(parentModelCount, 2);
     });
-
-    }
 
     test("Use Ember.get to retrieve query params 'replace' configuration", function() {
       expect(2);
@@ -64141,8 +64130,6 @@ enifed("ember/tests/routing/substates_test",
       equal(Ember.$('#app', '#qunit-fixture').text(), "BRO", "bro template has loaded and replaced loading template");
     });
 
-    if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
-
     test("Slow promises waterfall on startup", function() {
 
       expect(7);
@@ -64231,8 +64218,6 @@ enifed("ember/tests/routing/substates_test",
       equal(Ember.$('#app', '#qunit-fixture').text(), "GRANDMA MOM");
       equal(appController.get('currentPath'), "grandma.mom", "currentPath reflects final state");
     });
-
-    }
 
     test("Slow promises returned from ApplicationRoute#model don't enter LoadingRoute", function() {
 
@@ -64657,9 +64642,6 @@ enifed("ember/tests/routing/substates_test",
         equal(Ember.$('#app', '#qunit-fixture').text(), "FOOBAR ERROR: did it broke?", "foo.bar_error was entered (as opposed to something like foo/foo/bar_error)");
       });
 
-      if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
-        // bizarre error in morph attempting to remove a child it does not have
-
       test("Prioritized loading substate entry works with auto-generated index routes", function() {
 
         expect(2);
@@ -64696,8 +64678,6 @@ enifed("ember/tests/routing/substates_test",
 
         equal(Ember.$('#app', '#qunit-fixture').text(), "YAY");
       });
-
-      }
 
       test("Prioritized error substate entry works with auto-generated index routes", function() {
 
