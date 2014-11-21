@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.d0f18fb1
+ * @version   1.10.0-beta.1+canary.4ac66e14
  */
 
 (function() {
@@ -2666,20 +2666,23 @@ enifed("ember-application/system/application",
         Ember.libraries.registerCoreLibrary('Handlebars' + (EmberHandlebars.compile ? '' : '-runtime'), EmberHandlebars.VERSION);
         Ember.libraries.registerCoreLibrary('jQuery', jQuery().jquery);
 
-        if ( Ember.LOG_VERSION ) {
-          Ember.LOG_VERSION = false; // we only need to see this once per Application#init
+        if (Ember.LOG_VERSION) {
+          // we only need to see this once per Application#init
+          Ember.LOG_VERSION = false;
+          var libs = Ember.libraries._registry;
 
-          var nameLengths = EnumerableUtils.map(Ember.libraries, function(item) {
-            return get(item, "name.length");
+          var nameLengths = EnumerableUtils.map(libs, function(item) {
+            return get(item, 'name.length');
           });
 
           var maxNameLength = Math.max.apply(this, nameLengths);
 
           Ember.debug('-------------------------------');
-          Ember.libraries.each(function(name, version) {
-            var spaces = new Array(maxNameLength - name.length + 1).join(" ");
-            Ember.debug([name, spaces, ' : ', version].join(""));
-          });
+          for (var i = 0, l = libs.length; i < l; i++) {
+            var lib = libs[i];
+            var spaces = new Array(maxNameLength - lib.name.length + 1).join(' ');
+            Ember.debug([lib.name, spaces, ' : ', lib.version].join(''));
+          }
           Ember.debug('-------------------------------');
         }
       },
@@ -12351,7 +12354,7 @@ enifed("ember-metal",
     var isGlobalPath = __dependency29__.isGlobalPath;
     var oneWay = __dependency29__.oneWay;
     var run = __dependency30__["default"];
-    var libraries = __dependency31__["default"];
+    var Libraries = __dependency31__["default"];
     var isNone = __dependency32__["default"];
     var isEmpty = __dependency33__["default"];
     var isBlank = __dependency34__["default"];
@@ -12502,7 +12505,7 @@ enifed("ember-metal",
 
     Ember.run = run;
 
-    Ember.libraries = libraries;
+    Ember.libraries = new Libraries();
     Ember.libraries.registerCoreLibrary('Ember', Ember.VERSION);
 
     Ember.isNone = isNone;
@@ -15056,7 +15059,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.d0f18fb1
+      @version 1.10.0-beta.1+canary.4ac66e14
     */
 
     if ('undefined' === typeof Ember) {
@@ -15083,10 +15086,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.d0f18fb1'
+      @default '1.10.0-beta.1+canary.4ac66e14'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.d0f18fb1';
+    Ember.VERSION = '1.10.0-beta.1+canary.4ac66e14';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -16760,52 +16763,77 @@ enifed("ember-metal/keys",
     __exports__["default"] = keys;
   });
 enifed("ember-metal/libraries",
-  ["ember-metal/enumerable_utils","exports"],
-  function(__dependency1__, __exports__) {
+  ["ember-metal/core","ember-metal/enumerable_utils","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
-    // Provides a way to register library versions with ember.
-    var forEach = __dependency1__.forEach;
-    var indexOf = __dependency1__.indexOf;
+    var Ember = __dependency1__["default"];
+    var forEach = __dependency2__.forEach;
+    var indexOf = __dependency2__.indexOf;
 
-    var libraries = function() {
-      var _libraries   = [];
-      var coreLibIndex = 0;
+    /**
+      Helper class that allows you to register your library with Ember.
 
-      var getLibrary = function(name) {
-        for (var i = 0; i < _libraries.length; i++) {
-          if (_libraries[i].name === name) {
-            return _libraries[i];
+      Singleton created at `Ember.libraries`.
+
+      @class Libraries
+      @constructor
+      @private
+    */
+    function Libraries() {
+      this._registry = [];
+      this._coreLibIndex = 0;
+    }
+
+    Libraries.prototype = {
+      constructor: Libraries,
+
+      _getLibraryByName: function(name) {
+        var libs = this._registry;
+        var count = libs.length;
+
+        for (var i = 0; i < count; i++) {
+          if (libs[i].name === name) {
+            return libs[i];
           }
         }
-      };
+      },
 
-      _libraries.register = function(name, version) {
-        if (!getLibrary(name)) {
-          _libraries.push({name: name, version: version});
+      register: function(name, version, isCoreLibrary) {
+        var index = this._registry.length;
+
+        if (!this._getLibraryByName(name)) {
+          if (isCoreLibrary) {
+            index = this._coreLibIndex++;
+          }
+          this._registry.splice(index, 0, { name: name, version: version });
+        } else {
+          Ember.warn('Library "' + name + '" is already registered with Ember.');
         }
-      };
+      },
 
-      _libraries.registerCoreLibrary = function(name, version) {
-        if (!getLibrary(name)) {
-          _libraries.splice(coreLibIndex++, 0, {name: name, version: version});
+      registerCoreLibrary: function(name, version) {
+        this.register(name, version, true);
+      },
+
+      deRegister: function(name) {
+        var lib = this._getLibraryByName(name);
+        var index;
+
+        if (lib) {
+          index = indexOf(this._registry, lib);
+          this._registry.splice(index, 1);
         }
-      };
+      },
 
-      _libraries.deRegister = function(name) {
-        var lib = getLibrary(name);
-        if (lib) _libraries.splice(indexOf(_libraries, lib), 1);
-      };
-
-      _libraries.each = function (callback) {
-        forEach(_libraries, function(lib) {
+      each: function(callback) {
+        Ember.deprecate('Using Ember.libraries.each() is deprecated. Access to a list of registered libraries is currently a private API. If you are not knowingly accessing this method, your out-of-date Ember Inspector may be doing so.');
+        forEach(this._registry, function(lib) {
           callback(lib.name, lib.version);
         });
-      };
+      }
+    };
 
-      return _libraries;
-    }();
-
-    __exports__["default"] = libraries;
+    __exports__["default"] = Libraries;
   });
 enifed("ember-metal/logger",
   ["ember-metal/core","ember-metal/error","exports"],
