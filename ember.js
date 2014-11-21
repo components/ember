@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.c8756c42
+ * @version   1.10.0-beta.1+canary.145cce31
  */
 
 (function() {
@@ -7584,7 +7584,7 @@ enifed("ember-handlebars/helpers/view",
         }
 
         if (hash.attributeBindings) {
-          Ember.assert("Setting 'attributeBindings' via Handlebars is not allowed." +
+          Ember.assert("Setting 'attributeBindings' via template helpers is not allowed." +
                        " Please subclass Ember.View and set it there instead.");
           extensions.attributeBindings = null;
         }
@@ -8270,7 +8270,7 @@ enifed("ember-handlebars/templates/select",
     },"useData":true});
   });
 enifed("ember-htmlbars",
-  ["ember-metal/core","ember-htmlbars/hooks","morph","ember-htmlbars/system/template","ember-htmlbars/system/compile","ember-htmlbars/helpers","ember-htmlbars/compat/helper","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/bind-attr","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/partial","ember-htmlbars/helpers/template","ember-htmlbars/helpers/input","ember-htmlbars/helpers/text_area","ember-htmlbars/helpers/collection","ember-htmlbars/helpers/each","ember-htmlbars/helpers/unbound","ember-htmlbars/system/bootstrap","exports"],
+  ["ember-metal/core","ember-htmlbars/hooks","morph","ember-htmlbars/system/template","ember-htmlbars/system/compile","ember-htmlbars/helpers","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/bind-attr","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/partial","ember-htmlbars/helpers/template","ember-htmlbars/helpers/input","ember-htmlbars/helpers/text_area","ember-htmlbars/helpers/collection","ember-htmlbars/helpers/each","ember-htmlbars/helpers/unbound","ember-htmlbars/system/bootstrap","ember-htmlbars/compat","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
@@ -8285,33 +8285,35 @@ enifed("ember-htmlbars",
     var registerHelper = __dependency6__.registerHelper;
     var helper = __dependency6__.helper;
     var helpers = __dependency6__["default"];
-    var registerHandlebarsCompatibleHelper = __dependency7__.registerHandlebarsCompatibleHelper;
-    var bindHelper = __dependency8__.bindHelper;
-    var viewHelper = __dependency9__.viewHelper;
-    var yieldHelper = __dependency10__.yieldHelper;
-    var withHelper = __dependency11__.withHelper;
-    var preprocessArgumentsForWith = __dependency11__.preprocessArgumentsForWith;
-    var logHelper = __dependency12__.logHelper;
-    var debuggerHelper = __dependency13__.debuggerHelper;
-    var bindAttrHelper = __dependency14__.bindAttrHelper;
-    var bindAttrHelperDeprecated = __dependency14__.bindAttrHelperDeprecated;
-    var ifHelper = __dependency15__.ifHelper;
-    var unlessHelper = __dependency15__.unlessHelper;
-    var unboundIfHelper = __dependency15__.unboundIfHelper;
-    var boundIfHelper = __dependency15__.boundIfHelper;
-    var locHelper = __dependency16__.locHelper;
-    var partialHelper = __dependency17__.partialHelper;
-    var templateHelper = __dependency18__.templateHelper;
-    var inputHelper = __dependency19__.inputHelper;
-    var textareaHelper = __dependency20__.textareaHelper;
-    var collectionHelper = __dependency21__.collectionHelper;
-    var eachHelper = __dependency22__.eachHelper;
-    var preprocessArgumentsForEach = __dependency22__.preprocessArgumentsForEach;
-    var unboundHelper = __dependency23__.unboundHelper;
-    var preprocessArgumentsForUnbound = __dependency23__.preprocessArgumentsForUnbound;
+    var bindHelper = __dependency7__.bindHelper;
+    var viewHelper = __dependency8__.viewHelper;
+    var yieldHelper = __dependency9__.yieldHelper;
+    var withHelper = __dependency10__.withHelper;
+    var preprocessArgumentsForWith = __dependency10__.preprocessArgumentsForWith;
+    var logHelper = __dependency11__.logHelper;
+    var debuggerHelper = __dependency12__.debuggerHelper;
+    var bindAttrHelper = __dependency13__.bindAttrHelper;
+    var bindAttrHelperDeprecated = __dependency13__.bindAttrHelperDeprecated;
+    var ifHelper = __dependency14__.ifHelper;
+    var unlessHelper = __dependency14__.unlessHelper;
+    var unboundIfHelper = __dependency14__.unboundIfHelper;
+    var boundIfHelper = __dependency14__.boundIfHelper;
+    var locHelper = __dependency15__.locHelper;
+    var partialHelper = __dependency16__.partialHelper;
+    var templateHelper = __dependency17__.templateHelper;
+    var inputHelper = __dependency18__.inputHelper;
+    var textareaHelper = __dependency19__.textareaHelper;
+    var collectionHelper = __dependency20__.collectionHelper;
+    var eachHelper = __dependency21__.eachHelper;
+    var preprocessArgumentsForEach = __dependency21__.preprocessArgumentsForEach;
+    var unboundHelper = __dependency22__.unboundHelper;
+    var preprocessArgumentsForUnbound = __dependency22__.preprocessArgumentsForUnbound;
 
     // importing adds template bootstrapping
     // initializer to enable embedded templates
+
+    // importing ember-htmlbars/compat updates the
+    // Ember.Handlebars global if htmlbars is enabled
 
     registerHelper('bindHelper', bindHelper);
     registerHelper('bind', bindHelper);
@@ -8343,6 +8345,7 @@ enifed("ember-htmlbars",
         template: template,
         compile: compile
       };
+
     }
 
     var defaultEnv = {
@@ -8358,6 +8361,35 @@ enifed("ember-htmlbars",
       helpers: helpers
     };
     __exports__.defaultEnv = defaultEnv;
+  });
+enifed("ember-htmlbars/compat",
+  ["ember-handlebars","ember-htmlbars/helpers","ember-htmlbars/system/template","ember-htmlbars/system/compile","ember-htmlbars/compat/helper","ember-htmlbars/compat/handlebars-get","ember-htmlbars/compat/make-bound-helper","ember-htmlbars/compat/register-bound-helper","ember-htmlbars/compat/precompile","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __exports__) {
+    "use strict";
+    var EmberHandlebars = __dependency1__["default"];
+    var helpers = __dependency2__["default"];
+    var template = __dependency3__["default"];
+    var compile = __dependency4__["default"];
+    var compatRegisterHelper = __dependency5__.registerHandlebarsCompatibleHelper;
+    var compatHandlebarsHelper = __dependency5__.handlebarsHelper;
+    var compatHandlebarsGet = __dependency6__["default"];
+    var compatMakeBoundHelper = __dependency7__["default"];
+    var compatRegisterBoundHelper = __dependency8__["default"];
+    var compatPrecompile = __dependency9__["default"];
+
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      EmberHandlebars.helpers = helpers;
+      EmberHandlebars.helper = compatHandlebarsHelper;
+      EmberHandlebars.registerHelper = compatRegisterHelper;
+      EmberHandlebars.registerBoundHelper = compatRegisterBoundHelper;
+      EmberHandlebars.makeBoundHelper = compatMakeBoundHelper;
+      EmberHandlebars.get = compatHandlebarsGet;
+      EmberHandlebars.precompile = compatPrecompile;
+      EmberHandlebars.compile = compile;
+      EmberHandlebars.template = template;
+    }
+
+    __exports__["default"] = EmberHandlebars;
   });
 enifed("ember-htmlbars/compat/handlebars-get",
   ["exports"],
@@ -8382,17 +8414,24 @@ enifed("ember-htmlbars/compat/handlebars-get",
     }
   });
 enifed("ember-htmlbars/compat/helper",
-  ["ember-metal/merge","ember-htmlbars/helpers","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["ember-metal/merge","ember-htmlbars/helpers","ember-views/views/view","ember-views/views/component","ember-htmlbars/system/make-view-helper","ember-htmlbars/compat/make-bound-helper","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     var merge = __dependency1__["default"];
     var helpers = __dependency2__["default"];
+    var View = __dependency3__["default"];
+    var Component = __dependency4__["default"];
+    var makeViewHelper = __dependency5__["default"];
+    var makeBoundHelper = __dependency6__["default"];
+
+    var slice = [].slice;
 
     function HandlebarsCompatibleHelper(fn) {
       this.helperFunction = function helperFunc(params, hash, options, env) {
         var handlebarsOptions = {};
         merge(handlebarsOptions, options);
         merge(handlebarsOptions, env);
+        handlebarsOptions.hash = options._raw.hash;
 
         var args = options._raw.params;
         args.push(handlebarsOptions);
@@ -8418,7 +8457,21 @@ enifed("ember-htmlbars/compat/helper",
       helpers[name] = new HandlebarsCompatibleHelper(value);
     }
 
-    __exports__.registerHandlebarsCompatibleHelper = registerHandlebarsCompatibleHelper;__exports__["default"] = HandlebarsCompatibleHelper;
+    __exports__.registerHandlebarsCompatibleHelper = registerHandlebarsCompatibleHelper;function handlebarsHelper(name, value) {
+      Ember.assert("You tried to register a component named '" + name +
+                   "', but component names must include a '-'", !Component.detect(value) || name.match(/-/));
+
+      if (View.detect(value)) {
+        helpers[name] = makeViewHelper(value);
+      } else {
+        var boundHelperArgs = slice.call(arguments, 1);
+        var boundFn = makeBoundHelper.apply(this, boundHelperArgs);
+
+        helpers[name] = boundFn;
+      }
+    }
+
+    __exports__.handlebarsHelper = handlebarsHelper;__exports__["default"] = HandlebarsCompatibleHelper;
   });
 enifed("ember-htmlbars/compat/make-bound-helper",
   ["ember-metal/core","ember-metal/mixin","ember-htmlbars/system/simple-bind","ember-metal/merge","ember-htmlbars/system/helper","ember-metal/streams/stream","ember-metal/streams/read","exports"],
@@ -8544,6 +8597,14 @@ enifed("ember-htmlbars/compat/make-bound-helper",
 
       return new Helper(helperFunc, preprocessArguments);
     }
+  });
+enifed("ember-htmlbars/compat/precompile",
+  ["htmlbars-compiler/compiler","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    var compile = __dependency1__.compile;
+
+    __exports__["default"] = compile;
   });
 enifed("ember-htmlbars/compat/register-bound-helper",
   ["ember-htmlbars/helpers","ember-htmlbars/compat/make-bound-helper","exports"],
@@ -11426,7 +11487,6 @@ enifed("ember-htmlbars/system/compile",
       @method template
       @param {String} templateString This is the string to be compiled by HTMLBars.
     */
-
     __exports__["default"] = function(templateString) {
       var templateSpec = compile(templateString);
 
@@ -14996,7 +15056,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.c8756c42
+      @version 1.10.0-beta.1+canary.145cce31
     */
 
     if ('undefined' === typeof Ember) {
@@ -15023,10 +15083,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.c8756c42'
+      @default '1.10.0-beta.1+canary.145cce31'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.c8756c42';
+    Ember.VERSION = '1.10.0-beta.1+canary.145cce31';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
