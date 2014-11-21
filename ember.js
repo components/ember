@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.4ac66e14
+ * @version   1.10.0-beta.1+canary.b1028aab
  */
 
 (function() {
@@ -3465,8 +3465,8 @@ enifed("ember-application/system/application",
     __exports__["default"] = Application;
   });
 enifed("ember-application/system/resolver",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/logger","ember-runtime/system/string","ember-runtime/system/object","ember-runtime/system/namespace","ember-handlebars","ember-htmlbars/helpers","ember-metal/dictionary","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/logger","ember-runtime/system/string","ember-runtime/system/object","ember-runtime/system/namespace","ember-handlebars","ember-metal/dictionary","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -3483,14 +3483,6 @@ enifed("ember-application/system/resolver",
     var EmberObject = __dependency5__["default"];
     var Namespace = __dependency6__["default"];
     var EmberHandlebars = __dependency7__["default"];
-    var htmlbarsHelpers = __dependency8__["default"];
-
-    var helpers;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
-      helpers = htmlbarsHelpers;
-    } else {
-      helpers = EmberHandlebars.helpers;
-    }
 
     var Resolver = EmberObject.extend({
       /**
@@ -3579,7 +3571,7 @@ enifed("ember-application/system/resolver",
       @namespace Ember
       @extends Ember.Object
     */
-    var dictionary = __dependency9__["default"];
+    var dictionary = __dependency8__["default"];
 
     __exports__["default"] = EmberObject.extend({
       /**
@@ -3827,7 +3819,7 @@ enifed("ember-application/system/resolver",
         @method resolveHelper
       */
       resolveHelper: function(parsedName) {
-        return this.resolveOther(parsedName) || helpers[parsedName.fullNameWithoutType];
+        return this.resolveOther(parsedName) || EmberHandlebars.helpers[parsedName.fullNameWithoutType];
       },
       /**
         Look up the specified object (from parsedName) on the appropriate
@@ -15059,7 +15051,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.4ac66e14
+      @version 1.10.0-beta.1+canary.b1028aab
     */
 
     if ('undefined' === typeof Ember) {
@@ -15086,10 +15078,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.4ac66e14'
+      @default '1.10.0-beta.1+canary.b1028aab'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.4ac66e14';
+    Ember.VERSION = '1.10.0-beta.1+canary.b1028aab';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`

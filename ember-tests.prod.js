@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.4ac66e14
+ * @version   1.10.0-beta.1+canary.b1028aab
  */
 
 (function() {
@@ -1011,8 +1011,8 @@ enifed("ember-application/system/resolver.jshint",
     });
   });
 enifed("ember-application/tests/system/application_test",
-  ["ember-metal/core","ember-metal/run_loop","ember-application/system/application","ember-application/system/resolver","ember-routing/system/router","ember-views/views/view","ember-runtime/controllers/controller","ember-routing/location/none_location","ember-handlebars","ember-runtime/system/object","ember-views/system/jquery","ember-htmlbars/system/compile"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__) {
+  ["ember-metal/core","ember-metal/run_loop","ember-application/system/application","ember-application/system/resolver","ember-routing/system/router","ember-views/views/view","ember-runtime/controllers/controller","ember-routing/location/none_location","ember-handlebars","ember-runtime/system/object","ember-views/system/jquery"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__) {
     "use strict";
     /*globals EmberDev */
 
@@ -1027,18 +1027,12 @@ enifed("ember-application/tests/system/application_test",
     var EmberHandlebars = __dependency9__["default"];
     var EmberObject = __dependency10__["default"];
     var jQuery = __dependency11__["default"];
-    var htmlbarsCompile = __dependency12__["default"];
 
     var trim = jQuery.trim;
 
     var app, application, originalLookup, originalDebug;
 
-    var compile;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
-      compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
+    var compile = EmberHandlebars.compile;
 
 
     QUnit.module("Ember.Application", {
@@ -1555,8 +1549,8 @@ enifed("ember-application/tests/system/dependency_injection/custom_resolver_test
     });
   });
 enifed("ember-application/tests/system/dependency_injection/default_resolver_test",
-  ["ember-metal/core","ember-metal/run_loop","ember-metal/logger","ember-runtime/controllers/controller","ember-runtime/system/object","ember-handlebars","ember-runtime/system/namespace","ember-application/system/application","ember-htmlbars/system/compile","ember-htmlbars/helpers"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
+  ["ember-metal/core","ember-metal/run_loop","ember-metal/logger","ember-runtime/controllers/controller","ember-runtime/system/object","ember-handlebars","ember-runtime/system/namespace","ember-application/system/application"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.TEMPLATES
@@ -1567,19 +1561,12 @@ enifed("ember-application/tests/system/dependency_injection/default_resolver_tes
     var EmberHandlebars = __dependency6__["default"];
     var Namespace = __dependency7__["default"];
     var Application = __dependency8__["default"];
-    var htmlbarsCompile = __dependency9__["default"];
-    var htmlbarsRegisterHelper = __dependency10__.registerHelper;
 
     var compile, registerHelper;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
-      registerHelper  = htmlbarsRegisterHelper;
-      compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-      registerHelper = function(name, fn) {
-        EmberHandlebars.registerHelper(name, fn);
-      };
-    }
+    compile = EmberHandlebars.compile;
+    registerHelper = function(name, fn) {
+      EmberHandlebars.registerHelper(name, fn);
+    };
 
     var locator, application, originalLookup, originalLoggerInfo;
 
@@ -1647,8 +1634,14 @@ enifed("ember-application/tests/system/dependency_injection/default_resolver_tes
     });
 
     test("the default resolver resolves helpers", function(){
-      function fooresolvertestHelper(){ return 'FOO'; }
-      function barBazResolverTestHelper(){ return 'BAZ'; }
+      expect(2);
+
+      function fooresolvertestHelper(){
+        ok(true, 'found fooresolvertestHelper');
+      }
+      function barBazResolverTestHelper(){
+        ok(true, 'found barBazResolverTestHelper');
+      }
       registerHelper('fooresolvertest', fooresolvertestHelper);
       registerHelper('bar-baz-resolver-test', barBazResolverTestHelper);
 
@@ -1662,8 +1655,8 @@ enifed("ember-application/tests/system/dependency_injection/default_resolver_tes
         retrievedBarBazResolverTestHelper = locator.lookup('helper:bar-baz-resolver-test');
       }
 
-      equal(fooresolvertestHelper, retrievedFooResolverTestHelper, "looks up fooresolvertestHelper helper");
-      equal(barBazResolverTestHelper, retrievedBarBazResolverTestHelper, "looks up barBazResolverTestHelper helper");
+      fooresolvertestHelper();
+      barBazResolverTestHelper();
     });
 
     test("the default resolver resolves container-registered helpers", function(){
@@ -13064,6 +13057,237 @@ enifed("ember-htmlbars/tests/integration/group_test.jshint",
     module('JSHint - ember-htmlbars/tests/integration');
     test('ember-htmlbars/tests/integration/group_test.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/tests/integration/group_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/tests/integration/select_in_template_test",
+  ["ember-runtime/system/object","ember-metal/run_loop","ember-views/views/view","ember-views/system/event_dispatcher","ember-metal/computed","ember-runtime/system/namespace","ember-runtime/controllers/array_controller","ember-runtime/system/array_proxy","ember-views/views/select","ember-handlebars-compiler","ember-htmlbars/system/compile"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__) {
+    "use strict";
+    var EmberObject = __dependency1__["default"];
+    var run = __dependency2__["default"];
+    var EmberView = __dependency3__["default"];
+    var EventDispatcher = __dependency4__["default"];
+
+    var computed = __dependency5__.computed;
+    var Namespace = __dependency6__["default"];
+    var ArrayController = __dependency7__["default"];
+    var ArrayProxy = __dependency8__["default"];
+    var SelectView = __dependency9__["default"];
+    var EmberHandlebars = __dependency10__["default"];
+    var htmlbarsCompile = __dependency11__["default"];
+
+    var dispatcher, view;
+
+    var compile;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      compile = htmlbarsCompile;
+    } else {
+      compile = EmberHandlebars.compile;
+    }
+
+    QUnit.module("ember-htmlbars: Ember.Select - usage inside templates", {
+      setup: function() {
+        dispatcher = EventDispatcher.create();
+        dispatcher.setup();
+      },
+
+      teardown: function() {
+        run(function() {
+          dispatcher.destroy();
+          if (view) { view.destroy(); }
+        });
+      }
+    });
+
+    test("works from a template with bindings", function() {
+      var Person = EmberObject.extend({
+        id: null,
+        firstName: null,
+        lastName: null,
+
+        fullName: computed(function() {
+          return this.get('firstName') + " " + this.get('lastName');
+        }).property('firstName', 'lastName')
+      });
+
+      var erik = Person.create({id: 4, firstName: 'Erik', lastName: 'Bryn'});
+
+      var application = Namespace.create();
+
+      application.peopleController = ArrayController.create({
+        content: Ember.A([
+          Person.create({id: 1, firstName: 'Yehuda', lastName: 'Katz'}),
+          Person.create({id: 2, firstName: 'Tom', lastName: 'Dale'}),
+          Person.create({id: 3, firstName: 'Peter', lastName: 'Wagenet'}),
+          erik
+        ])
+      });
+
+      application.selectedPersonController = EmberObject.create({
+        person: null
+      });
+
+      view = EmberView.create({
+        app: application,
+        selectView: SelectView,
+        template: compile(
+          '{{view view.selectView viewName="select"' +
+          '    contentBinding="view.app.peopleController"' +
+          '    optionLabelPath="content.fullName"' +
+          '    optionValuePath="content.id"' +
+          '    prompt="Pick a person:"' +
+          '    selectionBinding="view.app.selectedPersonController.person"}}'
+        )
+      });
+
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+
+      var select = view.get('select');
+      ok(select.$().length, "Select was rendered");
+      equal(select.$('option').length, 5, "Options were rendered");
+      equal(select.$().text(), "Pick a person:Yehuda KatzTom DalePeter WagenetErik Bryn\n", "Option values were rendered");
+      equal(select.get('selection'), null, "Nothing has been selected");
+
+      run(function() {
+        application.selectedPersonController.set('person', erik);
+      });
+
+      equal(select.get('selection'), erik, "Selection was updated through binding");
+      run(function() {
+        application.peopleController.pushObject(Person.create({id: 5, firstName: "James", lastName: "Rosen"}));
+      });
+
+      equal(select.$('option').length, 6, "New option was added");
+      equal(select.get('selection'), erik, "Selection was maintained after new option was added");
+    });
+
+    test("upon content change, the DOM should reflect the selection (#481)", function() {
+      var userOne = {name: 'Mike', options: Ember.A(['a', 'b']), selectedOption: 'a'};
+      var userTwo = {name: 'John', options: Ember.A(['c', 'd']), selectedOption: 'd'};
+
+      view = EmberView.create({
+        user: userOne,
+        selectView: SelectView,
+        template: compile(
+          '{{view view.selectView viewName="select"' +
+          '    contentBinding="view.user.options"' +
+          '    selectionBinding="view.user.selectedOption"}}'
+        )
+      });
+
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+
+      var select = view.get('select');
+      var selectEl = select.$()[0];
+
+      equal(select.get('selection'), 'a', "Precond: Initial selection is correct");
+      equal(selectEl.selectedIndex, 0, "Precond: The DOM reflects the correct selection");
+
+      run(function() {
+        view.set('user', userTwo);
+      });
+
+      equal(select.get('selection'), 'd', "Selection was properly set after content change");
+      equal(selectEl.selectedIndex, 1, "The DOM reflects the correct selection");
+    });
+
+    test("upon content change with Array-like content, the DOM should reflect the selection", function() {
+      var tom = {id: 4, name: 'Tom'};
+      var sylvain = {id: 5, name: 'Sylvain'};
+
+      var proxy = ArrayProxy.create({
+        content: Ember.A(),
+        selectedOption: sylvain
+      });
+
+      view = EmberView.create({
+        proxy: proxy,
+        selectView: SelectView,
+        template: compile(
+          '{{view view.selectView viewName="select"' +
+          '    contentBinding="view.proxy"' +
+          '    selectionBinding="view.proxy.selectedOption"}}'
+        )
+      });
+
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+
+      var select = view.get('select');
+      var selectEl = select.$()[0];
+
+      equal(selectEl.selectedIndex, -1, "Precond: The DOM reflects the lack of selection");
+
+      run(function() {
+        proxy.set('content', Ember.A([tom, sylvain]));
+      });
+
+      equal(select.get('selection'), sylvain, "Selection was properly set after content change");
+      equal(selectEl.selectedIndex, 1, "The DOM reflects the correct selection");
+    });
+
+    function testValueBinding(templateString) {
+      view = EmberView.create({
+        collection: Ember.A([{name: 'Wes', value: 'w'}, {name: 'Gordon', value: 'g'}]),
+        val: 'g',
+        selectView: SelectView,
+        template: compile(templateString)
+      });
+
+      run(function() {
+        view.appendTo('#qunit-fixture');
+      });
+
+      var select = view.get('select');
+      var selectEl = select.$()[0];
+
+      equal(view.get('val'), 'g', "Precond: Initial bound property is correct");
+      equal(select.get('value'), 'g', "Precond: Initial selection is correct");
+      equal(selectEl.selectedIndex, 2, "Precond: The DOM reflects the correct selection");
+
+      select.$('option:eq(2)').removeAttr('selected');
+      select.$('option:eq(1)').prop('selected', true);
+      select.$().trigger('change');
+
+      equal(view.get('val'), 'w', "Updated bound property is correct");
+      equal(select.get('value'), 'w', "Updated selection is correct");
+      equal(selectEl.selectedIndex, 1, "The DOM is updated to reflect the new selection");
+    }
+
+    test("select element should correctly initialize and update selectedIndex and bound properties when using valueBinding (old xBinding='' syntax)", function() {
+      testValueBinding(
+        '{{view view.selectView viewName="select"' +
+        '    contentBinding="view.collection"' +
+        '    optionLabelPath="content.name"' +
+        '    optionValuePath="content.value"' +
+        '    prompt="Please wait..."' +
+        '    valueBinding="view.val"}}'
+      );
+    });
+
+    test("select element should correctly initialize and update selectedIndex and bound properties when using valueBinding (new quoteless binding shorthand)", function() {
+      testValueBinding(
+        '{{view view.selectView viewName="select"' +
+        '    content=view.collection' +
+        '    optionLabelPath="content.name"' +
+        '    optionValuePath="content.value"' +
+        '    prompt="Please wait..."' +
+        '    value=view.val}}'
+      );
+    });
+  });
+enifed("ember-htmlbars/tests/integration/select_in_template_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/tests/integration');
+    test('ember-htmlbars/tests/integration/select_in_template_test.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/tests/integration/select_in_template_test.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/tests/integration/tagless-views-rerender_test",
@@ -45472,8 +45696,8 @@ enifed("ember-testing/test.jshint",
     });
   });
 enifed("ember-testing/tests/acceptance_test",
-  ["ember-metal/run_loop","ember-views/system/jquery","ember-testing/test","ember-testing/adapters/qunit","ember-views/views/view","ember-testing/initializers","ember-application/system/application","ember-routing/system/route","ember-handlebars","ember-htmlbars/system/compile","ember-routing"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__) {
+  ["ember-metal/run_loop","ember-views/system/jquery","ember-testing/test","ember-testing/adapters/qunit","ember-views/views/view","ember-testing/initializers","ember-application/system/application","ember-routing/system/route","ember-handlebars","ember-routing"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
     "use strict";
     var run = __dependency1__["default"];
     var jQuery = __dependency2__["default"];
@@ -45484,17 +45708,11 @@ enifed("ember-testing/tests/acceptance_test",
     var EmberApplication = __dependency7__["default"];
     var EmberRoute = __dependency8__["default"];
     var EmberHandlebars = __dependency9__["default"];
-    var htmlbarsCompile = __dependency10__["default"];
 
     //ES6TODO: we need {{link-to}}  and {{outlet}} to exist here
     //ES6TODO: fixme?
 
-    var compile;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
-      compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
+    var compile = EmberHandlebars.compile;
 
     var App, find, click, fillIn, currentRoute, visit, originalAdapter, andThen, indexHitCount;
 
@@ -46063,8 +46281,8 @@ enifed("ember-testing/tests/helper_registration_test.jshint",
     });
   });
 enifed("ember-testing/tests/helpers_test",
-  ["ember-metal/core","ember-metal/run_loop","ember-runtime/system/object","ember-runtime/ext/rsvp","ember-views/views/view","ember-views/system/jquery","ember-testing/test","ember-testing/helpers","ember-testing/initializers","ember-testing/setup_for_testing","ember-routing/system/router","ember-routing/system/route","ember-application/system/application","ember-handlebars","ember-htmlbars/system/compile"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__) {
+  ["ember-metal/core","ember-metal/run_loop","ember-runtime/system/object","ember-runtime/ext/rsvp","ember-views/views/view","ember-views/system/jquery","ember-testing/test","ember-testing/helpers","ember-testing/initializers","ember-testing/setup_for_testing","ember-routing/system/router","ember-routing/system/route","ember-application/system/application","ember-handlebars"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var run = __dependency2__["default"];
@@ -46081,16 +46299,10 @@ enifed("ember-testing/tests/helpers_test",
     var EmberRoute = __dependency12__["default"];
     var EmberApplication = __dependency13__["default"];
     var EmberHandlebars = __dependency14__["default"];
-    var htmlbarsCompile = __dependency15__["default"];
 
     var App, originalAdapter = Test.adapter;
 
-    var compile;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
-      compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
+    var compile = EmberHandlebars.compile;
 
     function cleanup(){
       // Teardown setupForTesting
@@ -46974,8 +47186,8 @@ enifed("ember-testing/tests/helpers_test.jshint",
     });
   });
 enifed("ember-testing/tests/integration_test",
-  ["ember-metal/core","ember-metal/run_loop","ember-runtime/system/object","ember-runtime/controllers/array_controller","ember-views/system/jquery","ember-views/views/view","ember-testing/test","ember-routing/system/route","ember-application/system/application","ember-handlebars","ember-htmlbars/system/compile","ember-application"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__) {
+  ["ember-metal/core","ember-metal/run_loop","ember-runtime/system/object","ember-runtime/controllers/array_controller","ember-views/system/jquery","ember-views/views/view","ember-testing/test","ember-routing/system/route","ember-application/system/application","ember-handlebars","ember-application"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var run = __dependency2__["default"];
@@ -46987,15 +47199,9 @@ enifed("ember-testing/tests/integration_test",
     var EmberRoute = __dependency8__["default"];
     var EmberApplication = __dependency9__["default"];
     var EmberHandlebars = __dependency10__["default"];
-    var htmlbarsCompile = __dependency11__["default"];
 
 
-    var compile;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
-      compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
+    var compile = EmberHandlebars.compile;
 
     var App, find, visit, originalAdapter = Test.adapter;
 
@@ -50360,8 +50566,8 @@ enifed("ember-views/tests/views/instrumentation_test.jshint",
     });
   });
 enifed("ember-views/tests/views/metamorph_view_test",
-  ["ember-views/system/jquery","ember-metal/run_loop","ember-views/views/view","ember-metal/property_get","ember-metal/property_set","ember-metal/mixin","ember-htmlbars/system/compile","ember-handlebars-compiler","ember-views/views/metamorph_view"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
+  ["ember-views/system/jquery","ember-metal/run_loop","ember-views/views/view","ember-metal/property_get","ember-metal/property_set","ember-metal/mixin","ember-handlebars-compiler","ember-views/views/metamorph_view"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
     "use strict";
     var jQuery = __dependency1__["default"];
     var run = __dependency2__["default"];
@@ -50369,16 +50575,10 @@ enifed("ember-views/tests/views/metamorph_view_test",
     var get = __dependency4__.get;
     var set = __dependency5__.set;
     var observer = __dependency6__.observer;
-    var htmlbarsCompile = __dependency7__["default"];
-    var EmberHandlebars = __dependency8__["default"];
+    var EmberHandlebars = __dependency7__["default"];
 
-    var _MetamorphView = __dependency9__["default"];
-    var compile;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
-      compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
+    var _MetamorphView = __dependency8__["default"];
+    var compile = EmberHandlebars.compile;
 
     var view, childView, metamorphView;
 
@@ -50625,237 +50825,6 @@ enifed("ember-views/tests/views/metamorph_view_test.jshint",
     module('JSHint - ember-views/tests/views');
     test('ember-views/tests/views/metamorph_view_test.js should pass jshint', function() { 
       ok(true, 'ember-views/tests/views/metamorph_view_test.js should pass jshint.'); 
-    });
-  });
-enifed("ember-views/tests/views/select_in_template_test",
-  ["ember-runtime/system/object","ember-metal/run_loop","ember-views/views/view","ember-views/system/event_dispatcher","ember-metal/computed","ember-runtime/system/namespace","ember-runtime/controllers/array_controller","ember-runtime/system/array_proxy","ember-views/views/select","ember-handlebars-compiler","ember-htmlbars/system/compile"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__) {
-    "use strict";
-    var EmberObject = __dependency1__["default"];
-    var run = __dependency2__["default"];
-    var EmberView = __dependency3__["default"];
-    var EventDispatcher = __dependency4__["default"];
-
-    var computed = __dependency5__.computed;
-    var Namespace = __dependency6__["default"];
-    var ArrayController = __dependency7__["default"];
-    var ArrayProxy = __dependency8__["default"];
-    var SelectView = __dependency9__["default"];
-    var EmberHandlebars = __dependency10__["default"];
-    var htmlbarsCompile = __dependency11__["default"];
-
-    var dispatcher, view;
-
-    var compile;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
-      compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
-
-    QUnit.module("ember-htmlbars: Ember.Select - usage inside templates", {
-      setup: function() {
-        dispatcher = EventDispatcher.create();
-        dispatcher.setup();
-      },
-
-      teardown: function() {
-        run(function() {
-          dispatcher.destroy();
-          if (view) { view.destroy(); }
-        });
-      }
-    });
-
-    test("works from a template with bindings", function() {
-      var Person = EmberObject.extend({
-        id: null,
-        firstName: null,
-        lastName: null,
-
-        fullName: computed(function() {
-          return this.get('firstName') + " " + this.get('lastName');
-        }).property('firstName', 'lastName')
-      });
-
-      var erik = Person.create({id: 4, firstName: 'Erik', lastName: 'Bryn'});
-
-      var application = Namespace.create();
-
-      application.peopleController = ArrayController.create({
-        content: Ember.A([
-          Person.create({id: 1, firstName: 'Yehuda', lastName: 'Katz'}),
-          Person.create({id: 2, firstName: 'Tom', lastName: 'Dale'}),
-          Person.create({id: 3, firstName: 'Peter', lastName: 'Wagenet'}),
-          erik
-        ])
-      });
-
-      application.selectedPersonController = EmberObject.create({
-        person: null
-      });
-
-      view = EmberView.create({
-        app: application,
-        selectView: SelectView,
-        template: compile(
-          '{{view view.selectView viewName="select"' +
-          '    contentBinding="view.app.peopleController"' +
-          '    optionLabelPath="content.fullName"' +
-          '    optionValuePath="content.id"' +
-          '    prompt="Pick a person:"' +
-          '    selectionBinding="view.app.selectedPersonController.person"}}'
-        )
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      var select = view.get('select');
-      ok(select.$().length, "Select was rendered");
-      equal(select.$('option').length, 5, "Options were rendered");
-      equal(select.$().text(), "Pick a person:Yehuda KatzTom DalePeter WagenetErik Bryn\n", "Option values were rendered");
-      equal(select.get('selection'), null, "Nothing has been selected");
-
-      run(function() {
-        application.selectedPersonController.set('person', erik);
-      });
-
-      equal(select.get('selection'), erik, "Selection was updated through binding");
-      run(function() {
-        application.peopleController.pushObject(Person.create({id: 5, firstName: "James", lastName: "Rosen"}));
-      });
-
-      equal(select.$('option').length, 6, "New option was added");
-      equal(select.get('selection'), erik, "Selection was maintained after new option was added");
-    });
-
-    test("upon content change, the DOM should reflect the selection (#481)", function() {
-      var userOne = {name: 'Mike', options: Ember.A(['a', 'b']), selectedOption: 'a'};
-      var userTwo = {name: 'John', options: Ember.A(['c', 'd']), selectedOption: 'd'};
-
-      view = EmberView.create({
-        user: userOne,
-        selectView: SelectView,
-        template: compile(
-          '{{view view.selectView viewName="select"' +
-          '    contentBinding="view.user.options"' +
-          '    selectionBinding="view.user.selectedOption"}}'
-        )
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      var select = view.get('select');
-      var selectEl = select.$()[0];
-
-      equal(select.get('selection'), 'a', "Precond: Initial selection is correct");
-      equal(selectEl.selectedIndex, 0, "Precond: The DOM reflects the correct selection");
-
-      run(function() {
-        view.set('user', userTwo);
-      });
-
-      equal(select.get('selection'), 'd', "Selection was properly set after content change");
-      equal(selectEl.selectedIndex, 1, "The DOM reflects the correct selection");
-    });
-
-    test("upon content change with Array-like content, the DOM should reflect the selection", function() {
-      var tom = {id: 4, name: 'Tom'};
-      var sylvain = {id: 5, name: 'Sylvain'};
-
-      var proxy = ArrayProxy.create({
-        content: Ember.A(),
-        selectedOption: sylvain
-      });
-
-      view = EmberView.create({
-        proxy: proxy,
-        selectView: SelectView,
-        template: compile(
-          '{{view view.selectView viewName="select"' +
-          '    contentBinding="view.proxy"' +
-          '    selectionBinding="view.proxy.selectedOption"}}'
-        )
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      var select = view.get('select');
-      var selectEl = select.$()[0];
-
-      equal(selectEl.selectedIndex, -1, "Precond: The DOM reflects the lack of selection");
-
-      run(function() {
-        proxy.set('content', Ember.A([tom, sylvain]));
-      });
-
-      equal(select.get('selection'), sylvain, "Selection was properly set after content change");
-      equal(selectEl.selectedIndex, 1, "The DOM reflects the correct selection");
-    });
-
-    function testValueBinding(templateString) {
-      view = EmberView.create({
-        collection: Ember.A([{name: 'Wes', value: 'w'}, {name: 'Gordon', value: 'g'}]),
-        val: 'g',
-        selectView: SelectView,
-        template: compile(templateString)
-      });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      var select = view.get('select');
-      var selectEl = select.$()[0];
-
-      equal(view.get('val'), 'g', "Precond: Initial bound property is correct");
-      equal(select.get('value'), 'g', "Precond: Initial selection is correct");
-      equal(selectEl.selectedIndex, 2, "Precond: The DOM reflects the correct selection");
-
-      select.$('option:eq(2)').removeAttr('selected');
-      select.$('option:eq(1)').prop('selected', true);
-      select.$().trigger('change');
-
-      equal(view.get('val'), 'w', "Updated bound property is correct");
-      equal(select.get('value'), 'w', "Updated selection is correct");
-      equal(selectEl.selectedIndex, 1, "The DOM is updated to reflect the new selection");
-    }
-
-    test("select element should correctly initialize and update selectedIndex and bound properties when using valueBinding (old xBinding='' syntax)", function() {
-      testValueBinding(
-        '{{view view.selectView viewName="select"' +
-        '    contentBinding="view.collection"' +
-        '    optionLabelPath="content.name"' +
-        '    optionValuePath="content.value"' +
-        '    prompt="Please wait..."' +
-        '    valueBinding="view.val"}}'
-      );
-    });
-
-    test("select element should correctly initialize and update selectedIndex and bound properties when using valueBinding (new quoteless binding shorthand)", function() {
-      testValueBinding(
-        '{{view view.selectView viewName="select"' +
-        '    content=view.collection' +
-        '    optionLabelPath="content.name"' +
-        '    optionValuePath="content.value"' +
-        '    prompt="Please wait..."' +
-        '    value=view.val}}'
-      );
-    });
-  });
-enifed("ember-views/tests/views/select_in_template_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-views/tests/views');
-    test('ember-views/tests/views/select_in_template_test.js should pass jshint', function() { 
-      ok(true, 'ember-views/tests/views/select_in_template_test.js should pass jshint.'); 
     });
   });
 enifed("ember-views/tests/views/select_test",
@@ -54808,22 +54777,16 @@ enifed("ember-views/tests/views/view/nearest_of_type_test.jshint",
     });
   });
 enifed("ember-views/tests/views/view/nested_view_ordering_test",
-  ["container","ember-metal/run_loop","ember-views/views/view","ember-handlebars-compiler","ember-htmlbars/system/compile"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
+  ["container","ember-metal/run_loop","ember-views/views/view","ember-handlebars-compiler"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
     var Container = __dependency1__["default"];
     var run = __dependency2__["default"];
 
     var EmberView = __dependency3__["default"];
     var EmberHandlebars = __dependency4__["default"];
-    var htmlbarsCompile = __dependency5__["default"];
 
-    var compile;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
-      compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
+    var compile = EmberHandlebars.compile;
 
     var container, view;
 
@@ -55107,8 +55070,8 @@ enifed("ember-views/tests/views/view/remove_test.jshint",
     });
   });
 enifed("ember-views/tests/views/view/render_test",
-  ["ember-metal/property_get","ember-metal/run_loop","ember-views/system/jquery","ember-views/views/view","ember-views/views/container_view","ember-handlebars-compiler","ember-htmlbars/system/compile"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
+  ["ember-metal/property_get","ember-metal/run_loop","ember-views/system/jquery","ember-views/views/view","ember-views/views/container_view","ember-handlebars-compiler"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
     var get = __dependency1__.get;
     var run = __dependency2__["default"];
@@ -55117,14 +55080,8 @@ enifed("ember-views/tests/views/view/render_test",
     var ContainerView = __dependency5__["default"];
 
     var EmberHandlebars = __dependency6__["default"];
-    var htmlbarsCompile = __dependency7__["default"];
 
-    var compile;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
-      compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
+    var compile = EmberHandlebars.compile;
 
     var view;
 
@@ -56644,22 +56601,15 @@ enifed("ember/tests/application_lifecycle.jshint",
     });
   });
 enifed("ember/tests/component_registration_test",
-  ["ember","ember-handlebars","ember-htmlbars/system/compile","ember-htmlbars/helpers"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+  ["ember","ember-handlebars"],
+  function(__dependency1__, __dependency2__) {
     "use strict";
 
     var EmberHandlebars = __dependency2__["default"];
-    var htmlbarsCompile = __dependency3__["default"];
-    var htmlbarsHelpers = __dependency4__["default"];
 
     var compile, helpers;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
-      compile = htmlbarsCompile;
-      helpers = htmlbarsHelpers;
-    } else {
-      compile = EmberHandlebars.compile;
-      helpers = EmberHandlebars.helpers;
-    }
+    compile = EmberHandlebars.compile;
+    helpers = EmberHandlebars.helpers;
 
     var App, container;
     var originalHelpers;
@@ -57043,25 +56993,16 @@ enifed("ember/tests/global-api-test.jshint",
     });
   });
 enifed("ember/tests/helpers/helper_registration_test",
-  ["ember","ember-handlebars","ember-htmlbars/system/compile","ember-htmlbars/helpers","ember-htmlbars/compat/make-bound-helper"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
+  ["ember","ember-handlebars"],
+  function(__dependency1__, __dependency2__) {
     "use strict";
 
     var EmberHandlebars = __dependency2__["default"];
-    var htmlbarsCompile = __dependency3__["default"];
-    var htmlbarsHelpers = __dependency4__["default"];
-    var htmlbarsMakeBoundHelper = __dependency5__["default"];
 
     var compile, helpers, makeBoundHelper;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
-      compile = htmlbarsCompile;
-      helpers = htmlbarsHelpers;
-      makeBoundHelper = htmlbarsMakeBoundHelper;
-    } else {
-      compile = EmberHandlebars.compile;
-      helpers = EmberHandlebars.helpers;
-      makeBoundHelper = EmberHandlebars.makeBoundHelper;
-    }
+    compile = EmberHandlebars.compile;
+    helpers = EmberHandlebars.helpers;
+    makeBoundHelper = EmberHandlebars.makeBoundHelper;
 
     var App, container;
 
@@ -57179,19 +57120,13 @@ enifed("ember/tests/helpers/helper_registration_test.jshint",
     });
   });
 enifed("ember/tests/helpers/link_to_test",
-  ["ember","ember-handlebars","ember-htmlbars/system/compile"],
-  function(__dependency1__, __dependency2__, __dependency3__) {
+  ["ember","ember-handlebars"],
+  function(__dependency1__, __dependency2__) {
     "use strict";
 
     var EmberHandlebars = __dependency2__["default"];
-    var htmlbarsCompile = __dependency3__["default"];
 
-    var compile;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
-      compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
+    var compile = EmberHandlebars.compile;
 
     var Router, App, AppView, router, container;
     var set = Ember.set;
@@ -58956,19 +58891,13 @@ enifed("ember/tests/helpers/link_to_test.jshint",
     });
   });
 enifed("ember/tests/homepage_example_test",
-  ["ember","ember-handlebars","ember-htmlbars/system/compile"],
-  function(__dependency1__, __dependency2__, __dependency3__) {
+  ["ember","ember-handlebars"],
+  function(__dependency1__, __dependency2__) {
     "use strict";
 
     var EmberHandlebars = __dependency2__["default"];
-    var htmlbarsCompile = __dependency3__["default"];
 
-    var compile;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
-      compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
+    var compile = EmberHandlebars.compile;
 
     var App, $fixture;
 
@@ -59121,8 +59050,8 @@ enifed("ember/tests/location_test.jshint",
     });
   });
 enifed("ember/tests/routing/basic_test",
-  ["ember","ember-metal/enumerable_utils","ember-metal/property_get","ember-metal/property_set","ember-views/system/action_manager","ember-handlebars","ember-htmlbars/system/compile"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
+  ["ember","ember-metal/enumerable_utils","ember-metal/property_get","ember-metal/property_set","ember-views/system/action_manager","ember-handlebars"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
     var forEach = __dependency2__.forEach;
     var get = __dependency3__.get;
@@ -59130,14 +59059,8 @@ enifed("ember/tests/routing/basic_test",
     var ActionManager = __dependency5__["default"];
 
     var EmberHandlebars = __dependency6__["default"];
-    var htmlbarsCompile = __dependency7__["default"];
 
-    var compile;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
-      compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
+    var compile = EmberHandlebars.compile;
 
     var Router, App, router, container, originalLoggerError;
 
@@ -62473,22 +62396,16 @@ enifed("ember/tests/routing/basic_test.jshint",
     });
   });
 enifed("ember/tests/routing/query_params_test",
-  ["ember","ember-metal/computed","ember-metal/platform","ember-runtime/system/string","ember-handlebars","ember-htmlbars/system/compile"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
+  ["ember","ember-metal/computed","ember-metal/platform","ember-runtime/system/string","ember-handlebars"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
     var computed = __dependency2__.computed;
     var canDefineNonEnumerableProperties = __dependency3__.canDefineNonEnumerableProperties;
     var capitalize = __dependency4__.capitalize;
 
     var EmberHandlebars = __dependency5__["default"];
-    var htmlbarsCompile = __dependency6__["default"];
 
-    var compile;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
-      compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
+    var compile = EmberHandlebars.compile;
 
     var Router, App, router, container;
     var get = Ember.get;
@@ -64114,19 +64031,13 @@ enifed("ember/tests/routing/query_params_test.jshint",
     });
   });
 enifed("ember/tests/routing/substates_test",
-  ["ember","ember-handlebars","ember-htmlbars/system/compile"],
-  function(__dependency1__, __dependency2__, __dependency3__) {
+  ["ember","ember-handlebars"],
+  function(__dependency1__, __dependency2__) {
     "use strict";
 
     var EmberHandlebars = __dependency2__["default"];
-    var htmlbarsCompile = __dependency3__["default"];
 
-    var compile;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
-      compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
+    var compile = EmberHandlebars.compile;
 
     var Router, App, templates, router, container, counter;
 
