@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.145cce31
+ * @version   1.10.0-beta.1+canary.d0f18fb1
  */
 
 (function() {
@@ -9887,7 +9887,7 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
 
     var view;
 
-    QUnit.module("Handlebars {{#if}} and {{#unless}} helpers", {
+    QUnit.module("ember-htmlbars: {{#if}} and {{#unless}} helpers", {
       teardown: function() {
         run(function() {
           if (view) {
