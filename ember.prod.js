@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.34ed9d9d
+ * @version   1.10.0-beta.1+canary.c8756c42
  */
 
 (function() {
@@ -7841,6 +7841,8 @@ enifed("ember-handlebars/loader",
     */
 
     onLoad('Ember.Application', function(Application) {
+      if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
+
       Application.initializer({
         name: 'domTemplates',
         initialize: _bootstrap
@@ -7851,6 +7853,8 @@ enifed("ember-handlebars/loader",
         after: 'domTemplates',
         initialize: registerComponentLookup
       });
+
+      }
     });
 
     __exports__["default"] = bootstrap;
@@ -7907,8 +7911,8 @@ enifed("ember-handlebars/templates/select",
     },"useData":true});
   });
 enifed("ember-htmlbars",
-  ["ember-metal/core","ember-htmlbars/hooks","morph","ember-htmlbars/system/template","ember-htmlbars/system/compile","ember-htmlbars/helpers","ember-htmlbars/compat/helper","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/bind-attr","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/partial","ember-htmlbars/helpers/template","ember-htmlbars/helpers/input","ember-htmlbars/helpers/text_area","ember-htmlbars/helpers/collection","ember-htmlbars/helpers/each","ember-htmlbars/helpers/unbound","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __exports__) {
+  ["ember-metal/core","ember-htmlbars/hooks","morph","ember-htmlbars/system/template","ember-htmlbars/system/compile","ember-htmlbars/helpers","ember-htmlbars/compat/helper","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/bind-attr","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/partial","ember-htmlbars/helpers/template","ember-htmlbars/helpers/input","ember-htmlbars/helpers/text_area","ember-htmlbars/helpers/collection","ember-htmlbars/helpers/each","ember-htmlbars/helpers/unbound","ember-htmlbars/system/bootstrap","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var content = __dependency2__.content;
@@ -7946,6 +7950,9 @@ enifed("ember-htmlbars",
     var preprocessArgumentsForEach = __dependency22__.preprocessArgumentsForEach;
     var unboundHelper = __dependency23__.unboundHelper;
     var preprocessArgumentsForUnbound = __dependency23__.preprocessArgumentsForUnbound;
+
+    // importing adds template bootstrapping
+    // initializer to enable embedded templates
 
     registerHelper('bindHelper', bindHelper);
     registerHelper('bind', bindHelper);
@@ -10873,6 +10880,108 @@ enifed("ember-htmlbars/hooks",
     }
 
     __exports__.subexpr = subexpr;
+  });
+enifed("ember-htmlbars/system/bootstrap",
+  ["ember-metal/core","ember-views/component_lookup","ember-views/system/jquery","ember-metal/error","ember-runtime/system/lazy_load","ember-htmlbars/system/compile","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+    "use strict";
+    /*globals Handlebars */
+
+    var Ember = __dependency1__["default"];
+    var ComponentLookup = __dependency2__["default"];
+    var jQuery = __dependency3__["default"];
+    var EmberError = __dependency4__["default"];
+    var onLoad = __dependency5__.onLoad;
+    var htmlbarsCompile = __dependency6__["default"];
+
+    /**
+    @module ember
+    @submodule ember-handlebars
+    */
+
+    /**
+      Find templates stored in the head tag as script tags and make them available
+      to `Ember.CoreView` in the global `Ember.TEMPLATES` object. This will be run
+      as as jQuery DOM-ready callback.
+
+      Script tags with `text/x-handlebars` will be compiled
+      with Ember's Handlebars and are suitable for use as a view's template.
+      Those with type `text/x-raw-handlebars` will be compiled with regular
+      Handlebars and are suitable for use in views' computed properties.
+
+      @private
+      @method bootstrap
+      @for Ember.Handlebars
+      @static
+      @param ctx
+    */
+    function bootstrap(ctx) {
+      var selectors = 'script[type="text/x-handlebars"], script[type="text/x-raw-handlebars"]';
+
+      jQuery(selectors, ctx)
+        .each(function() {
+        // Get a reference to the script tag
+        var script = jQuery(this);
+
+        var compile = (script.attr('type') === 'text/x-raw-handlebars') ?
+                      jQuery.proxy(Handlebars.compile, Handlebars) :
+                      htmlbarsCompile;
+        // Get the name of the script, used by Ember.View's templateName property.
+        // First look for data-template-name attribute, then fall back to its
+        // id if no name is found.
+        var templateName = script.attr('data-template-name') || script.attr('id') || 'application';
+        var template = compile(script.html());
+
+        // Check if template of same name already exists
+        if (Ember.TEMPLATES[templateName] !== undefined) {
+          throw new EmberError('Template named "' + templateName  + '" already exists.');
+        }
+
+        // For templates which have a name, we save them and then remove them from the DOM
+        Ember.TEMPLATES[templateName] = template;
+
+        // Remove script tag from DOM
+        script.remove();
+      });
+    }
+
+    function _bootstrap() {
+      bootstrap( jQuery(document) );
+    }
+
+    function registerComponentLookup(container) {
+      container.register('component-lookup:main', ComponentLookup);
+    }
+
+    /*
+      We tie this to application.load to ensure that we've at least
+      attempted to bootstrap at the point that the application is loaded.
+
+      We also tie this to document ready since we're guaranteed that all
+      the inline templates are present at this point.
+
+      There's no harm to running this twice, since we remove the templates
+      from the DOM after processing.
+    */
+
+    onLoad('Ember.Application', function(Application) {
+      if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+
+      Application.initializer({
+        name: 'domTemplates',
+        initialize: _bootstrap
+      });
+
+      Application.initializer({
+        name: 'registerComponentLookup',
+        after: 'domTemplates',
+        initialize: registerComponentLookup
+      });
+
+      }
+    });
+
+    __exports__["default"] = bootstrap;
   });
 enifed("ember-htmlbars/system/compile",
   ["htmlbars-compiler/compiler","ember-htmlbars/system/template","exports"],
@@ -14449,7 +14558,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.34ed9d9d
+      @version 1.10.0-beta.1+canary.c8756c42
     */
 
     if ('undefined' === typeof Ember) {
@@ -14476,10 +14585,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.34ed9d9d'
+      @default '1.10.0-beta.1+canary.c8756c42'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.34ed9d9d';
+    Ember.VERSION = '1.10.0-beta.1+canary.c8756c42';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
