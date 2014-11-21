@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.b1028aab
+ * @version   1.10.0-beta.1+canary.b1a0dda7
  */
 
 (function() {
@@ -8235,8 +8235,14 @@ enifed("ember-htmlbars/compat/precompile",
   function(__dependency1__, __exports__) {
     "use strict";
     var compile = __dependency1__.compile;
+    var compileSpec = __dependency1__.compileSpec;
 
-    __exports__["default"] = compile;
+    __exports__["default"] = function(string) {
+      var asObject = arguments[1] === undefined ? true : arguments[1];
+      var compileFunc = asObject ? compile : compileSpec;
+
+      return compileFunc(string);
+    }
   });
 enifed("ember-htmlbars/compat/register-bound-helper",
   ["ember-htmlbars/helpers","ember-htmlbars/compat/make-bound-helper","exports"],
@@ -14611,7 +14617,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.b1028aab
+      @version 1.10.0-beta.1+canary.b1a0dda7
     */
 
     if ('undefined' === typeof Ember) {
@@ -14638,10 +14644,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.b1028aab'
+      @default '1.10.0-beta.1+canary.b1a0dda7'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.b1028aab';
+    Ember.VERSION = '1.10.0-beta.1+canary.b1a0dda7';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`

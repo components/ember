@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.b1028aab
+ * @version   1.10.0-beta.1+canary.b1a0dda7
  */
 
 (function() {
@@ -4014,54 +4014,6 @@ enifed("ember-handlebars-compiler/tests/make_view_helper_test.jshint",
       ok(true, 'ember-handlebars-compiler/tests/make_view_helper_test.js should pass jshint.'); 
     });
   });
-enifed("ember-handlebars-compiler/tests/precompile_type_test",
-  ["ember-handlebars-compiler"],
-  function(__dependency1__) {
-    "use strict";
-    var EmberHandlebars = __dependency1__["default"];
-    var precompile = EmberHandlebars.precompile;
-    var parse = EmberHandlebars.parse;
-    var template = 'Hello World';
-    var result;
-
-    QUnit.module("Ember.Handlebars.precompileType");
-
-    if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
-      // precompile does not accept the same args with ember-htmlbars/system/compile
-      // Do we need to support `asObject` param?
-
-    test("precompile creates an object when asObject isn't defined", function(){
-      result = precompile(template);
-      equal(typeof(result), "object");
-    });
-
-    test("precompile creates an object when asObject is true", function(){
-      result = precompile(template, true);
-      equal(typeof(result), "object");
-    });
-
-    test("precompile creates a string when asObject is false", function(){
-      result = precompile(template, false);
-      equal(typeof(result), "string");
-    });
-
-    test("precompile creates an object when passed an AST", function(){
-      var ast = parse(template);
-      result = precompile(ast);
-      equal(typeof(result), "object");
-    });
-
-    }
-  });
-enifed("ember-handlebars-compiler/tests/precompile_type_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars-compiler/tests');
-    test('ember-handlebars-compiler/tests/precompile_type_test.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars-compiler/tests/precompile_type_test.js should pass jshint.'); 
-    });
-  });
 enifed("ember-handlebars.jshint",
   [],
   function() {
@@ -7307,6 +7259,59 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test.jshint",
     module('JSHint - ember-htmlbars/tests/compat');
     test('ember-htmlbars/tests/compat/make_bound_helper_test.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/tests/compat/make_bound_helper_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/tests/compat/precompile_test",
+  ["ember-handlebars-compiler"],
+  function(__dependency1__) {
+    "use strict";
+    var EmberHandlebars = __dependency1__["default"];
+    var precompile = EmberHandlebars.precompile;
+    var parse = EmberHandlebars.parse;
+    var template = 'Hello World';
+    var result;
+
+    QUnit.module("ember-htmlbars: Ember.Handlebars.precompile");
+
+    var templateType;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      templateType = 'function';
+    } else {
+      templateType = 'object';
+    }
+
+    test("precompile creates an object when asObject isn't defined", function(){
+      result = precompile(template);
+      equal(typeof(result), templateType);
+    });
+
+    test("precompile creates an object when asObject is true", function(){
+      result = precompile(template, true);
+      equal(typeof(result), templateType);
+    });
+
+    test("precompile creates a string when asObject is false", function(){
+      result = precompile(template, false);
+      equal(typeof(result), "string");
+    });
+
+    if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
+
+    test("precompile creates an object when passed an AST", function(){
+      var ast = parse(template);
+      result = precompile(ast);
+      equal(typeof(result), "object");
+    });
+
+    }
+  });
+enifed("ember-htmlbars/tests/compat/precompile_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/tests/compat');
+    test('ember-htmlbars/tests/compat/precompile_test.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/tests/compat/precompile_test.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/tests/helpers/bind_attr_test",
