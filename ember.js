@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.2c4e73cb
+ * @version   1.10.0-beta.1+canary.c98b3039
  */
 
 (function() {
@@ -11509,11 +11509,17 @@ enifed("ember-htmlbars/system/bootstrap",
     __exports__["default"] = bootstrap;
   });
 enifed("ember-htmlbars/system/compile",
-  ["htmlbars-compiler/compiler","ember-htmlbars/system/template","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["ember-metal/core","htmlbars-compiler/compiler","ember-htmlbars/system/template","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
-    var compile = __dependency1__.compile;
-    var template = __dependency2__["default"];
+    var Ember = __dependency1__["default"];
+    var compile = __dependency2__.compile;
+    var template = __dependency3__["default"];
+
+    var disableComponentGeneration = true;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars-component-generation')) {
+      disableComponentGeneration = false;
+    }
 
     /**
       Uses HTMLBars `compile` function to process a string into a compiled template.
@@ -11525,7 +11531,9 @@ enifed("ember-htmlbars/system/compile",
       @param {String} templateString This is the string to be compiled by HTMLBars.
     */
     __exports__["default"] = function(templateString) {
-      var templateSpec = compile(templateString);
+      var templateSpec = compile(templateString, {
+        disableComponentGeneration: disableComponentGeneration
+      });
 
       return template(templateSpec);
     }
@@ -15070,7 +15078,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.2c4e73cb
+      @version 1.10.0-beta.1+canary.c98b3039
     */
 
     if ('undefined' === typeof Ember) {
@@ -15097,10 +15105,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.2c4e73cb'
+      @default '1.10.0-beta.1+canary.c98b3039'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.2c4e73cb';
+    Ember.VERSION = '1.10.0-beta.1+canary.c98b3039';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.2c4e73cb
+ * @version   1.10.0-beta.1+canary.c98b3039
  */
 
 (function() {
@@ -12725,43 +12725,51 @@ enifed("ember-htmlbars/tests/hooks/component_test",
       run(function() { view.appendTo('#qunit-fixture'); });
     }
 
+    // this is working around a bug in defeatureify that prevents nested flags
+    // from being stripped
+    var componentGenerationEnabled = false;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars-component-generation')) {
+      componentGenerationEnabled = true;
+    }
+
     if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      if (componentGenerationEnabled) {
+        QUnit.module("ember-htmlbars: component hook", {
+          setup: function() {
+            container = generateContainer();
+          },
 
-    QUnit.module("ember-htmlbars: component hook", {
-      setup: function() {
-        container = generateContainer();
-      },
+          teardown: function(){
+            if (view) {
+              run(view, view.destroy);
+            }
+          }
+        });
 
-      teardown: function(){
-        if (view) {
-          run(view, view.destroy);
-        }
+        test("component is looked up from the container", function() {
+          container.register('template:components/foo-bar', compile('yippie!'));
+
+          view = EmberView.create({
+            container: container,
+            template: compile("<foo-bar />")
+          });
+
+          appendView(view);
+
+          equal(view.$().text(), 'yippie!', 'component was looked up and rendered');
+        });
+
+        test("asserts if component is not found", function() {
+          view = EmberView.create({
+            container: container,
+            template: compile("<foo-bar />")
+          });
+
+          expectAssertion(function() {
+            appendView(view);
+          }, 'You specified `foo-bar` in your template, but a component for `foo-bar` could not be found.');
+        });
       }
-    });
-
-    test("component is looked up from the container", function() {
-      container.register('template:components/foo-bar', compile('yippie!'));
-
-      view = EmberView.create({
-        container: container,
-        template: compile("<foo-bar />")
-      });
-
-      appendView(view);
-
-      equal(view.$().text(), 'yippie!', 'component was looked up and rendered');
-    });
-
-    test("asserts if component is not found", function() {
-      view = EmberView.create({
-        container: container,
-        template: compile("<foo-bar />")
-      });
-
-      expectAssertion(function() {
-        appendView(view);
-      }, 'You specified `foo-bar` in your template, but a component for `foo-bar` could not be found.');
-    });
     }
   });
 enifed("ember-htmlbars/tests/hooks/component_test.jshint",
