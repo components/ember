@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.b1a0dda7
+ * @version   1.10.0-beta.1+canary.3a61234d
  */
 
 (function() {
@@ -13763,28 +13763,28 @@ enifed("ember-htmlbars/tests/system/sanitize-for-helper_test",
       },
 
       teardown: function() {
-        ok(options.types, 'types is present');
+        ok(options.paramTypes, 'paramTypes is present');
         ok(options.hashTypes, 'hashTypes is present');
       }
     });
 
-    test('will not override `types` if present', function() {
+    test('will not override `paramTypes` if present', function() {
       expect(3);
 
-      var types = [];
-      options.types = types;
+      var paramTypes = [];
+      options.paramTypes = paramTypes;
 
       sanitizeOptionsForHelper(options);
 
-      equal(options.types, types, 'types is not changed when present');
+      equal(options.paramTypes, paramTypes, 'paramTypes is not changed when present');
     });
 
-    test('will add `types` if not present', function() {
+    test('will add `paramTypes` if not present', function() {
       expect(3);
 
       sanitizeOptionsForHelper(options);
 
-      deepEqual(options.types, [], 'types is added when not present');
+      deepEqual(options.paramTypes, [], 'paramTypes is added when not present');
     });
 
     test('will not override `hashTypes` if present', function() {

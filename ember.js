@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.b1a0dda7
+ * @version   1.10.0-beta.1+canary.3a61234d
  */
 
 (function() {
@@ -9245,7 +9245,7 @@ enifed("ember-htmlbars/helpers/binding",
 
       var property = params[0];
 
-      if (options.types[0] === 'string') {
+      if (options.paramTypes[0] === 'string') {
         property = this.getStream(property);
       }
 
@@ -9764,7 +9764,7 @@ enifed("ember-htmlbars/helpers/each",
       Ember.assert("If you pass more than one argument to the each helper," +
                    " it must be in the form #each foo in bar", params.length <= 1);
 
-      if (options.types[0] === 'keyword') {
+      if (options.paramTypes[0] === 'keyword') {
         keywordName = path.to;
 
         helperName += ' ' + keywordName + ' in ' + path.from;
@@ -9796,7 +9796,7 @@ enifed("ember-htmlbars/helpers/each",
           to: params[0],
           stream: view.getStream(params[2])
         });
-        options.types.splice(0, 3, 'keyword');
+        options.paramTypes.splice(0, 3, 'keyword');
       }
     }
 
@@ -10207,7 +10207,7 @@ enifed("ember-htmlbars/helpers/loc",
     function locHelper(params, hash, options, env) {
       Ember.assert('You cannot pass bindings to `loc` helper', function ifParamsContainBindings() {
         for (var i = 0, l = params.length; i < l; i++) {
-          if (options.types[i] === 'id') {
+          if (options.paramTypes[i] === 'id') {
             return false;
           }
         }
@@ -10246,7 +10246,7 @@ enifed("ember-htmlbars/helpers/log",
       var values = [];
 
       for (var i = 0; i < params.length; i++) {
-        if (options.types[i] === 'id') {
+        if (options.paramTypes[i] === 'id') {
           var stream = params[i];
           values.push(stream.value());
         } else {
@@ -10319,7 +10319,7 @@ enifed("ember-htmlbars/helpers/partial",
 
       options.helperName = options.helperName || 'partial';
 
-      if (options.types[0] === "id") {
+      if (options.paramTypes[0] === "id") {
         var partialNameStream = params[0];
         // Helper was passed a property path; we need to
         // create a binding that will re-render whenever
@@ -11136,13 +11136,13 @@ enifed("ember-htmlbars/helpers/with",
 
       var source, keyword;
       var preserveContext, context;
-      if (options.types[0] === 'id') {
+      if (options.paramTypes[0] === 'id') {
         Ember.deprecate('Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
 
         source = params[0];
         preserveContext = false;
         context = source.value();
-      } else if (options.types[0] === 'keyword') {
+      } else if (options.paramTypes[0] === 'keyword') {
         source = params[0].stream;
         keyword = params[0].to;
         context = this.get('context');
@@ -11168,7 +11168,7 @@ enifed("ember-htmlbars/helpers/with",
           stream: view.getStream(params[0])
         });
 
-        options.types.splice(0, 3, 'keyword');
+        options.paramTypes.splice(0, 3, 'keyword');
       }
     }
 
@@ -11299,11 +11299,12 @@ enifed("ember-htmlbars/hooks",
     var sanitizeOptionsForHelper = __dependency3__.sanitizeOptionsForHelper;
 
     function streamifyArgs(view, params, hash, options, env, helper) {
+      sanitizeOptionsForHelper(options);
       helper.preprocessArguments(view, params, hash, options, env);
 
       // Convert ID params to streams
       for (var i = 0, l = params.length; i < l; i++) {
-        if (options.types[i] === 'id') {
+        if (options.paramTypes[i] === 'id') {
           params[i] = view.getStream(params[i]);
         }
       }
@@ -11318,18 +11319,15 @@ enifed("ember-htmlbars/hooks",
     }
 
     function content(morph, path, view, params, hash, options, env) {
-      // TODO: just set escaped on the morph in HTMLBars
-      morph.escaped = options.escaped;
       var helper = lookupHelper(path, view, env);
       if (!helper) {
         helper = lookupHelper('bindHelper', view, env);
         // Modify params to include the first word
         params.unshift(path);
-        options.types = ['id'];
+        options.paramTypes = ['id'];
       }
 
       streamifyArgs(view, params, hash, options, env, helper);
-      sanitizeOptionsForHelper(options);
       return helper.helperFunction.call(view, params, hash, options, env);
     }
 
@@ -11340,7 +11338,6 @@ enifed("ember-htmlbars/hooks",
       Ember.assert('You specified `' + tagName + '` in your template, but a component for `' + tagName + '` could not be found.', !!helper);
 
       streamifyArgs(view, params, hash, options, env, helper);
-      sanitizeOptionsForHelper(options);
       return helper.helperFunction.call(view, params, hash, options, env);
     }
 
@@ -11349,7 +11346,6 @@ enifed("ember-htmlbars/hooks",
 
       if (helper) {
         streamifyArgs(view, params, hash, options, env, helper);
-        sanitizeOptionsForHelper(options);
         return helper.helperFunction.call(view, params, hash, options, env);
       } else {
         return view.getStream(path);
@@ -11361,7 +11357,6 @@ enifed("ember-htmlbars/hooks",
 
       if (helper) {
         streamifyArgs(view, params, hash, options, env, helper);
-        sanitizeOptionsForHelper(options);
         return helper.helperFunction.call(view, params, hash, options, env);
       } else {
         return view.getStream(path);
@@ -11672,8 +11667,8 @@ enifed("ember-htmlbars/system/sanitize-for-helper",
       @param {Object} options The options hash provided by the template engine.
     */
     function sanitizeOptionsForHelper(options) {
-      if (!options.types) {
-        options.types = [];
+      if (!options.paramTypes) {
+        options.paramTypes = [];
       }
 
       if (!options.hashTypes) {
@@ -11695,7 +11690,7 @@ enifed("ember-htmlbars/system/simple-bind",
     __exports__["default"] = function simpleBind(params, hash, options, env) {
       var lazyValue = params[0];
 
-      var view = new SimpleBoundView(lazyValue, options.escaped);
+      var view = new SimpleBoundView(lazyValue, options.morph.escaped);
 
       view._parentView = this;
       view._morph = options.morph;
@@ -11739,7 +11734,7 @@ enifed("ember-htmlbars/templates/select",
         }
         var cachedFragment;
         return function template(context, env, contextualElement) {
-          var dom = env.dom, hooks = env.hooks;
+          var dom = env.dom, hooks = env.hooks, get = env.get;
           dom.detectNamespace(contextualElement);
           if (cachedFragment === undefined) {
             cachedFragment = build(dom);
@@ -11747,11 +11742,11 @@ enifed("ember-htmlbars/templates/select",
           var fragment = dom.cloneNode(cachedFragment, true);
           var element0 = fragment;
           var morph0 = dom.createMorphAt(element0,-1,-1);
-          hooks.element(element0, "attribute", context, ["value",hooks.subexpr("concat", context, [], {},{types:[],hashTypes:{}}, env)], {}, {types:["string","sexpr"],hashTypes:{},element:element0}, env);
-          hooks.content(morph0, "view.prompt", context, [], {}, {escaped:true,morph:morph0}, env);
+          hooks.element(element0, "attribute", context, ["value",hooks.subexpr("concat", context, [], {},{type:"id",paramTypes:[],hashTypes:{}}, env)], {}, {type:"id",paramTypes:["string","sexpr"],hashTypes:{},element:element0}, env);
+          hooks.content(morph0, "view.prompt", context, [], {}, {type:"id",morph:morph0}, env);
           return fragment;
         };
-      }());
+      }())
       var child1 = (function() {
         var child0 = (function() {
           function build(dom) {
@@ -11764,7 +11759,7 @@ enifed("ember-htmlbars/templates/select",
           }
           var cachedFragment;
           return function template(context, env, contextualElement) {
-            var dom = env.dom, hooks = env.hooks;
+            var dom = env.dom, hooks = env.hooks, get = env.get;
             dom.detectNamespace(contextualElement);
             if (cachedFragment === undefined) {
               cachedFragment = build(dom);
@@ -11772,10 +11767,10 @@ enifed("ember-htmlbars/templates/select",
             var fragment = dom.cloneNode(cachedFragment, true);
             dom.repairClonedNode(fragment,[0,1]);
             var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
-            hooks.content(morph0, "view", context, ["view.groupView"], {"content":"group.content","label":"group.label"}, {types:["id"],hashTypes:{"content":"id","label":"id"},escaped:true,morph:morph0}, env);
+            hooks.content(morph0, "view", context, ["view.groupView"], {"content":"group.content","label":"group.label"}, {type:"id",paramTypes:["id"],hashTypes:{"content":"id","label":"id"},morph:morph0}, env);
             return fragment;
           };
-        }());
+        }())
         function build(dom) {
           var el0 = dom.createDocumentFragment();
           var el1 = dom.createTextNode("");
@@ -11786,7 +11781,7 @@ enifed("ember-htmlbars/templates/select",
         }
         var cachedFragment;
         return function template(context, env, contextualElement) {
-          var dom = env.dom, hooks = env.hooks;
+          var dom = env.dom, hooks = env.hooks, get = env.get;
           dom.detectNamespace(contextualElement);
           if (cachedFragment === undefined) {
             cachedFragment = build(dom);
@@ -11794,10 +11789,10 @@ enifed("ember-htmlbars/templates/select",
           var fragment = dom.cloneNode(cachedFragment, true);
           dom.repairClonedNode(fragment,[0,1]);
           var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
-          hooks.content(morph0, "each", context, ["group","in","view.groupedContent"], {}, {types:["id","id","id"],hashTypes:{},render:child0,escaped:true,morph:morph0}, env);
+          hooks.content(morph0, "each", context, ["group","in","view.groupedContent"], {}, {type:"id",paramTypes:["id","id","id"],hashTypes:{},render:child0,morph:morph0}, env);
           return fragment;
         };
-      }());
+      }())
       var child2 = (function() {
         var child0 = (function() {
           function build(dom) {
@@ -11810,7 +11805,7 @@ enifed("ember-htmlbars/templates/select",
           }
           var cachedFragment;
           return function template(context, env, contextualElement) {
-            var dom = env.dom, hooks = env.hooks;
+            var dom = env.dom, hooks = env.hooks, get = env.get;
             dom.detectNamespace(contextualElement);
             if (cachedFragment === undefined) {
               cachedFragment = build(dom);
@@ -11818,10 +11813,10 @@ enifed("ember-htmlbars/templates/select",
             var fragment = dom.cloneNode(cachedFragment, true);
             dom.repairClonedNode(fragment,[0,1]);
             var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
-            hooks.content(morph0, "view", context, ["view.optionView"], {"content":"item"}, {types:["id"],hashTypes:{"content":"id"},escaped:true,morph:morph0}, env);
+            hooks.content(morph0, "view", context, ["view.optionView"], {"content":"item"}, {type:"id",paramTypes:["id"],hashTypes:{"content":"id"},morph:morph0}, env);
             return fragment;
           };
-        }());
+        }())
         function build(dom) {
           var el0 = dom.createDocumentFragment();
           var el1 = dom.createTextNode("");
@@ -11832,7 +11827,7 @@ enifed("ember-htmlbars/templates/select",
         }
         var cachedFragment;
         return function template(context, env, contextualElement) {
-          var dom = env.dom, hooks = env.hooks;
+          var dom = env.dom, hooks = env.hooks, get = env.get;
           dom.detectNamespace(contextualElement);
           if (cachedFragment === undefined) {
             cachedFragment = build(dom);
@@ -11840,10 +11835,10 @@ enifed("ember-htmlbars/templates/select",
           var fragment = dom.cloneNode(cachedFragment, true);
           dom.repairClonedNode(fragment,[0,1]);
           var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
-          hooks.content(morph0, "each", context, ["item","in","view.content"], {}, {types:["id","id","id"],hashTypes:{},render:child0,escaped:true,morph:morph0}, env);
+          hooks.content(morph0, "each", context, ["item","in","view.content"], {}, {type:"id",paramTypes:["id","id","id"],hashTypes:{},render:child0,morph:morph0}, env);
           return fragment;
         };
-      }());
+      }())
       function build(dom) {
         var el0 = dom.createDocumentFragment();
         var el1 = dom.createTextNode("");
@@ -11856,7 +11851,7 @@ enifed("ember-htmlbars/templates/select",
       }
       var cachedFragment;
       return function template(context, env, contextualElement) {
-        var dom = env.dom, hooks = env.hooks;
+        var dom = env.dom, hooks = env.hooks, get = env.get;
         dom.detectNamespace(contextualElement);
         if (cachedFragment === undefined) {
           cachedFragment = build(dom);
@@ -11865,11 +11860,11 @@ enifed("ember-htmlbars/templates/select",
         dom.repairClonedNode(fragment,[0,1]);
         var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
         var morph1 = dom.createMorphAt(fragment,1,2,contextualElement);
-        hooks.content(morph0, "if", context, ["view.prompt"], {}, {types:["id"],hashTypes:{},render:child0,escaped:true,morph:morph0}, env);
-        hooks.content(morph1, "if", context, ["view.optionGroupPath"], {}, {types:["id"],hashTypes:{},render:child1,inverse:child2,escaped:true,morph:morph1}, env);
+        hooks.content(morph0, "if", context, ["view.prompt"], {}, {type:"id",paramTypes:["id"],hashTypes:{},render:child0,morph:morph0}, env);
+        hooks.content(morph1, "if", context, ["view.optionGroupPath"], {}, {type:"id",paramTypes:["id"],hashTypes:{},render:child1,inverse:child2,morph:morph1}, env);
         return fragment;
       };
-    }());;
+    }());
      __exports__["default"] = template(t);
   });
 enifed("ember-htmlbars/utils/string",
@@ -15057,7 +15052,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.b1a0dda7
+      @version 1.10.0-beta.1+canary.3a61234d
     */
 
     if ('undefined' === typeof Ember) {
@@ -15084,10 +15079,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.b1a0dda7'
+      @default '1.10.0-beta.1+canary.3a61234d'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.b1a0dda7';
+    Ember.VERSION = '1.10.0-beta.1+canary.3a61234d';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -23659,7 +23654,7 @@ enifed("ember-routing-htmlbars/helpers/link-to",
     */
     function linkToHelper(params, hash, options, env) {
       var hashTypes = options.hashTypes;
-      var types = options.types;
+      var paramTypes = options.paramTypes;
       var shouldEscape = !hash.unescaped;
       var queryParamsObject;
 
@@ -23681,7 +23676,7 @@ enifed("ember-routing-htmlbars/helpers/link-to",
 
       if (!options.render) {
         var linkTitle = params.shift();
-        var linkTitleType = types.shift();
+        var linkTitleType = paramTypes.shift();
 
         if (linkTitleType === 'id') {
           hash.linkTitle = linkTitle = linkTitle;
@@ -23705,7 +23700,7 @@ enifed("ember-routing-htmlbars/helpers/link-to",
       }
 
       for (var i = 0; i < params.length; i++) {
-        if (types[i] === 'id') {
+        if (paramTypes[i] === 'id') {
           var lazyValue = params[i];
 
           if (!lazyValue._isController) {
@@ -23829,7 +23824,7 @@ enifed("ember-routing-htmlbars/helpers/outlet",
 
       Ember.assert(
         "Using {{outlet}} with an unquoted name is not supported.",
-        params.length === 0 || options.types[0] === 'string'
+        params.length === 0 || options.paramTypes[0] === 'string'
       );
 
       var property = params[0] || 'main';
@@ -23857,7 +23852,7 @@ enifed("ember-routing-htmlbars/helpers/outlet",
       }
 
       viewClass = viewName ? this.container.lookupFactory(viewFullName) : hash.viewClass || OutletView;
-      options.types = ['id'];
+      options.paramTypes = ['id'];
 
       hash.currentViewBinding = '_view.outletSource._outlets.' + property;
       options.hashTypes.currentViewBinding = 'string';
@@ -24003,12 +23998,12 @@ enifed("ember-routing-htmlbars/helpers/render",
 
       Ember.assert(
         "The first argument of {{render}} must be quoted, e.g. {{render \"sidebar\"}}.",
-        options.types[0] === 'string'
+        options.paramTypes[0] === 'string'
       );
 
       Ember.assert(
         "The second argument of {{render}} must be a path, e.g. {{render \"post\" post}}.",
-        params.length < 2 || options.types[1] === 'id'
+        params.length < 2 || options.paramTypes[1] === 'id'
       );
 
 
@@ -52183,15 +52178,16 @@ enifed("htmlbars-compiler/ast",
     __exports__.HashNode = HashNode;var IdNode = AST.IdNode;
     __exports__.IdNode = IdNode;var StringNode = AST.StringNode;
     __exports__.StringNode = StringNode;
-    function ProgramNode(statements, strip) {
+    function ProgramNode(statements, blockParams, strip) {
       this.type = 'program';
       this.statements = statements;
+      this.blockParams = blockParams;
       this.strip = strip;
     }
 
-    __exports__.ProgramNode = ProgramNode;function BlockNode(mustache, program, inverse, strip) {
+    __exports__.ProgramNode = ProgramNode;function BlockNode(sexpr, program, inverse, strip) {
       this.type = 'block';
-      this.mustache = mustache;
+      this.sexpr = sexpr;
       this.program = program;
       this.inverse = inverse;
       this.strip = strip;
@@ -52235,7 +52231,12 @@ enifed("htmlbars-compiler/ast",
       this.chars = chars;
     }
 
-    __exports__.TextNode = TextNode;function childrenFor(node) {
+    __exports__.TextNode = TextNode;function CommentNode(chars) {
+      this.type = 'comment';
+      this.chars = chars;
+    }
+
+    __exports__.CommentNode = CommentNode;function childrenFor(node) {
       if (node.type === 'program') {
         return node.statements;
       }
@@ -52465,11 +52466,13 @@ enifed("htmlbars-compiler/compiler/helpers",
     var hash = __dependency1__.hash;
 
     function prepareHelper(stack, size) {
-      var args = [],
-          types = [],
+      var params = [],
+          paramTypes = [],
           hashPairs = [],
           hashTypes = [],
           keyName,
+          name,
+          type,
           i;
 
       var hashSize = stack.pop();
@@ -52481,14 +52484,20 @@ enifed("htmlbars-compiler/compiler/helpers",
       }
 
       for (i=0; i<size; i++) {
-        args.unshift(stack.pop());
-        types.unshift(stack.pop());
+        params.unshift(stack.pop());
+        paramTypes.unshift(stack.pop());
       }
+
+      name = stack.pop();
+      type = stack.pop();
 
       var programId = stack.pop();
       var inverseId = stack.pop();
 
-      var options = ['types:' + array(types), 'hashTypes:' + hash(hashTypes)];
+      var options = [];
+      options.push('type:' + type);
+      options.push('paramTypes:' + array(paramTypes));
+      options.push('hashTypes:' + hash(hashTypes));
 
       if (programId !== null) {
         options.push('render:child' + programId);
@@ -52499,9 +52508,10 @@ enifed("htmlbars-compiler/compiler/helpers",
       }
 
       return {
-        options: options,
-        args: array(args),
-        hash: hash(hashPairs)
+        name: name,
+        params: array(params),
+        hash: hash(hashPairs),
+        options: options
       };
     }
 
@@ -52573,6 +52583,17 @@ enifed("htmlbars-compiler/compiler/hydration",
       this.stack.push(string(parts.join('.')));
     };
 
+    prototype.scopeId = function(parts) {
+      this.stack.push(string('value'));
+      var id = '$' + parts[0];
+      var path = parts.slice(1).join('.');
+      if (parts.length === 1) {
+        this.stack.push(id);
+      } else {
+        this.stack.push('get(' + id + ', ' + string(path) + ')');
+      }
+    };
+
     prototype.literal = function(literal) {
       this.stack.push(string(typeof literal));
       this.stack.push(literal);
@@ -52587,56 +52608,59 @@ enifed("htmlbars-compiler/compiler/hydration",
       this.stack.push(literal);
     };
 
-    prototype.helper = function(name, size, escaped, morphNum) {
+    prototype.helper = function(size, morphNum) {
       var prepared = prepareHelper(this.stack, size);
-      prepared.options.push('escaped:'+escaped);
       prepared.options.push('morph:morph'+morphNum);
-      this.pushMustacheInContent(string(name), prepared.args, prepared.hash, prepared.options, morphNum);
+      this.pushMustacheInContent(prepared.name, prepared.params, prepared.hash, prepared.options, morphNum);
     };
 
-    prototype.component = function(tag, morphNum) {
+    prototype.component = function(morphNum) {
       var prepared = prepareHelper(this.stack, 0);
       prepared.options.push('morph:morph'+morphNum);
-      this.pushComponent(string(tag), prepared.hash, prepared.options, morphNum);
+      this.pushComponent(prepared.name, prepared.hash, prepared.options, morphNum);
     };
 
-    prototype.ambiguous = function(str, escaped, morphNum) {
+    prototype.ambiguous = function(morphNum) {
+      var name = this.stack.pop();
+      var type = this.stack.pop();
       var options = [];
-      options.push('escaped:'+escaped);
+      options.push('type:'+type);
       options.push('morph:morph'+morphNum);
-      this.pushMustacheInContent(string(str), '[]', '{}', options, morphNum);
+      this.pushMustacheInContent(name, '[]', '{}', options, morphNum);
     };
 
-    prototype.ambiguousAttr = function(str, escaped) {
-      this.stack.push('['+string(str)+', [], {escaped:'+escaped+'}]');
+    prototype.ambiguousAttr = function() {
+      var name = this.stack.pop();
+      var type = this.stack.pop();
+      this.stack.push('[' + name + ', [], {}, { type: ' + type + ' }]');
     };
 
-    prototype.helperAttr = function(name, size, escaped) {
+    prototype.helperAttr = function(size) {
       var prepared = prepareHelper(this.stack, size);
-      prepared.options.push('escaped:'+escaped);
-      this.stack.push('['+string(name)+','+prepared.args+','+ prepared.hash +',' + hash(prepared.options)+']');
+      this.stack.push('['+prepared.name+','+prepared.params+','+ prepared.hash +',' + hash(prepared.options)+']');
     };
 
-    prototype.sexpr = function(name, size) {
+    prototype.sexpr = function(size) {
       var prepared = prepareHelper(this.stack, size);
-      this.stack.push('hooks.subexpr(' + string(name) + ', context, ' + prepared.args + ', ' + prepared.hash + ',' + hash(prepared.options) + ', env)');
+      this.stack.push('hooks.subexpr(' + prepared.name + ', context, ' + prepared.params + ', ' + prepared.hash + ',' + hash(prepared.options) + ', env)');
     };
 
     prototype.string = function(str) {
       this.stack.push(string(str));
     };
 
-    prototype.nodeHelper = function(name, size, elementNum) {
+    prototype.nodeHelper = function(size, elementNum) {
       var prepared = prepareHelper(this.stack, size);
       prepared.options.push('element:element'+elementNum);
-      this.pushMustacheInNode(string(name), prepared.args, prepared.hash, prepared.options, elementNum);
+      this.pushMustacheInNode(prepared.name, prepared.params, prepared.hash, prepared.options, elementNum);
     };
 
-    prototype.morph = function(num, parentPath, startIndex, endIndex) {
+    prototype.morph = function(num, parentPath, startIndex, endIndex, escaped) {
       var isRoot = parentPath.length === 0;
       var parent = this.getParent();
 
-      var morph = "dom.createMorphAt("+parent+
+      var morphMethod = escaped ? 'createMorphAt' : 'createUnsafeMorphAt';
+      var morph = "dom."+morphMethod+"("+parent+
         ","+(startIndex === null ? "-1" : startIndex)+
         ","+(endIndex === null ? "-1" : endIndex)+
         (isRoot ? ",contextualElement)" : ")");
@@ -52732,13 +52756,14 @@ enifed("htmlbars-compiler/compiler/hydration_opcode",
       return this.opcodes;
     };
 
-    HydrationOpcodeCompiler.prototype.startProgram = function(p, c, blankChildTextNodes) {
+    HydrationOpcodeCompiler.prototype.startProgram = function(program, c, blankChildTextNodes, scopeVars) {
       this.opcodes.length = 0;
       this.paths.length = 0;
       this.morphs.length = 0;
       this.templateId = 0;
       this.currentDOMChildIndex = -1;
       this.morphNum = 0;
+      this.scopeVars = scopeVars;
 
       if (blankChildTextNodes.length > 0){
         this.opcode( 'repairClonedNode',
@@ -52791,18 +52816,17 @@ enifed("htmlbars-compiler/compiler/hydration_opcode",
 
     HydrationOpcodeCompiler.prototype.block = function(block, childIndex, childrenLength) {
       var currentDOMChildIndex = this.currentDOMChildIndex,
-          mustache = block.mustache;
+          sexpr = block.sexpr;
 
       var start = (currentDOMChildIndex < 0 ? null : currentDOMChildIndex),
           end = (childIndex === childrenLength - 1 ? null : currentDOMChildIndex + 1);
 
       var morphNum = this.morphNum++;
-      this.morphs.push([morphNum, this.paths.slice(), start, end]);
+      this.morphs.push([morphNum, this.paths.slice(), start, end, true]);
 
       this.opcode('program', this.templateId++, block.inverse === null ? null : this.templateId++);
-      processParams(this, mustache.params);
-      processHash(this, mustache.hash);
-      this.opcode('helper', mustache.id.string, mustache.params.length, mustache.escaped, morphNum);
+      processSexpr(this, sexpr);
+      this.opcode('helper', sexpr.params.length, morphNum);
     };
 
     HydrationOpcodeCompiler.prototype.component = function(component, childIndex, childrenLength) {
@@ -52814,9 +52838,15 @@ enifed("htmlbars-compiler/compiler/hydration_opcode",
       var morphNum = this.morphNum++;
       this.morphs.push([morphNum, this.paths.slice(), start, end]);
 
+      var id = {
+        string: component.tag,
+        parts: component.tag.split('.')
+      };
+
       this.opcode('program', this.templateId++, null);
+      this.ID(id);
       processHash(this, buildHashFromAttributes(component.attributes));
-      this.opcode('component', component.tag, morphNum);
+      this.opcode('component', morphNum);
     };
 
     HydrationOpcodeCompiler.prototype.opcode = function(type) {
@@ -52833,24 +52863,27 @@ enifed("htmlbars-compiler/compiler/hydration_opcode",
       // <p {{attribute 'class' 'foo ' (bar)}}></p>
       // Unwrapped any mustaches to just be their internal sexprs.
       this.nodeHelper({
-        params: [attr.name, attr.value.sexpr],
-        hash: null,
-        id: {
-          string: 'attribute'
+        sexpr: {
+          params: [attr.name, attr.value.sexpr],
+          hash: null,
+          id: {
+            string: 'attribute',
+            parts: ['attribute']
+          }
         }
       });
     };
 
     HydrationOpcodeCompiler.prototype.nodeHelper = function(mustache) {
+      var sexpr = mustache.sexpr;
       this.opcode('program', null, null);
-      processParams(this, mustache.params);
-      processHash(this, mustache.hash);
+      processSexpr(this, sexpr);
       // If we have a helper in a node, and this element has not been cached, cache it
       if(this.element !== null){
         this.opcode('element', ++this.elementNum);
         this.element = null; // Reset element so we don't cache it more than once
       }
-      this.opcode('nodeHelper', mustache.id.string, mustache.params.length, this.elementNum);
+      this.opcode('nodeHelper', sexpr.params.length, this.elementNum);
     };
 
     HydrationOpcodeCompiler.prototype.mustache = function(mustache, childIndex, childrenLength) {
@@ -52860,24 +52893,23 @@ enifed("htmlbars-compiler/compiler/hydration_opcode",
           end = (childIndex === childrenLength - 1 ? -1 : currentDOMChildIndex + 1);
 
       var morphNum = this.morphNum++;
-      this.morphs.push([morphNum, this.paths.slice(), start, end]);
+      this.morphs.push([morphNum, this.paths.slice(), start, end, mustache.escaped]);
 
       if (mustache.isHelper) {
         this.opcode('program', null, null);
-        processParams(this, mustache.params);
-        processHash(this, mustache.hash);
-        this.opcode('helper', mustache.id.string, mustache.params.length, mustache.escaped, morphNum);
+        processSexpr(this, mustache);
+        this.opcode('helper', mustache.params.length, morphNum);
       } else {
-        this.opcode('ambiguous', mustache.id.string, mustache.escaped, morphNum);
+        this.ID(mustache.id);
+        this.opcode('ambiguous', morphNum);
       }
     };
 
     HydrationOpcodeCompiler.prototype.sexpr = function(sexpr) {
       this.string('sexpr');
       this.opcode('program', null, null);
-      processParams(this, sexpr.params);
-      processHash(this, sexpr.hash);
-      this.opcode('sexpr', sexpr.id.string, sexpr.params.length);
+      processSexpr(this, sexpr);
+      this.opcode('sexpr', sexpr.params.length);
     };
 
     HydrationOpcodeCompiler.prototype.string = function(str) {
@@ -52887,16 +52919,20 @@ enifed("htmlbars-compiler/compiler/hydration_opcode",
     HydrationOpcodeCompiler.prototype.mustacheInAttr = function(mustache) {
       if (mustache.isHelper) {
         this.opcode('program', null, null);
-        processParams(this, mustache.params);
-        processHash(this, mustache.hash);
-        this.opcode('helperAttr', mustache.id.string, mustache.params.length, mustache.escaped);
+        processSexpr(this, mustache);
+        this.opcode('helperAttr', mustache.params.length);
       } else {
-        this.opcode('ambiguousAttr', mustache.id.string, mustache.escaped);
+        this.ID(mustache.id);
+        this.opcode('ambiguousAttr');
       }
     };
 
     HydrationOpcodeCompiler.prototype.ID = function(id) {
-      this.opcode('id', id.parts);
+      if (id.parts.length > 0 && this.scopeVars[id.parts[0]]) {
+        this.opcode('scopeId', id.parts);
+      } else {
+        this.opcode('id', id.parts);
+      }
     };
 
     HydrationOpcodeCompiler.prototype.STRING = function(string) {
@@ -52907,9 +52943,19 @@ enifed("htmlbars-compiler/compiler/hydration_opcode",
       this.opcode('literal', boolean.stringModeValue);
     };
 
-    HydrationOpcodeCompiler.prototype.INTEGER = function(integer) {
+    HydrationOpcodeCompiler.prototype.NUMBER = function(integer) {
       this.opcode('literal', integer.stringModeValue);
     };
+
+    function processSexpr(compiler, sexpr) {
+      processName(compiler, sexpr.id);
+      processParams(compiler, sexpr.params);
+      processHash(compiler, sexpr.hash);
+    }
+
+    function processName(compiler, id) {
+      compiler.ID(id);
+    }
 
     function processParams(compiler, params) {
       forEach(params, function(param) {
@@ -52952,8 +52998,7 @@ enifed("htmlbars-compiler/compiler/hydration_opcode",
 
       var spliceArgs = [o + 1, 0];
       for (var i = 0; i < morphs.length; ++i) {
-        var p = morphs[i];
-        spliceArgs.push(['morph', [p[0], p[1], p[2], p[3]]]);
+        spliceArgs.push(['morph', morphs[i].slice()]);
       }
       opcodes.splice.apply(opcodes, spliceArgs);
       morphs.length = 0;
@@ -53031,14 +53076,44 @@ enifed("htmlbars-compiler/compiler/template",
       return this.templates.pop();
     };
 
-    TemplateCompiler.prototype.startProgram = function(program, childTemplateCount, blankChildTextNodes) {
-      this.fragmentOpcodeCompiler.startProgram(program, childTemplateCount, blankChildTextNodes);
-      this.hydrationOpcodeCompiler.startProgram(program, childTemplateCount, blankChildTextNodes);
+    TemplateCompiler.prototype.startProgram = function(program, childTemplateCount, blankChildTextNodes, scopeVars) {
+      this.fragmentOpcodeCompiler.startProgram(program, childTemplateCount, blankChildTextNodes, scopeVars);
+      this.hydrationOpcodeCompiler.startProgram(program, childTemplateCount, blankChildTextNodes, scopeVars);
 
       this.childTemplates.length = 0;
       while(childTemplateCount--) {
         this.childTemplates.push(this.templates.pop());
       }
+    };
+
+    TemplateCompiler.prototype.getScopeVars = function(indent, blockParams) {
+      var vars = '';
+      if (blockParams) {
+        for (var i = 0; i < blockParams.length; i++) {
+          vars += indent + 'var $' + blockParams[i] + ';\n';
+        }
+      }
+      return vars;
+    };
+
+    TemplateCompiler.prototype.getChildTemplateVars = function(indent) {
+      var vars = '';
+      if (this.childTemplates) {
+        for (var i = 0; i < this.childTemplates.length; i++) {
+          vars += indent + 'var child' + i + ' = ' + this.childTemplates[i] + '\n';
+        }
+      }
+      return vars;
+    };
+
+    TemplateCompiler.prototype.getScopeAssignments = function(indent, blockParams) {
+      var assignments = '';
+      if (blockParams) {
+        for (var i = 0; i < blockParams.length; i++) {
+          assignments += indent + '$' + blockParams[i] + ' = blockArguments[' + i + '];\n';
+        }
+      }
+      return assignments;
     };
 
     TemplateCompiler.prototype.endProgram = function(program, programDepth) {
@@ -53062,18 +53137,23 @@ enifed("htmlbars-compiler/compiler/template",
         options
       );
 
-      var childTemplateVars = "";
-      for (var i=0, l=this.childTemplates.length; i<l; i++) {
-        childTemplateVars += indent+'  var child' + i + ' = ' + this.childTemplates[i] + '\n';
+      var blockParams = program.blockParams;
+      var hasBlockParams = blockParams && blockParams.length > 0;
+
+      var templateSignature = 'context, env, contextualElement';
+      if (hasBlockParams) {
+        templateSignature += ', blockArguments';
       }
 
       var template =
         '(function() {\n' +
-        childTemplateVars +
+        this.getScopeVars(indent + '  ', blockParams) +
+        this.getChildTemplateVars(indent + '  ') +
         fragmentProgram +
         indent+'  var cachedFragment;\n' +
-        indent+'  return function template(context, env, contextualElement) {\n' +
-        indent+'    var dom = env.dom, hooks = env.hooks;\n' +
+        indent+'  return function template(' + templateSignature + ') {\n' +
+        indent+'    var dom = env.dom, hooks = env.hooks, get = env.get;\n' +
+        this.getScopeAssignments(indent + '    ', blockParams) +
         indent+'    dom.detectNamespace(contextualElement);\n' +
         indent+'    if (cachedFragment === undefined) {\n' +
         indent+'      cachedFragment = build(dom);\n' +
@@ -53082,7 +53162,7 @@ enifed("htmlbars-compiler/compiler/template",
         hydrationProgram +
         indent+'    return fragment;\n' +
         indent+'  };\n' +
-        indent+'}());';
+        indent+'}())';
 
       this.templates.push(template);
     };
@@ -53145,6 +53225,7 @@ enifed("htmlbars-compiler/compiler/template_visitor",
       this.childCount = null;
       this.childTemplateCount = 0;
       this.mustacheCount = 0;
+      this.scopeVars = null;
       this.actions = [];
     }
 
@@ -53215,6 +53296,19 @@ enifed("htmlbars-compiler/compiler/template_visitor",
 
       var parentFrame = this.getCurrentFrame();
       var programFrame = this.pushFrame();
+      programFrame.scopeVars = {};
+
+      if (parentFrame && parentFrame.scopeVars) {
+        for (var name in parentFrame.scopeVars) {
+          programFrame.scopeVars[name] = true;
+        }
+      }
+
+      if (program.blockParams) {
+        for (var j = 0; j < program.blockParams.length; j++) {
+          programFrame.scopeVars[program.blockParams[j]] = true;
+        }
+      }
 
       programFrame.parentNode = program;
       programFrame.children = program.statements;
@@ -53228,7 +53322,10 @@ enifed("htmlbars-compiler/compiler/template_visitor",
       }
 
       programFrame.actions.push(['startProgram', [
-        program, programFrame.childTemplateCount, programFrame.blankChildTextNodes.reverse() ]]);
+        program, programFrame.childTemplateCount,
+        programFrame.blankChildTextNodes.reverse(),
+        programFrame.scopeVars
+      ]]);
       this.popFrame();
 
       this.programDepth--;
@@ -53395,7 +53492,7 @@ enifed("htmlbars-compiler/handlebars/compiler/ast",
     "use strict";
     var Exception = __dependency1__["default"];
 
-    function LocationInfo(locInfo){
+    function LocationInfo(locInfo) {
       locInfo = locInfo || {};
       this.firstLine   = locInfo.first_line;
       this.firstColumn = locInfo.first_column;
@@ -53404,38 +53501,12 @@ enifed("htmlbars-compiler/handlebars/compiler/ast",
     }
 
     var AST = {
-      ProgramNode: function(statements, inverseStrip, inverse, locInfo) {
-        var inverseLocationInfo, firstInverseNode;
-        if (arguments.length === 3) {
-          locInfo = inverse;
-          inverse = null;
-        } else if (arguments.length === 2) {
-          locInfo = inverseStrip;
-          inverseStrip = null;
-        }
-
+      ProgramNode: function(statements, blockParams, strip, locInfo) {
         LocationInfo.call(this, locInfo);
         this.type = "program";
         this.statements = statements;
-        this.strip = {};
-
-        if(inverse) {
-          firstInverseNode = inverse[0];
-          if (firstInverseNode) {
-            inverseLocationInfo = {
-              first_line: firstInverseNode.firstLine,
-              last_line: firstInverseNode.lastLine,
-              last_column: firstInverseNode.lastColumn,
-              first_column: firstInverseNode.firstColumn
-            };
-            this.inverse = new AST.ProgramNode(inverse, inverseStrip, inverseLocationInfo);
-          } else {
-            this.inverse = new AST.ProgramNode(inverse, inverseStrip);
-          }
-          this.strip.right = inverseStrip.left;
-        } else if (inverseStrip) {
-          this.strip.left = inverseStrip.right;
-        }
+        this.blockParams = blockParams;
+        this.strip = strip;
       },
 
       MustacheNode: function(rawParams, hash, open, strip, locInfo) {
@@ -53459,8 +53530,6 @@ enifed("htmlbars-compiler/handlebars/compiler/ast",
           this.sexpr = new AST.SexprNode(rawParams, hash);
         }
 
-        this.sexpr.isRoot = true;
-
         // Support old AST API that stored this info in MustacheNode
         this.id = this.sexpr.id;
         this.params = this.sexpr.params;
@@ -53478,47 +53547,39 @@ enifed("htmlbars-compiler/handlebars/compiler/ast",
         var id = this.id = rawParams[0];
         var params = this.params = rawParams.slice(1);
 
-        // a mustache is an eligible helper if:
-        // * its id is simple (a single part, not `this` or `..`)
-        var eligibleHelper = this.eligibleHelper = id.isSimple;
-
         // a mustache is definitely a helper if:
         // * it is an eligible helper, and
         // * it has at least one parameter or hash segment
-        this.isHelper = eligibleHelper && (params.length || hash);
+        this.isHelper = !!(params.length || hash);
+
+        // a mustache is an eligible helper if:
+        // * its id is simple (a single part, not `this` or `..`)
+        this.eligibleHelper = this.isHelper || id.isSimple;
 
         // if a mustache is an eligible helper but not a definite
         // helper, it is ambiguous, and will be resolved in a later
         // pass or at runtime.
       },
 
-      PartialNode: function(partialName, context, strip, locInfo) {
+      PartialNode: function(partialName, context, hash, strip, locInfo) {
         LocationInfo.call(this, locInfo);
         this.type         = "partial";
         this.partialName  = partialName;
         this.context      = context;
+        this.hash = hash;
         this.strip = strip;
+
+        this.strip.inlineStandalone = true;
       },
 
-      BlockNode: function(mustache, program, inverse, close, locInfo) {
+      BlockNode: function(sexpr, program, inverse, strip, locInfo) {
         LocationInfo.call(this, locInfo);
 
-        if(mustache.sexpr.id.original !== close.path.original) {
-          throw new Exception(mustache.sexpr.id.original + " doesn't match " + close.path.original, this);
-        }
-
         this.type = 'block';
-        this.mustache = mustache;
+        this.sexpr = sexpr;
         this.program  = program;
         this.inverse  = inverse;
-
-        this.strip = {
-          left: mustache.strip.left,
-          right: close.strip.right
-        };
-
-        (program || inverse).strip.left = mustache.strip.right;
-        (inverse || program).strip.right = close.strip.left;
+        this.strip = strip;
 
         if (inverse && !program) {
           this.isInverse = true;
@@ -53528,7 +53589,7 @@ enifed("htmlbars-compiler/handlebars/compiler/ast",
       ContentNode: function(string, locInfo) {
         LocationInfo.call(this, locInfo);
         this.type = "content";
-        this.string = string;
+        this.original = this.string = string;
       },
 
       HashNode: function(pairs, locInfo) {
@@ -53543,7 +53604,8 @@ enifed("htmlbars-compiler/handlebars/compiler/ast",
 
         var original = "",
             dig = [],
-            depth = 0;
+            depth = 0,
+            depthString = '';
 
         for(var i=0,l=parts.length; i<l; i++) {
           var part = parts[i].part;
@@ -53554,6 +53616,7 @@ enifed("htmlbars-compiler/handlebars/compiler/ast",
               throw new Exception("Invalid path: " + original, this);
             } else if (part === "..") {
               depth++;
+              depthString += '../';
             } else {
               this.isScoped = true;
             }
@@ -53566,6 +53629,7 @@ enifed("htmlbars-compiler/handlebars/compiler/ast",
         this.parts    = dig;
         this.string   = dig.join('.');
         this.depth    = depth;
+        this.idName   = depthString + this.string;
 
         // an ID is simple if it only has one part, and that part is not
         // `..` or `this`.
@@ -53584,6 +53648,8 @@ enifed("htmlbars-compiler/handlebars/compiler/ast",
         LocationInfo.call(this, locInfo);
         this.type = "DATA";
         this.id = id;
+        this.stringModeValue = id.stringModeValue;
+        this.idName = '@' + id.stringModeValue;
       },
 
       StringNode: function(string, locInfo) {
@@ -53594,12 +53660,12 @@ enifed("htmlbars-compiler/handlebars/compiler/ast",
           this.stringModeValue = string;
       },
 
-      IntegerNode: function(integer, locInfo) {
+      NumberNode: function(number, locInfo) {
         LocationInfo.call(this, locInfo);
-        this.type = "INTEGER";
+        this.type = "NUMBER";
         this.original =
-          this.integer = integer;
-        this.stringModeValue = Number(integer);
+          this.number = number;
+        this.stringModeValue = Number(number);
       },
 
       BooleanNode: function(bool, locInfo) {
@@ -53609,144 +53675,412 @@ enifed("htmlbars-compiler/handlebars/compiler/ast",
         this.stringModeValue = bool === "true";
       },
 
-      CommentNode: function(comment, locInfo) {
+      CommentNode: function(comment, strip, locInfo) {
         LocationInfo.call(this, locInfo);
         this.type = "comment";
         this.comment = comment;
+
+        this.strip = strip;
+        strip.inlineStandalone = true;
       }
     };
+
 
     // Must be exported as an object rather than the root of the module as the jison lexer
     // most modify the object to operate properly.
     __exports__["default"] = AST;
   });
 enifed("htmlbars-compiler/handlebars/compiler/base",
-  ["./parser","./ast","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["./parser","./ast","./helpers","../utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     var parser = __dependency1__["default"];
     var AST = __dependency2__["default"];
+    var Helpers = __dependency3__;
+    var extend = __dependency4__.extend;
 
     __exports__.parser = parser;
 
+    var yy = {};
+    extend(yy, Helpers, AST);
+
     function parse(input) {
       // Just return if an already-compile AST was passed in.
-      if(input.constructor === AST.ProgramNode) { return input; }
+      if (input.constructor === AST.ProgramNode) { return input; }
 
-      parser.yy = AST;
+      parser.yy = yy;
+
       return parser.parse(input);
     }
 
     __exports__.parse = parse;
+  });
+enifed("htmlbars-compiler/handlebars/compiler/helpers",
+  ["../exception","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    var Exception = __dependency1__["default"];
+
+    function stripFlags(open, close) {
+      return {
+        left: open.charAt(2) === '~',
+        right: close.charAt(close.length-3) === '~'
+      };
+    }
+
+    __exports__.stripFlags = stripFlags;function stripComment(comment) {
+      return comment.replace(/^\{\{~?\!-?-?/, '')
+                    .replace(/-?-?~?\}\}$/, '');
+    }
+
+    __exports__.stripComment = stripComment;function prepareRawBlock(openRawBlock, content, close, locInfo) {
+      /*jshint -W040 */
+      if (openRawBlock.sexpr.id.original !== close) {
+        var errorNode = {
+          firstLine: openRawBlock.sexpr.firstLine,
+          firstColumn: openRawBlock.sexpr.firstColumn
+        };
+
+        throw new Exception(openRawBlock.sexpr.id.original + " doesn't match " + close, errorNode);
+      }
+
+      var program = new this.ProgramNode([content], null, {}, locInfo);
+
+      return new this.BlockNode(openRawBlock.sexpr, program, undefined, undefined, locInfo);
+    }
+
+    __exports__.prepareRawBlock = prepareRawBlock;function prepareBlock(openBlock, program, inverseAndProgram, close, inverted, locInfo) {
+      /*jshint -W040 */
+      // When we are chaining inverse calls, we will not have a close path
+      if (close && close.path && openBlock.sexpr.id.original !== close.path.original) {
+        var errorNode = {
+          firstLine: openBlock.sexpr.firstLine,
+          firstColumn: openBlock.sexpr.firstColumn
+        };
+
+        throw new Exception(openBlock.sexpr.id.original + ' doesn\'t match ' + close.path.original, errorNode);
+      }
+
+      program.blockParams = openBlock.blockParams;
+
+      // Safely handle a chained inverse that does not have a non-conditional inverse
+      // (i.e. both inverseAndProgram AND close are undefined)
+      if (!close) {
+        close = {strip: {}};
+      }
+
+      // Find the inverse program that is involed with whitespace stripping.
+      var inverse = inverseAndProgram && inverseAndProgram.program,
+          firstInverse = inverse,
+          lastInverse = inverse;
+      if (inverse && inverse.inverse) {
+        firstInverse = inverse.statements[0].program;
+
+        // Walk the inverse chain to find the last inverse that is actually in the chain.
+        while (lastInverse.inverse) {
+          lastInverse = lastInverse.statements[lastInverse.statements.length-1].program;
+        }
+      }
+
+      var strip = {
+        left: openBlock.strip.left,
+        right: close.strip.right,
+
+        // Determine the standalone candiacy. Basically flag our content as being possibly standalone
+        // so our parent can determine if we actually are standalone
+        openStandalone: isNextWhitespace(program.statements),
+        closeStandalone: isPrevWhitespace((firstInverse || program).statements)
+      };
+
+      if (openBlock.strip.right) {
+        omitRight(program.statements, null, true);
+      }
+
+      if (inverse) {
+        var inverseStrip = inverseAndProgram.strip;
+
+        if (inverseStrip.left) {
+          omitLeft(program.statements, null, true);
+        }
+
+        if (inverseStrip.right) {
+          omitRight(firstInverse.statements, null, true);
+        }
+        if (close.strip.left) {
+          omitLeft(lastInverse.statements, null, true);
+        }
+
+        // Find standalone else statments
+        if (isPrevWhitespace(program.statements)
+            && isNextWhitespace(firstInverse.statements)) {
+
+          omitLeft(program.statements);
+          omitRight(firstInverse.statements);
+        }
+      } else {
+        if (close.strip.left) {
+          omitLeft(program.statements, null, true);
+        }
+      }
+
+      if (inverted) {
+        return new this.BlockNode(openBlock.sexpr, inverse, program, strip, locInfo);
+      } else {
+        return new this.BlockNode(openBlock.sexpr, program, inverse, strip, locInfo);
+      }
+    }
+
+    __exports__.prepareBlock = prepareBlock;
+    function prepareProgram(statements, isRoot) {
+      for (var i = 0, l = statements.length; i < l; i++) {
+        var current = statements[i],
+            strip = current.strip;
+
+        if (!strip) {
+          continue;
+        }
+
+        var _isPrevWhitespace = isPrevWhitespace(statements, i, isRoot, current.type === 'partial'),
+            _isNextWhitespace = isNextWhitespace(statements, i, isRoot),
+
+            openStandalone = strip.openStandalone && _isPrevWhitespace,
+            closeStandalone = strip.closeStandalone && _isNextWhitespace,
+            inlineStandalone = strip.inlineStandalone && _isPrevWhitespace && _isNextWhitespace;
+
+        if (strip.right) {
+          omitRight(statements, i, true);
+        }
+        if (strip.left) {
+          omitLeft(statements, i, true);
+        }
+
+        if (inlineStandalone) {
+          omitRight(statements, i);
+
+          if (omitLeft(statements, i)) {
+            // If we are on a standalone node, save the indent info for partials
+            if (current.type === 'partial') {
+              // Pull out the whitespace from the final line
+              current.indent = (/([ \t]+$)/).exec(statements[i-1].original)[1];
+            }
+          }
+        }
+        if (openStandalone) {
+          omitRight((current.program || current.inverse).statements);
+
+          // Strip out the previous content node if it's whitespace only
+          omitLeft(statements, i);
+        }
+        if (closeStandalone) {
+          // Always strip the next node
+          omitRight(statements, i);
+
+          omitLeft((current.inverse || current.program).statements);
+        }
+      }
+
+      return statements;
+    }
+
+    __exports__.prepareProgram = prepareProgram;function isPrevWhitespace(statements, i, isRoot) {
+      if (i === undefined) {
+        i = statements.length;
+      }
+
+      // Nodes that end with newlines are considered whitespace (but are special
+      // cased for strip operations)
+      var prev = statements[i-1],
+          sibling = statements[i-2];
+      if (!prev) {
+        return isRoot;
+      }
+
+      if (prev.type === 'content') {
+        return (sibling || !isRoot ? (/\r?\n\s*?$/) : (/(^|\r?\n)\s*?$/)).test(prev.original);
+      }
+    }
+    function isNextWhitespace(statements, i, isRoot) {
+      if (i === undefined) {
+        i = -1;
+      }
+
+      var next = statements[i+1],
+          sibling = statements[i+2];
+      if (!next) {
+        return isRoot;
+      }
+
+      if (next.type === 'content') {
+        return (sibling || !isRoot ? (/^\s*?\r?\n/) : (/^\s*?(\r?\n|$)/)).test(next.original);
+      }
+    }
+
+    // Marks the node to the right of the position as omitted.
+    // I.e. {{foo}}' ' will mark the ' ' node as omitted.
+    //
+    // If i is undefined, then the first child will be marked as such.
+    //
+    // If mulitple is truthy then all whitespace will be stripped out until non-whitespace
+    // content is met.
+    function omitRight(statements, i, multiple) {
+      var current = statements[i == null ? 0 : i + 1];
+      if (!current || current.type !== 'content' || (!multiple && current.rightStripped)) {
+        return;
+      }
+
+      var original = current.string;
+      current.string = current.string.replace(multiple ? (/^\s+/) : (/^[ \t]*\r?\n?/), '');
+      current.rightStripped = current.string !== original;
+    }
+
+    // Marks the node to the left of the position as omitted.
+    // I.e. ' '{{foo}} will mark the ' ' node as omitted.
+    //
+    // If i is undefined then the last child will be marked as such.
+    //
+    // If mulitple is truthy then all whitespace will be stripped out until non-whitespace
+    // content is met.
+    function omitLeft(statements, i, multiple) {
+      var current = statements[i == null ? statements.length - 1 : i - 1];
+      if (!current || current.type !== 'content' || (!multiple && current.leftStripped)) {
+        return;
+      }
+
+      // We omit the last node if it's whitespace only and not preceeded by a non-content node.
+      var original = current.string;
+      current.string = current.string.replace(multiple ? (/\s+$/) : (/[ \t]+$/), '');
+      current.leftStripped = current.string !== original;
+      return current.leftStripped;
+    }
   });
 enifed("htmlbars-compiler/handlebars/compiler/parser",
   ["exports"],
   function(__exports__) {
     "use strict";
     /* jshint ignore:start */
+    /* istanbul ignore next */
     /* Jison generated parser */
     var handlebars = (function(){
     var parser = {trace: function trace() { },
     yy: {},
-    symbols_: {"error":2,"root":3,"statements":4,"EOF":5,"program":6,"simpleInverse":7,"statement":8,"openInverse":9,"closeBlock":10,"openBlock":11,"mustache":12,"partial":13,"CONTENT":14,"COMMENT":15,"OPEN_BLOCK":16,"sexpr":17,"CLOSE":18,"OPEN_INVERSE":19,"OPEN_ENDBLOCK":20,"path":21,"OPEN":22,"OPEN_UNESCAPED":23,"CLOSE_UNESCAPED":24,"OPEN_PARTIAL":25,"partialName":26,"partial_option0":27,"sexpr_repetition0":28,"sexpr_option0":29,"dataName":30,"param":31,"STRING":32,"INTEGER":33,"BOOLEAN":34,"OPEN_SEXPR":35,"CLOSE_SEXPR":36,"hash":37,"hash_repetition_plus0":38,"hashSegment":39,"ID":40,"EQUALS":41,"DATA":42,"pathSegments":43,"SEP":44,"$accept":0,"$end":1},
-    terminals_: {2:"error",5:"EOF",14:"CONTENT",15:"COMMENT",16:"OPEN_BLOCK",18:"CLOSE",19:"OPEN_INVERSE",20:"OPEN_ENDBLOCK",22:"OPEN",23:"OPEN_UNESCAPED",24:"CLOSE_UNESCAPED",25:"OPEN_PARTIAL",32:"STRING",33:"INTEGER",34:"BOOLEAN",35:"OPEN_SEXPR",36:"CLOSE_SEXPR",40:"ID",41:"EQUALS",42:"DATA",44:"SEP"},
-    productions_: [0,[3,2],[3,1],[6,2],[6,3],[6,2],[6,1],[6,1],[6,0],[4,1],[4,2],[8,3],[8,3],[8,1],[8,1],[8,1],[8,1],[11,3],[9,3],[10,3],[12,3],[12,3],[13,4],[7,2],[17,3],[17,1],[31,1],[31,1],[31,1],[31,1],[31,1],[31,3],[37,1],[39,3],[26,1],[26,1],[26,1],[30,2],[21,1],[43,3],[43,1],[27,0],[27,1],[28,0],[28,2],[29,0],[29,1],[38,1],[38,2]],
+    symbols_: {"error":2,"root":3,"program":4,"EOF":5,"program_repetition0":6,"statement":7,"mustache":8,"block":9,"rawBlock":10,"partial":11,"content":12,"COMMENT":13,"CONTENT":14,"openRawBlock":15,"END_RAW_BLOCK":16,"OPEN_RAW_BLOCK":17,"sexpr":18,"CLOSE_RAW_BLOCK":19,"openBlock":20,"block_option0":21,"closeBlock":22,"openInverse":23,"block_option1":24,"OPEN_BLOCK":25,"openBlock_option0":26,"CLOSE":27,"OPEN_INVERSE":28,"openInverse_option0":29,"openInverseChain":30,"OPEN_INVERSE_CHAIN":31,"inverseAndProgram":32,"INVERSE":33,"inverseChain":34,"inverseChain_option0":35,"OPEN_ENDBLOCK":36,"path":37,"OPEN":38,"OPEN_UNESCAPED":39,"CLOSE_UNESCAPED":40,"OPEN_PARTIAL":41,"partialName":42,"param":43,"partial_option0":44,"partial_option1":45,"sexpr_repetition0":46,"sexpr_option0":47,"dataName":48,"STRING":49,"NUMBER":50,"BOOLEAN":51,"OPEN_SEXPR":52,"CLOSE_SEXPR":53,"hash":54,"hash_repetition_plus0":55,"hashSegment":56,"ID":57,"EQUALS":58,"blockParams":59,"OPEN_BLOCK_PARAMS":60,"blockParams_repetition_plus0":61,"CLOSE_BLOCK_PARAMS":62,"DATA":63,"pathSegments":64,"SEP":65,"$accept":0,"$end":1},
+    terminals_: {2:"error",5:"EOF",13:"COMMENT",14:"CONTENT",16:"END_RAW_BLOCK",17:"OPEN_RAW_BLOCK",19:"CLOSE_RAW_BLOCK",25:"OPEN_BLOCK",27:"CLOSE",28:"OPEN_INVERSE",31:"OPEN_INVERSE_CHAIN",33:"INVERSE",36:"OPEN_ENDBLOCK",38:"OPEN",39:"OPEN_UNESCAPED",40:"CLOSE_UNESCAPED",41:"OPEN_PARTIAL",49:"STRING",50:"NUMBER",51:"BOOLEAN",52:"OPEN_SEXPR",53:"CLOSE_SEXPR",57:"ID",58:"EQUALS",60:"OPEN_BLOCK_PARAMS",62:"CLOSE_BLOCK_PARAMS",63:"DATA",65:"SEP"},
+    productions_: [0,[3,2],[4,1],[7,1],[7,1],[7,1],[7,1],[7,1],[7,1],[12,1],[10,3],[15,3],[9,4],[9,4],[20,4],[23,4],[30,3],[32,2],[34,3],[34,1],[22,3],[8,3],[8,3],[11,5],[11,4],[18,3],[18,1],[43,1],[43,1],[43,1],[43,1],[43,1],[43,3],[54,1],[56,3],[59,3],[42,1],[42,1],[42,1],[48,2],[37,1],[64,3],[64,1],[6,0],[6,2],[21,0],[21,1],[24,0],[24,1],[26,0],[26,1],[29,0],[29,1],[35,0],[35,1],[44,0],[44,1],[45,0],[45,1],[46,0],[46,2],[47,0],[47,1],[55,1],[55,2],[61,1],[61,2]],
     performAction: function anonymous(yytext,yyleng,yylineno,yy,yystate,$$,_$) {
 
     var $0 = $$.length - 1;
     switch (yystate) {
-    case 1: return new yy.ProgramNode($$[$0-1], this._$); 
+    case 1: yy.prepareProgram($$[$0-1].statements, true); return $$[$0-1]; 
     break;
-    case 2: return new yy.ProgramNode([], this._$); 
+    case 2:this.$ = new yy.ProgramNode(yy.prepareProgram($$[$0]), null, {}, this._$);
     break;
-    case 3:this.$ = new yy.ProgramNode([], $$[$0-1], $$[$0], this._$);
+    case 3:this.$ = $$[$0];
     break;
-    case 4:this.$ = new yy.ProgramNode($$[$0-2], $$[$0-1], $$[$0], this._$);
+    case 4:this.$ = $$[$0];
     break;
-    case 5:this.$ = new yy.ProgramNode($$[$0-1], $$[$0], [], this._$);
+    case 5:this.$ = $$[$0];
     break;
-    case 6:this.$ = new yy.ProgramNode($$[$0], this._$);
+    case 6:this.$ = $$[$0];
     break;
-    case 7:this.$ = new yy.ProgramNode([], this._$);
+    case 7:this.$ = $$[$0];
     break;
-    case 8:this.$ = new yy.ProgramNode([], this._$);
+    case 8:this.$ = new yy.CommentNode(yy.stripComment($$[$0]), yy.stripFlags($$[$0], $$[$0]), this._$);
     break;
-    case 9:this.$ = [$$[$0]];
+    case 9:this.$ = new yy.ContentNode($$[$0], this._$);
     break;
-    case 10: $$[$0-1].push($$[$0]); this.$ = $$[$0-1]; 
+    case 10:this.$ = yy.prepareRawBlock($$[$0-2], $$[$0-1], $$[$0], this._$);
     break;
-    case 11:this.$ = new yy.BlockNode($$[$0-2], $$[$0-1].inverse, $$[$0-1], $$[$0], this._$);
+    case 11:this.$ = { sexpr: $$[$0-1] };
     break;
-    case 12:this.$ = new yy.BlockNode($$[$0-2], $$[$0-1], $$[$0-1].inverse, $$[$0], this._$);
+    case 12:this.$ = yy.prepareBlock($$[$0-3], $$[$0-2], $$[$0-1], $$[$0], false, this._$);
     break;
-    case 13:this.$ = $$[$0];
+    case 13:this.$ = yy.prepareBlock($$[$0-3], $$[$0-2], $$[$0-1], $$[$0], true, this._$);
     break;
-    case 14:this.$ = $$[$0];
+    case 14:this.$ = { sexpr: $$[$0-2], blockParams: $$[$0-1], strip: yy.stripFlags($$[$0-3], $$[$0]) };
     break;
-    case 15:this.$ = new yy.ContentNode($$[$0], this._$);
+    case 15:this.$ = { sexpr: $$[$0-2], blockParams: $$[$0-1], strip: yy.stripFlags($$[$0-3], $$[$0]) };
     break;
-    case 16:this.$ = new yy.CommentNode($$[$0], this._$);
+    case 16:this.$ = new yy.MustacheNode($$[$0-1], null, $$[$0-2], yy.stripFlags($$[$0-2], $$[$0]), this._$);
     break;
-    case 17:this.$ = new yy.MustacheNode($$[$0-1], null, $$[$0-2], stripFlags($$[$0-2], $$[$0]), this._$);
+    case 17:this.$ = { strip: yy.stripFlags($$[$0-1], $$[$0-1]), program: $$[$0] };
     break;
-    case 18:this.$ = new yy.MustacheNode($$[$0-1], null, $$[$0-2], stripFlags($$[$0-2], $$[$0]), this._$);
+    case 18:
+        var inverse = yy.prepareBlock($$[$0-2], $$[$0-1], $$[$0], $$[$0], false, this._$),
+            program = new yy.ProgramNode(yy.prepareProgram([inverse]), null, {}, this._$);
+
+        program.inverse = inverse;
+
+        this.$ = { strip: $$[$0-2].strip, program: program, chain: true };
+      
     break;
-    case 19:this.$ = {path: $$[$0-1], strip: stripFlags($$[$0-2], $$[$0])};
+    case 19:this.$ = $$[$0];
     break;
-    case 20:this.$ = new yy.MustacheNode($$[$0-1], null, $$[$0-2], stripFlags($$[$0-2], $$[$0]), this._$);
+    case 20:this.$ = {path: $$[$0-1], strip: yy.stripFlags($$[$0-2], $$[$0])};
     break;
-    case 21:this.$ = new yy.MustacheNode($$[$0-1], null, $$[$0-2], stripFlags($$[$0-2], $$[$0]), this._$);
+    case 21:this.$ = new yy.MustacheNode($$[$0-1], null, $$[$0-2], yy.stripFlags($$[$0-2], $$[$0]), this._$);
     break;
-    case 22:this.$ = new yy.PartialNode($$[$0-2], $$[$0-1], stripFlags($$[$0-3], $$[$0]), this._$);
+    case 22:this.$ = new yy.MustacheNode($$[$0-1], null, $$[$0-2], yy.stripFlags($$[$0-2], $$[$0]), this._$);
     break;
-    case 23:this.$ = stripFlags($$[$0-1], $$[$0]);
+    case 23:this.$ = new yy.PartialNode($$[$0-3], $$[$0-2], $$[$0-1], yy.stripFlags($$[$0-4], $$[$0]), this._$);
     break;
-    case 24:this.$ = new yy.SexprNode([$$[$0-2]].concat($$[$0-1]), $$[$0], this._$);
+    case 24:this.$ = new yy.PartialNode($$[$0-2], undefined, $$[$0-1], yy.stripFlags($$[$0-3], $$[$0]), this._$);
     break;
-    case 25:this.$ = new yy.SexprNode([$$[$0]], null, this._$);
+    case 25:this.$ = new yy.SexprNode([$$[$0-2]].concat($$[$0-1]), $$[$0], this._$);
     break;
-    case 26:this.$ = $$[$0];
+    case 26:this.$ = new yy.SexprNode([$$[$0]], null, this._$);
     break;
-    case 27:this.$ = new yy.StringNode($$[$0], this._$);
+    case 27:this.$ = $$[$0];
     break;
-    case 28:this.$ = new yy.IntegerNode($$[$0], this._$);
+    case 28:this.$ = new yy.StringNode($$[$0], this._$);
     break;
-    case 29:this.$ = new yy.BooleanNode($$[$0], this._$);
+    case 29:this.$ = new yy.NumberNode($$[$0], this._$);
     break;
-    case 30:this.$ = $$[$0];
+    case 30:this.$ = new yy.BooleanNode($$[$0], this._$);
     break;
-    case 31:$$[$0-1].isHelper = true; this.$ = $$[$0-1];
+    case 31:this.$ = $$[$0];
     break;
-    case 32:this.$ = new yy.HashNode($$[$0], this._$);
+    case 32:$$[$0-1].isHelper = true; this.$ = $$[$0-1];
     break;
-    case 33:this.$ = [$$[$0-2], $$[$0]];
+    case 33:this.$ = new yy.HashNode($$[$0], this._$);
     break;
-    case 34:this.$ = new yy.PartialNameNode($$[$0], this._$);
+    case 34:this.$ = [$$[$0-2], $$[$0]];
     break;
-    case 35:this.$ = new yy.PartialNameNode(new yy.StringNode($$[$0], this._$), this._$);
+    case 35:this.$ = $$[$0-1];
     break;
-    case 36:this.$ = new yy.PartialNameNode(new yy.IntegerNode($$[$0], this._$));
+    case 36:this.$ = new yy.PartialNameNode($$[$0], this._$);
     break;
-    case 37:this.$ = new yy.DataNode($$[$0], this._$);
+    case 37:this.$ = new yy.PartialNameNode(new yy.StringNode($$[$0], this._$), this._$);
     break;
-    case 38:this.$ = new yy.IdNode($$[$0], this._$);
+    case 38:this.$ = new yy.PartialNameNode(new yy.NumberNode($$[$0], this._$));
     break;
-    case 39: $$[$0-2].push({part: $$[$0], separator: $$[$0-1]}); this.$ = $$[$0-2]; 
+    case 39:this.$ = new yy.DataNode($$[$0], this._$);
     break;
-    case 40:this.$ = [{part: $$[$0]}];
+    case 40:this.$ = new yy.IdNode($$[$0], this._$);
+    break;
+    case 41: $$[$0-2].push({part: $$[$0], separator: $$[$0-1]}); this.$ = $$[$0-2]; 
+    break;
+    case 42:this.$ = [{part: $$[$0]}];
     break;
     case 43:this.$ = [];
     break;
     case 44:$$[$0-1].push($$[$0]);
     break;
-    case 47:this.$ = [$$[$0]];
+    case 59:this.$ = [];
     break;
-    case 48:$$[$0-1].push($$[$0]);
+    case 60:$$[$0-1].push($$[$0]);
+    break;
+    case 63:this.$ = [$$[$0]];
+    break;
+    case 64:$$[$0-1].push($$[$0]);
+    break;
+    case 65:this.$ = [$$[$0]];
+    break;
+    case 66:$$[$0-1].push($$[$0]);
     break;
     }
     },
-    table: [{3:1,4:2,5:[1,3],8:4,9:5,11:6,12:7,13:8,14:[1,9],15:[1,10],16:[1,12],19:[1,11],22:[1,13],23:[1,14],25:[1,15]},{1:[3]},{5:[1,16],8:17,9:5,11:6,12:7,13:8,14:[1,9],15:[1,10],16:[1,12],19:[1,11],22:[1,13],23:[1,14],25:[1,15]},{1:[2,2]},{5:[2,9],14:[2,9],15:[2,9],16:[2,9],19:[2,9],20:[2,9],22:[2,9],23:[2,9],25:[2,9]},{4:20,6:18,7:19,8:4,9:5,11:6,12:7,13:8,14:[1,9],15:[1,10],16:[1,12],19:[1,21],20:[2,8],22:[1,13],23:[1,14],25:[1,15]},{4:20,6:22,7:19,8:4,9:5,11:6,12:7,13:8,14:[1,9],15:[1,10],16:[1,12],19:[1,21],20:[2,8],22:[1,13],23:[1,14],25:[1,15]},{5:[2,13],14:[2,13],15:[2,13],16:[2,13],19:[2,13],20:[2,13],22:[2,13],23:[2,13],25:[2,13]},{5:[2,14],14:[2,14],15:[2,14],16:[2,14],19:[2,14],20:[2,14],22:[2,14],23:[2,14],25:[2,14]},{5:[2,15],14:[2,15],15:[2,15],16:[2,15],19:[2,15],20:[2,15],22:[2,15],23:[2,15],25:[2,15]},{5:[2,16],14:[2,16],15:[2,16],16:[2,16],19:[2,16],20:[2,16],22:[2,16],23:[2,16],25:[2,16]},{17:23,21:24,30:25,40:[1,28],42:[1,27],43:26},{17:29,21:24,30:25,40:[1,28],42:[1,27],43:26},{17:30,21:24,30:25,40:[1,28],42:[1,27],43:26},{17:31,21:24,30:25,40:[1,28],42:[1,27],43:26},{21:33,26:32,32:[1,34],33:[1,35],40:[1,28],43:26},{1:[2,1]},{5:[2,10],14:[2,10],15:[2,10],16:[2,10],19:[2,10],20:[2,10],22:[2,10],23:[2,10],25:[2,10]},{10:36,20:[1,37]},{4:38,8:4,9:5,11:6,12:7,13:8,14:[1,9],15:[1,10],16:[1,12],19:[1,11],20:[2,7],22:[1,13],23:[1,14],25:[1,15]},{7:39,8:17,9:5,11:6,12:7,13:8,14:[1,9],15:[1,10],16:[1,12],19:[1,21],20:[2,6],22:[1,13],23:[1,14],25:[1,15]},{17:23,18:[1,40],21:24,30:25,40:[1,28],42:[1,27],43:26},{10:41,20:[1,37]},{18:[1,42]},{18:[2,43],24:[2,43],28:43,32:[2,43],33:[2,43],34:[2,43],35:[2,43],36:[2,43],40:[2,43],42:[2,43]},{18:[2,25],24:[2,25],36:[2,25]},{18:[2,38],24:[2,38],32:[2,38],33:[2,38],34:[2,38],35:[2,38],36:[2,38],40:[2,38],42:[2,38],44:[1,44]},{21:45,40:[1,28],43:26},{18:[2,40],24:[2,40],32:[2,40],33:[2,40],34:[2,40],35:[2,40],36:[2,40],40:[2,40],42:[2,40],44:[2,40]},{18:[1,46]},{18:[1,47]},{24:[1,48]},{18:[2,41],21:50,27:49,40:[1,28],43:26},{18:[2,34],40:[2,34]},{18:[2,35],40:[2,35]},{18:[2,36],40:[2,36]},{5:[2,11],14:[2,11],15:[2,11],16:[2,11],19:[2,11],20:[2,11],22:[2,11],23:[2,11],25:[2,11]},{21:51,40:[1,28],43:26},{8:17,9:5,11:6,12:7,13:8,14:[1,9],15:[1,10],16:[1,12],19:[1,11],20:[2,3],22:[1,13],23:[1,14],25:[1,15]},{4:52,8:4,9:5,11:6,12:7,13:8,14:[1,9],15:[1,10],16:[1,12],19:[1,11],20:[2,5],22:[1,13],23:[1,14],25:[1,15]},{14:[2,23],15:[2,23],16:[2,23],19:[2,23],20:[2,23],22:[2,23],23:[2,23],25:[2,23]},{5:[2,12],14:[2,12],15:[2,12],16:[2,12],19:[2,12],20:[2,12],22:[2,12],23:[2,12],25:[2,12]},{14:[2,18],15:[2,18],16:[2,18],19:[2,18],20:[2,18],22:[2,18],23:[2,18],25:[2,18]},{18:[2,45],21:56,24:[2,45],29:53,30:60,31:54,32:[1,57],33:[1,58],34:[1,59],35:[1,61],36:[2,45],37:55,38:62,39:63,40:[1,64],42:[1,27],43:26},{40:[1,65]},{18:[2,37],24:[2,37],32:[2,37],33:[2,37],34:[2,37],35:[2,37],36:[2,37],40:[2,37],42:[2,37]},{14:[2,17],15:[2,17],16:[2,17],19:[2,17],20:[2,17],22:[2,17],23:[2,17],25:[2,17]},{5:[2,20],14:[2,20],15:[2,20],16:[2,20],19:[2,20],20:[2,20],22:[2,20],23:[2,20],25:[2,20]},{5:[2,21],14:[2,21],15:[2,21],16:[2,21],19:[2,21],20:[2,21],22:[2,21],23:[2,21],25:[2,21]},{18:[1,66]},{18:[2,42]},{18:[1,67]},{8:17,9:5,11:6,12:7,13:8,14:[1,9],15:[1,10],16:[1,12],19:[1,11],20:[2,4],22:[1,13],23:[1,14],25:[1,15]},{18:[2,24],24:[2,24],36:[2,24]},{18:[2,44],24:[2,44],32:[2,44],33:[2,44],34:[2,44],35:[2,44],36:[2,44],40:[2,44],42:[2,44]},{18:[2,46],24:[2,46],36:[2,46]},{18:[2,26],24:[2,26],32:[2,26],33:[2,26],34:[2,26],35:[2,26],36:[2,26],40:[2,26],42:[2,26]},{18:[2,27],24:[2,27],32:[2,27],33:[2,27],34:[2,27],35:[2,27],36:[2,27],40:[2,27],42:[2,27]},{18:[2,28],24:[2,28],32:[2,28],33:[2,28],34:[2,28],35:[2,28],36:[2,28],40:[2,28],42:[2,28]},{18:[2,29],24:[2,29],32:[2,29],33:[2,29],34:[2,29],35:[2,29],36:[2,29],40:[2,29],42:[2,29]},{18:[2,30],24:[2,30],32:[2,30],33:[2,30],34:[2,30],35:[2,30],36:[2,30],40:[2,30],42:[2,30]},{17:68,21:24,30:25,40:[1,28],42:[1,27],43:26},{18:[2,32],24:[2,32],36:[2,32],39:69,40:[1,70]},{18:[2,47],24:[2,47],36:[2,47],40:[2,47]},{18:[2,40],24:[2,40],32:[2,40],33:[2,40],34:[2,40],35:[2,40],36:[2,40],40:[2,40],41:[1,71],42:[2,40],44:[2,40]},{18:[2,39],24:[2,39],32:[2,39],33:[2,39],34:[2,39],35:[2,39],36:[2,39],40:[2,39],42:[2,39],44:[2,39]},{5:[2,22],14:[2,22],15:[2,22],16:[2,22],19:[2,22],20:[2,22],22:[2,22],23:[2,22],25:[2,22]},{5:[2,19],14:[2,19],15:[2,19],16:[2,19],19:[2,19],20:[2,19],22:[2,19],23:[2,19],25:[2,19]},{36:[1,72]},{18:[2,48],24:[2,48],36:[2,48],40:[2,48]},{41:[1,71]},{21:56,30:60,31:73,32:[1,57],33:[1,58],34:[1,59],35:[1,61],40:[1,28],42:[1,27],43:26},{18:[2,31],24:[2,31],32:[2,31],33:[2,31],34:[2,31],35:[2,31],36:[2,31],40:[2,31],42:[2,31]},{18:[2,33],24:[2,33],36:[2,33],40:[2,33]}],
-    defaultActions: {3:[2,2],16:[2,1],50:[2,42]},
+    table: [{3:1,4:2,5:[2,43],6:3,13:[2,43],14:[2,43],17:[2,43],25:[2,43],28:[2,43],38:[2,43],39:[2,43],41:[2,43]},{1:[3]},{5:[1,4]},{5:[2,2],7:5,8:6,9:7,10:8,11:9,12:10,13:[1,11],14:[1,18],15:16,17:[1,21],20:14,23:15,25:[1,19],28:[1,20],31:[2,2],33:[2,2],36:[2,2],38:[1,12],39:[1,13],41:[1,17]},{1:[2,1]},{5:[2,44],13:[2,44],14:[2,44],17:[2,44],25:[2,44],28:[2,44],31:[2,44],33:[2,44],36:[2,44],38:[2,44],39:[2,44],41:[2,44]},{5:[2,3],13:[2,3],14:[2,3],17:[2,3],25:[2,3],28:[2,3],31:[2,3],33:[2,3],36:[2,3],38:[2,3],39:[2,3],41:[2,3]},{5:[2,4],13:[2,4],14:[2,4],17:[2,4],25:[2,4],28:[2,4],31:[2,4],33:[2,4],36:[2,4],38:[2,4],39:[2,4],41:[2,4]},{5:[2,5],13:[2,5],14:[2,5],17:[2,5],25:[2,5],28:[2,5],31:[2,5],33:[2,5],36:[2,5],38:[2,5],39:[2,5],41:[2,5]},{5:[2,6],13:[2,6],14:[2,6],17:[2,6],25:[2,6],28:[2,6],31:[2,6],33:[2,6],36:[2,6],38:[2,6],39:[2,6],41:[2,6]},{5:[2,7],13:[2,7],14:[2,7],17:[2,7],25:[2,7],28:[2,7],31:[2,7],33:[2,7],36:[2,7],38:[2,7],39:[2,7],41:[2,7]},{5:[2,8],13:[2,8],14:[2,8],17:[2,8],25:[2,8],28:[2,8],31:[2,8],33:[2,8],36:[2,8],38:[2,8],39:[2,8],41:[2,8]},{18:22,37:23,48:24,57:[1,27],63:[1,26],64:25},{18:28,37:23,48:24,57:[1,27],63:[1,26],64:25},{4:29,6:3,13:[2,43],14:[2,43],17:[2,43],25:[2,43],28:[2,43],31:[2,43],33:[2,43],36:[2,43],38:[2,43],39:[2,43],41:[2,43]},{4:30,6:3,13:[2,43],14:[2,43],17:[2,43],25:[2,43],28:[2,43],33:[2,43],36:[2,43],38:[2,43],39:[2,43],41:[2,43]},{12:31,14:[1,18]},{37:33,42:32,49:[1,34],50:[1,35],57:[1,27],64:25},{5:[2,9],13:[2,9],14:[2,9],16:[2,9],17:[2,9],25:[2,9],28:[2,9],31:[2,9],33:[2,9],36:[2,9],38:[2,9],39:[2,9],41:[2,9]},{18:36,37:23,48:24,57:[1,27],63:[1,26],64:25},{18:37,37:23,48:24,57:[1,27],63:[1,26],64:25},{18:38,37:23,48:24,57:[1,27],63:[1,26],64:25},{27:[1,39]},{19:[2,59],27:[2,59],40:[2,59],46:40,49:[2,59],50:[2,59],51:[2,59],52:[2,59],53:[2,59],57:[2,59],60:[2,59],63:[2,59]},{19:[2,26],27:[2,26],40:[2,26],53:[2,26],60:[2,26]},{19:[2,40],27:[2,40],40:[2,40],49:[2,40],50:[2,40],51:[2,40],52:[2,40],53:[2,40],57:[2,40],60:[2,40],63:[2,40],65:[1,41]},{37:42,57:[1,27],64:25},{19:[2,42],27:[2,42],40:[2,42],49:[2,42],50:[2,42],51:[2,42],52:[2,42],53:[2,42],57:[2,42],60:[2,42],63:[2,42],65:[2,42]},{40:[1,43]},{21:44,30:46,31:[1,48],32:47,33:[1,49],34:45,36:[2,45]},{24:50,32:51,33:[1,49],36:[2,47]},{16:[1,52]},{27:[2,57],37:55,43:53,45:54,48:59,49:[1,56],50:[1,57],51:[1,58],52:[1,60],54:61,55:62,56:64,57:[1,63],63:[1,26],64:25},{27:[2,36],49:[2,36],50:[2,36],51:[2,36],52:[2,36],57:[2,36],63:[2,36]},{27:[2,37],49:[2,37],50:[2,37],51:[2,37],52:[2,37],57:[2,37],63:[2,37]},{27:[2,38],49:[2,38],50:[2,38],51:[2,38],52:[2,38],57:[2,38],63:[2,38]},{26:65,27:[2,49],59:66,60:[1,67]},{27:[2,51],29:68,59:69,60:[1,67]},{19:[1,70]},{5:[2,21],13:[2,21],14:[2,21],17:[2,21],25:[2,21],28:[2,21],31:[2,21],33:[2,21],36:[2,21],38:[2,21],39:[2,21],41:[2,21]},{19:[2,61],27:[2,61],37:55,40:[2,61],43:72,47:71,48:59,49:[1,56],50:[1,57],51:[1,58],52:[1,60],53:[2,61],54:73,55:62,56:64,57:[1,63],60:[2,61],63:[1,26],64:25},{57:[1,74]},{19:[2,39],27:[2,39],40:[2,39],49:[2,39],50:[2,39],51:[2,39],52:[2,39],53:[2,39],57:[2,39],60:[2,39],63:[2,39]},{5:[2,22],13:[2,22],14:[2,22],17:[2,22],25:[2,22],28:[2,22],31:[2,22],33:[2,22],36:[2,22],38:[2,22],39:[2,22],41:[2,22]},{22:75,36:[1,76]},{36:[2,46]},{4:77,6:3,13:[2,43],14:[2,43],17:[2,43],25:[2,43],28:[2,43],31:[2,43],33:[2,43],36:[2,43],38:[2,43],39:[2,43],41:[2,43]},{36:[2,19]},{18:78,37:23,48:24,57:[1,27],63:[1,26],64:25},{4:79,6:3,13:[2,43],14:[2,43],17:[2,43],25:[2,43],28:[2,43],36:[2,43],38:[2,43],39:[2,43],41:[2,43]},{22:80,36:[1,76]},{36:[2,48]},{5:[2,10],13:[2,10],14:[2,10],17:[2,10],25:[2,10],28:[2,10],31:[2,10],33:[2,10],36:[2,10],38:[2,10],39:[2,10],41:[2,10]},{27:[2,55],44:81,54:82,55:62,56:64,57:[1,83]},{27:[1,84]},{19:[2,27],27:[2,27],40:[2,27],49:[2,27],50:[2,27],51:[2,27],52:[2,27],53:[2,27],57:[2,27],60:[2,27],63:[2,27]},{19:[2,28],27:[2,28],40:[2,28],49:[2,28],50:[2,28],51:[2,28],52:[2,28],53:[2,28],57:[2,28],60:[2,28],63:[2,28]},{19:[2,29],27:[2,29],40:[2,29],49:[2,29],50:[2,29],51:[2,29],52:[2,29],53:[2,29],57:[2,29],60:[2,29],63:[2,29]},{19:[2,30],27:[2,30],40:[2,30],49:[2,30],50:[2,30],51:[2,30],52:[2,30],53:[2,30],57:[2,30],60:[2,30],63:[2,30]},{19:[2,31],27:[2,31],40:[2,31],49:[2,31],50:[2,31],51:[2,31],52:[2,31],53:[2,31],57:[2,31],60:[2,31],63:[2,31]},{18:85,37:23,48:24,57:[1,27],63:[1,26],64:25},{27:[2,58]},{19:[2,33],27:[2,33],40:[2,33],53:[2,33],56:86,57:[1,83],60:[2,33]},{19:[2,42],27:[2,42],40:[2,42],49:[2,42],50:[2,42],51:[2,42],52:[2,42],53:[2,42],57:[2,42],58:[1,87],60:[2,42],63:[2,42],65:[2,42]},{19:[2,63],27:[2,63],40:[2,63],53:[2,63],57:[2,63],60:[2,63]},{27:[1,88]},{27:[2,50]},{57:[1,90],61:89},{27:[1,91]},{27:[2,52]},{14:[2,11]},{19:[2,25],27:[2,25],40:[2,25],53:[2,25],60:[2,25]},{19:[2,60],27:[2,60],40:[2,60],49:[2,60],50:[2,60],51:[2,60],52:[2,60],53:[2,60],57:[2,60],60:[2,60],63:[2,60]},{19:[2,62],27:[2,62],40:[2,62],53:[2,62],60:[2,62]},{19:[2,41],27:[2,41],40:[2,41],49:[2,41],50:[2,41],51:[2,41],52:[2,41],53:[2,41],57:[2,41],60:[2,41],63:[2,41],65:[2,41]},{5:[2,12],13:[2,12],14:[2,12],17:[2,12],25:[2,12],28:[2,12],31:[2,12],33:[2,12],36:[2,12],38:[2,12],39:[2,12],41:[2,12]},{37:92,57:[1,27],64:25},{30:46,31:[1,48],32:47,33:[1,49],34:94,35:93,36:[2,53]},{27:[1,95]},{36:[2,17]},{5:[2,13],13:[2,13],14:[2,13],17:[2,13],25:[2,13],28:[2,13],31:[2,13],33:[2,13],36:[2,13],38:[2,13],39:[2,13],41:[2,13]},{27:[1,96]},{27:[2,56]},{58:[1,87]},{5:[2,24],13:[2,24],14:[2,24],17:[2,24],25:[2,24],28:[2,24],31:[2,24],33:[2,24],36:[2,24],38:[2,24],39:[2,24],41:[2,24]},{53:[1,97]},{19:[2,64],27:[2,64],40:[2,64],53:[2,64],57:[2,64],60:[2,64]},{37:55,43:98,48:59,49:[1,56],50:[1,57],51:[1,58],52:[1,60],57:[1,27],63:[1,26],64:25},{13:[2,14],14:[2,14],17:[2,14],25:[2,14],28:[2,14],31:[2,14],33:[2,14],36:[2,14],38:[2,14],39:[2,14],41:[2,14]},{57:[1,100],62:[1,99]},{57:[2,65],62:[2,65]},{13:[2,15],14:[2,15],17:[2,15],25:[2,15],28:[2,15],33:[2,15],36:[2,15],38:[2,15],39:[2,15],41:[2,15]},{27:[1,101]},{36:[2,18]},{36:[2,54]},{13:[2,16],14:[2,16],17:[2,16],25:[2,16],28:[2,16],31:[2,16],33:[2,16],36:[2,16],38:[2,16],39:[2,16],41:[2,16]},{5:[2,23],13:[2,23],14:[2,23],17:[2,23],25:[2,23],28:[2,23],31:[2,23],33:[2,23],36:[2,23],38:[2,23],39:[2,23],41:[2,23]},{19:[2,32],27:[2,32],40:[2,32],49:[2,32],50:[2,32],51:[2,32],52:[2,32],53:[2,32],57:[2,32],60:[2,32],63:[2,32]},{19:[2,34],27:[2,34],40:[2,34],53:[2,34],57:[2,34],60:[2,34]},{27:[2,35]},{57:[2,66],62:[2,66]},{5:[2,20],13:[2,20],14:[2,20],17:[2,20],25:[2,20],28:[2,20],31:[2,20],33:[2,20],36:[2,20],38:[2,20],39:[2,20],41:[2,20]}],
+    defaultActions: {4:[2,1],45:[2,46],47:[2,19],51:[2,48],61:[2,58],66:[2,50],69:[2,52],70:[2,11],79:[2,17],82:[2,56],93:[2,18],94:[2,54],99:[2,35]},
     parseError: function parseError(str, hash) {
         throw new Error(str);
     },
@@ -53854,15 +54188,6 @@ enifed("htmlbars-compiler/handlebars/compiler/parser",
         return true;
     }
     };
-
-
-    function stripFlags(open, close) {
-      return {
-        left: open.charAt(2) === '~',
-        right: close.charAt(0) === '~' || close.charAt(1) === '~'
-      };
-    }
-
     /* Jison generated lexer */
     var lexer = (function(){
     var lexer = ({EOF:1,
@@ -54062,70 +54387,104 @@ enifed("htmlbars-compiler/handlebars/compiler/parser",
                                        return 14;
                                      
     break;
-    case 3:strip(0,4); this.popState(); return 15;
+    case 3:
+                                      yy_.yytext = yy_.yytext.substr(5, yy_.yyleng-9);
+                                      this.popState();
+                                      return 16;
+                                     
     break;
-    case 4:return 35;
+    case 4: return 14; 
     break;
-    case 5:return 36;
+    case 5:
+      this.popState();
+      return 13;
+
     break;
-    case 6:return 25;
+    case 6:return 52;
     break;
-    case 7:return 16;
+    case 7:return 53;
     break;
-    case 8:return 20;
+    case 8: return 17; 
     break;
-    case 9:return 19;
+    case 9:
+                                      this.popState();
+                                      this.begin('raw');
+                                      return 19;
+                                     
     break;
-    case 10:return 19;
+    case 10:return 41;
     break;
-    case 11:return 23;
+    case 11:return 25;
     break;
-    case 12:return 22;
+    case 12:return 36;
     break;
-    case 13:this.popState(); this.begin('com');
+    case 13:this.popState(); return 33;
     break;
-    case 14:strip(3,5); this.popState(); return 15;
+    case 14:this.popState(); return 33;
     break;
-    case 15:return 22;
+    case 15:return 28;
     break;
-    case 16:return 41;
+    case 16:return 31;
     break;
-    case 17:return 40;
+    case 17:return 39;
     break;
-    case 18:return 40;
+    case 18:return 38;
     break;
-    case 19:return 44;
+    case 19:
+      this.unput(yy_.yytext);
+      this.popState();
+      this.begin('com');
+
     break;
-    case 20:// ignore whitespace
+    case 20:
+      this.popState();
+      return 13;
+
     break;
-    case 21:this.popState(); return 24;
+    case 21:return 38;
     break;
-    case 22:this.popState(); return 18;
+    case 22:return 58;
     break;
-    case 23:yy_.yytext = strip(1,2).replace(/\\"/g,'"'); return 32;
+    case 23:return 57;
     break;
-    case 24:yy_.yytext = strip(1,2).replace(/\\'/g,"'"); return 32;
+    case 24:return 57;
     break;
-    case 25:return 42;
+    case 25:return 65;
     break;
-    case 26:return 34;
+    case 26:// ignore whitespace
     break;
-    case 27:return 34;
+    case 27:this.popState(); return 40;
     break;
-    case 28:return 33;
+    case 28:this.popState(); return 27;
     break;
-    case 29:return 40;
+    case 29:yy_.yytext = strip(1,2).replace(/\\"/g,'"'); return 49;
     break;
-    case 30:yy_.yytext = strip(1,2); return 40;
+    case 30:yy_.yytext = strip(1,2).replace(/\\'/g,"'"); return 49;
     break;
-    case 31:return 'INVALID';
+    case 31:return 63;
     break;
-    case 32:return 5;
+    case 32:return 51;
+    break;
+    case 33:return 51;
+    break;
+    case 34:return 50;
+    break;
+    case 35:return 60;
+    break;
+    case 36:return 62;
+    break;
+    case 37:return 57;
+    break;
+    case 38:yy_.yytext = strip(1,2); return 57;
+    break;
+    case 39:return 'INVALID';
+    break;
+    case 40:return 5;
     break;
     }
     };
-    lexer.rules = [/^(?:[^\x00]*?(?=(\{\{)))/,/^(?:[^\x00]+)/,/^(?:[^\x00]{2,}?(?=(\{\{|\\\{\{|\\\\\{\{|$)))/,/^(?:[\s\S]*?--\}\})/,/^(?:\()/,/^(?:\))/,/^(?:\{\{(~)?>)/,/^(?:\{\{(~)?#)/,/^(?:\{\{(~)?\/)/,/^(?:\{\{(~)?\^)/,/^(?:\{\{(~)?\s*else\b)/,/^(?:\{\{(~)?\{)/,/^(?:\{\{(~)?&)/,/^(?:\{\{!--)/,/^(?:\{\{![\s\S]*?\}\})/,/^(?:\{\{(~)?)/,/^(?:=)/,/^(?:\.\.)/,/^(?:\.(?=([=~}\s\/.)])))/,/^(?:[\/.])/,/^(?:\s+)/,/^(?:\}(~)?\}\})/,/^(?:(~)?\}\})/,/^(?:"(\\["]|[^"])*")/,/^(?:'(\\[']|[^'])*')/,/^(?:@)/,/^(?:true(?=([~}\s)])))/,/^(?:false(?=([~}\s)])))/,/^(?:-?[0-9]+(?=([~}\s)])))/,/^(?:([^\s!"#%-,\.\/;->@\[-\^`\{-~]+(?=([=~}\s\/.)]))))/,/^(?:\[[^\]]*\])/,/^(?:.)/,/^(?:$)/];
-    lexer.conditions = {"mu":{"rules":[4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32],"inclusive":false},"emu":{"rules":[2],"inclusive":false},"com":{"rules":[3],"inclusive":false},"INITIAL":{"rules":[0,1,32],"inclusive":true}};
+    lexer.rules = [/^(?:[^\x00]*?(?=(\{\{)))/,/^(?:[^\x00]+)/,/^(?:[^\x00]{2,}?(?=(\{\{|\\\{\{|\\\\\{\{|$)))/,/^(?:\{\{\{\{\/[^\s!"#%-,\.\/;->@\[-\^`\{-~]+(?=[=}\s\/.])\}\}\}\})/,/^(?:[^\x00]*?(?=(\{\{\{\{\/)))/,/^(?:[\s\S]*?--(~)?\}\})/,/^(?:\()/,/^(?:\))/,/^(?:\{\{\{\{)/,/^(?:\}\}\}\})/,/^(?:\{\{(~)?>)/,/^(?:\{\{(~)?#)/,/^(?:\{\{(~)?\/)/,/^(?:\{\{(~)?\^\s*(~)?\}\})/,/^(?:\{\{(~)?\s*else\s*(~)?\}\})/,/^(?:\{\{(~)?\^)/,/^(?:\{\{(~)?\s*else\b)/,/^(?:\{\{(~)?\{)/,/^(?:\{\{(~)?&)/,/^(?:\{\{(~)?!--)/,/^(?:\{\{(~)?![\s\S]*?\}\})/,/^(?:\{\{(~)?)/,/^(?:=)/,/^(?:\.\.)/,/^(?:\.(?=([=~}\s\/.)|])))/,/^(?:[\/.])/,/^(?:\s+)/,/^(?:\}(~)?\}\})/,/^(?:(~)?\}\})/,/^(?:"(\\["]|[^"])*")/,/^(?:'(\\[']|[^'])*')/,/^(?:@)/,/^(?:true(?=([~}\s)])))/,/^(?:false(?=([~}\s)])))/,/^(?:-?[0-9]+(?:\.[0-9]+)?(?=([~}\s)])))/,/^(?:as\s+\|)/,/^(?:\|)/,/^(?:([^\s!"#%-,\.\/;->@\[-\^`\{-~]+(?=([=~}\s\/.)|]))))/,/^(?:\[[^\]]*\])/,/^(?:.)/,/^(?:$)/];
+    lexer.conditions = {"mu":{"rules":[6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40],"inclusive":false},"emu":{"rules":[2],"inclusive":false},"com":{"rules":[5],"inclusive":false},"raw":{"rules":[3,4],"inclusive":false},"INITIAL":{"rules":[0,1,40],"inclusive":true}};
     return lexer;})()
     parser.lexer = lexer;
     function Parser () { this.yy = {}; }Parser.prototype = parser;parser.Parser = Parser;
@@ -54164,6 +54523,113 @@ enifed("htmlbars-compiler/handlebars/exception",
     Exception.prototype = new Error();
 
     __exports__["default"] = Exception;
+  });
+enifed("htmlbars-compiler/handlebars/safe-string",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    // Build out our basic SafeString type
+    function SafeString(string) {
+      this.string = string;
+    }
+
+    SafeString.prototype.toString = SafeString.prototype.toHTML = function() {
+      return "" + this.string;
+    };
+
+    __exports__["default"] = SafeString;
+  });
+enifed("htmlbars-compiler/handlebars/utils",
+  ["./safe-string","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    /*jshint -W004 */
+    var SafeString = __dependency1__["default"];
+
+    var escape = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#x27;",
+      "`": "&#x60;"
+    };
+
+    var badChars = /[&<>"'`]/g;
+    var possible = /[&<>"'`]/;
+
+    function escapeChar(chr) {
+      return escape[chr];
+    }
+
+    function extend(obj /* , ...source */) {
+      for (var i = 1; i < arguments.length; i++) {
+        for (var key in arguments[i]) {
+          if (Object.prototype.hasOwnProperty.call(arguments[i], key)) {
+            obj[key] = arguments[i][key];
+          }
+        }
+      }
+
+      return obj;
+    }
+
+    __exports__.extend = extend;var toString = Object.prototype.toString;
+    __exports__.toString = toString;
+    // Sourced from lodash
+    // https://github.com/bestiejs/lodash/blob/master/LICENSE.txt
+    var isFunction = function(value) {
+      return typeof value === 'function';
+    };
+    // fallback for older versions of Chrome and Safari
+    /* istanbul ignore next */
+    if (isFunction(/x/)) {
+      isFunction = function(value) {
+        return typeof value === 'function' && toString.call(value) === '[object Function]';
+      };
+    }
+    var isFunction;
+    __exports__.isFunction = isFunction;
+    /* istanbul ignore next */
+    var isArray = Array.isArray || function(value) {
+      return (value && typeof value === 'object') ? toString.call(value) === '[object Array]' : false;
+    };
+    __exports__.isArray = isArray;
+
+    function escapeExpression(string) {
+      // don't escape SafeStrings, since they're already safe
+      if (string && string.toHTML) {
+        return string.toHTML();
+      } else if (string == null) {
+        return "";
+      } else if (!string) {
+        return string + '';
+      }
+
+      // Force a string conversion as this will be done by the append regardless and
+      // the regex test will do this transparently behind the scenes, causing issues if
+      // an object's to string has escaped characters in it.
+      string = "" + string;
+
+      if(!possible.test(string)) { return string; }
+      return string.replace(badChars, escapeChar);
+    }
+
+    __exports__.escapeExpression = escapeExpression;function isEmpty(value) {
+      if (!value && value !== 0) {
+        return true;
+      } else if (isArray(value) && value.length === 0) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    __exports__.isEmpty = isEmpty;function appendContextPath(contextPath, id) {
+      return (contextPath ? contextPath + '.' : '') + id;
+    }
+
+    __exports__.appendContextPath = appendContextPath;
   });
 enifed("htmlbars-compiler/html-parser/helpers",
   ["../ast","exports"],
@@ -54261,7 +54727,7 @@ enifed("htmlbars-compiler/html-parser/node-handlers",
 
       program: function(program) {
         var statements = [];
-        var node = new ProgramNode(statements, program.strip);
+        var node = new ProgramNode(statements, program.blockParams || null, program.strip);
         var i, l = program.statements.length;
 
         this.elementStack.push(node);
@@ -54289,7 +54755,7 @@ enifed("htmlbars-compiler/html-parser/node-handlers",
         switchToHandlebars(this);
         this.acceptToken(block);
 
-        var mustache = block.mustache;
+        var sexpr = block.sexpr;
         var program = this.acceptNode(block.program);
         var inverse = block.inverse ? this.acceptNode(block.inverse) : null;
         var strip = block.strip;
@@ -54299,7 +54765,7 @@ enifed("htmlbars-compiler/html-parser/node-handlers",
           inverse.strip.left = false;
         }
 
-        var node = new BlockNode(mustache, program, inverse, strip);
+        var node = new BlockNode(sexpr, program, inverse, strip);
         var parentProgram = this.currentElement();
         appendChild(parentProgram, node);
       },
@@ -54346,6 +54812,7 @@ enifed("htmlbars-compiler/html-parser/token-handlers",
     var ComponentNode = __dependency1__.ComponentNode;
     var ElementNode = __dependency1__.ElementNode;
     var TextNode = __dependency1__.TextNode;
+    var CommentNode = __dependency1__.CommentNode;
     var appendChild = __dependency1__.appendChild;
     var postprocessProgram = __dependency2__.postprocessProgram;
     var forEach = __dependency3__.forEach;
@@ -54397,6 +54864,12 @@ enifed("htmlbars-compiler/html-parser/token-handlers",
     // Except for `mustache`, all tokens are only allowed outside of
     // a start or end tag.
     var tokenHandlers = {
+      CommentToken: function(token) {
+        var current = this.currentElement();
+        var comment = new CommentNode(token.chars);
+
+        appendChild(current, comment);
+      },
 
       Chars: function(token) {
         var current = this.currentElement();
@@ -54451,7 +54924,7 @@ enifed("htmlbars-compiler/html-parser/token-handlers",
         if (element.tag.indexOf("-") === -1) {
           appendChild(parent, element);
         } else {
-          var program = new ProgramNode(element.children, { left: false, right: false });
+          var program = new ProgramNode(element.children, null, { left: false, right: false });
           postprocessProgram(program);
           var component = new ComponentNode(element.tag, element.attributes, program);
           appendChild(parent, component);
@@ -54894,6 +55367,12 @@ enifed("morph/dom-helper",
       return new Morph(parent, start, end, this, contextualElement);
     };
 
+    prototype.createUnsafeMorph = function(parent, start, end, contextualElement){
+      var morph = this.createMorph(parent, start, end, contextualElement);
+      morph.escaped = false;
+      return morph;
+    };
+
     // This helper is just to keep the templates good looking,
     // passing integers instead of element references.
     prototype.createMorphAt = function(parent, startIndex, endIndex, contextualElement){
@@ -54901,6 +55380,12 @@ enifed("morph/dom-helper",
           start = startIndex === -1 ? null : childNodes[startIndex],
           end = endIndex === -1 ? null : childNodes[endIndex];
       return this.createMorph(parent, start, end, contextualElement);
+    };
+
+    prototype.createUnsafeMorphAt = function(parent, startIndex, endIndex, contextualElement) {
+      var morph = this.createMorphAt(parent, startIndex, endIndex, contextualElement);
+      morph.escaped = false;
+      return morph;
     };
 
     prototype.insertMorphBefore = function(element, referenceChild, contextualElement) {
@@ -55273,6 +55758,7 @@ enifed("morph/morph",
       this.domHelper = domHelper;
       ensureContext(contextualElement);
       this.contextualElement = contextualElement;
+      this.escaped = true;
       this.reset();
     }
 
@@ -55282,7 +55768,6 @@ enifed("morph/morph",
       this.morphs = null;
       this.before = null;
       this.after = null;
-      this.escaped = true;
     };
 
     Morph.prototype.parent = function () {
