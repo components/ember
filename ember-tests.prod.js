@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.4b68a8a6
+ * @version   1.10.0-beta.1+canary.2c4e73cb
  */
 
 (function() {
@@ -6290,15 +6290,6 @@ enifed("ember-htmlbars/helpers.jshint",
       ok(true, 'ember-htmlbars/helpers.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/helpers/attribute.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-htmlbars/helpers');
-    test('ember-htmlbars/helpers/attribute.js should pass jshint', function() { 
-      ok(true, 'ember-htmlbars/helpers/attribute.js should pass jshint.'); 
-    });
-  });
 enifed("ember-htmlbars/helpers/bind-attr.jshint",
   [],
   function() {
@@ -6324,15 +6315,6 @@ enifed("ember-htmlbars/helpers/collection.jshint",
     module('JSHint - ember-htmlbars/helpers');
     test('ember-htmlbars/helpers/collection.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/helpers/collection.js should pass jshint.'); 
-    });
-  });
-enifed("ember-htmlbars/helpers/concat.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-htmlbars/helpers');
-    test('ember-htmlbars/helpers/concat.js should pass jshint', function() { 
-      ok(true, 'ember-htmlbars/helpers/concat.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/helpers/debugger.jshint",
@@ -6477,6 +6459,15 @@ enifed("ember-htmlbars/system/compile.jshint",
     module('JSHint - ember-htmlbars/system');
     test('ember-htmlbars/system/compile.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/system/compile.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/system/concat.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/system');
+    test('ember-htmlbars/system/concat.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/system/concat.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/system/helper.jshint",
@@ -7330,174 +7321,6 @@ enifed("ember-htmlbars/tests/compat/precompile_test.jshint",
     module('JSHint - ember-htmlbars/tests/compat');
     test('ember-htmlbars/tests/compat/precompile_test.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/tests/compat/precompile_test.js should pass jshint.'); 
-    });
-  });
-enifed("ember-htmlbars/tests/helpers/attribute_test",
-  ["ember-views/views/view","ember-metal/run_loop","ember-runtime/system/object","htmlbars-compiler/compiler","htmlbars-test-helpers","ember-htmlbars"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
-    "use strict";
-    var EmberView = __dependency1__["default"];
-    var run = __dependency2__["default"];
-    var EmberObject = __dependency3__["default"];
-    var compile = __dependency4__.compile;
-    var equalInnerHTML = __dependency5__.equalInnerHTML;
-    var defaultEnv = __dependency6__.defaultEnv;
-
-    var view, originalSetAttribute, setAttributeCalls;
-    var dom = defaultEnv.dom;
-
-    function appendView(view) {
-      run(function() { view.appendTo('#qunit-fixture'); });
-    }
-
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
-      QUnit.module("ember-htmlbars: attribute", {
-        teardown: function(){
-          if (view) {
-            run(view, view.destroy);
-          }
-        }
-      });
-
-      test("property is output", function() {
-        view = EmberView.create({
-          context: {name: 'erik'},
-          template: compile("<div data-name={{name}}>Hi!</div>")
-        });
-        appendView(view);
-
-        equalInnerHTML(view.element, '<div data-name="erik">Hi!</div>', "attribute is output");
-      });
-
-      test("property value is directly added to attribute", function() {
-        view = EmberView.create({
-          context: {name: '"" data-foo="blah"'},
-          template: compile("<div data-name={{name}}>Hi!</div>")
-        });
-        appendView(view);
-
-        equalInnerHTML(view.element, '<div data-name="&quot;&quot; data-foo=&quot;blah&quot;">Hi!</div>', "attribute is output");
-      });
-
-      test("path is output", function() {
-        view = EmberView.create({
-          context: {name: {firstName: 'erik'}},
-          template: compile("<div data-name={{name.firstName}}>Hi!</div>")
-        });
-        appendView(view);
-
-        equalInnerHTML(view.element, '<div data-name="erik">Hi!</div>', "attribute is output");
-      });
-
-      test("changed property updates", function() {
-        var context = EmberObject.create({name: 'erik'});
-        view = EmberView.create({
-          context: context,
-          template: compile("<div data-name={{name}}>Hi!</div>")
-        });
-        appendView(view);
-
-        equalInnerHTML(view.element, '<div data-name="erik">Hi!</div>', "precond - attribute is output");
-
-        run(context, context.set, 'name', 'mmun');
-
-        equalInnerHTML(view.element, '<div data-name="mmun">Hi!</div>', "attribute is updated output");
-      });
-
-      test("updates are scheduled in the render queue", function() {
-        expect(4);
-
-        var context = EmberObject.create({name: 'erik'});
-        view = EmberView.create({
-          context: context,
-          template: compile("<div data-name={{name}}>Hi!</div>")
-        });
-        appendView(view);
-
-        equalInnerHTML(view.element, '<div data-name="erik">Hi!</div>', "precond - attribute is output");
-
-        run(function() {
-          run.schedule('render', function() { 
-            equalInnerHTML(view.element, '<div data-name="erik">Hi!</div>', "precond - attribute is not updated sync");
-          });
-
-          context.set('name', 'mmun');
-
-          run.schedule('render', function() {
-            equalInnerHTML(view.element, '<div data-name="mmun">Hi!</div>', "attribute is updated output");
-          });
-        });
-
-        equalInnerHTML(view.element, '<div data-name="mmun">Hi!</div>', "attribute is updated output");
-      });
-
-      QUnit.module('ember-htmlbars: {{attribute}} helper -- setAttribute', {
-        setup: function() {
-          originalSetAttribute = dom.setAttribute;
-          dom.setAttribute = function(element, name, value) {
-            setAttributeCalls.push([name, value]);
-
-            originalSetAttribute.call(dom, element, name, value);
-          };
-
-          setAttributeCalls = [];
-        },
-
-        teardown: function() {
-          dom.setAttribute = originalSetAttribute;
-
-          if (view) {
-            run(view, view.destroy);
-          }
-        }
-      });
-
-      test('calls setAttribute for new values', function() {
-        var context = EmberObject.create({name: 'erik'});
-        view = EmberView.create({
-          context: context,
-          template: compile("<div data-name={{name}}>Hi!</div>")
-        });
-        appendView(view);
-
-        run(context, context.set, 'name', 'mmun');
-
-        var expected = [
-          ['data-name', 'erik'],
-          ['data-name', 'mmun']
-        ];
-
-        deepEqual(setAttributeCalls, expected);
-      });
-
-      test('does not call setAttribute if the same value is set', function() {
-        var context = EmberObject.create({name: 'erik'});
-        view = EmberView.create({
-          context: context,
-          template: compile("<div data-name={{name}}>Hi!</div>")
-        });
-        appendView(view);
-
-        run(function() {
-          context.set('name', 'mmun');
-          context.set('name', 'erik');
-        });
-
-        var expected = [
-          ['data-name', 'erik']
-        ];
-
-        deepEqual(setAttributeCalls, expected);
-      });
-    }
-  });
-enifed("ember-htmlbars/tests/helpers/attribute_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-htmlbars/tests/helpers');
-    test('ember-htmlbars/tests/helpers/attribute_test.js should pass jshint', function() { 
-      ok(true, 'ember-htmlbars/tests/helpers/attribute_test.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/tests/helpers/bind_attr_test",
@@ -12655,6 +12478,226 @@ enifed("ember-htmlbars/tests/helpers/yield_test.jshint",
     module('JSHint - ember-htmlbars/tests/helpers');
     test('ember-htmlbars/tests/helpers/yield_test.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/tests/helpers/yield_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/tests/hooks/attribute_test",
+  ["ember-views/views/view","ember-metal/run_loop","ember-runtime/system/object","htmlbars-compiler/compiler","htmlbars-test-helpers","ember-htmlbars"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
+    "use strict";
+    var EmberView = __dependency1__["default"];
+    var run = __dependency2__["default"];
+    var EmberObject = __dependency3__["default"];
+    var compile = __dependency4__.compile;
+    var equalInnerHTML = __dependency5__.equalInnerHTML;
+    var defaultEnv = __dependency6__.defaultEnv;
+
+    var view, originalSetAttribute, setAttributeCalls;
+    var dom = defaultEnv.dom;
+
+    function appendView(view) {
+      run(function() { view.appendTo('#qunit-fixture'); });
+    }
+
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      QUnit.module("ember-htmlbars: attribute", {
+        teardown: function(){
+          if (view) {
+            run(view, view.destroy);
+          }
+        }
+      });
+
+      test("property is output", function() {
+        view = EmberView.create({
+          context: {name: 'erik'},
+          template: compile("<div data-name={{name}}>Hi!</div>")
+        });
+        appendView(view);
+
+        equalInnerHTML(view.element, '<div data-name="erik">Hi!</div>', "attribute is output");
+      });
+
+      test("quoted attributes are concatenated", function() {
+        view = EmberView.create({
+          context: {firstName: 'max', lastName: 'jackson'},
+          template: compile("<div data-name='{{firstName}} {{lastName}}'>Hi!</div>")
+        });
+        appendView(view);
+
+        equalInnerHTML(view.element, '<div data-name="max jackson">Hi!</div>', "attribute is output");
+      });
+
+      test("quoted attributes are updated when changed", function() {
+        view = EmberView.create({
+          context: {firstName: 'max', lastName: 'jackson'},
+          template: compile("<div data-name='{{firstName}} {{lastName}}'>Hi!</div>")
+        });
+        appendView(view);
+
+        equalInnerHTML(view.element, '<div data-name="max jackson">Hi!</div>', "precond - attribute is output");
+
+        run(view, view.set, 'context.firstName', 'james');
+
+        equalInnerHTML(view.element, '<div data-name="james jackson">Hi!</div>', "attribute is output");
+      });
+
+      test("quoted attributes are not removed when value is null", function() {
+        view = EmberView.create({
+          context: {firstName: 'max', lastName: 'jackson'},
+          template: compile("<div data-name='{{firstName}}'>Hi!</div>")
+        });
+        appendView(view);
+
+        equalInnerHTML(view.element, '<div data-name="max">Hi!</div>', "precond - attribute is output");
+
+        run(view, view.set, 'context.firstName', null);
+
+        equalInnerHTML(view.element, '<div data-name="">Hi!</div>', "attribute is output");
+      });
+
+      test("unquoted attributes are removed when value is null", function() {
+        view = EmberView.create({
+          context: {firstName: 'max'},
+          template: compile("<div data-name={{firstName}}>Hi!</div>")
+        });
+        appendView(view);
+
+        equalInnerHTML(view.element, '<div data-name="max">Hi!</div>', "precond - attribute is output");
+
+        run(view, view.set, 'context.firstName', null);
+
+        equalInnerHTML(view.element, '<div>Hi!</div>', "attribute is output");
+      });
+
+      test("property value is directly added to attribute", function() {
+        view = EmberView.create({
+          context: {name: '"" data-foo="blah"'},
+          template: compile("<div data-name={{name}}>Hi!</div>")
+        });
+        appendView(view);
+
+        equalInnerHTML(view.element, '<div data-name="&quot;&quot; data-foo=&quot;blah&quot;">Hi!</div>', "attribute is output");
+      });
+
+      test("path is output", function() {
+        view = EmberView.create({
+          context: {name: {firstName: 'erik'}},
+          template: compile("<div data-name={{name.firstName}}>Hi!</div>")
+        });
+        appendView(view);
+
+        equalInnerHTML(view.element, '<div data-name="erik">Hi!</div>', "attribute is output");
+      });
+
+      test("changed property updates", function() {
+        var context = EmberObject.create({name: 'erik'});
+        view = EmberView.create({
+          context: context,
+          template: compile("<div data-name={{name}}>Hi!</div>")
+        });
+        appendView(view);
+
+        equalInnerHTML(view.element, '<div data-name="erik">Hi!</div>', "precond - attribute is output");
+
+        run(context, context.set, 'name', 'mmun');
+
+        equalInnerHTML(view.element, '<div data-name="mmun">Hi!</div>', "attribute is updated output");
+      });
+
+      test("updates are scheduled in the render queue", function() {
+        expect(4);
+
+        var context = EmberObject.create({name: 'erik'});
+        view = EmberView.create({
+          context: context,
+          template: compile("<div data-name={{name}}>Hi!</div>")
+        });
+        appendView(view);
+
+        equalInnerHTML(view.element, '<div data-name="erik">Hi!</div>', "precond - attribute is output");
+
+        run(function() {
+          run.schedule('render', function() { 
+            equalInnerHTML(view.element, '<div data-name="erik">Hi!</div>', "precond - attribute is not updated sync");
+          });
+
+          context.set('name', 'mmun');
+
+          run.schedule('render', function() {
+            equalInnerHTML(view.element, '<div data-name="mmun">Hi!</div>', "attribute is updated output");
+          });
+        });
+
+        equalInnerHTML(view.element, '<div data-name="mmun">Hi!</div>', "attribute is updated output");
+      });
+
+      QUnit.module('ember-htmlbars: {{attribute}} helper -- setAttribute', {
+        setup: function() {
+          originalSetAttribute = dom.setAttribute;
+          dom.setAttribute = function(element, name, value) {
+            setAttributeCalls.push([name, value]);
+
+            originalSetAttribute.call(dom, element, name, value);
+          };
+
+          setAttributeCalls = [];
+        },
+
+        teardown: function() {
+          dom.setAttribute = originalSetAttribute;
+
+          if (view) {
+            run(view, view.destroy);
+          }
+        }
+      });
+
+      test('calls setAttribute for new values', function() {
+        var context = EmberObject.create({name: 'erik'});
+        view = EmberView.create({
+          context: context,
+          template: compile("<div data-name={{name}}>Hi!</div>")
+        });
+        appendView(view);
+
+        run(context, context.set, 'name', 'mmun');
+
+        var expected = [
+          ['data-name', 'erik'],
+          ['data-name', 'mmun']
+        ];
+
+        deepEqual(setAttributeCalls, expected);
+      });
+
+      test('does not call setAttribute if the same value is set', function() {
+        var context = EmberObject.create({name: 'erik'});
+        view = EmberView.create({
+          context: context,
+          template: compile("<div data-name={{name}}>Hi!</div>")
+        });
+        appendView(view);
+
+        run(function() {
+          context.set('name', 'mmun');
+          context.set('name', 'erik');
+        });
+
+        var expected = [
+          ['data-name', 'erik']
+        ];
+
+        deepEqual(setAttributeCalls, expected);
+      });
+    }
+  });
+enifed("ember-htmlbars/tests/hooks/attribute_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/tests/hooks');
+    test('ember-htmlbars/tests/hooks/attribute_test.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/tests/hooks/attribute_test.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/tests/hooks/component_test",
