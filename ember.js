@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.ee35eec1
+ * @version   1.10.0-beta.1+canary.bf1fa1b0
  */
 
 (function() {
@@ -8265,46 +8265,46 @@ enifed("ember-handlebars/templates/select",
     },"useData":true});
   });
 enifed("ember-htmlbars",
-  ["ember-metal/core","ember-htmlbars/hooks","morph","ember-htmlbars/system/template","ember-htmlbars/system/compile","ember-htmlbars/helpers","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/bind-attr","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/partial","ember-htmlbars/helpers/template","ember-htmlbars/helpers/input","ember-htmlbars/helpers/text_area","ember-htmlbars/helpers/collection","ember-htmlbars/helpers/each","ember-htmlbars/helpers/unbound","ember-htmlbars/system/bootstrap","ember-htmlbars/compat","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __exports__) {
+  ["ember-metal/core","ember-htmlbars/hooks/content","ember-htmlbars/hooks/component","ember-htmlbars/hooks/element","ember-htmlbars/hooks/subexpr","ember-htmlbars/hooks/attribute","ember-htmlbars/hooks/set","morph","ember-htmlbars/system/template","ember-htmlbars/system/compile","ember-htmlbars/helpers","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/bind-attr","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/partial","ember-htmlbars/helpers/template","ember-htmlbars/helpers/input","ember-htmlbars/helpers/text_area","ember-htmlbars/helpers/collection","ember-htmlbars/helpers/each","ember-htmlbars/helpers/unbound","ember-htmlbars/system/bootstrap","ember-htmlbars/compat","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
-    var set = __dependency2__.set;
-    var content = __dependency2__.content;
-    var element = __dependency2__.element;
-    var subexpr = __dependency2__.subexpr;
-    var component = __dependency2__.component;
-    var attribute = __dependency2__.attribute;
-    var DOMHelper = __dependency3__.DOMHelper;
-    var template = __dependency4__["default"];
-    var compile = __dependency5__["default"];
+    var content = __dependency2__["default"];
+    var component = __dependency3__["default"];
+    var element = __dependency4__["default"];
+    var subexpr = __dependency5__["default"];
+    var attribute = __dependency6__["default"];
+    var set = __dependency7__["default"];
+    var DOMHelper = __dependency8__.DOMHelper;
+    var template = __dependency9__["default"];
+    var compile = __dependency10__["default"];
 
-    var registerHelper = __dependency6__.registerHelper;
-    var helper = __dependency6__.helper;
-    var helpers = __dependency6__["default"];
-    var bindHelper = __dependency7__.bindHelper;
-    var viewHelper = __dependency8__.viewHelper;
-    var yieldHelper = __dependency9__.yieldHelper;
-    var withHelper = __dependency10__.withHelper;
-    var preprocessArgumentsForWith = __dependency10__.preprocessArgumentsForWith;
-    var logHelper = __dependency11__.logHelper;
-    var debuggerHelper = __dependency12__.debuggerHelper;
-    var bindAttrHelper = __dependency13__.bindAttrHelper;
-    var bindAttrHelperDeprecated = __dependency13__.bindAttrHelperDeprecated;
-    var ifHelper = __dependency14__.ifHelper;
-    var unlessHelper = __dependency14__.unlessHelper;
-    var unboundIfHelper = __dependency14__.unboundIfHelper;
-    var boundIfHelper = __dependency14__.boundIfHelper;
-    var locHelper = __dependency15__.locHelper;
-    var partialHelper = __dependency16__.partialHelper;
-    var templateHelper = __dependency17__.templateHelper;
-    var inputHelper = __dependency18__.inputHelper;
-    var textareaHelper = __dependency19__.textareaHelper;
-    var collectionHelper = __dependency20__.collectionHelper;
-    var eachHelper = __dependency21__.eachHelper;
-    var preprocessArgumentsForEach = __dependency21__.preprocessArgumentsForEach;
-    var unboundHelper = __dependency22__.unboundHelper;
-    var preprocessArgumentsForUnbound = __dependency22__.preprocessArgumentsForUnbound;
+    var registerHelper = __dependency11__.registerHelper;
+    var helper = __dependency11__.helper;
+    var helpers = __dependency11__["default"];
+    var bindHelper = __dependency12__.bindHelper;
+    var viewHelper = __dependency13__.viewHelper;
+    var yieldHelper = __dependency14__.yieldHelper;
+    var withHelper = __dependency15__.withHelper;
+    var preprocessArgumentsForWith = __dependency15__.preprocessArgumentsForWith;
+    var logHelper = __dependency16__.logHelper;
+    var debuggerHelper = __dependency17__.debuggerHelper;
+    var bindAttrHelper = __dependency18__.bindAttrHelper;
+    var bindAttrHelperDeprecated = __dependency18__.bindAttrHelperDeprecated;
+    var ifHelper = __dependency19__.ifHelper;
+    var unlessHelper = __dependency19__.unlessHelper;
+    var unboundIfHelper = __dependency19__.unboundIfHelper;
+    var boundIfHelper = __dependency19__.boundIfHelper;
+    var locHelper = __dependency20__.locHelper;
+    var partialHelper = __dependency21__.partialHelper;
+    var templateHelper = __dependency22__.templateHelper;
+    var inputHelper = __dependency23__.inputHelper;
+    var textareaHelper = __dependency24__.textareaHelper;
+    var collectionHelper = __dependency25__.collectionHelper;
+    var eachHelper = __dependency26__.eachHelper;
+    var preprocessArgumentsForEach = __dependency26__.preprocessArgumentsForEach;
+    var unboundHelper = __dependency27__.unboundHelper;
+    var preprocessArgumentsForUnbound = __dependency27__.preprocessArgumentsForUnbound;
 
     // importing adds template bootstrapping
     // initializer to enable embedded templates
@@ -11294,94 +11294,14 @@ enifed("ember-htmlbars/helpers/yield",
 
     __exports__.yieldHelper = yieldHelper;
   });
-enifed("ember-htmlbars/hooks",
-  ["ember-metal/core","ember-metal/error","ember-metal/run_loop","ember-htmlbars/system/lookup-helper","ember-htmlbars/system/concat","ember-htmlbars/system/sanitize-for-helper","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+enifed("ember-htmlbars/hooks/attribute",
+  ["ember-metal/run_loop","ember-htmlbars/system/concat","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
-    var Ember = __dependency1__["default"];
-    var EmberError = __dependency2__["default"];
-    var run = __dependency3__["default"];
-    var lookupHelper = __dependency4__["default"];
-    var concat = __dependency5__["default"];
-    var sanitizeOptionsForHelper = __dependency6__.sanitizeOptionsForHelper;
+    var run = __dependency1__["default"];
+    var concat = __dependency2__["default"];
 
-    function streamifyArgs(view, params, hash, options, env, helper) {
-      sanitizeOptionsForHelper(options);
-      helper.preprocessArguments(view, params, hash, options, env);
-
-      // Convert ID params to streams
-      for (var i = 0, l = params.length; i < l; i++) {
-        if (options.paramTypes[i] === 'id') {
-          params[i] = view.getStream(params[i]);
-        }
-      }
-
-      // Convert hash ID values to streams
-      var hashTypes = options.hashTypes;
-      for (var key in hash) {
-        if (hashTypes[key] === 'id' && key !== 'classBinding' && key !== 'class') {
-          hash[key] = view.getStream(hash[key]);
-        }
-      }
-    }
-
-    function set(view, name, value) {
-      if (Ember.FEATURES.isEnabled('ember-htmlbars-block-params')) {
-        view._keywords[name] = value;
-      } else {
-        throw new EmberError(
-          "You must enable the ember-htmlbars-block-params feature " +
-          "flag to use the block params feature in Ember."
-        );
-      }
-    }
-
-    __exports__.set = set;function content(morph, path, view, params, hash, options, env) {
-      var helper = lookupHelper(path, view, env);
-      if (!helper) {
-        helper = lookupHelper('bindHelper', view, env);
-        // Modify params to include the first word
-        params.unshift(path);
-        options.paramTypes = ['id'];
-      }
-
-      streamifyArgs(view, params, hash, options, env, helper);
-      return helper.helperFunction.call(view, params, hash, options, env);
-    }
-
-    __exports__.content = content;function component(morph, tagName, view, hash, options, env) {
-      var params = [];
-      var helper = lookupHelper(tagName, view, env);
-
-      Ember.assert('You specified `' + tagName + '` in your template, but a component for `' + tagName + '` could not be found.', !!helper);
-
-      streamifyArgs(view, params, hash, options, env, helper);
-      return helper.helperFunction.call(view, params, hash, options, env);
-    }
-
-    __exports__.component = component;function element(element, path, view, params, hash, options, env) { //jshint ignore:line
-      var helper = lookupHelper(path, view, env);
-
-      if (helper) {
-        streamifyArgs(view, params, hash, options, env, helper);
-        return helper.helperFunction.call(view, params, hash, options, env);
-      } else {
-        return view.getStream(path);
-      }
-    }
-
-    __exports__.element = element;function subexpr(path, view, params, hash, options, env) {
-      var helper = lookupHelper(path, view, env);
-
-      if (helper) {
-        streamifyArgs(view, params, hash, options, env, helper);
-        return helper.helperFunction.call(view, params, hash, options, env);
-      } else {
-        return view.getStream(path);
-      }
-    }
-
-    __exports__.subexpr = subexpr;function attribute(element, attributeName, quoted, view, parts, options, env) {
+    __exports__["default"] = function attribute(element, attributeName, quoted, view, parts, options, env) {
       var dom = env.dom;
       var isDirty, lastRenderedValue, attrValueStream;
 
@@ -11419,8 +11339,98 @@ enifed("ember-htmlbars/hooks",
         dom.setAttribute(element, attributeName, lastRenderedValue);
       }
     }
+  });
+enifed("ember-htmlbars/hooks/component",
+  ["ember-metal/core","ember-htmlbars/system/streamify-arguments","ember-htmlbars/system/lookup-helper","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+    "use strict";
+    var Ember = __dependency1__["default"];
+    var streamifyArgs = __dependency2__["default"];
+    var lookupHelper = __dependency3__["default"];
 
-    __exports__.attribute = attribute;
+    __exports__["default"] = function component(morph, tagName, view, hash, options, env) {
+      var params = [];
+      var helper = lookupHelper(tagName, view, env);
+
+      Ember.assert('You specified `' + tagName + '` in your template, but a component for `' + tagName + '` could not be found.', !!helper);
+
+      streamifyArgs(view, params, hash, options, env, helper);
+      return helper.helperFunction.call(view, params, hash, options, env);
+    }
+  });
+enifed("ember-htmlbars/hooks/content",
+  ["ember-htmlbars/system/streamify-arguments","ember-htmlbars/system/lookup-helper","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
+    "use strict";
+    var streamifyArgs = __dependency1__["default"];
+    var lookupHelper = __dependency2__["default"];
+
+    __exports__["default"] = function content(morph, path, view, params, hash, options, env) {
+      var helper = lookupHelper(path, view, env);
+      if (!helper) {
+        helper = lookupHelper('bindHelper', view, env);
+        // Modify params to include the first word
+        params.unshift(path);
+        options.paramTypes = ['id'];
+      }
+
+      streamifyArgs(view, params, hash, options, env, helper);
+      return helper.helperFunction.call(view, params, hash, options, env);
+    }
+  });
+enifed("ember-htmlbars/hooks/element",
+  ["ember-htmlbars/system/streamify-arguments","ember-htmlbars/system/lookup-helper","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
+    "use strict";
+    var streamifyArgs = __dependency1__["default"];
+    var lookupHelper = __dependency2__["default"];
+
+    __exports__["default"] = function element(domElement, path, view, params, hash, options, env) { //jshint ignore:line
+      var helper = lookupHelper(path, view, env);
+
+      if (helper) {
+        streamifyArgs(view, params, hash, options, env, helper);
+        return helper.helperFunction.call(view, params, hash, options, env);
+      } else {
+        return view.getStream(path);
+      }
+    }
+  });
+enifed("ember-htmlbars/hooks/set",
+  ["ember-metal/core","ember-metal/error","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
+    "use strict";
+    var Ember = __dependency1__["default"];
+    var EmberError = __dependency2__["default"];
+
+    __exports__["default"] = function set(view, name, value) {
+      if (Ember.FEATURES.isEnabled('ember-htmlbars-block-params')) {
+        view._keywords[name] = value;
+      } else {
+        throw new EmberError(
+          "You must enable the ember-htmlbars-block-params feature " +
+          "flag to use the block params feature in Ember."
+        );
+      }
+    }
+  });
+enifed("ember-htmlbars/hooks/subexpr",
+  ["ember-htmlbars/system/streamify-arguments","ember-htmlbars/system/lookup-helper","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
+    "use strict";
+    var streamifyArgs = __dependency1__["default"];
+    var lookupHelper = __dependency2__["default"];
+
+    __exports__["default"] = function subexpr(path, view, params, hash, options, env) {
+      var helper = lookupHelper(path, view, env);
+
+      if (helper) {
+        streamifyArgs(view, params, hash, options, env, helper);
+        return helper.helperFunction.call(view, params, hash, options, env);
+      } else {
+        return view.getStream(path);
+      }
+    }
   });
 enifed("ember-htmlbars/system/bootstrap",
   ["ember-metal/core","ember-views/component_lookup","ember-views/system/jquery","ember-metal/error","ember-runtime/system/lazy_load","ember-htmlbars/system/compile","exports"],
@@ -11742,6 +11752,32 @@ enifed("ember-htmlbars/system/simple-bind",
       lazyValue.subscribe(this._wrapAsScheduled(function() {
         run.scheduleOnce('render', view, 'rerender');
       }));
+    }
+  });
+enifed("ember-htmlbars/system/streamify-arguments",
+  ["ember-htmlbars/system/sanitize-for-helper","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    var sanitizeOptionsForHelper = __dependency1__.sanitizeOptionsForHelper;
+
+    __exports__["default"] = function streamifyArgs(view, params, hash, options, env, helper) {
+      sanitizeOptionsForHelper(options);
+      helper.preprocessArguments(view, params, hash, options, env);
+
+      // Convert ID params to streams
+      for (var i = 0, l = params.length; i < l; i++) {
+        if (options.paramTypes[i] === 'id') {
+          params[i] = view.getStream(params[i]);
+        }
+      }
+
+      // Convert hash ID values to streams
+      var hashTypes = options.hashTypes;
+      for (var key in hash) {
+        if (hashTypes[key] === 'id' && key !== 'classBinding' && key !== 'class') {
+          hash[key] = view.getStream(hash[key]);
+        }
+      }
     }
   });
 enifed("ember-htmlbars/system/template",
@@ -15097,7 +15133,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.ee35eec1
+      @version 1.10.0-beta.1+canary.bf1fa1b0
     */
 
     if ('undefined' === typeof Ember) {
@@ -15124,10 +15160,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.ee35eec1'
+      @default '1.10.0-beta.1+canary.bf1fa1b0'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.ee35eec1';
+    Ember.VERSION = '1.10.0-beta.1+canary.bf1fa1b0';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`

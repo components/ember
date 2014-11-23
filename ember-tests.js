@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.ee35eec1
+ * @version   1.10.0-beta.1+canary.bf1fa1b0
  */
 
 (function() {
@@ -6165,13 +6165,58 @@ enifed("ember-htmlbars/helpers/yield.jshint",
       ok(true, 'ember-htmlbars/helpers/yield.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/hooks.jshint",
+enifed("ember-htmlbars/hooks/attribute.jshint",
   [],
   function() {
     "use strict";
-    module('JSHint - ember-htmlbars');
-    test('ember-htmlbars/hooks.js should pass jshint', function() { 
-      ok(true, 'ember-htmlbars/hooks.js should pass jshint.'); 
+    module('JSHint - ember-htmlbars/hooks');
+    test('ember-htmlbars/hooks/attribute.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/hooks/attribute.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/hooks/component.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/hooks');
+    test('ember-htmlbars/hooks/component.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/hooks/component.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/hooks/content.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/hooks');
+    test('ember-htmlbars/hooks/content.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/hooks/content.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/hooks/element.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/hooks');
+    test('ember-htmlbars/hooks/element.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/hooks/element.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/hooks/set.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/hooks');
+    test('ember-htmlbars/hooks/set.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/hooks/set.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/hooks/subexpr.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/hooks');
+    test('ember-htmlbars/hooks/subexpr.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/hooks/subexpr.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/system/bootstrap.jshint",
@@ -6244,6 +6289,15 @@ enifed("ember-htmlbars/system/simple-bind.jshint",
     module('JSHint - ember-htmlbars/system');
     test('ember-htmlbars/system/simple-bind.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/system/simple-bind.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/system/streamify-arguments.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/system');
+    test('ember-htmlbars/system/streamify-arguments.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/system/streamify-arguments.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/system/template.jshint",
