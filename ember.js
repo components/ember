@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.80204644
+ * @version   1.10.0-beta.1+canary.ee35eec1
  */
 
 (function() {
@@ -8269,6 +8269,7 @@ enifed("ember-htmlbars",
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
+    var set = __dependency2__.set;
     var content = __dependency2__.content;
     var element = __dependency2__.element;
     var subexpr = __dependency2__.subexpr;
@@ -8348,6 +8349,7 @@ enifed("ember-htmlbars",
       dom: new DOMHelper(),
 
       hooks: {
+        set: set,
         content: content,
         element: element,
         subexpr: subexpr,
@@ -11287,20 +11289,21 @@ enifed("ember-htmlbars/helpers/yield",
 
       Ember.assert("You called yield in a template that was not a layout", !!view);
 
-      view._yield(null, env, options.morph);
+      view._yield(null, env, options.morph, params);
     }
 
     __exports__.yieldHelper = yieldHelper;
   });
 enifed("ember-htmlbars/hooks",
-  ["ember-metal/core","ember-metal/run_loop","ember-htmlbars/system/lookup-helper","ember-htmlbars/system/concat","ember-htmlbars/system/sanitize-for-helper","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
+  ["ember-metal/core","ember-metal/error","ember-metal/run_loop","ember-htmlbars/system/lookup-helper","ember-htmlbars/system/concat","ember-htmlbars/system/sanitize-for-helper","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
-    var run = __dependency2__["default"];
-    var lookupHelper = __dependency3__["default"];
-    var concat = __dependency4__["default"];
-    var sanitizeOptionsForHelper = __dependency5__.sanitizeOptionsForHelper;
+    var EmberError = __dependency2__["default"];
+    var run = __dependency3__["default"];
+    var lookupHelper = __dependency4__["default"];
+    var concat = __dependency5__["default"];
+    var sanitizeOptionsForHelper = __dependency6__.sanitizeOptionsForHelper;
 
     function streamifyArgs(view, params, hash, options, env, helper) {
       sanitizeOptionsForHelper(options);
@@ -11322,7 +11325,18 @@ enifed("ember-htmlbars/hooks",
       }
     }
 
-    function content(morph, path, view, params, hash, options, env) {
+    function set(view, name, value) {
+      if (Ember.FEATURES.isEnabled('ember-htmlbars-block-params')) {
+        view._keywords[name] = value;
+      } else {
+        throw new EmberError(
+          "You must enable the ember-htmlbars-block-params feature " +
+          "flag to use the block params feature in Ember."
+        );
+      }
+    }
+
+    __exports__.set = set;function content(morph, path, view, params, hash, options, env) {
       var helper = lookupHelper(path, view, env);
       if (!helper) {
         helper = lookupHelper('bindHelper', view, env);
@@ -11367,7 +11381,7 @@ enifed("ember-htmlbars/hooks",
       }
     }
 
-    __exports__.subexpr = subexpr;function attribute(element, attributeName, quoted, context, parts, options, env) {
+    __exports__.subexpr = subexpr;function attribute(element, attributeName, quoted, view, parts, options, env) {
       var dom = env.dom;
       var isDirty, lastRenderedValue, attrValueStream;
 
@@ -11401,7 +11415,9 @@ enifed("ember-htmlbars/hooks",
 
       lastRenderedValue = attrValueStream.value();
 
-      dom.setAttribute(element, attributeName, lastRenderedValue);
+      if (lastRenderedValue !== null) {
+        dom.setAttribute(element, attributeName, lastRenderedValue);
+      }
     }
 
     __exports__.attribute = attribute;
@@ -11762,14 +11778,14 @@ enifed("ember-htmlbars/templates/select",
         }
         var cachedFragment;
         return function template(context, env, contextualElement) {
-          var dom = env.dom, hooks = env.hooks, get = env.get;
+          var dom = env.dom, hooks = env.hooks;
           dom.detectNamespace(contextualElement);
           if (cachedFragment === undefined) {
             cachedFragment = build(dom);
           }
           var fragment = dom.cloneNode(cachedFragment, true);
           var morph0 = dom.createMorphAt(fragment,-1,-1);
-          hooks.content(morph0, "view.prompt", context, [], {}, {type:"id",morph:morph0}, env);
+          hooks.content(morph0, "view.prompt", context, [], {}, {morph:morph0}, env);
           return fragment;
         };
       }())
@@ -11785,7 +11801,7 @@ enifed("ember-htmlbars/templates/select",
           }
           var cachedFragment;
           return function template(context, env, contextualElement) {
-            var dom = env.dom, hooks = env.hooks, get = env.get;
+            var dom = env.dom, hooks = env.hooks;
             dom.detectNamespace(contextualElement);
             if (cachedFragment === undefined) {
               cachedFragment = build(dom);
@@ -11793,7 +11809,7 @@ enifed("ember-htmlbars/templates/select",
             var fragment = dom.cloneNode(cachedFragment, true);
             dom.repairClonedNode(fragment,[0,1]);
             var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
-            hooks.content(morph0, "view", context, ["view.groupView"], {"content":"group.content","label":"group.label"}, {type:"id",paramTypes:["id"],hashTypes:{"content":"id","label":"id"},morph:morph0}, env);
+            hooks.content(morph0, "view", context, ["view.groupView"], {"content":"group.content","label":"group.label"}, {paramTypes:["id"],hashTypes:{"content":"id","label":"id"},morph:morph0}, env);
             return fragment;
           };
         }())
@@ -11807,7 +11823,7 @@ enifed("ember-htmlbars/templates/select",
         }
         var cachedFragment;
         return function template(context, env, contextualElement) {
-          var dom = env.dom, hooks = env.hooks, get = env.get;
+          var dom = env.dom, hooks = env.hooks;
           dom.detectNamespace(contextualElement);
           if (cachedFragment === undefined) {
             cachedFragment = build(dom);
@@ -11815,7 +11831,7 @@ enifed("ember-htmlbars/templates/select",
           var fragment = dom.cloneNode(cachedFragment, true);
           dom.repairClonedNode(fragment,[0,1]);
           var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
-          hooks.content(morph0, "each", context, ["group","in","view.groupedContent"], {}, {type:"id",paramTypes:["id","id","id"],hashTypes:{},render:child0,morph:morph0}, env);
+          hooks.content(morph0, "each", context, ["group","in","view.groupedContent"], {}, {paramTypes:["id","id","id"],hashTypes:{},render:child0,morph:morph0}, env);
           return fragment;
         };
       }())
@@ -11831,7 +11847,7 @@ enifed("ember-htmlbars/templates/select",
           }
           var cachedFragment;
           return function template(context, env, contextualElement) {
-            var dom = env.dom, hooks = env.hooks, get = env.get;
+            var dom = env.dom, hooks = env.hooks;
             dom.detectNamespace(contextualElement);
             if (cachedFragment === undefined) {
               cachedFragment = build(dom);
@@ -11839,7 +11855,7 @@ enifed("ember-htmlbars/templates/select",
             var fragment = dom.cloneNode(cachedFragment, true);
             dom.repairClonedNode(fragment,[0,1]);
             var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
-            hooks.content(morph0, "view", context, ["view.optionView"], {"content":"item"}, {type:"id",paramTypes:["id"],hashTypes:{"content":"id"},morph:morph0}, env);
+            hooks.content(morph0, "view", context, ["view.optionView"], {"content":"item"}, {paramTypes:["id"],hashTypes:{"content":"id"},morph:morph0}, env);
             return fragment;
           };
         }())
@@ -11853,7 +11869,7 @@ enifed("ember-htmlbars/templates/select",
         }
         var cachedFragment;
         return function template(context, env, contextualElement) {
-          var dom = env.dom, hooks = env.hooks, get = env.get;
+          var dom = env.dom, hooks = env.hooks;
           dom.detectNamespace(contextualElement);
           if (cachedFragment === undefined) {
             cachedFragment = build(dom);
@@ -11861,7 +11877,7 @@ enifed("ember-htmlbars/templates/select",
           var fragment = dom.cloneNode(cachedFragment, true);
           dom.repairClonedNode(fragment,[0,1]);
           var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
-          hooks.content(morph0, "each", context, ["item","in","view.content"], {}, {type:"id",paramTypes:["id","id","id"],hashTypes:{},render:child0,morph:morph0}, env);
+          hooks.content(morph0, "each", context, ["item","in","view.content"], {}, {paramTypes:["id","id","id"],hashTypes:{},render:child0,morph:morph0}, env);
           return fragment;
         };
       }())
@@ -11877,7 +11893,7 @@ enifed("ember-htmlbars/templates/select",
       }
       var cachedFragment;
       return function template(context, env, contextualElement) {
-        var dom = env.dom, hooks = env.hooks, get = env.get;
+        var dom = env.dom, hooks = env.hooks;
         dom.detectNamespace(contextualElement);
         if (cachedFragment === undefined) {
           cachedFragment = build(dom);
@@ -11886,8 +11902,8 @@ enifed("ember-htmlbars/templates/select",
         dom.repairClonedNode(fragment,[0,1]);
         var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
         var morph1 = dom.createMorphAt(fragment,1,2,contextualElement);
-        hooks.content(morph0, "if", context, ["view.prompt"], {}, {type:"id",paramTypes:["id"],hashTypes:{},render:child0,morph:morph0}, env);
-        hooks.content(morph1, "if", context, ["view.optionGroupPath"], {}, {type:"id",paramTypes:["id"],hashTypes:{},render:child1,inverse:child2,morph:morph1}, env);
+        hooks.content(morph0, "if", context, ["view.prompt"], {}, {paramTypes:["id"],hashTypes:{},render:child0,morph:morph0}, env);
+        hooks.content(morph1, "if", context, ["view.optionGroupPath"], {}, {paramTypes:["id"],hashTypes:{},render:child1,inverse:child2,morph:morph1}, env);
         return fragment;
       };
     }());
@@ -12184,7 +12200,10 @@ enifed("ember-metal-views/renderer",
     }
 
     function Renderer_insertElement(view, parentView, element, index) {
-      if (element === null || element === undefined) return;
+      if (element === null || element === undefined) {
+        return;
+      }
+
       if (view._morph) {
         view._morph.update(element);
       } else if (parentView) {
@@ -15078,7 +15097,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.80204644
+      @version 1.10.0-beta.1+canary.ee35eec1
     */
 
     if ('undefined' === typeof Ember) {
@@ -15105,10 +15124,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.80204644'
+      @default '1.10.0-beta.1+canary.ee35eec1'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.80204644';
+    Ember.VERSION = '1.10.0-beta.1+canary.ee35eec1';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -17603,19 +17622,22 @@ enifed("ember-metal/mixin",
 
     function superFunction(){
       var func = this.__nextSuper;
+      var ret;
 
       if (func) {
         var length = arguments.length;
-
-        if (length === 0){
-          return this.__nextSuper();
+        this.__nextSuper = null;
+        if (length === 0) {
+          ret = func.call(this);
         } else if (length === 1) {
-          return this.__nextSuper(arguments[0]);
+          ret = func.call(this, arguments[0]);
         } else if (length === 2) {
-          return this.__nextSuper(arguments[0], arguments[1]);
+          ret = func.call(this, arguments[0], arguments[1]);
         } else {
-          return this.__nextSuper.apply(this, arguments);
+          ret = func.apply(this, arguments);
         }
+        this.__nextSuper = func;
+        return ret;
       }
     }
 
@@ -44625,7 +44647,7 @@ enifed("ember-views/views/component",
         this._keywords.view.setSource(this);
       },
 
-      _yield: function(context, options, morph) {
+      _yield: function(context, options, morph, blockArguments) {
         var view = options.data.view;
         var parentView = this._parentView;
         var template = get(this, 'template');
@@ -44637,6 +44659,7 @@ enifed("ember-views/views/component",
             isVirtual: true,
             tagName: '',
             template: template,
+            _blockArguments: blockArguments,
             _contextView: parentView,
             _morph: morph,
             context: get(parentView, 'context'),
@@ -47581,7 +47604,7 @@ enifed("ember-views/views/view",
         if (template) {
           var useHTMLBars = false;
           if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
-            useHTMLBars = template.length === 3;
+            useHTMLBars = template.length >= 3;
           }
 
           if (useHTMLBars) {
@@ -47594,6 +47617,8 @@ enifed("ember-views/views/view",
           morph.update(result);
         }
       },
+
+      _blockArguments: EMPTY_ARRAY,
 
       templateForName: function(name, type) {
         if (!name) { return; }
@@ -47870,12 +47895,12 @@ enifed("ember-views/views/view",
           var useHTMLBars = false;
 
           if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
-            useHTMLBars = template.length === 3;
+            useHTMLBars = template.length >= 3;
           }
 
           if (useHTMLBars) {
             var env = Ember.merge(buildHTMLBarsDefaultEnv(), options);
-            output = template(this, env, buffer.innerContextualElement());
+            output = template(this, env, buffer.innerContextualElement(), this._blockArguments);
           } else {
             output = template(context, options);
           }
@@ -52523,9 +52548,6 @@ enifed("htmlbars-compiler/compiler/helpers",
       var inverseId = stack.pop();
 
       var options = [];
-      if (name !== null) {
-        options.push('type:' + type);
-      }
       options.push('paramTypes:' + array(paramTypes));
       options.push('hashTypes:' + hash(hashTypes));
 
@@ -52617,17 +52639,6 @@ enifed("htmlbars-compiler/compiler/hydration",
       }
     };
 
-    prototype.scopeId = function(parts) {
-      this.stack.push(string('value'));
-      var id = '$' + parts[0];
-      var path = parts.slice(1).join('.');
-      if (parts.length === 1) {
-        this.stack.push(id);
-      } else {
-        this.stack.push('get(' + id + ', ' + string(path) + ')');
-      }
-    };
-
     prototype.literal = function(literal) {
       this.stack.push(string(typeof literal));
       this.stack.push(literal);
@@ -52642,9 +52653,12 @@ enifed("htmlbars-compiler/compiler/hydration",
       this.stack.push(literal);
     };
 
-    prototype.helper = function(size, morphNum) {
+    prototype.helper = function(size, morphNum, blockParamsLength) {
       var prepared = prepareHelper(this.stack, size);
       prepared.options.push('morph:morph'+morphNum);
+      if (blockParamsLength) {
+        prepared.options.push('blockParams:'+blockParamsLength);
+      }
       this.pushMustacheInContent(prepared.name, prepared.params, prepared.hash, prepared.options, morphNum);
     };
 
@@ -52656,27 +52670,15 @@ enifed("htmlbars-compiler/compiler/hydration",
 
     prototype.ambiguous = function(morphNum) {
       var name = this.stack.pop();
-      var type = this.stack.pop();
+      this.stack.pop();
       var options = [];
-      options.push('type:'+type);
       options.push('morph:morph'+morphNum);
       this.pushMustacheInContent(name, '[]', '{}', options, morphNum);
     };
 
     prototype.attribute = function(quoted, name, size, elementNum) {
       var prepared = prepareHelper(this.stack, size);
-      this.source.push(this.indent + 'hooks.attribute(element' + elementNum + ', ' + string(name) + ', ' + quoted + ', context, ' + prepared.params + ', ' + hash(prepared.options) + ', env);\n');
-    };
-
-    prototype.ambiguousAttr = function() {
-      var name = this.stack.pop();
-      var type = this.stack.pop();
-      this.stack.push('[' + name + ', [], {}, { type: ' + type + ' }]');
-    };
-
-    prototype.helperAttr = function(size) {
-      var prepared = prepareHelper(this.stack, size);
-      this.stack.push('['+prepared.name+','+prepared.params+','+ prepared.hash +',' + hash(prepared.options)+']');
+      this.source.push(this.indent + '  hooks.attribute(element' + elementNum + ', ' + string(name) + ', ' + quoted + ', context, ' + prepared.params + ', ' + hash(prepared.options) + ', env);\n');
     };
 
     prototype.sexpr = function(size) {
@@ -52795,14 +52797,13 @@ enifed("htmlbars-compiler/compiler/hydration_opcode",
       return this.opcodes;
     };
 
-    HydrationOpcodeCompiler.prototype.startProgram = function(program, c, blankChildTextNodes, scopeVars) {
+    HydrationOpcodeCompiler.prototype.startProgram = function(program, c, blankChildTextNodes) {
       this.opcodes.length = 0;
       this.paths.length = 0;
       this.morphs.length = 0;
       this.templateId = 0;
       this.currentDOMChildIndex = -1;
       this.morphNum = 0;
-      this.scopeVars = scopeVars;
 
       if (blankChildTextNodes.length > 0){
         this.opcode( 'repairClonedNode',
@@ -52854,18 +52855,21 @@ enifed("htmlbars-compiler/compiler/hydration_opcode",
     };
 
     HydrationOpcodeCompiler.prototype.block = function(block, childIndex, childrenLength) {
-      var currentDOMChildIndex = this.currentDOMChildIndex,
-          sexpr = block.sexpr;
+      var sexpr = block.sexpr;
+      var program = block.program;
 
-      var start = (currentDOMChildIndex < 0 ? null : currentDOMChildIndex),
-          end = (childIndex === childrenLength - 1 ? null : currentDOMChildIndex + 1);
+      var blockParamsLength = program && program.blockParams ? program.blockParams.length : 0;
+
+      var currentDOMChildIndex = this.currentDOMChildIndex;
+      var start = (currentDOMChildIndex < 0) ? null : currentDOMChildIndex;
+      var end = (childIndex === childrenLength - 1) ? null : currentDOMChildIndex + 1;
 
       var morphNum = this.morphNum++;
       this.morphs.push([morphNum, this.paths.slice(), start, end, true]);
 
       this.opcode('program', this.templateId++, block.inverse === null ? null : this.templateId++);
       processSexpr(this, sexpr);
-      this.opcode('helper', sexpr.params.length, morphNum);
+      this.opcode('helper', sexpr.params.length, morphNum, blockParamsLength);
     };
 
     HydrationOpcodeCompiler.prototype.component = function(component, childIndex, childrenLength) {
@@ -52953,23 +52957,8 @@ enifed("htmlbars-compiler/compiler/hydration_opcode",
       this.opcode('string', str);
     };
 
-    HydrationOpcodeCompiler.prototype.mustacheInAttr = function(mustache) {
-      if (mustache.isHelper) {
-        this.opcode('program', null, null);
-        processSexpr(this, mustache);
-        this.opcode('helperAttr', mustache.params.length);
-      } else {
-        this.ID(mustache.id);
-        this.opcode('ambiguousAttr');
-      }
-    };
-
     HydrationOpcodeCompiler.prototype.ID = function(id) {
-      if (id.parts.length > 0 && this.scopeVars[id.parts[0]]) {
-        this.opcode('scopeId', id.parts);
-      } else {
-        this.opcode('id', id.parts);
-      }
+      this.opcode('id', id.parts);
     };
 
     HydrationOpcodeCompiler.prototype.STRING = function(string) {
@@ -53097,6 +53086,7 @@ enifed("htmlbars-compiler/compiler/template",
     var HydrationCompiler = __dependency4__.HydrationCompiler;
     var TemplateVisitor = __dependency5__["default"];
     var processOpcodes = __dependency6__.processOpcodes;
+    var string = __dependency7__.string;
     var repeat = __dependency7__.repeat;
 
     function TemplateCompiler(options) {
@@ -53118,24 +53108,14 @@ enifed("htmlbars-compiler/compiler/template",
       return this.templates.pop();
     };
 
-    TemplateCompiler.prototype.startProgram = function(program, childTemplateCount, blankChildTextNodes, scopeVars) {
-      this.fragmentOpcodeCompiler.startProgram(program, childTemplateCount, blankChildTextNodes, scopeVars);
-      this.hydrationOpcodeCompiler.startProgram(program, childTemplateCount, blankChildTextNodes, scopeVars);
+    TemplateCompiler.prototype.startProgram = function(program, childTemplateCount, blankChildTextNodes) {
+      this.fragmentOpcodeCompiler.startProgram(program, childTemplateCount, blankChildTextNodes);
+      this.hydrationOpcodeCompiler.startProgram(program, childTemplateCount, blankChildTextNodes);
 
       this.childTemplates.length = 0;
       while(childTemplateCount--) {
         this.childTemplates.push(this.templates.pop());
       }
-    };
-
-    TemplateCompiler.prototype.getScopeVars = function(indent, blockParams) {
-      var vars = '';
-      if (blockParams) {
-        for (var i = 0; i < blockParams.length; i++) {
-          vars += indent + 'var $' + blockParams[i] + ';\n';
-        }
-      }
-      return vars;
     };
 
     TemplateCompiler.prototype.getChildTemplateVars = function(indent) {
@@ -53148,11 +53128,11 @@ enifed("htmlbars-compiler/compiler/template",
       return vars;
     };
 
-    TemplateCompiler.prototype.getScopeAssignments = function(indent, blockParams) {
+    TemplateCompiler.prototype.getContextAssignments = function(indent, blockParams) {
       var assignments = '';
       if (blockParams) {
         for (var i = 0; i < blockParams.length; i++) {
-          assignments += indent + '$' + blockParams[i] + ' = blockArguments[' + i + '];\n';
+          assignments += indent + 'hooks.set(context, ' + string(blockParams[i]) +', blockArguments[' + i + ']);\n';
         }
       }
       return assignments;
@@ -53189,13 +53169,12 @@ enifed("htmlbars-compiler/compiler/template",
 
       var template =
         '(function() {\n' +
-        this.getScopeVars(indent + '  ', blockParams) +
         this.getChildTemplateVars(indent + '  ') +
         fragmentProgram +
         indent+'  var cachedFragment;\n' +
         indent+'  return function template(' + templateSignature + ') {\n' +
-        indent+'    var dom = env.dom, hooks = env.hooks, get = env.get;\n' +
-        this.getScopeAssignments(indent + '    ', blockParams) +
+        indent+'    var dom = env.dom, hooks = env.hooks;\n' +
+        this.getContextAssignments(indent + '    ', blockParams) +
         indent+'    dom.detectNamespace(contextualElement);\n' +
         indent+'    if (cachedFragment === undefined) {\n' +
         indent+'      cachedFragment = build(dom);\n' +
@@ -53267,7 +53246,6 @@ enifed("htmlbars-compiler/compiler/template_visitor",
       this.childCount = null;
       this.childTemplateCount = 0;
       this.mustacheCount = 0;
-      this.scopeVars = null;
       this.actions = [];
     }
 
@@ -53338,19 +53316,6 @@ enifed("htmlbars-compiler/compiler/template_visitor",
 
       var parentFrame = this.getCurrentFrame();
       var programFrame = this.pushFrame();
-      programFrame.scopeVars = {};
-
-      if (parentFrame && parentFrame.scopeVars) {
-        for (var name in parentFrame.scopeVars) {
-          programFrame.scopeVars[name] = true;
-        }
-      }
-
-      if (program.blockParams) {
-        for (var j = 0; j < program.blockParams.length; j++) {
-          programFrame.scopeVars[program.blockParams[j]] = true;
-        }
-      }
 
       programFrame.parentNode = program;
       programFrame.children = program.statements;
@@ -53365,8 +53330,7 @@ enifed("htmlbars-compiler/compiler/template_visitor",
 
       programFrame.actions.push(['startProgram', [
         program, programFrame.childTemplateCount,
-        programFrame.blankChildTextNodes.reverse(),
-        programFrame.scopeVars
+        programFrame.blankChildTextNodes.reverse()
       ]]);
       this.popFrame();
 
@@ -55821,7 +55785,10 @@ enifed("morph/morph",
       if (!this.element) {
         var parent = this.start.parentNode;
         if (this._parent !== parent) {
-          this.element = this._parent = parent;
+          this._parent = parent;
+        }
+        if (parent.nodeType === 1) {
+          this.element = parent;
         }
       }
       return this._parent;

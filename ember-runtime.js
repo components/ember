@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.80204644
+ * @version   1.10.0-beta.1+canary.ee35eec1
  */
 
 (function() {
@@ -4808,7 +4808,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.80204644
+      @version 1.10.0-beta.1+canary.ee35eec1
     */
 
     if ('undefined' === typeof Ember) {
@@ -4835,10 +4835,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.80204644'
+      @default '1.10.0-beta.1+canary.ee35eec1'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.80204644';
+    Ember.VERSION = '1.10.0-beta.1+canary.ee35eec1';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -7333,19 +7333,22 @@ define("ember-metal/mixin",
 
     function superFunction(){
       var func = this.__nextSuper;
+      var ret;
 
       if (func) {
         var length = arguments.length;
-
-        if (length === 0){
-          return this.__nextSuper();
+        this.__nextSuper = null;
+        if (length === 0) {
+          ret = func.call(this);
         } else if (length === 1) {
-          return this.__nextSuper(arguments[0]);
+          ret = func.call(this, arguments[0]);
         } else if (length === 2) {
-          return this.__nextSuper(arguments[0], arguments[1]);
+          ret = func.call(this, arguments[0], arguments[1]);
         } else {
-          return this.__nextSuper.apply(this, arguments);
+          ret = func.apply(this, arguments);
         }
+        this.__nextSuper = func;
+        return ret;
       }
     }
 

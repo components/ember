@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.80204644
+ * @version   1.10.0-beta.1+canary.ee35eec1
  */
 
 (function() {
@@ -10006,41 +10006,6 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
       });
     });
 
-    if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
-    test('edge case: child conditional should not render children if parent conditional becomes false', function() {
-      var childCreated = false;
-      var child = null;
-
-      view = EmberView.create({
-        cond1: true,
-        cond2: false,
-        viewClass: EmberView.extend({
-          init: function() {
-            this._super();
-            childCreated = true;
-            child = this;
-          }
-        }),
-        template: compile('{{#if view.cond1}}{{#if view.cond2}}{{#view view.viewClass}}test{{/view}}{{/if}}{{/if}}')
-      });
-
-      appendView(view);
-
-      ok(!childCreated, 'precondition');
-
-      run(function() {
-        // The order of these sets is important for the test
-        view.set('cond2', true);
-        view.set('cond1', false);
-      });
-
-      // TODO: Priority Queue, for now ensure correct result.
-      //ok(!childCreated, 'child should not be created');
-      ok(child.isDestroyed, 'child should be gone');
-      equal(view.$().text(), '');
-    });
-    }
-
     test('views within an if statement should be sane on re-render', function() {
       view = EmberView.create({
         template: compile('{{#if view.display}}{{input}}{{/if}}'),
@@ -10266,6 +10231,56 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
       });
 
       equal(view.$().text(), '');
+    });
+
+    test('edge case: child conditional should not render children if parent conditional becomes false', function() {
+      var childCreated = false;
+      var child = null;
+
+      view = EmberView.create({
+        cond1: true,
+        cond2: false,
+        viewClass: EmberView.extend({
+          init: function() {
+            this._super();
+            childCreated = true;
+            child = this;
+          }
+        }),
+        template: compile('{{#if view.cond1}}{{#if view.cond2}}{{#view view.viewClass}}test{{/view}}{{/if}}{{/if}}')
+      });
+
+      appendView(view);
+
+      ok(!childCreated, 'precondition');
+
+      run(function() {
+        // The order of these sets is important for the test
+        view.set('cond2', true);
+        view.set('cond1', false);
+      });
+
+      // TODO: Priority Queue, for now ensure correct result.
+      //ok(!childCreated, 'child should not be created');
+      ok(child.isDestroyed, 'child should be gone');
+      equal(view.$().text(), '');
+    });
+
+    test('edge case: rerender appearance of inner virtual view', function() {
+      view = EmberView.create({
+        tagName: '',
+        cond2: false,
+        template: compile('{{#if view.cond2}}test{{/if}}')
+      });
+
+      appendView(view);
+      equal(Ember.$('#qunit-fixture').text(), '');
+
+      run(function() {
+        view.set('cond2', true);
+      });
+
+      equal(Ember.$('#qunit-fixture').text(), 'test');
     });
   });
 enifed("ember-htmlbars/tests/helpers/if_unless_test.jshint",
@@ -12764,6 +12779,30 @@ enifed("ember-htmlbars/tests/hooks/attribute_test",
         equalInnerHTML(view.element, '<div>Hi!</div>', "attribute is output");
       });
 
+      test("unquoted attributes that are null are not added", function() {
+        view = EmberView.create({
+          context: {firstName: null},
+          template: compile("<div data-name={{firstName}}>Hi!</div>")
+        });
+        appendView(view);
+
+        equalInnerHTML(view.element, '<div>Hi!</div>', "attribute is not present");
+      });
+
+      test("unquoted attributes are added when changing from null", function() {
+        view = EmberView.create({
+          context: {firstName: null},
+          template: compile("<div data-name={{firstName}}>Hi!</div>")
+        });
+        appendView(view);
+
+        equalInnerHTML(view.element, '<div>Hi!</div>', "precond - attribute is not present");
+
+        run(view, view.set, 'context.firstName', 'max');
+
+        equalInnerHTML(view.element, '<div data-name="max">Hi!</div>', "attribute is added output");
+      });
+
       test("property value is directly added to attribute", function() {
         view = EmberView.create({
           context: {name: '"" data-foo="blah"'},
@@ -13072,6 +13111,152 @@ enifed("ember-htmlbars/tests/htmlbars_test.jshint",
     module('JSHint - ember-htmlbars/tests');
     test('ember-htmlbars/tests/htmlbars_test.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/tests/htmlbars_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/tests/integration/block_params_test",
+  ["container/container","ember-metal/run_loop","ember-views/component_lookup","ember-views/views/view","ember-htmlbars/system/compile","ember-htmlbars/helpers"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
+    "use strict";
+    var Container = __dependency1__["default"];
+    var run = __dependency2__["default"];
+    var ComponentLookup = __dependency3__["default"];
+    var View = __dependency4__["default"];
+    var compile = __dependency5__["default"];
+    var helpers = __dependency6__["default"];
+    var registerHelper = __dependency6__.registerHelper;
+
+    var container, view;
+
+    function appendView(view) {
+      run(function() { view.appendTo('#qunit-fixture'); });
+    }
+
+    function aliasHelper(params, hash, options, env) {
+      this.appendChild(View, {
+        isVirtual: true,
+        _morph: options.morph,
+        template: options.render,
+        _blockArguments: params
+      });
+    }
+
+    if (Ember.FEATURES.isEnabled('ember-htmlbars-block-params')) {
+
+    QUnit.module("ember-htmlbars: block params", {
+      setup: function() {
+        registerHelper('alias', aliasHelper);
+
+        container = new Container();
+        container.optionsForType('component', { singleton: false });
+        container.optionsForType('view', { singleton: false });
+        container.optionsForType('template', { instantiate: false });
+        container.optionsForType('helper', { instantiate: false });
+        container.register('component-lookup:main', ComponentLookup);
+      },
+      teardown: function() {
+        delete helpers.alias;
+
+        run(container, 'destroy');
+
+        if (view) {
+          run(function() {
+            view.destroy();
+          });
+        }
+      }
+    });
+
+    test("basic block params usage", function() {
+      view = View.create({
+        committer: { name: "rwjblue" },
+        template: compile('{{#alias view.committer.name as |name|}}name: {{name}}, length: {{name.length}}{{/alias}}')
+      });
+
+      appendView(view);
+
+      equal(view.$().text(), "name: rwjblue, length: 7");
+
+      run(function() {
+        view.set('committer.name', "krisselden");
+      });
+
+      equal(view.$().text(), "name: krisselden, length: 10");
+    });
+
+    test("nested block params shadow correctly", function() {
+      view = View.create({
+        context: { name: "ebryn" },
+        committer1: { name: "trek" },
+        committer2: { name: "machty" },
+        template: compile(
+          '{{name}}' +
+          '{{#alias view.committer1.name as |name|}}' +
+            '[{{name}}' +
+            '{{#alias view.committer2.name as |name|}}' +
+              '[{{name}}]' +
+            '{{/alias}}' +
+            '{{name}}]' +
+          '{{/alias}}' +
+          '{{name}}' +
+          '{{#alias view.committer2.name as |name|}}' +
+            '[{{name}}' +
+            '{{#alias view.committer1.name as |name|}}' +
+              '[{{name}}]' +
+            '{{/alias}}' +
+            '{{name}}]' +
+          '{{/alias}}' +
+          '{{name}}'
+        )
+      });
+
+      appendView(view);
+
+      equal(view.$().text(), "ebryn[trek[machty]trek]ebryn[machty[trek]machty]ebryn");
+    });
+
+    test("components can yield values", function() {
+      container.register('template:components/x-alias', compile('{{yield param.name}}'));
+
+      view = View.create({
+        container: container,
+        context: { name: "ebryn" },
+        committer1: { name: "trek" },
+        committer2: { name: "machty" },
+        template: compile(
+          '{{name}}' +
+          '{{#x-alias param=view.committer1 as |name|}}' +
+            '[{{name}}' +
+            '{{#x-alias param=view.committer2 as |name|}}' +
+              '[{{name}}]' +
+            '{{/x-alias}}' +
+            '{{name}}]' +
+          '{{/x-alias}}' +
+          '{{name}}' +
+          '{{#x-alias param=view.committer2 as |name|}}' +
+            '[{{name}}' +
+            '{{#x-alias param=view.committer1 as |name|}}' +
+              '[{{name}}]' +
+            '{{/x-alias}}' +
+            '{{name}}]' +
+          '{{/x-alias}}' +
+          '{{name}}'
+        )
+      });
+
+      appendView(view);
+
+      equal(view.$().text(), "ebryn[trek[machty]trek]ebryn[machty[trek]machty]ebryn");
+    });
+
+    }
+  });
+enifed("ember-htmlbars/tests/integration/block_params_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/tests/integration');
+    test('ember-htmlbars/tests/integration/block_params_test.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/tests/integration/block_params_test.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/tests/integration/component_invocation_test",
@@ -20509,6 +20694,38 @@ enifed("ember-metal/tests/mixin/reopen_test",
       equal(Ember.get(obj, 'foo'), 'FOO2', 'mixin() should override');
       equal(Ember.get(obj, 'baz'), 'BAZ', 'preserve MixinA props');
       equal(Ember.get(obj, 'bar'), 'BAR', 'include MixinB props');
+    });
+
+    test('using reopen() and calling _super where there is not a super function does not cause infinite recursion', function(){
+
+      var Taco = Ember.Object.extend({
+        createBreakfast: function(){
+          // There is no original createBreakfast function.
+          // Calling the wrapped _super function here
+          // used to end in an infinite call loop
+          this._super.apply(this, arguments);
+          return "Breakfast!";
+        }
+      });
+
+      Taco.reopen({
+        createBreakfast: function(){
+          return this._super.apply(this, arguments);
+        }
+      });
+
+      var taco = Taco.create();
+
+      var result;
+      Ember.run(function(){
+        try {
+          result = taco.createBreakfast();
+        } catch (e) {
+          result = "Your breakfast was interrupted by an infinite stack error.";
+        }
+      });
+
+      equal(result, "Breakfast!");
     });
   });
 enifed("ember-metal/tests/mixin/reopen_test.jshint",
