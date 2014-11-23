@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.bf1fa1b0
+ * @version   1.10.0-beta.1+canary.27623f43
  */
 
 (function() {
@@ -5195,25 +5195,6 @@ enifed("ember-handlebars/tests/handlebars_test",
       });
     });
 
-    test("should be able to output a property without binding", function() {
-      var context = {
-        content: EmberObject.create({
-          anUnboundString: "No spans here, son."
-        })
-      };
-
-      view = EmberView.create({
-        context: context,
-        template: EmberHandlebars.compile(
-          '<div id="first">{{unbound content.anUnboundString}}</div>'
-        )
-      });
-
-      appendView();
-
-      equal(view.$('#first').html(), "No spans here, son.");
-    });
-
     test("should allow standard Handlebars template usage", function() {
       view = EmberView.create({
         context: { name: "Erik" },
@@ -5234,32 +5215,6 @@ enifed("ember-handlebars/tests/handlebars_test",
       appendView();
 
       equal(view.$().html(), "abc");
-    });
-
-    test("should be able to use unbound helper in #each helper", function() {
-      view = EmberView.create({
-        items: A(['a', 'b', 'c', 1, 2, 3]),
-        template: EmberHandlebars.compile(
-          "<ul>{{#each item in view.items}}<li>{{unbound item}}</li>{{/each}}</ul>")
-      });
-
-      appendView();
-
-      equal(view.$().text(), "abc123");
-      equal(view.$('li').children().length, 0, "No markers");
-    });
-
-    test("should be able to use unbound helper in #each helper (with objects)", function() {
-      view = EmberView.create({
-        items: A([{wham: 'bam'}, {wham: 1}]),
-        template: EmberHandlebars.compile(
-          "<ul>{{#each item in view.items}}<li>{{unbound item.wham}}</li>{{/each}}</ul>")
-      });
-
-      appendView();
-
-      equal(view.$().text(), "bam1");
-      equal(view.$('li').children().length, 0, "No markers");
     });
 
     test("should work with precompiled templates", function() {
@@ -11101,27 +11056,29 @@ enifed("ember-htmlbars/tests/helpers/text_area_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helpers/unbound_test",
-  ["ember-views/views/view","ember-runtime/system/object","ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-handlebars-compiler","htmlbars-compiler/compiler","ember-metal/error","ember-htmlbars/helpers","ember-htmlbars/compat/register-bound-helper","ember-htmlbars/compat/make-bound-helper","ember-runtime/system/container","ember-handlebars/ext"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__) {
+  ["ember-views/views/view","ember-runtime/system/object","ember-runtime/system/native_array","ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-handlebars-compiler","htmlbars-compiler/compiler","ember-metal/error","ember-htmlbars/helpers","ember-htmlbars/compat/register-bound-helper","ember-htmlbars/compat/make-bound-helper","ember-runtime/system/container","ember-handlebars/ext"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__) {
     "use strict";
+    /*jshint newcap:false*/
     var EmberView = __dependency1__["default"];
     var EmberObject = __dependency2__["default"];
 
-    var Ember = __dependency3__["default"];
-    var get = __dependency4__.get;
-    var set = __dependency5__.set;
-    var run = __dependency6__["default"];
-    var EmberHandlebars = __dependency7__["default"];
-    var htmlbarsCompile = __dependency8__.compile;
-    var EmberError = __dependency9__["default"];
-    var htmlbarsHelpers = __dependency10__["default"];
-    var registerHTMLBarsHelper = __dependency11__["default"];
-    var htmlbarsMakeBoundHelper = __dependency12__["default"];
+    var A = __dependency3__.A;
+    var Ember = __dependency4__["default"];
+    var get = __dependency5__.get;
+    var set = __dependency6__.set;
+    var run = __dependency7__["default"];
+    var EmberHandlebars = __dependency8__["default"];
+    var htmlbarsCompile = __dependency9__.compile;
+    var EmberError = __dependency10__["default"];
+    var htmlbarsHelpers = __dependency11__["default"];
+    var registerHTMLBarsHelper = __dependency12__["default"];
+    var htmlbarsMakeBoundHelper = __dependency13__["default"];
 
-    var Container = __dependency13__["default"];
+    var Container = __dependency14__["default"];
 
-    var handlebarsMakeBoundHelper = __dependency14__.makeBoundHelper;
-    var htmlbarsMakeBoundHelper = __dependency12__["default"];
+    var handlebarsMakeBoundHelper = __dependency15__.makeBoundHelper;
+    var htmlbarsMakeBoundHelper = __dependency13__["default"];
 
     var compile, helpers, registerBoundHelper, makeBoundHelper;
     if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
@@ -11414,6 +11371,47 @@ enifed("ember-htmlbars/tests/helpers/unbound_test",
       });
 
       equal(view.$().text(), "SUCH AWESOME", "only bound values change");
+    });
+
+    test("should be able to output a property without binding", function() {
+      var context = {
+        content: EmberObject.create({
+          anUnboundString: "No spans here, son."
+        })
+      };
+
+      view = EmberView.create({
+        context: context,
+        template: compile('<div id="first">{{unbound content.anUnboundString}}</div>')
+      });
+
+      appendView(view);
+
+      equal(view.$('#first').html(), "No spans here, son.");
+    });
+
+    test("should be able to use unbound helper in #each helper", function() {
+      view = EmberView.create({
+        items: A(['a', 'b', 'c', 1, 2, 3]),
+        template: compile('<ul>{{#each item in view.items}}<li>{{unbound item}}</li>{{/each}}</ul>')
+      });
+
+      appendView(view);
+
+      equal(view.$().text(), 'abc123');
+      equal(view.$('li').children().length, 0, 'No markers');
+    });
+
+    test("should be able to use unbound helper in #each helper (with objects)", function() {
+      view = EmberView.create({
+        items: A([{wham: 'bam'}, {wham: 1}]),
+        template: compile('<ul>{{#each item in view.items}}<li>{{unbound item.wham}}</li>{{/each}}</ul>')
+      });
+
+      appendView(view);
+
+      equal(view.$().text(), 'bam1');
+      equal(view.$('li').children().length, 0, 'No markers');
     });
   });
 enifed("ember-htmlbars/tests/helpers/unbound_test.jshint",
