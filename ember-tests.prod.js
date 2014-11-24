@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.10644f29
+ * @version   1.10.0-beta.1+canary.4b4af715
  */
 
 (function() {
@@ -11575,6 +11575,10 @@ enifed("ember-htmlbars/tests/helpers/view_test",
       return EmberView.extend(options);
     }
 
+    var appendView = function(view) {
+      run(view, 'appendTo', '#qunit-fixture');
+    };
+
     QUnit.module("ember-htmlbars: {{#view}} helper", {
       setup: function() {
         originalLookup = Ember.lookup;
@@ -11610,7 +11614,7 @@ enifed("ember-htmlbars/tests/helpers/view_test",
         container: container
       }).create();
 
-      run(view, 'appendTo', '#qunit-fixture');
+      appendView(view);
 
       equal(jQuery('#toplevel-view').text(), 'hello world');
     });
@@ -11640,7 +11644,7 @@ enifed("ember-htmlbars/tests/helpers/view_test",
       }).create();
 
       expectDeprecation(function(){
-        run(view, 'appendTo', '#qunit-fixture');
+        appendView(view);
       }, /Global lookup of App.FuView from a Handlebars template is deprecated./);
 
       equal(jQuery('#fu').text(), 'bro');
@@ -11667,7 +11671,7 @@ enifed("ember-htmlbars/tests/helpers/view_test",
         container: container
       }).create();
 
-      run(view, 'appendTo', '#qunit-fixture');
+      appendView(view);
 
       equal(jQuery('#fu').text(), 'bro');
     });
@@ -11694,7 +11698,7 @@ enifed("ember-htmlbars/tests/helpers/view_test",
         container: container
       }).create();
 
-      run(view, 'appendTo', '#qunit-fixture');
+      appendView(view);
 
       equal(jQuery('#fu').text(), 'bro');
     });
@@ -11721,7 +11725,7 @@ enifed("ember-htmlbars/tests/helpers/view_test",
         computed: 'fu'
       }).create();
 
-      run(view, 'appendTo', '#qunit-fixture');
+      appendView(view);
 
       equal(jQuery('#fu').text(), 'bro');
     });
@@ -11732,7 +11736,7 @@ enifed("ember-htmlbars/tests/helpers/view_test",
         meshuggah: 'stengah'
       }).create();
 
-      run(view, 'appendTo', '#qunit-fixture');
+      appendView(view);
 
       equal(jQuery('#stengah').text(), 'stengah', "id binding performed property lookup");
       run(view, 'set', 'meshuggah', 'omg');
@@ -11745,7 +11749,7 @@ enifed("ember-htmlbars/tests/helpers/view_test",
         meshuggah: 'stengah'
       }).create();
 
-      run(view, 'appendTo', '#qunit-fixture');
+      appendView(view);
 
       equal(view.$('#blah').text(), 'stengah', "id binding performed property lookup");
     });
@@ -11769,7 +11773,7 @@ enifed("ember-htmlbars/tests/helpers/view_test",
         snork: "nerd"
       }).create();
 
-      run(view, 'appendTo', '#qunit-fixture');
+      appendView(view);
 
       equal(jQuery('#lol').text(), "nerd", "awkward mixed syntax treated like binding");
 
@@ -11787,7 +11791,7 @@ enifed("ember-htmlbars/tests/helpers/view_test",
         container: container
       }).create();
 
-      run(view, 'appendTo', '#qunit-fixture');
+      appendView(view);
 
       ok(jQuery('#foo').hasClass('foo'));
       ok(jQuery('#foo').is('h1'));
@@ -11801,7 +11805,7 @@ enifed("ember-htmlbars/tests/helpers/view_test",
         template: compile('{{#view id="foo" classBinding=":foo"}} Foo{{/view}}')
       });
 
-      run(view, 'appendTo', '#qunit-fixture');
+      appendView(view);
 
       ok(jQuery('#foo').hasClass('foo'), "Always applies classbinding without condition");
     });
@@ -11814,7 +11818,7 @@ enifed("ember-htmlbars/tests/helpers/view_test",
         template: compile('{{#view id="foo" class=controller.someProp}} Foo{{/view}}')
       });
 
-      run(view, 'appendTo', '#qunit-fixture');
+      appendView(view);
 
       ok(jQuery('#foo').hasClass('foo'), "Always applies classbinding without condition");
     });
@@ -11827,7 +11831,7 @@ enifed("ember-htmlbars/tests/helpers/view_test",
         template: compile('{{#view id="foo" class=someProp}} Foo{{/view}}')
       });
 
-      run(view, 'appendTo', '#qunit-fixture');
+      appendView(view);
 
       ok(jQuery('#foo').hasClass('foo'), "Always applies classbinding without condition");
     });
@@ -11840,7 +11844,7 @@ enifed("ember-htmlbars/tests/helpers/view_test",
         template: compile('{{#view id="foo" class=someProp}} Foo{{/view}}')
       });
 
-      run(view, 'appendTo', '#qunit-fixture');
+      appendView(view);
 
       ok(!jQuery('#foo').hasClass('some-prop'), "does not add class when value is falsey");
     });
@@ -11853,7 +11857,7 @@ enifed("ember-htmlbars/tests/helpers/view_test",
         template: compile('{{#view id="foo" class=someProp}} Foo{{/view}}')
       });
 
-      run(view, 'appendTo', '#qunit-fixture');
+      appendView(view);
 
       ok(jQuery('#foo').hasClass('some-prop'), "adds dasherized class when value is true");
     });
@@ -11868,7 +11872,7 @@ enifed("ember-htmlbars/tests/helpers/view_test",
         template: compile('{{#view id="foo" class=someProp}} Foo{{/view}}')
       });
 
-      run(view, 'appendTo', '#qunit-fixture');
+      appendView(view);
 
       ok(jQuery('#foo').hasClass('some-prop'), "adds dasherized class when value is true");
 
@@ -11905,7 +11909,7 @@ enifed("ember-htmlbars/tests/helpers/view_test",
         someProp: 'initial value'
       }).create();
 
-      run(view, 'appendTo', '#qunit-fixture');
+      appendView(view);
 
       equal(view.$('#fu').text(), 'initial value');
 
