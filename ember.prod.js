@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.4b4af715
+ * @version   1.10.0-beta.1+canary.c36bf31d
  */
 
 (function() {
@@ -8040,6 +8040,11 @@ enifed("ember-htmlbars/compat/handlebars-get",
   function(__exports__) {
     "use strict";
     /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
+    /**
       Lookup both on root and on window. If the path starts with
       a keyword, the corresponding object will be looked up in the
       template's data hash and used to resolve the path.
@@ -8060,6 +8065,11 @@ enifed("ember-htmlbars/compat/helper",
   ["ember-metal/merge","ember-htmlbars/helpers","ember-views/views/view","ember-views/views/component","ember-htmlbars/system/make-view-helper","ember-htmlbars/compat/make-bound-helper","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
     var merge = __dependency1__["default"];
     var helpers = __dependency2__["default"];
     var View = __dependency3__["default"];
@@ -8069,6 +8079,13 @@ enifed("ember-htmlbars/compat/helper",
 
     var slice = [].slice;
 
+    /**
+      Wraps an Handlebars helper with an HTMLBars helper for backwards compatibility.
+
+      @class HandlebarsCompatibleHelper
+      @constructor
+      @private
+    */
     function HandlebarsCompatibleHelper(fn) {
       this.helperFunction = function helperFunc(params, hash, options, env) {
         var handlebarsOptions = {};
@@ -8116,6 +8133,11 @@ enifed("ember-htmlbars/compat/make-bound-helper",
   ["ember-metal/core","ember-metal/mixin","ember-views/views/simple_bound_view","ember-metal/merge","ember-htmlbars/system/helper","ember-metal/streams/stream","ember-metal/streams/read","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
     var Ember = __dependency1__["default"];
     // Ember.FEATURES, Ember.assert, Ember.Handlebars, Ember.lookup
     var IS_BINDING = __dependency2__.IS_BINDING;
@@ -8236,6 +8258,11 @@ enifed("ember-htmlbars/compat/precompile",
   ["htmlbars-compiler/compiler","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
     var compile = __dependency1__.compile;
     var compileSpec = __dependency1__.compileSpec;
 
@@ -8471,7 +8498,7 @@ enifed("ember-htmlbars/helpers/bind-attr",
     "use strict";
     /**
     @module ember
-    @submodule ember-handlebars
+    @submodule ember-htmlbars
     */
 
     var Ember = __dependency1__["default"];
@@ -8892,7 +8919,7 @@ enifed("ember-htmlbars/helpers/collection",
     "use strict";
     /**
     @module ember
-    @submodule ember-handlebars
+    @submodule ember-htmlbars
     */
 
     var Ember = __dependency1__["default"];
@@ -9163,7 +9190,7 @@ enifed("ember-htmlbars/helpers/debugger",
 
     /**
     @module ember
-    @submodule ember-handlebars
+    @submodule ember-htmlbars
     */
     var Logger = __dependency1__["default"];
 
@@ -9220,7 +9247,7 @@ enifed("ember-htmlbars/helpers/each",
 
     /**
     @module ember
-    @submodule ember-handlebars
+    @submodule ember-htmlbars
     */
     var Ember = __dependency1__["default"];
     // Ember.assert;
@@ -9835,7 +9862,7 @@ enifed("ember-htmlbars/helpers/log",
     "use strict";
     /**
     @module ember
-    @submodule ember-handlebars
+    @submodule ember-htmlbars
     */
     var Logger = __dependency1__["default"];
 
@@ -9999,6 +10026,11 @@ enifed("ember-htmlbars/helpers/text_area",
   ["ember-metal/core","ember-views/views/text_area","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
     var Ember = __dependency1__["default"];
     // Ember.assert
     var TextArea = __dependency2__["default"];
@@ -10872,6 +10904,11 @@ enifed("ember-htmlbars/hooks/attribute",
   ["ember-metal/run_loop","ember-htmlbars/system/concat","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
     var run = __dependency1__["default"];
     var concat = __dependency2__["default"];
 
@@ -10918,6 +10955,11 @@ enifed("ember-htmlbars/hooks/component",
   ["ember-metal/core","ember-htmlbars/system/streamify-arguments","ember-htmlbars/system/lookup-helper","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
     var Ember = __dependency1__["default"];
     var streamifyArgs = __dependency2__["default"];
     var lookupHelper = __dependency3__["default"];
@@ -10935,6 +10977,11 @@ enifed("ember-htmlbars/hooks/content",
   ["ember-htmlbars/hooks/subexpr","ember-views/views/simple_bound_view","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
     var subexpr = __dependency1__["default"];
     var appendSimpleBoundView = __dependency2__.appendSimpleBoundView;
 
@@ -10952,6 +10999,11 @@ enifed("ember-htmlbars/hooks/element",
   ["ember-htmlbars/system/streamify-arguments","ember-htmlbars/system/lookup-helper","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
     var streamifyArgs = __dependency1__["default"];
     var lookupHelper = __dependency2__["default"];
 
@@ -10970,6 +11022,11 @@ enifed("ember-htmlbars/hooks/set",
   ["ember-metal/core","ember-metal/error","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
     var Ember = __dependency1__["default"];
     var EmberError = __dependency2__["default"];
 
@@ -10988,6 +11045,11 @@ enifed("ember-htmlbars/hooks/subexpr",
   ["ember-htmlbars/system/streamify-arguments","ember-htmlbars/system/lookup-helper","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
     var streamifyArgs = __dependency1__["default"];
     var lookupHelper = __dependency2__["default"];
 
@@ -11007,6 +11069,11 @@ enifed("ember-htmlbars/system/bootstrap",
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     /*globals Handlebars */
+
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
 
     var Ember = __dependency1__["default"];
     var ComponentLookup = __dependency2__["default"];
@@ -11108,6 +11175,11 @@ enifed("ember-htmlbars/system/compile",
   ["ember-metal/core","htmlbars-compiler/compiler","ember-htmlbars/system/template","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
     var Ember = __dependency1__["default"];
     var compile = __dependency2__.compile;
     var template = __dependency3__["default"];
@@ -11138,6 +11210,11 @@ enifed("ember-htmlbars/system/concat",
   ["ember-metal/streams/stream","ember-metal/streams/read","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
     var Stream = __dependency1__["default"];
     var readArray = __dependency2__.readArray;
 
@@ -11190,6 +11267,11 @@ enifed("ember-htmlbars/system/lookup-helper",
   ["ember-metal/core","ember-metal/cache","ember-htmlbars/system/make-view-helper","ember-htmlbars/compat/helper","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
     var Ember = __dependency1__["default"];
     var Cache = __dependency2__["default"];
     var makeViewHelper = __dependency3__["default"];
@@ -11250,6 +11332,11 @@ enifed("ember-htmlbars/system/make-view-helper",
   ["ember-metal/core","ember-htmlbars/system/helper","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
     var Ember = __dependency1__["default"];
     // Ember.assert
     var Helper = __dependency2__["default"];
@@ -11279,6 +11366,11 @@ enifed("ember-htmlbars/system/sanitize-for-helper",
   function(__exports__) {
     "use strict";
     /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
+    /**
       Sanitize options so that all helpers have `types`, `hash`, and `hashTypes`.
 
       @private
@@ -11303,6 +11395,11 @@ enifed("ember-htmlbars/system/streamify-arguments",
   ["ember-htmlbars/system/sanitize-for-helper","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
     var sanitizeOptionsForHelper = __dependency1__.sanitizeOptionsForHelper;
 
     __exports__["default"] = function streamifyArgs(view, params, hash, options, env, helper) {
@@ -11329,6 +11426,11 @@ enifed("ember-htmlbars/system/template",
   ["exports"],
   function(__exports__) {
     "use strict";
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
     /**
       Augments the detault precompiled output of an HTMLBars template with
       additional information needed by Ember.
@@ -11494,6 +11596,11 @@ enifed("ember-htmlbars/utils/string",
   ["htmlbars-util/safe-string","ember-runtime/system/string","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
     // required so we can extend this object.
     var SafeString = __dependency1__["default"];
     var EmberStringUtils = __dependency2__["default"];
@@ -14671,7 +14778,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.4b4af715
+      @version 1.10.0-beta.1+canary.c36bf31d
     */
 
     if ('undefined' === typeof Ember) {
@@ -14698,10 +14805,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.4b4af715'
+      @default '1.10.0-beta.1+canary.c36bf31d'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.4b4af715';
+    Ember.VERSION = '1.10.0-beta.1+canary.c36bf31d';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
