@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.3abde791
+ * @version   1.10.0-beta.1+canary.1d86110e
  */
 
 (function() {
@@ -11142,18 +11142,18 @@ enifed("ember-htmlbars/helpers/with",
 
       Ember.assert("The {{#with}} helper must be called with a block", !!options.render);
 
-      var source, keyword;
-      var preserveContext, context;
+      var source, keyword, preserveContext;
       if (options.paramTypes[0] === 'id') {
-        Ember.deprecate('Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
-
+        if (options.blockParams) {
+          preserveContext = true;
+        } else {
+          Ember.deprecate('Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+          preserveContext = false;
+        }
         source = params[0];
-        preserveContext = false;
-        context = source.value();
       } else if (options.paramTypes[0] === 'keyword') {
         source = params[0].stream;
         keyword = params[0].to;
-        context = this.get('context');
 
         var localizedOptions = o_create(options);
 
@@ -15137,7 +15137,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.3abde791
+      @version 1.10.0-beta.1+canary.1d86110e
     */
 
     if ('undefined' === typeof Ember) {
@@ -15164,10 +15164,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.3abde791'
+      @default '1.10.0-beta.1+canary.1d86110e'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.3abde791';
+    Ember.VERSION = '1.10.0-beta.1+canary.1d86110e';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -49150,6 +49150,8 @@ enifed("ember-views/views/with_view",
 
         var keywordName     = this.templateHash.keywordName;
         var controllerName  = this.templateHash.controller;
+
+        this._blockArguments = [this.lazyValue];
 
         if (controllerName) {
           var previousContext = this.previousContext;
