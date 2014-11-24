@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.4fa1b89d
+ * @version   1.10.0-beta.1+canary.b84e3e7a
  */
 
 (function() {
@@ -15115,7 +15115,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.4fa1b89d
+      @version 1.10.0-beta.1+canary.b84e3e7a
     */
 
     if ('undefined' === typeof Ember) {
@@ -15142,10 +15142,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.4fa1b89d'
+      @default '1.10.0-beta.1+canary.b84e3e7a'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.4fa1b89d';
+    Ember.VERSION = '1.10.0-beta.1+canary.b84e3e7a';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -52455,6 +52455,11 @@ enifed("htmlbars-compiler/compiler/fragment",
       this.source.push(this.indent+'  var '+el+' = dom.createTextNode('+string(str)+');\n');
     };
 
+    FragmentCompiler.prototype.createComment = function(str) {
+      var el = 'el'+(++this.depth);
+      this.source.push(this.indent+'  var '+el+' = dom.createComment('+string(str)+');\n');
+    };
+
     FragmentCompiler.prototype.returnNode = function() {
       var el = 'el'+this.depth;
       this.source.push(this.indent+'  return '+el+';\n');
@@ -52503,6 +52508,11 @@ enifed("htmlbars-compiler/compiler/fragment_opcode",
     FragmentOpcodeCompiler.prototype.text = function(text, childIndex, childCount, isSingleRoot) {
       this.opcode('createText', [text.chars]);
       if (!isSingleRoot) { this.opcode('appendChild'); }
+    };
+
+    FragmentOpcodeCompiler.prototype.comment = function(comment) {
+      this.opcode('createComment', [comment.chars]);
+      this.opcode('appendChild');
     };
 
     FragmentOpcodeCompiler.prototype.openElement = function(element) {
@@ -52848,6 +52858,10 @@ enifed("htmlbars-compiler/compiler/hydration_opcode",
     };
 
     HydrationOpcodeCompiler.prototype.text = function(/* string, pos, len */) {
+      ++this.currentDOMChildIndex;
+    };
+
+    HydrationOpcodeCompiler.prototype.comment = function(/* string, pos, len */) {
       ++this.currentDOMChildIndex;
     };
 
@@ -53245,6 +53259,11 @@ enifed("htmlbars-compiler/compiler/template",
       this.hydrationOpcodeCompiler.text(string, i, l, r);
     };
 
+    TemplateCompiler.prototype.comment = function(string, i, l, r) {
+      this.fragmentOpcodeCompiler.comment(string, i, l, r);
+      this.hydrationOpcodeCompiler.comment(string, i, l, r);
+    };
+
     TemplateCompiler.prototype.mustache = function (mustache, i, l) {
       this.fragmentOpcodeCompiler.mustache(mustache, i, l);
       this.hydrationOpcodeCompiler.mustache(mustache, i, l);
@@ -53457,6 +53476,12 @@ enifed("htmlbars-compiler/compiler/template_visitor",
         frame.blankChildTextNodes.push(domIndexOf(frame.children, text));
       }
       frame.actions.push(['text', [text, frame.childIndex, frame.childCount, isSingleRoot]]);
+    };
+
+    TemplateVisitor.prototype.comment = function(text) {
+      var frame = this.getCurrentFrame();
+
+      frame.actions.push(['comment', [text, frame.childIndex, frame.childCount, true]]);
     };
 
     TemplateVisitor.prototype.mustache = function(mustache) {
@@ -54800,6 +54825,11 @@ enifed("htmlbars-compiler/html-parser/node-handlers",
       },
 
       block: function(block) {
+        if (this.tokenizer.state === 'comment') {
+          this.tokenizer.token.addChar('{{' + this.sourceForMustache(block) + '}}');
+          return;
+        }
+
         switchToHandlebars(this);
         this.acceptToken(block);
 
@@ -54825,6 +54855,11 @@ enifed("htmlbars-compiler/html-parser/node-handlers",
       },
 
       mustache: function(mustache) {
+        if (this.tokenizer.state === 'comment') {
+          this.tokenizer.token.addChar('{{' + this.sourceForMustache(mustache) + '}}');
+          return;
+        }
+
         switchToHandlebars(this);
         this.acceptToken(mustache);
       },
@@ -54926,7 +54961,9 @@ enifed("htmlbars-compiler/html-parser/token-handlers",
       },
 
       block: function(/*block*/) {
-        if (this.tokenizer.state !== 'data') {
+        if (this.tokenizer.state === 'comment') {
+          return;
+        } else if (this.tokenizer.state !== 'data') {
           throw new Error("A block may only be used inside an HTML element or another block.");
         }
       },
@@ -55072,16 +55109,18 @@ enifed("htmlbars-compiler/parser",
 
     function preprocess(html, options) {
       var ast = parse(html);
-      var combined = new HTMLProcessor(options).acceptNode(ast);
+      var combined = new HTMLProcessor(html, options).acceptNode(ast);
+
       return combined;
     }
 
-    __exports__.preprocess = preprocess;function HTMLProcessor(options) {
+    __exports__.preprocess = preprocess;function HTMLProcessor(source, options) {
       this.options = options || {};
       this.elementStack = [];
       this.tokenizer = new Tokenizer('');
       this.nodeHandlers = nodeHandlers;
       this.tokenHandlers = tokenHandlers;
+      this.source = source.split(/(?:\r\n?|\n)/g);
     }
 
     HTMLProcessor.prototype.acceptNode = function(node) {
@@ -55096,6 +55135,35 @@ enifed("htmlbars-compiler/parser",
 
     HTMLProcessor.prototype.currentElement = function() {
       return this.elementStack[this.elementStack.length - 1];
+    };
+
+    HTMLProcessor.prototype.sourceForMustache = function(mustache) {
+      var firstLine = mustache.firstLine - 1;
+      var lastLine = mustache.lastLine - 1;
+      var currentLine = firstLine - 1;
+      var firstColumn = mustache.firstColumn + 2;
+      var lastColumn = mustache.lastColumn - 2;
+      var string = [];
+      var line;
+
+      while (currentLine < lastLine) {
+        currentLine++;
+        line = this.source[currentLine];
+
+        if (currentLine === firstLine) {
+          if (firstLine === lastLine) {
+            string.push(line.slice(firstColumn, lastColumn));
+          } else {
+            string.push(line.slice(firstColumn));
+          }
+        } else if (currentLine === lastLine) {
+          string.push(line.slice(0, lastColumn));
+        } else {
+          string.push(line);
+        }
+      }
+
+      return string.join('\n');
     };
   });
 enifed("htmlbars-compiler/utils",
@@ -55378,6 +55446,10 @@ enifed("morph/dom-helper",
 
     prototype.createTextNode = function(text){
       return this.document.createTextNode(text);
+    };
+
+    prototype.createComment = function(text){
+      return this.document.createComment(text);
     };
 
     prototype.repairClonedNode = function(element, blankChildTextNodes, isChecked){
