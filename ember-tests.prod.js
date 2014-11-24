@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.558edd42
+ * @version   1.10.0-beta.1+canary.1202ebf2
  */
 
 (function() {
@@ -3995,6 +3995,9 @@ enifed("ember-handlebars-compiler/tests/make_view_helper_test",
 
     QUnit.module("Ember.Handlebars.makeViewHelper");
 
+    if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      // unit tests exist in ember-htmlbars for makeViewHelper
+
     test("makes helpful assertion when called with invalid arguments", function(){
       var viewClass = {toString: function(){ return 'Some Random Class';}};
 
@@ -4004,6 +4007,8 @@ enifed("ember-handlebars-compiler/tests/make_view_helper_test",
         helper({foo: 'bar'}, this);
       }, "You can only pass attributes (such as name=value) not bare values to a helper for a View found in 'Some Random Class'");
     });
+
+    }
   });
 enifed("ember-handlebars-compiler/tests/make_view_helper_test.jshint",
   [],
@@ -6481,6 +6486,69 @@ enifed("ember-htmlbars/tests/compat/helper_test.jshint",
     module('JSHint - ember-htmlbars/tests/compat');
     test('ember-htmlbars/tests/compat/helper_test.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/tests/compat/helper_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/tests/compat/make-view-helper_test",
+  ["ember-views/views/view","container/container","ember-metal/run_loop","ember-handlebars-compiler","ember-htmlbars/system/compile","ember-views/views/component"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
+    "use strict";
+    var EmberView = __dependency1__["default"];
+    var Container = __dependency2__["default"];
+    var run = __dependency3__["default"];
+    var EmberHandlebars = __dependency4__["default"];
+    var htmlbarsCompile = __dependency5__["default"];
+    var Component = __dependency6__["default"];
+
+    var compile;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      compile = htmlbarsCompile;
+    } else {
+      compile = EmberHandlebars.compile;
+    }
+
+    var container, view;
+
+    QUnit.module('ember-htmlbars: Ember.Handlebars.makeViewHelper compat', {
+      setup: function() {
+        container = new Container();
+        container.optionsForType('helper', { instantiate: false });
+      },
+
+      teardown: function() {
+        run(container, 'destroy');
+
+        if (view) {
+          run(view, 'destroy');
+        }
+      }
+    });
+
+    test('EmberHandlebars.makeViewHelper', function() {
+      expect(1);
+
+      var ViewHelperComponent = Component.extend({
+        layout: compile('woot!')
+      });
+      var helper = EmberHandlebars.makeViewHelper(ViewHelperComponent);
+      container.register('helper:view-helper', helper);
+
+      view = EmberView.extend({
+        template: compile('{{view-helper}}'),
+        container: container
+      }).create();
+
+      run(view, 'appendTo', '#qunit-fixture');
+
+      equal(view.$().text(), 'woot!');
+    });
+  });
+enifed("ember-htmlbars/tests/compat/make-view-helper_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/tests/compat');
+    test('ember-htmlbars/tests/compat/make-view-helper_test.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/tests/compat/make-view-helper_test.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
@@ -14519,6 +14587,33 @@ enifed("ember-htmlbars/tests/system/lookup-helper_test.jshint",
     module('JSHint - ember-htmlbars/tests/system');
     test('ember-htmlbars/tests/system/lookup-helper_test.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/tests/system/lookup-helper_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/tests/system/make_view_helper_test",
+  ["ember-htmlbars/system/make-view-helper"],
+  function(__dependency1__) {
+    "use strict";
+    var makeViewHelper = __dependency1__["default"];
+
+    QUnit.module("ember-htmlbars: makeViewHelper");
+
+    test("makes helpful assertion when called with invalid arguments", function(){
+      var viewClass = {toString: function(){ return 'Some Random Class';}};
+
+      var helper = makeViewHelper(viewClass);
+
+      expectAssertion(function(){
+        helper.helperFunction(['foo'], {}, {}, {});
+      }, "You can only pass attributes (such as name=value) not bare values to a helper for a View found in 'Some Random Class'");
+    });
+  });
+enifed("ember-htmlbars/tests/system/make_view_helper_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/tests/system');
+    test('ember-htmlbars/tests/system/make_view_helper_test.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/tests/system/make_view_helper_test.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/tests/system/sanitize-for-helper_test",

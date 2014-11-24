@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.558edd42
+ * @version   1.10.0-beta.1+canary.1202ebf2
  */
 
 (function() {
@@ -7906,8 +7906,8 @@ enifed("ember-handlebars/templates/select",
     },"useData":true});
   });
 enifed("ember-htmlbars",
-  ["ember-metal/core","ember-htmlbars/hooks/content","ember-htmlbars/hooks/component","ember-htmlbars/hooks/element","ember-htmlbars/hooks/subexpr","ember-htmlbars/hooks/attribute","ember-htmlbars/hooks/set","morph","ember-htmlbars/system/template","ember-htmlbars/system/compile","ember-htmlbars/helpers","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/bind-attr","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/partial","ember-htmlbars/helpers/template","ember-htmlbars/helpers/input","ember-htmlbars/helpers/text_area","ember-htmlbars/helpers/collection","ember-htmlbars/helpers/each","ember-htmlbars/helpers/unbound","ember-htmlbars/system/bootstrap","ember-htmlbars/compat","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __exports__) {
+  ["ember-metal/core","ember-htmlbars/hooks/content","ember-htmlbars/hooks/component","ember-htmlbars/hooks/element","ember-htmlbars/hooks/subexpr","ember-htmlbars/hooks/attribute","ember-htmlbars/hooks/set","morph","ember-htmlbars/system/template","ember-htmlbars/system/compile","ember-htmlbars/system/make-view-helper","ember-htmlbars/helpers","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/bind-attr","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/partial","ember-htmlbars/helpers/template","ember-htmlbars/helpers/input","ember-htmlbars/helpers/text_area","ember-htmlbars/helpers/collection","ember-htmlbars/helpers/each","ember-htmlbars/helpers/unbound","ember-htmlbars/system/bootstrap","ember-htmlbars/compat","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var content = __dependency2__["default"];
@@ -7919,33 +7919,34 @@ enifed("ember-htmlbars",
     var DOMHelper = __dependency8__.DOMHelper;
     var template = __dependency9__["default"];
     var compile = __dependency10__["default"];
+    var makeViewHelper = __dependency11__["default"];
 
-    var registerHelper = __dependency11__.registerHelper;
-    var helper = __dependency11__.helper;
-    var helpers = __dependency11__["default"];
-    var bindHelper = __dependency12__.bindHelper;
-    var viewHelper = __dependency13__.viewHelper;
-    var yieldHelper = __dependency14__.yieldHelper;
-    var withHelper = __dependency15__.withHelper;
-    var preprocessArgumentsForWith = __dependency15__.preprocessArgumentsForWith;
-    var logHelper = __dependency16__.logHelper;
-    var debuggerHelper = __dependency17__.debuggerHelper;
-    var bindAttrHelper = __dependency18__.bindAttrHelper;
-    var bindAttrHelperDeprecated = __dependency18__.bindAttrHelperDeprecated;
-    var ifHelper = __dependency19__.ifHelper;
-    var unlessHelper = __dependency19__.unlessHelper;
-    var unboundIfHelper = __dependency19__.unboundIfHelper;
-    var boundIfHelper = __dependency19__.boundIfHelper;
-    var locHelper = __dependency20__.locHelper;
-    var partialHelper = __dependency21__.partialHelper;
-    var templateHelper = __dependency22__.templateHelper;
-    var inputHelper = __dependency23__.inputHelper;
-    var textareaHelper = __dependency24__.textareaHelper;
-    var collectionHelper = __dependency25__.collectionHelper;
-    var eachHelper = __dependency26__.eachHelper;
-    var preprocessArgumentsForEach = __dependency26__.preprocessArgumentsForEach;
-    var unboundHelper = __dependency27__.unboundHelper;
-    var preprocessArgumentsForUnbound = __dependency27__.preprocessArgumentsForUnbound;
+    var registerHelper = __dependency12__.registerHelper;
+    var helper = __dependency12__.helper;
+    var helpers = __dependency12__["default"];
+    var bindHelper = __dependency13__.bindHelper;
+    var viewHelper = __dependency14__.viewHelper;
+    var yieldHelper = __dependency15__.yieldHelper;
+    var withHelper = __dependency16__.withHelper;
+    var preprocessArgumentsForWith = __dependency16__.preprocessArgumentsForWith;
+    var logHelper = __dependency17__.logHelper;
+    var debuggerHelper = __dependency18__.debuggerHelper;
+    var bindAttrHelper = __dependency19__.bindAttrHelper;
+    var bindAttrHelperDeprecated = __dependency19__.bindAttrHelperDeprecated;
+    var ifHelper = __dependency20__.ifHelper;
+    var unlessHelper = __dependency20__.unlessHelper;
+    var unboundIfHelper = __dependency20__.unboundIfHelper;
+    var boundIfHelper = __dependency20__.boundIfHelper;
+    var locHelper = __dependency21__.locHelper;
+    var partialHelper = __dependency22__.partialHelper;
+    var templateHelper = __dependency23__.templateHelper;
+    var inputHelper = __dependency24__.inputHelper;
+    var textareaHelper = __dependency25__.textareaHelper;
+    var collectionHelper = __dependency26__.collectionHelper;
+    var eachHelper = __dependency27__.eachHelper;
+    var preprocessArgumentsForEach = __dependency27__.preprocessArgumentsForEach;
+    var unboundHelper = __dependency28__.unboundHelper;
+    var preprocessArgumentsForUnbound = __dependency28__.preprocessArgumentsForUnbound;
 
     // importing adds template bootstrapping
     // initializer to enable embedded templates
@@ -7981,7 +7982,8 @@ enifed("ember-htmlbars",
         helper: helper,
         registerHelper: registerHelper,
         template: template,
-        compile: compile
+        compile: compile,
+        makeViewHelper: makeViewHelper
       };
 
     }
@@ -8003,8 +8005,8 @@ enifed("ember-htmlbars",
     __exports__.defaultEnv = defaultEnv;
   });
 enifed("ember-htmlbars/compat",
-  ["ember-handlebars","ember-htmlbars/helpers","ember-htmlbars/system/template","ember-htmlbars/system/compile","ember-htmlbars/compat/helper","ember-htmlbars/compat/handlebars-get","ember-htmlbars/compat/make-bound-helper","ember-htmlbars/compat/register-bound-helper","ember-htmlbars/compat/precompile","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __exports__) {
+  ["ember-handlebars","ember-htmlbars/helpers","ember-htmlbars/system/template","ember-htmlbars/system/compile","ember-htmlbars/compat/helper","ember-htmlbars/compat/handlebars-get","ember-htmlbars/compat/make-bound-helper","ember-htmlbars/compat/register-bound-helper","ember-htmlbars/compat/precompile","ember-htmlbars/system/make-view-helper","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __exports__) {
     "use strict";
     var EmberHandlebars = __dependency1__["default"];
     var helpers = __dependency2__["default"];
@@ -8016,6 +8018,7 @@ enifed("ember-htmlbars/compat",
     var compatMakeBoundHelper = __dependency7__["default"];
     var compatRegisterBoundHelper = __dependency8__["default"];
     var compatPrecompile = __dependency9__["default"];
+    var makeViewHelper = __dependency10__["default"];
 
     if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
       EmberHandlebars.helpers = helpers;
@@ -8027,6 +8030,7 @@ enifed("ember-htmlbars/compat",
       EmberHandlebars.precompile = compatPrecompile;
       EmberHandlebars.compile = compile;
       EmberHandlebars.template = template;
+      EmberHandlebars.makeViewHelper = makeViewHelper;
     }
 
     __exports__["default"] = EmberHandlebars;
@@ -14667,7 +14671,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.558edd42
+      @version 1.10.0-beta.1+canary.1202ebf2
     */
 
     if ('undefined' === typeof Ember) {
@@ -14694,10 +14698,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.558edd42'
+      @default '1.10.0-beta.1+canary.1202ebf2'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.558edd42';
+    Ember.VERSION = '1.10.0-beta.1+canary.1202ebf2';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
