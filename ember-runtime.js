@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.1d86110e
+ * @version   1.10.0-beta.1+canary.179d80ed
  */
 
 (function() {
@@ -4808,7 +4808,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.1d86110e
+      @version 1.10.0-beta.1+canary.179d80ed
     */
 
     if ('undefined' === typeof Ember) {
@@ -4835,10 +4835,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.1d86110e'
+      @default '1.10.0-beta.1+canary.179d80ed'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.1d86110e';
+    Ember.VERSION = '1.10.0-beta.1+canary.179d80ed';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -17812,7 +17812,7 @@ define("ember-runtime/mixins/mutable_array",
       //
 
       /**
-        Remove all occurances of an object in the array.
+        Remove all occurrences of an object in the array.
 
         ```javascript
         var cities = ["Chicago", "Berlin", "Lima", "Chicago"];
