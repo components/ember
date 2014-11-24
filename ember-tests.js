@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.179d80ed
+ * @version   1.10.0-beta.1+canary.a632eeba
  */
 
 (function() {
@@ -6235,15 +6235,6 @@ enifed("ember-htmlbars/system/sanitize-for-helper.jshint",
     module('JSHint - ember-htmlbars/system');
     test('ember-htmlbars/system/sanitize-for-helper.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/system/sanitize-for-helper.js should pass jshint.'); 
-    });
-  });
-enifed("ember-htmlbars/system/simple-bind.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-htmlbars/system');
-    test('ember-htmlbars/system/simple-bind.js should pass jshint', function() { 
-      ok(true, 'ember-htmlbars/system/simple-bind.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/system/streamify-arguments.jshint",

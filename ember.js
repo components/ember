@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.179d80ed
+ * @version   1.10.0-beta.1+canary.a632eeba
  */
 
 (function() {
@@ -8473,13 +8473,13 @@ enifed("ember-htmlbars/compat/helper",
     __exports__.handlebarsHelper = handlebarsHelper;__exports__["default"] = HandlebarsCompatibleHelper;
   });
 enifed("ember-htmlbars/compat/make-bound-helper",
-  ["ember-metal/core","ember-metal/mixin","ember-htmlbars/system/simple-bind","ember-metal/merge","ember-htmlbars/system/helper","ember-metal/streams/stream","ember-metal/streams/read","exports"],
+  ["ember-metal/core","ember-metal/mixin","ember-views/views/simple_bound_view","ember-metal/merge","ember-htmlbars/system/helper","ember-metal/streams/stream","ember-metal/streams/read","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.FEATURES, Ember.assert, Ember.Handlebars, Ember.lookup
     var IS_BINDING = __dependency2__.IS_BINDING;
-    var simpleBind = __dependency3__["default"];
+    var appendSimpleBoundView = __dependency3__.appendSimpleBoundView;
     var merge = __dependency4__["default"];
     var Helper = __dependency5__["default"];
 
@@ -8545,12 +8545,8 @@ enifed("ember-htmlbars/compat/make-bound-helper",
           return valueFn();
         } else {
           var lazyValue = new Stream(valueFn);
-          var bindOptions = {
-            escaped: !hash.unescaped,
-            morph: options.morph
-          };
 
-          simpleBind.call(this, [lazyValue], {}, bindOptions);
+          appendSimpleBoundView(this, options.morph, lazyValue);
 
           var param;
 
@@ -9145,7 +9141,7 @@ enifed("ember-htmlbars/helpers/bind-attr",
     __exports__.bindClasses = bindClasses;
   });
 enifed("ember-htmlbars/helpers/binding",
-  ["ember-metal/is_none","ember-metal/run_loop","ember-metal/property_get","ember-metal/streams/simple","ember-htmlbars/system/simple-bind","ember-views/views/bound_view","exports"],
+  ["ember-metal/is_none","ember-metal/run_loop","ember-metal/property_get","ember-metal/streams/simple","ember-views/views/bound_view","ember-views/views/simple_bound_view","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     /**
@@ -9157,9 +9153,8 @@ enifed("ember-htmlbars/helpers/binding",
     var run = __dependency2__["default"];
     var get = __dependency3__.get;
     var SimpleStream = __dependency4__["default"];
-    var simpleBind = __dependency5__["default"];
-
-    var BoundView = __dependency6__["default"];
+    var BoundView = __dependency5__["default"];
+    var appendSimpleBoundView = __dependency6__.appendSimpleBoundView;
 
     function exists(value) {
       return !isNone(value);
@@ -9258,7 +9253,7 @@ enifed("ember-htmlbars/helpers/binding",
         Ember.deprecate("The block form of bind, {{#bind foo}}{{/bind}}, has been deprecated and will be removed.");
         bind.call(this, property, hash, options, env, false, exists);
       } else {
-        simpleBind.call(this, [property], hash, options, env);
+        appendSimpleBoundView(this, options.morph, property);
       }
     }
 
@@ -11736,27 +11731,6 @@ enifed("ember-htmlbars/system/sanitize-for-helper",
     }
 
     __exports__.sanitizeOptionsForHelper = sanitizeOptionsForHelper;
-  });
-enifed("ember-htmlbars/system/simple-bind",
-  ["ember-metal/run_loop","ember-views/views/simple_bound_view","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
-    "use strict";
-    var run = __dependency1__["default"];
-    var SimpleBoundView = __dependency2__["default"];
-
-    __exports__["default"] = function simpleBind(params, hash, options, env) {
-      var lazyValue = params[0];
-
-      var view = new SimpleBoundView(lazyValue, options.morph.escaped);
-
-      view._parentView = this;
-      view._morph = options.morph;
-      this.appendChild(view);
-
-      lazyValue.subscribe(this._wrapAsScheduled(function() {
-        run.scheduleOnce('render', view, 'rerender');
-      }));
-    }
   });
 enifed("ember-htmlbars/system/streamify-arguments",
   ["ember-htmlbars/system/sanitize-for-helper","exports"],
@@ -15137,7 +15111,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.179d80ed
+      @version 1.10.0-beta.1+canary.a632eeba
     */
 
     if ('undefined' === typeof Ember) {
@@ -15164,10 +15138,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.179d80ed'
+      @default '1.10.0-beta.1+canary.a632eeba'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.179d80ed';
+    Ember.VERSION = '1.10.0-beta.1+canary.a632eeba';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -46343,7 +46317,18 @@ enifed("ember-views/views/simple_bound_view",
       }
     };
 
-    __exports__["default"] = SimpleBoundView;
+    function appendSimpleBoundView(parentView, morph, stream) {
+      var view = new SimpleBoundView(stream, morph.escaped);
+      view._morph = morph;
+
+      stream.subscribe(parentView._wrapAsScheduled(function() {
+        run.scheduleOnce('render', view, 'rerender');
+      }));
+
+      parentView.appendChild(view);
+    }
+
+    __exports__.appendSimpleBoundView = appendSimpleBoundView;__exports__["default"] = SimpleBoundView;
   });
 enifed("ember-views/views/states",
   ["ember-metal/platform","ember-metal/merge","ember-views/views/states/default","ember-views/views/states/pre_render","ember-views/views/states/in_buffer","ember-views/views/states/has_element","ember-views/views/states/in_dom","ember-views/views/states/destroying","exports"],
