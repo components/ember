@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.1202ebf2
+ * @version   1.10.0-beta.1+canary.c3d1ffcd
  */
 
 (function() {
@@ -5795,8 +5795,8 @@ enifed("ember-handlebars/tests/handlebars_test",
     });
 
     if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
-      // need https://github.com/tildeio/htmlbars/pull/150 to handle HTML Comments
-
+    // HTMLBars properly handles this scenario
+    // https://github.com/tildeio/htmlbars/pull/162
     test("should provide a helpful assertion for bindings within HTML comments", function() {
       view = EmberView.create({
         template: EmberHandlebars.compile('<!-- {{view.someThing}} -->'),
@@ -5808,7 +5808,6 @@ enifed("ember-handlebars/tests/handlebars_test",
         appendView();
       }, 'An error occured while setting up template bindings. Please check "blahzorz" template for invalid markup or bindings within HTML comments.');
     });
-
     }
   });
 enifed("ember-handlebars/tests/handlebars_test.jshint",

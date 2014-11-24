@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.1202ebf2
+ * @version   1.10.0-beta.1+canary.c3d1ffcd
  */
 
 (function() {
@@ -14671,7 +14671,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.1202ebf2
+      @version 1.10.0-beta.1+canary.c3d1ffcd
     */
 
     if ('undefined' === typeof Ember) {
@@ -14698,10 +14698,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.1202ebf2'
+      @default '1.10.0-beta.1+canary.c3d1ffcd'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.1202ebf2';
+    Ember.VERSION = '1.10.0-beta.1+canary.c3d1ffcd';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -50456,9 +50456,9 @@ enifed("htmlbars-compiler/compiler/fragment_opcode",
       if (!isSingleRoot) { this.opcode('appendChild'); }
     };
 
-    FragmentOpcodeCompiler.prototype.comment = function(comment) {
+    FragmentOpcodeCompiler.prototype.comment = function(comment, childIndex, childCount, isSingleRoot) {
       this.opcode('createComment', [comment.chars]);
-      this.opcode('appendChild');
+      if (!isSingleRoot) { this.opcode('appendChild'); }
     };
 
     FragmentOpcodeCompiler.prototype.openElement = function(element) {
@@ -51426,8 +51426,9 @@ enifed("htmlbars-compiler/compiler/template_visitor",
 
     TemplateVisitor.prototype.comment = function(text) {
       var frame = this.getCurrentFrame();
+      var isSingleRoot = frame.parentNode.type === 'program' && frame.childCount === 1;
 
-      frame.actions.push(['comment', [text, frame.childIndex, frame.childCount, true]]);
+      frame.actions.push(['comment', [text, frame.childIndex, frame.childCount, isSingleRoot]]);
     };
 
     TemplateVisitor.prototype.mustache = function(mustache) {
