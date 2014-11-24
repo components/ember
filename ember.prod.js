@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.b84e3e7a
+ * @version   1.10.0-beta.1+canary.2975715f
  */
 
 (function() {
@@ -8075,9 +8075,7 @@ enifed("ember-htmlbars/compat/helper",
         var args = options._raw.params;
         args.push(handlebarsOptions);
 
-        var result = fn.apply(this, args);
-
-        options.morph.update(result);
+        return fn.apply(this, args);
       };
 
       this.isHTMLBars = true;
@@ -9818,7 +9816,7 @@ enifed("ember-htmlbars/helpers/loc",
     */
     function locHelper(params, hash, options, env) {
       
-      options.morph.update(loc.apply(this, params));
+      return loc.apply(this, params);
     }
 
     __exports__.locHelper = locHelper;
@@ -9919,23 +9917,15 @@ enifed("ember-htmlbars/helpers/partial",
     */
 
     function partialHelper(params, hash, options, env) {
-      var parentView = this;
-
       options.helperName = options.helperName || 'partial';
 
-      if (options.paramTypes[0] === "id") {
-        var partialNameStream = params[0];
-        // Helper was passed a property path; we need to
-        // create a binding that will re-render whenever
-        // this property changes.
-        options.render = function(renderView, renderEnv, renderContextualElement) {
-          renderPartial(renderView, partialNameStream.value(), renderView._morph, renderEnv);
-        };
+      var name = params[0];
 
-        return bind.call(parentView, partialNameStream, hash, options, env, true, exists);
+      if (name && name.isStream) {
+        options.render = createPartialTemplate(name);
+        bind.call(this, name, hash, options, env, true, exists);
       } else {
-        // Render the partial right into parent template.
-        renderPartial(parentView, params[0], options.morph, env);
+        return renderPartial(name, this, env, options.morph.contextualElement);
       }
     }
 
@@ -9959,10 +9949,15 @@ enifed("ember-htmlbars/helpers/partial",
       return template;
     }
 
-    function renderPartial(view, name, morph, env) {
+    function renderPartial(name, view, env, contextualElement) {
       var template = lookupPartial(view, name);
-      var fragment = template(view, env, morph.contextualElement); 
-      morph.update(fragment);
+      return template(view, env, contextualElement);
+    }
+
+    function createPartialTemplate(nameStream) {
+      return function(view, env, contextualElement) {
+        return renderPartial(nameStream.value(), view, env, contextualElement);
+      };
     }
   });
 enifed("ember-htmlbars/helpers/template",
@@ -9987,7 +9982,7 @@ enifed("ember-htmlbars/helpers/template",
       
       options.helperName = options.helperName || 'template';
 
-      env.helpers.partial.helperFunction.call(this, params, hash, options, env);
+      return env.helpers.partial.helperFunction.call(this, params, hash, options, env);
     }
 
     __exports__.templateHelper = templateHelper;
@@ -10257,11 +10252,7 @@ enifed("ember-htmlbars/helpers/unbound",
         delete env.data.isUnbound;
       }
 
-      if (!options.morph) {
-        return result;
-      }
-
-      options.morph.update(result);
+      return result;
     }
 
     __exports__.unboundHelper = unboundHelper;function preprocessArgumentsForUnbound(view, params, hash, options, env) {
@@ -10864,7 +10855,7 @@ enifed("ember-htmlbars/helpers/yield",
       }
 
       
-      view._yield(null, env, options.morph, params);
+      return view._yield(null, env, options.morph, params);
     }
 
     __exports__.yieldHelper = yieldHelper;
@@ -10933,23 +10924,20 @@ enifed("ember-htmlbars/hooks/component",
     }
   });
 enifed("ember-htmlbars/hooks/content",
-  ["ember-htmlbars/system/streamify-arguments","ember-htmlbars/system/lookup-helper","exports"],
+  ["ember-htmlbars/hooks/subexpr","ember-views/views/simple_bound_view","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
-    var streamifyArgs = __dependency1__["default"];
-    var lookupHelper = __dependency2__["default"];
+    var subexpr = __dependency1__["default"];
+    var appendSimpleBoundView = __dependency2__.appendSimpleBoundView;
 
     __exports__["default"] = function content(morph, path, view, params, hash, options, env) {
-      var helper = lookupHelper(path, view, env);
-      if (!helper) {
-        helper = lookupHelper('bindHelper', view, env);
-        // Modify params to include the first word
-        params.unshift(path);
-        options.paramTypes = ['id'];
-      }
+      var result = subexpr(path, view, params, hash, options, env);
 
-      streamifyArgs(view, params, hash, options, env, helper);
-      return helper.helperFunction.call(view, params, hash, options, env);
+      if (result && result.isStream) {
+        appendSimpleBoundView(view, morph, result);
+      } else {
+        morph.update(result);
+      }
     }
   });
 enifed("ember-htmlbars/hooks/element",
@@ -14675,7 +14663,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.b84e3e7a
+      @version 1.10.0-beta.1+canary.2975715f
     */
 
     if ('undefined' === typeof Ember) {
@@ -14702,10 +14690,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.b84e3e7a'
+      @default '1.10.0-beta.1+canary.2975715f'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.b84e3e7a';
+    Ember.VERSION = '1.10.0-beta.1+canary.2975715f';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -45598,7 +45586,6 @@ enifed("ember-views/views/view",
 
       _yield: function(context, options, morph) {
         var template = get(this, 'template');
-        var result;
 
         if (template) {
           var useHTMLBars = false;
@@ -45607,13 +45594,10 @@ enifed("ember-views/views/view",
           }
 
           if (useHTMLBars) {
-            result = template(this, options, morph.contextualElement);
+            return template(this, options, morph.contextualElement);
           } else {
-            result = template(context, options);
+            return template(context, options);
           }
-        }
-        if (morph) {
-          morph.update(result);
         }
       },
 

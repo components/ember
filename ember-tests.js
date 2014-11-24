@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.b84e3e7a
+ * @version   1.10.0-beta.1+canary.2975715f
  */
 
 (function() {
@@ -6469,23 +6469,6 @@ enifed("ember-htmlbars/tests/compat/helper_test",
       var compatHelper = new HandlebarsCompatibleHelper(someHelper);
 
       fakeHash.bestFriend = 'Jacquie';
-
-      compatHelper.preprocessArguments(fakeView, fakeParams, fakeHash, fakeOptions, fakeEnv);
-      compatHelper.helperFunction(fakeParams, fakeHash, fakeOptions, fakeEnv);
-    });
-
-    test('calls morph.update with the return value from the helper', function() {
-      expect(1);
-
-      function someHelper(options) {
-        return 'Lucy!';
-      }
-
-      var compatHelper = new HandlebarsCompatibleHelper(someHelper);
-
-      fakeOptions.morph.update = function(value) {
-        equal(value, 'Lucy!');
-      };
 
       compatHelper.preprocessArguments(fakeView, fakeParams, fakeHash, fakeOptions, fakeEnv);
       compatHelper.helperFunction(fakeParams, fakeHash, fakeOptions, fakeEnv);
