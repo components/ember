@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.a632eeba
+ * @version   1.10.0-beta.1+canary.4fa1b89d
  */
 
 (function() {
@@ -9380,20 +9380,24 @@ enifed("ember-htmlbars/helpers/each",
       var path = params[0];
 
       
-      if (options.paramTypes[0] === 'keyword') {
-        keywordName = path.to;
-
-        helperName += ' ' + keywordName + ' in ' + path.from;
-
-        hash.keyword = keywordName;
-
-        path = path.stream;
+      if (options.blockParams) {
+        hash.keyword = true;
       } else {
-        helperName += ' ' + path;
-      }
+        if (options.paramTypes[0] === 'keyword') {
+          keywordName = path.to;
 
-      if (!path) {
-        path = env.data.view.getStream('');
+          helperName += ' ' + keywordName + ' in ' + path.from;
+
+          hash.keyword = keywordName;
+
+          path = path.stream;
+        } else {
+          helperName += ' ' + path;
+        }
+
+        if (!path) {
+          path = env.data.view.getStream('');
+        }
       }
 
       
@@ -14671,7 +14675,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.a632eeba
+      @version 1.10.0-beta.1+canary.4fa1b89d
     */
 
     if ('undefined' === typeof Ember) {
@@ -14698,10 +14702,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.a632eeba'
+      @default '1.10.0-beta.1+canary.4fa1b89d'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.a632eeba';
+    Ember.VERSION = '1.10.0-beta.1+canary.4fa1b89d';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -42411,7 +42415,8 @@ enifed("ember-views/views/collection_view",
 
             view = this.createChildView(itemViewClass, {
               content: item,
-              contentIndex: idx
+              contentIndex: idx,
+              _blockArguments: [item]
             });
 
             addedViews.push(view);

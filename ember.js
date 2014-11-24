@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.a632eeba
+ * @version   1.10.0-beta.1+canary.4fa1b89d
  */
 
 (function() {
@@ -9763,23 +9763,27 @@ enifed("ember-htmlbars/helpers/each",
       Ember.assert("If you pass more than one argument to the each helper," +
                    " it must be in the form #each foo in bar", params.length <= 1);
 
-      if (options.paramTypes[0] === 'keyword') {
-        keywordName = path.to;
-
-        helperName += ' ' + keywordName + ' in ' + path.from;
-
-        hash.keyword = keywordName;
-
-        path = path.stream;
+      if (options.blockParams) {
+        hash.keyword = true;
       } else {
-        helperName += ' ' + path;
+        if (options.paramTypes[0] === 'keyword') {
+          keywordName = path.to;
+
+          helperName += ' ' + keywordName + ' in ' + path.from;
+
+          hash.keyword = keywordName;
+
+          path = path.stream;
+        } else {
+          helperName += ' ' + path;
+        }
+
+        if (!path) {
+          path = env.data.view.getStream('');
+        }
       }
 
-      if (!path) {
-        path = env.data.view.getStream('');
-      }
-
-      Ember.deprecate('Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.', keywordName);
+      Ember.deprecate('Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.', keywordName || options.blockParams);
 
       hash.emptyViewClass = Ember._MetamorphView;
       hash.dataSourceBinding = path;
@@ -15111,7 +15115,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.a632eeba
+      @version 1.10.0-beta.1+canary.4fa1b89d
     */
 
     if ('undefined' === typeof Ember) {
@@ -15138,10 +15142,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.a632eeba'
+      @default '1.10.0-beta.1+canary.4fa1b89d'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.a632eeba';
+    Ember.VERSION = '1.10.0-beta.1+canary.4fa1b89d';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -44407,7 +44411,8 @@ enifed("ember-views/views/collection_view",
 
             view = this.createChildView(itemViewClass, {
               content: item,
-              contentIndex: idx
+              contentIndex: idx,
+              _blockArguments: [item]
             });
 
             addedViews.push(view);
