@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.2975715f
+ * @version   1.10.0-beta.1+canary.558edd42
  */
 
 (function() {
@@ -9805,9 +9805,6 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
       equal(view.$().text(), '');
     });
 
-    // requires the unbound helper
-    if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
-
     test("The `unbound if` helper does not update when the value changes", function() {
       view = EmberView.create({
         conditional: true,
@@ -9820,8 +9817,6 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
       });
       equal(view.$().text(), 'Yep');
     });
-
-    }
 
     test("The `unless` helper updates when the value changes", function() {
       view = EmberView.create({
@@ -9836,9 +9831,6 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
       equal(view.$().text(), '');
     });
 
-    // requires unbound helper
-    if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
-
     test("The `unbound if` helper does not update when the value changes", function() {
       view = EmberView.create({
         conditional: false,
@@ -9851,8 +9843,6 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
       });
       equal(view.$().text(), 'Nope');
     });
-
-    }
 
     test("The `if` helper ignores a controller option", function() {
       var lookupCalled = false;

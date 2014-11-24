@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.2975715f
+ * @version   1.10.0-beta.1+canary.558edd42
  */
 
 (function() {
@@ -9876,13 +9876,17 @@ enifed("ember-htmlbars/helpers/if_unless",
     */
     function unboundIfHelper(params, hash, options, env) {
       var template = options.render;
+      var value = params[0];
 
-      if (!shouldDisplayIfHelperContent(params[0].value())) {
+      if (params[0].isStream) {
+        value = params[0].value();
+      }
+
+      if (!shouldDisplayIfHelperContent(value)) {
         template = options.inverse;
       }
 
-      var result = template(options.context, env, options.morph.contextualElement);
-      options.morph.update(result);
+      return template(this, env, options.morph.contextualElement);
     }
 
     /**
@@ -9903,7 +9907,7 @@ enifed("ember-htmlbars/helpers/if_unless",
 
       options.inverse = options.inverse || function(){ return ''; };
 
-      if (options.isUnbound) {
+      if (env.data.isUnbound) {
         return env.helpers.unboundIf.helperFunction.call(this, params, hash, options, env);
       } else {
         return env.helpers.boundIf.helperFunction.call(this, params, hash, options, env);
@@ -9930,7 +9934,7 @@ enifed("ember-htmlbars/helpers/if_unless",
 
       options.helperName = options.helperName || helperName;
 
-      if (options.isUnbound) {
+      if (env.data.isUnbound) {
         return env.helpers.unboundIf.helperFunction.call(this, params, hash, options, env);
       } else {
         return env.helpers.boundIf.helperFunction.call(this, params, hash, options, env);
@@ -15103,7 +15107,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.2975715f
+      @version 1.10.0-beta.1+canary.558edd42
     */
 
     if ('undefined' === typeof Ember) {
@@ -15130,10 +15134,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.2975715f'
+      @default '1.10.0-beta.1+canary.558edd42'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.2975715f';
+    Ember.VERSION = '1.10.0-beta.1+canary.558edd42';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
