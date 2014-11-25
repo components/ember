@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.a45f0d1a
+ * @version   1.10.0-beta.1+canary.274a4f94
  */
 
 (function() {
@@ -14778,7 +14778,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.a45f0d1a
+      @version 1.10.0-beta.1+canary.274a4f94
     */
 
     if ('undefined' === typeof Ember) {
@@ -14805,10 +14805,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.a45f0d1a'
+      @default '1.10.0-beta.1+canary.274a4f94'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.a45f0d1a';
+    Ember.VERSION = '1.10.0-beta.1+canary.274a4f94';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -15531,7 +15531,7 @@ enifed("ember-metal/events",
       @for Ember
       @param obj
       @param {String} eventName
-      @param {Object|Function} targetOrMethod A target object or a function
+      @param {Object|Function} target A target object or a function
       @param {Function|String} method A function or the name of a function to be called on `target`
       @param {Boolean} once A flag whether a function should only be called once
     */
@@ -15566,7 +15566,7 @@ enifed("ember-metal/events",
       @for Ember
       @param obj
       @param {String} eventName
-      @param {Object|Function} targetOrMethod A target object or a function
+      @param {Object|Function} target A target object or a function
       @param {Function|String} method A function or the name of a function to be called on `target`
     */
     function removeListener(obj, eventName, target, method) {
@@ -15617,7 +15617,7 @@ enifed("ember-metal/events",
       @private
       @param obj
       @param {String} eventName
-      @param {Object|Function} targetOrMethod A target object or a function
+      @param {Object|Function} target A target object or a function
       @param {Function|String} method A function or the name of a function to be called on `target`
       @param {Function} callback
     */
@@ -15648,8 +15648,8 @@ enifed("ember-metal/events",
 
       @private
       @param obj
-      @param {Array} eventName Array of event names
-      @param {Object|Function} targetOrMethod A target object or a function
+      @param {Array} eventNames Array of event names
+      @param {Object|Function} target A target object or a function
       @param {Function|String} method A function or the name of a function to be called on `target`
       @param {Function} callback
     */
@@ -18215,12 +18215,12 @@ enifed("ember-metal/observer",
       @for Ember
       @param obj
       @param {String} path
-      @param {Object|Function} targetOrMethod
+      @param {Object|Function} target
       @param {Function|String} [method]
     */
-    function removeObserver(obj, _path, target, method) {
-      unwatch(obj, _path);
-      removeListener(obj, changeEvent(_path), target, method);
+    function removeObserver(obj, path, target, method) {
+      unwatch(obj, path);
+      removeListener(obj, changeEvent(path), target, method);
 
       return this;
     }
@@ -18230,12 +18230,12 @@ enifed("ember-metal/observer",
       @for Ember
       @param obj
       @param {String} path
-      @param {Object|Function} targetOrMethod
+      @param {Object|Function} target
       @param {Function|String} [method]
     */
-    function addBeforeObserver(obj, _path, target, method) {
-      addListener(obj, beforeEvent(_path), target, method);
-      watch(obj, _path);
+    function addBeforeObserver(obj, path, target, method) {
+      addListener(obj, beforeEvent(path), target, method);
+      watch(obj, path);
 
       return this;
     }
@@ -18271,12 +18271,12 @@ enifed("ember-metal/observer",
       @for Ember
       @param obj
       @param {String} path
-      @param {Object|Function} targetOrMethod
+      @param {Object|Function} target
       @param {Function|String} [method]
     */
-    function removeBeforeObserver(obj, _path, target, method) {
-      unwatch(obj, _path);
-      removeListener(obj, beforeEvent(_path), target, method);
+    function removeBeforeObserver(obj, path, target, method) {
+      unwatch(obj, path);
+      removeListener(obj, beforeEvent(path), target, method);
 
       return this;
     }
