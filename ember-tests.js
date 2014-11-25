@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.f9b55429
+ * @version   1.10.0-beta.1+canary.6e09ee0a
  */
 
 (function() {
@@ -4182,8 +4182,8 @@ enifed("ember-handlebars/string.jshint",
     });
   });
 enifed("ember-handlebars/tests/handlebars_test",
-  ["ember-metal/core","ember-views/system/jquery","ember-metal/run_loop","ember-runtime/system/namespace","ember-views/views/view","ember-views/views/metamorph_view","ember-handlebars","ember-runtime/system/object","ember-runtime/system/native_array","ember-metal/computed","ember-views/views/container_view","ember-metal/binding","ember-views/views/text_field","ember-runtime/system/container","ember-metal/platform","ember-handlebars/helpers/view","ember-htmlbars/helpers/view","ember-metal/property_get","ember-metal/property_set"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__) {
+  ["ember-metal/core","ember-views/system/jquery","ember-metal/run_loop","ember-runtime/system/namespace","ember-views/views/view","ember-views/views/metamorph_view","ember-handlebars","ember-runtime/system/object","ember-runtime/system/native_array","ember-metal/computed","ember-views/views/container_view","ember-metal/binding","ember-views/views/text_field","ember-runtime/system/container","ember-handlebars/helpers/view","ember-htmlbars/helpers/view","ember-metal/property_get","ember-metal/property_set"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__) {
     "use strict";
     /*jshint newcap:false*/
     var Ember = __dependency1__["default"];
@@ -4201,16 +4201,13 @@ enifed("ember-handlebars/tests/handlebars_test",
     var Binding = __dependency12__.Binding;
     var TextField = __dependency13__["default"];
     var Container = __dependency14__["default"];
-    var o_create = __dependency15__.create;
-    var handlebarsViewHelper = __dependency16__.ViewHelper;
-    var htmlbarsViewHelper = __dependency17__.ViewHelper;
+    var handlebarsViewHelper = __dependency15__.ViewHelper;
+    var htmlbarsViewHelper = __dependency16__.ViewHelper;
 
     var trim = jQuery.trim;
 
-    var get = __dependency18__.get;
-    var set = __dependency19__.set;
-
-    var originalLog, logCalls;
+    var get = __dependency17__.get;
+    var set = __dependency18__.set;
 
     var caretPosition = function (element) {
       var ctrl = element[0];
@@ -4323,68 +4320,6 @@ enifed("ember-handlebars/tests/handlebars_test",
       equal("template was called for Tom DAAAALE1. Yea Tom DAAAALE1", view.$('#twas-called').text(), "the named template was called with the view as the data source");
     });
 
-    test("should read from a global-ish simple local path without deprecation", function() {
-      view = EmberView.create({
-        context: { NotGlobal: 'Gwar' },
-        template: EmberHandlebars.compile('{{NotGlobal}}')
-      });
-
-      expectNoDeprecation();
-      appendView();
-
-      equal(view.$().text(), 'Gwar');
-    });
-
-    test("should read a number value", function() {
-      var context = { aNumber: 1 };
-      view = EmberView.create({
-        context: context,
-        template: EmberHandlebars.compile('{{aNumber}}')
-      });
-
-      appendView();
-      equal(view.$().text(), '1');
-
-      Ember.run(function(){
-        Ember.set(context, 'aNumber', 2);
-      });
-      equal(view.$().text(), '2');
-    });
-
-    test("should read an escaped number value", function() {
-      var context = { aNumber: 1 };
-      view = EmberView.create({
-        context: context,
-        template: EmberHandlebars.compile('{{{aNumber}}}')
-      });
-
-      appendView();
-      equal(view.$().text(), '1');
-
-      Ember.run(function(){
-        Ember.set(context, 'aNumber', 2);
-      });
-      equal(view.$().text(), '2');
-    });
-
-    test("should read from an Object.create(null)", function() {
-      // Use ember's polyfill for Object.create
-      var nullObject = o_create(null);
-      nullObject['foo'] = 'bar';
-      view = EmberView.create({
-        context: { nullObject: nullObject },
-        template: EmberHandlebars.compile('{{nullObject.foo}}')
-      });
-
-      appendView();
-      equal(view.$().text(), 'bar');
-
-      Ember.run(function(){
-        Ember.set(nullObject, 'foo', 'baz');
-      });
-      equal(view.$().text(), 'baz');
-    });
-
     test("child views can be inserted inside a bind block", function() {
       container.register('template:nester', EmberHandlebars.compile("<h1 id='hello-world'>Hello {{world}}</h1>{{view view.bqView}}"));
       container.register('template:nested', EmberHandlebars.compile("<div id='child-view'>Goodbye {{#with content as thing}}{{thing.blah}} {{view view.otherView}}{{/with}} {{world}}</div>"));
@@ -4422,9 +4357,6 @@ enifed("ember-handlebars/tests/handlebars_test",
       ok(view.$("blockquote").text().match(/Goodbye.*wot.*cruel.*world\!/), "The child view renders its content once");
       ok(view.$().text().match(/Hello world!.*Goodbye.*wot.*cruel.*world\!/), "parent view should appear before the child view");
     });
-
-    if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
-    }
 
     test("View should update when a property changes and the bind helper is used", function() {
       container.register('template:foo', EmberHandlebars.compile('<h1 id="first">{{#with view.content as thing}}{{bind "thing.wham"}}{{/with}}</h1>'));
@@ -4622,45 +4554,9 @@ enifed("ember-handlebars/tests/handlebars_test",
       equal(view.$().html(), "abc");
     });
 
-    test("should escape HTML in primitive value contexts when using normal mustaches", function() {
-      view = EmberView.create({
-        context: '<b>Max</b><b>James</b>',
-        template: EmberHandlebars.compile('{{this}}'),
-      });
-
-      appendView();
-
-      equal(view.$('b').length, 0, "does not create an element");
-      equal(view.$().text(), '<b>Max</b><b>James</b>', "inserts entities, not elements");
-
-      run(function() { set(view, 'context', '<i>Max</i><i>James</i>'); });
-
-      equal(view.$().text(), '<i>Max</i><i>James</i>', "updates with entities, not elements");
-      equal(view.$('i').length, 0, "does not create an element when value is updated");
-    });
-
-    test("should not escape HTML in primitive value contexts when using triple mustaches", function() {
-      view = EmberView.create({
-        context: '<b>Max</b><b>James</b>',
-        template: EmberHandlebars.compile('{{{this}}}'),
-      });
-
-      appendView();
-
-      equal(view.$('b').length, 2, "creates an element");
-
-      run(function() { set(view, 'context', '<i>Max</i><i>James</i>'); });
-
-      equal(view.$('i').length, 2, "creates an element when value is updated");
-    });
-
     QUnit.module("Ember.View - handlebars integration", {
       setup: function() {
         Ember.lookup = lookup = { Ember: Ember };
-
-        originalLog = Ember.Logger.log;
-        logCalls = [];
-        Ember.Logger.log = function(arg) { logCalls.push(arg); };
       },
 
       teardown: function() {
@@ -4671,7 +4567,6 @@ enifed("ember-handlebars/tests/handlebars_test",
           view = null;
         }
 
-        Ember.Logger.log = originalLog;
         Ember.lookup = originalLookup;
       }
     });
@@ -13536,6 +13431,153 @@ enifed("ember-htmlbars/tests/integration/component_invocation_test.jshint",
     module('JSHint - ember-htmlbars/tests/integration');
     test('ember-htmlbars/tests/integration/component_invocation_test.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/tests/integration/component_invocation_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/tests/integration/escape_integration_test",
+  ["ember-metal/run_loop","ember-metal/core","ember-views/views/view","ember-handlebars-compiler","ember-htmlbars/system/compile","ember-metal/property_set","ember-metal/platform"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
+    "use strict";
+    var run = __dependency1__["default"];
+    var Ember = __dependency2__["default"];
+    var EmberView = __dependency3__["default"];
+    var EmberHandlebars = __dependency4__["default"];
+    var htmlbarsCompile = __dependency5__["default"];
+
+    var set = __dependency6__.set;
+    var o_create = __dependency7__.create;
+
+    var compile, view;
+
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      compile = htmlbarsCompile;
+    } else {
+      compile = EmberHandlebars.compile;
+    }
+
+    QUnit.module('ember-htmlbars: Integration with Globals', {
+      teardown: function() {
+        run(function() {
+          if (view) {
+            view.destroy();
+          }
+
+          view = null;
+        });
+      }
+    });
+
+    function appendView(view) {
+      run(view, 'appendTo', '#qunit-fixture');
+    }
+
+    test('should read from a global-ish simple local path without deprecation', function() {
+      view = EmberView.create({
+        context: { NotGlobal: 'Gwar' },
+        template: compile('{{NotGlobal}}')
+      });
+
+      expectNoDeprecation();
+      appendView(view);
+
+      equal(view.$().text(), 'Gwar');
+    });
+
+    test('should read a number value', function() {
+      var context = { aNumber: 1 };
+      view = EmberView.create({
+        context: context,
+        template: compile('{{aNumber}}')
+      });
+
+      appendView(view);
+      equal(view.$().text(), '1');
+
+      Ember.run(function(){
+        Ember.set(context, 'aNumber', 2);
+      });
+
+      equal(view.$().text(), '2');
+    });
+
+    test('should read an escaped number value', function() {
+      var context = { aNumber: 1 };
+      view = EmberView.create({
+        context: context,
+        template: compile('{{{aNumber}}}')
+      });
+
+      appendView(view);
+      equal(view.$().text(), '1');
+
+      Ember.run(function(){
+        Ember.set(context, 'aNumber', 2);
+      });
+
+      equal(view.$().text(), '2');
+    });
+
+    test('should read from an Object.create(null)', function() {
+      // Use ember's polyfill for Object.create
+      var nullObject = o_create(null);
+      nullObject['foo'] = 'bar';
+      view = EmberView.create({
+        context: { nullObject: nullObject },
+        template: compile('{{nullObject.foo}}')
+      });
+
+      appendView(view);
+      equal(view.$().text(), 'bar');
+
+      Ember.run(function(){
+        Ember.set(nullObject, 'foo', 'baz');
+      });
+
+      equal(view.$().text(), 'baz');
+    });
+
+    test('should escape HTML in primitive value contexts when using normal mustaches', function() {
+      view = EmberView.create({
+        context: '<b>Max</b><b>James</b>',
+        template: compile('{{this}}'),
+      });
+
+      appendView(view);
+
+      equal(view.$('b').length, 0, 'does not create an element');
+      equal(view.$().text(), '<b>Max</b><b>James</b>', 'inserts entities, not elements');
+
+      run(function() {
+        set(view, 'context', '<i>Max</i><i>James</i>');
+      });
+
+      equal(view.$().text(), '<i>Max</i><i>James</i>', 'updates with entities, not elements');
+      equal(view.$('i').length, 0, 'does not create an element when value is updated');
+    });
+
+    test('should not escape HTML in primitive value contexts when using triple mustaches', function() {
+      view = EmberView.create({
+        context: '<b>Max</b><b>James</b>',
+        template: compile('{{{this}}}'),
+      });
+
+      appendView(view);
+
+      equal(view.$('b').length, 2, 'creates an element');
+
+      run(function() {
+        set(view, 'context', '<i>Max</i><i>James</i>');
+      });
+
+      equal(view.$('i').length, 2, 'creates an element when value is updated');
+    });
+  });
+enifed("ember-htmlbars/tests/integration/escape_integration_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/tests/integration');
+    test('ember-htmlbars/tests/integration/escape_integration_test.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/tests/integration/escape_integration_test.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/tests/integration/globals_integration_test",
