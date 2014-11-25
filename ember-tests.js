@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.ed76517b
+ * @version   1.10.0-beta.1+canary.29dd810e
  */
 
 (function() {
@@ -4674,46 +4674,6 @@ enifed("ember-handlebars/tests/handlebars_test",
         Ember.Logger.log = originalLog;
         Ember.lookup = originalLookup;
       }
-    });
-
-    test("should be able to log a property", function() {
-      var context = {
-        value: 'one'
-      };
-
-      view = EmberView.create({
-        context: context,
-        template: EmberHandlebars.compile('{{log value}}')
-      });
-
-      appendView();
-
-      equal(view.$().text(), "", "shouldn't render any text");
-      equal(logCalls[0], 'one', "should call log with value");
-    });
-
-    test("should be able to log a view property", function() {
-      view = EmberView.create({
-        template: EmberHandlebars.compile('{{log view.value}}'),
-        value: 'one'
-      });
-
-      appendView();
-
-      equal(view.$().text(), "", "shouldn't render any text");
-      equal(logCalls[0], 'one', "should call log with value");
-    });
-
-    test("should be able to log `this`", function() {
-      view = EmberView.create({
-        context: 'one',
-        template: EmberHandlebars.compile('{{log this}}'),
-      });
-
-      appendView();
-
-      equal(view.$().text(), "", "shouldn't render any text");
-      equal(logCalls[0], 'one', "should call log with item one");
     });
 
     var MyApp;
@@ -10003,6 +9963,100 @@ enifed("ember-htmlbars/tests/helpers/loc_test.jshint",
     module('JSHint - ember-htmlbars/tests/helpers');
     test('ember-htmlbars/tests/helpers/loc_test.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/tests/helpers/loc_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/tests/helpers/log_test",
+  ["ember-metal/run_loop","ember-metal/core","ember-views/views/view","ember-handlebars","ember-htmlbars/system/compile"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
+    "use strict";
+    var run = __dependency1__["default"];
+    var Ember = __dependency2__["default"];
+    var EmberView = __dependency3__["default"];
+    var EmberHandlebars = __dependency4__["default"];
+    var htmlbarsCompile = __dependency5__["default"];
+
+    var originalLookup, originalLog, logCalls, lookup, view, compile;
+
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      compile = htmlbarsCompile;
+    } else {
+      compile = EmberHandlebars.compile;
+    }
+
+    var appendView = function(view) {
+      run(view, 'appendTo', '#qunit-fixture');
+    };
+
+    QUnit.module('ember-htmlbars: {{#log}} helper', {
+      setup: function() {
+        Ember.lookup = lookup = { Ember: Ember };
+
+        originalLog = Ember.Logger.log;
+        logCalls = [];
+        Ember.Logger.log = function(arg) {
+          logCalls.push(arg);
+        };
+      },
+
+      teardown: function() {
+        run(function() {
+          view.destroy();
+        });
+
+        view = null;
+
+        Ember.Logger.log = originalLog;
+        Ember.lookup = originalLookup;
+      }
+    });
+
+    test('should be able to log a property', function() {
+      var context = {
+        value: 'one'
+      };
+
+      view = EmberView.create({
+        context: context,
+        template: compile('{{log value}}')
+      });
+
+      appendView(view);
+
+      equal(view.$().text(), '', 'shouldn\'t render any text');
+      equal(logCalls[0], 'one', 'should call log with value');
+    });
+
+    test('should be able to log a view property', function() {
+      view = EmberView.create({
+        template: compile('{{log view.value}}'),
+        value: 'one'
+      });
+
+      appendView(view);
+
+      equal(view.$().text(), '', 'shouldn\'t render any text');
+      equal(logCalls[0], 'one', 'should call log with value');
+    });
+
+    test('should be able to log `this`', function() {
+      view = EmberView.create({
+        context: 'one',
+        template: compile('{{log this}}'),
+      });
+
+      appendView(view);
+
+      equal(view.$().text(), '', 'shouldn\'t render any text');
+      equal(logCalls[0], 'one', 'should call log with item one');
+    });
+  });
+enifed("ember-htmlbars/tests/helpers/log_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/tests/helpers');
+    test('ember-htmlbars/tests/helpers/log_test.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/tests/helpers/log_test.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/tests/helpers/partial_test",
