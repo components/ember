@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.29dd810e
+ * @version   1.10.0-beta.1+canary.f9b55429
  */
 
 (function() {
@@ -18778,7 +18778,7 @@ enifed("ember-metal/tests/is_empty_test",
       equal(false, isEmpty(0),         "for 0");
       equal(true,  isEmpty([]),        "for an empty Array");
       equal(false, isEmpty({}),        "for an empty Object");
-      equal(true,  isEmpty(object),     "for an Object that has zero 'length'");
+      equal(true,  isEmpty(object),    "for an Object that has zero 'length'");
     });
 
     test("Ember.isEmpty Ember.Map", function() {
