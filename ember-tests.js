@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.e0c5cf73
+ * @version   1.10.0-beta.1+canary.0d062ce7
  */
 
 (function() {
@@ -4403,33 +4403,6 @@ enifed("ember-handlebars/tests/handlebars_test",
         get(view, 'layout');
       }, /cantBeFound/);
     });
-
-    // test("should warn if setting a template on a view with a templateName already specified", function() {
-    //   view = EmberView.create({
-    //     childView: EmberView.extend({
-    //       templateName: 'foo'
-    //     }),
-
-    //     template: EmberHandlebars.compile('{{#view childView}}test{{/view}}')
-    //   });
-
-    //   expectAssertion(function() {
-    //     appendView();
-    //   }, "Unable to find view at path 'childView'");
-
-    //   run(function() {
-    //     view.destroy();
-    //   });
-
-    //   view = EmberView.create({
-    //     childView: EmberView.extend(),
-    //     template: EmberHandlebars.compile('{{#view childView templateName="foo"}}test{{/view}}')
-    //   });
-
-    //   expectAssertion(function() {
-    //     appendView();
-    //   }, "Unable to find view at path 'childView'");
-    // });
 
     test("should not reset cursor position when text field receives keyUp event", function() {
       view = TextField.create({
@@ -10682,7 +10655,7 @@ enifed("ember-htmlbars/tests/helpers/view_test",
         template: compile('{{view tagName="span"}}')
       }).create();
 
-      run(view, 'appendTo', '#qunit-fixture');
+      appendView(view);
 
       ok(jQuery('#qunit-fixture').html().toUpperCase().match(/<SPAN/), 'contains view with span');
     });
