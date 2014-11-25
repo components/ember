@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.26a354d2
+ * @version   1.10.0-beta.1+canary.487cded4
  */
 
 (function() {
@@ -14778,7 +14778,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.26a354d2
+      @version 1.10.0-beta.1+canary.487cded4
     */
 
     if ('undefined' === typeof Ember) {
@@ -14805,10 +14805,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.26a354d2'
+      @default '1.10.0-beta.1+canary.487cded4'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.26a354d2';
+    Ember.VERSION = '1.10.0-beta.1+canary.487cded4';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -20652,22 +20652,17 @@ enifed("ember-metal/utils",
       this.cache = {};
       this.cacheMeta = {};
       this.source = obj;
+      this.deps = undefined;
+      this.listeners = undefined;
+      this.mixins = undefined;
+      this.bindings = undefined;
+      this.chains = undefined;
+      this.values = undefined;
+      this.proto = undefined;
     }
 
     Meta.prototype = {
-      descs: null,
-      deps: null,
-      watching: null,
-      listeners: null,
-      cache: null,
-      cacheMeta: null,
-      source: null,
-      mixins: null,
-      bindings: null,
-      chains: null,
-      chainWatchers: null,
-      values: null,
-      proto: null
+      chainWatchers: null
     };
 
     if (!canDefineNonEnumerableProperties) {
