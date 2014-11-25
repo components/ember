@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.660cc193
+ * @version   1.10.0-beta.1+canary.d4806812
  */
 
 (function() {
@@ -14200,7 +14200,7 @@ enifed("ember-htmlbars/tests/integration/select_in_template_test.jshint",
       ok(true, 'ember-htmlbars/tests/integration/select_in_template_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/integration/tagless-views-rerender_test",
+enifed("ember-htmlbars/tests/integration/tagless_views_rerender_test",
   ["ember-metal/run_loop","ember-views/views/view","ember-htmlbars/compat"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -14278,13 +14278,13 @@ enifed("ember-htmlbars/tests/integration/tagless-views-rerender_test",
       equal(view.$().text(), '');
     });
   });
-enifed("ember-htmlbars/tests/integration/tagless-views-rerender_test.jshint",
+enifed("ember-htmlbars/tests/integration/tagless_views_rerender_test.jshint",
   [],
   function() {
     "use strict";
     module('JSHint - ember-htmlbars/tests/integration');
-    test('ember-htmlbars/tests/integration/tagless-views-rerender_test.js should pass jshint', function() { 
-      ok(true, 'ember-htmlbars/tests/integration/tagless-views-rerender_test.js should pass jshint.'); 
+    test('ember-htmlbars/tests/integration/tagless_views_rerender_test.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/tests/integration/tagless_views_rerender_test.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/tests/system/bootstrap_test",
