@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.0d062ce7
+ * @version   1.10.0-beta.1+canary.cf627363
  */
 
 (function() {
@@ -4320,27 +4320,6 @@ enifed("ember-handlebars/tests/handlebars_test",
       equal("template was called for Tom DAAAALE1. Yea Tom DAAAALE1", view.$('#twas-called').text(), "the named template was called with the view as the data source");
     });
 
-    test("View should update when a property changes and the bind helper is used", function() {
-      container.register('template:foo', EmberHandlebars.compile('<h1 id="first">{{#with view.content as thing}}{{bind "thing.wham"}}{{/with}}</h1>'));
-
-      view = EmberView.create({
-        container: container,
-        templateName: 'foo',
-
-        content: EmberObject.create({
-          wham: 'bam',
-          thankYou: "ma'am"
-        })
-      });
-
-      appendView();
-
-      equal(view.$('#first').text(), "bam", "precond - view renders Handlebars template");
-
-      run(function() { set(get(view, 'content'), 'wham', 'bazam'); });
-      equal(view.$('#first').text(), "bazam", "view updates when a bound property changes");
-    });
-
     test("View should not use keyword incorrectly - Issue #1315", function() {
       container.register('template:foo', EmberHandlebars.compile('{{#each value in view.content}}{{value}}-{{#each option in view.options}}{{option.value}}:{{option.label}} {{/each}}{{/each}}'));
 
@@ -6522,22 +6501,23 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helpers/bind_test",
-  ["ember-views/views/view","ember-runtime/system/object","ember-metal/run_loop","ember-handlebars","ember-htmlbars/system/compile","ember-runtime/system/container","ember-runtime/controllers/object_controller","ember-metal/property_get","ember-metal/property_set"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
+  ["ember-views/views/view","ember-runtime/system/object","ember-metal/run_loop","ember-views/views/metamorph_view","ember-handlebars","ember-htmlbars/system/compile","ember-runtime/system/container","ember-runtime/controllers/object_controller","ember-metal/property_get","ember-metal/property_set"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
     "use strict";
     var EmberView = __dependency1__["default"];
     var EmberObject = __dependency2__["default"];
     var run = __dependency3__["default"];
-    var EmberHandlebars = __dependency4__["default"];
-    var htmlbarsCompile = __dependency5__["default"];
-    var Container = __dependency6__["default"];
-    var ObjectController = __dependency7__["default"];
+    var _MetamorphView = __dependency4__["default"];
+    var EmberHandlebars = __dependency5__["default"];
+    var htmlbarsCompile = __dependency6__["default"];
+    var Container = __dependency7__["default"];
+    var ObjectController = __dependency8__["default"];
 
-    var get = __dependency8__.get;
-    var set = __dependency9__.set;
+    var get = __dependency9__.get;
+    var set = __dependency10__.set;
 
     function appendView(view) {
-      run(function() { view.appendTo('#qunit-fixture'); });
+      run(view, 'appendTo', '#qunit-fixture');
     }
 
     var view, container;
@@ -6550,11 +6530,23 @@ enifed("ember-htmlbars/tests/helpers/bind_test",
     }
 
     QUnit.module("ember-htmlbars: {{bind}} helper", {
+      setup: function() {
+        container = new Container();
+        container.optionsForType('template', { instantiate: false });
+        container.register('view:default', _MetamorphView);
+        container.register('view:toplevel', EmberView.extend());
+      },
       teardown: function() {
-        if (view) {
-          run(view, view.destroy);
-          view = null;
-        }
+        run(function() {
+          if (container) {
+            container.destroy();
+          }
+          if (view) {
+            view.destroy();
+          }
+
+          container = view = null;
+        });
       }
     });
 
@@ -6797,6 +6789,30 @@ enifed("ember-htmlbars/tests/helpers/bind_test",
       });
 
       equal(view.$('h1').text(), "$6", "updates when property is set on object controller");
+    });
+
+    test('View should update when a property changes and the bind helper is used', function() {
+      container.register('template:foo', compile('<h1 id="first">{{#with view.content as thing}}{{bind "thing.wham"}}{{/with}}</h1>'));
+
+      view = EmberView.create({
+        container: container,
+        templateName: 'foo',
+
+        content: EmberObject.create({
+          wham: 'bam',
+          thankYou: "ma'am"
+        })
+      });
+
+      appendView(view);
+
+      equal(view.$('#first').text(), 'bam', 'precond - view renders Handlebars template');
+
+      run(function() {
+        set(get(view, 'content'), 'wham', 'bazam');
+      });
+
+      equal(view.$('#first').text(), 'bazam', 'view updates when a bound property changes');
     });
   });
 enifed("ember-htmlbars/tests/helpers/bind_test.jshint",
