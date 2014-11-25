@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.d4806812
+ * @version   1.10.0-beta.1+canary.bf146958
  */
 
 (function() {
@@ -6358,7 +6358,6 @@ enifed("ember-handlebars/helpers/binding",
         lazyValue: lazyValue,
         previousContext: currentContext,
         isEscaped: !options.hash.unescaped,
-        templateData: options.data,
         templateHash: options.hash,
         helperName: options.helperName
       };
@@ -7622,7 +7621,6 @@ enifed("ember-handlebars/helpers/view",
 
         var viewOptions = this.propertiesFromHTMLOptions(options, thisContext);
         var currentView = data.view;
-        viewOptions.templateData = data;
         var newViewProto = newView.proto();
 
         if (fn) {
@@ -7653,7 +7651,6 @@ enifed("ember-handlebars/helpers/view",
 
         var viewOptions = this.propertiesFromHTMLOptions(options, thisContext);
         var currentView = data.view;
-        viewOptions.templateData = data;
 
         if (fn) {
           Ember.assert("You cannot provide a template block if you also specified a templateName",
@@ -9224,7 +9221,6 @@ enifed("ember-htmlbars/helpers/binding",
         lazyValue: lazyValue,
         previousContext: get(this, 'context'),
         isEscaped: !hash.unescaped,
-        templateData: env.data,
         templateHash: hash,
         helperName: options.helperName
       };
@@ -10840,7 +10836,6 @@ enifed("ember-htmlbars/helpers/view",
 
         var viewOptions = this.propertiesFromHTMLOptions(hash, options, env);
         var currentView = data.view;
-        viewOptions.templateData = data;
         var newViewProto = newView.proto();
 
         if (fn) {
@@ -10873,7 +10868,6 @@ enifed("ember-htmlbars/helpers/view",
 
         var viewOptions = this.propertiesFromHTMLOptions(hash, options, env);
         var currentView = data.view;
-        viewOptions.templateData = data;
 
         if (fn) {
           Ember.assert("You cannot provide a template block if you also specified a templateName",
@@ -15218,7 +15212,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.d4806812
+      @version 1.10.0-beta.1+canary.bf146958
     */
 
     if ('undefined' === typeof Ember) {
@@ -15245,10 +15239,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.d4806812'
+      @default '1.10.0-beta.1+canary.bf146958'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.d4806812';
+    Ember.VERSION = '1.10.0-beta.1+canary.bf146958';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -44781,8 +44775,7 @@ enifed("ember-views/views/component",
             _contextView: parentView,
             _morph: morph,
             context: get(parentView, 'context'),
-            controller: get(parentView, 'controller'),
-            templateData: { keywords: {} }
+            controller: get(parentView, 'controller')
           });
         }
       },
@@ -45265,22 +45258,18 @@ enifed("ember-views/views/container_view",
       childViewsDidChange: function(views, start, removed, added) {
         if (added > 0) {
           var changedViews = views.slice(start, start+added);
-          this.initializeViews(changedViews, this, get(this, 'templateData'));
+          this.initializeViews(changedViews, this);
           this.currentState.childViewsDidChange(this, views, start, added);
         }
         this.propertyDidChange('childViews');
       },
 
-      initializeViews: function(views, parentView, templateData) {
+      initializeViews: function(views, parentView) {
         forEach(views, function(view) {
           set(view, '_parentView', parentView);
 
           if (!view.container && parentView) {
             set(view, 'container', parentView.container);
-          }
-
-          if (!get(view, 'templateData')) {
-            set(view, 'templateData', templateData);
           }
         });
       },
@@ -48801,8 +48790,6 @@ enifed("ember-views/views/view",
         attrs._parentView = this;
 
         if (CoreView.detect(view)) {
-          attrs.templateData = attrs.templateData || get(this, 'templateData');
-
           attrs.container = this.container;
           view = view.create(attrs);
 
@@ -48817,18 +48804,12 @@ enifed("ember-views/views/view",
 
           Ember.assert("Could not find view: '" + fullName + "'", !!ViewKlass);
 
-          attrs.templateData = get(this, 'templateData');
           view = ViewKlass.create(attrs);
         } else {
           Ember.assert('You must pass instance or subclass of View', view.isView);
+
           attrs.container = this.container;
-
-          if (!get(view, 'templateData')) {
-            attrs.templateData = get(this, 'templateData');
-          }
-
           setProperties(view, attrs);
-
         }
 
         return view;
