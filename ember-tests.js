@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.5d21c789
+ * @version   1.10.0-beta.1+canary.58143519
  */
 
 (function() {
@@ -4247,40 +4247,6 @@ enifed("ember-handlebars/tests/handlebars_test",
         Ember.lookup = lookup = originalLookup;
         TemplateTests = null;
       }
-    });
-
-    test("template view should call the function of the associated template", function() {
-      container.register('template:testTemplate', EmberHandlebars.compile("<h1 id='twas-called'>template was called</h1>"));
-
-      view = EmberView.create({
-        container: container,
-        templateName: 'testTemplate'
-      });
-
-      appendView();
-
-      ok(view.$('#twas-called').length, "the named template was called");
-    });
-
-    test("template view should call the function of the associated template with itself as the context", function() {
-      container.register('template:testTemplate', EmberHandlebars.compile("<h1 id='twas-called'>template was called for {{view.personName}}. Yea {{view.personName}}</h1>"));
-
-      view = EmberView.createWithMixins({
-        container: container,
-        templateName: 'testTemplate',
-
-        _personName: "Tom DAAAALE",
-        _i: 0,
-
-        personName: computed(function() {
-          this._i++;
-          return this._personName + this._i;
-        })
-      });
-
-      appendView();
-
-      equal("template was called for Tom DAAAALE1. Yea Tom DAAAALE1", view.$('#twas-called').text(), "the named template was called with the view as the data source");
     });
 
     test("View should not use keyword incorrectly - Issue #1315", function() {
