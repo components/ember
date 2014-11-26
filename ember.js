@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.f4ccf175
+ * @version   1.10.0-beta.1+canary.ed343f90
  */
 
 (function() {
@@ -6508,8 +6508,8 @@ enifed("ember-handlebars/helpers/binding",
     __exports__.bindHelper = bindHelper;
   });
 enifed("ember-handlebars/helpers/collection",
-  ["ember-metal/core","ember-handlebars-compiler","ember-metal/mixin","ember-runtime/system/string","ember-metal/property_get","ember-metal/streams/simple","ember-handlebars/ext","ember-handlebars/helpers/view","ember-metal/alias","ember-views/views/view","ember-views/views/collection_view","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
+  ["ember-metal/core","ember-handlebars-compiler","ember-metal/mixin","ember-runtime/system/string","ember-metal/property_get","ember-metal/streams/simple","ember-handlebars/ext","ember-handlebars/helpers/view","ember-views/views/view","ember-views/views/collection_view","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -6526,9 +6526,8 @@ enifed("ember-handlebars/helpers/collection",
     var SimpleStream = __dependency6__["default"];
     var handlebarsGetView = __dependency7__.handlebarsGetView;
     var ViewHelper = __dependency8__.ViewHelper;
-    var alias = __dependency9__["default"];
-    var View = __dependency10__["default"];
-    var CollectionView = __dependency11__["default"];
+    var View = __dependency9__["default"];
+    var CollectionView = __dependency10__["default"];
 
     /**
       `{{collection}}` is a `Ember.Handlebars` helper for adding instances of
@@ -6761,9 +6760,9 @@ enifed("ember-handlebars/helpers/collection",
       if (emptyViewClass) { hash.emptyView = emptyViewClass; }
 
       if (hash.keyword) {
-        itemHash._context = this;
+        itemHash._contextBinding = '_parentView.context';
       } else {
-        itemHash._context = alias('content');
+        itemHash._contextBinding = 'content';
       }
 
       var viewOptions = ViewHelper.propertiesFromHTMLOptions({ data: data, hash: itemHash }, this);
@@ -6784,7 +6783,8 @@ enifed("ember-handlebars/helpers/collection",
         viewOptions.classNameBindings = itemClassBindings;
       }
 
-      hash.itemViewClass = itemViewClass.extend(viewOptions);
+      hash.itemViewClass = itemViewClass;
+      hash._itemViewProps = viewOptions;
 
       options.helperName = options.helperName || 'collection';
 
@@ -9286,8 +9286,8 @@ enifed("ember-htmlbars/helpers/binding",
     __exports__.bindHelper = bindHelper;
   });
 enifed("ember-htmlbars/helpers/collection",
-  ["ember-metal/core","ember-handlebars-compiler","ember-metal/mixin","ember-runtime/system/string","ember-metal/property_get","ember-metal/streams/simple","ember-htmlbars/helpers/view","ember-metal/alias","ember-views/views/view","ember-views/views/collection_view","ember-views/streams/read","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
+  ["ember-metal/core","ember-handlebars-compiler","ember-metal/mixin","ember-runtime/system/string","ember-metal/property_get","ember-metal/streams/simple","ember-htmlbars/helpers/view","ember-views/views/view","ember-views/views/collection_view","ember-views/streams/read","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -9303,10 +9303,9 @@ enifed("ember-htmlbars/helpers/collection",
     var get = __dependency5__.get;
     var SimpleStream = __dependency6__["default"];
     var ViewHelper = __dependency7__.ViewHelper;
-    var alias = __dependency8__["default"];
-    var View = __dependency9__["default"];
-    var CollectionView = __dependency10__["default"];
-    var readViewFactory = __dependency11__.readViewFactory;
+    var View = __dependency8__["default"];
+    var CollectionView = __dependency9__["default"];
+    var readViewFactory = __dependency10__.readViewFactory;
 
     /**
       `{{collection}}` is a `Ember.Handlebars` helper for adding instances of
@@ -9527,9 +9526,9 @@ enifed("ember-htmlbars/helpers/collection",
       if (emptyViewClass) { hash.emptyView = emptyViewClass; }
 
       if (hash.keyword) {
-        itemHash._context = alias('_parentView.context');
+        itemHash._contextBinding = '_parentView.context';
       } else {
-        itemHash._context = alias('content');
+        itemHash._contextBinding = 'content';
       }
 
       var viewOptions = ViewHelper.propertiesFromHTMLOptions(itemHash, {}, { data: data });
@@ -9550,7 +9549,8 @@ enifed("ember-htmlbars/helpers/collection",
         viewOptions.classNameBindings = itemClassBindings;
       }
 
-      hash.itemViewClass = itemViewClass.extend(viewOptions);
+      hash.itemViewClass = itemViewClass;
+      hash._itemViewProps = viewOptions;
 
       options.helperName = options.helperName || 'collection';
 
@@ -15212,7 +15212,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.f4ccf175
+      @version 1.10.0-beta.1+canary.ed343f90
     */
 
     if ('undefined' === typeof Ember) {
@@ -15239,10 +15239,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.f4ccf175'
+      @default '1.10.0-beta.1+canary.ed343f90'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.f4ccf175';
+    Ember.VERSION = '1.10.0-beta.1+canary.ed343f90';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -44492,22 +44492,24 @@ enifed("ember-views/views/collection_view",
       */
       arrayDidChange: function(content, start, removed, added) {
         var addedViews = [];
-        var view, item, idx, len, itemViewClass, emptyView;
+        var view, item, idx, len, itemViewClass, emptyView, itemViewProps;
 
         len = content ? get(content, 'length') : 0;
 
         if (len) {
+          itemViewProps = this._itemViewProps || {};
           itemViewClass = get(this, 'itemViewClass');
+
           itemViewClass = readViewFactory(itemViewClass, this.container);
 
           for (idx = start; idx < start+added; idx++) {
             item = content.objectAt(idx);
 
-            view = this.createChildView(itemViewClass, {
-              content: item,
-              contentIndex: idx,
-              _blockArguments: [item]
-            });
+            itemViewProps.content = item;
+            itemViewProps._blockArguments = [item];
+            itemViewProps.contentIndex = idx;
+
+            view = this.createChildView(itemViewClass, itemViewProps);
 
             addedViews.push(view);
           }
@@ -44521,6 +44523,7 @@ enifed("ember-views/views/collection_view",
           }
 
           emptyView = this.createChildView(emptyView);
+
           addedViews.push(emptyView);
           set(this, 'emptyView', emptyView);
 
