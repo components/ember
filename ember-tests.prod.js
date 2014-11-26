@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.f20f520c
+ * @version   1.10.0-beta.1+canary.4bb37d70
  */
 
 (function() {
@@ -4365,40 +4365,6 @@ enifed("ember-handlebars/tests/handlebars_test",
       run(view, 'rerender');
 
       equal(view._childViews.length, 1);
-    });
-
-    // https://github.com/emberjs/ember.js/issues/120
-
-    test("should not enter an infinite loop when binding an attribute in Handlebars", function() {
-      var LinkView = EmberView.extend({
-        classNames: ['app-link'],
-        tagName: 'a',
-        attributeBindings: ['href'],
-        href: '#none',
-
-        click: function() {
-          return false;
-        }
-      });
-
-      var parentView = EmberView.create({
-        linkView: LinkView,
-        test: EmberObject.create({ href: 'test' }),
-        template: EmberHandlebars.compile('{{#view view.linkView hrefBinding="view.test.href"}} Test {{/view}}')
-      });
-
-
-      run(function() {
-        parentView.appendTo('#qunit-fixture');
-      });
-
-      // Use match, since old IE appends the whole URL
-      var href = parentView.$('a').attr('href');
-      ok(href.match(/(^|\/)test$/), "Expected href to be 'test' but got '"+href+"'");
-
-      run(function() {
-        parentView.destroy();
-      });
     });
 
     test("should update bound values after view's parent is removed and then re-appended", function() {
@@ -10529,6 +10495,34 @@ enifed("ember-htmlbars/tests/helpers/view_test",
 
         Ember.lookup = lookup = originalLookup;
       }
+    });
+
+    // https://github.com/emberjs/ember.js/issues/120
+    test("should not enter an infinite loop when binding an attribute in Handlebars", function() {
+      var LinkView = EmberView.extend({
+        classNames: ['app-link'],
+        tagName: 'a',
+        attributeBindings: ['href'],
+        href: '#none',
+
+        click: function() {
+          return false;
+        }
+      });
+
+      var parentView = EmberView.create({
+        linkView: LinkView,
+        test: EmberObject.create({ href: 'test' }),
+        template: compile('{{#view view.linkView href=view.test.href}} Test {{/view}}')
+      });
+
+      run(parentView, 'appendTo', '#qunit-fixture');
+
+      // Use match, since old IE appends the whole URL
+      var href = parentView.$('a').attr('href');
+      ok(href.match(/(^|\/)test$/), 'Expected href to be \'test\' but got "'+href+'"');
+
+      run(parentView, 'destroy');
     });
 
     test("By default view:toplevel is used", function() {
