@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.ed343f90
+ * @version   1.10.0-beta.1+canary.436dae0d
  */
 
 (function() {
@@ -9114,6 +9114,177 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
 
       equal(Ember.$('#qunit-fixture').text(), 'test');
     });
+
+    if (Ember.FEATURES.isEnabled('ember-htmlbars-inline-if-helper')) {
+      test("`if` helper with inline form: renders the second argument when conditional is truthy", function() {
+        view = EmberView.create({
+          conditional: true,
+          template: compile('{{if view.conditional "truthy" "falsy"}}')
+        });
+
+        appendView(view);
+
+        equal(view.$().text(), 'truthy');
+      });
+
+      test("`if` helper with inline form: renders the third argument when conditional is falsy", function() {
+        view = EmberView.create({
+          conditional: false,
+          template: compile('{{if view.conditional "truthy" "falsy"}}')
+        });
+
+        appendView(view);
+
+        equal(view.$().text(), 'falsy');
+      });
+
+      test("`if` helper with inline form: can omit the falsy argument", function() {
+        view = EmberView.create({
+          conditional: true,
+          template: compile('{{if view.conditional "truthy"}}')
+        });
+
+        appendView(view);
+
+        equal(view.$().text(), 'truthy');
+      });
+
+      test("`if` helper with inline form: can omit the falsy argument and renders nothing when conditional is falsy", function() {
+        view = EmberView.create({
+          conditional: false,
+          template: compile('{{if view.conditional "truthy"}}')
+        });
+
+        appendView(view);
+
+        equal(view.$().text(), '');
+      });
+
+      test("`if` helper with inline form: truthy and falsy arguments are changed if conditional changes", function() {
+        view = EmberView.create({
+          conditional: true,
+          template: compile('{{if view.conditional "truthy" "falsy"}}')
+        });
+
+        appendView(view);
+
+        equal(view.$().text(), 'truthy');
+
+        run(function() {
+          view.set('conditional', false);
+        });
+
+        equal(view.$().text(), 'falsy');
+      });
+
+      test("`if` helper with inline form: can use truthy param as binding", function() {
+        view = EmberView.create({
+          truthy: 'ok',
+          conditional: true,
+          template: compile('{{if view.conditional view.truthy}}')
+        });
+
+        appendView(view);
+
+        equal(view.$().text(), 'ok');
+
+        run(function() {
+          view.set('truthy', 'yes');
+        });
+
+        equal(view.$().text(), 'yes');
+      });
+
+      test("`if` helper with inline form: can use falsy param as binding", function() {
+        view = EmberView.create({
+          truthy: 'ok',
+          falsy: 'boom',
+          conditional: false,
+          template: compile('{{if view.conditional view.truthy view.falsy}}')
+        });
+
+        appendView(view);
+
+        equal(view.$().text(), 'boom');
+
+        run(function() {
+          view.set('falsy', 'no');
+        });
+
+        equal(view.$().text(), 'no');
+      });
+
+      test("`if` helper with inline form: raises when using more than three arguments", function() {
+        view = EmberView.create({
+          conditional: true,
+          template: compile('{{if one two three four}}')
+        });
+
+        expectAssertion(function() {
+          appendView(view);
+        }, 'If helper in inline form expects between two and three arguments');
+      });
+
+      test("`if` helper with inline form: raises when using less than two arguments", function() {
+        view = EmberView.create({
+          conditional: true,
+          template: compile('{{if one}}')
+        });
+
+        expectAssertion(function() {
+          appendView(view);
+        }, 'If helper in inline form expects between two and three arguments');
+      });
+
+      test("`if` helper with inline form: works when used in a sub expression", function() {
+        view = EmberView.create({
+          conditional: true,
+          innerConditional: true,
+          template: compile('{{if view.conditional (if view.innerConditional "truthy" )}}')
+        });
+
+        appendView(view);
+
+        equal(view.$().text(), 'truthy');
+      });
+
+      test("`if` helper with inline form: updates if condition changes in a sub expression", function() {
+        view = EmberView.create({
+          conditional: true,
+          innerConditional: true,
+          template: compile('{{if view.conditional (if view.innerConditional "innerTruthy" "innerFalsy")}}')
+        });
+
+        appendView(view);
+
+        equal(view.$().text(), 'innerTruthy');
+
+        run(function() {
+          view.set('innerConditional', false);
+        });
+
+        equal(view.$().text(), 'innerFalsy');
+      });
+
+      test("`if` helper with inline form: can use truthy param as binding in a sub expression", function() {
+        view = EmberView.create({
+          conditional: true,
+          innerConditional: true,
+          innerTruthy: "innerTruthy",
+          template: compile('{{if view.conditional (if view.innerConditional view.innerTruthy)}}')
+        });
+
+        appendView(view);
+
+        equal(view.$().text(), 'innerTruthy');
+
+        run(function() {
+          view.set('innerTruthy', 'innerOk');
+        });
+
+        equal(view.$().text(), 'innerOk');
+      });
+    }
   });
 enifed("ember-htmlbars/tests/helpers/if_unless_test.jshint",
   [],
@@ -48046,6 +48217,15 @@ enifed("ember-views/mixins/view_target_action_support.jshint",
     module('JSHint - ember-views/mixins');
     test('ember-views/mixins/view_target_action_support.js should pass jshint', function() { 
       ok(true, 'ember-views/mixins/view_target_action_support.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/streams/conditional_stream.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/streams');
+    test('ember-views/streams/conditional_stream.js should pass jshint', function() { 
+      ok(true, 'ember-views/streams/conditional_stream.js should pass jshint.'); 
     });
   });
 enifed("ember-views/streams/context_stream.jshint",

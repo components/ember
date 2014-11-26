@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.ed343f90
+ * @version   1.10.0-beta.1+canary.436dae0d
  */
 
 (function() {
@@ -9832,8 +9832,8 @@ enifed("ember-htmlbars/helpers/each",
     __exports__.eachHelper = eachHelper;
   });
 enifed("ember-htmlbars/helpers/if_unless",
-  ["ember-metal/core","ember-htmlbars/helpers/binding","ember-metal/property_get","ember-metal/utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+  ["ember-metal/core","ember-htmlbars/helpers/binding","ember-metal/property_get","ember-metal/utils","ember-views/streams/conditional_stream","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -9846,6 +9846,7 @@ enifed("ember-htmlbars/helpers/if_unless",
 
     var get = __dependency3__.get;
     var isArray = __dependency4__.isArray;
+    var ConditionalStream = __dependency5__["default"];
 
     function shouldDisplayIfHelperContent(result) {
       var truthy = result && get(result, 'isTruthy');
@@ -9927,12 +9928,20 @@ enifed("ember-htmlbars/helpers/if_unless",
       @return {String} HTML string
     */
     function ifHelper(params, hash, options, env) {
-      Ember.assert("You must pass exactly one argument to the if helper", params.length === 1);
-      Ember.assert("You must pass a block to the if helper", !!options.render);
-
-      options.helperName = options.helperName || ('if ');
+      Ember.assert("If helper in block form expect exactly one argument", !options.render || params.length === 1);
+      if (Ember.FEATURES.isEnabled('ember-htmlbars-inline-if-helper')) {
+        if (!options.render) {
+          Ember.assert("If helper in inline form expects between two and three arguments", params.length === 2 || params.length === 3);
+          var condition = params[0];
+          var truthy = params[1];
+          var falsy = params[2];
+          return new ConditionalStream(condition, truthy, falsy);
+        }
+      }
 
       options.inverse = options.inverse || function(){ return ''; };
+
+      options.helperName = options.helperName || ('if ');
 
       if (env.data.isUnbound) {
         return env.helpers.unboundIf.helperFunction.call(this, params, hash, options, env);
@@ -15212,7 +15221,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.ed343f90
+      @version 1.10.0-beta.1+canary.436dae0d
     */
 
     if ('undefined' === typeof Ember) {
@@ -15239,10 +15248,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.ed343f90'
+      @default '1.10.0-beta.1+canary.436dae0d'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.ed343f90';
+    Ember.VERSION = '1.10.0-beta.1+canary.436dae0d';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -42500,6 +42509,63 @@ enifed("ember-views/mixins/view_target_action_support",
       */
       actionContext: alias('context')
     });
+  });
+enifed("ember-views/streams/conditional_stream",
+  ["ember-metal/streams/stream","ember-metal/streams/read","ember-metal/platform","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+    "use strict";
+    var Stream = __dependency1__["default"];
+    var read = __dependency2__.read;
+    var o_create = __dependency3__.create;
+
+    function ConditionalStream(test, consequent, alternate) {
+      this._super(conditionalValueFn);
+      this.oldTest = undefined;
+      this.test = test;
+      this.consequent = consequent;
+      this.alternate = alternate;
+
+      if (test && test.isStream) {
+        test.subscribe(this.notify, this);
+      }
+    }
+
+    ConditionalStream.prototype = o_create(Stream.prototype);
+    ConditionalStream.prototype._super = Stream;
+
+    ConditionalStream.prototype._unsubscribe = function(value) {
+      if (value && value.isStream) {
+        value.unsubscribe(this.notify, this);
+      }
+    };
+
+    ConditionalStream.prototype._subscribe = function(value) {
+      if (value && value.isStream) {
+        value.subscribe(this.notify, this);
+      }
+    };
+
+    function conditionalValueFn() {
+      var test = !!read(this.test);
+
+      if (test !== this.oldTest) {
+        if (this.oldTest) {
+          this._unsubscribe(this.consequent);
+        } else {
+          this._unsubscribe(this.alternate);
+        }
+        if (test) {
+          this._subscribe(this.consequent);
+        } else {
+          this._subscribe(this.alternate);
+        }
+        this.oldTest = test;
+      }
+
+      return test ? read(this.consequent) : read(this.alternate);
+    }
+
+    __exports__["default"] = ConditionalStream;
   });
 enifed("ember-views/streams/context_stream",
   ["ember-metal/core","ember-metal/merge","ember-metal/platform","ember-metal/path_cache","ember-metal/streams/stream","ember-metal/streams/simple","exports"],
