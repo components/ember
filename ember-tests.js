@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.deefa3e0
+ * @version   1.10.0-beta.1+canary.f20f520c
  */
 
 (function() {
@@ -4247,28 +4247,6 @@ enifed("ember-handlebars/tests/handlebars_test",
         Ember.lookup = lookup = originalLookup;
         TemplateTests = null;
       }
-    });
-
-    test("View should update when a property changes and no bind helper is used", function() {
-      container.register('template:foo', EmberHandlebars.compile('<h1 id="first">{{#with view.content as thing}}{{thing.wham}}{{/with}}</h1>'));
-
-      view = EmberView.create({
-        container: container,
-        templateName: 'foo',
-
-        content: EmberObject.create({
-          wham: 'bam',
-          thankYou: "ma'am"
-        })
-      });
-
-      appendView();
-
-      equal(view.$('#first').text(), "bam", "precond - view renders Handlebars template");
-
-      run(function() { set(get(view, 'content'), 'wham', 'bazam'); });
-
-      equal(view.$('#first').text(), "bazam", "view updates when a bound property changes");
     });
 
     test("Template views return throw if their template cannot be found", function() {
@@ -11679,6 +11657,8 @@ enifed("ember-htmlbars/tests/helpers/with_test",
       });
 
       test("updating a property on the context should update the HTML", function() {
+        equal(view.$().text(), "Señor Engineer: Tom Dale", "precond - should be properly scoped after updating");
+
         run(function() {
           set(view, 'context.person.name', "Yehuda Katz");
         });
