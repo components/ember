@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.6a396c0a
+ * @version   1.10.0-beta.1+canary.deefa3e0
  */
 
 (function() {
@@ -10067,7 +10067,7 @@ enifed("ember-htmlbars/tests/helpers/text_area_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helpers/unbound_test",
-  ["ember-views/views/view","ember-runtime/system/object","ember-runtime/system/native_array","ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-handlebars-compiler","htmlbars-compiler/compiler","ember-metal/error","ember-htmlbars/helpers","ember-htmlbars/compat/register-bound-helper","ember-htmlbars/compat/make-bound-helper","ember-runtime/system/container","ember-handlebars/ext"],
+  ["ember-views/views/view","ember-runtime/system/object","ember-runtime/system/native_array","ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-handlebars-compiler","ember-htmlbars/system/compile","ember-metal/error","ember-htmlbars/helpers","ember-htmlbars/compat/register-bound-helper","ember-htmlbars/compat/make-bound-helper","ember-runtime/system/container","ember-handlebars/ext"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__) {
     "use strict";
     /*jshint newcap:false*/
@@ -10080,7 +10080,7 @@ enifed("ember-htmlbars/tests/helpers/unbound_test",
     var set = __dependency6__.set;
     var run = __dependency7__["default"];
     var EmberHandlebars = __dependency8__["default"];
-    var htmlbarsCompile = __dependency9__.compile;
+    var htmlbarsCompile = __dependency9__["default"];
     var EmberError = __dependency10__["default"];
     var htmlbarsHelpers = __dependency11__["default"];
     var registerHTMLBarsHelper = __dependency12__["default"];
@@ -12580,13 +12580,13 @@ enifed("ember-htmlbars/tests/helpers/yield_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/hooks/attribute_test",
-  ["ember-views/views/view","ember-metal/run_loop","ember-runtime/system/object","htmlbars-compiler/compiler","htmlbars-test-helpers","ember-htmlbars"],
+  ["ember-views/views/view","ember-metal/run_loop","ember-runtime/system/object","ember-htmlbars/system/compile","htmlbars-test-helpers","ember-htmlbars"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
     var EmberView = __dependency1__["default"];
     var run = __dependency2__["default"];
     var EmberObject = __dependency3__["default"];
-    var compile = __dependency4__.compile;
+    var compile = __dependency4__["default"];
     var equalInnerHTML = __dependency5__.equalInnerHTML;
     var defaultEnv = __dependency6__.defaultEnv;
 
@@ -12905,13 +12905,13 @@ enifed("ember-htmlbars/tests/hooks/component_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/hooks/text_node_test",
-  ["ember-views/views/view","ember-metal/run_loop","ember-runtime/system/object","htmlbars-compiler/compiler","htmlbars-test-helpers"],
+  ["ember-views/views/view","ember-metal/run_loop","ember-runtime/system/object","ember-htmlbars/system/compile","htmlbars-test-helpers"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
     var EmberView = __dependency1__["default"];
     var run = __dependency2__["default"];
     var EmberObject = __dependency3__["default"];
-    var compile = __dependency4__.compile;
+    var compile = __dependency4__["default"];
     var equalInnerHTML = __dependency5__.equalInnerHTML;
 
     var view;
@@ -12975,10 +12975,10 @@ enifed("ember-htmlbars/tests/hooks/text_node_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/htmlbars_test",
-  ["htmlbars-compiler/compiler","ember-htmlbars","htmlbars-test-helpers"],
+  ["ember-htmlbars/system/compile","ember-htmlbars","htmlbars-test-helpers"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
-    var compile = __dependency1__.compile;
+    var compile = __dependency1__["default"];
     var defaultEnv = __dependency2__.defaultEnv;
     var equalHTML = __dependency3__.equalHTML;
 
