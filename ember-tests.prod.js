@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.4bb37d70
+ * @version   1.10.0-beta.1+canary.f4ccf175
  */
 
 (function() {
@@ -4182,8 +4182,8 @@ enifed("ember-handlebars/string.jshint",
     });
   });
 enifed("ember-handlebars/tests/handlebars_test",
-  ["ember-metal/core","ember-views/system/jquery","ember-metal/run_loop","ember-runtime/system/namespace","ember-views/views/view","ember-views/views/metamorph_view","ember-handlebars","ember-runtime/system/object","ember-runtime/system/native_array","ember-metal/computed","ember-views/views/container_view","ember-metal/binding","ember-runtime/system/container","ember-handlebars/helpers/view","ember-htmlbars/helpers/view","ember-metal/property_get","ember-metal/property_set"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__) {
+  ["ember-metal/core","ember-views/system/jquery","ember-metal/run_loop","ember-runtime/system/namespace","ember-views/views/view","ember-views/views/metamorph_view","ember-handlebars","ember-runtime/system/object","ember-runtime/system/native_array","ember-metal/computed","ember-views/views/container_view","ember-metal/binding","ember-runtime/system/container","ember-handlebars/helpers/view","ember-htmlbars/helpers/view","ember-metal/property_set"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__) {
     "use strict";
     /*jshint newcap:false*/
     var Ember = __dependency1__["default"];
@@ -4205,8 +4205,7 @@ enifed("ember-handlebars/tests/handlebars_test",
 
     var trim = jQuery.trim;
 
-    var get = __dependency16__.get;
-    var set = __dependency17__.set;
+    var set = __dependency16__.set;
 
     var view;
 
@@ -4247,50 +4246,6 @@ enifed("ember-handlebars/tests/handlebars_test",
         Ember.lookup = lookup = originalLookup;
         TemplateTests = null;
       }
-    });
-
-    test("Template views return throw if their template cannot be found", function() {
-      view = EmberView.create({
-        templateName: 'cantBeFound',
-        container: { lookup: function() { }}
-      });
-
-      expectAssertion(function() {
-        get(view, 'template');
-      }, /cantBeFound/);
-    });
-
-    test("Layout views return throw if their layout cannot be found", function() {
-      view = EmberView.create({
-        layoutName: 'cantBeFound',
-        container: { lookup: function() { }}
-      });
-
-      expectAssertion(function() {
-        get(view, 'layout');
-      }, /cantBeFound/);
-    });
-
-    test("should allow standard Handlebars template usage", function() {
-      view = EmberView.create({
-        context: { name: "Erik" },
-        template: Handlebars.compile("Hello, {{name}}")
-      });
-
-      appendView();
-
-      equal(view.$().text(), "Hello, Erik");
-    });
-
-    test("should be able to use standard Handlebars #each helper", function() {
-      view = EmberView.create({
-        context: { items: ['a', 'b', 'c'] },
-        template: Handlebars.compile("{{#each items}}{{this}}{{/each}}")
-      });
-
-      appendView();
-
-      equal(view.$().html(), "abc");
     });
 
     QUnit.module("Ember.View - handlebars integration", {
@@ -7680,6 +7635,19 @@ enifed("ember-htmlbars/tests/helpers/each_test",
       });
 
       assertHTML(view, "Steve HoltAnnabelleTom Dale");
+    });
+
+    test("should be able to use standard Handlebars #each helper", function() {
+      run(view, 'destroy');
+
+      view = EmberView.create({
+        context: { items: ['a', 'b', 'c'] },
+        template: Handlebars.compile("{{#each items}}{{this}}{{/each}}")
+      });
+
+      append(view);
+
+      equal(view.$().html(), "abc");
     });
 
     test("it allows you to access the current context using {{this}}", function() {
@@ -55333,6 +55301,17 @@ enifed("ember-views/tests/views/view/layout_test",
       }
     });
 
+    test("Layout views return throw if their layout cannot be found", function() {
+      view = EmberView.create({
+        layoutName: 'cantBeFound',
+        container: { lookup: function() { }}
+      });
+
+      expectAssertion(function() {
+        get(view, 'layout');
+      }, /cantBeFound/);
+    });
+
     test("should call the function of the associated layout", function() {
       var templateCalled = 0;
       var layoutCalled = 0;
@@ -56250,6 +56229,30 @@ enifed("ember-views/tests/views/view/template_test",
           if (view) { view.destroy(); }
         });
       }
+    });
+
+    test("Template views return throw if their template cannot be found", function() {
+      view = EmberView.create({
+        templateName: 'cantBeFound',
+        container: { lookup: function() { }}
+      });
+
+      expectAssertion(function() {
+        get(view, 'template');
+      }, /cantBeFound/);
+    });
+
+    test("should allow standard Handlebars template usage", function() {
+      view = EmberView.create({
+        context: { name: "Erik" },
+        template: Handlebars.compile("Hello, {{name}}")
+      });
+
+      run(function() {
+        view.createElement();
+      });
+
+      equal(view.$().text(), "Hello, Erik");
     });
 
     test("should call the function of the associated template", function() {
