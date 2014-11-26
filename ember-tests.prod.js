@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.58143519
+ * @version   1.10.0-beta.1+canary.6a396c0a
  */
 
 (function() {
@@ -4249,25 +4249,6 @@ enifed("ember-handlebars/tests/handlebars_test",
       }
     });
 
-    test("View should not use keyword incorrectly - Issue #1315", function() {
-      container.register('template:foo', EmberHandlebars.compile('{{#each value in view.content}}{{value}}-{{#each option in view.options}}{{option.value}}:{{option.label}} {{/each}}{{/each}}'));
-
-      view = EmberView.create({
-        container: container,
-        templateName: 'foo',
-
-        content: A(['X', 'Y']),
-        options: A([
-          { label: 'One', value: 1 },
-          { label: 'Two', value: 2 }
-        ])
-      });
-
-      appendView();
-
-      equal(view.$().text(), 'X-1:One 2:Two Y-1:One 2:Two ');
-    });
-
     test("View should update when a property changes and no bind helper is used", function() {
       container.register('template:foo', EmberHandlebars.compile('<h1 id="first">{{#with view.content as thing}}{{thing.wham}}{{/with}}</h1>'));
 
@@ -7855,6 +7836,26 @@ enifed("ember-htmlbars/tests/helpers/each_test",
       run(function() {
         selectView.destroy();
       });
+    });
+
+    test("View should not use keyword incorrectly - Issue #1315", function() {
+      // destroy existing view
+      run(view, 'destroy');
+
+      view = EmberView.create({
+        container: container,
+        template: templateFor('{{#each value in view.content}}{{value}}-{{#each option in view.options}}{{option.value}}:{{option.label}} {{/each}}{{/each}}'),
+
+        content: A(['X', 'Y']),
+        options: A([
+          { label: 'One', value: 1 },
+          { label: 'Two', value: 2 }
+        ])
+      });
+
+      append(view);
+
+      equal(view.$().text(), 'X-1:One 2:Two Y-1:One 2:Two ');
     });
 
     test("it works inside a ul element", function() {
