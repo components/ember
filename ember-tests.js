@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.cf627363
+ * @version   1.10.0-beta.1+canary.38dce54a
  */
 
 (function() {
@@ -4182,8 +4182,8 @@ enifed("ember-handlebars/string.jshint",
     });
   });
 enifed("ember-handlebars/tests/handlebars_test",
-  ["ember-metal/core","ember-views/system/jquery","ember-metal/run_loop","ember-runtime/system/namespace","ember-views/views/view","ember-views/views/metamorph_view","ember-handlebars","ember-runtime/system/object","ember-runtime/system/native_array","ember-metal/computed","ember-views/views/container_view","ember-metal/binding","ember-views/views/text_field","ember-runtime/system/container","ember-handlebars/helpers/view","ember-htmlbars/helpers/view","ember-metal/property_get","ember-metal/property_set"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__) {
+  ["ember-metal/core","ember-views/system/jquery","ember-metal/run_loop","ember-runtime/system/namespace","ember-views/views/view","ember-views/views/metamorph_view","ember-handlebars","ember-runtime/system/object","ember-runtime/system/native_array","ember-metal/computed","ember-views/views/container_view","ember-metal/binding","ember-runtime/system/container","ember-handlebars/helpers/view","ember-htmlbars/helpers/view","ember-metal/property_get","ember-metal/property_set"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__) {
     "use strict";
     /*jshint newcap:false*/
     var Ember = __dependency1__["default"];
@@ -4199,51 +4199,14 @@ enifed("ember-handlebars/tests/handlebars_test",
     var computed = __dependency10__.computed;
     var ContainerView = __dependency11__["default"];
     var Binding = __dependency12__.Binding;
-    var TextField = __dependency13__["default"];
-    var Container = __dependency14__["default"];
-    var handlebarsViewHelper = __dependency15__.ViewHelper;
-    var htmlbarsViewHelper = __dependency16__.ViewHelper;
+    var Container = __dependency13__["default"];
+    var handlebarsViewHelper = __dependency14__.ViewHelper;
+    var htmlbarsViewHelper = __dependency15__.ViewHelper;
 
     var trim = jQuery.trim;
 
-    var get = __dependency17__.get;
-    var set = __dependency18__.set;
-
-    var caretPosition = function (element) {
-      var ctrl = element[0];
-      var caretPos = 0;
-
-      // IE Support
-      if (document.selection) {
-        ctrl.focus();
-        var selection = document.selection.createRange();
-
-        selection.moveStart('character', -ctrl.value.length);
-
-        caretPos = selection.text.length;
-      }
-      // Firefox support
-      else if (ctrl.selectionStart || ctrl.selectionStart === '0') {
-        caretPos = ctrl.selectionStart;
-      }
-
-      return caretPos;
-    };
-
-    var setCaretPosition = function (element, pos) {
-      var ctrl = element[0];
-
-      if (ctrl.setSelectionRange) {
-        ctrl.focus();
-        ctrl.setSelectionRange(pos,pos);
-      } else if (ctrl.createTextRange) {
-        var range = ctrl.createTextRange();
-        range.collapse(true);
-        range.moveEnd('character', pos);
-        range.moveStart('character', pos);
-        range.select();
-      }
-    };
+    var get = __dependency16__.get;
+    var set = __dependency17__.set;
 
     var view;
 
@@ -4381,29 +4344,6 @@ enifed("ember-handlebars/tests/handlebars_test",
       expectAssertion(function() {
         get(view, 'layout');
       }, /cantBeFound/);
-    });
-
-    test("should not reset cursor position when text field receives keyUp event", function() {
-      view = TextField.create({
-        value: "Broseidon, King of the Brocean"
-      });
-
-      run(function() {
-        view.append();
-      });
-
-      view.$().val('Brosiedoon, King of the Brocean');
-      setCaretPosition(view.$(), 5);
-
-      run(function() {
-        view.trigger('keyUp', {});
-      });
-
-      equal(caretPosition(view.$()), 5, "The keyUp event should not result in the cursor being reset due to the bind-attr observers");
-
-      run(function() {
-        view.destroy();
-      });
     });
 
     test("should allow standard Handlebars template usage", function() {
@@ -52689,6 +52629,48 @@ enifed("ember-views/tests/views/text_field_test",
     var textField;
     var TestObject;
 
+    var view;
+
+    var appendView = function(view) {
+      run(view, 'appendTo', '#qunit-fixture');
+    };
+
+    var caretPosition = function(element) {
+      var ctrl = element[0];
+      var caretPos = 0;
+
+      // IE Support
+      if (document.selection) {
+        ctrl.focus();
+        var selection = document.selection.createRange();
+
+        selection.moveStart('character', -ctrl.value.length);
+
+        caretPos = selection.text.length;
+      }
+      // Firefox support
+      else if (ctrl.selectionStart || ctrl.selectionStart === '0') {
+        caretPos = ctrl.selectionStart;
+      }
+
+      return caretPos;
+    };
+
+    var setCaretPosition = function(element, pos) {
+      var ctrl = element[0];
+
+      if (ctrl.setSelectionRange) {
+        ctrl.focus();
+        ctrl.setSelectionRange(pos,pos);
+      } else if (ctrl.createTextRange) {
+        var range = ctrl.createTextRange();
+        range.collapse(true);
+        range.moveEnd('character', pos);
+        range.moveStart('character', pos);
+        range.select();
+      }
+    };
+
     function set(object, key, value) {
       run(function() { o_set(object, key, value); });
     }
@@ -53019,6 +53001,10 @@ enifed("ember-views/tests/views/text_field_test",
           if (textField) {
             textField.destroy();
           }
+
+          if (view) {
+            view.destroy();
+          }
         });
       }
     });
@@ -53177,6 +53163,23 @@ enifed("ember-views/tests/views/text_field_test",
         textField.$().val('bar');
         textField.$().trigger(event);
       });
+    });
+
+    test('should not reset cursor position when text field receives keyUp event', function() {
+      view = TextField.create({
+        value: 'Broseidon, King of the Brocean'
+      });
+
+      appendView(view);
+
+      view.$().val('Brosiedoon, King of the Brocean');
+      setCaretPosition(view.$(), 5);
+
+      run(function() {
+        view.trigger('keyUp', {});
+      });
+
+      equal(caretPosition(view.$()), 5, 'The keyUp event should not result in the cursor being reset due to the bind-attr observers');
     });
   });
 enifed("ember-views/tests/views/text_field_test.jshint",
