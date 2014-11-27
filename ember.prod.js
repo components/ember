@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.21aeeab1
+ * @version   1.10.0-beta.1+canary.691a69ba
  */
 
 (function() {
@@ -14781,7 +14781,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.21aeeab1
+      @version 1.10.0-beta.1+canary.691a69ba
     */
 
     if ('undefined' === typeof Ember) {
@@ -14808,10 +14808,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.21aeeab1'
+      @default '1.10.0-beta.1+canary.691a69ba'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.21aeeab1';
+    Ember.VERSION = '1.10.0-beta.1+canary.691a69ba';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -20159,6 +20159,7 @@ enifed("ember-metal/streams/simple",
     var read = __dependency4__.read;
 
     function SimpleStream(source) {
+      this.init();
       this.source = source;
 
       if (source && source.isStream) {
@@ -20201,13 +20202,16 @@ enifed("ember-metal/streams/simple",
         this.notify();
       },
 
-      destroy: function() {
-        if (this.source && this.source.isStream) {
-          this.source.unsubscribe(this._didChange, this);
-        }
+      _super$destroy: Stream.prototype.destroy,
 
-        this.source = undefined;
-        Stream.prototype.destroy.call(this);
+      destroy: function() {
+        if (this._super$destroy()) {
+          if (this.source && this.source.isStream) {
+            this.source.unsubscribe(this._didChange, this);
+          }
+          this.source = undefined;
+          return true;
+        }
       }
     });
 
@@ -20221,20 +20225,20 @@ enifed("ember-metal/streams/stream",
     var getFirstKey = __dependency2__.getFirstKey;
     var getTailPath = __dependency2__.getTailPath;
 
-    var NIL = function NIL(){};
-
     function Stream(fn) {
+      this.init();
       this.valueFn = fn;
-      this.cache = NIL;
-      this.subscribers = undefined;
-      this.children = undefined;
-      this.destroyed = false;
     }
 
     Stream.prototype = {
       isStream: true,
 
-      cache: NIL,
+      init: function() {
+        this.state = 'dirty';
+        this.cache = undefined;
+        this.subscribers = undefined;
+        this.children = undefined;
+      },
 
       get: function(path) {
         var firstKey = getFirstKey(path);
@@ -20259,11 +20263,20 @@ enifed("ember-metal/streams/stream",
       },
 
       value: function() {
-        if (this.cache !== NIL) {
+        if (this.state === 'clean') {
           return this.cache;
-        } else {
+        } else if (this.state === 'dirty') {
+          this.state = 'clean';
           return this.cache = this.valueFn();
         }
+        // TODO: Ensure value is never called on a destroyed stream
+        // so that we can uncomment this assertion.
+        //
+        // Ember.assert("Stream error: value was called in an invalid state: " + this.state);
+      },
+
+      valueFn: function() {
+        throw new Error("Stream error: valueFn not implemented");
       },
 
       setValue: function() {
@@ -20275,9 +20288,9 @@ enifed("ember-metal/streams/stream",
       },
 
       notifyExcept: function(callbackToSkip, contextToSkip) {
-        if (this.cache !== NIL) {
-          this.cache = NIL;
-          this.notifySubscribers(callbackToSkip, contextToSkip);
+        if (this.state === 'clean') {
+          this.state = 'dirty';
+          this._notifySubscribers(callbackToSkip, contextToSkip);
         }
       },
 
@@ -20302,7 +20315,7 @@ enifed("ember-metal/streams/stream",
         }
       },
 
-      notifySubscribers: function(callbackToSkip, contextToSkip) {
+      _notifySubscribers: function(callbackToSkip, contextToSkip) {
         var subscribers = this.subscribers;
 
         if (subscribers !== undefined) {
@@ -20324,12 +20337,15 @@ enifed("ember-metal/streams/stream",
       },
 
       destroy: function() {
-        if (this.destroyed) return;
-        this.destroyed = true;
+        if (this.state !== 'destroyed') {
+          this.state = 'destroyed';
 
-        var children = this.children;
-        for (var key in children) {
-          children[key].destroy();
+          var children = this.children;
+          for (var key in children) {
+            children[key].destroy();
+          }
+
+          return true;      
         }
       },
 
@@ -20357,11 +20373,11 @@ enifed("ember-metal/streams/stream_binding",
 
     function StreamBinding(stream) {
       
+      this.init();
       this.stream = stream;
       this.senderCallback = undefined;
       this.senderContext = undefined;
       this.senderValue = undefined;
-      this.destroyed = false;
 
       stream.subscribe(this._onNotify, this);
     }
@@ -20395,7 +20411,7 @@ enifed("ember-metal/streams/stream_binding",
       },
 
       _sync: function() {
-        if (this.destroyed) {
+        if (this.state === 'destroyed') {
           return;
         }
 
@@ -20410,18 +20426,18 @@ enifed("ember-metal/streams/stream_binding",
         this.senderValue = undefined;
 
         // Force StreamBindings to always notify
-        this.cache = undefined;
+        this.state = 'clean';
 
         this.notifyExcept(senderCallback, senderContext);
       },
 
-      destroy: function() {
-        if (this.destroyed) {
-          return;
-        }
+      _super$destroy: Stream.prototype.destroy,
 
-        this.destroyed = true;
-        this.stream.unsubscribe(this._onNotify, this);
+      destroy: function() {
+        if (this._super$destroy()) {
+          this.stream.unsubscribe(this._onNotify, this);
+          return true;
+        }
       }
     });
 
@@ -40551,19 +40567,14 @@ enifed("ember-views/streams/conditional_stream",
     var o_create = __dependency3__.create;
 
     function ConditionalStream(test, consequent, alternate) {
-      this._super(conditionalValueFn);
+      this.init();
       this.oldTest = undefined;
       this.test = test;
       this.consequent = consequent;
       this.alternate = alternate;
-
-      if (test && test.isStream) {
-        test.subscribe(this.notify, this);
-      }
     }
 
     ConditionalStream.prototype = o_create(Stream.prototype);
-    ConditionalStream.prototype._super = Stream;
 
     ConditionalStream.prototype._unsubscribe = function(value) {
       if (value && value.isStream) {
@@ -40577,8 +40588,14 @@ enifed("ember-views/streams/conditional_stream",
       }
     };
 
-    function conditionalValueFn() {
+    ConditionalStream.prototype.valueFn = function() {
       var test = !!read(this.test);
+
+      if (this.oldTest === undefined) {
+        if (this.test && this.test.isStream) {
+          this.test.subscribe(this.notify, this);
+        }
+      }
 
       if (test !== this.oldTest) {
         if (this.oldTest) {
@@ -40595,7 +40612,7 @@ enifed("ember-views/streams/conditional_stream",
       }
 
       return test ? read(this.consequent) : read(this.alternate);
-    }
+    };
 
     __exports__["default"] = ConditionalStream;
   });
@@ -40612,7 +40629,9 @@ enifed("ember-views/streams/context_stream",
     var SimpleStream = __dependency6__["default"];
 
     function ContextStream(view) {
-            this.view = view;
+      
+      this.init();
+      this.view = view;
     }
 
     ContextStream.prototype = create(Stream.prototype);
@@ -40663,6 +40682,7 @@ enifed("ember-views/streams/key_stream",
 
     function KeyStream(source, key) {
             
+      this.init();
       this.source = source;
       this.obj = undefined;
       this.key = key;
@@ -40724,19 +40744,22 @@ enifed("ember-views/streams/key_stream",
         this.notify();
       },
 
+      _super$destroy: Stream.prototype.destroy,
+
       destroy: function() {
-        if (this.source && this.source.isStream) {
-          this.source.unsubscribe(this._didChange, this);
+        if (this._super$destroy()) {
+          if (this.source && this.source.isStream) {
+            this.source.unsubscribe(this._didChange, this);
+          }
+
+          if (this.obj && typeof this.obj === 'object') {
+            removeObserver(this.obj, this.key, this, this._didChange);
+          }
+
+          this.source = undefined;
+          this.obj = undefined;
+          return true;
         }
-
-        if (this.obj && typeof this.obj === 'object') {
-          removeObserver(this.obj, this.key, this, this._didChange);
-        }
-
-        this.source = undefined;
-        this.obj = undefined;
-
-        Stream.prototype.destroy.call(this);
       }
     });
 

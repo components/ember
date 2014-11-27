@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.21aeeab1
+ * @version   1.10.0-beta.1+canary.691a69ba
  */
 
 (function() {
@@ -4808,7 +4808,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.21aeeab1
+      @version 1.10.0-beta.1+canary.691a69ba
     */
 
     if ('undefined' === typeof Ember) {
@@ -4835,10 +4835,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.21aeeab1'
+      @default '1.10.0-beta.1+canary.691a69ba'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.21aeeab1';
+    Ember.VERSION = '1.10.0-beta.1+canary.691a69ba';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -10255,6 +10255,7 @@ define("ember-metal/streams/simple",
     var read = __dependency4__.read;
 
     function SimpleStream(source) {
+      this.init();
       this.source = source;
 
       if (source && source.isStream) {
@@ -10297,13 +10298,16 @@ define("ember-metal/streams/simple",
         this.notify();
       },
 
-      destroy: function() {
-        if (this.source && this.source.isStream) {
-          this.source.unsubscribe(this._didChange, this);
-        }
+      _super$destroy: Stream.prototype.destroy,
 
-        this.source = undefined;
-        Stream.prototype.destroy.call(this);
+      destroy: function() {
+        if (this._super$destroy()) {
+          if (this.source && this.source.isStream) {
+            this.source.unsubscribe(this._didChange, this);
+          }
+          this.source = undefined;
+          return true;
+        }
       }
     });
 
@@ -10317,20 +10321,20 @@ define("ember-metal/streams/stream",
     var getFirstKey = __dependency2__.getFirstKey;
     var getTailPath = __dependency2__.getTailPath;
 
-    var NIL = function NIL(){};
-
     function Stream(fn) {
+      this.init();
       this.valueFn = fn;
-      this.cache = NIL;
-      this.subscribers = undefined;
-      this.children = undefined;
-      this.destroyed = false;
     }
 
     Stream.prototype = {
       isStream: true,
 
-      cache: NIL,
+      init: function() {
+        this.state = 'dirty';
+        this.cache = undefined;
+        this.subscribers = undefined;
+        this.children = undefined;
+      },
 
       get: function(path) {
         var firstKey = getFirstKey(path);
@@ -10355,11 +10359,20 @@ define("ember-metal/streams/stream",
       },
 
       value: function() {
-        if (this.cache !== NIL) {
+        if (this.state === 'clean') {
           return this.cache;
-        } else {
+        } else if (this.state === 'dirty') {
+          this.state = 'clean';
           return this.cache = this.valueFn();
         }
+        // TODO: Ensure value is never called on a destroyed stream
+        // so that we can uncomment this assertion.
+        //
+        // Ember.assert("Stream error: value was called in an invalid state: " + this.state);
+      },
+
+      valueFn: function() {
+        throw new Error("Stream error: valueFn not implemented");
       },
 
       setValue: function() {
@@ -10371,9 +10384,9 @@ define("ember-metal/streams/stream",
       },
 
       notifyExcept: function(callbackToSkip, contextToSkip) {
-        if (this.cache !== NIL) {
-          this.cache = NIL;
-          this.notifySubscribers(callbackToSkip, contextToSkip);
+        if (this.state === 'clean') {
+          this.state = 'dirty';
+          this._notifySubscribers(callbackToSkip, contextToSkip);
         }
       },
 
@@ -10398,7 +10411,7 @@ define("ember-metal/streams/stream",
         }
       },
 
-      notifySubscribers: function(callbackToSkip, contextToSkip) {
+      _notifySubscribers: function(callbackToSkip, contextToSkip) {
         var subscribers = this.subscribers;
 
         if (subscribers !== undefined) {
@@ -10420,12 +10433,15 @@ define("ember-metal/streams/stream",
       },
 
       destroy: function() {
-        if (this.destroyed) return;
-        this.destroyed = true;
+        if (this.state !== 'destroyed') {
+          this.state = 'destroyed';
 
-        var children = this.children;
-        for (var key in children) {
-          children[key].destroy();
+          var children = this.children;
+          for (var key in children) {
+            children[key].destroy();
+          }
+
+          return true;      
         }
       },
 
@@ -10454,11 +10470,11 @@ define("ember-metal/streams/stream_binding",
     function StreamBinding(stream) {
       Ember.assert("StreamBinding error: tried to bind to object that is not a stream", stream && stream.isStream);
 
+      this.init();
       this.stream = stream;
       this.senderCallback = undefined;
       this.senderContext = undefined;
       this.senderValue = undefined;
-      this.destroyed = false;
 
       stream.subscribe(this._onNotify, this);
     }
@@ -10492,7 +10508,7 @@ define("ember-metal/streams/stream_binding",
       },
 
       _sync: function() {
-        if (this.destroyed) {
+        if (this.state === 'destroyed') {
           return;
         }
 
@@ -10507,18 +10523,18 @@ define("ember-metal/streams/stream_binding",
         this.senderValue = undefined;
 
         // Force StreamBindings to always notify
-        this.cache = undefined;
+        this.state = 'clean';
 
         this.notifyExcept(senderCallback, senderContext);
       },
 
-      destroy: function() {
-        if (this.destroyed) {
-          return;
-        }
+      _super$destroy: Stream.prototype.destroy,
 
-        this.destroyed = true;
-        this.stream.unsubscribe(this._onNotify, this);
+      destroy: function() {
+        if (this._super$destroy()) {
+          this.stream.unsubscribe(this._onNotify, this);
+          return true;
+        }
       }
     });
 

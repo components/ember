@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.21aeeab1
+ * @version   1.10.0-beta.1+canary.691a69ba
  */
 
 (function() {
@@ -23533,7 +23533,7 @@ enifed("ember-metal/tests/streams/stream_binding_test",
       binding.destroy(); // destroy should not fail
     });
 
-    test('the source stream can send values to a single subscriber)', function() {
+    test('the source stream can send values to a single subscriber', function() {
       var binding = new StreamBinding(source);
       var obj = mixin({}, { toBinding: binding });
 
