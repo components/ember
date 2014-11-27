@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.436dae0d
+ * @version   1.10.0-beta.1+canary.b421b996
  */
 
 (function() {
@@ -4182,8 +4182,8 @@ enifed("ember-handlebars/string.jshint",
     });
   });
 enifed("ember-handlebars/tests/handlebars_test",
-  ["ember-metal/core","ember-views/system/jquery","ember-metal/run_loop","ember-runtime/system/namespace","ember-views/views/view","ember-views/views/metamorph_view","ember-handlebars","ember-runtime/system/object","ember-runtime/system/native_array","ember-metal/computed","ember-views/views/container_view","ember-metal/binding","ember-runtime/system/container","ember-handlebars/helpers/view","ember-htmlbars/helpers/view","ember-metal/property_set"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__) {
+  ["ember-metal/core","ember-views/system/jquery","ember-metal/run_loop","ember-runtime/system/namespace","ember-views/views/view","ember-views/views/metamorph_view","ember-handlebars","ember-runtime/system/object","ember-runtime/system/native_array","ember-metal/computed","ember-views/views/container_view","ember-runtime/system/container","ember-metal/property_set"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__) {
     "use strict";
     /*jshint newcap:false*/
     var Ember = __dependency1__["default"];
@@ -4198,14 +4198,11 @@ enifed("ember-handlebars/tests/handlebars_test",
     var A = __dependency9__.A;
     var computed = __dependency10__.computed;
     var ContainerView = __dependency11__["default"];
-    var Binding = __dependency12__.Binding;
-    var Container = __dependency13__["default"];
-    var handlebarsViewHelper = __dependency14__.ViewHelper;
-    var htmlbarsViewHelper = __dependency15__.ViewHelper;
+    var Container = __dependency12__["default"];
 
     var trim = jQuery.trim;
 
-    var set = __dependency16__.set;
+    var set = __dependency13__.set;
 
     var view;
 
@@ -4378,67 +4375,6 @@ enifed("ember-handlebars/tests/handlebars_test",
       run(function() {
         parentView.destroy();
       });
-    });
-
-    test("should call a registered helper for mustache without parameters", function() {
-      EmberHandlebars.registerHelper('foobar', function() {
-        return 'foobar';
-      });
-
-      view = EmberView.create({
-        template: EmberHandlebars.compile("{{foobar}}")
-      });
-
-      appendView();
-
-      ok(view.$().text() === 'foobar', "Regular helper was invoked correctly");
-    });
-
-    test("should bind to the property if no registered helper found for a mustache without parameters", function() {
-      view = EmberView.createWithMixins({
-        template: EmberHandlebars.compile("{{view.foobarProperty}}"),
-        foobarProperty: computed(function() {
-          return 'foobarProperty';
-        })
-      });
-
-      appendView();
-
-      ok(view.$().text() === 'foobarProperty', "Property was bound to correctly");
-    });
-
-    test("should accept bindings as a string or an Ember.Binding", function() {
-      var viewClass = EmberView.extend({
-        template: EmberHandlebars.compile("binding: {{view.bindingTest}}, string: {{view.stringTest}}")
-      });
-
-      EmberHandlebars.registerHelper('boogie', function(id, options) {
-        options.hash = options.hash || {};
-        options.hashTypes = options.hashTypes || {};
-
-        options.hash.bindingTestBinding = Binding.oneWay('context.' + id);
-        options.hash.stringTestBinding = id;
-
-        var result;
-        if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
-          result = htmlbarsViewHelper.helper(viewClass, options.hash, options, options);
-        } else {
-          result = handlebarsViewHelper.helper(this, viewClass, options);
-        }
-
-        return result;
-      });
-
-      view = EmberView.create({
-        context: EmberObject.create({
-          direction: 'down'
-        }),
-        template: EmberHandlebars.compile("{{boogie direction}}")
-      });
-
-      appendView();
-
-      equal(trim(view.$().text()), "binding: down, string: down");
     });
 
     if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
@@ -13113,6 +13049,116 @@ enifed("ember-htmlbars/tests/htmlbars_test.jshint",
     module('JSHint - ember-htmlbars/tests');
     test('ember-htmlbars/tests/htmlbars_test.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/tests/htmlbars_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/tests/integration/binding_integration_test",
+  ["ember-metal/run_loop","ember-views/system/jquery","ember-views/views/view","ember-metal/binding","ember-runtime/system/object","ember-metal/computed","ember-htmlbars/system/compile","ember-handlebars","ember-handlebars/helpers/view","ember-htmlbars/helpers/view"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
+    "use strict";
+    var run = __dependency1__["default"];
+    var jQuery = __dependency2__["default"];
+    var EmberView = __dependency3__["default"];
+    var Binding = __dependency4__.Binding;
+    var EmberObject = __dependency5__["default"];
+    var computed = __dependency6__.computed;
+    var htmlbarsCompile = __dependency7__["default"];
+    var EmberHandlebars = __dependency8__["default"];
+    var handlebarsViewHelper = __dependency9__.ViewHelper;
+    var htmlbarsViewHelper = __dependency10__.ViewHelper;
+
+    var compile, view;
+
+    var trim = jQuery.trim;
+
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      compile = htmlbarsCompile;
+    } else {
+      compile = EmberHandlebars.compile;
+    }
+
+    var appendView = function(view) {
+      run(view, 'appendTo', '#qunit-fixture');
+    };
+
+    QUnit.module('ember-htmlbars: binding integration', {
+      teardown: function() {
+        run(function() {
+          if (view) {
+            view.destroy();
+          }
+          view = null;
+        });
+      }
+    });
+
+    test('should call a registered helper for mustache without parameters', function() {
+      EmberHandlebars.registerHelper('foobar', function() {
+        return 'foobar';
+      });
+
+      view = EmberView.create({
+        template: compile('{{foobar}}')
+      });
+
+      appendView(view);
+
+      ok(view.$().text() === 'foobar', 'Regular helper was invoked correctly');
+    });
+
+    test('should bind to the property if no registered helper found for a mustache without parameters', function() {
+      view = EmberView.createWithMixins({
+        template: compile('{{view.foobarProperty}}'),
+        foobarProperty: computed(function() {
+          return 'foobarProperty';
+        })
+      });
+
+      appendView(view);
+
+      ok(view.$().text() === 'foobarProperty', 'Property was bound to correctly');
+    });
+
+    test('should accept bindings as a string or an Ember.Binding', function() {
+      var viewClass = EmberView.extend({
+        template: compile('binding: {{view.bindingTest}}, string: {{view.stringTest}}')
+      });
+
+      EmberHandlebars.registerHelper('boogie', function(id, options) {
+        options.hash = options.hash || {};
+        options.hashTypes = options.hashTypes || {};
+
+        options.hash.bindingTestBinding = Binding.oneWay('context.' + id);
+        options.hash.stringTestBinding = id;
+
+        var result;
+        if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+          result = htmlbarsViewHelper.helper(viewClass, options.hash, options, options);
+        } else {
+          result = handlebarsViewHelper.helper(this, viewClass, options);
+        }
+
+        return result;
+      });
+
+      view = EmberView.create({
+        context: EmberObject.create({
+          direction: 'down'
+        }),
+        template: compile('{{boogie direction}}')
+      });
+
+      appendView(view);
+
+      equal(trim(view.$().text()), 'binding: down, string: down');
+    });
+  });
+enifed("ember-htmlbars/tests/integration/binding_integration_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/tests/integration');
+    test('ember-htmlbars/tests/integration/binding_integration_test.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/tests/integration/binding_integration_test.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/tests/integration/block_params_test",
