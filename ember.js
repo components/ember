@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.691a69ba
+ * @version   1.10.0-beta.1+canary.dc3b07a6
  */
 
 (function() {
@@ -5550,7 +5550,7 @@ enifed("ember-handlebars/controls",
     __exports__.textareaHelper = textareaHelper;
   });
 enifed("ember-handlebars/ext",
-  ["ember-metal/core","ember-runtime/system/string","ember-handlebars-compiler","ember-metal/property_get","ember-metal/error","ember-metal/mixin","ember-views/views/view","ember-metal/path_cache","ember-metal/streams/stream","ember-metal/streams/read","ember-htmlbars/compat/handlebars-get","exports"],
+  ["ember-metal/core","ember-runtime/system/string","ember-handlebars-compiler","ember-metal/property_get","ember-metal/error","ember-metal/mixin","ember-views/views/view","ember-metal/path_cache","ember-metal/streams/stream","ember-metal/streams/utils","ember-htmlbars/compat/handlebars-get","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
@@ -7478,7 +7478,7 @@ enifed("ember-handlebars/helpers/unbound",
     }
   });
 enifed("ember-handlebars/helpers/view",
-  ["ember-metal/core","ember-runtime/system/object","ember-metal/property_get","ember-metal/keys","ember-metal/mixin","ember-views/streams/read","ember-views/views/view","ember-metal/streams/simple","exports"],
+  ["ember-metal/core","ember-runtime/system/object","ember-metal/property_get","ember-metal/keys","ember-metal/mixin","ember-views/streams/utils","ember-views/views/view","ember-metal/streams/simple","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
     /**
@@ -8489,7 +8489,7 @@ enifed("ember-htmlbars/compat/helper",
     __exports__.handlebarsHelper = handlebarsHelper;__exports__["default"] = HandlebarsCompatibleHelper;
   });
 enifed("ember-htmlbars/compat/make-bound-helper",
-  ["ember-metal/core","ember-metal/mixin","ember-views/views/simple_bound_view","ember-metal/merge","ember-htmlbars/system/helper","ember-metal/streams/stream","ember-metal/streams/read","exports"],
+  ["ember-metal/core","ember-metal/mixin","ember-views/views/simple_bound_view","ember-metal/merge","ember-htmlbars/system/helper","ember-metal/streams/stream","ember-metal/streams/utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
     /**
@@ -9286,7 +9286,7 @@ enifed("ember-htmlbars/helpers/binding",
     __exports__.bindHelper = bindHelper;
   });
 enifed("ember-htmlbars/helpers/collection",
-  ["ember-metal/core","ember-handlebars-compiler","ember-metal/mixin","ember-runtime/system/string","ember-metal/property_get","ember-metal/streams/simple","ember-htmlbars/helpers/view","ember-views/views/view","ember-views/views/collection_view","ember-views/streams/read","exports"],
+  ["ember-metal/core","ember-handlebars-compiler","ember-metal/mixin","ember-runtime/system/string","ember-metal/property_get","ember-metal/streams/simple","ember-htmlbars/helpers/view","ember-views/views/view","ember-views/views/collection_view","ember-views/streams/utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __exports__) {
     "use strict";
     /**
@@ -9983,7 +9983,7 @@ enifed("ember-htmlbars/helpers/if_unless",
     __exports__.unlessHelper = unlessHelper;
   });
 enifed("ember-htmlbars/helpers/input",
-  ["ember-views/views/checkbox","ember-views/views/text_field","ember-metal/streams/read","ember-metal/core","exports"],
+  ["ember-views/views/checkbox","ember-views/views/text_field","ember-metal/streams/utils","ember-metal/core","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     var Checkbox = __dependency1__["default"];
@@ -10636,7 +10636,7 @@ enifed("ember-htmlbars/helpers/text_area",
     __exports__.textareaHelper = textareaHelper;
   });
 enifed("ember-htmlbars/helpers/unbound",
-  ["ember-htmlbars/system/lookup-helper","ember-metal/streams/read","ember-metal/error","ember-metal/merge","exports"],
+  ["ember-htmlbars/system/lookup-helper","ember-metal/streams/utils","ember-metal/error","ember-metal/merge","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     var lookupHelper = __dependency1__["default"];
@@ -10713,7 +10713,7 @@ enifed("ember-htmlbars/helpers/unbound",
     __exports__.preprocessArgumentsForUnbound = preprocessArgumentsForUnbound;
   });
 enifed("ember-htmlbars/helpers/view",
-  ["ember-metal/core","ember-runtime/system/object","ember-metal/property_get","ember-metal/keys","ember-metal/mixin","ember-metal/streams/read","ember-views/streams/read","ember-views/views/view","ember-metal/streams/simple","exports"],
+  ["ember-metal/core","ember-runtime/system/object","ember-metal/property_get","ember-metal/keys","ember-metal/mixin","ember-metal/streams/utils","ember-views/streams/utils","ember-views/views/view","ember-metal/streams/simple","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __exports__) {
     "use strict";
     /**
@@ -11639,7 +11639,7 @@ enifed("ember-htmlbars/system/compile",
     }
   });
 enifed("ember-htmlbars/system/concat",
-  ["ember-metal/streams/stream","ember-metal/streams/read","exports"],
+  ["ember-metal/streams/stream","ember-metal/streams/utils","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     /**
@@ -15221,7 +15221,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.691a69ba
+      @version 1.10.0-beta.1+canary.dc3b07a6
     */
 
     if ('undefined' === typeof Ember) {
@@ -15248,10 +15248,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.691a69ba'
+      @default '1.10.0-beta.1+canary.dc3b07a6'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.691a69ba';
+    Ember.VERSION = '1.10.0-beta.1+canary.dc3b07a6';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -20627,39 +20627,8 @@ enifed("ember-metal/set_properties",
       return obj;
     }
   });
-enifed("ember-metal/streams/read",
-  ["exports"],
-  function(__exports__) {
-    "use strict";
-    function read(object) {
-      if (object && object.isStream) {
-        return object.value();
-      } else {
-        return object;
-      }
-    }
-
-    __exports__.read = read;function readArray(array) {
-      var length = array.length;
-      var ret = new Array(length);
-      for (var i = 0; i < length; i++) {
-        ret[i] = read(array[i]);
-      }
-      return ret;
-    }
-
-    __exports__.readArray = readArray;function readHash(object) {
-      var ret = {};
-      for (var key in object) {
-        ret[key] = read(object[key]);
-      }
-      return ret;
-    }
-
-    __exports__.readHash = readHash;
-  });
 enifed("ember-metal/streams/simple",
-  ["ember-metal/merge","ember-metal/streams/stream","ember-metal/platform","ember-metal/streams/read","exports"],
+  ["ember-metal/merge","ember-metal/streams/stream","ember-metal/platform","ember-metal/streams/utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     var merge = __dependency1__["default"];
@@ -20952,6 +20921,53 @@ enifed("ember-metal/streams/stream_binding",
     });
 
     __exports__["default"] = StreamBinding;
+  });
+enifed("ember-metal/streams/utils",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    function isStream(object) {
+      return object && object.isStream;
+    }
+
+    __exports__.isStream = isStream;function subscribe(object, callback, context) {
+      if (object && object.isStream) {
+        object.subscribe(callback, context);
+      }
+    }
+
+    __exports__.subscribe = subscribe;function unsubscribe(object, callback, context) {
+      if (object && object.isStream) {
+        object.unsubscribe(callback, context);
+      }
+    }
+
+    __exports__.unsubscribe = unsubscribe;function read(object) {
+      if (object && object.isStream) {
+        return object.value();
+      } else {
+        return object;
+      }
+    }
+
+    __exports__.read = read;function readArray(array) {
+      var length = array.length;
+      var ret = new Array(length);
+      for (var i = 0; i < length; i++) {
+        ret[i] = read(array[i]);
+      }
+      return ret;
+    }
+
+    __exports__.readArray = readArray;function readHash(object) {
+      var ret = {};
+      for (var key in object) {
+        ret[key] = read(object[key]);
+      }
+      return ret;
+    }
+
+    __exports__.readHash = readHash;
   });
 enifed("ember-metal/utils",
   ["ember-metal/core","ember-metal/platform","ember-metal/array","exports"],
@@ -22135,7 +22151,7 @@ enifed("ember-routing-handlebars",
     __exports__["default"] = Ember;
   });
 enifed("ember-routing-handlebars/helpers/action",
-  ["ember-metal/core","ember-handlebars","ember-metal/array","ember-metal/utils","ember-metal/run_loop","ember-views/streams/read","ember-views/system/utils","ember-views/system/action_manager","exports"],
+  ["ember-metal/core","ember-handlebars","ember-metal/array","ember-metal/utils","ember-metal/run_loop","ember-views/streams/utils","ember-views/system/utils","ember-views/system/action_manager","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
     /**
@@ -23228,7 +23244,7 @@ enifed("ember-routing-htmlbars",
     __exports__["default"] = Ember;
   });
 enifed("ember-routing-htmlbars/helpers/action",
-  ["ember-metal/core","ember-metal/utils","ember-metal/run_loop","ember-views/streams/read","ember-views/system/utils","ember-views/system/action_manager","ember-metal/array","exports"],
+  ["ember-metal/core","ember-metal/utils","ember-metal/run_loop","ember-views/streams/utils","ember-views/system/utils","ember-views/system/action_manager","ember-metal/array","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
     /**
@@ -23557,7 +23573,7 @@ enifed("ember-routing-htmlbars/helpers/action",
     __exports__.actionHelper = actionHelper;
   });
 enifed("ember-routing-htmlbars/helpers/link-to",
-  ["ember-metal/core","ember-routing-views/views/link","ember-metal/streams/read","ember-runtime/mixins/controller","ember-htmlbars","exports"],
+  ["ember-metal/core","ember-routing-views/views/link","ember-metal/streams/utils","ember-runtime/mixins/controller","ember-htmlbars","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     /**
@@ -24285,7 +24301,7 @@ enifed("ember-routing-views",
     __exports__["default"] = Ember;
   });
 enifed("ember-routing-views/views/link",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/merge","ember-metal/run_loop","ember-metal/computed","ember-runtime/system/string","ember-metal/keys","ember-views/system/utils","ember-views/views/component","ember-routing/utils","ember-metal/streams/read","exports"],
+  ["ember-metal/core","ember-metal/property_get","ember-metal/merge","ember-metal/run_loop","ember-metal/computed","ember-runtime/system/string","ember-metal/keys","ember-views/system/utils","ember-views/views/component","ember-routing/utils","ember-metal/streams/utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
     "use strict";
     /**
@@ -42527,59 +42543,46 @@ enifed("ember-views/mixins/view_target_action_support",
     });
   });
 enifed("ember-views/streams/conditional_stream",
-  ["ember-metal/streams/stream","ember-metal/streams/read","ember-metal/platform","exports"],
+  ["ember-metal/streams/stream","ember-metal/streams/utils","ember-metal/platform","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     var Stream = __dependency1__["default"];
     var read = __dependency2__.read;
-    var o_create = __dependency3__.create;
+    var subscribe = __dependency2__.subscribe;
+    var unsubscribe = __dependency2__.unsubscribe;
+    var create = __dependency3__.create;
 
     function ConditionalStream(test, consequent, alternate) {
       this.init();
-      this.oldTest = undefined;
+
+      this.oldTestResult = undefined;
       this.test = test;
       this.consequent = consequent;
       this.alternate = alternate;
     }
 
-    ConditionalStream.prototype = o_create(Stream.prototype);
-
-    ConditionalStream.prototype._unsubscribe = function(value) {
-      if (value && value.isStream) {
-        value.unsubscribe(this.notify, this);
-      }
-    };
-
-    ConditionalStream.prototype._subscribe = function(value) {
-      if (value && value.isStream) {
-        value.subscribe(this.notify, this);
-      }
-    };
+    ConditionalStream.prototype = create(Stream.prototype);
 
     ConditionalStream.prototype.valueFn = function() {
-      var test = !!read(this.test);
+      var oldTestResult = this.oldTestResult;
+      var newTestResult = !!read(this.test);
 
-      if (this.oldTest === undefined) {
-        if (this.test && this.test.isStream) {
-          this.test.subscribe(this.notify, this);
+      if (newTestResult !== oldTestResult) {
+        switch (oldTestResult) {
+          case true: unsubscribe(this.consequent, this.notify, this); break;
+          case false: unsubscribe(this.alternate, this.notify, this); break;
+          case undefined: subscribe(this.test, this.notify, this);
         }
+
+        switch (newTestResult) {
+          case true: subscribe(this.consequent, this.notify, this); break;
+          case false: subscribe(this.alternate, this.notify, this);
+        }
+
+        this.oldTestResult = newTestResult;
       }
 
-      if (test !== this.oldTest) {
-        if (this.oldTest) {
-          this._unsubscribe(this.consequent);
-        } else {
-          this._unsubscribe(this.alternate);
-        }
-        if (test) {
-          this._subscribe(this.consequent);
-        } else {
-          this._subscribe(this.alternate);
-        }
-        this.oldTest = test;
-      }
-
-      return test ? read(this.consequent) : read(this.alternate);
+      return newTestResult ? read(this.consequent) : read(this.alternate);
     };
 
     __exports__["default"] = ConditionalStream;
@@ -42636,7 +42639,7 @@ enifed("ember-views/streams/context_stream",
     __exports__["default"] = ContextStream;
   });
 enifed("ember-views/streams/key_stream",
-  ["ember-metal/core","ember-metal/merge","ember-metal/platform","ember-metal/property_get","ember-metal/property_set","ember-metal/observer","ember-metal/streams/stream","ember-metal/streams/read","exports"],
+  ["ember-metal/core","ember-metal/merge","ember-metal/platform","ember-metal/property_get","ember-metal/property_set","ember-metal/observer","ember-metal/streams/stream","ember-metal/streams/utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
@@ -42745,8 +42748,8 @@ enifed("ember-views/streams/key_stream",
       return new KeyStream(this, key);
     };
   });
-enifed("ember-views/streams/read",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/path_cache","ember-runtime/system/string","ember-metal/streams/read","ember-views/views/view","ember-runtime/mixins/controller","exports"],
+enifed("ember-views/streams/utils",
+  ["ember-metal/core","ember-metal/property_get","ember-metal/path_cache","ember-runtime/system/string","ember-metal/streams/utils","ember-views/views/view","ember-runtime/mixins/controller","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
@@ -44234,7 +44237,7 @@ enifed("ember-views/views/checkbox",
     });
   });
 enifed("ember-views/views/collection_view",
-  ["ember-metal/core","ember-metal/binding","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/string","ember-views/views/container_view","ember-views/views/core_view","ember-views/views/view","ember-metal/mixin","ember-views/streams/read","ember-runtime/mixins/array","exports"],
+  ["ember-metal/core","ember-metal/binding","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/string","ember-views/views/container_view","ember-views/views/core_view","ember-views/views/view","ember-metal/mixin","ember-views/streams/utils","ember-runtime/mixins/array","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
     "use strict";
 

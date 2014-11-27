@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.691a69ba
+ * @version   1.10.0-beta.1+canary.dc3b07a6
  */
 
 (function() {
@@ -15439,15 +15439,6 @@ enifed("ember-metal/set_properties.jshint",
       ok(true, 'ember-metal/set_properties.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/streams/read.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-metal/streams');
-    test('ember-metal/streams/read.js should pass jshint', function() { 
-      ok(true, 'ember-metal/streams/read.js should pass jshint.'); 
-    });
-  });
 enifed("ember-metal/streams/simple.jshint",
   [],
   function() {
@@ -15473,6 +15464,15 @@ enifed("ember-metal/streams/stream_binding.jshint",
     module('JSHint - ember-metal/streams');
     test('ember-metal/streams/stream_binding.js should pass jshint', function() { 
       ok(true, 'ember-metal/streams/stream_binding.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal/streams/utils.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal/streams');
+    test('ember-metal/streams/utils.js should pass jshint', function() { 
+      ok(true, 'ember-metal/streams/utils.js should pass jshint.'); 
     });
   });
 enifed("ember-metal/tests/accessors/getPath_test",
@@ -48314,13 +48314,13 @@ enifed("ember-views/streams/key_stream.jshint",
       ok(true, 'ember-views/streams/key_stream.js should pass jshint.'); 
     });
   });
-enifed("ember-views/streams/read.jshint",
+enifed("ember-views/streams/utils.jshint",
   [],
   function() {
     "use strict";
     module('JSHint - ember-views/streams');
-    test('ember-views/streams/read.js should pass jshint', function() { 
-      ok(true, 'ember-views/streams/read.js should pass jshint.'); 
+    test('ember-views/streams/utils.js should pass jshint', function() { 
+      ok(true, 'ember-views/streams/utils.js should pass jshint.'); 
     });
   });
 enifed("ember-views/system/action_manager.jshint",

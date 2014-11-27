@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.691a69ba
+ * @version   1.10.0-beta.1+canary.dc3b07a6
  */
 
 (function() {
@@ -4808,7 +4808,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.691a69ba
+      @version 1.10.0-beta.1+canary.dc3b07a6
     */
 
     if ('undefined' === typeof Ember) {
@@ -4835,10 +4835,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.691a69ba'
+      @default '1.10.0-beta.1+canary.dc3b07a6'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.691a69ba';
+    Ember.VERSION = '1.10.0-beta.1+canary.dc3b07a6';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -10214,39 +10214,8 @@ define("ember-metal/set_properties",
       return obj;
     }
   });
-define("ember-metal/streams/read",
-  ["exports"],
-  function(__exports__) {
-    "use strict";
-    function read(object) {
-      if (object && object.isStream) {
-        return object.value();
-      } else {
-        return object;
-      }
-    }
-
-    __exports__.read = read;function readArray(array) {
-      var length = array.length;
-      var ret = new Array(length);
-      for (var i = 0; i < length; i++) {
-        ret[i] = read(array[i]);
-      }
-      return ret;
-    }
-
-    __exports__.readArray = readArray;function readHash(object) {
-      var ret = {};
-      for (var key in object) {
-        ret[key] = read(object[key]);
-      }
-      return ret;
-    }
-
-    __exports__.readHash = readHash;
-  });
 define("ember-metal/streams/simple",
-  ["ember-metal/merge","ember-metal/streams/stream","ember-metal/platform","ember-metal/streams/read","exports"],
+  ["ember-metal/merge","ember-metal/streams/stream","ember-metal/platform","ember-metal/streams/utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     var merge = __dependency1__["default"];
@@ -10539,6 +10508,53 @@ define("ember-metal/streams/stream_binding",
     });
 
     __exports__["default"] = StreamBinding;
+  });
+define("ember-metal/streams/utils",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    function isStream(object) {
+      return object && object.isStream;
+    }
+
+    __exports__.isStream = isStream;function subscribe(object, callback, context) {
+      if (object && object.isStream) {
+        object.subscribe(callback, context);
+      }
+    }
+
+    __exports__.subscribe = subscribe;function unsubscribe(object, callback, context) {
+      if (object && object.isStream) {
+        object.unsubscribe(callback, context);
+      }
+    }
+
+    __exports__.unsubscribe = unsubscribe;function read(object) {
+      if (object && object.isStream) {
+        return object.value();
+      } else {
+        return object;
+      }
+    }
+
+    __exports__.read = read;function readArray(array) {
+      var length = array.length;
+      var ret = new Array(length);
+      for (var i = 0; i < length; i++) {
+        ret[i] = read(array[i]);
+      }
+      return ret;
+    }
+
+    __exports__.readArray = readArray;function readHash(object) {
+      var ret = {};
+      for (var key in object) {
+        ret[key] = read(object[key]);
+      }
+      return ret;
+    }
+
+    __exports__.readHash = readHash;
   });
 define("ember-metal/utils",
   ["ember-metal/core","ember-metal/platform","ember-metal/array","exports"],
