@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.b421b996
+ * @version   1.10.0-beta.1+canary.21aeeab1
  */
 
 (function() {
@@ -4182,199 +4182,26 @@ enifed("ember-handlebars/string.jshint",
     });
   });
 enifed("ember-handlebars/tests/handlebars_test",
-  ["ember-metal/core","ember-views/system/jquery","ember-metal/run_loop","ember-runtime/system/namespace","ember-views/views/view","ember-views/views/metamorph_view","ember-handlebars","ember-runtime/system/object","ember-runtime/system/native_array","ember-metal/computed","ember-views/views/container_view","ember-runtime/system/container","ember-metal/property_set"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__) {
+  ["ember-metal/core","ember-metal/run_loop","ember-views/views/view","ember-handlebars","ember-runtime/system/native_array"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
     /*jshint newcap:false*/
     var Ember = __dependency1__["default"];
-    // Ember.lookup
-    var jQuery = __dependency2__["default"];
-    var run = __dependency3__["default"];
-    var Namespace = __dependency4__["default"];
-    var EmberView = __dependency5__["default"];
-    var _MetamorphView = __dependency6__["default"];
-    var EmberHandlebars = __dependency7__["default"];
-    var EmberObject = __dependency8__["default"];
-    var A = __dependency9__.A;
-    var computed = __dependency10__.computed;
-    var ContainerView = __dependency11__["default"];
-    var Container = __dependency12__["default"];
-
-    var trim = jQuery.trim;
-
-    var set = __dependency13__.set;
+    var run = __dependency2__["default"];
+    var EmberView = __dependency3__["default"];
+    var EmberHandlebars = __dependency4__["default"];
+    var A = __dependency5__.A;
 
     var view;
 
-    var appendView = function() {
-      run(function() { view.appendTo('#qunit-fixture'); });
+    var appendView = function(view) {
+      run(view, 'appendTo', '#qunit-fixture');
     };
 
-    var originalLookup = Ember.lookup;
-    var TemplateTests, container, lookup;
-
-    /**
-      This module specifically tests integration with Handlebars and Ember-specific
-      Handlebars extensions.
-
-      If you add additional template support to View, you should create a new
-      file in which to test.
-    */
-    QUnit.module("View - handlebars integration", {
-      setup: function() {
-        Ember.lookup = lookup = {};
-        lookup.TemplateTests = TemplateTests = Namespace.create();
-        container = new Container();
-        container.optionsForType('template', { instantiate: false });
-        container.register('view:default', _MetamorphView);
-        container.register('view:toplevel', EmberView.extend());
-      },
-
-      teardown: function() {
-        run(function() {
-            if (container) {
-              container.destroy();
-            }
-            if (view) {
-              view.destroy();
-            }
-            container = view = null;
-        });
-        Ember.lookup = lookup = originalLookup;
-        TemplateTests = null;
-      }
-    });
-
-    QUnit.module("Ember.View - handlebars integration", {
-      setup: function() {
-        Ember.lookup = lookup = { Ember: Ember };
-      },
-
-      teardown: function() {
-        if (view) {
-          run(function() {
-            view.destroy();
-          });
-          view = null;
-        }
-
-        Ember.lookup = originalLookup;
-      }
-    });
-
-    var MyApp;
-
     QUnit.module("Templates redrawing and bindings", {
-      setup: function() {
-        Ember.lookup = lookup = { Ember: Ember };
-        MyApp = lookup.MyApp = EmberObject.create({});
-      },
       teardown: function() {
-        run(function() {
-          if (view) view.destroy();
-        });
-        Ember.lookup = originalLookup;
+        run(view, 'destroy');
       }
-    });
-
-    test("should be able to update when bound property updates", function() {
-      MyApp.set('controller', EmberObject.create({name: 'first'}));
-
-      var View = EmberView.extend({
-        template: EmberHandlebars.compile('<i>{{view.value.name}}, {{view.computed}}</i>'),
-        valueBinding: 'MyApp.controller',
-        computed: computed(function() {
-          return this.get('value.name') + ' - computed';
-        }).property('value')
-      });
-
-      run(function() {
-        view = View.create();
-      });
-
-      appendView();
-
-      run(function() {
-        MyApp.set('controller', EmberObject.create({
-          name: 'second'
-        }));
-      });
-
-      equal(view.get('computed'), "second - computed", "view computed properties correctly update");
-      equal(view.$('i').text(), 'second, second - computed', "view rerenders when bound properties change");
-    });
-
-    test('should cleanup bound properties on rerender', function() {
-      view = EmberView.create({
-        controller: EmberObject.create({name: 'wycats'}),
-        template: EmberHandlebars.compile('{{name}}')
-      });
-
-      appendView();
-
-      equal(view.$().text(), 'wycats', 'rendered binding');
-
-      run(view, 'rerender');
-
-      equal(view._childViews.length, 1);
-    });
-
-    test("should update bound values after view's parent is removed and then re-appended", function() {
-      expectDeprecation("Setting `childViews` on a Container is deprecated.");
-
-      var controller = EmberObject.create();
-
-      var parentView = ContainerView.create({
-        childViews: ['testView'],
-
-        controller: controller,
-
-        testView: EmberView.create({
-          template: EmberHandlebars.compile("{{#if showStuff}}{{boundValue}}{{else}}Not true.{{/if}}")
-        })
-      });
-
-      controller.setProperties({
-        showStuff: true,
-        boundValue: "foo"
-      });
-
-      run(function() {
-        parentView.appendTo('#qunit-fixture');
-      });
-      view = parentView.get('testView');
-
-      equal(trim(view.$().text()), "foo");
-      run(function() {
-        set(controller, 'showStuff', false);
-      });
-      equal(trim(view.$().text()), "Not true.");
-
-      run(function() {
-        set(controller, 'showStuff', true);
-      });
-      equal(trim(view.$().text()), "foo");
-
-
-      run(function() {
-        parentView.remove();
-        set(controller, 'showStuff', false);
-      });
-      run(function() {
-        set(controller, 'showStuff', true);
-      });
-      run(function() {
-        parentView.appendTo('#qunit-fixture');
-      });
-
-      run(function() {
-        set(controller, 'boundValue', "bar");
-      });
-      equal(trim(view.$().text()), "bar");
-
-      run(function() {
-        parentView.destroy();
-      });
     });
 
     if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
@@ -4388,7 +4215,7 @@ enifed("ember-handlebars/tests/handlebars_test",
       });
 
       expectAssertion(function() {
-        appendView();
+        appendView(view);
       }, 'An error occured while setting up template bindings. Please check "blahzorz" template for invalid markup or bindings within HTML comments.');
     });
 
@@ -4403,7 +4230,7 @@ enifed("ember-handlebars/tests/handlebars_test",
           template: EmberHandlebars.compile('{{#group}}{{#each name in content}}{{name}}{{/each}}{{/group}}')
         });
 
-        appendView();
+        appendView(view);
       }, "Missing helper: 'group'");
     });
     }
@@ -10557,7 +10384,6 @@ enifed("ember-htmlbars/tests/helpers/view_test",
       },
 
       teardown: function() {
-        Ember.lookup = originalLookup;
         run(function() {
           if (container) {
             container.destroy();
@@ -13052,8 +12878,8 @@ enifed("ember-htmlbars/tests/htmlbars_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/integration/binding_integration_test",
-  ["ember-metal/run_loop","ember-views/system/jquery","ember-views/views/view","ember-metal/binding","ember-runtime/system/object","ember-metal/computed","ember-htmlbars/system/compile","ember-handlebars","ember-handlebars/helpers/view","ember-htmlbars/helpers/view"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
+  ["ember-metal/run_loop","ember-views/system/jquery","ember-views/views/view","ember-metal/binding","ember-runtime/system/object","ember-metal/computed","ember-views/views/container_view","ember-htmlbars/system/compile","ember-handlebars","ember-handlebars/helpers/view","ember-htmlbars/helpers/view","ember-metal/property_set"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__) {
     "use strict";
     var run = __dependency1__["default"];
     var jQuery = __dependency2__["default"];
@@ -13061,12 +12887,15 @@ enifed("ember-htmlbars/tests/integration/binding_integration_test",
     var Binding = __dependency4__.Binding;
     var EmberObject = __dependency5__["default"];
     var computed = __dependency6__.computed;
-    var htmlbarsCompile = __dependency7__["default"];
-    var EmberHandlebars = __dependency8__["default"];
-    var handlebarsViewHelper = __dependency9__.ViewHelper;
-    var htmlbarsViewHelper = __dependency10__.ViewHelper;
+    var ContainerView = __dependency7__["default"];
+    var htmlbarsCompile = __dependency8__["default"];
+    var EmberHandlebars = __dependency9__["default"];
+    var handlebarsViewHelper = __dependency10__.ViewHelper;
+    var htmlbarsViewHelper = __dependency11__.ViewHelper;
 
-    var compile, view;
+    var set = __dependency12__.set;
+
+    var compile, view, MyApp, originalLookup, lookup;
 
     var trim = jQuery.trim;
 
@@ -13081,13 +12910,24 @@ enifed("ember-htmlbars/tests/integration/binding_integration_test",
     };
 
     QUnit.module('ember-htmlbars: binding integration', {
+      setup: function() {
+        originalLookup = Ember.lookup;
+        Ember.lookup = lookup = {};
+
+        MyApp = lookup.MyApp = EmberObject.create({});
+      },
+
       teardown: function() {
+        Ember.lookup = originalLookup;
+
         run(function() {
           if (view) {
             view.destroy();
           }
           view = null;
         });
+
+        MyApp = null;
       }
     });
 
@@ -13116,6 +12956,99 @@ enifed("ember-htmlbars/tests/integration/binding_integration_test",
       appendView(view);
 
       ok(view.$().text() === 'foobarProperty', 'Property was bound to correctly');
+    });
+
+    test("should be able to update when bound property updates", function() {
+      MyApp.set('controller', EmberObject.create({name: 'first'}));
+
+      var View = EmberView.extend({
+        template: compile('<i>{{view.value.name}}, {{view.computed}}</i>'),
+        valueBinding: 'MyApp.controller',
+        computed: computed(function() {
+          return this.get('value.name') + ' - computed';
+        }).property('value')
+      });
+
+      run(function() {
+        view = View.create();
+      });
+
+      appendView(view);
+
+      run(function() {
+        MyApp.set('controller', EmberObject.create({
+          name: 'second'
+        }));
+      });
+
+      equal(view.get('computed'), "second - computed", "view computed properties correctly update");
+      equal(view.$('i').text(), 'second, second - computed', "view rerenders when bound properties change");
+    });
+
+    test('should cleanup bound properties on rerender', function() {
+      view = EmberView.create({
+        controller: EmberObject.create({name: 'wycats'}),
+        template: compile('{{name}}')
+      });
+
+      appendView(view);
+
+      equal(view.$().text(), 'wycats', 'rendered binding');
+
+      run(view, 'rerender');
+
+      equal(view._childViews.length, 1);
+    });
+
+    test("should update bound values after view's parent is removed and then re-appended", function() {
+      expectDeprecation("Setting `childViews` on a Container is deprecated.");
+
+      var controller = EmberObject.create();
+
+      var parentView = ContainerView.create({
+        childViews: ['testView'],
+
+        controller: controller,
+
+        testView: EmberView.create({
+          template: compile("{{#if showStuff}}{{boundValue}}{{else}}Not true.{{/if}}")
+        })
+      });
+
+      controller.setProperties({
+        showStuff: true,
+        boundValue: "foo"
+      });
+
+      appendView(parentView);
+      view = parentView.get('testView');
+
+      equal(trim(view.$().text()), "foo");
+      run(function() {
+        set(controller, 'showStuff', false);
+      });
+      equal(trim(view.$().text()), "Not true.");
+
+      run(function() {
+        set(controller, 'showStuff', true);
+      });
+      equal(trim(view.$().text()), "foo");
+
+      run(function() {
+        parentView.remove();
+        set(controller, 'showStuff', false);
+      });
+      run(function() {
+        set(controller, 'showStuff', true);
+      });
+      appendView(parentView);
+
+      run(function() {
+        set(controller, 'boundValue', "bar");
+      });
+      equal(trim(view.$().text()), "bar");
+
+      run(parentView, 'destroy');
     });
 
     test('should accept bindings as a string or an Ember.Binding', function() {
