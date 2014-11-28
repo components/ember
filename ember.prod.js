@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.af95b266
+ * @version   1.10.0-beta.1+canary.f08951c7
  */
 
 (function() {
@@ -7944,7 +7944,6 @@ enifed("ember-htmlbars",
     var eachHelper = __dependency28__.eachHelper;
     var preprocessArgumentsForEach = __dependency28__.preprocessArgumentsForEach;
     var unboundHelper = __dependency29__.unboundHelper;
-    var preprocessArgumentsForUnbound = __dependency29__.preprocessArgumentsForUnbound;
 
     // importing adds template bootstrapping
     // initializer to enable embedded templates
@@ -7972,7 +7971,7 @@ enifed("ember-htmlbars",
     registerHelper('textarea', textareaHelper);
     registerHelper('collection', collectionHelper);
     registerHelper('each', eachHelper, preprocessArgumentsForEach);
-    registerHelper('unbound', unboundHelper, preprocessArgumentsForUnbound);
+    registerHelper('unbound', unboundHelper);
 
     if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
       Ember.HTMLBars = {
@@ -10360,13 +10359,12 @@ enifed("ember-htmlbars/helpers/text_area",
     __exports__.textareaHelper = textareaHelper;
   });
 enifed("ember-htmlbars/helpers/unbound",
-  ["ember-htmlbars/system/lookup-helper","ember-metal/streams/utils","ember-metal/error","ember-metal/merge","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+  ["ember-htmlbars/system/lookup-helper","ember-metal/streams/utils","ember-metal/error","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     var lookupHelper = __dependency1__["default"];
     var read = __dependency2__.read;
     var EmberError = __dependency3__["default"];
-    var merge = __dependency4__["default"];
 
     /**
     @module ember
@@ -10400,11 +10398,11 @@ enifed("ember-htmlbars/helpers/unbound",
       options.helperName = options.helperName || 'unbound';
 
       if (length === 1) {
-        result = params[0].value();
+        result = read(params[0]);
       } else if (length >= 2) {
         env.data.isUnbound = true;
 
-        var helperName = options._raw.params[0];
+        var helperName = params[0]._label;
         var args = [];
 
         for (var i = 1, l = params.length; i < l; i++) {
@@ -10427,14 +10425,7 @@ enifed("ember-htmlbars/helpers/unbound",
       return result;
     }
 
-    __exports__.unboundHelper = unboundHelper;function preprocessArgumentsForUnbound(view, params, hash, options, env) {
-      options._raw = {
-        params: params.slice(),
-        hash:   merge({}, hash)
-      };
-    }
-
-    __exports__.preprocessArgumentsForUnbound = preprocessArgumentsForUnbound;
+    __exports__.unboundHelper = unboundHelper;
   });
 enifed("ember-htmlbars/helpers/view",
   ["ember-metal/core","ember-runtime/system/object","ember-metal/property_get","ember-metal/keys","ember-metal/mixin","ember-metal/streams/utils","ember-views/streams/utils","ember-views/views/view","ember-metal/streams/simple","exports"],
@@ -15010,7 +15001,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.af95b266
+      @version 1.10.0-beta.1+canary.f08951c7
     */
 
     if ('undefined' === typeof Ember) {
@@ -15037,10 +15028,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.af95b266'
+      @default '1.10.0-beta.1+canary.f08951c7'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.af95b266';
+    Ember.VERSION = '1.10.0-beta.1+canary.f08951c7';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
