@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.f08951c7
+ * @version   1.10.0-beta.1+canary.be7c3662
  */
 
 (function() {
@@ -7926,7 +7926,6 @@ enifed("ember-htmlbars",
     var viewHelper = __dependency15__.viewHelper;
     var yieldHelper = __dependency16__.yieldHelper;
     var withHelper = __dependency17__.withHelper;
-    var preprocessArgumentsForWith = __dependency17__.preprocessArgumentsForWith;
     var logHelper = __dependency18__.logHelper;
     var debuggerHelper = __dependency19__.debuggerHelper;
     var bindAttrHelper = __dependency20__.bindAttrHelper;
@@ -7942,7 +7941,6 @@ enifed("ember-htmlbars",
     var textareaHelper = __dependency26__.textareaHelper;
     var collectionHelper = __dependency27__.collectionHelper;
     var eachHelper = __dependency28__.eachHelper;
-    var preprocessArgumentsForEach = __dependency28__.preprocessArgumentsForEach;
     var unboundHelper = __dependency29__.unboundHelper;
 
     // importing adds template bootstrapping
@@ -7955,7 +7953,7 @@ enifed("ember-htmlbars",
     registerHelper('bind', bindHelper);
     registerHelper('view', viewHelper);
     registerHelper('yield', yieldHelper);
-    registerHelper('with', withHelper, preprocessArgumentsForWith);
+    registerHelper('with', withHelper);
     registerHelper('if', ifHelper);
     registerHelper('unless', unlessHelper);
     registerHelper('unboundIf', unboundIfHelper);
@@ -7970,7 +7968,7 @@ enifed("ember-htmlbars",
     registerHelper('input', inputHelper);
     registerHelper('textarea', textareaHelper);
     registerHelper('collection', collectionHelper);
-    registerHelper('each', eachHelper, preprocessArgumentsForEach);
+    registerHelper('each', eachHelper);
     registerHelper('unbound', unboundHelper);
 
     if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
@@ -9527,28 +9525,11 @@ enifed("ember-htmlbars/helpers/each",
     */
     function eachHelper(params, hash, options, env) {
       var helperName = 'each';
-      var keywordName;
-      var path = params[0];
+      var path = params[0] || this.getStream('');
 
       
       if (options.blockParams) {
         hash.keyword = true;
-      } else {
-        if (options.paramTypes[0] === 'keyword') {
-          keywordName = path.to;
-
-          helperName += ' ' + keywordName + ' in ' + path.from;
-
-          hash.keyword = keywordName;
-
-          path = path.stream;
-        } else {
-          helperName += ' ' + path;
-        }
-
-        if (!path) {
-          path = env.data.view.getStream('');
-        }
       }
 
       
@@ -9559,18 +9540,7 @@ enifed("ember-htmlbars/helpers/each",
       return env.helpers.collection.helperFunction.call(this, [EachView], hash, options, env);
     }
 
-    function preprocessArgumentsForEach(view, params, hash, options, env) {
-      if (params.length === 3 && params[1] === "in") {
-        params.splice(0, 3, {
-          from: params[2],
-          to: params[0],
-          stream: view.getStream(params[2])
-        });
-        options.paramTypes.splice(0, 3, 'keyword');
-      }
-    }
-
-    __exports__.preprocessArgumentsForEach = preprocessArgumentsForEach;__exports__.EachView = EachView;
+    __exports__.EachView = EachView;
     __exports__.eachHelper = eachHelper;
   });
 enifed("ember-htmlbars/helpers/if_unless",
@@ -10800,8 +10770,8 @@ enifed("ember-htmlbars/helpers/view",
     __exports__.viewHelper = viewHelper;
   });
 enifed("ember-htmlbars/helpers/with",
-  ["ember-metal/core","ember-metal/platform","ember-metal/is_none","ember-htmlbars/helpers/binding","ember-views/views/with_view","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
+  ["ember-metal/core","ember-metal/is_none","ember-htmlbars/helpers/binding","ember-views/views/with_view","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -10810,11 +10780,9 @@ enifed("ember-htmlbars/helpers/with",
 
     var Ember = __dependency1__["default"];
     // Ember.assert
-
-    var o_create = __dependency2__.create;
-    var isNone = __dependency3__["default"];
-    var bind = __dependency4__.bind;
-    var WithView = __dependency5__["default"];
+    var isNone = __dependency2__["default"];
+    var bind = __dependency3__.bind;
+    var WithView = __dependency4__["default"];
 
     /**
       Use the `{{with}}` helper when you want to aliases the to a new name. It's helpful
@@ -10864,47 +10832,20 @@ enifed("ember-htmlbars/helpers/with",
       @return {String} HTML string
     */
     function withHelper(params, hash, options, env) {
-
       
       
-      var source, keyword, preserveContext;
-      if (options.paramTypes[0] === 'id') {
-        if (options.blockParams) {
-          preserveContext = true;
-        } else {
-                    preserveContext = false;
-        }
-        source = params[0];
-      } else if (options.paramTypes[0] === 'keyword') {
-        source = params[0].stream;
-        keyword = params[0].to;
+      var preserveContext;
 
-        var localizedOptions = o_create(options);
-
-        localizedOptions.keywords = {};
-        localizedOptions.keywords[keyword] = source;
-        hash.keywordName = keyword;
-
-        options = localizedOptions;
+      if (hash.keywordName || options.blockParams) {
         preserveContext = true;
+      } else {
+                preserveContext = false;
       }
 
-      bind.call(this, source, hash, options, env, preserveContext, exists, undefined, undefined, WithView);
+      bind.call(this, params[0], hash, options, env, preserveContext, exists, undefined, undefined, WithView);
     }
 
-    __exports__.withHelper = withHelper;function preprocessArgumentsForWith(view, params, hash, options, env) {
-      if (params.length === 3 && params[1] === "as") {
-        params.splice(0, 3, {
-          from: params[0],
-          to: params[2],
-          stream: view.getStream(params[0])
-        });
-
-        options.paramTypes.splice(0, 3, 'keyword');
-      }
-    }
-
-    __exports__.preprocessArgumentsForWith = preprocessArgumentsForWith;function exists(value) {
+    __exports__.withHelper = withHelper;function exists(value) {
       return !isNone(value);
     }
   });
@@ -11185,6 +11126,126 @@ enifed("ember-htmlbars/hooks/subexpr",
       }
     }
   });
+enifed("ember-htmlbars/plugins/transform-each-in-to-hash",
+  ["htmlbars-compiler/walker","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    var Walker = __dependency1__["default"];
+
+    /**
+      An HTMLBars AST transformation that replaces all instances of
+
+      ```handlebars
+      {{#each item in items}}
+      {{/each}}
+      ```
+
+      with
+
+      ```handlebars
+      {{#each items keyword="item"}}
+      {{/each}}
+      ```
+
+      @private
+      @param {AST} The AST to be transformed.
+    */
+    __exports__["default"] = function(ast) {
+      var walker = new Walker();
+
+      walker.visit(ast, function(node) {
+        if (validate(node)) {
+          var removedParams = node.sexpr.params.splice(0, 2);
+          var keyword = removedParams[0].original;
+          var stringNode = {
+            type: 'STRING',
+            string: keyword,
+            stringModeValue: keyword,
+            original: keyword
+          };
+
+          if (!node.sexpr.hash) {
+            node.sexpr.hash = {
+              type: 'hash',
+              pairs: []
+            };
+          }
+
+          node.sexpr.hash.pairs.push(['keyword', stringNode]);
+        }
+      });
+
+      return ast;
+    }
+
+    function validate(node) {
+      return (node.type === 'block' || node.type === 'mustache') &&
+        node.sexpr.id.original === 'each' &&
+        node.sexpr.params.length === 3 &&
+        node.sexpr.params[1].type === 'ID' &&
+        node.sexpr.params[1].original === 'in';
+    }
+  });
+enifed("ember-htmlbars/plugins/transform-with-as-to-hash",
+  ["htmlbars-compiler/walker","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    var Walker = __dependency1__["default"];
+
+    /**
+      An HTMLBars AST transformation that replaces all instances of
+
+      ```handlebars
+      {{#with foo.bar as bar}}
+      {{/with}}
+      ```
+
+      with
+
+      ```handlebars
+      {{#with foo.bar keywordName="bar"}}
+      {{/with}}
+      ```
+
+      @private
+      @param {AST} The AST to be transformed.
+    */
+    __exports__["default"] = function(ast) {
+      var walker = new Walker();
+
+      walker.visit(ast, function(node) {
+        if (validate(node)) {
+          var removedParams = node.sexpr.params.splice(1, 2);
+          var keyword = removedParams[1].original;
+          var stringNode = {
+            type: 'STRING',
+            string: keyword,
+            stringModeValue: keyword,
+            original: keyword
+          };
+
+          if (!node.sexpr.hash) {
+            node.sexpr.hash = {
+              type: 'hash',
+              pairs: []
+            };
+          }
+
+          node.sexpr.hash.pairs.push(['keywordName', stringNode]);
+        }
+      });
+
+      return ast;
+    }
+
+    function validate(node) {
+      return node.type === 'block' &&
+        node.sexpr.id.original === 'with' &&
+        node.sexpr.params.length === 3 &&
+        node.sexpr.params[1].type === 'ID' &&
+        node.sexpr.params[1].original === 'as';
+    }
+  });
 enifed("ember-htmlbars/system/bootstrap",
   ["ember-metal/core","ember-views/component_lookup","ember-views/system/jquery","ember-metal/error","ember-runtime/system/lazy_load","ember-htmlbars/system/compile","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
@@ -11293,8 +11354,8 @@ enifed("ember-htmlbars/system/bootstrap",
     __exports__["default"] = bootstrap;
   });
 enifed("ember-htmlbars/system/compile",
-  ["ember-metal/core","htmlbars-compiler/compiler","ember-htmlbars/system/template","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["ember-metal/core","htmlbars-compiler/compiler","ember-htmlbars/system/template","ember-htmlbars/plugins/transform-each-in-to-hash","ember-htmlbars/plugins/transform-with-as-to-hash","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -11304,6 +11365,9 @@ enifed("ember-htmlbars/system/compile",
     var Ember = __dependency1__["default"];
     var compile = __dependency2__.compile;
     var template = __dependency3__["default"];
+
+    var transformEachInToHash = __dependency4__["default"];
+    var transformWithAsToHash = __dependency5__["default"];
 
     var disableComponentGeneration = true;
     if (Ember.FEATURES.isEnabled('ember-htmlbars-component-generation')) {
@@ -11321,7 +11385,14 @@ enifed("ember-htmlbars/system/compile",
     */
     __exports__["default"] = function(templateString) {
       var templateSpec = compile(templateString, {
-        disableComponentGeneration: disableComponentGeneration
+        disableComponentGeneration: disableComponentGeneration,
+
+        plugins: {
+          ast: [
+            transformEachInToHash,
+            transformWithAsToHash
+          ]
+        }
       });
 
       return template(templateSpec);
@@ -11737,7 +11808,7 @@ enifed("ember-htmlbars/templates/select",
           var fragment = dom.cloneNode(cachedFragment, true);
           dom.repairClonedNode(fragment,[0,1]);
           var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
-          hooks.content(morph0, "each", context, ["group","in","view.groupedContent"], {}, {paramTypes:["id","id","id"],hashTypes:{},render:child0,morph:morph0}, env);
+          hooks.content(morph0, "each", context, ["view.groupedContent"], {"keyword":"group"}, {paramTypes:["id"],hashTypes:{"keyword":"string"},render:child0,morph:morph0}, env);
           return fragment;
         };
       }())
@@ -11783,7 +11854,7 @@ enifed("ember-htmlbars/templates/select",
           var fragment = dom.cloneNode(cachedFragment, true);
           dom.repairClonedNode(fragment,[0,1]);
           var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
-          hooks.content(morph0, "each", context, ["item","in","view.content"], {}, {paramTypes:["id","id","id"],hashTypes:{},render:child0,morph:morph0}, env);
+          hooks.content(morph0, "each", context, ["view.content"], {"keyword":"item"}, {paramTypes:["id"],hashTypes:{"keyword":"string"},render:child0,morph:morph0}, env);
           return fragment;
         };
       }())
@@ -15001,7 +15072,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.f08951c7
+      @version 1.10.0-beta.1+canary.be7c3662
     */
 
     if ('undefined' === typeof Ember) {
@@ -15028,10 +15099,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.f08951c7'
+      @default '1.10.0-beta.1+canary.be7c3662'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.f08951c7';
+    Ember.VERSION = '1.10.0-beta.1+canary.be7c3662';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -47534,6 +47605,10 @@ enifed("ember-views/views/with_view",
           }
 
           set(controller, 'model', this.lazyValue.value());
+        } else {
+          if (this.preserveContext) {
+            this._keywords[keywordName] = this.lazyValue;
+          }
         }
       },
 
@@ -50610,11 +50685,16 @@ enifed(
     __exports__["default"] = Handlebars;
   });
 enifed("htmlbars-compiler",
-  ["./htmlbars-compiler/compiler","exports"],
-  function(__dependency1__, __exports__) {
+  ["./htmlbars-compiler/compiler","./htmlbars-compiler/walker","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
+    var compile = __dependency1__.compile;
     var compilerSpec = __dependency1__.compilerSpec;
+    var Walker = __dependency2__["default"];
+
+    __exports__.compile = compile;
     __exports__.compilerSpec = compilerSpec;
+    __exports__.Walker = Walker;
   });
 enifed("htmlbars-compiler/ast",
   ["./handlebars/compiler/ast","exports"],
@@ -51315,8 +51395,7 @@ enifed("htmlbars-compiler/compiler/hydration_opcode",
         return;
       }
 
-      var quoted = attr.quoted;
-      var params = quoted ? attr.value : [ attr.value ];
+      var params = attr.value;
 
       this.opcode('program', null, null);
       processSexpr(this, { params: params });
@@ -51325,7 +51404,7 @@ enifed("htmlbars-compiler/compiler/hydration_opcode",
         this.opcode('element', ++this.elementNum);
         this.element = null;
       }
-      this.opcode('attribute', quoted, attr.name, params.length, this.elementNum);
+      this.opcode('attribute', attr.quoted, attr.name, params.length, this.elementNum);
     };
 
     HydrationOpcodeCompiler.prototype.nodeHelper = function(mustache) {
@@ -53343,14 +53422,17 @@ enifed("htmlbars-compiler/html-parser/token-handlers",
         switch(state) {
           case "beforeAttributeValue":
             this.tokenizer.state = 'attributeValueUnquoted';
+            token.markAttributeQuoted(false);
             token.addToAttributeValue(mustache.sexpr);
+            token.finalizeAttributeValue();
             return;
           case "attributeValueDoubleQuoted":
           case "attributeValueSingleQuoted":
+            token.markAttributeQuoted(true);
             token.addToAttributeValue(mustache.sexpr);
-            token.attributes[token.attributes.length - 1].quoted = true;
             return;
           case "attributeValueUnquoted":
+            token.markAttributeQuoted(false);
             token.addToAttributeValue(mustache.sexpr);
             return;
           case "beforeAttributeName":
@@ -53397,9 +53479,12 @@ enifed("htmlbars-compiler/html-parser/tokens",
     var StringNode = __dependency2__.StringNode;
 
     StartTag.prototype.startAttribute = function(char) {
-      this.finalizeAttributeValue();
-      this.currentAttribute = new AttrNode(char.toLowerCase(), []);
+      this.currentAttribute = new AttrNode(char.toLowerCase(), [], null);
       this.attributes.push(this.currentAttribute);
+    };
+
+    StartTag.prototype.markAttributeQuoted = function(value) {
+      this.currentAttribute.quoted = value;
     };
 
     StartTag.prototype.addToAttributeName = function(char) {
@@ -53421,7 +53506,6 @@ enifed("htmlbars-compiler/html-parser/tokens",
     };
 
     StartTag.prototype.finalize = function() {
-      this.finalizeAttributeValue();
       delete this.currentAttribute;
       return this;
     };
@@ -53435,15 +53519,14 @@ enifed("htmlbars-compiler/html-parser/tokens",
       }
 
       if (attr.value.length === 0) {
-        attr.value = new TextNode("");
-      } else if (attr.value.length === 1) {
-        part = attr.value[0];
-        if (part.type === 'sexpr') {
-          if (!attr.quoted) {
-            attr.value = part;
-          }
+        if (attr.quoted) {
+          attr.value = new TextNode("");
         } else {
-          attr.value = part;
+          attr.value = null;
+        }
+      } else if (attr.value.length === 1) {
+        if (attr.value[0].type === 'text') {
+          attr.value = attr.value[0];
         }
       } else {
         // Convert TextNode to StringNode
@@ -53478,6 +53561,12 @@ enifed("htmlbars-compiler/parser",
     function preprocess(html, options) {
       var ast = parse(html);
       var combined = new HTMLProcessor(html, options).acceptNode(ast);
+
+      if (options && options.plugins && options.plugins.ast) {
+        for (var i = 0, l = options.plugins.ast.length; i < l; i++) {
+          combined = options.plugins.ast[i](combined);
+        }
+      }
 
       return combined;
     }
@@ -53552,6 +53641,65 @@ enifed("htmlbars-compiler/utils",
     }
 
     __exports__.forEach = forEach;
+  });
+enifed("htmlbars-compiler/walker",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    function Walker(order) {
+      this.order = order;
+      this.stack = [];
+    }
+
+    __exports__["default"] = Walker;
+
+    Walker.prototype.visit = function(node, callback) {
+      if (!node) {
+        return;
+      }
+
+      this.stack.push(node);
+
+      if (this.order === 'post') {
+        this.children(node, callback);
+        callback(node, this);
+      } else {
+        callback(node, this);
+        this.children(node, callback);
+      }
+
+      this.stack.pop();
+    };
+
+    var visitors = {
+      program: function(walker, node, callback) {
+        for (var i = 0; i < node.statements.length; i++) {
+          walker.visit(node.statements[i], callback);
+        }
+      },
+
+      element: function(walker, node, callback) {
+        for (var i = 0; i < node.children.length; i++) {
+          walker.visit(node.children[i], callback);
+        }
+      },
+
+      block: function(walker, node, callback) {
+        walker.visit(node.program, callback);
+        walker.visit(node.inverse, callback);
+      },
+
+      component: function(walker, node, callback) {
+        walker.visit(node.program, callback);
+      }
+    };
+
+    Walker.prototype.children = function(node, callback) {
+      var visitor = visitors[node.type];
+      if (visitor) {
+        visitor(this, node, callback);
+      }
+    };
   });
 enifed("htmlbars-test-helpers",
   ["exports"],
@@ -60058,6 +60206,14 @@ enifed("simple-html-tokenizer",
         this.token.addToAttributeName(char);
       },
 
+      markAttributeQuoted: function(value) {
+        this.token.markAttributeQuoted(value);
+      },
+
+      finalizeAttributeValue: function() {
+        this.token.finalizeAttributeValue();
+      },
+
       addToAttributeValue: function(char) {
         this.token.addToAttributeValue(char);
       },
@@ -60287,18 +60443,22 @@ enifed("simple-html-tokenizer",
             return;
           } else if (char === '"') {
             this.state = 'attributeValueDoubleQuoted';
+            this.markAttributeQuoted(true);
           } else if (char === "'") {
             this.state = 'attributeValueSingleQuoted';
+            this.markAttributeQuoted(true);
           } else if (char === ">") {
             return this.emitToken();
           } else {
             this.state = 'attributeValueUnquoted';
+            this.markAttributeQuoted(false);
             this.addToAttributeValue(char);
           }
         },
 
         attributeValueDoubleQuoted: function(char) {
           if (char === '"') {
+            this.finalizeAttributeValue();
             this.state = 'afterAttributeValueQuoted';
           } else if (char === "&") {
             this.addToAttributeValue(this.consumeCharRef('"') || "&");
@@ -60309,6 +60469,7 @@ enifed("simple-html-tokenizer",
 
         attributeValueSingleQuoted: function(char) {
           if (char === "'") {
+            this.finalizeAttributeValue();
             this.state = 'afterAttributeValueQuoted';
           } else if (char === "&") {
             this.addToAttributeValue(this.consumeCharRef("'") || "&");
@@ -60319,6 +60480,7 @@ enifed("simple-html-tokenizer",
 
         attributeValueUnquoted: function(char) {
           if (isSpace(char)) {
+            this.finalizeAttributeValue();
             this.state = 'beforeAttributeName';
           } else if (char === "&") {
             this.addToAttributeValue(this.consumeCharRef(">") || "&");
@@ -60374,7 +60536,7 @@ enifed("simple-html-tokenizer",
       },
 
       startAttribute: function(char) {
-        this.currentAttribute = [char.toLowerCase(), null];
+        this.currentAttribute = [char.toLowerCase(), null, null];
         this.attributes.push(this.currentAttribute);
       },
 
@@ -60382,9 +60544,20 @@ enifed("simple-html-tokenizer",
         this.currentAttribute[0] += char;
       },
 
+      markAttributeQuoted: function(value) {
+        this.currentAttribute[2] = value;
+      },
+
       addToAttributeValue: function(char) {
         this.currentAttribute[1] = this.currentAttribute[1] || "";
         this.currentAttribute[1] += char;
+      },
+
+      finalizeAttributeValue: function() {
+        // Set the value of quoted attributes to a blank string
+        if (this.currentAttribute[2] && this.currentAttribute[1] === null) {
+          this.currentAttribute[1] = '';
+        }
       },
 
       finalize: function() {

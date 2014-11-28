@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.f08951c7
+ * @version   1.10.0-beta.1+canary.be7c3662
  */
 
 (function() {
@@ -4512,6 +4512,24 @@ enifed("ember-htmlbars/hooks/subexpr.jshint",
     module('JSHint - ember-htmlbars/hooks');
     test('ember-htmlbars/hooks/subexpr.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/hooks/subexpr.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/plugins/transform-each-in-to-hash.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/plugins');
+    test('ember-htmlbars/plugins/transform-each-in-to-hash.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/plugins/transform-each-in-to-hash.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/plugins/transform-with-as-to-hash.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/plugins');
+    test('ember-htmlbars/plugins/transform-with-as-to-hash.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/plugins/transform-with-as-to-hash.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/system/bootstrap.jshint",
