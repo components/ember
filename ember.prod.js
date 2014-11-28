@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.dc3b07a6
+ * @version   1.10.0-beta.1+canary.193a7497
  */
 
 (function() {
@@ -7903,8 +7903,8 @@ enifed("ember-handlebars/templates/select",
     },"useData":true});
   });
 enifed("ember-htmlbars",
-  ["ember-metal/core","ember-htmlbars/hooks/content","ember-htmlbars/hooks/component","ember-htmlbars/hooks/element","ember-htmlbars/hooks/subexpr","ember-htmlbars/hooks/attribute","ember-htmlbars/hooks/set","morph","ember-htmlbars/system/template","ember-htmlbars/system/compile","ember-htmlbars/system/make-view-helper","ember-htmlbars/helpers","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/bind-attr","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/partial","ember-htmlbars/helpers/template","ember-htmlbars/helpers/input","ember-htmlbars/helpers/text_area","ember-htmlbars/helpers/collection","ember-htmlbars/helpers/each","ember-htmlbars/helpers/unbound","ember-htmlbars/system/bootstrap","ember-htmlbars/compat","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __exports__) {
+  ["ember-metal/core","ember-htmlbars/hooks/content","ember-htmlbars/hooks/component","ember-htmlbars/hooks/element","ember-htmlbars/hooks/subexpr","ember-htmlbars/hooks/attribute","ember-htmlbars/hooks/set","morph","ember-htmlbars/system/template","ember-htmlbars/system/compile","ember-htmlbars/system/make-view-helper","ember-htmlbars/system/make_bound_helper","ember-htmlbars/helpers","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/bind-attr","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/partial","ember-htmlbars/helpers/template","ember-htmlbars/helpers/input","ember-htmlbars/helpers/text_area","ember-htmlbars/helpers/collection","ember-htmlbars/helpers/each","ember-htmlbars/helpers/unbound","ember-htmlbars/system/bootstrap","ember-htmlbars/compat","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __dependency31__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var content = __dependency2__["default"];
@@ -7917,33 +7917,34 @@ enifed("ember-htmlbars",
     var template = __dependency9__["default"];
     var compile = __dependency10__["default"];
     var makeViewHelper = __dependency11__["default"];
+    var makeBoundHelper = __dependency12__["default"];
 
-    var registerHelper = __dependency12__.registerHelper;
-    var helper = __dependency12__.helper;
-    var helpers = __dependency12__["default"];
-    var bindHelper = __dependency13__.bindHelper;
-    var viewHelper = __dependency14__.viewHelper;
-    var yieldHelper = __dependency15__.yieldHelper;
-    var withHelper = __dependency16__.withHelper;
-    var preprocessArgumentsForWith = __dependency16__.preprocessArgumentsForWith;
-    var logHelper = __dependency17__.logHelper;
-    var debuggerHelper = __dependency18__.debuggerHelper;
-    var bindAttrHelper = __dependency19__.bindAttrHelper;
-    var bindAttrHelperDeprecated = __dependency19__.bindAttrHelperDeprecated;
-    var ifHelper = __dependency20__.ifHelper;
-    var unlessHelper = __dependency20__.unlessHelper;
-    var unboundIfHelper = __dependency20__.unboundIfHelper;
-    var boundIfHelper = __dependency20__.boundIfHelper;
-    var locHelper = __dependency21__.locHelper;
-    var partialHelper = __dependency22__.partialHelper;
-    var templateHelper = __dependency23__.templateHelper;
-    var inputHelper = __dependency24__.inputHelper;
-    var textareaHelper = __dependency25__.textareaHelper;
-    var collectionHelper = __dependency26__.collectionHelper;
-    var eachHelper = __dependency27__.eachHelper;
-    var preprocessArgumentsForEach = __dependency27__.preprocessArgumentsForEach;
-    var unboundHelper = __dependency28__.unboundHelper;
-    var preprocessArgumentsForUnbound = __dependency28__.preprocessArgumentsForUnbound;
+    var registerHelper = __dependency13__.registerHelper;
+    var helper = __dependency13__.helper;
+    var helpers = __dependency13__["default"];
+    var bindHelper = __dependency14__.bindHelper;
+    var viewHelper = __dependency15__.viewHelper;
+    var yieldHelper = __dependency16__.yieldHelper;
+    var withHelper = __dependency17__.withHelper;
+    var preprocessArgumentsForWith = __dependency17__.preprocessArgumentsForWith;
+    var logHelper = __dependency18__.logHelper;
+    var debuggerHelper = __dependency19__.debuggerHelper;
+    var bindAttrHelper = __dependency20__.bindAttrHelper;
+    var bindAttrHelperDeprecated = __dependency20__.bindAttrHelperDeprecated;
+    var ifHelper = __dependency21__.ifHelper;
+    var unlessHelper = __dependency21__.unlessHelper;
+    var unboundIfHelper = __dependency21__.unboundIfHelper;
+    var boundIfHelper = __dependency21__.boundIfHelper;
+    var locHelper = __dependency22__.locHelper;
+    var partialHelper = __dependency23__.partialHelper;
+    var templateHelper = __dependency24__.templateHelper;
+    var inputHelper = __dependency25__.inputHelper;
+    var textareaHelper = __dependency26__.textareaHelper;
+    var collectionHelper = __dependency27__.collectionHelper;
+    var eachHelper = __dependency28__.eachHelper;
+    var preprocessArgumentsForEach = __dependency28__.preprocessArgumentsForEach;
+    var unboundHelper = __dependency29__.unboundHelper;
+    var preprocessArgumentsForUnbound = __dependency29__.preprocessArgumentsForUnbound;
 
     // importing adds template bootstrapping
     // initializer to enable embedded templates
@@ -7977,10 +7978,11 @@ enifed("ember-htmlbars",
       Ember.HTMLBars = {
         helpers: helpers,
         helper: helper,
-        registerHelper: registerHelper,
+        _registerHelper: registerHelper,
         template: template,
         compile: compile,
-        makeViewHelper: makeViewHelper
+        makeViewHelper: makeViewHelper,
+        makeBoundHelper: makeBoundHelper
       };
 
     }
@@ -8114,6 +8116,7 @@ enifed("ember-htmlbars/compat/helper",
 
     __exports__.registerHandlebarsCompatibleHelper = registerHandlebarsCompatibleHelper;function handlebarsHelper(name, value) {
       
+      
       if (View.detect(value)) {
         helpers[name] = makeViewHelper(value);
       } else {
@@ -8170,8 +8173,10 @@ enifed("ember-htmlbars/compat/make-bound-helper",
       @param {Function} function
       @param {String} dependentKeys*
       @since 1.2.0
+      @deprecated
     */
     __exports__["default"] = function makeBoundHelper(fn, compatMode) {
+      
       var dependentKeys = [];
       for (var i = 1; i < arguments.length; i++) {
         dependentKeys.push(arguments[i]);
@@ -8401,8 +8406,8 @@ enifed("ember-htmlbars/compat/register-bound-helper",
     }
   });
 enifed("ember-htmlbars/helpers",
-  ["ember-views/views/view","ember-views/views/component","ember-htmlbars/system/make-view-helper","ember-htmlbars/system/helper","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+  ["ember-views/views/view","ember-views/views/component","ember-htmlbars/system/make-view-helper","ember-htmlbars/system/helper","ember-htmlbars/system/make_bound_helper","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -8420,6 +8425,7 @@ enifed("ember-htmlbars/helpers",
     var Component = __dependency2__["default"];
     var makeViewHelper = __dependency3__["default"];
     var Helper = __dependency4__["default"];
+    var makeBoundHelper = __dependency5__["default"];
 
     /**
       Register a bound helper or custom view helper.
@@ -8472,22 +8478,126 @@ enifed("ember-htmlbars/helpers",
       @for Ember.HTMLBars
       @param {String} name
       @param {Function|Ember.View} function or view class constructor
-      @param {String} dependentKeys*
     */
     function helper(name, value) {
       
       if (View.detect(value)) {
         helpers[name] = makeViewHelper(value);
       } else {
-        throw new Error('registerBoundHelper not implemented yet.');
+        registerBoundHelper(name, value);
       }
     }
 
-    __exports__.helper = helper;function registerHelper(name, helperFunc, preprocessFunction) {
+    __exports__.helper = helper;/**
+      @private
+      @method registerHelper
+      @for Ember.HTMLBars
+      @param {String} name
+      @param {Function} helperFunc the helper function to add
+    */
+    function registerHelper(name, helperFunc, preprocessFunction) {
       helpers[name] = new Helper(helperFunc, preprocessFunction);
     }
 
-    __exports__.registerHelper = registerHelper;__exports__["default"] = helpers;
+    __exports__.registerHelper = registerHelper;/**
+      Register a bound helper. Bound helpers behave similarly to regular
+      helpers, with the added ability to re-render when the underlying data
+      changes.
+
+      ## Simple example
+
+      ```javascript
+      Ember.HTMLBars.registerBoundHelper('capitalize', function(params, hash, options, env) {
+        return Ember.String.capitalize(params[0]);
+      });
+      ```
+
+      The above bound helper can be used inside of templates as follows:
+
+      ```handlebars
+      {{capitalize name}}
+      ```
+
+      In this case, when the `name` property of the template's context changes,
+      the rendered value of the helper will update to reflect this change.
+
+      ## Example with hash parameters
+
+      Like normal helpers, bound helpers have access to the hash parameters
+      passed into the helper call.
+
+      ```javascript
+      Ember.HTMLBars.registerBoundHelper('repeat', function(params, hash) {
+        var count = hash.count;
+        var value = params[0];
+
+        return new Array( count + 1).join( value );
+      });
+      ```
+
+      This helper could be used in a template as follows:
+
+      ```handlebars
+      {{repeat text count=3}}
+      ```
+
+      ## Example with bound hash parameters
+
+      Bound hash params are also supported. Example:
+
+      ```handlebars
+      {{repeat text count=numRepeats}}
+      ```
+
+      In this example, count will be bound to the value of
+      the `numRepeats` property on the context. If that property
+      changes, the helper will be re-rendered.
+
+      ## Example with multiple bound properties
+
+      `Ember.HTMLBars.registerBoundHelper` supports binding to
+      multiple properties, e.g.:
+
+      ```javascript
+      Ember.HTMLBars.registerBoundHelper('concatenate', function(params) {
+        return params.join('||');
+      });
+      ```
+
+      Which allows for template syntax such as `{{concatenate prop1 prop2}}` or
+      `{{concatenate prop1 prop2 prop3}}`. If any of the properties change,
+      the helper will re-render.
+
+      ## Use with unbound helper
+
+      The `{{unbound}}` helper can be used with bound helper invocations
+      to render them in their unbound form, e.g.
+
+      ```handlebars
+      {{unbound capitalize name}}
+      ```
+
+      In this example, if the name property changes, the helper
+      will not re-render.
+
+      ## Use with blocks not supported
+
+      Bound helpers do not support use with blocks or the addition of
+      child views of any kind.
+
+      @private
+      @method registerBoundHelper
+      @for Ember.HTMLBars
+      @param {String} name
+      @param {Function} function
+    */
+    function registerBoundHelper(name, fn) {
+      var boundFn = makeBoundHelper(fn);
+
+      helpers[name] = boundFn;
+    }
+
+    __exports__.registerBoundHelper = registerBoundHelper;__exports__["default"] = helpers;
   });
 enifed("ember-htmlbars/helpers/bind-attr",
   ["ember-metal/core","ember-runtime/system/string","ember-metal/utils","ember-metal/array","ember-views/views/view","ember-metal/keys","ember-htmlbars/helpers","ember-views/system/jquery","exports"],
@@ -11359,6 +11469,108 @@ enifed("ember-htmlbars/system/make-view-helper",
       function helperFunc(params, hash, options, env) {
         
         return env.helpers.view.helperFunction.call(this, [ViewClass], hash, options, env);
+      }
+
+      return new Helper(helperFunc);
+    }
+  });
+enifed("ember-htmlbars/system/make_bound_helper",
+  ["ember-metal/core","ember-metal/mixin","ember-views/views/simple_bound_view","ember-htmlbars/system/helper","ember-metal/streams/stream","ember-metal/streams/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
+    var Ember = __dependency1__["default"];
+    // Ember.FEATURES, Ember.assert, Ember.Handlebars, Ember.lookup
+    var IS_BINDING = __dependency2__.IS_BINDING;
+    var appendSimpleBoundView = __dependency3__.appendSimpleBoundView;
+    var Helper = __dependency4__["default"];
+
+    var Stream = __dependency5__["default"];
+    var readArray = __dependency6__.readArray;
+    var readHash = __dependency6__.readHash;
+    var subscribe = __dependency6__.subscribe;
+
+    /**
+      Create a bound helper. Accepts a function that receives the ordered and hash parameters
+      from the template. If a bound property was provided in the template it will be resolved to its
+      value and any changes to the bound property cause the helper function to be re-ran with the updated
+      values.
+
+      * `params` - An array of resolved ordered parameters.
+      * `hash` - An object containing the hash parameters.
+     
+      For example:
+      
+      * With an unqouted ordered parameter:
+
+        ```javascript
+        {{x-capitalize foo}}
+        ```
+
+        Assuming `foo` was set to `"bar"`, the bound helper would receive `["bar"]` as its first argument, and
+        an empty hash as its second.
+
+      * With a quoted ordered parameter:
+     
+        ```javascript
+        {{x-capitalize "foo"}}
+        ```
+
+        The bound helper would receive `["foo"]` as its first argument, and an empty hash as its second.
+
+      * With an unquoted hash parameter:
+     
+        ```javascript
+        {{x-repeat "foo" count=repeatCount}}
+        ```
+
+        Assuming that `repeatCount` resolved to 2, the bound helper would receive `["foo"]` as its first argument,
+        and { count: 2 } as its second.
+
+      @method makeBoundHelper
+      @for Ember.HTMLBars
+      @param {Function} function
+      @since 1.10.0
+    */
+    __exports__["default"] = function makeBoundHelper(fn) {
+      function helperFunc(params, hash, options, env) {
+        var view = this;
+
+        
+        for (var prop in hash) {
+          if (IS_BINDING.test(prop)) {
+            hash[prop.slice(0, -7)] = view._getBindingForStream(hash[prop]);
+
+            delete hash[prop];
+          }
+        }
+
+        function valueFn() {
+          return fn.call(view, readArray(params), readHash(hash), options, env);
+        }
+
+        if (env.data.isUnbound) {
+          return valueFn();
+        } else {
+          var lazyValue = new Stream(valueFn);
+
+          appendSimpleBoundView(this, options.morph, lazyValue);
+
+          var param;
+          for (var i = 0, l = params.length; i < l; i++) {
+            param = params[i];
+            subscribe(param, lazyValue.notify, lazyValue);
+          }
+
+          for (prop in hash) {
+            param = hash[prop];
+            subscribe(param, lazyValue.notify, lazyValue);
+          }
+        }
       }
 
       return new Helper(helperFunc);
@@ -14781,7 +14993,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.dc3b07a6
+      @version 1.10.0-beta.1+canary.193a7497
     */
 
     if ('undefined' === typeof Ember) {
@@ -14808,10 +15020,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.dc3b07a6'
+      @default '1.10.0-beta.1+canary.193a7497'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.dc3b07a6';
+    Ember.VERSION = '1.10.0-beta.1+canary.193a7497';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
