@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.193a7497
+ * @version   1.10.0-beta.1+canary.4fc2539f
  */
 
 (function() {
@@ -4750,28 +4750,32 @@ enifed("ember-htmlbars/tests/compat/handlebars_get_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/compat/helper_test",
-  ["ember-htmlbars/compat/helper"],
-  function(__dependency1__) {
+  ["ember-htmlbars/compat/helper","ember-views/views/view","ember-metal/run_loop","ember-htmlbars/helpers","ember-htmlbars/system/compile"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
-    var HandlebarsCompatibleHelper = __dependency1__["default"];
+    var registerHandlebarsCompatibleHelper = __dependency1__.registerHandlebarsCompatibleHelper;
 
-    var fakeView, fakeParams, fakeHash, fakeOptions, fakeEnv;
+    var EmberView = __dependency2__["default"];
+    var run = __dependency3__["default"];
+
+    var helpers = __dependency4__["default"];
+    var compile = __dependency5__["default"];
+
+    function appendView(view) {
+      run(view, 'appendTo', '#qunit-fixture');
+    }
+
+    var view;
+
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
 
     QUnit.module('ember-htmlbars: Handlebars compatible helpers', {
-      setup: function() {
-        fakeView = {};
-        fakeParams = [];
-        fakeHash = {};
-        fakeOptions = {
-          morph: {
-            update: function() { }
-          }
-        };
-        fakeEnv = {};
-      },
-
       teardown: function() {
+        if (view) {
+          run(view, 'destroy');
+        }
 
+        delete helpers.test;
       }
     });
 
@@ -4783,29 +4787,35 @@ enifed("ember-htmlbars/tests/compat/helper_test",
         equal(param2, 'blazzico');
       }
 
-      var compatHelper = new HandlebarsCompatibleHelper(someHelper);
+      registerHandlebarsCompatibleHelper('test', someHelper);
 
-      fakeParams = [ 'blammo', 'blazzico' ];
-      compatHelper.preprocessArguments(fakeView, fakeParams, fakeHash, fakeOptions, fakeEnv);
+      view = EmberView.create({
+        controller: {
+          value: 'foo'
+        },
+        template: compile('{{test "blammo" "blazzico"}}')
+      });
 
-      compatHelper.helperFunction(fakeParams, fakeHash, fakeOptions, fakeEnv);
+      appendView(view);
     });
 
     test('combines `env` and `options` for the wrapped helper', function() {
-      expect(2);
+      expect(1);
 
       function someHelper(options) {
-        equal(options.first, 'Max');
-        equal(options.second, 'James');
+        equal(options.data.view, view);
       }
 
-      var compatHelper = new HandlebarsCompatibleHelper(someHelper);
+      registerHandlebarsCompatibleHelper('test', someHelper);
 
-      fakeOptions.first = 'Max';
-      fakeEnv.second = 'James';
+      view = EmberView.create({
+        controller: {
+          value: 'foo'
+        },
+        template: compile('{{test}}')
+      });
 
-      compatHelper.preprocessArguments(fakeView, fakeParams, fakeHash, fakeOptions, fakeEnv);
-      compatHelper.helperFunction(fakeParams, fakeHash, fakeOptions, fakeEnv);
+      appendView(view);
     });
 
     test('adds `hash` into options `options` for the wrapped helper', function() {
@@ -4815,13 +4825,59 @@ enifed("ember-htmlbars/tests/compat/helper_test",
         equal(options.hash.bestFriend, 'Jacquie');
       }
 
-      var compatHelper = new HandlebarsCompatibleHelper(someHelper);
+      registerHandlebarsCompatibleHelper('test', someHelper);
 
-      fakeHash.bestFriend = 'Jacquie';
+      view = EmberView.create({
+        controller: {
+          value: 'foo'
+        },
+        template: compile('{{test bestFriend="Jacquie"}}')
+      });
 
-      compatHelper.preprocessArguments(fakeView, fakeParams, fakeHash, fakeOptions, fakeEnv);
-      compatHelper.helperFunction(fakeParams, fakeHash, fakeOptions, fakeEnv);
+      appendView(view);
     });
+
+    test('bound `hash` params are provided with their original paths', function() {
+      expect(1);
+
+      function someHelper(options) {
+        equal(options.hash.bestFriend, 'value');
+      }
+
+      registerHandlebarsCompatibleHelper('test', someHelper);
+
+      view = EmberView.create({
+        controller: {
+          value: 'Jacquie'
+        },
+        template: compile('{{test bestFriend=value}}')
+      });
+
+      appendView(view);
+    });
+
+    test('bound ordered params are provided with their original paths', function() {
+      expect(2);
+
+      function someHelper(param1, param2, options) {
+        equal(param1, 'first');
+        equal(param2, 'second');
+      }
+
+      registerHandlebarsCompatibleHelper('test', someHelper);
+
+      view = EmberView.create({
+        controller: {
+          first: 'blammo',
+          second: 'blazzico'
+        },
+        template: compile('{{test first second}}')
+      });
+
+      appendView(view);
+    });
+
+    }
   });
 enifed("ember-htmlbars/tests/compat/helper_test.jshint",
   [],
@@ -56779,6 +56835,95 @@ enifed("ember-views/tests/views/view/state_deprecation_test.jshint",
     module('JSHint - ember-views/tests/views/view');
     test('ember-views/tests/views/view/state_deprecation_test.js should pass jshint', function() { 
       ok(true, 'ember-views/tests/views/view/state_deprecation_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/tests/views/view/stream_test",
+  ["ember-metal/run_loop","ember-views/views/view"],
+  function(__dependency1__, __dependency2__) {
+    "use strict";
+    var run = __dependency1__["default"];
+    var EmberView = __dependency2__["default"];
+
+    var view;
+
+    QUnit.module("ember-views: streams", {
+      teardown: function() {
+        if (view) {
+          run(view, 'destroy');
+        }
+      }
+    });
+
+    test("can return a stream that is notified of changes", function() {
+      expect(2);
+
+      view = EmberView.create({
+        controller: {
+          name: 'Robert'
+        }
+      });
+
+      var stream = view.getStream('name');
+
+      equal(stream.value(), 'Robert', 'initial value is correct');
+
+      stream.subscribe(function() {
+        equal(stream.value(), 'Max', 'value is updated');
+      });
+
+      run(view, 'set', 'controller.name', 'Max');
+    });
+
+    test("a single stream is used for the same path", function() {
+      expect(2);
+
+      var stream1, stream2;
+
+      view = EmberView.create({
+        controller: {
+          name: 'Robert'
+        }
+      });
+
+      stream1 = view.getStream('name');
+      stream2 = view.getStream('name');
+
+      equal(stream1, stream2, 'streams for the same path should be the same object');
+
+      stream1 = view.getStream('');
+      stream2 = view.getStream('this');
+
+      equal(stream1, stream2, 'streams "" and "this"  should be the same object');
+    });
+
+    test("the stream returned is labeled with the requested path", function() {
+      expect(2);
+      var stream;
+
+      view = EmberView.create({
+        controller: {
+          name: 'Robert'
+        },
+        
+        foo: 'bar'
+      });
+
+      stream = view.getStream('name');
+
+      equal(stream._label, 'name', 'stream is labeled');
+
+      stream = view.getStream('view.foo');
+
+      equal(stream._label, 'view.foo', 'stream is labeled');
+    });
+  });
+enifed("ember-views/tests/views/view/stream_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/stream_test.js should pass jshint', function() { 
+      ok(true, 'ember-views/tests/views/view/stream_test.js should pass jshint.'); 
     });
   });
 enifed("ember-views/tests/views/view/template_test",

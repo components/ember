@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.193a7497
+ * @version   1.10.0-beta.1+canary.4fc2539f
  */
 
 (function() {
@@ -8087,12 +8087,32 @@ enifed("ember-htmlbars/compat/helper",
     */
     function HandlebarsCompatibleHelper(fn) {
       this.helperFunction = function helperFunc(params, hash, options, env) {
+        var param;
         var handlebarsOptions = {};
         merge(handlebarsOptions, options);
         merge(handlebarsOptions, env);
-        handlebarsOptions.hash = options._raw.hash;
 
-        var args = options._raw.params;
+        handlebarsOptions.hash = {};
+        for (var prop in hash) {
+          param = hash[prop];
+
+          if (param.isStream) {
+            handlebarsOptions.hash[prop] = param._label;
+          } else {
+            handlebarsOptions.hash[prop] = param;
+          }
+        }
+
+        var args = new Array(params.length);
+        for (var i = 0, l = params.length; i < l; i++) {
+          param = params[i];
+
+          if (param.isStream) {
+            args[i] = param._label;
+          } else {
+            args[i] = param;
+          }
+        }
         args.push(handlebarsOptions);
 
         return fn.apply(this, args);
@@ -8102,12 +8122,7 @@ enifed("ember-htmlbars/compat/helper",
     }
 
     HandlebarsCompatibleHelper.prototype = {
-      preprocessArguments: function(view, params, hash, options, env) {
-        options._raw = {
-          params: params.slice(),
-          hash: merge({}, hash)
-        };
-      }
+      preprocessArguments: function() { }
     };
 
     function registerHandlebarsCompatibleHelper(name, value) {
@@ -14993,7 +15008,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.193a7497
+      @version 1.10.0-beta.1+canary.4fc2539f
     */
 
     if ('undefined' === typeof Ember) {
@@ -15020,10 +15035,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.193a7497'
+      @default '1.10.0-beta.1+canary.4fc2539f'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.193a7497';
+    Ember.VERSION = '1.10.0-beta.1+canary.4fc2539f';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -20413,6 +20428,8 @@ enifed("ember-metal/streams/stream",
 
     Stream.prototype = {
       isStream: true,
+
+      _label: null,
 
       init: function() {
         this.state = 'dirty';
@@ -47210,20 +47227,40 @@ enifed("ember-views/views/view",
       },
 
       getStream: function(path) {
-        return this._getContextStream().get(path);
+        var stream = this._getContextStream().get(path);
+
+        stream._label = path;
+
+        return stream;
       },
 
-      _getBindingForStream: function(path) {
+      _getBindingForStream: function(pathOrStream) {
         if (this._streamBindings === undefined) {
           this._streamBindings = create(null);
           this.one('willDestroyElement', this, this._destroyStreamBindings);
+        }
+
+        var path = pathOrStream;
+        if (pathOrStream.isStream) {
+          path = pathOrStream._label;
+
+          if (!path) {
+            // if no _label is present on the provided stream
+            // it is likely a subexpr and cannot be set (so it
+            // does not need a StreamBinding)
+            return pathOrStream;
+          }
         }
 
         if (this._streamBindings[path] !== undefined) {
           return this._streamBindings[path];
         } else {
           var stream = this._getContextStream().get(path);
-          return this._streamBindings[path] = new StreamBinding(stream);
+          var streamBinding = new StreamBinding(stream);
+
+          streamBinding._label = path;
+
+          return this._streamBindings[path] = streamBinding;
         }
       },
 
