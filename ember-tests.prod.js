@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.4fc2539f
+ * @version   1.10.0-beta.1+canary.51688d25
  */
 
 (function() {
@@ -14592,7 +14592,6 @@ enifed("ember-htmlbars/tests/system/lookup-helper_test",
       var fakeParams = [];
       var fakeHash = {};
       var fakeOptions = {
-        _raw: { params: []},
         morph: { update: function() { } }
       };
       var fakeEnv = {};
