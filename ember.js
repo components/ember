@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.3
+ * @version   1.9.0-beta.4
  */
 
 (function() {
@@ -5254,9 +5254,11 @@ enifed("ember-handlebars/controls",
       The action property defines the action which is sent when
       the user presses the return key.
 
+
       ```handlebars
       {{input action="submit"}}
       ```
+
 
       The helper allows some user events to send actions.
 
@@ -5271,9 +5273,11 @@ enifed("ember-handlebars/controls",
       For example, if you desire an action to be sent when the input is blurred,
       you only need to setup the action name to the event name property.
 
+
       ```handlebars
       {{input focus-in="alertMessage"}}
       ```
+
 
       See more about [Text Support Actions](/api/classes/Ember.TextField.html)
 
@@ -7727,8 +7731,8 @@ enifed("ember-handlebars/helpers/binding",
     __exports__.bindHelper = bindHelper;
   });
 enifed("ember-handlebars/helpers/collection",
-  ["ember-metal/core","ember-handlebars-compiler","ember-metal/mixin","ember-runtime/system/string","ember-metal/property_get","ember-metal/streams/simple","ember-handlebars/ext","ember-handlebars/helpers/view","ember-metal/alias","ember-views/views/view","ember-views/views/collection_view","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
+  ["ember-metal/core","ember-handlebars-compiler","ember-metal/mixin","ember-runtime/system/string","ember-metal/property_get","ember-metal/streams/simple","ember-handlebars/ext","ember-handlebars/helpers/view","ember-views/views/view","ember-views/views/collection_view","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -7749,9 +7753,8 @@ enifed("ember-handlebars/helpers/collection",
     var SimpleStream = __dependency6__["default"];
     var handlebarsGetView = __dependency7__.handlebarsGetView;
     var ViewHelper = __dependency8__.ViewHelper;
-    var alias = __dependency9__["default"];
-    var View = __dependency10__["default"];
-    var CollectionView = __dependency11__["default"];
+    var View = __dependency9__["default"];
+    var CollectionView = __dependency10__["default"];
 
     /**
       `{{collection}}` is a `Ember.Handlebars` helper for adding instances of
@@ -7984,9 +7987,9 @@ enifed("ember-handlebars/helpers/collection",
       if (emptyViewClass) { hash.emptyView = emptyViewClass; }
 
       if (hash.keyword) {
-        itemHash._context = this;
+        itemHash._contextBinding = '_parentView.context';
       } else {
-        itemHash._context = alias('content');
+        itemHash._contextBinding = 'content';
       }
 
       var viewOptions = ViewHelper.propertiesFromHTMLOptions({ data: data, hash: itemHash }, this);
@@ -8007,7 +8010,8 @@ enifed("ember-handlebars/helpers/collection",
         viewOptions.classNameBindings = itemClassBindings;
       }
 
-      hash.itemViewClass = itemViewClass.extend(viewOptions);
+      hash.itemViewClass = itemViewClass;
+      hash._itemViewProps = viewOptions;
 
       options.helperName = options.helperName || 'collection';
 
@@ -13118,7 +13122,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.3
+      @version 1.9.0-beta.4
     */
 
     if ('undefined' === typeof Ember) {
@@ -13145,10 +13149,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.3'
+      @default '1.9.0-beta.4'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.3';
+    Ember.VERSION = '1.9.0-beta.4';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -13872,7 +13876,7 @@ enifed("ember-metal/events",
       @for Ember
       @param obj
       @param {String} eventName
-      @param {Object|Function} targetOrMethod A target object or a function
+      @param {Object|Function} target A target object or a function
       @param {Function|String} method A function or the name of a function to be called on `target`
       @param {Boolean} once A flag whether a function should only be called once
     */
@@ -13908,7 +13912,7 @@ enifed("ember-metal/events",
       @for Ember
       @param obj
       @param {String} eventName
-      @param {Object|Function} targetOrMethod A target object or a function
+      @param {Object|Function} target A target object or a function
       @param {Function|String} method A function or the name of a function to be called on `target`
     */
     function removeListener(obj, eventName, target, method) {
@@ -13960,7 +13964,7 @@ enifed("ember-metal/events",
       @private
       @param obj
       @param {String} eventName
-      @param {Object|Function} targetOrMethod A target object or a function
+      @param {Object|Function} target A target object or a function
       @param {Function|String} method A function or the name of a function to be called on `target`
       @param {Function} callback
     */
@@ -13991,8 +13995,8 @@ enifed("ember-metal/events",
 
       @private
       @param obj
-      @param {Array} eventName Array of event names
-      @param {Object|Function} targetOrMethod A target object or a function
+      @param {Array} eventNames Array of event names
+      @param {Object|Function} target A target object or a function
       @param {Function|String} method A function or the name of a function to be called on `target`
       @param {Function} callback
     */
@@ -14645,6 +14649,7 @@ enifed("ember-metal/is_empty",
       Ember.isEmpty(undefined);       // true
       Ember.isEmpty('');              // true
       Ember.isEmpty([]);              // true
+      Ember.isEmpty({});              // false
       Ember.isEmpty('Adam Hawkins');  // false
       Ember.isEmpty([0,1,2]);         // false
       ```
@@ -15406,7 +15411,8 @@ enifed("ember-metal/map",
 
       /**
         Iterate over all the keys and values. Calls the function once
-        for each key, passing in the key and value, in that order.
+        for each key, passing in value, key, and the map being iterated over,
+        in that order.
 
         The keys are guaranteed to be iterated over in insertion order.
 
@@ -15429,11 +15435,11 @@ enifed("ember-metal/map",
         if (length === 2) {
           thisArg = arguments[1];
           cb = function(key) {
-            callback.call(thisArg, map.get(key), key);
+            callback.call(thisArg, map.get(key), key, map);
           };
         } else {
           cb = function(key) {
-            callback(map.get(key), key);
+            callback(map.get(key), key, map);
           };
         }
 
@@ -16529,12 +16535,12 @@ enifed("ember-metal/observer",
       @for Ember
       @param obj
       @param {String} path
-      @param {Object|Function} targetOrMethod
+      @param {Object|Function} target
       @param {Function|String} [method]
     */
-    function removeObserver(obj, _path, target, method) {
-      unwatch(obj, _path);
-      removeListener(obj, changeEvent(_path), target, method);
+    function removeObserver(obj, path, target, method) {
+      unwatch(obj, path);
+      removeListener(obj, changeEvent(path), target, method);
 
       return this;
     }
@@ -16544,12 +16550,12 @@ enifed("ember-metal/observer",
       @for Ember
       @param obj
       @param {String} path
-      @param {Object|Function} targetOrMethod
+      @param {Object|Function} target
       @param {Function|String} [method]
     */
-    function addBeforeObserver(obj, _path, target, method) {
-      addListener(obj, beforeEvent(_path), target, method);
-      watch(obj, _path);
+    function addBeforeObserver(obj, path, target, method) {
+      addListener(obj, beforeEvent(path), target, method);
+      watch(obj, path);
 
       return this;
     }
@@ -16585,12 +16591,12 @@ enifed("ember-metal/observer",
       @for Ember
       @param obj
       @param {String} path
-      @param {Object|Function} targetOrMethod
+      @param {Object|Function} target
       @param {Function|String} [method]
     */
-    function removeBeforeObserver(obj, _path, target, method) {
-      unwatch(obj, _path);
-      removeListener(obj, beforeEvent(_path), target, method);
+    function removeBeforeObserver(obj, path, target, method) {
+      unwatch(obj, path);
+      removeListener(obj, beforeEvent(path), target, method);
 
       return this;
     }
@@ -19017,22 +19023,17 @@ enifed("ember-metal/utils",
       this.cache = {};
       this.cacheMeta = {};
       this.source = obj;
+      this.deps = undefined;
+      this.listeners = undefined;
+      this.mixins = undefined;
+      this.bindings = undefined;
+      this.chains = undefined;
+      this.values = undefined;
+      this.proto = undefined;
     }
 
     Meta.prototype = {
-      descs: null,
-      deps: null,
-      watching: null,
-      listeners: null,
-      cache: null,
-      cacheMeta: null,
-      source: null,
-      mixins: null,
-      bindings: null,
-      chains: null,
-      chainWatchers: null,
-      values: null,
-      proto: null
+      chainWatchers: null
     };
 
     if (!canDefineNonEnumerableProperties) {
@@ -21407,6 +21408,12 @@ enifed("ember-routing-handlebars/helpers/outlet",
         property = 'main';
       }
 
+      Ember.deprecate(
+        "Using {{outlet}} with an unquoted name is not supported. " +
+        "Please update to quoted usage '{{outlet \"" + property + "\"}}'.",
+        arguments.length === 1 || options.types[0] === 'STRING'
+      );
+
       var view = options.data.view;
       var container = view.container;
 
@@ -21421,9 +21428,15 @@ enifed("ember-routing-handlebars/helpers/outlet",
 
       if (viewName) {
         viewFullName = 'view:' + viewName;
-        Ember.assert("Using a quoteless view parameter with {{outlet}} is not supported." +
-                     " Please update to quoted usage '{{outlet \"" + viewName + "\"}}.", options.hashTypes.view !== 'ID');
-        Ember.assert("The view name you supplied '" + viewName + "' did not resolve to a view.", container.has(viewFullName));
+        Ember.assert(
+          "Using a quoteless view parameter with {{outlet}} is not supported." +
+          " Please update to quoted usage '{{outlet ... view=\"" + viewName + "\"}}.",
+          options.hashTypes.view !== 'ID'
+        );
+        Ember.assert(
+          "The view name you supplied '" + viewName + "' did not resolve to a view.",
+          container.has(viewFullName)
+        );
       }
 
       viewClass = viewName ? container.lookupFactory(viewFullName) : options.hash.viewClass || OutletView;
@@ -22037,7 +22050,7 @@ enifed("ember-routing/ext/view",
         @method init
        */
       init: function() {
-        set(this, '_outlets', {});
+        this._outlets = {};
         this._super();
       },
 
@@ -29083,8 +29096,9 @@ enifed("ember-runtime/copy",
       any type of object and create a clone of it, including primitive values
       (which are not actually cloned because they are immutable).
 
-      If the passed object implements the `clone()` method, then this function
-      will simply call that method and return the result.
+      If the passed object implements the `copy()` method, then this function
+      will simply call that method and return the result. Please see
+      `Ember.Copyable` for further details.
 
       @method copy
       @for Ember
@@ -32546,7 +32560,7 @@ enifed("ember-runtime/mixins/mutable_array",
       //
 
       /**
-        Remove all occurances of an object in the array.
+        Remove all occurrences of an object in the array.
 
         ```javascript
         var cities = ["Chicago", "Berlin", "Lima", "Chicago"];
@@ -36131,6 +36145,7 @@ enifed("ember-runtime/system/set",
       @uses Ember.Copyable
       @uses Ember.Freezable
       @since Ember 0.9
+      @deprecated
     */
     __exports__["default"] = CoreObject.extend(MutableEnumerable, Copyable, Freezable, {
 
@@ -37756,7 +37771,7 @@ enifed("ember-testing/helpers",
       Ember.Test.registerAsyncHelper('loginUser', function(app, username, password) {
         visit('secured/path/here')
         .fillIn('#username', username)
-        .fillIn('#password', username)
+        .fillIn('#password', password)
         .click('.submit')
 
         return app.testHelpers.wait();
@@ -40418,21 +40433,23 @@ enifed("ember-views/views/collection_view",
       */
       arrayDidChange: function(content, start, removed, added) {
         var addedViews = [];
-        var view, item, idx, len, itemViewClass, emptyView;
+        var view, item, idx, len, itemViewClass, emptyView, itemViewProps;
 
         len = content ? get(content, 'length') : 0;
 
         if (len) {
+          itemViewProps = this._itemViewProps || {};
           itemViewClass = get(this, 'itemViewClass');
+
           itemViewClass = readViewFactory(itemViewClass, this.container);
 
           for (idx = start; idx < start+added; idx++) {
             item = content.objectAt(idx);
 
-            view = this.createChildView(itemViewClass, {
-              content: item,
-              contentIndex: idx
-            });
+            itemViewProps.content = item;
+            itemViewProps.contentIndex = idx;
+
+            view = this.createChildView(itemViewClass, itemViewProps);
 
             addedViews.push(view);
           }
@@ -40446,6 +40463,7 @@ enifed("ember-views/views/collection_view",
           }
 
           emptyView = this.createChildView(emptyView);
+
           addedViews.push(emptyView);
           set(this, 'emptyView', emptyView);
 
@@ -41115,12 +41133,9 @@ enifed("ember-views/views/container_view",
         var dom = buffer.dom;
 
         if (this.tagName === '') {
-          if (this._morph) {
-            this._childViewsMorph = this._morph;
-          } else {
-            element = dom.createDocumentFragment();
-            this._childViewsMorph = dom.appendMorph(element);
-          }
+          element = dom.createDocumentFragment();
+          buffer._element = element;
+          this._childViewsMorph = dom.appendMorph(element, this._morph.contextualElement);
         } else {
           this._childViewsMorph = dom.createMorph(element, element.lastChild, null);
         }
