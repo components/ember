@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.4+pre.2a747379
+ * @version   1.9.0-beta.4+pre.1817df56
  */
 
 (function() {
@@ -25594,7 +25594,7 @@ enifed("ember-routing-handlebars/tests/helpers/outlet_test",
     });
 
     test("outlet should support an optional name", function() {
-      var template = "<h1>HI</h1>{{outlet mainView}}";
+      var template = "<h1>HI</h1>{{outlet 'mainView'}}";
       view = EmberView.create({
         template: EmberHandlebars.compile(template)
       });
@@ -56958,7 +56958,7 @@ enifed("ember/tests/routing/basic_test",
         "<div class='alert-box'>Invader!</div>"
       );
       Ember.TEMPLATES.the_real_home_template = Ember.Handlebars.compile(
-        "<p>THIS IS THE REAL HOME</p>{{outlet alert}}"
+        "<p>THIS IS THE REAL HOME</p>{{outlet 'alert'}}"
       );
 
       App.HomeController = Ember.Controller.extend();
@@ -58702,7 +58702,7 @@ enifed("ember/tests/routing/basic_test",
 
 
     test("Only use route rendered into main outlet for default into property on child", function() {
-      Ember.TEMPLATES.application = compile("{{outlet menu}}{{outlet}}");
+      Ember.TEMPLATES.application = compile("{{outlet 'menu'}}{{outlet}}");
       Ember.TEMPLATES.posts = compile("{{outlet}}");
       Ember.TEMPLATES['posts/index'] = compile("postsIndex");
       Ember.TEMPLATES['posts/menu'] = compile("postsMenu");
@@ -59013,7 +59013,7 @@ enifed("ember/tests/routing/basic_test",
     });
 
     test("Route should tear down multiple outlets", function() {
-      Ember.TEMPLATES.application = compile("{{outlet menu}}{{outlet}}{{outlet footer}}");
+      Ember.TEMPLATES.application = compile("{{outlet 'menu'}}{{outlet}}{{outlet 'footer'}}");
       Ember.TEMPLATES.posts = compile("{{outlet}}");
       Ember.TEMPLATES.users = compile("users");
       Ember.TEMPLATES['posts/index'] = compile("postsIndex");
@@ -59076,7 +59076,7 @@ enifed("ember/tests/routing/basic_test",
 
 
     test("Route supports clearing outlet explicitly", function() {
-      Ember.TEMPLATES.application = compile("{{outlet}}{{outlet modal}}");
+      Ember.TEMPLATES.application = compile("{{outlet}}{{outlet 'modal'}}");
       Ember.TEMPLATES.posts = compile("{{outlet}}");
       Ember.TEMPLATES.users = compile("users");
       Ember.TEMPLATES['posts/index'] = compile("postsIndex {{outlet}}");
@@ -59159,7 +59159,7 @@ enifed("ember/tests/routing/basic_test",
     });
 
     test("Route supports clearing outlet using string parameter", function() {
-      Ember.TEMPLATES.application = compile("{{outlet}}{{outlet modal}}");
+      Ember.TEMPLATES.application = compile("{{outlet}}{{outlet 'modal'}}");
       Ember.TEMPLATES.posts = compile("{{outlet}}");
       Ember.TEMPLATES.users = compile("users");
       Ember.TEMPLATES['posts/index'] = compile("postsIndex {{outlet}}");
@@ -59217,7 +59217,7 @@ enifed("ember/tests/routing/basic_test",
       expect(1); // handleURL
 
       Ember.TEMPLATES.application = compile("{{outlet}}");
-      Ember.TEMPLATES.posts = compile("{{outlet modal}}");
+      Ember.TEMPLATES.posts = compile("{{outlet 'modal'}}");
       Ember.TEMPLATES.modal = compile("A Yo.");
 
       Router.map(function() {
