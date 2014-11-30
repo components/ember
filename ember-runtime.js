@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.4+pre.173479f6
+ * @version   1.9.0-beta.4+pre.228be625
  */
 
 (function() {
@@ -4803,7 +4803,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.4+pre.173479f6
+      @version 1.9.0-beta.4+pre.228be625
     */
 
     if ('undefined' === typeof Ember) {
@@ -4830,10 +4830,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.4+pre.173479f6'
+      @default '1.9.0-beta.4+pre.228be625'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.4+pre.173479f6';
+    Ember.VERSION = '1.9.0-beta.4+pre.228be625';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -5557,7 +5557,7 @@ define("ember-metal/events",
       @for Ember
       @param obj
       @param {String} eventName
-      @param {Object|Function} targetOrMethod A target object or a function
+      @param {Object|Function} target A target object or a function
       @param {Function|String} method A function or the name of a function to be called on `target`
       @param {Boolean} once A flag whether a function should only be called once
     */
@@ -5593,7 +5593,7 @@ define("ember-metal/events",
       @for Ember
       @param obj
       @param {String} eventName
-      @param {Object|Function} targetOrMethod A target object or a function
+      @param {Object|Function} target A target object or a function
       @param {Function|String} method A function or the name of a function to be called on `target`
     */
     function removeListener(obj, eventName, target, method) {
@@ -5645,7 +5645,7 @@ define("ember-metal/events",
       @private
       @param obj
       @param {String} eventName
-      @param {Object|Function} targetOrMethod A target object or a function
+      @param {Object|Function} target A target object or a function
       @param {Function|String} method A function or the name of a function to be called on `target`
       @param {Function} callback
     */
@@ -5676,8 +5676,8 @@ define("ember-metal/events",
 
       @private
       @param obj
-      @param {Array} eventName Array of event names
-      @param {Object|Function} targetOrMethod A target object or a function
+      @param {Array} eventNames Array of event names
+      @param {Object|Function} target A target object or a function
       @param {Function|String} method A function or the name of a function to be called on `target`
       @param {Function} callback
     */
@@ -6330,6 +6330,7 @@ define("ember-metal/is_empty",
       Ember.isEmpty(undefined);       // true
       Ember.isEmpty('');              // true
       Ember.isEmpty([]);              // true
+      Ember.isEmpty({});              // false
       Ember.isEmpty('Adam Hawkins');  // false
       Ember.isEmpty([0,1,2]);         // false
       ```
@@ -7091,7 +7092,8 @@ define("ember-metal/map",
 
       /**
         Iterate over all the keys and values. Calls the function once
-        for each key, passing in the key and value, in that order.
+        for each key, passing in value, key, and the map being iterated over,
+        in that order.
 
         The keys are guaranteed to be iterated over in insertion order.
 
@@ -7114,11 +7116,11 @@ define("ember-metal/map",
         if (length === 2) {
           thisArg = arguments[1];
           cb = function(key) {
-            callback.call(thisArg, map.get(key), key);
+            callback.call(thisArg, map.get(key), key, map);
           };
         } else {
           cb = function(key) {
-            callback(map.get(key), key);
+            callback(map.get(key), key, map);
           };
         }
 
@@ -8214,12 +8216,12 @@ define("ember-metal/observer",
       @for Ember
       @param obj
       @param {String} path
-      @param {Object|Function} targetOrMethod
+      @param {Object|Function} target
       @param {Function|String} [method]
     */
-    function removeObserver(obj, _path, target, method) {
-      unwatch(obj, _path);
-      removeListener(obj, changeEvent(_path), target, method);
+    function removeObserver(obj, path, target, method) {
+      unwatch(obj, path);
+      removeListener(obj, changeEvent(path), target, method);
 
       return this;
     }
@@ -8229,12 +8231,12 @@ define("ember-metal/observer",
       @for Ember
       @param obj
       @param {String} path
-      @param {Object|Function} targetOrMethod
+      @param {Object|Function} target
       @param {Function|String} [method]
     */
-    function addBeforeObserver(obj, _path, target, method) {
-      addListener(obj, beforeEvent(_path), target, method);
-      watch(obj, _path);
+    function addBeforeObserver(obj, path, target, method) {
+      addListener(obj, beforeEvent(path), target, method);
+      watch(obj, path);
 
       return this;
     }
@@ -8270,12 +8272,12 @@ define("ember-metal/observer",
       @for Ember
       @param obj
       @param {String} path
-      @param {Object|Function} targetOrMethod
+      @param {Object|Function} target
       @param {Function|String} [method]
     */
-    function removeBeforeObserver(obj, _path, target, method) {
-      unwatch(obj, _path);
-      removeListener(obj, beforeEvent(_path), target, method);
+    function removeBeforeObserver(obj, path, target, method) {
+      unwatch(obj, path);
+      removeListener(obj, beforeEvent(path), target, method);
 
       return this;
     }
@@ -10702,22 +10704,17 @@ define("ember-metal/utils",
       this.cache = {};
       this.cacheMeta = {};
       this.source = obj;
+      this.deps = undefined;
+      this.listeners = undefined;
+      this.mixins = undefined;
+      this.bindings = undefined;
+      this.chains = undefined;
+      this.values = undefined;
+      this.proto = undefined;
     }
 
     Meta.prototype = {
-      descs: null,
-      deps: null,
-      watching: null,
-      listeners: null,
-      cache: null,
-      cacheMeta: null,
-      source: null,
-      mixins: null,
-      bindings: null,
-      chains: null,
-      chainWatchers: null,
-      values: null,
-      proto: null
+      chainWatchers: null
     };
 
     if (!canDefineNonEnumerableProperties) {
@@ -14202,8 +14199,9 @@ define("ember-runtime/copy",
       any type of object and create a clone of it, including primitive values
       (which are not actually cloned because they are immutable).
 
-      If the passed object implements the `clone()` method, then this function
-      will simply call that method and return the result.
+      If the passed object implements the `copy()` method, then this function
+      will simply call that method and return the result. Please see
+      `Ember.Copyable` for further details.
 
       @method copy
       @for Ember
@@ -17665,7 +17663,7 @@ define("ember-runtime/mixins/mutable_array",
       //
 
       /**
-        Remove all occurances of an object in the array.
+        Remove all occurrences of an object in the array.
 
         ```javascript
         var cities = ["Chicago", "Berlin", "Lima", "Chicago"];
@@ -21250,6 +21248,7 @@ define("ember-runtime/system/set",
       @uses Ember.Copyable
       @uses Ember.Freezable
       @since Ember 0.9
+      @deprecated
     */
     __exports__["default"] = CoreObject.extend(MutableEnumerable, Copyable, Freezable, {
 

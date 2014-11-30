@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.4+pre.173479f6
+ * @version   1.9.0-beta.4+pre.228be625
  */
 
 (function() {
@@ -4009,7 +4009,7 @@ enifed("ember-handlebars/helpers/collection.jshint",
     "use strict";
     module('JSHint - ember-handlebars/helpers');
     test('ember-handlebars/helpers/collection.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/helpers/collection.js should pass jshint.'); 
+      ok(false, 'ember-handlebars/helpers/collection.js should pass jshint.\nember-handlebars/helpers/collection.js: line 19, col 8, \'alias\' is defined but never used.\n\n1 error'); 
     });
   });
 enifed("ember-handlebars/helpers/debug.jshint",
@@ -18270,7 +18270,7 @@ enifed("ember-metal/tests/is_empty_test",
       equal(false, isEmpty(0),         "for 0");
       equal(true,  isEmpty([]),        "for an empty Array");
       equal(false, isEmpty({}),        "for an empty Object");
-      equal(true,  isEmpty(object),     "for an Object that has zero 'length'");
+      equal(true,  isEmpty(object),    "for an Object that has zero 'length'");
     });
 
     test("Ember.isEmpty Ember.Map", function() {
@@ -18885,12 +18885,13 @@ enifed("ember-metal/tests/map_test",
           { value: 3, key: "c", context: unboundThis },
         ];
 
-        map.forEach(function(value, key) {
+        map.forEach(function(value, key, theMap) {
           var expectation = expectations[iteration];
 
           equal(value, expectation.value, 'value should be correct');
           equal(key, expectation.key, 'key should be correct');
           equal(this, expectation.context, 'context should be as if it was unbound');
+          equal(map, theMap, 'map being iterated over should be passed in');
 
           iteration++;
         });
@@ -18912,12 +18913,13 @@ enifed("ember-metal/tests/map_test",
           { value: 3, key: "c", context: context },
         ];
 
-        map.forEach(function(value, key) {
+        map.forEach(function(value, key, theMap) {
           var expectation = expectations[iteration];
 
           equal(value, expectation.value, 'value should be correct');
           equal(key, expectation.key, 'key should be correct');
           equal(this, expectation.context, 'context should be as if it was unbound');
+          equal(map, theMap, 'map being iterated over should be passed in');
 
           iteration++;
 
@@ -18938,7 +18940,7 @@ enifed("ember-metal/tests/map_test",
           { value: 2, key: "b", context: unboundThis }
         ];
 
-        map.forEach(function(value, key) {
+        map.forEach(function(value, key, theMap) {
           if (iteration === 0) {
             map["delete"]("c");
           }
@@ -18948,6 +18950,7 @@ enifed("ember-metal/tests/map_test",
           equal(value, expectation.value, 'value should be correct');
           equal(key, expectation.key, 'key should be correct');
           equal(this, expectation.context, 'context should be as if it was unbound');
+          equal(map, theMap, 'map being iterated over should be passed in');
 
           iteration++;
         });
@@ -18969,7 +18972,7 @@ enifed("ember-metal/tests/map_test",
           { value: 4, key: "d", context: unboundThis },
         ];
 
-        map.forEach(function(value, key) {
+        map.forEach(function(value, key, theMap) {
           if (iteration === 0) {
             map.set('d', 4);
           }
@@ -18979,6 +18982,7 @@ enifed("ember-metal/tests/map_test",
           equal(value, expectation.value, 'value should be correct');
           equal(key, expectation.key, 'key should be correct');
           equal(this, expectation.context, 'context should be as if it was unbound');
+          equal(map, theMap, 'map being iterated over should be passed in');
 
           iteration++;
         });
@@ -25810,6 +25814,33 @@ enifed("ember-routing-handlebars/tests/helpers/outlet_test",
       // Replace whitespace for older IE
       equal(trim(view.$().text()), 'HIBYE');
     });
+
+    test("should not throw deprecations if {{outlet}} is used without a name", function() {
+      expectNoDeprecation();
+      view = EmberView.create({
+        template: compile("{{outlet}}")
+      });
+      appendView(view);
+    });
+
+    test("should not throw deprecations if {{outlet}} is used with a quoted name", function() {
+      expectNoDeprecation();
+      view = EmberView.create({
+        template: compile("{{outlet \"foo\"}}"),
+      });
+      appendView(view);
+    });
+
+    
+      test("should throw a deprecation if {{outlet}} is used with an unquoted name", function() {
+        view = EmberView.create({
+          template: compile("{{outlet foo}}")
+        });
+        expectDeprecation(function() {
+          appendView(view);
+        }, 'Using {{outlet}} with an unquoted name is not supported. Please update to quoted usage \'{{outlet "foo"}}\'.');
+      });
+    
   });
 enifed("ember-routing-handlebars/tests/helpers/outlet_test.jshint",
   [],

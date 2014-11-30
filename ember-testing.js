@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.4+pre.173479f6
+ * @version   1.9.0-beta.4+pre.228be625
  */
 
 (function() {
@@ -746,7 +746,7 @@ enifed("ember-testing/helpers",
       Ember.Test.registerAsyncHelper('loginUser', function(app, username, password) {
         visit('secured/path/here')
         .fillIn('#username', username)
-        .fillIn('#password', username)
+        .fillIn('#password', password)
         .click('.submit')
 
         return app.testHelpers.wait();
