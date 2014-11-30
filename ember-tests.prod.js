@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.4+pre.5751bc58
+ * @version   1.9.0-beta.4+pre.2a747379
  */
 
 (function() {
@@ -4009,7 +4009,7 @@ enifed("ember-handlebars/helpers/collection.jshint",
     "use strict";
     module('JSHint - ember-handlebars/helpers');
     test('ember-handlebars/helpers/collection.js should pass jshint', function() { 
-      ok(false, 'ember-handlebars/helpers/collection.js should pass jshint.\nember-handlebars/helpers/collection.js: line 19, col 8, \'alias\' is defined but never used.\n\n1 error'); 
+      ok(true, 'ember-handlebars/helpers/collection.js should pass jshint.'); 
     });
   });
 enifed("ember-handlebars/helpers/debug.jshint",

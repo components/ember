@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.4+pre.5751bc58
+ * @version   1.9.0-beta.4+pre.2a747379
  */
 
 (function() {
@@ -7431,8 +7431,8 @@ enifed("ember-handlebars/helpers/binding",
     __exports__.bindHelper = bindHelper;
   });
 enifed("ember-handlebars/helpers/collection",
-  ["ember-metal/core","ember-handlebars-compiler","ember-metal/mixin","ember-runtime/system/string","ember-metal/property_get","ember-metal/streams/simple","ember-handlebars/ext","ember-handlebars/helpers/view","ember-metal/alias","ember-views/views/view","ember-views/views/collection_view","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
+  ["ember-metal/core","ember-handlebars-compiler","ember-metal/mixin","ember-runtime/system/string","ember-metal/property_get","ember-metal/streams/simple","ember-handlebars/ext","ember-handlebars/helpers/view","ember-views/views/view","ember-views/views/collection_view","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -7453,9 +7453,8 @@ enifed("ember-handlebars/helpers/collection",
     var SimpleStream = __dependency6__["default"];
     var handlebarsGetView = __dependency7__.handlebarsGetView;
     var ViewHelper = __dependency8__.ViewHelper;
-    var alias = __dependency9__["default"];
-    var View = __dependency10__["default"];
-    var CollectionView = __dependency11__["default"];
+    var View = __dependency9__["default"];
+    var CollectionView = __dependency10__["default"];
 
     /**
       `{{collection}}` is a `Ember.Handlebars` helper for adding instances of
@@ -12760,7 +12759,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.0-beta.4+pre.5751bc58
+      @version 1.9.0-beta.4+pre.2a747379
     */
 
     if ('undefined' === typeof Ember) {
@@ -12787,10 +12786,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.0-beta.4+pre.5751bc58'
+      @default '1.9.0-beta.4+pre.2a747379'
       @static
     */
-    Ember.VERSION = '1.9.0-beta.4+pre.5751bc58';
+    Ember.VERSION = '1.9.0-beta.4+pre.2a747379';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
