@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.984093e3
+ * @version   1.10.0-beta.1+canary.fb7122da
  */
 
 (function() {
@@ -8262,8 +8262,8 @@ enifed("ember-handlebars/templates/select",
     },"useData":true});
   });
 enifed("ember-htmlbars",
-  ["ember-metal/core","ember-htmlbars/hooks/content","ember-htmlbars/hooks/component","ember-htmlbars/hooks/element","ember-htmlbars/hooks/subexpr","ember-htmlbars/hooks/attribute","ember-htmlbars/hooks/set","morph","ember-htmlbars/system/template","ember-htmlbars/system/compile","ember-htmlbars/system/make-view-helper","ember-htmlbars/system/make_bound_helper","ember-htmlbars/helpers","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/bind-attr","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/partial","ember-htmlbars/helpers/template","ember-htmlbars/helpers/input","ember-htmlbars/helpers/text_area","ember-htmlbars/helpers/collection","ember-htmlbars/helpers/each","ember-htmlbars/helpers/unbound","ember-htmlbars/system/bootstrap","ember-htmlbars/compat","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __dependency31__, __exports__) {
+  ["ember-metal/core","ember-htmlbars/hooks/content","ember-htmlbars/hooks/component","ember-htmlbars/hooks/element","ember-htmlbars/hooks/subexpr","ember-htmlbars/hooks/attribute","ember-htmlbars/hooks/get","ember-htmlbars/hooks/set","morph","ember-htmlbars/system/template","ember-htmlbars/system/compile","ember-htmlbars/system/make-view-helper","ember-htmlbars/system/make_bound_helper","ember-htmlbars/helpers","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/bind-attr","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/partial","ember-htmlbars/helpers/template","ember-htmlbars/helpers/input","ember-htmlbars/helpers/text_area","ember-htmlbars/helpers/collection","ember-htmlbars/helpers/each","ember-htmlbars/helpers/unbound","ember-htmlbars/system/bootstrap","ember-htmlbars/compat","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __dependency31__, __dependency32__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var content = __dependency2__["default"];
@@ -8271,36 +8271,37 @@ enifed("ember-htmlbars",
     var element = __dependency4__["default"];
     var subexpr = __dependency5__["default"];
     var attribute = __dependency6__["default"];
-    var set = __dependency7__["default"];
-    var DOMHelper = __dependency8__.DOMHelper;
-    var template = __dependency9__["default"];
-    var compile = __dependency10__["default"];
-    var makeViewHelper = __dependency11__["default"];
-    var makeBoundHelper = __dependency12__["default"];
+    var get = __dependency7__["default"];
+    var set = __dependency8__["default"];
+    var DOMHelper = __dependency9__.DOMHelper;
+    var template = __dependency10__["default"];
+    var compile = __dependency11__["default"];
+    var makeViewHelper = __dependency12__["default"];
+    var makeBoundHelper = __dependency13__["default"];
 
-    var registerHelper = __dependency13__.registerHelper;
-    var helper = __dependency13__.helper;
-    var helpers = __dependency13__["default"];
-    var bindHelper = __dependency14__.bindHelper;
-    var viewHelper = __dependency15__.viewHelper;
-    var yieldHelper = __dependency16__.yieldHelper;
-    var withHelper = __dependency17__.withHelper;
-    var logHelper = __dependency18__.logHelper;
-    var debuggerHelper = __dependency19__.debuggerHelper;
-    var bindAttrHelper = __dependency20__.bindAttrHelper;
-    var bindAttrHelperDeprecated = __dependency20__.bindAttrHelperDeprecated;
-    var ifHelper = __dependency21__.ifHelper;
-    var unlessHelper = __dependency21__.unlessHelper;
-    var unboundIfHelper = __dependency21__.unboundIfHelper;
-    var boundIfHelper = __dependency21__.boundIfHelper;
-    var locHelper = __dependency22__.locHelper;
-    var partialHelper = __dependency23__.partialHelper;
-    var templateHelper = __dependency24__.templateHelper;
-    var inputHelper = __dependency25__.inputHelper;
-    var textareaHelper = __dependency26__.textareaHelper;
-    var collectionHelper = __dependency27__.collectionHelper;
-    var eachHelper = __dependency28__.eachHelper;
-    var unboundHelper = __dependency29__.unboundHelper;
+    var registerHelper = __dependency14__.registerHelper;
+    var helper = __dependency14__.helper;
+    var helpers = __dependency14__["default"];
+    var bindHelper = __dependency15__.bindHelper;
+    var viewHelper = __dependency16__.viewHelper;
+    var yieldHelper = __dependency17__.yieldHelper;
+    var withHelper = __dependency18__.withHelper;
+    var logHelper = __dependency19__.logHelper;
+    var debuggerHelper = __dependency20__.debuggerHelper;
+    var bindAttrHelper = __dependency21__.bindAttrHelper;
+    var bindAttrHelperDeprecated = __dependency21__.bindAttrHelperDeprecated;
+    var ifHelper = __dependency22__.ifHelper;
+    var unlessHelper = __dependency22__.unlessHelper;
+    var unboundIfHelper = __dependency22__.unboundIfHelper;
+    var boundIfHelper = __dependency22__.boundIfHelper;
+    var locHelper = __dependency23__.locHelper;
+    var partialHelper = __dependency24__.partialHelper;
+    var templateHelper = __dependency25__.templateHelper;
+    var inputHelper = __dependency26__.inputHelper;
+    var textareaHelper = __dependency27__.textareaHelper;
+    var collectionHelper = __dependency28__.collectionHelper;
+    var eachHelper = __dependency29__.eachHelper;
+    var unboundHelper = __dependency30__.unboundHelper;
 
     // importing adds template bootstrapping
     // initializer to enable embedded templates
@@ -8347,6 +8348,7 @@ enifed("ember-htmlbars",
       dom: new DOMHelper(),
 
       hooks: {
+        get: get,
         set: set,
         content: content,
         element: element,
@@ -9395,7 +9397,7 @@ enifed("ember-htmlbars/helpers/binding",
 
       var property = params[0];
 
-      if (options.paramTypes[0] === 'string') {
+      if (typeof property === 'string') {
         property = this.getStream(property);
       }
 
@@ -9586,7 +9588,6 @@ enifed("ember-htmlbars/helpers/collection",
         collectionClass = CollectionView;
       }
 
-      var hashTypes = options.hashTypes;
       var itemHash = {};
       var match;
 
@@ -9610,8 +9611,6 @@ enifed("ember-htmlbars/helpers/collection",
 
       delete hash.itemViewClass;
       delete hash.itemView;
-      delete hashTypes.itemViewClass;
-      delete hashTypes.itemView;
 
       // Go through options passed to the {{collection}} helper and extract options
       // that configure item views instead of the collection itself.
@@ -10284,7 +10283,6 @@ enifed("ember-htmlbars/helpers/input",
     function inputHelper(params, hash, options, env) {
       Ember.assert('You can only pass attributes to the `input` helper, not arguments', params.length === 0);
 
-      var types = options.hashTypes;
       var onEvent = hash.on;
       var inputType;
 
@@ -10292,10 +10290,9 @@ enifed("ember-htmlbars/helpers/input",
 
       if (inputType === 'checkbox') {
         delete hash.type;
-        delete types.type;
 
         Ember.assert("{{input type='checkbox'}} does not support setting `value=someBooleanValue`;" +
-                     " you must use `checked=someBooleanValue` instead.", options.hashTypes.value !== 'id');
+                     " you must use `checked=someBooleanValue` instead.", !hash.hasOwnProperty('value'));
 
         env.helpers.view.helperFunction.call(this, [Checkbox], hash, options, env);
       } else {
@@ -10309,11 +10306,12 @@ enifed("ember-htmlbars/helpers/input",
     __exports__.inputHelper = inputHelper;
   });
 enifed("ember-htmlbars/helpers/loc",
-  ["ember-metal/core","ember-runtime/system/string","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["ember-metal/core","ember-runtime/system/string","ember-metal/streams/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var loc = __dependency2__.loc;
+    var isStream = __dependency3__.isStream;
 
     /**
     @module ember
@@ -10353,14 +10351,14 @@ enifed("ember-htmlbars/helpers/loc",
       @see {Ember.String#loc}
     */
     function locHelper(params, hash, options, env) {
-      Ember.assert('You cannot pass bindings to `loc` helper', function ifParamsContainBindings() {
+      Ember.assert('You cannot pass bindings to `loc` helper', (function ifParamsContainBindings() {
         for (var i = 0, l = params.length; i < l; i++) {
-          if (options.paramTypes[i] === 'id') {
+          if (isStream(params[i])) {
             return false;
           }
         }
         return true;
-      });
+      })());
 
       return loc.apply(this, params);
     }
@@ -10368,14 +10366,15 @@ enifed("ember-htmlbars/helpers/loc",
     __exports__.locHelper = locHelper;
   });
 enifed("ember-htmlbars/helpers/log",
-  ["ember-metal/logger","exports"],
-  function(__dependency1__, __exports__) {
+  ["ember-metal/logger","ember-metal/streams/utils","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     /**
     @module ember
     @submodule ember-htmlbars
     */
     var Logger = __dependency1__["default"];
+    var read = __dependency2__.read;
 
     /**
       `log` allows you to output the value of variables in the current rendering
@@ -10394,12 +10393,7 @@ enifed("ember-htmlbars/helpers/log",
       var values = [];
 
       for (var i = 0; i < params.length; i++) {
-        if (options.paramTypes[i] === 'id') {
-          var stream = params[i];
-          values.push(stream.value());
-        } else {
-          values.push(params[i]);
-        }
+        values.push(read(params[i]));
       }
 
       logger.apply(logger, values);
@@ -10828,40 +10822,41 @@ enifed("ember-htmlbars/helpers/view",
     var keys = __dependency4__["default"];
     var IS_BINDING = __dependency5__.IS_BINDING;
     var read = __dependency6__.read;
+    var isStream = __dependency6__.isStream;
     var readViewFactory = __dependency7__.readViewFactory;
     var View = __dependency8__["default"];
     var SimpleStream = __dependency9__["default"];
 
     function makeBindings(hash, options, view) {
-      var hashTypes = options.hashTypes;
-
       for (var prop in hash) {
-        var hashType = hashTypes[prop];
-        var valueOrStream = hash[prop];
+        var value = hash[prop];
 
-        // classBinding is processed separately
+        // Classes are processed separately
+        if (prop === 'class' && isStream(value)) {
+          hash.classBinding = value._label;
+          delete hash['class'];
+          continue;
+        }
+
         if (prop === 'classBinding') {
           continue;
         }
 
         if (IS_BINDING.test(prop)) {
-          if (hashType === 'id') {
-            // valueOrStream is a stream, streamifyArgs took care of it
+          if (isStream(value)) {
             Ember.warn("You're attempting to render a view by passing " +
                        prop + " " +
                        "to a view helper without a quoted value, " +
                        "but this syntax is ambiguous. You should either surround " +
                        prop + "'s value in quotes or remove `Binding` " +
                        "from " + prop + ".");
-          } else if (typeof valueOrStream === 'string') {
-            hash[prop] = view._getBindingForStream(valueOrStream);
+          } else if (typeof value === 'string') {
+            hash[prop] = view._getBindingForStream(value);
           }
         } else {
-          if (hashType === 'id' && prop !== 'id') {
-            hash[prop + 'Binding'] = valueOrStream;
-
+          if (isStream(value) && prop !== 'id') {
+            hash[prop + 'Binding'] = value;
             delete hash[prop];
-            delete hashTypes[prop];
           }
         }
       }
@@ -11461,8 +11456,8 @@ enifed("ember-htmlbars/hooks/attribute",
     }
   });
 enifed("ember-htmlbars/hooks/component",
-  ["ember-metal/core","ember-htmlbars/system/streamify-arguments","ember-htmlbars/system/lookup-helper","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["ember-metal/core","ember-htmlbars/system/lookup-helper","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -11470,8 +11465,7 @@ enifed("ember-htmlbars/hooks/component",
     */
 
     var Ember = __dependency1__["default"];
-    var streamifyArgs = __dependency2__["default"];
-    var lookupHelper = __dependency3__["default"];
+    var lookupHelper = __dependency2__["default"];
 
     __exports__["default"] = function component(morph, tagName, view, hash, options, env) {
       var params = [];
@@ -11479,7 +11473,6 @@ enifed("ember-htmlbars/hooks/component",
 
       Ember.assert('You specified `' + tagName + '` in your template, but a component for `' + tagName + '` could not be found.', !!helper);
 
-      streamifyArgs(view, params, hash, options, env, helper);
       return helper.helperFunction.call(view, params, hash, options, env);
     }
   });
@@ -11506,26 +11499,37 @@ enifed("ember-htmlbars/hooks/content",
     }
   });
 enifed("ember-htmlbars/hooks/element",
-  ["ember-htmlbars/system/streamify-arguments","ember-htmlbars/system/lookup-helper","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["ember-htmlbars/system/lookup-helper","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
     /**
     @module ember
     @submodule ember-htmlbars
     */
 
-    var streamifyArgs = __dependency1__["default"];
-    var lookupHelper = __dependency2__["default"];
+    var lookupHelper = __dependency1__["default"];
 
     __exports__["default"] = function element(domElement, path, view, params, hash, options, env) { //jshint ignore:line
       var helper = lookupHelper(path, view, env);
 
       if (helper) {
-        streamifyArgs(view, params, hash, options, env, helper);
         return helper.helperFunction.call(view, params, hash, options, env);
       } else {
         return view.getStream(path);
       }
+    }
+  });
+enifed("ember-htmlbars/hooks/get",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
+    __exports__["default"] = function get(view, path) {
+      return view.getStream(path);
     }
   });
 enifed("ember-htmlbars/hooks/set",
@@ -11552,22 +11556,20 @@ enifed("ember-htmlbars/hooks/set",
     }
   });
 enifed("ember-htmlbars/hooks/subexpr",
-  ["ember-htmlbars/system/streamify-arguments","ember-htmlbars/system/lookup-helper","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["ember-htmlbars/system/lookup-helper","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
     /**
     @module ember
     @submodule ember-htmlbars
     */
 
-    var streamifyArgs = __dependency1__["default"];
-    var lookupHelper = __dependency2__["default"];
+    var lookupHelper = __dependency1__["default"];
 
     __exports__["default"] = function subexpr(path, view, params, hash, options, env) {
       var helper = lookupHelper(path, view, env);
 
       if (helper) {
-        streamifyArgs(view, params, hash, options, env, helper);
         return helper.helperFunction.call(view, params, hash, options, env);
       } else {
         return view.getStream(path);
@@ -12108,67 +12110,6 @@ enifed("ember-htmlbars/system/make_bound_helper",
       return new Helper(helperFunc);
     }
   });
-enifed("ember-htmlbars/system/sanitize-for-helper",
-  ["exports"],
-  function(__exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-htmlbars
-    */
-
-    /**
-      Sanitize options so that all helpers have `types`, `hash`, and `hashTypes`.
-
-      @private
-      @method sanitizeOptionsForHelper
-      @param {Object} options The options hash provided by the template engine.
-    */
-    function sanitizeOptionsForHelper(options) {
-      if (!options.paramTypes) {
-        options.paramTypes = [];
-      }
-
-      if (!options.hashTypes) {
-        options.hashTypes = {};
-      }
-
-      return options;
-    }
-
-    __exports__.sanitizeOptionsForHelper = sanitizeOptionsForHelper;
-  });
-enifed("ember-htmlbars/system/streamify-arguments",
-  ["ember-htmlbars/system/sanitize-for-helper","exports"],
-  function(__dependency1__, __exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-htmlbars
-    */
-
-    var sanitizeOptionsForHelper = __dependency1__.sanitizeOptionsForHelper;
-
-    __exports__["default"] = function streamifyArgs(view, params, hash, options, env, helper) {
-      sanitizeOptionsForHelper(options);
-      helper.preprocessArguments(view, params, hash, options, env);
-
-      // Convert ID params to streams
-      for (var i = 0, l = params.length; i < l; i++) {
-        if (options.paramTypes[i] === 'id') {
-          params[i] = view.getStream(params[i]);
-        }
-      }
-
-      // Convert hash ID values to streams
-      var hashTypes = options.hashTypes;
-      for (var key in hash) {
-        if (hashTypes[key] === 'id' && key !== 'classBinding' && key !== 'class') {
-          hash[key] = view.getStream(hash[key]);
-        }
-      }
-    }
-  });
 enifed("ember-htmlbars/system/template",
   ["exports"],
   function(__exports__) {
@@ -12208,14 +12149,15 @@ enifed("ember-htmlbars/templates/select",
         }
         var cachedFragment;
         return function template(context, env, contextualElement) {
-          var dom = env.dom, hooks = env.hooks;
+          var dom = env.dom;
+          var hooks = env.hooks, content = hooks.content;
           dom.detectNamespace(contextualElement);
           if (cachedFragment === undefined) {
             cachedFragment = build(dom);
           }
           var fragment = dom.cloneNode(cachedFragment, true);
           var morph0 = dom.createMorphAt(fragment,-1,-1);
-          hooks.content(morph0, "view.prompt", context, [], {}, {morph:morph0}, env);
+          content(morph0, "view.prompt", context, [], {}, {morph:morph0}, env);
           return fragment;
         };
       }())
@@ -12231,7 +12173,8 @@ enifed("ember-htmlbars/templates/select",
           }
           var cachedFragment;
           return function template(context, env, contextualElement) {
-            var dom = env.dom, hooks = env.hooks;
+            var dom = env.dom;
+            var hooks = env.hooks, get = hooks.get, content = hooks.content;
             dom.detectNamespace(contextualElement);
             if (cachedFragment === undefined) {
               cachedFragment = build(dom);
@@ -12239,7 +12182,7 @@ enifed("ember-htmlbars/templates/select",
             var fragment = dom.cloneNode(cachedFragment, true);
             dom.repairClonedNode(fragment,[0,1]);
             var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
-            hooks.content(morph0, "view", context, ["view.groupView"], {"content":"group.content","label":"group.label"}, {paramTypes:["id"],hashTypes:{"content":"id","label":"id"},morph:morph0}, env);
+            content(morph0, "view", context, [get(context, "view.groupView", env)], {"content":get(context, "group.content", env),"label":get(context, "group.label", env)}, {morph:morph0}, env);
             return fragment;
           };
         }())
@@ -12253,7 +12196,8 @@ enifed("ember-htmlbars/templates/select",
         }
         var cachedFragment;
         return function template(context, env, contextualElement) {
-          var dom = env.dom, hooks = env.hooks;
+          var dom = env.dom;
+          var hooks = env.hooks, get = hooks.get, content = hooks.content;
           dom.detectNamespace(contextualElement);
           if (cachedFragment === undefined) {
             cachedFragment = build(dom);
@@ -12261,7 +12205,7 @@ enifed("ember-htmlbars/templates/select",
           var fragment = dom.cloneNode(cachedFragment, true);
           dom.repairClonedNode(fragment,[0,1]);
           var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
-          hooks.content(morph0, "each", context, ["view.groupedContent"], {"keyword":"group"}, {paramTypes:["id"],hashTypes:{"keyword":"string"},render:child0,morph:morph0}, env);
+          content(morph0, "each", context, [get(context, "view.groupedContent", env)], {"keyword":"group"}, {render:child0,morph:morph0}, env);
           return fragment;
         };
       }())
@@ -12277,7 +12221,8 @@ enifed("ember-htmlbars/templates/select",
           }
           var cachedFragment;
           return function template(context, env, contextualElement) {
-            var dom = env.dom, hooks = env.hooks;
+            var dom = env.dom;
+            var hooks = env.hooks, get = hooks.get, content = hooks.content;
             dom.detectNamespace(contextualElement);
             if (cachedFragment === undefined) {
               cachedFragment = build(dom);
@@ -12285,7 +12230,7 @@ enifed("ember-htmlbars/templates/select",
             var fragment = dom.cloneNode(cachedFragment, true);
             dom.repairClonedNode(fragment,[0,1]);
             var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
-            hooks.content(morph0, "view", context, ["view.optionView"], {"content":"item"}, {paramTypes:["id"],hashTypes:{"content":"id"},morph:morph0}, env);
+            content(morph0, "view", context, [get(context, "view.optionView", env)], {"content":get(context, "item", env)}, {morph:morph0}, env);
             return fragment;
           };
         }())
@@ -12299,7 +12244,8 @@ enifed("ember-htmlbars/templates/select",
         }
         var cachedFragment;
         return function template(context, env, contextualElement) {
-          var dom = env.dom, hooks = env.hooks;
+          var dom = env.dom;
+          var hooks = env.hooks, get = hooks.get, content = hooks.content;
           dom.detectNamespace(contextualElement);
           if (cachedFragment === undefined) {
             cachedFragment = build(dom);
@@ -12307,7 +12253,7 @@ enifed("ember-htmlbars/templates/select",
           var fragment = dom.cloneNode(cachedFragment, true);
           dom.repairClonedNode(fragment,[0,1]);
           var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
-          hooks.content(morph0, "each", context, ["view.content"], {"keyword":"item"}, {paramTypes:["id"],hashTypes:{"keyword":"string"},render:child0,morph:morph0}, env);
+          content(morph0, "each", context, [get(context, "view.content", env)], {"keyword":"item"}, {render:child0,morph:morph0}, env);
           return fragment;
         };
       }())
@@ -12323,7 +12269,8 @@ enifed("ember-htmlbars/templates/select",
       }
       var cachedFragment;
       return function template(context, env, contextualElement) {
-        var dom = env.dom, hooks = env.hooks;
+        var dom = env.dom;
+        var hooks = env.hooks, get = hooks.get, content = hooks.content;
         dom.detectNamespace(contextualElement);
         if (cachedFragment === undefined) {
           cachedFragment = build(dom);
@@ -12332,8 +12279,8 @@ enifed("ember-htmlbars/templates/select",
         dom.repairClonedNode(fragment,[0,1]);
         var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
         var morph1 = dom.createMorphAt(fragment,1,2,contextualElement);
-        hooks.content(morph0, "if", context, ["view.prompt"], {}, {paramTypes:["id"],hashTypes:{},render:child0,morph:morph0}, env);
-        hooks.content(morph1, "if", context, ["view.optionGroupPath"], {}, {paramTypes:["id"],hashTypes:{},render:child1,inverse:child2,morph:morph1}, env);
+        content(morph0, "if", context, [get(context, "view.prompt", env)], {}, {render:child0,morph:morph0}, env);
+        content(morph1, "if", context, [get(context, "view.optionGroupPath", env)], {}, {render:child1,inverse:child2,morph:morph1}, env);
         return fragment;
       };
     }());
@@ -15532,7 +15479,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.984093e3
+      @version 1.10.0-beta.1+canary.fb7122da
     */
 
     if ('undefined' === typeof Ember) {
@@ -15559,10 +15506,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.984093e3'
+      @default '1.10.0-beta.1+canary.fb7122da'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.984093e3';
+    Ember.VERSION = '1.10.0-beta.1+canary.fb7122da';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -23897,6 +23844,7 @@ enifed("ember-routing-htmlbars/helpers/link-to",
     // assert
     var LinkView = __dependency2__.LinkView;
     var read = __dependency3__.read;
+    var isStream = __dependency3__.isStream;
     var ControllerMixin = __dependency4__["default"];
 
     // We need the HTMLBars view helper from ensure ember-htmlbars.
@@ -24165,8 +24113,6 @@ enifed("ember-routing-htmlbars/helpers/link-to",
       @see {Ember.LinkView}
     */
     function linkToHelper(params, hash, options, env) {
-      var hashTypes = options.hashTypes;
-      var paramTypes = options.paramTypes;
       var shouldEscape = !hash.unescaped;
       var queryParamsObject;
 
@@ -24180,23 +24126,14 @@ enifed("ember-routing-htmlbars/helpers/link-to",
 
       if (hash.disabledWhen) {
         hash.disabled = hash.disabledWhen;
-        hashTypes.disabled = hashTypes.disabledWhen;
-
         delete hash.disabledWhen;
-        delete hashTypes.disabledWhen;
       }
 
       if (!options.render) {
         var linkTitle = params.shift();
-        var linkTitleType = paramTypes.shift();
 
-        if (linkTitleType === 'id') {
-          hash.linkTitle = linkTitle = linkTitle;
-          // making the type `id` (which is what it is) results
-          // in the stream being unwrapped by the binding system
-          // so lets leave it something else, so our LinkView
-          // gets the actual stream
-          options.hashTypes.linkTitle = 'raw';
+        if (isStream(linkTitle)) {
+          hash.linkTitle = { stream: linkTitle };
         }
 
         options.render = function() {
@@ -24212,7 +24149,7 @@ enifed("ember-routing-htmlbars/helpers/link-to",
       }
 
       for (var i = 0; i < params.length; i++) {
-        if (paramTypes[i] === 'id') {
+        if (isStream(params[i])) {
           var lazyValue = params[i];
 
           if (!lazyValue._isController) {
@@ -24336,7 +24273,7 @@ enifed("ember-routing-htmlbars/helpers/outlet",
 
       Ember.assert(
         "Using {{outlet}} with an unquoted name is not supported.",
-        params.length === 0 || options.paramTypes[0] === 'string'
+        params.length === 0 || typeof params[0] === 'string'
       );
 
       var property = params[0] || 'main';
@@ -24355,7 +24292,7 @@ enifed("ember-routing-htmlbars/helpers/outlet",
         Ember.assert(
           "Using a quoteless view parameter with {{outlet}} is not supported." +
           " Please update to quoted usage '{{outlet ... view=\"" + viewName + "\"}}.",
-          options.hashTypes.view === 'string'
+          typeof hash.view === 'string'
         );
         Ember.assert(
           "The view name you supplied '" + viewName + "' did not resolve to a view.",
@@ -24364,10 +24301,8 @@ enifed("ember-routing-htmlbars/helpers/outlet",
       }
 
       viewClass = viewName ? this.container.lookupFactory(viewFullName) : hash.viewClass || OutletView;
-      options.paramTypes = ['id'];
 
       hash.currentViewBinding = '_view.outletSource._outlets.' + property;
-      options.hashTypes.currentViewBinding = 'string';
 
       options.helperName = options.helperName || 'outlet';
 
@@ -24413,8 +24348,8 @@ enifed("ember-routing-htmlbars/helpers/query-params",
     __exports__.queryParamsHelper = queryParamsHelper;
   });
 enifed("ember-routing-htmlbars/helpers/render",
-  ["ember-metal/core","ember-metal/error","ember-runtime/system/string","ember-routing/system/generate_controller","ember-htmlbars/helpers/view","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
+  ["ember-metal/core","ember-metal/error","ember-runtime/system/string","ember-routing/system/generate_controller","ember-htmlbars/helpers/view","ember-metal/streams/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -24428,6 +24363,7 @@ enifed("ember-routing-htmlbars/helpers/render",
     var generateControllerFactory = __dependency4__.generateControllerFactory;
     var generateController = __dependency4__["default"];
     var ViewHelper = __dependency5__.ViewHelper;
+    var isStream = __dependency6__.isStream;
 
     /**
       Calling ``{{render}}`` from within a template will insert another
@@ -24510,12 +24446,12 @@ enifed("ember-routing-htmlbars/helpers/render",
 
       Ember.assert(
         "The first argument of {{render}} must be quoted, e.g. {{render \"sidebar\"}}.",
-        options.paramTypes[0] === 'string'
+        typeof name === 'string'
       );
 
       Ember.assert(
         "The second argument of {{render}} must be a path, e.g. {{render \"post\" post}}.",
-        params.length < 2 || options.paramTypes[1] === 'id'
+        params.length < 2 || isStream(params[1])
       );
 
 
@@ -24634,6 +24570,7 @@ enifed("ember-routing-views/views/link",
     var EmberComponent = __dependency9__["default"];
     var routeArgs = __dependency10__.routeArgs;
     var read = __dependency11__.read;
+    var subscribe = __dependency11__.subscribe;
 
     var numberOfContextsAcceptedByHandler = function(handler, handlerInfos) {
       var req = 0;
@@ -24838,14 +24775,12 @@ enifed("ember-routing-views/views/link",
         var scheduledParamsChanged = this._wrapAsScheduled(this._paramsChanged);
 
         if (this.linkTitle) {
-          this.linkTitle.subscribe(scheduledRerender, this);
+          var linkTitle = this.linkTitle.stream || this.linkTitle;
+          subscribe(linkTitle, scheduledRerender, this);
         }
 
         for (var i = 0; i < params.length; i++) {
-          var param = params[i];
-          if (param && param.isStream) {
-            param.subscribe(scheduledParamsChanged, this);
-          }
+          subscribe(params[i], scheduledParamsChanged, this);
         }
 
         var queryParamsObject = this.queryParamsObject;
@@ -24856,10 +24791,7 @@ enifed("ember-routing-views/views/link",
               continue;
             }
 
-            var value = values[k];
-            if (value && value.isStream) {
-              value.subscribe(scheduledParamsChanged, this);
-            }
+            subscribe(values[k], scheduledParamsChanged, this);
           }
         }
       },
@@ -53055,8 +52987,9 @@ enifed("htmlbars-compiler/compiler/fragment_opcode",
     FragmentOpcodeCompiler.prototype.block = function () {};
 
     FragmentOpcodeCompiler.prototype.attribute = function(attr) {
-      if (attr.value.type === 'text') {
-        this.opcode('setAttribute', [attr.name, attr.value.chars]);
+      var parts = attr.value;
+      if (parts.length === 1 && parts[0].type === 'text') {
+        this.opcode('setAttribute', [attr.name, parts[0].chars]);
       }
     };
 
@@ -53080,7 +53013,6 @@ enifed("htmlbars-compiler/compiler/helpers",
           hashTypes = [],
           keyName,
           name,
-          type,
           i;
 
       var hashSize = stack.pop();
@@ -53097,14 +53029,11 @@ enifed("htmlbars-compiler/compiler/helpers",
       }
 
       name = stack.pop();
-      type = stack.pop();
 
       var programId = stack.pop();
       var inverseId = stack.pop();
 
       var options = [];
-      options.push('paramTypes:' + array(paramTypes));
-      options.push('hashTypes:' + hash(hashTypes));
 
       if (programId !== null) {
         options.push('render:child' + programId);
@@ -53142,6 +53071,7 @@ enifed("htmlbars-compiler/compiler/hydration",
       this.parentCount = 0;
       this.morphs = [];
       this.fragmentProcessing = [];
+      this.hooks = undefined;
     }
 
     var prototype = HydrationCompiler.prototype;
@@ -53156,6 +53086,7 @@ enifed("htmlbars-compiler/compiler/hydration",
       this.fragmentProcessing.length = 0;
       this.parentCount = 0;
       this.indent = (options && options.indent) || "";
+      this.hooks = {};
 
       processOpcodes(this, opcodes);
 
@@ -53185,13 +53116,16 @@ enifed("htmlbars-compiler/compiler/hydration",
       this.stack.push(programId);
     };
 
+    prototype.blockParam = function(name, index) {
+      this.hooks.set = true;
+      this.source.push(this.indent + '  set(context, ' + string(name) +', blockArguments[' + index + ']);\n');
+    };
+
     prototype.id = function(parts) {
+      this.hooks.get = true;
+      var path = parts.join('.');
       this.stack.push(string('id'));
-      if (parts) {
-        this.stack.push(string(parts.join('.')));
-      } else {
-        this.stack.push(null);
-      }
+      this.stack.push('get(context, ' + string(path) + ', env)');
     };
 
     prototype.literal = function(literal) {
@@ -53233,12 +53167,14 @@ enifed("htmlbars-compiler/compiler/hydration",
 
     prototype.attribute = function(quoted, name, size, elementNum) {
       var prepared = prepareHelper(this.stack, size);
-      this.source.push(this.indent + '  hooks.attribute(element' + elementNum + ', ' + string(name) + ', ' + quoted + ', context, ' + prepared.params + ', ' + hash(prepared.options) + ', env);\n');
+      this.hooks.attribute = true;
+      this.source.push(this.indent + '  attribute(element' + elementNum + ', ' + string(name) + ', ' + quoted + ', context, ' + prepared.params + ', ' + hash(prepared.options) + ', env);\n');
     };
 
     prototype.sexpr = function(size) {
+      this.hooks.subexpr = true;
       var prepared = prepareHelper(this.stack, size);
-      this.stack.push('hooks.subexpr(' + prepared.name + ', context, ' + prepared.params + ', ' + prepared.hash + ',' + hash(prepared.options) + ', env)');
+      this.stack.push('subexpr(' + prepared.name + ', context, ' + prepared.params + ', ' + prepared.hash + ', ' + hash(prepared.options) + ', env)');
     };
 
     prototype.string = function(str) {
@@ -53272,7 +53208,8 @@ enifed("htmlbars-compiler/compiler/hydration",
     };
 
     prototype.pushComponent = function(name, hashArgs, pairs, morphNum) {
-      this.source.push(this.indent+'  hooks.component(morph' + morphNum + ', ' + name + ', context, ' + hashArgs + ', ' + hash(pairs) + ', env);\n');
+      this.hooks.component = true;
+      this.source.push(this.indent+'  component(morph' + morphNum + ', ' + name + ', context, ' + hashArgs + ', ' + hash(pairs) + ', env);\n');
     };
 
     prototype.repairClonedNode = function(blankChildTextNodes, isElementChecked) {
@@ -53287,11 +53224,13 @@ enifed("htmlbars-compiler/compiler/hydration",
     };
 
     prototype.pushMustacheInContent = function(name, args, hashArgs, pairs, morphNum) {
-      this.source.push(this.indent+'  hooks.content(morph' + morphNum + ', ' + name + ', context, ' + args + ', ' + hashArgs + ', ' + hash(pairs) + ', env);\n');
+      this.hooks.content = true;
+      this.source.push(this.indent+'  content(morph' + morphNum + ', ' + name + ', context, ' + args + ', ' + hashArgs + ', ' + hash(pairs) + ', env);\n');
     };
 
     prototype.pushMustacheInNode = function(name, args, hashArgs, optionPairs, elementNum) {
-      this.source.push(this.indent+'  hooks.element(element' + elementNum + ', ' + name + ', context, ' + args + ', ' + hashArgs + ', ' + hash(optionPairs) + ', env);\n');
+      this.hooks.element = true;
+      this.source.push(this.indent+'  element(element' + elementNum + ', ' + name + ', context, ' + args + ', ' + hashArgs + ', ' + hash(optionPairs) + ', env);\n');
     };
 
     prototype.shareParent = function(i) {
@@ -53360,6 +53299,12 @@ enifed("htmlbars-compiler/compiler/hydration_opcode",
       this.currentDOMChildIndex = -1;
       this.morphNum = 0;
 
+      var blockParams = program.blockParams || [];
+
+      for (var i = 0; i < blockParams.length; i++) {
+        this.opcode('blockParam', blockParams[i], i);
+      }
+
       if (blankChildTextNodes.length > 0){
         this.opcode( 'repairClonedNode',
                      blankChildTextNodes );
@@ -53415,9 +53360,8 @@ enifed("htmlbars-compiler/compiler/hydration_opcode",
 
     HydrationOpcodeCompiler.prototype.block = function(block, childIndex, childrenLength) {
       var sexpr = block.sexpr;
-      var program = block.program;
-
-      var blockParamsLength = program && program.blockParams ? program.blockParams.length : 0;
+      var program = block.program || {};
+      var blockParams = program.blockParams || [];
 
       var currentDOMChildIndex = this.currentDOMChildIndex;
       var start = (currentDOMChildIndex < 0) ? null : currentDOMChildIndex;
@@ -53428,7 +53372,7 @@ enifed("htmlbars-compiler/compiler/hydration_opcode",
 
       this.opcode('program', this.templateId++, block.inverse === null ? null : this.templateId++);
       processSexpr(this, sexpr);
-      this.opcode('helper', sexpr.params.length, morphNum, blockParamsLength);
+      this.opcode('helper', sexpr.params.length, morphNum, blockParams.length);
     };
 
     HydrationOpcodeCompiler.prototype.component = function(component, childIndex, childrenLength) {
@@ -53446,7 +53390,7 @@ enifed("htmlbars-compiler/compiler/hydration_opcode",
       };
 
       this.opcode('program', this.templateId++, null);
-      this.ID(id);
+      processName(this, id);
       processHash(this, buildHashFromAttributes(component.attributes));
       this.opcode('component', morphNum);
     };
@@ -53457,7 +53401,8 @@ enifed("htmlbars-compiler/compiler/hydration_opcode",
     };
 
     HydrationOpcodeCompiler.prototype.attribute = function(attr) {
-      if (attr.value.type === 'text') {
+      var parts = attr.value;
+      if (parts.length === 1 && parts[0].type === 'text') {
         return;
       }
 
@@ -53499,7 +53444,7 @@ enifed("htmlbars-compiler/compiler/hydration_opcode",
         processSexpr(this, mustache);
         this.opcode('helper', mustache.params.length, morphNum);
       } else {
-        this.ID(mustache.id);
+        processName(this, mustache.id);
         this.opcode('ambiguous', morphNum);
       }
     };
@@ -53539,9 +53484,9 @@ enifed("htmlbars-compiler/compiler/hydration_opcode",
 
     function processName(compiler, id) {
       if (id) {
-        compiler.ID(id);
+        compiler.opcode('string', id.string);
       } else {
-        compiler.opcode('id', null);
+        compiler.opcode('string', '');
       }
     }
 
@@ -53644,7 +53589,6 @@ enifed("htmlbars-compiler/compiler/template",
     var HydrationCompiler = __dependency4__.HydrationCompiler;
     var TemplateVisitor = __dependency5__["default"];
     var processOpcodes = __dependency6__.processOpcodes;
-    var string = __dependency7__.string;
     var repeat = __dependency7__.repeat;
 
     function TemplateCompiler(options) {
@@ -53686,14 +53630,17 @@ enifed("htmlbars-compiler/compiler/template",
       return vars;
     };
 
-    TemplateCompiler.prototype.getContextAssignments = function(indent, blockParams) {
-      var assignments = '';
-      if (blockParams) {
-        for (var i = 0; i < blockParams.length; i++) {
-          assignments += indent + 'hooks.set(context, ' + string(blockParams[i]) +', blockArguments[' + i + ']);\n';
-        }
+    TemplateCompiler.prototype.getHydrationHooks = function(indent, hooks) {
+      var hookVars = [];
+      for (var hook in hooks) {
+        hookVars.push(hook + ' = hooks.' + hook);
       }
-      return assignments;
+
+      if (hookVars.length > 0) {
+        return indent + 'var hooks = env.hooks, ' + hookVars.join(', ') + ';\n';
+      } else {
+        return '';
+      }
     };
 
     TemplateCompiler.prototype.endProgram = function(program, programDepth) {
@@ -53717,11 +53664,10 @@ enifed("htmlbars-compiler/compiler/template",
         options
       );
 
-      var blockParams = program.blockParams;
-      var hasBlockParams = blockParams && blockParams.length > 0;
+      var blockParams = program.blockParams || [];
 
       var templateSignature = 'context, env, contextualElement';
-      if (hasBlockParams) {
+      if (blockParams.length > 0) {
         templateSignature += ', blockArguments';
       }
 
@@ -53731,8 +53677,8 @@ enifed("htmlbars-compiler/compiler/template",
         fragmentProgram +
         indent+'  var cachedFragment;\n' +
         indent+'  return function template(' + templateSignature + ') {\n' +
-        indent+'    var dom = env.dom, hooks = env.hooks;\n' +
-        this.getContextAssignments(indent + '    ', blockParams) +
+        indent+'    var dom = env.dom;\n' +
+        this.getHydrationHooks(indent + '    ', this.hydrationCompiler.hooks) +
         indent+'    dom.detectNamespace(contextualElement);\n' +
         indent+'    if (cachedFragment === undefined) {\n' +
         indent+'      cachedFragment = build(dom);\n' +
@@ -55446,6 +55392,13 @@ enifed("htmlbars-compiler/html-parser/token-handlers",
       }
     }
 
+    function unwrapMustache(mustache) {
+      if (mustache.sexpr.isHelper) {
+        return mustache.sexpr;
+      } else {
+        return mustache.sexpr.id;
+      }
+    }
 
     // Except for `mustache`, all tokens are only allowed outside of
     // a start or end tag.
@@ -55489,17 +55442,17 @@ enifed("htmlbars-compiler/html-parser/token-handlers",
           case "beforeAttributeValue":
             this.tokenizer.state = 'attributeValueUnquoted';
             token.markAttributeQuoted(false);
-            token.addToAttributeValue(mustache.sexpr);
+            token.addToAttributeValue(unwrapMustache(mustache));
             token.finalizeAttributeValue();
             return;
           case "attributeValueDoubleQuoted":
           case "attributeValueSingleQuoted":
             token.markAttributeQuoted(true);
-            token.addToAttributeValue(mustache.sexpr);
+            token.addToAttributeValue(unwrapMustache(mustache));
             return;
           case "attributeValueUnquoted":
             token.markAttributeQuoted(false);
-            token.addToAttributeValue(mustache.sexpr);
+            token.addToAttributeValue(unwrapMustache(mustache));
             return;
           case "beforeAttributeName":
             token.addTagHelper(mustache);
@@ -55515,7 +55468,10 @@ enifed("htmlbars-compiler/html-parser/token-handlers",
         var disableComponentGeneration = this.options.disableComponentGeneration === true;
 
         if (element.tag !== tag.tagName) {
-          throw new Error("Closing tag " + tag.tagName + " did not match last open tag " + element.tag);
+          throw new Error(
+            "Closing tag `" + tag.tagName + "` (on line " + tag.lastLine + ") " +
+            "did not match last open tag `" + element.tag + "`."
+          );
         }
 
         if (disableComponentGeneration || element.tag.indexOf("-") === -1) {
@@ -55560,7 +55516,7 @@ enifed("htmlbars-compiler/html-parser/tokens",
     StartTag.prototype.addToAttributeValue = function(char) {
       var value = this.currentAttribute.value;
 
-      if (char.type === 'sexpr') {
+      if (char.type === 'sexpr' || char.type === 'ID') {
         value.push(char);
       } else {
         if (value.length > 0 && value[value.length - 1].type === 'text') {
@@ -55572,38 +55528,29 @@ enifed("htmlbars-compiler/html-parser/tokens",
     };
 
     StartTag.prototype.finalize = function() {
-      delete this.currentAttribute;
+      this.finalizeAttributeValue();
       return this;
     };
 
     StartTag.prototype.finalizeAttributeValue = function() {
-      var attr = this.currentAttribute;
-      var part;
-
-      if (!attr) {
+      if (!this.currentAttribute) {
         return;
       }
 
-      if (attr.value.length === 0) {
-        if (attr.quoted) {
-          attr.value = new TextNode("");
-        } else {
-          attr.value = null;
-        }
-      } else if (attr.value.length === 1) {
-        if (attr.value[0].type === 'text') {
-          attr.value = attr.value[0];
-        }
-      } else {
-        // Convert TextNode to StringNode
-        for (var i = 0; i < attr.value.length; i++) {
-          part = attr.value[i];
+      var parts = this.currentAttribute.value;
 
-          if (part.type === 'text') {
-            attr.value[i] = new StringNode(part.chars);
+      if (parts.length === 0) {
+        parts.push(new TextNode(""));
+      } else if (parts.length > 1) {
+        // Convert TextNode to StringNode
+        for (var i = 0; i < parts.length; i++) {
+          if (parts[i].type === 'text') {
+            parts[i] = new StringNode(parts[i].chars);
           }
         }
       }
+
+      delete this.currentAttribute;
     };
 
     StartTag.prototype.addTagHelper = function(helper) {
@@ -55856,14 +55803,16 @@ enifed("morph",
     __exports__.DOMHelper = DOMHelper;
   });
 enifed("morph/dom-helper",
-  ["../morph/morph","./dom-helper/build-html-dom","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["../morph/morph","./dom-helper/build-html-dom","./dom-helper/classes","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     /* global window:false */
     var Morph = __dependency1__["default"];
     var buildHTMLDOM = __dependency2__.buildHTMLDOM;
     var svgNamespace = __dependency2__.svgNamespace;
     var svgHTMLIntegrationPoints = __dependency2__.svgHTMLIntegrationPoints;
+    var addClasses = __dependency3__.addClasses;
+    var removeClasses = __dependency3__.removeClasses;
 
     var doc = typeof document === 'undefined' ? false : document;
 
@@ -55990,6 +55939,10 @@ enifed("morph/dom-helper",
       element.removeAttribute(name);
     };
 
+    prototype.setProperty = function(element, name, value) {
+      element[name] = value;
+    };
+
     if (doc && doc.createElementNS) {
       // Only opt into namespace detection if a contextualElement
       // is passed.
@@ -56013,6 +55966,9 @@ enifed("morph/dom-helper",
         return this.document.createElement(tagName);
       };
     }
+
+    prototype.addClasses = addClasses;
+    prototype.removeClasses = removeClasses;
 
     prototype.setNamespace = function(ns) {
       this.namespace = ns;
@@ -56421,6 +56377,124 @@ enifed("morph/dom-helper/build-html-dom",
     }
 
     __exports__.buildHTMLDOM = buildHTMLDOM;
+  });
+enifed("morph/dom-helper/classes",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    var doc = typeof document === 'undefined' ? false : document;
+
+    // PhantomJS has a broken classList. See https://github.com/ariya/phantomjs/issues/12782
+    var canClassList = doc && (function(){
+      var d = document.createElement('div');
+      if (!d.classList) {
+        return false;
+      }
+      d.classList.add('boo');
+      d.classList.add('boo', 'baz');
+      return (d.className === 'boo baz');
+    })();
+
+    function buildClassList(element) {
+      var classString = (element.getAttribute('class') || '');
+      return classString !== '' && classString !== ' ' ? classString.split(' ') : [];
+    }
+
+    function intersect(containingArray, valuesArray) {
+      var containingIndex = 0;
+      var containingLength = containingArray.length;
+      var valuesIndex = 0;
+      var valuesLength = valuesArray.length;
+
+      var intersection = new Array(valuesLength);
+
+      // TODO: rewrite this loop in an optimal manner
+      for (;containingIndex<containingLength;containingIndex++) {
+        valuesIndex = 0;
+        for (;valuesIndex<valuesLength;valuesIndex++) {
+          if (valuesArray[valuesIndex] === containingArray[containingIndex]) {
+            intersection[valuesIndex] = containingIndex;
+            break;
+          }
+        }
+      }
+
+      return intersection;
+    }
+
+    function addClassesViaAttribute(element, classNames) {
+      var existingClasses = buildClassList(element);
+
+      var indexes = intersect(existingClasses, classNames);
+      var didChange = false;
+
+      for (var i=0, l=classNames.length; i<l; i++) {
+        if (indexes[i] === undefined) {
+          didChange = true;
+          existingClasses.push(classNames[i]);
+        }
+      }
+
+      if (didChange) {
+        element.setAttribute('class', existingClasses.length > 0 ? existingClasses.join(' ') : '');
+      }
+    }
+
+    function removeClassesViaAttribute(element, classNames) {
+      var existingClasses = buildClassList(element);
+
+      var indexes = intersect(classNames, existingClasses);
+      var didChange = false;
+      var newClasses = [];
+
+      for (var i=0, l=existingClasses.length; i<l; i++) {
+        if (indexes[i] === undefined) {
+          newClasses.push(existingClasses[i]);
+        } else {
+          didChange = true;
+        }
+      }
+
+      if (didChange) {
+        element.setAttribute('class', newClasses.length > 0 ? newClasses.join(' ') : '');
+      }
+    }
+
+    var addClasses, removeClasses;
+    if (canClassList) {
+      addClasses = function addClasses(element, classNames) {
+        if (element.classList) {
+          if (classNames.length === 1) {
+            element.classList.add(classNames[0]);
+          } else if (classNames.length === 2) {
+            element.classList.add(classNames[0], classNames[1]);
+          } else {
+            element.classList.add.apply(element.classList, classNames);
+          }
+        } else {
+          addClassesViaAttribute(element, classNames);
+        }
+      };
+      removeClasses = function removeClasses(element, classNames) {
+        if (element.classList) {
+          if (classNames.length === 1) {
+            element.classList.remove(classNames[0]);
+          } else if (classNames.length === 2) {
+            element.classList.remove(classNames[0], classNames[1]);
+          } else {
+            element.classList.remove.apply(element.classList, classNames);
+          }
+        } else {
+          removeClassesViaAttribute(element, classNames);
+        }
+      };
+    } else {
+      addClasses = addClassesViaAttribute;
+      removeClasses = removeClassesViaAttribute;
+    }
+
+    __exports__.addClasses = addClasses;
+    __exports__.removeClasses = removeClasses;
   });
 enifed("morph/morph",
   ["exports"],
@@ -62500,6 +62574,7 @@ enifed("simple-html-tokenizer",
           } else if (char === ">") {
             return this.emitToken();
           } else {
+            this.finalizeAttributeValue();
             this.attribute(char);
           }
         },
@@ -62602,7 +62677,7 @@ enifed("simple-html-tokenizer",
       },
 
       startAttribute: function(char) {
-        this.currentAttribute = [char.toLowerCase(), null, null];
+        this.currentAttribute = [char.toLowerCase(), "", null];
         this.attributes.push(this.currentAttribute);
       },
 
@@ -62620,14 +62695,16 @@ enifed("simple-html-tokenizer",
       },
 
       finalizeAttributeValue: function() {
-        // Set the value of quoted attributes to a blank string
-        if (this.currentAttribute[2] && this.currentAttribute[1] === null) {
-          this.currentAttribute[1] = '';
+        if (this.currentAttribute) {
+          if (this.currentAttribute[2] === null) {
+            this.currentAttribute[2] = false;
+          }
+          delete this.currentAttribute;
         }
       },
 
       finalize: function() {
-        delete this.currentAttribute;
+        this.finalizeAttributeValue();
         return this;
       }
     };

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.984093e3
+ * @version   1.10.0-beta.1+canary.fb7122da
  */
 
 (function() {
@@ -4496,6 +4496,15 @@ enifed("ember-htmlbars/hooks/element.jshint",
       ok(true, 'ember-htmlbars/hooks/element.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/hooks/get.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/hooks');
+    test('ember-htmlbars/hooks/get.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/hooks/get.js should pass jshint.'); 
+    });
+  });
 enifed("ember-htmlbars/hooks/set.jshint",
   [],
   function() {
@@ -4593,24 +4602,6 @@ enifed("ember-htmlbars/system/make_bound_helper.jshint",
     module('JSHint - ember-htmlbars/system');
     test('ember-htmlbars/system/make_bound_helper.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/system/make_bound_helper.js should pass jshint.'); 
-    });
-  });
-enifed("ember-htmlbars/system/sanitize-for-helper.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-htmlbars/system');
-    test('ember-htmlbars/system/sanitize-for-helper.js should pass jshint', function() { 
-      ok(true, 'ember-htmlbars/system/sanitize-for-helper.js should pass jshint.'); 
-    });
-  });
-enifed("ember-htmlbars/system/streamify-arguments.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-htmlbars/system');
-    test('ember-htmlbars/system/streamify-arguments.js should pass jshint', function() { 
-      ok(true, 'ember-htmlbars/system/streamify-arguments.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/system/template.jshint",
@@ -13225,8 +13216,6 @@ enifed("ember-htmlbars/tests/integration/binding_integration_test",
 
       EmberHandlebars.registerHelper('boogie', function(id, options) {
         options.hash = options.hash || {};
-        options.hashTypes = options.hashTypes || {};
-
         options.hash.bindingTestBinding = Binding.oneWay('context.' + id);
         options.hash.stringTestBinding = id;
 
@@ -14911,71 +14900,6 @@ enifed("ember-htmlbars/tests/system/make_view_helper_test.jshint",
     module('JSHint - ember-htmlbars/tests/system');
     test('ember-htmlbars/tests/system/make_view_helper_test.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/tests/system/make_view_helper_test.js should pass jshint.'); 
-    });
-  });
-enifed("ember-htmlbars/tests/system/sanitize-for-helper_test",
-  ["ember-htmlbars/system/sanitize-for-helper"],
-  function(__dependency1__) {
-    "use strict";
-    var sanitizeOptionsForHelper = __dependency1__.sanitizeOptionsForHelper;
-
-    var options;
-    QUnit.module('ember-htmlbars: sanitize-for-helper', {
-      setup: function() {
-        options = {};
-      },
-
-      teardown: function() {
-        ok(options.paramTypes, 'paramTypes is present');
-        ok(options.hashTypes, 'hashTypes is present');
-      }
-    });
-
-    test('will not override `paramTypes` if present', function() {
-      expect(3);
-
-      var paramTypes = [];
-      options.paramTypes = paramTypes;
-
-      sanitizeOptionsForHelper(options);
-
-      equal(options.paramTypes, paramTypes, 'paramTypes is not changed when present');
-    });
-
-    test('will add `paramTypes` if not present', function() {
-      expect(3);
-
-      sanitizeOptionsForHelper(options);
-
-      deepEqual(options.paramTypes, [], 'paramTypes is added when not present');
-    });
-
-    test('will not override `hashTypes` if present', function() {
-      expect(3);
-
-      var hashTypes = {};
-      options.hashTypes = hashTypes;
-
-      sanitizeOptionsForHelper(options);
-
-      equal(options.hashTypes, hashTypes, 'hashTypes is not changed when present');
-    });
-
-    test('will add `hashTypes` if not present', function() {
-      expect(3);
-
-      sanitizeOptionsForHelper(options);
-
-      deepEqual(options.hashTypes, {}, 'hashTypes is added when not present');
-    });
-  });
-enifed("ember-htmlbars/tests/system/sanitize-for-helper_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-htmlbars/tests/system');
-    test('ember-htmlbars/tests/system/sanitize-for-helper_test.js should pass jshint', function() { 
-      ok(true, 'ember-htmlbars/tests/system/sanitize-for-helper_test.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/tests/system/template_test",
