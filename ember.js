@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.fb7122da
+ * @version   1.10.0-beta.1+canary.6710680b
  */
 
 (function() {
@@ -2443,6 +2443,8 @@ enifed("ember-application/system/application",
       return properties;
     }
 
+    var librariesRegistered = false;
+
     /**
       An instance of `Ember.Application` is the starting point for every Ember
       application. It helps to instantiate, initialize and coordinate the many
@@ -2663,8 +2665,11 @@ enifed("ember-application/system/application",
 
         this.scheduleInitialize();
 
-        Ember.libraries.registerCoreLibrary('Handlebars' + (EmberHandlebars.compile ? '' : '-runtime'), EmberHandlebars.VERSION);
-        Ember.libraries.registerCoreLibrary('jQuery', jQuery().jquery);
+        if (!librariesRegistered) {
+          librariesRegistered = true;
+          Ember.libraries.registerCoreLibrary('Handlebars' + (EmberHandlebars.compile ? '' : '-runtime'), EmberHandlebars.VERSION);
+          Ember.libraries.registerCoreLibrary('jQuery', jQuery().jquery);
+        }
 
         if (Ember.LOG_VERSION) {
           // we only need to see this once per Application#init
@@ -15479,7 +15484,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.fb7122da
+      @version 1.10.0-beta.1+canary.6710680b
     */
 
     if ('undefined' === typeof Ember) {
@@ -15506,10 +15511,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.fb7122da'
+      @default '1.10.0-beta.1+canary.6710680b'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.fb7122da';
+    Ember.VERSION = '1.10.0-beta.1+canary.6710680b';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
