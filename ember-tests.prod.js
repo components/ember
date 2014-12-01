@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.6710680b
+ * @version   1.10.0-beta.1+canary.29bbb59c
  */
 
 (function() {
@@ -17249,6 +17249,32 @@ enifed("ember-metal/tests/computed_test",
       equal(set(obj, 'foo', 'baz'), 'baz', 'setting');
       equal(get(obj, 'foo'), 'bar 2', 'third get');
       equal(count, 2, 'should not invoke again');
+    });
+
+    test('calling cacheable() on a computed property raises a deprecation', function(){
+      var cp = new ComputedProperty(function(){});
+      expectDeprecation(function(){
+        cp.cacheable();
+      }, 'ComputedProperty.cacheable() is deprecated. All computed properties are cacheable by default.');
+    });
+
+    test('passing cacheable in a the options to the CP constructor raises a deprecation', function(){
+      expectDeprecation(function(){
+        new ComputedProperty(function(){}, { cacheable: true });
+      }, "Passing opts.cacheable to the CP constructor is deprecated. Invoke `volatile()` on the CP instead.");
+    });
+
+    test('calling readOnly() on a computed property with arguments raises a deprecation', function(){
+      var cp = new ComputedProperty(function(){});
+      expectDeprecation(function(){
+        cp.readOnly(true);
+      }, 'Passing arguments to ComputedProperty.readOnly() is deprecated.');
+    });
+
+    test('passing readOnly in a the options to the CP constructor raises a deprecation', function(){
+      expectDeprecation(function(){
+        new ComputedProperty(function(){}, { readOnly: false });
+      }, "Passing opts.readOnly to the CP constructor is deprecated. All CPs are writable by default. Yo can invoke `readOnly()` on the CP to change this.");
     });
 
     testBoth('inherited property should not pick up cache', function(get, set) {

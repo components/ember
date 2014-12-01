@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.6710680b
+ * @version   1.10.0-beta.1+canary.29bbb59c
  */
 
 (function() {
@@ -3582,9 +3582,11 @@ define("ember-metal/computed",
       this._suspended = undefined;
       this._meta = undefined;
 
-      this._cacheable = (opts && opts.cacheable !== undefined) ? opts.cacheable : true;
+      Ember.deprecate("Passing opts.cacheable to the CP constructor is deprecated. Invoke `volatile()` on the CP instead.", !opts || !opts.hasOwnProperty('cacheable'));
+      this._cacheable = (opts && opts.cacheable !== undefined) ? opts.cacheable : true;   // TODO: Set always to `true` once this deprecation is gone.
       this._dependentKeys = opts && opts.dependentKeys;
-      this._readOnly = opts && (opts.readOnly !== undefined || !!opts.readOnly) || false;
+      Ember.deprecate("Passing opts.readOnly to the CP constructor is deprecated. All CPs are writable by default. Yo can invoke `readOnly()` on the CP to change this.", !opts || !opts.hasOwnProperty('readOnly'));
+      this._readOnly = opts && (opts.readOnly !== undefined || !!opts.readOnly) || false; // TODO: Set always to `false` once this deprecation is gone.
     }
 
     ComputedProperty.prototype = new Descriptor();
@@ -3605,8 +3607,10 @@ define("ember-metal/computed",
       @param {Boolean} aFlag optional set to `false` to disable caching
       @return {Ember.ComputedProperty} this
       @chainable
+      @deprecated All computed properties are cacheble by default. Use `volatile()` instead to opt-out to caching.
     */
     ComputedPropertyPrototype.cacheable = function(aFlag) {
+      Ember.deprecate('ComputedProperty.cacheable() is deprecated. All computed properties are cacheable by default.');
       this._cacheable = aFlag !== false;
       return this;
     };
@@ -3628,7 +3632,8 @@ define("ember-metal/computed",
       @chainable
     */
     ComputedPropertyPrototype.volatile = function() {
-      return this.cacheable(false);
+      this._cacheable = false;
+      return this;
     };
 
     /**
@@ -3652,7 +3657,8 @@ define("ember-metal/computed",
       @chainable
     */
     ComputedPropertyPrototype.readOnly = function(readOnly) {
-      this._readOnly = readOnly === undefined || !!readOnly;
+      Ember.deprecate('Passing arguments to ComputedProperty.readOnly() is deprecated.', arguments.length === 0);
+      this._readOnly = readOnly === undefined || !!readOnly; // Force to true once this deprecation is gone
       return this;
     };
 
@@ -3964,7 +3970,7 @@ define("ember-metal/computed",
       The function should accept two parameters, key and value. If value is not
       undefined you should set the value first. In either case return the
       current value of the property.
-      
+
       A computed property defined in this way might look like this:
 
       ```js
@@ -3980,7 +3986,7 @@ define("ember-metal/computed",
       var client = Person.create();
 
       client.get('fullName'); // 'Betty Jones'
-      
+
       client.set('lastName', 'Fuller');
       client.get('fullName'); // 'Betty Fuller'
       ```
@@ -4808,7 +4814,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.6710680b
+      @version 1.10.0-beta.1+canary.29bbb59c
     */
 
     if ('undefined' === typeof Ember) {
@@ -4835,10 +4841,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.6710680b'
+      @default '1.10.0-beta.1+canary.29bbb59c'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.6710680b';
+    Ember.VERSION = '1.10.0-beta.1+canary.29bbb59c';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -6036,7 +6042,8 @@ define("ember-metal/injected_property",
                      "instantiated via a container.", this.container);
 
         return this.container.lookup(type + ':' + (name || keyName));
-      }, { readOnly: true });
+      });
+      this.readOnly();
     }
 
     InjectedProperty.prototype = create(Descriptor.prototype);
@@ -6047,6 +6054,7 @@ define("ember-metal/injected_property",
     InjectedPropertyPrototype._super$Constructor = ComputedProperty;
 
     InjectedPropertyPrototype.get = ComputedPropertyPrototype.get;
+    InjectedPropertyPrototype.readOnly = ComputedPropertyPrototype.readOnly;
 
     InjectedPropertyPrototype.set = function(obj, keyName) {
       throw new EmberError("Cannot set injected property '" + keyName + "' on object: " + inspect(obj));
@@ -12664,13 +12672,13 @@ define("ember-runtime/computed/reduce_computed",
 
       this.options = options;
       this._dependentKeys = null;
+      this._cacheable = true;
       // A map of dependentKey -> [itemProperty, ...] that tracks what properties of
       // items in the array we must track to update this property.
       this._itemPropertyKeys = {};
       this._previousItemPropertyKeys = {};
 
       this.readOnly();
-      this.cacheable();
 
       this.recomputeOnce = function(propertyName) {
         // What we really want to do is coalesce by <cp, propertyName>.
