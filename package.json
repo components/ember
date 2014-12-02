@@ -7,5 +7,19 @@
   "dependencies": {
     "jquery": ">=1.7.0 < 2.2.0",
     "handlebars": ">= 2.0.0 < 3.0.0"
+  },
+  "jspm": {
+    "main": "ember",
+    "shim": {
+      "ember": { "deps": ["jquery", "handlebars"], "exports": "Ember" },
+      "ember.prod": { "deps": ["jquery", "handlebars"], "exports": "Ember" }
+    },
+    "registry": "jspm",
+    "dependencies": {
+      "jquery": "github:components/jquery@^2.1.1",
+      "handlebars": "github:components/handlebars.js@^master"
+    },
+    "files": ["ember.js", "ember.prod.js"],
+    "buildConfig": { "minify": true }
   }
 }
