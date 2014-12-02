@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.8376e7d3
+ * @version   1.10.0-beta.1+canary.dd17422e
  */
 
 (function() {
@@ -51921,6 +51921,73 @@ enifed("ember-views/tests/views/select_test",
       run(function() { select.set('selection', yehuda); });
 
       equal(select.$()[0].selectedIndex, 0, "After changing it, selection should be correct");
+    });
+
+    test("selection can be set from a Promise when multiple=false", function() {
+      expect(1);
+
+      var yehuda = { id: 1, firstName: 'Yehuda' };
+      var tom = { id: 2, firstName: 'Tom' };
+
+      run(function() {
+        select.set('content', Ember.A([yehuda, tom]));
+        select.set('multiple', false);
+        select.set('selection', Ember.RSVP.Promise.resolve(tom));
+      });
+
+      append();
+
+      equal(select.$()[0].selectedIndex, 1, "Should select from Promise content");
+    });
+
+    test("selection from a Promise don't overwrite newer selection once resolved, when multiple=false", function() {
+      expect(1);
+
+      var yehuda = { id: 1, firstName: 'Yehuda' };
+      var tom = { id: 2, firstName: 'Tom' };
+      var seb = { id: 3, firstName: 'Seb' };
+
+      QUnit.stop();
+
+      run(function() {
+        select.set('content', Ember.A([yehuda, tom, seb]));
+        select.set('multiple', false);
+        select.set('selection', new Ember.RSVP.Promise(function(resolve, reject) {
+          Ember.run.later(function() {
+            run(function(){
+              resolve(tom);
+            });
+            QUnit.start();
+            equal(select.$()[0].selectedIndex, 2, "Should not select from Promise if newer selection");
+          }, 40);
+        }));
+        select.set('selection', new Ember.RSVP.Promise(function(resolve, reject) {
+          Ember.run.later(function() {
+            run(function() {
+              resolve(seb);
+            });
+          }, 30);
+        }));
+      });
+
+      append();
+    });
+
+    test("selection from a Promise resolving to null should not select when multiple=false", function() {
+      expect(1);
+
+      var yehuda = { id: 1, firstName: 'Yehuda' };
+      var tom = { id: 2, firstName: 'Tom' };
+
+      run(function() {
+        select.set('content', Ember.A([yehuda, tom]));
+        select.set('multiple', false);
+        select.set('selection', Ember.RSVP.Promise.resolve(null));
+      });
+
+      append();
+
+      equal(select.$()[0].selectedIndex, -1, "Should not select any object when the Promise resolve to null");
     });
 
     test("selection can be set when multiple=true", function() {
