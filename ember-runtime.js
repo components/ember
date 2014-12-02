@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.7509d9cf
+ * @version   1.10.0-beta.1+canary.cb5d465c
  */
 
 (function() {
@@ -4814,7 +4814,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.7509d9cf
+      @version 1.10.0-beta.1+canary.cb5d465c
     */
 
     if ('undefined' === typeof Ember) {
@@ -4841,10 +4841,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.7509d9cf'
+      @default '1.10.0-beta.1+canary.cb5d465c'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.7509d9cf';
+    Ember.VERSION = '1.10.0-beta.1+canary.cb5d465c';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -9311,13 +9311,6 @@ define("ember-metal/property_get",
       }
     };
 
-    // Currently used only by Ember Data tests
-    if (Ember.config.overrideAccessors) {
-      Ember.get = get;
-      Ember.config.overrideAccessors();
-      get = Ember.get;
-    }
-
     /**
       Normalizes a target/path pair to reflect that actual target/path that should
       be observed, etc. This takes into account passing in global property
@@ -9496,14 +9489,6 @@ define("ember-metal/property_set",
       }
       return value;
     };
-
-    // Currently used only by Ember Data tests
-    // ES6TODO: Verify still true
-    if (Ember.config.overrideAccessors) {
-      Ember.set = set;
-      Ember.config.overrideAccessors();
-      set = Ember.set;
-    }
 
     function setPath(root, path, value, tolerant) {
       var keyName;
@@ -20042,10 +20027,6 @@ define("ember-runtime/system/core_object",
       return function() { return ret; };
     }
 
-    if (Ember.config.overridePrototypeMixin) {
-      Ember.config.overridePrototypeMixin(CoreObject.PrototypeMixin);
-    }
-
     CoreObject.__super__ = null;
 
     var ClassMixinProps = {
@@ -20463,10 +20444,6 @@ define("ember-runtime/system/core_object",
     var ClassMixin = Mixin.create(ClassMixinProps);
 
     ClassMixin.ownerConstructor = CoreObject;
-
-    if (Ember.config.overrideClassMixin) {
-      Ember.config.overrideClassMixin(ClassMixin);
-    }
 
     CoreObject.ClassMixin = ClassMixin;
 
