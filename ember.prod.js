@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.dd17422e
+ * @version   1.10.0-beta.1+canary.fc8b0e06
  */
 
 (function() {
@@ -11174,20 +11174,25 @@ enifed("ember-htmlbars/plugins/transform-each-in-to-hash",
           var removedParams = node.sexpr.params.splice(0, 2);
           var keyword = removedParams[0].original;
           var stringNode = {
-            type: 'STRING',
-            string: keyword,
-            stringModeValue: keyword,
+            type: 'StringLiteral',
+            value: keyword,
             original: keyword
           };
 
           if (!node.sexpr.hash) {
             node.sexpr.hash = {
-              type: 'hash',
+              type: 'Hash',
               pairs: []
             };
           }
 
-          node.sexpr.hash.pairs.push(['keyword', stringNode]);
+          var hashPair = {
+            type: 'HashPair',
+            key: 'keyword',
+            value: stringNode
+          };
+
+          node.sexpr.hash.pairs.push(hashPair);
         }
       });
 
@@ -11195,10 +11200,10 @@ enifed("ember-htmlbars/plugins/transform-each-in-to-hash",
     }
 
     function validate(node) {
-      return (node.type === 'block' || node.type === 'mustache') &&
-        node.sexpr.id.original === 'each' &&
+      return (node.type === 'BlockStatement' || node.type === 'MustacheStatement') &&
+        node.sexpr.path.original === 'each' &&
         node.sexpr.params.length === 3 &&
-        node.sexpr.params[1].type === 'ID' &&
+        node.sexpr.params[1].type === 'PathExpression' &&
         node.sexpr.params[1].original === 'in';
     }
   });
@@ -11234,20 +11239,25 @@ enifed("ember-htmlbars/plugins/transform-with-as-to-hash",
           var removedParams = node.sexpr.params.splice(1, 2);
           var keyword = removedParams[1].original;
           var stringNode = {
-            type: 'STRING',
-            string: keyword,
-            stringModeValue: keyword,
+            type: 'StringLiteral',
+            value: keyword,
             original: keyword
           };
 
           if (!node.sexpr.hash) {
             node.sexpr.hash = {
-              type: 'hash',
+              type: 'Hash',
               pairs: []
             };
           }
 
-          node.sexpr.hash.pairs.push(['keywordName', stringNode]);
+          var hashPair = {
+            type: 'HashPair',
+            key: 'keywordName',
+            value: stringNode
+          };
+
+          node.sexpr.hash.pairs.push(hashPair);
         }
       });
 
@@ -11255,10 +11265,10 @@ enifed("ember-htmlbars/plugins/transform-with-as-to-hash",
     }
 
     function validate(node) {
-      return node.type === 'block' &&
-        node.sexpr.id.original === 'with' &&
+      return node.type === 'BlockStatement' &&
+        node.sexpr.path.original === 'with' &&
         node.sexpr.params.length === 3 &&
-        node.sexpr.params[1].type === 'ID' &&
+        node.sexpr.params[1].type === 'PathExpression' &&
         node.sexpr.params[1].original === 'as';
     }
   });
@@ -15053,7 +15063,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.dd17422e
+      @version 1.10.0-beta.1+canary.fc8b0e06
     */
 
     if ('undefined' === typeof Ember) {
@@ -15080,10 +15090,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.dd17422e'
+      @default '1.10.0-beta.1+canary.fc8b0e06'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.dd17422e';
+    Ember.VERSION = '1.10.0-beta.1+canary.fc8b0e06';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -50773,87 +50783,24 @@ enifed("htmlbars-compiler",
     __exports__.Walker = Walker;
   });
 enifed("htmlbars-compiler/ast",
-  ["./handlebars/compiler/ast","exports"],
+  ["./builders","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
-    var AST = __dependency1__["default"];
+    var buildText = __dependency1__.buildText;
 
-    var MustacheNode = AST.MustacheNode;
-    __exports__.MustacheNode = MustacheNode;var SexprNode = AST.SexprNode;
-    __exports__.SexprNode = SexprNode;var HashNode = AST.HashNode;
-    __exports__.HashNode = HashNode;var IdNode = AST.IdNode;
-    __exports__.IdNode = IdNode;var StringNode = AST.StringNode;
-    __exports__.StringNode = StringNode;
-    function ProgramNode(statements, blockParams, strip) {
-      this.type = 'program';
-      this.statements = statements;
-      this.blockParams = blockParams;
-      this.strip = strip;
-    }
-
-    __exports__.ProgramNode = ProgramNode;function BlockNode(sexpr, program, inverse, strip) {
-      this.type = 'block';
-      this.sexpr = sexpr;
-      this.program = program;
-      this.inverse = inverse;
-      this.strip = strip;
-    }
-
-    __exports__.BlockNode = BlockNode;function ComponentNode(tag, attributes, program) {
-      this.type = 'component';
-      this.tag = tag;
-      this.attributes = attributes;
-      this.program = program;
-    }
-
-    __exports__.ComponentNode = ComponentNode;function ElementNode(tag, attributes, helpers, children) {
-      this.type = 'element';
-      this.tag = tag;
-      this.attributes = attributes;
-      this.helpers = helpers;
-      this.children = children;
-    }
-
-    __exports__.ElementNode = ElementNode;function PartialNode(name) {
-      this.id = {};
-      this.id.string = this.name = 'partial';
-      this.type = 'mustache';
-      this.params = [name];
-      this.program = null;
-      this.inverse = null;
-      this.hash = undefined;
-      this.escaped = true;
-      this.isHelper = true;
-    }
-
-    __exports__.PartialNode = PartialNode;function AttrNode(name, value, quoted) {
-      this.type = 'attr';
-      this.name = name;
-      this.value = value;
-      this.quoted = quoted;
-    }
-
-    __exports__.AttrNode = AttrNode;function TextNode(chars) {
-      this.type = 'text';
-      this.chars = chars;
-    }
-
-    __exports__.TextNode = TextNode;function CommentNode(chars) {
-      this.type = 'comment';
-      this.chars = chars;
-    }
-
-    __exports__.CommentNode = CommentNode;function childrenFor(node) {
-      if (node.type === 'program') {
-        return node.statements;
+    function childrenFor(node) {
+      if (node.type === 'Program') {
+        return node.body;
       }
-      if (node.type === 'element') {
+      if (node.type === 'ElementNode') {
         return node.children;
       }
     }
 
     __exports__.childrenFor = childrenFor;function usesMorph(node) {
-      return node.type === 'mustache' || node.type === 'block' || node.type === 'component';
+      return node.type === 'MustacheStatement' ||
+             node.type === 'BlockStatement' ||
+             node.type === 'ComponentNode';
     }
 
     __exports__.usesMorph = usesMorph;function appendChild(parent, node) {
@@ -50863,13 +50810,179 @@ enifed("htmlbars-compiler/ast",
       if (len > 0) {
         last = children[len-1];
         if (usesMorph(last) && usesMorph(node)) {
-          children.push(new TextNode(''));
+          children.push(buildText(''));
         }
       }
       children.push(node);
     }
 
-    __exports__.appendChild = appendChild;
+    __exports__.appendChild = appendChild;function isHelper(sexpr) {
+      return (sexpr.params && sexpr.params.length > 0) ||
+        (sexpr.hash && sexpr.hash.pairs.length > 0);
+    }
+    __exports__.isHelper = isHelper;
+  });
+enifed("htmlbars-compiler/builders",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    // Statements
+
+    function buildMustache(sexpr, raw) {
+      return {
+        type: "MustacheStatement",
+        sexpr: sexpr,
+        escaped: !raw
+      };
+    }
+
+    __exports__.buildMustache = buildMustache;function buildBlock(sexpr, program, inverse) {
+      return {
+        type: "BlockStatement",
+        sexpr: sexpr,
+        program: program || null,
+        inverse: inverse || null
+      };
+    }
+
+    __exports__.buildBlock = buildBlock;function buildPartial(sexpr, indent) {
+      return {
+        type: "PartialStatement",
+        sexpr: sexpr,
+        indent: indent || ""
+      };
+    }
+
+    __exports__.buildPartial = buildPartial;function buildComment(value) {
+      return {
+        type: "CommentStatement",
+        value: value,
+      };
+    }
+
+    __exports__.buildComment = buildComment;// Nodes
+
+    function buildElement(tag, attributes, helpers, children) {
+      return {
+        type: "ElementNode",
+        tag: tag,
+        attributes: attributes || [],
+        helpers: helpers || [],
+        children: children || []
+      };
+    }
+
+    __exports__.buildElement = buildElement;function buildComponent(tag, attributes, program) {
+      return {
+        type: "ComponentNode",
+        tag: tag,
+        attributes: attributes,
+        program: program
+      };
+    }
+
+    __exports__.buildComponent = buildComponent;function buildAttr(name, value, quoted) {
+      return {
+        type: "AttrNode",
+        name: name,
+        value: value,
+        quoted: quoted
+      };
+    }
+
+    __exports__.buildAttr = buildAttr;function buildText(chars) {
+      return {
+        type: "TextNode",
+        chars: chars
+      };
+    }
+
+    __exports__.buildText = buildText;// Expressions
+
+    function buildSexpr(path, params, hash) {
+      return {
+        type: "SubExpression",
+        path: path,
+        params: params || [],
+        hash: hash || buildHash([])
+      };
+    }
+
+    __exports__.buildSexpr = buildSexpr;function buildPath(original) {
+      return {
+        type: "PathExpression",
+        original: original,
+        parts: original.split('.')
+      };
+    }
+
+    __exports__.buildPath = buildPath;function buildString(value) {
+      return {
+        type: "StringLiteral",
+        value: value,
+        original: value
+      };
+    }
+
+    __exports__.buildString = buildString;function buildBoolean(value) {
+      return {
+        type: "BooleanLiteral",
+        value: value,
+        original: value
+      };
+    }
+
+    __exports__.buildBoolean = buildBoolean;function buildNumber(value) {
+      return {
+        type: "NumberLiteral",
+        value: value,
+        original: value
+      };
+    }
+
+    __exports__.buildNumber = buildNumber;// Miscellaneous
+
+    function buildHash(pairs) {
+      return {
+        type: "Hash",
+        pairs: pairs || []
+      };
+    }
+
+    __exports__.buildHash = buildHash;function buildPair(key, value) {
+      return {
+        type: "HashPair",
+        key: key,
+        value: value
+      };
+    }
+
+    __exports__.buildPair = buildPair;function buildProgram(body, blockParams) {
+      return {
+        type: "Program",
+        body: body || [],
+        blockParams: blockParams || []
+      };
+    }
+
+    __exports__.buildProgram = buildProgram;__exports__["default"] = {
+      mustache: buildMustache,
+      block: buildBlock,
+      partial: buildPartial,
+      comment: buildComment,
+      element: buildElement,
+      component: buildComponent,
+      attr: buildAttr,
+      text: buildText,
+      sexpr: buildSexpr,
+      path: buildPath,
+      string: buildString,
+      "boolean": buildBoolean,
+      number: buildNumber,
+      hash: buildHash,
+      pair: buildPair,
+      program: buildProgram
+    };
   });
 enifed("htmlbars-compiler/compiler",
   ["./parser","./compiler/template","exports"],
@@ -51034,7 +51147,7 @@ enifed("htmlbars-compiler/compiler/fragment_opcode",
     };
 
     FragmentOpcodeCompiler.prototype.comment = function(comment, childIndex, childCount, isSingleRoot) {
-      this.opcode('createComment', [comment.chars]);
+      this.opcode('createComment', [comment.value]);
       if (!isSingleRoot) { this.opcode('appendChild'); }
     };
 
@@ -51049,7 +51162,7 @@ enifed("htmlbars-compiler/compiler/fragment_opcode",
 
     FragmentOpcodeCompiler.prototype.startProgram = function(program) {
       this.opcodes.length = 0;
-      if (program.statements.length !== 1) {
+      if (program.body.length !== 1) {
         this.opcode('createFragment');
       }
     };
@@ -51066,7 +51179,7 @@ enifed("htmlbars-compiler/compiler/fragment_opcode",
 
     FragmentOpcodeCompiler.prototype.attribute = function(attr) {
       var parts = attr.value;
-      if (parts.length === 1 && parts[0].type === 'text') {
+      if (parts.length === 1 && parts[0].type === 'TextNode') {
         this.opcode('setAttribute', [attr.name, parts[0].chars]);
       }
     };
@@ -51229,9 +51342,12 @@ enifed("htmlbars-compiler/compiler/hydration",
       this.pushMustacheInContent(prepared.name, prepared.params, prepared.hash, prepared.options, morphNum);
     };
 
-    prototype.component = function(morphNum) {
+    prototype.component = function(morphNum, blockParamsLength) {
       var prepared = prepareHelper(this.stack, 0);
       prepared.options.push('morph:morph'+morphNum);
+      if (blockParamsLength) {
+        prepared.options.push('blockParams:'+blockParamsLength);
+      }
       this.pushComponent(prepared.name, prepared.hash, prepared.options, morphNum);
     };
 
@@ -51332,13 +51448,16 @@ enifed("htmlbars-compiler/compiler/hydration",
     __exports__.HydrationCompiler = HydrationCompiler;
   });
 enifed("htmlbars-compiler/compiler/hydration_opcode",
-  ["./template_visitor","./utils","../utils","../html-parser/helpers","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+  ["./template_visitor","./utils","../utils","../ast","../builders","../html-parser/helpers","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     var TemplateVisitor = __dependency1__["default"];
     var processOpcodes = __dependency2__.processOpcodes;
     var forEach = __dependency3__.forEach;
-    var buildHashFromAttributes = __dependency4__.buildHashFromAttributes;
+    var isHelper = __dependency4__.isHelper;
+    var buildString = __dependency5__.buildString;
+    var buildHashFromAttributes = __dependency6__.buildHashFromAttributes;
+    var buildHashFromAttributes = __dependency6__.buildHashFromAttributes;
 
     function detectIsElementChecked(element){
       for (var i=0, len=element.attributes.length;i<len;i++) {
@@ -51455,6 +51574,8 @@ enifed("htmlbars-compiler/compiler/hydration_opcode",
 
     HydrationOpcodeCompiler.prototype.component = function(component, childIndex, childrenLength) {
       var currentDOMChildIndex = this.currentDOMChildIndex;
+      var program = component.program || {};
+      var blockParams = program.blockParams || [];
 
       var start = (currentDOMChildIndex < 0 ? null : currentDOMChildIndex),
           end = (childIndex === childrenLength - 1 ? null : currentDOMChildIndex + 1);
@@ -51470,7 +51591,7 @@ enifed("htmlbars-compiler/compiler/hydration_opcode",
       this.opcode('program', this.templateId++, null);
       processName(this, id);
       processHash(this, buildHashFromAttributes(component.attributes));
-      this.opcode('component', morphNum);
+      this.opcode('component', morphNum, blockParams.length);
     };
 
     HydrationOpcodeCompiler.prototype.opcode = function(type) {
@@ -51480,7 +51601,7 @@ enifed("htmlbars-compiler/compiler/hydration_opcode",
 
     HydrationOpcodeCompiler.prototype.attribute = function(attr) {
       var parts = attr.value;
-      if (parts.length === 1 && parts[0].type === 'text') {
+      if (parts.length === 1 && parts[0].type === 'TextNode') {
         return;
       }
 
@@ -51496,8 +51617,7 @@ enifed("htmlbars-compiler/compiler/hydration_opcode",
       this.opcode('attribute', attr.quoted, attr.name, params.length, this.elementNum);
     };
 
-    HydrationOpcodeCompiler.prototype.nodeHelper = function(mustache) {
-      var sexpr = mustache.sexpr;
+    HydrationOpcodeCompiler.prototype.nodeHelper = function(sexpr) {
       this.opcode('program', null, null);
       processSexpr(this, sexpr);
       // If we have a helper in a node, and this element has not been cached, cache it
@@ -51509,6 +51629,7 @@ enifed("htmlbars-compiler/compiler/hydration_opcode",
     };
 
     HydrationOpcodeCompiler.prototype.mustache = function(mustache, childIndex, childrenLength) {
+      var sexpr = mustache.sexpr;
       var currentDOMChildIndex = this.currentDOMChildIndex;
 
       var start = currentDOMChildIndex,
@@ -51517,52 +51638,52 @@ enifed("htmlbars-compiler/compiler/hydration_opcode",
       var morphNum = this.morphNum++;
       this.morphs.push([morphNum, this.paths.slice(), start, end, mustache.escaped]);
 
-      if (mustache.isHelper) {
+      if (isHelper(sexpr)) {
         this.opcode('program', null, null);
-        processSexpr(this, mustache);
-        this.opcode('helper', mustache.params.length, morphNum);
+        processSexpr(this, sexpr);
+        this.opcode('helper', sexpr.params.length, morphNum);
       } else {
-        processName(this, mustache.id);
+        processName(this, sexpr.path);
         this.opcode('ambiguous', morphNum);
       }
     };
 
-    HydrationOpcodeCompiler.prototype.sexpr = function(sexpr) {
+    HydrationOpcodeCompiler.prototype.SubExpression = function(sexpr) {
       this.string('sexpr');
       this.opcode('program', null, null);
       processSexpr(this, sexpr);
       this.opcode('sexpr', sexpr.params.length);
     };
 
+    HydrationOpcodeCompiler.prototype.PathExpression = function(path) {
+      this.opcode('id', path.parts);
+    };
+
+    HydrationOpcodeCompiler.prototype.StringLiteral = function(node) {
+      this.opcode('stringLiteral', node.value);
+    };
+
+    HydrationOpcodeCompiler.prototype.BooleanLiteral = function(node) {
+      this.opcode('literal', node.value);
+    };
+
+    HydrationOpcodeCompiler.prototype.NumberLiteral = function(node) {
+      this.opcode('literal', node.value);
+    };
+
     HydrationOpcodeCompiler.prototype.string = function(str) {
       this.opcode('string', str);
     };
 
-    HydrationOpcodeCompiler.prototype.ID = function(id) {
-      this.opcode('id', id.parts);
-    };
-
-    HydrationOpcodeCompiler.prototype.STRING = function(string) {
-      this.opcode('stringLiteral', string.stringModeValue);
-    };
-
-    HydrationOpcodeCompiler.prototype.BOOLEAN = function(boolean) {
-      this.opcode('literal', boolean.stringModeValue);
-    };
-
-    HydrationOpcodeCompiler.prototype.NUMBER = function(integer) {
-      this.opcode('literal', integer.stringModeValue);
-    };
-
     function processSexpr(compiler, sexpr) {
-      processName(compiler, sexpr.id);
+      processName(compiler, sexpr.path);
       processParams(compiler, sexpr.params);
       processHash(compiler, sexpr.hash);
     }
 
-    function processName(compiler, id) {
-      if (id) {
-        compiler.opcode('string', id.string);
+    function processName(compiler, path) {
+      if (path) {
+        compiler.opcode('string', path.parts.join('.'));
       } else {
         compiler.opcode('string', '');
       }
@@ -51570,12 +51691,12 @@ enifed("htmlbars-compiler/compiler/hydration_opcode",
 
     function processParams(compiler, params) {
       forEach(params, function(param) {
-        if (param.type === 'text') {
-          compiler.STRING({ stringModeValue: param.chars });
+        if (param.type === 'TextNode') {
+          compiler.StringLiteral(buildString(param.chars));
         } else if (param.type) {
           compiler[param.type](param);
         } else {
-          compiler.STRING({ stringModeValue: param });
+          compiler.StringLiteral(buildString(param));
         }
       });
     }
@@ -51583,9 +51704,10 @@ enifed("htmlbars-compiler/compiler/hydration_opcode",
     function processHash(compiler, hash) {
       if (hash) {
         forEach(hash.pairs, function(pair) {
-          var name = pair[0], param = pair[1];
-          compiler[param.type](param);
-          compiler.opcode('stackLiteral', name);
+          var key = pair.key;
+          var value = pair.value;
+          compiler[value.type](value);
+          compiler.opcode('stackLiteral', key);
         });
         compiler.opcode('stackLiteral', hash.pairs.length);
       } else {
@@ -51901,21 +52023,21 @@ enifed("htmlbars-compiler/compiler/template_visitor",
       this[node.type](node);
     };
 
-    TemplateVisitor.prototype.program = function(program) {
+    TemplateVisitor.prototype.Program = function(program) {
       this.programDepth++;
 
       var parentFrame = this.getCurrentFrame();
       var programFrame = this.pushFrame();
 
       programFrame.parentNode = program;
-      programFrame.children = program.statements;
-      programFrame.childCount = program.statements.length;
+      programFrame.children = program.body;
+      programFrame.childCount = program.body.length;
       programFrame.blankChildTextNodes = [];
       programFrame.actions.push(['endProgram', [program, this.programDepth]]);
 
-      for (var i = program.statements.length - 1; i >= 0; i--) {
+      for (var i = program.body.length - 1; i >= 0; i--) {
         programFrame.childIndex = i;
-        this.visit(program.statements[i]);
+        this.visit(program.body[i]);
       }
 
       programFrame.actions.push(['startProgram', [
@@ -51931,7 +52053,7 @@ enifed("htmlbars-compiler/compiler/template_visitor",
       push.apply(this.actions, programFrame.actions.reverse());
     };
 
-    TemplateVisitor.prototype.element = function(element) {
+    TemplateVisitor.prototype.ElementNode = function(element) {
       var parentFrame = this.getCurrentFrame();
       var elementFrame = this.pushFrame();
       var parentNode = parentFrame.parentNode;
@@ -51946,7 +52068,7 @@ enifed("htmlbars-compiler/compiler/template_visitor",
         element,
         parentFrame.childIndex,
         parentFrame.childCount,
-        parentNode.type === 'program' && parentFrame.childCount === 1
+        parentNode.type === 'Program' && parentFrame.childCount === 1
       ];
 
       var lastNode = parentFrame.childIndex === parentFrame.childCount-1,
@@ -51984,47 +52106,55 @@ enifed("htmlbars-compiler/compiler/template_visitor",
       push.apply(parentFrame.actions, elementFrame.actions);
     };
 
-    TemplateVisitor.prototype.attr = function(attr) {
-      if (attr.value.type === 'mustache') {
+    TemplateVisitor.prototype.AttrNode = function(attr) {
+      if (attr.value.type === 'MustacheStatement') {
         this.getCurrentFrame().mustacheCount++;
       }
     };
 
-    TemplateVisitor.prototype.block = function(node) {
+    TemplateVisitor.prototype.TextNode = function(text) {
       var frame = this.getCurrentFrame();
-
-      frame.mustacheCount++;
-      frame.actions.push([node.type, [node, frame.childIndex, frame.childCount]]);
-
-      if (node.inverse) { this.visit(node.inverse); }
-      if (node.program) { this.visit(node.program); }
-    };
-
-    TemplateVisitor.prototype.partial = function(node) {
-      var frame = this.getCurrentFrame();
-      frame.mustacheCount++;
-      frame.actions.push(['mustache', [node, frame.childIndex, frame.childCount]]);
-    };
-
-    TemplateVisitor.prototype.component = TemplateVisitor.prototype.block;
-
-    TemplateVisitor.prototype.text = function(text) {
-      var frame = this.getCurrentFrame();
-      var isSingleRoot = frame.parentNode.type === 'program' && frame.childCount === 1;
+      var isSingleRoot = frame.parentNode.type === 'Program' && frame.childCount === 1;
       if (text.chars === '') {
         frame.blankChildTextNodes.push(domIndexOf(frame.children, text));
       }
       frame.actions.push(['text', [text, frame.childIndex, frame.childCount, isSingleRoot]]);
     };
 
-    TemplateVisitor.prototype.comment = function(text) {
+    TemplateVisitor.prototype.BlockStatement = function(node) {
       var frame = this.getCurrentFrame();
-      var isSingleRoot = frame.parentNode.type === 'program' && frame.childCount === 1;
+
+      frame.mustacheCount++;
+      frame.actions.push(['block', [node, frame.childIndex, frame.childCount]]);
+
+      if (node.inverse) { this.visit(node.inverse); }
+      if (node.program) { this.visit(node.program); }
+    };
+
+    TemplateVisitor.prototype.ComponentNode = function(node) {
+      var frame = this.getCurrentFrame();
+
+      frame.mustacheCount++;
+      frame.actions.push(['component', [node, frame.childIndex, frame.childCount]]);
+
+      if (node.program) { this.visit(node.program); }
+    };
+
+
+    TemplateVisitor.prototype.PartialStatement = function(node) {
+      var frame = this.getCurrentFrame();
+      frame.mustacheCount++;
+      frame.actions.push(['mustache', [node, frame.childIndex, frame.childCount]]);
+    };
+
+    TemplateVisitor.prototype.CommentStatement = function(text) {
+      var frame = this.getCurrentFrame();
+      var isSingleRoot = frame.parentNode.type === 'Program' && frame.childCount === 1;
 
       frame.actions.push(['comment', [text, frame.childIndex, frame.childCount, isSingleRoot]]);
     };
 
-    TemplateVisitor.prototype.mustache = function(mustache) {
+    TemplateVisitor.prototype.MustacheStatement = function(mustache) {
       var frame = this.getCurrentFrame();
       frame.mustacheCount++;
       frame.actions.push(['mustache', [mustache, frame.childIndex, frame.childCount]]);
@@ -52057,7 +52187,7 @@ enifed("htmlbars-compiler/compiler/template_visitor",
       for (var i = 0; i < nodes.length; i++) {
         var node = nodes[i];
 
-        if (node.type !== 'text' && node.type !== 'element') {
+        if (node.type !== 'TextNode' && node.type !== 'ElementNode') {
           continue;
         } else {
           index++;
@@ -52095,196 +52225,112 @@ enifed("htmlbars-compiler/handlebars/compiler/ast",
     "use strict";
     var Exception = __dependency1__["default"];
 
-    function LocationInfo(locInfo) {
-      locInfo = locInfo || {};
-      this.firstLine   = locInfo.first_line;
-      this.firstColumn = locInfo.first_column;
-      this.lastColumn  = locInfo.last_column;
-      this.lastLine    = locInfo.last_line;
-    }
-
     var AST = {
-      ProgramNode: function(statements, blockParams, strip, locInfo) {
-        LocationInfo.call(this, locInfo);
-        this.type = "program";
-        this.statements = statements;
+      Program: function(statements, blockParams, strip, locInfo) {
+        this.loc = locInfo;
+        this.type = 'Program';
+        this.body = statements;
+
         this.blockParams = blockParams;
         this.strip = strip;
       },
 
-      MustacheNode: function(rawParams, hash, open, strip, locInfo) {
-        LocationInfo.call(this, locInfo);
-        this.type = "mustache";
+      MustacheStatement: function(sexpr, escaped, strip, locInfo) {
+        this.loc = locInfo;
+        this.type = 'MustacheStatement';
+
+        this.sexpr = sexpr;
+        this.escaped = escaped;
+
         this.strip = strip;
-
-        // Open may be a string parsed from the parser or a passed boolean flag
-        if (open != null && open.charAt) {
-          // Must use charAt to support IE pre-10
-          var escapeFlag = open.charAt(3) || open.charAt(2);
-          this.escaped = escapeFlag !== '{' && escapeFlag !== '&';
-        } else {
-          this.escaped = !!open;
-        }
-
-        if (rawParams instanceof AST.SexprNode) {
-          this.sexpr = rawParams;
-        } else {
-          // Support old AST API
-          this.sexpr = new AST.SexprNode(rawParams, hash);
-        }
-
-        // Support old AST API that stored this info in MustacheNode
-        this.id = this.sexpr.id;
-        this.params = this.sexpr.params;
-        this.hash = this.sexpr.hash;
-        this.eligibleHelper = this.sexpr.eligibleHelper;
-        this.isHelper = this.sexpr.isHelper;
       },
 
-      SexprNode: function(rawParams, hash, locInfo) {
-        LocationInfo.call(this, locInfo);
+      BlockStatement: function(sexpr, program, inverse, openStrip, inverseStrip, closeStrip, locInfo) {
+        this.loc = locInfo;
 
-        this.type = "sexpr";
-        this.hash = hash;
-
-        var id = this.id = rawParams[0];
-        var params = this.params = rawParams.slice(1);
-
-        // a mustache is definitely a helper if:
-        // * it is an eligible helper, and
-        // * it has at least one parameter or hash segment
-        this.isHelper = !!(params.length || hash);
-
-        // a mustache is an eligible helper if:
-        // * its id is simple (a single part, not `this` or `..`)
-        this.eligibleHelper = this.isHelper || id.isSimple;
-
-        // if a mustache is an eligible helper but not a definite
-        // helper, it is ambiguous, and will be resolved in a later
-        // pass or at runtime.
-      },
-
-      PartialNode: function(partialName, context, hash, strip, locInfo) {
-        LocationInfo.call(this, locInfo);
-        this.type         = "partial";
-        this.partialName  = partialName;
-        this.context      = context;
-        this.hash = hash;
-        this.strip = strip;
-
-        this.strip.inlineStandalone = true;
-      },
-
-      BlockNode: function(sexpr, program, inverse, strip, locInfo) {
-        LocationInfo.call(this, locInfo);
-
-        this.type = 'block';
+        this.type = 'BlockStatement';
         this.sexpr = sexpr;
         this.program  = program;
         this.inverse  = inverse;
+
+        this.openStrip = openStrip;
+        this.inverseStrip = inverseStrip;
+        this.closeStrip = closeStrip;
+      },
+
+      PartialStatement: function(sexpr, strip, locInfo) {
+        this.loc = locInfo;
+        this.type = 'PartialStatement';
+        this.sexpr = sexpr;
+        this.indent = '';
+
         this.strip = strip;
-
-        if (inverse && !program) {
-          this.isInverse = true;
-        }
       },
 
-      ContentNode: function(string, locInfo) {
-        LocationInfo.call(this, locInfo);
-        this.type = "content";
-        this.original = this.string = string;
+      ContentStatement: function(string, locInfo) {
+        this.loc = locInfo;
+        this.type = 'ContentStatement';
+        this.original = this.value = string;
       },
 
-      HashNode: function(pairs, locInfo) {
-        LocationInfo.call(this, locInfo);
-        this.type = "hash";
+      CommentStatement: function(comment, strip, locInfo) {
+        this.loc = locInfo;
+        this.type = 'CommentStatement';
+        this.value = comment;
+
+        this.strip = strip;
+      },
+
+      SubExpression: function(path, params, hash, locInfo) {
+        this.loc = locInfo;
+
+        this.type = 'SubExpression';
+        this.path = path;
+        this.params = params || [];
+        this.hash = hash;
+      },
+
+      PathExpression: function(data, depth, parts, original, locInfo) {
+        this.loc = locInfo;
+        this.type = 'PathExpression';
+
+        this.data = data;
+        this.original = original;
+        this.parts    = parts;
+        this.depth    = depth;
+      },
+
+      StringLiteral: function(string, locInfo) {
+        this.loc = locInfo;
+        this.type = 'StringLiteral';
+        this.original =
+          this.value = string;
+      },
+
+      NumberLiteral: function(number, locInfo) {
+        this.loc = locInfo;
+        this.type = 'NumberLiteral';
+        this.original =
+          this.value = Number(number);
+      },
+
+      BooleanLiteral: function(bool, locInfo) {
+        this.loc = locInfo;
+        this.type = 'BooleanLiteral';
+        this.original =
+          this.value = bool === 'true';
+      },
+
+      Hash: function(pairs, locInfo) {
+        this.loc = locInfo;
+        this.type = 'Hash';
         this.pairs = pairs;
       },
-
-      IdNode: function(parts, locInfo) {
-        LocationInfo.call(this, locInfo);
-        this.type = "ID";
-
-        var original = "",
-            dig = [],
-            depth = 0,
-            depthString = '';
-
-        for(var i=0,l=parts.length; i<l; i++) {
-          var part = parts[i].part;
-          original += (parts[i].separator || '') + part;
-
-          if (part === ".." || part === "." || part === "this") {
-            if (dig.length > 0) {
-              throw new Exception("Invalid path: " + original, this);
-            } else if (part === "..") {
-              depth++;
-              depthString += '../';
-            } else {
-              this.isScoped = true;
-            }
-          } else {
-            dig.push(part);
-          }
-        }
-
-        this.original = original;
-        this.parts    = dig;
-        this.string   = dig.join('.');
-        this.depth    = depth;
-        this.idName   = depthString + this.string;
-
-        // an ID is simple if it only has one part, and that part is not
-        // `..` or `this`.
-        this.isSimple = parts.length === 1 && !this.isScoped && depth === 0;
-
-        this.stringModeValue = this.string;
-      },
-
-      PartialNameNode: function(name, locInfo) {
-        LocationInfo.call(this, locInfo);
-        this.type = "PARTIAL_NAME";
-        this.name = name.original;
-      },
-
-      DataNode: function(id, locInfo) {
-        LocationInfo.call(this, locInfo);
-        this.type = "DATA";
-        this.id = id;
-        this.stringModeValue = id.stringModeValue;
-        this.idName = '@' + id.stringModeValue;
-      },
-
-      StringNode: function(string, locInfo) {
-        LocationInfo.call(this, locInfo);
-        this.type = "STRING";
-        this.original =
-          this.string =
-          this.stringModeValue = string;
-      },
-
-      NumberNode: function(number, locInfo) {
-        LocationInfo.call(this, locInfo);
-        this.type = "NUMBER";
-        this.original =
-          this.number = number;
-        this.stringModeValue = Number(number);
-      },
-
-      BooleanNode: function(bool, locInfo) {
-        LocationInfo.call(this, locInfo);
-        this.type = "BOOLEAN";
-        this.bool = bool;
-        this.stringModeValue = bool === "true";
-      },
-
-      CommentNode: function(comment, strip, locInfo) {
-        LocationInfo.call(this, locInfo);
-        this.type = "comment";
-        this.comment = comment;
-
-        this.strip = strip;
-        strip.inlineStandalone = true;
+      HashPair: function(key, value, locInfo) {
+        this.loc = locInfo;
+        this.type = 'HashPair';
+        this.key = key;
+        this.value = value;
       }
     };
 
@@ -52294,26 +52340,33 @@ enifed("htmlbars-compiler/handlebars/compiler/ast",
     __exports__["default"] = AST;
   });
 enifed("htmlbars-compiler/handlebars/compiler/base",
-  ["./parser","./ast","./helpers","../utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+  ["./parser","./ast","./whitespace-control","./helpers","../utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     var parser = __dependency1__["default"];
     var AST = __dependency2__["default"];
-    var Helpers = __dependency3__;
-    var extend = __dependency4__.extend;
+    var WhitespaceControl = __dependency3__["default"];
+    var Helpers = __dependency4__;
+    var extend = __dependency5__.extend;
 
     __exports__.parser = parser;
 
     var yy = {};
     extend(yy, Helpers, AST);
 
-    function parse(input) {
+    function parse(input, options) {
       // Just return if an already-compile AST was passed in.
-      if (input.constructor === AST.ProgramNode) { return input; }
+      if (input.type === 'Program') { return input; }
 
       parser.yy = yy;
 
-      return parser.parse(input);
+      // Altering the shared object here, but this is ok as parser is a sync operation
+      yy.locInfo = function(locInfo) {
+        return new yy.SourceLocation(options && options.srcName, locInfo);
+      };
+
+      var strip = new WhitespaceControl();
+      return strip.accept(parser.parse(input));
     }
 
     __exports__.parse = parse;
@@ -52324,10 +52377,22 @@ enifed("htmlbars-compiler/handlebars/compiler/helpers",
     "use strict";
     var Exception = __dependency1__["default"];
 
-    function stripFlags(open, close) {
+    function SourceLocation(source, locInfo) {
+      this.source = source;
+      this.start = {
+        line: locInfo.first_line,
+        column: locInfo.first_column
+      };
+      this.end = {
+        line: locInfo.last_line,
+        column: locInfo.last_column
+      };
+    }
+
+    __exports__.SourceLocation = SourceLocation;function stripFlags(open, close) {
       return {
-        left: open.charAt(2) === '~',
-        right: close.charAt(close.length-3) === '~'
+        open: open.charAt(2) === '~',
+        close: close.charAt(close.length-3) === '~'
       };
     }
 
@@ -52336,225 +52401,96 @@ enifed("htmlbars-compiler/handlebars/compiler/helpers",
                     .replace(/-?-?~?\}\}$/, '');
     }
 
-    __exports__.stripComment = stripComment;function prepareRawBlock(openRawBlock, content, close, locInfo) {
+    __exports__.stripComment = stripComment;function preparePath(data, parts, locInfo) {
       /*jshint -W040 */
-      if (openRawBlock.sexpr.id.original !== close) {
-        var errorNode = {
-          firstLine: openRawBlock.sexpr.firstLine,
-          firstColumn: openRawBlock.sexpr.firstColumn
-        };
+      locInfo = this.locInfo(locInfo);
 
-        throw new Exception(openRawBlock.sexpr.id.original + " doesn't match " + close, errorNode);
+      var original = data ? '@' : '',
+          dig = [],
+          depth = 0,
+          depthString = '';
+
+      for(var i=0,l=parts.length; i<l; i++) {
+        var part = parts[i].part;
+        original += (parts[i].separator || '') + part;
+
+        if (part === '..' || part === '.' || part === 'this') {
+          if (dig.length > 0) {
+            throw new Exception('Invalid path: ' + original, {loc: locInfo});
+          } else if (part === '..') {
+            depth++;
+            depthString += '../';
+          }
+        } else {
+          dig.push(part);
+        }
       }
 
-      var program = new this.ProgramNode([content], null, {}, locInfo);
+      return new this.PathExpression(data, depth, dig, original, locInfo);
+    }
 
-      return new this.BlockNode(openRawBlock.sexpr, program, undefined, undefined, locInfo);
+    __exports__.preparePath = preparePath;function prepareMustache(sexpr, open, strip, locInfo) {
+      /*jshint -W040 */
+      // Must use charAt to support IE pre-10
+      var escapeFlag = open.charAt(3) || open.charAt(2),
+          escaped = escapeFlag !== '{' && escapeFlag !== '&';
+
+      return new this.MustacheStatement(sexpr, escaped, strip, this.locInfo(locInfo));
+    }
+
+    __exports__.prepareMustache = prepareMustache;function prepareRawBlock(openRawBlock, content, close, locInfo) {
+      /*jshint -W040 */
+      if (openRawBlock.sexpr.path.original !== close) {
+        var errorNode = {loc: openRawBlock.sexpr.loc};
+
+        throw new Exception(openRawBlock.sexpr.path.original + " doesn't match " + close, errorNode);
+      }
+
+      locInfo = this.locInfo(locInfo);
+      var program = new this.Program([content], null, {}, locInfo);
+
+      return new this.BlockStatement(
+          openRawBlock.sexpr, program, undefined,
+          {}, {}, {},
+          locInfo);
     }
 
     __exports__.prepareRawBlock = prepareRawBlock;function prepareBlock(openBlock, program, inverseAndProgram, close, inverted, locInfo) {
       /*jshint -W040 */
       // When we are chaining inverse calls, we will not have a close path
-      if (close && close.path && openBlock.sexpr.id.original !== close.path.original) {
-        var errorNode = {
-          firstLine: openBlock.sexpr.firstLine,
-          firstColumn: openBlock.sexpr.firstColumn
-        };
+      if (close && close.path && openBlock.sexpr.path.original !== close.path.original) {
+        var errorNode = {loc: openBlock.sexpr.loc};
 
-        throw new Exception(openBlock.sexpr.id.original + ' doesn\'t match ' + close.path.original, errorNode);
+        throw new Exception(openBlock.sexpr.path.original + ' doesn\'t match ' + close.path.original, errorNode);
       }
 
       program.blockParams = openBlock.blockParams;
 
-      // Safely handle a chained inverse that does not have a non-conditional inverse
-      // (i.e. both inverseAndProgram AND close are undefined)
-      if (!close) {
-        close = {strip: {}};
-      }
+      var inverse,
+          inverseStrip;
 
-      // Find the inverse program that is involed with whitespace stripping.
-      var inverse = inverseAndProgram && inverseAndProgram.program,
-          firstInverse = inverse,
-          lastInverse = inverse;
-      if (inverse && inverse.inverse) {
-        firstInverse = inverse.statements[0].program;
-
-        // Walk the inverse chain to find the last inverse that is actually in the chain.
-        while (lastInverse.inverse) {
-          lastInverse = lastInverse.statements[lastInverse.statements.length-1].program;
-        }
-      }
-
-      var strip = {
-        left: openBlock.strip.left,
-        right: close.strip.right,
-
-        // Determine the standalone candiacy. Basically flag our content as being possibly standalone
-        // so our parent can determine if we actually are standalone
-        openStandalone: isNextWhitespace(program.statements),
-        closeStandalone: isPrevWhitespace((firstInverse || program).statements)
-      };
-
-      if (openBlock.strip.right) {
-        omitRight(program.statements, null, true);
-      }
-
-      if (inverse) {
-        var inverseStrip = inverseAndProgram.strip;
-
-        if (inverseStrip.left) {
-          omitLeft(program.statements, null, true);
+      if (inverseAndProgram) {
+        if (inverseAndProgram.chain) {
+          inverseAndProgram.program.body[0].closeStrip = close.strip || close.openStrip;
         }
 
-        if (inverseStrip.right) {
-          omitRight(firstInverse.statements, null, true);
-        }
-        if (close.strip.left) {
-          omitLeft(lastInverse.statements, null, true);
-        }
-
-        // Find standalone else statments
-        if (isPrevWhitespace(program.statements)
-            && isNextWhitespace(firstInverse.statements)) {
-
-          omitLeft(program.statements);
-          omitRight(firstInverse.statements);
-        }
-      } else {
-        if (close.strip.left) {
-          omitLeft(program.statements, null, true);
-        }
+        inverseStrip = inverseAndProgram.strip;
+        inverse = inverseAndProgram.program;
       }
 
       if (inverted) {
-        return new this.BlockNode(openBlock.sexpr, inverse, program, strip, locInfo);
-      } else {
-        return new this.BlockNode(openBlock.sexpr, program, inverse, strip, locInfo);
+        inverted = inverse;
+        inverse = program;
+        program = inverted;
       }
+
+      return new this.BlockStatement(
+          openBlock.sexpr, program, inverse,
+          openBlock.strip, inverseStrip, close && (close.strip || close.openStrip),
+          this.locInfo(locInfo));
     }
 
     __exports__.prepareBlock = prepareBlock;
-    function prepareProgram(statements, isRoot) {
-      for (var i = 0, l = statements.length; i < l; i++) {
-        var current = statements[i],
-            strip = current.strip;
-
-        if (!strip) {
-          continue;
-        }
-
-        var _isPrevWhitespace = isPrevWhitespace(statements, i, isRoot, current.type === 'partial'),
-            _isNextWhitespace = isNextWhitespace(statements, i, isRoot),
-
-            openStandalone = strip.openStandalone && _isPrevWhitespace,
-            closeStandalone = strip.closeStandalone && _isNextWhitespace,
-            inlineStandalone = strip.inlineStandalone && _isPrevWhitespace && _isNextWhitespace;
-
-        if (strip.right) {
-          omitRight(statements, i, true);
-        }
-        if (strip.left) {
-          omitLeft(statements, i, true);
-        }
-
-        if (inlineStandalone) {
-          omitRight(statements, i);
-
-          if (omitLeft(statements, i)) {
-            // If we are on a standalone node, save the indent info for partials
-            if (current.type === 'partial') {
-              // Pull out the whitespace from the final line
-              current.indent = (/([ \t]+$)/).exec(statements[i-1].original)[1];
-            }
-          }
-        }
-        if (openStandalone) {
-          omitRight((current.program || current.inverse).statements);
-
-          // Strip out the previous content node if it's whitespace only
-          omitLeft(statements, i);
-        }
-        if (closeStandalone) {
-          // Always strip the next node
-          omitRight(statements, i);
-
-          omitLeft((current.inverse || current.program).statements);
-        }
-      }
-
-      return statements;
-    }
-
-    __exports__.prepareProgram = prepareProgram;function isPrevWhitespace(statements, i, isRoot) {
-      if (i === undefined) {
-        i = statements.length;
-      }
-
-      // Nodes that end with newlines are considered whitespace (but are special
-      // cased for strip operations)
-      var prev = statements[i-1],
-          sibling = statements[i-2];
-      if (!prev) {
-        return isRoot;
-      }
-
-      if (prev.type === 'content') {
-        return (sibling || !isRoot ? (/\r?\n\s*?$/) : (/(^|\r?\n)\s*?$/)).test(prev.original);
-      }
-    }
-    function isNextWhitespace(statements, i, isRoot) {
-      if (i === undefined) {
-        i = -1;
-      }
-
-      var next = statements[i+1],
-          sibling = statements[i+2];
-      if (!next) {
-        return isRoot;
-      }
-
-      if (next.type === 'content') {
-        return (sibling || !isRoot ? (/^\s*?\r?\n/) : (/^\s*?(\r?\n|$)/)).test(next.original);
-      }
-    }
-
-    // Marks the node to the right of the position as omitted.
-    // I.e. {{foo}}' ' will mark the ' ' node as omitted.
-    //
-    // If i is undefined, then the first child will be marked as such.
-    //
-    // If mulitple is truthy then all whitespace will be stripped out until non-whitespace
-    // content is met.
-    function omitRight(statements, i, multiple) {
-      var current = statements[i == null ? 0 : i + 1];
-      if (!current || current.type !== 'content' || (!multiple && current.rightStripped)) {
-        return;
-      }
-
-      var original = current.string;
-      current.string = current.string.replace(multiple ? (/^\s+/) : (/^[ \t]*\r?\n?/), '');
-      current.rightStripped = current.string !== original;
-    }
-
-    // Marks the node to the left of the position as omitted.
-    // I.e. ' '{{foo}} will mark the ' ' node as omitted.
-    //
-    // If i is undefined then the last child will be marked as such.
-    //
-    // If mulitple is truthy then all whitespace will be stripped out until non-whitespace
-    // content is met.
-    function omitLeft(statements, i, multiple) {
-      var current = statements[i == null ? statements.length - 1 : i - 1];
-      if (!current || current.type !== 'content' || (!multiple && current.leftStripped)) {
-        return;
-      }
-
-      // We omit the last node if it's whitespace only and not preceeded by a non-content node.
-      var original = current.string;
-      current.string = current.string.replace(multiple ? (/\s+$/) : (/[ \t]+$/), '');
-      current.leftStripped = current.string !== original;
-      return current.leftStripped;
-    }
   });
 enifed("htmlbars-compiler/handlebars/compiler/parser",
   ["exports"],
@@ -52566,16 +52502,16 @@ enifed("htmlbars-compiler/handlebars/compiler/parser",
     var handlebars = (function(){
     var parser = {trace: function trace() { },
     yy: {},
-    symbols_: {"error":2,"root":3,"program":4,"EOF":5,"program_repetition0":6,"statement":7,"mustache":8,"block":9,"rawBlock":10,"partial":11,"content":12,"COMMENT":13,"CONTENT":14,"openRawBlock":15,"END_RAW_BLOCK":16,"OPEN_RAW_BLOCK":17,"sexpr":18,"CLOSE_RAW_BLOCK":19,"openBlock":20,"block_option0":21,"closeBlock":22,"openInverse":23,"block_option1":24,"OPEN_BLOCK":25,"openBlock_option0":26,"CLOSE":27,"OPEN_INVERSE":28,"openInverse_option0":29,"openInverseChain":30,"OPEN_INVERSE_CHAIN":31,"inverseAndProgram":32,"INVERSE":33,"inverseChain":34,"inverseChain_option0":35,"OPEN_ENDBLOCK":36,"path":37,"OPEN":38,"OPEN_UNESCAPED":39,"CLOSE_UNESCAPED":40,"OPEN_PARTIAL":41,"partialName":42,"param":43,"partial_option0":44,"partial_option1":45,"sexpr_repetition0":46,"sexpr_option0":47,"dataName":48,"STRING":49,"NUMBER":50,"BOOLEAN":51,"OPEN_SEXPR":52,"CLOSE_SEXPR":53,"hash":54,"hash_repetition_plus0":55,"hashSegment":56,"ID":57,"EQUALS":58,"blockParams":59,"OPEN_BLOCK_PARAMS":60,"blockParams_repetition_plus0":61,"CLOSE_BLOCK_PARAMS":62,"DATA":63,"pathSegments":64,"SEP":65,"$accept":0,"$end":1},
-    terminals_: {2:"error",5:"EOF",13:"COMMENT",14:"CONTENT",16:"END_RAW_BLOCK",17:"OPEN_RAW_BLOCK",19:"CLOSE_RAW_BLOCK",25:"OPEN_BLOCK",27:"CLOSE",28:"OPEN_INVERSE",31:"OPEN_INVERSE_CHAIN",33:"INVERSE",36:"OPEN_ENDBLOCK",38:"OPEN",39:"OPEN_UNESCAPED",40:"CLOSE_UNESCAPED",41:"OPEN_PARTIAL",49:"STRING",50:"NUMBER",51:"BOOLEAN",52:"OPEN_SEXPR",53:"CLOSE_SEXPR",57:"ID",58:"EQUALS",60:"OPEN_BLOCK_PARAMS",62:"CLOSE_BLOCK_PARAMS",63:"DATA",65:"SEP"},
-    productions_: [0,[3,2],[4,1],[7,1],[7,1],[7,1],[7,1],[7,1],[7,1],[12,1],[10,3],[15,3],[9,4],[9,4],[20,4],[23,4],[30,3],[32,2],[34,3],[34,1],[22,3],[8,3],[8,3],[11,5],[11,4],[18,3],[18,1],[43,1],[43,1],[43,1],[43,1],[43,1],[43,3],[54,1],[56,3],[59,3],[42,1],[42,1],[42,1],[48,2],[37,1],[64,3],[64,1],[6,0],[6,2],[21,0],[21,1],[24,0],[24,1],[26,0],[26,1],[29,0],[29,1],[35,0],[35,1],[44,0],[44,1],[45,0],[45,1],[46,0],[46,2],[47,0],[47,1],[55,1],[55,2],[61,1],[61,2]],
+    symbols_: {"error":2,"root":3,"program":4,"EOF":5,"program_repetition0":6,"statement":7,"mustache":8,"block":9,"rawBlock":10,"partial":11,"content":12,"COMMENT":13,"CONTENT":14,"openRawBlock":15,"END_RAW_BLOCK":16,"OPEN_RAW_BLOCK":17,"sexpr":18,"CLOSE_RAW_BLOCK":19,"openBlock":20,"block_option0":21,"closeBlock":22,"openInverse":23,"block_option1":24,"OPEN_BLOCK":25,"openBlock_option0":26,"CLOSE":27,"OPEN_INVERSE":28,"openInverse_option0":29,"openInverseChain":30,"OPEN_INVERSE_CHAIN":31,"openInverseChain_option0":32,"inverseAndProgram":33,"INVERSE":34,"inverseChain":35,"inverseChain_option0":36,"OPEN_ENDBLOCK":37,"path":38,"OPEN":39,"OPEN_UNESCAPED":40,"CLOSE_UNESCAPED":41,"OPEN_PARTIAL":42,"helperName":43,"sexpr_repetition0":44,"sexpr_option0":45,"dataName":46,"param":47,"STRING":48,"NUMBER":49,"BOOLEAN":50,"OPEN_SEXPR":51,"CLOSE_SEXPR":52,"hash":53,"hash_repetition_plus0":54,"hashSegment":55,"ID":56,"EQUALS":57,"blockParams":58,"OPEN_BLOCK_PARAMS":59,"blockParams_repetition_plus0":60,"CLOSE_BLOCK_PARAMS":61,"DATA":62,"pathSegments":63,"SEP":64,"$accept":0,"$end":1},
+    terminals_: {2:"error",5:"EOF",13:"COMMENT",14:"CONTENT",16:"END_RAW_BLOCK",17:"OPEN_RAW_BLOCK",19:"CLOSE_RAW_BLOCK",25:"OPEN_BLOCK",27:"CLOSE",28:"OPEN_INVERSE",31:"OPEN_INVERSE_CHAIN",34:"INVERSE",37:"OPEN_ENDBLOCK",39:"OPEN",40:"OPEN_UNESCAPED",41:"CLOSE_UNESCAPED",42:"OPEN_PARTIAL",48:"STRING",49:"NUMBER",50:"BOOLEAN",51:"OPEN_SEXPR",52:"CLOSE_SEXPR",56:"ID",57:"EQUALS",59:"OPEN_BLOCK_PARAMS",61:"CLOSE_BLOCK_PARAMS",62:"DATA",64:"SEP"},
+    productions_: [0,[3,2],[4,1],[7,1],[7,1],[7,1],[7,1],[7,1],[7,1],[12,1],[10,3],[15,3],[9,4],[9,4],[20,4],[23,4],[30,4],[33,2],[35,3],[35,1],[22,3],[8,3],[8,3],[11,3],[18,3],[18,1],[47,1],[47,1],[47,1],[47,1],[47,1],[47,3],[53,1],[55,3],[58,3],[43,1],[43,1],[43,1],[46,2],[38,1],[63,3],[63,1],[6,0],[6,2],[21,0],[21,1],[24,0],[24,1],[26,0],[26,1],[29,0],[29,1],[32,0],[32,1],[36,0],[36,1],[44,0],[44,2],[45,0],[45,1],[54,1],[54,2],[60,1],[60,2]],
     performAction: function anonymous(yytext,yyleng,yylineno,yy,yystate,$$,_$) {
 
     var $0 = $$.length - 1;
     switch (yystate) {
-    case 1: yy.prepareProgram($$[$0-1].statements, true); return $$[$0-1]; 
+    case 1: return $$[$0-1]; 
     break;
-    case 2:this.$ = new yy.ProgramNode(yy.prepareProgram($$[$0]), null, {}, this._$);
+    case 2:this.$ = new yy.Program($$[$0], null, {}, yy.locInfo(this._$));
     break;
     case 3:this.$ = $$[$0];
     break;
@@ -52587,9 +52523,9 @@ enifed("htmlbars-compiler/handlebars/compiler/parser",
     break;
     case 7:this.$ = $$[$0];
     break;
-    case 8:this.$ = new yy.CommentNode(yy.stripComment($$[$0]), yy.stripFlags($$[$0], $$[$0]), this._$);
+    case 8:this.$ = new yy.CommentStatement(yy.stripComment($$[$0]), yy.stripFlags($$[$0], $$[$0]), yy.locInfo(this._$));
     break;
-    case 9:this.$ = new yy.ContentNode($$[$0], this._$);
+    case 9:this.$ = new yy.ContentStatement($$[$0], yy.locInfo(this._$));
     break;
     case 10:this.$ = yy.prepareRawBlock($$[$0-2], $$[$0-1], $$[$0], this._$);
     break;
@@ -52603,15 +52539,14 @@ enifed("htmlbars-compiler/handlebars/compiler/parser",
     break;
     case 15:this.$ = { sexpr: $$[$0-2], blockParams: $$[$0-1], strip: yy.stripFlags($$[$0-3], $$[$0]) };
     break;
-    case 16:this.$ = new yy.MustacheNode($$[$0-1], null, $$[$0-2], yy.stripFlags($$[$0-2], $$[$0]), this._$);
+    case 16:this.$ = { sexpr: $$[$0-2], blockParams: $$[$0-1], strip: yy.stripFlags($$[$0-3], $$[$0]) };
     break;
     case 17:this.$ = { strip: yy.stripFlags($$[$0-1], $$[$0-1]), program: $$[$0] };
     break;
     case 18:
         var inverse = yy.prepareBlock($$[$0-2], $$[$0-1], $$[$0], $$[$0], false, this._$),
-            program = new yy.ProgramNode(yy.prepareProgram([inverse]), null, {}, this._$);
-
-        program.inverse = inverse;
+            program = new yy.Program([inverse], null, {}, yy.locInfo(this._$));
+        program.chained = true;
 
         this.$ = { strip: $$[$0-2].strip, program: program, chain: true };
       
@@ -52620,70 +52555,68 @@ enifed("htmlbars-compiler/handlebars/compiler/parser",
     break;
     case 20:this.$ = {path: $$[$0-1], strip: yy.stripFlags($$[$0-2], $$[$0])};
     break;
-    case 21:this.$ = new yy.MustacheNode($$[$0-1], null, $$[$0-2], yy.stripFlags($$[$0-2], $$[$0]), this._$);
+    case 21:this.$ = yy.prepareMustache($$[$0-1], $$[$0-2], yy.stripFlags($$[$0-2], $$[$0]), this._$);
     break;
-    case 22:this.$ = new yy.MustacheNode($$[$0-1], null, $$[$0-2], yy.stripFlags($$[$0-2], $$[$0]), this._$);
+    case 22:this.$ = yy.prepareMustache($$[$0-1], $$[$0-2], yy.stripFlags($$[$0-2], $$[$0]), this._$);
     break;
-    case 23:this.$ = new yy.PartialNode($$[$0-3], $$[$0-2], $$[$0-1], yy.stripFlags($$[$0-4], $$[$0]), this._$);
+    case 23:this.$ = new yy.PartialStatement($$[$0-1], yy.stripFlags($$[$0-2], $$[$0]), yy.locInfo(this._$));
     break;
-    case 24:this.$ = new yy.PartialNode($$[$0-2], undefined, $$[$0-1], yy.stripFlags($$[$0-3], $$[$0]), this._$);
+    case 24:this.$ = new yy.SubExpression($$[$0-2], $$[$0-1], $$[$0], yy.locInfo(this._$));
     break;
-    case 25:this.$ = new yy.SexprNode([$$[$0-2]].concat($$[$0-1]), $$[$0], this._$);
+    case 25:this.$ = new yy.SubExpression($$[$0], null, null, yy.locInfo(this._$));
     break;
-    case 26:this.$ = new yy.SexprNode([$$[$0]], null, this._$);
+    case 26:this.$ = $$[$0];
     break;
-    case 27:this.$ = $$[$0];
+    case 27:this.$ = new yy.StringLiteral($$[$0], yy.locInfo(this._$));
     break;
-    case 28:this.$ = new yy.StringNode($$[$0], this._$);
+    case 28:this.$ = new yy.NumberLiteral($$[$0], yy.locInfo(this._$));
     break;
-    case 29:this.$ = new yy.NumberNode($$[$0], this._$);
+    case 29:this.$ = new yy.BooleanLiteral($$[$0], yy.locInfo(this._$));
     break;
-    case 30:this.$ = new yy.BooleanNode($$[$0], this._$);
+    case 30:this.$ = $$[$0];
     break;
-    case 31:this.$ = $$[$0];
+    case 31:this.$ = $$[$0-1];
     break;
-    case 32:$$[$0-1].isHelper = true; this.$ = $$[$0-1];
+    case 32:this.$ = new yy.Hash($$[$0], yy.locInfo(this._$));
     break;
-    case 33:this.$ = new yy.HashNode($$[$0], this._$);
+    case 33:this.$ = new yy.HashPair($$[$0-2], $$[$0], yy.locInfo(this._$));
     break;
-    case 34:this.$ = [$$[$0-2], $$[$0]];
+    case 34:this.$ = $$[$0-1];
     break;
-    case 35:this.$ = $$[$0-1];
+    case 35:this.$ = $$[$0];
     break;
-    case 36:this.$ = new yy.PartialNameNode($$[$0], this._$);
+    case 36:this.$ = new yy.StringLiteral($$[$0], yy.locInfo(this._$)), yy.locInfo(this._$);
     break;
-    case 37:this.$ = new yy.PartialNameNode(new yy.StringNode($$[$0], this._$), this._$);
+    case 37:this.$ = new yy.NumberLiteral($$[$0], yy.locInfo(this._$));
     break;
-    case 38:this.$ = new yy.PartialNameNode(new yy.NumberNode($$[$0], this._$));
+    case 38:this.$ = yy.preparePath(true, $$[$0], this._$);
     break;
-    case 39:this.$ = new yy.DataNode($$[$0], this._$);
+    case 39:this.$ = yy.preparePath(false, $$[$0], this._$);
     break;
-    case 40:this.$ = new yy.IdNode($$[$0], this._$);
+    case 40: $$[$0-2].push({part: $$[$0], separator: $$[$0-1]}); this.$ = $$[$0-2]; 
     break;
-    case 41: $$[$0-2].push({part: $$[$0], separator: $$[$0-1]}); this.$ = $$[$0-2]; 
+    case 41:this.$ = [{part: $$[$0]}];
     break;
-    case 42:this.$ = [{part: $$[$0]}];
+    case 42:this.$ = [];
     break;
-    case 43:this.$ = [];
+    case 43:$$[$0-1].push($$[$0]);
     break;
-    case 44:$$[$0-1].push($$[$0]);
+    case 56:this.$ = [];
     break;
-    case 59:this.$ = [];
+    case 57:$$[$0-1].push($$[$0]);
     break;
-    case 60:$$[$0-1].push($$[$0]);
+    case 60:this.$ = [$$[$0]];
     break;
-    case 63:this.$ = [$$[$0]];
+    case 61:$$[$0-1].push($$[$0]);
     break;
-    case 64:$$[$0-1].push($$[$0]);
+    case 62:this.$ = [$$[$0]];
     break;
-    case 65:this.$ = [$$[$0]];
-    break;
-    case 66:$$[$0-1].push($$[$0]);
+    case 63:$$[$0-1].push($$[$0]);
     break;
     }
     },
-    table: [{3:1,4:2,5:[2,43],6:3,13:[2,43],14:[2,43],17:[2,43],25:[2,43],28:[2,43],38:[2,43],39:[2,43],41:[2,43]},{1:[3]},{5:[1,4]},{5:[2,2],7:5,8:6,9:7,10:8,11:9,12:10,13:[1,11],14:[1,18],15:16,17:[1,21],20:14,23:15,25:[1,19],28:[1,20],31:[2,2],33:[2,2],36:[2,2],38:[1,12],39:[1,13],41:[1,17]},{1:[2,1]},{5:[2,44],13:[2,44],14:[2,44],17:[2,44],25:[2,44],28:[2,44],31:[2,44],33:[2,44],36:[2,44],38:[2,44],39:[2,44],41:[2,44]},{5:[2,3],13:[2,3],14:[2,3],17:[2,3],25:[2,3],28:[2,3],31:[2,3],33:[2,3],36:[2,3],38:[2,3],39:[2,3],41:[2,3]},{5:[2,4],13:[2,4],14:[2,4],17:[2,4],25:[2,4],28:[2,4],31:[2,4],33:[2,4],36:[2,4],38:[2,4],39:[2,4],41:[2,4]},{5:[2,5],13:[2,5],14:[2,5],17:[2,5],25:[2,5],28:[2,5],31:[2,5],33:[2,5],36:[2,5],38:[2,5],39:[2,5],41:[2,5]},{5:[2,6],13:[2,6],14:[2,6],17:[2,6],25:[2,6],28:[2,6],31:[2,6],33:[2,6],36:[2,6],38:[2,6],39:[2,6],41:[2,6]},{5:[2,7],13:[2,7],14:[2,7],17:[2,7],25:[2,7],28:[2,7],31:[2,7],33:[2,7],36:[2,7],38:[2,7],39:[2,7],41:[2,7]},{5:[2,8],13:[2,8],14:[2,8],17:[2,8],25:[2,8],28:[2,8],31:[2,8],33:[2,8],36:[2,8],38:[2,8],39:[2,8],41:[2,8]},{18:22,37:23,48:24,57:[1,27],63:[1,26],64:25},{18:28,37:23,48:24,57:[1,27],63:[1,26],64:25},{4:29,6:3,13:[2,43],14:[2,43],17:[2,43],25:[2,43],28:[2,43],31:[2,43],33:[2,43],36:[2,43],38:[2,43],39:[2,43],41:[2,43]},{4:30,6:3,13:[2,43],14:[2,43],17:[2,43],25:[2,43],28:[2,43],33:[2,43],36:[2,43],38:[2,43],39:[2,43],41:[2,43]},{12:31,14:[1,18]},{37:33,42:32,49:[1,34],50:[1,35],57:[1,27],64:25},{5:[2,9],13:[2,9],14:[2,9],16:[2,9],17:[2,9],25:[2,9],28:[2,9],31:[2,9],33:[2,9],36:[2,9],38:[2,9],39:[2,9],41:[2,9]},{18:36,37:23,48:24,57:[1,27],63:[1,26],64:25},{18:37,37:23,48:24,57:[1,27],63:[1,26],64:25},{18:38,37:23,48:24,57:[1,27],63:[1,26],64:25},{27:[1,39]},{19:[2,59],27:[2,59],40:[2,59],46:40,49:[2,59],50:[2,59],51:[2,59],52:[2,59],53:[2,59],57:[2,59],60:[2,59],63:[2,59]},{19:[2,26],27:[2,26],40:[2,26],53:[2,26],60:[2,26]},{19:[2,40],27:[2,40],40:[2,40],49:[2,40],50:[2,40],51:[2,40],52:[2,40],53:[2,40],57:[2,40],60:[2,40],63:[2,40],65:[1,41]},{37:42,57:[1,27],64:25},{19:[2,42],27:[2,42],40:[2,42],49:[2,42],50:[2,42],51:[2,42],52:[2,42],53:[2,42],57:[2,42],60:[2,42],63:[2,42],65:[2,42]},{40:[1,43]},{21:44,30:46,31:[1,48],32:47,33:[1,49],34:45,36:[2,45]},{24:50,32:51,33:[1,49],36:[2,47]},{16:[1,52]},{27:[2,57],37:55,43:53,45:54,48:59,49:[1,56],50:[1,57],51:[1,58],52:[1,60],54:61,55:62,56:64,57:[1,63],63:[1,26],64:25},{27:[2,36],49:[2,36],50:[2,36],51:[2,36],52:[2,36],57:[2,36],63:[2,36]},{27:[2,37],49:[2,37],50:[2,37],51:[2,37],52:[2,37],57:[2,37],63:[2,37]},{27:[2,38],49:[2,38],50:[2,38],51:[2,38],52:[2,38],57:[2,38],63:[2,38]},{26:65,27:[2,49],59:66,60:[1,67]},{27:[2,51],29:68,59:69,60:[1,67]},{19:[1,70]},{5:[2,21],13:[2,21],14:[2,21],17:[2,21],25:[2,21],28:[2,21],31:[2,21],33:[2,21],36:[2,21],38:[2,21],39:[2,21],41:[2,21]},{19:[2,61],27:[2,61],37:55,40:[2,61],43:72,47:71,48:59,49:[1,56],50:[1,57],51:[1,58],52:[1,60],53:[2,61],54:73,55:62,56:64,57:[1,63],60:[2,61],63:[1,26],64:25},{57:[1,74]},{19:[2,39],27:[2,39],40:[2,39],49:[2,39],50:[2,39],51:[2,39],52:[2,39],53:[2,39],57:[2,39],60:[2,39],63:[2,39]},{5:[2,22],13:[2,22],14:[2,22],17:[2,22],25:[2,22],28:[2,22],31:[2,22],33:[2,22],36:[2,22],38:[2,22],39:[2,22],41:[2,22]},{22:75,36:[1,76]},{36:[2,46]},{4:77,6:3,13:[2,43],14:[2,43],17:[2,43],25:[2,43],28:[2,43],31:[2,43],33:[2,43],36:[2,43],38:[2,43],39:[2,43],41:[2,43]},{36:[2,19]},{18:78,37:23,48:24,57:[1,27],63:[1,26],64:25},{4:79,6:3,13:[2,43],14:[2,43],17:[2,43],25:[2,43],28:[2,43],36:[2,43],38:[2,43],39:[2,43],41:[2,43]},{22:80,36:[1,76]},{36:[2,48]},{5:[2,10],13:[2,10],14:[2,10],17:[2,10],25:[2,10],28:[2,10],31:[2,10],33:[2,10],36:[2,10],38:[2,10],39:[2,10],41:[2,10]},{27:[2,55],44:81,54:82,55:62,56:64,57:[1,83]},{27:[1,84]},{19:[2,27],27:[2,27],40:[2,27],49:[2,27],50:[2,27],51:[2,27],52:[2,27],53:[2,27],57:[2,27],60:[2,27],63:[2,27]},{19:[2,28],27:[2,28],40:[2,28],49:[2,28],50:[2,28],51:[2,28],52:[2,28],53:[2,28],57:[2,28],60:[2,28],63:[2,28]},{19:[2,29],27:[2,29],40:[2,29],49:[2,29],50:[2,29],51:[2,29],52:[2,29],53:[2,29],57:[2,29],60:[2,29],63:[2,29]},{19:[2,30],27:[2,30],40:[2,30],49:[2,30],50:[2,30],51:[2,30],52:[2,30],53:[2,30],57:[2,30],60:[2,30],63:[2,30]},{19:[2,31],27:[2,31],40:[2,31],49:[2,31],50:[2,31],51:[2,31],52:[2,31],53:[2,31],57:[2,31],60:[2,31],63:[2,31]},{18:85,37:23,48:24,57:[1,27],63:[1,26],64:25},{27:[2,58]},{19:[2,33],27:[2,33],40:[2,33],53:[2,33],56:86,57:[1,83],60:[2,33]},{19:[2,42],27:[2,42],40:[2,42],49:[2,42],50:[2,42],51:[2,42],52:[2,42],53:[2,42],57:[2,42],58:[1,87],60:[2,42],63:[2,42],65:[2,42]},{19:[2,63],27:[2,63],40:[2,63],53:[2,63],57:[2,63],60:[2,63]},{27:[1,88]},{27:[2,50]},{57:[1,90],61:89},{27:[1,91]},{27:[2,52]},{14:[2,11]},{19:[2,25],27:[2,25],40:[2,25],53:[2,25],60:[2,25]},{19:[2,60],27:[2,60],40:[2,60],49:[2,60],50:[2,60],51:[2,60],52:[2,60],53:[2,60],57:[2,60],60:[2,60],63:[2,60]},{19:[2,62],27:[2,62],40:[2,62],53:[2,62],60:[2,62]},{19:[2,41],27:[2,41],40:[2,41],49:[2,41],50:[2,41],51:[2,41],52:[2,41],53:[2,41],57:[2,41],60:[2,41],63:[2,41],65:[2,41]},{5:[2,12],13:[2,12],14:[2,12],17:[2,12],25:[2,12],28:[2,12],31:[2,12],33:[2,12],36:[2,12],38:[2,12],39:[2,12],41:[2,12]},{37:92,57:[1,27],64:25},{30:46,31:[1,48],32:47,33:[1,49],34:94,35:93,36:[2,53]},{27:[1,95]},{36:[2,17]},{5:[2,13],13:[2,13],14:[2,13],17:[2,13],25:[2,13],28:[2,13],31:[2,13],33:[2,13],36:[2,13],38:[2,13],39:[2,13],41:[2,13]},{27:[1,96]},{27:[2,56]},{58:[1,87]},{5:[2,24],13:[2,24],14:[2,24],17:[2,24],25:[2,24],28:[2,24],31:[2,24],33:[2,24],36:[2,24],38:[2,24],39:[2,24],41:[2,24]},{53:[1,97]},{19:[2,64],27:[2,64],40:[2,64],53:[2,64],57:[2,64],60:[2,64]},{37:55,43:98,48:59,49:[1,56],50:[1,57],51:[1,58],52:[1,60],57:[1,27],63:[1,26],64:25},{13:[2,14],14:[2,14],17:[2,14],25:[2,14],28:[2,14],31:[2,14],33:[2,14],36:[2,14],38:[2,14],39:[2,14],41:[2,14]},{57:[1,100],62:[1,99]},{57:[2,65],62:[2,65]},{13:[2,15],14:[2,15],17:[2,15],25:[2,15],28:[2,15],33:[2,15],36:[2,15],38:[2,15],39:[2,15],41:[2,15]},{27:[1,101]},{36:[2,18]},{36:[2,54]},{13:[2,16],14:[2,16],17:[2,16],25:[2,16],28:[2,16],31:[2,16],33:[2,16],36:[2,16],38:[2,16],39:[2,16],41:[2,16]},{5:[2,23],13:[2,23],14:[2,23],17:[2,23],25:[2,23],28:[2,23],31:[2,23],33:[2,23],36:[2,23],38:[2,23],39:[2,23],41:[2,23]},{19:[2,32],27:[2,32],40:[2,32],49:[2,32],50:[2,32],51:[2,32],52:[2,32],53:[2,32],57:[2,32],60:[2,32],63:[2,32]},{19:[2,34],27:[2,34],40:[2,34],53:[2,34],57:[2,34],60:[2,34]},{27:[2,35]},{57:[2,66],62:[2,66]},{5:[2,20],13:[2,20],14:[2,20],17:[2,20],25:[2,20],28:[2,20],31:[2,20],33:[2,20],36:[2,20],38:[2,20],39:[2,20],41:[2,20]}],
-    defaultActions: {4:[2,1],45:[2,46],47:[2,19],51:[2,48],61:[2,58],66:[2,50],69:[2,52],70:[2,11],79:[2,17],82:[2,56],93:[2,18],94:[2,54],99:[2,35]},
+    table: [{3:1,4:2,5:[2,42],6:3,13:[2,42],14:[2,42],17:[2,42],25:[2,42],28:[2,42],39:[2,42],40:[2,42],42:[2,42]},{1:[3]},{5:[1,4]},{5:[2,2],7:5,8:6,9:7,10:8,11:9,12:10,13:[1,11],14:[1,18],15:16,17:[1,21],20:14,23:15,25:[1,19],28:[1,20],31:[2,2],34:[2,2],37:[2,2],39:[1,12],40:[1,13],42:[1,17]},{1:[2,1]},{5:[2,43],13:[2,43],14:[2,43],17:[2,43],25:[2,43],28:[2,43],31:[2,43],34:[2,43],37:[2,43],39:[2,43],40:[2,43],42:[2,43]},{5:[2,3],13:[2,3],14:[2,3],17:[2,3],25:[2,3],28:[2,3],31:[2,3],34:[2,3],37:[2,3],39:[2,3],40:[2,3],42:[2,3]},{5:[2,4],13:[2,4],14:[2,4],17:[2,4],25:[2,4],28:[2,4],31:[2,4],34:[2,4],37:[2,4],39:[2,4],40:[2,4],42:[2,4]},{5:[2,5],13:[2,5],14:[2,5],17:[2,5],25:[2,5],28:[2,5],31:[2,5],34:[2,5],37:[2,5],39:[2,5],40:[2,5],42:[2,5]},{5:[2,6],13:[2,6],14:[2,6],17:[2,6],25:[2,6],28:[2,6],31:[2,6],34:[2,6],37:[2,6],39:[2,6],40:[2,6],42:[2,6]},{5:[2,7],13:[2,7],14:[2,7],17:[2,7],25:[2,7],28:[2,7],31:[2,7],34:[2,7],37:[2,7],39:[2,7],40:[2,7],42:[2,7]},{5:[2,8],13:[2,8],14:[2,8],17:[2,8],25:[2,8],28:[2,8],31:[2,8],34:[2,8],37:[2,8],39:[2,8],40:[2,8],42:[2,8]},{18:22,38:25,43:23,46:24,48:[1,26],49:[1,27],56:[1,30],62:[1,28],63:29},{18:31,38:25,43:23,46:24,48:[1,26],49:[1,27],56:[1,30],62:[1,28],63:29},{4:32,6:3,13:[2,42],14:[2,42],17:[2,42],25:[2,42],28:[2,42],31:[2,42],34:[2,42],37:[2,42],39:[2,42],40:[2,42],42:[2,42]},{4:33,6:3,13:[2,42],14:[2,42],17:[2,42],25:[2,42],28:[2,42],34:[2,42],37:[2,42],39:[2,42],40:[2,42],42:[2,42]},{12:34,14:[1,18]},{18:35,38:25,43:23,46:24,48:[1,26],49:[1,27],56:[1,30],62:[1,28],63:29},{5:[2,9],13:[2,9],14:[2,9],16:[2,9],17:[2,9],25:[2,9],28:[2,9],31:[2,9],34:[2,9],37:[2,9],39:[2,9],40:[2,9],42:[2,9]},{18:36,38:25,43:23,46:24,48:[1,26],49:[1,27],56:[1,30],62:[1,28],63:29},{18:37,38:25,43:23,46:24,48:[1,26],49:[1,27],56:[1,30],62:[1,28],63:29},{18:38,38:25,43:23,46:24,48:[1,26],49:[1,27],56:[1,30],62:[1,28],63:29},{27:[1,39]},{19:[2,56],27:[2,56],41:[2,56],44:40,48:[2,56],49:[2,56],50:[2,56],51:[2,56],52:[2,56],56:[2,56],59:[2,56],62:[2,56]},{19:[2,25],27:[2,25],41:[2,25],52:[2,25],59:[2,25]},{19:[2,35],27:[2,35],41:[2,35],48:[2,35],49:[2,35],50:[2,35],51:[2,35],52:[2,35],56:[2,35],59:[2,35],62:[2,35]},{19:[2,36],27:[2,36],41:[2,36],48:[2,36],49:[2,36],50:[2,36],51:[2,36],52:[2,36],56:[2,36],59:[2,36],62:[2,36]},{19:[2,37],27:[2,37],41:[2,37],48:[2,37],49:[2,37],50:[2,37],51:[2,37],52:[2,37],56:[2,37],59:[2,37],62:[2,37]},{56:[1,30],63:41},{19:[2,39],27:[2,39],41:[2,39],48:[2,39],49:[2,39],50:[2,39],51:[2,39],52:[2,39],56:[2,39],59:[2,39],62:[2,39],64:[1,42]},{19:[2,41],27:[2,41],41:[2,41],48:[2,41],49:[2,41],50:[2,41],51:[2,41],52:[2,41],56:[2,41],59:[2,41],62:[2,41],64:[2,41]},{41:[1,43]},{21:44,30:46,31:[1,48],33:47,34:[1,49],35:45,37:[2,44]},{24:50,33:51,34:[1,49],37:[2,46]},{16:[1,52]},{27:[1,53]},{26:54,27:[2,48],58:55,59:[1,56]},{27:[2,50],29:57,58:58,59:[1,56]},{19:[1,59]},{5:[2,21],13:[2,21],14:[2,21],17:[2,21],25:[2,21],28:[2,21],31:[2,21],34:[2,21],37:[2,21],39:[2,21],40:[2,21],42:[2,21]},{19:[2,58],27:[2,58],38:63,41:[2,58],45:60,46:67,47:61,48:[1,64],49:[1,65],50:[1,66],51:[1,68],52:[2,58],53:62,54:69,55:70,56:[1,71],59:[2,58],62:[1,28],63:29},{19:[2,38],27:[2,38],41:[2,38],48:[2,38],49:[2,38],50:[2,38],51:[2,38],52:[2,38],56:[2,38],59:[2,38],62:[2,38],64:[1,42]},{56:[1,72]},{5:[2,22],13:[2,22],14:[2,22],17:[2,22],25:[2,22],28:[2,22],31:[2,22],34:[2,22],37:[2,22],39:[2,22],40:[2,22],42:[2,22]},{22:73,37:[1,74]},{37:[2,45]},{4:75,6:3,13:[2,42],14:[2,42],17:[2,42],25:[2,42],28:[2,42],31:[2,42],34:[2,42],37:[2,42],39:[2,42],40:[2,42],42:[2,42]},{37:[2,19]},{18:76,38:25,43:23,46:24,48:[1,26],49:[1,27],56:[1,30],62:[1,28],63:29},{4:77,6:3,13:[2,42],14:[2,42],17:[2,42],25:[2,42],28:[2,42],37:[2,42],39:[2,42],40:[2,42],42:[2,42]},{22:78,37:[1,74]},{37:[2,47]},{5:[2,10],13:[2,10],14:[2,10],17:[2,10],25:[2,10],28:[2,10],31:[2,10],34:[2,10],37:[2,10],39:[2,10],40:[2,10],42:[2,10]},{5:[2,23],13:[2,23],14:[2,23],17:[2,23],25:[2,23],28:[2,23],31:[2,23],34:[2,23],37:[2,23],39:[2,23],40:[2,23],42:[2,23]},{27:[1,79]},{27:[2,49]},{56:[1,81],60:80},{27:[1,82]},{27:[2,51]},{14:[2,11]},{19:[2,24],27:[2,24],41:[2,24],52:[2,24],59:[2,24]},{19:[2,57],27:[2,57],41:[2,57],48:[2,57],49:[2,57],50:[2,57],51:[2,57],52:[2,57],56:[2,57],59:[2,57],62:[2,57]},{19:[2,59],27:[2,59],41:[2,59],52:[2,59],59:[2,59]},{19:[2,26],27:[2,26],41:[2,26],48:[2,26],49:[2,26],50:[2,26],51:[2,26],52:[2,26],56:[2,26],59:[2,26],62:[2,26]},{19:[2,27],27:[2,27],41:[2,27],48:[2,27],49:[2,27],50:[2,27],51:[2,27],52:[2,27],56:[2,27],59:[2,27],62:[2,27]},{19:[2,28],27:[2,28],41:[2,28],48:[2,28],49:[2,28],50:[2,28],51:[2,28],52:[2,28],56:[2,28],59:[2,28],62:[2,28]},{19:[2,29],27:[2,29],41:[2,29],48:[2,29],49:[2,29],50:[2,29],51:[2,29],52:[2,29],56:[2,29],59:[2,29],62:[2,29]},{19:[2,30],27:[2,30],41:[2,30],48:[2,30],49:[2,30],50:[2,30],51:[2,30],52:[2,30],56:[2,30],59:[2,30],62:[2,30]},{18:83,38:25,43:23,46:24,48:[1,26],49:[1,27],56:[1,30],62:[1,28],63:29},{19:[2,32],27:[2,32],41:[2,32],52:[2,32],55:84,56:[1,85],59:[2,32]},{19:[2,60],27:[2,60],41:[2,60],52:[2,60],56:[2,60],59:[2,60]},{19:[2,41],27:[2,41],41:[2,41],48:[2,41],49:[2,41],50:[2,41],51:[2,41],52:[2,41],56:[2,41],57:[1,86],59:[2,41],62:[2,41],64:[2,41]},{19:[2,40],27:[2,40],41:[2,40],48:[2,40],49:[2,40],50:[2,40],51:[2,40],52:[2,40],56:[2,40],59:[2,40],62:[2,40],64:[2,40]},{5:[2,12],13:[2,12],14:[2,12],17:[2,12],25:[2,12],28:[2,12],31:[2,12],34:[2,12],37:[2,12],39:[2,12],40:[2,12],42:[2,12]},{38:87,56:[1,30],63:29},{30:46,31:[1,48],33:47,34:[1,49],35:89,36:88,37:[2,54]},{27:[2,52],32:90,58:91,59:[1,56]},{37:[2,17]},{5:[2,13],13:[2,13],14:[2,13],17:[2,13],25:[2,13],28:[2,13],31:[2,13],34:[2,13],37:[2,13],39:[2,13],40:[2,13],42:[2,13]},{13:[2,14],14:[2,14],17:[2,14],25:[2,14],28:[2,14],31:[2,14],34:[2,14],37:[2,14],39:[2,14],40:[2,14],42:[2,14]},{56:[1,93],61:[1,92]},{56:[2,62],61:[2,62]},{13:[2,15],14:[2,15],17:[2,15],25:[2,15],28:[2,15],34:[2,15],37:[2,15],39:[2,15],40:[2,15],42:[2,15]},{52:[1,94]},{19:[2,61],27:[2,61],41:[2,61],52:[2,61],56:[2,61],59:[2,61]},{57:[1,86]},{38:63,46:67,47:95,48:[1,64],49:[1,65],50:[1,66],51:[1,68],56:[1,30],62:[1,28],63:29},{27:[1,96]},{37:[2,18]},{37:[2,55]},{27:[1,97]},{27:[2,53]},{27:[2,34]},{56:[2,63],61:[2,63]},{19:[2,31],27:[2,31],41:[2,31],48:[2,31],49:[2,31],50:[2,31],51:[2,31],52:[2,31],56:[2,31],59:[2,31],62:[2,31]},{19:[2,33],27:[2,33],41:[2,33],52:[2,33],56:[2,33],59:[2,33]},{5:[2,20],13:[2,20],14:[2,20],17:[2,20],25:[2,20],28:[2,20],31:[2,20],34:[2,20],37:[2,20],39:[2,20],40:[2,20],42:[2,20]},{13:[2,16],14:[2,16],17:[2,16],25:[2,16],28:[2,16],31:[2,16],34:[2,16],37:[2,16],39:[2,16],40:[2,16],42:[2,16]}],
+    defaultActions: {4:[2,1],45:[2,45],47:[2,19],51:[2,47],55:[2,49],58:[2,51],59:[2,11],77:[2,17],88:[2,18],89:[2,55],91:[2,53],92:[2,34]},
     parseError: function parseError(str, hash) {
         throw new Error(str);
     },
@@ -53003,9 +52936,9 @@ enifed("htmlbars-compiler/handlebars/compiler/parser",
       return 13;
 
     break;
-    case 6:return 52;
+    case 6:return 51;
     break;
-    case 7:return 53;
+    case 7:return 52;
     break;
     case 8: return 17; 
     break;
@@ -53015,23 +52948,23 @@ enifed("htmlbars-compiler/handlebars/compiler/parser",
                                       return 19;
                                      
     break;
-    case 10:return 41;
+    case 10:return 42;
     break;
     case 11:return 25;
     break;
-    case 12:return 36;
+    case 12:return 37;
     break;
-    case 13:this.popState(); return 33;
+    case 13:this.popState(); return 34;
     break;
-    case 14:this.popState(); return 33;
+    case 14:this.popState(); return 34;
     break;
     case 15:return 28;
     break;
     case 16:return 31;
     break;
-    case 17:return 39;
+    case 17:return 40;
     break;
-    case 18:return 38;
+    case 18:return 39;
     break;
     case 19:
       this.unput(yy_.yytext);
@@ -53044,41 +52977,41 @@ enifed("htmlbars-compiler/handlebars/compiler/parser",
       return 13;
 
     break;
-    case 21:return 38;
+    case 21:return 39;
     break;
-    case 22:return 58;
+    case 22:return 57;
     break;
-    case 23:return 57;
+    case 23:return 56;
     break;
-    case 24:return 57;
+    case 24:return 56;
     break;
-    case 25:return 65;
+    case 25:return 64;
     break;
     case 26:// ignore whitespace
     break;
-    case 27:this.popState(); return 40;
+    case 27:this.popState(); return 41;
     break;
     case 28:this.popState(); return 27;
     break;
-    case 29:yy_.yytext = strip(1,2).replace(/\\"/g,'"'); return 49;
+    case 29:yy_.yytext = strip(1,2).replace(/\\"/g,'"'); return 48;
     break;
-    case 30:yy_.yytext = strip(1,2).replace(/\\'/g,"'"); return 49;
+    case 30:yy_.yytext = strip(1,2).replace(/\\'/g,"'"); return 48;
     break;
-    case 31:return 63;
+    case 31:return 62;
     break;
-    case 32:return 51;
+    case 32:return 50;
     break;
-    case 33:return 51;
+    case 33:return 50;
     break;
-    case 34:return 50;
+    case 34:return 49;
     break;
-    case 35:return 60;
+    case 35:return 59;
     break;
-    case 36:return 62;
+    case 36:return 61;
     break;
-    case 37:return 57;
+    case 37:return 56;
     break;
-    case 38:yy_.yytext = strip(1,2); return 57;
+    case 38:yy_.yytext = strip(1,2); return 56;
     break;
     case 39:return 'INVALID';
     break;
@@ -53095,6 +53028,292 @@ enifed("htmlbars-compiler/handlebars/compiler/parser",
     })();__exports__["default"] = handlebars;
     /* jshint ignore:end */
   });
+enifed("htmlbars-compiler/handlebars/compiler/visitor",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    function Visitor() {}
+
+    Visitor.prototype = {
+      constructor: Visitor,
+
+      accept: function(object) {
+        return object && this[object.type](object);
+      },
+
+      Program: function(program) {
+        var body = program.body,
+            i, l;
+
+        for(i=0, l=body.length; i<l; i++) {
+          this.accept(body[i]);
+        }
+      },
+
+      MustacheStatement: function(mustache) {
+        this.accept(mustache.sexpr);
+      },
+
+      BlockStatement: function(block) {
+        this.accept(block.sexpr);
+        this.accept(block.program);
+        this.accept(block.inverse);
+      },
+
+      PartialStatement: function(partial) {
+        this.accept(partial.partialName);
+        this.accept(partial.context);
+        this.accept(partial.hash);
+      },
+
+      ContentStatement: function(content) {},
+      CommentStatement: function(comment) {},
+
+      SubExpression: function(sexpr) {
+        var params = sexpr.params, paramStrings = [], hash;
+
+        this.accept(sexpr.path);
+        for(var i=0, l=params.length; i<l; i++) {
+          this.accept(params[i]);
+        }
+        this.accept(sexpr.hash);
+      },
+
+      PathExpression: function(path) {},
+
+      StringLiteral: function(string) {},
+      NumberLiteral: function(number) {},
+      BooleanLiteral: function(bool) {},
+
+      Hash: function(hash) {
+        var pairs = hash.pairs;
+
+        for(var i=0, l=pairs.length; i<l; i++) {
+          this.accept(pairs[i]);
+        }
+      },
+      HashPair: function(pair) {
+        this.accept(pair.value);
+      }
+    };
+
+    __exports__["default"] = Visitor;
+  });
+enifed("htmlbars-compiler/handlebars/compiler/whitespace-control",
+  ["./visitor","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    var Visitor = __dependency1__["default"];
+
+    function WhitespaceControl() {
+    }
+    WhitespaceControl.prototype = new Visitor();
+
+    WhitespaceControl.prototype.Program = function(program) {
+      var isRoot = !this.isRootSeen;
+      this.isRootSeen = true;
+
+      var body = program.body;
+      for (var i = 0, l = body.length; i < l; i++) {
+        var current = body[i],
+            strip = this.accept(current);
+
+        if (!strip) {
+          continue;
+        }
+
+        var _isPrevWhitespace = isPrevWhitespace(body, i, isRoot),
+            _isNextWhitespace = isNextWhitespace(body, i, isRoot),
+
+            openStandalone = strip.openStandalone && _isPrevWhitespace,
+            closeStandalone = strip.closeStandalone && _isNextWhitespace,
+            inlineStandalone = strip.inlineStandalone && _isPrevWhitespace && _isNextWhitespace;
+
+        if (strip.close) {
+          omitRight(body, i, true);
+        }
+        if (strip.open) {
+          omitLeft(body, i, true);
+        }
+
+        if (inlineStandalone) {
+          omitRight(body, i);
+
+          if (omitLeft(body, i)) {
+            // If we are on a standalone node, save the indent info for partials
+            if (current.type === 'PartialStatement') {
+              // Pull out the whitespace from the final line
+              current.indent = (/([ \t]+$)/).exec(body[i-1].original)[1];
+            }
+          }
+        }
+        if (openStandalone) {
+          omitRight((current.program || current.inverse).body);
+
+          // Strip out the previous content node if it's whitespace only
+          omitLeft(body, i);
+        }
+        if (closeStandalone) {
+          // Always strip the next node
+          omitRight(body, i);
+
+          omitLeft((current.inverse || current.program).body);
+        }
+      }
+
+      return program;
+    };
+    WhitespaceControl.prototype.BlockStatement = function(block) {
+      this.accept(block.program);
+      this.accept(block.inverse);
+
+      // Find the inverse program that is involed with whitespace stripping.
+      var program = block.program || block.inverse,
+          inverse = block.program && block.inverse,
+          firstInverse = inverse,
+          lastInverse = inverse;
+
+      if (inverse && inverse.chained) {
+        firstInverse = inverse.body[0].program;
+
+        // Walk the inverse chain to find the last inverse that is actually in the chain.
+        while (lastInverse.chained) {
+          lastInverse = lastInverse.body[lastInverse.body.length-1].program;
+        }
+      }
+
+      var strip = {
+        open: block.openStrip.open,
+        close: block.closeStrip.close,
+
+        // Determine the standalone candiacy. Basically flag our content as being possibly standalone
+        // so our parent can determine if we actually are standalone
+        openStandalone: isNextWhitespace(program.body),
+        closeStandalone: isPrevWhitespace((firstInverse || program).body)
+      };
+
+      if (block.openStrip.close) {
+        omitRight(program.body, null, true);
+      }
+
+      if (inverse) {
+        var inverseStrip = block.inverseStrip;
+
+        if (inverseStrip.open) {
+          omitLeft(program.body, null, true);
+        }
+
+        if (inverseStrip.close) {
+          omitRight(firstInverse.body, null, true);
+        }
+        if (block.closeStrip.open) {
+          omitLeft(lastInverse.body, null, true);
+        }
+
+        // Find standalone else statments
+        if (isPrevWhitespace(program.body)
+            && isNextWhitespace(firstInverse.body)) {
+
+          omitLeft(program.body);
+          omitRight(firstInverse.body);
+        }
+      } else {
+        if (block.closeStrip.open) {
+          omitLeft(program.body, null, true);
+        }
+      }
+
+      return strip;
+    };
+
+    WhitespaceControl.prototype.MustacheStatement = function(mustache) {
+      return mustache.strip;
+    };
+
+    WhitespaceControl.prototype.PartialStatement = 
+        WhitespaceControl.prototype.CommentStatement = function(node) {
+      var strip = node.strip || {};
+      return {
+        inlineStandalone: true,
+        open: strip.open,
+        close: strip.close
+      };
+    };
+
+
+    function isPrevWhitespace(body, i, isRoot) {
+      if (i === undefined) {
+        i = body.length;
+      }
+
+      // Nodes that end with newlines are considered whitespace (but are special
+      // cased for strip operations)
+      var prev = body[i-1],
+          sibling = body[i-2];
+      if (!prev) {
+        return isRoot;
+      }
+
+      if (prev.type === 'ContentStatement') {
+        return (sibling || !isRoot ? (/\r?\n\s*?$/) : (/(^|\r?\n)\s*?$/)).test(prev.original);
+      }
+    }
+    function isNextWhitespace(body, i, isRoot) {
+      if (i === undefined) {
+        i = -1;
+      }
+
+      var next = body[i+1],
+          sibling = body[i+2];
+      if (!next) {
+        return isRoot;
+      }
+
+      if (next.type === 'ContentStatement') {
+        return (sibling || !isRoot ? (/^\s*?\r?\n/) : (/^\s*?(\r?\n|$)/)).test(next.original);
+      }
+    }
+
+    // Marks the node to the right of the position as omitted.
+    // I.e. {{foo}}' ' will mark the ' ' node as omitted.
+    //
+    // If i is undefined, then the first child will be marked as such.
+    //
+    // If mulitple is truthy then all whitespace will be stripped out until non-whitespace
+    // content is met.
+    function omitRight(body, i, multiple) {
+      var current = body[i == null ? 0 : i + 1];
+      if (!current || current.type !== 'ContentStatement' || (!multiple && current.rightStripped)) {
+        return;
+      }
+
+      var original = current.value;
+      current.value = current.value.replace(multiple ? (/^\s+/) : (/^[ \t]*\r?\n?/), '');
+      current.rightStripped = current.value !== original;
+    }
+
+    // Marks the node to the left of the position as omitted.
+    // I.e. ' '{{foo}} will mark the ' ' node as omitted.
+    //
+    // If i is undefined then the last child will be marked as such.
+    //
+    // If mulitple is truthy then all whitespace will be stripped out until non-whitespace
+    // content is met.
+    function omitLeft(body, i, multiple) {
+      var current = body[i == null ? body.length - 1 : i - 1];
+      if (!current || current.type !== 'ContentStatement' || (!multiple && current.leftStripped)) {
+        return;
+      }
+
+      // We omit the last node if it's whitespace only and not preceeded by a non-content node.
+      var original = current.value;
+      current.value = current.value.replace(multiple ? (/\s+$/) : (/[ \t]+$/), '');
+      current.leftStripped = current.value !== original;
+      return current.leftStripped;
+    }
+
+    __exports__["default"] = WhitespaceControl;
+  });
 enifed("htmlbars-compiler/handlebars/exception",
   ["exports"],
   function(__exports__) {
@@ -53103,11 +53322,14 @@ enifed("htmlbars-compiler/handlebars/exception",
     var errorProps = ['description', 'fileName', 'lineNumber', 'message', 'name', 'number', 'stack'];
 
     function Exception(message, node) {
-      var line;
-      if (node && node.firstLine) {
-        line = node.firstLine;
+      var loc = node && node.loc,
+          line,
+          column;
+      if (loc) {
+        line = loc.start.line;
+        column = loc.start.column;
 
-        message += ' - ' + line + ':' + node.firstColumn;
+        message += ' - ' + line + ':' + column;
       }
 
       var tmp = Error.prototype.constructor.call(this, message);
@@ -53117,9 +53339,9 @@ enifed("htmlbars-compiler/handlebars/exception",
         this[errorProps[idx]] = tmp[errorProps[idx]];
       }
 
-      if (line) {
+      if (loc) {
         this.lineNumber = line;
-        this.column = node.firstColumn;
+        this.column = column;
       }
     }
 
@@ -53235,13 +53457,16 @@ enifed("htmlbars-compiler/handlebars/utils",
     __exports__.appendContextPath = appendContextPath;
   });
 enifed("htmlbars-compiler/html-parser/helpers",
-  ["../ast","exports"],
-  function(__dependency1__, __exports__) {
+  ["../ast","../builders","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
-    var TextNode = __dependency1__.TextNode;
-    var StringNode = __dependency1__.StringNode;
-    var HashNode = __dependency1__.HashNode;
     var usesMorph = __dependency1__.usesMorph;
+    var buildText = __dependency2__.buildText;
+    var buildString = __dependency2__.buildString;
+    var buildHash = __dependency2__.buildHash;
+    var buildPair = __dependency2__.buildPair;
+    var buildSexpr = __dependency2__.buildSexpr;
+    var buildPath = __dependency2__.buildPath;
 
     // Rewrites an array of AttrNodes into a HashNode.
     // MustacheNodes are replaced with their root SexprNode and
@@ -53252,69 +53477,98 @@ enifed("htmlbars-compiler/html-parser/helpers",
 
       for (var i = 0; i < attributes.length; i++) {
         var attr = attributes[i];
-        if (attr.value.type === 'sexpr') {
-          pairs.push([attr.name, attr.value]);
-        } else if (attr.value.type === 'text') {
-          pairs.push([attr.name, new StringNode(attr.value.chars)]);
+        var value;
+        if (attr.value.type === 'SubExpression') {
+          value = attr.value;
+        } else if (attr.value.type === 'TextNode') {
+          value = buildString(attr.value.chars);
         } else {
-          pairs.push([attr.name, {
-            type: 'sexpr',
-            id: {
-              string: 'concat',
-              parts: ['concat']
-            },
-            params: attr.value,
-            hash: null
-          }]);
+          value = buildSexpr(buildPath('concat'), attr.value);
         }
+
+        pairs.push(buildPair(attr.name, value));
       }
 
-      return new HashNode(pairs);
+      return buildHash(pairs);
     }
 
-    __exports__.buildHashFromAttributes = buildHashFromAttributes;// Adds an empty text node at the beginning and end of a program.
+    __exports__.buildHashFromAttributes = buildHashFromAttributes;// Checks the component's attributes to see if it uses block params.
+    // If it does, registers the block params with the program and
+    // removes the corresponding attributes from the element.
+
+    function parseComponentBlockParams(element, program) {
+      var l = element.attributes.length;
+      var attrNames = [];
+
+      for (var i = 0; i < l; i++) {
+        attrNames.push(element.attributes[i].name);
+      }
+
+      var asIndex = attrNames.indexOf('as');
+
+      if (asIndex !== -1 && l > asIndex && attrNames[asIndex + 1].charAt(0) === '|') {
+        // Some basic validation, since we're doing the parsing ourselves
+        var paramsString = attrNames.slice(asIndex).join(' ');
+        if (paramsString.charAt(paramsString.length - 1) !== '|' || paramsString.match(/\|/g).length !== 2) {
+          throw new Error('Invalid block parameters syntax: \'' + paramsString + '\'');
+        }
+
+        var params = [];
+        for (i = asIndex + 1; i < l; i++) {
+          var param = attrNames[i].replace('|', '');
+          if (param !== '') {
+            params.push(param);
+          }
+        }
+
+        element.attributes = element.attributes.slice(0, asIndex);
+        program.blockParams = params;
+      }
+    }
+
+    __exports__.parseComponentBlockParams = parseComponentBlockParams;// Adds an empty text node at the beginning and end of a program.
     // The empty text nodes *between* nodes are handled elsewhere.
     // Also processes all whitespace stripping directives.
 
     function postprocessProgram(program) {
-      var statements = program.statements;
+      var body = program.body;
 
-      if (statements.length === 0) {
+      if (body.length === 0) {
         return;
       }
 
-      if (usesMorph(statements[0])) {
-        statements.unshift(new TextNode(''));
+      if (usesMorph(body[0])) {
+        body.unshift(buildText(''));
       }
 
-      if (usesMorph(statements[statements.length-1])) {
-        statements.push(new TextNode(''));
+      if (usesMorph(body[body.length-1])) {
+        body.push(buildText(''));
       }
 
       // Perform any required whitespace stripping
-      var l = statements.length;
+      var l = body.length;
       for (var i = 0; i < l; i++) {
-        var statement = statements[i];
+        var statement = body[i];
 
-        if (statement.type !== 'text') {
+        if (statement.type !== 'TextNode') {
           continue;
         }
 
-        if ((i > 0 && statements[i-1].strip && statements[i-1].strip.right) ||
-          (i === 0 && program.strip.left)) {
-          statement.chars = statement.chars.replace(/^\s+/, '');
-        }
+        // if ((i > 0 && body[i-1].strip && body[i-1].strip.right) ||
+        //   (i === 0 && program.strip.left)) {
+        //   statement.chars = statement.chars.replace(/^\s+/, '');
+        // }
 
-        if ((i < l-1 && statements[i+1].strip && statements[i+1].strip.left) ||
-          (i === l-1 && program.strip.right)) {
-          statement.chars = statement.chars.replace(/\s+$/, '');
-        }
+        // if ((i < l-1 && body[i+1].strip && body[i+1].strip.left) ||
+        //   (i === l-1 && program.strip.right)) {
+        //   statement.chars = statement.chars.replace(/\s+$/, '');
+        // }
 
         // Remove unnecessary text nodes
         if (statement.chars.length === 0) {
-          if ((i > 0 && statements[i-1].type === 'element') ||
-            (i < l-1 && statements[i+1].type === 'element')) {
-            statements.splice(i, 1);
+          if ((i > 0 && body[i-1].type === 'ElementNode') ||
+            (i < l-1 && body[i+1].type === 'ElementNode')) {
+            body.splice(i, 1);
             i--;
             l--;
           }
@@ -53325,30 +53579,30 @@ enifed("htmlbars-compiler/html-parser/helpers",
     __exports__.postprocessProgram = postprocessProgram;
   });
 enifed("htmlbars-compiler/html-parser/node-handlers",
-  ["../ast","../html-parser/helpers","../html-parser/tokens","../utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+  ["../builders","../ast","../html-parser/helpers","../html-parser/tokens","../utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
-    var BlockNode = __dependency1__.BlockNode;
-    var ProgramNode = __dependency1__.ProgramNode;
-    var PartialNode = __dependency1__.PartialNode;
-    var appendChild = __dependency1__.appendChild;
-    var postprocessProgram = __dependency2__.postprocessProgram;
-    var Chars = __dependency3__.Chars;
-    var forEach = __dependency4__.forEach;
+    var buildProgram = __dependency1__.buildProgram;
+    var buildBlock = __dependency1__.buildBlock;
+    var buildHash = __dependency1__.buildHash;
+    var appendChild = __dependency2__.appendChild;
+    var postprocessProgram = __dependency3__.postprocessProgram;
+    var Chars = __dependency4__.Chars;
+    var forEach = __dependency5__.forEach;
 
     var nodeHandlers = {
 
-      program: function(program) {
-        var statements = [];
-        var node = new ProgramNode(statements, program.blockParams || null, program.strip);
-        var i, l = program.statements.length;
+      Program: function(program) {
+        var body = [];
+        var node = buildProgram(body, program.blockParams);
+        var i, l = program.body.length;
 
         this.elementStack.push(node);
 
         if (l === 0) { return this.elementStack.pop(); }
 
         for (i = 0; i < l; i++) {
-          this.acceptNode(program.statements[i]);
+          this.acceptNode(program.body[i]);
         }
 
         this.acceptToken(this.tokenizer.tokenizeEOF());
@@ -53364,7 +53618,11 @@ enifed("htmlbars-compiler/html-parser/node-handlers",
         return node;
       },
 
-      block: function(block) {
+      BlockStatement: function(block) {
+        delete block.inverseStrip;
+        delete block.openString;
+        delete block.closeStrip;
+
         if (this.tokenizer.state === 'comment') {
           this.tokenizer.token.addChar('{{' + this.sourceForMustache(block) + '}}');
           return;
@@ -53373,46 +53631,85 @@ enifed("htmlbars-compiler/html-parser/node-handlers",
         switchToHandlebars(this);
         this.acceptToken(block);
 
-        var sexpr = block.sexpr;
-        var program = this.acceptNode(block.program);
+        var sexpr = this.acceptNode(block.sexpr);
+        var program = block.program ? this.acceptNode(block.program) : null;
         var inverse = block.inverse ? this.acceptNode(block.inverse) : null;
-        var strip = block.strip;
 
-        // Normalize inverse's strip
-        if (inverse && !inverse.strip.left) {
-          inverse.strip.left = false;
-        }
-
-        var node = new BlockNode(sexpr, program, inverse, strip);
+        var node = buildBlock(sexpr, program, inverse);
         var parentProgram = this.currentElement();
         appendChild(parentProgram, node);
       },
 
-      content: function(content) {
-        var tokens = this.tokenizer.tokenizePart(content.string);
+      MustacheStatement: function(mustache) {
+        delete mustache.strip;
 
-        return forEach(tokens, this.acceptToken, this);
-      },
-
-      mustache: function(mustache) {
         if (this.tokenizer.state === 'comment') {
           this.tokenizer.token.addChar('{{' + this.sourceForMustache(mustache) + '}}');
           return;
         }
 
+        this.acceptNode(mustache.sexpr);
         switchToHandlebars(this);
         this.acceptToken(mustache);
+
+        return mustache;
       },
 
-      comment: function(/*comment*/) {
-        return;
+      ContentStatement: function(content) {
+        var tokens = this.tokenizer.tokenizePart(content.value);
+
+        return forEach(tokens, this.acceptToken, this);
       },
 
-      partial: function(partial) {
-        var node = new PartialNode(partial.partialName.name);
-        appendChild(this.currentElement(), node);
-        return;
-      }
+      CommentStatement: function(comment) {
+        return comment;
+      },
+
+      PartialStatement: function(partial) {
+        appendChild(this.currentElement(), partial);
+        return partial;
+      },
+
+      SubExpression: function(sexpr) {
+        delete sexpr.isHelper;
+
+        this.acceptNode(sexpr.path);
+
+        if (sexpr.params) {
+          for (var i = 0; i < sexpr.params.length; i++) {
+            this.acceptNode(sexpr.params[i]);
+          }
+        } else {
+          sexpr.params = [];
+        }
+
+        if (sexpr.hash) {
+          this.acceptNode(sexpr.hash);
+        } else {
+          sexpr.hash = buildHash();
+        }
+
+        return sexpr;
+      },
+
+      PathExpression: function(path) {
+        delete path.data;
+        delete path.depth;
+
+        return path;
+      },
+
+      Hash: function(hash) {
+        for (var i = 0; i < hash.pairs.length; i++) {
+          this.acceptNode(hash.pairs[i].value);
+        }
+
+        return hash;
+      },
+
+      StringLiteral: function() {},
+      BooleanLiteral: function() {},
+      NumberLiteral: function() {}
     };
 
     function switchToHandlebars(processor) {
@@ -53428,17 +53725,19 @@ enifed("htmlbars-compiler/html-parser/node-handlers",
     __exports__["default"] = nodeHandlers;
   });
 enifed("htmlbars-compiler/html-parser/token-handlers",
-  ["../ast","./helpers","../utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["../builders","../ast","./helpers","../utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
-    var ProgramNode = __dependency1__.ProgramNode;
-    var ComponentNode = __dependency1__.ComponentNode;
-    var ElementNode = __dependency1__.ElementNode;
-    var TextNode = __dependency1__.TextNode;
-    var CommentNode = __dependency1__.CommentNode;
-    var appendChild = __dependency1__.appendChild;
-    var postprocessProgram = __dependency2__.postprocessProgram;
-    var forEach = __dependency3__.forEach;
+    var buildProgram = __dependency1__.buildProgram;
+    var buildComponent = __dependency1__.buildComponent;
+    var buildElement = __dependency1__.buildElement;
+    var buildComment = __dependency1__.buildComment;
+    var buildText = __dependency1__.buildText;
+    var appendChild = __dependency2__.appendChild;
+    var isHelper = __dependency2__.isHelper;
+    var parseComponentBlockParams = __dependency3__.parseComponentBlockParams;
+    var postprocessProgram = __dependency3__.postprocessProgram;
+    var forEach = __dependency4__.forEach;
 
     // The HTML elements in this list are speced by
     // http://www.w3.org/TR/html-markup/syntax.html#syntax-elements,
@@ -53459,7 +53758,7 @@ enifed("htmlbars-compiler/html-parser/token-handlers",
       if (tag.tagName === 'svg') {
         element.namespaceURI = svgNamespace;
       } else if (
-        currentElement.type === 'element' &&
+        currentElement.type === 'ElementNode' &&
         currentElement.namespaceURI &&
         !currentElement.isHTMLIntegrationPoint
       ) {
@@ -53474,10 +53773,10 @@ enifed("htmlbars-compiler/html-parser/token-handlers",
     }
 
     function unwrapMustache(mustache) {
-      if (mustache.sexpr.isHelper) {
+      if (isHelper(mustache.sexpr)) {
         return mustache.sexpr;
       } else {
-        return mustache.sexpr.id;
+        return mustache.sexpr.path;
       }
     }
 
@@ -53486,19 +53785,19 @@ enifed("htmlbars-compiler/html-parser/token-handlers",
     var tokenHandlers = {
       CommentToken: function(token) {
         var current = this.currentElement();
-        var comment = new CommentNode(token.chars);
+        var comment = buildComment(token.chars);
 
         appendChild(current, comment);
       },
 
       Chars: function(token) {
         var current = this.currentElement();
-        var text = new TextNode(token.chars);
+        var text = buildText(token.chars);
         appendChild(current, text);
       },
 
       StartTag: function(tag) {
-        var element = new ElementNode(tag.tagName, tag.attributes, tag.helpers || [], []);
+        var element = buildElement(tag.tagName, tag.attributes, tag.helpers || [], []);
         applyNamespace(tag, element, this.currentElement());
         applyHTMLIntegrationPoint(tag, element);
         this.elementStack.push(element);
@@ -53507,7 +53806,7 @@ enifed("htmlbars-compiler/html-parser/token-handlers",
         }
       },
 
-      block: function(/*block*/) {
+      BlockStatement: function(/*block*/) {
         if (this.tokenizer.state === 'comment') {
           return;
         } else if (this.tokenizer.state !== 'data') {
@@ -53515,7 +53814,7 @@ enifed("htmlbars-compiler/html-parser/token-handlers",
         }
       },
 
-      mustache: function(mustache) {
+      MustacheStatement: function(mustache) {
         var state = this.tokenizer.state;
         var token = this.tokenizer.token;
 
@@ -53536,7 +53835,7 @@ enifed("htmlbars-compiler/html-parser/token-handlers",
             token.addToAttributeValue(unwrapMustache(mustache));
             return;
           case "beforeAttributeName":
-            token.addTagHelper(mustache);
+            token.addTagHelper(mustache.sexpr);
             return;
           default:
             appendChild(this.currentElement(), mustache);
@@ -53558,9 +53857,10 @@ enifed("htmlbars-compiler/html-parser/token-handlers",
         if (disableComponentGeneration || element.tag.indexOf("-") === -1) {
           appendChild(parent, element);
         } else {
-          var program = new ProgramNode(element.children, null, { left: false, right: false });
+          var program = buildProgram(element.children);
+          parseComponentBlockParams(element, program);
           postprocessProgram(program);
-          var component = new ComponentNode(element.tag, element.attributes, program);
+          var component = buildComponent(element.tag, element.attributes, program);
           appendChild(parent, component);
         }
 
@@ -53571,18 +53871,18 @@ enifed("htmlbars-compiler/html-parser/token-handlers",
     __exports__["default"] = tokenHandlers;
   });
 enifed("htmlbars-compiler/html-parser/tokens",
-  ["../../simple-html-tokenizer","../ast","exports"],
+  ["../../simple-html-tokenizer","../builders","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     var Chars = __dependency1__.Chars;
     var StartTag = __dependency1__.StartTag;
     var EndTag = __dependency1__.EndTag;
-    var AttrNode = __dependency2__.AttrNode;
-    var TextNode = __dependency2__.TextNode;
-    var StringNode = __dependency2__.StringNode;
+    var buildText = __dependency2__.buildText;
+    var buildAttr = __dependency2__.buildAttr;
+    var buildString = __dependency2__.buildString;
 
     StartTag.prototype.startAttribute = function(char) {
-      this.currentAttribute = new AttrNode(char.toLowerCase(), [], null);
+      this.currentAttribute = buildAttr(char.toLowerCase(), [], null);
       this.attributes.push(this.currentAttribute);
     };
 
@@ -53597,13 +53897,13 @@ enifed("htmlbars-compiler/html-parser/tokens",
     StartTag.prototype.addToAttributeValue = function(char) {
       var value = this.currentAttribute.value;
 
-      if (char.type === 'sexpr' || char.type === 'ID') {
+      if (char.type === 'SubExpression' || char.type === 'PathExpression') {
         value.push(char);
       } else {
-        if (value.length > 0 && value[value.length - 1].type === 'text') {
+        if (value.length > 0 && value[value.length - 1].type === 'TextNode') {
           value[value.length - 1].chars += char;
         } else {
-          value.push(new TextNode(char));
+          value.push(buildText(char));
         }
       }
     };
@@ -53621,12 +53921,12 @@ enifed("htmlbars-compiler/html-parser/tokens",
       var parts = this.currentAttribute.value;
 
       if (parts.length === 0) {
-        parts.push(new TextNode(""));
+        parts.push(buildText(''));
       } else if (parts.length > 1) {
         // Convert TextNode to StringNode
         for (var i = 0; i < parts.length; i++) {
-          if (parts[i].type === 'text') {
-            parts[i] = new StringNode(parts[i].chars);
+          if (parts[i].type === 'TextNode') {
+            parts[i] = buildString(parts[i].chars);
           }
         }
       }
@@ -53689,11 +53989,11 @@ enifed("htmlbars-compiler/parser",
     };
 
     HTMLProcessor.prototype.sourceForMustache = function(mustache) {
-      var firstLine = mustache.firstLine - 1;
-      var lastLine = mustache.lastLine - 1;
+      var firstLine = mustache.loc.start.line - 1;
+      var lastLine = mustache.loc.end.line - 1;
       var currentLine = firstLine - 1;
-      var firstColumn = mustache.firstColumn + 2;
-      var lastColumn = mustache.lastColumn - 2;
+      var firstColumn = mustache.loc.start.column + 2;
+      var lastColumn = mustache.loc.end.column - 2;
       var string = [];
       var line;
 
@@ -53766,24 +54066,24 @@ enifed("htmlbars-compiler/walker",
     };
 
     var visitors = {
-      program: function(walker, node, callback) {
-        for (var i = 0; i < node.statements.length; i++) {
-          walker.visit(node.statements[i], callback);
+      Program: function(walker, node, callback) {
+        for (var i = 0; i < node.body.length; i++) {
+          walker.visit(node.body[i], callback);
         }
       },
 
-      element: function(walker, node, callback) {
+      ElementNode: function(walker, node, callback) {
         for (var i = 0; i < node.children.length; i++) {
           walker.visit(node.children[i], callback);
         }
       },
 
-      block: function(walker, node, callback) {
+      BlockStatement: function(walker, node, callback) {
         walker.visit(node.program, callback);
         walker.visit(node.inverse, callback);
       },
 
-      component: function(walker, node, callback) {
+      ComponentNode: function(walker, node, callback) {
         walker.visit(node.program, callback);
       }
     };
