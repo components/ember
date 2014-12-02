@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.b97e330d
+ * @version   1.10.0-beta.1+canary.c8a68bac
  */
 
 (function() {
@@ -26291,17 +26291,6 @@ enifed("ember-routing-htmlbars/tests/helpers/link-to_test",
       }
     });
 
-
-    test("should be able to be inserted in DOM when the router is not present", function() {
-      var template = "{{#link-to 'index'}}Go to Index{{/link-to}}";
-      view = EmberView.create({
-        template: compile(template)
-      });
-
-      appendView(view);
-
-      equal(view.$().text(), 'Go to Index');
-    });
 
     test("should be able to be inserted in DOM when the router is not present", function() {
       var template = "{{#link-to 'index'}}Go to Index{{/link-to}}";
