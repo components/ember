@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.cb5d465c
+ * @version   1.10.0-beta.1+canary.8376e7d3
  */
 
 (function() {
@@ -5486,21 +5486,14 @@ enifed("ember-htmlbars/tests/compat/precompile_test",
 
     QUnit.module("ember-htmlbars: Ember.Handlebars.precompile");
 
-    var templateType;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
-      templateType = 'function';
-    } else {
-      templateType = 'object';
-    }
-
     test("precompile creates an object when asObject isn't defined", function(){
       result = precompile(template);
-      equal(typeof(result), templateType);
+      equal(typeof(result), "object");
     });
 
     test("precompile creates an object when asObject is true", function(){
       result = precompile(template, true);
-      equal(typeof(result), templateType);
+      equal(typeof(result), "object");
     });
 
     test("precompile creates a string when asObject is false", function(){
@@ -12783,7 +12776,7 @@ enifed("ember-htmlbars/tests/htmlbars_test",
 
       test("HTMLBars is present and can be executed", function() {
         var template = compile("ohai");
-        var output = template({}, defaultEnv, document.body);
+        var output = template.render({}, defaultEnv, document.body);
         equalHTML(output, "ohai");
       });
     }
@@ -13028,7 +13021,7 @@ enifed("ember-htmlbars/tests/integration/block_params_test",
       this.appendChild(View, {
         isVirtual: true,
         _morph: options.morph,
-        template: options.render,
+        template: options.template,
         _blockArguments: params
       });
     }

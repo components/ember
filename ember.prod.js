@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.cb5d465c
+ * @version   1.10.0-beta.1+canary.8376e7d3
  */
 
 (function() {
@@ -8973,7 +8973,7 @@ enifed("ember-htmlbars/helpers/binding",
         preserveContext: preserveContext,
         shouldDisplayFunc: shouldDisplay,
         valueNormalizerFunc: valueNormalizer,
-        displayTemplate: options.render,
+        displayTemplate: options.template,
         inverseTemplate: options.inverse,
         lazyValue: lazyValue,
         previousContext: get(this, 'context'),
@@ -9029,7 +9029,7 @@ enifed("ember-htmlbars/helpers/binding",
         property = this.getStream(property);
       }
 
-      if (options.render) {
+      if (options.template) {
         options.helperName = 'bind';
                 bind.call(this, property, hash, options, env, false, exists);
       } else {
@@ -9193,8 +9193,8 @@ enifed("ember-htmlbars/helpers/collection",
 
       
       
-      var fn        = options.render,
-          data      = env.data,
+      var data      = env.data,
+          template  = options.template,
           inverse   = options.inverse,
           view      = data.view,
           // This should be deterministic, and should probably come from a
@@ -9255,9 +9255,9 @@ enifed("ember-htmlbars/helpers/collection",
         }
       }
 
-      if (fn) {
-        itemHash.template = fn;
-        delete options.render;
+      if (template) {
+        itemHash.template = template;
+        delete options.template;
       }
 
       var emptyViewClass;
@@ -9575,6 +9575,12 @@ enifed("ember-htmlbars/helpers/if_unless",
       }
     }
 
+    var EMPTY_TEMPLATE = {
+      isHTMLBars: true,
+      render: function() {
+        return '';
+      }
+    };
     /**
       Use the `boundIf` helper to create a conditional that re-evaluates
       whenever the truthiness of the bound value changes.
@@ -9619,7 +9625,7 @@ enifed("ember-htmlbars/helpers/if_unless",
       @since 1.4.0
     */
     function unboundIfHelper(params, hash, options, env) {
-      var template = options.render;
+      var template = options.template;
       var value = params[0];
 
       if (params[0].isStream) {
@@ -9630,7 +9636,7 @@ enifed("ember-htmlbars/helpers/if_unless",
         template = options.inverse;
       }
 
-      return template(this, env, options.morph.contextualElement);
+      return template.render(this, env, options.morph.contextualElement);
     }
 
     /**
@@ -9645,7 +9651,7 @@ enifed("ember-htmlbars/helpers/if_unless",
     */
     function ifHelper(params, hash, options, env) {
             if (Ember.FEATURES.isEnabled('ember-htmlbars-inline-if-helper')) {
-        if (!options.render) {
+        if (!options.template) {
                     var condition = params[0];
           var truthy = params[1];
           var falsy = params[2];
@@ -9653,7 +9659,7 @@ enifed("ember-htmlbars/helpers/if_unless",
         }
       }
 
-      options.inverse = options.inverse || function(){ return ''; };
+      options.inverse = options.inverse || EMPTY_TEMPLATE;
 
       options.helperName = options.helperName || ('if ');
 
@@ -9673,12 +9679,12 @@ enifed("ember-htmlbars/helpers/if_unless",
     */
     function unlessHelper(params, hash, options, env) {
             
-      var fn = options.render;
-      var inverse = options.inverse || function(){ return ''; };
+      var template = options.template;
+      var inverse = options.inverse || EMPTY_TEMPLATE;
       var helperName = 'unless';
 
-      options.render = inverse;
-      options.inverse = fn;
+      options.template = inverse;
+      options.inverse = template;
 
       options.helperName = options.helperName || helperName;
 
@@ -10057,7 +10063,7 @@ enifed("ember-htmlbars/helpers/partial",
       var name = params[0];
 
       if (name && name.isStream) {
-        options.render = createPartialTemplate(name);
+        options.template = createPartialTemplate(name);
         bind.call(this, name, hash, options, env, true, exists);
       } else {
         return renderPartial(name, this, env, options.morph.contextualElement);
@@ -10086,12 +10092,15 @@ enifed("ember-htmlbars/helpers/partial",
 
     function renderPartial(name, view, env, contextualElement) {
       var template = lookupPartial(view, name);
-      return template(view, env, contextualElement);
+      return template.render(view, env, contextualElement);
     }
 
     function createPartialTemplate(nameStream) {
-      return function(view, env, contextualElement) {
-        return renderPartial(nameStream.value(), view, env, contextualElement);
+      return {
+        isHTMLBars: true,
+        render: function(view, env, contextualElement) {
+          return renderPartial(nameStream.value(), view, env, contextualElement);
+        }
       };
     }
   });
@@ -10516,7 +10525,7 @@ enifed("ember-htmlbars/helpers/view",
 
       helper: function(newView, hash, options, env) {
         var data = env.data;
-        var fn   = options.render;
+        var template = options.template;
 
         makeBindings(hash, options, env.data.view);
 
@@ -10524,8 +10533,8 @@ enifed("ember-htmlbars/helpers/view",
         var currentView = data.view;
         var newViewProto = newView.proto();
 
-        if (fn) {
-                    viewOptions.template = fn;
+        if (template) {
+                    viewOptions.template = template;
         }
 
         // We only want to override the `_context` computed property if there is
@@ -10541,7 +10550,7 @@ enifed("ember-htmlbars/helpers/view",
 
       instanceHelper: function(newView, hash, options, env) {
         var data = env.data;
-        var fn   = options.render;
+        var template = options.template;
 
         makeBindings(hash, options, env.data.view);
 
@@ -10549,8 +10558,8 @@ enifed("ember-htmlbars/helpers/view",
         var viewOptions = this.propertiesFromHTMLOptions(hash, options, env);
         var currentView = data.view;
 
-        if (fn) {
-                    viewOptions.template = fn;
+        if (template) {
+                    viewOptions.template = template;
         }
 
         // We only want to override the `_context` computed property if there is
@@ -11694,146 +11703,164 @@ enifed("ember-htmlbars/templates/select",
     var template = __dependency1__["default"];
     var t = (function() {
       var child0 = (function() {
-        function build(dom) {
-          var el0 = dom.createElement("option");
-          dom.setAttribute(el0,"value","");
-          return el0;
-        }
-        var cachedFragment;
-        return function template(context, env, contextualElement) {
-          var dom = env.dom;
-          var hooks = env.hooks, content = hooks.content;
-          dom.detectNamespace(contextualElement);
-          if (cachedFragment === undefined) {
-            cachedFragment = build(dom);
+        return {
+          isHTMLBars: true,
+          cachedFragment: null,
+          build: function build(dom) {
+            var el0 = dom.createElement("option");
+            dom.setAttribute(el0,"value","");
+            return el0;
+          },
+          render: function render(context, env, contextualElement) {
+            var dom = env.dom;
+            var hooks = env.hooks, content = hooks.content;
+            dom.detectNamespace(contextualElement);
+            if (this.cachedFragment === null) {
+              this.cachedFragment = this.build(dom);
+            }
+            var fragment = dom.cloneNode(this.cachedFragment, true);
+            var morph0 = dom.createMorphAt(fragment,-1,-1);
+            content(morph0, "view.prompt", context, [], {}, {morph:morph0}, env);
+            return fragment;
           }
-          var fragment = dom.cloneNode(cachedFragment, true);
-          var morph0 = dom.createMorphAt(fragment,-1,-1);
-          content(morph0, "view.prompt", context, [], {}, {morph:morph0}, env);
-          return fragment;
         };
-      }())
+      }());
       var child1 = (function() {
         var child0 = (function() {
-          function build(dom) {
+          return {
+            isHTMLBars: true,
+            cachedFragment: null,
+            build: function build(dom) {
+              var el0 = dom.createDocumentFragment();
+              var el1 = dom.createTextNode("");
+              dom.appendChild(el0, el1);
+              var el1 = dom.createTextNode("");
+              dom.appendChild(el0, el1);
+              return el0;
+            },
+            render: function render(context, env, contextualElement) {
+              var dom = env.dom;
+              var hooks = env.hooks, get = hooks.get, content = hooks.content;
+              dom.detectNamespace(contextualElement);
+              if (this.cachedFragment === null) {
+                this.cachedFragment = this.build(dom);
+              }
+              var fragment = dom.cloneNode(this.cachedFragment, true);
+              dom.repairClonedNode(fragment,[0,1]);
+              var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
+              content(morph0, "view", context, [get(context, "view.groupView", env)], {"content":get(context, "group.content", env),"label":get(context, "group.label", env)}, {morph:morph0}, env);
+              return fragment;
+            }
+          };
+        }());
+        return {
+          isHTMLBars: true,
+          cachedFragment: null,
+          build: function build(dom) {
             var el0 = dom.createDocumentFragment();
             var el1 = dom.createTextNode("");
             dom.appendChild(el0, el1);
             var el1 = dom.createTextNode("");
             dom.appendChild(el0, el1);
             return el0;
-          }
-          var cachedFragment;
-          return function template(context, env, contextualElement) {
+          },
+          render: function render(context, env, contextualElement) {
             var dom = env.dom;
             var hooks = env.hooks, get = hooks.get, content = hooks.content;
             dom.detectNamespace(contextualElement);
-            if (cachedFragment === undefined) {
-              cachedFragment = build(dom);
+            if (this.cachedFragment === null) {
+              this.cachedFragment = this.build(dom);
             }
-            var fragment = dom.cloneNode(cachedFragment, true);
+            var fragment = dom.cloneNode(this.cachedFragment, true);
             dom.repairClonedNode(fragment,[0,1]);
             var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
-            content(morph0, "view", context, [get(context, "view.groupView", env)], {"content":get(context, "group.content", env),"label":get(context, "group.label", env)}, {morph:morph0}, env);
+            content(morph0, "each", context, [get(context, "view.groupedContent", env)], {"keyword":"group"}, {template:child0,morph:morph0}, env);
             return fragment;
-          };
-        }())
-        function build(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("");
-          dom.appendChild(el0, el1);
-          return el0;
-        }
-        var cachedFragment;
-        return function template(context, env, contextualElement) {
-          var dom = env.dom;
-          var hooks = env.hooks, get = hooks.get, content = hooks.content;
-          dom.detectNamespace(contextualElement);
-          if (cachedFragment === undefined) {
-            cachedFragment = build(dom);
           }
-          var fragment = dom.cloneNode(cachedFragment, true);
-          dom.repairClonedNode(fragment,[0,1]);
-          var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
-          content(morph0, "each", context, [get(context, "view.groupedContent", env)], {"keyword":"group"}, {render:child0,morph:morph0}, env);
-          return fragment;
         };
-      }())
+      }());
       var child2 = (function() {
         var child0 = (function() {
-          function build(dom) {
+          return {
+            isHTMLBars: true,
+            cachedFragment: null,
+            build: function build(dom) {
+              var el0 = dom.createDocumentFragment();
+              var el1 = dom.createTextNode("");
+              dom.appendChild(el0, el1);
+              var el1 = dom.createTextNode("");
+              dom.appendChild(el0, el1);
+              return el0;
+            },
+            render: function render(context, env, contextualElement) {
+              var dom = env.dom;
+              var hooks = env.hooks, get = hooks.get, content = hooks.content;
+              dom.detectNamespace(contextualElement);
+              if (this.cachedFragment === null) {
+                this.cachedFragment = this.build(dom);
+              }
+              var fragment = dom.cloneNode(this.cachedFragment, true);
+              dom.repairClonedNode(fragment,[0,1]);
+              var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
+              content(morph0, "view", context, [get(context, "view.optionView", env)], {"content":get(context, "item", env)}, {morph:morph0}, env);
+              return fragment;
+            }
+          };
+        }());
+        return {
+          isHTMLBars: true,
+          cachedFragment: null,
+          build: function build(dom) {
             var el0 = dom.createDocumentFragment();
             var el1 = dom.createTextNode("");
             dom.appendChild(el0, el1);
             var el1 = dom.createTextNode("");
             dom.appendChild(el0, el1);
             return el0;
-          }
-          var cachedFragment;
-          return function template(context, env, contextualElement) {
+          },
+          render: function render(context, env, contextualElement) {
             var dom = env.dom;
             var hooks = env.hooks, get = hooks.get, content = hooks.content;
             dom.detectNamespace(contextualElement);
-            if (cachedFragment === undefined) {
-              cachedFragment = build(dom);
+            if (this.cachedFragment === null) {
+              this.cachedFragment = this.build(dom);
             }
-            var fragment = dom.cloneNode(cachedFragment, true);
+            var fragment = dom.cloneNode(this.cachedFragment, true);
             dom.repairClonedNode(fragment,[0,1]);
             var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
-            content(morph0, "view", context, [get(context, "view.optionView", env)], {"content":get(context, "item", env)}, {morph:morph0}, env);
+            content(morph0, "each", context, [get(context, "view.content", env)], {"keyword":"item"}, {template:child0,morph:morph0}, env);
             return fragment;
-          };
-        }())
-        function build(dom) {
+          }
+        };
+      }());
+      return {
+        isHTMLBars: true,
+        cachedFragment: null,
+        build: function build(dom) {
           var el0 = dom.createDocumentFragment();
           var el1 = dom.createTextNode("");
           dom.appendChild(el0, el1);
           var el1 = dom.createTextNode("");
           dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n");
+          dom.appendChild(el0, el1);
           return el0;
-        }
-        var cachedFragment;
-        return function template(context, env, contextualElement) {
+        },
+        render: function render(context, env, contextualElement) {
           var dom = env.dom;
           var hooks = env.hooks, get = hooks.get, content = hooks.content;
           dom.detectNamespace(contextualElement);
-          if (cachedFragment === undefined) {
-            cachedFragment = build(dom);
+          if (this.cachedFragment === null) {
+            this.cachedFragment = this.build(dom);
           }
-          var fragment = dom.cloneNode(cachedFragment, true);
+          var fragment = dom.cloneNode(this.cachedFragment, true);
           dom.repairClonedNode(fragment,[0,1]);
           var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
-          content(morph0, "each", context, [get(context, "view.content", env)], {"keyword":"item"}, {render:child0,morph:morph0}, env);
+          var morph1 = dom.createMorphAt(fragment,1,2,contextualElement);
+          content(morph0, "if", context, [get(context, "view.prompt", env)], {}, {template:child0,morph:morph0}, env);
+          content(morph1, "if", context, [get(context, "view.optionGroupPath", env)], {}, {template:child1,inverse:child2,morph:morph1}, env);
           return fragment;
-        };
-      }())
-      function build(dom) {
-        var el0 = dom.createDocumentFragment();
-        var el1 = dom.createTextNode("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
-        return el0;
-      }
-      var cachedFragment;
-      return function template(context, env, contextualElement) {
-        var dom = env.dom;
-        var hooks = env.hooks, get = hooks.get, content = hooks.content;
-        dom.detectNamespace(contextualElement);
-        if (cachedFragment === undefined) {
-          cachedFragment = build(dom);
         }
-        var fragment = dom.cloneNode(cachedFragment, true);
-        dom.repairClonedNode(fragment,[0,1]);
-        var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
-        var morph1 = dom.createMorphAt(fragment,1,2,contextualElement);
-        content(morph0, "if", context, [get(context, "view.prompt", env)], {}, {render:child0,morph:morph0}, env);
-        content(morph1, "if", context, [get(context, "view.optionGroupPath", env)], {}, {render:child1,inverse:child2,morph:morph1}, env);
-        return fragment;
       };
     }());
      __exports__["default"] = template(t);
@@ -15026,7 +15053,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.cb5d465c
+      @version 1.10.0-beta.1+canary.8376e7d3
     */
 
     if ('undefined' === typeof Ember) {
@@ -15053,10 +15080,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.cb5d465c'
+      @default '1.10.0-beta.1+canary.8376e7d3'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.cb5d465c';
+    Ember.VERSION = '1.10.0-beta.1+canary.8376e7d3';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -23500,21 +23527,24 @@ enifed("ember-routing-htmlbars/helpers/link-to",
         delete hash.disabledWhen;
       }
 
-      if (!options.render) {
+      if (!options.template) {
         var linkTitle = params.shift();
 
         if (isStream(linkTitle)) {
           hash.linkTitle = { stream: linkTitle };
         }
 
-        options.render = function() {
-          // HTMLBars TODO: what do we use as a replacement to
-          // `Handlebars.Utils.escapeExpression` ?
-          var value = read(linkTitle);
-          if (value) {
-            return shouldEscape ? Handlebars.Utils.escapeExpression(value) : value;
-          } else {
-            return "";
+        options.template = {
+          isHTMLBars: true,
+          render: function() {
+            // HTMLBars TODO: what do we use as a replacement to
+            // `Handlebars.Utils.escapeExpression` ?
+            var value = read(linkTitle);
+            if (value) {
+              return shouldEscape ? Handlebars.Utils.escapeExpression(value) : value;
+            } else {
+              return "";
+            }
           }
         };
       }
@@ -44073,15 +44103,11 @@ enifed("ember-views/views/select",
       defaultTemplate = handlebarsTemplate;
     }
 
-    var SelectOption = View.extend({
-      instrumentDisplay: 'Ember.SelectOption',
-
-      tagName: 'option',
-      attributeBindings: ['value', 'selected'],
-
-      defaultTemplate: function(context, env, contextualElement) {
-        var options;
-        if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    var selectOptionDefaultTemplate;
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      selectOptionDefaultTemplate = {
+        isHTMLBars: true,
+        render: function(context, env, contextualElement) {
           var lazyValue = context.getStream('view.label');
 
           lazyValue.subscribe(context._wrapAsScheduled(function() {
@@ -44089,11 +44115,22 @@ enifed("ember-views/views/select",
           }));
 
           return lazyValue.value();
-        } else {
-          options = { data: env.data, hash: {} };
-          EmberHandlebars.helpers.bind.call(context, "view.label", options);
         }
-      },
+      };
+    } else {
+      selectOptionDefaultTemplate = function(context, env) {
+        var options = { data: env.data, hash: {} };
+        EmberHandlebars.helpers.bind.call(context, "view.label", options);
+      };
+    }
+
+    var SelectOption = View.extend({
+      instrumentDisplay: 'Ember.SelectOption',
+
+      tagName: 'option',
+      attributeBindings: ['value', 'selected'],
+
+      defaultTemplate: selectOptionDefaultTemplate,
 
       init: function() {
         this.labelPathDidChange();
@@ -46104,11 +46141,11 @@ enifed("ember-views/views/view",
         if (template) {
           var useHTMLBars = false;
           if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
-            useHTMLBars = template.length >= 3;
+            useHTMLBars = template.isHTMLBars;
           }
 
           if (useHTMLBars) {
-            return template(this, options, morph.contextualElement);
+            return template.render(this, options, morph.contextualElement);
           } else {
             return template(context, options);
           }
@@ -46383,20 +46420,20 @@ enifed("ember-views/views/view",
           // is the view's controller by default. A hash of data is also passed that provides
           // the template with access to the view and render buffer.
 
-                    // The template should write directly to the render buffer instead
+          // The template should write directly to the render buffer instead
           // of returning a string.
           var options = { data: data };
           var useHTMLBars = false;
 
           if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
-            useHTMLBars = template.length >= 3;
+            useHTMLBars = template.isHTMLBars;
           }
 
           if (useHTMLBars) {
-            var env = Ember.merge(buildHTMLBarsDefaultEnv(), options);
-            output = template(this, env, buffer.innerContextualElement(), this._blockArguments);
+                        var env = Ember.merge(buildHTMLBarsDefaultEnv(), options);
+            output = template.render(this, env, buffer.innerContextualElement(), this._blockArguments);
           } else {
-            output = template(context, options);
+                        output = template(context, options);
           }
 
           // If the template returned a string instead of writing to the buffer,
@@ -50906,9 +50943,9 @@ enifed("htmlbars-compiler/compiler/fragment",
       this.depth = -1;
       this.indent = (options && options.indent) || "";
 
-      this.source.push(this.indent+'function build(dom) {\n');
+      this.source.push('function build(dom) {\n');
       processOpcodes(this, opcodes);
-      this.source.push(this.indent+'}\n');
+      this.source.push(this.indent+'}');
 
       return this.source.join('');
     };
@@ -51064,7 +51101,7 @@ enifed("htmlbars-compiler/compiler/helpers",
       var options = [];
 
       if (programId !== null) {
-        options.push('render:child' + programId);
+        options.push('template:child' + programId);
       }
 
       if (inverseId !== null) {
@@ -51652,7 +51689,7 @@ enifed("htmlbars-compiler/compiler/template",
       var vars = '';
       if (this.childTemplates) {
         for (var i = 0; i < this.childTemplates.length; i++) {
-          vars += indent + 'var child' + i + ' = ' + this.childTemplates[i] + '\n';
+          vars += indent + 'var child' + i + ' = ' + this.childTemplates[i] + ';\n';
         }
       }
       return vars;
@@ -51677,7 +51714,7 @@ enifed("htmlbars-compiler/compiler/template",
 
       var indent = repeat("  ", programDepth);
       var options = {
-        indent: indent + "  "
+        indent: indent + "    "
       };
 
       // function build(dom) { return fragment; }
@@ -51702,18 +51739,21 @@ enifed("htmlbars-compiler/compiler/template",
       var template =
         '(function() {\n' +
         this.getChildTemplateVars(indent + '  ') +
-        fragmentProgram +
-        indent+'  var cachedFragment;\n' +
-        indent+'  return function template(' + templateSignature + ') {\n' +
-        indent+'    var dom = env.dom;\n' +
-        this.getHydrationHooks(indent + '    ', this.hydrationCompiler.hooks) +
-        indent+'    dom.detectNamespace(contextualElement);\n' +
-        indent+'    if (cachedFragment === undefined) {\n' +
-        indent+'      cachedFragment = build(dom);\n' +
-        indent+'    }\n' +
-        indent+'    var fragment = dom.cloneNode(cachedFragment, true);\n' +
+        indent+'  return {\n' +
+        indent+'    isHTMLBars: true,\n' +
+        indent+'    cachedFragment: null,\n' +
+        indent+'    build: ' + fragmentProgram + ',\n' +
+        indent+'    render: function render(' + templateSignature + ') {\n' +
+        indent+'      var dom = env.dom;\n' +
+        this.getHydrationHooks(indent + '      ', this.hydrationCompiler.hooks) +
+        indent+'      dom.detectNamespace(contextualElement);\n' +
+        indent+'      if (this.cachedFragment === null) {\n' +
+        indent+'        this.cachedFragment = this.build(dom);\n' +
+        indent+'      }\n' +
+        indent+'      var fragment = dom.cloneNode(this.cachedFragment, true);\n' +
         hydrationProgram +
-        indent+'    return fragment;\n' +
+        indent+'      return fragment;\n' +
+        indent+'    }\n' +
         indent+'  };\n' +
         indent+'}())';
 
