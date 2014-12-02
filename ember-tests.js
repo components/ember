@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.47aa1cff
+ * @version   1.10.0-beta.1+canary.b97e330d
  */
 
 (function() {
@@ -25146,6 +25146,8 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test",
 
         delete helpers['action'];
         helpers['action'] = originalActionHelper;
+
+        ActionHelper.registerAction = originalRegisterAction;
       }
     });
 
@@ -25173,8 +25175,6 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test",
       appendView();
 
       equal(registeredEventName, 'click', "The click event was properly registered");
-
-      ActionHelper.registerAction = originalRegisterAction;
     });
 
     test("should allow alternative events to be handled", function() {
@@ -25191,8 +25191,6 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test",
       appendView();
 
       equal(registeredEventName, 'mouseUp', "The alternative mouseUp event was properly registered");
-
-      ActionHelper.registerAction = originalRegisterAction;
     });
 
     test("should by default target the view's controller", function() {
@@ -25211,8 +25209,6 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test",
       appendView();
 
       equal(registeredTarget, controller, "The controller was registered as the target");
-
-      ActionHelper.registerAction = originalRegisterAction;
     });
 
     test("Inside a yield, the target points at the original target", function() {
@@ -25277,8 +25273,6 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test",
       }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
 
       equal(registeredTarget, itemController, "the item controller is the target of action");
-
-      ActionHelper.registerAction = originalRegisterAction;
     });
     }
 
@@ -25309,8 +25303,6 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test",
       }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
 
       ok(registeredTarget instanceof PersonController, "the with-controller is the target of action");
-
-      ActionHelper.registerAction = originalRegisterAction;
     });
 
     test("should target the with-controller inside an {{each}} in a {{#with controller='person'}} [DEPRECATED]", function() {
@@ -25368,8 +25360,6 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test",
       appendView();
 
       equal(registeredTarget, anotherTarget, "The specified target was registered");
-
-      ActionHelper.registerAction = originalRegisterAction;
 
       run(function() {
         anotherTarget.destroy();
