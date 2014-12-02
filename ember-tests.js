@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.fc8b0e06
+ * @version   1.10.0-beta.1+canary.47aa1cff
  */
 
 (function() {
@@ -23271,6 +23271,7 @@ enifed("ember-metal/tests/run_loop/run_bind_test",
     });
 
     test('Ember.run.bind keeps the async callback arguments', function() {
+      expect(4);
 
       var asyncCallback = function(increment, increment2, increment3) {
         ok(run.currentRunLoop, 'expected a run-loop');
