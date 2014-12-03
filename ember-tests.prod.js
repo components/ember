@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.6fab137e
+ * @version   1.10.0-beta.1+canary.1229f4dc
  */
 
 (function() {
@@ -3012,6 +3012,16 @@ enifed("ember-debug/tests/main_test",
       Ember.assert('Assertion is thrown', true);
       Ember.assert('Assertion is thrown', '1');
       Ember.assert('Assertion is thrown', 1);
+
+      ok(true, 'assertions were not thrown');
+    });
+
+    test('Ember.assert does not throw if second argument is an object', function() {
+      expect(1);
+      var Igor = Ember.Object.extend();
+
+      Ember.assert('is truthy', Igor);
+      Ember.assert('is truthy', Igor.create());
 
       ok(true, 'assertions were not thrown');
     });

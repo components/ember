@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.6fab137e
+ * @version   1.10.0-beta.1+canary.1229f4dc
  */
 
 (function() {
@@ -115,7 +115,7 @@ enifed("ember-debug",
     Ember.assert = function(desc, test) {
       var throwAssertion;
 
-      if (typeof test === 'function') {
+      if (Ember.typeOf(test) === 'function') {
         throwAssertion = !test();
       } else {
         throwAssertion = !test;
