@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.6c4e1837
+ * @version   1.10.0-beta.1+canary.3fd1a25c
  */
 
 (function() {
@@ -15501,7 +15501,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.6c4e1837
+      @version 1.10.0-beta.1+canary.3fd1a25c
     */
 
     if ('undefined' === typeof Ember) {
@@ -15528,10 +15528,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.6c4e1837'
+      @default '1.10.0-beta.1+canary.3fd1a25c'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.6c4e1837';
+    Ember.VERSION = '1.10.0-beta.1+canary.3fd1a25c';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -29028,6 +29028,7 @@ enifed("ember-routing/system/router",
         var container = this.container;
         var self = this;
         var initialURL = get(this, 'initialURL');
+        var initialTransition;
 
         // Allow the Location class to cancel the router setup while it refreshes
         // the page
@@ -29047,8 +29048,10 @@ enifed("ember-routing/system/router",
         if (typeof initialURL === "undefined") {
           initialURL = location.getURL();
         }
-
-        this.handleURL(initialURL);
+        initialTransition = this.handleURL(initialURL);
+        if (initialTransition && initialTransition.error) {
+          throw initialTransition.error;
+        }
       },
 
       /**
@@ -57831,6 +57834,7 @@ enifed("router/transition",
 
       if (error) {
         this.promise = Promise.reject(error);
+        this.error = error;
         return;
       }
 

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.6c4e1837
+ * @version   1.10.0-beta.1+canary.3fd1a25c
  */
 
 (function() {
@@ -64155,6 +64155,79 @@ enifed("ember/tests/routing/basic_test",
 
       Ember.run(router, 'transitionTo', 'out');
       deepEqual(calls, [['reset', 'c'], ['reset', 'a'], ['setup', 'out']]);
+    });
+
+    test("Exception during initialization of non-initial route is not swallowed", function() {
+      Router.map(function() {
+        this.route('boom');
+      });
+      App.BoomRoute = Ember.Route.extend({
+        init: function() {
+          throw new Error("boom!");
+        }
+      });
+      bootApplication();
+      throws(function(){
+        Ember.run(router, 'transitionTo', 'boom');
+      }, /\bboom\b/);
+    });
+
+
+    test("Exception during load of non-initial route is not swallowed", function() {
+      Router.map(function() {
+        this.route('boom');
+      });
+      var lookup = container.lookup;
+      container.lookup = function() {
+        if (arguments[0] === 'route:boom') {
+          throw new Error("boom!");
+        }
+        return lookup.apply(this, arguments);
+      };
+      App.BoomRoute = Ember.Route.extend({
+        init: function() {
+          throw new Error("boom!");
+        }
+      });
+      bootApplication();
+      throws(function(){
+        Ember.run(router, 'transitionTo', 'boom');
+      });
+    });
+
+    test("Exception during initialization of initial route is not swallowed", function() {
+      Router.map(function() {
+        this.route('boom', {path: '/'});
+      });
+      App.BoomRoute = Ember.Route.extend({
+        init: function() {
+          throw new Error("boom!");
+        }
+      });
+      throws(function(){
+        bootApplication();
+      }, /\bboom\b/);
+    });
+
+    test("Exception during load of initial route is not swallowed", function() {
+      Router.map(function() {
+        this.route('boom', {path: '/'});
+      });
+      var lookup = container.lookup;
+      container.lookup = function() {
+        if (arguments[0] === 'route:boom') {
+          throw new Error("boom!");
+        }
+        return lookup.apply(this, arguments);
+      };
+      App.BoomRoute = Ember.Route.extend({
+        init: function() {
+          throw new Error("boom!");
+        }
+      });
+      throws(function(){
+        bootApplication();
+      }, /\bboom\b/);
     });
   });
 enifed("ember/tests/routing/basic_test.jshint",
