@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.321b6a80
+ * @version   1.10.0-beta.1+canary.c5e14445
  */
 
 (function() {
@@ -12723,11 +12723,10 @@ enifed("ember-metal",
     var getWithDefault = __dependency11__.getWithDefault;
     var normalizeTuple = __dependency11__.normalizeTuple;
 
+    var accumulateListeners = __dependency12__.accumulateListeners;
     var addListener = __dependency12__.addListener;
     var hasListeners = __dependency12__.hasListeners;
-    var listenersDiff = __dependency12__.listenersDiff;
     var listenersFor = __dependency12__.listenersFor;
-    var listenersUnion = __dependency12__.listenersUnion;
     var on = __dependency12__.on;
     var removeListener = __dependency12__.removeListener;
     var sendEvent = __dependency12__.sendEvent;
@@ -12864,17 +12863,16 @@ enifed("ember-metal",
 
     Ember.EnumerableUtils = EnumerableUtils;
 
-    Ember.on                = on;
-    Ember.addListener       = addListener;
-    Ember.removeListener    = removeListener;
-    Ember._suspendListener  = suspendListener;
-    Ember._suspendListeners = suspendListeners;
-    Ember.sendEvent         = sendEvent;
-    Ember.hasListeners      = hasListeners;
-    Ember.watchedEvents     = watchedEvents;
-    Ember.listenersFor      = listenersFor;
-    Ember.listenersDiff     = listenersDiff;
-    Ember.listenersUnion    = listenersUnion;
+    Ember.on                  = on;
+    Ember.addListener         = addListener;
+    Ember.removeListener      = removeListener;
+    Ember._suspendListener    = suspendListener;
+    Ember._suspendListeners   = suspendListeners;
+    Ember.sendEvent           = sendEvent;
+    Ember.hasListeners        = hasListeners;
+    Ember.watchedEvents       = watchedEvents;
+    Ember.listenersFor        = listenersFor;
+    Ember.accumulateListeners = accumulateListeners;
 
     Ember._ObserverSet = ObserverSet;
 
@@ -15499,7 +15497,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.321b6a80
+      @version 1.10.0-beta.1+canary.c5e14445
     */
 
     if ('undefined' === typeof Ember) {
@@ -15526,10 +15524,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.321b6a80'
+      @default '1.10.0-beta.1+canary.c5e14445'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.321b6a80';
+    Ember.VERSION = '1.10.0-beta.1+canary.c5e14445';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -16207,11 +16205,14 @@ enifed("ember-metal/events",
       return actions;
     }
 
-    function listenersUnion(obj, eventName, otherActions) {
+    function accumulateListeners(obj, eventName, otherActions) {
       var meta = obj['__ember_meta__'];
       var actions = meta && meta.listeners && meta.listeners[eventName];
 
       if (!actions) { return; }
+
+      var newActions = [];
+
       for (var i = actions.length - 3; i >= 0; i -= 3) {
         var target = actions[i];
         var method = actions[i+1];
@@ -16220,32 +16221,14 @@ enifed("ember-metal/events",
 
         if (actionIndex === -1) {
           otherActions.push(target, method, flags);
+          newActions.push(target, method, flags);
         }
       }
+
+      return newActions;
     }
 
-    __exports__.listenersUnion = listenersUnion;function listenersDiff(obj, eventName, otherActions) {
-      var meta = obj['__ember_meta__'];
-      var actions = meta && meta.listeners && meta.listeners[eventName];
-      var diffActions = [];
-
-      if (!actions) { return; }
-      for (var i = actions.length - 3; i >= 0; i -= 3) {
-        var target = actions[i];
-        var method = actions[i+1];
-        var flags = actions[i+2];
-        var actionIndex = indexOf(otherActions, target, method);
-
-        if (actionIndex !== -1) { continue; }
-
-        otherActions.push(target, method, flags);
-        diffActions.push(target, method, flags);
-      }
-
-      return diffActions;
-    }
-
-    __exports__.listenersDiff = listenersDiff;/**
+    __exports__.accumulateListeners = accumulateListeners;/**
       Add an event listener
 
       @method addListener
@@ -19564,8 +19547,7 @@ enifed("ember-metal/property_events",
     var guidFor = __dependency1__.guidFor;
     var tryFinally = __dependency1__.tryFinally;
     var sendEvent = __dependency2__.sendEvent;
-    var listenersUnion = __dependency2__.listenersUnion;
-    var listenersDiff = __dependency2__.listenersDiff;
+    var accumulateListeners = __dependency2__.accumulateListeners;
     var ObserverSet = __dependency3__["default"];
 
     var beforeObserverSet = new ObserverSet();
@@ -19822,20 +19804,20 @@ enifed("ember-metal/property_events",
       @param {Function} callback
       @param [binding]
     */
-    function changeProperties(cb, binding) {
+    function changeProperties(callback, binding) {
       beginPropertyChanges();
-      tryFinally(cb, endPropertyChanges, binding);
+      tryFinally(callback, endPropertyChanges, binding);
     }
 
     function notifyBeforeObservers(obj, keyName) {
       if (obj.isDestroying) { return; }
 
       var eventName = keyName + ':before';
-      var listeners, diff;
+      var listeners, added;
       if (deferred) {
         listeners = beforeObserverSet.add(obj, keyName, eventName);
-        diff = listenersDiff(obj, eventName, listeners);
-        sendEvent(obj, eventName, [obj, keyName], diff);
+        added = accumulateListeners(obj, eventName, listeners);
+        sendEvent(obj, eventName, [obj, keyName], added);
       } else {
         sendEvent(obj, eventName, [obj, keyName]);
       }
@@ -19848,7 +19830,7 @@ enifed("ember-metal/property_events",
       var listeners;
       if (deferred) {
         listeners = observerSet.add(obj, keyName, eventName);
-        listenersUnion(obj, eventName, listeners);
+        accumulateListeners(obj, eventName, listeners);
       } else {
         sendEvent(obj, eventName, [obj, keyName]);
       }
