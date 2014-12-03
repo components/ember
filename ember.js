@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.ec44cd70
+ * @version   1.10.0-beta.1+canary.814f9d3e
  */
 
 (function() {
@@ -11769,8 +11769,8 @@ enifed("ember-htmlbars/helpers/yield",
     __exports__.yieldHelper = yieldHelper;
   });
 enifed("ember-htmlbars/hooks/attribute",
-  ["ember-htmlbars/attr_nodes","ember-metal/error","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["ember-htmlbars/attr_nodes","ember-metal/error","ember-metal/streams/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -11779,13 +11779,14 @@ enifed("ember-htmlbars/hooks/attribute",
 
     var attrNodeTypeFor = __dependency1__["default"];
     var EmberError = __dependency2__["default"];
+    var isStream = __dependency3__.isStream;
 
     __exports__["default"] = function attribute(element, attrName, quoted, view, attrValue, options, env) {
       var isAllowed = true;
 
       if (!Ember.FEATURES.isEnabled('ember-htmlbars-attribute-syntax')) {
         for (var i=0, l=attrValue.length; i<l; i++) {
-          if (attrValue[i].isStream) {
+          if (isStream(attrValue[i])) {
             isAllowed = false;
             break;
           }
@@ -12042,7 +12043,7 @@ enifed("ember-htmlbars/plugins/transform-quoted-class",
           var values = attribute.value;
 
           var eachIndex = 0;
-          var eachValue, currentValue, parts;
+          var eachValue, currentValue, parts, containsNonStringLiterals;
           var i, l;
           while (eachValue = values[eachIndex]) {
             if (eachValue.type === 'StringLiteral') {
@@ -12061,6 +12062,7 @@ enifed("ember-htmlbars/plugins/transform-quoted-class",
                 }
               }
             } else {
+              containsNonStringLiterals = true;
               if (!currentValue) {
                 currentValue = buildConcatASTNode();
                 quotedValues.push(currentValue);
@@ -12069,7 +12071,10 @@ enifed("ember-htmlbars/plugins/transform-quoted-class",
             }
             eachIndex++;
           }
-          attribute.value = quotedValues;
+
+          if (containsNonStringLiterals) {
+            attribute.value = quotedValues;
+          }
         }
       });
 
@@ -15964,7 +15969,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.ec44cd70
+      @version 1.10.0-beta.1+canary.814f9d3e
     */
 
     if ('undefined' === typeof Ember) {
@@ -15991,10 +15996,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.ec44cd70'
+      @default '1.10.0-beta.1+canary.814f9d3e'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.ec44cd70';
+    Ember.VERSION = '1.10.0-beta.1+canary.814f9d3e';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
