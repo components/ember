@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.ba79d642
+ * @version   1.10.0-beta.1+canary.c2d51eac
  */
 
 (function() {
@@ -16251,7 +16251,7 @@ enifed("ember-metal/tests/accessors/get_test",
   ["ember-metal/tests/props_helper","ember-metal/property_get","ember-metal/mixin","ember-metal/observer","ember-metal/platform"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
-    var testBoth = __dependency1__["default"];
+    var testBoth = __dependency1__.testBoth;
     var get = __dependency2__.get;
     var getWithDefault = __dependency2__.getWithDefault;
     var Mixin = __dependency3__.Mixin;
@@ -16967,7 +16967,7 @@ enifed("ember-metal/tests/binding/connect_test",
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
     var Ember = __dependency1__["default"];
-    var testBoth = __dependency2__["default"];
+    var testBoth = __dependency2__.testBoth;
     var Binding = __dependency3__.Binding;
     var bind = __dependency3__.bind;
     var run = __dependency4__["default"];
@@ -17153,7 +17153,7 @@ enifed("ember-metal/tests/binding/sync_test",
   ["ember-metal/tests/props_helper","ember-metal/run_loop","ember-metal/observer","ember-metal/binding","ember-metal/computed","ember-metal/properties"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
-    var testBoth = __dependency1__["default"];
+    var testBoth = __dependency1__.testBoth;
     var run = __dependency2__["default"];
     var addObserver = __dependency3__.addObserver;
     var bind = __dependency4__.bind;
@@ -17403,7 +17403,7 @@ enifed("ember-metal/tests/computed_test",
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__) {
     "use strict";
     var Ember = __dependency1__["default"];
-    var testBoth = __dependency2__["default"];
+    var testBoth = __dependency2__.testBoth;
     var create = __dependency3__.create;
     var ComputedProperty = __dependency4__.ComputedProperty;
     var computed = __dependency4__.computed;
@@ -21339,9 +21339,7 @@ enifed("ember-metal/tests/mixin/observer_test",
   ["ember-metal/tests/props_helper","ember-metal/mixin","ember-metal/watching"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
-    /*globals testBoth */
-
-    var testBoth = __dependency1__["default"];
+    var testBoth = __dependency1__.testBoth;
     var observer = __dependency2__.observer;
     var mixin = __dependency2__.mixin;
     var Mixin = __dependency2__.Mixin;
@@ -21730,7 +21728,7 @@ enifed("ember-metal/tests/observer_test",
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
     "use strict";
     var Ember = __dependency1__["default"];
-    var testBoth = __dependency2__["default"];
+    var testBoth = __dependency2__.testBoth;
     var addObserver = __dependency3__.addObserver;
     var removeObserver = __dependency3__.removeObserver;
     var addBeforeObserver = __dependency3__.addBeforeObserver;
@@ -23323,23 +23321,64 @@ enifed("ember-metal/tests/properties_test.jshint",
     });
   });
 enifed("ember-metal/tests/props_helper",
-  ["ember-metal/property_get","ember-metal/property_set","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
-    var get = __dependency1__.get;
-    var set = __dependency2__.set;
+    var Ember = __dependency1__["default"];
+    var getFromEmberMetal = __dependency2__.get;
+    var getWithDefaultFromEmberMetal = __dependency2__.getWithDefault;
+    var setFromEmberMetal = __dependency3__.set;
 
     // used by unit tests to test both accessor mode and non-accessor mode
-    __exports__["default"] = function(testname, callback) {
-      test(testname+' using Ember.get()/Ember.set()', function() {
-        callback(get, set);
+    var testBoth = function(testname, callback) {
+
+      function emberget(x,y) { return getFromEmberMetal(x,y); }
+      function emberset(x,y,z) { return setFromEmberMetal(x,y,z); }
+      function aget(x,y) { return x[y]; }
+      function aset(x,y,z) { return (x[y] = z); }
+
+      test(testname+' using getFromEmberMetal()/Ember.set()', function() {
+        callback(emberget, emberset);
       });
 
-      // test(testname+' using accessors', function() {
-      //   if (Ember.USES_ACCESSORS) callback(aget, aset);
-      //   else ok('SKIPPING ACCESSORS');
-      // });
-    }
+      test(testname+' using accessors', function() {
+        if (Ember.USES_ACCESSORS) callback(aget, aset);
+        else ok('SKIPPING ACCESSORS');
+      });
+    };
+
+    var testWithDefault = function(testname, callback) {
+      function emberget(x,y) { return getFromEmberMetal(x,y); }
+      function embergetwithdefault(x,y,z) { return getWithDefaultFromEmberMetal(x,y,z); }
+      function getwithdefault(x,y,z) { return x.getWithDefault(y,z); }
+      function emberset(x,y,z) { return setFromEmberMetal(x,y,z); }
+      function aget(x,y) { return x[y]; }
+      function aset(x,y,z) { return (x[y] = z); }
+
+      test(testname+' using obj.get()', function() {
+        callback(emberget, emberset);
+      });
+
+      test(testname+' using obj.getWithDefault()', function() {
+        callback(getwithdefault, emberset);
+      });
+
+      test(testname+' using getFromEmberMetal()', function() {
+        callback(emberget, emberset);
+      });
+
+      test(testname+' using Ember.getWithDefault()', function() {
+        callback(embergetwithdefault, emberset);
+      });
+
+      test(testname+' using accessors', function() {
+        if (Ember.USES_ACCESSORS) callback(aget, aset);
+        else ok('SKIPPING ACCESSORS');
+      });
+    };
+
+    __exports__.testWithDefault = testWithDefault;
+    __exports__.testBoth = testBoth;
   });
 enifed("ember-metal/tests/props_helper.jshint",
   [],
@@ -25095,7 +25134,7 @@ enifed("ember-metal/tests/watching/unwatch_test",
   ["ember-metal/tests/props_helper","ember-metal/watching","ember-metal/properties","ember-metal/events","ember-metal/computed","ember-metal/property_set"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
-    var testBoth = __dependency1__["default"];
+    var testBoth = __dependency1__.testBoth;
     var watch = __dependency2__.watch;
     var unwatch = __dependency2__.unwatch;
     var defineProperty = __dependency3__.defineProperty;
@@ -25217,7 +25256,7 @@ enifed("ember-metal/tests/watching/watch_test",
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
     var Ember = __dependency1__["default"];
-    var testBoth = __dependency2__["default"];
+    var testBoth = __dependency2__.testBoth;
     var indexOf = __dependency3__.indexOf;
     var addListener = __dependency4__.addListener;
     var watch = __dependency5__.watch;
@@ -25255,7 +25294,6 @@ enifed("ember-metal/tests/watching/watch_test",
     }
 
     testBoth('watching a computed property', function(get, set) {
-
       var obj = {};
       Ember.defineProperty(obj, 'foo', Ember.computed(function(keyName, value) {
         if (value !== undefined) this.__foo = value;
@@ -25270,7 +25308,6 @@ enifed("ember-metal/tests/watching/watch_test",
     });
 
     testBoth('watching a regular defined property', function(get, set) {
-
       var obj = { foo: 'baz' };
       addListeners(obj, 'foo');
 
@@ -25286,7 +25323,6 @@ enifed("ember-metal/tests/watching/watch_test",
     });
 
     testBoth('watching a regular undefined property', function(get, set) {
-
       var obj = { };
       addListeners(obj, 'foo');
 
@@ -25304,7 +25340,6 @@ enifed("ember-metal/tests/watching/watch_test",
     });
 
     testBoth('watches should inherit', function(get, set) {
-
       var obj = { foo: 'baz' };
       var objB = Ember.create(obj);
 
@@ -25319,7 +25354,6 @@ enifed("ember-metal/tests/watching/watch_test",
     });
 
     test("watching an object THEN defining it should work also", function() {
-
       var obj = {};
       addListeners(obj, 'foo');
 
@@ -25370,7 +25404,6 @@ enifed("ember-metal/tests/watching/watch_test",
     });
 
     testBoth('watching an object value then unwatching should restore old value', function(get, set) {
-
       var obj = { foo: { bar: { baz: { biff: 'BIFF' } } } };
       addListeners(obj, 'foo.bar.baz.biff');
 
@@ -25413,7 +25446,6 @@ enifed("ember-metal/tests/watching/watch_test",
     });
 
     test('when watching a global object, destroy should remove chain watchers from the global object', function() {
-
       lookup['Global'] = Global = { foo: 'bar' };
       var obj = {};
       addListeners(obj, 'Global.foo');
@@ -25437,7 +25469,6 @@ enifed("ember-metal/tests/watching/watch_test",
     });
 
     test('when watching another object, destroy should remove chain watchers from the other object', function() {
-
       var objA = {};
       var objB = {foo: 'bar'};
       objA.b = objB;
@@ -25462,7 +25493,6 @@ enifed("ember-metal/tests/watching/watch_test",
     // TESTS for length property
 
     testBoth('watching "length" property on an object', function(get, set) {
-
       var obj = { length: '26.2 miles' };
       addListeners(obj, 'length');
 
@@ -25478,7 +25508,6 @@ enifed("ember-metal/tests/watching/watch_test",
     });
 
     testBoth('watching "length" property on an array', function(get, set) {
-
       var arr = [];
       addListeners(arr, 'length');
 
@@ -30174,7 +30203,7 @@ enifed("ember-runtime/tests/computed/compose_computed_test",
     var run = __dependency5__["default"];
     var defineProperty = __dependency6__.defineProperty;
     var compare = __dependency7__["default"];
-    var testBoth = __dependency8__["default"];
+    var testBoth = __dependency8__.testBoth;
     var EmberObject = __dependency9__["default"];
 
       });
@@ -30188,7 +30217,7 @@ enifed("ember-runtime/tests/computed/compose_computed_test.jshint",
     });
   });
 enifed("ember-runtime/tests/computed/computed_macros_test",
-  ["ember-metal/computed","ember-runtime/system/object","ember-runtime/tests/props_helper"],
+  ["ember-metal/computed","ember-runtime/system/object","ember-metal/tests/props_helper"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
     var computed = __dependency1__.computed;
@@ -33812,7 +33841,7 @@ enifed("ember-runtime/tests/core/type_test.jshint",
     });
   });
 enifed("ember-runtime/tests/ext/function_test",
-  ["ember-runtime/tests/props_helper"],
+  ["ember-metal/tests/props_helper"],
   function(__dependency1__) {
     "use strict";
     var testBoth = __dependency1__.testBoth;
@@ -36790,7 +36819,7 @@ enifed("ember-runtime/tests/mixins/action_handler_test.jshint",
     });
   });
 enifed("ember-runtime/tests/mixins/array_test",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/observer","ember-metal/mixin","ember-metal/computed","ember-runtime/tests/props_helper","ember-runtime/tests/suites/array","ember-runtime/system/object","ember-runtime/mixins/array"],
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/observer","ember-metal/mixin","ember-metal/computed","ember-metal/tests/props_helper","ember-runtime/tests/suites/array","ember-runtime/system/object","ember-runtime/mixins/array"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
     "use strict";
     var Ember = __dependency1__["default"];
@@ -38273,7 +38302,7 @@ enifed("ember-runtime/tests/mixins/mutable_enumerable_test.jshint",
     });
   });
 enifed("ember-runtime/tests/mixins/observable_test",
-  ["ember-metal/computed","ember-metal/observer","ember-runtime/system/object","ember-runtime/tests/props_helper"],
+  ["ember-metal/computed","ember-metal/observer","ember-runtime/system/object","ember-metal/tests/props_helper"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
     var computed = __dependency1__.computed;
@@ -39250,75 +39279,6 @@ enifed("ember-runtime/tests/mixins/target_action_support_test.jshint",
     module('JSHint - ember-runtime/tests/mixins');
     test('ember-runtime/tests/mixins/target_action_support_test.js should pass jshint', function() { 
       ok(true, 'ember-runtime/tests/mixins/target_action_support_test.js should pass jshint.'); 
-    });
-  });
-enifed("ember-runtime/tests/props_helper",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
-    "use strict";
-    var Ember = __dependency1__["default"];
-    var getFromEmberMetal = __dependency2__.get;
-    var getWithDefaultFromEmberMetal = __dependency2__.getWithDefault;
-    var setFromEmberMetal = __dependency3__.set;
-
-    // used by unit tests to test both accessor mode and non-accessor mode
-    var testBoth = function(testname, callback) {
-
-      function emberget(x,y) { return getFromEmberMetal(x,y); }
-      function emberset(x,y,z) { return setFromEmberMetal(x,y,z); }
-      function aget(x,y) { return x[y]; }
-      function aset(x,y,z) { return (x[y] = z); }
-
-      test(testname+' using getFromEmberMetal()/Ember.set()', function() {
-        callback(emberget, emberset);
-      });
-
-      test(testname+' using accessors', function() {
-        if (Ember.USES_ACCESSORS) callback(aget, aset);
-        else ok('SKIPPING ACCESSORS');
-      });
-    };
-
-    var testWithDefault = function(testname, callback) {
-      function emberget(x,y) { return getFromEmberMetal(x,y); }
-      function embergetwithdefault(x,y,z) { return getWithDefaultFromEmberMetal(x,y,z); }
-      function getwithdefault(x,y,z) { return x.getWithDefault(y,z); }
-      function emberset(x,y,z) { return setFromEmberMetal(x,y,z); }
-      function aget(x,y) { return x[y]; }
-      function aset(x,y,z) { return (x[y] = z); }
-
-      test(testname+' using obj.get()', function() {
-        callback(emberget, emberset);
-      });
-
-      test(testname+' using obj.getWithDefault()', function() {
-        callback(getwithdefault, emberset);
-      });
-
-      test(testname+' using getFromEmberMetal()', function() {
-        callback(emberget, emberset);
-      });
-
-      test(testname+' using Ember.getWithDefault()', function() {
-        callback(embergetwithdefault, emberset);
-      });
-
-      test(testname+' using accessors', function() {
-        if (Ember.USES_ACCESSORS) callback(aget, aset);
-        else ok('SKIPPING ACCESSORS');
-      });
-    };
-
-    __exports__.testWithDefault = testWithDefault;
-    __exports__.testBoth = testBoth;
-  });
-enifed("ember-runtime/tests/props_helper.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-runtime/tests');
-    test('ember-runtime/tests/props_helper.js should pass jshint', function() { 
-      ok(true, 'ember-runtime/tests/props_helper.js should pass jshint.'); 
     });
   });
 enifed("ember-runtime/tests/suites/array",
@@ -44078,7 +44038,7 @@ enifed("ember-runtime/tests/system/native_array/suite_test.jshint",
     });
   });
 enifed("ember-runtime/tests/system/object/computed_test",
-  ["ember-metal/computed","ember-metal/property_get","ember-metal/mixin","ember-runtime/tests/props_helper","ember-runtime/system/object"],
+  ["ember-metal/computed","ember-metal/property_get","ember-metal/mixin","ember-metal/tests/props_helper","ember-runtime/system/object"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
     var computed = __dependency1__.computed;
@@ -44702,7 +44662,7 @@ enifed("ember-runtime/tests/system/object/create_test.jshint",
     });
   });
 enifed("ember-runtime/tests/system/object/destroy_test",
-  ["ember-metal/run_loop","ember-metal/platform","ember-metal/mixin","ember-metal/property_set","ember-metal/binding","ember-metal/property_events","ember-metal/keys","ember-runtime/tests/props_helper","ember-runtime/system/object"],
+  ["ember-metal/run_loop","ember-metal/platform","ember-metal/mixin","ember-metal/property_set","ember-metal/binding","ember-metal/property_events","ember-metal/keys","ember-metal/tests/props_helper","ember-runtime/system/object"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
     "use strict";
     var run = __dependency1__["default"];
@@ -45237,7 +45197,7 @@ enifed("ember-runtime/tests/system/object/extend_test.jshint",
     });
   });
 enifed("ember-runtime/tests/system/object/observer_test",
-  ["ember-metal/core","ember-metal/mixin","ember-metal/run_loop","ember-runtime/tests/props_helper","ember-runtime/system/object"],
+  ["ember-metal/core","ember-metal/mixin","ember-metal/run_loop","ember-metal/tests/props_helper","ember-runtime/system/object"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
     var Ember = __dependency1__["default"];
@@ -45786,7 +45746,7 @@ enifed("ember-runtime/tests/system/object/toString_test.jshint",
     });
   });
 enifed("ember-runtime/tests/system/object_proxy_test",
-  ["ember-metal/observer","ember-metal/computed","ember-metal/watching","ember-runtime/tests/props_helper","ember-runtime/system/object_proxy"],
+  ["ember-metal/observer","ember-metal/computed","ember-metal/watching","ember-metal/tests/props_helper","ember-runtime/system/object_proxy"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
     var addObserver = __dependency1__.addObserver;
