@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.ac226037
+ * @version   1.10.0-beta.1+canary.ba79d642
  */
 
 (function() {
@@ -16183,13 +16183,13 @@ enifed("ember-metal/tests/accessors/getPath_test",
 
     test('[null, length] returning data is deprecated', function() {
       expectDeprecation(function(){
-        equal(5, Ember.get(null, 'localPathGlobal'));
+        equal(5, get(null, 'localPathGlobal'));
       }, "Ember.get fetched 'localPathGlobal' from the global context. This behavior will change in the future (issue #3852)");
     });
 
     test('[length] returning data is deprecated', function() {
       expectDeprecation(function(){
-        equal(5, Ember.get('localPathGlobal'));
+        equal(5, get('localPathGlobal'));
       }, "Ember.get fetched 'localPathGlobal' from the global context. This behavior will change in the future (issue #3852)");
     });
 
@@ -20349,10 +20349,15 @@ enifed("ember-metal/tests/map_test.jshint",
     });
   });
 enifed("ember-metal/tests/mixin/alias_method_test",
-  [],
-  function() {
+  ["ember-metal/property_get","ember-metal/mixin"],
+  function(__dependency1__, __dependency2__) {
     "use strict";
-    QUnit.module('Ember.aliasMethod');
+    var get = __dependency1__.get;
+    var Mixin = __dependency2__.Mixin;
+    var mixin = __dependency2__.mixin;
+    var aliasMethod = __dependency2__.aliasMethod;
+
+    QUnit.module('aliasMethod');
 
     function validateAliasMethod(obj) {
       equal(obj.fooMethod(), 'FOO', 'obj.fooMethod()');
@@ -20360,10 +20365,9 @@ enifed("ember-metal/tests/mixin/alias_method_test",
     }
 
     test('methods of another name are aliased when the mixin is applied', function() {
-
-      var MyMixin = Ember.Mixin.create({
+      var MyMixin = Mixin.create({
         fooMethod: function() { return 'FOO'; },
-        barMethod: Ember.aliasMethod('fooMethod')
+        barMethod: aliasMethod('fooMethod')
       });
 
       var obj = MyMixin.apply({});
@@ -20371,24 +20375,23 @@ enifed("ember-metal/tests/mixin/alias_method_test",
     });
 
     test('should follow aliasMethods all the way down', function() {
-      var MyMixin = Ember.Mixin.create({
-        bar: Ember.aliasMethod('foo'), // put first to break ordered iteration
+      var MyMixin = Mixin.create({
+        bar: aliasMethod('foo'), // put first to break ordered iteration
         baz: function() { return 'baz'; },
-        foo: Ember.aliasMethod('baz')
+        foo: aliasMethod('baz')
       });
 
       var obj = MyMixin.apply({});
-      equal(Ember.get(obj, 'bar')(), 'baz', 'should have followed aliasMethods');
+      equal(get(obj, 'bar')(), 'baz', 'should have followed aliasMethods');
     });
 
     test('should alias methods from other dependent mixins', function() {
-
-      var BaseMixin = Ember.Mixin.create({
+      var BaseMixin = Mixin.create({
         fooMethod: function() { return 'FOO'; }
       });
 
-      var MyMixin = Ember.Mixin.create(BaseMixin, {
-        barMethod: Ember.aliasMethod('fooMethod')
+      var MyMixin = Mixin.create(BaseMixin, {
+        barMethod: aliasMethod('fooMethod')
       });
 
       var obj = MyMixin.apply({});
@@ -20396,28 +20399,26 @@ enifed("ember-metal/tests/mixin/alias_method_test",
     });
 
     test('should alias methods from other mixins applied at same time', function() {
-
-      var BaseMixin = Ember.Mixin.create({
+      var BaseMixin = Mixin.create({
         fooMethod: function() { return 'FOO'; }
       });
 
-      var MyMixin = Ember.Mixin.create({
-        barMethod: Ember.aliasMethod('fooMethod')
+      var MyMixin = Mixin.create({
+        barMethod: aliasMethod('fooMethod')
       });
 
-      var obj = Ember.mixin({}, BaseMixin, MyMixin);
+      var obj = mixin({}, BaseMixin, MyMixin);
       validateAliasMethod(obj);
     });
 
     test('should alias methods from mixins already applied on object', function() {
-
-      var BaseMixin = Ember.Mixin.create({
+      var BaseMixin = Mixin.create({
         quxMethod: function() { return 'qux'; }
       });
 
-      var MyMixin = Ember.Mixin.create({
-        bar: Ember.aliasMethod('foo'),
-        barMethod: Ember.aliasMethod('fooMethod')
+      var MyMixin = Mixin.create({
+        bar: aliasMethod('foo'),
+        barMethod: aliasMethod('fooMethod')
       });
 
       var obj = {
@@ -20440,44 +20441,48 @@ enifed("ember-metal/tests/mixin/alias_method_test.jshint",
     });
   });
 enifed("ember-metal/tests/mixin/apply_test",
-  [],
-  function() {
+  ["ember-metal/property_get","ember-metal/mixin"],
+  function(__dependency1__, __dependency2__) {
     "use strict";
+    var get = __dependency1__["default"];
+    var Mixin = __dependency2__.Mixin;
+    var mixin = __dependency2__.mixin;
+
     QUnit.module('Ember.Mixin.apply');
 
     function K() {}
 
     test('using apply() should apply properties', function() {
-      var MixinA = Ember.Mixin.create({ foo: 'FOO', baz: K });
+      var MixinA = Mixin.create({ foo: 'FOO', baz: K });
       var obj = {};
-      Ember.mixin(obj, MixinA);
+      mixin(obj, MixinA);
 
-      equal(Ember.get(obj, 'foo'), "FOO", 'should apply foo');
-      equal(Ember.get(obj, 'baz'), K, 'should apply foo');
+      equal(get(obj, 'foo'), "FOO", 'should apply foo');
+      equal(get(obj, 'baz'), K, 'should apply foo');
     });
 
     test('applying anonymous properties', function() {
       var obj = {};
-      Ember.mixin(obj, {
+      mixin(obj, {
         foo: 'FOO',
         baz: K
       });
 
-      equal(Ember.get(obj, 'foo'), "FOO", 'should apply foo');
-      equal(Ember.get(obj, 'baz'), K, 'should apply foo');
+      equal(get(obj, 'foo'), "FOO", 'should apply foo');
+      equal(get(obj, 'baz'), K, 'should apply foo');
     });
 
     test('applying null values', function() {
       expectAssertion(function() {
-        Ember.mixin({}, null);
+        mixin({}, null);
       });
     });
 
     test('applying a property with an undefined value', function() {
       var obj = { tagName: '' };
-      Ember.mixin(obj, { tagName: undefined });
+      mixin(obj, { tagName: undefined });
 
-      strictEqual(Ember.get(obj, 'tagName'), '');
+      strictEqual(get(obj, 'tagName'), '');
     });
   });
 enifed("ember-metal/tests/mixin/apply_test.jshint",
@@ -20646,37 +20651,41 @@ enifed("ember-metal/tests/mixin/computed_test.jshint",
     });
   });
 enifed("ember-metal/tests/mixin/concatenatedProperties_test",
-  [],
-  function() {
+  ["ember-metal/property_get","ember-metal/mixin"],
+  function(__dependency1__, __dependency2__) {
     "use strict";
-    QUnit.module('Ember.Mixin concatenatedProperties');
+    var get = __dependency1__["default"];
+    var Mixin = __dependency2__.Mixin;
+    var mixin = __dependency2__.mixin;
+
+    QUnit.module('Mixin concatenatedProperties');
 
     test('defining concatenated properties should concat future version', function() {
 
-      var MixinA = Ember.Mixin.create({
+      var MixinA = Mixin.create({
         concatenatedProperties: ['foo'],
         foo: ['a', 'b', 'c']
       });
 
-      var MixinB = Ember.Mixin.create({
+      var MixinB = Mixin.create({
         foo: ['d', 'e', 'f']
       });
 
-      var obj = Ember.mixin({}, MixinA, MixinB);
-      deepEqual(Ember.get(obj, 'foo'), ['a', 'b', 'c', 'd', 'e', 'f']);
+      var obj = mixin({}, MixinA, MixinB);
+      deepEqual(get(obj, 'foo'), ['a', 'b', 'c', 'd', 'e', 'f']);
     });
 
     test('defining concatenated properties should concat future version', function() {
 
-      var MixinA = Ember.Mixin.create({
+      var MixinA = Mixin.create({
         concatenatedProperties: null
       });
 
-      var MixinB = Ember.Mixin.create({
+      var MixinB = Mixin.create({
         concatenatedProperties: null
       });
 
-      var obj = Ember.mixin({}, MixinA, MixinB);
+      var obj = mixin({}, MixinA, MixinB);
 
       deepEqual(obj.concatenatedProperties, []);
     });
@@ -20684,81 +20693,81 @@ enifed("ember-metal/tests/mixin/concatenatedProperties_test",
 
     test('concatenatedProperties should be concatenated', function() {
 
-      var MixinA = Ember.Mixin.create({
+      var MixinA = Mixin.create({
         concatenatedProperties: ['foo'],
         foo: ['a', 'b', 'c']
       });
 
-      var MixinB = Ember.Mixin.create({
+      var MixinB = Mixin.create({
         concatenatedProperties: 'bar',
         foo: ['d', 'e', 'f'],
         bar: [1,2,3]
       });
 
-      var MixinC = Ember.Mixin.create({
+      var MixinC = Mixin.create({
         bar: [4,5,6]
       });
 
-      var obj = Ember.mixin({}, MixinA, MixinB, MixinC);
-      deepEqual(Ember.get(obj, 'concatenatedProperties'), ['foo', 'bar'], 'get concatenatedProperties');
-      deepEqual(Ember.get(obj, 'foo'), ['a', 'b', 'c', 'd', 'e', 'f'], 'get foo');
-      deepEqual(Ember.get(obj, 'bar'), [1,2,3,4,5,6], 'get bar');
+      var obj = mixin({}, MixinA, MixinB, MixinC);
+      deepEqual(get(obj, 'concatenatedProperties'), ['foo', 'bar'], 'get concatenatedProperties');
+      deepEqual(get(obj, 'foo'), ['a', 'b', 'c', 'd', 'e', 'f'], 'get foo');
+      deepEqual(get(obj, 'bar'), [1,2,3,4,5,6], 'get bar');
     });
 
     test('adding a prop that is not an array should make array', function() {
 
-      var MixinA = Ember.Mixin.create({
+      var MixinA = Mixin.create({
         concatenatedProperties: ['foo'],
         foo: [1,2,3]
       });
 
-      var MixinB = Ember.Mixin.create({
+      var MixinB = Mixin.create({
         foo: 4
       });
 
-      var obj = Ember.mixin({}, MixinA, MixinB);
-      deepEqual(Ember.get(obj, 'foo'), [1,2,3,4]);
+      var obj = mixin({}, MixinA, MixinB);
+      deepEqual(get(obj, 'foo'), [1,2,3,4]);
     });
 
     test('adding a prop that is not an array should make array', function() {
 
-      var MixinA = Ember.Mixin.create({
+      var MixinA = Mixin.create({
         concatenatedProperties: ['foo'],
         foo: 'bar'
       });
 
-      var obj = Ember.mixin({}, MixinA);
-      deepEqual(Ember.get(obj, 'foo'), ['bar']);
+      var obj = mixin({}, MixinA);
+      deepEqual(get(obj, 'foo'), ['bar']);
     });
 
     test('adding a non-concatenable property that already has a defined value should result in an array with both values', function() {
 
-      var mixinA = Ember.Mixin.create({
+      var mixinA = Mixin.create({
         foo: 1
       });
 
-      var mixinB = Ember.Mixin.create({
+      var mixinB = Mixin.create({
         concatenatedProperties: ['foo'],
         foo: 2
       });
 
-      var obj = Ember.mixin({}, mixinA, mixinB);
-      deepEqual(Ember.get(obj, 'foo'), [1, 2]);
+      var obj = mixin({}, mixinA, mixinB);
+      deepEqual(get(obj, 'foo'), [1, 2]);
     });
 
     test('adding a concatenable property that already has a defined value should result in a concatenated value', function() {
 
-      var mixinA = Ember.Mixin.create({
+      var mixinA = Mixin.create({
         foobar: 'foo'
       });
 
-      var mixinB = Ember.Mixin.create({
+      var mixinB = Mixin.create({
         concatenatedProperties: ['foobar'],
         foobar: 'bar'
       });
 
-      var obj = Ember.mixin({}, mixinA, mixinB);
-      equal(Ember.get(obj, 'foobar'), 'foobar');
+      var obj = mixin({}, mixinA, mixinB);
+      equal(get(obj, 'foobar'), 'foobar');
     });
   });
 enifed("ember-metal/tests/mixin/concatenatedProperties_test.jshint",
@@ -21494,10 +21503,13 @@ enifed("ember-metal/tests/mixin/observer_test.jshint",
     });
   });
 enifed("ember-metal/tests/mixin/reopen_test",
-  ["ember-metal/mixin"],
-  function(__dependency1__) {
+  ["ember-metal/run_loop","ember-metal/property_get","ember-runtime/system/object","ember-metal/mixin"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
-    var Mixin = __dependency1__["default"];
+    var run = __dependency1__["default"];
+    var get = __dependency2__["default"];
+    var EmberObject = __dependency3__["default"];
+    var Mixin = __dependency4__["default"];
 
     QUnit.module('Ember.Mixin#reopen');
 
@@ -21507,14 +21519,13 @@ enifed("ember-metal/tests/mixin/reopen_test",
       var obj = {};
       MixinA.apply(obj);
 
-      equal(Ember.get(obj, 'foo'), 'FOO2', 'mixin() should override');
-      equal(Ember.get(obj, 'baz'), 'BAZ', 'preserve MixinA props');
-      equal(Ember.get(obj, 'bar'), 'BAR', 'include MixinB props');
+      equal(get(obj, 'foo'), 'FOO2', 'mixin() should override');
+      equal(get(obj, 'baz'), 'BAZ', 'preserve MixinA props');
+      equal(get(obj, 'bar'), 'BAR', 'include MixinB props');
     });
 
     test('using reopen() and calling _super where there is not a super function does not cause infinite recursion', function(){
-
-      var Taco = Ember.Object.extend({
+      var Taco = EmberObject.extend({
         createBreakfast: function(){
           // There is no original createBreakfast function.
           // Calling the wrapped _super function here
@@ -21533,7 +21544,7 @@ enifed("ember-metal/tests/mixin/reopen_test",
       var taco = Taco.create();
 
       var result;
-      Ember.run(function(){
+      run(function(){
         try {
           result = taco.createBreakfast();
         } catch (e) {
@@ -21721,8 +21732,8 @@ enifed("ember-metal/tests/observer_test",
       var observerCount = 0;
       var obj = {};
 
-      defineProperty(obj, 'prop', Ember.computed(function () { return Math.random(); }));
-      defineProperty(obj, 'anotherProp', Ember.computed('prop', function () { return get(this, 'prop') + Math.random(); }));
+      defineProperty(obj, 'prop', computed(function () { return Math.random(); }));
+      defineProperty(obj, 'anotherProp', computed('prop', function () { return get(this, 'prop') + Math.random(); }));
 
       addObserver(obj, 'prop', function () { observerCount++; });
 
@@ -24912,8 +24923,8 @@ enifed("ember-metal/tests/utils/type_of_test",
         var klass       = Ember.Object.extend();
         var instance    = Ember.Object.create();
 
-        equal( Ember.typeOf(klass),     'class',      "class");
-        equal( Ember.typeOf(instance),  'instance',   "instance");
+        equal( typeOf(klass),     'class',      "class");
+        equal( typeOf(instance),  'instance',   "instance");
       }
     });
   });
@@ -24927,16 +24938,17 @@ enifed("ember-metal/tests/utils/type_of_test.jshint",
     });
   });
 enifed("ember-metal/tests/watching/isWatching_test",
-  ["ember-metal/property_get","ember-metal/properties","ember-metal/mixin","ember-metal/observer","ember-metal/watching"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
+  ["ember-metal/computed","ember-metal/property_get","ember-metal/properties","ember-metal/mixin","ember-metal/observer","ember-metal/watching"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
-    var get = __dependency1__.get;
-    var defineProperty = __dependency2__.defineProperty;
-    var Mixin = __dependency3__.Mixin;
-    var observer = __dependency3__.observer;
-    var addObserver = __dependency4__.addObserver;
-    var removeObserver = __dependency4__.removeObserver;
-    var isWatching = __dependency5__.isWatching;
+    var computed = __dependency1__.computed;
+    var get = __dependency2__.get;
+    var defineProperty = __dependency3__.defineProperty;
+    var Mixin = __dependency4__.Mixin;
+    var observer = __dependency4__.observer;
+    var addObserver = __dependency5__.addObserver;
+    var removeObserver = __dependency5__.removeObserver;
+    var isWatching = __dependency6__.isWatching;
 
     QUnit.module('isWatching');
 
@@ -24980,7 +24992,7 @@ enifed("ember-metal/tests/watching/isWatching_test",
 
     test("isWatching is true for computed properties", function() {
       testObserver(function(obj, key, fn) {
-        defineProperty(obj, 'computed', Ember.computed(fn).property(key));
+        defineProperty(obj, 'computed', computed(fn).property(key));
         get(obj, 'computed');
       }, function(obj, key, fn) {
         defineProperty(obj, 'computed', null);
@@ -24989,7 +25001,7 @@ enifed("ember-metal/tests/watching/isWatching_test",
 
     test("isWatching is true for chained computed properties", function() {
       testObserver(function(obj, key, fn) {
-        defineProperty(obj, 'computed', Ember.computed(fn).property(key + '.bar'));
+        defineProperty(obj, 'computed', computed(fn).property(key + '.bar'));
         get(obj, 'computed');
       }, function(obj, key, fn) {
         defineProperty(obj, 'computed', null);
@@ -48286,7 +48298,7 @@ enifed("ember-testing/tests/helpers_test",
       jQuery(document).trigger('ajaxSend', xhr);
       equal(Test.pendingAjaxRequests, 1, 'Ember.Test.pendingAjaxRequests was incremented');
 
-      Ember.run(function(){
+      run(function(){
         setupForTesting();
       });
       equal(Test.pendingAjaxRequests, 0, 'Ember.Test.pendingAjaxRequests was reset');
@@ -48300,7 +48312,7 @@ enifed("ember-testing/tests/helpers_test",
 
     test("pendingAjaxRequests is reset by setupForTesting", function() {
       Test.pendingAjaxRequests = 1;
-      Ember.run(function(){
+      run(function(){
         setupForTesting();
       });
       equal(Test.pendingAjaxRequests, 0, 'pendingAjaxRequests is reset');
@@ -52282,14 +52294,15 @@ enifed("ember-views/tests/views/metamorph_view_test.jshint",
     });
   });
 enifed("ember-views/tests/views/select_test",
-  ["ember-runtime/system/object","ember-metal/run_loop","ember-views/system/jquery","ember-metal/enumerable_utils","ember-views/system/event_dispatcher"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
+  ["ember-views/views/select","ember-runtime/system/object","ember-metal/run_loop","ember-views/system/jquery","ember-metal/enumerable_utils","ember-views/system/event_dispatcher"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
-    var EmberObject = __dependency1__["default"];
-    var run = __dependency2__["default"];
-    var jQuery = __dependency3__["default"];
-    var map = __dependency4__.map;
-    var EventDispatcher = __dependency5__["default"];
+    var EmberSelect = __dependency1__["default"];
+    var EmberObject = __dependency2__["default"];
+    var run = __dependency3__["default"];
+    var jQuery = __dependency4__["default"];
+    var map = __dependency5__.map;
+    var EventDispatcher = __dependency6__["default"];
 
     var trim = jQuery.trim;
 
@@ -52299,7 +52312,7 @@ enifed("ember-views/tests/views/select_test",
       setup: function() {
         dispatcher = EventDispatcher.create();
         dispatcher.setup();
-        select = Ember.Select.create();
+        select = EmberSelect.create();
       },
 
       teardown: function() {
@@ -52656,7 +52669,7 @@ enifed("ember-views/tests/views/select_test",
         select.destroy(); // Destroy the existing select
 
         run(function() {
-          select = Ember.Select.extend({
+          select = EmberSelect.extend({
             indirectContent: indirectContent,
             contentBinding: 'indirectContent.controller.content',
             selectionBinding: 'indirectContent.controller.selection',
@@ -52936,7 +52949,7 @@ enifed("ember-views/tests/views/select_test",
       run(function() {
         select.destroy(); // Destroy the existing select
 
-        select = Ember.Select.extend({
+        select = EmberSelect.extend({
           content: Ember.A([1,0]),
           indirectData: indirectData,
           valueBinding: 'indirectData.value'
