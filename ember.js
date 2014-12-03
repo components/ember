@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.67912432
+ * @version   1.10.0-beta.1+canary.6c4e1837
  */
 
 (function() {
@@ -10278,7 +10278,7 @@ enifed("ember-htmlbars/helpers/each",
       );
 
       hash.emptyViewClass = Ember._MetamorphView;
-      hash.dataSourceBinding = path;
+      hash.dataSource = path;
       options.helperName = options.helperName || helperName;
 
       return env.helpers.collection.helperFunction.call(this, [EachView], hash, options, env);
@@ -15971,7 +15971,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.67912432
+      @version 1.10.0-beta.1+canary.6c4e1837
     */
 
     if ('undefined' === typeof Ember) {
@@ -15998,10 +15998,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.67912432'
+      @default '1.10.0-beta.1+canary.6c4e1837'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.67912432';
+    Ember.VERSION = '1.10.0-beta.1+canary.6c4e1837';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
