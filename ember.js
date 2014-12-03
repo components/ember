@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.1229f4dc
+ * @version   1.10.0-beta.1+canary.ac226037
  */
 
 (function() {
@@ -10288,8 +10288,8 @@ enifed("ember-htmlbars/helpers/each",
     __exports__.eachHelper = eachHelper;
   });
 enifed("ember-htmlbars/helpers/if_unless",
-  ["ember-metal/core","ember-htmlbars/helpers/binding","ember-metal/property_get","ember-metal/utils","ember-views/streams/conditional_stream","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
+  ["ember-metal/core","ember-htmlbars/helpers/binding","ember-metal/property_get","ember-metal/utils","ember-views/streams/conditional_stream","ember-metal/streams/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -10303,6 +10303,7 @@ enifed("ember-htmlbars/helpers/if_unless",
     var get = __dependency3__.get;
     var isArray = __dependency4__.isArray;
     var ConditionalStream = __dependency5__["default"];
+    var isStream = __dependency6__.isStream;
 
     function shouldDisplayIfHelperContent(result) {
       var truthy = result && get(result, 'isTruthy');
@@ -10368,7 +10369,7 @@ enifed("ember-htmlbars/helpers/if_unless",
       var template = options.template;
       var value = params[0];
 
-      if (params[0].isStream) {
+      if (isStream(params[0])) {
         value = params[0].value();
       }
 
@@ -15963,7 +15964,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.1229f4dc
+      @version 1.10.0-beta.1+canary.ac226037
     */
 
     if ('undefined' === typeof Ember) {
@@ -15990,10 +15991,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.1229f4dc'
+      @default '1.10.0-beta.1+canary.ac226037'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.1229f4dc';
+    Ember.VERSION = '1.10.0-beta.1+canary.ac226037';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`

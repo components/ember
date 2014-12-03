@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.1229f4dc
+ * @version   1.10.0-beta.1+canary.ac226037
  */
 
 (function() {
@@ -4814,7 +4814,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.1229f4dc
+      @version 1.10.0-beta.1+canary.ac226037
     */
 
     if ('undefined' === typeof Ember) {
@@ -4841,10 +4841,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.1229f4dc'
+      @default '1.10.0-beta.1+canary.ac226037'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.1229f4dc';
+    Ember.VERSION = '1.10.0-beta.1+canary.ac226037';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`

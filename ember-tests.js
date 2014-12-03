@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.1229f4dc
+ * @version   1.10.0-beta.1+canary.ac226037
  */
 
 (function() {
@@ -9173,6 +9173,28 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
       runAppend(view);
 
       equal(view.$().text(), 'Yep');
+    });
+
+    test("The `if` helper does not error on undefined", function() {
+      view = EmberView.create({
+        undefinedValue: undefined,
+        template: compile('{{#if view.undefinedValue}}Yep{{/if}}{{#unbound if view.undefinedValue}}Yep{{/unbound}}')
+      });
+
+      runAppend(view);
+
+      equal(view.$().text(), '');
+    });
+
+    test("The `unless` helper does not error on undefined", function() {
+      view = EmberView.create({
+        undefinedValue: undefined,
+        template: compile('{{#unless view.undefinedValue}}Yep{{/unless}}{{#unbound unless view.undefinedValue}}Yep{{/unbound}}')
+      });
+
+      runAppend(view);
+
+      equal(view.$().text(), 'YepYep');
     });
 
     test("The `if` helper does not print the contents for an object proxy without content", function() {
