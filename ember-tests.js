@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.3fd1a25c
+ * @version   1.10.0-beta.1+canary.69b58ffc
  */
 
 (function() {
@@ -15258,6 +15258,14 @@ enifed("ember-htmlbars/tests/utils/string_test",
       var safeString = htmlSafe("you need to be more <b>bold</b>");
 
       ok(safeString instanceof SafeString, "should return SafeString");
+    });
+
+    test("htmlSafe should return an empty string for null", function() {
+      equal(htmlSafe(null).toString(), "", "should return an empty string");
+    });
+
+    test("htmlSafe should return an empty string for undefined", function() {
+      equal(htmlSafe().toString(), "", "should return an empty string");
     });
   });
 enifed("ember-htmlbars/tests/utils/string_test.jshint",
