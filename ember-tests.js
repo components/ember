@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.d011317a
+ * @version   1.10.0-beta.1+canary.abe4dd53
  */
 
 (function() {
@@ -1647,14 +1647,10 @@ enifed("ember-application/tests/system/dependency_injection/default_resolver_tes
 
       var retrievedFooResolverTestHelper, retrievedBarBazResolverTestHelper;
 
-      if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      
         retrievedFooResolverTestHelper = locator.lookup('helper:fooresolvertest').helperFunction;
         retrievedBarBazResolverTestHelper = locator.lookup('helper:bar-baz-resolver-test').helperFunction;
-      } else {
-        retrievedFooResolverTestHelper = locator.lookup('helper:fooresolvertest');
-        retrievedBarBazResolverTestHelper = locator.lookup('helper:bar-baz-resolver-test');
-      }
-
+      
       fooresolvertestHelper();
       barBazResolverTestHelper();
     });
@@ -5633,7 +5629,7 @@ enifed("ember-htmlbars/tests/compat/helper_test",
 
     var view;
 
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
 
     QUnit.module('ember-htmlbars: Handlebars compatible helpers', {
       teardown: function() {
@@ -5741,7 +5737,7 @@ enifed("ember-htmlbars/tests/compat/helper_test",
       runAppend(view);
     });
 
-    }
+    
   });
 enifed("ember-htmlbars/tests/compat/helper_test.jshint",
   [],
@@ -5765,12 +5761,9 @@ enifed("ember-htmlbars/tests/compat/make-view-helper_test",
     var runDestroy = __dependency6__.runDestroy;
 
     var compile;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
-
+    
     var container, view;
 
     QUnit.module('ember-htmlbars: Ember.Handlebars.makeViewHelper compat', {
@@ -5855,9 +5848,8 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
     }
 
     function expectDeprecationInHTMLBars() {
-      if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
-        expectDeprecation('`Ember.Handlebars.makeBoundHelper` has been deprecated in favor of `Ember.HTMLBars.makeBoundHelper`.');
-      }
+      // leave this empty function as a place holder to
+      // enable a deprecation notice
     }
 
     QUnit.module("ember-htmlbars: makeBoundHelper", {
@@ -6403,16 +6395,11 @@ enifed("ember-htmlbars/tests/helper_test",
     var htmlbarsCompile = __dependency8__["default"];
 
     var compile, helper, helpers;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       compile = htmlbarsCompile;
       helpers = htmlbarsHelpers;
       helper = htmlbarsHelper;
-    } else {
-      compile = EmberHandlebars.compile;
-      helper = EmberHandlebars.helper;
-      helpers = EmberHandlebars.helpers;
-    }
-
+    
     var view;
 
     QUnit.module("ember-htmlbars: Ember.HTMLBars.helper", {
@@ -6474,16 +6461,11 @@ enifed("ember-htmlbars/tests/helper_test",
 
     test('should create a bound helper when provided a function', function() {
       var boundFunc;
-      if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      
         boundFunc = function(params, hash) {
           return params[0];
         };
-      } else {
-        boundFunc = function(name, options) {
-          return name;
-        };
-      }
-
+      
       helper('something', boundFunc);
 
       view = EmberView.create({
@@ -6538,14 +6520,10 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test",
     var htmlbarsCompile = __dependency15__["default"];
 
     var compile, helpers;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       compile = htmlbarsCompile;
       helpers = htmlbarsHelpers;
-    } else {
-      compile = EmberHandlebars.compile;
-      helpers = EmberHandlebars.helpers;
-    }
-
+    
     var view;
 
     var originalLookup = Ember.lookup;
@@ -6745,12 +6723,9 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test",
         expectDeprecation(function() {
           var result;
 
-          if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+          
             result = helpers.bindAttr.helperFunction('foo', 'bar');
-          } else {
-            result = helpers.bindAttr('foo', 'bar');
-          }
-          equal(result, 'result', 'Result match');
+                    equal(result, 'result', 'Result match');
         }, "The 'bindAttr' view helper is deprecated in favor of 'bind-attr'");
       } finally {
         helpers['bind-attr'] = originalBindAttr;
@@ -7048,12 +7023,9 @@ enifed("ember-htmlbars/tests/helpers/bind_test",
     var view, container;
 
     var compile;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
-
+    
     QUnit.module("ember-htmlbars: {{bind}} helper", {
       setup: function() {
         container = new Container();
@@ -7136,9 +7108,9 @@ enifed("ember-htmlbars/tests/helpers/bind_test",
     });
 
     test("should not update when a property is removed from the view", function() {
-      if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      
         expectDeprecation(/block form of bind.*has been deprecated/);
-      }
+      
       var template = compile(
         '<h1 id="first">{{#bind view.content}}{{#bind foo}}{{bind baz}}{{/bind}}{{/bind}}</h1>' );
       container.register('template:foo', template);
@@ -7182,9 +7154,9 @@ enifed("ember-htmlbars/tests/helpers/bind_test",
     });
 
     test("Handlebars templates update properties if a content object changes", function() {
-      if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      
         expectDeprecation(/block form of bind.*has been deprecated/);
-      }
+      
       var template = compile(
         '<h1>Today\'s Menu</h1>{{#bind view.coffee}}<h2>{{color}} coffee</h2><span id="price">{{bind price}}</span>{{/bind}}');
       container.register('template:menu', template);
@@ -7359,12 +7331,9 @@ enifed("ember-htmlbars/tests/helpers/collection_test",
 
     var htmlbarsCompile = __dependency15__["default"];
     var compile;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
-
+    
     var view;
 
     var originalLookup = Ember.lookup;
@@ -7433,9 +7402,9 @@ enifed("ember-htmlbars/tests/helpers/collection_test",
       });
 
       var deprecation = /Resolved the view "TemplateTests.ExampleItemView" on the global context/;
-      if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      
         deprecation = /Global lookup of TemplateTests.ExampleItemView from a Handlebars template is deprecated/;
-      }
+      
       expectDeprecation(function(){
         runAppend(view);
       }, deprecation);
@@ -8055,12 +8024,9 @@ enifed("ember-htmlbars/tests/helpers/debug_test",
     var runDestroy = __dependency6__.runDestroy;
 
     var compile;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
-
+    
     var originalLookup = Ember.lookup;
     var lookup;
     var originalLog, logCalls;
@@ -8159,12 +8125,9 @@ enifed("ember-htmlbars/tests/helpers/each_test",
 
     var htmlbarsCompile = __dependency16__["default"];
     var compile;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
-
+    
     var people, view, container;
     var template, templateMyView, MyView;
 
@@ -8684,9 +8647,9 @@ enifed("ember-htmlbars/tests/helpers/each_test",
       });
 
       var deprecation = /Resolved the view "MyView" on the global context/;
-      if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      
         deprecation = /Global lookup of MyView from a Handlebars template is deprecated/;
-      }
+      
 
       expectDeprecation(function(){
         runAppend(view);
@@ -9065,9 +9028,9 @@ enifed("ember-htmlbars/tests/helpers/each_test",
 
     testEachWithItem("{{#each foo in bar}}", false);
 
-    if (Ember.FEATURES.isEnabled('ember-htmlbars-block-params')) {
+    
       testEachWithItem("{{#each bar as |foo|}}", true);
-    }
+    
   });
 enifed("ember-htmlbars/tests/helpers/each_test.jshint",
   [],
@@ -9100,12 +9063,9 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
     var runDestroy = __dependency14__.runDestroy;
 
     var compile;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
-
+    
     var originalLookup = Ember.lookup;
 
     var view, lookup, container, TemplateTests;
@@ -9958,12 +9918,9 @@ enifed("ember-htmlbars/tests/helpers/input_test",
     var htmlbarsCompile = __dependency6__["default"];
 
     var compile;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
-
+    
     var view;
     var controller;
 
@@ -10289,12 +10246,9 @@ enifed("ember-htmlbars/tests/helpers/loc_test",
     var runDestroy = __dependency4__.runDestroy;
 
     var compile;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
-
+    
     function buildView(template, context) {
       return EmberView.create({
         template: compile(template),
@@ -10344,7 +10298,7 @@ enifed("ember-htmlbars/tests/helpers/loc_test",
       runDestroy(view);
     });
 
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
     test('localize throws an assertion if the second parameter is a binding', function() {
       var view = buildView('{{loc "Hello %@" name}}', {
         name: 'Bob Foster'
@@ -10368,7 +10322,7 @@ enifed("ember-htmlbars/tests/helpers/loc_test",
 
       runDestroy(view);
     });
-    }
+    
   });
 enifed("ember-htmlbars/tests/helpers/loc_test.jshint",
   [],
@@ -10392,12 +10346,9 @@ enifed("ember-htmlbars/tests/helpers/log_test",
 
     var originalLookup, originalLog, logCalls, lookup, view, compile;
 
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
-
+    
     QUnit.module('ember-htmlbars: {{#log}} helper', {
       setup: function() {
         Ember.lookup = lookup = { Ember: Ember };
@@ -10487,12 +10438,9 @@ enifed("ember-htmlbars/tests/helpers/partial_test",
     var originalLookup = Ember.lookup;
 
     var compile;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
-
+    
     QUnit.module("Support for {{partial}} helper", {
       setup: function() {
         Ember.lookup = lookup = { Ember: Ember };
@@ -10604,12 +10552,9 @@ enifed("ember-htmlbars/tests/helpers/template_test",
     var originalLookup = Ember.lookup;
 
     var compile;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
-
+    
     QUnit.module("Support for {{template}} helper", {
       setup: function() {
         Ember.lookup = lookup = { Ember: Ember };
@@ -10679,12 +10624,9 @@ enifed("ember-htmlbars/tests/helpers/text_area_test",
     var runDestroy = __dependency6__.runDestroy;
 
     var compile;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
-
+    
     var textArea, controller;
 
     function set(object, key, value) {
@@ -10763,22 +10705,15 @@ enifed("ember-htmlbars/tests/helpers/unbound_test",
     var htmlbarsMakeBoundHelper = __dependency13__["default"];
 
     var compile, helpers, registerBoundHelper, makeBoundHelper;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       compile = htmlbarsCompile;
       registerBoundHelper = registerHTMLBarsHelper;
       makeBoundHelper = htmlbarsMakeBoundHelper;
       helpers = htmlbarsHelpers;
-    } else {
-      compile = EmberHandlebars.compile;
-      registerBoundHelper = EmberHandlebars.registerBoundHelper;
-      helpers = EmberHandlebars.helpers;
-      makeBoundHelper = handlebarsMakeBoundHelper;
-    }
-
+    
     function expectDeprecationInHTMLBars() {
-      if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
-        expectDeprecation('`Ember.Handlebars.makeBoundHelper` has been deprecated in favor of `Ember.HTMLBars.makeBoundHelper`.');
-      }
+      // leave this as an empty function until we are ready to use it
+      // to enforce deprecation notice for old Handlebars versions
     }
 
 
@@ -11163,18 +11098,12 @@ enifed("ember-htmlbars/tests/helpers/view_test",
     var computed = __dependency20__.computed;
 
     var compile, SafeString, precompile, template;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       compile = htmlbarsCompile;
       template = htmlbarsTemplate;
       precompile = htmlbarsPrecompile;
       SafeString = HTMLBarsSafeString;
-    } else {
-      compile = EmberHandlebars.compile;
-      template = EmberHandlebars.template;
-      precompile = EmberHandlebars.precompile;
-      SafeString = EmberHandlebars.SafeString;
-    }
-
+    
     var view, originalLookup, container, lookup;
 
     var trim = jQuery.trim;
@@ -12392,12 +12321,9 @@ enifed("ember-htmlbars/tests/helpers/with_test",
     var runDestroy = __dependency11__.runDestroy;
 
     var compile;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
-
+    
     var view, lookup;
     var originalLookup = Ember.lookup;
 
@@ -12831,11 +12757,11 @@ enifed("ember-htmlbars/tests/helpers/with_test",
       equal(view.$().text(), "We have: this is from the view and this is from the context", "should render");
     });
 
-    if (Ember.FEATURES.isEnabled('ember-htmlbars-block-params')) {
+    
       testWithAs("ember-htmlbars: {{#with x as |y|}}", "{{#with person as |tom|}}{{title}}: {{tom.name}}{{/with}}");
-    }
+    
 
-    if (Ember.FEATURES.isEnabled('ember-htmlbars-block-params')) {
+    
       QUnit.module("Multiple Handlebars {{with foo as |bar|}} helpers", {
         setup: function() {
           Ember.lookup = lookup = { Ember: Ember };
@@ -12885,7 +12811,7 @@ enifed("ember-htmlbars/tests/helpers/with_test",
 
         equal(view.$().text(), "Limbo-Wrath-Treachery-Wrath-Limbo", "should be properly scoped after updating");
       });
-    }
+    
   });
 enifed("ember-htmlbars/tests/helpers/with_test.jshint",
   [],
@@ -12919,14 +12845,10 @@ enifed("ember-htmlbars/tests/helpers/yield_test",
     var runDestroy = __dependency13__.runDestroy;
 
     var compile, helper;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       compile = htmlbarsCompile;
       helper = htmlbarsHelper;
-    } else {
-      compile = EmberHandlebars.compile;
-      helper = EmberHandlebars.helper;
-    }
-
+    
     var view, container;
 
     QUnit.module("ember-htmlbars: Support for {{yield}} helper", {
@@ -13323,7 +13245,7 @@ enifed("ember-htmlbars/tests/hooks/component_test",
       componentGenerationEnabled = true;
     }
 
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       if (componentGenerationEnabled) {
         QUnit.module("ember-htmlbars: component hook", {
           setup: function() {
@@ -13359,7 +13281,7 @@ enifed("ember-htmlbars/tests/hooks/component_test",
           }, 'You specified `foo-bar` in your template, but a component for `foo-bar` could not be found.');
         });
       }
-    }
+    
   });
 enifed("ember-htmlbars/tests/hooks/component_test.jshint",
   [],
@@ -13384,7 +13306,7 @@ enifed("ember-htmlbars/tests/hooks/text_node_test",
 
     var view;
 
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       QUnit.module("ember-htmlbars: basic/text_node_test", {
         teardown: function(){
           runDestroy(view);
@@ -13425,7 +13347,7 @@ enifed("ember-htmlbars/tests/hooks/text_node_test",
 
         equalInnerHTML(view.element, 'ohai mmun', "new property is output");
       });
-    }
+    
   });
 enifed("ember-htmlbars/tests/hooks/text_node_test.jshint",
   [],
@@ -13444,7 +13366,7 @@ enifed("ember-htmlbars/tests/htmlbars_test",
     var defaultEnv = __dependency2__.defaultEnv;
     var equalHTML = __dependency3__.equalHTML;
 
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
 
       QUnit.module("ember-htmlbars: main");
 
@@ -13453,7 +13375,7 @@ enifed("ember-htmlbars/tests/htmlbars_test",
         var output = template.render({}, defaultEnv, document.body);
         equalHTML(output, "ohai");
       });
-    }
+    
   });
 enifed("ember-htmlbars/tests/htmlbars_test.jshint",
   [],
@@ -13488,12 +13410,9 @@ enifed("ember-htmlbars/tests/integration/binding_integration_test",
 
     var trim = jQuery.trim;
 
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
-
+    
     QUnit.module('ember-htmlbars: binding integration', {
       setup: function() {
         originalLookup = Ember.lookup;
@@ -13643,12 +13562,9 @@ enifed("ember-htmlbars/tests/integration/binding_integration_test",
         options.hash.stringTestBinding = id;
 
         var result;
-        if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+        
           result = htmlbarsViewHelper.helper(viewClass, options.hash, options, options);
-        } else {
-          result = handlebarsViewHelper.helper(this, viewClass, options);
-        }
-
+        
         return result;
       });
 
@@ -13698,7 +13614,7 @@ enifed("ember-htmlbars/tests/integration/block_params_test",
       });
     }
 
-    if (Ember.FEATURES.isEnabled('ember-htmlbars-block-params')) {
+    
 
     QUnit.module("ember-htmlbars: block params", {
       setup: function() {
@@ -13801,7 +13717,7 @@ enifed("ember-htmlbars/tests/integration/block_params_test",
       equal(view.$().text(), "ebryn[trek[machty]trek]ebryn[machty[trek]machty]ebryn");
     });
 
-    }
+    
   });
 enifed("ember-htmlbars/tests/integration/block_params_test.jshint",
   [],
@@ -13826,12 +13742,9 @@ enifed("ember-htmlbars/tests/integration/component_invocation_test",
     var runDestroy = __dependency7__.runDestroy;
 
     var compile;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
-
+    
     var container, view;
 
     QUnit.module('component - invocation', {
@@ -13936,12 +13849,9 @@ enifed("ember-htmlbars/tests/integration/escape_integration_test",
 
     var compile, view;
 
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
-
+    
     QUnit.module('ember-htmlbars: Integration with Globals', {
       teardown: function() {
         runDestroy(view);
@@ -14073,12 +13983,9 @@ enifed("ember-htmlbars/tests/integration/globals_integration_test",
 
     var compile, view, originalLookup, lookup;
 
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
-
+    
     var originalLookup = Ember.lookup;
 
     QUnit.module('ember-htmlbars: Integration with Globals', {
@@ -14176,12 +14083,9 @@ enifed("ember-htmlbars/tests/integration/select_in_template_test",
     var dispatcher, view;
 
     var compile;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
-
+    
     QUnit.module("ember-htmlbars: Ember.Select - usage inside templates", {
       setup: function() {
         dispatcher = EventDispatcher.create();
@@ -14480,12 +14384,9 @@ enifed("ember-htmlbars/tests/integration/with_view_test",
     var trim = jQuery.trim;
 
     var compile;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
-
+    
     QUnit.module('ember-htmlbars: {{#with}} and {{#view}} integration', {
       setup: function() {
         container = new Container();
@@ -14846,7 +14747,7 @@ enifed("ember-htmlbars/tests/system/compile_test",
     var compile = __dependency1__["default"];
     var htmlbarsCompile = __dependency2__.compile;
 
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
 
     QUnit.module('ember-htmlbars: compile');
 
@@ -14868,7 +14769,7 @@ enifed("ember-htmlbars/tests/system/compile_test",
       ok(actual.isMethod === false, 'sets isMethod via template function');
     });
 
-    }
+    
   });
 enifed("ember-htmlbars/tests/system/compile_test.jshint",
   [],
@@ -15037,7 +14938,7 @@ enifed("ember-htmlbars/tests/system/make_bound_helper_test",
       }));
     }
 
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
 
     QUnit.module("ember-htmlbars: makeBoundHelper", {
       setup: function() {
@@ -15234,7 +15135,7 @@ enifed("ember-htmlbars/tests/system/make_bound_helper_test",
       equal(view.$().text(), 'undefined, undefined, string, number, object', "helper output is correct");
     });
 
-    }
+    
   });
 enifed("ember-htmlbars/tests/system/make_bound_helper_test.jshint",
   [],
@@ -15278,7 +15179,7 @@ enifed("ember-htmlbars/tests/system/template_test",
     "use strict";
     var template = __dependency1__["default"];
 
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
 
     QUnit.module('ember-htmlbars: template');
 
@@ -15298,7 +15199,7 @@ enifed("ember-htmlbars/tests/system/template_test",
       equal(test.isMethod, false, 'sets isMethod on the provided function');
     });
 
-    }
+    
   });
 enifed("ember-htmlbars/tests/system/template_test.jshint",
   [],
@@ -25815,22 +25716,13 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test",
     var runDestroy = __dependency19__.runDestroy;
 
     var compile, helpers, registerHelper, ActionHelper, actionHelper;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       helpers = htmlbarsHelpers;
       compile = htmlbarsCompile;
       registerHelper = htmlbarsRegisterHelper;
       actionHelper = htmlbarsActionHelper;
       ActionHelper = HTMLBarsActionHelper;
-    } else {
-      helpers = EmberHandlebars.helpers;
-      compile = EmberHandlebars.compile;
-      registerHelper = function(name, fn) {
-        return EmberHandlebars.registerHelper(name, fn);
-      };
-      actionHelper = handlebarsActionHelper;
-      ActionHelper = HandlebarsActionHelper;
-    }
-
+    
     var dispatcher, view, originalActionHelper;
     var originalRegisterAction = ActionHelper.registerAction;
 
@@ -26972,12 +26864,9 @@ enifed("ember-routing-htmlbars/tests/helpers/link-to_test",
     var runDestroy = __dependency8__.runDestroy;
 
     var compile;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       compile = htmlbarsCompile;
-    } else {
-      compile = EmberHandlebars.compile;
-    }
-
+    
     var view;
 
     QUnit.module("Handlebars {{link-to}} helper", {
@@ -27120,20 +27009,12 @@ enifed("ember-routing-htmlbars/tests/helpers/outlet_test",
     var runDestroy = __dependency22__.runDestroy;
 
     var compile, helpers, registerHelper, outletHelper;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       outletHelper = htmlbarsOutletHelper;
       compile = htmlbarsCompile;
       helpers = htmlbarsHelpers;
       registerHelper = htmlbarsRegisterHelper;
-    } else {
-      outletHelper = handlebarsOutletHelper;
-      compile = EmberHandlebars.compile;
-      helpers = EmberHandlebars.helpers;
-      registerHelper = function(name, fn) {
-        EmberHandlebars.registerHelper(name, fn);
-      };
-    }
-
+    
     var buildContainer = function(namespace) {
       var container = new Container();
 
@@ -27477,7 +27358,7 @@ enifed("ember-routing-htmlbars/tests/helpers/outlet_test",
       runAppend(view);
     });
 
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       test("should throw an assertion if {{outlet}} used with unquoted name", function() {
         view = EmberView.create({
           template: compile("{{outlet foo}}"),
@@ -27486,17 +27367,7 @@ enifed("ember-routing-htmlbars/tests/helpers/outlet_test",
           runAppend(view);
         }, "Using {{outlet}} with an unquoted name is not supported.");
       });
-    } else {
-      test("should throw a deprecation if {{outlet}} is used with an unquoted name", function() {
-        view = EmberView.create({
-          template: compile("{{outlet foo}}")
-        });
-        expectDeprecation(function() {
-          runAppend(view);
-        }, 'Using {{outlet}} with an unquoted name is not supported. Please update to quoted usage \'{{outlet "foo"}}\'.');
       });
-    }
-  });
 enifed("ember-routing-htmlbars/tests/helpers/outlet_test.jshint",
   [],
   function() {
@@ -27550,24 +27421,14 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
 
     var compile, helpers, registerHelper;
     var renderHelper, actionHelper, outletHelper;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       renderHelper = htmlbarsRenderHelper;
       actionHelper = htmlbarsActionHelper;
       outletHelper = htmlbarsOutletHelper;
       compile = htmlbarsCompile;
       helpers = htmlbarsHelpers;
       registerHelper = htmlbarsRegisterHelper;
-    } else {
-      renderHelper = handlebarsRenderHelper;
-      actionHelper = handlebarsActionHelper;
-      outletHelper = handlebarsOutletHelper;
-      compile = EmberHandlebars.compile;
-      helpers = EmberHandlebars.helpers;
-      registerHelper = function(name, fn) {
-        EmberHandlebars.registerHelper(name, fn);
-      };
-    }
-
+    
     function appendView(view) {
       run(function() { view.appendTo('#qunit-fixture'); });
     }
@@ -28090,7 +27951,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
       equal(container.lookup('controller:blog.post'), renderedView.get('controller'), 'rendered with correct controller');
     });
 
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
 
     test("throws an assertion if {{render}} is called with an unquoted template name", function(){
       var template = '<h1>HI</h1>{{render home}}';
@@ -28122,26 +27983,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
       }, "The second argument of {{render}} must be a path, e.g. {{render \"post\" post}}.");
     });
 
-    } else {
-
-    test("Using quoteless templateName works properly (DEPRECATED)", function(){
-      var template = '<h1>HI</h1>{{render home}}';
-      var controller = EmberController.extend({container: container});
-      view = EmberView.create({
-        controller: controller.create(),
-        template: compile(template)
       });
-
-      Ember.TEMPLATES['home'] = compile("<p>BYE</p>");
-
-      expectDeprecation("Using a quoteless parameter with {{render}} is deprecated. Please update to quoted usage '{{render \"home\"}}.");
-      appendView(view);
-
-      equal(view.$('p:contains(BYE)').length, 1, "template was rendered");
-    });
-
-    }
-  });
 enifed("ember-routing-htmlbars/tests/helpers/render_test.jshint",
   [],
   function() {
@@ -58856,10 +58698,6 @@ enifed("ember/tests/helpers/helper_registration_test",
 
       // need to make `makeBoundHelper` for HTMLBars
     test("Bound helpers registered on the container can be late-invoked", function() {
-      if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
-        expectDeprecation('`Ember.Handlebars.makeBoundHelper` has been deprecated in favor of `Ember.HTMLBars.makeBoundHelper`.');
-      }
-
       Ember.TEMPLATES.application = compile("<div id='wrapper'>{{x-reverse}} {{x-reverse foo}}</div>");
 
       boot(function() {

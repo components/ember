@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.d011317a
+ * @version   1.10.0-beta.1+canary.abe4dd53
  */
 
 (function() {
@@ -7979,7 +7979,7 @@ enifed("ember-htmlbars",
     registerHelper('unbound', unboundHelper);
     registerHelper('concat', concat);
 
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       Ember.HTMLBars = {
         helpers: helpers,
         helper: helper,
@@ -7990,7 +7990,7 @@ enifed("ember-htmlbars",
         makeBoundHelper: makeBoundHelper
       };
 
-    }
+    
 
     var defaultEnv = {
       dom: new DOMHelper(),
@@ -8404,7 +8404,7 @@ enifed("ember-htmlbars/compat",
     var compatPrecompile = __dependency9__["default"];
     var makeViewHelper = __dependency10__["default"];
 
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       EmberHandlebars.helpers = helpers;
       EmberHandlebars.helper = compatHandlebarsHelper;
       EmberHandlebars.registerHelper = compatRegisterHelper;
@@ -8415,7 +8415,7 @@ enifed("ember-htmlbars/compat",
       EmberHandlebars.compile = compile;
       EmberHandlebars.template = template;
       EmberHandlebars.makeViewHelper = makeViewHelper;
-    }
+    
 
     __exports__["default"] = EmberHandlebars;
   });
@@ -8516,7 +8516,6 @@ enifed("ember-htmlbars/compat/helper",
 
     __exports__.registerHandlebarsCompatibleHelper = registerHandlebarsCompatibleHelper;function handlebarsHelper(name, value) {
       
-      
       if (View.detect(value)) {
         helpers[name] = makeViewHelper(value);
       } else {
@@ -8575,7 +8574,6 @@ enifed("ember-htmlbars/compat/make-bound-helper",
       @deprecated
     */
     __exports__["default"] = function makeBoundHelper(fn, compatMode) {
-      
       var dependentKeys = [];
       for (var i = 1; i < arguments.length; i++) {
         dependentKeys.push(arguments[i]);
@@ -8816,6 +8814,10 @@ enifed("ember-htmlbars/helpers",
     @submodule ember-htmlbars
     */
 
+    /**
+     @private
+     @property helpers
+    */
     var helpers = { };
 
     /**
@@ -8876,6 +8878,7 @@ enifed("ember-htmlbars/helpers",
       Options in the helper will be passed to the view in exactly the same
       manner as with the `view` helper.
 
+      @private
       @method helper
       @for Ember.HTMLBars
       @param {String} name
@@ -11459,15 +11462,9 @@ enifed("ember-htmlbars/hooks/set",
     var EmberError = __dependency2__["default"];
 
     __exports__["default"] = function set(view, name, value) {
-      if (Ember.FEATURES.isEnabled('ember-htmlbars-block-params')) {
+      
         view._keywords[name] = value;
-      } else {
-        throw new EmberError(
-          "You must enable the ember-htmlbars-block-params feature " +
-          "flag to use the block params feature in Ember."
-        );
-      }
-    }
+          }
   });
 enifed("ember-htmlbars/hooks/subexpr",
   ["ember-htmlbars/system/lookup-helper","exports"],
@@ -11691,7 +11688,7 @@ enifed("ember-htmlbars/system/bootstrap",
     */
 
     onLoad('Ember.Application', function(Application) {
-      if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+      
 
       Application.initializer({
         name: 'domTemplates',
@@ -11704,7 +11701,7 @@ enifed("ember-htmlbars/system/bootstrap",
         initialize: registerComponentLookup
       });
 
-      }
+      
     });
 
     __exports__["default"] = bootstrap;
@@ -11938,6 +11935,7 @@ enifed("ember-htmlbars/system/make_bound_helper",
         Assuming that `repeatCount` resolved to 2, the bound helper would receive `["foo"]` as its first argument,
         and { count: 2 } as its second.
 
+      @private
       @method makeBoundHelper
       @for Ember.HTMLBars
       @param {Function} function
@@ -15367,7 +15365,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.d011317a
+      @version 1.10.0-beta.1+canary.abe4dd53
     */
 
     if ('undefined' === typeof Ember) {
@@ -15394,10 +15392,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.d011317a'
+      @default '1.10.0-beta.1+canary.abe4dd53'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.d011317a';
+    Ember.VERSION = '1.10.0-beta.1+canary.abe4dd53';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -42644,14 +42642,10 @@ enifed("ember-views/views/bound_view",
     function K() { return this; }
 
     var SafeString, htmlSafe;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       SafeString = htmlbarsSafeString;
       htmlSafe = htmlbarsHtmlSafe;
-    } else {
-      SafeString = EmberHandlebars.SafeString;
-      htmlSafe = handlebarsHtmlSafe;
-    }
-
+    
     var states = cloneStates(viewStates);
 
     merge(states._default, {
@@ -43473,14 +43467,11 @@ enifed("ember-views/views/component",
       },
 
       defaultLayout: function(context, options){
-        if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+        
           // ES6TODO: must use global here, to prevent circular require issue
           // remove and replace with standard import once we have lazy binding
           Ember.HTMLBars.helpers.yield.helperFunction.call(context, [], {}, options, { data: { view: context }});
-        } else {
-          Ember.Handlebars.helpers['yield'].call(context, options);
-        }
-      },
+              },
 
       /**
       A components template property is set by passing a block
@@ -44415,14 +44406,11 @@ enifed("ember-views/views/select",
     var htmlbarsTemplate = __dependency15__["default"];
 
     var defaultTemplate;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       defaultTemplate = htmlbarsTemplate;
-    } else {
-      defaultTemplate = handlebarsTemplate;
-    }
-
+    
     var selectOptionDefaultTemplate;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       selectOptionDefaultTemplate = {
         isHTMLBars: true,
         render: function(context, env, contextualElement) {
@@ -44435,13 +44423,7 @@ enifed("ember-views/views/select",
           return lazyValue.value();
         }
       };
-    } else {
-      selectOptionDefaultTemplate = function(context, env) {
-        var options = { data: env.data, hash: {} };
-        EmberHandlebars.helpers.bind.call(context, "view.label", options);
-      };
-    }
-
+    
     var SelectOption = View.extend({
       instrumentDisplay: 'Ember.SelectOption',
 
@@ -45077,14 +45059,10 @@ enifed("ember-views/views/simple_bound_view",
     function K() { return this; }
 
     var SafeString, htmlSafe;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    
       SafeString = htmlbarsSafeString;
       htmlSafe = htmlbarsHtmlSafe;
-    } else {
-      SafeString = EmberHandlebars.SafeString;
-      htmlSafe = handlebarsHtmlSafe;
-    }
-
+    
     function SimpleBoundView(lazyValue, isEscaped) {
       this.lazyValue = lazyValue;
       this.isEscaped = isEscaped;
@@ -46471,9 +46449,9 @@ enifed("ember-views/views/view",
 
         if (template) {
           var useHTMLBars = false;
-          if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+          
             useHTMLBars = template.isHTMLBars;
-          }
+          
 
           if (useHTMLBars) {
             return template.render(this, options, morph.contextualElement);
@@ -46756,9 +46734,9 @@ enifed("ember-views/views/view",
           var options = { data: data };
           var useHTMLBars = false;
 
-          if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
+          
             useHTMLBars = template.isHTMLBars;
-          }
+          
 
           if (useHTMLBars) {
                         var env = Ember.merge(buildHTMLBarsDefaultEnv(), options);
