@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.abe4dd53
+ * @version   1.10.0-beta.1+canary.977efcf5
  */
 
 (function() {
@@ -39578,8 +39578,8 @@ enifed("ember-runtime/tests/suites/copyable/frozenCopy.jshint",
     });
   });
 enifed("ember-runtime/tests/suites/enumerable",
-  ["ember-runtime/tests/suites/suite","ember-runtime/system/object","ember-metal/mixin","ember-metal/utils","ember-metal/computed","ember-metal/property_get","ember-runtime/tests/suites/enumerable/any","ember-runtime/tests/suites/enumerable/is_any","ember-runtime/tests/suites/enumerable/compact","ember-runtime/tests/suites/enumerable/contains","ember-runtime/tests/suites/enumerable/every","ember-runtime/tests/suites/enumerable/filter","ember-runtime/tests/suites/enumerable/find","ember-runtime/tests/suites/enumerable/firstObject","ember-runtime/tests/suites/enumerable/forEach","ember-runtime/tests/suites/enumerable/mapBy","ember-runtime/tests/suites/enumerable/invoke","ember-runtime/tests/suites/enumerable/lastObject","ember-runtime/tests/suites/enumerable/map","ember-runtime/tests/suites/enumerable/reduce","ember-runtime/tests/suites/enumerable/reject","ember-runtime/tests/suites/enumerable/sortBy","ember-runtime/tests/suites/enumerable/toArray","ember-runtime/tests/suites/enumerable/uniq","ember-runtime/tests/suites/enumerable/without","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __exports__) {
+  ["ember-runtime/tests/suites/suite","ember-runtime/system/object","ember-metal/mixin","ember-metal/utils","ember-metal/computed","ember-metal/property_get","ember-metal/observer","ember-runtime/tests/suites/enumerable/any","ember-runtime/tests/suites/enumerable/is_any","ember-runtime/tests/suites/enumerable/compact","ember-runtime/tests/suites/enumerable/contains","ember-runtime/tests/suites/enumerable/every","ember-runtime/tests/suites/enumerable/filter","ember-runtime/tests/suites/enumerable/find","ember-runtime/tests/suites/enumerable/firstObject","ember-runtime/tests/suites/enumerable/forEach","ember-runtime/tests/suites/enumerable/mapBy","ember-runtime/tests/suites/enumerable/invoke","ember-runtime/tests/suites/enumerable/lastObject","ember-runtime/tests/suites/enumerable/map","ember-runtime/tests/suites/enumerable/reduce","ember-runtime/tests/suites/enumerable/reject","ember-runtime/tests/suites/enumerable/sortBy","ember-runtime/tests/suites/enumerable/toArray","ember-runtime/tests/suites/enumerable/uniq","ember-runtime/tests/suites/enumerable/without","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __exports__) {
     "use strict";
     var Suite = __dependency1__.Suite;
     var EmberObject = __dependency2__["default"];
@@ -39588,6 +39588,7 @@ enifed("ember-runtime/tests/suites/enumerable",
     var generateGuid = __dependency4__.generateGuid;
     var computed = __dependency5__.computed;
     var get = __dependency6__.get;
+    var addBeforeObserver = __dependency7__.addBeforeObserver;
 
     var ObserverClass = EmberObject.extend({
 
@@ -39636,12 +39637,9 @@ enifed("ember-runtime/tests/suites/enumerable",
 
 
       observeBefore: function(obj) {
-        if (obj.addBeforeObserver) {
-          var keys = Array.prototype.slice.call(arguments, 1);
-          var loc  = keys.length;
-
-          while(--loc>=0) obj.addBeforeObserver(keys[loc], this, 'propertyWillChange');
-        }
+        var keys = Array.prototype.slice.call(arguments, 1);
+        var loc  = keys.length;
+        while(--loc>=0) addBeforeObserver(obj, keys[loc], this, 'propertyWillChange');
         return this;
       },
 
@@ -39840,25 +39838,25 @@ enifed("ember-runtime/tests/suites/enumerable",
       observerClass: ObserverClass
     });
 
-    var anyTests = __dependency7__["default"];
-    var isAnyTests = __dependency8__["default"];
-    var compactTests = __dependency9__["default"];
-    var containsTests = __dependency10__["default"];
-    var everyTests = __dependency11__["default"];
-    var filterTests = __dependency12__["default"];
-    var findTests = __dependency13__["default"];
-    var firstObjectTests = __dependency14__["default"];
-    var forEachTests = __dependency15__["default"];
-    var mapByTests = __dependency16__["default"];
-    var invokeTests = __dependency17__["default"];
-    var lastObjectTests = __dependency18__["default"];
-    var mapTests = __dependency19__["default"];
-    var reduceTests = __dependency20__["default"];
-    var rejectTests = __dependency21__["default"];
-    var sortByTests = __dependency22__["default"];
-    var toArrayTests = __dependency23__["default"];
-    var uniqTests = __dependency24__["default"];
-    var withoutTests = __dependency25__["default"];
+    var anyTests = __dependency8__["default"];
+    var isAnyTests = __dependency9__["default"];
+    var compactTests = __dependency10__["default"];
+    var containsTests = __dependency11__["default"];
+    var everyTests = __dependency12__["default"];
+    var filterTests = __dependency13__["default"];
+    var findTests = __dependency14__["default"];
+    var firstObjectTests = __dependency15__["default"];
+    var forEachTests = __dependency16__["default"];
+    var mapByTests = __dependency17__["default"];
+    var invokeTests = __dependency18__["default"];
+    var lastObjectTests = __dependency19__["default"];
+    var mapTests = __dependency20__["default"];
+    var reduceTests = __dependency21__["default"];
+    var rejectTests = __dependency22__["default"];
+    var sortByTests = __dependency23__["default"];
+    var toArrayTests = __dependency24__["default"];
+    var uniqTests = __dependency25__["default"];
+    var withoutTests = __dependency26__["default"];
 
     EnumerableTests.importModuleTests(anyTests);
     EnumerableTests.importModuleTests(isAnyTests);

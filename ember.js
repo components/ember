@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.abe4dd53
+ * @version   1.10.0-beta.1+canary.977efcf5
  */
 
 (function() {
@@ -15831,7 +15831,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.abe4dd53
+      @version 1.10.0-beta.1+canary.977efcf5
     */
 
     if ('undefined' === typeof Ember) {
@@ -15858,10 +15858,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.abe4dd53'
+      @default '1.10.0-beta.1+canary.977efcf5'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.abe4dd53';
+    Ember.VERSION = '1.10.0-beta.1+canary.977efcf5';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -37067,6 +37067,7 @@ enifed("ember-runtime/mixins/observable",
       },
 
       addBeforeObserver: function(key, target, method) {
+        Ember.deprecate('Before observers are deprecated and will be removed in a future release. If you want to keep track of previous values you have to implement it yourself. See http://emberjs.com/guides/deprecations#toc_deprecate-beforeobservers');
         addBeforeObserver(this, key, target, method);
       },
 
@@ -47458,16 +47459,17 @@ enifed("ember-views/views/states/in_buffer",
     __exports__["default"] = inBuffer;
   });
 enifed("ember-views/views/states/in_dom",
-  ["ember-metal/core","ember-metal/platform","ember-metal/merge","ember-metal/error","ember-views/views/states/has_element","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
+  ["ember-metal/core","ember-metal/platform","ember-metal/merge","ember-metal/error","ember-metal/observer","ember-views/views/states/has_element","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.assert
     var create = __dependency2__.create;
     var merge = __dependency3__["default"];
     var EmberError = __dependency4__["default"];
+    var addBeforeObserver = __dependency5__.addBeforeObserver;
 
-    var hasElement = __dependency5__["default"];
+    var hasElement = __dependency6__["default"];
     /**
     @module ember
     @submodule ember-views
@@ -47488,7 +47490,7 @@ enifed("ember-views/views/states/in_dom",
           View.views[view.elementId] = view;
         }
 
-        view.addBeforeObserver('elementId', function() {
+        addBeforeObserver(view, 'elementId', function() {
           throw new EmberError("Changing a view's elementId after creation is not allowed");
         });
       },
