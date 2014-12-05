@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.7b318619
+ * @version   1.10.0-beta.1+canary.d011317a
  */
 
 (function() {
@@ -29553,6 +29553,31 @@ enifed("ember-routing/tests/system/route_test",
 
       equal(route.modelFor('foo'), foo);
     });
+
+
+    test(".send just calls an action if the router is absent", function() {
+      expect(7);
+      var route = Ember.Route.createWithMixins({
+        actions: {
+          returnsTrue: function(foo, bar) {
+            equal(foo, 1);
+            equal(bar, 2);
+            equal(this, route);
+            return true;
+          },
+
+          returnsFalse: function() {
+            ok(true, "returnsFalse was called");
+            return false;
+          }
+        }
+      });
+
+      equal(true, route.send('returnsTrue', 1, 2));
+      equal(false, route.send('returnsFalse'));
+      equal(undefined, route.send('nonexistent', 1, 2, 3));
+    });
+
 
     QUnit.module("Ember.Route serialize", {
       setup: createRoute,

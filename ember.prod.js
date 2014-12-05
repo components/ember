@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.7b318619
+ * @version   1.10.0-beta.1+canary.d011317a
  */
 
 (function() {
@@ -15367,7 +15367,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.7b318619
+      @version 1.10.0-beta.1+canary.d011317a
     */
 
     if ('undefined' === typeof Ember) {
@@ -15394,10 +15394,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.7b318619'
+      @default '1.10.0-beta.1+canary.d011317a'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.7b318619';
+    Ember.VERSION = '1.10.0-beta.1+canary.d011317a';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -26782,6 +26782,8 @@ enifed("ember-routing/system/route",
     var generateController = __dependency18__["default"];
     var stashParamNames = __dependency19__.stashParamNames;
 
+    var slice = Array.prototype.slice;
+
     function K() { return this; }
 
     /**
@@ -27746,7 +27748,16 @@ enifed("ember-routing/system/route",
         @param {...*} args
       */
       send: function() {
-        return this.router.send.apply(this.router, arguments);
+        if (this.router || !Ember.testing) {
+          this.router.send.apply(this.router, arguments);
+        } else {
+          var name = arguments[0];
+          var args = slice.call(arguments, 1);
+          var action = this._actions[name];
+          if (action) {
+            return this._actions[name].apply(this, args);
+          }
+        }
       },
 
       /**
