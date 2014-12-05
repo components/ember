@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.edd84fcf
+ * @version   1.10.0-beta.1+canary.9c1420b5
  */
 
 (function() {
@@ -8421,32 +8421,6 @@ enifed("ember-htmlbars/attr_nodes",
       return result;
     }
   });
-enifed("ember-htmlbars/attr_nodes/concat",
-  ["./simple","ember-metal/platform","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-htmlbars
-    */
-
-    var SimpleAttrNode = __dependency1__["default"];
-    var o_create = __dependency2__.create;
-
-    function ConcatAttrNode(element, attrName, attrValue, dom) {
-      this.init(element, attrName, attrValue, dom);
-    } 
-
-    ConcatAttrNode.prototype = o_create(SimpleAttrNode.prototype);
-
-    ConcatAttrNode.prototype.super$init = SimpleAttrNode.prototype.init;
-
-    ConcatAttrNode.prototype.init = function init(element, attrName, attrValue, dom) {
-      this.super$init(element, attrName, attrValue, dom);
-    };
-
-    __exports__["default"] = ConcatAttrNode;
-  });
 enifed("ember-htmlbars/attr_nodes/legacy_bind",
   ["ember-runtime/system/string","ember-metal/utils","ember-metal/is_none","./simple","ember-metal/platform","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
@@ -8505,7 +8479,7 @@ enifed("ember-htmlbars/attr_nodes/legacy_bind",
     __exports__["default"] = LegacyBindAttrNode;
   });
 enifed("ember-htmlbars/attr_nodes/quoted",
-  ["./concat","ember-metal/platform","exports"],
+  ["./simple","ember-metal/platform","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     /**
@@ -8513,14 +8487,14 @@ enifed("ember-htmlbars/attr_nodes/quoted",
     @submodule ember-htmlbars
     */
 
-    var ConcatAttrNode = __dependency1__["default"];
+    var SimpleAttrNode = __dependency1__["default"];
     var o_create = __dependency2__.create;
 
     function QuotedAttrNode(element, attrName, attrValue, dom) {
       this.init(element, attrName, attrValue, dom);
     } 
 
-    QuotedAttrNode.prototype = o_create(ConcatAttrNode.prototype);
+    QuotedAttrNode.prototype = o_create(SimpleAttrNode.prototype);
 
     QuotedAttrNode.prototype.render = function render(){
       this.dom.setAttribute(this.element, this.attrName, this.currentValue);
@@ -15861,7 +15835,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.edd84fcf
+      @version 1.10.0-beta.1+canary.9c1420b5
     */
 
     if ('undefined' === typeof Ember) {
@@ -15888,10 +15862,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.edd84fcf'
+      @default '1.10.0-beta.1+canary.9c1420b5'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.edd84fcf';
+    Ember.VERSION = '1.10.0-beta.1+canary.9c1420b5';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
