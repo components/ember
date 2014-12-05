@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.b277841b
+ * @version   1.10.0-beta.1+canary.edd84fcf
  */
 
 (function() {
@@ -4566,6 +4566,15 @@ enifed("ember-htmlbars/hooks/component.jshint",
       ok(true, 'ember-htmlbars/hooks/component.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/hooks/concat.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/hooks');
+    test('ember-htmlbars/hooks/concat.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/hooks/concat.js should pass jshint.'); 
+    });
+  });
 enifed("ember-htmlbars/hooks/content.jshint",
   [],
   function() {
@@ -4620,15 +4629,6 @@ enifed("ember-htmlbars/plugins/transform-each-in-to-hash.jshint",
       ok(true, 'ember-htmlbars/plugins/transform-each-in-to-hash.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/plugins/transform-quoted-class.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-htmlbars/plugins');
-    test('ember-htmlbars/plugins/transform-quoted-class.js should pass jshint', function() { 
-      ok(true, 'ember-htmlbars/plugins/transform-quoted-class.js should pass jshint.'); 
-    });
-  });
 enifed("ember-htmlbars/plugins/transform-with-as-to-hash.jshint",
   [],
   function() {
@@ -4654,15 +4654,6 @@ enifed("ember-htmlbars/system/compile.jshint",
     module('JSHint - ember-htmlbars/system');
     test('ember-htmlbars/system/compile.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/system/compile.js should pass jshint.'); 
-    });
-  });
-enifed("ember-htmlbars/system/concat.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-htmlbars/system');
-    test('ember-htmlbars/system/concat.js should pass jshint', function() { 
-      ok(true, 'ember-htmlbars/system/concat.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/system/helper.jshint",
