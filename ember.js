@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.977efcf5
+ * @version   1.10.0-beta.1+canary.4863faa3
  */
 
 (function() {
@@ -2649,11 +2649,11 @@ enifed("ember-application/system/application",
       */
       customEvents: null,
 
-      // Start off the number of deferrals at 1. This will be
-      // decremented by the Application's own `initialize` method.
-      _readinessDeferrals: 1,
-
       init: function() {
+        // Start off the number of deferrals at 1. This will be
+        // decremented by the Application's own `initialize` method.
+        this._readinessDeferrals = 1;
+
         if (!this.$) {
           this.$ = jQuery;
         }
@@ -2757,14 +2757,10 @@ enifed("ember-application/system/application",
         @method scheduleInitialize
       */
       scheduleInitialize: function() {
-        var self = this;
-
         if (!this.$ || this.$.isReady) {
-          run.schedule('actions', self, '_initialize');
+          run.schedule('actions', this, '_initialize');
         } else {
-          this.$().ready(function runInitialize() {
-            run(self, '_initialize');
-          });
+          this.$().ready(Ember.run.bind(this, '_initialize'));
         }
       },
 
@@ -3056,9 +3052,7 @@ enifed("ember-application/system/application",
 
           this.buildContainer();
 
-          run.schedule('actions', this, function() {
-            this._initialize();
-          });
+          run.schedule('actions', this, '_initialize');
         }
 
         run.join(this, handleReset);
@@ -15831,7 +15825,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.977efcf5
+      @version 1.10.0-beta.1+canary.4863faa3
     */
 
     if ('undefined' === typeof Ember) {
@@ -15858,10 +15852,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.977efcf5'
+      @default '1.10.0-beta.1+canary.4863faa3'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.977efcf5';
+    Ember.VERSION = '1.10.0-beta.1+canary.4863faa3';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
