@@ -9258,6 +9258,10 @@ enifed("ember-handlebars/string",
       @return {Handlebars.SafeString} a string that will not be html escaped by Handlebars
     */
     function htmlSafe(str) {
+      if (str === null || str === undefined) {
+        return "";
+      }
+
       if (typeof str !== 'string') {
         str = ''+str;
       }
@@ -17498,34 +17502,40 @@ enifed("ember-metal/run_loop",
     };
 
     /**
-      Provides a useful utility for when integrating with non-Ember libraries
-      that provide asynchronous callbacks.
+      Allows you to specify which context to call the specified function in while
+      adding the execution of that function to the Ember run loop. This ability
+      makes this method a great way to asynchronusly integrate third-party libraries
+      into your Ember application.
 
-      Ember utilizes a run-loop to batch and coalesce changes. This works by
-      marking the start and end of Ember-related Javascript execution.
+      `run.bind` takes two main arguments, the desired context and the function to
+      invoke in that context. Any additional arguments will be supplied as arguments
+      to the function that is passed in.
 
-      When using events such as a View's click handler, Ember wraps the event
-      handler in a run-loop, but when integrating with non-Ember libraries this
-      can be tedious.
-
-      For example, the following is rather verbose but is the correct way to combine
-      third-party events and Ember code.
+      Let's use the creation of a TinyMCE component as an example. Currently,
+      TinyMCE provides a setup configuration option we can use to do some processing
+      after the TinyMCE instance is initialized but before it is actually rendered.
+      We can use that setup option to do some additional setup for our component.
+      The component itself could look something like the following:
 
       ```javascript
-      var that = this;
-      jQuery(window).on('resize', function(){
-        run(function(){
-          that.handleResize();
-        });
+      App.RichTextEditorComponent = Ember.Component.extend({
+        initializeTinyMCE: function(){
+          tinymce.init({
+            selector: '#' + this.$().prop('id'),
+            setup: Ember.run.bind(this, this.setupEditor)
+          });
+        }.on('didInsertElement'),
+
+        setupEditor: function(editor) {
+          this.set('editor', editor);
+          editor.on('change', function(){ console.log('content changed!')} );
+        }
       });
       ```
 
-      To reduce the boilerplate, the following can be used to construct a
-      run-loop-wrapped callback handler.
-
-      ```javascript
-      jQuery(window).on('resize', run.bind(this, this.handleResize));
-      ```
+      In this example, we use Ember.run.bind to bind the setupEditor message to the
+      context of the App.RichTextEditorComponent and to have the invocation of that
+      method be safely handled and excuted by the Ember run loop.
 
       @method bind
       @namespace Ember
@@ -17538,7 +17548,7 @@ enifed("ember-metal/run_loop",
       when called within an existing loop, no return value is possible.
       @since 1.4.0
     */
-    run.bind = function(target, method /* args*/) {
+    run.bind = function(target, method /* args */) {
       var args = slice.call(arguments);
       return function() {
         return run.join.apply(run, args.concat(slice.call(arguments)));
@@ -23019,6 +23029,8 @@ enifed("ember-routing/system/route",
     var generateController = __dependency18__["default"];
     var stashParamNames = __dependency19__.stashParamNames;
 
+    var slice = Array.prototype.slice;
+
     /**
     @module ember
     @submodule ember-routing
@@ -23981,7 +23993,16 @@ enifed("ember-routing/system/route",
         @param {...*} args
       */
       send: function() {
-        return this.router.send.apply(this.router, arguments);
+        if (this.router || !Ember.testing) {
+          this.router.send.apply(this.router, arguments);
+        } else {
+          var name = arguments[0];
+          var args = slice.call(arguments, 1);
+          var action = this._actions[name];
+          if (action) {
+            return this._actions[name].apply(this, args);
+          }
+        }
       },
 
       /**
@@ -25127,6 +25148,7 @@ enifed("ember-routing/system/router",
         var container = this.container;
         var self = this;
         var initialURL = get(this, 'initialURL');
+        var initialTransition;
 
         // Allow the Location class to cancel the router setup while it refreshes
         // the page
@@ -25146,8 +25168,10 @@ enifed("ember-routing/system/router",
         if (typeof initialURL === "undefined") {
           initialURL = location.getURL();
         }
-
-        this.handleURL(initialURL);
+        initialTransition = this.handleURL(initialURL);
+        if (initialTransition && initialTransition.error) {
+          throw initialTransition.error;
+        }
       },
 
       /**
@@ -45148,6 +45172,7 @@ enifed("router/transition",
 
       if (error) {
         this.promise = Promise.reject(error);
+        this.error = error;
         return;
       }
 
