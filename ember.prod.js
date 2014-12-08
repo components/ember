@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.2da6e0b9
+ * @version   1.10.0-beta.1+canary.741f0c45
  */
 
 (function() {
@@ -14538,7 +14538,7 @@ enifed("ember-metal/computed",
       client.get('fullName'); // 'Betty Fuller'
       ```
 
-      _Note: This is the prefered way to define computed properties when writing third-party
+      _Note: This is the preferred way to define computed properties when writing third-party
       libraries that depend on or use Ember, since there is no guarantee that the user
       will have prototype extensions enabled._
 
@@ -15234,7 +15234,7 @@ enifed("ember-metal/computed_macros",
     /**
       Where `computed.oneWay` provides oneWay bindings, `computed.readOnly` provides
       a readOnly one way binding. Very often when using `computed.oneWay` one does
-      not also want changes to propogate back up, as they will replace the value.
+      not also want changes to propagate back up, as they will replace the value.
 
       This prevents the reverse flow, and also throws an exception when it occurs.
 
@@ -15359,7 +15359,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.2da6e0b9
+      @version 1.10.0-beta.1+canary.741f0c45
     */
 
     if ('undefined' === typeof Ember) {
@@ -15386,10 +15386,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.2da6e0b9'
+      @default '1.10.0-beta.1+canary.741f0c45'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.2da6e0b9';
+    Ember.VERSION = '1.10.0-beta.1+canary.741f0c45';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -19797,7 +19797,7 @@ enifed("ember-metal/property_get",
     /**
       Normalizes a target/path pair to reflect that actual target/path that should
       be observed, etc. This takes into account passing in global property
-      paths (i.e. a path beginning with a captial letter not defined on the
+      paths (i.e. a path beginning with a capital letter not defined on the
       target).
 
       @private
@@ -21092,13 +21092,13 @@ enifed("ember-metal/utils",
       algorithims typically cost in proportion to the length of the string.
       Luckily, this is where the Symbols (interned strings) shine. As Symbols are
       unique by their string content, equality checks can be done by pointer
-      comparision.
+      comparison.
 
       How do I know if my string is a rope or symbol?
 
       Typically (warning general sweeping statement, but truthy in runtimes at
       present) static strings created as part of the JS source are interned.
-      Strings often used for comparisions can be interned at runtime if some
+      Strings often used for comparisons can be interned at runtime if some
       criteria are met.  One of these criteria can be the size of the entire rope.
       For example, in chrome 38 a rope longer then 12 characters will not
       intern, nor will segments of that rope.
@@ -37718,7 +37718,7 @@ enifed("ember-runtime/system/core_object",
           this.init(arguments[0]);
         } else {
           // v8 bug potentially incorrectly deopts this function: https://code.google.com/p/v8/issues/detail?id=3709
-          // we may want to keep this arround till this ages out on mobile
+          // we may want to keep this around till this ages out on mobile
           var args = new Array(length);
           for (var x = 0; x < length; x++) {
             args[x] = arguments[x];
@@ -41852,7 +41852,7 @@ enifed("ember-views/system/render_buffer",
     // we test the string and context to see if the browser is about to
     // perform this cleanup, but with a special allowance for disregarding
     // <script tags. This disregarding of <script being the first child item
-    // may bend the offical spec a bit, and is only needed for Handlebars
+    // may bend the official spec a bit, and is only needed for Handlebars
     // templates.
     //
     // http://www.whatwg.org/specs/web-apps/current-work/multipage/syntax.html#optional-tags
@@ -43203,7 +43203,7 @@ enifed("ember-views/views/collection_view",
 
         @method arrayWillChange
         @param {Array} content the managed collection of objects
-        @param {Number} start the index at which the changes will occurr
+        @param {Number} start the index at which the changes will occur
         @param {Number} removed number of object to be removed from content
       */
       arrayWillChange: function(content, start, removedCount) {
@@ -46249,7 +46249,7 @@ enifed("ember-views/views/view",
           mouseEnter: function(event, view) {
             // view might be instance of either
             // OuterView or InnerView depending on
-            // where on the page the user interaction occured
+            // where on the page the user interaction occurred
           }
         })
       });

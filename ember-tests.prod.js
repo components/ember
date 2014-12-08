@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.2da6e0b9
+ * @version   1.10.0-beta.1+canary.741f0c45
  */
 
 (function() {
@@ -4219,7 +4219,7 @@ enifed("ember-handlebars/tests/handlebars_test",
 
       expectAssertion(function() {
         runAppend(view);
-      }, 'An error occured while setting up template bindings. Please check "blahzorz" template for invalid markup or bindings within HTML comments.');
+      }, 'An error occurred while setting up template bindings. Please check "blahzorz" template for invalid markup or bindings within HTML comments.');
     });
 
     // HTMLBars does not throw an error when a missing helper is found
@@ -23656,7 +23656,7 @@ enifed("ember-metal/tests/run_loop/next_test",
       setTimeout(function() {
         QUnit.start();
         ok(secondRunLoop, 'callback was called from within run loop');
-        ok(firstRunLoop && secondRunLoop !== firstRunLoop, 'two seperate run loops were invoked');
+        ok(firstRunLoop && secondRunLoop !== firstRunLoop, 'two separate run loops were invoked');
       }, 20);
     });
 
@@ -28296,7 +28296,7 @@ enifed("ember-routing/tests/location/auto_location_test",
       equal(location instanceof FakeHashLocation, true);
     });
 
-    test("AutoLocation._getSupportsHistory() should use `history.pushState` existance as proof of support", function() {
+    test("AutoLocation._getSupportsHistory() should use `history.pushState` existence as proof of support", function() {
       expect(3);
 
       AutoTestLocation._history.pushState = function () {};
@@ -28374,7 +28374,7 @@ enifed("ember-routing/tests/location/auto_location_test",
       equal(AutoTestLocation._getSupportsHistory(), false);
     });
 
-    test("AutoLocation._getSupportsHashChange() should use `onhashchange` event existance as proof of support", function() {
+    test("AutoLocation._getSupportsHashChange() should use `onhashchange` event existence as proof of support", function() {
       expect(2);
 
       AutoTestLocation._window.onhashchange = null;
@@ -33284,7 +33284,7 @@ enifed("ember-runtime/tests/controllers/item_controller_class_test",
       arrayController = ArrayController.create({
         container: container,
         lookupItemController: function(object) {
-          return "NonExistant";
+          return "NonExistent";
         },
         model: lannisters
       });
@@ -33292,7 +33292,7 @@ enifed("ember-runtime/tests/controllers/item_controller_class_test",
       throws(function() {
           arrayController.objectAtContent(1);
         },
-        /NonExistant/,
+        /NonExistent/,
         "`lookupItemController` must return either null or a valid controller name");
     });
 
@@ -34039,7 +34039,7 @@ enifed("ember-runtime/tests/ext/rsvp_test",
           equal(error.__reason_with_error_thrown__, jqXHR, 'also retains a helpful reference to the rejection reason');
         };
 
-        var actualError = new Error("OMG what really happend");
+        var actualError = new Error("OMG what really happened");
         var jqXHR = {
           errorThrown: actualError
         };
@@ -34563,7 +34563,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
             return 'dependentCached';
           }).property('changer'),
 
-          // everytime it is recomputed, increments call
+          // every time it is recomputed, increments call
           incCallCount: 0,
           inc: computed(function() {
             return this.incCallCount++;
@@ -36637,7 +36637,7 @@ enifed("ember-runtime/tests/legacy_1x/system/set_test",
       });
     });
 
-    test("the copy() should return an indentical set", function() {
+    test("the copy() should return an identical set", function() {
       var oldLength = set.length;
       var obj;
 
@@ -38442,7 +38442,7 @@ enifed("ember-runtime/tests/mixins/promise_proxy_test",
       equal(get(proxy, 'isFulfilled'), false,  'expects the proxy to indicate that it is not fulfilled');
     });
 
-    test("unhandled rejects still propogate to RSVP.on('error', ...) ", function(){
+    test("unhandled rejects still propagate to RSVP.on('error', ...) ", function(){
       expect(1);
 
       RSVP.on('error', onerror);
@@ -38488,7 +38488,7 @@ enifed("ember-runtime/tests/mixins/promise_proxy_test",
         promise: new PromiseSubclass(function(){ })
       });
 
-      ok(proxy.then() instanceof PromiseSubclass, 'promise proxy respected inheritence');
+      ok(proxy.then() instanceof PromiseSubclass, 'promise proxy respected inheritance');
     });
 
     test("should reset isFulfilled and isRejected when promise is reset", function() {
@@ -42910,7 +42910,7 @@ enifed("ember-runtime/tests/suites/suite",
       own code to verify compliance.
 
       To define a suite, you need to define the tests themselves as well as a
-      callback API implementors can use to tie your tests to thier specific class.
+      callback API implementors can use to tie your tests to their specific class.
 
       ## Defining a Callback API
 
@@ -45124,7 +45124,7 @@ enifed("ember-runtime/tests/system/object/observer_test",
 
     });
 
-    testBoth('observer on instance overridding class', function(get, set) {
+    testBoth('observer on instance overriding class', function(get, set) {
 
       var MyClass = EmberObject.extend({
 
@@ -52697,7 +52697,7 @@ enifed("ember-views/tests/views/select_test",
       deepEqual(selectedOptions(), [false, true, true, false], "After changing it, selection should be correct");
     });
 
-    test("Ember.SelectedOption knows when it is selected when multiple=true and options are primatives", function() {
+    test("Ember.SelectedOption knows when it is selected when multiple=true and options are primitives", function() {
       run(function() {
         select.set('content', Ember.A([1, 2, 3, 4]));
         select.set('multiple', true);
