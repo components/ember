@@ -48022,6 +48022,27 @@ enifed("ember-views/tests/system/view_utils_test",
     var run = __dependency1__["default"];
     var View = __dependency2__["default"];
 
+    var hasGetClientRects, hasGetBoundingClientRect;
+    var ClientRectListCtor, ClientRectCtor;
+
+    (function() {
+      if (document.createRange) {
+        var range = document.createRange();
+
+        if (range.getClientRects) {
+          var clientRectsList = range.getClientRects();
+          hasGetClientRects = true;
+          ClientRectListCtor = clientRectsList && clientRectsList.constructor;
+        }
+
+        if (range.getBoundingClientRect) {
+          var clientRect = range.getBoundingClientRect();
+          hasGetBoundingClientRect = true;
+          ClientRectCtor = clientRect && clientRect.constructor;
+        }
+      }
+    })();
+
     var view;
 
     QUnit.module("ViewUtils", {
@@ -48032,9 +48053,10 @@ enifed("ember-views/tests/system/view_utils_test",
       }
     });
 
+
     test("getViewClientRects", function() {
-      if (!(window.Range && window.Range.prototype.getClientRects)) {
-        ok(true, "The test environment does not support the DOM API required for getViewClientRects.");
+      if (!hasGetClientRects || !ClientRectListCtor) {
+        ok(true, "The test environment does not support the DOM API required to run this test.");
         return;
       }
 
@@ -48046,12 +48068,12 @@ enifed("ember-views/tests/system/view_utils_test",
 
       run(function() { view.appendTo('#qunit-fixture'); });
 
-      ok(Ember.ViewUtils.getViewClientRects(view) instanceof window.ClientRectList);
+      ok(Ember.ViewUtils.getViewClientRects(view) instanceof ClientRectListCtor);
     });
 
     test("getViewBoundingClientRect", function() {
-      if (!(window.Range && window.Range.prototype.getBoundingClientRect)) {
-        ok(true, "The test environment does not support the DOM API required for getViewBoundingClientRect.");
+      if (!hasGetBoundingClientRect || !ClientRectCtor) {
+        ok(true, "The test environment does not support the DOM API required to run this test.");
         return;
       }
 
@@ -48063,7 +48085,7 @@ enifed("ember-views/tests/system/view_utils_test",
 
       run(function() { view.appendTo('#qunit-fixture'); });
 
-      ok(Ember.ViewUtils.getViewBoundingClientRect(view) instanceof window.ClientRect);
+      ok(Ember.ViewUtils.getViewBoundingClientRect(view) instanceof ClientRectCtor);
     });
   });
 enifed("ember-views/tests/system/view_utils_test.jshint",
