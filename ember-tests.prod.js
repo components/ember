@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.31667d05
+ * @version   1.10.0-beta.1+canary.d7b55574
  */
 
 (function() {
@@ -1025,7 +1025,7 @@ enifed("ember-application/system/resolver.jshint",
     });
   });
 enifed("ember-application/tests/system/application_test",
-  ["ember-metal/core","ember-metal/run_loop","ember-application/system/application","ember-application/system/resolver","ember-routing/system/router","ember-views/views/view","ember-runtime/controllers/controller","ember-routing/location/none_location","ember-handlebars","ember-runtime/system/object","ember-views/system/jquery"],
+  ["ember-metal/core","ember-metal/run_loop","ember-application/system/application","ember-application/system/resolver","ember-routing/system/router","ember-views/views/view","ember-runtime/controllers/controller","ember-routing/location/none_location","ember-runtime/system/object","ember-views/system/jquery","ember-htmlbars/system/compile"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__) {
     "use strict";
     /*globals EmberDev */
@@ -1038,16 +1038,13 @@ enifed("ember-application/tests/system/application_test",
     var View = __dependency6__["default"];
     var Controller = __dependency7__["default"];
     var NoneLocation = __dependency8__["default"];
-    var EmberHandlebars = __dependency9__["default"];
-    var EmberObject = __dependency10__["default"];
-    var jQuery = __dependency11__["default"];
+    var EmberObject = __dependency9__["default"];
+    var jQuery = __dependency10__["default"];
+    var compile = __dependency11__["default"];
 
     var trim = jQuery.trim;
 
     var app, application, originalLookup, originalDebug;
-
-    var compile = EmberHandlebars.compile;
-
 
     QUnit.module("Ember.Application", {
       setup: function() {
@@ -1259,10 +1256,9 @@ enifed("ember-application/tests/system/application_test",
         });
       });
 
-      equal(messages[1], "Ember      : " + Ember.VERSION);
-      equal(messages[2], "Handlebars : " + EmberHandlebars.VERSION);
-      equal(messages[3], "jQuery     : " + jQuery().jquery);
-      equal(messages[4], "my-lib     : " + "2.0.0a");
+      equal(messages[1], "Ember  : " + Ember.VERSION);
+      equal(messages[2], "jQuery : " + jQuery().jquery);
+      equal(messages[3], "my-lib : " + "2.0.0a");
 
       Ember.libraries.deRegister("my-lib");
       Ember.LOG_VERSION = false;
@@ -1563,7 +1559,7 @@ enifed("ember-application/tests/system/dependency_injection/custom_resolver_test
     });
   });
 enifed("ember-application/tests/system/dependency_injection/default_resolver_test",
-  ["ember-metal/core","ember-metal/run_loop","ember-metal/logger","ember-runtime/controllers/controller","ember-runtime/system/object","ember-handlebars","ember-runtime/system/namespace","ember-application/system/application"],
+  ["ember-metal/core","ember-metal/run_loop","ember-metal/logger","ember-runtime/controllers/controller","ember-runtime/system/object","ember-runtime/system/namespace","ember-application/system/application","ember-htmlbars/helpers"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
     "use strict";
     var Ember = __dependency1__["default"];
@@ -1572,15 +1568,9 @@ enifed("ember-application/tests/system/dependency_injection/default_resolver_tes
     var Logger = __dependency3__["default"];
     var Controller = __dependency4__["default"];
     var EmberObject = __dependency5__["default"];
-    var EmberHandlebars = __dependency6__["default"];
-    var Namespace = __dependency7__["default"];
-    var Application = __dependency8__["default"];
-
-    var compile, registerHelper;
-    compile = EmberHandlebars.compile;
-    registerHelper = function(name, fn) {
-      EmberHandlebars.registerHelper(name, fn);
-    };
+    var Namespace = __dependency6__["default"];
+    var Application = __dependency7__["default"];
+    var registerHelper = __dependency8__.registerHelper;
 
     var locator, application, originalLookup, originalLoggerInfo;
 
@@ -3998,269 +3988,6 @@ enifed("ember-extension-support/tests/data_adapter_test.jshint",
       ok(true, 'ember-extension-support/tests/data_adapter_test.js should pass jshint.'); 
     });
   });
-enifed("ember-handlebars-compiler.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - .');
-    test('ember-handlebars-compiler.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars-compiler.js should pass jshint.'); 
-    });
-  });
-enifed("ember-handlebars-compiler/tests/make_view_helper_test",
-  ["ember-handlebars-compiler"],
-  function(__dependency1__) {
-    "use strict";
-    var EmberHandlebars = __dependency1__["default"];
-
-    QUnit.module("Ember.Handlebars.makeViewHelper");
-
-    if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
-      // unit tests exist in ember-htmlbars for makeViewHelper
-
-    test("makes helpful assertion when called with invalid arguments", function(){
-      var viewClass = {toString: function(){ return 'Some Random Class';}};
-
-      var helper = EmberHandlebars.makeViewHelper(viewClass);
-
-      expectAssertion(function(){
-        helper({foo: 'bar'}, this);
-      }, "You can only pass attributes (such as name=value) not bare values to a helper for a View found in 'Some Random Class'");
-    });
-
-    }
-  });
-enifed("ember-handlebars-compiler/tests/make_view_helper_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars-compiler/tests');
-    test('ember-handlebars-compiler/tests/make_view_helper_test.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars-compiler/tests/make_view_helper_test.js should pass jshint.'); 
-    });
-  });
-enifed("ember-handlebars.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - .');
-    test('ember-handlebars.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars.js should pass jshint.'); 
-    });
-  });
-enifed("ember-handlebars/controls.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars');
-    test('ember-handlebars/controls.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/controls.js should pass jshint.'); 
-    });
-  });
-enifed("ember-handlebars/ext.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars');
-    test('ember-handlebars/ext.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/ext.js should pass jshint.'); 
-    });
-  });
-enifed("ember-handlebars/helpers/bind_attr.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/helpers');
-    test('ember-handlebars/helpers/bind_attr.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/helpers/bind_attr.js should pass jshint.'); 
-    });
-  });
-enifed("ember-handlebars/helpers/binding.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/helpers');
-    test('ember-handlebars/helpers/binding.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/helpers/binding.js should pass jshint.'); 
-    });
-  });
-enifed("ember-handlebars/helpers/collection.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/helpers');
-    test('ember-handlebars/helpers/collection.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/helpers/collection.js should pass jshint.'); 
-    });
-  });
-enifed("ember-handlebars/helpers/debug.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/helpers');
-    test('ember-handlebars/helpers/debug.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/helpers/debug.js should pass jshint.'); 
-    });
-  });
-enifed("ember-handlebars/helpers/each.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/helpers');
-    test('ember-handlebars/helpers/each.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/helpers/each.js should pass jshint.'); 
-    });
-  });
-enifed("ember-handlebars/helpers/if_unless.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/helpers');
-    test('ember-handlebars/helpers/if_unless.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/helpers/if_unless.js should pass jshint.'); 
-    });
-  });
-enifed("ember-handlebars/helpers/loc.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/helpers');
-    test('ember-handlebars/helpers/loc.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/helpers/loc.js should pass jshint.'); 
-    });
-  });
-enifed("ember-handlebars/helpers/partial.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/helpers');
-    test('ember-handlebars/helpers/partial.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/helpers/partial.js should pass jshint.'); 
-    });
-  });
-enifed("ember-handlebars/helpers/template.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/helpers');
-    test('ember-handlebars/helpers/template.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/helpers/template.js should pass jshint.'); 
-    });
-  });
-enifed("ember-handlebars/helpers/unbound.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/helpers');
-    test('ember-handlebars/helpers/unbound.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/helpers/unbound.js should pass jshint.'); 
-    });
-  });
-enifed("ember-handlebars/helpers/view.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/helpers');
-    test('ember-handlebars/helpers/view.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/helpers/view.js should pass jshint.'); 
-    });
-  });
-enifed("ember-handlebars/helpers/with.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/helpers');
-    test('ember-handlebars/helpers/with.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/helpers/with.js should pass jshint.'); 
-    });
-  });
-enifed("ember-handlebars/helpers/yield.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/helpers');
-    test('ember-handlebars/helpers/yield.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/helpers/yield.js should pass jshint.'); 
-    });
-  });
-enifed("ember-handlebars/loader.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars');
-    test('ember-handlebars/loader.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/loader.js should pass jshint.'); 
-    });
-  });
-enifed("ember-handlebars/string.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars');
-    test('ember-handlebars/string.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/string.js should pass jshint.'); 
-    });
-  });
-enifed("ember-handlebars/tests/handlebars_test",
-  ["ember-metal/core","ember-views/views/view","ember-handlebars","ember-runtime/system/native_array","ember-runtime/tests/utils"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
-    "use strict";
-    /*jshint newcap:false*/
-    var Ember = __dependency1__["default"];
-    var EmberView = __dependency2__["default"];
-    var EmberHandlebars = __dependency3__["default"];
-    var A = __dependency4__.A;
-    var runAppend = __dependency5__.runAppend;
-    var runDestroy = __dependency5__.runDestroy;
-
-    var view;
-
-    QUnit.module("Templates redrawing and bindings", {
-      teardown: function() {
-        runDestroy(view);
-      }
-    });
-
-    if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
-    // HTMLBars properly handles this scenario
-    // https://github.com/tildeio/htmlbars/pull/162
-    test("should provide a helpful assertion for bindings within HTML comments", function() {
-      view = EmberView.create({
-        template: EmberHandlebars.compile('<!-- {{view.someThing}} -->'),
-        someThing: 'foo',
-        _debugTemplateName: 'blahzorz'
-      });
-
-      expectAssertion(function() {
-        runAppend(view);
-      }, 'An error occurred while setting up template bindings. Please check "blahzorz" template for invalid markup or bindings within HTML comments.');
-    });
-
-    // HTMLBars does not throw an error when a missing helper is found
-    test("using Handlebars helper that doesn't exist should result in an error", function() {
-      var names = [{ name: 'Alex' }, { name: 'Stef' }];
-      var context = { content: A(names) };
-
-      throws(function() {
-        view = EmberView.create({
-          context: context,
-          template: EmberHandlebars.compile('{{#group}}{{#each name in content}}{{name}}{{/each}}{{/group}}')
-        });
-
-        runAppend(view);
-      }, "Missing helper: 'group'");
-    });
-    }
-  });
-enifed("ember-handlebars/tests/handlebars_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-handlebars/tests');
-    test('ember-handlebars/tests/handlebars_test.js should pass jshint', function() { 
-      ok(true, 'ember-handlebars/tests/handlebars_test.js should pass jshint.'); 
-    });
-  });
 enifed("ember-htmlbars.jshint",
   [],
   function() {
@@ -5763,24 +5490,20 @@ enifed("ember-htmlbars/tests/compat/helper_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/compat/make-view-helper_test",
-  ["ember-views/views/view","container/container","ember-handlebars-compiler","ember-htmlbars/system/compile","ember-views/views/component","ember-runtime/tests/utils"],
+  ["ember-views/views/view","container/container","ember-htmlbars/system/compile","ember-htmlbars/system/make-view-helper","ember-views/views/component","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
     var EmberView = __dependency1__["default"];
     var Container = __dependency2__["default"];
-    var EmberHandlebars = __dependency3__["default"];
-    var htmlbarsCompile = __dependency4__["default"];
+    var compile = __dependency3__["default"];
+    var makeViewHelper = __dependency4__["default"];
     var Component = __dependency5__["default"];
     var runAppend = __dependency6__.runAppend;
     var runDestroy = __dependency6__.runDestroy;
 
-    var compile;
-    
-      compile = htmlbarsCompile;
-    
     var container, view;
 
-    QUnit.module('ember-htmlbars: Ember.Handlebars.makeViewHelper compat', {
+    QUnit.module('ember-htmlbars: makeViewHelper compat', {
       setup: function() {
         container = new Container();
         container.optionsForType('helper', { instantiate: false });
@@ -5792,13 +5515,13 @@ enifed("ember-htmlbars/tests/compat/make-view-helper_test",
       }
     });
 
-    test('EmberHandlebars.makeViewHelper', function() {
+    test('makeViewHelper', function() {
       expect(1);
 
       var ViewHelperComponent = Component.extend({
         layout: compile('woot!')
       });
-      var helper = EmberHandlebars.makeViewHelper(ViewHelperComponent);
+      var helper = makeViewHelper(ViewHelperComponent);
       container.register('helper:view-helper', helper);
 
       view = EmberView.extend({
@@ -6347,10 +6070,11 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/compat/precompile_test",
-  ["ember-handlebars-compiler"],
+  ["ember-htmlbars/compat"],
   function(__dependency1__) {
     "use strict";
     var EmberHandlebars = __dependency1__["default"];
+
     var precompile = EmberHandlebars.precompile;
     var parse = EmberHandlebars.parse;
     var template = 'Hello World';
@@ -6393,27 +6117,20 @@ enifed("ember-htmlbars/tests/compat/precompile_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helper_test",
-  ["ember-views/views/view","ember-metal/run_loop","ember-runtime/system/object","ember-handlebars-compiler","ember-metal/property_set","ember-runtime/tests/utils","ember-htmlbars/helpers","ember-htmlbars/system/compile"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
+  ["ember-views/views/view","ember-metal/run_loop","ember-runtime/system/object","ember-metal/property_set","ember-runtime/tests/utils","ember-htmlbars/helpers","ember-htmlbars/system/compile"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
     "use strict";
     var EmberView = __dependency1__["default"];
     var run = __dependency2__["default"];
     var EmberObject = __dependency3__["default"];
-    var EmberHandlebars = __dependency4__["default"];
-    var set = __dependency5__.set;
-    var runAppend = __dependency6__.runAppend;
-    var runDestroy = __dependency6__.runDestroy;
+    var set = __dependency4__.set;
+    var runAppend = __dependency5__.runAppend;
+    var runDestroy = __dependency5__.runDestroy;
 
-    var htmlbarsHelpers = __dependency7__["default"];
-    var htmlbarsHelper = __dependency7__.helper;
-    var htmlbarsCompile = __dependency8__["default"];
+    var helpers = __dependency6__["default"];
+    var helper = __dependency6__.helper;
+    var compile = __dependency7__["default"];
 
-    var compile, helper, helpers;
-    
-      compile = htmlbarsCompile;
-      helpers = htmlbarsHelpers;
-      helper = htmlbarsHelper;
-    
     var view;
 
     QUnit.module("ember-htmlbars: Ember.HTMLBars.helper", {
@@ -6510,8 +6227,8 @@ enifed("ember-htmlbars/tests/helper_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helpers/bind_attr_test",
-  ["ember-metal/core","ember-metal/run_loop","ember-runtime/system/namespace","ember-views/views/view","ember-views/views/metamorph_view","ember-handlebars","ember-runtime/system/object","ember-runtime/system/native_array","ember-metal/computed","ember-metal/observer","ember-runtime/system/container","ember-metal/property_set","ember-runtime/tests/utils","ember-htmlbars/helpers","ember-htmlbars/system/compile"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__) {
+  ["ember-metal/core","ember-metal/run_loop","ember-runtime/system/namespace","ember-views/views/view","ember-views/views/metamorph_view","ember-runtime/system/object","ember-runtime/system/native_array","ember-metal/computed","ember-metal/observer","ember-runtime/system/container","ember-metal/property_set","ember-runtime/tests/utils","ember-htmlbars/helpers","ember-htmlbars/system/compile"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__) {
     "use strict";
     /*jshint newcap:false*/
     var Ember = __dependency1__["default"];
@@ -6520,24 +6237,18 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test",
     var Namespace = __dependency3__["default"];
     var EmberView = __dependency4__["default"];
     var _MetamorphView = __dependency5__["default"];
-    var EmberHandlebars = __dependency6__["default"];
-    var EmberObject = __dependency7__["default"];
-    var A = __dependency8__.A;
-    var computed = __dependency9__.computed;
-    var observersFor = __dependency10__.observersFor;
-    var Container = __dependency11__["default"];
-    var set = __dependency12__.set;
-    var runAppend = __dependency13__.runAppend;
-    var runDestroy = __dependency13__.runDestroy;
+    var EmberObject = __dependency6__["default"];
+    var A = __dependency7__.A;
+    var computed = __dependency8__.computed;
+    var observersFor = __dependency9__.observersFor;
+    var Container = __dependency10__["default"];
+    var set = __dependency11__.set;
+    var runAppend = __dependency12__.runAppend;
+    var runDestroy = __dependency12__.runDestroy;
 
-    var htmlbarsHelpers = __dependency14__["default"];
-    var htmlbarsCompile = __dependency15__["default"];
+    var helpers = __dependency13__["default"];
+    var compile = __dependency14__["default"];
 
-    var compile, helpers;
-    
-      compile = htmlbarsCompile;
-      helpers = htmlbarsHelpers;
-    
     var view;
 
     var originalLookup = Ember.lookup;
@@ -7017,29 +6728,24 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helpers/bind_test",
-  ["ember-views/views/view","ember-runtime/system/object","ember-metal/run_loop","ember-views/views/metamorph_view","ember-handlebars","ember-htmlbars/system/compile","ember-runtime/system/container","ember-runtime/controllers/object_controller","ember-metal/property_get","ember-metal/property_set","ember-runtime/tests/utils"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__) {
+  ["ember-views/views/view","ember-runtime/system/object","ember-metal/run_loop","ember-views/views/metamorph_view","ember-htmlbars/system/compile","ember-runtime/system/container","ember-runtime/controllers/object_controller","ember-metal/property_get","ember-metal/property_set","ember-runtime/tests/utils"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
     "use strict";
     var EmberView = __dependency1__["default"];
     var EmberObject = __dependency2__["default"];
     var run = __dependency3__["default"];
     var _MetamorphView = __dependency4__["default"];
-    var EmberHandlebars = __dependency5__["default"];
-    var htmlbarsCompile = __dependency6__["default"];
-    var Container = __dependency7__["default"];
-    var ObjectController = __dependency8__["default"];
+    var compile = __dependency5__["default"];
+    var Container = __dependency6__["default"];
+    var ObjectController = __dependency7__["default"];
 
-    var get = __dependency9__.get;
-    var set = __dependency10__.set;
-    var runAppend = __dependency11__.runAppend;
-    var runDestroy = __dependency11__.runDestroy;
+    var get = __dependency8__.get;
+    var set = __dependency9__.set;
+    var runAppend = __dependency10__.runAppend;
+    var runDestroy = __dependency10__.runDestroy;
 
     var view, container;
 
-    var compile;
-    
-      compile = htmlbarsCompile;
-    
     QUnit.module("ember-htmlbars: {{bind}} helper", {
       setup: function() {
         container = new Container();
@@ -7321,33 +7027,29 @@ enifed("ember-htmlbars/tests/helpers/bind_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helpers/collection_test",
-  ["ember-views/views/collection_view","ember-runtime/system/object","ember-views/views/view","ember-handlebars","ember-runtime/system/array_proxy","ember-runtime/system/namespace","ember-runtime/system/container","ember-runtime/system/native_array","ember-metal/run_loop","ember-metal/property_get","ember-metal/property_set","ember-views/system/jquery","ember-metal/computed","ember-runtime/tests/utils","ember-htmlbars/system/compile"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__) {
+  ["ember-views/views/collection_view","ember-runtime/system/object","ember-views/views/view","ember-runtime/system/array_proxy","ember-runtime/system/namespace","ember-runtime/system/container","ember-runtime/system/native_array","ember-metal/run_loop","ember-metal/property_get","ember-metal/property_set","ember-views/system/jquery","ember-metal/computed","ember-runtime/tests/utils","ember-htmlbars/system/compile"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__) {
     "use strict";
     /*jshint newcap:false*/
     var CollectionView = __dependency1__["default"];
     var EmberObject = __dependency2__["default"];
     var EmberView = __dependency3__["default"];
-    var EmberHandlebars = __dependency4__["default"];
-    var ArrayProxy = __dependency5__["default"];
-    var Namespace = __dependency6__["default"];
-    var Container = __dependency7__["default"];
-    var A = __dependency8__.A;
-    var run = __dependency9__["default"];
-    var get = __dependency10__.get;
-    var set = __dependency11__.set;
-    var jQuery = __dependency12__["default"];
-    var computed = __dependency13__.computed;
-    var runAppend = __dependency14__.runAppend;
-    var runDestroy = __dependency14__.runDestroy;
+    var ArrayProxy = __dependency4__["default"];
+    var Namespace = __dependency5__["default"];
+    var Container = __dependency6__["default"];
+    var A = __dependency7__.A;
+    var run = __dependency8__["default"];
+    var get = __dependency9__.get;
+    var set = __dependency10__.set;
+    var jQuery = __dependency11__["default"];
+    var computed = __dependency12__.computed;
+    var runAppend = __dependency13__.runAppend;
+    var runDestroy = __dependency13__.runDestroy;
+    var compile = __dependency14__["default"];
 
     var trim = jQuery.trim;
 
-    var htmlbarsCompile = __dependency15__["default"];
-    var compile;
-    
-      compile = htmlbarsCompile;
-    
+
     var view;
 
     var originalLookup = Ember.lookup;
@@ -8024,23 +7726,18 @@ enifed("ember-htmlbars/tests/helpers/collection_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helpers/debug_test",
-  ["ember-metal/core","ember-metal/logger","ember-views/views/view","ember-handlebars-compiler","ember-htmlbars/system/compile","ember-runtime/tests/utils"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
+  ["ember-metal/core","ember-metal/logger","ember-views/views/view","ember-htmlbars/system/compile","ember-runtime/tests/utils"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.lookup
     var EmberLogger = __dependency2__["default"];
     var EmberView = __dependency3__["default"];
-    var EmberHandlebars = __dependency4__["default"];
-    var htmlbarsCompile = __dependency5__["default"];
+    var compile = __dependency4__["default"];
 
-    var runAppend = __dependency6__.runAppend;
-    var runDestroy = __dependency6__.runDestroy;
+    var runAppend = __dependency5__.runAppend;
+    var runDestroy = __dependency5__.runDestroy;
 
-    var compile;
-    
-      compile = htmlbarsCompile;
-    
     var originalLookup = Ember.lookup;
     var lookup;
     var originalLog, logCalls;
@@ -8113,8 +7810,8 @@ enifed("ember-htmlbars/tests/helpers/debug_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helpers/each_test",
-  ["ember-metal/core","ember-runtime/system/object","ember-metal/run_loop","ember-views/views/view","ember-views/views/metamorph_view","ember-metal/computed","ember-runtime/controllers/array_controller","ember-handlebars-compiler","ember-runtime/system/native_array","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/system/container","ember-metal/property_get","ember-metal/property_set","ember-runtime/tests/utils","ember-htmlbars/system/compile"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__) {
+  ["ember-metal/core","ember-runtime/system/object","ember-metal/run_loop","ember-views/views/view","ember-views/views/metamorph_view","ember-metal/computed","ember-runtime/controllers/array_controller","ember-runtime/system/native_array","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/system/container","ember-metal/property_get","ember-metal/property_set","ember-runtime/tests/utils","ember-htmlbars/system/compile"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__) {
     "use strict";
     /*jshint newcap:false*/
     var Ember = __dependency1__["default"];
@@ -8125,23 +7822,18 @@ enifed("ember-htmlbars/tests/helpers/each_test",
     var _MetamorphView = __dependency5__["default"];
     var computed = __dependency6__.computed;
     var ArrayController = __dependency7__["default"];
-    var EmberHandlebars = __dependency8__["default"];
-    // import {expectAssertion} from "ember-metal/tests/debug_helpers";
-    var A = __dependency9__.A;
-    var EmberController = __dependency10__["default"];
-    var ObjectController = __dependency11__["default"];
-    var Container = __dependency12__["default"];
+    var A = __dependency8__.A;
+    var EmberController = __dependency9__["default"];
+    var ObjectController = __dependency10__["default"];
+    var Container = __dependency11__["default"];
 
-    var get = __dependency13__.get;
-    var set = __dependency14__.set;
-    var runAppend = __dependency15__.runAppend;
-    var runDestroy = __dependency15__.runDestroy;
+    var get = __dependency12__.get;
+    var set = __dependency13__.set;
+    var runAppend = __dependency14__.runAppend;
+    var runDestroy = __dependency14__.runDestroy;
 
-    var htmlbarsCompile = __dependency16__["default"];
-    var compile;
-    
-      compile = htmlbarsCompile;
-    
+    var compile = __dependency15__["default"];
+
     var people, view, container;
     var template, templateMyView, MyView;
 
@@ -8261,18 +7953,20 @@ enifed("ember-htmlbars/tests/helpers/each_test",
       assertHTML(view, "Steve HoltAnnabelleTom Dale");
     });
 
-    test("should be able to use standard Handlebars #each helper", function() {
-      runDestroy(view);
+    if (typeof Handlebars === "object") {
+      test("should be able to use standard Handlebars #each helper", function() {
+        runDestroy(view);
 
-      view = EmberView.create({
-        context: { items: ['a', 'b', 'c'] },
-        template: Handlebars.compile("{{#each items}}{{this}}{{/each}}")
+        view = EmberView.create({
+          context: { items: ['a', 'b', 'c'] },
+          template: Handlebars.compile("{{#each items}}{{this}}{{/each}}")
+        });
+
+        runAppend(view);
+
+        equal(view.$().html(), "abc");
       });
-
-      runAppend(view);
-
-      equal(view.$().html(), "abc");
-    });
+    }
 
     test("it allows you to access the current context using {{this}}", function() {
       runDestroy(view);
@@ -9056,8 +8750,8 @@ enifed("ember-htmlbars/tests/helpers/each_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helpers/if_unless_test",
-  ["ember-metal/run_loop","ember-runtime/system/namespace","ember-runtime/system/container","ember-views/views/view","ember-runtime/system/object_proxy","ember-runtime/system/object","ember-views/views/metamorph_view","ember-handlebars","ember-htmlbars/system/compile","ember-metal/property_set","ember-runtime/system/string","ember-metal/utils","ember-metal/enumerable_utils","ember-runtime/tests/utils"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__) {
+  ["ember-metal/run_loop","ember-runtime/system/namespace","ember-runtime/system/container","ember-views/views/view","ember-runtime/system/object_proxy","ember-runtime/system/object","ember-views/views/metamorph_view","ember-htmlbars/system/compile","ember-metal/property_set","ember-runtime/system/string","ember-metal/utils","ember-metal/enumerable_utils","ember-runtime/tests/utils"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__) {
     "use strict";
     var run = __dependency1__["default"];
     var Namespace = __dependency2__["default"];
@@ -9066,20 +8760,15 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
     var ObjectProxy = __dependency5__["default"];
     var EmberObject = __dependency6__["default"];
     var _MetamorphView = __dependency7__["default"];
-    var EmberHandlebars = __dependency8__["default"];
-    var htmlbarsCompile = __dependency9__["default"];
+    var compile = __dependency8__["default"];
 
-    var set = __dependency10__.set;
-    var fmt = __dependency11__.fmt;
-    var typeOf = __dependency12__.typeOf;
-    var forEach = __dependency13__.forEach;
-    var runAppend = __dependency14__.runAppend;
-    var runDestroy = __dependency14__.runDestroy;
+    var set = __dependency9__.set;
+    var fmt = __dependency10__.fmt;
+    var typeOf = __dependency11__.typeOf;
+    var forEach = __dependency12__.forEach;
+    var runAppend = __dependency13__.runAppend;
+    var runDestroy = __dependency13__.runDestroy;
 
-    var compile;
-    
-      compile = htmlbarsCompile;
-    
     var originalLookup = Ember.lookup;
 
     var view, lookup, container, TemplateTests;
@@ -9919,22 +9608,16 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helpers/input_test",
-  ["ember-metal/run_loop","ember-metal/property_set","ember-views/views/view","ember-runtime/tests/utils","ember-handlebars","ember-htmlbars/system/compile"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
+  ["ember-metal/run_loop","ember-metal/property_set","ember-views/views/view","ember-runtime/tests/utils","ember-htmlbars/system/compile"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
     var run = __dependency1__["default"];
     var set = __dependency2__.set;
     var View = __dependency3__["default"];
     var runAppend = __dependency4__.runAppend;
     var runDestroy = __dependency4__.runDestroy;
+    var compile = __dependency5__["default"];
 
-    var EmberHandlebars = __dependency5__["default"];
-    var htmlbarsCompile = __dependency6__["default"];
-
-    var compile;
-    
-      compile = htmlbarsCompile;
-    
     var view;
     var controller;
 
@@ -10250,19 +9933,14 @@ enifed("ember-htmlbars/tests/helpers/input_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helpers/loc_test",
-  ["ember-views/views/view","ember-handlebars-compiler","ember-htmlbars/system/compile","ember-runtime/tests/utils"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+  ["ember-views/views/view","ember-htmlbars/system/compile","ember-runtime/tests/utils"],
+  function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
     var EmberView = __dependency1__["default"];
-    var EmberHandlebars = __dependency2__["default"];
-    var htmlbarsCompile = __dependency3__["default"];
-    var runAppend = __dependency4__.runAppend;
-    var runDestroy = __dependency4__.runDestroy;
+    var compile = __dependency2__["default"];
+    var runAppend = __dependency3__.runAppend;
+    var runDestroy = __dependency3__.runDestroy;
 
-    var compile;
-    
-      compile = htmlbarsCompile;
-    
     function buildView(template, context) {
       return EmberView.create({
         template: compile(template),
@@ -10348,21 +10026,17 @@ enifed("ember-htmlbars/tests/helpers/loc_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helpers/log_test",
-  ["ember-metal/core","ember-views/views/view","ember-handlebars","ember-htmlbars/system/compile","ember-runtime/tests/utils"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
+  ["ember-metal/core","ember-views/views/view","ember-htmlbars/system/compile","ember-runtime/tests/utils"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var EmberView = __dependency2__["default"];
-    var EmberHandlebars = __dependency3__["default"];
-    var htmlbarsCompile = __dependency4__["default"];
-    var runAppend = __dependency5__.runAppend;
-    var runDestroy = __dependency5__.runDestroy;
+    var compile = __dependency3__["default"];
+    var runAppend = __dependency4__.runAppend;
+    var runDestroy = __dependency4__.runDestroy;
 
     var originalLookup, originalLog, logCalls, lookup, view, compile;
 
-    
-      compile = htmlbarsCompile;
-    
     QUnit.module('ember-htmlbars: {{#log}} helper', {
       setup: function() {
         Ember.lookup = lookup = { Ember: Ember };
@@ -10434,8 +10108,8 @@ enifed("ember-htmlbars/tests/helpers/log_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helpers/partial_test",
-  ["ember-runtime/system/object","ember-metal/run_loop","ember-views/views/view","ember-views/system/jquery","ember-runtime/system/container","ember-handlebars-compiler","ember-htmlbars/system/compile","ember-runtime/tests/utils"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
+  ["ember-runtime/system/object","ember-metal/run_loop","ember-views/views/view","ember-views/system/jquery","ember-runtime/system/container","ember-htmlbars/system/compile","ember-runtime/tests/utils"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
     "use strict";
     var EmberObject = __dependency1__["default"];
     var run = __dependency2__["default"];
@@ -10443,18 +10117,13 @@ enifed("ember-htmlbars/tests/helpers/partial_test",
     var jQuery = __dependency4__["default"];
     var trim = jQuery.trim;
     var Container = __dependency5__["default"];
-    var EmberHandlebars = __dependency6__["default"];
-    var htmlbarsCompile = __dependency7__["default"];
-    var runAppend = __dependency8__.runAppend;
-    var runDestroy = __dependency8__.runDestroy;
+    var compile = __dependency6__["default"];
+    var runAppend = __dependency7__.runAppend;
+    var runDestroy = __dependency7__.runDestroy;
 
     var MyApp, lookup, view, container;
     var originalLookup = Ember.lookup;
 
-    var compile;
-    
-      compile = htmlbarsCompile;
-    
     QUnit.module("Support for {{partial}} helper", {
       setup: function() {
         Ember.lookup = lookup = { Ember: Ember };
@@ -10548,8 +10217,8 @@ enifed("ember-htmlbars/tests/helpers/partial_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helpers/template_test",
-  ["ember-views/views/view","ember-runtime/system/object","ember-views/system/jquery","ember-runtime/system/container","ember-handlebars-compiler","ember-htmlbars/system/compile","ember-runtime/tests/utils"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
+  ["ember-views/views/view","ember-runtime/system/object","ember-views/system/jquery","ember-runtime/system/container","ember-htmlbars/system/compile","ember-runtime/tests/utils"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
     var EmberView = __dependency1__["default"];
     var EmberObject = __dependency2__["default"];
@@ -10557,18 +10226,13 @@ enifed("ember-htmlbars/tests/helpers/template_test",
     var trim = jQuery.trim;
 
     var Container = __dependency4__["default"];
-    var EmberHandlebars = __dependency5__["default"];
-    var htmlbarsCompile = __dependency6__["default"];
-    var runAppend = __dependency7__.runAppend;
-    var runDestroy = __dependency7__.runDestroy;
+    var compile = __dependency5__["default"];
+    var runAppend = __dependency6__.runAppend;
+    var runDestroy = __dependency6__.runDestroy;
 
     var MyApp, lookup, view, container;
     var originalLookup = Ember.lookup;
 
-    var compile;
-    
-      compile = htmlbarsCompile;
-    
     QUnit.module("Support for {{template}} helper", {
       setup: function() {
         Ember.lookup = lookup = { Ember: Ember };
@@ -10626,21 +10290,16 @@ enifed("ember-htmlbars/tests/helpers/template_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helpers/text_area_test",
-  ["ember-metal/run_loop","ember-views/views/view","ember-htmlbars/compat","ember-htmlbars/system/compile","ember-metal/property_set","ember-runtime/tests/utils"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
+  ["ember-metal/run_loop","ember-views/views/view","ember-htmlbars/system/compile","ember-metal/property_set","ember-runtime/tests/utils"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
     var run = __dependency1__["default"];
     var View = __dependency2__["default"];
-    var EmberHandlebars = __dependency3__["default"];
-    var htmlbarsCompile = __dependency4__["default"];
-    var o_set = __dependency5__.set;
-    var runAppend = __dependency6__.runAppend;
-    var runDestroy = __dependency6__.runDestroy;
+    var compile = __dependency3__["default"];
+    var o_set = __dependency4__.set;
+    var runAppend = __dependency5__.runAppend;
+    var runDestroy = __dependency5__.runDestroy;
 
-    var compile;
-    
-      compile = htmlbarsCompile;
-    
     var textArea, controller;
 
     function set(object, key, value) {
@@ -10692,8 +10351,8 @@ enifed("ember-htmlbars/tests/helpers/text_area_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helpers/unbound_test",
-  ["ember-views/views/view","ember-runtime/system/object","ember-runtime/system/native_array","ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-handlebars-compiler","ember-htmlbars/system/compile","ember-metal/error","ember-htmlbars/helpers","ember-htmlbars/compat/register-bound-helper","ember-htmlbars/compat/make-bound-helper","ember-runtime/system/container","ember-runtime/tests/utils","ember-handlebars/ext"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__) {
+  ["ember-views/views/view","ember-runtime/system/object","ember-runtime/system/native_array","ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-htmlbars/system/compile","ember-metal/error","ember-htmlbars/helpers","ember-htmlbars/compat/register-bound-helper","ember-htmlbars/compat/make-bound-helper","ember-runtime/system/container","ember-runtime/tests/utils"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__) {
     "use strict";
     /*jshint newcap:false*/
     var EmberView = __dependency1__["default"];
@@ -10704,27 +10363,16 @@ enifed("ember-htmlbars/tests/helpers/unbound_test",
     var get = __dependency5__.get;
     var set = __dependency6__.set;
     var run = __dependency7__["default"];
-    var EmberHandlebars = __dependency8__["default"];
-    var htmlbarsCompile = __dependency9__["default"];
-    var EmberError = __dependency10__["default"];
-    var htmlbarsHelpers = __dependency11__["default"];
-    var registerHTMLBarsHelper = __dependency12__["default"];
-    var htmlbarsMakeBoundHelper = __dependency13__["default"];
+    var compile = __dependency8__["default"];
+    var EmberError = __dependency9__["default"];
+    var helpers = __dependency10__["default"];
+    var registerBoundHelper = __dependency11__["default"];
+    var makeBoundHelper = __dependency12__["default"];
 
-    var Container = __dependency14__["default"];
-    var runAppend = __dependency15__.runAppend;
-    var runDestroy = __dependency15__.runDestroy;
+    var Container = __dependency13__["default"];
+    var runAppend = __dependency14__.runAppend;
+    var runDestroy = __dependency14__.runDestroy;
 
-    var handlebarsMakeBoundHelper = __dependency16__.makeBoundHelper;
-    var htmlbarsMakeBoundHelper = __dependency13__["default"];
-
-    var compile, helpers, registerBoundHelper, makeBoundHelper;
-    
-      compile = htmlbarsCompile;
-      registerBoundHelper = registerHTMLBarsHelper;
-      makeBoundHelper = htmlbarsMakeBoundHelper;
-      helpers = htmlbarsHelpers;
-    
     function expectDeprecationInHTMLBars() {
       // leave this as an empty function until we are ready to use it
       // to enforce deprecation notice for old Handlebars versions
@@ -11083,8 +10731,8 @@ enifed("ember-htmlbars/tests/helpers/unbound_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helpers/view_test",
-  ["ember-metal/property_set","ember-views/views/view","container/container","ember-metal/run_loop","ember-views/system/jquery","ember-views/views/text_field","ember-runtime/system/namespace","ember-runtime/system/object","ember-views/views/container_view","ember-views/views/metamorph_view","htmlbars-util/safe-string","ember-htmlbars/compat/precompile","ember-handlebars","ember-htmlbars/system/compile","ember-htmlbars/system/template","ember-metal/observer","ember-runtime/controllers/object_controller","ember-runtime/tests/utils","ember-metal/property_get","ember-metal/computed"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__) {
+  ["ember-metal/property_set","ember-views/views/view","container/container","ember-metal/run_loop","ember-views/system/jquery","ember-views/views/text_field","ember-runtime/system/namespace","ember-runtime/system/object","ember-views/views/container_view","ember-views/views/metamorph_view","htmlbars-util/safe-string","ember-htmlbars/compat/precompile","ember-htmlbars/system/compile","ember-htmlbars/system/template","ember-metal/observer","ember-runtime/controllers/object_controller","ember-runtime/tests/utils","ember-metal/property_get","ember-metal/computed"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__) {
     "use strict";
     /*globals EmberDev */
     var set = __dependency1__.set;
@@ -11097,27 +10745,19 @@ enifed("ember-htmlbars/tests/helpers/view_test",
     var EmberObject = __dependency8__["default"];
     var ContainerView = __dependency9__["default"];
     var _MetamorphView = __dependency10__["default"];
-    var HTMLBarsSafeString = __dependency11__["default"];
-    var htmlbarsPrecompile = __dependency12__["default"];
-    var EmberHandlebars = __dependency13__["default"];
-    var htmlbarsCompile = __dependency14__["default"];
-    var htmlbarsTemplate = __dependency15__["default"];
-    var observersFor = __dependency16__.observersFor;
-    var ObjectController = __dependency17__["default"];
+    var SafeString = __dependency11__["default"];
+    var precompile = __dependency12__["default"];
+    var compile = __dependency13__["default"];
+    var template = __dependency14__["default"];
+    var observersFor = __dependency15__.observersFor;
+    var ObjectController = __dependency16__["default"];
 
-    var runAppend = __dependency18__.runAppend;
-    var runDestroy = __dependency18__.runDestroy;
+    var runAppend = __dependency17__.runAppend;
+    var runDestroy = __dependency17__.runDestroy;
     var set = __dependency1__.set;
-    var get = __dependency19__.get;
-    var computed = __dependency20__.computed;
+    var get = __dependency18__.get;
+    var computed = __dependency19__.computed;
 
-    var compile, SafeString, precompile, template;
-    
-      compile = htmlbarsCompile;
-      template = htmlbarsTemplate;
-      precompile = htmlbarsPrecompile;
-      SafeString = HTMLBarsSafeString;
-    
     var view, originalLookup, container, lookup;
 
     var trim = jQuery.trim;
@@ -12218,7 +11858,7 @@ enifed("ember-htmlbars/tests/helpers/view_test",
 
       var containerView = get(view, 'childViews.firstObject');
       var viewInstanceToBeInserted = EmberView.create({
-        template: EmberHandlebars.compile('{{controller.foo}}')
+        template: compile('{{controller.foo}}')
       });
 
       run(function() {
@@ -12295,7 +11935,7 @@ enifed("ember-htmlbars/tests/helpers/view_test",
 
     test('should bind to the property if no registered helper found for a mustache without parameters', function() {
       view = EmberView.createWithMixins({
-        template: EmberHandlebars.compile('{{view.foobarProperty}}'),
+        template: compile('{{view.foobarProperty}}'),
         foobarProperty: computed(function() {
           return 'foobarProperty';
         })
@@ -12316,8 +11956,8 @@ enifed("ember-htmlbars/tests/helpers/view_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helpers/with_test",
-  ["ember-views/views/view","ember-metal/run_loop","ember-runtime/system/object","ember-metal/computed","ember-metal/property_set","ember-metal/property_get","ember-runtime/controllers/object_controller","ember-runtime/system/container","ember-handlebars","ember-htmlbars/system/compile","ember-runtime/tests/utils"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__) {
+  ["ember-views/views/view","ember-metal/run_loop","ember-runtime/system/object","ember-metal/computed","ember-metal/property_set","ember-metal/property_get","ember-runtime/controllers/object_controller","ember-runtime/system/container","ember-htmlbars/system/compile","ember-runtime/tests/utils"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
     "use strict";
     /*jshint newcap:false*/
     var EmberView = __dependency1__["default"];
@@ -12328,16 +11968,10 @@ enifed("ember-htmlbars/tests/helpers/with_test",
     var get = __dependency6__.get;
     var ObjectController = __dependency7__["default"];
     var Container = __dependency8__["default"];
-    // import { A } from "ember-runtime/system/native_array";
-    var EmberHandlebars = __dependency9__["default"];
-    var htmlbarsCompile = __dependency10__["default"];
-    var runAppend = __dependency11__.runAppend;
-    var runDestroy = __dependency11__.runDestroy;
+    var compile = __dependency9__["default"];
+    var runAppend = __dependency10__.runAppend;
+    var runDestroy = __dependency10__.runDestroy;
 
-    var compile;
-    
-      compile = htmlbarsCompile;
-    
     var view, lookup;
     var originalLookup = Ember.lookup;
 
@@ -12837,8 +12471,8 @@ enifed("ember-htmlbars/tests/helpers/with_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helpers/yield_test",
-  ["ember-metal/run_loop","ember-views/views/view","ember-metal/computed","ember-runtime/system/container","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/native_array","ember-views/views/component","ember-metal/error","ember-htmlbars/helpers","ember-handlebars","ember-htmlbars/system/compile","ember-runtime/tests/utils"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__) {
+  ["ember-metal/run_loop","ember-views/views/view","ember-metal/computed","ember-runtime/system/container","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/native_array","ember-views/views/component","ember-metal/error","ember-htmlbars/helpers","ember-htmlbars/system/compile","ember-runtime/tests/utils"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__) {
     "use strict";
     /*jshint newcap:false*/
     var run = __dependency1__["default"];
@@ -12850,19 +12484,13 @@ enifed("ember-htmlbars/tests/helpers/yield_test",
     var A = __dependency7__.A;
     var Component = __dependency8__["default"];
     var EmberError = __dependency9__["default"];
-    var htmlbarsHelper = __dependency10__.helper;
+    var helper = __dependency10__.helper;
     var helpers = __dependency10__["default"];
 
-    var EmberHandlebars = __dependency11__["default"];
-    var htmlbarsCompile = __dependency12__["default"];
-    var runAppend = __dependency13__.runAppend;
-    var runDestroy = __dependency13__.runDestroy;
+    var compile = __dependency11__["default"];
+    var runAppend = __dependency12__.runAppend;
+    var runDestroy = __dependency12__.runDestroy;
 
-    var compile, helper;
-    
-      compile = htmlbarsCompile;
-      helper = htmlbarsHelper;
-    
     var view, container;
 
     QUnit.module("ember-htmlbars: Support for {{yield}} helper", {
@@ -13401,8 +13029,8 @@ enifed("ember-htmlbars/tests/htmlbars_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/integration/binding_integration_test",
-  ["ember-metal/run_loop","ember-views/system/jquery","ember-views/views/view","ember-metal/binding","ember-runtime/system/object","ember-metal/computed","ember-views/views/container_view","ember-htmlbars/system/compile","ember-handlebars","ember-handlebars/helpers/view","ember-htmlbars/helpers/view","ember-runtime/tests/utils","ember-metal/property_set"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__) {
+  ["ember-metal/run_loop","ember-views/system/jquery","ember-views/views/view","ember-metal/binding","ember-runtime/system/object","ember-metal/computed","ember-views/views/container_view","ember-htmlbars/system/compile","ember-htmlbars/helpers/view","ember-runtime/tests/utils","ember-htmlbars/helpers","ember-metal/property_set"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__) {
     "use strict";
     var run = __dependency1__["default"];
     var jQuery = __dependency2__["default"];
@@ -13411,22 +13039,18 @@ enifed("ember-htmlbars/tests/integration/binding_integration_test",
     var EmberObject = __dependency5__["default"];
     var computed = __dependency6__.computed;
     var ContainerView = __dependency7__["default"];
-    var htmlbarsCompile = __dependency8__["default"];
-    var EmberHandlebars = __dependency9__["default"];
-    var handlebarsViewHelper = __dependency10__.ViewHelper;
-    var htmlbarsViewHelper = __dependency11__.ViewHelper;
-    var runAppend = __dependency12__.runAppend;
-    var runDestroy = __dependency12__.runDestroy;
+    var compile = __dependency8__["default"];
+    var ViewHelper = __dependency9__.ViewHelper;
+    var runAppend = __dependency10__.runAppend;
+    var runDestroy = __dependency10__.runDestroy;
+    var registerHelper = __dependency11__.registerHelper;
 
-    var set = __dependency13__.set;
+    var set = __dependency12__.set;
 
     var compile, view, MyApp, originalLookup, lookup;
 
     var trim = jQuery.trim;
 
-    
-      compile = htmlbarsCompile;
-    
     QUnit.module('ember-htmlbars: binding integration', {
       setup: function() {
         originalLookup = Ember.lookup;
@@ -13446,7 +13070,7 @@ enifed("ember-htmlbars/tests/integration/binding_integration_test",
     });
 
     test('should call a registered helper for mustache without parameters', function() {
-      EmberHandlebars.registerHelper('foobar', function() {
+      registerHelper('foobar', function() {
         return 'foobar';
       });
 
@@ -13570,15 +13194,13 @@ enifed("ember-htmlbars/tests/integration/binding_integration_test",
         template: compile('binding: {{view.bindingTest}}, string: {{view.stringTest}}')
       });
 
-      EmberHandlebars.registerHelper('boogie', function(id, options) {
-        options.hash = options.hash || {};
-        options.hash.bindingTestBinding = Binding.oneWay('context.' + id);
-        options.hash.stringTestBinding = id;
+      registerHelper('boogie', function(params, hash, options, env) {
+        var id = params[0];
+        hash.bindingTestBinding = Binding.oneWay('context.' + id._label);
+        hash.stringTestBinding = id;
 
-        var result;
-        
-          result = htmlbarsViewHelper.helper(viewClass, options.hash, options, options);
-        
+        var result = ViewHelper.helper(viewClass, hash, options, env);
+
         return result;
       });
 
@@ -13743,22 +13365,17 @@ enifed("ember-htmlbars/tests/integration/block_params_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/integration/component_invocation_test",
-  ["ember-views/views/view","container/container","ember-views/system/jquery","ember-handlebars-compiler","ember-htmlbars/system/compile","ember-views/component_lookup","ember-runtime/tests/utils"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
+  ["ember-views/views/view","container/container","ember-views/system/jquery","ember-htmlbars/system/compile","ember-views/component_lookup","ember-runtime/tests/utils"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
     var EmberView = __dependency1__["default"];
     var Container = __dependency2__["default"];
     var jQuery = __dependency3__["default"];
-    var EmberHandlebars = __dependency4__["default"];
-    var htmlbarsCompile = __dependency5__["default"];
-    var ComponentLookup = __dependency6__["default"];
-    var runAppend = __dependency7__.runAppend;
-    var runDestroy = __dependency7__.runDestroy;
+    var compile = __dependency4__["default"];
+    var ComponentLookup = __dependency5__["default"];
+    var runAppend = __dependency6__.runAppend;
+    var runDestroy = __dependency6__.runDestroy;
 
-    var compile;
-    
-      compile = htmlbarsCompile;
-    
     var container, view;
 
     QUnit.module('component - invocation', {
@@ -13847,25 +13464,20 @@ enifed("ember-htmlbars/tests/integration/component_invocation_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/integration/escape_integration_test",
-  ["ember-metal/run_loop","ember-metal/core","ember-views/views/view","ember-handlebars-compiler","ember-htmlbars/system/compile","ember-metal/property_set","ember-metal/platform","ember-runtime/tests/utils"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
+  ["ember-metal/run_loop","ember-views/views/view","ember-htmlbars/system/compile","ember-metal/property_set","ember-metal/platform","ember-runtime/tests/utils"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
     var run = __dependency1__["default"];
-    var Ember = __dependency2__["default"];
-    var EmberView = __dependency3__["default"];
-    var EmberHandlebars = __dependency4__["default"];
-    var htmlbarsCompile = __dependency5__["default"];
+    var EmberView = __dependency2__["default"];
+    var compile = __dependency3__["default"];
 
-    var set = __dependency6__.set;
-    var o_create = __dependency7__.create;
-    var runAppend = __dependency8__.runAppend;
-    var runDestroy = __dependency8__.runDestroy;
+    var set = __dependency4__.set;
+    var o_create = __dependency5__.create;
+    var runAppend = __dependency6__.runAppend;
+    var runDestroy = __dependency6__.runDestroy;
 
     var compile, view;
 
-    
-      compile = htmlbarsCompile;
-    
     QUnit.module('ember-htmlbars: Integration with Globals', {
       teardown: function() {
         runDestroy(view);
@@ -13985,21 +13597,17 @@ enifed("ember-htmlbars/tests/integration/escape_integration_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/integration/globals_integration_test",
-  ["ember-metal/core","ember-views/views/view","ember-handlebars-compiler","ember-htmlbars/system/compile","ember-runtime/tests/utils"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
+  ["ember-metal/core","ember-views/views/view","ember-htmlbars/system/compile","ember-runtime/tests/utils"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var EmberView = __dependency2__["default"];
-    var EmberHandlebars = __dependency3__["default"];
-    var htmlbarsCompile = __dependency4__["default"];
-    var runAppend = __dependency5__.runAppend;
-    var runDestroy = __dependency5__.runDestroy;
+    var compile = __dependency3__["default"];
+    var runAppend = __dependency4__.runAppend;
+    var runDestroy = __dependency4__.runDestroy;
 
     var compile, view, originalLookup, lookup;
 
-    
-      compile = htmlbarsCompile;
-    
     var originalLookup = Ember.lookup;
 
     QUnit.module('ember-htmlbars: Integration with Globals', {
@@ -14076,8 +13684,8 @@ enifed("ember-htmlbars/tests/integration/globals_integration_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/integration/select_in_template_test",
-  ["ember-runtime/system/object","ember-metal/run_loop","ember-views/views/view","ember-views/system/event_dispatcher","ember-metal/computed","ember-runtime/system/namespace","ember-runtime/controllers/array_controller","ember-runtime/system/array_proxy","ember-views/views/select","ember-handlebars-compiler","ember-htmlbars/system/compile","ember-runtime/tests/utils"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__) {
+  ["ember-runtime/system/object","ember-metal/run_loop","ember-views/views/view","ember-views/system/event_dispatcher","ember-metal/computed","ember-runtime/system/namespace","ember-runtime/controllers/array_controller","ember-runtime/system/array_proxy","ember-views/views/select","ember-htmlbars/system/compile","ember-runtime/tests/utils"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__) {
     "use strict";
     var EmberObject = __dependency1__["default"];
     var run = __dependency2__["default"];
@@ -14089,17 +13697,12 @@ enifed("ember-htmlbars/tests/integration/select_in_template_test",
     var ArrayController = __dependency7__["default"];
     var ArrayProxy = __dependency8__["default"];
     var SelectView = __dependency9__["default"];
-    var EmberHandlebars = __dependency10__["default"];
-    var htmlbarsCompile = __dependency11__["default"];
-    var runAppend = __dependency12__.runAppend;
-    var runDestroy = __dependency12__.runDestroy;
+    var compile = __dependency10__["default"];
+    var runAppend = __dependency11__.runAppend;
+    var runDestroy = __dependency11__.runDestroy;
 
     var dispatcher, view;
 
-    var compile;
-    
-      compile = htmlbarsCompile;
-    
     QUnit.module("ember-htmlbars: Ember.Select - usage inside templates", {
       setup: function() {
         dispatcher = EventDispatcher.create();
@@ -14376,31 +13979,24 @@ enifed("ember-htmlbars/tests/integration/tagless_views_rerender_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/integration/with_view_test",
-  ["ember-metal/run_loop","ember-metal/core","ember-views/system/jquery","ember-views/views/view","ember-runtime/system/container","ember-runtime/system/object","ember-views/views/metamorph_view","ember-handlebars","ember-htmlbars/system/compile","ember-runtime/tests/utils","ember-metal/property_set"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__) {
+  ["ember-metal/run_loop","ember-views/system/jquery","ember-views/views/view","ember-runtime/system/container","ember-runtime/system/object","ember-views/views/metamorph_view","ember-htmlbars/system/compile","ember-runtime/tests/utils","ember-metal/property_set"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
     "use strict";
     var run = __dependency1__["default"];
-    var Ember = __dependency2__["default"];
-    var jQuery = __dependency3__["default"];
-    var EmberView = __dependency4__["default"];
-    var Container = __dependency5__["default"];
-    var EmberObject = __dependency6__["default"];
-    var _MetamorphView = __dependency7__["default"];
-    var EmberHandlebars = __dependency8__["default"];
-    var htmlbarsCompile = __dependency9__["default"];
-    var runAppend = __dependency10__.runAppend;
-    var runDestroy = __dependency10__.runDestroy;
+    var jQuery = __dependency2__["default"];
+    var EmberView = __dependency3__["default"];
+    var Container = __dependency4__["default"];
+    var EmberObject = __dependency5__["default"];
+    var _MetamorphView = __dependency6__["default"];
+    var compile = __dependency7__["default"];
+    var runAppend = __dependency8__.runAppend;
+    var runDestroy = __dependency8__.runDestroy;
 
-    var set = __dependency11__.set;
+    var set = __dependency9__.set;
 
     var view, container;
-
     var trim = jQuery.trim;
 
-    var compile;
-    
-      compile = htmlbarsCompile;
-    
     QUnit.module('ember-htmlbars: {{#with}} and {{#view}} integration', {
       setup: function() {
         container = new Container();
@@ -14480,7 +14076,7 @@ enifed("ember-htmlbars/tests/integration/with_view_test",
         }),
 
 
-        template: EmberHandlebars.compile('{{#if view.museumOpen}} {{#with view.museumDetails}}{{view museumView museum=this}} {{/with}}{{/if}}')
+        template: compile('{{#if view.museumOpen}} {{#with view.museumDetails}}{{view museumView museum=this}} {{/with}}{{/if}}')
       });
 
       expectDeprecation(function() {
@@ -14580,13 +14176,14 @@ enifed("ember-htmlbars/tests/integration/with_view_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/system/bootstrap_test",
-  ["ember-views/system/jquery","ember-metal/run_loop","ember-views/views/view","ember-runtime/tests/utils"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+  ["ember-views/system/jquery","ember-metal/run_loop","ember-views/views/view","ember-runtime/tests/utils","ember-htmlbars/system/bootstrap"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
     var jQuery = __dependency1__["default"];
     var run = __dependency2__["default"];
     var EmberView = __dependency3__["default"];
     var runDestroy = __dependency4__.runDestroy;
+    var bootstrap = __dependency5__["default"];
 
     var trim = jQuery.trim;
 
@@ -14607,7 +14204,7 @@ enifed("ember-htmlbars/tests/system/bootstrap_test",
 
     function checkTemplate(templateName) {
       run(function() {
-        Ember.Handlebars.bootstrap(jQuery('#qunit-fixture'));
+        bootstrap(jQuery('#qunit-fixture'));
       });
       var template = Ember.TEMPLATES[templateName];
       ok(template, 'template is available on Ember.TEMPLATES');
@@ -14644,24 +14241,26 @@ enifed("ember-htmlbars/tests/system/bootstrap_test",
       checkTemplate('application');
     });
 
-    test('template with type text/x-raw-handlebars should be parsed', function() {
-      jQuery('#qunit-fixture').html('<script type="text/x-raw-handlebars" data-template-name="funkyTemplate">{{name}}</script>');
+    if (typeof Handlebars === 'object') {
+      test('template with type text/x-raw-handlebars should be parsed', function() {
+        jQuery('#qunit-fixture').html('<script type="text/x-raw-handlebars" data-template-name="funkyTemplate">{{name}}</script>');
 
-      run(function() {
-        Ember.Handlebars.bootstrap(jQuery('#qunit-fixture'));
+        run(function() {
+          bootstrap(jQuery('#qunit-fixture'));
+        });
+
+        ok(Ember.TEMPLATES['funkyTemplate'], 'template with name funkyTemplate available');
+
+        // This won't even work with Ember templates
+        equal(trim(Ember.TEMPLATES['funkyTemplate']({ name: 'Tobias' })), "Tobias");
       });
-
-      ok(Ember.TEMPLATES['funkyTemplate'], 'template with name funkyTemplate available');
-
-      // This won't even work with Ember templates
-      equal(trim(Ember.TEMPLATES['funkyTemplate']({ name: 'Tobias' })), "Tobias");
-    });
+    }
 
     test('duplicated default application templates should throw exception', function() {
       jQuery('#qunit-fixture').html('<script type="text/x-handlebars">first</script><script type="text/x-handlebars">second</script>');
 
       throws(function () {
-        Ember.Handlebars.bootstrap(jQuery('#qunit-fixture'));
+        bootstrap(jQuery('#qunit-fixture'));
       },
       /Template named "[^"]+" already exists\./,
       "duplicate templates should not be allowed");
@@ -14671,7 +14270,7 @@ enifed("ember-htmlbars/tests/system/bootstrap_test",
       jQuery('#qunit-fixture').html('<script type="text/x-handlebars">first</script><script type="text/x-handlebars" id="application">second</script>');
 
       throws(function () {
-        Ember.Handlebars.bootstrap(jQuery('#qunit-fixture'));
+        bootstrap(jQuery('#qunit-fixture'));
       },
       /Template named "[^"]+" already exists\./,
       "duplicate templates should not be allowed");
@@ -14681,7 +14280,7 @@ enifed("ember-htmlbars/tests/system/bootstrap_test",
       jQuery('#qunit-fixture').html('<script type="text/x-handlebars">first</script><script type="text/x-handlebars" data-template-name="application">second</script>');
 
       throws(function () {
-        Ember.Handlebars.bootstrap(jQuery('#qunit-fixture'));
+        bootstrap(jQuery('#qunit-fixture'));
       },
       /Template named "[^"]+" already exists\./,
       "duplicate templates should not be allowed");
@@ -14691,7 +14290,7 @@ enifed("ember-htmlbars/tests/system/bootstrap_test",
       jQuery('#qunit-fixture').html('<script type="text/x-handlebars" id="funkyTemplate">first</script><script type="text/x-handlebars" id="funkyTemplate">second</script>');
 
       throws(function () {
-        Ember.Handlebars.bootstrap(jQuery('#qunit-fixture'));
+        bootstrap(jQuery('#qunit-fixture'));
       },
       /Template named "[^"]+" already exists\./,
       "duplicate templates should not be allowed");
@@ -14701,7 +14300,7 @@ enifed("ember-htmlbars/tests/system/bootstrap_test",
       jQuery('#qunit-fixture').html('<script type="text/x-handlebars" data-template-name="funkyTemplate">first</script><script type="text/x-handlebars" data-template-name="funkyTemplate">second</script>');
 
       throws(function () {
-        Ember.Handlebars.bootstrap(jQuery('#qunit-fixture'));
+        bootstrap(jQuery('#qunit-fixture'));
       },
       /Template named "[^"]+" already exists\./,
       "duplicate templates should not be allowed");
@@ -25491,92 +25090,6 @@ enifed("ember-metal/watching.jshint",
       ok(true, 'ember-metal/watching.js should pass jshint.'); 
     });
   });
-enifed("ember-routing-handlebars.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - .');
-    test('ember-routing-handlebars.js should pass jshint', function() { 
-      ok(true, 'ember-routing-handlebars.js should pass jshint.'); 
-    });
-  });
-enifed("ember-routing-handlebars/helpers/action.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-routing-handlebars/helpers');
-    test('ember-routing-handlebars/helpers/action.js should pass jshint', function() { 
-      ok(true, 'ember-routing-handlebars/helpers/action.js should pass jshint.'); 
-    });
-  });
-enifed("ember-routing-handlebars/helpers/link_to.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-routing-handlebars/helpers');
-    test('ember-routing-handlebars/helpers/link_to.js should pass jshint', function() { 
-      ok(true, 'ember-routing-handlebars/helpers/link_to.js should pass jshint.'); 
-    });
-  });
-enifed("ember-routing-handlebars/helpers/outlet.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-routing-handlebars/helpers');
-    test('ember-routing-handlebars/helpers/outlet.js should pass jshint', function() { 
-      ok(true, 'ember-routing-handlebars/helpers/outlet.js should pass jshint.'); 
-    });
-  });
-enifed("ember-routing-handlebars/helpers/query_params.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-routing-handlebars/helpers');
-    test('ember-routing-handlebars/helpers/query_params.js should pass jshint', function() { 
-      ok(true, 'ember-routing-handlebars/helpers/query_params.js should pass jshint.'); 
-    });
-  });
-enifed("ember-routing-handlebars/helpers/render.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-routing-handlebars/helpers');
-    test('ember-routing-handlebars/helpers/render.js should pass jshint', function() { 
-      ok(true, 'ember-routing-handlebars/helpers/render.js should pass jshint.'); 
-    });
-  });
-enifed("ember-routing-handlebars/tests/main_test",
-  ["ember-routing-handlebars","ember-routing-handlebars/helpers/outlet","ember-routing-handlebars/helpers/render","ember-routing-handlebars/helpers/action","ember-routing-handlebars/helpers/link_to","ember-routing-handlebars/helpers/query_params"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
-    "use strict";
-
-    var outletHelper = __dependency2__.outletHelper;
-    var renderHelper = __dependency3__.renderHelper;
-    var actionHelper = __dependency4__.actionHelper;
-    var linkToHelper = __dependency5__.linkToHelper;
-    var deprecatedLinkToHelper = __dependency5__.deprecatedLinkToHelper;
-    var queryParamsHelper = __dependency6__.queryParamsHelper;
-
-    QUnit.module("ember-routing-views");
-
-    test("exports correctly", function() {
-      ok(outletHelper);
-      ok(renderHelper);
-      ok(actionHelper);
-      ok(linkToHelper);
-      ok(deprecatedLinkToHelper);
-      ok(queryParamsHelper);
-    });
-  });
-enifed("ember-routing-handlebars/tests/main_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-routing-handlebars/tests');
-    test('ember-routing-handlebars/tests/main_test.js should pass jshint', function() { 
-      ok(true, 'ember-routing-handlebars/tests/main_test.js should pass jshint.'); 
-    });
-  });
 enifed("ember-routing-htmlbars.jshint",
   [],
   function() {
@@ -25632,8 +25145,8 @@ enifed("ember-routing-htmlbars/helpers/render.jshint",
     });
   });
 enifed("ember-routing-htmlbars/tests/helpers/action_test",
-  ["ember-metal/core","ember-metal/property_set","ember-metal/run_loop","ember-views/system/event_dispatcher","ember-views/system/action_manager","ember-runtime/system/container","ember-runtime/system/object","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-handlebars","ember-htmlbars/system/compile","ember-views/views/view","ember-views/views/component","ember-views/system/jquery","ember-htmlbars/helpers","ember-routing-handlebars/helpers/action","ember-routing-htmlbars/helpers/action","ember-runtime/tests/utils"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__) {
+  ["ember-metal/core","ember-metal/property_set","ember-metal/run_loop","ember-views/system/event_dispatcher","ember-views/system/action_manager","ember-runtime/system/container","ember-runtime/system/object","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-htmlbars/system/compile","ember-views/views/view","ember-views/views/component","ember-views/system/jquery","ember-htmlbars/helpers","ember-routing-htmlbars/helpers/action","ember-runtime/tests/utils"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // A, FEATURES, assert
@@ -25648,32 +25161,20 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test",
     var EmberObjectController = __dependency9__["default"];
     var EmberArrayController = __dependency10__["default"];
 
-    var EmberHandlebars = __dependency11__["default"];
-    var htmlbarsCompile = __dependency12__["default"];
-    var EmberView = __dependency13__["default"];
-    var EmberComponent = __dependency14__["default"];
-    var jQuery = __dependency15__["default"];
+    var compile = __dependency11__["default"];
+    var EmberView = __dependency12__["default"];
+    var EmberComponent = __dependency13__["default"];
+    var jQuery = __dependency14__["default"];
 
-    var htmlbarsRegisterHelper = __dependency16__.registerHelper;
-    var htmlbarsHelpers = __dependency16__["default"];
+    var registerHelper = __dependency15__.registerHelper;
+    var helpers = __dependency15__["default"];
 
-    var HandlebarsActionHelper = __dependency17__.ActionHelper;
-    var handlebarsActionHelper = __dependency17__.actionHelper;
+    var ActionHelper = __dependency16__.ActionHelper;
+    var actionHelper = __dependency16__.actionHelper;
 
-    var HTMLBarsActionHelper = __dependency18__.ActionHelper;
-    var htmlbarsActionHelper = __dependency18__.actionHelper;
+    var runAppend = __dependency17__.runAppend;
+    var runDestroy = __dependency17__.runDestroy;
 
-    var runAppend = __dependency19__.runAppend;
-    var runDestroy = __dependency19__.runDestroy;
-
-    var compile, helpers, registerHelper, ActionHelper, actionHelper;
-    
-      helpers = htmlbarsHelpers;
-      compile = htmlbarsCompile;
-      registerHelper = htmlbarsRegisterHelper;
-      actionHelper = htmlbarsActionHelper;
-      ActionHelper = HTMLBarsActionHelper;
-    
     var dispatcher, view, originalActionHelper;
     var originalRegisterAction = ActionHelper.registerAction;
 
@@ -26802,22 +26303,17 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test.jshint",
     });
   });
 enifed("ember-routing-htmlbars/tests/helpers/link-to_test",
-  ["ember-routing-htmlbars","ember-metal/run_loop","ember-handlebars","ember-views/views/view","ember-htmlbars/system/compile","ember-metal/property_set","ember-runtime/controllers/controller","ember-runtime/tests/utils"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
+  ["ember-routing-htmlbars","ember-metal/run_loop","ember-views/views/view","ember-htmlbars/system/compile","ember-metal/property_set","ember-runtime/controllers/controller","ember-runtime/tests/utils"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
     "use strict";
     var run = __dependency2__["default"];
-    var EmberHandlebars = __dependency3__["default"];
-    var EmberView = __dependency4__["default"];
-    var htmlbarsCompile = __dependency5__["default"];
-    var set = __dependency6__.set;
-    var Controller = __dependency7__["default"];
-    var runAppend = __dependency8__.runAppend;
-    var runDestroy = __dependency8__.runDestroy;
+    var EmberView = __dependency3__["default"];
+    var compile = __dependency4__["default"];
+    var set = __dependency5__.set;
+    var Controller = __dependency6__["default"];
+    var runAppend = __dependency7__.runAppend;
+    var runDestroy = __dependency7__.runDestroy;
 
-    var compile;
-    
-      compile = htmlbarsCompile;
-    
     var view;
 
     QUnit.module("Handlebars {{link-to}} helper", {
@@ -26924,48 +26420,39 @@ enifed("ember-routing-htmlbars/tests/helpers/link-to_test.jshint",
     });
   });
 enifed("ember-routing-htmlbars/tests/helpers/outlet_test",
-  ["ember-metal/core","ember-handlebars","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","container/container","ember-runtime/system/namespace","ember-runtime/system/string","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-routing/system/router","ember-routing/location/hash_location","ember-views/views/metamorph_view","ember-routing/ext/view","ember-views/views/container_view","ember-views/system/jquery","ember-routing-handlebars/helpers/outlet","ember-routing-htmlbars/helpers/outlet","ember-htmlbars/system/compile","ember-htmlbars/helpers","ember-runtime/tests/utils"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","container/container","ember-runtime/system/namespace","ember-runtime/system/string","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-routing/system/router","ember-routing/location/hash_location","ember-views/views/metamorph_view","ember-routing/ext/view","ember-views/views/container_view","ember-views/system/jquery","ember-routing-htmlbars/helpers/outlet","ember-htmlbars/system/compile","ember-htmlbars/helpers","ember-runtime/tests/utils"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // TEMPLATES
-    var EmberHandlebars = __dependency2__["default"];
-    var get = __dependency3__.get;
-    var set = __dependency4__.set;
-    var run = __dependency5__["default"];
+    var get = __dependency2__.get;
+    var set = __dependency3__.set;
+    var run = __dependency4__["default"];
 
-    var Container = __dependency6__["default"];
-    var Namespace = __dependency7__["default"];
-    var decamelize = __dependency8__.decamelize;
-    var classify = __dependency8__.classify;
-    var Controller = __dependency9__["default"];
-    var ObjectController = __dependency10__["default"];
-    var ArrayController = __dependency11__["default"];
+    var Container = __dependency5__["default"];
+    var Namespace = __dependency6__["default"];
+    var decamelize = __dependency7__.decamelize;
+    var classify = __dependency7__.classify;
+    var Controller = __dependency8__["default"];
+    var ObjectController = __dependency9__["default"];
+    var ArrayController = __dependency10__["default"];
 
-    var EmberRouter = __dependency12__["default"];
-    var HashLocation = __dependency13__["default"];
+    var EmberRouter = __dependency11__["default"];
+    var HashLocation = __dependency12__["default"];
 
-    var _MetamorphView = __dependency14__["default"];
-    var EmberView = __dependency15__["default"];
-    var EmberContainerView = __dependency16__["default"];
-    var jQuery = __dependency17__["default"];
+    var _MetamorphView = __dependency13__["default"];
+    var EmberView = __dependency14__["default"];
+    var EmberContainerView = __dependency15__["default"];
+    var jQuery = __dependency16__["default"];
 
-    var handlebarsOutletHelper = __dependency18__.outletHelper;
-    var htmlbarsOutletHelper = __dependency19__.outletHelper;
+    var outletHelper = __dependency17__.outletHelper;
 
-    var htmlbarsCompile = __dependency20__["default"];
-    var htmlbarsRegisterHelper = __dependency21__.registerHelper;
-    var htmlbarsHelpers = __dependency21__["default"];
-    var runAppend = __dependency22__.runAppend;
-    var runDestroy = __dependency22__.runDestroy;
+    var compile = __dependency18__["default"];
+    var registerHelper = __dependency19__.registerHelper;
+    var helpers = __dependency19__["default"];
+    var runAppend = __dependency20__.runAppend;
+    var runDestroy = __dependency20__.runDestroy;
 
-    var compile, helpers, registerHelper, outletHelper;
-    
-      outletHelper = htmlbarsOutletHelper;
-      compile = htmlbarsCompile;
-      helpers = htmlbarsHelpers;
-      registerHelper = htmlbarsRegisterHelper;
-    
     var buildContainer = function(namespace) {
       var container = new Container();
 
@@ -27329,8 +26816,8 @@ enifed("ember-routing-htmlbars/tests/helpers/outlet_test.jshint",
     });
   });
 enifed("ember-routing-htmlbars/tests/helpers/render_test",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-metal/platform","ember-metal/mixin","container/container","ember-runtime/system/namespace","ember-runtime/system/string","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-routing/system/router","ember-routing/location/hash_location","ember-handlebars","ember-htmlbars/helpers","ember-htmlbars/system/compile","ember-routing/ext/view","ember-views/views/metamorph_view","ember-views/system/jquery","ember-views/system/action_manager","ember-routing-handlebars/helpers/render","ember-routing-handlebars/helpers/action","ember-routing-handlebars/helpers/outlet","ember-routing-htmlbars/helpers/render","ember-routing-htmlbars/helpers/action","ember-routing-htmlbars/helpers/outlet"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-metal/platform","ember-metal/mixin","container/container","ember-runtime/system/namespace","ember-runtime/system/string","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-routing/system/router","ember-routing/location/hash_location","ember-htmlbars/helpers","ember-htmlbars/system/compile","ember-routing/ext/view","ember-views/views/metamorph_view","ember-views/system/jquery","ember-views/system/action_manager","ember-routing-htmlbars/helpers/render","ember-routing-htmlbars/helpers/action","ember-routing-htmlbars/helpers/outlet"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // TEMPLATES
@@ -27352,34 +26839,19 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
     var EmberRouter = __dependency13__["default"];
     var HashLocation = __dependency14__["default"];
 
-    var EmberHandlebars = __dependency15__["default"];
-    var htmlbarsRegisterHelper = __dependency16__.registerHelper;
-    var htmlbarsHelpers = __dependency16__["default"];
-    var htmlbarsCompile = __dependency17__["default"];
+    var registerHelper = __dependency15__.registerHelper;
+    var helpers = __dependency15__["default"];
+    var compile = __dependency16__["default"];
 
-    var EmberView = __dependency18__["default"];
-    var _MetamorphView = __dependency19__["default"];
-    var jQuery = __dependency20__["default"];
-    var ActionManager = __dependency21__["default"];
+    var EmberView = __dependency17__["default"];
+    var _MetamorphView = __dependency18__["default"];
+    var jQuery = __dependency19__["default"];
+    var ActionManager = __dependency20__["default"];
 
-    var handlebarsRenderHelper = __dependency22__.renderHelper;
-    var handlebarsActionHelper = __dependency23__.actionHelper;
-    var handlebarsOutletHelper = __dependency24__.outletHelper;
+    var renderHelper = __dependency21__.renderHelper;
+    var actionHelper = __dependency22__.actionHelper;
+    var outletHelper = __dependency23__.outletHelper;
 
-    var htmlbarsRenderHelper = __dependency25__.renderHelper;
-    var htmlbarsActionHelper = __dependency26__.actionHelper;
-    var htmlbarsOutletHelper = __dependency27__.outletHelper;
-
-    var compile, helpers, registerHelper;
-    var renderHelper, actionHelper, outletHelper;
-    
-      renderHelper = htmlbarsRenderHelper;
-      actionHelper = htmlbarsActionHelper;
-      outletHelper = htmlbarsOutletHelper;
-      compile = htmlbarsCompile;
-      helpers = htmlbarsHelpers;
-      registerHelper = htmlbarsRegisterHelper;
-    
     function appendView(view) {
       run(function() { view.appendTo('#qunit-fixture'); });
     }
@@ -47064,7 +46536,7 @@ enifed("ember-testing/test.jshint",
     });
   });
 enifed("ember-testing/tests/acceptance_test",
-  ["ember-metal/run_loop","ember-views/system/jquery","ember-testing/test","ember-testing/adapters/qunit","ember-views/views/view","ember-testing/initializers","ember-application/system/application","ember-routing/system/route","ember-handlebars","ember-routing"],
+  ["ember-metal/run_loop","ember-views/system/jquery","ember-testing/test","ember-testing/adapters/qunit","ember-views/views/view","ember-testing/initializers","ember-application/system/application","ember-routing/system/route","ember-htmlbars/system/compile","ember-routing"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
     "use strict";
     var run = __dependency1__["default"];
@@ -47075,12 +46547,10 @@ enifed("ember-testing/tests/acceptance_test",
     // ensure the initializer is setup
     var EmberApplication = __dependency7__["default"];
     var EmberRoute = __dependency8__["default"];
-    var EmberHandlebars = __dependency9__["default"];
+    var compile = __dependency9__["default"];
 
     //ES6TODO: we need {{link-to}}  and {{outlet}} to exist here
     //ES6TODO: fixme?
-
-    var compile = EmberHandlebars.compile;
 
     var App, find, click, fillIn, currentRoute, visit, originalAdapter, andThen, indexHitCount;
 
@@ -47649,7 +47119,7 @@ enifed("ember-testing/tests/helper_registration_test.jshint",
     });
   });
 enifed("ember-testing/tests/helpers_test",
-  ["ember-metal/core","ember-metal/run_loop","ember-runtime/system/object","ember-runtime/ext/rsvp","ember-views/views/view","ember-views/system/jquery","ember-testing/test","ember-testing/helpers","ember-testing/initializers","ember-testing/setup_for_testing","ember-routing/system/router","ember-routing/system/route","ember-application/system/application","ember-handlebars"],
+  ["ember-metal/core","ember-metal/run_loop","ember-runtime/system/object","ember-runtime/ext/rsvp","ember-views/views/view","ember-views/system/jquery","ember-testing/test","ember-testing/helpers","ember-testing/initializers","ember-testing/setup_for_testing","ember-routing/system/router","ember-routing/system/route","ember-application/system/application","ember-htmlbars/system/compile"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__) {
     "use strict";
     var Ember = __dependency1__["default"];
@@ -47666,11 +47136,9 @@ enifed("ember-testing/tests/helpers_test",
     var EmberRouter = __dependency11__["default"];
     var EmberRoute = __dependency12__["default"];
     var EmberApplication = __dependency13__["default"];
-    var EmberHandlebars = __dependency14__["default"];
+    var compile = __dependency14__["default"];
 
     var App, originalAdapter = Test.adapter;
-
-    var compile = EmberHandlebars.compile;
 
     function cleanup(){
       // Teardown setupForTesting
@@ -48482,7 +47950,7 @@ enifed("ember-testing/tests/helpers_test.jshint",
     });
   });
 enifed("ember-testing/tests/integration_test",
-  ["ember-metal/core","ember-metal/run_loop","ember-runtime/system/object","ember-runtime/controllers/array_controller","ember-views/system/jquery","ember-views/views/view","ember-testing/test","ember-routing/system/route","ember-application/system/application","ember-handlebars","ember-application"],
+  ["ember-metal/core","ember-metal/run_loop","ember-runtime/system/object","ember-runtime/controllers/array_controller","ember-views/system/jquery","ember-views/views/view","ember-testing/test","ember-routing/system/route","ember-application/system/application","ember-htmlbars/system/compile","ember-application"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__) {
     "use strict";
     var Ember = __dependency1__["default"];
@@ -48494,10 +47962,8 @@ enifed("ember-testing/tests/integration_test",
     var Test = __dependency7__["default"];
     var EmberRoute = __dependency8__["default"];
     var EmberApplication = __dependency9__["default"];
-    var EmberHandlebars = __dependency10__["default"];
+    var compile = __dependency10__["default"];
 
-
-    var compile = EmberHandlebars.compile;
 
     var App, find, visit, originalAdapter = Test.adapter;
 
@@ -51893,7 +51359,7 @@ enifed("ember-views/tests/views/instrumentation_test.jshint",
     });
   });
 enifed("ember-views/tests/views/metamorph_view_test",
-  ["ember-views/system/jquery","ember-metal/run_loop","ember-views/views/view","ember-metal/property_get","ember-metal/property_set","ember-metal/mixin","ember-handlebars-compiler","ember-views/views/metamorph_view"],
+  ["ember-views/system/jquery","ember-metal/run_loop","ember-views/views/view","ember-metal/property_get","ember-metal/property_set","ember-metal/mixin","ember-htmlbars/system/compile","ember-views/views/metamorph_view"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
     "use strict";
     var jQuery = __dependency1__["default"];
@@ -51902,10 +51368,8 @@ enifed("ember-views/tests/views/metamorph_view_test",
     var get = __dependency4__.get;
     var set = __dependency5__.set;
     var observer = __dependency6__.observer;
-    var EmberHandlebars = __dependency7__["default"];
-
+    var compile = __dependency7__["default"];
     var _MetamorphView = __dependency8__["default"];
-    var compile = EmberHandlebars.compile;
 
     var view, childView, metamorphView;
 
@@ -56246,16 +55710,14 @@ enifed("ember-views/tests/views/view/nearest_of_type_test.jshint",
     });
   });
 enifed("ember-views/tests/views/view/nested_view_ordering_test",
-  ["container","ember-metal/run_loop","ember-views/views/view","ember-handlebars-compiler"],
+  ["container","ember-metal/run_loop","ember-views/views/view","ember-htmlbars/system/compile"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
     var Container = __dependency1__["default"];
     var run = __dependency2__["default"];
 
     var EmberView = __dependency3__["default"];
-    var EmberHandlebars = __dependency4__["default"];
-
-    var compile = EmberHandlebars.compile;
+    var compile = __dependency4__["default"];
 
     var container, view;
 
@@ -56539,7 +56001,7 @@ enifed("ember-views/tests/views/view/remove_test.jshint",
     });
   });
 enifed("ember-views/tests/views/view/render_test",
-  ["ember-metal/property_get","ember-metal/run_loop","ember-views/system/jquery","ember-views/views/view","ember-views/views/container_view","ember-handlebars-compiler"],
+  ["ember-metal/property_get","ember-metal/run_loop","ember-views/system/jquery","ember-views/views/view","ember-views/views/container_view","ember-htmlbars/system/compile"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
     var get = __dependency1__.get;
@@ -56548,9 +56010,7 @@ enifed("ember-views/tests/views/view/render_test",
     var EmberView = __dependency4__["default"];
     var ContainerView = __dependency5__["default"];
 
-    var EmberHandlebars = __dependency6__["default"];
-
-    var compile = EmberHandlebars.compile;
+    var compile = __dependency6__["default"];
 
     var view;
 
@@ -57075,18 +56535,20 @@ enifed("ember-views/tests/views/view/template_test",
       }, /cantBeFound/);
     });
 
-    test("should allow standard Handlebars template usage", function() {
-      view = EmberView.create({
-        context: { name: "Erik" },
-        template: Handlebars.compile("Hello, {{name}}")
-      });
+    if (typeof Handlebars === "object") {
+      test("should allow standard Handlebars template usage", function() {
+        view = EmberView.create({
+          context: { name: "Erik" },
+          template: Handlebars.compile("Hello, {{name}}")
+        });
 
-      run(function() {
-        view.createElement();
-      });
+        run(function() {
+          view.createElement();
+        });
 
-      equal(view.$().text(), "Hello, Erik");
-    });
+        equal(view.$().text(), "Hello, Erik");
+      });
+    }
 
     test("should call the function of the associated template", function() {
       container.register('template:testTemplate', function() {
@@ -58181,15 +57643,12 @@ enifed("ember/tests/application_lifecycle.jshint",
     });
   });
 enifed("ember/tests/component_registration_test",
-  ["ember","ember-handlebars"],
-  function(__dependency1__, __dependency2__) {
+  ["ember","ember-htmlbars/system/compile","ember-htmlbars/helpers"],
+  function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
 
-    var EmberHandlebars = __dependency2__["default"];
-
-    var compile, helpers;
-    compile = EmberHandlebars.compile;
-    helpers = EmberHandlebars.helpers;
+    var compile = __dependency2__["default"];
+    var helpers = __dependency3__["default"];
 
     var App, container;
     var originalHelpers;
@@ -58573,7 +58032,7 @@ enifed("ember/tests/global-api-test.jshint",
     });
   });
 enifed("ember/tests/helpers/helper_registration_test",
-  ["ember","ember-handlebars"],
+  ["ember","ember-htmlbars/compat"],
   function(__dependency1__, __dependency2__) {
     "use strict";
 
@@ -58699,7 +58158,7 @@ enifed("ember/tests/helpers/helper_registration_test.jshint",
     });
   });
 enifed("ember/tests/helpers/link_to_test",
-  ["ember","ember-handlebars"],
+  ["ember","ember-htmlbars/compat"],
   function(__dependency1__, __dependency2__) {
     "use strict";
 
@@ -60470,7 +59929,7 @@ enifed("ember/tests/helpers/link_to_test.jshint",
     });
   });
 enifed("ember/tests/homepage_example_test",
-  ["ember","ember-handlebars"],
+  ["ember","ember-htmlbars/compat"],
   function(__dependency1__, __dependency2__) {
     "use strict";
 
@@ -60629,7 +60088,7 @@ enifed("ember/tests/location_test.jshint",
     });
   });
 enifed("ember/tests/routing/basic_test",
-  ["ember","ember-metal/enumerable_utils","ember-metal/property_get","ember-metal/property_set","ember-views/system/action_manager","ember-handlebars"],
+  ["ember","ember-metal/enumerable_utils","ember-metal/property_get","ember-metal/property_set","ember-views/system/action_manager","ember-htmlbars/compat"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
     var forEach = __dependency2__.forEach;
@@ -64048,7 +63507,7 @@ enifed("ember/tests/routing/basic_test.jshint",
     });
   });
 enifed("ember/tests/routing/query_params_test",
-  ["ember","ember-metal/computed","ember-metal/platform","ember-runtime/system/string","ember-handlebars"],
+  ["ember","ember-metal/computed","ember-metal/platform","ember-runtime/system/string","ember-htmlbars/compat"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
     var computed = __dependency2__.computed;
@@ -65683,7 +65142,7 @@ enifed("ember/tests/routing/query_params_test.jshint",
     });
   });
 enifed("ember/tests/routing/substates_test",
-  ["ember","ember-handlebars"],
+  ["ember","ember-htmlbars/compat"],
   function(__dependency1__, __dependency2__) {
     "use strict";
 
