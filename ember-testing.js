@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.7f2e602a
+ * @version   1.10.0-beta.1+canary.8087e53d
  */
 
 (function() {
@@ -327,6 +327,19 @@ enifed("ember-debug",
           }
         }, false);
       }
+    }
+
+    /*
+      We are transitioning away from `ember.js` to `ember.debug.js` to make
+      it much clearer that it is only for local development purposes.
+
+      This flag value is changed by the tooling (by a simple string replacement)
+      so that if `ember.js` (which must be output for backwards compat reasons) is
+      used a nice helpful warning message will be printed out.
+    */
+    var runningNonEmberDebugJS = false;
+    __exports__.runningNonEmberDebugJS = runningNonEmberDebugJS;if (runningNonEmberDebugJS) {
+      Ember.warn('Please use `ember.debug.js` instead of `ember.js` for development and debugging.');
     }
   });
 enifed("ember-testing",

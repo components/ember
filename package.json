@@ -1,11 +1,11 @@
 {
   "name": "components-ember",
-  "version": "1.10.0-beta.1+canary.7f2e602a",
+  "version": "1.10.0-beta.1+canary.8087e53d",
   "description": "Ember Application Framework",
   "keywords": [
     "ember"
   ],
-  "main": "./ember.js",
+  "main": "./ember.debug.js",
   "dependencies": {
     "jquery": ">=1.7.0 <= 2.1.0",
     "handlebars": ">= 2.0.0 < 3.0.0"
