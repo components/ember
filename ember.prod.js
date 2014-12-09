@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.376e1ad6
+ * @version   1.10.0-beta.1+canary.7f2e602a
  */
 
 (function() {
@@ -14,6 +14,7 @@ var enifed, requireModule, eriuqer, requirejs, Ember;
 (function() {
   Ember = this.Ember = this.Ember || {};
   if (typeof Ember === 'undefined') { Ember = {}; };
+  function UNDEFINED() { }
 
   if (typeof Ember.__loader === 'undefined') {
     var registry = {}, seen = {};
@@ -23,11 +24,15 @@ var enifed, requireModule, eriuqer, requirejs, Ember;
     };
 
     requirejs = eriuqer = requireModule = function(name) {
-      if (seen.hasOwnProperty(name)) { return seen[name]; }
+      var s = seen[name];
+
+      if (s !== undefined) { return seen[name]; }
+      if (s === UNDEFINED) { return undefined;  }
+
       seen[name] = {};
 
       if (!registry[name]) {
-        throw new Error("Could not find module " + name);
+        throw new Error('Could not find module ' + name);
       }
 
       var mod = registry[name];
@@ -35,37 +40,46 @@ var enifed, requireModule, eriuqer, requirejs, Ember;
       var callback = mod.callback;
       var reified = [];
       var exports;
+      var length = deps.length;
 
-      for (var i=0, l=deps.length; i<l; i++) {
+      for (var i=0; i<length; i++) {
         if (deps[i] === 'exports') {
           reified.push(exports = {});
         } else {
-          reified.push(requireModule(resolve(deps[i])));
+          reified.push(requireModule(resolve(deps[i], name)));
         }
       }
 
-      var value = callback.apply(this, reified);
-      return seen[name] = exports || value;
+      var value = length === 0 ? callback.call(this) : callback.apply(this, reified);
 
-      function resolve(child) {
-        if (child.charAt(0) !== '.') { return child; }
-        var parts = child.split("/");
-        var parentBase = name.split("/").slice(0, -1);
-
-        for (var i=0, l=parts.length; i<l; i++) {
-          var part = parts[i];
-
-          if (part === '..') { parentBase.pop(); }
-          else if (part === '.') { continue; }
-          else { parentBase.push(part); }
-        }
-
-        return parentBase.join("/");
-      }
+      return seen[name] = exports || (value === undefined ? UNDEFINED : value);
     };
+
+    function resolve(child, name) {
+      if (child.charAt(0) !== '.') {
+        return child;
+      }
+      var parts = child.split('/');
+      var parentBase = name.split('/').slice(0, -1);
+
+      for (var i=0, l=parts.length; i<l; i++) {
+        var part = parts[i];
+
+        if (part === '..') { parentBase.pop(); }
+        else if (part === '.') { continue; }
+        else { parentBase.push(part); }
+      }
+
+      return parentBase.join('/');
+    }
+
     requirejs._eak_seen = registry;
 
-    Ember.__loader = {define: enifed, require: eriuqer, registry: registry};
+    Ember.__loader = {
+      define: enifed,
+      require: eriuqer,
+      registry: registry
+    };
   } else {
     enifed = Ember.__loader.define;
     requirejs = eriuqer = requireModule = Ember.__loader.require;
@@ -15346,7 +15360,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.376e1ad6
+      @version 1.10.0-beta.1+canary.7f2e602a
     */
 
     if ('undefined' === typeof Ember) {
@@ -15373,10 +15387,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.376e1ad6'
+      @default '1.10.0-beta.1+canary.7f2e602a'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.376e1ad6';
+    Ember.VERSION = '1.10.0-beta.1+canary.7f2e602a';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
