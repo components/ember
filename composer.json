@@ -4,8 +4,8 @@
   "type": "component",
   "license": "MIT",
   "require": {
-    "components/jquery": ">=1.7.0 <= 2.1.0",
-    "components/handlebars.js": "1.*"
+    "components/jquery": ">=1.7.0, <= 2.1.0",
+    "components/handlebars.js": "2.*"
   },
   "extra": {
     "component": {
@@ -24,5 +24,5 @@
       }
     }
   },
-  "version": "1.8.2+pre.c30913c3"
+  "version": "1.9.0"
 }

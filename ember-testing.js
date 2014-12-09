@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.8.2+pre.c30913c3
+ * @version   1.9.0
  */
 
 (function() {
@@ -14,6 +14,7 @@ var enifed, requireModule, eriuqer, requirejs, Ember;
 (function() {
   Ember = this.Ember = this.Ember || {};
   if (typeof Ember === 'undefined') { Ember = {}; };
+  function UNDEFINED() { }
 
   if (typeof Ember.__loader === 'undefined') {
     var registry = {}, seen = {};
@@ -23,7 +24,11 @@ var enifed, requireModule, eriuqer, requirejs, Ember;
     };
 
     requirejs = eriuqer = requireModule = function(name) {
-      if (seen.hasOwnProperty(name)) { return seen[name]; }
+      var s = seen[name];
+
+      if (s !== undefined) { return seen[name]; }
+      if (s === UNDEFINED) { return undefined;  }
+
       seen[name] = {};
 
       if (!registry[name]) {
@@ -35,34 +40,37 @@ var enifed, requireModule, eriuqer, requirejs, Ember;
       var callback = mod.callback;
       var reified = [];
       var exports;
+      var length = deps.length;
 
-      for (var i=0, l=deps.length; i<l; i++) {
+      for (var i=0; i<length; i++) {
         if (deps[i] === 'exports') {
           reified.push(exports = {});
         } else {
-          reified.push(requireModule(resolve(deps[i])));
+          reified.push(requireModule(resolve(deps[i], name)));
         }
       }
 
-      var value = callback.apply(this, reified);
-      return seen[name] = exports || value;
+      var value = length === 0 ? callback.call(this) : callback.apply(this, reified);
 
-      function resolve(child) {
-        if (child.charAt(0) !== '.') { return child; }
-        var parts = child.split("/");
-        var parentBase = name.split("/").slice(0, -1);
-
-        for (var i=0, l=parts.length; i<l; i++) {
-          var part = parts[i];
-
-          if (part === '..') { parentBase.pop(); }
-          else if (part === '.') { continue; }
-          else { parentBase.push(part); }
-        }
-
-        return parentBase.join("/");
-      }
+      return seen[name] = exports || (value === undefined ? UNDEFINED : value);
     };
+
+    function resolve(child, name) {
+      if (child.charAt(0) !== '.') { return child; }
+      var parts = child.split("/");
+      var parentBase = name.split("/").slice(0, -1);
+
+      for (var i=0, l=parts.length; i<l; i++) {
+        var part = parts[i];
+
+        if (part === '..') { parentBase.pop(); }
+        else if (part === '.') { continue; }
+        else { parentBase.push(part); }
+      }
+
+      return parentBase.join("/");
+    }
+
     requirejs._eak_seen = registry;
 
     Ember.__loader = {define: enifed, require: eriuqer, registry: registry};
@@ -73,8 +81,8 @@ var enifed, requireModule, eriuqer, requirejs, Ember;
 })();
 
 enifed("ember-debug",
-  ["ember-metal/core","ember-metal/error","ember-metal/logger"],
-  function(__dependency1__, __dependency2__, __dependency3__) {
+  ["ember-metal/core","ember-metal/error","ember-metal/logger","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     /*global __fail__*/
 
@@ -243,8 +251,39 @@ enifed("ember-debug",
       func();
     };
 
-    // Inform the developer about the Ember Inspector if not installed.
-    if (!Ember.testing) {
+    /**
+      Will call `Ember.warn()` if ENABLE_ALL_FEATURES, ENABLE_OPTIONAL_FEATURES, or
+      any specific FEATURES flag is truthy.
+
+      This method is called automatically in debug canary builds.
+      
+      @private
+      @method _warnIfUsingStrippedFeatureFlags
+      @return {void}
+    */
+    function _warnIfUsingStrippedFeatureFlags(FEATURES, featuresWereStripped) {
+      if (featuresWereStripped) {
+        Ember.warn('Ember.ENV.ENABLE_ALL_FEATURES is only available in canary builds.', !Ember.ENV.ENABLE_ALL_FEATURES);
+        Ember.warn('Ember.ENV.ENABLE_OPTIONAL_FEATURES is only available in canary builds.', !Ember.ENV.ENABLE_OPTIONAL_FEATURES);
+
+        for (var key in FEATURES) {
+          if (FEATURES.hasOwnProperty(key) && key !== 'isEnabled') {
+            Ember.warn('FEATURE["' + key + '"] is set as enabled, but FEATURE flags are only available in canary builds.', !FEATURES[key]);
+          }
+        }
+      }
+    }
+
+    __exports__._warnIfUsingStrippedFeatureFlags = _warnIfUsingStrippedFeatureFlags;if (!Ember.testing) {
+      // Complain if they're using FEATURE flags in builds other than canary
+      Ember.FEATURES['features-stripped-test'] = true;
+      var featuresWereStripped = true;
+      
+      
+      delete Ember.FEATURES['features-stripped-test'];
+      _warnIfUsingStrippedFeatureFlags(Ember.ENV.FEATURES, featuresWereStripped);
+
+      // Inform the developer about the Ember Inspector if not installed.
       var isFirefox = typeof InstallTrigger !== 'undefined';
       var isChrome = !!window.chrome && !window.opera;
 
@@ -294,13 +333,12 @@ enifed("ember-testing",
     Ember.setupForTesting = setupForTesting;
   });
 enifed("ember-testing/adapters/adapter",
-  ["ember-metal/core","ember-metal/utils","ember-runtime/system/object","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["ember-metal/core","ember-runtime/system/object","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.K
-    var inspect = __dependency2__.inspect;
-    var EmberObject = __dependency3__["default"];
+    var EmberObject = __dependency2__["default"];
 
     /**
      @module ember
@@ -420,6 +458,11 @@ enifed("ember-testing/helpers",
       var router = app.__container__.lookup('router:main');
 
       return get(router, 'location').getURL();
+    }
+
+    function pauseTest(){
+      Test.adapter.asyncStart();
+      return new Ember.RSVP.Promise(function(){ }, 'TestAdapter paused promise');
     }
 
     function visit(app, url) {
@@ -711,7 +754,7 @@ enifed("ember-testing/helpers",
       Ember.Test.registerAsyncHelper('loginUser', function(app, username, password) {
         visit('secured/path/here')
         .fillIn('#username', username)
-        .fillIn('#password', username)
+        .fillIn('#password', password)
         .click('.submit')
 
         return app.testHelpers.wait();
@@ -781,6 +824,26 @@ enifed("ember-testing/helpers",
     @since 1.5.0
     */
     helper('currentURL', currentURL);
+
+    
+      /**
+       Pauses the current test - this is useful for debugging while testing or for test-driving.
+       It allows you to inspect the state of your application at any point.
+
+       Example (The test will pause before clicking the button):
+
+       ```javascript
+       visit('/')
+       return pauseTest();
+
+       click('.btn');
+       ```
+
+       @method pauseTest
+       @return {Object} A promise that will never resolve
+       */
+      helper('pauseTest', pauseTest);
+    
 
     /**
       Triggers the given DOM event on the element identified by the provided selector.
