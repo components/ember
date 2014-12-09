@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.0f9bc5d7
+ * @version   1.10.0-beta.1+canary.376e1ad6
  */
 
 (function() {
@@ -15134,16 +15134,16 @@ enifed("ember-metal/computed_macros",
 
       ```javascript
       var ToDoList = Ember.Object.extend({
-        done: Ember.computed.empty('todos')
+        isDone: Ember.computed.empty('todos')
       });
 
       var todoList = ToDoList.create({
         todos: ['Unit Test', 'Documentation', 'Release']
       });
 
-      todoList.get('done'); // false
+      todoList.get('isDone'); // false
       todoList.get('todos').clear();
-      todoList.get('done'); // true
+      todoList.get('isDone'); // true
       ```
 
       @since 1.6.0
@@ -15812,7 +15812,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.0f9bc5d7
+      @version 1.10.0-beta.1+canary.376e1ad6
     */
 
     if ('undefined' === typeof Ember) {
@@ -15839,10 +15839,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.0f9bc5d7'
+      @default '1.10.0-beta.1+canary.376e1ad6'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.0f9bc5d7';
+    Ember.VERSION = '1.10.0-beta.1+canary.376e1ad6';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
