@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.f54c969d
+ * @version   1.10.0-beta.1+canary.27ce4a49
  */
 
 (function() {
@@ -19404,6 +19404,7 @@ enifed("ember-metal/tests/map_test",
     "use strict";
     var Map = __dependency1__.Map;
     var MapWithDefault = __dependency1__.MapWithDefault;
+    var OrderedSet = __dependency1__.OrderedSet;
 
     var hasPropertyAccessors = __dependency2__.hasPropertyAccessors;
 
@@ -19519,7 +19520,7 @@ enifed("ember-metal/tests/map_test",
       });
 
       test("forEach throws without a callback as the first argument", function() {
-        
+
         equal(map.forEach.length, 1, 'expected arity for map.forEach is 1');
       });
 
@@ -19963,6 +19964,22 @@ enifed("ember-metal/tests/map_test",
       };
 
       deepEqual(map2.get('drugs'), ['tom is on', 'drugs']);
+    });
+
+    QUnit.module("OrderedSet", {
+      setup: function() {
+        object = {};
+        number = 42;
+        string = "foo";
+
+        map = OrderedSet.create();
+      }
+    });
+
+    test("add returns the set", function() {
+      var obj = {};
+      equal(map.add(obj), map);
+      equal(map.add(obj), map, 'when it is already in the set');
     });
   });
 enifed("ember-metal/tests/map_test.jshint",

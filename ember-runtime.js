@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.f54c969d
+ * @version   1.10.0-beta.1+canary.27ce4a49
  */
 
 (function() {
@@ -4844,7 +4844,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.f54c969d
+      @version 1.10.0-beta.1+canary.27ce4a49
     */
 
     if ('undefined' === typeof Ember) {
@@ -4871,10 +4871,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.f54c969d'
+      @default '1.10.0-beta.1+canary.27ce4a49'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.f54c969d';
+    Ember.VERSION = '1.10.0-beta.1+canary.27ce4a49';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -6884,12 +6884,10 @@ define("ember-metal/map",
         var presenceSet = this.presenceSet;
         var list = this.list;
 
-        if (presenceSet[guid] === true) {
-          return;
+        if (presenceSet[guid] !== true) {
+          presenceSet[guid] = true;
+          this.size = list.push(obj);
         }
-
-        presenceSet[guid] = true;
-        this.size = list.push(obj);
 
         return this;
       },
