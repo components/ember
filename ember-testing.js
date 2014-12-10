@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.0-beta.4
+ * @version   1.10.0-beta.1+canary.8c386e19
  */
 
 (function() {
@@ -32,7 +32,7 @@ var enifed, requireModule, eriuqer, requirejs, Ember;
       seen[name] = {};
 
       if (!registry[name]) {
-        throw new Error("Could not find module " + name);
+        throw new Error('Could not find module ' + name);
       }
 
       var mod = registry[name];
@@ -56,9 +56,11 @@ var enifed, requireModule, eriuqer, requirejs, Ember;
     };
 
     function resolve(child, name) {
-      if (child.charAt(0) !== '.') { return child; }
-      var parts = child.split("/");
-      var parentBase = name.split("/").slice(0, -1);
+      if (child.charAt(0) !== '.') {
+        return child;
+      }
+      var parts = child.split('/');
+      var parentBase = name.split('/').slice(0, -1);
 
       for (var i=0, l=parts.length; i<l; i++) {
         var part = parts[i];
@@ -68,12 +70,16 @@ var enifed, requireModule, eriuqer, requirejs, Ember;
         else { parentBase.push(part); }
       }
 
-      return parentBase.join("/");
+      return parentBase.join('/');
     }
 
     requirejs._eak_seen = registry;
 
-    Ember.__loader = {define: enifed, require: eriuqer, registry: registry};
+    Ember.__loader = {
+      define: enifed,
+      require: eriuqer,
+      registry: registry
+    };
   } else {
     enifed = Ember.__loader.define;
     requirejs = eriuqer = requireModule = Ember.__loader.require;
@@ -121,7 +127,15 @@ enifed("ember-debug",
         falsy, an exception will be thrown.
     */
     Ember.assert = function(desc, test) {
-      if (!test) {
+      var throwAssertion;
+
+      if (Ember.typeOf(test) === 'function') {
+        throwAssertion = !test();
+      } else {
+        throwAssertion = !test;
+      }
+
+      if (throwAssertion) {
         throw new EmberError("Assertion Failed: " + desc);
       }
     };
@@ -169,7 +183,15 @@ enifed("ember-debug",
         will be displayed.
     */
     Ember.deprecate = function(message, test) {
-      if (test) { return; }
+      var noDeprecation;
+
+      if (typeof test === 'function') {
+        noDeprecation = test();
+      } else {
+        noDeprecation = test;
+      }
+
+      if (noDeprecation) { return; }
 
       if (Ember.ENV.RAISE_ON_DEPRECATION) { throw new EmberError(message); }
 
@@ -303,6 +325,19 @@ enifed("ember-debug",
         }, false);
       }
     }
+
+    /*
+      We are transitioning away from `ember.js` to `ember.debug.js` to make
+      it much clearer that it is only for local development purposes.
+
+      This flag value is changed by the tooling (by a simple string replacement)
+      so that if `ember.js` (which must be output for backwards compat reasons) is
+      used a nice helpful warning message will be printed out.
+    */
+    var runningNonEmberDebugJS = false;
+    __exports__.runningNonEmberDebugJS = runningNonEmberDebugJS;if (runningNonEmberDebugJS) {
+      Ember.warn('Please use `ember.debug.js` instead of `ember.js` for development and debugging.');
+    }
   });
 enifed("ember-testing",
   ["ember-metal/core","ember-testing/initializers","ember-testing/support","ember-testing/setup_for_testing","ember-testing/test","ember-testing/adapters/adapter","ember-testing/adapters/qunit","ember-testing/helpers"],
@@ -333,12 +368,12 @@ enifed("ember-testing",
     Ember.setupForTesting = setupForTesting;
   });
 enifed("ember-testing/adapters/adapter",
-  ["ember-metal/core","ember-runtime/system/object","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["ember-runtime/system/object","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
-    var Ember = __dependency1__["default"];
-    // Ember.K
-    var EmberObject = __dependency2__["default"];
+    var EmberObject = __dependency1__["default"];
+
+    function K() { return this; }
 
     /**
      @module ember
@@ -362,7 +397,7 @@ enifed("ember-testing/adapters/adapter",
         @public
         @method asyncStart
       */
-      asyncStart: Ember.K,
+      asyncStart: K,
 
       /**
         This callback will be called whenever an async operation has completed.
@@ -370,7 +405,7 @@ enifed("ember-testing/adapters/adapter",
         @public
         @method asyncEnd
       */
-      asyncEnd: Ember.K,
+      asyncEnd: K,
 
       /**
         Override this method with your testing framework's false assertion.

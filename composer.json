@@ -10,9 +10,11 @@
   "extra": {
     "component": {
       "scripts": [
-        "ember.js"
+        "ember.debug.js"
       ],
       "files": [
+        "ember.debug.js",
+        "ember.prod.js",
         "ember.min.js"
       ],
       "shim": {
@@ -24,5 +26,5 @@
       }
     }
   },
-  "version": "1.9.0-beta.4"
+  "version": "1.10.0-beta.1+canary.8c386e19"
 }
