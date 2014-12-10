@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.b176b041
+ * @version   1.11.0-beta.1+canary.4b0f4089
  */
 
 (function() {
@@ -5584,8 +5584,8 @@ enifed("ember-htmlbars/tests/compat/make-view-helper_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
-  ["ember-views/views/view","ember-metal/run_loop","ember-runtime/system/object","ember-runtime/system/native_array","ember-metal/property_get","ember-metal/property_set","ember-runtime/tests/utils","ember-htmlbars/compat"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
+  ["ember-views/views/view","ember-metal/run_loop","ember-runtime/system/object","ember-runtime/system/native_array","ember-metal/property_get","ember-metal/property_set","ember-runtime/tests/utils","ember-runtime/system/string","ember-htmlbars/compat"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
     "use strict";
     /*jshint newcap:false*/
     var EmberView = __dependency1__["default"];
@@ -5599,8 +5599,9 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
     var set = __dependency6__.set;
     var runAppend = __dependency7__.runAppend;
     var runDestroy = __dependency7__.runDestroy;
+    var dasherize = __dependency8__.dasherize;
 
-    var EmberHandlebars = __dependency8__["default"];
+    var EmberHandlebars = __dependency9__["default"];
 
     var compile, helpers, helper;
     compile = EmberHandlebars.compile;
@@ -5674,6 +5675,27 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
       });
 
       equal(view.$().text(), 'WES', "helper output updated");
+    });
+
+    test("should update bound helpers in a subexpression when properties change", function() {
+      expectDeprecationInHTMLBars();
+
+      helper('dasherize', function(value) {
+        return dasherize(value);
+      });
+
+      view = EmberView.create({
+        controller: {prop: "isThing"},
+        template: compile("<div {{bind-attr data-foo=(dasherize prop)}}>{{prop}}</div>")
+      });
+
+      runAppend(view);
+
+      equal(view.$('div[data-foo="is-thing"]').text(), 'isThing', "helper output is correct");
+
+      run(view, 'set', 'controller.prop', 'notThing');
+
+      equal(view.$('div[data-foo="not-thing"]').text(), 'notThing', "helper output is correct");
     });
 
     test("should allow for computed properties with dependencies", function() {
