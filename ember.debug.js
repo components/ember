@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.2+pre.ff18a1ff
+ * @version   1.10.0-beta.2+pre.fc33a102
  */
 
 (function() {
@@ -5397,8 +5397,8 @@ enifed("ember-htmlbars/compat/helper",
     __exports__.handlebarsHelper = handlebarsHelper;__exports__["default"] = HandlebarsCompatibleHelper;
   });
 enifed("ember-htmlbars/compat/make-bound-helper",
-  ["ember-metal/core","ember-metal/mixin","ember-views/views/simple_bound_view","ember-htmlbars/system/helper","ember-metal/streams/stream","ember-metal/streams/utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+  ["ember-metal/core","ember-metal/mixin","ember-htmlbars/system/helper","ember-metal/streams/stream","ember-metal/streams/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -5408,12 +5408,11 @@ enifed("ember-htmlbars/compat/make-bound-helper",
     var Ember = __dependency1__["default"];
     // Ember.FEATURES, Ember.assert, Ember.Handlebars, Ember.lookup
     var IS_BINDING = __dependency2__.IS_BINDING;
-    var appendSimpleBoundView = __dependency3__.appendSimpleBoundView;
-    var Helper = __dependency4__["default"];
+    var Helper = __dependency3__["default"];
 
-    var Stream = __dependency5__["default"];
-    var readArray = __dependency6__.readArray;
-    var readHash = __dependency6__.readHash;
+    var Stream = __dependency4__["default"];
+    var readArray = __dependency5__.readArray;
+    var readHash = __dependency5__.readHash;
 
     /**
       A helper function used by `registerBoundHelper`. Takes the
@@ -5485,8 +5484,6 @@ enifed("ember-htmlbars/compat/make-bound-helper",
         } else {
           var lazyValue = new Stream(valueFn);
 
-          appendSimpleBoundView(this, options.morph, lazyValue);
-
           var param;
 
           for (i = 0; i < numParams; i++) {
@@ -5519,6 +5516,8 @@ enifed("ember-htmlbars/compat/make-bound-helper",
               }
             }
           }
+
+          return lazyValue;
         }
       }
 
@@ -6128,8 +6127,8 @@ enifed("ember-htmlbars/helpers/bind-attr",
     __exports__.bindAttrHelperDeprecated = bindAttrHelperDeprecated;
   });
 enifed("ember-htmlbars/helpers/binding",
-  ["ember-metal/is_none","ember-metal/run_loop","ember-metal/property_get","ember-metal/streams/simple","ember-views/views/bound_view","ember-views/views/simple_bound_view","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+  ["ember-metal/is_none","ember-metal/run_loop","ember-metal/property_get","ember-metal/streams/simple","ember-views/views/bound_view","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -6141,7 +6140,6 @@ enifed("ember-htmlbars/helpers/binding",
     var get = __dependency3__.get;
     var SimpleStream = __dependency4__["default"];
     var BoundView = __dependency5__["default"];
-    var appendSimpleBoundView = __dependency6__.appendSimpleBoundView;
 
     function exists(value) {
       return !isNone(value);
@@ -6239,7 +6237,7 @@ enifed("ember-htmlbars/helpers/binding",
         Ember.deprecate("The block form of bind, {{#bind foo}}{{/bind}}, has been deprecated and will be removed.");
         bind.call(this, property, hash, options, env, false, exists);
       } else {
-        appendSimpleBoundView(this, options.morph, property);
+        return property;
       }
     }
 
@@ -12323,7 +12321,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.2+pre.ff18a1ff
+      @version 1.10.0-beta.2+pre.fc33a102
     */
 
     if ('undefined' === typeof Ember) {
@@ -12350,10 +12348,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.2+pre.ff18a1ff'
+      @default '1.10.0-beta.2+pre.fc33a102'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.2+pre.ff18a1ff';
+    Ember.VERSION = '1.10.0-beta.2+pre.fc33a102';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
