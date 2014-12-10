@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.fb30082a
+ * @version   1.10.0-beta.1+canary.ad4be796
  */
 
 (function() {
@@ -859,13 +859,32 @@ enifed("container/tests/container_test",
     });
 
     if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
+      test("The `_onLookup` hook is called on factories when looked up the first time", function() {
+        expect(2);
+
+        var container = new Container();
+        var Apple = factory();
+
+        Apple.reopenClass({
+          _onLookup: function(fullName) {
+            equal(fullName, 'apple:main', 'calls lazy injection method with the lookup full name');
+            equal(this, Apple, 'calls lazy injection method in the factory context');
+          }
+        });
+
+        container.register('apple:main', Apple);
+
+        container.lookupFactory('apple:main');
+        container.lookupFactory('apple:main');
+      });
+
       test("A factory's lazy injections are validated when first instantiated", function() {
         var container = new Container();
         var Apple = factory();
         var Orange = factory();
 
         Apple.reopenClass({
-          lazyInjections: function() {
+          _lazyInjections: function() {
             return [ 'orange:main', 'banana:main' ];
           }
         });
@@ -876,6 +895,27 @@ enifed("container/tests/container_test",
         throws(function() {
           container.lookup('apple:main');
         }, /Attempting to inject an unknown injection: `banana:main`/);
+      });
+
+      test("Lazy injection validations are cached", function() {
+        expect(1);
+
+        var container = new Container();
+        var Apple = factory();
+        var Orange = factory();
+
+        Apple.reopenClass({
+          _lazyInjections: function() {
+            ok(true, 'should call lazy injection method');
+            return [ 'orange:main' ];
+          }
+        });
+
+        container.register('apple:main', Apple);
+        container.register('orange:main', Orange);
+
+        container.lookup('apple:main');
+        container.lookup('apple:main');
       });
     }
   });
@@ -32341,6 +32381,8 @@ enifed("ember-runtime/tests/controllers/controller_test",
   ["ember-runtime/controllers/controller","ember-runtime/system/service","ember-runtime/controllers/object_controller","ember-metal/mixin","ember-runtime/system/object","ember-runtime/system/container","ember-runtime/inject","ember-metal/property_get"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
     "use strict";
+    /* global EmberDev */
+
     var Controller = __dependency1__["default"];
     var Service = __dependency2__["default"];
     var ObjectController = __dependency3__["default"];
@@ -32524,16 +32566,21 @@ enifed("ember-runtime/tests/controllers/controller_test",
     if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
       QUnit.module('Controller injected properties');
 
-      test("defining a controller on a non-controller should fail assertion", function(){
-        expectAssertion(function() {
-          var AnObject = Object.extend({
-            foo: inject.controller('bar')
-          });
+      if (!EmberDev.runningProdBuild) {
+        test("defining a controller on a non-controller should fail assertion", function(){
+          expectAssertion(function() {
+            var container = new Container();
+            var AnObject = Object.extend({
+              container: container,
+              foo: inject.controller('bar')
+            });
 
-          // Prototype chains are lazy, make sure it's evaluated
-          AnObject.proto();
-        }, /Defining an injected controller property on a non-controller is not allowed./);
-      });
+            container.register('foo:main', AnObject);
+
+            container.lookupFactory('foo:main');
+          }, /Defining an injected controller property on a non-controller is not allowed./);
+        });
+      }
 
       test("controllers can be injected into controllers", function() {
         var container = new Container();
@@ -33633,20 +33680,23 @@ enifed("ember-runtime/tests/inject_test",
       if (!EmberDev.runningProdBuild) {
         // this check is done via an assertion which is stripped from
         // production builds
-        test("injection type validation function is run once at mixin time", function() {
+        test("injection type validation is run when first looked up", function() {
           expect(1);
 
           createInjectionHelper('foo', function() {
-            ok(true, 'should call validation function');
+            ok(true, 'should call validation method');
           });
 
+          var container = new Container();
           var AnObject = Object.extend({
+            container: container,
             bar: inject.foo(),
             baz: inject.foo()
           });
 
-          // Prototype chains are lazy, make sure it's evaluated
-          AnObject.proto();
+          container.register('foo:main', AnObject);
+
+          container.lookupFactory('foo:main');
         });
       }
 
@@ -33670,7 +33720,7 @@ enifed("ember-runtime/tests/inject_test",
           bar: new InjectedProperty('quux')
         });
 
-        deepEqual(AnObject.lazyInjections(), { 'foo': 'foo:bar', 'bar': 'quux:bar' }, "should return injected container keys");
+        deepEqual(AnObject._lazyInjections(), { 'foo': 'foo:bar', 'bar': 'quux:bar' }, "should return injected container keys");
       });
     }
   });

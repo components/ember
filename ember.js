@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.fb30082a
+ * @version   1.10.0-beta.1+canary.ad4be796
  */
 
 (function() {
@@ -1124,6 +1124,9 @@ enifed("container/container",
       this.typeInjections = dictionary(parent ? parent.typeInjections : null);
       this.injections     = dictionary(null);
       this.normalizeCache = dictionary(null);
+      if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
+        this.validationCache = dictionary(parent ? parent.validationCache : null);
+      }
 
       this.factoryTypeInjections = dictionary(parent ? parent.factoryTypeInjections : null);
       this.factoryInjections     = dictionary(null);
@@ -1270,6 +1273,9 @@ enifed("container/container",
         delete this.factoryCache[normalizedName];
         delete this.resolveCache[normalizedName];
         delete this._options[normalizedName];
+        if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
+          delete this.validationCache[normalizedName];
+        }
       },
 
       /**
@@ -1833,6 +1839,10 @@ enifed("container/container",
 
       var type = fullName.split(':')[0];
       if (!factory || typeof factory.extend !== 'function' || (!Ember.MODEL_FACTORY_INJECTIONS && type === 'model')) {
+        if (factory && typeof factory._onLookup === 'function') {
+          factory._onLookup(fullName);
+        }
+
         // TODO: think about a 'safe' merge style extension
         // for now just fallback to create time injection
         cache[fullName] = factory;
@@ -1845,6 +1855,10 @@ enifed("container/container",
 
         var injectedFactory = factory.extend(injections);
         injectedFactory.reopenClass(factoryInjections);
+
+        if (factory && typeof factory._onLookup === 'function') {
+          factory._onLookup(fullName);
+        }
 
         cache[fullName] = injectedFactory;
 
@@ -1897,7 +1911,7 @@ enifed("container/container",
 
     function instantiate(container, fullName) {
       var factory = factoryFor(container, fullName);
-      var lazyInjections;
+      var lazyInjections, validationCache;
 
       if (option(container, fullName, 'instantiate') === false) {
         return factory;
@@ -1910,12 +1924,16 @@ enifed("container/container",
         }
 
         if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
+          validationCache = container.validationCache;
+
           // Ensure that all lazy injections are valid at instantiation time
-          if (typeof factory.lazyInjections === 'function') {
-            lazyInjections = factory.lazyInjections();
+          if (!validationCache[fullName] && typeof factory._lazyInjections === 'function') {
+            lazyInjections = factory._lazyInjections();
 
             validateInjections(container, normalizeInjectionsHash(lazyInjections));
           }
+
+          validationCache[fullName] = true;
         }
 
         if (typeof factory.extend === 'function') {
@@ -12320,7 +12338,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.fb30082a
+      @version 1.10.0-beta.1+canary.ad4be796
     */
 
     if ('undefined' === typeof Ember) {
@@ -12347,10 +12365,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.fb30082a'
+      @default '1.10.0-beta.1+canary.ad4be796'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.fb30082a';
+    Ember.VERSION = '1.10.0-beta.1+canary.ad4be796';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -13509,6 +13527,7 @@ enifed("ember-metal/injected_property",
     var ComputedProperty = __dependency2__.ComputedProperty;
     var Descriptor = __dependency3__.Descriptor;
     var create = __dependency4__.create;
+    var meta = __dependency5__.meta;
     var inspect = __dependency5__.inspect;
     var EmberError = __dependency6__["default"];
 
@@ -13527,14 +13546,22 @@ enifed("ember-metal/injected_property",
       this.type = type;
       this.name = name;
 
-      this._super$Constructor(function(keyName) {
-        Ember.assert("Attempting to lookup an injected property on an object " +
-                     "without a container, ensure that the object was " +
-                     "instantiated via a container.", this.container);
-
-        return this.container.lookup(type + ':' + (name || keyName));
-      });
+      this._super$Constructor(injectedPropertyGet);
       this.readOnly();
+    }
+
+    function injectedPropertyGet(keyName) {
+      var desc = meta(this).descs[keyName];
+
+      Ember.assert("Attempting to lookup an injected property on an object " +
+                   "without a container, ensure that the object was " +
+                   "instantiated via a container.", this.container);
+
+      return this.container.lookup(desc.type + ':' + (desc.name || keyName));
+    }
+
+    function injectedPropertySet(obj, keyName) {
+      throw new EmberError("Cannot set injected property '" + keyName + "' on object: " + inspect(obj));
     }
 
     InjectedProperty.prototype = create(Descriptor.prototype);
@@ -13547,9 +13574,7 @@ enifed("ember-metal/injected_property",
     InjectedPropertyPrototype.get = ComputedPropertyPrototype.get;
     InjectedPropertyPrototype.readOnly = ComputedPropertyPrototype.readOnly;
 
-    InjectedPropertyPrototype.set = function(obj, keyName) {
-      throw new EmberError("Cannot set injected property '" + keyName + "' on object: " + inspect(obj));
-    };
+    InjectedPropertyPrototype.set = injectedPropertySet;
 
     InjectedPropertyPrototype.teardown = ComputedPropertyPrototype.teardown;
 
@@ -28966,14 +28991,15 @@ enifed("ember-runtime/ext/string",
     }
   });
 enifed("ember-runtime/inject",
-  ["ember-metal/core","ember-metal/enumerable_utils","ember-metal/injected_property","ember-metal/keys","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+  ["ember-metal/core","ember-metal/enumerable_utils","ember-metal/utils","ember-metal/injected_property","ember-metal/keys","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.assert
     var indexOf = __dependency2__.indexOf;
-    var InjectedProperty = __dependency3__["default"];
-    var keys = __dependency4__["default"];
+    var meta = __dependency3__.meta;
+    var InjectedProperty = __dependency4__["default"];
+    var keys = __dependency5__["default"];
 
     /**
       Namespace for injection helper methods.
@@ -29009,26 +29035,22 @@ enifed("ember-runtime/inject",
     }
 
     __exports__.createInjectionHelper = createInjectionHelper;/**
-      Validation function intended to be invoked at when extending a factory with
-      injected properties. Runs per-type validation functions once for each injected
-      type encountered.
-
-      Note that this currently modifies the mixin themselves, which is technically
-      dubious but is practically of little consequence. This may change in the
-      future.
+      Validation function that runs per-type validation functions once for each
+      injected type encountered.
 
       @private
       @method validatePropertyInjections
       @namespace Ember
-      @param {Object} factory The factory object being extended
-      @param {Object} props A hash of properties to be added to the factory
+      @param {Object} factory The factory object
     */
-    function validatePropertyInjections(factory, props) {
+    function validatePropertyInjections(factory) {
+      var proto = factory.proto();
+      var descs = meta(proto).descs;
       var types = [];
       var key, desc, validator, i, l;
 
-      for (key in props) {
-        desc = props[key];
+      for (key in descs) {
+        desc = descs[key];
         if (desc instanceof InjectedProperty && indexOf(types, desc.type) === -1) {
           types.push(desc.type);
         }
@@ -29307,12 +29329,6 @@ enifed("ember-runtime/mixins/action_handler",
         @method willMergeMixin
       */
       willMergeMixin: function(props) {
-        if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
-          // Calling super is only OK here since we KNOW that there is another
-          // Mixin loaded first (injection dependency verification)
-          this._super.apply(this, arguments);
-        }
-
         var hashName;
 
         if (!props._actions) {
@@ -33701,8 +33717,8 @@ enifed("ember-runtime/system/container",
     __exports__["default"] = Container;
   });
 enifed("ember-runtime/system/core_object",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/utils","ember-metal/platform","ember-metal/chains","ember-metal/events","ember-metal/mixin","ember-metal/enumerable_utils","ember-metal/error","ember-metal/keys","ember-runtime/mixins/action_handler","ember-metal/properties","ember-metal/binding","ember-metal/computed","ember-metal/injected_property","ember-metal/run_loop","ember-metal/watching","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/utils","ember-metal/platform","ember-metal/chains","ember-metal/events","ember-metal/mixin","ember-metal/enumerable_utils","ember-metal/error","ember-metal/keys","ember-runtime/mixins/action_handler","ember-metal/properties","ember-metal/binding","ember-metal/computed","ember-metal/injected_property","ember-metal/run_loop","ember-metal/watching","ember-runtime/inject","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __exports__) {
         // Remove "use strict"; from transpiled module until
     // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
     //
@@ -33745,6 +33761,7 @@ enifed("ember-runtime/system/core_object",
     var destroy = __dependency17__.destroy;
     var K = __dependency1__.K;
     var hasPropertyAccessors = __dependency4__.hasPropertyAccessors;
+    var validatePropertyInjections = __dependency18__.validatePropertyInjections;
 
     var schedule = run.schedule;
     var applyMixin = Mixin._apply;
@@ -34542,15 +34559,33 @@ enifed("ember-runtime/system/core_object",
       }
     };
 
+    function injectedPropertyAssertion() {
+      Ember.assert("Injected properties are invalid", validatePropertyInjections(this));
+    }
+
+    function addOnLookupHandler() {
+      Ember.runInDebug(function() {
+        /**
+          Provides lookup-time type validation for injected properties.
+
+          @private
+          @method _onLookup
+          */
+        ClassMixinProps._onLookup = injectedPropertyAssertion;
+      });
+    }
+
     if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
+      addOnLookupHandler();
+
       /**
         Returns a hash of property names and container names that injected
         properties will lookup on the container lazily.
 
-        @method lazyInjections
+        @method _lazyInjections
         @return {Object} Hash of all lazy injected property keys to container names
       */
-      ClassMixinProps.lazyInjections = function() {
+      ClassMixinProps._lazyInjections = function() {
         var injections = {};
         var proto = this.proto();
         var descs = meta(proto).descs;
@@ -35323,19 +35358,16 @@ enifed("ember-runtime/system/native_array",
     __exports__["default"] = NativeArray;
   });
 enifed("ember-runtime/system/object",
-  ["ember-metal/core","ember-runtime/system/core_object","ember-runtime/mixins/observable","ember-runtime/inject","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+  ["ember-runtime/system/core_object","ember-runtime/mixins/observable","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     /**
     @module ember
     @submodule ember-runtime
     */
 
-    var Ember = __dependency1__["default"];
-    // Ember.assert
-    var CoreObject = __dependency2__["default"];
-    var Observable = __dependency3__["default"];
-    var validatePropertyInjections = __dependency4__.validatePropertyInjections;
+    var CoreObject = __dependency1__["default"];
+    var Observable = __dependency2__["default"];
 
     /**
       `Ember.Object` is the main base class for all Ember objects. It is a subclass
@@ -35351,24 +35383,6 @@ enifed("ember-runtime/system/object",
     EmberObject.toString = function() {
       return "Ember.Object";
     };
-
-    function injectedPropertyAssertion(props) {
-      // Injection validations are a debugging aid only, so ensure that they are
-      // not performed in production builds by invoking from an assertion
-      Ember.assert("Injected properties are invalid", validatePropertyInjections(this.constructor, props));
-    }
-
-    if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
-      EmberObject.reopen({
-        /**
-          Provides mixin-time validation for injected properties.
-
-          @private
-          @method willMergeMixin
-        */
-        willMergeMixin: injectedPropertyAssertion
-      });
-    }
 
     __exports__["default"] = EmberObject;
   });
