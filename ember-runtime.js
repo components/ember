@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.8c386e19
+ * @version   1.10.0-beta.1+canary.78329a08
  */
 
 (function() {
@@ -1125,6 +1125,9 @@ define("container/container",
       this.injections     = dictionary(null);
       this.normalizeCache = dictionary(null);
       
+        this.validationCache = dictionary(parent ? parent.validationCache : null);
+      
+
       this.factoryTypeInjections = dictionary(parent ? parent.factoryTypeInjections : null);
       this.factoryInjections     = dictionary(null);
 
@@ -1270,7 +1273,10 @@ define("container/container",
         delete this.factoryCache[normalizedName];
         delete this.resolveCache[normalizedName];
         delete this._options[normalizedName];
-              },
+        
+          delete this.validationCache[normalizedName];
+        
+      },
 
       /**
         Given a fullName return the corresponding factory.
@@ -1918,6 +1924,18 @@ define("container/container",
         }
 
         
+          validationCache = container.validationCache;
+
+          // Ensure that all lazy injections are valid at instantiation time
+          if (!validationCache[fullName] && typeof factory._lazyInjections === 'function') {
+            lazyInjections = factory._lazyInjections();
+
+            validateInjections(container, normalizeInjectionsHash(lazyInjections));
+          }
+
+          validationCache[fullName] = true;
+        
+
         if (typeof factory.extend === 'function') {
           // assume the factory was extendable and is already injected
           return factory.create();
@@ -4826,7 +4844,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.8c386e19
+      @version 1.10.0-beta.1+canary.78329a08
     */
 
     if ('undefined' === typeof Ember) {
@@ -4853,10 +4871,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.8c386e19'
+      @default '1.10.0-beta.1+canary.78329a08'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.8c386e19';
+    Ember.VERSION = '1.10.0-beta.1+canary.78329a08';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -11798,6 +11816,9 @@ define("ember-runtime",
     Ember.isEqual = isEqual;
 
     
+      Ember.inject = inject;
+    
+
     Ember.Array = EmberArray;
 
     Ember.Comparable = Comparable;
@@ -11870,6 +11891,9 @@ define("ember-runtime",
     Ember.ControllerMixin = ControllerMixin;
 
     
+      Ember.Service = Service;
+    
+
     Ember._ProxyMixin = _ProxyMixin;
 
     Ember.RSVP = RSVP;
@@ -14200,6 +14224,38 @@ define("ember-runtime/controllers/controller",
     }
 
     
+      /**
+        Creates a property that lazily looks up another controller in the container.
+        Can only be used when defining another controller.
+
+        Example:
+
+        ```javascript
+        App.PostController = Ember.Controller.extend({
+          posts: Ember.inject.controller()
+        });
+        ```
+
+        This example will create a `posts` property on the `post` controller that
+        looks up the `posts` controller in the container, making it easy to
+        reference other controllers. This is functionally equivalent to:
+
+        ```javascript
+        App.PostController = Ember.Controller.extend({
+          needs: 'posts',
+          posts: Ember.computed.alias('controllers.posts')
+        });
+        ```
+
+        @method inject.controller
+        @for Ember
+        @param {String} name (optional) name of the controller to inject, defaults
+               to the property's name
+        @return {Ember.InjectedProperty} injection descriptor instance
+        */
+      createInjectionHelper('controller', controllerInjectionHelper);
+    
+
     __exports__["default"] = Controller;
   });
 define("ember-runtime/controllers/object_controller",
@@ -20376,6 +20432,32 @@ define("ember-runtime/system/core_object",
     }
 
     
+      addOnLookupHandler();
+
+      /**
+        Returns a hash of property names and container names that injected
+        properties will lookup on the container lazily.
+
+        @method _lazyInjections
+        @return {Object} Hash of all lazy injected property keys to container names
+      */
+      ClassMixinProps._lazyInjections = function() {
+        var injections = {};
+        var proto = this.proto();
+        var descs = meta(proto).descs;
+        var key, desc;
+
+        for (key in descs) {
+          desc = descs[key];
+          if (desc instanceof InjectedProperty) {
+            injections[key] = desc.type + ':' + (desc.name || key);
+          }
+        }
+
+        return injections;
+      };
+    
+
     var ClassMixin = Mixin.create(ClassMixinProps);
 
     ClassMixin.ownerConstructor = CoreObject;
@@ -21248,6 +21330,42 @@ define("ember-runtime/system/service",
     var Service;
 
     
+      /**
+        @class Service
+        @namespace Ember
+        @extends Ember.Object
+      */
+      Service = Object.extend();
+
+      /**
+        Creates a property that lazily looks up a service in the container. There
+        are no restrictions as to what objects a service can be injected into.
+
+        Example:
+
+        ```javascript
+        App.ApplicationRoute = Ember.Route.extend({
+          authManager: Ember.inject.service('auth'),
+
+          model: function() {
+            return this.get('authManager').findCurrentUser();
+          }
+        });
+        ```
+
+        This example will create an `authManager` property on the application route
+        that looks up the `auth` service in the container, making it easily
+        accessible in the `model` hook.
+
+        @method inject.service
+        @for Ember
+        @param {String} name (optional) name of the service to inject, defaults to
+               the property's name
+        @return {Ember.InjectedProperty} injection descriptor instance
+      */
+      createInjectionHelper('service');
+    
+
     __exports__["default"] = Service;
   });
 define("ember-runtime/system/set",

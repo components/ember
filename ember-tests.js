@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.8c386e19
+ * @version   1.10.0-beta.1+canary.78329a08
  */
 
 (function() {
@@ -858,7 +858,67 @@ enifed("container/tests/container_test",
       deepEqual(resolveWasCalled, ['foo:post']);
     });
 
+    
+      test("The `_onLookup` hook is called on factories when looked up the first time", function() {
+        expect(2);
+
+        var container = new Container();
+        var Apple = factory();
+
+        Apple.reopenClass({
+          _onLookup: function(fullName) {
+            equal(fullName, 'apple:main', 'calls lazy injection method with the lookup full name');
+            equal(this, Apple, 'calls lazy injection method in the factory context');
+          }
+        });
+
+        container.register('apple:main', Apple);
+
+        container.lookupFactory('apple:main');
+        container.lookupFactory('apple:main');
       });
+
+      test("A factory's lazy injections are validated when first instantiated", function() {
+        var container = new Container();
+        var Apple = factory();
+        var Orange = factory();
+
+        Apple.reopenClass({
+          _lazyInjections: function() {
+            return [ 'orange:main', 'banana:main' ];
+          }
+        });
+
+        container.register('apple:main', Apple);
+        container.register('orange:main', Orange);
+
+        throws(function() {
+          container.lookup('apple:main');
+        }, /Attempting to inject an unknown injection: `banana:main`/);
+      });
+
+      test("Lazy injection validations are cached", function() {
+        expect(1);
+
+        var container = new Container();
+        var Apple = factory();
+        var Orange = factory();
+
+        Apple.reopenClass({
+          _lazyInjections: function() {
+            ok(true, 'should call lazy injection method');
+            return [ 'orange:main' ];
+          }
+        });
+
+        container.register('apple:main', Apple);
+        container.register('orange:main', Orange);
+
+        container.lookup('apple:main');
+        container.lookup('apple:main');
+      });
+    
+  });
 enifed("container/tests/container_test.jshint",
   [],
   function() {
@@ -17960,7 +18020,61 @@ enifed("ember-metal/tests/injected_property_test",
     var set = __dependency3__.set;
     var InjectedProperty = __dependency4__["default"];
 
+    
+      QUnit.module('InjectedProperty');
+
+      test('injected properties should be descriptors', function() {
+        ok(new InjectedProperty() instanceof Descriptor);
       });
+
+      test('setting the injected property should error', function() {
+        var obj = {};
+        defineProperty(obj, 'foo', new InjectedProperty());
+
+        throws(function() {
+          set(obj, 'foo', 'bar');
+        }, /Cannot set injected property 'foo' on object/);
+      });
+
+      test("getting on an object without a container should fail assertion", function() {
+        var obj = {};
+        defineProperty(obj, 'foo', new InjectedProperty('type', 'name'));
+
+        expectAssertion(function() {
+          get(obj, 'foo');
+        }, /Attempting to lookup an injected property on an object without a container, ensure that the object was instantiated via a container./);
+      });
+
+      test("getting should return a lookup on the container", function() {
+        expect(2);
+
+        var obj = {
+          container: {
+            lookup: function(key) {
+              ok(true, 'should call container.lookup');
+              return key;
+            }
+          }
+        };
+        defineProperty(obj, 'foo', new InjectedProperty('type', 'name'));
+
+        equal(get(obj, 'foo'), 'type:name', 'should return the value of container.lookup');
+      });
+
+      test("omitting the lookup name should default to the property name", function() {
+        var obj = {
+          container: {
+            lookup: function(key) {
+              return key;
+            }
+          }
+        };
+        defineProperty(obj, 'foo', new InjectedProperty('type'));
+
+        equal(get(obj, 'foo'), 'type:foo', 'should lookup the type using the property name');
+      });
+    
+  });
 enifed("ember-metal/tests/injected_property_test.jshint",
   [],
   function() {
@@ -28031,7 +28145,25 @@ enifed("ember-routing/tests/system/route_test",
       equal(routeTwo.controllerFor('one'), testController);
     });
 
+    
+      QUnit.module('Route injected properties');
+
+      test("services can be injected into routes", function() {
+        var container = new Container();
+
+        container.register('route:application', EmberRoute.extend({
+          authService: inject.service('auth')
+        }));
+
+        container.register('service:auth', Service.extend());
+
+        var appRoute = container.lookup('route:application'),
+          authService = container.lookup('service:auth');
+
+        equal(authService, appRoute.get('authService'), "service.auth is injected");
       });
+    
+  });
 enifed("ember-routing/tests/system/route_test.jshint",
   [],
   function() {
@@ -31557,7 +31689,56 @@ enifed("ember-runtime/tests/controllers/controller_test",
       equal(get(controller, 'model'), 'blammo');
     });
 
+    
+      QUnit.module('Controller injected properties');
+
+      if (!EmberDev.runningProdBuild) {
+        test("defining a controller on a non-controller should fail assertion", function(){
+          expectAssertion(function() {
+            var container = new Container();
+            var AnObject = Object.extend({
+              container: container,
+              foo: inject.controller('bar')
+            });
+
+            container.register('foo:main', AnObject);
+
+            container.lookupFactory('foo:main');
+          }, /Defining an injected controller property on a non-controller is not allowed./);
+        });
+      }
+
+      test("controllers can be injected into controllers", function() {
+        var container = new Container();
+
+        container.register('controller:post', Controller.extend({
+          postsController: inject.controller('posts')
+        }));
+
+        container.register('controller:posts', Controller.extend());
+
+        var postController = container.lookup('controller:post'),
+          postsController = container.lookup('controller:posts');
+
+        equal(postsController, postController.get('postsController'), "controller.posts is injected");
       });
+
+      test("services can be injected into controllers", function() {
+        var container = new Container();
+
+        container.register('controller:application', Controller.extend({
+          authService: inject.service('auth')
+        }));
+
+        container.register('service:auth', Service.extend());
+
+        var appController = container.lookup('controller:application'),
+          authService = container.lookup('service:auth');
+
+        equal(authService, appController.get('authService'), "service.auth is injected");
+      });
+    
+  });
 enifed("ember-runtime/tests/controllers/controller_test.jshint",
   [],
   function() {
@@ -32613,7 +32794,62 @@ enifed("ember-runtime/tests/inject_test",
     var Container = __dependency3__["default"];
     var Object = __dependency4__["default"];
 
+    
+      QUnit.module('inject');
+
+      test("calling `inject` directly should error", function() {
+        expectAssertion(function() {
+          inject('foo');
+        }, /Injected properties must be created through helpers/);
       });
+
+      if (!EmberDev.runningProdBuild) {
+        // this check is done via an assertion which is stripped from
+        // production builds
+        test("injection type validation is run when first looked up", function() {
+          expect(1);
+
+          createInjectionHelper('foo', function() {
+            ok(true, 'should call validation method');
+          });
+
+          var container = new Container();
+          var AnObject = Object.extend({
+            container: container,
+            bar: inject.foo(),
+            baz: inject.foo()
+          });
+
+          container.register('foo:main', AnObject);
+
+          container.lookupFactory('foo:main');
+        });
+      }
+
+      test("attempting to inject a nonexistent container key should error", function() {
+        var container = new Container();
+        var AnObject = Object.extend({
+          container: container,
+          foo: new InjectedProperty('bar', 'baz')
+        });
+
+        container.register('foo:main', AnObject);
+
+        throws(function() {
+          container.lookup('foo:main');
+        }, /Attempting to inject an unknown injection: `bar:baz`/);
+      });
+
+      test("factories should return a list of lazy injection full names", function() {
+        var AnObject = Object.extend({
+          foo: new InjectedProperty('foo', 'bar'),
+          bar: new InjectedProperty('quux')
+        });
+
+        deepEqual(AnObject._lazyInjections(), { 'foo': 'foo:bar', 'bar': 'quux:bar' }, "should return injected container keys");
+      });
+    
+  });
 enifed("ember-runtime/tests/inject_test.jshint",
   [],
   function() {
@@ -49412,6 +49648,24 @@ enifed("ember-views/tests/views/component_test",
     });
 
     
+      QUnit.module('Ember.Component - injected properties');
+
+      test("services can be injected into components", function() {
+        var container = new Container();
+
+        container.register('component:application', Component.extend({
+          profilerService: inject.service('profiler')
+        }));
+
+        container.register('service:profiler', Service.extend());
+
+        var appComponent = container.lookup('component:application'),
+        profilerService = container.lookup('service:profiler');
+
+        equal(profilerService, appComponent.get('profilerService'), "service.profiler is injected");
+      });
+    
+
 
     QUnit.module('Ember.Component - subscribed and sent actions trigger errors');
 
@@ -54117,7 +54371,25 @@ enifed("ember-views/tests/views/view/inject_test",
     var inject = __dependency3__["default"];
     var View = __dependency4__["default"];
 
+    
+      QUnit.module('EmberView - injected properties');
+
+      test("services can be injected into views", function() {
+        var container = new Container();
+
+        container.register('view:application', View.extend({
+          profilerService: inject.service('profiler')
+        }));
+
+        container.register('service:profiler', Service.extend());
+
+        var appView = container.lookup('view:application'),
+          profilerService = container.lookup('service:profiler');
+
+        equal(profilerService, appView.get('profilerService'), "service.profiler is injected");
       });
+    
+  });
 enifed("ember-views/tests/views/view/inject_test.jshint",
   [],
   function() {
