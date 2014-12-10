@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.9a83de35
+ * @version   1.10.0-beta.1+canary.f54c969d
  */
 
 (function() {
@@ -1124,9 +1124,9 @@ enifed("container/container",
       this.typeInjections = dictionary(parent ? parent.typeInjections : null);
       this.injections     = dictionary(null);
       this.normalizeCache = dictionary(null);
-      if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
+      
         this.validationCache = dictionary(parent ? parent.validationCache : null);
-      }
+      
 
       this.factoryTypeInjections = dictionary(parent ? parent.factoryTypeInjections : null);
       this.factoryInjections     = dictionary(null);
@@ -1271,9 +1271,9 @@ enifed("container/container",
         delete this.factoryCache[normalizedName];
         delete this.resolveCache[normalizedName];
         delete this._options[normalizedName];
-        if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
+        
           delete this.validationCache[normalizedName];
-        }
+        
       },
 
       /**
@@ -1913,7 +1913,7 @@ enifed("container/container",
             'Most likely an improperly defined class or an invalid module export.');
         }
 
-        if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
+        
           validationCache = container.validationCache;
 
           // Ensure that all lazy injections are valid at instantiation time
@@ -1924,7 +1924,7 @@ enifed("container/container",
           }
 
           validationCache[fullName] = true;
-        }
+        
 
         if (typeof factory.extend === 'function') {
           // assume the factory was extendable and is already injected
@@ -11942,7 +11942,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.9a83de35
+      @version 1.10.0-beta.1+canary.f54c969d
     */
 
     if ('undefined' === typeof Ember) {
@@ -11969,10 +11969,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.9a83de35'
+      @default '1.10.0-beta.1+canary.f54c969d'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.9a83de35';
+    Ember.VERSION = '1.10.0-beta.1+canary.f54c969d';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -25337,9 +25337,9 @@ enifed("ember-runtime",
     Ember.copy = copy;
     Ember.isEqual = isEqual;
 
-    if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
+    
       Ember.inject = inject;
-    }
+    
 
     Ember.Array = EmberArray;
 
@@ -25412,9 +25412,9 @@ enifed("ember-runtime",
     Ember.Controller = Controller;
     Ember.ControllerMixin = ControllerMixin;
 
-    if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
+    
       Ember.Service = Service;
-    }
+    
 
     Ember._ProxyMixin = _ProxyMixin;
 
@@ -27754,7 +27754,7 @@ enifed("ember-runtime/controllers/controller",
     function controllerInjectionHelper(factory) {
           }
 
-    if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
+    
       /**
         Creates a property that lazily looks up another controller in the container.
         Can only be used when defining another controller.
@@ -27785,7 +27785,7 @@ enifed("ember-runtime/controllers/controller",
         @return {Ember.InjectedProperty} injection descriptor instance
         */
       createInjectionHelper('controller', controllerInjectionHelper);
-    }
+    
 
     __exports__["default"] = Controller;
   });
@@ -33903,7 +33903,7 @@ enifed("ember-runtime/system/core_object",
     function addOnLookupHandler() {
           }
 
-    if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
+    
       addOnLookupHandler();
 
       /**
@@ -33928,7 +33928,7 @@ enifed("ember-runtime/system/core_object",
 
         return injections;
       };
-    }
+    
 
     var ClassMixin = Mixin.create(ClassMixinProps);
 
@@ -34799,7 +34799,7 @@ enifed("ember-runtime/system/service",
 
     var Service;
 
-    if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
+    
       /**
         @class Service
         @namespace Ember
@@ -34834,7 +34834,7 @@ enifed("ember-runtime/system/service",
         @return {Ember.InjectedProperty} injection descriptor instance
       */
       createInjectionHelper('service');
-    }
+    
 
     __exports__["default"] = Service;
   });

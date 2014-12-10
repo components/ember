@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.9a83de35
+ * @version   1.10.0-beta.1+canary.f54c969d
  */
 
 (function() {
@@ -858,7 +858,7 @@ enifed("container/tests/container_test",
       deepEqual(resolveWasCalled, ['foo:post']);
     });
 
-    if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
+    
       test("The `_onLookup` hook is called on factories when looked up the first time", function() {
         expect(2);
 
@@ -917,7 +917,7 @@ enifed("container/tests/container_test",
         container.lookup('apple:main');
         container.lookup('apple:main');
       });
-    }
+    
   });
 enifed("container/tests/container_test.jshint",
   [],
@@ -18804,7 +18804,7 @@ enifed("ember-metal/tests/injected_property_test",
     var set = __dependency3__.set;
     var InjectedProperty = __dependency4__["default"];
 
-    if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
+    
       QUnit.module('InjectedProperty');
 
       test('injected properties should be descriptors', function() {
@@ -18857,7 +18857,7 @@ enifed("ember-metal/tests/injected_property_test",
 
         equal(get(obj, 'foo'), 'type:foo', 'should lookup the type using the property name');
       });
-    }
+    
   });
 enifed("ember-metal/tests/injected_property_test.jshint",
   [],
@@ -29002,7 +29002,7 @@ enifed("ember-routing/tests/system/route_test",
       equal(routeTwo.controllerFor('one'), testController);
     });
 
-    if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
+    
       QUnit.module('Route injected properties');
 
       test("services can be injected into routes", function() {
@@ -29019,7 +29019,7 @@ enifed("ember-routing/tests/system/route_test",
 
         equal(authService, appRoute.get('authService'), "service.auth is injected");
       });
-    }
+    
   });
 enifed("ember-routing/tests/system/route_test.jshint",
   [],
@@ -32563,7 +32563,7 @@ enifed("ember-runtime/tests/controllers/controller_test",
       equal(get(controller, 'model'), 'blammo');
     });
 
-    if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
+    
       QUnit.module('Controller injected properties');
 
       if (!EmberDev.runningProdBuild) {
@@ -32611,7 +32611,7 @@ enifed("ember-runtime/tests/controllers/controller_test",
 
         equal(authService, appController.get('authService'), "service.auth is injected");
       });
-    }
+    
   });
 enifed("ember-runtime/tests/controllers/controller_test.jshint",
   [],
@@ -33668,7 +33668,7 @@ enifed("ember-runtime/tests/inject_test",
     var Container = __dependency3__["default"];
     var Object = __dependency4__["default"];
 
-    if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
+    
       QUnit.module('inject');
 
       test("calling `inject` directly should error", function() {
@@ -33722,7 +33722,7 @@ enifed("ember-runtime/tests/inject_test",
 
         deepEqual(AnObject._lazyInjections(), { 'foo': 'foo:bar', 'bar': 'quux:bar' }, "should return injected container keys");
       });
-    }
+    
   });
 enifed("ember-runtime/tests/inject_test.jshint",
   [],
@@ -50566,7 +50566,7 @@ enifed("ember-views/tests/views/component_test",
       deepEqual(actionArguments, [firstContext, secondContext], "arguments were sent to the action");
     });
 
-    if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
+    
       QUnit.module('Ember.Component - injected properties');
 
       test("services can be injected into components", function() {
@@ -50583,7 +50583,7 @@ enifed("ember-views/tests/views/component_test",
 
         equal(profilerService, appComponent.get('profilerService'), "service.profiler is injected");
       });
-    }
+    
 
 
     QUnit.module('Ember.Component - subscribed and sent actions trigger errors');
@@ -55290,7 +55290,7 @@ enifed("ember-views/tests/views/view/inject_test",
     var inject = __dependency3__["default"];
     var View = __dependency4__["default"];
 
-    if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
+    
       QUnit.module('EmberView - injected properties');
 
       test("services can be injected into views", function() {
@@ -55307,7 +55307,7 @@ enifed("ember-views/tests/views/view/inject_test",
 
         equal(profilerService, appView.get('profilerService'), "service.profiler is injected");
       });
-    }
+    
   });
 enifed("ember-views/tests/views/view/inject_test.jshint",
   [],
