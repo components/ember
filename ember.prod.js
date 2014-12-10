@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.ad4be796
+ * @version   1.10.0-beta.1+canary.9a83de35
  */
 
 (function() {
@@ -6537,6 +6537,9 @@ enifed("ember-htmlbars/helpers/if_unless",
       return template.render(this, env, options.morph.contextualElement);
     }
 
+    function _inlineIfAssertion(params) {
+          }
+
     /**
       See [boundIf](/api/classes/Ember.Handlebars.helpers.html#method_boundIf)
       and [unboundIf](/api/classes/Ember.Handlebars.helpers.html#method_unboundIf)
@@ -6550,7 +6553,8 @@ enifed("ember-htmlbars/helpers/if_unless",
     function ifHelper(params, hash, options, env) {
             if (Ember.FEATURES.isEnabled('ember-htmlbars-inline-if-helper')) {
         if (!options.template) {
-                    var condition = params[0];
+          _inlineIfAssertion(params);
+          var condition = params[0];
           var truthy = params[1];
           var falsy = params[2];
           return new ConditionalStream(condition, truthy, falsy);
@@ -11938,7 +11942,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.ad4be796
+      @version 1.10.0-beta.1+canary.9a83de35
     */
 
     if ('undefined' === typeof Ember) {
@@ -11965,10 +11969,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.ad4be796'
+      @default '1.10.0-beta.1+canary.9a83de35'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.ad4be796';
+    Ember.VERSION = '1.10.0-beta.1+canary.9a83de35';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`

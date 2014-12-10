@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.1+canary.ad4be796
+ * @version   1.10.0-beta.1+canary.9a83de35
  */
 
 (function() {
@@ -6864,6 +6864,10 @@ enifed("ember-htmlbars/helpers/if_unless",
       return template.render(this, env, options.morph.contextualElement);
     }
 
+    function _inlineIfAssertion(params) {
+      Ember.assert("If helper in inline form expects between two and three arguments", params.length === 2 || params.length === 3);
+    }
+
     /**
       See [boundIf](/api/classes/Ember.Handlebars.helpers.html#method_boundIf)
       and [unboundIf](/api/classes/Ember.Handlebars.helpers.html#method_unboundIf)
@@ -6878,7 +6882,7 @@ enifed("ember-htmlbars/helpers/if_unless",
       Ember.assert("If helper in block form expect exactly one argument", !options.template || params.length === 1);
       if (Ember.FEATURES.isEnabled('ember-htmlbars-inline-if-helper')) {
         if (!options.template) {
-          Ember.assert("If helper in inline form expects between two and three arguments", params.length === 2 || params.length === 3);
+          _inlineIfAssertion(params);
           var condition = params[0];
           var truthy = params[1];
           var falsy = params[2];
@@ -12338,7 +12342,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.1+canary.ad4be796
+      @version 1.10.0-beta.1+canary.9a83de35
     */
 
     if ('undefined' === typeof Ember) {
@@ -12365,10 +12369,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.1+canary.ad4be796'
+      @default '1.10.0-beta.1+canary.9a83de35'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.1+canary.ad4be796';
+    Ember.VERSION = '1.10.0-beta.1+canary.9a83de35';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
