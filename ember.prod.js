@@ -8439,8 +8439,8 @@ enifed("ember-htmlbars/system/make-view-helper",
     }
   });
 enifed("ember-htmlbars/system/make_bound_helper",
-  ["ember-metal/core","ember-metal/mixin","ember-views/views/simple_bound_view","ember-htmlbars/system/helper","ember-metal/streams/stream","ember-metal/streams/utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+  ["ember-metal/core","ember-metal/mixin","ember-htmlbars/system/helper","ember-metal/streams/stream","ember-metal/streams/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -8450,13 +8450,12 @@ enifed("ember-htmlbars/system/make_bound_helper",
     var Ember = __dependency1__["default"];
     // Ember.FEATURES, Ember.assert, Ember.Handlebars, Ember.lookup
     var IS_BINDING = __dependency2__.IS_BINDING;
-    var appendSimpleBoundView = __dependency3__.appendSimpleBoundView;
-    var Helper = __dependency4__["default"];
+    var Helper = __dependency3__["default"];
 
-    var Stream = __dependency5__["default"];
-    var readArray = __dependency6__.readArray;
-    var readHash = __dependency6__.readHash;
-    var subscribe = __dependency6__.subscribe;
+    var Stream = __dependency4__["default"];
+    var readArray = __dependency5__.readArray;
+    var readHash = __dependency5__.readHash;
+    var subscribe = __dependency5__.subscribe;
 
     /**
       Create a bound helper. Accepts a function that receives the ordered and hash parameters
@@ -8523,8 +8522,6 @@ enifed("ember-htmlbars/system/make_bound_helper",
         } else {
           var lazyValue = new Stream(valueFn);
 
-          appendSimpleBoundView(this, options.morph, lazyValue);
-
           var param;
           for (var i = 0, l = params.length; i < l; i++) {
             param = params[i];
@@ -8535,6 +8532,8 @@ enifed("ember-htmlbars/system/make_bound_helper",
             param = hash[prop];
             subscribe(param, lazyValue.notify, lazyValue);
           }
+
+          return lazyValue;
         }
       }
 

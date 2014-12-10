@@ -13788,8 +13788,8 @@ enifed("ember-htmlbars/tests/system/lookup-helper_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/system/make_bound_helper_test",
-  ["ember-views/views/view","ember-metal/run_loop","container","ember-htmlbars/system/make_bound_helper","ember-htmlbars/system/compile","ember-runtime/tests/utils"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
+  ["ember-views/views/view","ember-metal/run_loop","container","ember-htmlbars/system/make_bound_helper","ember-htmlbars/system/compile","ember-runtime/tests/utils","ember-runtime/system/string"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
     "use strict";
     var EmberView = __dependency1__["default"];
     var run = __dependency2__["default"];
@@ -13798,6 +13798,7 @@ enifed("ember-htmlbars/tests/system/make_bound_helper_test",
     var compile = __dependency5__["default"];
     var runAppend = __dependency6__.runAppend;
     var runDestroy = __dependency6__.runDestroy;
+    var dasherize = __dependency7__.dasherize;
 
     var view, container;
 
@@ -13819,6 +13820,26 @@ enifed("ember-htmlbars/tests/system/make_bound_helper_test",
         runDestroy(view);
         runDestroy(container);
       }
+    });
+
+    test("should update bound helpers in a subexpression when properties change", function() {
+      container.register('helper:x-dasherize', makeBoundHelper(function(params, hash, options, env) {
+        return dasherize(params[0]);
+      }));
+
+      view = EmberView.create({
+        container: container,
+        controller: {prop: "isThing"},
+        template: compile("<div {{bind-attr data-foo=(x-dasherize prop)}}>{{prop}}</div>")
+      });
+
+      runAppend(view);
+
+      equal(view.$('div[data-foo="is-thing"]').text(), 'isThing', "helper output is correct");
+
+      run(view, 'set', 'controller.prop', 'notThing');
+
+      equal(view.$('div[data-foo="not-thing"]').text(), 'notThing', "helper output is correct");
     });
 
     test("should update bound helpers when properties change", function() {
