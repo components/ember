@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.2a81794f
+ * @version   1.11.0-beta.1+canary.6bbb07ac
  */
 
 (function() {
@@ -8965,6 +8965,40 @@ enifed("ember-htmlbars/system/template",
       return templateSpec;
     }
   });
+enifed("ember-htmlbars/templates/component",
+  ["ember-htmlbars/system/template","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    var template = __dependency1__["default"];
+    var t = (function() {
+      return {
+        isHTMLBars: true,
+        cachedFragment: null,
+        build: function build(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        render: function render(context, env, contextualElement) {
+          var dom = env.dom;
+          var hooks = env.hooks, content = hooks.content;
+          dom.detectNamespace(contextualElement);
+          if (this.cachedFragment === null) {
+            this.cachedFragment = this.build(dom);
+          }
+          var fragment = dom.cloneNode(this.cachedFragment, true);
+          dom.repairClonedNode(fragment,[0,1]);
+          var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
+          content(morph0, "yield", context, [], {}, {morph: morph0}, env);
+          return fragment;
+        }
+      };
+    }());
+     __exports__["default"] = template(t);
+  });
 enifed("ember-htmlbars/templates/select",
   ["ember-htmlbars/system/template","exports"],
   function(__dependency1__, __exports__) {
@@ -12337,7 +12371,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.2a81794f
+      @version 1.11.0-beta.1+canary.6bbb07ac
     */
 
     if ('undefined' === typeof Ember) {
@@ -12364,10 +12398,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.2a81794f'
+      @default '1.11.0-beta.1+canary.6bbb07ac'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.2a81794f';
+    Ember.VERSION = '1.11.0-beta.1+canary.6bbb07ac';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -40759,8 +40793,8 @@ enifed("ember-views/views/collection_view",
     __exports__["default"] = CollectionView;
   });
 enifed("ember-views/views/component",
-  ["ember-metal/core","ember-views/mixins/component_template_deprecation","ember-runtime/mixins/target_action_support","ember-views/views/view","ember-metal/property_get","ember-metal/property_set","ember-metal/is_none","ember-metal/computed","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
+  ["ember-metal/core","ember-views/mixins/component_template_deprecation","ember-runtime/mixins/target_action_support","ember-views/views/view","ember-metal/property_get","ember-metal/property_set","ember-metal/is_none","ember-metal/computed","ember-htmlbars/templates/component","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.assert, Ember.Handlebars
@@ -40774,6 +40808,7 @@ enifed("ember-views/views/component",
     var isNone = __dependency7__["default"];
 
     var computed = __dependency8__.computed;
+    var defaultComponentLayout = __dependency9__["default"];
 
     var a_slice = Array.prototype.slice;
 
@@ -40881,12 +40916,7 @@ enifed("ember-views/views/component",
         set(this, 'controller', this);
       },
 
-      defaultLayout: function(context, options){
-        
-          // ES6TODO: must use global here, to prevent circular require issue
-          // remove and replace with standard import once we have lazy binding
-          Ember.HTMLBars.helpers.yield.helperFunction.call(context, [], {}, options, { data: { view: context }});
-              },
+      defaultLayout: defaultComponentLayout,
 
       /**
       A components template property is set by passing a block
