@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.2+pre.4bf76fc6
+ * @version   1.10.0-beta.2+pre.3e835045
  */
 
 (function() {
@@ -11922,7 +11922,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.2+pre.4bf76fc6
+      @version 1.10.0-beta.2+pre.3e835045
     */
 
     if ('undefined' === typeof Ember) {
@@ -11949,10 +11949,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.2+pre.4bf76fc6'
+      @default '1.10.0-beta.2+pre.3e835045'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.2+pre.4bf76fc6';
+    Ember.VERSION = '1.10.0-beta.2+pre.3e835045';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -44066,7 +44066,7 @@ enifed("htmlbars-compiler/hydration-opcode-compiler",
           end = (childIndex === childrenLength - 1 ? null : currentDOMChildIndex + 1);
 
       var morphNum = this.morphNum++;
-      this.morphs.push([morphNum, this.paths.slice(), start, end]);
+      this.morphs.push([morphNum, this.paths.slice(), start, end, true]);
 
       var attrs = component.attributes;
       for (var i = attrs.length - 1; i >= 0; i--) {
@@ -44667,12 +44667,16 @@ enifed("htmlbars-compiler/utils",
     __exports__.processOpcodes = processOpcodes;
   });
 enifed("htmlbars-syntax",
-  ["./htmlbars-syntax/walker","exports"],
-  function(__dependency1__, __exports__) {
+  ["./htmlbars-syntax/walker","./htmlbars-syntax/builders","./htmlbars-syntax/parser","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     var Walker = __dependency1__["default"];
+    var builders = __dependency2__["default"];
+    var parse = __dependency3__.preprocess;
 
     __exports__.Walker = Walker;
+    __exports__.builders = builders;
+    __exports__.parse = parse;
   });
 enifed("htmlbars-syntax/builders",
   ["exports"],
@@ -46250,16 +46254,18 @@ enifed("htmlbars-syntax/node-handlers",
     __exports__["default"] = nodeHandlers;
   });
 enifed("htmlbars-syntax/parser",
-  ["./handlebars/compiler/base","../simple-html-tokenizer","./node-handlers","./token-handlers","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+  ["./handlebars/compiler/base","../simple-html-tokenizer","../simple-html-tokenizer/entity-parser","../simple-html-tokenizer/char-refs/full","./node-handlers","./token-handlers","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     var parse = __dependency1__.parse;
     var Tokenizer = __dependency2__.Tokenizer;
-    var nodeHandlers = __dependency3__["default"];
-    var tokenHandlers = __dependency4__["default"];
+    var EntityParser = __dependency3__["default"];
+    var fullCharRefs = __dependency4__["default"];
+    var nodeHandlers = __dependency5__["default"];
+    var tokenHandlers = __dependency6__["default"];
 
     function preprocess(html, options) {
-      var ast = parse(html);
+      var ast = (typeof html === 'object') ? html : parse(html);
       var combined = new HTMLProcessor(html, options).acceptNode(ast);
 
       if (options && options.plugins && options.plugins.ast) {
@@ -46274,10 +46280,13 @@ enifed("htmlbars-syntax/parser",
     __exports__.preprocess = preprocess;function HTMLProcessor(source, options) {
       this.options = options || {};
       this.elementStack = [];
-      this.tokenizer = new Tokenizer('');
+      this.tokenizer = new Tokenizer('', new EntityParser(fullCharRefs));
       this.nodeHandlers = nodeHandlers;
       this.tokenHandlers = tokenHandlers;
-      this.source = source.split(/(?:\r\n?|\n)/g);
+
+      if (typeof source === 'string') {
+        this.source = source.split(/(?:\r\n?|\n)/g);
+      }
     }
 
     HTMLProcessor.prototype.acceptNode = function(node) {
@@ -46302,6 +46311,10 @@ enifed("htmlbars-syntax/parser",
       var lastColumn = mustache.loc.end.column - 2;
       var string = [];
       var line;
+
+      if (!this.source) {
+        return '{{' + mustache.path.id.original + '}}';
+      }
 
       while (currentLine < lastLine) {
         currentLine++;
@@ -46373,7 +46386,7 @@ enifed("htmlbars-syntax/token-handlers",
     // Except for `mustache`, all tokens are only allowed outside of
     // a start or end tag.
     var tokenHandlers = {
-      CommentToken: function(token) {
+      Comment: function(token) {
         var current = this.currentElement();
         var comment = buildComment(token.chars);
         appendChild(current, comment);
@@ -46417,15 +46430,10 @@ enifed("htmlbars-syntax/token-handlers",
             this.tokenizer.state = 'attributeValueUnquoted';
             token.markAttributeQuoted(false);
             token.addToAttributeValue(mustache);
-            token.finalizeAttributeValue();
             return;
           case "attributeValueDoubleQuoted":
           case "attributeValueSingleQuoted":
-            token.markAttributeQuoted(true);
-            token.addToAttributeValue(mustache);
-            return;
           case "attributeValueUnquoted":
-            token.markAttributeQuoted(false);
             token.addToAttributeValue(mustache);
             return;
           case "beforeAttributeName":
@@ -46489,6 +46497,14 @@ enifed("htmlbars-syntax/tokens",
 
     StartTag.prototype.addToAttributeValue = function(char) {
       var value = this.currentAttribute.value;
+
+      if (!this.currentAttribute.quoted && value.length > 0 &&
+          (char.type === 'MustacheStatement' || value[0].type === 'MustacheStatement')) {
+        // Get the line number from a mustache, whether it's the one to add or the one already added
+        var mustache = char.type === 'MustacheStatement' ? char : value[0],
+            line = mustache.loc.start.line;
+        throw new Error("Unquoted attribute value must be a single string or mustache (line " + line + ")");
+      }
 
       if (typeof char === 'object') {
         if (char.type === 'MustacheStatement') {
@@ -46933,7 +46949,10 @@ enifed("htmlbars-util/quoting",
   function(__exports__) {
     "use strict";
     function escapeString(str) {
-      return str.replace(/"/g, '\\"').replace(/\n/g, "\\n");
+      str = str.replace(/\\/g, "\\\\");
+      str = str.replace(/"/g, '\\"');
+      str = str.replace(/\n/g, "\\n");
+      return str;
     }
 
     __exports__.escapeString = escapeString;
@@ -53444,598 +53463,33 @@ enifed("rsvp/utils",
     __exports__.o_create = o_create;
   });
 enifed("simple-html-tokenizer",
-  ["./simple-html-tokenizer/char-refs","./simple-html-tokenizer/helpers","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["./simple-html-tokenizer/tokenizer","./simple-html-tokenizer/tokenize","./simple-html-tokenizer/generator","./simple-html-tokenizer/generate","./simple-html-tokenizer/tokens","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     /*jshint boss:true*/
-
-    var namedCodepoints = __dependency1__.namedCodepoints;
-    var objectCreate = __dependency2__.objectCreate;
-    var isSpace = __dependency2__.isSpace;
-    var isAlpha = __dependency2__.isAlpha;
-    var isUpper = __dependency2__.isUpper;
-
-    function preprocessInput(input) {
-      return input.replace(/\r\n?/g, "\n");
-    }
-
-    function Tokenizer(input) {
-      this.input = preprocessInput(input);
-      this["char"] = 0;
-      this.line = 1;
-      this.column = 0;
-
-      this.state = 'data';
-      this.token = null;
-    }
-
-    Tokenizer.prototype = {
-      tokenize: function() {
-        var tokens = [], token;
-
-        while (true) {
-          token = this.lex();
-          if (token === 'EOF') { break; }
-          if (token) { tokens.push(token); }
-        }
-
-        if (this.token) {
-          tokens.push(this.token);
-        }
-
-        return tokens;
-      },
-
-      tokenizePart: function(string) {
-        this.input += preprocessInput(string);
-        var tokens = [], token;
-
-        while (this["char"] < this.input.length) {
-          token = this.lex();
-          if (token) { tokens.push(token); }
-        }
-
-        this.tokens = (this.tokens || []).concat(tokens);
-        return tokens;
-      },
-
-      tokenizeEOF: function() {
-        var token = this.token;
-        if (token) {
-          this.token = null;
-          return token;
-        }
-      },
-
-      tag: function(Type, char) {
-        var lastToken = this.token;
-        this.token = new Type(char);
-        this.state = 'tagName';
-        return lastToken;
-      },
-
-      selfClosing: function() {
-        this.token.selfClosing = true;
-      },
-
-      attribute: function(char) {
-        this.token.startAttribute(char);
-        this.state = 'attributeName';
-      },
-
-      addToAttributeName: function(char) {
-        this.token.addToAttributeName(char);
-      },
-
-      markAttributeQuoted: function(value) {
-        this.token.markAttributeQuoted(value);
-      },
-
-      finalizeAttributeValue: function() {
-        this.token.finalizeAttributeValue();
-      },
-
-      addToAttributeValue: function(char) {
-        this.token.addToAttributeValue(char);
-      },
-
-      commentStart: function() {
-        var lastToken = this.token;
-        this.token = new CommentToken();
-        this.state = 'commentStart';
-        return lastToken;
-      },
-
-      addToComment: function(char) {
-        this.token.addChar(char);
-      },
-
-      emitData: function() {
-        this.addLocInfo(this.line, this.column - 1);
-        var lastToken = this.token;
-        this.token = null;
-        this.state = 'tagOpen';
-        return lastToken;
-      },
-
-      emitToken: function() {
-        this.addLocInfo();
-        var lastToken = this.token.finalize();
-        this.token = null;
-        this.state = 'data';
-        return lastToken;
-      },
-
-      addData: function(char) {
-        if (this.token === null) {
-          this.token = new Chars();
-          this.markFirst();
-        }
-
-        this.token.addChar(char);
-      },
-
-      markFirst: function(line, column) {
-        this.firstLine = (line === 0) ? 0 : (line || this.line);
-        this.firstColumn = (column === 0) ? 0 : (column || this.column);
-      },
-
-      addLocInfo: function(line, column) {
-        if (!this.token) return;
-        this.token.firstLine = this.firstLine;
-        this.token.firstColumn = this.firstColumn;
-        this.token.lastLine = (line === 0) ? 0 : (line || this.line);
-        this.token.lastColumn = (column === 0) ? 0 : (column || this.column);
-      },
-
-      consumeCharRef: function(allowedChar) {
-        var matches;
-        var input = this.input.slice(this["char"]);
-
-        if (matches = input.match(/^#(?:x|X)([0-9A-Fa-f]+);/)) {
-          this["char"] += matches[0].length;
-          return String.fromCharCode(parseInt(matches[1], 16));
-        } else if (matches = input.match(/^#([0-9]+);/)) {
-          this["char"] += matches[0].length;
-          return String.fromCharCode(parseInt(matches[1], 10));
-        } else if (matches = input.match(/^([A-Za-z]+);/)) {
-          var codepoints = namedCodepoints[matches[1]];
-          if (codepoints) {
-            this["char"] += matches[0].length;
-            for (var i = 0, str = ""; i < codepoints.length; i++) {
-              str += String.fromCharCode(codepoints[i]);
-            }
-            return str;
-          }
-        }
-
-      },
-
-      lex: function() {
-        var char = this.input.charAt(this["char"]++);
-
-        if (char) {
-          if (char === "\n") {
-            this.line++;
-            this.column = 0;
-          } else {
-            this.column++;
-          }
-          // console.log(this.state, char);
-          return this.states[this.state].call(this, char);
-        } else {
-          this.addLocInfo(this.line, this.column);
-          return 'EOF';
-        }
-      },
-
-      states: {
-        data: function(char) {
-          if (char === "<") {
-            var chars = this.emitData();
-            this.markFirst();
-            return chars;
-          } else if (char === "&") {
-            this.addData(this.consumeCharRef() || "&");
-          } else {
-            this.addData(char);
-          }
-        },
-
-        tagOpen: function(char) {
-          if (char === "!") {
-            this.state = 'markupDeclaration';
-          } else if (char === "/") {
-            this.state = 'endTagOpen';
-          } else if (isAlpha(char)) {
-            return this.tag(StartTag, char.toLowerCase());
-          }
-        },
-
-        markupDeclaration: function(char) {
-          if (char === "-" && this.input.charAt(this["char"]) === "-") {
-            this["char"]++;
-            this.commentStart();
-          }
-        },
-
-        commentStart: function(char) {
-          if (char === "-") {
-            this.state = 'commentStartDash';
-          } else if (char === ">") {
-            return this.emitToken();
-          } else {
-            this.addToComment(char);
-            this.state = 'comment';
-          }
-        },
-
-        commentStartDash: function(char) {
-          if (char === "-") {
-            this.state = 'commentEnd';
-          } else if (char === ">") {
-            return this.emitToken();
-          } else {
-            this.addToComment("-");
-            this.state = 'comment';
-          }
-        },
-
-        comment: function(char) {
-          if (char === "-") {
-            this.state = 'commentEndDash';
-          } else {
-            this.addToComment(char);
-          }
-        },
-
-        commentEndDash: function(char) {
-          if (char === "-") {
-            this.state = 'commentEnd';
-          } else {
-            this.addToComment("-" + char);
-            this.state = 'comment';
-          }
-        },
-
-        commentEnd: function(char) {
-          if (char === ">") {
-            return this.emitToken();
-          } else {
-            this.addToComment("--" + char);
-            this.state = 'comment';
-          }
-        },
-
-        tagName: function(char) {
-          if (isSpace(char)) {
-            this.state = 'beforeAttributeName';
-          } else if (char === "/") {
-            this.state = 'selfClosingStartTag';
-          } else if (char === ">") {
-            return this.emitToken();
-          } else {
-            this.token.addToTagName(char);
-          }
-        },
-
-        beforeAttributeName: function(char) {
-          if (isSpace(char)) {
-            return;
-          } else if (char === "/") {
-            this.state = 'selfClosingStartTag';
-          } else if (char === ">") {
-            return this.emitToken();
-          } else {
-            this.attribute(char);
-          }
-        },
-
-        attributeName: function(char) {
-          if (isSpace(char)) {
-            this.state = 'afterAttributeName';
-          } else if (char === "/") {
-            this.state = 'selfClosingStartTag';
-          } else if (char === "=") {
-            this.state = 'beforeAttributeValue';
-          } else if (char === ">") {
-            return this.emitToken();
-          } else {
-            this.addToAttributeName(char);
-          }
-        },
-
-        afterAttributeName: function(char) {
-          if (isSpace(char)) {
-            return;
-          } else if (char === "/") {
-            this.state = 'selfClosingStartTag';
-          } else if (char === "=") {
-            this.state = 'beforeAttributeValue';
-          } else if (char === ">") {
-            return this.emitToken();
-          } else {
-            this.finalizeAttributeValue();
-            this.attribute(char);
-          }
-        },
-
-        beforeAttributeValue: function(char) {
-          if (isSpace(char)) {
-            return;
-          } else if (char === '"') {
-            this.state = 'attributeValueDoubleQuoted';
-            this.markAttributeQuoted(true);
-          } else if (char === "'") {
-            this.state = 'attributeValueSingleQuoted';
-            this.markAttributeQuoted(true);
-          } else if (char === ">") {
-            return this.emitToken();
-          } else {
-            this.state = 'attributeValueUnquoted';
-            this.markAttributeQuoted(false);
-            this.addToAttributeValue(char);
-          }
-        },
-
-        attributeValueDoubleQuoted: function(char) {
-          if (char === '"') {
-            this.finalizeAttributeValue();
-            this.state = 'afterAttributeValueQuoted';
-          } else if (char === "&") {
-            this.addToAttributeValue(this.consumeCharRef('"') || "&");
-          } else {
-            this.addToAttributeValue(char);
-          }
-        },
-
-        attributeValueSingleQuoted: function(char) {
-          if (char === "'") {
-            this.finalizeAttributeValue();
-            this.state = 'afterAttributeValueQuoted';
-          } else if (char === "&") {
-            this.addToAttributeValue(this.consumeCharRef("'") || "&");
-          } else {
-            this.addToAttributeValue(char);
-          }
-        },
-
-        attributeValueUnquoted: function(char) {
-          if (isSpace(char)) {
-            this.finalizeAttributeValue();
-            this.state = 'beforeAttributeName';
-          } else if (char === "&") {
-            this.addToAttributeValue(this.consumeCharRef(">") || "&");
-          } else if (char === ">") {
-            return this.emitToken();
-          } else {
-            this.addToAttributeValue(char);
-          }
-        },
-
-        afterAttributeValueQuoted: function(char) {
-          if (isSpace(char)) {
-            this.state = 'beforeAttributeName';
-          } else if (char === "/") {
-            this.state = 'selfClosingStartTag';
-          } else if (char === ">") {
-            return this.emitToken();
-          } else {
-            this["char"]--;
-            this.state = 'beforeAttributeName';
-          }
-        },
-
-        selfClosingStartTag: function(char) {
-          if (char === ">") {
-            this.selfClosing();
-            return this.emitToken();
-          } else {
-            this["char"]--;
-            this.state = 'beforeAttributeName';
-          }
-        },
-
-        endTagOpen: function(char) {
-          if (isAlpha(char)) {
-            this.tag(EndTag, char.toLowerCase());
-          }
-        }
-      }
-    };
-
-    function Tag(tagName, attributes, options) {
-      this.tagName = tagName || "";
-      this.attributes = attributes || [];
-      this.selfClosing = options ? options.selfClosing : false;
-    }
-
-    Tag.prototype = {
-      constructor: Tag,
-
-      addToTagName: function(char) {
-        this.tagName += char;
-      },
-
-      startAttribute: function(char) {
-        this.currentAttribute = [char.toLowerCase(), "", null];
-        this.attributes.push(this.currentAttribute);
-      },
-
-      addToAttributeName: function(char) {
-        this.currentAttribute[0] += char;
-      },
-
-      markAttributeQuoted: function(value) {
-        this.currentAttribute[2] = value;
-      },
-
-      addToAttributeValue: function(char) {
-        this.currentAttribute[1] = this.currentAttribute[1] || "";
-        this.currentAttribute[1] += char;
-      },
-
-      finalizeAttributeValue: function() {
-        if (this.currentAttribute) {
-          if (this.currentAttribute[2] === null) {
-            this.currentAttribute[2] = false;
-          }
-          delete this.currentAttribute;
-        }
-      },
-
-      finalize: function() {
-        this.finalizeAttributeValue();
-        return this;
-      }
-    };
-
-    function StartTag() {
-      Tag.apply(this, arguments);
-    }
-
-    StartTag.prototype = objectCreate(Tag.prototype);
-    StartTag.prototype.type = 'StartTag';
-    StartTag.prototype.constructor = StartTag;
-
-    StartTag.prototype.toHTML = function() {
-      return config.generateTag(this);
-    };
-
-    function generateTag(tag) {
-      var out = "<";
-      out += tag.tagName;
-
-      if (tag.attributes.length) {
-        out += " " + config.generateAttributes(tag.attributes);
-      }
-
-      out += ">";
-
-      return out;
-    }
-
-    function generateAttributes(attributes) {
-      var out = [], attribute, attrString, value;
-
-      for (var i=0, l=attributes.length; i<l; i++) {
-        attribute = attributes[i];
-
-        out.push(config.generateAttribute.apply(this, attribute));
-      }
-
-      return out.join(" ");
-    }
-
-    function generateAttribute(name, value) {
-      var attrString = name;
-
-      if (value) {
-        value = value.replace(/"/, '\\"');
-        attrString += "=\"" + value + "\"";
-      }
-
-      return attrString;
-    }
-
-    function EndTag() {
-      Tag.apply(this, arguments);
-    }
-
-    EndTag.prototype = objectCreate(Tag.prototype);
-    EndTag.prototype.type = 'EndTag';
-    EndTag.prototype.constructor = EndTag;
-
-    EndTag.prototype.toHTML = function() {
-      var out = "</";
-      out += this.tagName;
-      out += ">";
-
-      return out;
-    };
-
-    function Chars(chars) {
-      this.chars = chars || "";
-    }
-
-    Chars.prototype = {
-      type: 'Chars',
-      constructor: Chars,
-
-      addChar: function(char) {
-        this.chars += char;
-      },
-
-      toHTML: function() {
-        return this.chars;
-      }
-    };
-
-    function CommentToken(chars) {
-      this.chars = chars || "";
-    }
-
-    CommentToken.prototype = {
-      type: 'CommentToken',
-      constructor: CommentToken,
-
-      finalize: function() { return this; },
-
-      addChar: function(char) {
-        this.chars += char;
-      },
-
-      toHTML: function() {
-        return "<!--" + this.chars + "-->";
-      }
-    };
-
-    function tokenize(input) {
-      var tokenizer = new Tokenizer(input);
-      return tokenizer.tokenize();
-    }
-
-    function generate(tokens) {
-      var output = "";
-
-      for (var i=0, l=tokens.length; i<l; i++) {
-        output += tokens[i].toHTML();
-      }
-
-      return output;
-    }
-
-    var config = {
-      generateAttributes: generateAttributes,
-      generateAttribute: generateAttribute,
-      generateTag: generateTag
-    };
-
-    var original = {
-      generateAttributes: generateAttributes,
-      generateAttribute: generateAttribute,
-      generateTag: generateTag
-    };
-
-    function configure(name, value) {
-      config[name] = value;
-    }
+    var Tokenizer = __dependency1__["default"];
+    var tokenize = __dependency2__["default"];
+    var Generator = __dependency3__["default"];
+    var generate = __dependency4__["default"];
+    var StartTag = __dependency5__.StartTag;
+    var EndTag = __dependency5__.EndTag;
+    var Chars = __dependency5__.Chars;
+    var Comment = __dependency5__.Comment;
 
     __exports__.Tokenizer = Tokenizer;
     __exports__.tokenize = tokenize;
+    __exports__.Generator = Generator;
     __exports__.generate = generate;
-    __exports__.configure = configure;
-    __exports__.original = original;
     __exports__.StartTag = StartTag;
     __exports__.EndTag = EndTag;
     __exports__.Chars = Chars;
-    __exports__.CommentToken = CommentToken;
+    __exports__.Comment = Comment;
   });
-enifed("simple-html-tokenizer/char-refs",
+enifed("simple-html-tokenizer/char-refs/full",
   ["exports"],
   function(__exports__) {
     "use strict";
-    var namedCodepoints = {
+    __exports__["default"] = {
       AElig: [198],
       AMP: [38],
       Aacute: [193],
@@ -56162,26 +55616,652 @@ enifed("simple-html-tokenizer/char-refs",
       zwj: [8205],
       zwnj: [8204]
     };
-    __exports__.namedCodepoints = namedCodepoints;
   });
-enifed("simple-html-tokenizer/helpers",
+enifed("simple-html-tokenizer/char-refs/min",
   ["exports"],
   function(__exports__) {
     "use strict";
-    function makeArray(object) {
-      if (object instanceof Array) {
-        return object;
-      } else {
-        return [object];
-      }
+    __exports__["default"] = {
+      quot: [34],
+      amp: [38],
+      apos: [39],
+      lt: [60],
+      gt: [62]
+    };
+  });
+enifed("simple-html-tokenizer/entity-parser",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    function EntityParser(namedCodepoints) {
+      this.namedCodepoints = namedCodepoints;
     }
 
-    __exports__.makeArray = makeArray;var objectCreate = Object.create || function objectCreate(obj) {
-      function F() {}
-      F.prototype = obj;
-      return new F();
+    EntityParser.prototype.parse = function (tokenizer) {
+      var input = tokenizer.input.slice(tokenizer["char"]);
+      var matches = input.match(/^#(?:x|X)([0-9A-Fa-f]+);/);
+      if (matches) {
+        tokenizer["char"] += matches[0].length;
+        return String.fromCharCode(parseInt(matches[1], 16));
+      }
+      matches = input.match(/^#([0-9]+);/);
+      if (matches) {
+        tokenizer["char"] += matches[0].length;
+        return String.fromCharCode(parseInt(matches[1], 10));
+      }
+      matches = input.match(/^([A-Za-z]+);/);
+      if (matches) {
+        var codepoints = this.namedCodepoints[matches[1]];
+        if (codepoints) {
+          tokenizer["char"] += matches[0].length;
+          for (var i = 0, buffer = ''; i < codepoints.length; i++) {
+            buffer += String.fromCharCode(codepoints[i]);
+          }
+          return buffer;
+        }
+      }
     };
-    __exports__.objectCreate = objectCreate;
+
+    __exports__["default"] = EntityParser;
+  });
+enifed("simple-html-tokenizer/generate",
+  ["./generator","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    var Generator = __dependency1__["default"];
+
+    __exports__["default"] = function generate(tokens) {
+      var generator = new Generator();
+      return generator.generate(tokens);
+    }
+  });
+enifed("simple-html-tokenizer/generator",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    var escape =  (function () {
+      var test = /[&<>"'`]/;
+      var replace = /[&<>"'`]/g;
+      var map = {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#x27;",
+        "`": "&#x60;"
+      };
+      function escapeChar(char) {
+        return map["char"];
+      }
+      return function escape(string) {
+        if(!test.test(string)) {
+          return string;
+        }
+        return string.replace(replace, escapeChar);
+      };
+    }());
+
+    function Generator() {
+      this.escape = escape;
+    }
+
+    Generator.prototype = {
+      generate: function (tokens) {
+        var buffer = '';
+        var token;
+        for (var i=0; i<tokens.length; i++) {
+          token = tokens[i];
+          buffer += this[token.type](token);
+        }
+        return buffer;
+      },
+
+      escape: function (text) {
+        var unsafeCharsMap = this.unsafeCharsMap;
+        return text.replace(this.unsafeChars, function (char) {
+          return unsafeCharsMap["char"] || char;
+        });
+      },
+
+      StartTag: function (token) {
+        var out = "<";
+        out += token.tagName;
+
+        if (token.attributes.length) {
+          out += " " + this.Attributes(token.attributes);
+        }
+
+        out += ">";
+
+        return out;
+      },
+
+      EndTag: function (token) {
+        return "</" + token.tagName + ">";
+      },
+
+      Chars: function (token) {
+        return this.escape(token.chars);
+      },
+
+      Comment: function (token) {
+        return "<!--" + token.chars + "-->";
+      },
+
+      Attributes: function (attributes) {
+        var out = [], attribute;
+
+        for (var i=0, l=attributes.length; i<l; i++) {
+          attribute = attributes[i];
+
+          out.push(this.Attribute(attribute[0], attribute[1]));
+        }
+
+        return out.join(" ");
+      },
+
+      Attribute: function (name, value) {
+        var attrString = name;
+
+        if (value) {
+          value = this.escape(value);
+          attrString += "=\"" + value + "\"";
+        }
+
+        return attrString;
+      }
+    };
+
+    __exports__["default"] = Generator;
+  });
+enifed("simple-html-tokenizer/tokenize",
+  ["./tokenizer","./entity-parser","./char-refs/full","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+    "use strict";
+    var Tokenizer = __dependency1__["default"];
+    var EntityParser = __dependency2__["default"];
+    var namedCodepoints = __dependency3__["default"];
+
+    __exports__["default"] = function tokenize(input) {
+      var tokenizer = new Tokenizer(input, new EntityParser(namedCodepoints));
+      return tokenizer.tokenize();
+    }
+  });
+enifed("simple-html-tokenizer/tokenizer",
+  ["./utils","./tokens","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
+    "use strict";
+    var preprocessInput = __dependency1__.preprocessInput;
+    var isAlpha = __dependency1__.isAlpha;
+    var isSpace = __dependency1__.isSpace;
+    var StartTag = __dependency2__.StartTag;
+    var EndTag = __dependency2__.EndTag;
+    var Chars = __dependency2__.Chars;
+    var Comment = __dependency2__.Comment;
+
+    function Tokenizer(input, entityParser) {
+      this.input = preprocessInput(input);
+      this.entityParser = entityParser;
+      this["char"] = 0;
+      this.line = 1;
+      this.column = 0;
+
+      this.state = 'data';
+      this.token = null;
+    }
+
+    Tokenizer.prototype = {
+      tokenize: function() {
+        var tokens = [], token;
+
+        while (true) {
+          token = this.lex();
+          if (token === 'EOF') { break; }
+          if (token) { tokens.push(token); }
+        }
+
+        if (this.token) {
+          tokens.push(this.token);
+        }
+
+        return tokens;
+      },
+
+      tokenizePart: function(string) {
+        this.input += preprocessInput(string);
+        var tokens = [], token;
+
+        while (this["char"] < this.input.length) {
+          token = this.lex();
+          if (token) { tokens.push(token); }
+        }
+
+        this.tokens = (this.tokens || []).concat(tokens);
+        return tokens;
+      },
+
+      tokenizeEOF: function() {
+        var token = this.token;
+        if (token) {
+          this.token = null;
+          return token;
+        }
+      },
+
+      tag: function(Type, char) {
+        var lastToken = this.token;
+        this.token = new Type(char);
+        this.state = 'tagName';
+        return lastToken;
+      },
+
+      selfClosing: function() {
+        this.token.selfClosing = true;
+      },
+
+      attribute: function(char) {
+        this.token.startAttribute(char);
+        this.state = 'attributeName';
+      },
+
+      addToAttributeName: function(char) {
+        this.token.addToAttributeName(char);
+      },
+
+      markAttributeQuoted: function(value) {
+        this.token.markAttributeQuoted(value);
+      },
+
+      finalizeAttributeValue: function() {
+        this.token.finalizeAttributeValue();
+      },
+
+      addToAttributeValue: function(char) {
+        this.token.addToAttributeValue(char);
+      },
+
+      commentStart: function() {
+        var lastToken = this.token;
+        this.token = new Comment();
+        this.state = 'commentStart';
+        return lastToken;
+      },
+
+      addToComment: function(char) {
+        this.token.addChar(char);
+      },
+
+      emitData: function() {
+        this.addLocInfo(this.line, this.column - 1);
+        var lastToken = this.token;
+        this.token = null;
+        this.state = 'tagOpen';
+        return lastToken;
+      },
+
+      emitToken: function() {
+        this.addLocInfo();
+        var lastToken = this.token.finalize();
+        this.token = null;
+        this.state = 'data';
+        return lastToken;
+      },
+
+      addData: function(char) {
+        if (this.token === null) {
+          this.token = new Chars();
+          this.markFirst();
+        }
+
+        this.token.addChar(char);
+      },
+
+      markFirst: function(line, column) {
+        this.firstLine = (line === 0) ? 0 : (line || this.line);
+        this.firstColumn = (column === 0) ? 0 : (column || this.column);
+      },
+
+      addLocInfo: function(line, column) {
+        if (!this.token) {
+          return;
+        }
+        this.token.firstLine = this.firstLine;
+        this.token.firstColumn = this.firstColumn;
+        this.token.lastLine = (line === 0) ? 0 : (line || this.line);
+        this.token.lastColumn = (column === 0) ? 0 : (column || this.column);
+      },
+
+      consumeCharRef: function() {
+        return this.entityParser.parse(this);
+      },
+
+      lex: function() {
+        var char = this.input.charAt(this["char"]++);
+
+        if (char) {
+          if (char === "\n") {
+            this.line++;
+            this.column = 0;
+          } else {
+            this.column++;
+          }
+          // console.log(this.state, char);
+          return this.states[this.state].call(this, char);
+        } else {
+          this.addLocInfo(this.line, this.column);
+          return 'EOF';
+        }
+      },
+
+      states: {
+        data: function(char) {
+          if (char === "<") {
+            var chars = this.emitData();
+            this.markFirst();
+            return chars;
+          } else if (char === "&") {
+            this.addData(this.consumeCharRef() || "&");
+          } else {
+            this.addData(char);
+          }
+        },
+
+        tagOpen: function(char) {
+          if (char === "!") {
+            this.state = 'markupDeclaration';
+          } else if (char === "/") {
+            this.state = 'endTagOpen';
+          } else if (isAlpha(char)) {
+            return this.tag(StartTag, char.toLowerCase());
+          }
+        },
+
+        markupDeclaration: function(char) {
+          if (char === "-" && this.input.charAt(this["char"]) === "-") {
+            this["char"]++;
+            this.commentStart();
+          }
+        },
+
+        commentStart: function(char) {
+          if (char === "-") {
+            this.state = 'commentStartDash';
+          } else if (char === ">") {
+            return this.emitToken();
+          } else {
+            this.addToComment(char);
+            this.state = 'comment';
+          }
+        },
+
+        commentStartDash: function(char) {
+          if (char === "-") {
+            this.state = 'commentEnd';
+          } else if (char === ">") {
+            return this.emitToken();
+          } else {
+            this.addToComment("-");
+            this.state = 'comment';
+          }
+        },
+
+        comment: function(char) {
+          if (char === "-") {
+            this.state = 'commentEndDash';
+          } else {
+            this.addToComment(char);
+          }
+        },
+
+        commentEndDash: function(char) {
+          if (char === "-") {
+            this.state = 'commentEnd';
+          } else {
+            this.addToComment("-" + char);
+            this.state = 'comment';
+          }
+        },
+
+        commentEnd: function(char) {
+          if (char === ">") {
+            return this.emitToken();
+          } else {
+            this.addToComment("--" + char);
+            this.state = 'comment';
+          }
+        },
+
+        tagName: function(char) {
+          if (isSpace(char)) {
+            this.state = 'beforeAttributeName';
+          } else if (char === "/") {
+            this.state = 'selfClosingStartTag';
+          } else if (char === ">") {
+            return this.emitToken();
+          } else {
+            this.token.addToTagName(char);
+          }
+        },
+
+        beforeAttributeName: function(char) {
+          if (isSpace(char)) {
+            return;
+          } else if (char === "/") {
+            this.state = 'selfClosingStartTag';
+          } else if (char === ">") {
+            return this.emitToken();
+          } else {
+            this.attribute(char);
+          }
+        },
+
+        attributeName: function(char) {
+          if (isSpace(char)) {
+            this.state = 'afterAttributeName';
+          } else if (char === "/") {
+            this.state = 'selfClosingStartTag';
+          } else if (char === "=") {
+            this.state = 'beforeAttributeValue';
+          } else if (char === ">") {
+            return this.emitToken();
+          } else {
+            this.addToAttributeName(char);
+          }
+        },
+
+        afterAttributeName: function(char) {
+          if (isSpace(char)) {
+            return;
+          } else if (char === "/") {
+            this.state = 'selfClosingStartTag';
+          } else if (char === "=") {
+            this.state = 'beforeAttributeValue';
+          } else if (char === ">") {
+            return this.emitToken();
+          } else {
+            this.finalizeAttributeValue();
+            this.attribute(char);
+          }
+        },
+
+        beforeAttributeValue: function(char) {
+          if (isSpace(char)) {
+            return;
+          } else if (char === '"') {
+            this.state = 'attributeValueDoubleQuoted';
+            this.markAttributeQuoted(true);
+          } else if (char === "'") {
+            this.state = 'attributeValueSingleQuoted';
+            this.markAttributeQuoted(true);
+          } else if (char === ">") {
+            return this.emitToken();
+          } else {
+            this.state = 'attributeValueUnquoted';
+            this.markAttributeQuoted(false);
+            this.addToAttributeValue(char);
+          }
+        },
+
+        attributeValueDoubleQuoted: function(char) {
+          if (char === '"') {
+            this.finalizeAttributeValue();
+            this.state = 'afterAttributeValueQuoted';
+          } else if (char === "&") {
+            this.addToAttributeValue(this.consumeCharRef('"') || "&");
+          } else {
+            this.addToAttributeValue(char);
+          }
+        },
+
+        attributeValueSingleQuoted: function(char) {
+          if (char === "'") {
+            this.finalizeAttributeValue();
+            this.state = 'afterAttributeValueQuoted';
+          } else if (char === "&") {
+            this.addToAttributeValue(this.consumeCharRef("'") || "&");
+          } else {
+            this.addToAttributeValue(char);
+          }
+        },
+
+        attributeValueUnquoted: function(char) {
+          if (isSpace(char)) {
+            this.finalizeAttributeValue();
+            this.state = 'beforeAttributeName';
+          } else if (char === "&") {
+            this.addToAttributeValue(this.consumeCharRef(">") || "&");
+          } else if (char === ">") {
+            return this.emitToken();
+          } else {
+            this.addToAttributeValue(char);
+          }
+        },
+
+        afterAttributeValueQuoted: function(char) {
+          if (isSpace(char)) {
+            this.state = 'beforeAttributeName';
+          } else if (char === "/") {
+            this.state = 'selfClosingStartTag';
+          } else if (char === ">") {
+            return this.emitToken();
+          } else {
+            this["char"]--;
+            this.state = 'beforeAttributeName';
+          }
+        },
+
+        selfClosingStartTag: function(char) {
+          if (char === ">") {
+            this.selfClosing();
+            return this.emitToken();
+          } else {
+            this["char"]--;
+            this.state = 'beforeAttributeName';
+          }
+        },
+
+        endTagOpen: function(char) {
+          if (isAlpha(char)) {
+            this.tag(EndTag, char.toLowerCase());
+          }
+        }
+      }
+    };
+
+    __exports__["default"] = Tokenizer;
+  });
+enifed("simple-html-tokenizer/tokens",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    function StartTag(tagName, attributes, selfClosing) {
+      this.type = 'StartTag';
+      this.tagName = tagName || '';
+      this.attributes = attributes || [];
+      this.selfClosing = selfClosing === true;
+      this._currentAttribute = undefined;
+    }
+
+    __exports__.StartTag = StartTag;StartTag.prototype = {
+      addToTagName: function(char) {
+        this.tagName += char;
+      },
+
+      startAttribute: function(char) {
+        this._currentAttribute = [char.toLowerCase(), "", null];
+        this.attributes.push(this._currentAttribute);
+      },
+
+      addToAttributeName: function(char) {
+        this._currentAttribute[0] += char;
+      },
+
+      markAttributeQuoted: function(value) {
+        this._currentAttribute[2] = value;
+      },
+
+      addToAttributeValue: function(char) {
+        this._currentAttribute[1] = this._currentAttribute[1] || "";
+        this._currentAttribute[1] += char;
+      },
+
+      finalizeAttributeValue: function() {
+        if (this._currentAttribute) {
+          if (this._currentAttribute[2] === null) {
+            this._currentAttribute[2] = false;
+          }
+          this._currentAttribute = undefined;
+        }
+      },
+
+      finalize: function() {
+        this.finalizeAttributeValue();
+        return this;
+      }
+    };
+
+    function EndTag(tagName) {
+      this.type = 'EndTag';
+      this.tagName = tagName || '';
+    }
+
+    __exports__.EndTag = EndTag;EndTag.prototype = {
+      addToTagName: function(char) {
+        this.tagName += char;
+      },
+      finalize: function () {
+        return this;
+      }
+    };
+
+    function Chars(chars) {
+      this.type = 'Chars';
+      this.chars = chars || "";
+    }
+
+    __exports__.Chars = Chars;Chars.prototype = {
+      addChar: function(char) {
+        this.chars += char;
+      }
+    };
+
+    function Comment(chars) {
+      this.type = 'Comment';
+      this.chars = chars || '';
+    }
+
+    __exports__.Comment = Comment;Comment.prototype = {
+      addChar: function(char) {
+        this.chars += char;
+      },
+
+      finalize: function() { return this; }
+    };
+  });
+enifed("simple-html-tokenizer/utils",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
     function isSpace(char) {
       return (/[\t\n\f ]/).test(char);
     }
@@ -56190,36 +56270,11 @@ enifed("simple-html-tokenizer/helpers",
       return (/[A-Za-z]/).test(char);
     }
 
-    __exports__.isAlpha = isAlpha;function isUpper(char) {
-      return (/[A-Z]/).test(char);
+    __exports__.isAlpha = isAlpha;function preprocessInput(input) {
+      return input.replace(/\r\n?/g, "\n");
     }
 
-    __exports__.isUpper = isUpper;function removeLocInfo(tokens) {
-      for (var i = 0; i < tokens.length; i++) {
-        var token = tokens[i];
-        delete token.firstLine;
-        delete token.firstColumn;
-        delete token.lastLine;
-        delete token.lastColumn;
-      }
-    }
-
-    __exports__.removeLocInfo = removeLocInfo;function tokensEqual(actual, expected, checkLocInfo, message) {
-      if (!checkLocInfo) {
-        removeLocInfo(actual);
-      }
-      deepEqual(actual, makeArray(expected), message);
-    }
-
-    __exports__.tokensEqual = tokensEqual;function locInfo(token, firstLine, firstColumn, lastLine, lastColumn) {
-      token.firstLine = firstLine;
-      token.firstColumn = firstColumn;
-      token.lastLine = lastLine;
-      token.lastColumn = lastColumn;
-      return token;
-    }
-
-    __exports__.locInfo = locInfo;
+    __exports__.preprocessInput = preprocessInput;
   });
 requireModule("ember");
 
