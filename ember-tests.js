@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.2+pre.fc33a102
+ * @version   1.10.0-beta.2+pre.2dc0d298
  */
 
 (function() {
@@ -13921,8 +13921,10 @@ enifed("ember-htmlbars/tests/system/make_bound_helper_test",
       equal(view.$().text(), 'AB', "helper output is correct");
     });
 
-    test("bound helpers should support bound options", function() {
-      registerRepeatHelper();
+    test("bound helpers should not process `fooBinding` style hash properties", function() {
+      container.register('helper:x-repeat', makeBoundHelper(function(params, hash, options, env) {
+        equal(hash.timesBinding, "numRepeats");
+      }));
 
       view = EmberView.create({
         container: container,
@@ -13934,19 +13936,6 @@ enifed("ember-htmlbars/tests/system/make_bound_helper_test",
       });
 
       runAppend(view);
-
-      equal(view.$().text(), 'ababab', "helper output is correct");
-
-      run(view, 'set', 'controller.numRepeats', 4);
-
-      equal(view.$().text(), 'abababab', "helper correctly re-rendered after bound option was changed");
-
-      run(function() {
-        view.set('controller.numRepeats', 2);
-        view.set('controller.text', "YES");
-      });
-
-      equal(view.$().text(), 'YESYES', "helper correctly re-rendered after both bound option and property changed");
     });
 
     test("bound helpers should support multiple bound properties", function() {
