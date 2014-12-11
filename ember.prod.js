@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.77db44cd
+ * @version   1.11.0-beta.1+canary.2a81794f
  */
 
 (function() {
@@ -11937,7 +11937,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.77db44cd
+      @version 1.11.0-beta.1+canary.2a81794f
     */
 
     if ('undefined' === typeof Ember) {
@@ -11964,10 +11964,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.77db44cd'
+      @default '1.11.0-beta.1+canary.2a81794f'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.77db44cd';
+    Ember.VERSION = '1.11.0-beta.1+canary.2a81794f';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -42558,6 +42558,22 @@ enifed("ember-views/views/view",
         if (!this.removedFromDOM) { this.destroyElement(); }
       },
 
+      /**
+        The HTML `id` of the view's element in the DOM. You can provide this
+        value yourself but it must be unique (just as in HTML):
+
+        ```handlebars
+          {{my-component elementId="a-really-cool-id"}}
+        ```
+
+        If not manually set a default value will be provided by the framework.
+
+        Once rendered an element's `elementId` is considered immutable and you
+        should never change it.
+
+        @property elementId
+        @type String
+      */
       elementId: null,
 
       /**
