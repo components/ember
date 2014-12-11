@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.77db44cd
+ * @version   1.11.0-beta.1+canary.7a85e68d
  */
 
 (function() {
@@ -8847,8 +8847,8 @@ enifed("ember-htmlbars/system/make-view-helper",
     }
   });
 enifed("ember-htmlbars/system/make_bound_helper",
-  ["ember-metal/core","ember-htmlbars/system/helper","ember-metal/streams/stream","ember-metal/streams/utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+  ["ember-metal/core","ember-metal/mixin","ember-htmlbars/system/helper","ember-metal/streams/stream","ember-metal/streams/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -8857,12 +8857,13 @@ enifed("ember-htmlbars/system/make_bound_helper",
 
     var Ember = __dependency1__["default"];
     // Ember.FEATURES, Ember.assert, Ember.Handlebars, Ember.lookup
-    var Helper = __dependency2__["default"];
+    var IS_BINDING = __dependency2__.IS_BINDING;
+    var Helper = __dependency3__["default"];
 
-    var Stream = __dependency3__["default"];
-    var readArray = __dependency4__.readArray;
-    var readHash = __dependency4__.readHash;
-    var subscribe = __dependency4__.subscribe;
+    var Stream = __dependency4__["default"];
+    var readArray = __dependency5__.readArray;
+    var readHash = __dependency5__.readHash;
+    var subscribe = __dependency5__.subscribe;
 
     /**
       Create a bound helper. Accepts a function that receives the ordered and hash parameters
@@ -8913,6 +8914,14 @@ enifed("ember-htmlbars/system/make_bound_helper",
 
         Ember.assert("makeBoundHelper generated helpers do not support use with blocks", !options.template);
 
+        for (var prop in hash) {
+          if (IS_BINDING.test(prop)) {
+            hash[prop.slice(0, -7)] = view._getBindingForStream(hash[prop]);
+
+            delete hash[prop];
+          }
+        }
+
         function valueFn() {
           return fn.call(view, readArray(params), readHash(hash), options, env);
         }
@@ -8928,7 +8937,7 @@ enifed("ember-htmlbars/system/make_bound_helper",
             subscribe(param, lazyValue.notify, lazyValue);
           }
 
-          for (var prop in hash) {
+          for (prop in hash) {
             param = hash[prop];
             subscribe(param, lazyValue.notify, lazyValue);
           }
@@ -12337,7 +12346,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.77db44cd
+      @version 1.11.0-beta.1+canary.7a85e68d
     */
 
     if ('undefined' === typeof Ember) {
@@ -12364,10 +12373,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.77db44cd'
+      @default '1.11.0-beta.1+canary.7a85e68d'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.77db44cd';
+    Ember.VERSION = '1.11.0-beta.1+canary.7a85e68d';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
