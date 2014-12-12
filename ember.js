@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.41eaaad8
+ * @version   1.11.0-beta.1+canary.a4333f94
  */
 
 (function() {
@@ -12371,7 +12371,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.41eaaad8
+      @version 1.11.0-beta.1+canary.a4333f94
     */
 
     if ('undefined' === typeof Ember) {
@@ -12398,10 +12398,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.41eaaad8'
+      @default '1.11.0-beta.1+canary.a4333f94'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.41eaaad8';
+    Ember.VERSION = '1.11.0-beta.1+canary.a4333f94';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -13552,17 +13552,16 @@ enifed("ember-metal/get_properties",
     }
   });
 enifed("ember-metal/injected_property",
-  ["ember-metal/core","ember-metal/computed","ember-metal/properties","ember-metal/platform","ember-metal/utils","ember-metal/error","exports"],
+  ["ember-metal/core","ember-metal/computed","ember-metal/alias","ember-metal/properties","ember-metal/platform","ember-metal/utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.assert
     var ComputedProperty = __dependency2__.ComputedProperty;
-    var Descriptor = __dependency3__.Descriptor;
-    var create = __dependency4__.create;
-    var meta = __dependency5__.meta;
-    var inspect = __dependency5__.inspect;
-    var EmberError = __dependency6__["default"];
+    var AliasedProperty = __dependency3__.AliasedProperty;
+    var Descriptor = __dependency4__.Descriptor;
+    var create = __dependency5__.create;
+    var meta = __dependency6__.meta;
 
     /**
       Read-only property that returns the result of a container lookup.
@@ -13580,7 +13579,7 @@ enifed("ember-metal/injected_property",
       this.name = name;
 
       this._super$Constructor(injectedPropertyGet);
-      this.readOnly();
+      AliasedPropertyPrototype.oneWay.call(this);
     }
 
     function injectedPropertyGet(keyName) {
@@ -13593,21 +13592,16 @@ enifed("ember-metal/injected_property",
       return this.container.lookup(desc.type + ':' + (desc.name || keyName));
     }
 
-    function injectedPropertySet(obj, keyName) {
-      throw new EmberError("Cannot set injected property '" + keyName + "' on object: " + inspect(obj));
-    }
-
     InjectedProperty.prototype = create(Descriptor.prototype);
 
     var InjectedPropertyPrototype = InjectedProperty.prototype;
     var ComputedPropertyPrototype = ComputedProperty.prototype;
+    var AliasedPropertyPrototype = AliasedProperty.prototype;
 
     InjectedPropertyPrototype._super$Constructor = ComputedProperty;
 
     InjectedPropertyPrototype.get = ComputedPropertyPrototype.get;
     InjectedPropertyPrototype.readOnly = ComputedPropertyPrototype.readOnly;
-
-    InjectedPropertyPrototype.set = injectedPropertySet;
 
     InjectedPropertyPrototype.teardown = ComputedPropertyPrototype.teardown;
 

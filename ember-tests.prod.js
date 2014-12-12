@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.41eaaad8
+ * @version   1.11.0-beta.1+canary.a4333f94
  */
 
 (function() {
@@ -18780,13 +18780,13 @@ enifed("ember-metal/tests/injected_property_test",
         ok(new InjectedProperty() instanceof Descriptor);
       });
 
-      test('setting the injected property should error', function() {
+      test('injected properties should be overridable', function() {
         var obj = {};
         defineProperty(obj, 'foo', new InjectedProperty());
 
-        throws(function() {
-          set(obj, 'foo', 'bar');
-        }, /Cannot set injected property 'foo' on object/);
+        set(obj, 'foo', 'bar');
+
+        equal(get(obj, 'foo'), 'bar', 'should return the overriden value');
       });
 
       test("getting on an object without a container should fail assertion", function() {
