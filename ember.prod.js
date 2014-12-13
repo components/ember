@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.1005c400
+ * @version   1.11.0-beta.1+canary.0c27892d
  */
 
 (function() {
@@ -4702,7 +4702,7 @@ enifed("ember-htmlbars/attr_nodes/quoted",
 
     function QuotedAttrNode(element, attrName, attrValue, dom) {
       this.init(element, attrName, attrValue, dom);
-    } 
+    }
 
     QuotedAttrNode.prototype = o_create(SimpleAttrNode.prototype);
 
@@ -4758,21 +4758,21 @@ enifed("ember-htmlbars/attr_nodes/quoted_class",
       this.element = element;
       this.attrName = attrName;
       this.dom = dom;
-      this.isDirty = false;
+      this.isDirty = true;
 
       this.classes = attrValue;
       this.oldClasses = [];
 
-      subscribe(attrValue, this.renderIfNeeded, this);
-      this.renderIfNeeded();
+      subscribe(attrValue, this.markDirty, this);
+      this.renderIfDirty();
     }
 
-    QuotedClassAttrNode.prototype.renderIfNeeded = function renderIfNeeded(){
+    QuotedClassAttrNode.prototype.markDirty = function markDirty(){
       this.isDirty = true;
-      run.schedule('render', this, this.scheduledRenderIfNeeded);
+      run.schedule('render', this, this.renderIfDirty);
     };
 
-    QuotedClassAttrNode.prototype.scheduledRenderIfNeeded = function scheduledRenderIfNeeded(){
+    QuotedClassAttrNode.prototype.renderIfDirty = function renderIfDirty(){
       if (this.isDirty) {
         this.isDirty = false;
         this.render();
@@ -4838,32 +4838,32 @@ enifed("ember-htmlbars/attr_nodes/simple",
 
     function SimpleAttrNode() {
       // abstract class
-    } 
+    }
 
     SimpleAttrNode.prototype.init = function init(element, attrName, simpleAttrValue, dom){
       this.element = element;
       this.attrName = attrName;
       this.attrValue = simpleAttrValue;
       this.dom = dom;
-      this.isDirty = false;
+      this.isDirty = true;
       this.lastValue = null;
       this.currentValue = null;
 
       if (this.attrValue.isStream) {
-        this.attrValue.subscribe(this.renderIfNeeded, this);
-        this.renderIfNeeded();
+        this.attrValue.subscribe(this.markDirty, this);
+        this.renderIfDirty();
       } else {
         this.currentValue = simpleAttrValue;
         this.render();
       }
     };
 
-    SimpleAttrNode.prototype.renderIfNeeded = function renderIfNeeded(){
+    SimpleAttrNode.prototype.markDirty = function markDirty(){
       this.isDirty = true;
-      run.schedule('render', this, this.scheduledRenderIfNeeded);
+      run.schedule('render', this, this.renderIfDirty);
     };
 
-    SimpleAttrNode.prototype.scheduledRenderIfNeeded = function scheduledRenderIfNeeded(){
+    SimpleAttrNode.prototype.renderIfDirty = function renderIfDirty(){
       if (this.isDirty) {
         this.isDirty = false;
         var value = this.attrValue.value();
@@ -4897,7 +4897,7 @@ enifed("ember-htmlbars/attr_nodes/unquoted",
     function UnquotedAttrNode(element, attrName, attrValue, dom) {
       var normalizedAttrName = normalizeProperty(element, attrName) || attrName;
       this.init(element, normalizedAttrName, attrValue, dom);
-    } 
+    }
 
     UnquotedAttrNode.prototype = o_create(SimpleAttrNode.prototype);
 
@@ -4917,7 +4917,7 @@ enifed("ember-htmlbars/attr_nodes/unquoted_nonproperty",
 
     function UnquotedNonpropertyAttrNode(element, attrName, attrValue, dom) {
       this.init(element, attrName, attrValue, dom);
-    } 
+    }
 
     UnquotedNonpropertyAttrNode.prototype = o_create(SimpleAttrNode.prototype);
 
@@ -12010,7 +12010,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.1005c400
+      @version 1.11.0-beta.1+canary.0c27892d
     */
 
     if ('undefined' === typeof Ember) {
@@ -12037,10 +12037,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.1005c400'
+      @default '1.11.0-beta.1+canary.0c27892d'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.1005c400';
+    Ember.VERSION = '1.11.0-beta.1+canary.0c27892d';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`

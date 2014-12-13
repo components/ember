@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.1005c400
+ * @version   1.11.0-beta.1+canary.0c27892d
  */
 
 (function() {
@@ -4613,6 +4613,21 @@ enifed("ember-htmlbars/tests/attr_nodes/class_test",
       }
     });
 
+    test("class renders before didInsertElement", function() {
+      var matchingElement;
+      view = EmberView.create({
+        didInsertElement: function(){
+          matchingElement = this.$('div.blue');
+        },
+        context: {color: 'blue'},
+        template: compile("<div class={{color}}>Hi!</div>")
+      });
+      appendView(view);
+
+      equalInnerHTML(view.element, '<div class="blue">Hi!</div>', "attribute is output");
+      equal(matchingElement.length, 1, 'element is in the DOM when didInsertElement');
+    });
+
     test("class property can contain multiple classes", function() {
       view = EmberView.create({
         context: {classes: 'large blue'},
@@ -4768,6 +4783,21 @@ enifed("ember-htmlbars/tests/attr_nodes/data_test",
         runAppend(view);
 
         equalInnerHTML(view.element, '<div data-name="erik">Hi!</div>', "attribute is output");
+      });
+
+      test("property set before didInsertElement", function() {
+        var matchingElement;
+        view = EmberView.create({
+          didInsertElement: function(){
+            matchingElement = this.$('div[data-name=erik]');
+          },
+          context: {name: 'erik'},
+          template: compile("<div data-name={{name}}>Hi!</div>")
+        });
+        runAppend(view);
+
+        equalInnerHTML(view.element, '<div data-name="erik">Hi!</div>', "attribute is output");
+        equal(matchingElement.length, 1, 'element is in the DOM when didInsertElement');
       });
 
       test("quoted attributes are concatenated", function() {
@@ -6778,6 +6808,19 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test",
 
       equal(view.$('img').attr('alt'), "Updated", "updates value");
       equal(view.$('img').attr('src'), "test2.jpg", "updates value");
+    });
+
+    test("property before didInsertElement", function() {
+      var matchingElement;
+      view = EmberView.create({
+        name: 'bob',
+        template: compile('<div {{bind-attr alt=view.name}}></div>'),
+        didInsertElement: function(){
+          matchingElement = this.$('div[alt=bob]');
+        }
+      });
+      runAppend(view);
+      equal(matchingElement.length, 1, 'element is in the DOM when didInsertElement');
     });
   });
 enifed("ember-htmlbars/tests/helpers/bind_attr_test.jshint",
