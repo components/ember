@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.c740d8b2
+ * @version   1.11.0-beta.1+canary.dcf1c3a5
  */
 
 (function() {
@@ -56196,16 +56196,17 @@ enifed("ember-views/tests/views/view/remove_test.jshint",
     });
   });
 enifed("ember-views/tests/views/view/render_test",
-  ["ember-metal/property_get","ember-metal/run_loop","ember-views/system/jquery","ember-views/views/view","ember-views/views/container_view","ember-htmlbars/system/compile"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
+  ["ember-metal/property_get","ember-metal/run_loop","ember-views/system/jquery","ember-views/views/view","ember-views/views/container_view","ember-metal/computed","ember-htmlbars/system/compile"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
     "use strict";
     var get = __dependency1__.get;
     var run = __dependency2__["default"];
     var jQuery = __dependency3__["default"];
     var EmberView = __dependency4__["default"];
     var ContainerView = __dependency5__["default"];
+    var computed = __dependency6__.computed;
 
-    var compile = __dependency6__["default"];
+    var compile = __dependency7__["default"];
 
     var view;
 
@@ -56320,6 +56321,28 @@ enifed("ember-views/tests/views/view/render_test",
       });
 
       ok(view.$().hasClass('ember-view'), "the view has ember-view");
+    });
+
+    test("should allow tagName to be a computed property [DEPRECATED]", function() {
+      view = EmberView.extend({
+        tagName: computed(function() {
+          return 'span';
+        })
+      }).create();
+
+      expectDeprecation(function(){
+        run(function() {
+          view.createElement();
+        });
+      }, /using a computed property to define tagName will not be permitted/);
+
+      equal(view.element.tagName, 'SPAN', "the view has was created with the correct element");
+
+      run(function() {
+        view.set('tagName', 'div');
+      });
+
+      equal(view.element.tagName, 'SPAN', "the tagName cannot be changed after initial render");
     });
 
     test("should allow hX tags as tagName", function() {
