@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.2+pre.3e835045
+ * @version   1.10.0-beta.2+pre.789eae8a
  */
 
 (function() {
@@ -6168,6 +6168,19 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test",
       equal(view.$('img').attr('alt'), "Updated", "updates value");
       equal(view.$('img').attr('src'), "test2.jpg", "updates value");
     });
+
+    test("property before didInsertElement", function() {
+      var matchingElement;
+      view = EmberView.create({
+        name: 'bob',
+        template: compile('<div {{bind-attr alt=view.name}}></div>'),
+        didInsertElement: function(){
+          matchingElement = this.$('div[alt=bob]');
+        }
+      });
+      runAppend(view);
+      equal(matchingElement.length, 1, 'element is in the DOM when didInsertElement');
+    });
   });
 enifed("ember-htmlbars/tests/helpers/bind_attr_test.jshint",
   [],
@@ -11225,6 +11238,92 @@ enifed("ember-htmlbars/tests/helpers/view_test",
       runAppend(view);
 
       ok(view.$().text() === 'foobarProperty', 'Property was bound to correctly');
+    });
+
+    test('{{view}} should be able to point to a local instance of view', function() {
+      view = EmberView.create({
+        template: compile("{{view view.common}}"),
+
+        common: EmberView.create({
+          template: compile("common")
+        })
+      });
+
+      runAppend(view);
+      equal(view.$().text(), "common", "tries to look up view name locally");
+    });
+
+    test("{{view}} should be able to point to a local instance of subclass of view", function() {
+      var MyView = EmberView.extend();
+      view = EmberView.create({
+        template: compile("{{view view.subclassed}}"),
+        subclassed: MyView.create({
+          template: compile("subclassed")
+        })
+      });
+
+      runAppend(view);
+      equal(view.$().text(), "subclassed", "tries to look up view name locally");
+    });
+
+    test("{{view}} asserts that a view class is present", function() {
+      var MyView = EmberObject.extend();
+      view = EmberView.create({
+        template: compile("{{view view.notView}}"),
+        notView: MyView.extend({
+          template: compile("notView")
+        })
+      });
+
+      expectAssertion(function(){
+        runAppend(view);
+      }, /must be a subclass or an instance of Ember.View/);
+    });
+
+    test("{{view}} asserts that a view class is present off controller", function() {
+      var MyView = EmberObject.extend();
+      view = EmberView.create({
+        template: compile("{{view notView}}"),
+        controller: EmberObject.create({
+          notView: MyView.extend({
+            template: compile("notView")
+          })
+        })
+      });
+
+      expectAssertion(function(){
+        runAppend(view);
+      }, /must be a subclass or an instance of Ember.View/);
+    });
+
+    test("{{view}} asserts that a view instance is present", function() {
+      var MyView = EmberObject.extend();
+      view = EmberView.create({
+        template: compile("{{view view.notView}}"),
+        notView: MyView.create({
+          template: compile("notView")
+        })
+      });
+
+      expectAssertion(function(){
+        runAppend(view);
+      }, /must be a subclass or an instance of Ember.View/);
+    });
+
+    test("{{view}} asserts that a view subclass instance is present off controller", function() {
+      var MyView = EmberObject.extend();
+      view = EmberView.create({
+        template: compile("{{view notView}}"),
+        controller: EmberObject.create({
+          notView: MyView.create({
+            template: compile("notView")
+          })
+        })
+      });
+
+      expectAssertion(function(){
+        runAppend(view);
+      }, /must be a subclass or an instance of Ember.View/);
     });
   });
 enifed("ember-htmlbars/tests/helpers/view_test.jshint",
@@ -17996,13 +18095,13 @@ enifed("ember-metal/tests/injected_property_test",
         ok(new InjectedProperty() instanceof Descriptor);
       });
 
-      test('setting the injected property should error', function() {
+      test('injected properties should be overridable', function() {
         var obj = {};
         defineProperty(obj, 'foo', new InjectedProperty());
 
-        throws(function() {
-          set(obj, 'foo', 'bar');
-        }, /Cannot set injected property 'foo' on object/);
+        set(obj, 'foo', 'bar');
+
+        equal(get(obj, 'foo'), 'bar', 'should return the overriden value');
       });
 
       test("getting on an object without a container should fail assertion", function() {
@@ -55164,16 +55263,17 @@ enifed("ember-views/tests/views/view/remove_test.jshint",
     });
   });
 enifed("ember-views/tests/views/view/render_test",
-  ["ember-metal/property_get","ember-metal/run_loop","ember-views/system/jquery","ember-views/views/view","ember-views/views/container_view","ember-htmlbars/system/compile"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
+  ["ember-metal/property_get","ember-metal/run_loop","ember-views/system/jquery","ember-views/views/view","ember-views/views/container_view","ember-metal/computed","ember-htmlbars/system/compile"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
     "use strict";
     var get = __dependency1__.get;
     var run = __dependency2__["default"];
     var jQuery = __dependency3__["default"];
     var EmberView = __dependency4__["default"];
     var ContainerView = __dependency5__["default"];
+    var computed = __dependency6__.computed;
 
-    var compile = __dependency6__["default"];
+    var compile = __dependency7__["default"];
 
     var view;
 
@@ -55288,6 +55388,28 @@ enifed("ember-views/tests/views/view/render_test",
       });
 
       ok(view.$().hasClass('ember-view'), "the view has ember-view");
+    });
+
+    test("should allow tagName to be a computed property [DEPRECATED]", function() {
+      view = EmberView.extend({
+        tagName: computed(function() {
+          return 'span';
+        })
+      }).create();
+
+      expectDeprecation(function(){
+        run(function() {
+          view.createElement();
+        });
+      }, /using a computed property to define tagName will not be permitted/);
+
+      equal(view.element.tagName, 'SPAN', "the view has was created with the correct element");
+
+      run(function() {
+        view.set('tagName', 'div');
+      });
+
+      equal(view.element.tagName, 'SPAN', "the tagName cannot be changed after initial render");
     });
 
     test("should allow hX tags as tagName", function() {

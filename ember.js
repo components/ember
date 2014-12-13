@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.2+pre.3e835045
+ * @version   1.10.0-beta.2+pre.789eae8a
  */
 
 (function() {
@@ -4994,7 +4994,7 @@ enifed("ember-htmlbars/attr_nodes/quoted",
 
     function QuotedAttrNode(element, attrName, attrValue, dom) {
       this.init(element, attrName, attrValue, dom);
-    } 
+    }
 
     QuotedAttrNode.prototype = o_create(SimpleAttrNode.prototype);
 
@@ -5050,21 +5050,21 @@ enifed("ember-htmlbars/attr_nodes/quoted_class",
       this.element = element;
       this.attrName = attrName;
       this.dom = dom;
-      this.isDirty = false;
+      this.isDirty = true;
 
       this.classes = attrValue;
       this.oldClasses = [];
 
-      subscribe(attrValue, this.renderIfNeeded, this);
-      this.renderIfNeeded();
+      subscribe(attrValue, this.markDirty, this);
+      this.renderIfDirty();
     }
 
-    QuotedClassAttrNode.prototype.renderIfNeeded = function renderIfNeeded(){
+    QuotedClassAttrNode.prototype.markDirty = function markDirty(){
       this.isDirty = true;
-      run.schedule('render', this, this.scheduledRenderIfNeeded);
+      run.schedule('render', this, this.renderIfDirty);
     };
 
-    QuotedClassAttrNode.prototype.scheduledRenderIfNeeded = function scheduledRenderIfNeeded(){
+    QuotedClassAttrNode.prototype.renderIfDirty = function renderIfDirty(){
       if (this.isDirty) {
         this.isDirty = false;
         this.render();
@@ -5130,32 +5130,32 @@ enifed("ember-htmlbars/attr_nodes/simple",
 
     function SimpleAttrNode() {
       // abstract class
-    } 
+    }
 
     SimpleAttrNode.prototype.init = function init(element, attrName, simpleAttrValue, dom){
       this.element = element;
       this.attrName = attrName;
       this.attrValue = simpleAttrValue;
       this.dom = dom;
-      this.isDirty = false;
+      this.isDirty = true;
       this.lastValue = null;
       this.currentValue = null;
 
       if (this.attrValue.isStream) {
-        this.attrValue.subscribe(this.renderIfNeeded, this);
-        this.renderIfNeeded();
+        this.attrValue.subscribe(this.markDirty, this);
+        this.renderIfDirty();
       } else {
         this.currentValue = simpleAttrValue;
         this.render();
       }
     };
 
-    SimpleAttrNode.prototype.renderIfNeeded = function renderIfNeeded(){
+    SimpleAttrNode.prototype.markDirty = function markDirty(){
       this.isDirty = true;
-      run.schedule('render', this, this.scheduledRenderIfNeeded);
+      run.schedule('render', this, this.renderIfDirty);
     };
 
-    SimpleAttrNode.prototype.scheduledRenderIfNeeded = function scheduledRenderIfNeeded(){
+    SimpleAttrNode.prototype.renderIfDirty = function renderIfDirty(){
       if (this.isDirty) {
         this.isDirty = false;
         var value = this.attrValue.value();
@@ -5189,7 +5189,7 @@ enifed("ember-htmlbars/attr_nodes/unquoted",
     function UnquotedAttrNode(element, attrName, attrValue, dom) {
       var normalizedAttrName = normalizeProperty(element, attrName) || attrName;
       this.init(element, normalizedAttrName, attrValue, dom);
-    } 
+    }
 
     UnquotedAttrNode.prototype = o_create(SimpleAttrNode.prototype);
 
@@ -5209,7 +5209,7 @@ enifed("ember-htmlbars/attr_nodes/unquoted_nonproperty",
 
     function UnquotedNonpropertyAttrNode(element, attrName, attrValue, dom) {
       this.init(element, attrName, attrValue, dom);
-    } 
+    }
 
     UnquotedNonpropertyAttrNode.prototype = o_create(SimpleAttrNode.prototype);
 
@@ -7775,12 +7775,18 @@ enifed("ember-htmlbars/helpers/view",
       helper: function(newView, hash, options, env) {
         var data = env.data;
         var template = options.template;
+        var newViewProto;
 
         makeBindings(hash, options, env.data.view);
 
         var viewOptions = this.propertiesFromHTMLOptions(hash, options, env);
         var currentView = data.view;
-        var newViewProto = newView.proto();
+
+        if (View.detectInstance(newView)) {
+          newViewProto = newView;
+        } else {
+          newViewProto = newView.proto();
+        }
 
         if (template) {
           Ember.assert(
@@ -8437,11 +8443,14 @@ enifed("ember-htmlbars/hooks/subexpr",
     }
   });
 enifed("ember-htmlbars/plugins/transform-each-in-to-hash",
-  ["htmlbars-syntax/walker","htmlbars-syntax/builders","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["exports"],
+  function(__exports__) {
     "use strict";
-    var Walker = __dependency1__["default"];
-    var b = __dependency2__["default"];
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
 
     /**
       An HTMLBars AST transformation that replaces all instances of
@@ -8458,14 +8467,26 @@ enifed("ember-htmlbars/plugins/transform-each-in-to-hash",
       {{/each}}
       ```
 
+      @class TransformEachInToHash
       @private
+    */
+    function TransformEachInToHash() {
+      // set later within HTMLBars to the syntax package
+      this.syntax = null;
+    }
+
+    /**
+      @private
+      @method transform
       @param {AST} The AST to be transformed.
     */
-    __exports__["default"] = function(ast) {
-      var walker = new Walker();
+    TransformEachInToHash.prototype.transform = function TransformEachInToHash_transform(ast) {
+      var pluginContext = this;
+      var walker = new pluginContext.syntax.Walker();
+      var b = pluginContext.syntax.builders;
 
       walker.visit(ast, function(node) {
-        if (validate(node)) {
+        if (pluginContext.validate(node)) {
           var removedParams = node.sexpr.params.splice(0, 2);
           var keyword = removedParams[0].original;
 
@@ -8482,22 +8503,26 @@ enifed("ember-htmlbars/plugins/transform-each-in-to-hash",
       });
 
       return ast;
-    }
+    };
 
-    function validate(node) {
+    TransformEachInToHash.prototype.validate = function TransformEachInToHash_validate(node) {
       return (node.type === 'BlockStatement' || node.type === 'MustacheStatement') &&
         node.sexpr.path.original === 'each' &&
         node.sexpr.params.length === 3 &&
         node.sexpr.params[1].type === 'PathExpression' &&
         node.sexpr.params[1].original === 'in';
-    }
+    };
+
+    __exports__["default"] = TransformEachInToHash;
   });
 enifed("ember-htmlbars/plugins/transform-with-as-to-hash",
-  ["htmlbars-syntax/walker","htmlbars-syntax/builders","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["exports"],
+  function(__exports__) {
     "use strict";
-    var Walker = __dependency1__["default"];
-    var b = __dependency2__["default"];
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
 
     /**
       An HTMLBars AST transformation that replaces all instances of
@@ -8515,13 +8540,25 @@ enifed("ember-htmlbars/plugins/transform-with-as-to-hash",
       ```
 
       @private
+      @class TransformWithAsToHash
+    */
+    function TransformWithAsToHash() {
+      // set later within HTMLBars to the syntax package
+      this.syntax = null;
+    }
+
+    /**
+      @private
+      @method transform
       @param {AST} The AST to be transformed.
     */
-    __exports__["default"] = function(ast) {
-      var walker = new Walker();
+    TransformWithAsToHash.prototype.transform = function TransformWithAsToHash_transform(ast) {
+      var pluginContext = this;
+      var walker = new pluginContext.syntax.Walker();
+      var b = pluginContext.syntax.builders;
 
       walker.visit(ast, function(node) {
-        if (validate(node)) {
+        if (pluginContext.validate(node)) {
           var removedParams = node.sexpr.params.splice(1, 2);
           var keyword = removedParams[1].original;
 
@@ -8538,15 +8575,17 @@ enifed("ember-htmlbars/plugins/transform-with-as-to-hash",
       });
 
       return ast;
-    }
+    };
 
-    function validate(node) {
+    TransformWithAsToHash.prototype.validate = function TransformWithAsToHash_validate(node) {
       return node.type === 'BlockStatement' &&
         node.sexpr.path.original === 'with' &&
         node.sexpr.params.length === 3 &&
         node.sexpr.params[1].type === 'PathExpression' &&
         node.sexpr.params[1].original === 'as';
-    }
+    };
+
+    __exports__["default"] = TransformWithAsToHash;
   });
 enifed("ember-htmlbars/system/bootstrap",
   ["ember-metal/core","ember-views/component_lookup","ember-views/system/jquery","ember-metal/error","ember-runtime/system/lazy_load","ember-htmlbars/system/compile","exports"],
@@ -8668,8 +8707,8 @@ enifed("ember-htmlbars/system/compile",
     var compile = __dependency2__.compile;
     var template = __dependency3__["default"];
 
-    var transformEachInToHash = __dependency4__["default"];
-    var transformWithAsToHash = __dependency5__["default"];
+    var TransformEachInToHash = __dependency4__["default"];
+    var TransformWithAsToHash = __dependency5__["default"];
 
     var disableComponentGeneration = true;
     
@@ -8688,8 +8727,8 @@ enifed("ember-htmlbars/system/compile",
 
         plugins: {
           ast: [
-            transformEachInToHash,
-            transformWithAsToHash
+            TransformEachInToHash,
+            TransformWithAsToHash
           ]
         }
       });
@@ -8946,6 +8985,40 @@ enifed("ember-htmlbars/system/template",
 
       return templateSpec;
     }
+  });
+enifed("ember-htmlbars/templates/component",
+  ["ember-htmlbars/system/template","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    var template = __dependency1__["default"];
+    var t = (function() {
+      return {
+        isHTMLBars: true,
+        cachedFragment: null,
+        build: function build(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        render: function render(context, env, contextualElement) {
+          var dom = env.dom;
+          var hooks = env.hooks, content = hooks.content;
+          dom.detectNamespace(contextualElement);
+          if (this.cachedFragment === null) {
+            this.cachedFragment = this.build(dom);
+          }
+          var fragment = dom.cloneNode(this.cachedFragment, true);
+          dom.repairClonedNode(fragment,[0,1]);
+          var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
+          content(morph0, "yield", context, [], {}, {morph: morph0}, env);
+          return fragment;
+        }
+      };
+    }());
+     __exports__["default"] = template(t);
   });
 enifed("ember-htmlbars/templates/select",
   ["ember-htmlbars/system/template","exports"],
@@ -12319,7 +12392,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.2+pre.3e835045
+      @version 1.10.0-beta.2+pre.789eae8a
     */
 
     if ('undefined' === typeof Ember) {
@@ -12346,10 +12419,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.2+pre.3e835045'
+      @default '1.10.0-beta.2+pre.789eae8a'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.2+pre.3e835045';
+    Ember.VERSION = '1.10.0-beta.2+pre.789eae8a';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -13500,17 +13573,16 @@ enifed("ember-metal/get_properties",
     }
   });
 enifed("ember-metal/injected_property",
-  ["ember-metal/core","ember-metal/computed","ember-metal/properties","ember-metal/platform","ember-metal/utils","ember-metal/error","exports"],
+  ["ember-metal/core","ember-metal/computed","ember-metal/alias","ember-metal/properties","ember-metal/platform","ember-metal/utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.assert
     var ComputedProperty = __dependency2__.ComputedProperty;
-    var Descriptor = __dependency3__.Descriptor;
-    var create = __dependency4__.create;
-    var meta = __dependency5__.meta;
-    var inspect = __dependency5__.inspect;
-    var EmberError = __dependency6__["default"];
+    var AliasedProperty = __dependency3__.AliasedProperty;
+    var Descriptor = __dependency4__.Descriptor;
+    var create = __dependency5__.create;
+    var meta = __dependency6__.meta;
 
     /**
       Read-only property that returns the result of a container lookup.
@@ -13528,7 +13600,7 @@ enifed("ember-metal/injected_property",
       this.name = name;
 
       this._super$Constructor(injectedPropertyGet);
-      this.readOnly();
+      AliasedPropertyPrototype.oneWay.call(this);
     }
 
     function injectedPropertyGet(keyName) {
@@ -13541,21 +13613,16 @@ enifed("ember-metal/injected_property",
       return this.container.lookup(desc.type + ':' + (desc.name || keyName));
     }
 
-    function injectedPropertySet(obj, keyName) {
-      throw new EmberError("Cannot set injected property '" + keyName + "' on object: " + inspect(obj));
-    }
-
     InjectedProperty.prototype = create(Descriptor.prototype);
 
     var InjectedPropertyPrototype = InjectedProperty.prototype;
     var ComputedPropertyPrototype = ComputedProperty.prototype;
+    var AliasedPropertyPrototype = AliasedProperty.prototype;
 
     InjectedPropertyPrototype._super$Constructor = ComputedProperty;
 
     InjectedPropertyPrototype.get = ComputedPropertyPrototype.get;
     InjectedPropertyPrototype.readOnly = ComputedPropertyPrototype.readOnly;
-
-    InjectedPropertyPrototype.set = injectedPropertySet;
 
     InjectedPropertyPrototype.teardown = ComputedPropertyPrototype.teardown;
 
@@ -28807,7 +28874,6 @@ enifed("ember-runtime/ext/rsvp",
           Ember.onerror(error);
         } else {
           Logger.error(error.stack);
-          Ember.assert(error, false);
         }
       }
     };
@@ -38814,7 +38880,7 @@ enifed("ember-views/streams/utils",
         viewClass = value;
       }
 
-      Ember.assert(fmt(value+" must be a subclass of Ember.View, not %@", [viewClass]), View.detect(viewClass));
+      Ember.assert(fmt(value+" must be a subclass or an instance of Ember.View, not %@", [viewClass]), View.detect(viewClass) || View.detectInstance(viewClass));
 
       return viewClass;
     }
@@ -39788,8 +39854,8 @@ enifed("ember-views/system/render_buffer",
     };
   });
 enifed("ember-views/system/renderer",
-  ["ember-metal/core","ember-metal-views/renderer","ember-metal/platform","ember-views/system/render_buffer","ember-metal/run_loop","ember-metal/property_set","ember-metal/instrumentation","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
+  ["ember-metal/core","ember-metal-views/renderer","ember-metal/platform","ember-views/system/render_buffer","ember-metal/run_loop","ember-metal/property_set","ember-metal/property_get","ember-metal/instrumentation","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var Renderer = __dependency2__["default"];
@@ -39797,8 +39863,9 @@ enifed("ember-views/system/renderer",
     var renderBuffer = __dependency4__["default"];
     var run = __dependency5__["default"];
     var set = __dependency6__.set;
-    var _instrumentStart = __dependency7__._instrumentStart;
-    var subscribers = __dependency7__.subscribers;
+    var get = __dependency7__.get;
+    var _instrumentStart = __dependency8__._instrumentStart;
+    var subscribers = __dependency8__.subscribers;
 
     function EmberRenderer() {
       this.buffer = renderBuffer();
@@ -39826,6 +39893,10 @@ enifed("ember-views/system/renderer",
         // provided buffer operation (for example, `insertAfter` will
         // insert a new buffer after the "parent buffer").
         var tagName = view.tagName;
+        if (!tagName) {
+          tagName = get(view, 'tagName');
+          Ember.deprecate('In the future using a computed property to define tagName will not be permitted. That value will be respected, but changing it will not update the element.', !tagName);
+        }
         var classNameBindings = view.classNameBindings;
         var taglessViewWithClassBindings = tagName === '' && classNameBindings.length > 0;
 
@@ -40704,8 +40775,8 @@ enifed("ember-views/views/collection_view",
     __exports__["default"] = CollectionView;
   });
 enifed("ember-views/views/component",
-  ["ember-metal/core","ember-views/mixins/component_template_deprecation","ember-runtime/mixins/target_action_support","ember-views/views/view","ember-metal/property_get","ember-metal/property_set","ember-metal/is_none","ember-metal/computed","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
+  ["ember-metal/core","ember-views/mixins/component_template_deprecation","ember-runtime/mixins/target_action_support","ember-views/views/view","ember-metal/property_get","ember-metal/property_set","ember-metal/is_none","ember-metal/computed","ember-htmlbars/templates/component","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.assert, Ember.Handlebars
@@ -40719,6 +40790,7 @@ enifed("ember-views/views/component",
     var isNone = __dependency7__["default"];
 
     var computed = __dependency8__.computed;
+    var defaultComponentLayout = __dependency9__["default"];
 
     var a_slice = Array.prototype.slice;
 
@@ -40826,12 +40898,7 @@ enifed("ember-views/views/component",
         set(this, 'controller', this);
       },
 
-      defaultLayout: function(context, options){
-        
-          // ES6TODO: must use global here, to prevent circular require issue
-          // remove and replace with standard import once we have lazy binding
-          Ember.HTMLBars.helpers.yield.helperFunction.call(context, [], {}, options, { data: { view: context }});
-              },
+      defaultLayout: defaultComponentLayout,
 
       /**
       A components template property is set by passing a block
@@ -48238,8 +48305,8 @@ enifed("htmlbars-syntax/node-handlers",
     __exports__["default"] = nodeHandlers;
   });
 enifed("htmlbars-syntax/parser",
-  ["./handlebars/compiler/base","../simple-html-tokenizer","../simple-html-tokenizer/entity-parser","../simple-html-tokenizer/char-refs/full","./node-handlers","./token-handlers","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+  ["./handlebars/compiler/base","../simple-html-tokenizer","../simple-html-tokenizer/entity-parser","../simple-html-tokenizer/char-refs/full","./node-handlers","./token-handlers","../htmlbars-syntax","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
     var parse = __dependency1__.parse;
     var Tokenizer = __dependency2__.Tokenizer;
@@ -48248,13 +48315,23 @@ enifed("htmlbars-syntax/parser",
     var nodeHandlers = __dependency5__["default"];
     var tokenHandlers = __dependency6__["default"];
 
+    // this should be:
+    // `import * from "../htmlbars-syntax";
+    //
+    // But this version of the transpiler does not support it properly
+    var syntax = __dependency7__;
+
     function preprocess(html, options) {
       var ast = (typeof html === 'object') ? html : parse(html);
       var combined = new HTMLProcessor(html, options).acceptNode(ast);
 
       if (options && options.plugins && options.plugins.ast) {
         for (var i = 0, l = options.plugins.ast.length; i < l; i++) {
-          combined = options.plugins.ast[i](combined);
+          var plugin = new options.plugins.ast[i]();
+
+          plugin.syntax = syntax;
+
+          combined = plugin.transform(combined);
         }
       }
 
@@ -48410,19 +48487,39 @@ enifed("htmlbars-syntax/token-handlers",
         var token = this.tokenizer.token;
 
         switch(state) {
+          // Tag helpers
+          case "tagName":
+            token.addTagHelper(mustache.sexpr);
+            this.tokenizer.state = "beforeAttributeName";
+            return;
+          case "beforeAttributeName":
+            token.addTagHelper(mustache.sexpr);
+            return;
+          case "attributeName":
+          case "afterAttributeName":
+            this.tokenizer.finalizeAttributeValue();
+            token.addTagHelper(mustache.sexpr);
+            this.tokenizer.state = "beforeAttributeName";
+            return;
+          case "afterAttributeValueQuoted":
+            token.addTagHelper(mustache.sexpr);
+            this.tokenizer.state = "beforeAttributeName";
+            return;
+
+          // Attribute values
           case "beforeAttributeValue":
-            this.tokenizer.state = 'attributeValueUnquoted';
             token.markAttributeQuoted(false);
             token.addToAttributeValue(mustache);
+            this.tokenizer.state = 'attributeValueUnquoted';
             return;
           case "attributeValueDoubleQuoted":
           case "attributeValueSingleQuoted":
           case "attributeValueUnquoted":
             token.addToAttributeValue(mustache);
             return;
-          case "beforeAttributeName":
-            token.addTagHelper(mustache.sexpr);
-            return;
+
+          // TODO: Only append child when the tokenizer state makes
+          // sense to do so, otherwise throw an error.
           default:
             appendChild(this.currentElement(), mustache);
         }
@@ -49101,6 +49198,10 @@ enifed("morph/dom-helper",
 
     var prototype = DOMHelper.prototype;
     prototype.constructor = DOMHelper;
+
+    prototype.getElementById = function(id) {
+      return this.document.getElementById(id);
+    };
 
     prototype.insertBefore = function(element, childElement, referenceChild) {
       return element.insertBefore(childElement, referenceChild);
