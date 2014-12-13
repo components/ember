@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.beac7e22
+ * @version   1.11.0-beta.1+canary.cc773512
  */
 
 (function() {
@@ -28687,10 +28687,11 @@ enifed("ember-routing/tests/system/controller_for_test.jshint",
     });
   });
 enifed("ember-routing/tests/system/dsl_test",
-  ["ember-routing/system/router"],
-  function(__dependency1__) {
+  ["ember-routing/system/router","ember-metal/enumerable_utils"],
+  function(__dependency1__, __dependency2__) {
     "use strict";
     var EmberRouter = __dependency1__["default"];
+    var forEach = __dependency2__.forEach;
 
     var Router;
 
@@ -28704,19 +28705,25 @@ enifed("ember-routing/tests/system/dsl_test",
     });
 
     test("should fail when using a reserved route name", function() {
-      expect(2);
+      var reservedNames = ['array', 'basic', 'object'];
 
-      expectAssertion(function() {
-        Router.map(function() {
-          this.route('basic');
-        });
-      }, "'basic' cannot be used as a route name.");
+      expect(reservedNames.length * 2);
 
-      expectAssertion(function() {
-        Router.map(function() {
-          this.resource('basic');
-        });
-      }, "'basic' cannot be used as a resource name.");
+      forEach(reservedNames, function(reservedName) {
+
+        expectAssertion(function() {
+          Router.map(function() {
+            this.route(reservedName);
+          });
+        }, "'" + reservedName + "' cannot be used as a route name.");
+
+        expectAssertion(function() {
+          Router.map(function() {
+            this.resource(reservedName);
+          });
+        }, "'" + reservedName + "' cannot be used as a resource name.");
+
+      });
     });
 
     test("should reset namespace if nested with resource", function(){
