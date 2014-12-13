@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.1+pre.042c51dd
+ * @version   1.9.1+pre.031b0277
  */
 
 (function() {
@@ -11784,14 +11784,15 @@ enifed("ember-handlebars/tests/helpers/unbound_test.jshint",
     });
   });
 enifed("ember-handlebars/tests/helpers/view_test",
-  ["ember-views/views/view","container/container","ember-metal/run_loop","ember-views/system/jquery"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+  ["ember-views/views/view","container/container","ember-metal/run_loop","ember-views/system/jquery","ember-runtime/system/object"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
     /*globals EmberDev */
     var EmberView = __dependency1__["default"];
     var Container = __dependency2__["default"];
     var run = __dependency3__["default"];
     var jQuery = __dependency4__["default"];
+    var EmberObject = __dependency5__["default"];
 
     var view, originalLookup;
 
@@ -12048,6 +12049,92 @@ enifed("ember-handlebars/tests/helpers/view_test",
       run(view, 'appendTo', '#qunit-fixture');
 
       ok(jQuery('#foo').hasClass('foo'), "Always applies classbinding without condition");
+    });
+
+    test('{{view}} should be able to point to a local instance of view', function() {
+      view = EmberView.create({
+        template: Ember.Handlebars.compile("{{view view.common}}"),
+
+        common: EmberView.create({
+          template: Ember.Handlebars.compile("common")
+        })
+      });
+
+      run(view, 'appendTo', '#qunit-fixture');
+      equal(view.$().text(), "common", "tries to look up view name locally");
+    });
+
+    test("{{view}} should be able to point to a local instance of subclass of view", function() {
+      var MyView = EmberView.extend();
+      view = EmberView.create({
+        template: Ember.Handlebars.compile("{{view view.subclassed}}"),
+        subclassed: MyView.create({
+          template: Ember.Handlebars.compile("subclassed")
+        })
+      });
+
+      run(view, 'appendTo', '#qunit-fixture');
+      equal(view.$().text(), "subclassed", "tries to look up view name locally");
+    });
+
+    test("{{view}} asserts that a view class is present", function() {
+      var MyView = EmberObject.extend();
+      view = EmberView.create({
+        template: Ember.Handlebars.compile("{{view view.notView}}"),
+        notView: MyView.extend({
+          template: Ember.Handlebars.compile("notView")
+        })
+      });
+
+      expectAssertion(function(){
+        run(view, 'appendTo', '#qunit-fixture');
+      }, /must be a subclass or an instance of Ember.View/);
+    });
+
+    test("{{view}} asserts that a view class is present off controller", function() {
+      var MyView = EmberObject.extend();
+      view = EmberView.create({
+        template: Ember.Handlebars.compile("{{view notView}}"),
+        controller: EmberObject.create({
+          notView: MyView.extend({
+            template: Ember.Handlebars.compile("notView")
+          })
+        })
+      });
+
+      expectAssertion(function(){
+        run(view, 'appendTo', '#qunit-fixture');
+      }, /must be a subclass or an instance of Ember.View/);
+    });
+
+    test("{{view}} asserts that a view instance is present", function() {
+      var MyView = EmberObject.extend();
+      view = EmberView.create({
+        template: Ember.Handlebars.compile("{{view view.notView}}"),
+        notView: MyView.create({
+          template: Ember.Handlebars.compile("notView")
+        })
+      });
+
+      expectAssertion(function(){
+        run(view, 'appendTo', '#qunit-fixture');
+      }, /must be a subclass or an instance of Ember.View/);
+    });
+
+    test("{{view}} asserts that a view subclass instance is present off controller", function() {
+      var MyView = EmberObject.extend();
+      view = EmberView.create({
+        template: Ember.Handlebars.compile("{{view notView}}"),
+        controller: EmberObject.create({
+          notView: MyView.create({
+            template: Ember.Handlebars.compile("notView")
+          })
+        })
+      });
+
+      expectAssertion(function(){
+        run(view, 'appendTo', '#qunit-fixture');
+      }, /must be a subclass or an instance of Ember.View/);
     });
   });
 enifed("ember-handlebars/tests/helpers/view_test.jshint",
