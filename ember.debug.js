@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.1ea85e52
+ * @version   1.11.0-beta.1+canary.33e48af8
  */
 
 (function() {
@@ -7787,12 +7787,18 @@ enifed("ember-htmlbars/helpers/view",
       helper: function(newView, hash, options, env) {
         var data = env.data;
         var template = options.template;
+        var newViewProto;
 
         makeBindings(hash, options, env.data.view);
 
         var viewOptions = this.propertiesFromHTMLOptions(hash, options, env);
         var currentView = data.view;
-        var newViewProto = newView.proto();
+
+        if (View.detectInstance(newView)) {
+          newViewProto = newView;
+        } else {
+          newViewProto = newView.proto();
+        }
 
         if (template) {
           Ember.assert(
@@ -12404,7 +12410,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.1ea85e52
+      @version 1.11.0-beta.1+canary.33e48af8
     */
 
     if ('undefined' === typeof Ember) {
@@ -12431,10 +12437,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.1ea85e52'
+      @default '1.11.0-beta.1+canary.33e48af8'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.1ea85e52';
+    Ember.VERSION = '1.11.0-beta.1+canary.33e48af8';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -38929,7 +38935,7 @@ enifed("ember-views/streams/utils",
         viewClass = value;
       }
 
-      Ember.assert(fmt(value+" must be a subclass of Ember.View, not %@", [viewClass]), View.detect(viewClass));
+      Ember.assert(fmt(value+" must be a subclass or an instance of Ember.View, not %@", [viewClass]), View.detect(viewClass) || View.detectInstance(viewClass));
 
       return viewClass;
     }

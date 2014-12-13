@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.1ea85e52
+ * @version   1.11.0-beta.1+canary.33e48af8
  */
 
 (function() {
@@ -12006,6 +12006,92 @@ enifed("ember-htmlbars/tests/helpers/view_test",
       runAppend(view);
 
       ok(view.$().text() === 'foobarProperty', 'Property was bound to correctly');
+    });
+
+    test('{{view}} should be able to point to a local instance of view', function() {
+      view = EmberView.create({
+        template: compile("{{view view.common}}"),
+
+        common: EmberView.create({
+          template: compile("common")
+        })
+      });
+
+      runAppend(view);
+      equal(view.$().text(), "common", "tries to look up view name locally");
+    });
+
+    test("{{view}} should be able to point to a local instance of subclass of view", function() {
+      var MyView = EmberView.extend();
+      view = EmberView.create({
+        template: compile("{{view view.subclassed}}"),
+        subclassed: MyView.create({
+          template: compile("subclassed")
+        })
+      });
+
+      runAppend(view);
+      equal(view.$().text(), "subclassed", "tries to look up view name locally");
+    });
+
+    test("{{view}} asserts that a view class is present", function() {
+      var MyView = EmberObject.extend();
+      view = EmberView.create({
+        template: compile("{{view view.notView}}"),
+        notView: MyView.extend({
+          template: compile("notView")
+        })
+      });
+
+      expectAssertion(function(){
+        runAppend(view);
+      }, /must be a subclass or an instance of Ember.View/);
+    });
+
+    test("{{view}} asserts that a view class is present off controller", function() {
+      var MyView = EmberObject.extend();
+      view = EmberView.create({
+        template: compile("{{view notView}}"),
+        controller: EmberObject.create({
+          notView: MyView.extend({
+            template: compile("notView")
+          })
+        })
+      });
+
+      expectAssertion(function(){
+        runAppend(view);
+      }, /must be a subclass or an instance of Ember.View/);
+    });
+
+    test("{{view}} asserts that a view instance is present", function() {
+      var MyView = EmberObject.extend();
+      view = EmberView.create({
+        template: compile("{{view view.notView}}"),
+        notView: MyView.create({
+          template: compile("notView")
+        })
+      });
+
+      expectAssertion(function(){
+        runAppend(view);
+      }, /must be a subclass or an instance of Ember.View/);
+    });
+
+    test("{{view}} asserts that a view subclass instance is present off controller", function() {
+      var MyView = EmberObject.extend();
+      view = EmberView.create({
+        template: compile("{{view notView}}"),
+        controller: EmberObject.create({
+          notView: MyView.create({
+            template: compile("notView")
+          })
+        })
+      });
+
+      expectAssertion(function(){
+        runAppend(view);
+      }, /must be a subclass or an instance of Ember.View/);
     });
   });
 enifed("ember-htmlbars/tests/helpers/view_test.jshint",
