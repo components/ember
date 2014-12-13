@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.dcf1c3a5
+ * @version   1.11.0-beta.1+canary.1ea85e52
  */
 
 (function() {
@@ -8452,11 +8452,14 @@ enifed("ember-htmlbars/hooks/subexpr",
     }
   });
 enifed("ember-htmlbars/plugins/transform-each-in-to-hash",
-  ["htmlbars-syntax/walker","htmlbars-syntax/builders","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["exports"],
+  function(__exports__) {
     "use strict";
-    var Walker = __dependency1__["default"];
-    var b = __dependency2__["default"];
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
 
     /**
       An HTMLBars AST transformation that replaces all instances of
@@ -8473,14 +8476,26 @@ enifed("ember-htmlbars/plugins/transform-each-in-to-hash",
       {{/each}}
       ```
 
+      @class TransformEachInToHash
       @private
+    */
+    function TransformEachInToHash() {
+      // set later within HTMLBars to the syntax package
+      this.syntax = null;
+    }
+
+    /**
+      @private
+      @method transform
       @param {AST} The AST to be transformed.
     */
-    __exports__["default"] = function(ast) {
-      var walker = new Walker();
+    TransformEachInToHash.prototype.transform = function TransformEachInToHash_transform(ast) {
+      var pluginContext = this;
+      var walker = new pluginContext.syntax.Walker();
+      var b = pluginContext.syntax.builders;
 
       walker.visit(ast, function(node) {
-        if (validate(node)) {
+        if (pluginContext.validate(node)) {
           var removedParams = node.sexpr.params.splice(0, 2);
           var keyword = removedParams[0].original;
 
@@ -8497,22 +8512,26 @@ enifed("ember-htmlbars/plugins/transform-each-in-to-hash",
       });
 
       return ast;
-    }
+    };
 
-    function validate(node) {
+    TransformEachInToHash.prototype.validate = function TransformEachInToHash_validate(node) {
       return (node.type === 'BlockStatement' || node.type === 'MustacheStatement') &&
         node.sexpr.path.original === 'each' &&
         node.sexpr.params.length === 3 &&
         node.sexpr.params[1].type === 'PathExpression' &&
         node.sexpr.params[1].original === 'in';
-    }
+    };
+
+    __exports__["default"] = TransformEachInToHash;
   });
 enifed("ember-htmlbars/plugins/transform-with-as-to-hash",
-  ["htmlbars-syntax/walker","htmlbars-syntax/builders","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["exports"],
+  function(__exports__) {
     "use strict";
-    var Walker = __dependency1__["default"];
-    var b = __dependency2__["default"];
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
 
     /**
       An HTMLBars AST transformation that replaces all instances of
@@ -8530,13 +8549,25 @@ enifed("ember-htmlbars/plugins/transform-with-as-to-hash",
       ```
 
       @private
+      @class TransformWithAsToHash
+    */
+    function TransformWithAsToHash() {
+      // set later within HTMLBars to the syntax package
+      this.syntax = null;
+    }
+
+    /**
+      @private
+      @method transform
       @param {AST} The AST to be transformed.
     */
-    __exports__["default"] = function(ast) {
-      var walker = new Walker();
+    TransformWithAsToHash.prototype.transform = function TransformWithAsToHash_transform(ast) {
+      var pluginContext = this;
+      var walker = new pluginContext.syntax.Walker();
+      var b = pluginContext.syntax.builders;
 
       walker.visit(ast, function(node) {
-        if (validate(node)) {
+        if (pluginContext.validate(node)) {
           var removedParams = node.sexpr.params.splice(1, 2);
           var keyword = removedParams[1].original;
 
@@ -8553,15 +8584,17 @@ enifed("ember-htmlbars/plugins/transform-with-as-to-hash",
       });
 
       return ast;
-    }
+    };
 
-    function validate(node) {
+    TransformWithAsToHash.prototype.validate = function TransformWithAsToHash_validate(node) {
       return node.type === 'BlockStatement' &&
         node.sexpr.path.original === 'with' &&
         node.sexpr.params.length === 3 &&
         node.sexpr.params[1].type === 'PathExpression' &&
         node.sexpr.params[1].original === 'as';
-    }
+    };
+
+    __exports__["default"] = TransformWithAsToHash;
   });
 enifed("ember-htmlbars/system/bootstrap",
   ["ember-metal/core","ember-views/component_lookup","ember-views/system/jquery","ember-metal/error","ember-runtime/system/lazy_load","ember-htmlbars/system/compile","exports"],
@@ -8683,8 +8716,8 @@ enifed("ember-htmlbars/system/compile",
     var compile = __dependency2__.compile;
     var template = __dependency3__["default"];
 
-    var transformEachInToHash = __dependency4__["default"];
-    var transformWithAsToHash = __dependency5__["default"];
+    var TransformEachInToHash = __dependency4__["default"];
+    var TransformWithAsToHash = __dependency5__["default"];
 
     var disableComponentGeneration = true;
     if (Ember.FEATURES.isEnabled('ember-htmlbars-component-generation')) {
@@ -8706,8 +8739,8 @@ enifed("ember-htmlbars/system/compile",
 
         plugins: {
           ast: [
-            transformEachInToHash,
-            transformWithAsToHash
+            TransformEachInToHash,
+            TransformWithAsToHash
           ]
         }
       });
@@ -12371,7 +12404,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.dcf1c3a5
+      @version 1.11.0-beta.1+canary.1ea85e52
     */
 
     if ('undefined' === typeof Ember) {
@@ -12398,10 +12431,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.dcf1c3a5'
+      @default '1.11.0-beta.1+canary.1ea85e52'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.dcf1c3a5';
+    Ember.VERSION = '1.11.0-beta.1+canary.1ea85e52';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -48321,8 +48354,8 @@ enifed("htmlbars-syntax/node-handlers",
     __exports__["default"] = nodeHandlers;
   });
 enifed("htmlbars-syntax/parser",
-  ["./handlebars/compiler/base","../simple-html-tokenizer","../simple-html-tokenizer/entity-parser","../simple-html-tokenizer/char-refs/full","./node-handlers","./token-handlers","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+  ["./handlebars/compiler/base","../simple-html-tokenizer","../simple-html-tokenizer/entity-parser","../simple-html-tokenizer/char-refs/full","./node-handlers","./token-handlers","../htmlbars-syntax","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
     var parse = __dependency1__.parse;
     var Tokenizer = __dependency2__.Tokenizer;
@@ -48331,13 +48364,23 @@ enifed("htmlbars-syntax/parser",
     var nodeHandlers = __dependency5__["default"];
     var tokenHandlers = __dependency6__["default"];
 
+    // this should be:
+    // `import * from "../htmlbars-syntax";
+    //
+    // But this version of the transpiler does not support it properly
+    var syntax = __dependency7__;
+
     function preprocess(html, options) {
       var ast = (typeof html === 'object') ? html : parse(html);
       var combined = new HTMLProcessor(html, options).acceptNode(ast);
 
       if (options && options.plugins && options.plugins.ast) {
         for (var i = 0, l = options.plugins.ast.length; i < l; i++) {
-          combined = options.plugins.ast[i](combined);
+          var plugin = new options.plugins.ast[i]();
+
+          plugin.syntax = syntax;
+
+          combined = plugin.transform(combined);
         }
       }
 
@@ -48493,19 +48536,39 @@ enifed("htmlbars-syntax/token-handlers",
         var token = this.tokenizer.token;
 
         switch(state) {
+          // Tag helpers
+          case "tagName":
+            token.addTagHelper(mustache.sexpr);
+            this.tokenizer.state = "beforeAttributeName";
+            return;
+          case "beforeAttributeName":
+            token.addTagHelper(mustache.sexpr);
+            return;
+          case "attributeName":
+          case "afterAttributeName":
+            this.tokenizer.finalizeAttributeValue();
+            token.addTagHelper(mustache.sexpr);
+            this.tokenizer.state = "beforeAttributeName";
+            return;
+          case "afterAttributeValueQuoted":
+            token.addTagHelper(mustache.sexpr);
+            this.tokenizer.state = "beforeAttributeName";
+            return;
+
+          // Attribute values
           case "beforeAttributeValue":
-            this.tokenizer.state = 'attributeValueUnquoted';
             token.markAttributeQuoted(false);
             token.addToAttributeValue(mustache);
+            this.tokenizer.state = 'attributeValueUnquoted';
             return;
           case "attributeValueDoubleQuoted":
           case "attributeValueSingleQuoted":
           case "attributeValueUnquoted":
             token.addToAttributeValue(mustache);
             return;
-          case "beforeAttributeName":
-            token.addTagHelper(mustache.sexpr);
-            return;
+
+          // TODO: Only append child when the tokenizer state makes
+          // sense to do so, otherwise throw an error.
           default:
             appendChild(this.currentElement(), mustache);
         }
@@ -49184,6 +49247,10 @@ enifed("morph/dom-helper",
 
     var prototype = DOMHelper.prototype;
     prototype.constructor = DOMHelper;
+
+    prototype.getElementById = function(id) {
+      return this.document.getElementById(id);
+    };
 
     prototype.insertBefore = function(element, childElement, referenceChild) {
       return element.insertBefore(childElement, referenceChild);
