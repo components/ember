@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.a4333f94
+ * @version   1.11.0-beta.1+canary.beac7e22
  */
 
 (function() {
@@ -11971,7 +11971,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.a4333f94
+      @version 1.11.0-beta.1+canary.beac7e22
     */
 
     if ('undefined' === typeof Ember) {
@@ -11998,10 +11998,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.a4333f94'
+      @default '1.11.0-beta.1+canary.beac7e22'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.a4333f94';
+    Ember.VERSION = '1.11.0-beta.1+canary.beac7e22';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -24021,9 +24021,9 @@ enifed("ember-routing/system/route",
                         referenced by name. Defaults to the parent template
         @param {String} [options.outlet] the outlet inside `options.template` to render into.
                         Defaults to 'main'
-        @param {String} [options.controller] the controller to use for this template,
-                        referenced by name. Defaults to the Route's paired controller
-        @param {String} [options.model] the model object to set on `options.controller`
+        @param {String|Object} [options.controller] the controller to use for this template,
+                        referenced by name or as a controller instance. Defaults to the Route's paired controller
+        @param {Object} [options.model] the model object to set on `options.controller`.
                         Defaults to the return value of the Route's model hook
       */
       render: function(name, options) {
