@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.82138c1f
+ * @version   1.11.0-beta.1+canary.63c5f917
  */
 
 (function() {
@@ -4064,15 +4064,6 @@ enifed("ember-htmlbars/attr_nodes/quoted.jshint",
       ok(true, 'ember-htmlbars/attr_nodes/quoted.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/attr_nodes/quoted_class.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-htmlbars/attr_nodes');
-    test('ember-htmlbars/attr_nodes/quoted_class.js should pass jshint', function() { 
-      ok(true, 'ember-htmlbars/attr_nodes/quoted_class.js should pass jshint.'); 
-    });
-  });
 enifed("ember-htmlbars/attr_nodes/simple.jshint",
   [],
   function() {
@@ -4664,9 +4655,7 @@ enifed("ember-htmlbars/tests/attr_nodes/class_test",
       });
       appendView(view);
 
-      ok(view.$('.large')[0], 'first class found');
-      ok(view.$('.blue')[0], 'second class found');
-      ok(view.$('.round')[0], 'third class found');
+      ok(view.element.firstChild.className, 'large blue round', 'classes are set');
     });
 
     if (isInlineIfEnabled) {
@@ -4683,16 +4672,12 @@ enifed("ember-htmlbars/tests/attr_nodes/class_test",
       });
       appendView(view);
 
-      ok(view.$('.large')[0], 'first class found');
-      ok(view.$('.blue')[0], 'second class found');
-      ok(view.$('.no-shape')[0], 'third class found');
+      ok(view.element.firstChild.className, 'large blue no-shape', 'classes are set');
 
       run(view, view.set, 'context.hasColor', false);
       run(view, view.set, 'context.hasShape', true);
 
-      ok(view.$('.large')[0], 'first class found after change');
-      ok(view.$('.blue').length === 0, 'second class not found after change');
-      ok(view.$('.round')[0], 'third class found after change');
+      ok(view.element.firstChild.className, 'large round', 'classes are updated');
     });
 
     }
@@ -4706,14 +4691,11 @@ enifed("ember-htmlbars/tests/attr_nodes/class_test",
       });
       appendView(view);
 
-      ok(view.$('.large')[0], 'first class found');
-      ok(view.$('.small')[0], 'second class found');
+      ok(view.element.firstChild.className, 'large small', 'classes are set');
 
       run(view, view.set, 'context.size', 'medium');
 
-      ok(view.$('.large').length === 0, 'old class not found');
-      ok(view.$('.small').length === 0, 'old class not found');
-      ok(view.$('.medium')[0], 'new class found');
+      ok(view.element.firstChild.className, 'medium', 'classes are updated');
     });
 
     test("class attribute can grok concatted classes, and update", function() {
@@ -4727,17 +4709,27 @@ enifed("ember-htmlbars/tests/attr_nodes/class_test",
       });
       appendView(view);
 
-      ok(view.$('.btn-large')[0], 'first class found');
-      ok(view.$('.pre-pre')[0], 'second class found');
-      ok(view.$('.pre-post')[0], 'third class found');
-      ok(view.$('.whoop')[0], 'fourth class found');
+      ok(view.element.firstChild.className, 'btn-large pre-pre pre-post whoop', 'classes are set');
 
       run(view, view.set, 'context.prefix', '');
 
-      ok(view.$('.btn-large')[0], 'first class found');
-      ok(view.$('.pre-pre').length === 0, 'second class not found');
-      ok(view.$('.-post')[0], 'third class found');
-      ok(view.$('.whoop')[0], 'fourth class found');
+      ok(view.element.firstChild.className, 'btn-large -post whoop', 'classes are updated');
+    });
+
+    test("class attribute stays in order", function() {
+      view = EmberView.create({
+        context: {
+          showA: 'a',
+          showB: 'b',
+        },
+        template: compile("<div class='r {{showB}} {{showA}} c'></div>")
+      });
+      appendView(view);
+
+      run(view, view.set, 'context.showB', false);
+      run(view, view.set, 'context.showB', true);
+
+      ok(view.element.firstChild.className, 'r b a c', 'classes are in the right order');
     });
 
     }
@@ -5212,7 +5204,7 @@ enifed("ember-htmlbars/tests/attr_nodes/svg_test",
 
       Ember.run(view, view.set, 'context.color', 'red');
 
-      equalInnerHTML(view.element, '<svg class="tall red"></svg>', "attribute is output");
+      equalInnerHTML(view.element, '<svg class="red tall"></svg>', "attribute is output");
     });
 
     }
@@ -6855,6 +6847,16 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test",
       });
 
       equal(observersFor(view, 'foo').length, 1);
+    });
+
+    test("should keep class in the order it appears in", function() {
+      view = EmberView.create({
+        template: compile('<span {{bind-attr class=":foo :baz"}}></span>'),
+      });
+
+      runAppend(view);
+
+      equal(view.element.firstChild.className, 'foo baz', 'classes are in expected order');
     });
 
     test('should allow either quoted or unquoted values', function() {

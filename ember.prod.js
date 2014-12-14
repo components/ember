@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.82138c1f
+ * @version   1.11.0-beta.1+canary.63c5f917
  */
 
 (function() {
@@ -4582,8 +4582,8 @@ enifed("ember-htmlbars",
     __exports__.defaultEnv = defaultEnv;
   });
 enifed("ember-htmlbars/attr_nodes",
-  ["ember-htmlbars/attr_nodes/quoted","ember-htmlbars/attr_nodes/unquoted","ember-htmlbars/attr_nodes/unquoted_nonproperty","ember-htmlbars/attr_nodes/quoted_class","ember-metal/platform","ember-htmlbars/attr_nodes/utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+  ["ember-htmlbars/attr_nodes/quoted","ember-htmlbars/attr_nodes/unquoted","ember-htmlbars/attr_nodes/unquoted_nonproperty","ember-metal/platform","ember-htmlbars/attr_nodes/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -4593,9 +4593,8 @@ enifed("ember-htmlbars/attr_nodes",
     var QuotedAttrNode = __dependency1__["default"];
     var UnquotedAttrNode = __dependency2__["default"];
     var UnquotedNonpropertyAttrNode = __dependency3__["default"];
-    var QuotedClassAttrNode = __dependency4__["default"];
-    var o_create = __dependency5__.create;
-    var normalizeProperty = __dependency6__.normalizeProperty;
+    var o_create = __dependency4__.create;
+    var normalizeProperty = __dependency5__.normalizeProperty;
 
     var svgNamespaceURI = 'http://www.w3.org/2000/svg';
 
@@ -4603,7 +4602,6 @@ enifed("ember-htmlbars/attr_nodes",
     unquotedAttrNodeTypes['class'] = UnquotedNonpropertyAttrNode;
 
     var quotedAttrNodeTypes = o_create(null);
-    quotedAttrNodeTypes['class'] = QuotedClassAttrNode;
 
     __exports__["default"] = function attrNodeTypeFor(attrName, element, quoted) {
       var result;
@@ -4711,119 +4709,6 @@ enifed("ember-htmlbars/attr_nodes/quoted",
     };
 
     __exports__["default"] = QuotedAttrNode;
-  });
-enifed("ember-htmlbars/attr_nodes/quoted_class",
-  ["ember-metal/run_loop","ember-metal/streams/utils","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-htmlbars
-    */
-
-    var run = __dependency1__["default"];
-    var read = __dependency2__.read;
-    var subscribe = __dependency2__.subscribe;
-
-    var SPACES = /\s+/;
-    var ADD_LIST = [];
-    var REMOVE_LIST = [];
-
-    // Dedupes and removes empty strings. It expects the array
-    // to be sorted.
-    // TODO: This could be done in-place instead of splicing.
-    function normalizeClasses(array) {
-      var i = 0;
-      while (i < array.length - 1) {
-        if (array[i] === array[i+1]) {
-          array.splice(i, 1);
-        } else {
-          i++;
-        }
-      }
-      if (array[0] === '') {
-        array.shift();
-      }
-    }
-
-    function buildClasses(value) {
-      if (typeof value === 'string') {
-        return value.split(SPACES);
-      } else {
-        return [];
-      }
-    }
-
-    function QuotedClassAttrNode(element, attrName, attrValue, dom) {
-      this.element = element;
-      this.attrName = attrName;
-      this.dom = dom;
-      this.isDirty = true;
-
-      this.classes = attrValue;
-      this.oldClasses = [];
-
-      subscribe(attrValue, this.markDirty, this);
-      this.renderIfDirty();
-    }
-
-    QuotedClassAttrNode.prototype.markDirty = function markDirty(){
-      this.isDirty = true;
-      run.schedule('render', this, this.renderIfDirty);
-    };
-
-    QuotedClassAttrNode.prototype.renderIfDirty = function renderIfDirty(){
-      if (this.isDirty) {
-        this.isDirty = false;
-        this.render();
-      }
-    };
-
-    QuotedClassAttrNode.prototype.render = function render(){
-      ADD_LIST.length = 0;
-      REMOVE_LIST.length = 0;
-
-      var oldClasses = this.oldClasses;
-      var newClasses = buildClasses(read(this.classes));
-      newClasses.sort();
-      normalizeClasses(newClasses);
-
-      var oldIndex = 0;
-      var oldLength = oldClasses.length;
-      var newIndex = 0;
-      var newLength = newClasses.length;
-
-      while (oldIndex < oldLength || newIndex < newLength) {
-        var oldClass = oldClasses[oldIndex];
-        var newClass = newClasses[newIndex];
-
-        if (oldIndex === oldLength) {
-          ADD_LIST.push(newClass);
-          newIndex++;
-        } else if (newIndex === newLength) {
-          REMOVE_LIST.push(oldClass);
-          oldIndex++;
-        } else {
-          if (oldClass === newClass) {
-            oldIndex++;
-            newIndex++;
-          } else if (oldClass < newClass) {
-            REMOVE_LIST.push(oldClass);
-            oldIndex++;
-          } else {
-            ADD_LIST.push(newClass);
-            newIndex++;
-          }
-        }
-      }
-
-      this.oldClasses = newClasses;
-
-      this.dom.addClasses(this.element, ADD_LIST);
-      this.dom.removeClasses(this.element, REMOVE_LIST);
-    };
-
-    __exports__["default"] = QuotedClassAttrNode;
   });
 enifed("ember-htmlbars/attr_nodes/simple",
   ["ember-metal/run_loop","exports"],
@@ -5589,7 +5474,7 @@ enifed("ember-htmlbars/helpers",
     __exports__.registerBoundHelper = registerBoundHelper;__exports__["default"] = helpers;
   });
 enifed("ember-htmlbars/helpers/bind-attr",
-  ["ember-metal/core","ember-runtime/system/string","ember-htmlbars/attr_nodes/quoted_class","ember-htmlbars/attr_nodes/legacy_bind","ember-views/views/view","ember-metal/keys","ember-htmlbars/helpers","ember-metal/streams/utils","exports"],
+  ["ember-metal/core","ember-runtime/system/string","ember-htmlbars/attr_nodes/quoted","ember-htmlbars/attr_nodes/legacy_bind","ember-views/views/view","ember-metal/keys","ember-htmlbars/helpers","ember-metal/streams/utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
     /**
@@ -5601,7 +5486,7 @@ enifed("ember-htmlbars/helpers/bind-attr",
     // Ember.assert
 
     var fmt = __dependency2__.fmt;
-    var QuotedClassAttrNode = __dependency3__["default"];
+    var QuotedAttrNode = __dependency3__["default"];
     var LegacyBindAttrNode = __dependency4__["default"];
     var View = __dependency5__["default"];
     var keys = __dependency6__["default"];
@@ -5744,10 +5629,10 @@ enifed("ember-htmlbars/helpers/bind-attr",
       var classNameBindings = hash['class'];
       if (classNameBindings !== null && classNameBindings !== undefined) {
         if (isStream(classNameBindings)) {
-          new QuotedClassAttrNode(element, 'class', classNameBindings, env.dom);
+          new QuotedAttrNode(element, 'class', classNameBindings, env.dom);
         } else {
           var classNameBindingsStream = applyClassNameBindings(classNameBindings, view);
-          new QuotedClassAttrNode(element, 'class', classNameBindingsStream, env.dom);
+          new QuotedAttrNode(element, 'class', classNameBindingsStream, env.dom);
         }
         delete hash['class'];
       }
@@ -12004,7 +11889,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.82138c1f
+      @version 1.11.0-beta.1+canary.63c5f917
     */
 
     if ('undefined' === typeof Ember) {
@@ -12031,10 +11916,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.82138c1f'
+      @default '1.11.0-beta.1+canary.63c5f917'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.82138c1f';
+    Ember.VERSION = '1.11.0-beta.1+canary.63c5f917';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
