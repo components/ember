@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.a04dcedb
+ * @version   1.11.0-beta.1+canary.82138c1f
  */
 
 (function() {
@@ -10782,6 +10782,34 @@ enifed("ember-htmlbars/tests/helpers/unbound_test",
       } finally {
         delete Ember.Handlebars.registerBoundHelper['repeat'];
       }
+    });
+
+    test("should be able to render bound form of a helper inside unbound form of same helper", function() {
+      view = EmberView.create({
+        template: compile(
+          ["{{#unbound if foo}}",
+            "{{#if bar}}true{{/if}}",
+            "{{#unless bar}}false{{/unless}}",
+            "{{/unbound}}",
+            "{{#unbound unless notfoo}}",
+            "{{#if bar}}true{{/if}}",
+            "{{#unless bar}}false{{/unless}}",
+            "{{/unbound}}"].join("")),
+        context: EmberObject.create({
+          foo: true,
+          notfoo: false,
+          bar: true
+        })
+      });
+      runAppend(view);
+
+      equal(view.$().text(), "truetrue", "first render is correct");
+
+      run(function() {
+        set(view, 'context.bar', false);
+      });
+
+      equal(view.$().text(), "falsefalse", "bound if and unless inside unbound if/unless are updated");
     });
 
     QUnit.module("ember-htmlbars: {{#unbound}} helper -- Container Lookup", {

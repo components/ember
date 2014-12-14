@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.a04dcedb
+ * @version   1.11.0-beta.1+canary.82138c1f
  */
 
 (function() {
@@ -6913,6 +6913,7 @@ enifed("ember-htmlbars/helpers/if_unless",
       options.helperName = options.helperName || ('if ');
 
       if (env.data.isUnbound) {
+        env.data.isUnbound = false;
         return env.helpers.unboundIf.helperFunction.call(this, params, hash, options, env);
       } else {
         return env.helpers.boundIf.helperFunction.call(this, params, hash, options, env);
@@ -6940,6 +6941,7 @@ enifed("ember-htmlbars/helpers/if_unless",
       options.helperName = options.helperName || helperName;
 
       if (env.data.isUnbound) {
+        env.data.isUnbound = false;
         return env.helpers.unboundIf.helperFunction.call(this, params, hash, options, env);
       } else {
         return env.helpers.boundIf.helperFunction.call(this, params, hash, options, env);
@@ -12402,7 +12404,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.a04dcedb
+      @version 1.11.0-beta.1+canary.82138c1f
     */
 
     if ('undefined' === typeof Ember) {
@@ -12429,10 +12431,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.a04dcedb'
+      @default '1.11.0-beta.1+canary.82138c1f'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.a04dcedb';
+    Ember.VERSION = '1.11.0-beta.1+canary.82138c1f';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
