@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.63c5f917
+ * @version   1.11.0-beta.1+canary.c28ac08a
  */
 
 (function() {
@@ -11889,7 +11889,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.63c5f917
+      @version 1.11.0-beta.1+canary.c28ac08a
     */
 
     if ('undefined' === typeof Ember) {
@@ -11916,10 +11916,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.63c5f917'
+      @default '1.11.0-beta.1+canary.c28ac08a'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.63c5f917';
+    Ember.VERSION = '1.11.0-beta.1+canary.c28ac08a';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -16578,7 +16578,7 @@ enifed("ember-metal/run_loop",
 
       ```javascript
       run(function() {
-        // code to be execute within a RunLoop
+        // code to be executed within a RunLoop
       });
       ```
 
@@ -16704,7 +16704,7 @@ enifed("ember-metal/run_loop",
 
       ```javascript
       run.begin();
-      // code to be execute within a RunLoop
+      // code to be executed within a RunLoop
       run.end();
       ```
 
@@ -16722,7 +16722,7 @@ enifed("ember-metal/run_loop",
 
       ```javascript
       run.begin();
-      // code to be execute within a RunLoop
+      // code to be executed within a RunLoop
       run.end();
       ```
 
