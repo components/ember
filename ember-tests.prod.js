@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.0c27892d
+ * @version   1.11.0-beta.1+canary.06ef9d47
  */
 
 (function() {
@@ -5614,24 +5614,25 @@ enifed("ember-htmlbars/tests/compat/make-view-helper_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
-  ["ember-views/views/view","ember-metal/run_loop","ember-runtime/system/object","ember-runtime/system/native_array","ember-metal/property_get","ember-metal/property_set","ember-runtime/tests/utils","ember-runtime/system/string","ember-htmlbars/compat"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
+  ["ember-views/views/view","ember-metal/run_loop","ember-runtime/system/object","ember-runtime/system/native_array","ember-views/views/simple_bound_view","ember-metal/property_get","ember-metal/property_set","ember-runtime/tests/utils","ember-runtime/system/string","ember-htmlbars/compat"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
     "use strict";
     /*jshint newcap:false*/
     var EmberView = __dependency1__["default"];
     var run = __dependency2__["default"];
     var EmberObject = __dependency3__["default"];
     var A = __dependency4__.A;
+    var SimpleBoundView = __dependency5__["default"];
 
     // import {expectAssertion} from "ember-metal/tests/debug_helpers";
 
-    var get = __dependency5__.get;
-    var set = __dependency6__.set;
-    var runAppend = __dependency7__.runAppend;
-    var runDestroy = __dependency7__.runDestroy;
-    var dasherize = __dependency8__.dasherize;
+    var get = __dependency6__.get;
+    var set = __dependency7__.set;
+    var runAppend = __dependency8__.runAppend;
+    var runDestroy = __dependency8__.runDestroy;
+    var dasherize = __dependency9__.dasherize;
 
-    var EmberHandlebars = __dependency9__["default"];
+    var EmberHandlebars = __dependency10__["default"];
 
     var compile, helpers, helper;
     compile = EmberHandlebars.compile;
@@ -5646,7 +5647,7 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
       expectDeprecationInHTMLBars();
 
       helper('repeat', function(value, options) {
-        var count = options.hash.count;
+        var count = options.hash.count || 1;
         var a = [];
         while(a.length < count) {
             a.push(value);
@@ -6150,6 +6151,53 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
       runAppend(view);
 
       equal(view.$().text(), 'undefined, undefined, string, number, object', "helper output is correct");
+    });
+
+    test("when no parameters are bound, no new views are created", function(){
+      registerRepeatHelper();
+      var originalRender = SimpleBoundView.prototype.render;
+      var renderWasCalled = false;
+      SimpleBoundView.prototype.render = function(){
+        renderWasCalled = true;
+        return originalRender.apply(this, arguments);
+      };
+
+      try {
+        view = EmberView.create({
+          template: compile('{{repeat "a"}}'),
+          controller: EmberObject.create()
+        });
+        runAppend(view);
+      } finally {
+        SimpleBoundView.prototype.render = originalRender;
+      }
+
+      ok(!renderWasCalled, 'simple bound view should not have been created and rendered');
+      equal(view.$().text(), 'a');
+    });
+
+
+    test('when no hash parameters are bound, no new views are created', function(){
+      registerRepeatHelper();
+      var originalRender = SimpleBoundView.prototype.render;
+      var renderWasCalled = false;
+      SimpleBoundView.prototype.render = function(){
+        renderWasCalled = true;
+        return originalRender.apply(this, arguments);
+      };
+
+      try {
+        view = EmberView.create({
+          template: compile('{{repeat "a" count=3}}'),
+          controller: EmberObject.create()
+        });
+        runAppend(view);
+      } finally {
+        SimpleBoundView.prototype.render = originalRender;
+      }
+
+      ok(!renderWasCalled, 'simple bound view should not have been created and rendered');
+      equal(view.$().text(), 'aaa');
     });
   });
 enifed("ember-htmlbars/tests/compat/make_bound_helper_test.jshint",
@@ -14723,8 +14771,8 @@ enifed("ember-htmlbars/tests/system/lookup-helper_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/system/make_bound_helper_test",
-  ["ember-views/views/view","ember-metal/run_loop","container","ember-htmlbars/system/make_bound_helper","ember-htmlbars/system/compile","ember-runtime/tests/utils","ember-runtime/system/string"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
+  ["ember-views/views/view","ember-metal/run_loop","container","ember-htmlbars/system/make_bound_helper","ember-htmlbars/system/compile","ember-runtime/tests/utils","ember-runtime/system/string","ember-views/views/simple_bound_view","ember-runtime/system/object"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
     "use strict";
     var EmberView = __dependency1__["default"];
     var run = __dependency2__["default"];
@@ -14734,12 +14782,15 @@ enifed("ember-htmlbars/tests/system/make_bound_helper_test",
     var runAppend = __dependency6__.runAppend;
     var runDestroy = __dependency6__.runDestroy;
     var dasherize = __dependency7__.dasherize;
+    var SimpleBoundView = __dependency8__["default"];
+    var EmberObject = __dependency9__["default"];
 
     var view, container;
 
     function registerRepeatHelper() {
       container.register('helper:x-repeat', makeBoundHelper(function(params, hash, options, env) {
-        return new Array(hash.times + 1).join( params[0] );
+        var times = hash.times || 1;
+        return new Array(times + 1).join( params[0] );
       }));
     }
 
@@ -14947,6 +14998,55 @@ enifed("ember-htmlbars/tests/system/make_bound_helper_test",
       runAppend(view);
 
       equal(view.$().text(), 'undefined, undefined, string, number, object', "helper output is correct");
+    });
+
+    test("when no parameters are bound, no new views are created", function(){
+      registerRepeatHelper();
+      var originalRender = SimpleBoundView.prototype.render;
+      var renderWasCalled = false;
+      SimpleBoundView.prototype.render = function(){
+        renderWasCalled = true;
+        return originalRender.apply(this, arguments);
+      };
+
+      try {
+        view = EmberView.create({
+          template: compile('{{x-repeat "a"}}'),
+          controller: EmberObject.create(),
+          container: container
+        });
+        runAppend(view);
+      } finally {
+        SimpleBoundView.prototype.render = originalRender;
+      }
+
+      ok(!renderWasCalled, 'simple bound view should not have been created and rendered');
+      equal(view.$().text(), 'a');
+    });
+
+
+    test('when no hash parameters are bound, no new views are created', function(){
+      registerRepeatHelper();
+      var originalRender = SimpleBoundView.prototype.render;
+      var renderWasCalled = false;
+      SimpleBoundView.prototype.render = function(){
+        renderWasCalled = true;
+        return originalRender.apply(this, arguments);
+      };
+
+      try {
+        view = EmberView.create({
+          template: compile('{{x-repeat "a" times=3}}'),
+          controller: EmberObject.create(),
+          container: container
+        });
+        runAppend(view);
+      } finally {
+        SimpleBoundView.prototype.render = originalRender;
+      }
+
+      ok(!renderWasCalled, 'simple bound view should not have been created and rendered');
+      equal(view.$().text(), 'aaa');
     });
 
     
