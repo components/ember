@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.06ef9d47
+ * @version   1.11.0-beta.1+canary.a04dcedb
  */
 
 (function() {
@@ -6367,8 +6367,8 @@ enifed("ember-htmlbars/tests/helper_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helpers/bind_attr_test",
-  ["ember-metal/core","ember-metal/run_loop","ember-runtime/system/namespace","ember-views/views/view","ember-views/views/metamorph_view","ember-runtime/system/object","ember-runtime/system/native_array","ember-metal/computed","ember-metal/observer","ember-runtime/system/container","ember-metal/property_set","ember-runtime/tests/utils","ember-htmlbars/helpers","ember-htmlbars/system/compile"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__) {
+  ["ember-metal/core","ember-metal/run_loop","ember-runtime/system/namespace","ember-views/views/view","ember-views/views/metamorph_view","ember-runtime/system/object","ember-runtime/system/native_array","ember-metal/computed","ember-metal/observer","ember-runtime/system/container","ember-metal/property_set","ember-runtime/tests/utils","htmlbars-test-helpers","ember-htmlbars/helpers","ember-htmlbars/system/compile"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__) {
     "use strict";
     /*jshint newcap:false*/
     var Ember = __dependency1__["default"];
@@ -6385,9 +6385,10 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test",
     var set = __dependency11__.set;
     var runAppend = __dependency12__.runAppend;
     var runDestroy = __dependency12__.runDestroy;
+    var equalInnerHTML = __dependency13__.equalInnerHTML;
 
-    var helpers = __dependency13__["default"];
-    var compile = __dependency14__["default"];
+    var helpers = __dependency14__["default"];
+    var compile = __dependency15__["default"];
 
     var view;
 
@@ -6630,6 +6631,25 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test",
 
       runAppend(view);
 
+      equalInnerHTML(view.element, '<img class="bar">', 'renders class');
+
+      run(function() {
+        set(view, 'foo', 'baz');
+      });
+
+      equalInnerHTML(view.element, '<img class="baz">', 'updates rendered class');
+    });
+
+    test("should be able to bind unquoted class attribute with {{bind-attr}}", function() {
+      var template = compile('<img {{bind-attr class=view.foo}}>');
+
+      view = EmberView.create({
+        template: template,
+        foo: 'bar'
+      });
+
+      runAppend(view);
+
       equal(view.$('img').attr('class'), 'bar', "renders class");
 
       run(function() {
@@ -6649,13 +6669,13 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test",
 
       runAppend(view);
 
-      equal(view.$('.is-truthy').length, 1, "sets class name");
+      equalInnerHTML(view.element, '<img class="is-truthy">', 'renders class');
 
       run(function() {
         set(view, 'isNumber', 0);
       });
 
-      equal(view.$('.is-truthy').length, 0, "removes class name if bound property is set to something non-truthy");
+      equalInnerHTML(view.element.firstChild.className, undefined, 'removes class');
     });
 
     test("should be able to bind class to view attribute with {{bind-attr}}", function() {
@@ -13188,7 +13208,7 @@ enifed("ember-htmlbars/tests/hooks/text_node_test",
     var view;
 
     
-      QUnit.module("ember-htmlbars: basic/text_node_test", {
+      QUnit.module("ember-htmlbars: hooks/text_node_test", {
         teardown: function(){
           runDestroy(view);
         }
@@ -49352,7 +49372,6 @@ enifed("ember-views/tests/system/render_buffer_test",
 
       var el = buffer.element();
       equal(el.tagName.toLowerCase(), 'div');
-      console.log('el.', el.childNodes);
       equal(el.childNodes[0].tagName, 'SPAN', "Fragment is pushed into the buffer");
     });
 

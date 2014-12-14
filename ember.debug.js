@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.06ef9d47
+ * @version   1.11.0-beta.1+canary.a04dcedb
  */
 
 (function() {
@@ -5890,8 +5890,8 @@ enifed("ember-htmlbars/helpers",
     __exports__.registerBoundHelper = registerBoundHelper;__exports__["default"] = helpers;
   });
 enifed("ember-htmlbars/helpers/bind-attr",
-  ["ember-metal/core","ember-runtime/system/string","ember-htmlbars/attr_nodes/quoted_class","ember-htmlbars/attr_nodes/legacy_bind","ember-views/views/view","ember-metal/streams/stream","ember-metal/keys","ember-htmlbars/helpers","ember-htmlbars/hooks/concat","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __exports__) {
+  ["ember-metal/core","ember-runtime/system/string","ember-htmlbars/attr_nodes/quoted_class","ember-htmlbars/attr_nodes/legacy_bind","ember-views/views/view","ember-metal/keys","ember-htmlbars/helpers","ember-metal/streams/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -5905,10 +5905,12 @@ enifed("ember-htmlbars/helpers/bind-attr",
     var QuotedClassAttrNode = __dependency3__["default"];
     var LegacyBindAttrNode = __dependency4__["default"];
     var View = __dependency5__["default"];
-    var Stream = __dependency6__["default"];
-    var keys = __dependency7__["default"];
-    var helpers = __dependency8__["default"];
-    var concat = __dependency9__["default"];
+    var keys = __dependency6__["default"];
+    var helpers = __dependency7__["default"];
+    var read = __dependency8__.read;
+    var isStream = __dependency8__.isStream;
+    var concat = __dependency8__.concat;
+    var chainStream = __dependency8__.chainStream;
 
     /**
       `bind-attr` allows you to create a binding between DOM element attributes and
@@ -6041,10 +6043,14 @@ enifed("ember-htmlbars/helpers/bind-attr",
       var view = this;
 
       // Handle classes differently, as we can bind multiple classes
-      var classBindings = hash['class'];
-      if (classBindings != null) {
-        var attrValue = streamifyClassBindings(view, classBindings);
-        new QuotedClassAttrNode(element, 'class', attrValue, env.dom);
+      var classNameBindings = hash['class'];
+      if (classNameBindings !== null && classNameBindings !== undefined) {
+        if (isStream(classNameBindings)) {
+          new QuotedClassAttrNode(element, 'class', classNameBindings, env.dom);
+        } else {
+          var classNameBindingsStream = applyClassNameBindings(classNameBindings, view);
+          new QuotedClassAttrNode(element, 'class', classNameBindingsStream, env.dom);
+        }
         delete hash['class'];
       }
 
@@ -6054,7 +6060,7 @@ enifed("ember-htmlbars/helpers/bind-attr",
       for (var i=0, l=attrKeys.length;i<l;i++) {
         attr = attrKeys[i];
         path = hash[attr];
-        if (path.isStream) {
+        if (isStream(path)) {
           lazyValue = path;
         } else {
           Ember.assert(
@@ -6066,6 +6072,13 @@ enifed("ember-htmlbars/helpers/bind-attr",
         }
         new LegacyBindAttrNode(element, attr, lazyValue, env.dom);
       }
+    }
+
+    function applyClassNameBindings(classNameBindings, view) {
+      var arrayOfClassNameBindings = classNameBindings.split(' ');
+      var boundClassNameBindings = steamifyClassNameBindings(view, arrayOfClassNameBindings);
+      var concatenatedClassNames = concat(boundClassNameBindings, ' ');
+      return concatenatedClassNames;
     }
 
     /**
@@ -6105,31 +6118,26 @@ enifed("ember-htmlbars/helpers/bind-attr",
         element to update
       @return {Array} An array of class names to add
     */
-    function streamifyClassBindings(view, classBindingsString) {
-      var classBindings = classBindingsString.split(' ');
+    function steamifyClassNameBindings(view, classNameBindings) {
       var streamified = [];
-
-      var parsedPath;
-      for (var i=0, l=classBindings.length;i<l;i++) {
-        parsedPath = View._parsePropertyPath(classBindings[i]);
-
-        if (parsedPath.path === '') {
-          streamified.push(classStringForParsedPath(parsedPath, true) + " ");
-        } else {
-          (function(){
-            var lazyValue = view.getStream(parsedPath.path);
-            var _parsedPath = parsedPath;
-            var classNameBound = new Stream(function(){
-              var value = lazyValue.value();
-              return classStringForParsedPath(_parsedPath, value) + " ";
-            });
-            lazyValue.subscribe(classNameBound.notify, classNameBound);
-            streamified.push(classNameBound);
-          })(); // jshint ignore:line
-        }
+      var boundClassName;
+      for (var i=0, l=classNameBindings.length;i<l;i++) {
+        boundClassName = streamifyClassNameBinding(view, classNameBindings[i]);
+        streamified.push(boundClassName);
       }
+      return streamified;
+    }
 
-      return concat(streamified);
+    function streamifyClassNameBinding(view, classNameBinding){
+      var parsedPath = View._parsePropertyPath(classNameBinding);
+      if (parsedPath.path === '') {
+        return classStringForParsedPath(parsedPath, true);
+      } else {
+        var pathValue = view.getStream(parsedPath.path);
+        return chainStream(pathValue, function(){
+          return classStringForParsedPath(parsedPath, read(pathValue));
+        });
+      }
     }
 
     function classStringForParsedPath(parsedPath, value) {
@@ -8326,46 +8334,18 @@ enifed("ember-htmlbars/hooks/component",
     }
   });
 enifed("ember-htmlbars/hooks/concat",
-  ["ember-metal/streams/stream","ember-metal/streams/utils","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["ember-metal/streams/utils","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
     /**
     @module ember
     @submodule ember-htmlbars
     */
 
-    var Stream = __dependency1__["default"];
-    var isStream = __dependency2__.isStream;
-    var readArray = __dependency2__.readArray;
-    var subscribe = __dependency2__.subscribe;
+    var streamConcat = __dependency1__.concat;
 
-    // TODO: Create subclass ConcatStream < Stream. Defer
-    // subscribing to streams until the value() is called.
     __exports__["default"] = function concat(params) {
-      var i;
-      var isStatic = true;
-
-      for (i = 0; i < params.length; i++) {
-        if (isStream(params[i])) {
-          isStatic = false;
-          break;
-        }
-      }
-
-      if (isStatic) {
-        return params.join('');
-      } else {
-        var stream = new Stream(function() {
-          return readArray(params).join('');
-        });
-
-        for (i = 0; i < params.length; i++) {
-          subscribe(params[i], stream.notify, stream);
-        }
-
-        return stream;
-      }
-
+      return streamConcat(params, '');
     }
   });
 enifed("ember-htmlbars/hooks/content",
@@ -12422,7 +12402,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.06ef9d47
+      @version 1.11.0-beta.1+canary.a04dcedb
     */
 
     if ('undefined' === typeof Ember) {
@@ -12449,10 +12429,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.06ef9d47'
+      @default '1.11.0-beta.1+canary.a04dcedb'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.06ef9d47';
+    Ember.VERSION = '1.11.0-beta.1+canary.a04dcedb';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -18001,7 +17981,7 @@ enifed("ember-metal/streams/stream",
             children[key].destroy();
           }
 
-          return true;      
+          return true;
         }
       },
 
@@ -18101,9 +18081,11 @@ enifed("ember-metal/streams/stream_binding",
     __exports__["default"] = StreamBinding;
   });
 enifed("ember-metal/streams/utils",
-  ["exports"],
-  function(__exports__) {
+  ["./stream","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
+    var Stream = __dependency1__["default"];
+
     function isStream(object) {
       return object && object.isStream;
     }
@@ -18182,7 +18164,37 @@ enifed("ember-metal/streams/utils",
       return containsStream;
     }
 
-    __exports__.scanHash = scanHash;
+    __exports__.scanHash = scanHash;// TODO: Create subclass ConcatStream < Stream. Defer
+    // subscribing to streams until the value() is called.
+    function concat(array, key) {
+      var hasStream = scanArray(array);
+      if (hasStream) {
+        var i, l;
+        var stream = new Stream(function() {
+          return readArray(array).join(key);
+        });
+
+        for (i = 0, l=array.length; i < l; i++) {
+          subscribe(array[i], stream.notify, stream);
+        }
+
+        return stream;
+      } else {
+        return array.join(key);
+      }
+    }
+
+    __exports__.concat = concat;function chainStream(value, fn) {
+      if (isStream(value)) {
+        var stream = new Stream(fn);
+        subscribe(value, stream.notify, stream);
+        return stream;
+      } else {
+        return fn();
+      }
+    }
+
+    __exports__.chainStream = chainStream;
   });
 enifed("ember-metal/utils",
   ["ember-metal/core","ember-metal/platform","ember-metal/array","exports"],

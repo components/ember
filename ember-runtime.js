@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.06ef9d47
+ * @version   1.11.0-beta.1+canary.a04dcedb
  */
 
 (function() {
@@ -4844,7 +4844,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.06ef9d47
+      @version 1.11.0-beta.1+canary.a04dcedb
     */
 
     if ('undefined' === typeof Ember) {
@@ -4871,10 +4871,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.06ef9d47'
+      @default '1.11.0-beta.1+canary.a04dcedb'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.06ef9d47';
+    Ember.VERSION = '1.11.0-beta.1+canary.a04dcedb';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -10423,7 +10423,7 @@ define("ember-metal/streams/stream",
             children[key].destroy();
           }
 
-          return true;      
+          return true;
         }
       },
 
@@ -10523,9 +10523,11 @@ define("ember-metal/streams/stream_binding",
     __exports__["default"] = StreamBinding;
   });
 define("ember-metal/streams/utils",
-  ["exports"],
-  function(__exports__) {
+  ["./stream","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
+    var Stream = __dependency1__["default"];
+
     function isStream(object) {
       return object && object.isStream;
     }
@@ -10604,7 +10606,37 @@ define("ember-metal/streams/utils",
       return containsStream;
     }
 
-    __exports__.scanHash = scanHash;
+    __exports__.scanHash = scanHash;// TODO: Create subclass ConcatStream < Stream. Defer
+    // subscribing to streams until the value() is called.
+    function concat(array, key) {
+      var hasStream = scanArray(array);
+      if (hasStream) {
+        var i, l;
+        var stream = new Stream(function() {
+          return readArray(array).join(key);
+        });
+
+        for (i = 0, l=array.length; i < l; i++) {
+          subscribe(array[i], stream.notify, stream);
+        }
+
+        return stream;
+      } else {
+        return array.join(key);
+      }
+    }
+
+    __exports__.concat = concat;function chainStream(value, fn) {
+      if (isStream(value)) {
+        var stream = new Stream(fn);
+        subscribe(value, stream.notify, stream);
+        return stream;
+      } else {
+        return fn();
+      }
+    }
+
+    __exports__.chainStream = chainStream;
   });
 define("ember-metal/utils",
   ["ember-metal/core","ember-metal/platform","ember-metal/array","exports"],
