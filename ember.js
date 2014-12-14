@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.2+pre.789eae8a
+ * @version   1.10.0-beta.2+pre.738e224c
  */
 
 (function() {
@@ -5419,6 +5419,8 @@ enifed("ember-htmlbars/compat/make-bound-helper",
 
     var Stream = __dependency4__["default"];
     var readArray = __dependency5__.readArray;
+    var scanArray = __dependency5__.scanArray;
+    var scanHash = __dependency5__.scanHash;
     var readHash = __dependency5__.readHash;
 
     /**
@@ -5456,6 +5458,7 @@ enifed("ember-htmlbars/compat/make-bound-helper",
       function helperFunc(params, hash, options, env) {
         var view = this;
         var numParams = params.length;
+        var param;
 
         Ember.assert("registerBoundHelper-generated helpers do not support use with Handlebars blocks.", !options.template);
 
@@ -5486,12 +5489,14 @@ enifed("ember-htmlbars/compat/make-bound-helper",
           return fn.apply(view, args);
         }
 
-        if (env.data.isUnbound) {
+        // If none of the hash parameters are bound, act as an unbound helper.
+        // This prevents views from being unnecessarily created
+        var hasStream = scanArray(params) || scanHash(hash);
+
+        if (env.data.isUnbound || !hasStream){
           return valueFn();
         } else {
           var lazyValue = new Stream(valueFn);
-
-          var param;
 
           for (i = 0; i < numParams; i++) {
             param = params[i];
@@ -8884,6 +8889,8 @@ enifed("ember-htmlbars/system/make_bound_helper",
     var readArray = __dependency4__.readArray;
     var readHash = __dependency4__.readHash;
     var subscribe = __dependency4__.subscribe;
+    var scanHash = __dependency4__.scanHash;
+    var scanArray = __dependency4__.scanArray;
 
     /**
       Create a bound helper. Accepts a function that receives the ordered and hash parameters
@@ -8893,9 +8900,9 @@ enifed("ember-htmlbars/system/make_bound_helper",
 
       * `params` - An array of resolved ordered parameters.
       * `hash` - An object containing the hash parameters.
-     
+
       For example:
-      
+
       * With an unqouted ordered parameter:
 
         ```javascript
@@ -8906,7 +8913,7 @@ enifed("ember-htmlbars/system/make_bound_helper",
         an empty hash as its second.
 
       * With a quoted ordered parameter:
-     
+
         ```javascript
         {{x-capitalize "foo"}}
         ```
@@ -8914,7 +8921,7 @@ enifed("ember-htmlbars/system/make_bound_helper",
         The bound helper would receive `["foo"]` as its first argument, and an empty hash as its second.
 
       * With an unquoted hash parameter:
-     
+
         ```javascript
         {{x-repeat "foo" count=repeatCount}}
         ```
@@ -8931,6 +8938,8 @@ enifed("ember-htmlbars/system/make_bound_helper",
     __exports__["default"] = function makeBoundHelper(fn) {
       function helperFunc(params, hash, options, env) {
         var view = this;
+        var numParams = params.length;
+        var param, prop;
 
         Ember.assert("makeBoundHelper generated helpers do not support use with blocks", !options.template);
 
@@ -8938,18 +8947,21 @@ enifed("ember-htmlbars/system/make_bound_helper",
           return fn.call(view, readArray(params), readHash(hash), options, env);
         }
 
-        if (env.data.isUnbound) {
+        // If none of the hash parameters are bound, act as an unbound helper.
+        // This prevents views from being unnecessarily created
+        var hasStream = scanArray(params) || scanHash(hash);
+
+        if (env.data.isUnbound || !hasStream) {
           return valueFn();
         } else {
           var lazyValue = new Stream(valueFn);
 
-          var param;
-          for (var i = 0, l = params.length; i < l; i++) {
+          for (var i = 0; i < numParams; i++) {
             param = params[i];
             subscribe(param, lazyValue.notify, lazyValue);
           }
 
-          for (var prop in hash) {
+          for (prop in hash) {
             param = hash[prop];
             subscribe(param, lazyValue.notify, lazyValue);
           }
@@ -12392,7 +12404,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.2+pre.789eae8a
+      @version 1.10.0-beta.2+pre.738e224c
     */
 
     if ('undefined' === typeof Ember) {
@@ -12419,10 +12431,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.2+pre.789eae8a'
+      @default '1.10.0-beta.2+pre.738e224c'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.2+pre.789eae8a';
+    Ember.VERSION = '1.10.0-beta.2+pre.738e224c';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -18117,7 +18129,44 @@ enifed("ember-metal/streams/utils",
       return ret;
     }
 
-    __exports__.readHash = readHash;
+    __exports__.readHash = readHash;/**
+     * @function scanArray
+     * @param array Array array given to a handlebars helper
+     * @return Boolean whether the array contains a stream/bound value
+    */
+    function scanArray(array) {
+      var length = array.length;
+      var containsStream = false;
+
+      for (var i = 0; i < length; i++){
+        if (isStream(array[i])) {
+          containsStream = true;
+          break;
+        }
+      }
+
+      return containsStream;
+    }
+
+    __exports__.scanArray = scanArray;/**
+     * @function scanHash
+     * @param Object hash "hash" argument given to a handlebars helper
+     * @return Boolean whether the object contains a stream/bound value
+    */
+    function scanHash(hash) {
+      var containsStream = false;
+
+      for (var prop in hash) {
+        if (isStream(hash[prop])) {
+          containsStream = true;
+          break;
+        }
+      }
+
+      return containsStream;
+    }
+
+    __exports__.scanHash = scanHash;
   });
 enifed("ember-metal/utils",
   ["ember-metal/core","ember-metal/platform","ember-metal/array","exports"],

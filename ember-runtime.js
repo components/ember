@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.2+pre.789eae8a
+ * @version   1.10.0-beta.2+pre.738e224c
  */
 
 (function() {
@@ -4844,7 +4844,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.2+pre.789eae8a
+      @version 1.10.0-beta.2+pre.738e224c
     */
 
     if ('undefined' === typeof Ember) {
@@ -4871,10 +4871,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.2+pre.789eae8a'
+      @default '1.10.0-beta.2+pre.738e224c'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.2+pre.789eae8a';
+    Ember.VERSION = '1.10.0-beta.2+pre.738e224c';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -10569,7 +10569,44 @@ define("ember-metal/streams/utils",
       return ret;
     }
 
-    __exports__.readHash = readHash;
+    __exports__.readHash = readHash;/**
+     * @function scanArray
+     * @param array Array array given to a handlebars helper
+     * @return Boolean whether the array contains a stream/bound value
+    */
+    function scanArray(array) {
+      var length = array.length;
+      var containsStream = false;
+
+      for (var i = 0; i < length; i++){
+        if (isStream(array[i])) {
+          containsStream = true;
+          break;
+        }
+      }
+
+      return containsStream;
+    }
+
+    __exports__.scanArray = scanArray;/**
+     * @function scanHash
+     * @param Object hash "hash" argument given to a handlebars helper
+     * @return Boolean whether the object contains a stream/bound value
+    */
+    function scanHash(hash) {
+      var containsStream = false;
+
+      for (var prop in hash) {
+        if (isStream(hash[prop])) {
+          containsStream = true;
+          break;
+        }
+      }
+
+      return containsStream;
+    }
+
+    __exports__.scanHash = scanHash;
   });
 define("ember-metal/utils",
   ["ember-metal/core","ember-metal/platform","ember-metal/array","exports"],
