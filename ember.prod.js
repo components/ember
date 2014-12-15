@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.a8ac1136
+ * @version   1.11.0-beta.1+canary.27a829eb
  */
 
 (function() {
@@ -4479,8 +4479,8 @@ enifed("ember-extension-support/data_adapter",
     });
   });
 enifed("ember-htmlbars",
-  ["ember-metal/core","ember-htmlbars/hooks/content","ember-htmlbars/hooks/component","ember-htmlbars/hooks/element","ember-htmlbars/hooks/subexpr","ember-htmlbars/hooks/attribute","ember-htmlbars/hooks/concat","ember-htmlbars/hooks/get","ember-htmlbars/hooks/set","morph","ember-htmlbars/system/template","ember-htmlbars/system/compile","ember-htmlbars/system/make-view-helper","ember-htmlbars/system/make_bound_helper","ember-htmlbars/helpers","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/bind-attr","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/partial","ember-htmlbars/helpers/template","ember-htmlbars/helpers/input","ember-htmlbars/helpers/text_area","ember-htmlbars/helpers/collection","ember-htmlbars/helpers/each","ember-htmlbars/helpers/unbound","ember-htmlbars/system/bootstrap","ember-htmlbars/compat","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __dependency31__, __dependency32__, __dependency33__, __exports__) {
+  ["ember-metal/core","ember-htmlbars/hooks/content","ember-htmlbars/hooks/component","ember-htmlbars/hooks/element","ember-htmlbars/hooks/subexpr","ember-htmlbars/hooks/attribute","ember-htmlbars/hooks/concat","ember-htmlbars/hooks/get","ember-htmlbars/hooks/set","morph","ember-htmlbars/system/template","ember-htmlbars/system/compile","ember-htmlbars/system/make-view-helper","ember-htmlbars/system/make_bound_helper","ember-htmlbars/helpers","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/bind-attr","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/partial","ember-htmlbars/helpers/template","ember-htmlbars/helpers/input","ember-htmlbars/helpers/text_area","ember-htmlbars/helpers/collection","ember-htmlbars/helpers/each","ember-htmlbars/helpers/unbound","ember-htmlbars/plugins","ember-htmlbars/plugins/transform-each-in-to-hash","ember-htmlbars/plugins/transform-with-as-to-hash","ember-htmlbars/system/bootstrap","ember-htmlbars/compat","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __dependency31__, __dependency32__, __dependency33__, __dependency34__, __dependency35__, __dependency36__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var content = __dependency2__["default"];
@@ -4521,6 +4521,10 @@ enifed("ember-htmlbars",
     var eachHelper = __dependency30__.eachHelper;
     var unboundHelper = __dependency31__.unboundHelper;
 
+    var registerASTPlugin = __dependency32__.registerASTPlugin;
+    var TransformEachInToHash = __dependency33__["default"];
+    var TransformWithAsToHash = __dependency34__["default"];
+
     // importing adds template bootstrapping
     // initializer to enable embedded templates
 
@@ -4550,6 +4554,9 @@ enifed("ember-htmlbars",
     registerHelper('unbound', unboundHelper);
     registerHelper('concat', concat);
 
+    registerASTPlugin(TransformWithAsToHash);
+    registerASTPlugin(TransformEachInToHash);
+
     
       Ember.HTMLBars = {
         helpers: helpers,
@@ -4558,7 +4565,8 @@ enifed("ember-htmlbars",
         template: template,
         compile: compile,
         makeViewHelper: makeViewHelper,
-        makeBoundHelper: makeBoundHelper
+        makeBoundHelper: makeBoundHelper,
+        registerASTPlugin: registerASTPlugin
       };
 
     
@@ -7950,6 +7958,35 @@ enifed("ember-htmlbars/hooks/subexpr",
       }
     }
   });
+enifed("ember-htmlbars/plugins",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
+    /**
+     @private
+     @property helpers
+    */
+    var plugins = {
+      ast: [ ]
+    };
+
+    /**
+      Adds an AST plugin to be used by Ember.HTMLBars.compile.
+
+      @private
+      @method registerASTPlugin
+    */
+    function registerASTPlugin(Plugin) {
+      plugins.ast.push(Plugin);
+    }
+
+    __exports__.registerASTPlugin = registerASTPlugin;__exports__["default"] = plugins;
+  });
 enifed("ember-htmlbars/plugins/transform-each-in-to-hash",
   ["exports"],
   function(__exports__) {
@@ -8203,8 +8240,8 @@ enifed("ember-htmlbars/system/bootstrap",
     __exports__["default"] = bootstrap;
   });
 enifed("ember-htmlbars/system/compile",
-  ["ember-metal/core","htmlbars-compiler/compiler","ember-htmlbars/system/template","ember-htmlbars/plugins/transform-each-in-to-hash","ember-htmlbars/plugins/transform-with-as-to-hash","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
+  ["ember-metal/core","htmlbars-compiler/compiler","ember-htmlbars/system/template","ember-htmlbars/plugins","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -8215,8 +8252,7 @@ enifed("ember-htmlbars/system/compile",
     var compile = __dependency2__.compile;
     var template = __dependency3__["default"];
 
-    var TransformEachInToHash = __dependency4__["default"];
-    var TransformWithAsToHash = __dependency5__["default"];
+    var plugins = __dependency4__["default"];
 
     var disableComponentGeneration = true;
     if (Ember.FEATURES.isEnabled('ember-htmlbars-component-generation')) {
@@ -8236,12 +8272,7 @@ enifed("ember-htmlbars/system/compile",
       var templateSpec = compile(templateString, {
         disableComponentGeneration: disableComponentGeneration,
 
-        plugins: {
-          ast: [
-            TransformEachInToHash,
-            TransformWithAsToHash
-          ]
-        }
+        plugins: plugins
       });
 
       return template(templateSpec);
@@ -11894,7 +11925,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.a8ac1136
+      @version 1.11.0-beta.1+canary.27a829eb
     */
 
     if ('undefined' === typeof Ember) {
@@ -11921,10 +11952,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.a8ac1136'
+      @default '1.11.0-beta.1+canary.27a829eb'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.a8ac1136';
+    Ember.VERSION = '1.11.0-beta.1+canary.27a829eb';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`

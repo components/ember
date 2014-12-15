@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.a8ac1136
+ * @version   1.11.0-beta.1+canary.27a829eb
  */
 
 (function() {
@@ -4377,6 +4377,15 @@ enifed("ember-htmlbars/hooks/subexpr.jshint",
     module('JSHint - ember-htmlbars/hooks');
     test('ember-htmlbars/hooks/subexpr.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/hooks/subexpr.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/plugins.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars');
+    test('ember-htmlbars/plugins.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/plugins.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/plugins/transform-each-in-to-hash.jshint",
@@ -14462,6 +14471,53 @@ enifed("ember-htmlbars/tests/integration/with_view_test.jshint",
     module('JSHint - ember-htmlbars/tests/integration');
     test('ember-htmlbars/tests/integration/with_view_test.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/tests/integration/with_view_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/tests/plugins_test",
+  ["ember-htmlbars/plugins","ember-htmlbars/system/compile"],
+  function(__dependency1__, __dependency2__) {
+    "use strict";
+    var plugins = __dependency1__["default"];
+    var registerASTPlugin = __dependency1__.registerASTPlugin;
+    var compile = __dependency2__["default"];
+
+    var originalASTPlugins;
+
+    QUnit.module("ember-htmlbars: Ember.HTMLBars.registerASTPlugin", {
+      setup: function() {
+        originalASTPlugins = plugins.ast.slice();
+      },
+
+      teardown: function() {
+        plugins.ast = originalASTPlugins;
+      }
+    });
+
+    test("registering a plugin adds it to htmlbars-compiler options", function() {
+      expect(2);
+
+      function TestPlugin() {
+        ok(true, 'TestPlugin instantiated');
+      }
+
+      TestPlugin.prototype.transform = function(ast) {
+        ok(true, 'transform was called');
+
+        return ast;
+      };
+
+      registerASTPlugin(TestPlugin);
+
+      compile('some random template');
+    });
+  });
+enifed("ember-htmlbars/tests/plugins_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/tests');
+    test('ember-htmlbars/tests/plugins_test.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/tests/plugins_test.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/tests/system/bootstrap_test",
