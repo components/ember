@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.c28ac08a
+ * @version   1.11.0-beta.1+canary.a8ac1136
  */
 
 (function() {
@@ -4844,7 +4844,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.c28ac08a
+      @version 1.11.0-beta.1+canary.a8ac1136
     */
 
     if ('undefined' === typeof Ember) {
@@ -4871,10 +4871,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.c28ac08a'
+      @default '1.11.0-beta.1+canary.a8ac1136'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.c28ac08a';
+    Ember.VERSION = '1.11.0-beta.1+canary.a8ac1136';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -7312,8 +7312,8 @@ define("ember-metal/merge",
     }
   });
 define("ember-metal/mixin",
-  ["ember-metal/core","ember-metal/merge","ember-metal/array","ember-metal/platform","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/expand_properties","ember-metal/properties","ember-metal/computed","ember-metal/binding","ember-metal/observer","ember-metal/events","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __exports__) {
+  ["ember-metal/core","ember-metal/merge","ember-metal/array","ember-metal/platform","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/expand_properties","ember-metal/properties","ember-metal/computed","ember-metal/binding","ember-metal/observer","ember-metal/events","ember-metal/streams/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __exports__) {
         // Remove "use strict"; from transpiled module until
     // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
     //
@@ -7350,6 +7350,7 @@ define("ember-metal/mixin",
     var _suspendObserver = __dependency12__._suspendObserver;
     var addListener = __dependency13__.addListener;
     var removeListener = __dependency13__.removeListener;
+    var isStream = __dependency14__.isStream;
 
     var REQUIRED;
     var a_slice = [].slice;
@@ -7662,7 +7663,7 @@ define("ember-metal/mixin",
           binding = bindings[key];
           if (binding) {
             to = key.slice(0, -7); // strip Binding off end
-            if (binding.isStream) {
+            if (isStream(binding)) {
               connectStreamBinding(obj, to, binding);
               continue;
             } else if (binding instanceof Binding) {
@@ -10234,12 +10235,13 @@ define("ember-metal/streams/simple",
     var Stream = __dependency2__["default"];
     var create = __dependency3__.create;
     var read = __dependency4__.read;
+    var isStream = __dependency4__.isStream;
 
     function SimpleStream(source) {
       this.init();
       this.source = source;
 
-      if (source && source.isStream) {
+      if (isStream(source)) {
         source.subscribe(this._didChange, this);
       }
     }
@@ -10254,7 +10256,7 @@ define("ember-metal/streams/simple",
       setValue: function(value) {
         var source = this.source;
 
-        if (source && source.isStream) {
+        if (isStream(source)) {
           source.setValue(value);
         }
       },
@@ -10262,11 +10264,11 @@ define("ember-metal/streams/simple",
       setSource: function(nextSource) {
         var prevSource = this.source;
         if (nextSource !== prevSource) {
-          if (prevSource && prevSource.isStream) {
+          if (isStream(prevSource)) {
             prevSource.unsubscribe(this._didChange, this);
           }
 
-          if (nextSource && nextSource.isStream) {
+          if (isStream(nextSource)) {
             nextSource.subscribe(this._didChange, this);
           }
 
@@ -10283,7 +10285,7 @@ define("ember-metal/streams/simple",
 
       destroy: function() {
         if (this._super$destroy()) {
-          if (this.source && this.source.isStream) {
+          if (isStream(this.source)) {
             this.source.unsubscribe(this._didChange, this);
           }
           this.source = undefined;
