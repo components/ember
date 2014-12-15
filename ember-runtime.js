@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.2+pre.738e224c
+ * @version   1.10.0-beta.2+pre.1b0a668f
  */
 
 (function() {
@@ -4844,7 +4844,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.2+pre.738e224c
+      @version 1.10.0-beta.2+pre.1b0a668f
     */
 
     if ('undefined' === typeof Ember) {
@@ -4871,10 +4871,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.2+pre.738e224c'
+      @default '1.10.0-beta.2+pre.1b0a668f'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.2+pre.738e224c';
+    Ember.VERSION = '1.10.0-beta.2+pre.1b0a668f';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -7314,8 +7314,8 @@ define("ember-metal/merge",
     }
   });
 define("ember-metal/mixin",
-  ["ember-metal/core","ember-metal/merge","ember-metal/array","ember-metal/platform","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/expand_properties","ember-metal/properties","ember-metal/computed","ember-metal/binding","ember-metal/observer","ember-metal/events","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __exports__) {
+  ["ember-metal/core","ember-metal/merge","ember-metal/array","ember-metal/platform","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/expand_properties","ember-metal/properties","ember-metal/computed","ember-metal/binding","ember-metal/observer","ember-metal/events","ember-metal/streams/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __exports__) {
         // Remove "use strict"; from transpiled module until
     // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
     //
@@ -7352,6 +7352,7 @@ define("ember-metal/mixin",
     var _suspendObserver = __dependency12__._suspendObserver;
     var addListener = __dependency13__.addListener;
     var removeListener = __dependency13__.removeListener;
+    var isStream = __dependency14__.isStream;
 
     var REQUIRED;
     var a_slice = [].slice;
@@ -7664,7 +7665,7 @@ define("ember-metal/mixin",
           binding = bindings[key];
           if (binding) {
             to = key.slice(0, -7); // strip Binding off end
-            if (binding.isStream) {
+            if (isStream(binding)) {
               connectStreamBinding(obj, to, binding);
               continue;
             } else if (binding instanceof Binding) {
@@ -9602,7 +9603,7 @@ define("ember-metal/run_loop",
 
       ```javascript
       run(function() {
-        // code to be execute within a RunLoop
+        // code to be executed within a RunLoop
       });
       ```
 
@@ -9728,7 +9729,7 @@ define("ember-metal/run_loop",
 
       ```javascript
       run.begin();
-      // code to be execute within a RunLoop
+      // code to be executed within a RunLoop
       run.end();
       ```
 
@@ -9746,7 +9747,7 @@ define("ember-metal/run_loop",
 
       ```javascript
       run.begin();
-      // code to be execute within a RunLoop
+      // code to be executed within a RunLoop
       run.end();
       ```
 
@@ -10236,12 +10237,13 @@ define("ember-metal/streams/simple",
     var Stream = __dependency2__["default"];
     var create = __dependency3__.create;
     var read = __dependency4__.read;
+    var isStream = __dependency4__.isStream;
 
     function SimpleStream(source) {
       this.init();
       this.source = source;
 
-      if (source && source.isStream) {
+      if (isStream(source)) {
         source.subscribe(this._didChange, this);
       }
     }
@@ -10256,7 +10258,7 @@ define("ember-metal/streams/simple",
       setValue: function(value) {
         var source = this.source;
 
-        if (source && source.isStream) {
+        if (isStream(source)) {
           source.setValue(value);
         }
       },
@@ -10264,11 +10266,11 @@ define("ember-metal/streams/simple",
       setSource: function(nextSource) {
         var prevSource = this.source;
         if (nextSource !== prevSource) {
-          if (prevSource && prevSource.isStream) {
+          if (isStream(prevSource)) {
             prevSource.unsubscribe(this._didChange, this);
           }
 
-          if (nextSource && nextSource.isStream) {
+          if (isStream(nextSource)) {
             nextSource.subscribe(this._didChange, this);
           }
 
@@ -10285,7 +10287,7 @@ define("ember-metal/streams/simple",
 
       destroy: function() {
         if (this._super$destroy()) {
-          if (this.source && this.source.isStream) {
+          if (isStream(this.source)) {
             this.source.unsubscribe(this._didChange, this);
           }
           this.source = undefined;
@@ -10425,7 +10427,7 @@ define("ember-metal/streams/stream",
             children[key].destroy();
           }
 
-          return true;      
+          return true;
         }
       },
 
@@ -10525,9 +10527,11 @@ define("ember-metal/streams/stream_binding",
     __exports__["default"] = StreamBinding;
   });
 define("ember-metal/streams/utils",
-  ["exports"],
-  function(__exports__) {
+  ["./stream","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
+    var Stream = __dependency1__["default"];
+
     function isStream(object) {
       return object && object.isStream;
     }
@@ -10606,7 +10610,37 @@ define("ember-metal/streams/utils",
       return containsStream;
     }
 
-    __exports__.scanHash = scanHash;
+    __exports__.scanHash = scanHash;// TODO: Create subclass ConcatStream < Stream. Defer
+    // subscribing to streams until the value() is called.
+    function concat(array, key) {
+      var hasStream = scanArray(array);
+      if (hasStream) {
+        var i, l;
+        var stream = new Stream(function() {
+          return readArray(array).join(key);
+        });
+
+        for (i = 0, l=array.length; i < l; i++) {
+          subscribe(array[i], stream.notify, stream);
+        }
+
+        return stream;
+      } else {
+        return array.join(key);
+      }
+    }
+
+    __exports__.concat = concat;function chainStream(value, fn) {
+      if (isStream(value)) {
+        var stream = new Stream(fn);
+        subscribe(value, stream.notify, stream);
+        return stream;
+      } else {
+        return fn();
+      }
+    }
+
+    __exports__.chainStream = chainStream;
   });
 define("ember-metal/utils",
   ["ember-metal/core","ember-metal/platform","ember-metal/array","exports"],

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.2+pre.738e224c
+ * @version   1.10.0-beta.2+pre.1b0a668f
  */
 
 (function() {
@@ -4872,8 +4872,8 @@ enifed("ember-htmlbars",
     __exports__.defaultEnv = defaultEnv;
   });
 enifed("ember-htmlbars/attr_nodes",
-  ["ember-htmlbars/attr_nodes/quoted","ember-htmlbars/attr_nodes/unquoted","ember-htmlbars/attr_nodes/unquoted_nonproperty","ember-htmlbars/attr_nodes/quoted_class","ember-metal/platform","ember-htmlbars/attr_nodes/utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+  ["ember-htmlbars/attr_nodes/quoted","ember-htmlbars/attr_nodes/unquoted","ember-htmlbars/attr_nodes/unquoted_nonproperty","ember-metal/platform","ember-htmlbars/attr_nodes/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -4883,9 +4883,8 @@ enifed("ember-htmlbars/attr_nodes",
     var QuotedAttrNode = __dependency1__["default"];
     var UnquotedAttrNode = __dependency2__["default"];
     var UnquotedNonpropertyAttrNode = __dependency3__["default"];
-    var QuotedClassAttrNode = __dependency4__["default"];
-    var o_create = __dependency5__.create;
-    var normalizeProperty = __dependency6__.normalizeProperty;
+    var o_create = __dependency4__.create;
+    var normalizeProperty = __dependency5__.normalizeProperty;
 
     var svgNamespaceURI = 'http://www.w3.org/2000/svg';
 
@@ -4893,7 +4892,6 @@ enifed("ember-htmlbars/attr_nodes",
     unquotedAttrNodeTypes['class'] = UnquotedNonpropertyAttrNode;
 
     var quotedAttrNodeTypes = o_create(null);
-    quotedAttrNodeTypes['class'] = QuotedClassAttrNode;
 
     __exports__["default"] = function attrNodeTypeFor(attrName, element, quoted) {
       var result;
@@ -5003,119 +5001,6 @@ enifed("ember-htmlbars/attr_nodes/quoted",
     };
 
     __exports__["default"] = QuotedAttrNode;
-  });
-enifed("ember-htmlbars/attr_nodes/quoted_class",
-  ["ember-metal/run_loop","ember-metal/streams/utils","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-htmlbars
-    */
-
-    var run = __dependency1__["default"];
-    var read = __dependency2__.read;
-    var subscribe = __dependency2__.subscribe;
-
-    var SPACES = /\s+/;
-    var ADD_LIST = [];
-    var REMOVE_LIST = [];
-
-    // Dedupes and removes empty strings. It expects the array
-    // to be sorted.
-    // TODO: This could be done in-place instead of splicing.
-    function normalizeClasses(array) {
-      var i = 0;
-      while (i < array.length - 1) {
-        if (array[i] === array[i+1]) {
-          array.splice(i, 1);
-        } else {
-          i++;
-        }
-      }
-      if (array[0] === '') {
-        array.shift();
-      }
-    }
-
-    function buildClasses(value) {
-      if (typeof value === 'string') {
-        return value.split(SPACES);
-      } else {
-        return [];
-      }
-    }
-
-    function QuotedClassAttrNode(element, attrName, attrValue, dom) {
-      this.element = element;
-      this.attrName = attrName;
-      this.dom = dom;
-      this.isDirty = true;
-
-      this.classes = attrValue;
-      this.oldClasses = [];
-
-      subscribe(attrValue, this.markDirty, this);
-      this.renderIfDirty();
-    }
-
-    QuotedClassAttrNode.prototype.markDirty = function markDirty(){
-      this.isDirty = true;
-      run.schedule('render', this, this.renderIfDirty);
-    };
-
-    QuotedClassAttrNode.prototype.renderIfDirty = function renderIfDirty(){
-      if (this.isDirty) {
-        this.isDirty = false;
-        this.render();
-      }
-    };
-
-    QuotedClassAttrNode.prototype.render = function render(){
-      ADD_LIST.length = 0;
-      REMOVE_LIST.length = 0;
-
-      var oldClasses = this.oldClasses;
-      var newClasses = buildClasses(read(this.classes));
-      newClasses.sort();
-      normalizeClasses(newClasses);
-
-      var oldIndex = 0;
-      var oldLength = oldClasses.length;
-      var newIndex = 0;
-      var newLength = newClasses.length;
-
-      while (oldIndex < oldLength || newIndex < newLength) {
-        var oldClass = oldClasses[oldIndex];
-        var newClass = newClasses[newIndex];
-
-        if (oldIndex === oldLength) {
-          ADD_LIST.push(newClass);
-          newIndex++;
-        } else if (newIndex === newLength) {
-          REMOVE_LIST.push(oldClass);
-          oldIndex++;
-        } else {
-          if (oldClass === newClass) {
-            oldIndex++;
-            newIndex++;
-          } else if (oldClass < newClass) {
-            REMOVE_LIST.push(oldClass);
-            oldIndex++;
-          } else {
-            ADD_LIST.push(newClass);
-            newIndex++;
-          }
-        }
-      }
-
-      this.oldClasses = newClasses;
-
-      this.dom.addClasses(this.element, ADD_LIST);
-      this.dom.removeClasses(this.element, REMOVE_LIST);
-    };
-
-    __exports__["default"] = QuotedClassAttrNode;
   });
 enifed("ember-htmlbars/attr_nodes/simple",
   ["ember-metal/run_loop","exports"],
@@ -5319,8 +5204,8 @@ enifed("ember-htmlbars/compat/handlebars-get",
     }
   });
 enifed("ember-htmlbars/compat/helper",
-  ["ember-metal/merge","ember-htmlbars/helpers","ember-views/views/view","ember-views/views/component","ember-htmlbars/system/make-view-helper","ember-htmlbars/compat/make-bound-helper","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+  ["ember-metal/merge","ember-htmlbars/helpers","ember-views/views/view","ember-views/views/component","ember-htmlbars/system/make-view-helper","ember-htmlbars/compat/make-bound-helper","ember-metal/streams/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -5333,6 +5218,7 @@ enifed("ember-htmlbars/compat/helper",
     var Component = __dependency4__["default"];
     var makeViewHelper = __dependency5__["default"];
     var makeBoundHelper = __dependency6__["default"];
+    var isStream = __dependency7__.isStream;
 
     var slice = [].slice;
 
@@ -5354,7 +5240,7 @@ enifed("ember-htmlbars/compat/helper",
         for (var prop in hash) {
           param = hash[prop];
 
-          if (param.isStream) {
+          if (isStream(param)) {
             handlebarsOptions.hash[prop] = param._label;
           } else {
             handlebarsOptions.hash[prop] = param;
@@ -5365,7 +5251,7 @@ enifed("ember-htmlbars/compat/helper",
         for (var i = 0, l = params.length; i < l; i++) {
           param = params[i];
 
-          if (param.isStream) {
+          if (isStream(param)) {
             args[i] = param._label;
           } else {
             args[i] = param;
@@ -5422,6 +5308,7 @@ enifed("ember-htmlbars/compat/make-bound-helper",
     var scanArray = __dependency5__.scanArray;
     var scanHash = __dependency5__.scanHash;
     var readHash = __dependency5__.readHash;
+    var isStream = __dependency5__.isStream;
 
     /**
       A helper function used by `registerBoundHelper`. Takes the
@@ -5475,7 +5362,7 @@ enifed("ember-htmlbars/compat/make-bound-helper",
           for (var i = 0, l = params.length; i < l; i++) {
             param = params[i];
 
-            if (param.isStream) {
+            if (isStream(param)) {
               properties[i] = param._label;
             } else {
               properties[i] = param;
@@ -5500,14 +5387,14 @@ enifed("ember-htmlbars/compat/make-bound-helper",
 
           for (i = 0; i < numParams; i++) {
             param = params[i];
-            if (param && param.isStream) {
+            if (isStream(param)) {
               param.subscribe(lazyValue.notify, lazyValue);
             }
           }
 
           for (prop in hash) {
             param = hash[prop];
-            if (param && param.isStream) {
+            if (isStream(param)) {
               param.subscribe(lazyValue.notify, lazyValue);
             }
           }
@@ -5516,7 +5403,7 @@ enifed("ember-htmlbars/compat/make-bound-helper",
             var firstParam = params[0];
             // Only bother with subscriptions if the first argument
             // is a stream itself, and not a primitive.
-            if (firstParam && firstParam.isStream) {
+            if (isStream(firstParam)) {
               var onDependentKeyNotify = function onDependentKeyNotify(stream) {
                 stream.value();
                 lazyValue.notify();
@@ -5887,8 +5774,8 @@ enifed("ember-htmlbars/helpers",
     __exports__.registerBoundHelper = registerBoundHelper;__exports__["default"] = helpers;
   });
 enifed("ember-htmlbars/helpers/bind-attr",
-  ["ember-metal/core","ember-runtime/system/string","ember-htmlbars/attr_nodes/quoted_class","ember-htmlbars/attr_nodes/legacy_bind","ember-views/views/view","ember-metal/streams/stream","ember-metal/keys","ember-htmlbars/helpers","ember-htmlbars/hooks/concat","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __exports__) {
+  ["ember-metal/core","ember-runtime/system/string","ember-htmlbars/attr_nodes/quoted","ember-htmlbars/attr_nodes/legacy_bind","ember-views/views/view","ember-metal/keys","ember-htmlbars/helpers","ember-metal/streams/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -5899,13 +5786,15 @@ enifed("ember-htmlbars/helpers/bind-attr",
     // Ember.assert
 
     var fmt = __dependency2__.fmt;
-    var QuotedClassAttrNode = __dependency3__["default"];
+    var QuotedAttrNode = __dependency3__["default"];
     var LegacyBindAttrNode = __dependency4__["default"];
     var View = __dependency5__["default"];
-    var Stream = __dependency6__["default"];
-    var keys = __dependency7__["default"];
-    var helpers = __dependency8__["default"];
-    var concat = __dependency9__["default"];
+    var keys = __dependency6__["default"];
+    var helpers = __dependency7__["default"];
+    var read = __dependency8__.read;
+    var isStream = __dependency8__.isStream;
+    var concat = __dependency8__.concat;
+    var chainStream = __dependency8__.chainStream;
 
     /**
       `bind-attr` allows you to create a binding between DOM element attributes and
@@ -6038,10 +5927,14 @@ enifed("ember-htmlbars/helpers/bind-attr",
       var view = this;
 
       // Handle classes differently, as we can bind multiple classes
-      var classBindings = hash['class'];
-      if (classBindings != null) {
-        var attrValue = streamifyClassBindings(view, classBindings);
-        new QuotedClassAttrNode(element, 'class', attrValue, env.dom);
+      var classNameBindings = hash['class'];
+      if (classNameBindings !== null && classNameBindings !== undefined) {
+        if (isStream(classNameBindings)) {
+          new QuotedAttrNode(element, 'class', classNameBindings, env.dom);
+        } else {
+          var classNameBindingsStream = applyClassNameBindings(classNameBindings, view);
+          new QuotedAttrNode(element, 'class', classNameBindingsStream, env.dom);
+        }
         delete hash['class'];
       }
 
@@ -6051,7 +5944,7 @@ enifed("ember-htmlbars/helpers/bind-attr",
       for (var i=0, l=attrKeys.length;i<l;i++) {
         attr = attrKeys[i];
         path = hash[attr];
-        if (path.isStream) {
+        if (isStream(path)) {
           lazyValue = path;
         } else {
           Ember.assert(
@@ -6063,6 +5956,13 @@ enifed("ember-htmlbars/helpers/bind-attr",
         }
         new LegacyBindAttrNode(element, attr, lazyValue, env.dom);
       }
+    }
+
+    function applyClassNameBindings(classNameBindings, view) {
+      var arrayOfClassNameBindings = classNameBindings.split(' ');
+      var boundClassNameBindings = steamifyClassNameBindings(view, arrayOfClassNameBindings);
+      var concatenatedClassNames = concat(boundClassNameBindings, ' ');
+      return concatenatedClassNames;
     }
 
     /**
@@ -6102,31 +6002,26 @@ enifed("ember-htmlbars/helpers/bind-attr",
         element to update
       @return {Array} An array of class names to add
     */
-    function streamifyClassBindings(view, classBindingsString) {
-      var classBindings = classBindingsString.split(' ');
+    function steamifyClassNameBindings(view, classNameBindings) {
       var streamified = [];
-
-      var parsedPath;
-      for (var i=0, l=classBindings.length;i<l;i++) {
-        parsedPath = View._parsePropertyPath(classBindings[i]);
-
-        if (parsedPath.path === '') {
-          streamified.push(classStringForParsedPath(parsedPath, true) + " ");
-        } else {
-          (function(){
-            var lazyValue = view.getStream(parsedPath.path);
-            var _parsedPath = parsedPath;
-            var classNameBound = new Stream(function(){
-              var value = lazyValue.value();
-              return classStringForParsedPath(_parsedPath, value) + " ";
-            });
-            lazyValue.subscribe(classNameBound.notify, classNameBound);
-            streamified.push(classNameBound);
-          })(); // jshint ignore:line
-        }
+      var boundClassName;
+      for (var i=0, l=classNameBindings.length;i<l;i++) {
+        boundClassName = streamifyClassNameBinding(view, classNameBindings[i]);
+        streamified.push(boundClassName);
       }
+      return streamified;
+    }
 
-      return concat(streamified);
+    function streamifyClassNameBinding(view, classNameBinding){
+      var parsedPath = View._parsePropertyPath(classNameBinding);
+      if (parsedPath.path === '') {
+        return classStringForParsedPath(parsedPath, true);
+      } else {
+        var pathValue = view.getStream(parsedPath.path);
+        return chainStream(pathValue, function(){
+          return classStringForParsedPath(parsedPath, read(pathValue));
+        });
+      }
     }
 
     function classStringForParsedPath(parsedPath, value) {
@@ -6139,8 +6034,8 @@ enifed("ember-htmlbars/helpers/bind-attr",
     __exports__.bindAttrHelperDeprecated = bindAttrHelperDeprecated;
   });
 enifed("ember-htmlbars/helpers/binding",
-  ["ember-metal/is_none","ember-metal/run_loop","ember-metal/property_get","ember-metal/streams/simple","ember-views/views/bound_view","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
+  ["ember-metal/is_none","ember-metal/run_loop","ember-metal/property_get","ember-metal/streams/simple","ember-views/views/bound_view","ember-metal/streams/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -6152,6 +6047,7 @@ enifed("ember-htmlbars/helpers/binding",
     var get = __dependency3__.get;
     var SimpleStream = __dependency4__["default"];
     var BoundView = __dependency5__["default"];
+    var isStream = __dependency6__.isStream;
 
     function exists(value) {
       return !isNone(value);
@@ -6160,7 +6056,7 @@ enifed("ember-htmlbars/helpers/binding",
     // Binds a property into the DOM. This will create a hook in DOM that the
     // KVO system will look for and update if the property changes.
     function bind(property, hash, options, env, preserveContext, shouldDisplay, valueNormalizer, childProperties, _viewClass) {
-      var valueStream = property.isStream ? property : this.getStream(property);
+      var valueStream = isStream(property) ? property : this.getStream(property);
       var lazyValue;
 
       if (childProperties) {
@@ -6893,6 +6789,7 @@ enifed("ember-htmlbars/helpers/if_unless",
       options.helperName = options.helperName || ('if ');
 
       if (env.data.isUnbound) {
+        env.data.isUnbound = false;
         return env.helpers.unboundIf.helperFunction.call(this, params, hash, options, env);
       } else {
         return env.helpers.boundIf.helperFunction.call(this, params, hash, options, env);
@@ -6920,6 +6817,7 @@ enifed("ember-htmlbars/helpers/if_unless",
       options.helperName = options.helperName || helperName;
 
       if (env.data.isUnbound) {
+        env.data.isUnbound = false;
         return env.helpers.unboundIf.helperFunction.call(this, params, hash, options, env);
       } else {
         return env.helpers.boundIf.helperFunction.call(this, params, hash, options, env);
@@ -7245,14 +7143,15 @@ enifed("ember-htmlbars/helpers/log",
     __exports__.logHelper = logHelper;
   });
 enifed("ember-htmlbars/helpers/partial",
-  ["ember-metal/core","ember-metal/is_none","./binding","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["ember-metal/core","ember-metal/is_none","./binding","ember-metal/streams/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.assert
 
     var isNone = __dependency2__["default"];
     var bind = __dependency3__.bind;
+    var isStream = __dependency4__.isStream;
 
     /**
     @module ember
@@ -7304,7 +7203,7 @@ enifed("ember-htmlbars/helpers/partial",
 
       var name = params[0];
 
-      if (name && name.isStream) {
+      if (isStream(name)) {
         options.template = createPartialTemplate(name);
         bind.call(this, name, hash, options, env, true, exists);
       } else {
@@ -8311,51 +8210,23 @@ enifed("ember-htmlbars/hooks/component",
     }
   });
 enifed("ember-htmlbars/hooks/concat",
-  ["ember-metal/streams/stream","ember-metal/streams/utils","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["ember-metal/streams/utils","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
     /**
     @module ember
     @submodule ember-htmlbars
     */
 
-    var Stream = __dependency1__["default"];
-    var isStream = __dependency2__.isStream;
-    var readArray = __dependency2__.readArray;
-    var subscribe = __dependency2__.subscribe;
+    var streamConcat = __dependency1__.concat;
 
-    // TODO: Create subclass ConcatStream < Stream. Defer
-    // subscribing to streams until the value() is called.
     __exports__["default"] = function concat(params) {
-      var i;
-      var isStatic = true;
-
-      for (i = 0; i < params.length; i++) {
-        if (isStream(params[i])) {
-          isStatic = false;
-          break;
-        }
-      }
-
-      if (isStatic) {
-        return params.join('');
-      } else {
-        var stream = new Stream(function() {
-          return readArray(params).join('');
-        });
-
-        for (i = 0; i < params.length; i++) {
-          subscribe(params[i], stream.notify, stream);
-        }
-
-        return stream;
-      }
-
+      return streamConcat(params, '');
     }
   });
 enifed("ember-htmlbars/hooks/content",
-  ["ember-htmlbars/hooks/subexpr","ember-views/views/simple_bound_view","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["ember-htmlbars/hooks/subexpr","ember-views/views/simple_bound_view","ember-metal/streams/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -8364,11 +8235,12 @@ enifed("ember-htmlbars/hooks/content",
 
     var subexpr = __dependency1__["default"];
     var appendSimpleBoundView = __dependency2__.appendSimpleBoundView;
+    var isStream = __dependency3__.isStream;
 
     __exports__["default"] = function content(morph, path, view, params, hash, options, env) {
       var result = subexpr(path, view, params, hash, options, env);
 
-      if (result && result.isStream) {
+      if (isStream(result)) {
         appendSimpleBoundView(view, morph, result);
       } else {
         morph.update(result);
@@ -12404,7 +12276,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.2+pre.738e224c
+      @version 1.10.0-beta.2+pre.1b0a668f
     */
 
     if ('undefined' === typeof Ember) {
@@ -12431,10 +12303,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.2+pre.738e224c'
+      @default '1.10.0-beta.2+pre.1b0a668f'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.2+pre.738e224c';
+    Ember.VERSION = '1.10.0-beta.2+pre.1b0a668f';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -14874,8 +14746,8 @@ enifed("ember-metal/merge",
     }
   });
 enifed("ember-metal/mixin",
-  ["ember-metal/core","ember-metal/merge","ember-metal/array","ember-metal/platform","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/expand_properties","ember-metal/properties","ember-metal/computed","ember-metal/binding","ember-metal/observer","ember-metal/events","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __exports__) {
+  ["ember-metal/core","ember-metal/merge","ember-metal/array","ember-metal/platform","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/expand_properties","ember-metal/properties","ember-metal/computed","ember-metal/binding","ember-metal/observer","ember-metal/events","ember-metal/streams/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __exports__) {
         // Remove "use strict"; from transpiled module until
     // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
     //
@@ -14912,6 +14784,7 @@ enifed("ember-metal/mixin",
     var _suspendObserver = __dependency12__._suspendObserver;
     var addListener = __dependency13__.addListener;
     var removeListener = __dependency13__.removeListener;
+    var isStream = __dependency14__.isStream;
 
     var REQUIRED;
     var a_slice = [].slice;
@@ -15224,7 +15097,7 @@ enifed("ember-metal/mixin",
           binding = bindings[key];
           if (binding) {
             to = key.slice(0, -7); // strip Binding off end
-            if (binding.isStream) {
+            if (isStream(binding)) {
               connectStreamBinding(obj, to, binding);
               continue;
             } else if (binding instanceof Binding) {
@@ -17162,7 +17035,7 @@ enifed("ember-metal/run_loop",
 
       ```javascript
       run(function() {
-        // code to be execute within a RunLoop
+        // code to be executed within a RunLoop
       });
       ```
 
@@ -17288,7 +17161,7 @@ enifed("ember-metal/run_loop",
 
       ```javascript
       run.begin();
-      // code to be execute within a RunLoop
+      // code to be executed within a RunLoop
       run.end();
       ```
 
@@ -17306,7 +17179,7 @@ enifed("ember-metal/run_loop",
 
       ```javascript
       run.begin();
-      // code to be execute within a RunLoop
+      // code to be executed within a RunLoop
       run.end();
       ```
 
@@ -17796,12 +17669,13 @@ enifed("ember-metal/streams/simple",
     var Stream = __dependency2__["default"];
     var create = __dependency3__.create;
     var read = __dependency4__.read;
+    var isStream = __dependency4__.isStream;
 
     function SimpleStream(source) {
       this.init();
       this.source = source;
 
-      if (source && source.isStream) {
+      if (isStream(source)) {
         source.subscribe(this._didChange, this);
       }
     }
@@ -17816,7 +17690,7 @@ enifed("ember-metal/streams/simple",
       setValue: function(value) {
         var source = this.source;
 
-        if (source && source.isStream) {
+        if (isStream(source)) {
           source.setValue(value);
         }
       },
@@ -17824,11 +17698,11 @@ enifed("ember-metal/streams/simple",
       setSource: function(nextSource) {
         var prevSource = this.source;
         if (nextSource !== prevSource) {
-          if (prevSource && prevSource.isStream) {
+          if (isStream(prevSource)) {
             prevSource.unsubscribe(this._didChange, this);
           }
 
-          if (nextSource && nextSource.isStream) {
+          if (isStream(nextSource)) {
             nextSource.subscribe(this._didChange, this);
           }
 
@@ -17845,7 +17719,7 @@ enifed("ember-metal/streams/simple",
 
       destroy: function() {
         if (this._super$destroy()) {
-          if (this.source && this.source.isStream) {
+          if (isStream(this.source)) {
             this.source.unsubscribe(this._didChange, this);
           }
           this.source = undefined;
@@ -17985,7 +17859,7 @@ enifed("ember-metal/streams/stream",
             children[key].destroy();
           }
 
-          return true;      
+          return true;
         }
       },
 
@@ -18085,9 +17959,11 @@ enifed("ember-metal/streams/stream_binding",
     __exports__["default"] = StreamBinding;
   });
 enifed("ember-metal/streams/utils",
-  ["exports"],
-  function(__exports__) {
+  ["./stream","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
+    var Stream = __dependency1__["default"];
+
     function isStream(object) {
       return object && object.isStream;
     }
@@ -18166,7 +18042,37 @@ enifed("ember-metal/streams/utils",
       return containsStream;
     }
 
-    __exports__.scanHash = scanHash;
+    __exports__.scanHash = scanHash;// TODO: Create subclass ConcatStream < Stream. Defer
+    // subscribing to streams until the value() is called.
+    function concat(array, key) {
+      var hasStream = scanArray(array);
+      if (hasStream) {
+        var i, l;
+        var stream = new Stream(function() {
+          return readArray(array).join(key);
+        });
+
+        for (i = 0, l=array.length; i < l; i++) {
+          subscribe(array[i], stream.notify, stream);
+        }
+
+        return stream;
+      } else {
+        return array.join(key);
+      }
+    }
+
+    __exports__.concat = concat;function chainStream(value, fn) {
+      if (isStream(value)) {
+        var stream = new Stream(fn);
+        subscribe(value, stream.notify, stream);
+        return stream;
+      } else {
+        return fn();
+      }
+    }
+
+    __exports__.chainStream = chainStream;
   });
 enifed("ember-metal/utils",
   ["ember-metal/core","ember-metal/platform","ember-metal/array","exports"],
@@ -19346,8 +19252,8 @@ enifed("ember-routing-htmlbars",
     __exports__["default"] = Ember;
   });
 enifed("ember-routing-htmlbars/helpers/action",
-  ["ember-metal/core","ember-metal/utils","ember-metal/run_loop","ember-views/streams/utils","ember-views/system/utils","ember-views/system/action_manager","ember-metal/array","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
+  ["ember-metal/core","ember-metal/utils","ember-metal/run_loop","ember-views/streams/utils","ember-views/system/utils","ember-views/system/action_manager","ember-metal/array","ember-metal/streams/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -19362,6 +19268,7 @@ enifed("ember-routing-htmlbars/helpers/action",
     var isSimpleClick = __dependency5__.isSimpleClick;
     var ActionManager = __dependency6__["default"];
     var indexOf = __dependency7__.indexOf;
+    var isStream = __dependency8__.isStream;
 
     function actionArgs(parameters, actionName) {
       var ret, i, l;
@@ -19447,7 +19354,7 @@ enifed("ember-routing-htmlbars/helpers/action",
           
           var actionName;
 
-          if (actionNameOrStream.isStream) {
+          if (isStream(actionNameOrStream)) {
             actionName = actionNameOrStream.value();
 
             Ember.assert("You specified a quoteless path to the {{action}} helper " +
@@ -19644,7 +19551,7 @@ enifed("ember-routing-htmlbars/helpers/action",
       var target;
       if (!hash.target) {
         target = this.getStream('controller');
-      } else if (hash.target.isStream) {
+      } else if (isStream(hash.target)) {
         target = hash.target;
       } else {
         target = this.getStream(hash.target);
@@ -38805,6 +38712,7 @@ enifed("ember-views/streams/key_stream",
     var removeObserver = __dependency6__.removeObserver;
     var Stream = __dependency7__["default"];
     var read = __dependency8__.read;
+    var isStream = __dependency8__.isStream;
 
     function KeyStream(source, key) {
       Ember.assert("KeyStream error: key must be a non-empty string", typeof key === 'string' && key.length > 0);
@@ -38815,7 +38723,7 @@ enifed("ember-views/streams/key_stream",
       this.obj = undefined;
       this.key = key;
 
-      if (source && source.isStream) {
+      if (isStream(source)) {
         source.subscribe(this._didChange, this);
       }
     }
@@ -38856,11 +38764,11 @@ enifed("ember-views/streams/key_stream",
         var prevSource = this.source;
 
         if (nextSource !== prevSource) {
-          if (prevSource && prevSource.isStream) {
+          if (isStream(prevSource)) {
             prevSource.unsubscribe(this._didChange, this);
           }
 
-          if (nextSource && nextSource.isStream) {
+          if (isStream(nextSource)) {
             nextSource.subscribe(this._didChange, this);
           }
 
@@ -38877,7 +38785,7 @@ enifed("ember-views/streams/key_stream",
 
       destroy: function() {
         if (this._super$destroy()) {
-          if (this.source && this.source.isStream) {
+          if (isStream(this.source)) {
             this.source.unsubscribe(this._didChange, this);
           }
 
@@ -38910,6 +38818,7 @@ enifed("ember-views/streams/utils",
     var isGlobal = __dependency3__.isGlobal;
     var fmt = __dependency4__.fmt;
     var read = __dependency5__.read;
+    var isStream = __dependency5__.isStream;
     var View = __dependency6__["default"];
     var ControllerMixin = __dependency7__["default"];
 
@@ -38935,7 +38844,7 @@ enifed("ember-views/streams/utils",
     }
 
     __exports__.readViewFactory = readViewFactory;function readUnwrappedModel(object) {
-      if (object && object.isStream) {
+      if (isStream(object)) {
         var result = object.value();
 
         // If the path is exactly `controller` then we don't unwrap it.
@@ -43142,8 +43051,8 @@ enifed("ember-views/views/text_field",
     });
   });
 enifed("ember-views/views/view",
-  ["ember-metal/core","ember-metal/platform","ember-runtime/mixins/evented","ember-runtime/system/object","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/set_properties","ember-metal/run_loop","ember-metal/observer","ember-metal/properties","ember-metal/utils","ember-metal/computed","ember-metal/mixin","ember-metal/streams/simple","ember-views/streams/key_stream","ember-metal/streams/stream_binding","ember-views/streams/context_stream","ember-metal/is_none","ember-metal/deprecate_property","ember-runtime/system/native_array","ember-runtime/system/string","ember-metal/enumerable_utils","ember-metal/property_events","ember-views/system/jquery","ember-views/system/ext","ember-views/views/core_view","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __exports__) {
+  ["ember-metal/core","ember-metal/platform","ember-runtime/mixins/evented","ember-runtime/system/object","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/set_properties","ember-metal/run_loop","ember-metal/observer","ember-metal/properties","ember-metal/utils","ember-metal/computed","ember-metal/mixin","ember-metal/streams/simple","ember-views/streams/key_stream","ember-metal/streams/stream_binding","ember-views/streams/context_stream","ember-metal/is_none","ember-metal/deprecate_property","ember-runtime/system/native_array","ember-runtime/system/string","ember-metal/enumerable_utils","ember-metal/property_events","ember-views/system/jquery","ember-views/system/ext","ember-views/views/core_view","ember-metal/streams/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __exports__) {
     "use strict";
     // Ember.assert, Ember.deprecate, Ember.warn, Ember.TEMPLATES,
     // jQuery, Ember.lookup,
@@ -43193,6 +43102,7 @@ enifed("ember-views/views/view",
      // for the side effect of extending Ember.run.queues
 
     var CoreView = __dependency27__["default"];
+    var isStream = __dependency28__.isStream;
 
     function K() { return this; }
 
@@ -45205,7 +45115,7 @@ enifed("ember-views/views/view",
         }
 
         var path = pathOrStream;
-        if (pathOrStream.isStream) {
+        if (isStream(pathOrStream)) {
           path = pathOrStream._label;
 
           if (!path) {
