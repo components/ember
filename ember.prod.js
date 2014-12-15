@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.27a829eb
+ * @version   1.11.0-beta.1+canary.a9b2527f
  */
 
 (function() {
@@ -11925,7 +11925,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.27a829eb
+      @version 1.11.0-beta.1+canary.a9b2527f
     */
 
     if ('undefined' === typeof Ember) {
@@ -11952,10 +11952,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.27a829eb'
+      @default '1.11.0-beta.1+canary.a9b2527f'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.27a829eb';
+    Ember.VERSION = '1.11.0-beta.1+canary.a9b2527f';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -23425,7 +23425,7 @@ enifed("ember-routing/system/route",
                 // convert the reject into a resolve and the
                 // transition would continue. To propagate the
                 // error so that it'd be handled by the `error`
-                // hook, you would have to either
+                // hook, you would have to
                 return Ember.RSVP.reject(e);
               });
             }
