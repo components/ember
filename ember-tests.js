@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.57b98958
+ * @version   1.11.0-beta.1+canary.386267fa
  */
 
 (function() {
@@ -19327,6 +19327,68 @@ enifed("ember-metal/tests/instrumentation_test",
 
       instrument("render", null, function() {});
     });
+
+    test("instrument with 2 args (name, callback) no payload", function() {
+      expect(1);
+
+      subscribe("render", {
+        before: function(name, timestamp, payload) {
+          deepEqual(payload, {});
+        },
+        after: function() {}
+      });
+
+      instrument("render", function() {});
+    });
+
+    test("instrument with 3 args (name, callback, binding) no payload", function() {
+      expect(2);
+
+      var binding = {};
+      subscribe("render", {
+        before: function(name, timestamp, payload) {
+          deepEqual(payload, {});
+        },
+        after: function() {}
+      });
+
+      instrument("render", function() {
+        deepEqual(this, binding);
+      }, binding);
+    });
+
+
+    test("instrument with 3 args (name, payload, callback) with payload", function() {
+      expect(1);
+
+      var expectedPayload = { hi: 1};
+      subscribe("render", {
+        before: function(name, timestamp, payload) {
+          deepEqual(payload, expectedPayload);
+        },
+        after: function() {}
+      });
+
+      instrument("render", expectedPayload, function() {});
+    });
+
+    test("instrument with 4 args (name, payload, callback, binding) with payload", function() {
+      expect(2);
+
+      var expectedPayload = { hi: 1 };
+      var binding = {};
+      subscribe("render", {
+        before: function(name, timestamp, payload) {
+          deepEqual(payload, expectedPayload);
+        },
+        after: function() {}
+      });
+
+      instrument("render", expectedPayload, function() {
+        deepEqual(this, binding);
+      }, binding);
+    });
+
 
     test("raising an exception in the instrumentation attaches it to the payload", function() {
       expect(2);

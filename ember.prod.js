@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.57b98958
+ * @version   1.11.0-beta.1+canary.386267fa
  */
 
 (function() {
@@ -11881,7 +11881,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.57b98958
+      @version 1.11.0-beta.1+canary.386267fa
     */
 
     if ('undefined' === typeof Ember) {
@@ -11908,10 +11908,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.57b98958'
+      @default '1.11.0-beta.1+canary.386267fa'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.57b98958';
+    Ember.VERSION = '1.11.0-beta.1+canary.386267fa';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -13201,6 +13201,11 @@ enifed("ember-metal/instrumentation",
       @param {Object} binding Context that instrument function is called with.
     */
     function instrument(name, _payload, callback, binding) {
+      if (arguments.length <= 3 && typeof _payload === 'function') {
+        binding = callback;
+        callback = _payload;
+        _payload = undefined;
+      }
       if (subscribers.length === 0) {
         return callback.call(binding);
       }
