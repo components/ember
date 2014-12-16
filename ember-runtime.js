@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.213754ea
+ * @version   1.11.0-beta.1+canary.57b98958
  */
 
 (function() {
@@ -4852,7 +4852,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.213754ea
+      @version 1.11.0-beta.1+canary.57b98958
     */
 
     if ('undefined' === typeof Ember) {
@@ -4879,10 +4879,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.213754ea'
+      @default '1.11.0-beta.1+canary.57b98958'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.213754ea';
+    Ember.VERSION = '1.11.0-beta.1+canary.57b98958';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -5429,52 +5429,6 @@ define("ember-metal/enumerable_utils",
       removeObject: removeObject,
       replace: replace
     };
-  });
-define("ember-metal/environment",
-  ["exports"],
-  function(__exports__) {
-    "use strict";
-
-    /*
-      Ember can run in many different environments, including environments like
-      Node.js where the DOM is unavailable. This object serves as an abstraction
-      over the browser features that Ember relies on, so that code does not
-      explode when trying to boot in an environment that doesn't have them.
-
-      This is a private abstraction. In the future, we hope that other
-      abstractions (like `Location`, `Renderer`, `dom-helper`) can fully abstract
-      over the differences in environment.
-    */
-    var environment;
-
-    // This code attempts to automatically detect an environment with DOM
-    // by searching for window and document.createElement. An environment
-    // with DOM may disable the DOM functionality of Ember explicitly by
-    // defining a `disableBrowserEnvironment` ENV.
-    var hasDOM = typeof window !== 'undefined' &&
-                 typeof document !== 'undefined' &&
-                 typeof document.createElement === 'function' &&
-                 !Ember.ENV.disableBrowserEnvironment;
-
-    if (hasDOM) {
-      environment = {
-        hasDOM: true,
-        isChrome: !!window.chrome && !window.opera,
-        location: window.location,
-        history: window.history,
-        userAgent: window.navigator.userAgent
-      };
-    } else {
-      environment = {
-        hasDOM: false,
-        isChrome: false,
-        location: null,
-        history: null,
-        userAgent: "Lynx (textmode)"
-      };
-    }
-
-    __exports__["default"] = environment;
   });
 define("ember-metal/error",
   ["ember-metal/platform","exports"],
