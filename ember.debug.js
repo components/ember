@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.560906eb
+ * @version   1.11.0-beta.1+canary.d896c543
  */
 
 (function() {
@@ -12293,7 +12293,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.560906eb
+      @version 1.11.0-beta.1+canary.d896c543
     */
 
     if ('undefined' === typeof Ember) {
@@ -12320,10 +12320,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.560906eb'
+      @default '1.11.0-beta.1+canary.d896c543'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.560906eb';
+    Ember.VERSION = '1.11.0-beta.1+canary.d896c543';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -22119,7 +22119,7 @@ enifed("ember-routing/location/feature_detect",
   ["exports"],
   function(__exports__) {
     "use strict";
-    /**
+    /*
       `documentMode` only exist in Internet Explorer, and it's tested because IE8 running in
       IE7 compatibility mode claims to support `onhashchange` but actually does not.
 
@@ -22132,7 +22132,7 @@ enifed("ember-routing/location/feature_detect",
       return ('onhashchange' in global) && (documentMode === undefined || documentMode > 7);
     }
 
-    __exports__.supportsHashChange = supportsHashChange;/**
+    __exports__.supportsHashChange = supportsHashChange;/*
       `userAgent` is a user agent string. We use user agent testing here, because
       the stock Android browser in Gingerbread has a buggy versions of this API,
       Before feature detecting, we blacklist a browser identifying as both Android 2
@@ -22141,6 +22141,7 @@ enifed("ember-routing/location/feature_detect",
       @private
       @function supportsHistory
     */
+
     function supportsHistory(userAgent, history) {
       // Boosted from Modernizr: https://github.com/Modernizr/Modernizr/blob/master/feature-detects/history.js
       // The stock browser on Android 2.2 & 2.3 returns positive on history support
