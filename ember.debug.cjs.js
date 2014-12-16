@@ -58456,3 +58456,4 @@ enifed("simple-html-tokenizer/utils",
 requireModule("ember");
 
 })();
+;module.exports = Ember;

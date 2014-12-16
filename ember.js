@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.088874a1
+ * @version   1.11.0-beta.1+canary.560906eb
  */
 
 (function() {
@@ -2418,8 +2418,8 @@ enifed("ember-application/ext/controller",
     __exports__["default"] = ControllerMixin;
   });
 enifed("ember-application/system/application",
-  ["dag-map","container/container","ember-metal","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/lazy_load","ember-runtime/system/namespace","ember-runtime/mixins/deferred","ember-application/system/resolver","ember-metal/platform","ember-metal/run_loop","ember-metal/utils","ember-runtime/controllers/controller","ember-metal/enumerable_utils","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-views/views/select","ember-views/system/event_dispatcher","ember-views/system/jquery","ember-routing/system/route","ember-routing/system/router","ember-routing/location/hash_location","ember-routing/location/history_location","ember-routing/location/auto_location","ember-routing/location/none_location","ember-routing/system/cache","ember-extension-support/container_debug_adapter","ember-metal/core","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __exports__) {
+  ["dag-map","container/container","ember-metal","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/lazy_load","ember-runtime/system/namespace","ember-runtime/mixins/deferred","ember-application/system/resolver","ember-metal/platform","ember-metal/run_loop","ember-metal/utils","ember-runtime/controllers/controller","ember-metal/enumerable_utils","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-views/views/select","ember-views/system/event_dispatcher","ember-views/system/jquery","ember-routing/system/route","ember-routing/system/router","ember-routing/location/hash_location","ember-routing/location/history_location","ember-routing/location/auto_location","ember-routing/location/none_location","ember-routing/system/cache","ember-extension-support/container_debug_adapter","ember-metal/core","ember-metal/environment","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -2455,14 +2455,10 @@ enifed("ember-application/system/application",
     var NoneLocation = __dependency25__["default"];
     var BucketCache = __dependency26__["default"];
 
-    // this is technically incorrect (per @wycats)
-    // it should work properly with:
-    // `import ContainerDebugAdapter from 'ember-extension-support/container_debug_adapter';` but
-    // es6-module-transpiler 0.4.0 eagerly grabs the module (which is undefined)
-
     var ContainerDebugAdapter = __dependency27__["default"];
 
     var K = __dependency28__.K;
+    var environment = __dependency29__["default"];
 
     function props(obj) {
       var properties = [];
@@ -2698,7 +2694,10 @@ enifed("ember-application/system/application",
 
         if (!librariesRegistered) {
           librariesRegistered = true;
-          Ember.libraries.registerCoreLibrary('jQuery', jQuery().jquery);
+
+          if (environment.hasDOM) {
+            Ember.libraries.registerCoreLibrary('jQuery', jQuery().jquery);
+          }
         }
 
         if (Ember.LOG_VERSION) {
@@ -3117,7 +3116,10 @@ enifed("ember-application/system/application",
         @method didBecomeReady
       */
       didBecomeReady: function() {
-        this.setupEventDispatcher();
+        if (environment.hasDOM) {
+          this.setupEventDispatcher();
+        }
+
         this.ready(); // user hook
         this.startRouting();
 
@@ -3888,14 +3890,16 @@ enifed("ember-application/system/resolver",
     });
   });
 enifed("ember-debug",
-  ["ember-metal/core","ember-metal/error","ember-metal/logger","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["ember-metal/core","ember-metal/error","ember-metal/logger","ember-metal/environment","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     /*global __fail__*/
 
     var Ember = __dependency1__["default"];
     var EmberError = __dependency2__["default"];
     var Logger = __dependency3__["default"];
+
+    var environment = __dependency4__["default"];
 
     /**
     Ember Debug
@@ -4111,7 +4115,7 @@ enifed("ember-debug",
 
       // Inform the developer about the Ember Inspector if not installed.
       var isFirefox = typeof InstallTrigger !== 'undefined';
-      var isChrome = !!window.chrome && !window.opera;
+      var isChrome = environment.isChrome;
 
       if (typeof window !== 'undefined' && (isFirefox || isChrome) && window.addEventListener) {
         window.addEventListener("load", function() {
@@ -4772,8 +4776,8 @@ enifed("ember-extension-support/data_adapter",
     });
   });
 enifed("ember-htmlbars",
-  ["ember-metal/core","ember-htmlbars/hooks/content","ember-htmlbars/hooks/component","ember-htmlbars/hooks/element","ember-htmlbars/hooks/subexpr","ember-htmlbars/hooks/attribute","ember-htmlbars/hooks/concat","ember-htmlbars/hooks/get","ember-htmlbars/hooks/set","morph","ember-htmlbars/system/template","ember-htmlbars/system/compile","ember-htmlbars/system/make-view-helper","ember-htmlbars/system/make_bound_helper","ember-htmlbars/helpers","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/bind-attr","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/partial","ember-htmlbars/helpers/template","ember-htmlbars/helpers/input","ember-htmlbars/helpers/text_area","ember-htmlbars/helpers/collection","ember-htmlbars/helpers/each","ember-htmlbars/helpers/unbound","ember-htmlbars/plugins","ember-htmlbars/plugins/transform-each-in-to-hash","ember-htmlbars/plugins/transform-with-as-to-hash","ember-htmlbars/system/bootstrap","ember-htmlbars/compat","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __dependency31__, __dependency32__, __dependency33__, __dependency34__, __dependency35__, __dependency36__, __exports__) {
+  ["ember-metal/core","ember-htmlbars/hooks/content","ember-htmlbars/hooks/component","ember-htmlbars/hooks/element","ember-htmlbars/hooks/subexpr","ember-htmlbars/hooks/attribute","ember-htmlbars/hooks/concat","ember-htmlbars/hooks/get","ember-htmlbars/hooks/set","morph","ember-htmlbars/system/template","ember-htmlbars/system/compile","ember-htmlbars/system/make-view-helper","ember-htmlbars/system/make_bound_helper","ember-htmlbars/helpers","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/bind-attr","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/partial","ember-htmlbars/helpers/template","ember-htmlbars/helpers/input","ember-htmlbars/helpers/text_area","ember-htmlbars/helpers/collection","ember-htmlbars/helpers/each","ember-htmlbars/helpers/unbound","ember-htmlbars/plugins","ember-htmlbars/plugins/transform-each-in-to-hash","ember-htmlbars/plugins/transform-with-as-to-hash","ember-metal/environment","ember-htmlbars/system/bootstrap","ember-htmlbars/compat","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __dependency31__, __dependency32__, __dependency33__, __dependency34__, __dependency35__, __dependency36__, __dependency37__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var content = __dependency2__["default"];
@@ -4817,6 +4821,8 @@ enifed("ember-htmlbars",
     var registerASTPlugin = __dependency32__.registerASTPlugin;
     var TransformEachInToHash = __dependency33__["default"];
     var TransformWithAsToHash = __dependency34__["default"];
+
+    var environment = __dependency35__["default"];
 
     // importing adds template bootstrapping
     // initializer to enable embedded templates
@@ -4864,8 +4870,10 @@ enifed("ember-htmlbars",
 
     
 
+    var domHelper = environment.hasDOM ? new DOMHelper() : null;
+
     var defaultEnv = {
-      dom: new DOMHelper(),
+      dom: domHelper,
 
       hooks: {
         get: get,
@@ -8465,8 +8473,8 @@ enifed("ember-htmlbars/plugins/transform-with-as-to-hash",
     __exports__["default"] = TransformWithAsToHash;
   });
 enifed("ember-htmlbars/system/bootstrap",
-  ["ember-metal/core","ember-views/component_lookup","ember-views/system/jquery","ember-metal/error","ember-runtime/system/lazy_load","ember-htmlbars/system/compile","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+  ["ember-metal/core","ember-views/component_lookup","ember-views/system/jquery","ember-metal/error","ember-runtime/system/lazy_load","ember-htmlbars/system/compile","ember-metal/environment","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
     /*globals Handlebars */
 
@@ -8481,6 +8489,7 @@ enifed("ember-htmlbars/system/bootstrap",
     var EmberError = __dependency4__["default"];
     var onLoad = __dependency5__.onLoad;
     var htmlbarsCompile = __dependency6__["default"];
+    var environment = __dependency7__["default"];
 
     /**
     @module ember
@@ -8557,7 +8566,7 @@ enifed("ember-htmlbars/system/bootstrap",
 
       Application.initializer({
         name: 'domTemplates',
-        initialize: _bootstrap
+        initialize: environment.hasDOM ? _bootstrap : function() { }
       });
 
       Application.initializer({
@@ -9142,10 +9151,13 @@ enifed("ember-metal-views",
     __exports__.Renderer = Renderer;
   });
 enifed("ember-metal-views/renderer",
-  ["morph","exports"],
-  function(__dependency1__, __exports__) {
+  ["morph","ember-metal/environment","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     var DOMHelper = __dependency1__.DOMHelper;
+    var environment = __dependency2__["default"];
+
+    var domHelper = environment.hasDOM ? new DOMHelper() : null;
 
     function Renderer() {
       this._uuid = 0;
@@ -9154,7 +9166,7 @@ enifed("ember-metal-views/renderer",
       this._parents = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
       this._elements = new Array(17);
       this._inserts = {};
-      this._dom = new DOMHelper();
+      this._dom = domHelper;
     }
 
     function Renderer_renderTree(_view, _parentView, _insertAt) {
@@ -12281,7 +12293,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.088874a1
+      @version 1.11.0-beta.1+canary.560906eb
     */
 
     if ('undefined' === typeof Ember) {
@@ -12308,10 +12320,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.088874a1'
+      @default '1.11.0-beta.1+canary.560906eb'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.088874a1';
+    Ember.VERSION = '1.11.0-beta.1+canary.560906eb';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -12858,6 +12870,52 @@ enifed("ember-metal/enumerable_utils",
       removeObject: removeObject,
       replace: replace
     };
+  });
+enifed("ember-metal/environment",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+
+    /*
+      Ember can run in many different environments, including environments like
+      Node.js where the DOM is unavailable. This object serves as an abstraction
+      over the browser features that Ember relies on, so that code does not
+      explode when trying to boot in an environment that doesn't have them.
+
+      This is a private abstraction. In the future, we hope that other
+      abstractions (like `Location`, `Renderer`, `dom-helper`) can fully abstract
+      over the differences in environment.
+    */
+    var environment;
+
+    // This code attempts to automatically detect an environment with DOM
+    // by searching for window and document.createElement. An environment
+    // with DOM may disable the DOM functionality of Ember explicitly by
+    // defining a `disableBrowserEnvironment` ENV.
+    var hasDOM = typeof window !== 'undefined' &&
+                 typeof document !== 'undefined' &&
+                 typeof document.createElement === 'function' &&
+                 !Ember.ENV.disableBrowserEnvironment;
+
+    if (hasDOM) {
+      environment = {
+        hasDOM: true,
+        isChrome: !!window.chrome && !window.opera,
+        location: window.location,
+        history: window.history,
+        userAgent: window.navigator.userAgent
+      };
+    } else {
+      environment = {
+        hasDOM: false,
+        isChrome: false,
+        location: null,
+        history: null,
+        userAgent: "Lynx (textmode)"
+      };
+    }
+
+    __exports__["default"] = environment;
   });
 enifed("ember-metal/error",
   ["ember-metal/platform","exports"],
@@ -21501,11 +21559,12 @@ enifed("ember-routing/ext/view",
     __exports__["default"] = EmberView;
   });
 enifed("ember-routing/location/api",
-  ["ember-metal/core","exports"],
-  function(__dependency1__, __exports__) {
+  ["ember-metal/core","ember-metal/environment","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // deprecate, assert
+    var environment = __dependency2__["default"];
 
     /**
     @module ember
@@ -21685,7 +21744,7 @@ enifed("ember-routing/location/api",
       },
 
       implementations: {},
-      _location: window.location,
+      _location: environment.location,
 
       /**
         Returns the current `location.hash` by parsing location.href since browsers
@@ -21712,8 +21771,8 @@ enifed("ember-routing/location/api",
     };
   });
 enifed("ember-routing/location/auto_location",
-  ["ember-metal/core","ember-metal/property_set","ember-routing/location/api","ember-routing/location/history_location","ember-routing/location/hash_location","ember-routing/location/none_location","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+  ["ember-metal/core","ember-metal/property_set","ember-routing/location/api","ember-routing/location/history_location","ember-routing/location/hash_location","ember-routing/location/none_location","ember-metal/environment","ember-routing/location/feature_detect","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // FEATURES
@@ -21723,6 +21782,10 @@ enifed("ember-routing/location/auto_location",
     var HistoryLocation = __dependency4__["default"];
     var HashLocation = __dependency5__["default"];
     var NoneLocation = __dependency6__["default"];
+
+    var environment = __dependency7__["default"];
+    var supportsHashChange = __dependency8__.supportsHashChange;
+    var supportsHistory = __dependency8__.supportsHistory;
 
     /**
     @module ember
@@ -21767,38 +21830,6 @@ enifed("ember-routing/location/auto_location",
         @default '/'
       */
       rootURL: '/',
-
-      /**
-        @private
-
-        Attached for mocking in tests
-
-        @since 1.5.1
-        @property _window
-        @default window
-      */
-      _window: window,
-
-      /**
-        @private
-
-        Attached for mocking in tests
-
-        @property location
-        @default window.location
-      */
-      _location: window.location,
-
-      /**
-        @private
-
-        Attached for mocking in tests
-
-        @since 1.5.1
-        @property _history
-        @default window.history
-      */
-      _history: window.history,
 
       /**
         @private
@@ -21856,45 +21887,24 @@ enifed("ember-routing/location/auto_location",
         return origin;
       },
 
+      _userAgent: environment.userAgent,
+
       /**
         @private
-
-        We assume that if the history object has a pushState method, the host should
-        support HistoryLocation.
 
         @method _getSupportsHistory
       */
       _getSupportsHistory: function () {
-        // Boosted from Modernizr: https://github.com/Modernizr/Modernizr/blob/master/feature-detects/history.js
-        // The stock browser on Android 2.2 & 2.3 returns positive on history support
-        // Unfortunately support is really buggy and there is no clean way to detect
-        // these bugs, so we fall back to a user agent sniff :(
-        var userAgent = this._window.navigator.userAgent;
-
-        // We only want Android 2, stock browser, and not Chrome which identifies
-        // itself as 'Mobile Safari' as well
-        if (userAgent.indexOf('Android 2') !== -1 &&
-            userAgent.indexOf('Mobile Safari') !== -1 &&
-            userAgent.indexOf('Chrome') === -1) {
-          return false;
-        }
-
-        return !!(this._history && 'pushState' in this._history);
+        return supportsHistory(environment.userAgent, environment.history);
       },
 
       /**
         @private
 
-        IE8 running in IE7 compatibility mode gives false positive, so we must also
-        check documentMode.
-
         @method _getSupportsHashChange
       */
       _getSupportsHashChange: function () {
-        var _window = this._window;
-        var documentMode = _window.document.documentMode;
-
-        return ('onhashchange' in _window && (documentMode === undefined || documentMode > 7 ));
+        return supportsHashChange(document.documentMode, window);
       },
 
       /**
@@ -22105,6 +22115,51 @@ enifed("ember-routing/location/auto_location",
       }
     };
   });
+enifed("ember-routing/location/feature_detect",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    /**
+      `documentMode` only exist in Internet Explorer, and it's tested because IE8 running in
+      IE7 compatibility mode claims to support `onhashchange` but actually does not.
+
+      `global` is an object that may have an `onhashchange` property.
+
+      @private
+      @function supportsHashChange
+    */
+    function supportsHashChange(documentMode, global) {
+      return ('onhashchange' in global) && (documentMode === undefined || documentMode > 7);
+    }
+
+    __exports__.supportsHashChange = supportsHashChange;/**
+      `userAgent` is a user agent string. We use user agent testing here, because
+      the stock Android browser in Gingerbread has a buggy versions of this API,
+      Before feature detecting, we blacklist a browser identifying as both Android 2
+      and Mobile Safari, but not Chrome.
+
+      @private
+      @function supportsHistory
+    */
+    function supportsHistory(userAgent, history) {
+      // Boosted from Modernizr: https://github.com/Modernizr/Modernizr/blob/master/feature-detects/history.js
+      // The stock browser on Android 2.2 & 2.3 returns positive on history support
+      // Unfortunately support is really buggy and there is no clean way to detect
+      // these bugs, so we fall back to a user agent sniff :(
+
+      // We only want Android 2, stock browser, and not Chrome which identifies
+      // itself as 'Mobile Safari' as well
+      if (userAgent.indexOf('Android 2') !== -1 &&
+          userAgent.indexOf('Mobile Safari') !== -1 &&
+          userAgent.indexOf('Chrome') === -1) {
+        return false;
+      }
+
+      return !!(history && 'pushState' in history);
+    }
+
+    __exports__.supportsHistory = supportsHistory;
+  });
 enifed("ember-routing/location/hash_location",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-metal/utils","ember-runtime/system/object","ember-routing/location/api","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
@@ -22277,7 +22332,6 @@ enifed("ember-routing/location/history_location",
     */
 
     var popstateFired = false;
-    var supportsHistoryState = window.history && 'state' in window.history;
 
     /**
       Ember.HistoryLocation implements the location API using the browser's
@@ -22347,7 +22401,7 @@ enifed("ember-routing/location/history_location",
         @param path {String}
       */
       setURL: function(path) {
-        var state = this.getState();
+        var state = this._historyState;
         path = this.formatURL(path);
 
         if (!state || state.path !== path) {
@@ -22364,26 +22418,12 @@ enifed("ember-routing/location/history_location",
         @param path {String}
       */
       replaceURL: function(path) {
-        var state = this.getState();
+        var state = this._historyState;
         path = this.formatURL(path);
 
         if (!state || state.path !== path) {
           this.replaceState(path);
         }
-      },
-
-      /**
-       Get the current `history.state`. Checks for if a polyfill is
-       required and if so fetches this._historyState. The state returned
-       from getState may be null if an iframe has changed a window's
-       history.
-
-       @private
-       @method getState
-       @return state {Object}
-      */
-      getState: function() {
-        return supportsHistoryState ? get(this, 'history').state : this._historyState;
       },
 
       /**
@@ -22396,12 +22436,9 @@ enifed("ember-routing/location/history_location",
       pushState: function(path) {
         var state = { path: path };
 
-        get(this, 'history').pushState(state, null, path);
+        get(this, 'history').pushState(null, null, path);
 
-        // store state if browser doesn't support `history.state`
-        if (!supportsHistoryState) {
-          this._historyState = state;
-        }
+        this._historyState = state;
 
         // used for webkit workaround
         this._previousURL = this.getURL();
@@ -22416,12 +22453,9 @@ enifed("ember-routing/location/history_location",
       */
       replaceState: function(path) {
         var state = { path: path };
-        get(this, 'history').replaceState(state, null, path);
+        get(this, 'history').replaceState(null, null, path);
 
-        // store state if browser doesn't support `history.state`
-        if (!supportsHistoryState) {
-          this._historyState = state;
-        }
+        this._historyState = state;
 
         // used for webkit workaround
         this._previousURL = this.getURL();
@@ -37468,11 +37502,13 @@ enifed("ember-testing/setup_for_testing",
     }
   });
 enifed("ember-testing/support",
-  ["ember-metal/core","ember-views/system/jquery"],
-  function(__dependency1__, __dependency2__) {
+  ["ember-metal/core","ember-views/system/jquery","ember-metal/environment"],
+  function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var jQuery = __dependency2__["default"];
+
+    var environment = __dependency3__["default"];
 
     /**
       @module ember
@@ -37498,34 +37534,36 @@ enifed("ember-testing/support",
         .remove();
     }
 
-    $(function() {
-      /*
-        Determine whether a checkbox checked using jQuery's "click" method will have
-        the correct value for its checked property.
+    if (environment.hasDOM) {
+      $(function() {
+        /*
+          Determine whether a checkbox checked using jQuery's "click" method will have
+          the correct value for its checked property.
 
-        If we determine that the current jQuery version exhibits this behavior,
-        patch it to work correctly as in the commit for the actual fix:
-        https://github.com/jquery/jquery/commit/1fb2f92.
-      */
-      testCheckboxClick(function() {
-        if (!this.checked && !$.event.special.click) {
-          $.event.special.click = {
-            // For checkbox, fire native event so checked state will be right
-            trigger: function() {
-              if ($.nodeName( this, "input" ) && this.type === "checkbox" && this.click) {
-                this.click();
-                return false;
+          If we determine that the current jQuery version exhibits this behavior,
+          patch it to work correctly as in the commit for the actual fix:
+          https://github.com/jquery/jquery/commit/1fb2f92.
+        */
+        testCheckboxClick(function() {
+          if (!this.checked && !$.event.special.click) {
+            $.event.special.click = {
+              // For checkbox, fire native event so checked state will be right
+              trigger: function() {
+                if ($.nodeName( this, "input" ) && this.type === "checkbox" && this.click) {
+                  this.click();
+                  return false;
+                }
               }
-            }
-          };
-        }
-      });
+            };
+          }
+        });
 
-      // Try again to verify that the patch took effect or blow up.
-      testCheckboxClick(function() {
-        Ember.warn("clicked checkboxes should be checked! the jQuery patch didn't work", this.checked);
+        // Try again to verify that the patch took effect or blow up.
+        testCheckboxClick(function() {
+          Ember.warn("clicked checkboxes should be checked! the jQuery patch didn't work", this.checked);
+        });
       });
-    });
+    }
   });
 enifed("ember-testing/test",
   ["ember-metal/core","ember-metal/run_loop","ember-metal/platform","ember-runtime/compare","ember-runtime/ext/rsvp","ember-testing/setup_for_testing","ember-application/system/application","exports"],
@@ -37928,7 +37966,7 @@ enifed("ember-testing/test",
         @default window
         @since 1.2.0
       */
-      helperContainer: window,
+      helperContainer: null,
 
       /**
         This injects the test helpers into the `helperContainer` object. If an object is provided
@@ -37948,7 +37986,11 @@ enifed("ember-testing/test",
         @method injectTestHelpers
       */
       injectTestHelpers: function(helperContainer) {
-        if (helperContainer) { this.helperContainer = helperContainer; }
+        if (helperContainer) {
+          this.helperContainer = helperContainer;
+        } else {
+          this.helperContainer = window;
+        }
 
         this.testHelpers = {};
         for (var name in helpers) {
@@ -37976,6 +38018,8 @@ enifed("ember-testing/test",
         @method removeTestHelpers
       */
       removeTestHelpers: function() {
+        if (!this.helperContainer) { return; }
+
         for (var name in helpers) {
           this.helperContainer[name] = this.originalMethods[name];
           delete this.testHelpers[name];
@@ -39346,14 +39390,15 @@ enifed("ember-views/system/ext",
     run._addQueue('afterRender', 'render');
   });
 enifed("ember-views/system/jquery",
-  ["ember-metal/core","ember-metal/enumerable_utils","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["ember-metal/core","ember-metal/enumerable_utils","ember-metal/environment","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.assert
 
     // ES6TODO: the functions on EnumerableUtils need their own exports
     var forEach = __dependency2__.forEach;
+    var environment = __dependency3__["default"];
 
     /**
     Ember Views
@@ -39364,45 +39409,49 @@ enifed("ember-views/system/jquery",
     @main ember-views
     */
 
-    var jQuery = (Ember.imports && Ember.imports.jQuery) || (this && this.jQuery);
-    if (!jQuery && typeof eriuqer === 'function') {
-      jQuery = eriuqer('jquery');
-    }
+    var jQuery;
 
-    Ember.assert("Ember Views require jQuery between 1.7 and 2.1", jQuery &&
-                 (jQuery().jquery.match(/^((1\.(7|8|9|10|11))|(2\.(0|1)))(\.\d+)?(pre|rc\d?)?/) ||
-                  Ember.ENV.FORCE_JQUERY));
+    if (environment.hasDOM) {
+      jQuery = (Ember.imports && Ember.imports.jQuery) || (this && this.jQuery);
+      if (!jQuery && typeof eriuqer === 'function') {
+        jQuery = eriuqer('jquery');
+      }
 
-    /**
-    @module ember
-    @submodule ember-views
-    */
-    if (jQuery) {
-      // http://www.whatwg.org/specs/web-apps/current-work/multipage/dnd.html#dndevents
-      var dragEvents = [
-        'dragstart',
-        'drag',
-        'dragenter',
-        'dragleave',
-        'dragover',
-        'drop',
-        'dragend'
-      ];
+      Ember.assert("Ember Views require jQuery between 1.7 and 2.1", jQuery &&
+                   (jQuery().jquery.match(/^((1\.(7|8|9|10|11))|(2\.(0|1)))(\.\d+)?(pre|rc\d?)?/) ||
+                    Ember.ENV.FORCE_JQUERY));
 
-      // Copies the `dataTransfer` property from a browser event object onto the
-      // jQuery event object for the specified events
-      forEach(dragEvents, function(eventName) {
-        jQuery.event.fixHooks[eventName] = {
-          props: ['dataTransfer']
-        };
-      });
+      /**
+      @module ember
+      @submodule ember-views
+      */
+      if (jQuery) {
+        // http://www.whatwg.org/specs/web-apps/current-work/multipage/dnd.html#dndevents
+        var dragEvents = [
+          'dragstart',
+          'drag',
+          'dragenter',
+          'dragleave',
+          'dragover',
+          'drop',
+          'dragend'
+        ];
+
+        // Copies the `dataTransfer` property from a browser event object onto the
+        // jQuery event object for the specified events
+        forEach(dragEvents, function(eventName) {
+          jQuery.event.fixHooks[eventName] = {
+            props: ['dataTransfer']
+          };
+        });
+      }
     }
 
     __exports__["default"] = jQuery;
   });
 enifed("ember-views/system/render_buffer",
-  ["ember-views/system/jquery","morph","ember-metal/core","ember-metal/platform","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+  ["ember-views/system/jquery","morph","ember-metal/core","ember-metal/platform","ember-metal/environment","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -39413,6 +39462,7 @@ enifed("ember-views/system/render_buffer",
     var DOMHelper = __dependency2__.DOMHelper;
     var Ember = __dependency3__["default"];
     var create = __dependency4__.create;
+    var environment = __dependency5__["default"];
 
     // The HTML spec allows for "omitted start tags". These tags are optional
     // when their intended child is the first thing in the parent tag. For
@@ -39441,14 +39491,15 @@ enifed("ember-views/system/render_buffer",
     // http://www.whatwg.org/specs/web-apps/current-work/multipage/tables.html#the-tbody-element
     // http://www.whatwg.org/specs/web-apps/current-work/multipage/tables.html#the-colgroup-element
     //
-    var omittedStartTagChildren = {
-      tr: document.createElement('tbody'),
-      col: document.createElement('colgroup')
-    };
-
+    var omittedStartTagChildren;
     var omittedStartTagChildTest = /(?:<script)*.*?<([\w:]+)/i;
 
     function detectOmittedStartTag(string, contextualElement){
+      omittedStartTagChildren = omittedStartTagChildren || {
+        tr: document.createElement('tbody'),
+        col: document.createElement('colgroup')
+      };
+
       // Omitted start tags are only inside table tags.
       if (contextualElement.tagName === 'TABLE') {
         var omittedStartTagChildMatch = omittedStartTagChildTest.exec(string);
@@ -39517,6 +39568,8 @@ enifed("ember-views/system/render_buffer",
     // From http://msdn.microsoft.com/en-us/library/ie/ms536389(v=vs.85).aspx:
     // "To include the NAME attribute at run time on objects created with the createElement method, use the eTag."
     var canSetNameOnInputs = (function() {
+      if (!environment.hasDOM) { return false; }
+
       var div = document.createElement('div');
       var el = document.createElement('input');
 
@@ -39548,7 +39601,7 @@ enifed("ember-views/system/render_buffer",
       this._outerContextualElement = contextualElement;
       this.buffer = null;
       this.childViews = [];
-      this.dom = new DOMHelper();
+      this.dom = environment.hasDOM ? new DOMHelper() : null;
     }
 
     _RenderBuffer.prototype = {
@@ -45513,12 +45566,13 @@ enifed("ember-views/views/with_view",
     });
   });
 enifed("ember",
-  ["ember-metal","ember-runtime","ember-views","ember-routing","ember-application","ember-extension-support","ember-htmlbars","ember-routing-htmlbars"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
+  ["ember-metal","ember-runtime","ember-views","ember-routing","ember-application","ember-extension-support","ember-htmlbars","ember-routing-htmlbars","ember-metal/environment"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
     "use strict";
-    /* global navigator */
     // require the main entry points for each of these packages
     // this is so that the global exports occur properly
+
+    var environment = __dependency9__["default"];
 
     // do this to ensure that Ember.Test is defined properly on the global
     // if it is present.
@@ -45532,7 +45586,7 @@ enifed("ember",
     @module ember
     */
 
-    Ember.deprecate('Usage of Ember is deprecated for Internet Explorer 6 and 7, support will be removed in the next major version.', !navigator.userAgent.match(/MSIE [67]/));
+    Ember.deprecate('Usage of Ember is deprecated for Internet Explorer 6 and 7, support will be removed in the next major version.', !environment.userAgent.match(/MSIE [67]/));
   });
 enifed("htmlbars-compiler",
   ["./htmlbars-compiler/compiler","exports"],
