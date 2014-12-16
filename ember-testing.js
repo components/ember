@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.386267fa
+ * @version   1.11.0-beta.1+canary.6be6e54f
  */
 
 (function() {
@@ -87,14 +87,16 @@ var enifed, requireModule, eriuqer, requirejs, Ember;
 })();
 
 enifed("ember-debug",
-  ["ember-metal/core","ember-metal/error","ember-metal/logger","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["ember-metal/core","ember-metal/error","ember-metal/logger","ember-metal/environment","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     /*global __fail__*/
 
     var Ember = __dependency1__["default"];
     var EmberError = __dependency2__["default"];
     var Logger = __dependency3__["default"];
+
+    var environment = __dependency4__["default"];
 
     /**
     Ember Debug
@@ -310,7 +312,7 @@ enifed("ember-debug",
 
       // Inform the developer about the Ember Inspector if not installed.
       var isFirefox = typeof InstallTrigger !== 'undefined';
-      var isChrome = !!window.chrome && !window.opera;
+      var isChrome = environment.isChrome;
 
       if (typeof window !== 'undefined' && (isFirefox || isChrome) && window.addEventListener) {
         window.addEventListener("load", function() {
@@ -987,11 +989,13 @@ enifed("ember-testing/setup_for_testing",
     }
   });
 enifed("ember-testing/support",
-  ["ember-metal/core","ember-views/system/jquery"],
-  function(__dependency1__, __dependency2__) {
+  ["ember-metal/core","ember-views/system/jquery","ember-metal/environment"],
+  function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var jQuery = __dependency2__["default"];
+
+    var environment = __dependency3__["default"];
 
     /**
       @module ember
@@ -1017,34 +1021,36 @@ enifed("ember-testing/support",
         .remove();
     }
 
-    $(function() {
-      /*
-        Determine whether a checkbox checked using jQuery's "click" method will have
-        the correct value for its checked property.
+    if (environment.hasDOM) {
+      $(function() {
+        /*
+          Determine whether a checkbox checked using jQuery's "click" method will have
+          the correct value for its checked property.
 
-        If we determine that the current jQuery version exhibits this behavior,
-        patch it to work correctly as in the commit for the actual fix:
-        https://github.com/jquery/jquery/commit/1fb2f92.
-      */
-      testCheckboxClick(function() {
-        if (!this.checked && !$.event.special.click) {
-          $.event.special.click = {
-            // For checkbox, fire native event so checked state will be right
-            trigger: function() {
-              if ($.nodeName( this, "input" ) && this.type === "checkbox" && this.click) {
-                this.click();
-                return false;
+          If we determine that the current jQuery version exhibits this behavior,
+          patch it to work correctly as in the commit for the actual fix:
+          https://github.com/jquery/jquery/commit/1fb2f92.
+        */
+        testCheckboxClick(function() {
+          if (!this.checked && !$.event.special.click) {
+            $.event.special.click = {
+              // For checkbox, fire native event so checked state will be right
+              trigger: function() {
+                if ($.nodeName( this, "input" ) && this.type === "checkbox" && this.click) {
+                  this.click();
+                  return false;
+                }
               }
-            }
-          };
-        }
-      });
+            };
+          }
+        });
 
-      // Try again to verify that the patch took effect or blow up.
-      testCheckboxClick(function() {
-        Ember.warn("clicked checkboxes should be checked! the jQuery patch didn't work", this.checked);
+        // Try again to verify that the patch took effect or blow up.
+        testCheckboxClick(function() {
+          Ember.warn("clicked checkboxes should be checked! the jQuery patch didn't work", this.checked);
+        });
       });
-    });
+    }
   });
 enifed("ember-testing/test",
   ["ember-metal/core","ember-metal/run_loop","ember-metal/platform","ember-runtime/compare","ember-runtime/ext/rsvp","ember-testing/setup_for_testing","ember-application/system/application","exports"],
@@ -1447,7 +1453,7 @@ enifed("ember-testing/test",
         @default window
         @since 1.2.0
       */
-      helperContainer: window,
+      helperContainer: null,
 
       /**
         This injects the test helpers into the `helperContainer` object. If an object is provided
@@ -1467,7 +1473,11 @@ enifed("ember-testing/test",
         @method injectTestHelpers
       */
       injectTestHelpers: function(helperContainer) {
-        if (helperContainer) { this.helperContainer = helperContainer; }
+        if (helperContainer) {
+          this.helperContainer = helperContainer;
+        } else {
+          this.helperContainer = window;
+        }
 
         this.testHelpers = {};
         for (var name in helpers) {
@@ -1495,6 +1505,8 @@ enifed("ember-testing/test",
         @method removeTestHelpers
       */
       removeTestHelpers: function() {
+        if (!this.helperContainer) { return; }
+
         for (var name in helpers) {
           this.helperContainer[name] = this.originalMethods[name];
           delete this.testHelpers[name];
