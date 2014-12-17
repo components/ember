@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.735c8772
+ * @version   1.11.0-beta.1+canary.3433a321
  */
 
 (function() {
@@ -12296,7 +12296,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.735c8772
+      @version 1.11.0-beta.1+canary.3433a321
     */
 
     if ('undefined' === typeof Ember) {
@@ -12323,10 +12323,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.735c8772'
+      @default '1.11.0-beta.1+canary.3433a321'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.735c8772';
+    Ember.VERSION = '1.11.0-beta.1+canary.3433a321';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -16214,6 +16214,13 @@ enifed("ember-metal/platform/define_property",
 
         // Detects a bug in Android <3.2 where you cannot redefine a property using
         // Object.defineProperty once accessors have already been set.
+        if (obj.a !== true) return;
+
+        // Detects a bug in Android <3 where redefining a property without a value changes the value
+        // Object.defineProperty once accessors have already been set.
+        defineProperty(obj, 'a', {
+          enumerable: false
+        });
         if (obj.a !== true) return;
 
         // defineProperty is compliant
