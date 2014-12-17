@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.c24715ad
+ * @version   1.11.0-beta.1+canary.735c8772
  */
 
 (function() {
@@ -12296,7 +12296,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.c24715ad
+      @version 1.11.0-beta.1+canary.735c8772
     */
 
     if ('undefined' === typeof Ember) {
@@ -12323,10 +12323,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.c24715ad'
+      @default '1.11.0-beta.1+canary.735c8772'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.c24715ad';
+    Ember.VERSION = '1.11.0-beta.1+canary.735c8772';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -24034,7 +24034,6 @@ enifed("ember-routing/system/route",
 
         @method beforeModel
         @param {Transition} transition
-        @param {Object} queryParams the active query params for this route
         @return {Promise} if the value returned from this hook is
           a promise, the transition will pause until the transition
           resolves. Otherwise, non-promise return values are not
@@ -24068,7 +24067,6 @@ enifed("ember-routing/system/route",
         @param {Object} resolvedModel the value returned from `model`,
           or its resolved value if it was a promise
         @param {Transition} transition
-        @param {Object} queryParams the active query params for this handler
         @return {Promise} if the value returned from this hook is
           a promise, the transition will pause until the transition
           resolves. Otherwise, non-promise return values are not
@@ -24173,7 +24171,6 @@ enifed("ember-routing/system/route",
         @method model
         @param {Object} params the parameters extracted from the URL
         @param {Transition} transition
-        @param {Object} queryParams the query params for this route
         @return {Object|Promise} the model for this route. If
           a promise is returned, the transition will pause until
           the promise resolves, and the resolved value of the promise
