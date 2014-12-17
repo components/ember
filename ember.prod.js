@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.6508272d
+ * @version   1.11.0-beta.1+canary.c24715ad
  */
 
 (function() {
@@ -5291,30 +5291,32 @@ enifed("ember-htmlbars/compat/register-bound-helper",
     }
   });
 enifed("ember-htmlbars/helpers",
-  ["ember-views/views/view","ember-views/views/component","ember-htmlbars/system/make-view-helper","ember-htmlbars/system/helper","ember-htmlbars/system/make_bound_helper","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
+  ["ember-metal/platform","ember-views/views/view","ember-views/views/component","ember-htmlbars/system/make-view-helper","ember-htmlbars/system/helper","ember-htmlbars/system/make_bound_helper","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     /**
     @module ember
     @submodule ember-htmlbars
     */
 
+    var o_create = __dependency1__.create;
+
     /**
      @private
      @property helpers
     */
-    var helpers = { };
+    var helpers = o_create(null);
 
     /**
     @module ember
     @submodule ember-htmlbars
     */
 
-    var View = __dependency1__["default"];
-    var Component = __dependency2__["default"];
-    var makeViewHelper = __dependency3__["default"];
-    var Helper = __dependency4__["default"];
-    var makeBoundHelper = __dependency5__["default"];
+    var View = __dependency2__["default"];
+    var Component = __dependency3__["default"];
+    var makeViewHelper = __dependency4__["default"];
+    var Helper = __dependency5__["default"];
+    var makeBoundHelper = __dependency6__["default"];
 
     /**
       Register a bound helper or custom view helper.
@@ -8296,8 +8298,9 @@ enifed("ember-htmlbars/system/lookup-helper",
       @return {Handlebars Helper}
     */
     __exports__["default"] = function lookupHelper(name, view, env) {
-      if (env.helpers[name]) {
-        return env.helpers[name];
+      var helper = env.helpers[name];
+      if (helper) {
+        return helper;
       }
 
       var container = view.container;
@@ -8307,7 +8310,7 @@ enifed("ember-htmlbars/system/lookup-helper",
       }
 
       var helperName = 'helper:' + name;
-      var helper = container.lookup(helperName);
+      helper = container.lookup(helperName);
       if (!helper) {
         var componentLookup = container.lookup('component-lookup:main');
         
@@ -11891,7 +11894,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.6508272d
+      @version 1.11.0-beta.1+canary.c24715ad
     */
 
     if ('undefined' === typeof Ember) {
@@ -11918,10 +11921,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.6508272d'
+      @default '1.11.0-beta.1+canary.c24715ad'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.6508272d';
+    Ember.VERSION = '1.11.0-beta.1+canary.c24715ad';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -22961,7 +22964,7 @@ enifed("ember-routing/system/route",
       _actions: {
 
         queryParamsDidChange: function(changed, totalPresent, removed) {
-          var qpMap = this.get('_qp').map;
+          var qpMap = get(this, '_qp').map;
 
           var totalChanged = keys(changed).concat(keys(removed));
           for (var i = 0, len = totalChanged.length; i < len; ++i) {
@@ -24066,17 +24069,17 @@ enifed("ember-routing/system/route",
         @param {Object} [options.model] the model object to set on `options.controller`.
                         Defaults to the return value of the Route's model hook
       */
-      render: function(name, options) {
+      render: function(_name, options) {
         
-        var namePassed = typeof name === 'string' && !!name;
+        var namePassed = typeof _name === 'string' && !!_name;
+        var name;
 
-        if (typeof name === 'object' && !options) {
-          options = name;
+        if (typeof _name === 'object' && !options) {
           name = this.routeName;
+          options = _name;
+        } else {
+          name = _name;
         }
-
-        options = options || {};
-        options.namePassed = namePassed;
 
         var templateName;
 
@@ -24088,28 +24091,39 @@ enifed("ember-routing/system/route",
           templateName = this.templateName || name;
         }
 
-        var viewName = options.view || namePassed && name || this.viewName || name;
+        var renderOptions = buildRenderOptions(this, namePassed, name, options);
 
-        var container = this.container;
-        var view = container.lookup('view:' + viewName);
-        var template = view ? view.get('template') : null;
+        var LOG_VIEW_LOOKUPS = get(this.router, 'namespace.LOG_VIEW_LOOKUPS');
+        var viewName = options && options.view || namePassed && name || this.viewName || name;
+        var view, template;
 
-        if (!template) {
-          template = container.lookup('template:' + templateName);
-        }
-
-        if (!view && !template) {
-                    if (get(this.router, 'namespace.LOG_VIEW_LOOKUPS')) {
+        var ViewClass = this.container.lookupFactory('view:' + viewName);
+        if (ViewClass) {
+          view = setupView(ViewClass, renderOptions);
+          if (!get(view, 'template')) {
+            view.set('template', this.container.lookup('template:' + templateName));
+          }
+          if (LOG_VIEW_LOOKUPS) {
                       }
-          return;
+        } else {
+          template = this.container.lookup('template:' + templateName);
+          if (!template) {
+                        if (LOG_VIEW_LOOKUPS) {
+                          }
+            return;
+          }
+          var defaultView = renderOptions.into ? 'view:default' : 'view:toplevel';
+          ViewClass = this.container.lookupFactory(defaultView);
+          view = setupView(ViewClass, renderOptions);
+          if (!get(view, 'template')) {
+            view.set('template', template);
+          }
+          if (LOG_VIEW_LOOKUPS) {
+                      }
         }
 
-        options = normalizeOptions(this, name, template, options);
-        view = setupView(view, container, options);
-
-        if (options.outlet === 'main') { this.lastRenderedTemplate = name; }
-
-        appendView(this, view, options);
+        if (renderOptions.outlet === 'main') { this.lastRenderedTemplate = name; }
+        appendView(this, view, renderOptions);
       },
 
       /**
@@ -24232,24 +24246,15 @@ enifed("ember-routing/system/route",
       }
     }
 
-    function normalizeOptions(route, name, template, options) {
-      options = options || {};
-      options.into = options.into ? options.into.replace(/\//g, '.') : parentTemplate(route);
-      options.outlet = options.outlet || 'main';
-      options.name = name;
-      options.template = template;
-      options.LOG_VIEW_LOOKUPS = get(route.router, 'namespace.LOG_VIEW_LOOKUPS');
+    function buildRenderOptions(route, namePassed, name, options) {
+      var controller = options && options.controller;
 
-      
-      var controller = options.controller;
-      var model = options.model;
-
-      if (options.controller) {
-        controller = options.controller;
-      } else if (options.namePassed) {
-        controller = route.container.lookup('controller:' + name) || route.controllerName || route.routeName;
-      } else {
-        controller = route.controllerName || route.container.lookup('controller:' + name);
+      if (!controller) {
+        if (namePassed) {
+          controller = route.container.lookup('controller:' + name) || route.controllerName || route.routeName;
+        } else {
+          controller = route.controllerName || route.container.lookup('controller:' + name);
+        }
       }
 
       if (typeof controller === 'string') {
@@ -24260,36 +24265,27 @@ enifed("ember-routing/system/route",
         }
       }
 
-      if (model) {
-        controller.set('model', model);
+      if (options && options.model) {
+        controller.set('model', options.model);
       }
 
-      options.controller = controller;
+      var renderOptions = {
+        into: options && options.into ? options.into.replace(/\//g, '.') : parentTemplate(route),
+        outlet: (options && options.outlet) || 'main',
+        name: name,
+        controller: controller
+      };
 
-      return options;
+      
+      return renderOptions;
     }
 
-    function setupView(view, container, options) {
-      if (view) {
-        if (options.LOG_VIEW_LOOKUPS) {
-                  }
-      } else {
-        var defaultView = options.into ? 'view:default' : 'view:toplevel';
-        view = container.lookup(defaultView);
-        if (options.LOG_VIEW_LOOKUPS) {
-                  }
-      }
-
-      if (!get(view, 'templateName')) {
-        set(view, 'template', options.template);
-
-        set(view, '_debugTemplateName', options.name);
-      }
-
-      set(view, 'renderedName', options.name);
-      set(view, 'controller', options.controller);
-
-      return view;
+    function setupView(ViewClass, options) {
+      return ViewClass.create({
+        _debugTemplateName: options.name,
+        renderedName: options.name,
+        controller: options.controller
+      });
     }
 
     function appendView(route, view, options) {
@@ -24300,7 +24296,7 @@ enifed("ember-routing/system/route",
         replace(route.teardownOutletViews, 0, 0, [teardownOutletView]);
         parentView.connectOutlet(options.outlet, view);
       } else {
-        var rootElement = get(route, 'router.namespace.rootElement');
+        var rootElement = get(route.router, 'namespace.rootElement');
         // tear down view if one is already rendered
         if (route.teardownTopLevelView) {
           route.teardownTopLevelView();
