@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.2+pre.df6b80c7
+ * @version   1.10.0-beta.2+pre.f0928b07
  */
 
 (function() {
@@ -4852,7 +4852,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.2+pre.df6b80c7
+      @version 1.10.0-beta.2+pre.f0928b07
     */
 
     if ('undefined' === typeof Ember) {
@@ -4879,10 +4879,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.2+pre.df6b80c7'
+      @default '1.10.0-beta.2+pre.f0928b07'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.2+pre.df6b80c7';
+    Ember.VERSION = '1.10.0-beta.2+pre.f0928b07';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -6178,6 +6178,11 @@ define("ember-metal/instrumentation",
       @param {Object} binding Context that instrument function is called with.
     */
     function instrument(name, _payload, callback, binding) {
+      if (arguments.length <= 3 && typeof _payload === 'function') {
+        binding = callback;
+        callback = _payload;
+        _payload = undefined;
+      }
       if (subscribers.length === 0) {
         return callback.call(binding);
       }
@@ -8721,6 +8726,13 @@ define("ember-metal/platform/define_property",
 
         // Detects a bug in Android <3.2 where you cannot redefine a property using
         // Object.defineProperty once accessors have already been set.
+        if (obj.a !== true) return;
+
+        // Detects a bug in Android <3 where redefining a property without a value changes the value
+        // Object.defineProperty once accessors have already been set.
+        defineProperty(obj, 'a', {
+          enumerable: false
+        });
         if (obj.a !== true) return;
 
         // defineProperty is compliant

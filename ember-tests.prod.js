@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.2+pre.df6b80c7
+ * @version   1.10.0-beta.2+pre.f0928b07
  */
 
 (function() {
@@ -4377,6 +4377,15 @@ enifed("ember-htmlbars/hooks/subexpr.jshint",
     module('JSHint - ember-htmlbars/hooks');
     test('ember-htmlbars/hooks/subexpr.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/hooks/subexpr.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/plugins.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars');
+    test('ember-htmlbars/plugins.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/plugins.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/plugins/transform-each-in-to-hash.jshint",
@@ -13649,6 +13658,53 @@ enifed("ember-htmlbars/tests/integration/with_view_test.jshint",
       ok(true, 'ember-htmlbars/tests/integration/with_view_test.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/tests/plugins_test",
+  ["ember-htmlbars/plugins","ember-htmlbars/system/compile"],
+  function(__dependency1__, __dependency2__) {
+    "use strict";
+    var plugins = __dependency1__["default"];
+    var registerASTPlugin = __dependency1__.registerASTPlugin;
+    var compile = __dependency2__["default"];
+
+    var originalASTPlugins;
+
+    QUnit.module("ember-htmlbars: Ember.HTMLBars.registerASTPlugin", {
+      setup: function() {
+        originalASTPlugins = plugins.ast.slice();
+      },
+
+      teardown: function() {
+        plugins.ast = originalASTPlugins;
+      }
+    });
+
+    test("registering a plugin adds it to htmlbars-compiler options", function() {
+      expect(2);
+
+      function TestPlugin() {
+        ok(true, 'TestPlugin instantiated');
+      }
+
+      TestPlugin.prototype.transform = function(ast) {
+        ok(true, 'transform was called');
+
+        return ast;
+      };
+
+      registerASTPlugin(TestPlugin);
+
+      compile('some random template');
+    });
+  });
+enifed("ember-htmlbars/tests/plugins_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/tests');
+    test('ember-htmlbars/tests/plugins_test.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/tests/plugins_test.js should pass jshint.'); 
+    });
+  });
 enifed("ember-htmlbars/tests/system/bootstrap_test",
   ["ember-views/system/jquery","ember-metal/run_loop","ember-views/views/view","ember-runtime/tests/utils","ember-htmlbars/system/bootstrap"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
@@ -18393,6 +18449,68 @@ enifed("ember-metal/tests/instrumentation_test",
 
       instrument("render", null, function() {});
     });
+
+    test("instrument with 2 args (name, callback) no payload", function() {
+      expect(1);
+
+      subscribe("render", {
+        before: function(name, timestamp, payload) {
+          deepEqual(payload, {});
+        },
+        after: function() {}
+      });
+
+      instrument("render", function() {});
+    });
+
+    test("instrument with 3 args (name, callback, binding) no payload", function() {
+      expect(2);
+
+      var binding = {};
+      subscribe("render", {
+        before: function(name, timestamp, payload) {
+          deepEqual(payload, {});
+        },
+        after: function() {}
+      });
+
+      instrument("render", function() {
+        deepEqual(this, binding);
+      }, binding);
+    });
+
+
+    test("instrument with 3 args (name, payload, callback) with payload", function() {
+      expect(1);
+
+      var expectedPayload = { hi: 1};
+      subscribe("render", {
+        before: function(name, timestamp, payload) {
+          deepEqual(payload, expectedPayload);
+        },
+        after: function() {}
+      });
+
+      instrument("render", expectedPayload, function() {});
+    });
+
+    test("instrument with 4 args (name, payload, callback, binding) with payload", function() {
+      expect(2);
+
+      var expectedPayload = { hi: 1 };
+      var binding = {};
+      subscribe("render", {
+        before: function(name, timestamp, payload) {
+          deepEqual(payload, expectedPayload);
+        },
+        after: function() {}
+      });
+
+      instrument("render", expectedPayload, function() {
+        deepEqual(this, binding);
+      }, binding);
+    });
+
 
     test("raising an exception in the instrumentation attaches it to the payload", function() {
       expect(2);
@@ -47615,6 +47733,15 @@ enifed("ember-views/mixins/view_target_action_support.jshint",
       ok(true, 'ember-views/mixins/view_target_action_support.js should pass jshint.'); 
     });
   });
+enifed("ember-views/streams/class_name_binding.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/streams');
+    test('ember-views/streams/class_name_binding.js should pass jshint', function() { 
+      ok(true, 'ember-views/streams/class_name_binding.js should pass jshint.'); 
+    });
+  });
 enifed("ember-views/streams/conditional_stream.jshint",
   [],
   function() {
@@ -47773,6 +47900,133 @@ enifed("ember-views/tests/mixins/view_target_action_support_test.jshint",
     module('JSHint - ember-views/tests/mixins');
     test('ember-views/tests/mixins/view_target_action_support_test.js should pass jshint', function() { 
       ok(true, 'ember-views/tests/mixins/view_target_action_support_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/tests/streams/class_string_for_value_test",
+  ["ember-views/streams/class_name_binding"],
+  function(__dependency1__) {
+    "use strict";
+    var classStringForValue = __dependency1__.classStringForValue;
+
+    QUnit.module("EmberView - classStringForValue");
+
+    test("returns dasherized version of last path part if value is true", function() {
+      equal(classStringForValue("propertyName", true), "property-name", "class is dasherized");
+      equal(classStringForValue("content.propertyName", true), "property-name", "class is dasherized");
+    });
+
+    test("returns className if value is true and className is specified", function() {
+      equal(classStringForValue("propertyName", true, "truthyClass"), "truthyClass", "returns className if given");
+      equal(classStringForValue("content.propertyName", true, "truthyClass"), "truthyClass", "returns className if given");
+    });
+
+    test("returns falsyClassName if value is false and falsyClassName is specified", function() {
+      equal(classStringForValue("propertyName", false, "truthyClass", "falsyClass"), "falsyClass", "returns falsyClassName if given");
+      equal(classStringForValue("content.propertyName", false, "truthyClass", "falsyClass"), "falsyClass", "returns falsyClassName if given");
+    });
+
+    test("returns null if value is false and falsyClassName is not specified", function() {
+      equal(classStringForValue("propertyName", false, "truthyClass"), null, "returns null if falsyClassName is not specified");
+      equal(classStringForValue("content.propertyName", false, "truthyClass"), null, "returns null if falsyClassName is not specified");
+    });
+
+    test("returns null if value is false", function() {
+      equal(classStringForValue("propertyName", false), null, "returns null if value is false");
+      equal(classStringForValue("content.propertyName", false), null, "returns null if value is false");
+    });
+
+    test("returns null if value is true and className is not specified and falsyClassName is specified", function() {
+      equal(classStringForValue("propertyName", true, undefined, "falsyClassName"), null, "returns null if value is true");
+      equal(classStringForValue("content.propertyName", true, undefined, "falsyClassName"), null, "returns null if value is true");
+    });
+
+    test("returns the value if the value is truthy", function() {
+      equal(classStringForValue("propertyName", "myString"), "myString", "returns value if the value is truthy");
+      equal(classStringForValue("content.propertyName", "myString"), "myString", "returns value if the value is truthy");
+
+      equal(classStringForValue("propertyName", "123"), 123, "returns value if the value is truthy");
+      equal(classStringForValue("content.propertyName", 123), 123, "returns value if the value is truthy");
+    });
+
+    test("treat empty array as falsy value and return null", function() {
+      equal(classStringForValue("propertyName", [], "truthyClass"), null, "returns null if value is false");
+      equal(classStringForValue("content.propertyName", [], "truthyClass"), null, "returns null if value is false");
+    });
+
+    test("treat non-empty array as truthy value and return the className if specified", function() {
+      equal(classStringForValue("propertyName", ['emberjs'], "truthyClass"), "truthyClass", "returns className if given");
+      equal(classStringForValue("content.propertyName", ['emberjs'], "truthyClass"), "truthyClass", "returns className if given");
+    });
+  });
+enifed("ember-views/tests/streams/class_string_for_value_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/tests/streams');
+    test('ember-views/tests/streams/class_string_for_value_test.js should pass jshint', function() { 
+      ok(true, 'ember-views/tests/streams/class_string_for_value_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/tests/streams/parse_property_path_test",
+  ["ember-views/streams/class_name_binding"],
+  function(__dependency1__) {
+    "use strict";
+    var parsePropertyPath = __dependency1__.parsePropertyPath;
+
+    QUnit.module("EmberView - parsePropertyPath");
+
+    test("it works with a simple property path", function() {
+      var parsed = parsePropertyPath("simpleProperty");
+
+      equal(parsed.path, "simpleProperty", "path is parsed correctly");
+      equal(parsed.className, undefined, "there is no className");
+      equal(parsed.falsyClassName, undefined, "there is no falsyClassName");
+      equal(parsed.classNames, "", "there is no classNames");
+    });
+
+    test("it works with a more complex property path", function() {
+      var parsed = parsePropertyPath("content.simpleProperty");
+
+      equal(parsed.path, "content.simpleProperty", "path is parsed correctly");
+      equal(parsed.className, undefined, "there is no className");
+      equal(parsed.falsyClassName, undefined, "there is no falsyClassName");
+      equal(parsed.classNames, "", "there is no classNames");
+    });
+
+    test("className is extracted", function() {
+      var parsed = parsePropertyPath("content.simpleProperty:class");
+
+      equal(parsed.path, "content.simpleProperty", "path is parsed correctly");
+      equal(parsed.className, "class", "className is extracted");
+      equal(parsed.falsyClassName, undefined, "there is no falsyClassName");
+      equal(parsed.classNames, ":class", "there is a classNames");
+    });
+
+    test("falsyClassName is extracted", function() {
+      var parsed = parsePropertyPath("content.simpleProperty:class:falsyClass");
+
+      equal(parsed.path, "content.simpleProperty", "path is parsed correctly");
+      equal(parsed.className, "class", "className is extracted");
+      equal(parsed.falsyClassName, "falsyClass", "falsyClassName is extracted");
+      equal(parsed.classNames, ":class:falsyClass", "there is a classNames");
+    });
+
+    test("it works with an empty true class", function() {
+      var parsed = parsePropertyPath("content.simpleProperty::falsyClass");
+
+      equal(parsed.path, "content.simpleProperty", "path is parsed correctly");
+      equal(parsed.className, undefined, "className is undefined");
+      equal(parsed.falsyClassName, "falsyClass", "falsyClassName is extracted");
+      equal(parsed.classNames, "::falsyClass", "there is a classNames");
+    });
+  });
+enifed("ember-views/tests/streams/parse_property_path_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/tests/streams');
+    test('ember-views/tests/streams/parse_property_path_test.js should pass jshint', function() { 
+      ok(true, 'ember-views/tests/streams/parse_property_path_test.js should pass jshint.'); 
     });
   });
 enifed("ember-views/tests/system/event_dispatcher_test",
@@ -53741,73 +53995,6 @@ enifed("ember-views/tests/views/view/class_name_bindings_test.jshint",
       ok(true, 'ember-views/tests/views/view/class_name_bindings_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/view/class_string_for_value_test",
-  ["ember-views/views/view"],
-  function(__dependency1__) {
-    "use strict";
-    var View = __dependency1__["default"];
-
-    QUnit.module("View - _classStringForValue");
-
-    var cSFV = View._classStringForValue;
-
-    test("returns dasherized version of last path part if value is true", function() {
-      equal(cSFV("propertyName", true), "property-name", "class is dasherized");
-      equal(cSFV("content.propertyName", true), "property-name", "class is dasherized");
-    });
-
-    test("returns className if value is true and className is specified", function() {
-      equal(cSFV("propertyName", true, "truthyClass"), "truthyClass", "returns className if given");
-      equal(cSFV("content.propertyName", true, "truthyClass"), "truthyClass", "returns className if given");
-    });
-
-    test("returns falsyClassName if value is false and falsyClassName is specified", function() {
-      equal(cSFV("propertyName", false, "truthyClass", "falsyClass"), "falsyClass", "returns falsyClassName if given");
-      equal(cSFV("content.propertyName", false, "truthyClass", "falsyClass"), "falsyClass", "returns falsyClassName if given");
-    });
-
-    test("returns null if value is false and falsyClassName is not specified", function() {
-      equal(cSFV("propertyName", false, "truthyClass"), null, "returns null if falsyClassName is not specified");
-      equal(cSFV("content.propertyName", false, "truthyClass"), null, "returns null if falsyClassName is not specified");
-    });
-
-    test("returns null if value is false", function() {
-      equal(cSFV("propertyName", false), null, "returns null if value is false");
-      equal(cSFV("content.propertyName", false), null, "returns null if value is false");
-    });
-
-    test("returns null if value is true and className is not specified and falsyClassName is specified", function() {
-      equal(cSFV("propertyName", true, undefined, "falsyClassName"), null, "returns null if value is true");
-      equal(cSFV("content.propertyName", true, undefined, "falsyClassName"), null, "returns null if value is true");
-    });
-
-    test("returns the value if the value is truthy", function() {
-      equal(cSFV("propertyName", "myString"), "myString", "returns value if the value is truthy");
-      equal(cSFV("content.propertyName", "myString"), "myString", "returns value if the value is truthy");
-
-      equal(cSFV("propertyName", "123"), 123, "returns value if the value is truthy");
-      equal(cSFV("content.propertyName", 123), 123, "returns value if the value is truthy");
-    });
-
-    test("treat empty array as falsy value and return null", function() {
-      equal(cSFV("propertyName", [], "truthyClass"), null, "returns null if value is false");
-      equal(cSFV("content.propertyName", [], "truthyClass"), null, "returns null if value is false");
-    });
-
-    test("treat non-empty array as truthy value and return the className if specified", function() {
-      equal(cSFV("propertyName", ['emberjs'], "truthyClass"), "truthyClass", "returns className if given");
-      equal(cSFV("content.propertyName", ['emberjs'], "truthyClass"), "truthyClass", "returns className if given");
-    });
-  });
-enifed("ember-views/tests/views/view/class_string_for_value_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-views/tests/views/view');
-    test('ember-views/tests/views/view/class_string_for_value_test.js should pass jshint', function() { 
-      ok(true, 'ember-views/tests/views/view/class_string_for_value_test.js should pass jshint.'); 
-    });
-  });
 enifed("ember-views/tests/views/view/context_test",
   ["ember-metal/run_loop","ember-views/views/view","ember-views/views/container_view"],
   function(__dependency1__, __dependency2__, __dependency3__) {
@@ -55173,68 +55360,6 @@ enifed("ember-views/tests/views/view/nested_view_ordering_test.jshint",
     module('JSHint - ember-views/tests/views/view');
     test('ember-views/tests/views/view/nested_view_ordering_test.js should pass jshint', function() { 
       ok(true, 'ember-views/tests/views/view/nested_view_ordering_test.js should pass jshint.'); 
-    });
-  });
-enifed("ember-views/tests/views/view/parse_property_path_test",
-  ["ember-views/views/view"],
-  function(__dependency1__) {
-    "use strict";
-    var EmberView = __dependency1__["default"];
-
-    QUnit.module("EmberView - _parsePropertyPath");
-
-    test("it works with a simple property path", function() {
-      var parsed = EmberView._parsePropertyPath("simpleProperty");
-
-      equal(parsed.path, "simpleProperty", "path is parsed correctly");
-      equal(parsed.className, undefined, "there is no className");
-      equal(parsed.falsyClassName, undefined, "there is no falsyClassName");
-      equal(parsed.classNames, "", "there is no classNames");
-    });
-
-    test("it works with a more complex property path", function() {
-      var parsed = EmberView._parsePropertyPath("content.simpleProperty");
-
-      equal(parsed.path, "content.simpleProperty", "path is parsed correctly");
-      equal(parsed.className, undefined, "there is no className");
-      equal(parsed.falsyClassName, undefined, "there is no falsyClassName");
-      equal(parsed.classNames, "", "there is no classNames");
-    });
-
-    test("className is extracted", function() {
-      var parsed = EmberView._parsePropertyPath("content.simpleProperty:class");
-
-      equal(parsed.path, "content.simpleProperty", "path is parsed correctly");
-      equal(parsed.className, "class", "className is extracted");
-      equal(parsed.falsyClassName, undefined, "there is no falsyClassName");
-      equal(parsed.classNames, ":class", "there is a classNames");
-    });
-
-    test("falsyClassName is extracted", function() {
-      var parsed = EmberView._parsePropertyPath("content.simpleProperty:class:falsyClass");
-
-      equal(parsed.path, "content.simpleProperty", "path is parsed correctly");
-      equal(parsed.className, "class", "className is extracted");
-      equal(parsed.falsyClassName, "falsyClass", "falsyClassName is extracted");
-      equal(parsed.classNames, ":class:falsyClass", "there is a classNames");
-    });
-
-    test("it works with an empty true class", function() {
-      var parsed = EmberView._parsePropertyPath("content.simpleProperty::falsyClass");
-
-      equal(parsed.path, "content.simpleProperty", "path is parsed correctly");
-      equal(parsed.className, undefined, "className is undefined");
-      equal(parsed.falsyClassName, "falsyClass", "falsyClassName is extracted");
-      equal(parsed.classNames, "::falsyClass", "there is a classNames");
-    });
-  });
-enifed("ember-views/tests/views/view/parse_property_path_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-views/tests/views/view');
-    test('ember-views/tests/views/view/parse_property_path_test.js should pass jshint', function() { 
-      ok(true, 'ember-views/tests/views/view/parse_property_path_test.js should pass jshint.'); 
     });
   });
 enifed("ember-views/tests/views/view/remove_test",
