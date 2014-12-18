@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.59eb321d
+ * @version   1.11.0-beta.1+canary.bae9945b
  */
 
 (function() {
@@ -16479,27 +16479,90 @@ enifed("ember-metal/tests/accessors/mandatory_setters_test",
     QUnit.module('mandatory-setters');
 
     
-      test('does not assert', function() {
-        var obj = {
-          someProp: null,
-          toString: function() {
-            return 'custom-object';
-          }
-        };
+      if (hasPropertyAccessors) {
+        test('does not assert if property is not being watched', function() {
+          var obj = {
+            someProp: null,
+            toString: function() {
+              return 'custom-object';
+            }
+          };
 
-        obj.someProp = 'blastix';
-        equal(get(obj, 'someProp'), 'blastix');
+          obj.someProp = 'blastix';
+          equal(get(obj, 'someProp'), 'blastix');
+        });
 
-        watch(obj, 'someProp');
+        test('should assert if set without Ember.set when property is being watched', function() {
+          var obj = {
+            someProp: null,
+            toString: function() {
+              return 'custom-object';
+            }
+          };
 
-        obj.someProp = 'foo-bar';
-        equal(get(obj, 'someProp'), 'foo-bar');
+          watch(obj, 'someProp');
 
-        obj.someProp = 'bernie';
-        equal(get(obj, 'someProp'), 'bernie');
+          expectAssertion(function() {
+            obj.someProp = 'foo-bar';
+          }, 'You must use Ember.set() to set the `someProp` property (of custom-object) to `foo-bar`.');
+        });
+
+        test('should not assert if set with Ember.set when property is being watched', function() {
+          var obj = {
+            someProp: null,
+            toString: function() {
+              return 'custom-object';
+            }
+          };
+
+          watch(obj, 'someProp');
+          set(obj, 'someProp', 'foo-bar');
+
+          equal(get(obj, 'someProp'), 'foo-bar');
+        });
+
+        test('does not setup mandatory-setter if non-configurable', function() {
+          var obj = {
+            someProp: null,
+            toString: function() {
+              return 'custom-object';
+            }
+          };
+          var meta = metaFor(obj);
+
+          defineProperty(obj, 'someProp', {
+            configurable: false,
+            enumerable: true,
+            value: 'blastix'
+          });
+
+          watch(obj, 'someProp');
+
+          ok(!('someProp' in meta.values), 'blastix');
+        });
+
+        test('sets up mandatory-setter if property comes from prototype', function() {
+          expect(2);
+
+          var obj = {
+            someProp: null,
+            toString: function() {
+              return 'custom-object';
+            }
+          };
+          var obj2 = create(obj);
+
+          watch(obj2, 'someProp');
+          var meta = metaFor(obj2);
+
+          ok(('someProp' in meta.values), 'mandatory setter has been setup');
+
+          expectAssertion(function() {
+            obj2.someProp = 'foo-bar';
+          }, 'You must use Ember.set() to set the `someProp` property (of custom-object) to `foo-bar`.');
+        });
+      }
       });
-    
-  });
 enifed("ember-metal/tests/accessors/mandatory_setters_test.jshint",
   [],
   function() {
@@ -44205,6 +44268,32 @@ enifed("ember-runtime/tests/system/object/create_test",
     });
 
     
+      test("sets up mandatory setters for watched simple properties", function() {
+
+        var MyClass = EmberObject.extend({
+          foo: null,
+          bar: null,
+          fooDidChange: observer('foo', function() {})
+        });
+
+        var o = MyClass.create({foo: 'bar', bar: 'baz'});
+        equal(o.get('foo'), 'bar');
+
+        // Catch IE8 where Object.getOwnPropertyDescriptor exists but only works on DOM elements
+        try {
+          Object.getOwnPropertyDescriptor({}, 'foo');
+        } catch(e) {
+          return;
+        }
+
+        var descriptor = Object.getOwnPropertyDescriptor(o, 'foo');
+        ok(descriptor.set, 'Mandatory setter was setup');
+
+        descriptor = Object.getOwnPropertyDescriptor(o, 'bar');
+        ok(!descriptor.set, 'Mandatory setter was not setup');
+      });
+    
+
     test("allows bindings to be defined", function() {
       var obj = EmberObject.create({
         foo: 'foo',
