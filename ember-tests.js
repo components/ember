@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.bae9945b
+ * @version   1.11.0-beta.1+canary.8d031897
  */
 
 (function() {
@@ -19001,11 +19001,10 @@ enifed("ember-metal/tests/events_test.jshint",
     });
   });
 enifed("ember-metal/tests/expand_properties_test",
-  ["ember-metal/core","ember-metal/expand_properties"],
-  function(__dependency1__, __dependency2__) {
+  ["ember-metal/expand_properties"],
+  function(__dependency1__) {
     "use strict";
-    var Ember = __dependency1__["default"];
-    var expandProperties = __dependency2__["default"];
+    var expandProperties = __dependency1__["default"];
 
     var foundProperties = [];
 
@@ -19046,52 +19045,40 @@ enifed("ember-metal/tests/expand_properties_test",
       deepEqual(expected.sort(), foundProperties.sort());
     });
 
-    if (!Ember.FEATURES.isEnabled('property-brace-expansion-improvement')) {
-      test('A brace expansion at the beginning doesn\'t expand' , function() {
-        expect(1);
+    test('Expansions with single properties only expand once', function() {
+      expect(1);
 
-        expandProperties('{a,b,c}.d', addProperty);
+      expandProperties('a.b.{c}.d.{e}', addProperty);
 
-        deepEqual(['{a,b,c}.d'], foundProperties);
-      });
-    }
+      deepEqual(['a.b.c.d.e'], foundProperties);
+    });
 
-    
-      test('Expansions with single properties only expand once', function() {
-        expect(1);
+    test('A single brace expansion expands correctly', function() {
+      expect(1);
 
-        expandProperties('a.b.{c}.d.{e}', addProperty);
+      expandProperties('a.{b,c,d}.e', addProperty);
 
-        deepEqual(['a.b.c.d.e'], foundProperties);
-      });
+      var expected = ['a.b.e', 'a.c.e', 'a.d.e'];
+      deepEqual(expected.sort(), foundProperties.sort());
+    });
 
-      test('A single brace expansion expands correctly', function() {
-        expect(1);
+    test('Multiple brace expansions work correctly', function() {
+      expect(1);
 
-        expandProperties('a.{b,c,d}.e', addProperty);
+      expandProperties('{a,b,c}.d.{e,f}.g', addProperty);
 
-        var expected = ['a.b.e', 'a.c.e', 'a.d.e'];
-        deepEqual(expected.sort(), foundProperties.sort());
-      });
+      var expected = ['a.d.e.g', 'a.d.f.g', 'b.d.e.g', 'b.d.f.g', 'c.d.e.g', 'c.d.f.g'];
+      deepEqual(expected.sort(), foundProperties.sort());
+    });
 
-      test('Multiple brace expansions work correctly', function() {
-        expect(1);
+    test('A property with only brace expansions expands correctly', function() {
+      expect(1);
 
-        expandProperties('{a,b,c}.d.{e,f}.g', addProperty);
+      expandProperties('{a,b,c}.{d}.{e,f}', addProperty);
 
-        var expected = ['a.d.e.g', 'a.d.f.g', 'b.d.e.g', 'b.d.f.g', 'c.d.e.g', 'c.d.f.g'];
-        deepEqual(expected.sort(), foundProperties.sort());
-      });
-
-      test('A property with only brace expansions expands correctly', function() {
-        expect(1);
-
-        expandProperties('{a,b,c}.{d}.{e,f}', addProperty);
-
-        var expected = ['a.d.e', 'a.d.f', 'b.d.e', 'b.d.f', 'c.d.e', 'c.d.f'];
-        deepEqual(expected.sort(), foundProperties.sort());
-      });
-    
+      var expected = ['a.d.e', 'a.d.f', 'b.d.e', 'b.d.f', 'c.d.e', 'c.d.f'];
+      deepEqual(expected.sort(), foundProperties.sort());
+    });
   });
 enifed("ember-metal/tests/expand_properties_test.jshint",
   [],
@@ -19600,32 +19587,30 @@ enifed("ember-metal/tests/is_present_test",
     "use strict";
     var isPresent = __dependency1__["default"];
 
-    
-      QUnit.module("Ember.isPresent");
+    QUnit.module("Ember.isPresent");
 
-      test("Ember.isPresent", function() {
-        var string = "string";
-        var fn = function() {};
-        var object = {length: 0};
+    test("Ember.isPresent", function() {
+    var string = "string";
+    var fn = function() {};
+    var object = {length: 0};
 
-        equal(false, isPresent(),          "for no params");
-        equal(false, isPresent(null),      "for null");
-        equal(false, isPresent(undefined), "for undefined");
-        equal(false, isPresent(""),        "for an empty String");
-        equal(false, isPresent("  "),      "for a whitespace String");
-        equal(false, isPresent("\n\t"),    "for another whitespace String");
-        equal(true,  isPresent("\n\t Hi"), "for a String with whitespaces");
-        equal(true,  isPresent(true),      "for true");
-        equal(true,  isPresent(false),     "for false");
-        equal(true,  isPresent(string),    "for a String");
-        equal(true,  isPresent(fn),        "for a Function");
-        equal(true,  isPresent(0),         "for 0");
-        equal(false, isPresent([]),        "for an empty Array");
-        equal(true,  isPresent({}),        "for an empty Object");
-        equal(false, isPresent(object),    "for an Object that has zero 'length'");
-        equal(true,  isPresent([1,2,3]),   "for a non-empty array");
-      });
-    
+    equal(false, isPresent(),          "for no params");
+    equal(false, isPresent(null),      "for null");
+    equal(false, isPresent(undefined), "for undefined");
+    equal(false, isPresent(""),        "for an empty String");
+    equal(false, isPresent("  "),      "for a whitespace String");
+    equal(false, isPresent("\n\t"),    "for another whitespace String");
+    equal(true,  isPresent("\n\t Hi"), "for a String with whitespaces");
+    equal(true,  isPresent(true),      "for true");
+    equal(true,  isPresent(false),     "for false");
+    equal(true,  isPresent(string),    "for a String");
+    equal(true,  isPresent(fn),        "for a Function");
+    equal(true,  isPresent(0),         "for 0");
+    equal(false, isPresent([]),        "for an empty Array");
+    equal(true,  isPresent({}),        "for an empty Object");
+    equal(false, isPresent(object),    "for an Object that has zero 'length'");
+    equal(true,  isPresent([1,2,3]),   "for a non-empty array");
+    });
   });
 enifed("ember-metal/tests/is_present_test.jshint",
   [],
@@ -28385,34 +28370,33 @@ enifed("ember-routing/tests/location/auto_location_test",
       equal(get(location, 'cancelRouterSetup'), true, 'cancelRouterSetup should be set so the router knows.');
     });
 
-    
-      test("AutoLocation.create() should replace the URL for pushState-supported browsers viewing a HashLocation-formatted url", function() {
-        expect(2);
+    test("AutoLocation.create() should replace the URL for pushState-supported browsers viewing a HashLocation-formatted url", function() {
+      expect(2);
 
-        mockBrowserLocation({
-          hash: '#/test',
-          hostname: 'test.com',
-          href: 'http://test.com/#/test',
-          pathname: '/',
-          protocol: 'http:',
-          port: '',
-          search: ''
-        });
-
-        mockBrowserHistory({
-          replaceState: function (state, title, path) {
-            equal(path, '/test', 'history.replaceState should be called with normalized HistoryLocation url');
-          }
-        });
-
-        createLocation({
-          history: true,
-          hashChange: true
-        });
-
-        equal(get(location, 'implementation'), 'history');
+      mockBrowserLocation({
+        hash: '#/test',
+        hostname: 'test.com',
+        href: 'http://test.com/#/test',
+        pathname: '/',
+        protocol: 'http:',
+        port: '',
+        search: ''
       });
-    
+
+      mockBrowserHistory({
+        replaceState: function (state, title, path) {
+          equal(path, '/test', 'history.replaceState should be called with normalized HistoryLocation url');
+        }
+      });
+
+      createLocation({
+        history: true,
+        hashChange: true
+      });
+
+      equal(get(location, 'implementation'), 'history');
+    });
+
     test("Feature-Detecting onhashchange", function() {
       mockBrowserLocation();
 
@@ -48255,37 +48239,34 @@ enifed("ember-testing/tests/helpers_test",
       });
     });
 
-    
-      QUnit.module("ember-testing debugging helpers", {
-        setup: function(){
-          setupApp();
+    QUnit.module("ember-testing debugging helpers", {
+      setup: function(){
+        setupApp();
 
-          run(function() {
-            App.Router = EmberRouter.extend({
-              location: 'none'
-            });
+        run(function() {
+          App.Router = EmberRouter.extend({
+            location: 'none'
           });
+        });
 
-          run(App, 'advanceReadiness');
-        },
+        run(App, 'advanceReadiness');
+      },
 
-        teardown: function(){
-          cleanup();
-        }
-      });
+      teardown: function(){
+        cleanup();
+      }
+    });
 
-      test("pauseTest pauses", function() {
-        expect(1);
-        function fakeAdapterAsyncStart() {
-          ok(true, 'Async start should be called');
-        }
+    test("pauseTest pauses", function() {
+      expect(1);
+      function fakeAdapterAsyncStart() {
+        ok(true, 'Async start should be called');
+      }
 
-        Test.adapter.asyncStart = fakeAdapterAsyncStart;
+      Test.adapter.asyncStart = fakeAdapterAsyncStart;
 
-        App.testHelpers.pauseTest();
-      });
-
-    
+      App.testHelpers.pauseTest();
+    });
 
     QUnit.module("ember-testing routing helpers", {
       setup: function(){
@@ -59116,42 +59097,40 @@ enifed("ember/tests/helpers/link_to_test",
       equal(Ember.$('#other-link.active', '#qunit-fixture').length, 1, "The link is active when current-when is given for explicitly for a resource");
     });
 
-    
-      test("The {{link-to}} helper supports multiple current-when routes", function() {
-        Router.map(function(match) {
-          this.resource("index", { path: "/" }, function() {
-            this.route("about");
-          });
-          this.route("item");
-          this.route("foo");
+    test("The {{link-to}} helper supports multiple current-when routes", function() {
+      Router.map(function(match) {
+        this.resource("index", { path: "/" }, function() {
+          this.route("about");
         });
-
-        Ember.TEMPLATES.index = compile("<h3>Home</h3>{{outlet}}");
-        Ember.TEMPLATES['index/about'] = compile("{{#link-to 'item' id='link1' current-when='item index'}}ITEM{{/link-to}}");
-        Ember.TEMPLATES['item'] = compile("{{#link-to 'item' id='link2' current-when='item index'}}ITEM{{/link-to}}");
-        Ember.TEMPLATES['foo'] = compile("{{#link-to 'item' id='link3' current-when='item index'}}ITEM{{/link-to}}");
-
-        bootApplication();
-
-        Ember.run(function() {
-          router.handleURL("/about");
-        });
-
-        equal(Ember.$('#link1.active', '#qunit-fixture').length, 1, "The link is active since current-when contains the parent route");
-
-        Ember.run(function() {
-          router.handleURL("/item");
-        });
-
-        equal(Ember.$('#link2.active', '#qunit-fixture').length, 1, "The link is active since you are on the active route");
-
-        Ember.run(function() {
-          router.handleURL("/foo");
-        });
-
-        equal(Ember.$('#link3.active', '#qunit-fixture').length, 0, "The link is not active since current-when does not contain the active route");
+        this.route("item");
+        this.route("foo");
       });
-    
+
+      Ember.TEMPLATES.index = compile("<h3>Home</h3>{{outlet}}");
+      Ember.TEMPLATES['index/about'] = compile("{{#link-to 'item' id='link1' current-when='item index'}}ITEM{{/link-to}}");
+      Ember.TEMPLATES['item'] = compile("{{#link-to 'item' id='link2' current-when='item index'}}ITEM{{/link-to}}");
+      Ember.TEMPLATES['foo'] = compile("{{#link-to 'item' id='link3' current-when='item index'}}ITEM{{/link-to}}");
+
+      bootApplication();
+
+      Ember.run(function() {
+        router.handleURL("/about");
+      });
+
+      equal(Ember.$('#link1.active', '#qunit-fixture').length, 1, "The link is active since current-when contains the parent route");
+
+      Ember.run(function() {
+        router.handleURL("/item");
+      });
+
+      equal(Ember.$('#link2.active', '#qunit-fixture').length, 1, "The link is active since you are on the active route");
+
+      Ember.run(function() {
+        router.handleURL("/foo");
+      });
+
+      equal(Ember.$('#link3.active', '#qunit-fixture').length, 0, "The link is not active since current-when does not contain the active route");
+    });
 
     test("The {{link-to}} helper defaults to bubbling", function() {
       Ember.TEMPLATES.about = compile("<div {{action 'hide'}}>{{#link-to 'about.contact' id='about-contact'}}About{{/link-to}}</div>{{outlet}}");
@@ -59292,67 +59271,65 @@ enifed("ember/tests/helpers/link_to_test",
       equal(link.attr('tabindex'), '-1', "The self-link contains tabindex attribute");
     });
 
-    
-      test("The {{link-to}} helper supports `target` attribute", function() {
-        Ember.TEMPLATES.index = compile("<h3>Home</h3>{{#link-to 'index' id='self-link' target='_blank'}}Self{{/link-to}}");
-        bootApplication();
+    test("The {{link-to}} helper supports `target` attribute", function() {
+      Ember.TEMPLATES.index = compile("<h3>Home</h3>{{#link-to 'index' id='self-link' target='_blank'}}Self{{/link-to}}");
+      bootApplication();
 
-        Ember.run(function() {
-          router.handleURL("/");
-        });
-
-        var link = Ember.$('#self-link', '#qunit-fixture');
-        equal(link.attr('target'), '_blank', "The self-link contains `target` attribute");
+      Ember.run(function() {
+        router.handleURL("/");
       });
 
-      test("The {{link-to}} helper does not call preventDefault if `target` attribute is provided", function() {
-        Ember.TEMPLATES.index = compile("<h3>Home</h3>{{#link-to 'index' id='self-link' target='_blank'}}Self{{/link-to}}");
-        bootApplication();
+      var link = Ember.$('#self-link', '#qunit-fixture');
+      equal(link.attr('target'), '_blank', "The self-link contains `target` attribute");
+    });
 
-        Ember.run(function() {
-          router.handleURL("/");
-        });
+    test("The {{link-to}} helper does not call preventDefault if `target` attribute is provided", function() {
+      Ember.TEMPLATES.index = compile("<h3>Home</h3>{{#link-to 'index' id='self-link' target='_blank'}}Self{{/link-to}}");
+      bootApplication();
 
-        var event = Ember.$.Event("click");
-        Ember.$('#self-link', '#qunit-fixture').trigger(event);
-
-        equal(event.isDefaultPrevented(), false, "should not preventDefault when target attribute is specified");
+      Ember.run(function() {
+        router.handleURL("/");
       });
 
-      test("The {{link-to}} helper should preventDefault when `target = _self`", function() {
-        Ember.TEMPLATES.index = compile("<h3>Home</h3>{{#link-to 'index' id='self-link' target='_self'}}Self{{/link-to}}");
-        bootApplication();
+      var event = Ember.$.Event("click");
+      Ember.$('#self-link', '#qunit-fixture').trigger(event);
 
-        Ember.run(function() {
-          router.handleURL("/");
-        });
+      equal(event.isDefaultPrevented(), false, "should not preventDefault when target attribute is specified");
+    });
 
-        var event = Ember.$.Event("click");
-        Ember.$('#self-link', '#qunit-fixture').trigger(event);
+    test("The {{link-to}} helper should preventDefault when `target = _self`", function() {
+      Ember.TEMPLATES.index = compile("<h3>Home</h3>{{#link-to 'index' id='self-link' target='_self'}}Self{{/link-to}}");
+      bootApplication();
 
-        equal(event.isDefaultPrevented(), true, "should preventDefault when target attribute is `_self`");
+      Ember.run(function() {
+        router.handleURL("/");
       });
 
-      test("The {{link-to}} helper should not transition if target is not equal to _self or empty", function() {
-        Ember.TEMPLATES.index = compile("{{#link-to 'about' id='about-link' replace=true target='_blank'}}About{{/link-to}}");
+      var event = Ember.$.Event("click");
+      Ember.$('#self-link', '#qunit-fixture').trigger(event);
 
-        Router.map(function() {
-          this.route("about");
-        });
+      equal(event.isDefaultPrevented(), true, "should preventDefault when target attribute is `_self`");
+    });
 
-        bootApplication();
+    test("The {{link-to}} helper should not transition if target is not equal to _self or empty", function() {
+      Ember.TEMPLATES.index = compile("{{#link-to 'about' id='about-link' replace=true target='_blank'}}About{{/link-to}}");
 
-        Ember.run(function() {
-          router.handleURL("/");
-        });
-
-        Ember.run(function() {
-          Ember.$('#about-link', '#qunit-fixture').click();
-        });
-
-        notEqual(container.lookup('controller:application').get('currentRouteName'), 'about', 'link-to should not transition if target is not equal to _self or empty');
+      Router.map(function() {
+        this.route("about");
       });
-    
+
+      bootApplication();
+
+      Ember.run(function() {
+        router.handleURL("/");
+      });
+
+      Ember.run(function() {
+        Ember.$('#about-link', '#qunit-fixture').click();
+      });
+
+      notEqual(container.lookup('controller:application').get('currentRouteName'), 'about', 'link-to should not transition if target is not equal to _self or empty');
+    });
 
     test("The {{link-to}} helper accepts string/numeric arguments", function() {
       Router.map(function() {
@@ -63532,65 +63509,63 @@ enifed("ember/tests/routing/basic_test",
       bootApplication();
     });
 
-    
-      test("`activate` event fires on the route", function() {
-        expect(2);
+    test("`activate` event fires on the route", function() {
+      expect(2);
 
-        var eventFired = 0;
+      var eventFired = 0;
 
-        Router.map(function(){
-          this.route("nork");
-        });
-
-        App.NorkRoute = Ember.Route.extend({
-          init: function() {
-            this._super();
-
-            this.on("activate", function() {
-              equal(++eventFired, 1, "activate event is fired once");
-            });
-          },
-
-          activate: function() {
-            ok(true, "activate hook is called");
-          }
-        });
-
-        bootApplication();
-
-        Ember.run(router, 'transitionTo', 'nork');
+      Router.map(function(){
+        this.route("nork");
       });
 
-      test("`deactivate` event fires on the route", function() {
-        expect(2);
+      App.NorkRoute = Ember.Route.extend({
+        init: function() {
+          this._super();
 
-        var eventFired = 0;
+          this.on("activate", function() {
+            equal(++eventFired, 1, "activate event is fired once");
+          });
+        },
 
-        Router.map(function(){
-          this.route("nork");
-          this.route("dork");
-        });
-
-        App.NorkRoute = Ember.Route.extend({
-          init: function() {
-            this._super();
-
-            this.on("deactivate", function() {
-              equal(++eventFired, 1, "deactivate event is fired once");
-            });
-          },
-
-          deactivate: function() {
-            ok(true, "deactivate hook is called");
-          }
-        });
-
-        bootApplication();
-
-        Ember.run(router, 'transitionTo', 'nork');
-        Ember.run(router, 'transitionTo', 'dork');
+        activate: function() {
+          ok(true, "activate hook is called");
+        }
       });
-    
+
+      bootApplication();
+
+      Ember.run(router, 'transitionTo', 'nork');
+    });
+
+    test("`deactivate` event fires on the route", function() {
+      expect(2);
+
+      var eventFired = 0;
+
+      Router.map(function(){
+        this.route("nork");
+        this.route("dork");
+      });
+
+      App.NorkRoute = Ember.Route.extend({
+        init: function() {
+          this._super();
+
+          this.on("deactivate", function() {
+            equal(++eventFired, 1, "deactivate event is fired once");
+          });
+        },
+
+        deactivate: function() {
+          ok(true, "deactivate hook is called");
+        }
+      });
+
+      bootApplication();
+
+      Ember.run(router, 'transitionTo', 'nork');
+      Ember.run(router, 'transitionTo', 'dork');
+    });
 
     test("Actions can be handled by inherited action handlers", function() {
 

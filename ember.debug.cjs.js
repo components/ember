@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.bae9945b
+ * @version   1.11.0-beta.1+canary.8d031897
  */
 
 (function() {
@@ -9742,10 +9742,7 @@ enifed("ember-metal",
     Ember.isNone = isNone;
     Ember.isEmpty = isEmpty;
     Ember.isBlank = isBlank;
-
-    
-      Ember.isPresent = isPresent;
-    
+    Ember.isPresent = isPresent;
 
     Ember.merge = merge;
 
@@ -12296,7 +12293,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.bae9945b
+      @version 1.11.0-beta.1+canary.8d031897
     */
 
     if ('undefined' === typeof Ember) {
@@ -12323,10 +12320,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.bae9945b'
+      @default '1.11.0-beta.1+canary.8d031897'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.bae9945b';
+    Ember.VERSION = '1.11.0-beta.1+canary.8d031897';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -13392,7 +13389,6 @@ enifed("ember-metal/expand_properties",
       @module ember-metal
       */
 
-    var BRACE_EXPANSION = /^((?:[^\.]*\.)*)\{(.*)\}$/;
     var SPLIT_REGEX = /\{|\}/;
 
     /**
@@ -13427,26 +13423,6 @@ enifed("ember-metal/expand_properties",
           'e.g. `user.{firstName, lastName}` should be `user.{firstName,lastName}`');
       }
 
-      
-        return newExpandProperties(pattern, callback);
-          }
-
-    function oldExpandProperties(pattern, callback) {
-      var match, prefix, list;
-
-      if (match = BRACE_EXPANSION.exec(pattern)) {
-        prefix = match[1];
-        list = match[2];
-
-        forEach(list.split(','), function (suffix) {
-            callback(prefix + suffix);
-        });
-      } else {
-        callback(pattern);
-      }
-    }
-
-    function newExpandProperties(pattern, callback) {
       if ('string' === Ember.typeOf(pattern)) {
         var parts = pattern.split(SPLIT_REGEX);
         var properties = [parts];
@@ -13941,38 +13917,33 @@ enifed("ember-metal/is_present",
   function(__dependency1__, __exports__) {
     "use strict";
     var isBlank = __dependency1__["default"];
-    var isPresent;
 
-    
-      /**
-        A value is present if it not `isBlank`.
+    /**
+      A value is present if it not `isBlank`.
 
-        ```javascript
-        Ember.isPresent();                // false
-        Ember.isPresent(null);            // false
-        Ember.isPresent(undefined);       // false
-        Ember.isPresent('');              // false
-        Ember.isPresent([]);              // false
-        Ember.isPresent('\n\t');          // false
-        Ember.isPresent('  ');            // false
-        Ember.isPresent({});              // true
-        Ember.isPresent('\n\t Hello');    // true
-        Ember.isPresent('Hello world');   // true
-        Ember.isPresent([1,2,3]);         // true
-        ```
+      ```javascript
+      Ember.isPresent();                // false
+      Ember.isPresent(null);            // false
+      Ember.isPresent(undefined);       // false
+      Ember.isPresent('');              // false
+      Ember.isPresent([]);              // false
+      Ember.isPresent('\n\t');          // false
+      Ember.isPresent('  ');            // false
+      Ember.isPresent({});              // true
+      Ember.isPresent('\n\t Hello');    // true
+      Ember.isPresent('Hello world');   // true
+      Ember.isPresent([1,2,3]);         // true
+      ```
 
-        @method isPresent
-        @for Ember
-        @param {Object} obj Value to test
-        @return {Boolean}
-        @since 1.7.0
-        */
-      isPresent = function isPresent(obj) {
-        return !isBlank(obj);
-      };
-    
-
-    __exports__["default"] = isPresent;
+      @method isPresent
+      @for Ember
+      @param {Object} obj Value to test
+      @return {Boolean}
+      @since 1.7.0
+      */
+    __exports__["default"] = function isPresent(obj) {
+      return !isBlank(obj);
+    }
   });
 enifed("ember-metal/keys",
   ["ember-metal/platform","exports"],
@@ -20458,6 +20429,14 @@ enifed("ember-routing-views/views/link",
       rel: null,
 
       /**
+        Sets the `target` attribute of the `LinkView`'s HTML element.
+
+        @property target
+        @default null
+      **/
+      target: null,
+
+      /**
         The CSS class to apply to `LinkView`'s element when its `active`
         property is `true`.
 
@@ -20505,9 +20484,9 @@ enifed("ember-routing-views/views/link",
 
         @property attributeBindings
         @type Array | String
-        @default ['href', 'title', 'rel']
+        @default ['href', 'title', 'rel', 'target']
        **/
-      attributeBindings: ['href', 'title', 'rel', 'tabindex'],
+      attributeBindings: ['href', 'title', 'rel', 'tabindex', 'target'],
 
       /**
         By default the `{{link-to}}` helper will bind to the `active`, `loading`, and
@@ -20701,14 +20680,13 @@ enifed("ember-routing-views/views/link",
           return isActive;
         }
 
-        
-          currentWhen = currentWhen.split(' ');
-          for (var i = 0, len = currentWhen.length; i < len; i++) {
-            if (isActiveForRoute(currentWhen[i])) {
-              return get(this, 'activeClass');
-            }
+        currentWhen = currentWhen.split(' ');
+        for (var i = 0, len = currentWhen.length; i < len; i++) {
+          if (isActiveForRoute(currentWhen[i])) {
+            return get(this, 'activeClass');
           }
-              }),
+        }
+      }),
 
       /**
         Accessed as a classname binding to apply the `LinkView`'s `loadingClass`
@@ -20749,12 +20727,11 @@ enifed("ember-routing-views/views/link",
         if (!isSimpleClick(event)) { return true; }
 
         if (this.preventDefault !== false) {
-          
-            var targetAttribute = get(this, 'target');
-            if (!targetAttribute || targetAttribute === '_self') {
-              event.preventDefault();
-            }
-                  }
+          var targetAttribute = get(this, 'target');
+          if (!targetAttribute || targetAttribute === '_self') {
+            event.preventDefault();
+          }
+        }
 
         if (this.bubbles === false) { event.stopPropagation(); }
 
@@ -20765,12 +20742,10 @@ enifed("ember-routing-views/views/link",
           return false;
         }
 
-        
-          var targetAttribute2 = get(this, 'target');
-          if (targetAttribute2 && targetAttribute2 !== '_self') {
-            return false;
-          }
-        
+        var targetAttribute2 = get(this, 'target');
+        if (targetAttribute2 && targetAttribute2 !== '_self') {
+          return false;
+        }
 
         var router = get(this, 'router');
         var loadedParams = get(this, 'loadedParams');
@@ -20937,20 +20912,6 @@ enifed("ember-routing-views/views/link",
     });
 
     LinkView.toString = function() { return "LinkView"; };
-
-    
-      LinkView.reopen({
-        attributeBindings: ['target'],
-
-        /**
-          Sets the `target` attribute of the `LinkView`'s anchor element.
-
-          @property target
-          @default null
-        **/
-        target: null
-      });
-    
 
     function getResolvedQueryParams(linkView, targetRouteName) {
       var queryParamsObject = linkView.queryParamsObject;
@@ -22109,15 +22070,14 @@ enifed("ember-routing/location/auto_location",
           if (currentPath === historyPath) {
             implementationClass = this._HistoryLocation;
           } else {
-            
-              if (currentPath.substr(0, 2) === '/#') {
-                this._history.replaceState({ path: historyPath }, null, historyPath);
-                implementationClass = this._HistoryLocation;
-              } else {
-                cancelRouterSetup = true;
-                this._replacePath(historyPath);
-              }
-                      }
+            if (currentPath.substr(0, 2) === '/#') {
+              this._history.replaceState({ path: historyPath }, null, historyPath);
+              implementationClass = this._HistoryLocation;
+            } else {
+              cancelRouterSetup = true;
+              this._replacePath(historyPath);
+            }
+          }
 
         } else if (this._getSupportsHashChange()) {
           hashPath = this._getHashPath();
@@ -22964,8 +22924,9 @@ enifed("ember-routing/system/route",
       @namespace Ember
       @extends Ember.Object
       @uses Ember.ActionHandler
+      @uses Ember.Evented
     */
-    var Route = EmberObject.extend(ActionHandler, {
+    var Route = EmberObject.extend(ActionHandler, Evented, {
       /**
         Configuration hash for this route's queryParams. The possible
         configuration options and their defaults are as follows
@@ -23275,9 +23236,7 @@ enifed("ember-routing/system/route",
       */
       exit: function() {
         this.deactivate();
-        
-          this.trigger('deactivate');
-        
+        this.trigger('deactivate');
         this.teardownViews();
       },
 
@@ -23302,9 +23261,7 @@ enifed("ember-routing/system/route",
       */
       enter: function() {
         this.activate();
-        
-          this.trigger('activate');
-        
+        this.trigger('activate');
       },
 
       /**
@@ -24807,12 +24764,6 @@ enifed("ember-routing/system/route",
         delete this.lastRenderedTemplate;
       }
     });
-
-    
-      // TODO add mixin directly to `Route` class definition above, once this
-      // feature is merged:
-      Route.reopen(Evented);
-    
 
     var defaultQPMeta = {
       qps: [],
@@ -37399,25 +37350,23 @@ enifed("ember-testing/helpers",
     */
     helper('currentURL', currentURL);
 
-    
-      /**
-       Pauses the current test - this is useful for debugging while testing or for test-driving.
-       It allows you to inspect the state of your application at any point.
+    /**
+     Pauses the current test - this is useful for debugging while testing or for test-driving.
+     It allows you to inspect the state of your application at any point.
 
-       Example (The test will pause before clicking the button):
+     Example (The test will pause before clicking the button):
 
-       ```javascript
-       visit('/')
-       return pauseTest();
+     ```javascript
+     visit('/')
+     return pauseTest();
 
-       click('.btn');
-       ```
+     click('.btn');
+     ```
 
-       @method pauseTest
-       @return {Object} A promise that will never resolve
-       */
-      helper('pauseTest', pauseTest);
-    
+     @method pauseTest
+     @return {Object} A promise that will never resolve
+     */
+    helper('pauseTest', pauseTest);
 
     /**
       Triggers the given DOM event on the element identified by the provided selector.

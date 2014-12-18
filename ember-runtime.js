@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.bae9945b
+ * @version   1.11.0-beta.1+canary.8d031897
  */
 
 (function() {
@@ -2298,10 +2298,7 @@ define("ember-metal",
     Ember.isNone = isNone;
     Ember.isEmpty = isEmpty;
     Ember.isBlank = isBlank;
-
-    
-      Ember.isPresent = isPresent;
-    
+    Ember.isPresent = isPresent;
 
     Ember.merge = merge;
 
@@ -4852,7 +4849,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.bae9945b
+      @version 1.11.0-beta.1+canary.8d031897
     */
 
     if ('undefined' === typeof Ember) {
@@ -4879,10 +4876,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.bae9945b'
+      @default '1.11.0-beta.1+canary.8d031897'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.bae9945b';
+    Ember.VERSION = '1.11.0-beta.1+canary.8d031897';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -5948,7 +5945,6 @@ define("ember-metal/expand_properties",
       @module ember-metal
       */
 
-    var BRACE_EXPANSION = /^((?:[^\.]*\.)*)\{(.*)\}$/;
     var SPLIT_REGEX = /\{|\}/;
 
     /**
@@ -5983,26 +5979,6 @@ define("ember-metal/expand_properties",
           'e.g. `user.{firstName, lastName}` should be `user.{firstName,lastName}`');
       }
 
-      
-        return newExpandProperties(pattern, callback);
-          }
-
-    function oldExpandProperties(pattern, callback) {
-      var match, prefix, list;
-
-      if (match = BRACE_EXPANSION.exec(pattern)) {
-        prefix = match[1];
-        list = match[2];
-
-        forEach(list.split(','), function (suffix) {
-            callback(prefix + suffix);
-        });
-      } else {
-        callback(pattern);
-      }
-    }
-
-    function newExpandProperties(pattern, callback) {
       if ('string' === Ember.typeOf(pattern)) {
         var parts = pattern.split(SPLIT_REGEX);
         var properties = [parts];
@@ -6497,38 +6473,33 @@ define("ember-metal/is_present",
   function(__dependency1__, __exports__) {
     "use strict";
     var isBlank = __dependency1__["default"];
-    var isPresent;
 
-    
-      /**
-        A value is present if it not `isBlank`.
+    /**
+      A value is present if it not `isBlank`.
 
-        ```javascript
-        Ember.isPresent();                // false
-        Ember.isPresent(null);            // false
-        Ember.isPresent(undefined);       // false
-        Ember.isPresent('');              // false
-        Ember.isPresent([]);              // false
-        Ember.isPresent('\n\t');          // false
-        Ember.isPresent('  ');            // false
-        Ember.isPresent({});              // true
-        Ember.isPresent('\n\t Hello');    // true
-        Ember.isPresent('Hello world');   // true
-        Ember.isPresent([1,2,3]);         // true
-        ```
+      ```javascript
+      Ember.isPresent();                // false
+      Ember.isPresent(null);            // false
+      Ember.isPresent(undefined);       // false
+      Ember.isPresent('');              // false
+      Ember.isPresent([]);              // false
+      Ember.isPresent('\n\t');          // false
+      Ember.isPresent('  ');            // false
+      Ember.isPresent({});              // true
+      Ember.isPresent('\n\t Hello');    // true
+      Ember.isPresent('Hello world');   // true
+      Ember.isPresent([1,2,3]);         // true
+      ```
 
-        @method isPresent
-        @for Ember
-        @param {Object} obj Value to test
-        @return {Boolean}
-        @since 1.7.0
-        */
-      isPresent = function isPresent(obj) {
-        return !isBlank(obj);
-      };
-    
-
-    __exports__["default"] = isPresent;
+      @method isPresent
+      @for Ember
+      @param {Object} obj Value to test
+      @return {Boolean}
+      @since 1.7.0
+      */
+    __exports__["default"] = function isPresent(obj) {
+      return !isBlank(obj);
+    }
   });
 define("ember-metal/keys",
   ["ember-metal/platform","exports"],

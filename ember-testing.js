@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.bae9945b
+ * @version   1.11.0-beta.1+canary.8d031897
  */
 
 (function() {
@@ -865,25 +865,23 @@ enifed("ember-testing/helpers",
     */
     helper('currentURL', currentURL);
 
-    
-      /**
-       Pauses the current test - this is useful for debugging while testing or for test-driving.
-       It allows you to inspect the state of your application at any point.
+    /**
+     Pauses the current test - this is useful for debugging while testing or for test-driving.
+     It allows you to inspect the state of your application at any point.
 
-       Example (The test will pause before clicking the button):
+     Example (The test will pause before clicking the button):
 
-       ```javascript
-       visit('/')
-       return pauseTest();
+     ```javascript
+     visit('/')
+     return pauseTest();
 
-       click('.btn');
-       ```
+     click('.btn');
+     ```
 
-       @method pauseTest
-       @return {Object} A promise that will never resolve
-       */
-      helper('pauseTest', pauseTest);
-    
+     @method pauseTest
+     @return {Object} A promise that will never resolve
+     */
+    helper('pauseTest', pauseTest);
 
     /**
       Triggers the given DOM event on the element identified by the provided selector.
