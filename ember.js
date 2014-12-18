@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.8d031897
+ * @version   1.11.0-beta.1+canary.1229dc94
  */
 
 (function() {
@@ -12293,7 +12293,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.8d031897
+      @version 1.11.0-beta.1+canary.1229dc94
     */
 
     if ('undefined' === typeof Ember) {
@@ -12320,10 +12320,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.8d031897'
+      @default '1.11.0-beta.1+canary.1229dc94'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.8d031897';
+    Ember.VERSION = '1.11.0-beta.1+canary.1229dc94';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -20429,6 +20429,14 @@ enifed("ember-routing-views/views/link",
       rel: null,
 
       /**
+        Sets the `tabindex` attribute of the `LinkView`'s HTML element.
+
+        @property tabindex
+        @default null
+      **/
+      tabindex: null,
+
+      /**
         Sets the `target` attribute of the `LinkView`'s HTML element.
 
         @property target
@@ -20484,7 +20492,7 @@ enifed("ember-routing-views/views/link",
 
         @property attributeBindings
         @type Array | String
-        @default ['href', 'title', 'rel', 'target']
+        @default ['href', 'title', 'rel', 'tabindex', 'target']
        **/
       attributeBindings: ['href', 'title', 'rel', 'tabindex', 'target'],
 
@@ -24962,6 +24970,7 @@ enifed("ember-routing/system/router",
       @class Router
       @namespace Ember
       @extends Ember.Object
+      @uses Ember.Evented
     */
     var EmberRouter = EmberObject.extend(Evented, {
       /**
