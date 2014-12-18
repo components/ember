@@ -5,11 +5,11 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.2df18500
+ * @version   1.11.0-beta.1+canary.f6d9ff91
  */
 
 (function() {
-var enifed, requireModule, eriuqer, requirejs, Ember;
+var define, requireModule, require, requirejs, Ember;
 
 (function() {
   Ember = this.Ember = this.Ember || {};
@@ -19,11 +19,11 @@ var enifed, requireModule, eriuqer, requirejs, Ember;
   if (typeof Ember.__loader === 'undefined') {
     var registry = {}, seen = {};
 
-    enifed = function(name, deps, callback) {
+    define = function(name, deps, callback) {
       registry[name] = { deps: deps, callback: callback };
     };
 
-    requirejs = eriuqer = requireModule = function(name) {
+    requirejs = require = requireModule = function(name) {
       var s = seen[name];
 
       if (s !== undefined) { return seen[name]; }
@@ -76,17 +76,17 @@ var enifed, requireModule, eriuqer, requirejs, Ember;
     requirejs._eak_seen = registry;
 
     Ember.__loader = {
-      define: enifed,
-      require: eriuqer,
+      define: define,
+      require: require,
       registry: registry
     };
   } else {
-    enifed = Ember.__loader.define;
-    requirejs = eriuqer = requireModule = Ember.__loader.require;
+    define = Ember.__loader.define;
+    requirejs = require = requireModule = Ember.__loader.require;
   }
 })();
 
-enifed("container.jshint",
+define("container.jshint",
   [],
   function() {
     "use strict";
@@ -95,7 +95,7 @@ enifed("container.jshint",
       ok(true, 'container.js should pass jshint.'); 
     });
   });
-enifed("container/container.jshint",
+define("container/container.jshint",
   [],
   function() {
     "use strict";
@@ -104,7 +104,7 @@ enifed("container/container.jshint",
       ok(true, 'container/container.js should pass jshint.'); 
     });
   });
-enifed("container/tests/container_helper",
+define("container/tests/container_helper",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -176,7 +176,7 @@ enifed("container/tests/container_helper",
     __exports__.factory = factory;
     __exports__.setProperties = setProperties;
   });
-enifed("container/tests/container_helper.jshint",
+define("container/tests/container_helper.jshint",
   [],
   function() {
     "use strict";
@@ -185,7 +185,7 @@ enifed("container/tests/container_helper.jshint",
       ok(true, 'container/tests/container_helper.js should pass jshint.'); 
     });
   });
-enifed("container/tests/container_test",
+define("container/tests/container_test",
   ["container/tests/container_helper","container"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -858,7 +858,7 @@ enifed("container/tests/container_test",
       deepEqual(resolveWasCalled, ['foo:post']);
     });
 
-    
+    if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
       test("The `_onLookup` hook is called on factories when looked up the first time", function() {
         expect(2);
 
@@ -917,9 +917,9 @@ enifed("container/tests/container_test",
         container.lookup('apple:main');
         container.lookup('apple:main');
       });
-    
+    }
   });
-enifed("container/tests/container_test.jshint",
+define("container/tests/container_test.jshint",
   [],
   function() {
     "use strict";
@@ -928,7 +928,7 @@ enifed("container/tests/container_test.jshint",
       ok(true, 'container/tests/container_test.js should pass jshint.'); 
     });
   });
-enifed("container/tests/sub_container_test",
+define("container/tests/sub_container_test",
   ["container/tests/container_helper","container"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -1019,7 +1019,7 @@ enifed("container/tests/sub_container_test",
       equal(postController.store, store);
     });
   });
-enifed("container/tests/sub_container_test.jshint",
+define("container/tests/sub_container_test.jshint",
   [],
   function() {
     "use strict";
@@ -1028,7 +1028,7 @@ enifed("container/tests/sub_container_test.jshint",
       ok(true, 'container/tests/sub_container_test.js should pass jshint.'); 
     });
   });
-enifed("ember-application.jshint",
+define("ember-application.jshint",
   [],
   function() {
     "use strict";
@@ -1037,7 +1037,7 @@ enifed("ember-application.jshint",
       ok(true, 'ember-application.js should pass jshint.'); 
     });
   });
-enifed("ember-application/ext/controller.jshint",
+define("ember-application/ext/controller.jshint",
   [],
   function() {
     "use strict";
@@ -1046,7 +1046,7 @@ enifed("ember-application/ext/controller.jshint",
       ok(true, 'ember-application/ext/controller.js should pass jshint.'); 
     });
   });
-enifed("ember-application/system/application.jshint",
+define("ember-application/system/application.jshint",
   [],
   function() {
     "use strict";
@@ -1055,7 +1055,7 @@ enifed("ember-application/system/application.jshint",
       ok(true, 'ember-application/system/application.js should pass jshint.'); 
     });
   });
-enifed("ember-application/system/resolver.jshint",
+define("ember-application/system/resolver.jshint",
   [],
   function() {
     "use strict";
@@ -1064,7 +1064,7 @@ enifed("ember-application/system/resolver.jshint",
       ok(true, 'ember-application/system/resolver.js should pass jshint.'); 
     });
   });
-enifed("ember-application/tests/system/application_test",
+define("ember-application/tests/system/application_test",
   ["ember-metal/core","ember-metal/run_loop","ember-application/system/application","ember-application/system/resolver","ember-routing/system/router","ember-views/views/view","ember-runtime/controllers/controller","ember-routing/location/none_location","ember-runtime/system/object","ember-views/system/jquery","ember-htmlbars/system/compile"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__) {
     "use strict";
@@ -1373,7 +1373,7 @@ enifed("ember-application/tests/system/application_test",
       ok(app.__container__.lookup('view:select'), "Select control is registered into views");
     });
   });
-enifed("ember-application/tests/system/application_test.jshint",
+define("ember-application/tests/system/application_test.jshint",
   [],
   function() {
     "use strict";
@@ -1382,7 +1382,7 @@ enifed("ember-application/tests/system/application_test.jshint",
       ok(true, 'ember-application/tests/system/application_test.js should pass jshint.'); 
     });
   });
-enifed("ember-application/tests/system/controller_test",
+define("ember-application/tests/system/controller_test",
   ["ember-runtime/controllers/controller","ember-application/ext/controller","ember-runtime/system/container","ember-runtime/system/native_array","ember-runtime/controllers/array_controller","ember-metal/computed"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
@@ -1540,7 +1540,7 @@ enifed("ember-application/tests/system/controller_test",
       equal(broController.get('foo'), 5, "`needs` dependencies can be stubbed");
     });
   });
-enifed("ember-application/tests/system/controller_test.jshint",
+define("ember-application/tests/system/controller_test.jshint",
   [],
   function() {
     "use strict";
@@ -1549,7 +1549,7 @@ enifed("ember-application/tests/system/controller_test.jshint",
       ok(true, 'ember-application/tests/system/controller_test.js should pass jshint.'); 
     });
   });
-enifed("ember-application/tests/system/dependency_injection/custom_resolver_test",
+define("ember-application/tests/system/dependency_injection/custom_resolver_test",
   ["ember-views/system/jquery","ember-metal/run_loop","ember-application/system/application","ember-application/system/resolver"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -1589,7 +1589,7 @@ enifed("ember-application/tests/system/dependency_injection/custom_resolver_test
       equal(jQuery("h1", application.rootElement).text(), "Fallback");
     });
   });
-enifed("ember-application/tests/system/dependency_injection/custom_resolver_test.jshint",
+define("ember-application/tests/system/dependency_injection/custom_resolver_test.jshint",
   [],
   function() {
     "use strict";
@@ -1598,7 +1598,7 @@ enifed("ember-application/tests/system/dependency_injection/custom_resolver_test
       ok(true, 'ember-application/tests/system/dependency_injection/custom_resolver_test.js should pass jshint.'); 
     });
   });
-enifed("ember-application/tests/system/dependency_injection/default_resolver_test",
+define("ember-application/tests/system/dependency_injection/default_resolver_test",
   ["ember-metal/core","ember-metal/run_loop","ember-metal/logger","ember-runtime/controllers/controller","ember-runtime/system/object","ember-runtime/system/namespace","ember-application/system/application","ember-htmlbars/helpers"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
     "use strict";
@@ -1691,10 +1691,14 @@ enifed("ember-application/tests/system/dependency_injection/default_resolver_tes
 
       var retrievedFooResolverTestHelper, retrievedBarBazResolverTestHelper;
 
-      
+      if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
         retrievedFooResolverTestHelper = locator.lookup('helper:fooresolvertest').helperFunction;
         retrievedBarBazResolverTestHelper = locator.lookup('helper:bar-baz-resolver-test').helperFunction;
-      
+      } else {
+        retrievedFooResolverTestHelper = locator.lookup('helper:fooresolvertest');
+        retrievedBarBazResolverTestHelper = locator.lookup('helper:bar-baz-resolver-test');
+      }
+
       fooresolvertestHelper();
       barBazResolverTestHelper();
     });
@@ -1764,7 +1768,7 @@ enifed("ember-application/tests/system/dependency_injection/default_resolver_tes
       equal(infoCount, 0, 'Logger.info should not be called if LOG_RESOLVER is not set');
     });
   });
-enifed("ember-application/tests/system/dependency_injection/default_resolver_test.jshint",
+define("ember-application/tests/system/dependency_injection/default_resolver_test.jshint",
   [],
   function() {
     "use strict";
@@ -1773,7 +1777,7 @@ enifed("ember-application/tests/system/dependency_injection/default_resolver_tes
       ok(true, 'ember-application/tests/system/dependency_injection/default_resolver_test.js should pass jshint.'); 
     });
   });
-enifed("ember-application/tests/system/dependency_injection/normalization_test",
+define("ember-application/tests/system/dependency_injection/normalization_test",
   ["ember-metal/run_loop","ember-metal/array","ember-application/system/application"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -1822,7 +1826,7 @@ enifed("ember-application/tests/system/dependency_injection/normalization_test",
       });
     });
   });
-enifed("ember-application/tests/system/dependency_injection/normalization_test.jshint",
+define("ember-application/tests/system/dependency_injection/normalization_test.jshint",
   [],
   function() {
     "use strict";
@@ -1831,7 +1835,7 @@ enifed("ember-application/tests/system/dependency_injection/normalization_test.j
       ok(true, 'ember-application/tests/system/dependency_injection/normalization_test.js should pass jshint.'); 
     });
   });
-enifed("ember-application/tests/system/dependency_injection/to_string_test",
+define("ember-application/tests/system/dependency_injection/to_string_test",
   ["ember-metal/core","ember-metal/run_loop","ember-application/system/application","ember-runtime/system/object","ember-application/system/resolver","ember-metal/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
@@ -1903,7 +1907,7 @@ enifed("ember-application/tests/system/dependency_injection/to_string_test",
       equal(peter.toString(), '<model:peter:' + guid + '>', 'expecting the supermodel to be peter');
     });
   });
-enifed("ember-application/tests/system/dependency_injection/to_string_test.jshint",
+define("ember-application/tests/system/dependency_injection/to_string_test.jshint",
   [],
   function() {
     "use strict";
@@ -1912,7 +1916,7 @@ enifed("ember-application/tests/system/dependency_injection/to_string_test.jshin
       ok(true, 'ember-application/tests/system/dependency_injection/to_string_test.js should pass jshint.'); 
     });
   });
-enifed("ember-application/tests/system/dependency_injection_test",
+define("ember-application/tests/system/dependency_injection_test",
   ["ember-metal/run_loop","ember-runtime/system/object","ember-application/system/application"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -1992,7 +1996,7 @@ enifed("ember-application/tests/system/dependency_injection_test",
       ok(application.Email.detectInstance(user.get('communication')));
     });
   });
-enifed("ember-application/tests/system/dependency_injection_test.jshint",
+define("ember-application/tests/system/dependency_injection_test.jshint",
   [],
   function() {
     "use strict";
@@ -2001,7 +2005,7 @@ enifed("ember-application/tests/system/dependency_injection_test.jshint",
       ok(true, 'ember-application/tests/system/dependency_injection_test.js should pass jshint.'); 
     });
   });
-enifed("ember-application/tests/system/initializers_test",
+define("ember-application/tests/system/initializers_test",
   ["ember-metal/run_loop","ember-application/system/application","ember-metal/array","ember-views/system/jquery"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -2247,7 +2251,7 @@ enifed("ember-application/tests/system/initializers_test",
       });
     });
   });
-enifed("ember-application/tests/system/initializers_test.jshint",
+define("ember-application/tests/system/initializers_test.jshint",
   [],
   function() {
     "use strict";
@@ -2256,7 +2260,7 @@ enifed("ember-application/tests/system/initializers_test.jshint",
       ok(true, 'ember-application/tests/system/initializers_test.js should pass jshint.'); 
     });
   });
-enifed("ember-application/tests/system/logging_test",
+define("ember-application/tests/system/logging_test",
   ["ember-metal/run_loop","ember-application/system/application","ember-views/views/view","ember-runtime/controllers/controller","ember-routing/system/route","ember-runtime/ext/rsvp","ember-metal/keys","ember-routing"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
     "use strict";
@@ -2495,7 +2499,7 @@ enifed("ember-application/tests/system/logging_test",
       });
     });
   });
-enifed("ember-application/tests/system/logging_test.jshint",
+define("ember-application/tests/system/logging_test.jshint",
   [],
   function() {
     "use strict";
@@ -2504,7 +2508,7 @@ enifed("ember-application/tests/system/logging_test.jshint",
       ok(true, 'ember-application/tests/system/logging_test.js should pass jshint.'); 
     });
   });
-enifed("ember-application/tests/system/readiness_test",
+define("ember-application/tests/system/readiness_test",
   ["ember-metal/run_loop","ember-application/system/application"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -2641,7 +2645,7 @@ enifed("ember-application/tests/system/readiness_test",
       });
     });
   });
-enifed("ember-application/tests/system/readiness_test.jshint",
+define("ember-application/tests/system/readiness_test.jshint",
   [],
   function() {
     "use strict";
@@ -2650,7 +2654,7 @@ enifed("ember-application/tests/system/readiness_test.jshint",
       ok(true, 'ember-application/tests/system/readiness_test.js should pass jshint.'); 
     });
   });
-enifed("ember-application/tests/system/reset_test",
+define("ember-application/tests/system/reset_test",
   ["ember-metal/run_loop","ember-metal/property_get","ember-metal/property_set","ember-application/system/application","ember-runtime/system/object","ember-routing/system/router","ember-views/views/view","ember-runtime/controllers/controller","ember-views/system/jquery","container/container"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
     "use strict";
@@ -2938,7 +2942,7 @@ enifed("ember-application/tests/system/reset_test",
       equal(listeners['hashchange'].length, 1, 'hashchange event only exists once');
     });
   });
-enifed("ember-application/tests/system/reset_test.jshint",
+define("ember-application/tests/system/reset_test.jshint",
   [],
   function() {
     "use strict";
@@ -2947,7 +2951,7 @@ enifed("ember-application/tests/system/reset_test.jshint",
       ok(true, 'ember-application/tests/system/reset_test.js should pass jshint.'); 
     });
   });
-enifed("ember-debug.jshint",
+define("ember-debug.jshint",
   [],
   function() {
     "use strict";
@@ -2956,7 +2960,7 @@ enifed("ember-debug.jshint",
       ok(true, 'ember-debug.js should pass jshint.'); 
     });
   });
-enifed("ember-debug/tests/main_test",
+define("ember-debug/tests/main_test",
   ["ember-metal/core"],
   function(__dependency1__) {
     "use strict";
@@ -3066,7 +3070,7 @@ enifed("ember-debug/tests/main_test",
       ok(true, 'assertions were not thrown');
     });
   });
-enifed("ember-debug/tests/main_test.jshint",
+define("ember-debug/tests/main_test.jshint",
   [],
   function() {
     "use strict";
@@ -3075,7 +3079,7 @@ enifed("ember-debug/tests/main_test.jshint",
       ok(true, 'ember-debug/tests/main_test.js should pass jshint.'); 
     });
   });
-enifed("ember-debug/tests/warn_if_using_stripped_feature_flags_test",
+define("ember-debug/tests/warn_if_using_stripped_feature_flags_test",
   ["ember-metal/core","ember-debug"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -3158,7 +3162,7 @@ enifed("ember-debug/tests/warn_if_using_stripped_feature_flags_test",
       confirmWarns('FEATURE["fred"] is set as enabled, but FEATURE flags are only available in canary builds.');
     });
   });
-enifed("ember-debug/tests/warn_if_using_stripped_feature_flags_test.jshint",
+define("ember-debug/tests/warn_if_using_stripped_feature_flags_test.jshint",
   [],
   function() {
     "use strict";
@@ -3167,7 +3171,7 @@ enifed("ember-debug/tests/warn_if_using_stripped_feature_flags_test.jshint",
       ok(true, 'ember-debug/tests/warn_if_using_stripped_feature_flags_test.js should pass jshint.'); 
     });
   });
-enifed("ember-dev/test-helper/assertion",
+define("ember-dev/test-helper/assertion",
   ["./method-call-expectation","./utils","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -3274,7 +3278,7 @@ enifed("ember-dev/test-helper/assertion",
 
     __exports__["default"] = AssertionAssert;
   });
-enifed("ember-dev/test-helper/deprecation",
+define("ember-dev/test-helper/deprecation",
   ["./method-call-expectation","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -3451,7 +3455,7 @@ enifed("ember-dev/test-helper/deprecation",
 
     __exports__["default"] = DeprecationAssert;
   });
-enifed("ember-dev/test-helper/index",
+define("ember-dev/test-helper/index",
   ["./deprecation","./remaining-view","./remaining-template","./assertion","./run-loop","./utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
@@ -3473,7 +3477,7 @@ enifed("ember-dev/test-helper/index",
 
     __exports__["default"] = EmberDevTestHelperAssert;
   });
-enifed("ember-dev/test-helper/method-call-expectation",
+define("ember-dev/test-helper/method-call-expectation",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -3524,7 +3528,7 @@ enifed("ember-dev/test-helper/method-call-expectation",
 
     __exports__["default"] = MethodCallExpectation;
   });
-enifed("ember-dev/test-helper/remaining-template",
+define("ember-dev/test-helper/remaining-template",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -3557,7 +3561,7 @@ enifed("ember-dev/test-helper/remaining-template",
 
     __exports__["default"] = RemainingTemplateAssert;
   });
-enifed("ember-dev/test-helper/remaining-view",
+define("ember-dev/test-helper/remaining-view",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -3590,7 +3594,7 @@ enifed("ember-dev/test-helper/remaining-view",
 
     __exports__["default"] = RemainingViewAssert;
   });
-enifed("ember-dev/test-helper/run-loop",
+define("ember-dev/test-helper/run-loop",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -3623,7 +3627,7 @@ enifed("ember-dev/test-helper/run-loop",
 
     __exports__["default"] = RunLoopAssertion;
   });
-enifed("ember-dev/test-helper/setup-qunit",
+define("ember-dev/test-helper/setup-qunit",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -3661,7 +3665,7 @@ enifed("ember-dev/test-helper/setup-qunit",
       };
     }
   });
-enifed("ember-dev/test-helper/utils",
+define("ember-dev/test-helper/utils",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -3709,7 +3713,7 @@ enifed("ember-dev/test-helper/utils",
     var o_create;
     __exports__.o_create = o_create;
   });
-enifed("ember-extension-support.jshint",
+define("ember-extension-support.jshint",
   [],
   function() {
     "use strict";
@@ -3718,7 +3722,7 @@ enifed("ember-extension-support.jshint",
       ok(true, 'ember-extension-support.js should pass jshint.'); 
     });
   });
-enifed("ember-extension-support/container_debug_adapter.jshint",
+define("ember-extension-support/container_debug_adapter.jshint",
   [],
   function() {
     "use strict";
@@ -3727,7 +3731,7 @@ enifed("ember-extension-support/container_debug_adapter.jshint",
       ok(true, 'ember-extension-support/container_debug_adapter.js should pass jshint.'); 
     });
   });
-enifed("ember-extension-support/data_adapter.jshint",
+define("ember-extension-support/data_adapter.jshint",
   [],
   function() {
     "use strict";
@@ -3736,12 +3740,12 @@ enifed("ember-extension-support/data_adapter.jshint",
       ok(true, 'ember-extension-support/data_adapter.js should pass jshint.'); 
     });
   });
-enifed("ember-extension-support/tests/container_debug_adapter_test",
+define("ember-extension-support/tests/container_debug_adapter_test",
   ["ember-metal/run_loop","ember-runtime/controllers/controller","ember-extension-support","ember-application/system/application"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
     var run = __dependency1__["default"];
-    var EmberController = __dependency2__["default"];
+    var EmberController = __dependency2__.default;
     // Must be required to export Ember.ContainerDebugAdapter
     var Application = __dependency4__["default"];
 
@@ -3793,7 +3797,7 @@ enifed("ember-extension-support/tests/container_debug_adapter_test",
       equal(controllerClasses[0], 'post', "found the right class");
     });
   });
-enifed("ember-extension-support/tests/container_debug_adapter_test.jshint",
+define("ember-extension-support/tests/container_debug_adapter_test.jshint",
   [],
   function() {
     "use strict";
@@ -3802,7 +3806,7 @@ enifed("ember-extension-support/tests/container_debug_adapter_test.jshint",
       ok(true, 'ember-extension-support/tests/container_debug_adapter_test.js should pass jshint.'); 
     });
   });
-enifed("ember-extension-support/tests/data_adapter_test",
+define("ember-extension-support/tests/data_adapter_test",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-metal/observer","ember-runtime/system/object","ember-extension-support/data_adapter","ember-application/system/application","ember-application/system/resolver"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
     "use strict";
@@ -4019,7 +4023,7 @@ enifed("ember-extension-support/tests/data_adapter_test",
       equal(updatesCalled, 1, 'Release function removes observers');
     });
   });
-enifed("ember-extension-support/tests/data_adapter_test.jshint",
+define("ember-extension-support/tests/data_adapter_test.jshint",
   [],
   function() {
     "use strict";
@@ -4028,7 +4032,7 @@ enifed("ember-extension-support/tests/data_adapter_test.jshint",
       ok(true, 'ember-extension-support/tests/data_adapter_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars.jshint",
+define("ember-htmlbars.jshint",
   [],
   function() {
     "use strict";
@@ -4037,7 +4041,7 @@ enifed("ember-htmlbars.jshint",
       ok(true, 'ember-htmlbars.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/attr_nodes.jshint",
+define("ember-htmlbars/attr_nodes.jshint",
   [],
   function() {
     "use strict";
@@ -4046,7 +4050,7 @@ enifed("ember-htmlbars/attr_nodes.jshint",
       ok(true, 'ember-htmlbars/attr_nodes.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/attr_nodes/legacy_bind.jshint",
+define("ember-htmlbars/attr_nodes/legacy_bind.jshint",
   [],
   function() {
     "use strict";
@@ -4055,7 +4059,7 @@ enifed("ember-htmlbars/attr_nodes/legacy_bind.jshint",
       ok(true, 'ember-htmlbars/attr_nodes/legacy_bind.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/attr_nodes/quoted.jshint",
+define("ember-htmlbars/attr_nodes/quoted.jshint",
   [],
   function() {
     "use strict";
@@ -4064,7 +4068,7 @@ enifed("ember-htmlbars/attr_nodes/quoted.jshint",
       ok(true, 'ember-htmlbars/attr_nodes/quoted.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/attr_nodes/simple.jshint",
+define("ember-htmlbars/attr_nodes/simple.jshint",
   [],
   function() {
     "use strict";
@@ -4073,7 +4077,7 @@ enifed("ember-htmlbars/attr_nodes/simple.jshint",
       ok(true, 'ember-htmlbars/attr_nodes/simple.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/attr_nodes/unquoted.jshint",
+define("ember-htmlbars/attr_nodes/unquoted.jshint",
   [],
   function() {
     "use strict";
@@ -4082,7 +4086,7 @@ enifed("ember-htmlbars/attr_nodes/unquoted.jshint",
       ok(true, 'ember-htmlbars/attr_nodes/unquoted.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/attr_nodes/unquoted_nonproperty.jshint",
+define("ember-htmlbars/attr_nodes/unquoted_nonproperty.jshint",
   [],
   function() {
     "use strict";
@@ -4091,7 +4095,7 @@ enifed("ember-htmlbars/attr_nodes/unquoted_nonproperty.jshint",
       ok(true, 'ember-htmlbars/attr_nodes/unquoted_nonproperty.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/attr_nodes/utils.jshint",
+define("ember-htmlbars/attr_nodes/utils.jshint",
   [],
   function() {
     "use strict";
@@ -4100,7 +4104,7 @@ enifed("ember-htmlbars/attr_nodes/utils.jshint",
       ok(true, 'ember-htmlbars/attr_nodes/utils.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/compat.jshint",
+define("ember-htmlbars/compat.jshint",
   [],
   function() {
     "use strict";
@@ -4109,7 +4113,7 @@ enifed("ember-htmlbars/compat.jshint",
       ok(true, 'ember-htmlbars/compat.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/compat/handlebars-get.jshint",
+define("ember-htmlbars/compat/handlebars-get.jshint",
   [],
   function() {
     "use strict";
@@ -4118,7 +4122,7 @@ enifed("ember-htmlbars/compat/handlebars-get.jshint",
       ok(true, 'ember-htmlbars/compat/handlebars-get.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/compat/helper.jshint",
+define("ember-htmlbars/compat/helper.jshint",
   [],
   function() {
     "use strict";
@@ -4127,7 +4131,7 @@ enifed("ember-htmlbars/compat/helper.jshint",
       ok(true, 'ember-htmlbars/compat/helper.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/compat/make-bound-helper.jshint",
+define("ember-htmlbars/compat/make-bound-helper.jshint",
   [],
   function() {
     "use strict";
@@ -4136,7 +4140,7 @@ enifed("ember-htmlbars/compat/make-bound-helper.jshint",
       ok(true, 'ember-htmlbars/compat/make-bound-helper.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/compat/precompile.jshint",
+define("ember-htmlbars/compat/precompile.jshint",
   [],
   function() {
     "use strict";
@@ -4145,7 +4149,7 @@ enifed("ember-htmlbars/compat/precompile.jshint",
       ok(true, 'ember-htmlbars/compat/precompile.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/compat/register-bound-helper.jshint",
+define("ember-htmlbars/compat/register-bound-helper.jshint",
   [],
   function() {
     "use strict";
@@ -4154,7 +4158,7 @@ enifed("ember-htmlbars/compat/register-bound-helper.jshint",
       ok(true, 'ember-htmlbars/compat/register-bound-helper.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/helpers.jshint",
+define("ember-htmlbars/helpers.jshint",
   [],
   function() {
     "use strict";
@@ -4163,7 +4167,7 @@ enifed("ember-htmlbars/helpers.jshint",
       ok(true, 'ember-htmlbars/helpers.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/helpers/bind-attr.jshint",
+define("ember-htmlbars/helpers/bind-attr.jshint",
   [],
   function() {
     "use strict";
@@ -4172,7 +4176,7 @@ enifed("ember-htmlbars/helpers/bind-attr.jshint",
       ok(true, 'ember-htmlbars/helpers/bind-attr.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/helpers/binding.jshint",
+define("ember-htmlbars/helpers/binding.jshint",
   [],
   function() {
     "use strict";
@@ -4181,7 +4185,7 @@ enifed("ember-htmlbars/helpers/binding.jshint",
       ok(true, 'ember-htmlbars/helpers/binding.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/helpers/collection.jshint",
+define("ember-htmlbars/helpers/collection.jshint",
   [],
   function() {
     "use strict";
@@ -4190,7 +4194,7 @@ enifed("ember-htmlbars/helpers/collection.jshint",
       ok(true, 'ember-htmlbars/helpers/collection.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/helpers/debugger.jshint",
+define("ember-htmlbars/helpers/debugger.jshint",
   [],
   function() {
     "use strict";
@@ -4199,7 +4203,7 @@ enifed("ember-htmlbars/helpers/debugger.jshint",
       ok(true, 'ember-htmlbars/helpers/debugger.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/helpers/each.jshint",
+define("ember-htmlbars/helpers/each.jshint",
   [],
   function() {
     "use strict";
@@ -4208,7 +4212,7 @@ enifed("ember-htmlbars/helpers/each.jshint",
       ok(true, 'ember-htmlbars/helpers/each.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/helpers/if_unless.jshint",
+define("ember-htmlbars/helpers/if_unless.jshint",
   [],
   function() {
     "use strict";
@@ -4217,7 +4221,7 @@ enifed("ember-htmlbars/helpers/if_unless.jshint",
       ok(true, 'ember-htmlbars/helpers/if_unless.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/helpers/input.jshint",
+define("ember-htmlbars/helpers/input.jshint",
   [],
   function() {
     "use strict";
@@ -4226,7 +4230,7 @@ enifed("ember-htmlbars/helpers/input.jshint",
       ok(true, 'ember-htmlbars/helpers/input.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/helpers/loc.jshint",
+define("ember-htmlbars/helpers/loc.jshint",
   [],
   function() {
     "use strict";
@@ -4235,7 +4239,7 @@ enifed("ember-htmlbars/helpers/loc.jshint",
       ok(true, 'ember-htmlbars/helpers/loc.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/helpers/log.jshint",
+define("ember-htmlbars/helpers/log.jshint",
   [],
   function() {
     "use strict";
@@ -4244,7 +4248,7 @@ enifed("ember-htmlbars/helpers/log.jshint",
       ok(true, 'ember-htmlbars/helpers/log.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/helpers/partial.jshint",
+define("ember-htmlbars/helpers/partial.jshint",
   [],
   function() {
     "use strict";
@@ -4253,7 +4257,7 @@ enifed("ember-htmlbars/helpers/partial.jshint",
       ok(true, 'ember-htmlbars/helpers/partial.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/helpers/template.jshint",
+define("ember-htmlbars/helpers/template.jshint",
   [],
   function() {
     "use strict";
@@ -4262,7 +4266,7 @@ enifed("ember-htmlbars/helpers/template.jshint",
       ok(true, 'ember-htmlbars/helpers/template.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/helpers/text_area.jshint",
+define("ember-htmlbars/helpers/text_area.jshint",
   [],
   function() {
     "use strict";
@@ -4271,7 +4275,7 @@ enifed("ember-htmlbars/helpers/text_area.jshint",
       ok(true, 'ember-htmlbars/helpers/text_area.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/helpers/unbound.jshint",
+define("ember-htmlbars/helpers/unbound.jshint",
   [],
   function() {
     "use strict";
@@ -4280,7 +4284,7 @@ enifed("ember-htmlbars/helpers/unbound.jshint",
       ok(true, 'ember-htmlbars/helpers/unbound.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/helpers/view.jshint",
+define("ember-htmlbars/helpers/view.jshint",
   [],
   function() {
     "use strict";
@@ -4289,7 +4293,7 @@ enifed("ember-htmlbars/helpers/view.jshint",
       ok(true, 'ember-htmlbars/helpers/view.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/helpers/with.jshint",
+define("ember-htmlbars/helpers/with.jshint",
   [],
   function() {
     "use strict";
@@ -4298,7 +4302,7 @@ enifed("ember-htmlbars/helpers/with.jshint",
       ok(true, 'ember-htmlbars/helpers/with.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/helpers/yield.jshint",
+define("ember-htmlbars/helpers/yield.jshint",
   [],
   function() {
     "use strict";
@@ -4307,7 +4311,7 @@ enifed("ember-htmlbars/helpers/yield.jshint",
       ok(true, 'ember-htmlbars/helpers/yield.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/hooks/attribute.jshint",
+define("ember-htmlbars/hooks/attribute.jshint",
   [],
   function() {
     "use strict";
@@ -4316,7 +4320,7 @@ enifed("ember-htmlbars/hooks/attribute.jshint",
       ok(true, 'ember-htmlbars/hooks/attribute.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/hooks/component.jshint",
+define("ember-htmlbars/hooks/component.jshint",
   [],
   function() {
     "use strict";
@@ -4325,7 +4329,7 @@ enifed("ember-htmlbars/hooks/component.jshint",
       ok(true, 'ember-htmlbars/hooks/component.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/hooks/concat.jshint",
+define("ember-htmlbars/hooks/concat.jshint",
   [],
   function() {
     "use strict";
@@ -4334,7 +4338,7 @@ enifed("ember-htmlbars/hooks/concat.jshint",
       ok(true, 'ember-htmlbars/hooks/concat.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/hooks/content.jshint",
+define("ember-htmlbars/hooks/content.jshint",
   [],
   function() {
     "use strict";
@@ -4343,7 +4347,7 @@ enifed("ember-htmlbars/hooks/content.jshint",
       ok(true, 'ember-htmlbars/hooks/content.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/hooks/element.jshint",
+define("ember-htmlbars/hooks/element.jshint",
   [],
   function() {
     "use strict";
@@ -4352,7 +4356,7 @@ enifed("ember-htmlbars/hooks/element.jshint",
       ok(true, 'ember-htmlbars/hooks/element.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/hooks/get.jshint",
+define("ember-htmlbars/hooks/get.jshint",
   [],
   function() {
     "use strict";
@@ -4361,7 +4365,7 @@ enifed("ember-htmlbars/hooks/get.jshint",
       ok(true, 'ember-htmlbars/hooks/get.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/hooks/set.jshint",
+define("ember-htmlbars/hooks/set.jshint",
   [],
   function() {
     "use strict";
@@ -4370,7 +4374,7 @@ enifed("ember-htmlbars/hooks/set.jshint",
       ok(true, 'ember-htmlbars/hooks/set.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/hooks/subexpr.jshint",
+define("ember-htmlbars/hooks/subexpr.jshint",
   [],
   function() {
     "use strict";
@@ -4379,7 +4383,7 @@ enifed("ember-htmlbars/hooks/subexpr.jshint",
       ok(true, 'ember-htmlbars/hooks/subexpr.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/plugins.jshint",
+define("ember-htmlbars/plugins.jshint",
   [],
   function() {
     "use strict";
@@ -4388,7 +4392,7 @@ enifed("ember-htmlbars/plugins.jshint",
       ok(true, 'ember-htmlbars/plugins.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/plugins/transform-each-in-to-hash.jshint",
+define("ember-htmlbars/plugins/transform-each-in-to-hash.jshint",
   [],
   function() {
     "use strict";
@@ -4397,7 +4401,7 @@ enifed("ember-htmlbars/plugins/transform-each-in-to-hash.jshint",
       ok(true, 'ember-htmlbars/plugins/transform-each-in-to-hash.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/plugins/transform-with-as-to-hash.jshint",
+define("ember-htmlbars/plugins/transform-with-as-to-hash.jshint",
   [],
   function() {
     "use strict";
@@ -4406,7 +4410,7 @@ enifed("ember-htmlbars/plugins/transform-with-as-to-hash.jshint",
       ok(true, 'ember-htmlbars/plugins/transform-with-as-to-hash.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/system/bootstrap.jshint",
+define("ember-htmlbars/system/bootstrap.jshint",
   [],
   function() {
     "use strict";
@@ -4415,7 +4419,7 @@ enifed("ember-htmlbars/system/bootstrap.jshint",
       ok(true, 'ember-htmlbars/system/bootstrap.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/system/compile.jshint",
+define("ember-htmlbars/system/compile.jshint",
   [],
   function() {
     "use strict";
@@ -4424,7 +4428,7 @@ enifed("ember-htmlbars/system/compile.jshint",
       ok(true, 'ember-htmlbars/system/compile.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/system/helper.jshint",
+define("ember-htmlbars/system/helper.jshint",
   [],
   function() {
     "use strict";
@@ -4433,7 +4437,7 @@ enifed("ember-htmlbars/system/helper.jshint",
       ok(true, 'ember-htmlbars/system/helper.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/system/lookup-helper.jshint",
+define("ember-htmlbars/system/lookup-helper.jshint",
   [],
   function() {
     "use strict";
@@ -4442,7 +4446,7 @@ enifed("ember-htmlbars/system/lookup-helper.jshint",
       ok(true, 'ember-htmlbars/system/lookup-helper.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/system/make-view-helper.jshint",
+define("ember-htmlbars/system/make-view-helper.jshint",
   [],
   function() {
     "use strict";
@@ -4451,7 +4455,7 @@ enifed("ember-htmlbars/system/make-view-helper.jshint",
       ok(true, 'ember-htmlbars/system/make-view-helper.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/system/make_bound_helper.jshint",
+define("ember-htmlbars/system/make_bound_helper.jshint",
   [],
   function() {
     "use strict";
@@ -4460,7 +4464,7 @@ enifed("ember-htmlbars/system/make_bound_helper.jshint",
       ok(true, 'ember-htmlbars/system/make_bound_helper.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/system/template.jshint",
+define("ember-htmlbars/system/template.jshint",
   [],
   function() {
     "use strict";
@@ -4469,7 +4473,7 @@ enifed("ember-htmlbars/system/template.jshint",
       ok(true, 'ember-htmlbars/system/template.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/attr_nodes/boolean_test",
+define("ember-htmlbars/tests/attr_nodes/boolean_test",
   ["ember-views/views/view","ember-metal/run_loop","ember-htmlbars/system/compile","htmlbars-test-helpers"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -4574,7 +4578,7 @@ enifed("ember-htmlbars/tests/attr_nodes/boolean_test",
 
     }
   });
-enifed("ember-htmlbars/tests/attr_nodes/boolean_test.jshint",
+define("ember-htmlbars/tests/attr_nodes/boolean_test.jshint",
   [],
   function() {
     "use strict";
@@ -4583,7 +4587,7 @@ enifed("ember-htmlbars/tests/attr_nodes/boolean_test.jshint",
       ok(true, 'ember-htmlbars/tests/attr_nodes/boolean_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/attr_nodes/class_test",
+define("ember-htmlbars/tests/attr_nodes/class_test",
   ["ember-views/views/view","ember-metal/run_loop","ember-htmlbars/system/compile","htmlbars-test-helpers"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -4643,7 +4647,7 @@ enifed("ember-htmlbars/tests/attr_nodes/class_test",
 
     test("class property is removed when updated with a null value", function() {
       view = EmberView.create({
-        context: {"class": 'large'},
+        context: {class: 'large'},
         template: compile("<div class={{class}}></div>")
       });
       appendView(view);
@@ -4743,7 +4747,7 @@ enifed("ember-htmlbars/tests/attr_nodes/class_test",
 
     }
   });
-enifed("ember-htmlbars/tests/attr_nodes/class_test.jshint",
+define("ember-htmlbars/tests/attr_nodes/class_test.jshint",
   [],
   function() {
     "use strict";
@@ -4752,7 +4756,7 @@ enifed("ember-htmlbars/tests/attr_nodes/class_test.jshint",
       ok(true, 'ember-htmlbars/tests/attr_nodes/class_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/attr_nodes/data_test",
+define("ember-htmlbars/tests/attr_nodes/data_test",
   ["ember-views/views/view","ember-metal/run_loop","ember-runtime/system/object","ember-htmlbars/system/compile","htmlbars-test-helpers","ember-htmlbars","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
     "use strict";
@@ -5014,7 +5018,7 @@ enifed("ember-htmlbars/tests/attr_nodes/data_test",
       });
     }
   });
-enifed("ember-htmlbars/tests/attr_nodes/data_test.jshint",
+define("ember-htmlbars/tests/attr_nodes/data_test.jshint",
   [],
   function() {
     "use strict";
@@ -5023,7 +5027,7 @@ enifed("ember-htmlbars/tests/attr_nodes/data_test.jshint",
       ok(true, 'ember-htmlbars/tests/attr_nodes/data_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/attr_nodes/href_test",
+define("ember-htmlbars/tests/attr_nodes/href_test",
   ["ember-views/views/view","ember-metal/run_loop","ember-htmlbars/system/compile","htmlbars-test-helpers"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -5061,7 +5065,7 @@ enifed("ember-htmlbars/tests/attr_nodes/href_test",
 
     }
   });
-enifed("ember-htmlbars/tests/attr_nodes/href_test.jshint",
+define("ember-htmlbars/tests/attr_nodes/href_test.jshint",
   [],
   function() {
     "use strict";
@@ -5070,7 +5074,7 @@ enifed("ember-htmlbars/tests/attr_nodes/href_test.jshint",
       ok(true, 'ember-htmlbars/tests/attr_nodes/href_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test",
+define("ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test",
   ["ember-views/views/view","ember-metal/run_loop","ember-htmlbars/system/compile","htmlbars-test-helpers"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -5127,7 +5131,7 @@ enifed("ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test",
 
     }
   });
-enifed("ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test.jshint",
+define("ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test.jshint",
   [],
   function() {
     "use strict";
@@ -5136,7 +5140,7 @@ enifed("ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test.jshint",
       ok(true, 'ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/attr_nodes/svg_test",
+define("ember-htmlbars/tests/attr_nodes/svg_test",
   ["ember-views/views/view","ember-metal/run_loop","ember-htmlbars/system/compile","htmlbars-test-helpers"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -5218,7 +5222,7 @@ enifed("ember-htmlbars/tests/attr_nodes/svg_test",
 
     }
   });
-enifed("ember-htmlbars/tests/attr_nodes/svg_test.jshint",
+define("ember-htmlbars/tests/attr_nodes/svg_test.jshint",
   [],
   function() {
     "use strict";
@@ -5227,7 +5231,7 @@ enifed("ember-htmlbars/tests/attr_nodes/svg_test.jshint",
       ok(true, 'ember-htmlbars/tests/attr_nodes/svg_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/attr_nodes/value_test",
+define("ember-htmlbars/tests/attr_nodes/value_test",
   ["ember-views/views/view","ember-metal/run_loop","ember-htmlbars/system/compile","htmlbars-test-helpers"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -5280,7 +5284,7 @@ enifed("ember-htmlbars/tests/attr_nodes/value_test",
 
     }
   });
-enifed("ember-htmlbars/tests/attr_nodes/value_test.jshint",
+define("ember-htmlbars/tests/attr_nodes/value_test.jshint",
   [],
   function() {
     "use strict";
@@ -5289,7 +5293,7 @@ enifed("ember-htmlbars/tests/attr_nodes/value_test.jshint",
       ok(true, 'ember-htmlbars/tests/attr_nodes/value_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/compat/handlebars_get_test",
+define("ember-htmlbars/tests/compat/handlebars_get_test",
   ["ember-metal/core","ember-views/views/metamorph_view","ember-views/views/view","ember-htmlbars/compat/handlebars-get","ember-runtime/system/container","ember-runtime/tests/utils","ember-htmlbars/compat"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
     "use strict";
@@ -5417,7 +5421,7 @@ enifed("ember-htmlbars/tests/compat/handlebars_get_test",
       runAppend(view);
     });
   });
-enifed("ember-htmlbars/tests/compat/handlebars_get_test.jshint",
+define("ember-htmlbars/tests/compat/handlebars_get_test.jshint",
   [],
   function() {
     "use strict";
@@ -5426,7 +5430,7 @@ enifed("ember-htmlbars/tests/compat/handlebars_get_test.jshint",
       ok(true, 'ember-htmlbars/tests/compat/handlebars_get_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/compat/helper_test",
+define("ember-htmlbars/tests/compat/helper_test",
   ["ember-htmlbars/compat/helper","ember-views/views/view","ember-htmlbars/helpers","ember-htmlbars/system/compile","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -5441,7 +5445,7 @@ enifed("ember-htmlbars/tests/compat/helper_test",
 
     var view;
 
-    
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
 
     QUnit.module('ember-htmlbars: Handlebars compatible helpers', {
       teardown: function() {
@@ -5549,9 +5553,9 @@ enifed("ember-htmlbars/tests/compat/helper_test",
       runAppend(view);
     });
 
-    
+    }
   });
-enifed("ember-htmlbars/tests/compat/helper_test.jshint",
+define("ember-htmlbars/tests/compat/helper_test.jshint",
   [],
   function() {
     "use strict";
@@ -5560,7 +5564,7 @@ enifed("ember-htmlbars/tests/compat/helper_test.jshint",
       ok(true, 'ember-htmlbars/tests/compat/helper_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/compat/make-view-helper_test",
+define("ember-htmlbars/tests/compat/make-view-helper_test",
   ["ember-views/views/view","container/container","ember-htmlbars/system/compile","ember-htmlbars/system/make-view-helper","ember-views/views/component","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
@@ -5605,7 +5609,7 @@ enifed("ember-htmlbars/tests/compat/make-view-helper_test",
       equal(view.$().text(), 'woot!');
     });
   });
-enifed("ember-htmlbars/tests/compat/make-view-helper_test.jshint",
+define("ember-htmlbars/tests/compat/make-view-helper_test.jshint",
   [],
   function() {
     "use strict";
@@ -5614,7 +5618,7 @@ enifed("ember-htmlbars/tests/compat/make-view-helper_test.jshint",
       ok(true, 'ember-htmlbars/tests/compat/make-view-helper_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
+define("ember-htmlbars/tests/compat/make_bound_helper_test",
   ["ember-views/views/view","ember-metal/run_loop","ember-runtime/system/object","ember-runtime/system/native_array","ember-views/views/simple_bound_view","ember-metal/property_get","ember-metal/property_set","ember-runtime/tests/utils","ember-runtime/system/string","ember-htmlbars/compat"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
     "use strict";
@@ -6201,7 +6205,7 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
       equal(view.$().text(), 'aaa');
     });
   });
-enifed("ember-htmlbars/tests/compat/make_bound_helper_test.jshint",
+define("ember-htmlbars/tests/compat/make_bound_helper_test.jshint",
   [],
   function() {
     "use strict";
@@ -6210,7 +6214,7 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test.jshint",
       ok(true, 'ember-htmlbars/tests/compat/make_bound_helper_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/compat/precompile_test",
+define("ember-htmlbars/tests/compat/precompile_test",
   ["ember-htmlbars/compat"],
   function(__dependency1__) {
     "use strict";
@@ -6248,7 +6252,7 @@ enifed("ember-htmlbars/tests/compat/precompile_test",
 
     }
   });
-enifed("ember-htmlbars/tests/compat/precompile_test.jshint",
+define("ember-htmlbars/tests/compat/precompile_test.jshint",
   [],
   function() {
     "use strict";
@@ -6257,7 +6261,7 @@ enifed("ember-htmlbars/tests/compat/precompile_test.jshint",
       ok(true, 'ember-htmlbars/tests/compat/precompile_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/helper_test",
+define("ember-htmlbars/tests/helper_test",
   ["ember-views/views/view","ember-metal/run_loop","ember-runtime/system/object","ember-metal/property_set","ember-runtime/tests/utils","ember-htmlbars/helpers","ember-htmlbars/system/compile"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
     "use strict";
@@ -6268,7 +6272,7 @@ enifed("ember-htmlbars/tests/helper_test",
     var runAppend = __dependency5__.runAppend;
     var runDestroy = __dependency5__.runDestroy;
 
-    var helpers = __dependency6__["default"];
+    var helpers = __dependency6__.default;
     var helper = __dependency6__.helper;
     var compile = __dependency7__["default"];
 
@@ -6333,11 +6337,16 @@ enifed("ember-htmlbars/tests/helper_test",
 
     test('should create a bound helper when provided a function', function() {
       var boundFunc;
-      
+      if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
         boundFunc = function(params, hash) {
           return params[0];
         };
-      
+      } else {
+        boundFunc = function(name, options) {
+          return name;
+        };
+      }
+
       helper('something', boundFunc);
 
       view = EmberView.create({
@@ -6358,7 +6367,7 @@ enifed("ember-htmlbars/tests/helper_test",
       equal(view.$().text(), 'bar', 're-renders the bound value');
     });
   });
-enifed("ember-htmlbars/tests/helper_test.jshint",
+define("ember-htmlbars/tests/helper_test.jshint",
   [],
   function() {
     "use strict";
@@ -6367,7 +6376,7 @@ enifed("ember-htmlbars/tests/helper_test.jshint",
       ok(true, 'ember-htmlbars/tests/helper_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/helpers/bind_attr_test",
+define("ember-htmlbars/tests/helpers/bind_attr_test",
   ["ember-metal/core","ember-metal/run_loop","ember-runtime/system/namespace","ember-views/views/view","ember-views/views/metamorph_view","ember-runtime/system/object","ember-runtime/system/native_array","ember-metal/computed","ember-metal/observer","ember-runtime/system/container","ember-metal/property_set","ember-runtime/tests/utils","htmlbars-test-helpers","ember-htmlbars/helpers","ember-htmlbars/system/compile"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__) {
     "use strict";
@@ -6590,9 +6599,12 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test",
         expectDeprecation(function() {
           var result;
 
-          
+          if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
             result = helpers.bindAttr.helperFunction('foo', 'bar');
-                    equal(result, 'result', 'Result match');
+          } else {
+            result = helpers.bindAttr('foo', 'bar');
+          }
+          equal(result, 'result', 'Result match');
         }, "The 'bindAttr' view helper is deprecated in favor of 'bind-attr'");
       } finally {
         helpers['bind-attr'] = originalBindAttr;
@@ -6902,7 +6914,7 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test",
       equal(matchingElement.length, 1, 'element is in the DOM when didInsertElement');
     });
   });
-enifed("ember-htmlbars/tests/helpers/bind_attr_test.jshint",
+define("ember-htmlbars/tests/helpers/bind_attr_test.jshint",
   [],
   function() {
     "use strict";
@@ -6911,7 +6923,7 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test.jshint",
       ok(true, 'ember-htmlbars/tests/helpers/bind_attr_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/helpers/bind_test",
+define("ember-htmlbars/tests/helpers/bind_test",
   ["ember-views/views/view","ember-runtime/system/object","ember-metal/run_loop","ember-views/views/metamorph_view","ember-htmlbars/system/compile","ember-runtime/system/container","ember-runtime/controllers/object_controller","ember-metal/property_get","ember-metal/property_set","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
     "use strict";
@@ -7012,9 +7024,9 @@ enifed("ember-htmlbars/tests/helpers/bind_test",
     });
 
     test("should not update when a property is removed from the view", function() {
-      
+      if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
         expectDeprecation(/block form of bind.*has been deprecated/);
-      
+      }
       var template = compile(
         '<h1 id="first">{{#bind view.content}}{{#bind foo}}{{bind baz}}{{/bind}}{{/bind}}</h1>' );
       container.register('template:foo', template);
@@ -7058,9 +7070,9 @@ enifed("ember-htmlbars/tests/helpers/bind_test",
     });
 
     test("Handlebars templates update properties if a content object changes", function() {
-      
+      if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
         expectDeprecation(/block form of bind.*has been deprecated/);
-      
+      }
       var template = compile(
         '<h1>Today\'s Menu</h1>{{#bind view.coffee}}<h2>{{color}} coffee</h2><span id="price">{{bind price}}</span>{{/bind}}');
       container.register('template:menu', template);
@@ -7201,7 +7213,7 @@ enifed("ember-htmlbars/tests/helpers/bind_test",
       equal(view.$('#first').text(), 'bazam', 'view updates when a bound property changes');
     });
   });
-enifed("ember-htmlbars/tests/helpers/bind_test.jshint",
+define("ember-htmlbars/tests/helpers/bind_test.jshint",
   [],
   function() {
     "use strict";
@@ -7210,7 +7222,7 @@ enifed("ember-htmlbars/tests/helpers/bind_test.jshint",
       ok(true, 'ember-htmlbars/tests/helpers/bind_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/helpers/collection_test",
+define("ember-htmlbars/tests/helpers/collection_test",
   ["ember-views/views/collection_view","ember-runtime/system/object","ember-views/views/view","ember-runtime/system/array_proxy","ember-runtime/system/namespace","ember-runtime/system/container","ember-runtime/system/native_array","ember-metal/run_loop","ember-metal/property_get","ember-metal/property_set","ember-views/system/jquery","ember-metal/computed","ember-runtime/tests/utils","ember-htmlbars/system/compile"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__) {
     "use strict";
@@ -7302,9 +7314,9 @@ enifed("ember-htmlbars/tests/helpers/collection_test",
       });
 
       var deprecation = /Resolved the view "TemplateTests.ExampleItemView" on the global context/;
-      
+      if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
         deprecation = /Global lookup of TemplateTests.ExampleItemView from a Handlebars template is deprecated/;
-      
+      }
       expectDeprecation(function(){
         runAppend(view);
       }, deprecation);
@@ -7900,7 +7912,7 @@ enifed("ember-htmlbars/tests/helpers/collection_test",
       runDestroy(view);
     });
   });
-enifed("ember-htmlbars/tests/helpers/collection_test.jshint",
+define("ember-htmlbars/tests/helpers/collection_test.jshint",
   [],
   function() {
     "use strict";
@@ -7909,7 +7921,7 @@ enifed("ember-htmlbars/tests/helpers/collection_test.jshint",
       ok(true, 'ember-htmlbars/tests/helpers/collection_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/helpers/debug_test",
+define("ember-htmlbars/tests/helpers/debug_test",
   ["ember-metal/core","ember-metal/logger","ember-views/views/view","ember-htmlbars/system/compile","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -7984,7 +7996,7 @@ enifed("ember-htmlbars/tests/helpers/debug_test",
       strictEqual(logCalls[4], true);
     });
   });
-enifed("ember-htmlbars/tests/helpers/debug_test.jshint",
+define("ember-htmlbars/tests/helpers/debug_test.jshint",
   [],
   function() {
     "use strict";
@@ -7993,7 +8005,7 @@ enifed("ember-htmlbars/tests/helpers/debug_test.jshint",
       ok(true, 'ember-htmlbars/tests/helpers/debug_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/helpers/each_test",
+define("ember-htmlbars/tests/helpers/each_test",
   ["ember-metal/core","ember-runtime/system/object","ember-metal/run_loop","ember-views/views/view","ember-views/views/metamorph_view","ember-metal/computed","ember-runtime/controllers/array_controller","ember-runtime/system/native_array","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/system/container","ember-metal/property_get","ember-metal/property_set","ember-runtime/tests/utils","ember-htmlbars/system/compile"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__) {
     "use strict";
@@ -8007,7 +8019,7 @@ enifed("ember-htmlbars/tests/helpers/each_test",
     var computed = __dependency6__.computed;
     var ArrayController = __dependency7__["default"];
     var A = __dependency8__.A;
-    var EmberController = __dependency9__["default"];
+    var EmberController = __dependency9__.default;
     var ObjectController = __dependency10__["default"];
     var Container = __dependency11__["default"];
 
@@ -8539,9 +8551,9 @@ enifed("ember-htmlbars/tests/helpers/each_test",
       });
 
       var deprecation = /Resolved the view "MyView" on the global context/;
-      
+      if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
         deprecation = /Global lookup of MyView from a Handlebars template is deprecated/;
-      
+      }
 
       expectDeprecation(function(){
         runAppend(view);
@@ -8920,11 +8932,11 @@ enifed("ember-htmlbars/tests/helpers/each_test",
 
     testEachWithItem("{{#each foo in bar}}", false);
 
-    
+    if (Ember.FEATURES.isEnabled('ember-htmlbars-block-params')) {
       testEachWithItem("{{#each bar as |foo|}}", true);
-    
+    }
   });
-enifed("ember-htmlbars/tests/helpers/each_test.jshint",
+define("ember-htmlbars/tests/helpers/each_test.jshint",
   [],
   function() {
     "use strict";
@@ -8933,7 +8945,7 @@ enifed("ember-htmlbars/tests/helpers/each_test.jshint",
       ok(true, 'ember-htmlbars/tests/helpers/each_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/helpers/if_unless_test",
+define("ember-htmlbars/tests/helpers/if_unless_test",
   ["ember-metal/run_loop","ember-runtime/system/namespace","ember-runtime/system/container","ember-views/views/view","ember-runtime/system/object_proxy","ember-runtime/system/object","ember-views/views/metamorph_view","ember-htmlbars/system/compile","ember-metal/property_set","ember-runtime/system/string","ember-metal/utils","ember-metal/enumerable_utils","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__) {
     "use strict";
@@ -9782,7 +9794,7 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
       });
     }
   });
-enifed("ember-htmlbars/tests/helpers/if_unless_test.jshint",
+define("ember-htmlbars/tests/helpers/if_unless_test.jshint",
   [],
   function() {
     "use strict";
@@ -9791,7 +9803,7 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test.jshint",
       ok(true, 'ember-htmlbars/tests/helpers/if_unless_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/helpers/input_test",
+define("ember-htmlbars/tests/helpers/input_test",
   ["ember-metal/run_loop","ember-metal/property_set","ember-views/views/view","ember-runtime/tests/utils","ember-htmlbars/system/compile"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -10107,7 +10119,7 @@ enifed("ember-htmlbars/tests/helpers/input_test",
       equal(view.$('input').prop('checked'), false, "the checkbox isn't checked yet");
     });
   });
-enifed("ember-htmlbars/tests/helpers/input_test.jshint",
+define("ember-htmlbars/tests/helpers/input_test.jshint",
   [],
   function() {
     "use strict";
@@ -10116,7 +10128,7 @@ enifed("ember-htmlbars/tests/helpers/input_test.jshint",
       ok(true, 'ember-htmlbars/tests/helpers/input_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/helpers/loc_test",
+define("ember-htmlbars/tests/helpers/loc_test",
   ["ember-views/views/view","ember-htmlbars/system/compile","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -10174,7 +10186,7 @@ enifed("ember-htmlbars/tests/helpers/loc_test",
       runDestroy(view);
     });
 
-    
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
     test('localize throws an assertion if the second parameter is a binding', function() {
       var view = buildView('{{loc "Hello %@" name}}', {
         name: 'Bob Foster'
@@ -10198,9 +10210,9 @@ enifed("ember-htmlbars/tests/helpers/loc_test",
 
       runDestroy(view);
     });
-    
+    }
   });
-enifed("ember-htmlbars/tests/helpers/loc_test.jshint",
+define("ember-htmlbars/tests/helpers/loc_test.jshint",
   [],
   function() {
     "use strict";
@@ -10209,7 +10221,7 @@ enifed("ember-htmlbars/tests/helpers/loc_test.jshint",
       ok(true, 'ember-htmlbars/tests/helpers/loc_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/helpers/log_test",
+define("ember-htmlbars/tests/helpers/log_test",
   ["ember-metal/core","ember-views/views/view","ember-htmlbars/system/compile","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -10282,7 +10294,7 @@ enifed("ember-htmlbars/tests/helpers/log_test",
       equal(logCalls[0], 'one', 'should call log with item one');
     });
   });
-enifed("ember-htmlbars/tests/helpers/log_test.jshint",
+define("ember-htmlbars/tests/helpers/log_test.jshint",
   [],
   function() {
     "use strict";
@@ -10291,7 +10303,7 @@ enifed("ember-htmlbars/tests/helpers/log_test.jshint",
       ok(true, 'ember-htmlbars/tests/helpers/log_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/helpers/partial_test",
+define("ember-htmlbars/tests/helpers/partial_test",
   ["ember-runtime/system/object","ember-metal/run_loop","ember-views/views/view","ember-views/system/jquery","ember-runtime/system/container","ember-htmlbars/system/compile","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
     "use strict";
@@ -10391,7 +10403,7 @@ enifed("ember-htmlbars/tests/helpers/partial_test",
       equal(trim(view.$().text()), "This  is pretty great.");
     });
   });
-enifed("ember-htmlbars/tests/helpers/partial_test.jshint",
+define("ember-htmlbars/tests/helpers/partial_test.jshint",
   [],
   function() {
     "use strict";
@@ -10400,7 +10412,7 @@ enifed("ember-htmlbars/tests/helpers/partial_test.jshint",
       ok(true, 'ember-htmlbars/tests/helpers/partial_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/helpers/template_test",
+define("ember-htmlbars/tests/helpers/template_test",
   ["ember-views/views/view","ember-runtime/system/object","ember-views/system/jquery","ember-runtime/system/container","ember-htmlbars/system/compile","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
@@ -10464,7 +10476,7 @@ enifed("ember-htmlbars/tests/helpers/template_test",
       equal(trim(view.$().text()), "Who is Kris Selden?");
     });
   });
-enifed("ember-htmlbars/tests/helpers/template_test.jshint",
+define("ember-htmlbars/tests/helpers/template_test.jshint",
   [],
   function() {
     "use strict";
@@ -10473,7 +10485,7 @@ enifed("ember-htmlbars/tests/helpers/template_test.jshint",
       ok(true, 'ember-htmlbars/tests/helpers/template_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/helpers/text_area_test",
+define("ember-htmlbars/tests/helpers/text_area_test",
   ["ember-metal/run_loop","ember-views/views/view","ember-htmlbars/system/compile","ember-metal/property_set","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -10525,7 +10537,7 @@ enifed("ember-htmlbars/tests/helpers/text_area_test",
       equal(textArea.$('textarea').val(), "sit amet", "The new contents are included");
     });
   });
-enifed("ember-htmlbars/tests/helpers/text_area_test.jshint",
+define("ember-htmlbars/tests/helpers/text_area_test.jshint",
   [],
   function() {
     "use strict";
@@ -10534,7 +10546,7 @@ enifed("ember-htmlbars/tests/helpers/text_area_test.jshint",
       ok(true, 'ember-htmlbars/tests/helpers/text_area_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/helpers/unbound_test",
+define("ember-htmlbars/tests/helpers/unbound_test",
   ["ember-views/views/view","ember-runtime/system/object","ember-runtime/system/native_array","ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-htmlbars/system/compile","ember-metal/error","ember-htmlbars/helpers","ember-htmlbars/compat/register-bound-helper","ember-htmlbars/compat/make-bound-helper","ember-runtime/system/container","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__) {
     "use strict";
@@ -10933,7 +10945,7 @@ enifed("ember-htmlbars/tests/helpers/unbound_test",
       equal(view.$('li.is-cool').length, 2, 'correct number of cool people');
     });
   });
-enifed("ember-htmlbars/tests/helpers/unbound_test.jshint",
+define("ember-htmlbars/tests/helpers/unbound_test.jshint",
   [],
   function() {
     "use strict";
@@ -10942,7 +10954,7 @@ enifed("ember-htmlbars/tests/helpers/unbound_test.jshint",
       ok(true, 'ember-htmlbars/tests/helpers/unbound_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/helpers/view_test",
+define("ember-htmlbars/tests/helpers/view_test",
   ["ember-metal/property_set","ember-views/views/view","container/container","ember-metal/run_loop","ember-views/system/jquery","ember-views/views/text_field","ember-runtime/system/namespace","ember-runtime/system/object","ember-views/views/container_view","ember-views/views/metamorph_view","htmlbars-util/safe-string","ember-htmlbars/compat/precompile","ember-htmlbars/system/compile","ember-htmlbars/system/template","ember-metal/observer","ember-runtime/controllers/object_controller","ember-runtime/tests/utils","ember-metal/property_get","ember-metal/computed"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__) {
     "use strict";
@@ -12244,7 +12256,7 @@ enifed("ember-htmlbars/tests/helpers/view_test",
       }, /must be a subclass or an instance of Ember.View/);
     });
   });
-enifed("ember-htmlbars/tests/helpers/view_test.jshint",
+define("ember-htmlbars/tests/helpers/view_test.jshint",
   [],
   function() {
     "use strict";
@@ -12253,7 +12265,7 @@ enifed("ember-htmlbars/tests/helpers/view_test.jshint",
       ok(true, 'ember-htmlbars/tests/helpers/view_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/helpers/with_test",
+define("ember-htmlbars/tests/helpers/with_test",
   ["ember-views/views/view","ember-metal/run_loop","ember-runtime/system/object","ember-metal/computed","ember-metal/property_set","ember-metal/property_get","ember-runtime/controllers/object_controller","ember-runtime/system/container","ember-htmlbars/system/compile","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
     "use strict";
@@ -12703,11 +12715,11 @@ enifed("ember-htmlbars/tests/helpers/with_test",
       equal(view.$().text(), "We have: this is from the view and this is from the context", "should render");
     });
 
-    
+    if (Ember.FEATURES.isEnabled('ember-htmlbars-block-params')) {
       testWithAs("ember-htmlbars: {{#with x as |y|}}", "{{#with person as |tom|}}{{title}}: {{tom.name}}{{/with}}");
-    
+    }
 
-    
+    if (Ember.FEATURES.isEnabled('ember-htmlbars-block-params')) {
       QUnit.module("Multiple Handlebars {{with foo as |bar|}} helpers", {
         setup: function() {
           Ember.lookup = lookup = { Ember: Ember };
@@ -12757,9 +12769,9 @@ enifed("ember-htmlbars/tests/helpers/with_test",
 
         equal(view.$().text(), "Limbo-Wrath-Treachery-Wrath-Limbo", "should be properly scoped after updating");
       });
-    
+    }
   });
-enifed("ember-htmlbars/tests/helpers/with_test.jshint",
+define("ember-htmlbars/tests/helpers/with_test.jshint",
   [],
   function() {
     "use strict";
@@ -12768,7 +12780,7 @@ enifed("ember-htmlbars/tests/helpers/with_test.jshint",
       ok(true, 'ember-htmlbars/tests/helpers/with_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/helpers/yield_test",
+define("ember-htmlbars/tests/helpers/yield_test",
   ["ember-metal/run_loop","ember-views/views/view","ember-metal/computed","ember-runtime/system/container","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/native_array","ember-views/views/component","ember-metal/error","ember-htmlbars/helpers","ember-htmlbars/system/compile","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__) {
     "use strict";
@@ -12783,7 +12795,7 @@ enifed("ember-htmlbars/tests/helpers/yield_test",
     var Component = __dependency8__["default"];
     var EmberError = __dependency9__["default"];
     var helper = __dependency10__.helper;
-    var helpers = __dependency10__["default"];
+    var helpers = __dependency10__.default;
 
     var compile = __dependency11__["default"];
     var runAppend = __dependency12__.runAppend;
@@ -13147,7 +13159,7 @@ enifed("ember-htmlbars/tests/helpers/yield_test",
       equal(view.$('div > p').text(), "hello", "view keyword inside component yield block should refer to the correct view");
     });
   });
-enifed("ember-htmlbars/tests/helpers/yield_test.jshint",
+define("ember-htmlbars/tests/helpers/yield_test.jshint",
   [],
   function() {
     "use strict";
@@ -13156,7 +13168,7 @@ enifed("ember-htmlbars/tests/helpers/yield_test.jshint",
       ok(true, 'ember-htmlbars/tests/helpers/yield_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/hooks/component_test",
+define("ember-htmlbars/tests/hooks/component_test",
   ["ember-views/component_lookup","container","ember-views/views/view","ember-htmlbars/system/compile","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -13185,7 +13197,7 @@ enifed("ember-htmlbars/tests/hooks/component_test",
       componentGenerationEnabled = true;
     }
 
-    
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
       if (componentGenerationEnabled) {
         QUnit.module("ember-htmlbars: component hook", {
           setup: function() {
@@ -13221,9 +13233,9 @@ enifed("ember-htmlbars/tests/hooks/component_test",
           }, 'You specified `foo-bar` in your template, but a component for `foo-bar` could not be found.');
         });
       }
-    
+    }
   });
-enifed("ember-htmlbars/tests/hooks/component_test.jshint",
+define("ember-htmlbars/tests/hooks/component_test.jshint",
   [],
   function() {
     "use strict";
@@ -13232,7 +13244,7 @@ enifed("ember-htmlbars/tests/hooks/component_test.jshint",
       ok(true, 'ember-htmlbars/tests/hooks/component_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/hooks/text_node_test",
+define("ember-htmlbars/tests/hooks/text_node_test",
   ["ember-views/views/view","ember-metal/run_loop","ember-runtime/system/object","ember-htmlbars/system/compile","htmlbars-test-helpers","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
@@ -13246,7 +13258,7 @@ enifed("ember-htmlbars/tests/hooks/text_node_test",
 
     var view;
 
-    
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
       QUnit.module("ember-htmlbars: hooks/text_node_test", {
         teardown: function(){
           runDestroy(view);
@@ -13287,9 +13299,9 @@ enifed("ember-htmlbars/tests/hooks/text_node_test",
 
         equalInnerHTML(view.element, 'ohai mmun', "new property is output");
       });
-    
+    }
   });
-enifed("ember-htmlbars/tests/hooks/text_node_test.jshint",
+define("ember-htmlbars/tests/hooks/text_node_test.jshint",
   [],
   function() {
     "use strict";
@@ -13298,7 +13310,7 @@ enifed("ember-htmlbars/tests/hooks/text_node_test.jshint",
       ok(true, 'ember-htmlbars/tests/hooks/text_node_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/htmlbars_test",
+define("ember-htmlbars/tests/htmlbars_test",
   ["ember-htmlbars/system/compile","ember-htmlbars","htmlbars-test-helpers"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -13306,7 +13318,7 @@ enifed("ember-htmlbars/tests/htmlbars_test",
     var defaultEnv = __dependency2__.defaultEnv;
     var equalHTML = __dependency3__.equalHTML;
 
-    
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
 
       QUnit.module("ember-htmlbars: main");
 
@@ -13315,9 +13327,9 @@ enifed("ember-htmlbars/tests/htmlbars_test",
         var output = template.render({}, defaultEnv, document.body);
         equalHTML(output, "ohai");
       });
-    
+    }
   });
-enifed("ember-htmlbars/tests/htmlbars_test.jshint",
+define("ember-htmlbars/tests/htmlbars_test.jshint",
   [],
   function() {
     "use strict";
@@ -13326,7 +13338,7 @@ enifed("ember-htmlbars/tests/htmlbars_test.jshint",
       ok(true, 'ember-htmlbars/tests/htmlbars_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/integration/binding_integration_test",
+define("ember-htmlbars/tests/integration/binding_integration_test",
   ["ember-metal/run_loop","ember-views/system/jquery","ember-views/views/view","ember-metal/binding","ember-runtime/system/object","ember-metal/computed","ember-views/views/container_view","ember-htmlbars/system/compile","ember-htmlbars/helpers/view","ember-runtime/tests/utils","ember-htmlbars/helpers","ember-metal/property_set"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__) {
     "use strict";
@@ -13514,7 +13526,7 @@ enifed("ember-htmlbars/tests/integration/binding_integration_test",
       equal(trim(view.$().text()), 'binding: down, string: down');
     });
   });
-enifed("ember-htmlbars/tests/integration/binding_integration_test.jshint",
+define("ember-htmlbars/tests/integration/binding_integration_test.jshint",
   [],
   function() {
     "use strict";
@@ -13523,7 +13535,7 @@ enifed("ember-htmlbars/tests/integration/binding_integration_test.jshint",
       ok(true, 'ember-htmlbars/tests/integration/binding_integration_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/integration/block_params_test",
+define("ember-htmlbars/tests/integration/block_params_test",
   ["container/container","ember-metal/run_loop","ember-views/component_lookup","ember-views/views/view","ember-htmlbars/system/compile","ember-htmlbars/helpers","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
     "use strict";
@@ -13548,7 +13560,7 @@ enifed("ember-htmlbars/tests/integration/block_params_test",
       });
     }
 
-    
+    if (Ember.FEATURES.isEnabled('ember-htmlbars-block-params')) {
 
     QUnit.module("ember-htmlbars: block params", {
       setup: function() {
@@ -13651,9 +13663,9 @@ enifed("ember-htmlbars/tests/integration/block_params_test",
       equal(view.$().text(), "ebryn[trek[machty]trek]ebryn[machty[trek]machty]ebryn");
     });
 
-    
+    }
   });
-enifed("ember-htmlbars/tests/integration/block_params_test.jshint",
+define("ember-htmlbars/tests/integration/block_params_test.jshint",
   [],
   function() {
     "use strict";
@@ -13662,7 +13674,7 @@ enifed("ember-htmlbars/tests/integration/block_params_test.jshint",
       ok(true, 'ember-htmlbars/tests/integration/block_params_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/integration/component_invocation_test",
+define("ember-htmlbars/tests/integration/component_invocation_test",
   ["ember-views/views/view","container/container","ember-views/system/jquery","ember-htmlbars/system/compile","ember-views/component_lookup","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
@@ -13752,7 +13764,7 @@ enifed("ember-htmlbars/tests/integration/component_invocation_test",
       equal(jQuery('#qunit-fixture').text(), 'In layout - someProp: something here - In template');
     });
   });
-enifed("ember-htmlbars/tests/integration/component_invocation_test.jshint",
+define("ember-htmlbars/tests/integration/component_invocation_test.jshint",
   [],
   function() {
     "use strict";
@@ -13761,7 +13773,7 @@ enifed("ember-htmlbars/tests/integration/component_invocation_test.jshint",
       ok(true, 'ember-htmlbars/tests/integration/component_invocation_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/integration/escape_integration_test",
+define("ember-htmlbars/tests/integration/escape_integration_test",
   ["ember-metal/run_loop","ember-views/views/view","ember-htmlbars/system/compile","ember-metal/property_set","ember-metal/platform","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
@@ -13885,7 +13897,7 @@ enifed("ember-htmlbars/tests/integration/escape_integration_test",
       equal(view.$('i').length, 2, 'creates an element when value is updated');
     });
   });
-enifed("ember-htmlbars/tests/integration/escape_integration_test.jshint",
+define("ember-htmlbars/tests/integration/escape_integration_test.jshint",
   [],
   function() {
     "use strict";
@@ -13894,7 +13906,7 @@ enifed("ember-htmlbars/tests/integration/escape_integration_test.jshint",
       ok(true, 'ember-htmlbars/tests/integration/escape_integration_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/integration/globals_integration_test",
+define("ember-htmlbars/tests/integration/globals_integration_test",
   ["ember-metal/core","ember-views/views/view","ember-htmlbars/system/compile","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -13972,7 +13984,7 @@ enifed("ember-htmlbars/tests/integration/globals_integration_test",
       equal(view.$().text(), Ember.lookup.Global.Space);
     });
   });
-enifed("ember-htmlbars/tests/integration/globals_integration_test.jshint",
+define("ember-htmlbars/tests/integration/globals_integration_test.jshint",
   [],
   function() {
     "use strict";
@@ -13981,7 +13993,7 @@ enifed("ember-htmlbars/tests/integration/globals_integration_test.jshint",
       ok(true, 'ember-htmlbars/tests/integration/globals_integration_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/integration/select_in_template_test",
+define("ember-htmlbars/tests/integration/select_in_template_test",
   ["ember-runtime/system/object","ember-metal/run_loop","ember-views/views/view","ember-views/system/event_dispatcher","ember-metal/computed","ember-runtime/system/namespace","ember-runtime/controllers/array_controller","ember-runtime/system/array_proxy","ember-views/views/select","ember-htmlbars/system/compile","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__) {
     "use strict";
@@ -14187,7 +14199,7 @@ enifed("ember-htmlbars/tests/integration/select_in_template_test",
       );
     });
   });
-enifed("ember-htmlbars/tests/integration/select_in_template_test.jshint",
+define("ember-htmlbars/tests/integration/select_in_template_test.jshint",
   [],
   function() {
     "use strict";
@@ -14196,7 +14208,7 @@ enifed("ember-htmlbars/tests/integration/select_in_template_test.jshint",
       ok(true, 'ember-htmlbars/tests/integration/select_in_template_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/integration/tagless_views_rerender_test",
+define("ember-htmlbars/tests/integration/tagless_views_rerender_test",
   ["ember-metal/run_loop","ember-views/views/view","ember-htmlbars/compat","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -14267,7 +14279,7 @@ enifed("ember-htmlbars/tests/integration/tagless_views_rerender_test",
       equal(view.$().text(), '');
     });
   });
-enifed("ember-htmlbars/tests/integration/tagless_views_rerender_test.jshint",
+define("ember-htmlbars/tests/integration/tagless_views_rerender_test.jshint",
   [],
   function() {
     "use strict";
@@ -14276,7 +14288,7 @@ enifed("ember-htmlbars/tests/integration/tagless_views_rerender_test.jshint",
       ok(true, 'ember-htmlbars/tests/integration/tagless_views_rerender_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/integration/with_view_test",
+define("ember-htmlbars/tests/integration/with_view_test",
   ["ember-metal/run_loop","ember-views/system/jquery","ember-views/views/view","ember-runtime/system/container","ember-runtime/system/object","ember-views/views/metamorph_view","ember-htmlbars/system/compile","ember-runtime/tests/utils","ember-metal/property_set"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
     "use strict";
@@ -14464,7 +14476,7 @@ enifed("ember-htmlbars/tests/integration/with_view_test",
       equal(view.$('h1').text(), 'Brodele del Heeeyyyyyy', 'renders properties from parent context');
     });
   });
-enifed("ember-htmlbars/tests/integration/with_view_test.jshint",
+define("ember-htmlbars/tests/integration/with_view_test.jshint",
   [],
   function() {
     "use strict";
@@ -14473,11 +14485,11 @@ enifed("ember-htmlbars/tests/integration/with_view_test.jshint",
       ok(true, 'ember-htmlbars/tests/integration/with_view_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/plugins_test",
+define("ember-htmlbars/tests/plugins_test",
   ["ember-htmlbars/plugins","ember-htmlbars/system/compile"],
   function(__dependency1__, __dependency2__) {
     "use strict";
-    var plugins = __dependency1__["default"];
+    var plugins = __dependency1__.default;
     var registerASTPlugin = __dependency1__.registerASTPlugin;
     var compile = __dependency2__["default"];
 
@@ -14511,7 +14523,7 @@ enifed("ember-htmlbars/tests/plugins_test",
       compile('some random template');
     });
   });
-enifed("ember-htmlbars/tests/plugins_test.jshint",
+define("ember-htmlbars/tests/plugins_test.jshint",
   [],
   function() {
     "use strict";
@@ -14520,7 +14532,7 @@ enifed("ember-htmlbars/tests/plugins_test.jshint",
       ok(true, 'ember-htmlbars/tests/plugins_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/system/bootstrap_test",
+define("ember-htmlbars/tests/system/bootstrap_test",
   ["ember-views/system/jquery","ember-metal/run_loop","ember-views/views/view","ember-runtime/tests/utils","ember-htmlbars/system/bootstrap"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -14689,7 +14701,7 @@ enifed("ember-htmlbars/tests/system/bootstrap_test",
       });
     }
   });
-enifed("ember-htmlbars/tests/system/bootstrap_test.jshint",
+define("ember-htmlbars/tests/system/bootstrap_test.jshint",
   [],
   function() {
     "use strict";
@@ -14698,14 +14710,14 @@ enifed("ember-htmlbars/tests/system/bootstrap_test.jshint",
       ok(true, 'ember-htmlbars/tests/system/bootstrap_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/system/compile_test",
+define("ember-htmlbars/tests/system/compile_test",
   ["ember-htmlbars/system/compile","htmlbars-compiler/compiler"],
   function(__dependency1__, __dependency2__) {
     "use strict";
     var compile = __dependency1__["default"];
     var htmlbarsCompile = __dependency2__.compile;
 
-    
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
 
     QUnit.module('ember-htmlbars: compile');
 
@@ -14727,9 +14739,9 @@ enifed("ember-htmlbars/tests/system/compile_test",
       ok(actual.isMethod === false, 'sets isMethod via template function');
     });
 
-    
+    }
   });
-enifed("ember-htmlbars/tests/system/compile_test.jshint",
+define("ember-htmlbars/tests/system/compile_test.jshint",
   [],
   function() {
     "use strict";
@@ -14738,7 +14750,7 @@ enifed("ember-htmlbars/tests/system/compile_test.jshint",
       ok(true, 'ember-htmlbars/tests/system/compile_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/system/lookup-helper_test",
+define("ember-htmlbars/tests/system/lookup-helper_test",
   ["ember-htmlbars/system/lookup-helper","ember-views/component_lookup","container","ember-views/views/component"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -14867,7 +14879,7 @@ enifed("ember-htmlbars/tests/system/lookup-helper_test",
       ok(view.container.lookup('helper:some-name'), 'new helper was registered');
     });
   });
-enifed("ember-htmlbars/tests/system/lookup-helper_test.jshint",
+define("ember-htmlbars/tests/system/lookup-helper_test.jshint",
   [],
   function() {
     "use strict";
@@ -14876,7 +14888,7 @@ enifed("ember-htmlbars/tests/system/lookup-helper_test.jshint",
       ok(true, 'ember-htmlbars/tests/system/lookup-helper_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/system/make_bound_helper_test",
+define("ember-htmlbars/tests/system/make_bound_helper_test",
   ["ember-views/views/view","ember-metal/run_loop","container","ember-htmlbars/system/make_bound_helper","ember-htmlbars/system/compile","ember-runtime/tests/utils","ember-runtime/system/string","ember-views/views/simple_bound_view","ember-runtime/system/object"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
     "use strict";
@@ -14900,7 +14912,7 @@ enifed("ember-htmlbars/tests/system/make_bound_helper_test",
       }));
     }
 
-    
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
 
     QUnit.module("ember-htmlbars: makeBoundHelper", {
       setup: function() {
@@ -15155,9 +15167,9 @@ enifed("ember-htmlbars/tests/system/make_bound_helper_test",
       equal(view.$().text(), 'aaa');
     });
 
-    
+    }
   });
-enifed("ember-htmlbars/tests/system/make_bound_helper_test.jshint",
+define("ember-htmlbars/tests/system/make_bound_helper_test.jshint",
   [],
   function() {
     "use strict";
@@ -15166,7 +15178,7 @@ enifed("ember-htmlbars/tests/system/make_bound_helper_test.jshint",
       ok(true, 'ember-htmlbars/tests/system/make_bound_helper_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/system/make_view_helper_test",
+define("ember-htmlbars/tests/system/make_view_helper_test",
   ["ember-htmlbars/system/make-view-helper"],
   function(__dependency1__) {
     "use strict";
@@ -15184,7 +15196,7 @@ enifed("ember-htmlbars/tests/system/make_view_helper_test",
       }, "You can only pass attributes (such as name=value) not bare values to a helper for a View found in 'Some Random Class'");
     });
   });
-enifed("ember-htmlbars/tests/system/make_view_helper_test.jshint",
+define("ember-htmlbars/tests/system/make_view_helper_test.jshint",
   [],
   function() {
     "use strict";
@@ -15193,13 +15205,13 @@ enifed("ember-htmlbars/tests/system/make_view_helper_test.jshint",
       ok(true, 'ember-htmlbars/tests/system/make_view_helper_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/system/template_test",
+define("ember-htmlbars/tests/system/template_test",
   ["ember-htmlbars/system/template"],
   function(__dependency1__) {
     "use strict";
     var template = __dependency1__["default"];
 
-    
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
 
     QUnit.module('ember-htmlbars: template');
 
@@ -15219,9 +15231,9 @@ enifed("ember-htmlbars/tests/system/template_test",
       equal(test.isMethod, false, 'sets isMethod on the provided function');
     });
 
-    
+    }
   });
-enifed("ember-htmlbars/tests/system/template_test.jshint",
+define("ember-htmlbars/tests/system/template_test.jshint",
   [],
   function() {
     "use strict";
@@ -15230,7 +15242,7 @@ enifed("ember-htmlbars/tests/system/template_test.jshint",
       ok(true, 'ember-htmlbars/tests/system/template_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/utils/string_test",
+define("ember-htmlbars/tests/utils/string_test",
   ["htmlbars-util/safe-string","ember-htmlbars/utils/string"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -15253,7 +15265,7 @@ enifed("ember-htmlbars/tests/utils/string_test",
       equal(htmlSafe().toString(), "", "should return an empty string");
     });
   });
-enifed("ember-htmlbars/tests/utils/string_test.jshint",
+define("ember-htmlbars/tests/utils/string_test.jshint",
   [],
   function() {
     "use strict";
@@ -15262,7 +15274,7 @@ enifed("ember-htmlbars/tests/utils/string_test.jshint",
       ok(true, 'ember-htmlbars/tests/utils/string_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/utils/string.jshint",
+define("ember-htmlbars/utils/string.jshint",
   [],
   function() {
     "use strict";
@@ -15271,7 +15283,7 @@ enifed("ember-htmlbars/utils/string.jshint",
       ok(true, 'ember-htmlbars/utils/string.js should pass jshint.'); 
     });
   });
-enifed("ember-metal-views.jshint",
+define("ember-metal-views.jshint",
   [],
   function() {
     "use strict";
@@ -15280,7 +15292,7 @@ enifed("ember-metal-views.jshint",
       ok(true, 'ember-metal-views.js should pass jshint.'); 
     });
   });
-enifed("ember-metal-views/renderer.jshint",
+define("ember-metal-views/renderer.jshint",
   [],
   function() {
     "use strict";
@@ -15289,7 +15301,7 @@ enifed("ember-metal-views/renderer.jshint",
       ok(true, 'ember-metal-views/renderer.js should pass jshint.'); 
     });
   });
-enifed("ember-metal-views/tests/attributes_test",
+define("ember-metal-views/tests/attributes_test",
   ["ember-metal-views/tests/test_helpers"],
   function(__dependency1__) {
     "use strict";
@@ -15313,7 +15325,7 @@ enifed("ember-metal-views/tests/attributes_test",
       subject().destroy(view);
     });
   });
-enifed("ember-metal-views/tests/attributes_test.jshint",
+define("ember-metal-views/tests/attributes_test.jshint",
   [],
   function() {
     "use strict";
@@ -15322,7 +15334,7 @@ enifed("ember-metal-views/tests/attributes_test.jshint",
       ok(true, 'ember-metal-views/tests/attributes_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal-views/tests/children_test",
+define("ember-metal-views/tests/children_test",
   ["ember-metal-views/tests/test_helpers"],
   function(__dependency1__) {
     "use strict";
@@ -15367,7 +15379,7 @@ enifed("ember-metal-views/tests/children_test",
       subject().destroy(view);
     });
   });
-enifed("ember-metal-views/tests/children_test.jshint",
+define("ember-metal-views/tests/children_test.jshint",
   [],
   function() {
     "use strict";
@@ -15376,7 +15388,7 @@ enifed("ember-metal-views/tests/children_test.jshint",
       ok(true, 'ember-metal-views/tests/children_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal-views/tests/main_test",
+define("ember-metal-views/tests/main_test",
   ["ember-metal-views/tests/test_helpers"],
   function(__dependency1__) {
     "use strict";
@@ -15521,7 +15533,7 @@ enifed("ember-metal-views/tests/main_test",
       equalHTML('qunit-fixture', '<div class="foo bar">ohai</div>');
     });
   });
-enifed("ember-metal-views/tests/main_test.jshint",
+define("ember-metal-views/tests/main_test.jshint",
   [],
   function() {
     "use strict";
@@ -15530,7 +15542,7 @@ enifed("ember-metal-views/tests/main_test.jshint",
       ok(true, 'ember-metal-views/tests/main_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal-views/tests/test_helpers",
+define("ember-metal-views/tests/test_helpers",
   ["ember-metal/platform","ember-metal-views","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -15674,7 +15686,7 @@ enifed("ember-metal-views/tests/test_helpers",
 
     __exports__.appendTo = appendTo;
   });
-enifed("ember-metal-views/tests/test_helpers.jshint",
+define("ember-metal-views/tests/test_helpers.jshint",
   [],
   function() {
     "use strict";
@@ -15683,7 +15695,7 @@ enifed("ember-metal-views/tests/test_helpers.jshint",
       ok(true, 'ember-metal-views/tests/test_helpers.js should pass jshint.'); 
     });
   });
-enifed("ember-metal.jshint",
+define("ember-metal.jshint",
   [],
   function() {
     "use strict";
@@ -15692,7 +15704,7 @@ enifed("ember-metal.jshint",
       ok(true, 'ember-metal.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/alias.jshint",
+define("ember-metal/alias.jshint",
   [],
   function() {
     "use strict";
@@ -15701,7 +15713,7 @@ enifed("ember-metal/alias.jshint",
       ok(true, 'ember-metal/alias.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/array.jshint",
+define("ember-metal/array.jshint",
   [],
   function() {
     "use strict";
@@ -15710,7 +15722,7 @@ enifed("ember-metal/array.jshint",
       ok(true, 'ember-metal/array.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/binding.jshint",
+define("ember-metal/binding.jshint",
   [],
   function() {
     "use strict";
@@ -15719,7 +15731,7 @@ enifed("ember-metal/binding.jshint",
       ok(true, 'ember-metal/binding.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/cache.jshint",
+define("ember-metal/cache.jshint",
   [],
   function() {
     "use strict";
@@ -15728,7 +15740,7 @@ enifed("ember-metal/cache.jshint",
       ok(true, 'ember-metal/cache.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/chains.jshint",
+define("ember-metal/chains.jshint",
   [],
   function() {
     "use strict";
@@ -15737,7 +15749,7 @@ enifed("ember-metal/chains.jshint",
       ok(true, 'ember-metal/chains.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/computed.jshint",
+define("ember-metal/computed.jshint",
   [],
   function() {
     "use strict";
@@ -15746,7 +15758,7 @@ enifed("ember-metal/computed.jshint",
       ok(true, 'ember-metal/computed.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/computed_macros.jshint",
+define("ember-metal/computed_macros.jshint",
   [],
   function() {
     "use strict";
@@ -15755,7 +15767,7 @@ enifed("ember-metal/computed_macros.jshint",
       ok(true, 'ember-metal/computed_macros.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/core.jshint",
+define("ember-metal/core.jshint",
   [],
   function() {
     "use strict";
@@ -15764,7 +15776,7 @@ enifed("ember-metal/core.jshint",
       ok(true, 'ember-metal/core.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/dependent_keys.jshint",
+define("ember-metal/dependent_keys.jshint",
   [],
   function() {
     "use strict";
@@ -15773,7 +15785,7 @@ enifed("ember-metal/dependent_keys.jshint",
       ok(true, 'ember-metal/dependent_keys.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/deprecate_property.jshint",
+define("ember-metal/deprecate_property.jshint",
   [],
   function() {
     "use strict";
@@ -15782,7 +15794,7 @@ enifed("ember-metal/deprecate_property.jshint",
       ok(true, 'ember-metal/deprecate_property.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/dictionary.jshint",
+define("ember-metal/dictionary.jshint",
   [],
   function() {
     "use strict";
@@ -15791,7 +15803,7 @@ enifed("ember-metal/dictionary.jshint",
       ok(true, 'ember-metal/dictionary.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/enumerable_utils.jshint",
+define("ember-metal/enumerable_utils.jshint",
   [],
   function() {
     "use strict";
@@ -15800,7 +15812,7 @@ enifed("ember-metal/enumerable_utils.jshint",
       ok(true, 'ember-metal/enumerable_utils.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/environment.jshint",
+define("ember-metal/environment.jshint",
   [],
   function() {
     "use strict";
@@ -15809,7 +15821,7 @@ enifed("ember-metal/environment.jshint",
       ok(true, 'ember-metal/environment.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/error.jshint",
+define("ember-metal/error.jshint",
   [],
   function() {
     "use strict";
@@ -15818,7 +15830,7 @@ enifed("ember-metal/error.jshint",
       ok(true, 'ember-metal/error.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/events.jshint",
+define("ember-metal/events.jshint",
   [],
   function() {
     "use strict";
@@ -15827,7 +15839,7 @@ enifed("ember-metal/events.jshint",
       ok(true, 'ember-metal/events.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/expand_properties.jshint",
+define("ember-metal/expand_properties.jshint",
   [],
   function() {
     "use strict";
@@ -15836,7 +15848,7 @@ enifed("ember-metal/expand_properties.jshint",
       ok(true, 'ember-metal/expand_properties.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/get_properties.jshint",
+define("ember-metal/get_properties.jshint",
   [],
   function() {
     "use strict";
@@ -15845,7 +15857,7 @@ enifed("ember-metal/get_properties.jshint",
       ok(true, 'ember-metal/get_properties.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/injected_property.jshint",
+define("ember-metal/injected_property.jshint",
   [],
   function() {
     "use strict";
@@ -15854,7 +15866,7 @@ enifed("ember-metal/injected_property.jshint",
       ok(true, 'ember-metal/injected_property.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/instrumentation.jshint",
+define("ember-metal/instrumentation.jshint",
   [],
   function() {
     "use strict";
@@ -15863,7 +15875,7 @@ enifed("ember-metal/instrumentation.jshint",
       ok(true, 'ember-metal/instrumentation.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/is_blank.jshint",
+define("ember-metal/is_blank.jshint",
   [],
   function() {
     "use strict";
@@ -15872,7 +15884,7 @@ enifed("ember-metal/is_blank.jshint",
       ok(true, 'ember-metal/is_blank.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/is_empty.jshint",
+define("ember-metal/is_empty.jshint",
   [],
   function() {
     "use strict";
@@ -15881,7 +15893,7 @@ enifed("ember-metal/is_empty.jshint",
       ok(true, 'ember-metal/is_empty.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/is_none.jshint",
+define("ember-metal/is_none.jshint",
   [],
   function() {
     "use strict";
@@ -15890,7 +15902,7 @@ enifed("ember-metal/is_none.jshint",
       ok(true, 'ember-metal/is_none.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/is_present.jshint",
+define("ember-metal/is_present.jshint",
   [],
   function() {
     "use strict";
@@ -15899,7 +15911,7 @@ enifed("ember-metal/is_present.jshint",
       ok(true, 'ember-metal/is_present.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/keys.jshint",
+define("ember-metal/keys.jshint",
   [],
   function() {
     "use strict";
@@ -15908,7 +15920,7 @@ enifed("ember-metal/keys.jshint",
       ok(true, 'ember-metal/keys.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/libraries.jshint",
+define("ember-metal/libraries.jshint",
   [],
   function() {
     "use strict";
@@ -15917,7 +15929,7 @@ enifed("ember-metal/libraries.jshint",
       ok(true, 'ember-metal/libraries.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/logger.jshint",
+define("ember-metal/logger.jshint",
   [],
   function() {
     "use strict";
@@ -15926,7 +15938,7 @@ enifed("ember-metal/logger.jshint",
       ok(true, 'ember-metal/logger.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/map.jshint",
+define("ember-metal/map.jshint",
   [],
   function() {
     "use strict";
@@ -15935,7 +15947,7 @@ enifed("ember-metal/map.jshint",
       ok(true, 'ember-metal/map.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/merge.jshint",
+define("ember-metal/merge.jshint",
   [],
   function() {
     "use strict";
@@ -15944,7 +15956,7 @@ enifed("ember-metal/merge.jshint",
       ok(true, 'ember-metal/merge.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/mixin.jshint",
+define("ember-metal/mixin.jshint",
   [],
   function() {
     "use strict";
@@ -15953,7 +15965,7 @@ enifed("ember-metal/mixin.jshint",
       ok(true, 'ember-metal/mixin.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/observer.jshint",
+define("ember-metal/observer.jshint",
   [],
   function() {
     "use strict";
@@ -15962,7 +15974,7 @@ enifed("ember-metal/observer.jshint",
       ok(true, 'ember-metal/observer.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/observer_set.jshint",
+define("ember-metal/observer_set.jshint",
   [],
   function() {
     "use strict";
@@ -15971,7 +15983,7 @@ enifed("ember-metal/observer_set.jshint",
       ok(true, 'ember-metal/observer_set.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/path_cache.jshint",
+define("ember-metal/path_cache.jshint",
   [],
   function() {
     "use strict";
@@ -15980,7 +15992,7 @@ enifed("ember-metal/path_cache.jshint",
       ok(true, 'ember-metal/path_cache.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/platform.jshint",
+define("ember-metal/platform.jshint",
   [],
   function() {
     "use strict";
@@ -15989,7 +16001,7 @@ enifed("ember-metal/platform.jshint",
       ok(true, 'ember-metal/platform.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/platform/create.jshint",
+define("ember-metal/platform/create.jshint",
   [],
   function() {
     "use strict";
@@ -15998,7 +16010,7 @@ enifed("ember-metal/platform/create.jshint",
       ok(true, 'ember-metal/platform/create.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/platform/define_properties.jshint",
+define("ember-metal/platform/define_properties.jshint",
   [],
   function() {
     "use strict";
@@ -16007,7 +16019,7 @@ enifed("ember-metal/platform/define_properties.jshint",
       ok(true, 'ember-metal/platform/define_properties.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/platform/define_property.jshint",
+define("ember-metal/platform/define_property.jshint",
   [],
   function() {
     "use strict";
@@ -16016,7 +16028,7 @@ enifed("ember-metal/platform/define_property.jshint",
       ok(true, 'ember-metal/platform/define_property.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/properties.jshint",
+define("ember-metal/properties.jshint",
   [],
   function() {
     "use strict";
@@ -16025,7 +16037,7 @@ enifed("ember-metal/properties.jshint",
       ok(true, 'ember-metal/properties.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/property_events.jshint",
+define("ember-metal/property_events.jshint",
   [],
   function() {
     "use strict";
@@ -16034,7 +16046,7 @@ enifed("ember-metal/property_events.jshint",
       ok(true, 'ember-metal/property_events.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/property_get.jshint",
+define("ember-metal/property_get.jshint",
   [],
   function() {
     "use strict";
@@ -16043,7 +16055,7 @@ enifed("ember-metal/property_get.jshint",
       ok(true, 'ember-metal/property_get.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/property_set.jshint",
+define("ember-metal/property_set.jshint",
   [],
   function() {
     "use strict";
@@ -16052,7 +16064,7 @@ enifed("ember-metal/property_set.jshint",
       ok(true, 'ember-metal/property_set.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/run_loop.jshint",
+define("ember-metal/run_loop.jshint",
   [],
   function() {
     "use strict";
@@ -16061,7 +16073,7 @@ enifed("ember-metal/run_loop.jshint",
       ok(true, 'ember-metal/run_loop.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/set_properties.jshint",
+define("ember-metal/set_properties.jshint",
   [],
   function() {
     "use strict";
@@ -16070,7 +16082,7 @@ enifed("ember-metal/set_properties.jshint",
       ok(true, 'ember-metal/set_properties.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/streams/simple.jshint",
+define("ember-metal/streams/simple.jshint",
   [],
   function() {
     "use strict";
@@ -16079,7 +16091,7 @@ enifed("ember-metal/streams/simple.jshint",
       ok(true, 'ember-metal/streams/simple.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/streams/stream.jshint",
+define("ember-metal/streams/stream.jshint",
   [],
   function() {
     "use strict";
@@ -16088,7 +16100,7 @@ enifed("ember-metal/streams/stream.jshint",
       ok(true, 'ember-metal/streams/stream.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/streams/stream_binding.jshint",
+define("ember-metal/streams/stream_binding.jshint",
   [],
   function() {
     "use strict";
@@ -16097,7 +16109,7 @@ enifed("ember-metal/streams/stream_binding.jshint",
       ok(true, 'ember-metal/streams/stream_binding.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/streams/utils.jshint",
+define("ember-metal/streams/utils.jshint",
   [],
   function() {
     "use strict";
@@ -16106,7 +16118,7 @@ enifed("ember-metal/streams/utils.jshint",
       ok(true, 'ember-metal/streams/utils.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/accessors/getPath_test",
+define("ember-metal/tests/accessors/getPath_test",
   ["ember-metal/property_get"],
   function(__dependency1__) {
     "use strict";
@@ -16207,7 +16219,7 @@ enifed("ember-metal/tests/accessors/getPath_test",
       deepEqual(get('Foo.bar'), Foo.bar);
     });
   });
-enifed("ember-metal/tests/accessors/getPath_test.jshint",
+define("ember-metal/tests/accessors/getPath_test.jshint",
   [],
   function() {
     "use strict";
@@ -16216,7 +16228,7 @@ enifed("ember-metal/tests/accessors/getPath_test.jshint",
       ok(true, 'ember-metal/tests/accessors/getPath_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/accessors/getProperties_test",
+define("ember-metal/tests/accessors/getProperties_test",
   ["ember-metal/get_properties"],
   function(__dependency1__) {
     "use strict";
@@ -16240,7 +16252,7 @@ enifed("ember-metal/tests/accessors/getProperties_test",
       deepEqual(getProperties(obj, []), {});
     });
   });
-enifed("ember-metal/tests/accessors/getProperties_test.jshint",
+define("ember-metal/tests/accessors/getProperties_test.jshint",
   [],
   function() {
     "use strict";
@@ -16249,7 +16261,7 @@ enifed("ember-metal/tests/accessors/getProperties_test.jshint",
       ok(true, 'ember-metal/tests/accessors/getProperties_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/accessors/get_test",
+define("ember-metal/tests/accessors/get_test",
   ["ember-metal/tests/props_helper","ember-metal/property_get","ember-metal/mixin","ember-metal/observer","ember-metal/platform"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -16423,7 +16435,7 @@ enifed("ember-metal/tests/accessors/get_test",
       equal(getWithDefault(theRealObject, 'someProperty', "fail"), 'foo', 'should return the set value, not false');
     });
   });
-enifed("ember-metal/tests/accessors/get_test.jshint",
+define("ember-metal/tests/accessors/get_test.jshint",
   [],
   function() {
     "use strict";
@@ -16432,7 +16444,7 @@ enifed("ember-metal/tests/accessors/get_test.jshint",
       ok(true, 'ember-metal/tests/accessors/get_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/accessors/isGlobalPath_test",
+define("ember-metal/tests/accessors/isGlobalPath_test",
   ["ember-metal/binding"],
   function(__dependency1__) {
     "use strict";
@@ -16455,7 +16467,7 @@ enifed("ember-metal/tests/accessors/isGlobalPath_test",
       ok( !isGlobalPath('myObj.SecondProperty') );
     });
   });
-enifed("ember-metal/tests/accessors/isGlobalPath_test.jshint",
+define("ember-metal/tests/accessors/isGlobalPath_test.jshint",
   [],
   function() {
     "use strict";
@@ -16464,7 +16476,7 @@ enifed("ember-metal/tests/accessors/isGlobalPath_test.jshint",
       ok(true, 'ember-metal/tests/accessors/isGlobalPath_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/accessors/mandatory_setters_test",
+define("ember-metal/tests/accessors/mandatory_setters_test",
   ["ember-metal/property_get","ember-metal/property_set","ember-metal/watching","ember-metal/platform","ember-metal/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -16478,7 +16490,7 @@ enifed("ember-metal/tests/accessors/mandatory_setters_test",
 
     QUnit.module('mandatory-setters');
 
-    
+    if (Ember.FEATURES.isEnabled('mandatory-setter')) {
       if (hasPropertyAccessors) {
         test('does not assert if property is not being watched', function() {
           var obj = {
@@ -16562,8 +16574,29 @@ enifed("ember-metal/tests/accessors/mandatory_setters_test",
           }, 'You must use Ember.set() to set the `someProp` property (of custom-object) to `foo-bar`.');
         });
       }
+    } else {
+      test('does not assert', function() {
+        var obj = {
+          someProp: null,
+          toString: function() {
+            return 'custom-object';
+          }
+        };
+
+        obj.someProp = 'blastix';
+        equal(get(obj, 'someProp'), 'blastix');
+
+        watch(obj, 'someProp');
+
+        obj.someProp = 'foo-bar';
+        equal(get(obj, 'someProp'), 'foo-bar');
+
+        obj.someProp = 'bernie';
+        equal(get(obj, 'someProp'), 'bernie');
       });
-enifed("ember-metal/tests/accessors/mandatory_setters_test.jshint",
+    }
+  });
+define("ember-metal/tests/accessors/mandatory_setters_test.jshint",
   [],
   function() {
     "use strict";
@@ -16572,7 +16605,7 @@ enifed("ember-metal/tests/accessors/mandatory_setters_test.jshint",
       ok(true, 'ember-metal/tests/accessors/mandatory_setters_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/accessors/normalizeTuple_test",
+define("ember-metal/tests/accessors/normalizeTuple_test",
   ["ember-metal/property_get"],
   function(__dependency1__) {
     "use strict";
@@ -16680,7 +16713,7 @@ enifed("ember-metal/tests/accessors/normalizeTuple_test",
       deepEqual(normalizeTuple(null, 'Foo.bar'), [Foo, 'bar']);
     });
   });
-enifed("ember-metal/tests/accessors/normalizeTuple_test.jshint",
+define("ember-metal/tests/accessors/normalizeTuple_test.jshint",
   [],
   function() {
     "use strict";
@@ -16689,7 +16722,7 @@ enifed("ember-metal/tests/accessors/normalizeTuple_test.jshint",
       ok(true, 'ember-metal/tests/accessors/normalizeTuple_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/accessors/setPath_test",
+define("ember-metal/tests/accessors/setPath_test",
   ["ember-metal/property_set","ember-metal/property_get"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -16815,7 +16848,7 @@ enifed("ember-metal/tests/accessors/setPath_test",
       ok(true, "does not raise");
     });
   });
-enifed("ember-metal/tests/accessors/setPath_test.jshint",
+define("ember-metal/tests/accessors/setPath_test.jshint",
   [],
   function() {
     "use strict";
@@ -16824,7 +16857,7 @@ enifed("ember-metal/tests/accessors/setPath_test.jshint",
       ok(true, 'ember-metal/tests/accessors/setPath_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/accessors/set_test",
+define("ember-metal/tests/accessors/set_test",
   ["ember-metal/property_get","ember-metal/property_set"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -16875,7 +16908,7 @@ enifed("ember-metal/tests/accessors/set_test",
       equal(obj.count, 1, 'should have invoked');
     });
   });
-enifed("ember-metal/tests/accessors/set_test.jshint",
+define("ember-metal/tests/accessors/set_test.jshint",
   [],
   function() {
     "use strict";
@@ -16884,7 +16917,7 @@ enifed("ember-metal/tests/accessors/set_test.jshint",
       ok(true, 'ember-metal/tests/accessors/set_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/alias_test",
+define("ember-metal/tests/alias_test",
   ["ember-metal/alias","ember-metal/properties","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/watching","ember-metal/observer"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
     "use strict";
@@ -16955,7 +16988,7 @@ enifed("ember-metal/tests/alias_test",
       }, "Setting alias 'bar' on self");
     });
   });
-enifed("ember-metal/tests/alias_test.jshint",
+define("ember-metal/tests/alias_test.jshint",
   [],
   function() {
     "use strict";
@@ -16964,7 +16997,7 @@ enifed("ember-metal/tests/alias_test.jshint",
       ok(true, 'ember-metal/tests/alias_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/binding/connect_test",
+define("ember-metal/tests/binding/connect_test",
   ["ember-metal/core","ember-metal/tests/props_helper","ember-metal/binding","ember-metal/run_loop","ember-metal/property_set","ember-metal/property_get"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
@@ -17084,7 +17117,7 @@ enifed("ember-metal/tests/binding/connect_test",
       equal(get(a, 'foo'), 'BAZ', 'should have synced binding on new obj');
     });
   });
-enifed("ember-metal/tests/binding/connect_test.jshint",
+define("ember-metal/tests/binding/connect_test.jshint",
   [],
   function() {
     "use strict";
@@ -17093,7 +17126,7 @@ enifed("ember-metal/tests/binding/connect_test.jshint",
       ok(true, 'ember-metal/tests/binding/connect_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/binding/oneWay_test",
+define("ember-metal/tests/binding/oneWay_test",
   ["ember-metal/property_set","ember-metal/property_get","ember-metal/run_loop","ember-metal/binding"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -17142,7 +17175,7 @@ enifed("ember-metal/tests/binding/oneWay_test",
 
     });
   });
-enifed("ember-metal/tests/binding/oneWay_test.jshint",
+define("ember-metal/tests/binding/oneWay_test.jshint",
   [],
   function() {
     "use strict";
@@ -17151,7 +17184,7 @@ enifed("ember-metal/tests/binding/oneWay_test.jshint",
       ok(true, 'ember-metal/tests/binding/oneWay_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/binding/sync_test",
+define("ember-metal/tests/binding/sync_test",
   ["ember-metal/tests/props_helper","ember-metal/run_loop","ember-metal/observer","ember-metal/binding","ember-metal/computed","ember-metal/properties"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
@@ -17181,7 +17214,7 @@ enifed("ember-metal/tests/binding/sync_test",
             getCalled++;
             return setValue;
           }
-        })["volatile"]());
+        }).volatile());
 
         b = {
           a: a
@@ -17294,7 +17327,7 @@ enifed("ember-metal/tests/binding/sync_test",
       });
     });
   });
-enifed("ember-metal/tests/binding/sync_test.jshint",
+define("ember-metal/tests/binding/sync_test.jshint",
   [],
   function() {
     "use strict";
@@ -17303,7 +17336,7 @@ enifed("ember-metal/tests/binding/sync_test.jshint",
       ok(true, 'ember-metal/tests/binding/sync_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/cache_test",
+define("ember-metal/tests/cache_test",
   ["ember-metal/cache"],
   function(__dependency1__) {
     "use strict";
@@ -17360,7 +17393,7 @@ enifed("ember-metal/tests/cache_test",
       equal(cache.get("c"), "C");
     });
   });
-enifed("ember-metal/tests/cache_test.jshint",
+define("ember-metal/tests/cache_test.jshint",
   [],
   function() {
     "use strict";
@@ -17369,7 +17402,7 @@ enifed("ember-metal/tests/cache_test.jshint",
       ok(true, 'ember-metal/tests/cache_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/chains_test",
+define("ember-metal/tests/chains_test",
   ["ember-metal/observer","ember-metal/chains","ember-metal/platform"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -17391,7 +17424,7 @@ enifed("ember-metal/tests/chains_test",
       ok(obj['__ember_meta__'].chains !== childObj['__ember_meta__'].chains, "The chains object is copied");
     });
   });
-enifed("ember-metal/tests/chains_test.jshint",
+define("ember-metal/tests/chains_test.jshint",
   [],
   function() {
     "use strict";
@@ -17400,7 +17433,7 @@ enifed("ember-metal/tests/chains_test.jshint",
       ok(true, 'ember-metal/tests/chains_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/computed_test",
+define("ember-metal/tests/computed_test",
   ["ember-metal/core","ember-metal/tests/props_helper","ember-metal/platform","ember-metal/computed","ember-metal/properties","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/watching","ember-metal/observer","ember-metal/enumerable_utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__) {
     "use strict";
@@ -18568,7 +18601,7 @@ enifed("ember-metal/tests/computed_test",
       equal(get(obj, 'quz'), null);
     });
   });
-enifed("ember-metal/tests/computed_test.jshint",
+define("ember-metal/tests/computed_test.jshint",
   [],
   function() {
     "use strict";
@@ -18577,7 +18610,7 @@ enifed("ember-metal/tests/computed_test.jshint",
       ok(true, 'ember-metal/tests/computed_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/core/inspect_test",
+define("ember-metal/tests/core/inspect_test",
   ["ember-metal/utils","ember-metal/platform"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -18636,7 +18669,7 @@ enifed("ember-metal/tests/core/inspect_test",
       ok(inspected.match(/13:24:11/), "The inspected date has its time");
     });
   });
-enifed("ember-metal/tests/core/inspect_test.jshint",
+define("ember-metal/tests/core/inspect_test.jshint",
   [],
   function() {
     "use strict";
@@ -18645,7 +18678,7 @@ enifed("ember-metal/tests/core/inspect_test.jshint",
       ok(true, 'ember-metal/tests/core/inspect_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/enumerable_utils_test",
+define("ember-metal/tests/enumerable_utils_test",
   ["ember-metal/enumerable_utils"],
   function(__dependency1__) {
     "use strict";
@@ -18672,7 +18705,7 @@ enifed("ember-metal/tests/enumerable_utils_test",
       EnumerableUtils.replace([], 0, undefined, new Array(491519));  // max + 1 in FireFox 22.0
     });
   });
-enifed("ember-metal/tests/enumerable_utils_test.jshint",
+define("ember-metal/tests/enumerable_utils_test.jshint",
   [],
   function() {
     "use strict";
@@ -18681,7 +18714,7 @@ enifed("ember-metal/tests/enumerable_utils_test.jshint",
       ok(true, 'ember-metal/tests/enumerable_utils_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/error_test",
+define("ember-metal/tests/error_test",
   [],
   function() {
     "use strict";
@@ -18695,7 +18728,7 @@ enifed("ember-metal/tests/error_test",
       }, 'the assigned message was displayed' );
     });
   });
-enifed("ember-metal/tests/error_test.jshint",
+define("ember-metal/tests/error_test.jshint",
   [],
   function() {
     "use strict";
@@ -18704,7 +18737,7 @@ enifed("ember-metal/tests/error_test.jshint",
       ok(true, 'ember-metal/tests/error_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/events_test",
+define("ember-metal/tests/events_test",
   ["ember-metal/mixin","ember-metal/platform","ember-metal/utils","ember-metal/events"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -18991,7 +19024,7 @@ enifed("ember-metal/tests/events_test",
       equal(triggered, 1, 'should invoke from subclass property');
     });
   });
-enifed("ember-metal/tests/events_test.jshint",
+define("ember-metal/tests/events_test.jshint",
   [],
   function() {
     "use strict";
@@ -19000,7 +19033,7 @@ enifed("ember-metal/tests/events_test.jshint",
       ok(true, 'ember-metal/tests/events_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/expand_properties_test",
+define("ember-metal/tests/expand_properties_test",
   ["ember-metal/expand_properties"],
   function(__dependency1__) {
     "use strict";
@@ -19080,7 +19113,7 @@ enifed("ember-metal/tests/expand_properties_test",
       deepEqual(expected.sort(), foundProperties.sort());
     });
   });
-enifed("ember-metal/tests/expand_properties_test.jshint",
+define("ember-metal/tests/expand_properties_test.jshint",
   [],
   function() {
     "use strict";
@@ -19089,7 +19122,7 @@ enifed("ember-metal/tests/expand_properties_test.jshint",
       ok(true, 'ember-metal/tests/expand_properties_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/features_test",
+define("ember-metal/tests/features_test",
   ["ember-metal/core"],
   function(__dependency1__) {
     "use strict";
@@ -19148,7 +19181,7 @@ enifed("ember-metal/tests/features_test",
       equal(isEnabled('betty'),  undefined, "returns flag value if undefined");
     });
   });
-enifed("ember-metal/tests/features_test.jshint",
+define("ember-metal/tests/features_test.jshint",
   [],
   function() {
     "use strict";
@@ -19157,7 +19190,7 @@ enifed("ember-metal/tests/features_test.jshint",
       ok(true, 'ember-metal/tests/features_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/injected_property_test",
+define("ember-metal/tests/injected_property_test",
   ["ember-metal/properties","ember-metal/property_get","ember-metal/property_set","ember-metal/injected_property"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -19167,7 +19200,7 @@ enifed("ember-metal/tests/injected_property_test",
     var set = __dependency3__.set;
     var InjectedProperty = __dependency4__["default"];
 
-    
+    if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
       QUnit.module('InjectedProperty');
 
       test('injected properties should be descriptors', function() {
@@ -19220,9 +19253,9 @@ enifed("ember-metal/tests/injected_property_test",
 
         equal(get(obj, 'foo'), 'type:foo', 'should lookup the type using the property name');
       });
-    
+    }
   });
-enifed("ember-metal/tests/injected_property_test.jshint",
+define("ember-metal/tests/injected_property_test.jshint",
   [],
   function() {
     "use strict";
@@ -19231,7 +19264,7 @@ enifed("ember-metal/tests/injected_property_test.jshint",
       ok(true, 'ember-metal/tests/injected_property_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/instrumentation_test",
+define("ember-metal/tests/instrumentation_test",
   ["ember-metal/instrumentation"],
   function(__dependency1__) {
     "use strict";
@@ -19449,7 +19482,7 @@ enifed("ember-metal/tests/instrumentation_test",
       instrument("render.handlebars", null, function() {});
     });
   });
-enifed("ember-metal/tests/instrumentation_test.jshint",
+define("ember-metal/tests/instrumentation_test.jshint",
   [],
   function() {
     "use strict";
@@ -19458,7 +19491,7 @@ enifed("ember-metal/tests/instrumentation_test.jshint",
       ok(true, 'ember-metal/tests/instrumentation_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/is_blank_test",
+define("ember-metal/tests/is_blank_test",
   ["ember-metal/is_blank"],
   function(__dependency1__) {
     "use strict";
@@ -19488,7 +19521,7 @@ enifed("ember-metal/tests/is_blank_test",
       equal(false, isBlank([1,2,3]),   "for a non-empty array");
     });
   });
-enifed("ember-metal/tests/is_blank_test.jshint",
+define("ember-metal/tests/is_blank_test.jshint",
   [],
   function() {
     "use strict";
@@ -19497,7 +19530,7 @@ enifed("ember-metal/tests/is_blank_test.jshint",
       ok(true, 'ember-metal/tests/is_blank_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/is_empty_test",
+define("ember-metal/tests/is_empty_test",
   ["ember-metal/is_empty","ember-metal/map"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -19539,7 +19572,7 @@ enifed("ember-metal/tests/is_empty_test",
       equal(false, isEmpty(orderedSet), "Ordered set is not empty");
     });
   });
-enifed("ember-metal/tests/is_empty_test.jshint",
+define("ember-metal/tests/is_empty_test.jshint",
   [],
   function() {
     "use strict";
@@ -19548,7 +19581,7 @@ enifed("ember-metal/tests/is_empty_test.jshint",
       ok(true, 'ember-metal/tests/is_empty_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/is_none_test",
+define("ember-metal/tests/is_none_test",
   ["ember-metal/is_none"],
   function(__dependency1__) {
     "use strict";
@@ -19572,7 +19605,7 @@ enifed("ember-metal/tests/is_none_test",
       equal(false, isNone({}),        "for an empty Object");
     });
   });
-enifed("ember-metal/tests/is_none_test.jshint",
+define("ember-metal/tests/is_none_test.jshint",
   [],
   function() {
     "use strict";
@@ -19581,7 +19614,7 @@ enifed("ember-metal/tests/is_none_test.jshint",
       ok(true, 'ember-metal/tests/is_none_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/is_present_test",
+define("ember-metal/tests/is_present_test",
   ["ember-metal/is_present"],
   function(__dependency1__) {
     "use strict";
@@ -19612,7 +19645,7 @@ enifed("ember-metal/tests/is_present_test",
     equal(true,  isPresent([1,2,3]),   "for a non-empty array");
     });
   });
-enifed("ember-metal/tests/is_present_test.jshint",
+define("ember-metal/tests/is_present_test.jshint",
   [],
   function() {
     "use strict";
@@ -19621,7 +19654,7 @@ enifed("ember-metal/tests/is_present_test.jshint",
       ok(true, 'ember-metal/tests/is_present_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/keys_test",
+define("ember-metal/tests/keys_test",
   ["ember-metal/property_set","ember-metal/keys","ember-metal/observer"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -19744,7 +19777,7 @@ enifed("ember-metal/tests/keys_test",
       deepEqual(keys(beer), ['type']);
     });
   });
-enifed("ember-metal/tests/keys_test.jshint",
+define("ember-metal/tests/keys_test.jshint",
   [],
   function() {
     "use strict";
@@ -19753,7 +19786,7 @@ enifed("ember-metal/tests/keys_test.jshint",
       ok(true, 'ember-metal/tests/keys_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/libraries_test",
+define("ember-metal/tests/libraries_test",
   ["ember-metal/libraries"],
   function(__dependency1__) {
     "use strict";
@@ -19851,7 +19884,7 @@ enifed("ember-metal/tests/libraries_test",
       }, 'Using Ember.libraries.each() is deprecated. Access to a list of registered libraries is currently a private API. If you are not knowingly accessing this method, your out-of-date Ember Inspector may be doing so.');
     });
   });
-enifed("ember-metal/tests/libraries_test.jshint",
+define("ember-metal/tests/libraries_test.jshint",
   [],
   function() {
     "use strict";
@@ -19860,7 +19893,7 @@ enifed("ember-metal/tests/libraries_test.jshint",
       ok(true, 'ember-metal/tests/libraries_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/main_test",
+define("ember-metal/tests/main_test",
   ["ember-metal/core"],
   function(__dependency1__) {
     "use strict";
@@ -19875,7 +19908,7 @@ enifed("ember-metal/tests/main_test",
       equal(lib.version, Ember.VERSION);
     });
   });
-enifed("ember-metal/tests/main_test.jshint",
+define("ember-metal/tests/main_test.jshint",
   [],
   function() {
     "use strict";
@@ -19884,7 +19917,7 @@ enifed("ember-metal/tests/main_test.jshint",
       ok(true, 'ember-metal/tests/main_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/map_test",
+define("ember-metal/tests/map_test",
   ["ember-metal/map","ember-metal/platform"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -20039,12 +20072,12 @@ enifed("ember-metal/tests/map_test",
         map.set(number, "winning");
         map.set(string, "winning");
 
-        map["delete"](object);
-        map["delete"](number);
-        map["delete"](string);
+        map.delete(object);
+        map.delete(number);
+        map.delete(string);
 
         // doesn't explode
-        map["delete"]({});
+        map.delete({});
 
         mapHasEntries([]);
       });
@@ -20080,9 +20113,9 @@ enifed("ember-metal/tests/map_test",
 
         var map2 = map.copy();
 
-        map2["delete"](object);
-        map2["delete"](number);
-        map2["delete"](string);
+        map2.delete(object);
+        map2.delete(number);
+        map2.delete(string);
 
         mapHasEntries([
           [ object, "winning" ],
@@ -20109,7 +20142,7 @@ enifed("ember-metal/tests/map_test",
           equal(map.length, 2);
 
           //Remove one that doesn't exist
-          map["delete"]('does not exist');
+          map.delete('does not exist');
           equal(map.length, 2);
 
           //Check copy
@@ -20117,15 +20150,15 @@ enifed("ember-metal/tests/map_test",
           equal(copy.length, 2);
 
           //Remove a key twice
-          map["delete"](number);
+          map.delete(number);
           equal(map.length, 1);
-          map["delete"](number);
+          map.delete(number);
           equal(map.length, 1);
 
           //Remove the last key
-          map["delete"](string);
+          map.delete(string);
           equal(map.length, 0);
-          map["delete"](string);
+          map.delete(string);
           equal(map.length, 0);
         });
       }
@@ -20143,7 +20176,7 @@ enifed("ember-metal/tests/map_test",
         equal(map.size, 2);
 
         //Remove one that doesn't exist
-        map["delete"]('does not exist');
+        map.delete('does not exist');
         equal(map.size, 2);
 
         //Check copy
@@ -20151,41 +20184,41 @@ enifed("ember-metal/tests/map_test",
         equal(copy.size, 2);
 
         //Remove a key twice
-        map["delete"](number);
+        map.delete(number);
         equal(map.size, 1);
-        map["delete"](number);
+        map.delete(number);
         equal(map.size, 1);
 
         //Remove the last key
-        map["delete"](string);
+        map.delete(string);
         equal(map.size, 0);
-        map["delete"](string);
+        map.delete(string);
         equal(map.size, 0);
       });
 
       test("forEach without proper callback", function() {
-        QUnit["throws"](function() {
+        QUnit.throws(function() {
           map.forEach();
         }, '[object Undefined] is not a function');
 
-        QUnit["throws"](function() {
+        QUnit.throws(function() {
           map.forEach(undefined);
         }, '[object Undefined] is not a function');
 
-        QUnit["throws"](function() {
+        QUnit.throws(function() {
           map.forEach(1);
         }, '[object Number] is not a function');
 
-        QUnit["throws"](function() {
+        QUnit.throws(function() {
           map.forEach({});
         }, '[object Object] is not a function');
 
         map.forEach(function(value, key) {
-          map["delete"](key);
+          map.delete(key);
         });
         // ensure the error happens even if no data is present
         equal(map.size, 0);
-        QUnit["throws"](function() {
+        QUnit.throws(function() {
           map.forEach({});
         }, '[object Object] is not a function');
       });
@@ -20260,7 +20293,7 @@ enifed("ember-metal/tests/map_test",
 
         map.forEach(function(value, key, theMap) {
           if (iteration === 0) {
-            map["delete"]("c");
+            map.delete("c");
           }
 
           var expectation = expectations[iteration];
@@ -20385,7 +20418,7 @@ enifed("ember-metal/tests/map_test",
         equal(map.has(obj), true);
         equal(map.get(obj), 0);
 
-        map["delete"](obj);
+        map.delete(obj);
         equal(map.has(obj), false);
         equal(map.get(obj), undefined);
         equal(map.size, 0);
@@ -20468,7 +20501,7 @@ enifed("ember-metal/tests/map_test",
       equal(map.add(obj), map, 'when it is already in the set');
     });
   });
-enifed("ember-metal/tests/map_test.jshint",
+define("ember-metal/tests/map_test.jshint",
   [],
   function() {
     "use strict";
@@ -20477,7 +20510,7 @@ enifed("ember-metal/tests/map_test.jshint",
       ok(true, 'ember-metal/tests/map_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/mixin/alias_method_test",
+define("ember-metal/tests/mixin/alias_method_test",
   ["ember-metal/property_get","ember-metal/mixin"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -20560,7 +20593,7 @@ enifed("ember-metal/tests/mixin/alias_method_test",
       validateAliasMethod(obj);
     });
   });
-enifed("ember-metal/tests/mixin/alias_method_test.jshint",
+define("ember-metal/tests/mixin/alias_method_test.jshint",
   [],
   function() {
     "use strict";
@@ -20569,7 +20602,7 @@ enifed("ember-metal/tests/mixin/alias_method_test.jshint",
       ok(true, 'ember-metal/tests/mixin/alias_method_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/mixin/apply_test",
+define("ember-metal/tests/mixin/apply_test",
   ["ember-metal/property_get","ember-metal/mixin"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -20614,7 +20647,7 @@ enifed("ember-metal/tests/mixin/apply_test",
       strictEqual(get(obj, 'tagName'), '');
     });
   });
-enifed("ember-metal/tests/mixin/apply_test.jshint",
+define("ember-metal/tests/mixin/apply_test.jshint",
   [],
   function() {
     "use strict";
@@ -20623,7 +20656,7 @@ enifed("ember-metal/tests/mixin/apply_test.jshint",
       ok(true, 'ember-metal/tests/mixin/apply_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/mixin/computed_test",
+define("ember-metal/tests/mixin/computed_test",
   ["ember-metal/property_get","ember-metal/property_set","ember-metal/mixin","ember-metal/computed","ember-metal/properties"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -20770,7 +20803,7 @@ enifed("ember-metal/tests/mixin/computed_test",
       ok(!cpWasCalled, "The default setter was called, not the CP itself");
     });
   });
-enifed("ember-metal/tests/mixin/computed_test.jshint",
+define("ember-metal/tests/mixin/computed_test.jshint",
   [],
   function() {
     "use strict";
@@ -20779,7 +20812,7 @@ enifed("ember-metal/tests/mixin/computed_test.jshint",
       ok(true, 'ember-metal/tests/mixin/computed_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/mixin/concatenatedProperties_test",
+define("ember-metal/tests/mixin/concatenatedProperties_test",
   ["ember-metal/property_get","ember-metal/mixin"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -20899,7 +20932,7 @@ enifed("ember-metal/tests/mixin/concatenatedProperties_test",
       equal(get(obj, 'foobar'), 'foobar');
     });
   });
-enifed("ember-metal/tests/mixin/concatenatedProperties_test.jshint",
+define("ember-metal/tests/mixin/concatenatedProperties_test.jshint",
   [],
   function() {
     "use strict";
@@ -20908,7 +20941,7 @@ enifed("ember-metal/tests/mixin/concatenatedProperties_test.jshint",
       ok(true, 'ember-metal/tests/mixin/concatenatedProperties_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/mixin/detect_test",
+define("ember-metal/tests/mixin/detect_test",
   ["ember-metal/mixin"],
   function(__dependency1__) {
     "use strict";
@@ -20950,7 +20983,7 @@ enifed("ember-metal/tests/mixin/detect_test",
       equal(MixinA.detect(null), false);
     });
   });
-enifed("ember-metal/tests/mixin/detect_test.jshint",
+define("ember-metal/tests/mixin/detect_test.jshint",
   [],
   function() {
     "use strict";
@@ -20959,7 +20992,7 @@ enifed("ember-metal/tests/mixin/detect_test.jshint",
       ok(true, 'ember-metal/tests/mixin/detect_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/mixin/introspection_test",
+define("ember-metal/tests/mixin/introspection_test",
   ["ember-metal/utils","ember-metal/mixin","ember-metal/enumerable_utils"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -21018,7 +21051,7 @@ enifed("ember-metal/tests/mixin/introspection_test",
       deepEqual(mapGuids(Mixin.mixins(obj)), mapGuids([PrivateProperty, PublicProperty, PrivateMethod, PublicMethod, Combined, BarProperties, BarMethods]), 'should return included mixins');
     });
   });
-enifed("ember-metal/tests/mixin/introspection_test.jshint",
+define("ember-metal/tests/mixin/introspection_test.jshint",
   [],
   function() {
     "use strict";
@@ -21027,7 +21060,7 @@ enifed("ember-metal/tests/mixin/introspection_test.jshint",
       ok(true, 'ember-metal/tests/mixin/introspection_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/mixin/mergedProperties_test",
+define("ember-metal/tests/mixin/mergedProperties_test",
   ["ember-metal/property_get","ember-metal/mixin"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -21176,7 +21209,7 @@ enifed("ember-metal/tests/mixin/mergedProperties_test",
       }, 'You passed in `["a"]` as the value for `foo` but `foo` cannot be an Array');
     });
   });
-enifed("ember-metal/tests/mixin/mergedProperties_test.jshint",
+define("ember-metal/tests/mixin/mergedProperties_test.jshint",
   [],
   function() {
     "use strict";
@@ -21185,7 +21218,7 @@ enifed("ember-metal/tests/mixin/mergedProperties_test.jshint",
       ok(true, 'ember-metal/tests/mixin/mergedProperties_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/mixin/method_test",
+define("ember-metal/tests/mixin/method_test",
   ["ember-metal/platform","ember-metal/mixin"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -21392,7 +21425,7 @@ enifed("ember-metal/tests/mixin/method_test",
       equal(cnt, 3, 'should invoke all 3 methods');
     });
   });
-enifed("ember-metal/tests/mixin/method_test.jshint",
+define("ember-metal/tests/mixin/method_test.jshint",
   [],
   function() {
     "use strict";
@@ -21401,7 +21434,7 @@ enifed("ember-metal/tests/mixin/method_test.jshint",
       ok(true, 'ember-metal/tests/mixin/method_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/mixin/observer_test",
+define("ember-metal/tests/mixin/observer_test",
   ["ember-metal/tests/props_helper","ember-metal/mixin","ember-metal/watching"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -21620,7 +21653,7 @@ enifed("ember-metal/tests/mixin/observer_test",
       equal(get(obj, 'count'), 1, 'should invoke observer after change');
     });
   });
-enifed("ember-metal/tests/mixin/observer_test.jshint",
+define("ember-metal/tests/mixin/observer_test.jshint",
   [],
   function() {
     "use strict";
@@ -21629,7 +21662,7 @@ enifed("ember-metal/tests/mixin/observer_test.jshint",
       ok(true, 'ember-metal/tests/mixin/observer_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/mixin/reopen_test",
+define("ember-metal/tests/mixin/reopen_test",
   ["ember-metal/run_loop","ember-metal/property_get","ember-runtime/system/object","ember-metal/mixin"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -21682,7 +21715,7 @@ enifed("ember-metal/tests/mixin/reopen_test",
       equal(result, "Breakfast!");
     });
   });
-enifed("ember-metal/tests/mixin/reopen_test.jshint",
+define("ember-metal/tests/mixin/reopen_test.jshint",
   [],
   function() {
     "use strict";
@@ -21691,7 +21724,7 @@ enifed("ember-metal/tests/mixin/reopen_test.jshint",
       ok(true, 'ember-metal/tests/mixin/reopen_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/mixin/required_test",
+define("ember-metal/tests/mixin/required_test",
   ["ember-metal/mixin","ember-metal/property_get"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -21748,7 +21781,7 @@ enifed("ember-metal/tests/mixin/required_test",
       equal(get(obj, 'foo'), 'FOO', 'should now be defined');
     });
   });
-enifed("ember-metal/tests/mixin/required_test.jshint",
+define("ember-metal/tests/mixin/required_test.jshint",
   [],
   function() {
     "use strict";
@@ -21757,7 +21790,7 @@ enifed("ember-metal/tests/mixin/required_test.jshint",
       ok(true, 'ember-metal/tests/mixin/required_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/mixin/without_test",
+define("ember-metal/tests/mixin/without_test",
   ["ember-metal/mixin"],
   function(__dependency1__) {
     "use strict";
@@ -21780,7 +21813,7 @@ enifed("ember-metal/tests/mixin/without_test",
 
     });
   });
-enifed("ember-metal/tests/mixin/without_test.jshint",
+define("ember-metal/tests/mixin/without_test.jshint",
   [],
   function() {
     "use strict";
@@ -21789,7 +21822,7 @@ enifed("ember-metal/tests/mixin/without_test.jshint",
       ok(true, 'ember-metal/tests/mixin/without_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/observer_test",
+define("ember-metal/tests/observer_test",
   ["ember-metal/core","ember-metal/tests/props_helper","ember-metal/observer","ember-metal/property_events","ember-metal/platform","ember-metal/properties","ember-metal/computed","ember-metal/mixin","ember-metal/run_loop"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
     "use strict";
@@ -23014,7 +23047,7 @@ enifed("ember-metal/tests/observer_test",
       equal(removedAfterLastChangeObserver.didChangeCount,    1, 'removeObserver called after the last change still sees 1');
     });
   });
-enifed("ember-metal/tests/observer_test.jshint",
+define("ember-metal/tests/observer_test.jshint",
   [],
   function() {
     "use strict";
@@ -23023,7 +23056,7 @@ enifed("ember-metal/tests/observer_test.jshint",
       ok(true, 'ember-metal/tests/observer_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/performance_test",
+define("ember-metal/tests/performance_test",
   ["ember-metal/property_set","ember-metal/property_get","ember-metal/computed","ember-metal/properties","ember-metal/property_events","ember-metal/observer"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
@@ -23091,7 +23124,7 @@ enifed("ember-metal/tests/performance_test",
       equal(count, 0, "should not have recomputed property");
     });
   });
-enifed("ember-metal/tests/performance_test.jshint",
+define("ember-metal/tests/performance_test.jshint",
   [],
   function() {
     "use strict";
@@ -23100,7 +23133,7 @@ enifed("ember-metal/tests/performance_test.jshint",
       ok(true, 'ember-metal/tests/performance_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/platform/create_test",
+define("ember-metal/tests/platform/create_test",
   ["ember-metal/platform"],
   function(__dependency1__) {
     "use strict";
@@ -23147,7 +23180,7 @@ enifed("ember-metal/tests/platform/create_test",
       notEqual(obj.repl, obj2.repl, 'should not pollute parent object');
     });
   });
-enifed("ember-metal/tests/platform/create_test.jshint",
+define("ember-metal/tests/platform/create_test.jshint",
   [],
   function() {
     "use strict";
@@ -23156,7 +23189,7 @@ enifed("ember-metal/tests/platform/create_test.jshint",
       ok(true, 'ember-metal/tests/platform/create_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/platform/defineProperty_test",
+define("ember-metal/tests/platform/defineProperty_test",
   ["ember-metal/platform","ember-metal/enumerable_utils"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -23279,7 +23312,7 @@ enifed("ember-metal/tests/platform/defineProperty_test",
       });
     }
   });
-enifed("ember-metal/tests/platform/defineProperty_test.jshint",
+define("ember-metal/tests/platform/defineProperty_test.jshint",
   [],
   function() {
     "use strict";
@@ -23288,7 +23321,7 @@ enifed("ember-metal/tests/platform/defineProperty_test.jshint",
       ok(true, 'ember-metal/tests/platform/defineProperty_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/properties_test",
+define("ember-metal/tests/properties_test",
   ["ember-metal/platform","ember-metal/computed","ember-metal/properties","ember-metal/deprecate_property"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -23377,7 +23410,7 @@ enifed("ember-metal/tests/properties_test",
       });
     }
   });
-enifed("ember-metal/tests/properties_test.jshint",
+define("ember-metal/tests/properties_test.jshint",
   [],
   function() {
     "use strict";
@@ -23386,7 +23419,7 @@ enifed("ember-metal/tests/properties_test.jshint",
       ok(true, 'ember-metal/tests/properties_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/props_helper",
+define("ember-metal/tests/props_helper",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -23446,7 +23479,7 @@ enifed("ember-metal/tests/props_helper",
     __exports__.testWithDefault = testWithDefault;
     __exports__.testBoth = testBoth;
   });
-enifed("ember-metal/tests/props_helper.jshint",
+define("ember-metal/tests/props_helper.jshint",
   [],
   function() {
     "use strict";
@@ -23455,7 +23488,7 @@ enifed("ember-metal/tests/props_helper.jshint",
       ok(true, 'ember-metal/tests/props_helper.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/run_loop/add_queue_test",
+define("ember-metal/tests/run_loop/add_queue_test",
   ["ember-metal/run_loop","ember-metal/array"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -23487,7 +23520,7 @@ enifed("ember-metal/tests/run_loop/add_queue_test",
       equal(queues.length, 3, "queue was not added twice");
     });
   });
-enifed("ember-metal/tests/run_loop/add_queue_test.jshint",
+define("ember-metal/tests/run_loop/add_queue_test.jshint",
   [],
   function() {
     "use strict";
@@ -23496,7 +23529,7 @@ enifed("ember-metal/tests/run_loop/add_queue_test.jshint",
       ok(true, 'ember-metal/tests/run_loop/add_queue_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/run_loop/debounce_test",
+define("ember-metal/tests/run_loop/debounce_test",
   ["ember-metal/run_loop"],
   function(__dependency1__) {
     "use strict";
@@ -23518,7 +23551,7 @@ enifed("ember-metal/tests/run_loop/debounce_test",
       ok(wasCalled, 'Ember.run.debounce used');
     });
   });
-enifed("ember-metal/tests/run_loop/debounce_test.jshint",
+define("ember-metal/tests/run_loop/debounce_test.jshint",
   [],
   function() {
     "use strict";
@@ -23527,7 +23560,7 @@ enifed("ember-metal/tests/run_loop/debounce_test.jshint",
       ok(true, 'ember-metal/tests/run_loop/debounce_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/run_loop/later_test",
+define("ember-metal/tests/run_loop/later_test",
   ["ember-metal/is_none","ember-metal/run_loop"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -23767,7 +23800,7 @@ enifed("ember-metal/tests/run_loop/later_test",
       });
     });
   });
-enifed("ember-metal/tests/run_loop/later_test.jshint",
+define("ember-metal/tests/run_loop/later_test.jshint",
   [],
   function() {
     "use strict";
@@ -23776,7 +23809,7 @@ enifed("ember-metal/tests/run_loop/later_test.jshint",
       ok(true, 'ember-metal/tests/run_loop/later_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/run_loop/next_test",
+define("ember-metal/tests/run_loop/next_test",
   ["ember-metal/run_loop"],
   function(__dependency1__) {
     "use strict";
@@ -23830,7 +23863,7 @@ enifed("ember-metal/tests/run_loop/next_test",
       }, 20);
     });
   });
-enifed("ember-metal/tests/run_loop/next_test.jshint",
+define("ember-metal/tests/run_loop/next_test.jshint",
   [],
   function() {
     "use strict";
@@ -23839,7 +23872,7 @@ enifed("ember-metal/tests/run_loop/next_test.jshint",
       ok(true, 'ember-metal/tests/run_loop/next_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/run_loop/once_test",
+define("ember-metal/tests/run_loop/once_test",
   ["ember-metal/run_loop"],
   function(__dependency1__) {
     "use strict";
@@ -23902,7 +23935,7 @@ enifed("ember-metal/tests/run_loop/once_test",
       });
     });
   });
-enifed("ember-metal/tests/run_loop/once_test.jshint",
+define("ember-metal/tests/run_loop/once_test.jshint",
   [],
   function() {
     "use strict";
@@ -23911,7 +23944,7 @@ enifed("ember-metal/tests/run_loop/once_test.jshint",
       ok(true, 'ember-metal/tests/run_loop/once_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/run_loop/onerror_test",
+define("ember-metal/tests/run_loop/onerror_test",
   ["ember-metal","ember-metal/run_loop"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -23946,7 +23979,7 @@ enifed("ember-metal/tests/run_loop/onerror_test",
       Ember.onerror = undefined;
     });
   });
-enifed("ember-metal/tests/run_loop/onerror_test.jshint",
+define("ember-metal/tests/run_loop/onerror_test.jshint",
   [],
   function() {
     "use strict";
@@ -23955,7 +23988,7 @@ enifed("ember-metal/tests/run_loop/onerror_test.jshint",
       ok(true, 'ember-metal/tests/run_loop/onerror_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/run_loop/run_bind_test",
+define("ember-metal/tests/run_loop/run_bind_test",
   ["ember-metal/run_loop"],
   function(__dependency1__) {
     "use strict";
@@ -23996,7 +24029,7 @@ enifed("ember-metal/tests/run_loop/run_bind_test",
       asyncFunction(run.bind(asyncCallback, asyncCallback, 1));
     });
   });
-enifed("ember-metal/tests/run_loop/run_bind_test.jshint",
+define("ember-metal/tests/run_loop/run_bind_test.jshint",
   [],
   function() {
     "use strict";
@@ -24005,7 +24038,7 @@ enifed("ember-metal/tests/run_loop/run_bind_test.jshint",
       ok(true, 'ember-metal/tests/run_loop/run_bind_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/run_loop/run_test",
+define("ember-metal/tests/run_loop/run_test",
   ["ember-metal/run_loop"],
   function(__dependency1__) {
     "use strict";
@@ -24026,7 +24059,7 @@ enifed("ember-metal/tests/run_loop/run_test",
       deepEqual(run(obj, obj.checkArgs, 'hello', 'world'), ['hello', 'BAR', 'world'], 'pass obj, obj.method, and extra arguments');
     });
   });
-enifed("ember-metal/tests/run_loop/run_test.jshint",
+define("ember-metal/tests/run_loop/run_test.jshint",
   [],
   function() {
     "use strict";
@@ -24035,7 +24068,7 @@ enifed("ember-metal/tests/run_loop/run_test.jshint",
       ok(true, 'ember-metal/tests/run_loop/run_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/run_loop/schedule_test",
+define("ember-metal/tests/run_loop/schedule_test",
   ["ember-metal/run_loop"],
   function(__dependency1__) {
     "use strict";
@@ -24119,7 +24152,7 @@ enifed("ember-metal/tests/run_loop/schedule_test",
       }, /wrap any code with asynchronous side-effects in an run/);
     });
   });
-enifed("ember-metal/tests/run_loop/schedule_test.jshint",
+define("ember-metal/tests/run_loop/schedule_test.jshint",
   [],
   function() {
     "use strict";
@@ -24128,7 +24161,7 @@ enifed("ember-metal/tests/run_loop/schedule_test.jshint",
       ok(true, 'ember-metal/tests/run_loop/schedule_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/run_loop/sync_test",
+define("ember-metal/tests/run_loop/sync_test",
   ["ember-metal/run_loop"],
   function(__dependency1__) {
     "use strict";
@@ -24166,7 +24199,7 @@ enifed("ember-metal/tests/run_loop/sync_test",
       run.sync();
     });
   });
-enifed("ember-metal/tests/run_loop/sync_test.jshint",
+define("ember-metal/tests/run_loop/sync_test.jshint",
   [],
   function() {
     "use strict";
@@ -24175,7 +24208,7 @@ enifed("ember-metal/tests/run_loop/sync_test.jshint",
       ok(true, 'ember-metal/tests/run_loop/sync_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/run_loop/unwind_test",
+define("ember-metal/tests/run_loop/unwind_test",
   ["ember-metal/run_loop","ember-metal/error"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -24220,7 +24253,7 @@ enifed("ember-metal/tests/run_loop/unwind_test",
 
     });
   });
-enifed("ember-metal/tests/run_loop/unwind_test.jshint",
+define("ember-metal/tests/run_loop/unwind_test.jshint",
   [],
   function() {
     "use strict";
@@ -24229,7 +24262,7 @@ enifed("ember-metal/tests/run_loop/unwind_test.jshint",
       ok(true, 'ember-metal/tests/run_loop/unwind_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/set_properties_test",
+define("ember-metal/tests/set_properties_test",
   ["ember-metal/set_properties"],
   function(__dependency1__) {
     "use strict";
@@ -24260,7 +24293,7 @@ enifed("ember-metal/tests/set_properties_test",
       }, 'Set an additional, previously unset property');
     });
   });
-enifed("ember-metal/tests/set_properties_test.jshint",
+define("ember-metal/tests/set_properties_test.jshint",
   [],
   function() {
     "use strict";
@@ -24269,7 +24302,7 @@ enifed("ember-metal/tests/set_properties_test.jshint",
       ok(true, 'ember-metal/tests/set_properties_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/streams/simple_stream_test",
+define("ember-metal/tests/streams/simple_stream_test",
   ["ember-metal/streams/stream","ember-metal/streams/simple"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -24313,7 +24346,7 @@ enifed("ember-metal/tests/streams/simple_stream_test",
       equal(stream.value(), "zlurp");
     });
   });
-enifed("ember-metal/tests/streams/simple_stream_test.jshint",
+define("ember-metal/tests/streams/simple_stream_test.jshint",
   [],
   function() {
     "use strict";
@@ -24322,7 +24355,7 @@ enifed("ember-metal/tests/streams/simple_stream_test.jshint",
       ok(true, 'ember-metal/tests/streams/simple_stream_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/streams/stream_binding_test",
+define("ember-metal/tests/streams/stream_binding_test",
   ["ember-metal/property_get","ember-metal/property_set","ember-metal/mixin","ember-metal/run_loop","ember-metal/streams/stream","ember-metal/streams/stream_binding"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
@@ -24475,7 +24508,7 @@ enifed("ember-metal/tests/streams/stream_binding_test",
       equal(counter, 2);
     });
   });
-enifed("ember-metal/tests/streams/stream_binding_test.jshint",
+define("ember-metal/tests/streams/stream_binding_test.jshint",
   [],
   function() {
     "use strict";
@@ -24484,7 +24517,7 @@ enifed("ember-metal/tests/streams/stream_binding_test.jshint",
       ok(true, 'ember-metal/tests/streams/stream_binding_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/utils/can_invoke_test",
+define("ember-metal/tests/utils/can_invoke_test",
   ["ember-metal/utils"],
   function(__dependency1__) {
     "use strict";
@@ -24521,7 +24554,7 @@ enifed("ember-metal/tests/utils/can_invoke_test",
       equal(canInvoke(obj, 'foobar'), false);
     });
   });
-enifed("ember-metal/tests/utils/can_invoke_test.jshint",
+define("ember-metal/tests/utils/can_invoke_test.jshint",
   [],
   function() {
     "use strict";
@@ -24530,7 +24563,7 @@ enifed("ember-metal/tests/utils/can_invoke_test.jshint",
       ok(true, 'ember-metal/tests/utils/can_invoke_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/utils/generate_guid_test",
+define("ember-metal/tests/utils/generate_guid_test",
   ["ember-metal/utils"],
   function(__dependency1__) {
     "use strict";
@@ -24544,7 +24577,7 @@ enifed("ember-metal/tests/utils/generate_guid_test",
       ok( generateGuid(a, 'tyrell').indexOf('tyrell') > -1, "guid can be prefixed" );
     });
   });
-enifed("ember-metal/tests/utils/generate_guid_test.jshint",
+define("ember-metal/tests/utils/generate_guid_test.jshint",
   [],
   function() {
     "use strict";
@@ -24553,7 +24586,7 @@ enifed("ember-metal/tests/utils/generate_guid_test.jshint",
       ok(true, 'ember-metal/tests/utils/generate_guid_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/utils/guidFor_test",
+define("ember-metal/tests/utils/guidFor_test",
   ["ember-metal/utils"],
   function(__dependency1__) {
     "use strict";
@@ -24641,7 +24674,7 @@ enifed("ember-metal/tests/utils/guidFor_test",
       nanGuid( a );
     });
   });
-enifed("ember-metal/tests/utils/guidFor_test.jshint",
+define("ember-metal/tests/utils/guidFor_test.jshint",
   [],
   function() {
     "use strict";
@@ -24650,7 +24683,7 @@ enifed("ember-metal/tests/utils/guidFor_test.jshint",
       ok(true, 'ember-metal/tests/utils/guidFor_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/utils/is_array_test",
+define("ember-metal/tests/utils/is_array_test",
   ["ember-metal/utils"],
   function(__dependency1__) {
     "use strict";
@@ -24678,7 +24711,7 @@ enifed("ember-metal/tests/utils/is_array_test",
       equal( isArray(fn),       false, "function() {}" );
     });
   });
-enifed("ember-metal/tests/utils/is_array_test.jshint",
+define("ember-metal/tests/utils/is_array_test.jshint",
   [],
   function() {
     "use strict";
@@ -24687,7 +24720,7 @@ enifed("ember-metal/tests/utils/is_array_test.jshint",
       ok(true, 'ember-metal/tests/utils/is_array_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/utils/meta_test",
+define("ember-metal/tests/utils/meta_test",
   ["ember-metal/core","ember-metal/platform","ember-metal/utils"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -24778,7 +24811,7 @@ enifed("ember-metal/tests/utils/meta_test",
       }
     }
   });
-enifed("ember-metal/tests/utils/meta_test.jshint",
+define("ember-metal/tests/utils/meta_test.jshint",
   [],
   function() {
     "use strict";
@@ -24787,7 +24820,7 @@ enifed("ember-metal/tests/utils/meta_test.jshint",
       ok(true, 'ember-metal/tests/utils/meta_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/utils/try_catch_finally_test",
+define("ember-metal/tests/utils/try_catch_finally_test",
   ["ember-metal/utils"],
   function(__dependency1__) {
     "use strict";
@@ -24913,7 +24946,7 @@ enifed("ember-metal/tests/utils/try_catch_finally_test",
       equal(finalizeCount, 1, 'finalize was called once');
     });
   });
-enifed("ember-metal/tests/utils/try_catch_finally_test.jshint",
+define("ember-metal/tests/utils/try_catch_finally_test.jshint",
   [],
   function() {
     "use strict";
@@ -24922,7 +24955,7 @@ enifed("ember-metal/tests/utils/try_catch_finally_test.jshint",
       ok(true, 'ember-metal/tests/utils/try_catch_finally_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/utils/try_finally_test",
+define("ember-metal/tests/utils/try_finally_test",
   ["ember-metal/utils"],
   function(__dependency1__) {
     "use strict";
@@ -25003,7 +25036,7 @@ enifed("ember-metal/tests/utils/try_finally_test",
       equal(finalizeCount, 1, 'finalize was called once');
     });
   });
-enifed("ember-metal/tests/utils/try_finally_test.jshint",
+define("ember-metal/tests/utils/try_finally_test.jshint",
   [],
   function() {
     "use strict";
@@ -25012,7 +25045,7 @@ enifed("ember-metal/tests/utils/try_finally_test.jshint",
       ok(true, 'ember-metal/tests/utils/try_finally_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/utils/try_invoke_test",
+define("ember-metal/tests/utils/try_invoke_test",
   ["ember-metal/utils"],
   function(__dependency1__) {
     "use strict";
@@ -25049,7 +25082,7 @@ enifed("ember-metal/tests/utils/try_invoke_test",
       equal(tryInvoke(obj, 'aMethodThatTakesArguments', [true, true]), true);
     });
   });
-enifed("ember-metal/tests/utils/try_invoke_test.jshint",
+define("ember-metal/tests/utils/try_invoke_test.jshint",
   [],
   function() {
     "use strict";
@@ -25058,7 +25091,7 @@ enifed("ember-metal/tests/utils/try_invoke_test.jshint",
       ok(true, 'ember-metal/tests/utils/try_invoke_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/utils/type_of_test",
+define("ember-metal/tests/utils/type_of_test",
   ["ember-metal/utils"],
   function(__dependency1__) {
     "use strict";
@@ -25096,7 +25129,7 @@ enifed("ember-metal/tests/utils/type_of_test",
       }
     });
   });
-enifed("ember-metal/tests/utils/type_of_test.jshint",
+define("ember-metal/tests/utils/type_of_test.jshint",
   [],
   function() {
     "use strict";
@@ -25105,7 +25138,7 @@ enifed("ember-metal/tests/utils/type_of_test.jshint",
       ok(true, 'ember-metal/tests/utils/type_of_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/watching/isWatching_test",
+define("ember-metal/tests/watching/isWatching_test",
   ["ember-metal/computed","ember-metal/property_get","ember-metal/properties","ember-metal/mixin","ember-metal/observer","ember-metal/watching"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
@@ -25187,7 +25220,7 @@ enifed("ember-metal/tests/watching/isWatching_test",
       }, 'length');
     });
   });
-enifed("ember-metal/tests/watching/isWatching_test.jshint",
+define("ember-metal/tests/watching/isWatching_test.jshint",
   [],
   function() {
     "use strict";
@@ -25196,7 +25229,7 @@ enifed("ember-metal/tests/watching/isWatching_test.jshint",
       ok(true, 'ember-metal/tests/watching/isWatching_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/watching/unwatch_test",
+define("ember-metal/tests/watching/unwatch_test",
   ["ember-metal/tests/props_helper","ember-metal/watching","ember-metal/properties","ember-metal/events","ember-metal/computed","ember-metal/property_set"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
@@ -25308,7 +25341,7 @@ enifed("ember-metal/tests/watching/unwatch_test",
 
     });
   });
-enifed("ember-metal/tests/watching/unwatch_test.jshint",
+define("ember-metal/tests/watching/unwatch_test.jshint",
   [],
   function() {
     "use strict";
@@ -25317,7 +25350,7 @@ enifed("ember-metal/tests/watching/unwatch_test.jshint",
       ok(true, 'ember-metal/tests/watching/unwatch_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/watching/watch_test",
+define("ember-metal/tests/watching/watch_test",
   ["ember-metal/core","ember-metal/tests/props_helper","ember-metal/enumerable_utils","ember-metal/events","ember-metal/watching"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -25588,7 +25621,7 @@ enifed("ember-metal/tests/watching/watch_test",
       equal(arr.length, 10, 'property should be accessible on arr');
     });
   });
-enifed("ember-metal/tests/watching/watch_test.jshint",
+define("ember-metal/tests/watching/watch_test.jshint",
   [],
   function() {
     "use strict";
@@ -25597,7 +25630,7 @@ enifed("ember-metal/tests/watching/watch_test.jshint",
       ok(true, 'ember-metal/tests/watching/watch_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/utils.jshint",
+define("ember-metal/utils.jshint",
   [],
   function() {
     "use strict";
@@ -25606,7 +25639,7 @@ enifed("ember-metal/utils.jshint",
       ok(true, 'ember-metal/utils.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/watch_key.jshint",
+define("ember-metal/watch_key.jshint",
   [],
   function() {
     "use strict";
@@ -25615,7 +25648,7 @@ enifed("ember-metal/watch_key.jshint",
       ok(true, 'ember-metal/watch_key.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/watch_path.jshint",
+define("ember-metal/watch_path.jshint",
   [],
   function() {
     "use strict";
@@ -25624,7 +25657,7 @@ enifed("ember-metal/watch_path.jshint",
       ok(true, 'ember-metal/watch_path.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/watching.jshint",
+define("ember-metal/watching.jshint",
   [],
   function() {
     "use strict";
@@ -25633,7 +25666,7 @@ enifed("ember-metal/watching.jshint",
       ok(true, 'ember-metal/watching.js should pass jshint.'); 
     });
   });
-enifed("ember-routing-htmlbars.jshint",
+define("ember-routing-htmlbars.jshint",
   [],
   function() {
     "use strict";
@@ -25642,7 +25675,7 @@ enifed("ember-routing-htmlbars.jshint",
       ok(true, 'ember-routing-htmlbars.js should pass jshint.'); 
     });
   });
-enifed("ember-routing-htmlbars/helpers/action.jshint",
+define("ember-routing-htmlbars/helpers/action.jshint",
   [],
   function() {
     "use strict";
@@ -25651,7 +25684,7 @@ enifed("ember-routing-htmlbars/helpers/action.jshint",
       ok(true, 'ember-routing-htmlbars/helpers/action.js should pass jshint.'); 
     });
   });
-enifed("ember-routing-htmlbars/helpers/link-to.jshint",
+define("ember-routing-htmlbars/helpers/link-to.jshint",
   [],
   function() {
     "use strict";
@@ -25660,7 +25693,7 @@ enifed("ember-routing-htmlbars/helpers/link-to.jshint",
       ok(true, 'ember-routing-htmlbars/helpers/link-to.js should pass jshint.'); 
     });
   });
-enifed("ember-routing-htmlbars/helpers/outlet.jshint",
+define("ember-routing-htmlbars/helpers/outlet.jshint",
   [],
   function() {
     "use strict";
@@ -25669,7 +25702,7 @@ enifed("ember-routing-htmlbars/helpers/outlet.jshint",
       ok(true, 'ember-routing-htmlbars/helpers/outlet.js should pass jshint.'); 
     });
   });
-enifed("ember-routing-htmlbars/helpers/query-params.jshint",
+define("ember-routing-htmlbars/helpers/query-params.jshint",
   [],
   function() {
     "use strict";
@@ -25678,7 +25711,7 @@ enifed("ember-routing-htmlbars/helpers/query-params.jshint",
       ok(true, 'ember-routing-htmlbars/helpers/query-params.js should pass jshint.'); 
     });
   });
-enifed("ember-routing-htmlbars/helpers/render.jshint",
+define("ember-routing-htmlbars/helpers/render.jshint",
   [],
   function() {
     "use strict";
@@ -25687,7 +25720,7 @@ enifed("ember-routing-htmlbars/helpers/render.jshint",
       ok(true, 'ember-routing-htmlbars/helpers/render.js should pass jshint.'); 
     });
   });
-enifed("ember-routing-htmlbars/tests/helpers/action_test",
+define("ember-routing-htmlbars/tests/helpers/action_test",
   ["ember-metal/core","ember-metal/property_set","ember-metal/run_loop","ember-views/system/event_dispatcher","ember-views/system/action_manager","ember-runtime/system/container","ember-runtime/system/object","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-htmlbars/system/compile","ember-views/views/view","ember-views/views/component","ember-views/system/jquery","ember-htmlbars/helpers","ember-routing-htmlbars/helpers/action","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__) {
     "use strict";
@@ -25700,7 +25733,7 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test",
 
     var Container = __dependency6__["default"];
     var EmberObject = __dependency7__["default"];
-    var EmberController = __dependency8__["default"];
+    var EmberController = __dependency8__.default;
     var EmberObjectController = __dependency9__["default"];
     var EmberArrayController = __dependency10__["default"];
 
@@ -25710,7 +25743,7 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test",
     var jQuery = __dependency14__["default"];
 
     var registerHelper = __dependency15__.registerHelper;
-    var helpers = __dependency15__["default"];
+    var helpers = __dependency15__.default;
 
     var ActionHelper = __dependency16__.ActionHelper;
     var actionHelper = __dependency16__.actionHelper;
@@ -26537,7 +26570,7 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test",
       });
 
       var event = jQuery.Event("keyup");
-      event["char"] = 'a';
+      event.char = 'a';
       event.which = 65;
       view.$('input').trigger(event);
       ok(showCalled, "should call action with keyup");
@@ -26569,14 +26602,14 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test",
 
         function enterEvent(eventType) {
           var event = jQuery.Event(eventType);
-          event["char"] = '\n';
+          event.char = '\n';
           event.which = 13;
           return event;
         }
 
         function nonEnterEvent(eventType) {
           var event = jQuery.Event(eventType);
-          event["char"] = 'a';
+          event.char = 'a';
           event.which = 65;
           return event;
         }
@@ -26836,7 +26869,7 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test",
       equal(event.isDefaultPrevented(), false, "should not preventDefault");
     });
   });
-enifed("ember-routing-htmlbars/tests/helpers/action_test.jshint",
+define("ember-routing-htmlbars/tests/helpers/action_test.jshint",
   [],
   function() {
     "use strict";
@@ -26845,7 +26878,7 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test.jshint",
       ok(true, 'ember-routing-htmlbars/tests/helpers/action_test.js should pass jshint.'); 
     });
   });
-enifed("ember-routing-htmlbars/tests/helpers/link-to_test",
+define("ember-routing-htmlbars/tests/helpers/link-to_test",
   ["ember-routing-htmlbars","ember-metal/run_loop","ember-views/views/view","ember-htmlbars/system/compile","ember-metal/property_set","ember-runtime/controllers/controller","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
     "use strict";
@@ -26953,7 +26986,7 @@ enifed("ember-routing-htmlbars/tests/helpers/link-to_test",
       equal(view.$().text(), 'Text');
     });
   });
-enifed("ember-routing-htmlbars/tests/helpers/link-to_test.jshint",
+define("ember-routing-htmlbars/tests/helpers/link-to_test.jshint",
   [],
   function() {
     "use strict";
@@ -26962,7 +26995,7 @@ enifed("ember-routing-htmlbars/tests/helpers/link-to_test.jshint",
       ok(true, 'ember-routing-htmlbars/tests/helpers/link-to_test.js should pass jshint.'); 
     });
   });
-enifed("ember-routing-htmlbars/tests/helpers/outlet_test",
+define("ember-routing-htmlbars/tests/helpers/outlet_test",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","container/container","ember-runtime/system/namespace","ember-runtime/system/string","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-routing/system/router","ember-routing/location/hash_location","ember-views/views/metamorph_view","ember-routing/ext/view","ember-views/views/container_view","ember-views/system/jquery","ember-routing-htmlbars/helpers/outlet","ember-htmlbars/system/compile","ember-htmlbars/helpers","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__) {
     "use strict";
@@ -27339,7 +27372,7 @@ enifed("ember-routing-htmlbars/tests/helpers/outlet_test",
       runAppend(view);
     });
 
-    
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
       test("should throw an assertion if {{outlet}} used with unquoted name", function() {
         view = EmberView.create({
           template: compile("{{outlet foo}}"),
@@ -27348,8 +27381,18 @@ enifed("ember-routing-htmlbars/tests/helpers/outlet_test",
           runAppend(view);
         }, "Using {{outlet}} with an unquoted name is not supported.");
       });
+    } else {
+      test("should throw a deprecation if {{outlet}} is used with an unquoted name", function() {
+        view = EmberView.create({
+          template: compile("{{outlet foo}}")
+        });
+        expectDeprecation(function() {
+          runAppend(view);
+        }, 'Using {{outlet}} with an unquoted name is not supported. Please update to quoted usage \'{{outlet "foo"}}\'.');
       });
-enifed("ember-routing-htmlbars/tests/helpers/outlet_test.jshint",
+    }
+  });
+define("ember-routing-htmlbars/tests/helpers/outlet_test.jshint",
   [],
   function() {
     "use strict";
@@ -27358,7 +27401,7 @@ enifed("ember-routing-htmlbars/tests/helpers/outlet_test.jshint",
       ok(true, 'ember-routing-htmlbars/tests/helpers/outlet_test.js should pass jshint.'); 
     });
   });
-enifed("ember-routing-htmlbars/tests/helpers/render_test",
+define("ember-routing-htmlbars/tests/helpers/render_test",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-metal/platform","ember-metal/mixin","container/container","ember-runtime/system/namespace","ember-runtime/system/string","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-routing/system/router","ember-routing/location/hash_location","ember-htmlbars/helpers","ember-htmlbars/system/compile","ember-routing/ext/view","ember-views/views/metamorph_view","ember-views/system/jquery","ember-views/system/action_manager","ember-routing-htmlbars/helpers/render","ember-routing-htmlbars/helpers/action","ember-routing-htmlbars/helpers/outlet"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__) {
     "use strict";
@@ -27375,7 +27418,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
     var classify = __dependency9__.classify;
     var decamelize = __dependency9__.decamelize;
 
-    var EmberController = __dependency10__["default"];
+    var EmberController = __dependency10__.default;
     var EmberObjectController = __dependency11__["default"];
     var EmberArrayController = __dependency12__["default"];
 
@@ -27917,7 +27960,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
       equal(container.lookup('controller:blog.post'), renderedView.get('controller'), 'rendered with correct controller');
     });
 
-    
+    if (Ember.FEATURES.isEnabled('ember-htmlbars')) {
 
     test("throws an assertion if {{render}} is called with an unquoted template name", function(){
       var template = '<h1>HI</h1>{{render home}}';
@@ -27949,8 +27992,27 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
       }, "The second argument of {{render}} must be a path, e.g. {{render \"post\" post}}.");
     });
 
+    } else {
+
+    test("Using quoteless templateName works properly (DEPRECATED)", function(){
+      var template = '<h1>HI</h1>{{render home}}';
+      var controller = EmberController.extend({container: container});
+      view = EmberView.create({
+        controller: controller.create(),
+        template: compile(template)
       });
-enifed("ember-routing-htmlbars/tests/helpers/render_test.jshint",
+
+      Ember.TEMPLATES['home'] = compile("<p>BYE</p>");
+
+      expectDeprecation("Using a quoteless parameter with {{render}} is deprecated. Please update to quoted usage '{{render \"home\"}}.");
+      appendView(view);
+
+      equal(view.$('p:contains(BYE)').length, 1, "template was rendered");
+    });
+
+    }
+  });
+define("ember-routing-htmlbars/tests/helpers/render_test.jshint",
   [],
   function() {
     "use strict";
@@ -27959,7 +28021,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test.jshint",
       ok(true, 'ember-routing-htmlbars/tests/helpers/render_test.js should pass jshint.'); 
     });
   });
-enifed("ember-routing-views.jshint",
+define("ember-routing-views.jshint",
   [],
   function() {
     "use strict";
@@ -27968,7 +28030,7 @@ enifed("ember-routing-views.jshint",
       ok(true, 'ember-routing-views.js should pass jshint.'); 
     });
   });
-enifed("ember-routing-views/tests/main_test",
+define("ember-routing-views/tests/main_test",
   ["ember-routing-views","ember-metal/core"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -27981,7 +28043,7 @@ enifed("ember-routing-views/tests/main_test",
       ok(Ember.OutletView, "OutletView is exported correctly");
     });
   });
-enifed("ember-routing-views/tests/main_test.jshint",
+define("ember-routing-views/tests/main_test.jshint",
   [],
   function() {
     "use strict";
@@ -27990,7 +28052,7 @@ enifed("ember-routing-views/tests/main_test.jshint",
       ok(true, 'ember-routing-views/tests/main_test.js should pass jshint.'); 
     });
   });
-enifed("ember-routing-views/views/link.jshint",
+define("ember-routing-views/views/link.jshint",
   [],
   function() {
     "use strict";
@@ -27999,7 +28061,7 @@ enifed("ember-routing-views/views/link.jshint",
       ok(true, 'ember-routing-views/views/link.js should pass jshint.'); 
     });
   });
-enifed("ember-routing-views/views/outlet.jshint",
+define("ember-routing-views/views/outlet.jshint",
   [],
   function() {
     "use strict";
@@ -28008,7 +28070,7 @@ enifed("ember-routing-views/views/outlet.jshint",
       ok(true, 'ember-routing-views/views/outlet.js should pass jshint.'); 
     });
   });
-enifed("ember-routing.jshint",
+define("ember-routing.jshint",
   [],
   function() {
     "use strict";
@@ -28017,7 +28079,7 @@ enifed("ember-routing.jshint",
       ok(true, 'ember-routing.js should pass jshint.'); 
     });
   });
-enifed("ember-routing/ext/controller.jshint",
+define("ember-routing/ext/controller.jshint",
   [],
   function() {
     "use strict";
@@ -28026,7 +28088,7 @@ enifed("ember-routing/ext/controller.jshint",
       ok(true, 'ember-routing/ext/controller.js should pass jshint.'); 
     });
   });
-enifed("ember-routing/ext/run_loop.jshint",
+define("ember-routing/ext/run_loop.jshint",
   [],
   function() {
     "use strict";
@@ -28035,7 +28097,7 @@ enifed("ember-routing/ext/run_loop.jshint",
       ok(true, 'ember-routing/ext/run_loop.js should pass jshint.'); 
     });
   });
-enifed("ember-routing/ext/view.jshint",
+define("ember-routing/ext/view.jshint",
   [],
   function() {
     "use strict";
@@ -28044,7 +28106,7 @@ enifed("ember-routing/ext/view.jshint",
       ok(true, 'ember-routing/ext/view.js should pass jshint.'); 
     });
   });
-enifed("ember-routing/location/api.jshint",
+define("ember-routing/location/api.jshint",
   [],
   function() {
     "use strict";
@@ -28053,7 +28115,7 @@ enifed("ember-routing/location/api.jshint",
       ok(true, 'ember-routing/location/api.js should pass jshint.'); 
     });
   });
-enifed("ember-routing/location/auto_location.jshint",
+define("ember-routing/location/auto_location.jshint",
   [],
   function() {
     "use strict";
@@ -28062,7 +28124,7 @@ enifed("ember-routing/location/auto_location.jshint",
       ok(true, 'ember-routing/location/auto_location.js should pass jshint.'); 
     });
   });
-enifed("ember-routing/location/feature_detect.jshint",
+define("ember-routing/location/feature_detect.jshint",
   [],
   function() {
     "use strict";
@@ -28071,7 +28133,7 @@ enifed("ember-routing/location/feature_detect.jshint",
       ok(true, 'ember-routing/location/feature_detect.js should pass jshint.'); 
     });
   });
-enifed("ember-routing/location/hash_location.jshint",
+define("ember-routing/location/hash_location.jshint",
   [],
   function() {
     "use strict";
@@ -28080,7 +28142,7 @@ enifed("ember-routing/location/hash_location.jshint",
       ok(true, 'ember-routing/location/hash_location.js should pass jshint.'); 
     });
   });
-enifed("ember-routing/location/history_location.jshint",
+define("ember-routing/location/history_location.jshint",
   [],
   function() {
     "use strict";
@@ -28089,7 +28151,7 @@ enifed("ember-routing/location/history_location.jshint",
       ok(true, 'ember-routing/location/history_location.js should pass jshint.'); 
     });
   });
-enifed("ember-routing/location/none_location.jshint",
+define("ember-routing/location/none_location.jshint",
   [],
   function() {
     "use strict";
@@ -28098,7 +28160,7 @@ enifed("ember-routing/location/none_location.jshint",
       ok(true, 'ember-routing/location/none_location.js should pass jshint.'); 
     });
   });
-enifed("ember-routing/system/cache.jshint",
+define("ember-routing/system/cache.jshint",
   [],
   function() {
     "use strict";
@@ -28107,7 +28169,7 @@ enifed("ember-routing/system/cache.jshint",
       ok(true, 'ember-routing/system/cache.js should pass jshint.'); 
     });
   });
-enifed("ember-routing/system/controller_for.jshint",
+define("ember-routing/system/controller_for.jshint",
   [],
   function() {
     "use strict";
@@ -28116,7 +28178,7 @@ enifed("ember-routing/system/controller_for.jshint",
       ok(true, 'ember-routing/system/controller_for.js should pass jshint.'); 
     });
   });
-enifed("ember-routing/system/dsl.jshint",
+define("ember-routing/system/dsl.jshint",
   [],
   function() {
     "use strict";
@@ -28125,7 +28187,7 @@ enifed("ember-routing/system/dsl.jshint",
       ok(true, 'ember-routing/system/dsl.js should pass jshint.'); 
     });
   });
-enifed("ember-routing/system/generate_controller.jshint",
+define("ember-routing/system/generate_controller.jshint",
   [],
   function() {
     "use strict";
@@ -28134,7 +28196,7 @@ enifed("ember-routing/system/generate_controller.jshint",
       ok(true, 'ember-routing/system/generate_controller.js should pass jshint.'); 
     });
   });
-enifed("ember-routing/system/query_params.jshint",
+define("ember-routing/system/query_params.jshint",
   [],
   function() {
     "use strict";
@@ -28143,7 +28205,7 @@ enifed("ember-routing/system/query_params.jshint",
       ok(true, 'ember-routing/system/query_params.js should pass jshint.'); 
     });
   });
-enifed("ember-routing/system/route.jshint",
+define("ember-routing/system/route.jshint",
   [],
   function() {
     "use strict";
@@ -28152,7 +28214,7 @@ enifed("ember-routing/system/route.jshint",
       ok(true, 'ember-routing/system/route.js should pass jshint.'); 
     });
   });
-enifed("ember-routing/system/router.jshint",
+define("ember-routing/system/router.jshint",
   [],
   function() {
     "use strict";
@@ -28161,7 +28223,7 @@ enifed("ember-routing/system/router.jshint",
       ok(true, 'ember-routing/system/router.js should pass jshint.'); 
     });
   });
-enifed("ember-routing/tests/location/auto_location_test",
+define("ember-routing/tests/location/auto_location_test",
   ["ember-metal/property_get","ember-metal/run_loop","ember-metal/environment","ember-metal/merge","ember-runtime/copy","ember-runtime/system/object","ember-routing/location/auto_location","ember-routing/location/api","ember-routing/location/feature_detect"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
     "use strict";
@@ -28535,7 +28597,7 @@ enifed("ember-routing/tests/location/auto_location_test",
       equal(AutoTestLocation._history, environment.history, 'AutoLocation._history === environment.history');
     });
   });
-enifed("ember-routing/tests/location/auto_location_test.jshint",
+define("ember-routing/tests/location/auto_location_test.jshint",
   [],
   function() {
     "use strict";
@@ -28544,7 +28606,7 @@ enifed("ember-routing/tests/location/auto_location_test.jshint",
       ok(true, 'ember-routing/tests/location/auto_location_test.js should pass jshint.'); 
     });
   });
-enifed("ember-routing/tests/location/hash_location_test",
+define("ember-routing/tests/location/hash_location_test",
   ["ember-metal/core","ember-metal/property_get","ember-metal/utils","ember-metal/run_loop","ember-routing/location/hash_location"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -28735,7 +28797,7 @@ enifed("ember-routing/tests/location/hash_location_test",
         Ember.$ = oldJquery;
     });
   });
-enifed("ember-routing/tests/location/hash_location_test.jshint",
+define("ember-routing/tests/location/hash_location_test.jshint",
   [],
   function() {
     "use strict";
@@ -28744,7 +28806,7 @@ enifed("ember-routing/tests/location/hash_location_test.jshint",
       ok(true, 'ember-routing/tests/location/hash_location_test.js should pass jshint.'); 
     });
   });
-enifed("ember-routing/tests/location/history_location_test",
+define("ember-routing/tests/location/history_location_test",
   ["ember-metal/property_set","ember-metal/run_loop","ember-routing/location/history_location"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -28967,7 +29029,7 @@ enifed("ember-routing/tests/location/history_location_test",
         equal(location.getURL(), '/foo/bar?time=morphin#pink-power-ranger');
     });
   });
-enifed("ember-routing/tests/location/history_location_test.jshint",
+define("ember-routing/tests/location/history_location_test.jshint",
   [],
   function() {
     "use strict";
@@ -28976,7 +29038,7 @@ enifed("ember-routing/tests/location/history_location_test.jshint",
       ok(true, 'ember-routing/tests/location/history_location_test.js should pass jshint.'); 
     });
   });
-enifed("ember-routing/tests/system/controller_for_test",
+define("ember-routing/tests/system/controller_for_test",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","container/container","ember-runtime/system/namespace","ember-runtime/system/string","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-routing/system/controller_for","ember-routing/system/generate_controller"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__) {
     "use strict";
@@ -28994,7 +29056,7 @@ enifed("ember-routing/tests/system/controller_for_test",
     var ArrayController = __dependency10__["default"];
     var controllerFor = __dependency11__["default"];
     var generateControllerFactory = __dependency12__.generateControllerFactory;
-    var generateController = __dependency12__["default"];
+    var generateController = __dependency12__.default;
 
     var buildContainer = function(namespace) {
       var container = new Container();
@@ -29120,7 +29182,7 @@ enifed("ember-routing/tests/system/controller_for_test",
 
     });
   });
-enifed("ember-routing/tests/system/controller_for_test.jshint",
+define("ember-routing/tests/system/controller_for_test.jshint",
   [],
   function() {
     "use strict";
@@ -29129,7 +29191,7 @@ enifed("ember-routing/tests/system/controller_for_test.jshint",
       ok(true, 'ember-routing/tests/system/controller_for_test.js should pass jshint.'); 
     });
   });
-enifed("ember-routing/tests/system/dsl_test",
+define("ember-routing/tests/system/dsl_test",
   ["ember-routing/system/router","ember-metal/enumerable_utils"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -29197,7 +29259,7 @@ enifed("ember-routing/tests/system/dsl_test",
       ok(router.recognizer.names['bleep.bloop.blork'], 'parent name was used as base of nested routes');
     });
   });
-enifed("ember-routing/tests/system/dsl_test.jshint",
+define("ember-routing/tests/system/dsl_test.jshint",
   [],
   function() {
     "use strict";
@@ -29206,7 +29268,7 @@ enifed("ember-routing/tests/system/dsl_test.jshint",
       ok(true, 'ember-routing/tests/system/dsl_test.js should pass jshint.'); 
     });
   });
-enifed("ember-routing/tests/system/route_test",
+define("ember-routing/tests/system/route_test",
   ["ember-metal/run_loop","container/container","ember-runtime/system/service","ember-runtime/system/object","ember-routing/system/route","ember-runtime/inject"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
@@ -29438,7 +29500,7 @@ enifed("ember-routing/tests/system/route_test",
       equal(routeTwo.controllerFor('one'), testController);
     });
 
-    
+    if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
       QUnit.module('Route injected properties');
 
       test("services can be injected into routes", function() {
@@ -29455,9 +29517,9 @@ enifed("ember-routing/tests/system/route_test",
 
         equal(authService, appRoute.get('authService'), "service.auth is injected");
       });
-    
+    }
   });
-enifed("ember-routing/tests/system/route_test.jshint",
+define("ember-routing/tests/system/route_test.jshint",
   [],
   function() {
     "use strict";
@@ -29466,7 +29528,7 @@ enifed("ember-routing/tests/system/route_test.jshint",
       ok(true, 'ember-routing/tests/system/route_test.js should pass jshint.'); 
     });
   });
-enifed("ember-routing/tests/system/router_test",
+define("ember-routing/tests/system/router_test",
   ["ember-metal/run_loop","ember-runtime/copy","ember-metal/merge","ember-metal/enumerable_utils","container/container","ember-routing/location/hash_location","ember-routing/location/auto_location","ember-routing/system/router"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
     "use strict";
@@ -29650,7 +29712,7 @@ enifed("ember-routing/tests/system/router_test",
       router.handleURL('/foo/bar?time=morphin#pink-power-ranger');
     });
   });
-enifed("ember-routing/tests/system/router_test.jshint",
+define("ember-routing/tests/system/router_test.jshint",
   [],
   function() {
     "use strict";
@@ -29659,7 +29721,7 @@ enifed("ember-routing/tests/system/router_test.jshint",
       ok(true, 'ember-routing/tests/system/router_test.js should pass jshint.'); 
     });
   });
-enifed("ember-routing/utils.jshint",
+define("ember-routing/utils.jshint",
   [],
   function() {
     "use strict";
@@ -29668,7 +29730,7 @@ enifed("ember-routing/utils.jshint",
       ok(true, 'ember-routing/utils.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime.jshint",
+define("ember-runtime.jshint",
   [],
   function() {
     "use strict";
@@ -29677,7 +29739,7 @@ enifed("ember-runtime.jshint",
       ok(true, 'ember-runtime.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/compare.jshint",
+define("ember-runtime/compare.jshint",
   [],
   function() {
     "use strict";
@@ -29686,7 +29748,7 @@ enifed("ember-runtime/compare.jshint",
       ok(true, 'ember-runtime/compare.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/computed/array_computed.jshint",
+define("ember-runtime/computed/array_computed.jshint",
   [],
   function() {
     "use strict";
@@ -29695,7 +29757,7 @@ enifed("ember-runtime/computed/array_computed.jshint",
       ok(true, 'ember-runtime/computed/array_computed.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/computed/reduce_computed.jshint",
+define("ember-runtime/computed/reduce_computed.jshint",
   [],
   function() {
     "use strict";
@@ -29704,7 +29766,7 @@ enifed("ember-runtime/computed/reduce_computed.jshint",
       ok(true, 'ember-runtime/computed/reduce_computed.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/computed/reduce_computed_macros.jshint",
+define("ember-runtime/computed/reduce_computed_macros.jshint",
   [],
   function() {
     "use strict";
@@ -29713,7 +29775,7 @@ enifed("ember-runtime/computed/reduce_computed_macros.jshint",
       ok(true, 'ember-runtime/computed/reduce_computed_macros.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/controllers/array_controller.jshint",
+define("ember-runtime/controllers/array_controller.jshint",
   [],
   function() {
     "use strict";
@@ -29722,7 +29784,7 @@ enifed("ember-runtime/controllers/array_controller.jshint",
       ok(true, 'ember-runtime/controllers/array_controller.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/controllers/controller.jshint",
+define("ember-runtime/controllers/controller.jshint",
   [],
   function() {
     "use strict";
@@ -29731,7 +29793,7 @@ enifed("ember-runtime/controllers/controller.jshint",
       ok(true, 'ember-runtime/controllers/controller.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/controllers/object_controller.jshint",
+define("ember-runtime/controllers/object_controller.jshint",
   [],
   function() {
     "use strict";
@@ -29740,7 +29802,7 @@ enifed("ember-runtime/controllers/object_controller.jshint",
       ok(true, 'ember-runtime/controllers/object_controller.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/copy.jshint",
+define("ember-runtime/copy.jshint",
   [],
   function() {
     "use strict";
@@ -29749,7 +29811,7 @@ enifed("ember-runtime/copy.jshint",
       ok(true, 'ember-runtime/copy.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/core.jshint",
+define("ember-runtime/core.jshint",
   [],
   function() {
     "use strict";
@@ -29758,7 +29820,7 @@ enifed("ember-runtime/core.jshint",
       ok(true, 'ember-runtime/core.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/ext/function.jshint",
+define("ember-runtime/ext/function.jshint",
   [],
   function() {
     "use strict";
@@ -29767,7 +29829,7 @@ enifed("ember-runtime/ext/function.jshint",
       ok(true, 'ember-runtime/ext/function.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/ext/rsvp.jshint",
+define("ember-runtime/ext/rsvp.jshint",
   [],
   function() {
     "use strict";
@@ -29776,7 +29838,7 @@ enifed("ember-runtime/ext/rsvp.jshint",
       ok(true, 'ember-runtime/ext/rsvp.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/ext/string.jshint",
+define("ember-runtime/ext/string.jshint",
   [],
   function() {
     "use strict";
@@ -29785,7 +29847,7 @@ enifed("ember-runtime/ext/string.jshint",
       ok(true, 'ember-runtime/ext/string.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/inject.jshint",
+define("ember-runtime/inject.jshint",
   [],
   function() {
     "use strict";
@@ -29794,7 +29856,7 @@ enifed("ember-runtime/inject.jshint",
       ok(true, 'ember-runtime/inject.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/mixins/-proxy.jshint",
+define("ember-runtime/mixins/-proxy.jshint",
   [],
   function() {
     "use strict";
@@ -29803,7 +29865,7 @@ enifed("ember-runtime/mixins/-proxy.jshint",
       ok(true, 'ember-runtime/mixins/-proxy.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/mixins/action_handler.jshint",
+define("ember-runtime/mixins/action_handler.jshint",
   [],
   function() {
     "use strict";
@@ -29812,7 +29874,7 @@ enifed("ember-runtime/mixins/action_handler.jshint",
       ok(true, 'ember-runtime/mixins/action_handler.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/mixins/array.jshint",
+define("ember-runtime/mixins/array.jshint",
   [],
   function() {
     "use strict";
@@ -29821,7 +29883,7 @@ enifed("ember-runtime/mixins/array.jshint",
       ok(true, 'ember-runtime/mixins/array.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/mixins/comparable.jshint",
+define("ember-runtime/mixins/comparable.jshint",
   [],
   function() {
     "use strict";
@@ -29830,7 +29892,7 @@ enifed("ember-runtime/mixins/comparable.jshint",
       ok(true, 'ember-runtime/mixins/comparable.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/mixins/controller.jshint",
+define("ember-runtime/mixins/controller.jshint",
   [],
   function() {
     "use strict";
@@ -29839,7 +29901,7 @@ enifed("ember-runtime/mixins/controller.jshint",
       ok(true, 'ember-runtime/mixins/controller.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/mixins/controller_content_model_alias_deprecation.jshint",
+define("ember-runtime/mixins/controller_content_model_alias_deprecation.jshint",
   [],
   function() {
     "use strict";
@@ -29848,7 +29910,7 @@ enifed("ember-runtime/mixins/controller_content_model_alias_deprecation.jshint",
       ok(true, 'ember-runtime/mixins/controller_content_model_alias_deprecation.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/mixins/copyable.jshint",
+define("ember-runtime/mixins/copyable.jshint",
   [],
   function() {
     "use strict";
@@ -29857,7 +29919,7 @@ enifed("ember-runtime/mixins/copyable.jshint",
       ok(true, 'ember-runtime/mixins/copyable.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/mixins/deferred.jshint",
+define("ember-runtime/mixins/deferred.jshint",
   [],
   function() {
     "use strict";
@@ -29866,7 +29928,7 @@ enifed("ember-runtime/mixins/deferred.jshint",
       ok(true, 'ember-runtime/mixins/deferred.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/mixins/enumerable.jshint",
+define("ember-runtime/mixins/enumerable.jshint",
   [],
   function() {
     "use strict";
@@ -29875,7 +29937,7 @@ enifed("ember-runtime/mixins/enumerable.jshint",
       ok(true, 'ember-runtime/mixins/enumerable.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/mixins/evented.jshint",
+define("ember-runtime/mixins/evented.jshint",
   [],
   function() {
     "use strict";
@@ -29884,7 +29946,7 @@ enifed("ember-runtime/mixins/evented.jshint",
       ok(true, 'ember-runtime/mixins/evented.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/mixins/freezable.jshint",
+define("ember-runtime/mixins/freezable.jshint",
   [],
   function() {
     "use strict";
@@ -29893,7 +29955,7 @@ enifed("ember-runtime/mixins/freezable.jshint",
       ok(true, 'ember-runtime/mixins/freezable.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/mixins/mutable_array.jshint",
+define("ember-runtime/mixins/mutable_array.jshint",
   [],
   function() {
     "use strict";
@@ -29902,7 +29964,7 @@ enifed("ember-runtime/mixins/mutable_array.jshint",
       ok(true, 'ember-runtime/mixins/mutable_array.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/mixins/mutable_enumerable.jshint",
+define("ember-runtime/mixins/mutable_enumerable.jshint",
   [],
   function() {
     "use strict";
@@ -29911,7 +29973,7 @@ enifed("ember-runtime/mixins/mutable_enumerable.jshint",
       ok(true, 'ember-runtime/mixins/mutable_enumerable.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/mixins/observable.jshint",
+define("ember-runtime/mixins/observable.jshint",
   [],
   function() {
     "use strict";
@@ -29920,7 +29982,7 @@ enifed("ember-runtime/mixins/observable.jshint",
       ok(true, 'ember-runtime/mixins/observable.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/mixins/promise_proxy.jshint",
+define("ember-runtime/mixins/promise_proxy.jshint",
   [],
   function() {
     "use strict";
@@ -29929,7 +29991,7 @@ enifed("ember-runtime/mixins/promise_proxy.jshint",
       ok(true, 'ember-runtime/mixins/promise_proxy.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/mixins/sortable.jshint",
+define("ember-runtime/mixins/sortable.jshint",
   [],
   function() {
     "use strict";
@@ -29938,7 +30000,7 @@ enifed("ember-runtime/mixins/sortable.jshint",
       ok(true, 'ember-runtime/mixins/sortable.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/mixins/target_action_support.jshint",
+define("ember-runtime/mixins/target_action_support.jshint",
   [],
   function() {
     "use strict";
@@ -29947,7 +30009,7 @@ enifed("ember-runtime/mixins/target_action_support.jshint",
       ok(true, 'ember-runtime/mixins/target_action_support.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/system/application.jshint",
+define("ember-runtime/system/application.jshint",
   [],
   function() {
     "use strict";
@@ -29956,7 +30018,7 @@ enifed("ember-runtime/system/application.jshint",
       ok(true, 'ember-runtime/system/application.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/system/array_proxy.jshint",
+define("ember-runtime/system/array_proxy.jshint",
   [],
   function() {
     "use strict";
@@ -29965,7 +30027,7 @@ enifed("ember-runtime/system/array_proxy.jshint",
       ok(true, 'ember-runtime/system/array_proxy.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/system/container.jshint",
+define("ember-runtime/system/container.jshint",
   [],
   function() {
     "use strict";
@@ -29974,7 +30036,7 @@ enifed("ember-runtime/system/container.jshint",
       ok(true, 'ember-runtime/system/container.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/system/core_object.jshint",
+define("ember-runtime/system/core_object.jshint",
   [],
   function() {
     "use strict";
@@ -29983,7 +30045,7 @@ enifed("ember-runtime/system/core_object.jshint",
       ok(true, 'ember-runtime/system/core_object.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/system/deferred.jshint",
+define("ember-runtime/system/deferred.jshint",
   [],
   function() {
     "use strict";
@@ -29992,7 +30054,7 @@ enifed("ember-runtime/system/deferred.jshint",
       ok(true, 'ember-runtime/system/deferred.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/system/each_proxy.jshint",
+define("ember-runtime/system/each_proxy.jshint",
   [],
   function() {
     "use strict";
@@ -30001,7 +30063,7 @@ enifed("ember-runtime/system/each_proxy.jshint",
       ok(true, 'ember-runtime/system/each_proxy.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/system/lazy_load.jshint",
+define("ember-runtime/system/lazy_load.jshint",
   [],
   function() {
     "use strict";
@@ -30010,7 +30072,7 @@ enifed("ember-runtime/system/lazy_load.jshint",
       ok(true, 'ember-runtime/system/lazy_load.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/system/namespace.jshint",
+define("ember-runtime/system/namespace.jshint",
   [],
   function() {
     "use strict";
@@ -30019,7 +30081,7 @@ enifed("ember-runtime/system/namespace.jshint",
       ok(true, 'ember-runtime/system/namespace.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/system/native_array.jshint",
+define("ember-runtime/system/native_array.jshint",
   [],
   function() {
     "use strict";
@@ -30028,7 +30090,7 @@ enifed("ember-runtime/system/native_array.jshint",
       ok(true, 'ember-runtime/system/native_array.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/system/object.jshint",
+define("ember-runtime/system/object.jshint",
   [],
   function() {
     "use strict";
@@ -30037,7 +30099,7 @@ enifed("ember-runtime/system/object.jshint",
       ok(true, 'ember-runtime/system/object.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/system/object_proxy.jshint",
+define("ember-runtime/system/object_proxy.jshint",
   [],
   function() {
     "use strict";
@@ -30046,7 +30108,7 @@ enifed("ember-runtime/system/object_proxy.jshint",
       ok(true, 'ember-runtime/system/object_proxy.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/system/service.jshint",
+define("ember-runtime/system/service.jshint",
   [],
   function() {
     "use strict";
@@ -30055,7 +30117,7 @@ enifed("ember-runtime/system/service.jshint",
       ok(true, 'ember-runtime/system/service.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/system/set.jshint",
+define("ember-runtime/system/set.jshint",
   [],
   function() {
     "use strict";
@@ -30064,7 +30126,7 @@ enifed("ember-runtime/system/set.jshint",
       ok(true, 'ember-runtime/system/set.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/system/string.jshint",
+define("ember-runtime/system/string.jshint",
   [],
   function() {
     "use strict";
@@ -30073,7 +30135,7 @@ enifed("ember-runtime/system/string.jshint",
       ok(true, 'ember-runtime/system/string.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/system/subarray.jshint",
+define("ember-runtime/system/subarray.jshint",
   [],
   function() {
     "use strict";
@@ -30082,7 +30144,7 @@ enifed("ember-runtime/system/subarray.jshint",
       ok(true, 'ember-runtime/system/subarray.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/system/tracked_array.jshint",
+define("ember-runtime/system/tracked_array.jshint",
   [],
   function() {
     "use strict";
@@ -30091,7 +30153,7 @@ enifed("ember-runtime/system/tracked_array.jshint",
       ok(true, 'ember-runtime/system/tracked_array.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/computed/compose_computed_test",
+define("ember-runtime/tests/computed/compose_computed_test",
   ["ember-metal/core","ember-metal/observer","ember-metal/computed","ember-runtime/computed/reduce_computed_macros","ember-metal/run_loop","ember-metal/properties","ember-runtime/compare","ember-metal/tests/props_helper","ember-runtime/system/object"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
     "use strict";
@@ -30107,8 +30169,242 @@ enifed("ember-runtime/tests/computed/compose_computed_test",
     var testBoth = __dependency8__.testBoth;
     var EmberObject = __dependency9__["default"];
 
+    if (Ember.FEATURES.isEnabled('composable-computed-properties')) {
+      var obj;
+
+      QUnit.module('computed - composable', {
+        teardown: function () {
+          if (obj && obj.destroy) {
+            run(function() {
+              obj.destroy();
+            });
+          }
+        }
       });
-enifed("ember-runtime/tests/computed/compose_computed_test.jshint",
+
+      testBoth('should be able to take a computed property as a parameter for ember objects', function(get, set) {
+        var not = computed.not;
+        var equals = computed.equal;
+
+        obj = EmberObject.extend({
+          firstName: null,
+          lastName: null,
+          state: null,
+          napTime: not(equals('state', 'sleepy'))
+        }).create({
+          firstName: 'Alex',
+          lastName: 'Navasardyan',
+          state: 'sleepy'
+        });
+
+        equal(get(obj, 'firstName'), 'Alex');
+        equal(get(obj, 'lastName'), 'Navasardyan');
+
+        equal(get(obj, 'state'), 'sleepy');
+        equal(get(obj, 'napTime'), false);
+
+        set(obj, 'state', 'not sleepy');
+        equal(get(obj, 'state'), 'not sleepy');
+        equal(get(obj, 'napTime'), true);
+      });
+
+      testBoth('should work with plain JavaScript objects', function(get, set) {
+        var not = computed.not;
+        var equals = computed.equal;
+
+        obj = {
+          firstName: 'Alex',
+          lastName: 'Navasardyan',
+          state: 'sleepy'
+        };
+
+        defineProperty(obj, 'napTime', not(equals('state', 'sleepy')));
+
+        equal(get(obj, 'firstName'), 'Alex');
+        equal(get(obj, 'lastName'), 'Navasardyan');
+
+        equal(get(obj, 'state'), 'sleepy');
+        equal(get(obj, 'napTime'), false);
+
+        set(obj, 'state', 'not sleepy');
+        equal(get(obj, 'state'), 'not sleepy');
+        equal(get(obj, 'napTime'), true);
+      });
+
+      testBoth('should be able to take many computed properties as parameters', function(get, set) {
+        var and     = computed.and;
+        var equals  = computed.equal;
+        var not     = computed.not;
+        var obj = EmberObject.extend({
+              firstName: null,
+              lastName: null,
+              state: null,
+              hungry: null,
+              thirsty: null,
+              napTime: and(equals('state', 'sleepy'), not('hungry'), not('thirsty'))
+            }).create({
+              firstName: 'Alex',
+              lastName:  'Navasardyan',
+              state:     'sleepy',
+              hungry:    true,
+              thirsty:   false
+            });
+
+        equal(get(obj, 'firstName'), 'Alex');
+        equal(get(obj, 'lastName'), 'Navasardyan');
+
+        equal(get(obj, 'state'), 'sleepy');
+        equal(get(obj, 'napTime'), false);
+
+        set(obj, 'state', 'not sleepy');
+        equal(get(obj, 'state'), 'not sleepy');
+        equal(get(obj, 'napTime'), false);
+
+        set(obj, 'state', 'sleepy');
+        set(obj, 'thristy', false);
+        set(obj, 'hungry', false);
+        equal(get(obj, 'napTime'), true);
+      });
+
+      testBoth('composable computed properties can be shared between types', function (get, set) {
+        var not = computed.not;
+        var equals = computed.equal;
+        var notSleepy = not(equals('state', 'sleepy'));
+        var Type0 = EmberObject.extend({
+            state: null,
+            napTime: notSleepy
+          });
+        var Type1 = EmberObject.extend({
+            state: null,
+            napTime: notSleepy
+          });
+        var obj0 = Type0.create({ state: 'sleepy'});
+        var obj1 = Type1.create({ state: 'sleepy' });
+
+        equal(get(obj0, 'state'), 'sleepy');
+        equal(get(obj0, 'napTime'), false);
+
+        set(obj0, 'state', 'not sleepy');
+        equal(get(obj0, 'state'), 'not sleepy');
+        equal(get(obj0, 'napTime'), true);
+
+        equal(get(obj1, 'state'), 'sleepy');
+        equal(get(obj1, 'napTime'), false);
+
+        set(obj1, 'state', 'not sleepy');
+        equal(get(obj1, 'state'), 'not sleepy');
+        equal(get(obj1, 'napTime'), true);
+      });
+
+      testBoth('composable computed properties work with existing CP macros', function(get, set) {
+        var not = computed.not;
+        var equals = computed.equal;
+        var observerCalls = 0;
+
+        obj = EmberObject.extend({
+          firstName: null,
+          lastName: null,
+          state: null,
+          napTime: not(equals('state', 'sleepy'))
+        }).create({
+          firstName: 'Alex',
+          lastName: 'Navasardyan',
+          state: 'sleepy'
+        });
+
+        addObserver(obj, 'napTime', function () {
+          ++observerCalls;
+        });
+
+        equal(get(obj, 'napTime'), false);
+        equal(observerCalls, 0);
+
+        set(obj, 'state', 'not sleepy');
+        equal(observerCalls, 1);
+        equal(get(obj, 'napTime'), true);
+      });
+
+      testBoth('composable computed properties work with arrayComputed properties', function (get, set) {
+        obj = EmberObject.extend({
+          names: sort(
+                  union(mapBy('people', 'firstName'), mapBy('people', 'lastName'), 'cats'),
+                  compare
+                 )
+        }).create({
+          people: Ember.A([{
+            firstName: 'Alex', lastName: 'Navasardyan'
+          }, {
+            firstName: 'David', lastName: 'Hamilton'
+          }]),
+          cats: Ember.A(['Grey Kitty', 'Little Boots'])
+        });
+
+        deepEqual(get(obj, 'names'), ['Alex', 'David', 'Grey Kitty', 'Hamilton', 'Little Boots', 'Navasardyan']);
+      });
+
+      testBoth('composable computed properties work with CPs that have no dependencies', function (get, set) {
+        var not = computed.not;
+        var constant = function (c) {
+              return computed(function () {
+                return c;
+              });
+            };
+
+        obj = EmberObject.extend({
+          p: not(constant(true))
+        }).create();
+
+        equal(get(obj, 'p'), false, "ccp works with dependencies that themselves have no dependencies");
+      });
+
+      testBoth('composable computed properties work with depKey paths', function (get, set) {
+        var not = computed.not;
+        var alias = computed.alias;
+
+        obj = EmberObject.extend({
+          q: not(alias('indirection.p'))
+        }).create({
+          indirection: { p: true }
+        });
+
+        equal(get(obj, 'q'), false, "ccp is initially correct");
+
+        set(obj, 'indirection.p', false);
+
+        equal(get(obj, 'q'), true, "ccp is true after dependent chain updated");
+      });
+
+      testBoth('composable computed properties work with macros that have non-cp args', function (get, set) {
+        var equals = computed.equal;
+        var or = computed.or;
+
+        obj = EmberObject.extend({
+          isJaime: equals('name', 'Jaime'),
+          isCersei: equals('name', 'Cersei'),
+
+          isEither: or( equals('name', 'Jaime'),
+                        equals('name', 'Cersei'))
+        }).create({
+          name: 'Robb'
+        });
+
+        equal(false, get(obj, 'isEither'), "Robb is neither Jaime nor Cersei");
+
+        set(obj, 'name', 'Jaime');
+
+        equal(true, get(obj, 'isEither'), "Jaime is either Jaime nor Cersei");
+
+        set(obj, 'name', 'Cersei');
+
+        equal(true, get(obj, 'isEither'), "Cersei is either Jaime nor Cersei");
+
+        set(obj, 'name', 'Tyrion');
+
+        equal(false, get(obj, 'isEither'), "Tyrion is neither Jaime nor Cersei");
+      });
+    }
+  });
+define("ember-runtime/tests/computed/compose_computed_test.jshint",
   [],
   function() {
     "use strict";
@@ -30117,7 +30413,7 @@ enifed("ember-runtime/tests/computed/compose_computed_test.jshint",
       ok(true, 'ember-runtime/tests/computed/compose_computed_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/computed/computed_macros_test",
+define("ember-runtime/tests/computed/computed_macros_test",
   ["ember-metal/computed","ember-runtime/system/object","ember-metal/tests/props_helper"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -30169,7 +30465,7 @@ enifed("ember-runtime/tests/computed/computed_macros_test",
       equal(get(obj, 'LannistersKnown'), true, "empty respects array mutations");
     });
   });
-enifed("ember-runtime/tests/computed/computed_macros_test.jshint",
+define("ember-runtime/tests/computed/computed_macros_test.jshint",
   [],
   function() {
     "use strict";
@@ -30178,7 +30474,7 @@ enifed("ember-runtime/tests/computed/computed_macros_test.jshint",
       ok(true, 'ember-runtime/tests/computed/computed_macros_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/computed/reduce_computed_macros_test",
+define("ember-runtime/tests/computed/reduce_computed_macros_test",
   ["ember-metal/core","ember-runtime/system/object","ember-metal/set_properties","ember-runtime/system/object_proxy","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-metal/observer","ember-metal/property_events","ember-metal/array","ember-metal/mixin","ember-runtime/computed/reduce_computed_macros"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__) {
     "use strict";
@@ -31702,7 +31998,7 @@ enifed("ember-runtime/tests/computed/reduce_computed_macros_test",
       equal(sum(), 6, 'recomputes when elements are removed');
     });
   });
-enifed("ember-runtime/tests/computed/reduce_computed_macros_test.jshint",
+define("ember-runtime/tests/computed/reduce_computed_macros_test.jshint",
   [],
   function() {
     "use strict";
@@ -31711,7 +32007,7 @@ enifed("ember-runtime/tests/computed/reduce_computed_macros_test.jshint",
       ok(true, 'ember-runtime/tests/computed/reduce_computed_macros_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/computed/reduce_computed_test",
+define("ember-runtime/tests/computed/reduce_computed_test",
   ["ember-metal/core","ember-metal/enumerable_utils","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/run_loop","ember-metal/mixin","ember-metal/keys","ember-runtime/system/object","ember-metal/computed","ember-runtime/computed/array_computed","ember-runtime/computed/reduce_computed","ember-runtime/system/array_proxy","ember-runtime/system/subarray"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__) {
     "use strict";
@@ -32732,7 +33028,7 @@ enifed("ember-runtime/tests/computed/reduce_computed_test",
       deepEqual(callbackItems, ['remove:true', 'add:true', 'remove:true', 'add:true'], "item property flushes that depend on a shared prop are gated by a semaphore");
     });
   });
-enifed("ember-runtime/tests/computed/reduce_computed_test.jshint",
+define("ember-runtime/tests/computed/reduce_computed_test.jshint",
   [],
   function() {
     "use strict";
@@ -32741,7 +33037,7 @@ enifed("ember-runtime/tests/computed/reduce_computed_test.jshint",
       ok(true, 'ember-runtime/tests/computed/reduce_computed_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/controllers/array_controller_test",
+define("ember-runtime/tests/controllers/array_controller_test",
   ["ember-metal/core","ember-metal/computed","ember-runtime/tests/suites/mutable_array","ember-runtime/controllers/array_controller","ember-runtime/controllers/object_controller"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -32804,7 +33100,7 @@ enifed("ember-runtime/tests/controllers/array_controller_test",
       });
     }
   });
-enifed("ember-runtime/tests/controllers/array_controller_test.jshint",
+define("ember-runtime/tests/controllers/array_controller_test.jshint",
   [],
   function() {
     "use strict";
@@ -32813,7 +33109,7 @@ enifed("ember-runtime/tests/controllers/array_controller_test.jshint",
       ok(true, 'ember-runtime/tests/controllers/array_controller_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/controllers/controller_test",
+define("ember-runtime/tests/controllers/controller_test",
   ["ember-runtime/controllers/controller","ember-runtime/system/service","ember-runtime/controllers/object_controller","ember-metal/mixin","ember-runtime/system/object","ember-runtime/system/container","ember-runtime/inject","ember-metal/property_get"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
     "use strict";
@@ -32999,7 +33295,7 @@ enifed("ember-runtime/tests/controllers/controller_test",
       equal(get(controller, 'model'), 'blammo');
     });
 
-    
+    if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
       QUnit.module('Controller injected properties');
 
       if (!EmberDev.runningProdBuild) {
@@ -33047,9 +33343,9 @@ enifed("ember-runtime/tests/controllers/controller_test",
 
         equal(authService, appController.get('authService'), "service.auth is injected");
       });
-    
+    }
   });
-enifed("ember-runtime/tests/controllers/controller_test.jshint",
+define("ember-runtime/tests/controllers/controller_test.jshint",
   [],
   function() {
     "use strict";
@@ -33058,7 +33354,7 @@ enifed("ember-runtime/tests/controllers/controller_test.jshint",
       ok(true, 'ember-runtime/tests/controllers/controller_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/controllers/item_controller_class_test",
+define("ember-runtime/tests/controllers/item_controller_class_test",
   ["ember-metal/core","ember-metal/utils","ember-metal/run_loop","ember-metal/property_get","ember-metal/computed","ember-runtime/compare","ember-runtime/system/object","ember-runtime/controllers/array_controller","ember-runtime/controllers/object_controller","ember-runtime/computed/reduce_computed_macros","container"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__) {
     "use strict";
@@ -33438,7 +33734,7 @@ enifed("ember-runtime/tests/controllers/item_controller_class_test",
       deepEqual(arrayController.get('sorted').mapProperty('name'), ['Jaime', 'Cersei'], "ArrayController items can be sorted on itemController properties");
     });
   });
-enifed("ember-runtime/tests/controllers/item_controller_class_test.jshint",
+define("ember-runtime/tests/controllers/item_controller_class_test.jshint",
   [],
   function() {
     "use strict";
@@ -33447,7 +33743,7 @@ enifed("ember-runtime/tests/controllers/item_controller_class_test.jshint",
       ok(true, 'ember-runtime/tests/controllers/item_controller_class_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/controllers/object_controller_test",
+define("ember-runtime/tests/controllers/object_controller_test",
   ["ember-runtime/controllers/object_controller","ember-metal/mixin"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -33473,7 +33769,7 @@ enifed("ember-runtime/tests/controllers/object_controller_test",
       ok(true, "should not fail");
     });
   });
-enifed("ember-runtime/tests/controllers/object_controller_test.jshint",
+define("ember-runtime/tests/controllers/object_controller_test.jshint",
   [],
   function() {
     "use strict";
@@ -33482,7 +33778,7 @@ enifed("ember-runtime/tests/controllers/object_controller_test.jshint",
       ok(true, 'ember-runtime/tests/controllers/object_controller_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/core/compare_test",
+define("ember-runtime/tests/core/compare_test",
   ["ember-metal/utils","ember-runtime/system/object","ember-runtime/compare","ember-runtime/mixins/comparable"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -33564,7 +33860,7 @@ enifed("ember-runtime/tests/core/compare_test",
       equal(compare('c', one),    -1, 'Second item comparable - returns  1 (negated)');
     });
   });
-enifed("ember-runtime/tests/core/compare_test.jshint",
+define("ember-runtime/tests/core/compare_test.jshint",
   [],
   function() {
     "use strict";
@@ -33573,7 +33869,7 @@ enifed("ember-runtime/tests/core/compare_test.jshint",
       ok(true, 'ember-runtime/tests/core/compare_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/core/copy_test",
+define("ember-runtime/tests/core/copy_test",
   ["ember-metal/platform","ember-runtime/copy"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -33603,7 +33899,7 @@ enifed("ember-runtime/tests/core/copy_test",
       equal(copy(obj).foo, 'bar', 'bar should still be bar');
     });
   });
-enifed("ember-runtime/tests/core/copy_test.jshint",
+define("ember-runtime/tests/core/copy_test.jshint",
   [],
   function() {
     "use strict";
@@ -33612,7 +33908,7 @@ enifed("ember-runtime/tests/core/copy_test.jshint",
       ok(true, 'ember-runtime/tests/core/copy_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/core/isEqual_test",
+define("ember-runtime/tests/core/isEqual_test",
   ["ember-runtime/core"],
   function(__dependency1__) {
     "use strict";
@@ -33655,7 +33951,7 @@ enifed("ember-runtime/tests/core/isEqual_test",
       equal(isEqual(obj, obj), false, 'should return false because isEqual returns false');
     });
   });
-enifed("ember-runtime/tests/core/isEqual_test.jshint",
+define("ember-runtime/tests/core/isEqual_test.jshint",
   [],
   function() {
     "use strict";
@@ -33664,7 +33960,7 @@ enifed("ember-runtime/tests/core/isEqual_test.jshint",
       ok(true, 'ember-runtime/tests/core/isEqual_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/core/is_array_test",
+define("ember-runtime/tests/core/is_array_test",
   ["ember-metal/core","ember-metal/utils","ember-runtime/system/array_proxy"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -33680,7 +33976,7 @@ enifed("ember-runtime/tests/core/is_array_test",
       equal(isArray(arrayProxy), true, "[]");
     });
   });
-enifed("ember-runtime/tests/core/is_array_test.jshint",
+define("ember-runtime/tests/core/is_array_test.jshint",
   [],
   function() {
     "use strict";
@@ -33689,7 +33985,7 @@ enifed("ember-runtime/tests/core/is_array_test.jshint",
       ok(true, 'ember-runtime/tests/core/is_array_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/core/is_empty_test",
+define("ember-runtime/tests/core/is_empty_test",
   ["ember-metal/core","ember-metal/is_empty","ember-runtime/system/array_proxy"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -33705,7 +34001,7 @@ enifed("ember-runtime/tests/core/is_empty_test",
       equal(true,  isEmpty(arrayProxy), "for an ArrayProxy that has empty content");
     });
   });
-enifed("ember-runtime/tests/core/is_empty_test.jshint",
+define("ember-runtime/tests/core/is_empty_test.jshint",
   [],
   function() {
     "use strict";
@@ -33714,7 +34010,7 @@ enifed("ember-runtime/tests/core/is_empty_test.jshint",
       ok(true, 'ember-runtime/tests/core/is_empty_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/core/type_test",
+define("ember-runtime/tests/core/type_test",
   ["ember-metal/utils","ember-runtime/system/object"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -33739,7 +34035,7 @@ enifed("ember-runtime/tests/core/type_test",
       equal(typeOf(new Error()),   'error',     "item of type error");
     });
   });
-enifed("ember-runtime/tests/core/type_test.jshint",
+define("ember-runtime/tests/core/type_test.jshint",
   [],
   function() {
     "use strict";
@@ -33748,7 +34044,7 @@ enifed("ember-runtime/tests/core/type_test.jshint",
       ok(true, 'ember-runtime/tests/core/type_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/ext/function_test",
+define("ember-runtime/tests/ext/function_test",
   ["ember-metal/tests/props_helper"],
   function(__dependency1__) {
     "use strict";
@@ -33859,7 +34155,7 @@ enifed("ember-runtime/tests/ext/function_test",
       equal(get(obj, 'fullName'), 'Wilma ', 'should return the new computed value');
     });
   });
-enifed("ember-runtime/tests/ext/function_test.jshint",
+define("ember-runtime/tests/ext/function_test.jshint",
   [],
   function() {
     "use strict";
@@ -33868,7 +34164,7 @@ enifed("ember-runtime/tests/ext/function_test.jshint",
       ok(true, 'ember-runtime/tests/ext/function_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/ext/mixin_test",
+define("ember-runtime/tests/ext/mixin_test",
   ["ember-metal/property_set","ember-metal/property_get","ember-metal/mixin","ember-metal/platform","ember-metal/binding","ember-metal/run_loop"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
@@ -33925,7 +34221,7 @@ enifed("ember-runtime/tests/ext/mixin_test",
 
     });
   });
-enifed("ember-runtime/tests/ext/mixin_test.jshint",
+define("ember-runtime/tests/ext/mixin_test.jshint",
   [],
   function() {
     "use strict";
@@ -33934,7 +34230,7 @@ enifed("ember-runtime/tests/ext/mixin_test.jshint",
       ok(true, 'ember-runtime/tests/ext/mixin_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/ext/rsvp_test",
+define("ember-runtime/tests/ext/rsvp_test",
   ["ember-metal/run_loop","ember-runtime/ext/rsvp"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -34083,7 +34379,7 @@ enifed("ember-runtime/tests/ext/rsvp_test",
       }
     });
   });
-enifed("ember-runtime/tests/ext/rsvp_test.jshint",
+define("ember-runtime/tests/ext/rsvp_test.jshint",
   [],
   function() {
     "use strict";
@@ -34092,7 +34388,7 @@ enifed("ember-runtime/tests/ext/rsvp_test.jshint",
       ok(true, 'ember-runtime/tests/ext/rsvp_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/inject_test",
+define("ember-runtime/tests/inject_test",
   ["ember-metal/injected_property","ember-runtime/inject","ember-runtime/system/container","ember-runtime/system/object"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -34100,11 +34396,11 @@ enifed("ember-runtime/tests/inject_test",
 
     var InjectedProperty = __dependency1__["default"];
     var createInjectionHelper = __dependency2__.createInjectionHelper;
-    var inject = __dependency2__["default"];
+    var inject = __dependency2__.default;
     var Container = __dependency3__["default"];
     var Object = __dependency4__["default"];
 
-    
+    if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
       QUnit.module('inject');
 
       test("calling `inject` directly should error", function() {
@@ -34158,9 +34454,9 @@ enifed("ember-runtime/tests/inject_test",
 
         deepEqual(AnObject._lazyInjections(), { 'foo': 'foo:bar', 'bar': 'quux:bar' }, "should return injected container keys");
       });
-    
+    }
   });
-enifed("ember-runtime/tests/inject_test.jshint",
+define("ember-runtime/tests/inject_test.jshint",
   [],
   function() {
     "use strict";
@@ -34169,7 +34465,7 @@ enifed("ember-runtime/tests/inject_test.jshint",
       ok(true, 'ember-runtime/tests/inject_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/legacy_1x/mixins/observable/chained_test",
+define("ember-runtime/tests/legacy_1x/mixins/observable/chained_test",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-runtime/system/object","ember-metal/observer"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
@@ -34229,7 +34525,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/chained_test",
       equal(observerFiredCount, 0, "observer did not fire after removing changing property on a removed object");
     });
   });
-enifed("ember-runtime/tests/legacy_1x/mixins/observable/chained_test.jshint",
+define("ember-runtime/tests/legacy_1x/mixins/observable/chained_test.jshint",
   [],
   function() {
     "use strict";
@@ -34238,7 +34534,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/chained_test.jshint",
       ok(true, 'ember-runtime/tests/legacy_1x/mixins/observable/chained_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
+define("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
   ["ember-metal/property_get","ember-metal/enumerable_utils","ember-metal/computed","ember-metal/run_loop","ember-metal/utils","ember-metal/mixin","ember-runtime/system/string","ember-runtime/system/object","ember-runtime/mixins/observable"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
     "use strict";
@@ -34297,7 +34593,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
           numberVal: 24,
           toggleVal: true,
 
-          computed: computed(function() { return 'value'; })["volatile"](),
+          computed: computed(function() { return 'value'; }).volatile(),
 
           method: function() { return "value"; },
 
@@ -34346,7 +34642,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
           numberVal: 24,
           toggleVal: true,
 
-          computed: computed(function() { return 'value'; })["volatile"](),
+          computed: computed(function() { return 'value'; }).volatile(),
 
           method: function() { return "value"; },
 
@@ -34429,7 +34725,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
     test("should return a property at a given path relative to the lookup", function() {
       lookup.Foo = ObservableObject.create({
         Bar: ObservableObject.createWithMixins({
-          Baz: computed(function() { return "blargh"; })["volatile"]()
+          Baz: computed(function() { return "blargh"; }).volatile()
         })
       });
 
@@ -34439,7 +34735,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
     test("should return a property at a given path relative to the passed object", function() {
       var foo = ObservableObject.create({
         bar: ObservableObject.createWithMixins({
-          baz: computed(function() { return "blargh"; })["volatile"]()
+          baz: computed(function() { return "blargh"; }).volatile()
         })
       });
 
@@ -34485,7 +34781,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
               this._computed = value ;
             }
             return this._computed ;
-          })["volatile"](),
+          }).volatile(),
 
           // method, but not a property
           _method: "method",
@@ -34567,7 +34863,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
           computed: computed(function(key, value) {
             this.computedCalls.push(value);
             return 'computed';
-          })["volatile"](),
+          }).volatile(),
 
           computedCachedCalls: [],
           computedCached: computed(function(key, value) {
@@ -34584,13 +34880,13 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
           dependent: computed(function(key, value) {
             this.dependentCalls.push(value);
             return 'dependent';
-          }).property('changer')["volatile"](),
+          }).property('changer').volatile(),
 
           dependentFrontCalls: [],
           dependentFront: computed('changer', function(key, value) {
             this.dependentFrontCalls.push(value);
             return 'dependentFront';
-          })["volatile"](),
+          }).volatile(),
 
           dependentCachedCalls: [],
           dependentCached: computed(function(key, value) {
@@ -34616,12 +34912,12 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
           isOn: computed(function(key, value) {
             if (value !== undefined) this.set('state', 'on');
             return this.get('state') === 'on';
-          }).property('state')["volatile"](),
+          }).property('state').volatile(),
 
           isOff: computed(function(key, value) {
             if (value !== undefined) this.set('state', 'off');
             return this.get('state') === 'off';
-          }).property('state')["volatile"]()
+          }).property('state').volatile()
 
         }) ;
       },
@@ -35191,7 +35487,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
       expect(1);
     });
   });
-enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test.jshint",
+define("ember-runtime/tests/legacy_1x/mixins/observable/observable_test.jshint",
   [],
   function() {
     "use strict";
@@ -35200,7 +35496,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test.jshint",
       ok(true, 'ember-runtime/tests/legacy_1x/mixins/observable/observable_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/legacy_1x/mixins/observable/observersForKey_test",
+define("ember-runtime/tests/legacy_1x/mixins/observable/observersForKey_test",
   ["ember-metal/property_get","ember-runtime/system/object","ember-runtime/mixins/observable"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -35248,7 +35544,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observersForKey_test",
       equal(observers[1][0], o3, "second item in observers array should be o3");
     });
   });
-enifed("ember-runtime/tests/legacy_1x/mixins/observable/observersForKey_test.jshint",
+define("ember-runtime/tests/legacy_1x/mixins/observable/observersForKey_test.jshint",
   [],
   function() {
     "use strict";
@@ -35257,7 +35553,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observersForKey_test.jsh
       ok(true, 'ember-runtime/tests/legacy_1x/mixins/observable/observersForKey_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test",
+define("ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test",
   ["ember-runtime/system/object","ember-runtime/mixins/observable","ember-metal/computed","ember-metal/mixin"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -35391,7 +35687,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test",
             return this;
           }
           return this._b;
-        })["volatile"]()
+        }).volatile()
       });
 
       a.set('b', 'foo');
@@ -35404,7 +35700,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test",
 
     });
   });
-enifed("ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test.jshint",
+define("ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test.jshint",
   [],
   function() {
     "use strict";
@@ -35413,7 +35709,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test.jsh
       ok(true, 'ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/legacy_1x/system/binding_test",
+define("ember-runtime/tests/legacy_1x/system/binding_test",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-metal/binding","ember-metal/mixin","ember-runtime/system/object"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
     "use strict";
@@ -35745,7 +36041,7 @@ enifed("ember-runtime/tests/legacy_1x/system/binding_test",
       equal(get(TestNamespace.toObject, 'relative'), "newerValue");
     });
   });
-enifed("ember-runtime/tests/legacy_1x/system/binding_test.jshint",
+define("ember-runtime/tests/legacy_1x/system/binding_test.jshint",
   [],
   function() {
     "use strict";
@@ -35754,7 +36050,7 @@ enifed("ember-runtime/tests/legacy_1x/system/binding_test.jshint",
       ok(true, 'ember-runtime/tests/legacy_1x/system/binding_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/legacy_1x/system/object/base_test",
+define("ember-runtime/tests/legacy_1x/system/object/base_test",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/mixin","ember-runtime/system/object"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -35914,7 +36210,7 @@ enifed("ember-runtime/tests/legacy_1x/system/object/base_test",
       ok(obj.detectInstance(obj.create()));
     });
   });
-enifed("ember-runtime/tests/legacy_1x/system/object/base_test.jshint",
+define("ember-runtime/tests/legacy_1x/system/object/base_test.jshint",
   [],
   function() {
     "use strict";
@@ -35923,7 +36219,7 @@ enifed("ember-runtime/tests/legacy_1x/system/object/base_test.jshint",
       ok(true, 'ember-runtime/tests/legacy_1x/system/object/base_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/legacy_1x/system/object/bindings_test",
+define("ember-runtime/tests/legacy_1x/system/object/bindings_test",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-metal/watching","ember-runtime/system/object"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
@@ -36098,7 +36394,7 @@ enifed("ember-runtime/tests/legacy_1x/system/object/bindings_test",
       ok(get(testObject, 'foo') !== 'bar', 'binding should not have synced');
     });
   });
-enifed("ember-runtime/tests/legacy_1x/system/object/bindings_test.jshint",
+define("ember-runtime/tests/legacy_1x/system/object/bindings_test.jshint",
   [],
   function() {
     "use strict";
@@ -36107,7 +36403,7 @@ enifed("ember-runtime/tests/legacy_1x/system/object/bindings_test.jshint",
       ok(true, 'ember-runtime/tests/legacy_1x/system/object/bindings_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/legacy_1x/system/object/concatenated_test",
+define("ember-runtime/tests/legacy_1x/system/object/concatenated_test",
   ["ember-metal/property_get","ember-runtime/system/string","ember-runtime/system/object"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -36214,7 +36510,7 @@ enifed("ember-runtime/tests/legacy_1x/system/object/concatenated_test",
         deepEqual(values, expected, EmberStringUtils.fmt("should concatenate functions property (expected: %@, got: %@)", [expected, values]));
       });
   });
-enifed("ember-runtime/tests/legacy_1x/system/object/concatenated_test.jshint",
+define("ember-runtime/tests/legacy_1x/system/object/concatenated_test.jshint",
   [],
   function() {
     "use strict";
@@ -36223,7 +36519,7 @@ enifed("ember-runtime/tests/legacy_1x/system/object/concatenated_test.jshint",
       ok(true, 'ember-runtime/tests/legacy_1x/system/object/concatenated_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/legacy_1x/system/run_loop_test",
+define("ember-runtime/tests/legacy_1x/system/run_loop_test",
   ["ember-metal/mixin","ember-metal/run_loop","ember-metal/binding","ember-runtime/mixins/observable","ember-runtime/system/object"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -36335,7 +36631,7 @@ enifed("ember-runtime/tests/legacy_1x/system/run_loop_test",
       equal(MyApp.second.get("output"), "change") ;
     });
   });
-enifed("ember-runtime/tests/legacy_1x/system/run_loop_test.jshint",
+define("ember-runtime/tests/legacy_1x/system/run_loop_test.jshint",
   [],
   function() {
     "use strict";
@@ -36344,7 +36640,7 @@ enifed("ember-runtime/tests/legacy_1x/system/run_loop_test.jshint",
       ok(true, 'ember-runtime/tests/legacy_1x/system/run_loop_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/legacy_1x/system/set_test",
+define("ember-runtime/tests/legacy_1x/system/set_test",
   ["ember-metal/core","ember-metal/is_none","ember-runtime/system/set","ember-runtime/system/object","ember-runtime/mixins/array"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -36688,7 +36984,7 @@ enifed("ember-runtime/tests/legacy_1x/system/set_test",
       equal(obj.contains(set[4]), true);
     });
   });
-enifed("ember-runtime/tests/legacy_1x/system/set_test.jshint",
+define("ember-runtime/tests/legacy_1x/system/set_test.jshint",
   [],
   function() {
     "use strict";
@@ -36697,7 +36993,7 @@ enifed("ember-runtime/tests/legacy_1x/system/set_test.jshint",
       ok(true, 'ember-runtime/tests/legacy_1x/system/set_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/mixins/action_handler_test",
+define("ember-runtime/tests/mixins/action_handler_test",
   ["ember-metal/run_loop","ember-runtime/controllers/controller"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -36720,7 +37016,7 @@ enifed("ember-runtime/tests/mixins/action_handler_test",
       });
     });
   });
-enifed("ember-runtime/tests/mixins/action_handler_test.jshint",
+define("ember-runtime/tests/mixins/action_handler_test.jshint",
   [],
   function() {
     "use strict";
@@ -36729,7 +37025,7 @@ enifed("ember-runtime/tests/mixins/action_handler_test.jshint",
       ok(true, 'ember-runtime/tests/mixins/action_handler_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/mixins/array_test",
+define("ember-runtime/tests/mixins/array_test",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/observer","ember-metal/mixin","ember-metal/computed","ember-metal/tests/props_helper","ember-runtime/tests/suites/array","ember-runtime/system/object","ember-runtime/mixins/array"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
     "use strict";
@@ -37194,7 +37490,7 @@ enifed("ember-runtime/tests/mixins/array_test",
       equal(count, 2, "observers should only be called once");
     });
   });
-enifed("ember-runtime/tests/mixins/array_test.jshint",
+define("ember-runtime/tests/mixins/array_test.jshint",
   [],
   function() {
     "use strict";
@@ -37203,7 +37499,7 @@ enifed("ember-runtime/tests/mixins/array_test.jshint",
       ok(true, 'ember-runtime/tests/mixins/array_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/mixins/comparable_test",
+define("ember-runtime/tests/mixins/comparable_test",
   ["ember-metal/property_get","ember-runtime/system/object","ember-runtime/compare","ember-runtime/mixins/comparable"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -37247,7 +37543,7 @@ enifed("ember-runtime/tests/mixins/comparable_test",
       equal(compare(r2, r1), 1);
     });
   });
-enifed("ember-runtime/tests/mixins/comparable_test.jshint",
+define("ember-runtime/tests/mixins/comparable_test.jshint",
   [],
   function() {
     "use strict";
@@ -37256,7 +37552,7 @@ enifed("ember-runtime/tests/mixins/comparable_test.jshint",
       ok(true, 'ember-runtime/tests/mixins/comparable_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/mixins/copyable_test",
+define("ember-runtime/tests/mixins/copyable_test",
   ["ember-runtime/tests/suites/copyable","ember-runtime/mixins/copyable","ember-runtime/system/object","ember-metal/utils","ember-metal/property_set","ember-metal/property_get"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
@@ -37297,7 +37593,7 @@ enifed("ember-runtime/tests/mixins/copyable_test",
       }
     }).run();
   });
-enifed("ember-runtime/tests/mixins/copyable_test.jshint",
+define("ember-runtime/tests/mixins/copyable_test.jshint",
   [],
   function() {
     "use strict";
@@ -37306,7 +37602,7 @@ enifed("ember-runtime/tests/mixins/copyable_test.jshint",
       ok(true, 'ember-runtime/tests/mixins/copyable_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/mixins/deferred_test",
+define("ember-runtime/tests/mixins/deferred_test",
   ["ember-metal/core","ember-metal/run_loop","ember-runtime/system/object","ember-runtime/mixins/deferred"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -37678,7 +37974,7 @@ enifed("ember-runtime/tests/mixins/deferred_test",
       });
     }
   });
-enifed("ember-runtime/tests/mixins/deferred_test.jshint",
+define("ember-runtime/tests/mixins/deferred_test.jshint",
   [],
   function() {
     "use strict";
@@ -37687,7 +37983,7 @@ enifed("ember-runtime/tests/mixins/deferred_test.jshint",
       ok(true, 'ember-runtime/tests/mixins/deferred_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/mixins/enumerable_test",
+define("ember-runtime/tests/mixins/enumerable_test",
   ["ember-metal/core","ember-runtime/tests/suites/enumerable","ember-metal/enumerable_utils","ember-runtime/system/object","ember-runtime/mixins/enumerable","ember-runtime/mixins/array","ember-metal/property_get","ember-metal/computed","ember-metal/mixin"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
     "use strict";
@@ -38040,7 +38336,7 @@ enifed("ember-runtime/tests/mixins/enumerable_test",
       deepEqual(observer._after, null);
     });
   });
-enifed("ember-runtime/tests/mixins/enumerable_test.jshint",
+define("ember-runtime/tests/mixins/enumerable_test.jshint",
   [],
   function() {
     "use strict";
@@ -38049,7 +38345,7 @@ enifed("ember-runtime/tests/mixins/enumerable_test.jshint",
       ok(true, 'ember-runtime/tests/mixins/enumerable_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/mixins/mutable_array_test",
+define("ember-runtime/tests/mixins/mutable_array_test",
   ["ember-runtime/tests/suites/mutable_array","ember-runtime/mixins/mutable_array","ember-runtime/system/object","ember-metal/computed"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -38120,7 +38416,7 @@ enifed("ember-runtime/tests/mixins/mutable_array_test",
 
     }).run();
   });
-enifed("ember-runtime/tests/mixins/mutable_array_test.jshint",
+define("ember-runtime/tests/mixins/mutable_array_test.jshint",
   [],
   function() {
     "use strict";
@@ -38129,7 +38425,7 @@ enifed("ember-runtime/tests/mixins/mutable_array_test.jshint",
       ok(true, 'ember-runtime/tests/mixins/mutable_array_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/mixins/mutable_enumerable_test",
+define("ember-runtime/tests/mixins/mutable_enumerable_test",
   ["ember-runtime/tests/suites/mutable_enumerable","ember-runtime/mixins/mutable_enumerable","ember-metal/enumerable_utils","ember-runtime/system/object","ember-metal/computed","ember-metal/property_get"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
@@ -38203,7 +38499,7 @@ enifed("ember-runtime/tests/mixins/mutable_enumerable_test",
 
     }).run();
   });
-enifed("ember-runtime/tests/mixins/mutable_enumerable_test.jshint",
+define("ember-runtime/tests/mixins/mutable_enumerable_test.jshint",
   [],
   function() {
     "use strict";
@@ -38212,7 +38508,7 @@ enifed("ember-runtime/tests/mixins/mutable_enumerable_test.jshint",
       ok(true, 'ember-runtime/tests/mixins/mutable_enumerable_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/mixins/observable_test",
+define("ember-runtime/tests/mixins/observable_test",
   ["ember-metal/computed","ember-metal/observer","ember-runtime/system/object","ember-metal/tests/props_helper"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -38317,7 +38613,7 @@ enifed("ember-runtime/tests/mixins/observable_test",
       equal(25, obj.get('age'));
     });
   });
-enifed("ember-runtime/tests/mixins/observable_test.jshint",
+define("ember-runtime/tests/mixins/observable_test.jshint",
   [],
   function() {
     "use strict";
@@ -38326,7 +38622,7 @@ enifed("ember-runtime/tests/mixins/observable_test.jshint",
       ok(true, 'ember-runtime/tests/mixins/observable_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/mixins/promise_proxy_test",
+define("ember-runtime/tests/mixins/promise_proxy_test",
   ["ember-metal/platform","ember-metal/property_get","ember-metal/run_loop","ember-runtime/system/object_proxy","ember-runtime/mixins/promise_proxy","ember-runtime/ext/rsvp"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
@@ -38594,7 +38890,7 @@ enifed("ember-runtime/tests/mixins/promise_proxy_test",
       }
     });
   });
-enifed("ember-runtime/tests/mixins/promise_proxy_test.jshint",
+define("ember-runtime/tests/mixins/promise_proxy_test.jshint",
   [],
   function() {
     "use strict";
@@ -38603,7 +38899,7 @@ enifed("ember-runtime/tests/mixins/promise_proxy_test.jshint",
       ok(true, 'ember-runtime/tests/mixins/promise_proxy_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/mixins/sortable_test",
+define("ember-runtime/tests/mixins/sortable_test",
   ["ember-metal/core","ember-metal/property_set","ember-metal/run_loop","ember-metal/mixin","ember-metal/events","ember-runtime/system/array_proxy","ember-runtime/mixins/sortable","ember-runtime/system/object","ember-runtime/controllers/array_controller"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
     "use strict";
@@ -38989,7 +39285,7 @@ enifed("ember-runtime/tests/mixins/sortable_test",
       equal(sortedArrayController.objectAt(0).name, 'Scumbag Bryn', 'array is sorted by name');
     });
   });
-enifed("ember-runtime/tests/mixins/sortable_test.jshint",
+define("ember-runtime/tests/mixins/sortable_test.jshint",
   [],
   function() {
     "use strict";
@@ -38998,7 +39294,7 @@ enifed("ember-runtime/tests/mixins/sortable_test.jshint",
       ok(true, 'ember-runtime/tests/mixins/sortable_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/mixins/target_action_support_test",
+define("ember-runtime/tests/mixins/target_action_support_test",
   ["ember-metal/core","ember-runtime/system/object","ember-runtime/mixins/target_action_support"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -39183,7 +39479,7 @@ enifed("ember-runtime/tests/mixins/target_action_support_test",
       ok(true === obj.triggerAction({actionContext: null}), "a valid target and action were specified");
     });
   });
-enifed("ember-runtime/tests/mixins/target_action_support_test.jshint",
+define("ember-runtime/tests/mixins/target_action_support_test.jshint",
   [],
   function() {
     "use strict";
@@ -39192,7 +39488,7 @@ enifed("ember-runtime/tests/mixins/target_action_support_test.jshint",
       ok(true, 'ember-runtime/tests/mixins/target_action_support_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/array",
+define("ember-runtime/tests/suites/array",
   ["ember-runtime/tests/suites/enumerable","ember-runtime/tests/suites/array/indexOf","ember-runtime/tests/suites/array/lastIndexOf","ember-runtime/tests/suites/array/objectAt","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
@@ -39244,7 +39540,7 @@ enifed("ember-runtime/tests/suites/array",
     __exports__.ArrayTests = ArrayTests;
     __exports__.ObserverClass = ObserverClass;
   });
-enifed("ember-runtime/tests/suites/array.jshint",
+define("ember-runtime/tests/suites/array.jshint",
   [],
   function() {
     "use strict";
@@ -39253,7 +39549,7 @@ enifed("ember-runtime/tests/suites/array.jshint",
       ok(true, 'ember-runtime/tests/suites/array.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/array/indexOf",
+define("ember-runtime/tests/suites/array/indexOf",
   ["ember-runtime/tests/suites/suite","ember-runtime/system/string","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -39285,7 +39581,7 @@ enifed("ember-runtime/tests/suites/array/indexOf",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/array/indexOf.jshint",
+define("ember-runtime/tests/suites/array/indexOf.jshint",
   [],
   function() {
     "use strict";
@@ -39294,7 +39590,7 @@ enifed("ember-runtime/tests/suites/array/indexOf.jshint",
       ok(true, 'ember-runtime/tests/suites/array/indexOf.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/array/lastIndexOf",
+define("ember-runtime/tests/suites/array/lastIndexOf",
   ["ember-runtime/tests/suites/suite","ember-runtime/system/string","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -39367,7 +39663,7 @@ enifed("ember-runtime/tests/suites/array/lastIndexOf",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/array/lastIndexOf.jshint",
+define("ember-runtime/tests/suites/array/lastIndexOf.jshint",
   [],
   function() {
     "use strict";
@@ -39376,7 +39672,7 @@ enifed("ember-runtime/tests/suites/array/lastIndexOf.jshint",
       ok(true, 'ember-runtime/tests/suites/array/lastIndexOf.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/array/objectAt",
+define("ember-runtime/tests/suites/array/objectAt",
   ["ember-runtime/tests/suites/suite","ember-runtime/system/string","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -39411,7 +39707,7 @@ enifed("ember-runtime/tests/suites/array/objectAt",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/array/objectAt.jshint",
+define("ember-runtime/tests/suites/array/objectAt.jshint",
   [],
   function() {
     "use strict";
@@ -39420,7 +39716,7 @@ enifed("ember-runtime/tests/suites/array/objectAt.jshint",
       ok(true, 'ember-runtime/tests/suites/array/objectAt.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/copyable",
+define("ember-runtime/tests/suites/copyable",
   ["ember-runtime/tests/suites/suite","ember-metal/mixin","ember-runtime/tests/suites/copyable/copy","ember-runtime/tests/suites/copyable/frozenCopy","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
@@ -39470,7 +39766,7 @@ enifed("ember-runtime/tests/suites/copyable",
 
     __exports__["default"] = CopyableTests;
   });
-enifed("ember-runtime/tests/suites/copyable.jshint",
+define("ember-runtime/tests/suites/copyable.jshint",
   [],
   function() {
     "use strict";
@@ -39479,7 +39775,7 @@ enifed("ember-runtime/tests/suites/copyable.jshint",
       ok(true, 'ember-runtime/tests/suites/copyable.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/copyable/copy",
+define("ember-runtime/tests/suites/copyable/copy",
   ["ember-runtime/tests/suites/suite","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -39497,7 +39793,7 @@ enifed("ember-runtime/tests/suites/copyable/copy",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/copyable/copy.jshint",
+define("ember-runtime/tests/suites/copyable/copy.jshint",
   [],
   function() {
     "use strict";
@@ -39506,7 +39802,7 @@ enifed("ember-runtime/tests/suites/copyable/copy.jshint",
       ok(true, 'ember-runtime/tests/suites/copyable/copy.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/copyable/frozenCopy",
+define("ember-runtime/tests/suites/copyable/frozenCopy",
   ["ember-runtime/tests/suites/suite","ember-runtime/mixins/freezable","ember-metal/property_get","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -39540,7 +39836,7 @@ enifed("ember-runtime/tests/suites/copyable/frozenCopy",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/copyable/frozenCopy.jshint",
+define("ember-runtime/tests/suites/copyable/frozenCopy.jshint",
   [],
   function() {
     "use strict";
@@ -39549,7 +39845,7 @@ enifed("ember-runtime/tests/suites/copyable/frozenCopy.jshint",
       ok(true, 'ember-runtime/tests/suites/copyable/frozenCopy.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/enumerable",
+define("ember-runtime/tests/suites/enumerable",
   ["ember-runtime/tests/suites/suite","ember-runtime/system/object","ember-metal/mixin","ember-metal/utils","ember-metal/computed","ember-metal/property_get","ember-metal/observer","ember-runtime/tests/suites/enumerable/any","ember-runtime/tests/suites/enumerable/is_any","ember-runtime/tests/suites/enumerable/compact","ember-runtime/tests/suites/enumerable/contains","ember-runtime/tests/suites/enumerable/every","ember-runtime/tests/suites/enumerable/filter","ember-runtime/tests/suites/enumerable/find","ember-runtime/tests/suites/enumerable/firstObject","ember-runtime/tests/suites/enumerable/forEach","ember-runtime/tests/suites/enumerable/mapBy","ember-runtime/tests/suites/enumerable/invoke","ember-runtime/tests/suites/enumerable/lastObject","ember-runtime/tests/suites/enumerable/map","ember-runtime/tests/suites/enumerable/reduce","ember-runtime/tests/suites/enumerable/reject","ember-runtime/tests/suites/enumerable/sortBy","ember-runtime/tests/suites/enumerable/toArray","ember-runtime/tests/suites/enumerable/uniq","ember-runtime/tests/suites/enumerable/without","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __exports__) {
     "use strict";
@@ -39854,7 +40150,7 @@ enifed("ember-runtime/tests/suites/enumerable",
     __exports__.EnumerableTests = EnumerableTests;
     __exports__.ObserverClass = ObserverClass;
   });
-enifed("ember-runtime/tests/suites/enumerable.jshint",
+define("ember-runtime/tests/suites/enumerable.jshint",
   [],
   function() {
     "use strict";
@@ -39863,7 +40159,7 @@ enifed("ember-runtime/tests/suites/enumerable.jshint",
       ok(true, 'ember-runtime/tests/suites/enumerable.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/enumerable/any",
+define("ember-runtime/tests/suites/enumerable/any",
   ["ember-metal/core","ember-runtime/tests/suites/suite","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -39956,7 +40252,7 @@ enifed("ember-runtime/tests/suites/enumerable/any",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/enumerable/any.jshint",
+define("ember-runtime/tests/suites/enumerable/any.jshint",
   [],
   function() {
     "use strict";
@@ -39965,7 +40261,7 @@ enifed("ember-runtime/tests/suites/enumerable/any.jshint",
       ok(true, 'ember-runtime/tests/suites/enumerable/any.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/enumerable/compact",
+define("ember-runtime/tests/suites/enumerable/compact",
   ["ember-runtime/tests/suites/suite","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -39983,7 +40279,7 @@ enifed("ember-runtime/tests/suites/enumerable/compact",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/enumerable/compact.jshint",
+define("ember-runtime/tests/suites/enumerable/compact.jshint",
   [],
   function() {
     "use strict";
@@ -39992,7 +40288,7 @@ enifed("ember-runtime/tests/suites/enumerable/compact.jshint",
       ok(true, 'ember-runtime/tests/suites/enumerable/compact.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/enumerable/contains",
+define("ember-runtime/tests/suites/enumerable/contains",
   ["ember-runtime/tests/suites/suite","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -40016,7 +40312,7 @@ enifed("ember-runtime/tests/suites/enumerable/contains",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/enumerable/contains.jshint",
+define("ember-runtime/tests/suites/enumerable/contains.jshint",
   [],
   function() {
     "use strict";
@@ -40025,7 +40321,7 @@ enifed("ember-runtime/tests/suites/enumerable/contains.jshint",
       ok(true, 'ember-runtime/tests/suites/enumerable/contains.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/enumerable/every",
+define("ember-runtime/tests/suites/enumerable/every",
   ["ember-runtime/system/object","ember-runtime/tests/suites/suite","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -40124,7 +40420,7 @@ enifed("ember-runtime/tests/suites/enumerable/every",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/enumerable/every.jshint",
+define("ember-runtime/tests/suites/enumerable/every.jshint",
   [],
   function() {
     "use strict";
@@ -40133,7 +40429,7 @@ enifed("ember-runtime/tests/suites/enumerable/every.jshint",
       ok(true, 'ember-runtime/tests/suites/enumerable/every.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/enumerable/filter",
+define("ember-runtime/tests/suites/enumerable/filter",
   ["ember-runtime/system/object","ember-runtime/tests/suites/suite","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -40281,7 +40577,7 @@ enifed("ember-runtime/tests/suites/enumerable/filter",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/enumerable/filter.jshint",
+define("ember-runtime/tests/suites/enumerable/filter.jshint",
   [],
   function() {
     "use strict";
@@ -40290,7 +40586,7 @@ enifed("ember-runtime/tests/suites/enumerable/filter.jshint",
       ok(true, 'ember-runtime/tests/suites/enumerable/filter.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/enumerable/find",
+define("ember-runtime/tests/suites/enumerable/find",
   ["ember-runtime/system/object","ember-runtime/tests/suites/suite","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -40402,7 +40698,7 @@ enifed("ember-runtime/tests/suites/enumerable/find",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/enumerable/find.jshint",
+define("ember-runtime/tests/suites/enumerable/find.jshint",
   [],
   function() {
     "use strict";
@@ -40411,7 +40707,7 @@ enifed("ember-runtime/tests/suites/enumerable/find.jshint",
       ok(true, 'ember-runtime/tests/suites/enumerable/find.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/enumerable/firstObject",
+define("ember-runtime/tests/suites/enumerable/firstObject",
   ["ember-runtime/tests/suites/suite","ember-metal/property_get","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -40434,7 +40730,7 @@ enifed("ember-runtime/tests/suites/enumerable/firstObject",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/enumerable/firstObject.jshint",
+define("ember-runtime/tests/suites/enumerable/firstObject.jshint",
   [],
   function() {
     "use strict";
@@ -40443,7 +40739,7 @@ enifed("ember-runtime/tests/suites/enumerable/firstObject.jshint",
       ok(true, 'ember-runtime/tests/suites/enumerable/firstObject.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/enumerable/forEach",
+define("ember-runtime/tests/suites/enumerable/forEach",
   ["ember-runtime/tests/suites/suite","ember-metal/property_get","ember-metal/utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -40522,7 +40818,7 @@ enifed("ember-runtime/tests/suites/enumerable/forEach",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/enumerable/forEach.jshint",
+define("ember-runtime/tests/suites/enumerable/forEach.jshint",
   [],
   function() {
     "use strict";
@@ -40531,7 +40827,7 @@ enifed("ember-runtime/tests/suites/enumerable/forEach.jshint",
       ok(true, 'ember-runtime/tests/suites/enumerable/forEach.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/enumerable/invoke",
+define("ember-runtime/tests/suites/enumerable/invoke",
   ["ember-runtime/system/object","ember-runtime/tests/suites/suite","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -40570,7 +40866,7 @@ enifed("ember-runtime/tests/suites/enumerable/invoke",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/enumerable/invoke.jshint",
+define("ember-runtime/tests/suites/enumerable/invoke.jshint",
   [],
   function() {
     "use strict";
@@ -40579,7 +40875,7 @@ enifed("ember-runtime/tests/suites/enumerable/invoke.jshint",
       ok(true, 'ember-runtime/tests/suites/enumerable/invoke.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/enumerable/is_any",
+define("ember-runtime/tests/suites/enumerable/is_any",
   ["ember-runtime/system/object","ember-runtime/tests/suites/suite","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -40658,7 +40954,7 @@ enifed("ember-runtime/tests/suites/enumerable/is_any",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/enumerable/is_any.jshint",
+define("ember-runtime/tests/suites/enumerable/is_any.jshint",
   [],
   function() {
     "use strict";
@@ -40667,7 +40963,7 @@ enifed("ember-runtime/tests/suites/enumerable/is_any.jshint",
       ok(true, 'ember-runtime/tests/suites/enumerable/is_any.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/enumerable/lastObject",
+define("ember-runtime/tests/suites/enumerable/lastObject",
   ["ember-runtime/tests/suites/suite","ember-metal/property_get","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -40693,7 +40989,7 @@ enifed("ember-runtime/tests/suites/enumerable/lastObject",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/enumerable/lastObject.jshint",
+define("ember-runtime/tests/suites/enumerable/lastObject.jshint",
   [],
   function() {
     "use strict";
@@ -40702,7 +40998,7 @@ enifed("ember-runtime/tests/suites/enumerable/lastObject.jshint",
       ok(true, 'ember-runtime/tests/suites/enumerable/lastObject.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/enumerable/map",
+define("ember-runtime/tests/suites/enumerable/map",
   ["ember-runtime/tests/suites/suite","ember-metal/enumerable_utils","ember-metal/property_get","ember-metal/utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
@@ -40783,7 +41079,7 @@ enifed("ember-runtime/tests/suites/enumerable/map",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/enumerable/map.jshint",
+define("ember-runtime/tests/suites/enumerable/map.jshint",
   [],
   function() {
     "use strict";
@@ -40792,7 +41088,7 @@ enifed("ember-runtime/tests/suites/enumerable/map.jshint",
       ok(true, 'ember-runtime/tests/suites/enumerable/map.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/enumerable/mapBy",
+define("ember-runtime/tests/suites/enumerable/mapBy",
   ["ember-runtime/tests/suites/suite","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -40819,7 +41115,7 @@ enifed("ember-runtime/tests/suites/enumerable/mapBy",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/enumerable/mapBy.jshint",
+define("ember-runtime/tests/suites/enumerable/mapBy.jshint",
   [],
   function() {
     "use strict";
@@ -40828,7 +41124,7 @@ enifed("ember-runtime/tests/suites/enumerable/mapBy.jshint",
       ok(true, 'ember-runtime/tests/suites/enumerable/mapBy.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/enumerable/reduce",
+define("ember-runtime/tests/suites/enumerable/reduce",
   ["ember-runtime/tests/suites/suite","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -40858,7 +41154,7 @@ enifed("ember-runtime/tests/suites/enumerable/reduce",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/enumerable/reduce.jshint",
+define("ember-runtime/tests/suites/enumerable/reduce.jshint",
   [],
   function() {
     "use strict";
@@ -40867,7 +41163,7 @@ enifed("ember-runtime/tests/suites/enumerable/reduce.jshint",
       ok(true, 'ember-runtime/tests/suites/enumerable/reduce.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/enumerable/reject",
+define("ember-runtime/tests/suites/enumerable/reject",
   ["ember-runtime/system/object","ember-runtime/tests/suites/suite","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -41025,7 +41321,7 @@ enifed("ember-runtime/tests/suites/enumerable/reject",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/enumerable/reject.jshint",
+define("ember-runtime/tests/suites/enumerable/reject.jshint",
   [],
   function() {
     "use strict";
@@ -41034,7 +41330,7 @@ enifed("ember-runtime/tests/suites/enumerable/reject.jshint",
       ok(true, 'ember-runtime/tests/suites/enumerable/reject.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/enumerable/sortBy",
+define("ember-runtime/tests/suites/enumerable/sortBy",
   ["ember-runtime/tests/suites/suite","ember-metal/property_get","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -41063,7 +41359,7 @@ enifed("ember-runtime/tests/suites/enumerable/sortBy",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/enumerable/sortBy.jshint",
+define("ember-runtime/tests/suites/enumerable/sortBy.jshint",
   [],
   function() {
     "use strict";
@@ -41072,7 +41368,7 @@ enifed("ember-runtime/tests/suites/enumerable/sortBy.jshint",
       ok(true, 'ember-runtime/tests/suites/enumerable/sortBy.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/enumerable/toArray",
+define("ember-runtime/tests/suites/enumerable/toArray",
   ["ember-runtime/tests/suites/suite","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -41089,7 +41385,7 @@ enifed("ember-runtime/tests/suites/enumerable/toArray",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/enumerable/toArray.jshint",
+define("ember-runtime/tests/suites/enumerable/toArray.jshint",
   [],
   function() {
     "use strict";
@@ -41098,7 +41394,7 @@ enifed("ember-runtime/tests/suites/enumerable/toArray.jshint",
       ok(true, 'ember-runtime/tests/suites/enumerable/toArray.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/enumerable/uniq",
+define("ember-runtime/tests/suites/enumerable/uniq",
   ["ember-runtime/tests/suites/suite","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -41131,7 +41427,7 @@ enifed("ember-runtime/tests/suites/enumerable/uniq",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/enumerable/uniq.jshint",
+define("ember-runtime/tests/suites/enumerable/uniq.jshint",
   [],
   function() {
     "use strict";
@@ -41140,7 +41436,7 @@ enifed("ember-runtime/tests/suites/enumerable/uniq.jshint",
       ok(true, 'ember-runtime/tests/suites/enumerable/uniq.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/enumerable/without",
+define("ember-runtime/tests/suites/enumerable/without",
   ["ember-runtime/tests/suites/suite","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -41174,7 +41470,7 @@ enifed("ember-runtime/tests/suites/enumerable/without",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/enumerable/without.jshint",
+define("ember-runtime/tests/suites/enumerable/without.jshint",
   [],
   function() {
     "use strict";
@@ -41183,7 +41479,7 @@ enifed("ember-runtime/tests/suites/enumerable/without.jshint",
       ok(true, 'ember-runtime/tests/suites/enumerable/without.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/mutable_array",
+define("ember-runtime/tests/suites/mutable_array",
   ["ember-runtime/tests/suites/array","ember-runtime/tests/suites/mutable_array/insertAt","ember-runtime/tests/suites/mutable_array/popObject","ember-runtime/tests/suites/mutable_array/pushObject","ember-runtime/tests/suites/mutable_array/pushObjects","ember-runtime/tests/suites/mutable_array/removeAt","ember-runtime/tests/suites/mutable_array/replace","ember-runtime/tests/suites/mutable_array/shiftObject","ember-runtime/tests/suites/mutable_array/unshiftObject","ember-runtime/tests/suites/mutable_array/reverseObjects","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __exports__) {
     "use strict";
@@ -41212,7 +41508,7 @@ enifed("ember-runtime/tests/suites/mutable_array",
 
     __exports__["default"] = MutableArrayTests;
   });
-enifed("ember-runtime/tests/suites/mutable_array.jshint",
+define("ember-runtime/tests/suites/mutable_array.jshint",
   [],
   function() {
     "use strict";
@@ -41221,7 +41517,7 @@ enifed("ember-runtime/tests/suites/mutable_array.jshint",
       ok(true, 'ember-runtime/tests/suites/mutable_array.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/mutable_array/addObject",
+define("ember-runtime/tests/suites/mutable_array/addObject",
   ["ember-runtime/tests/suites/suite","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -41289,7 +41585,7 @@ enifed("ember-runtime/tests/suites/mutable_array/addObject",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/mutable_array/addObject.jshint",
+define("ember-runtime/tests/suites/mutable_array/addObject.jshint",
   [],
   function() {
     "use strict";
@@ -41298,7 +41594,7 @@ enifed("ember-runtime/tests/suites/mutable_array/addObject.jshint",
       ok(true, 'ember-runtime/tests/suites/mutable_array/addObject.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/mutable_array/clear",
+define("ember-runtime/tests/suites/mutable_array/clear",
   ["ember-runtime/tests/suites/suite","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -41352,7 +41648,7 @@ enifed("ember-runtime/tests/suites/mutable_array/clear",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/mutable_array/clear.jshint",
+define("ember-runtime/tests/suites/mutable_array/clear.jshint",
   [],
   function() {
     "use strict";
@@ -41361,7 +41657,7 @@ enifed("ember-runtime/tests/suites/mutable_array/clear.jshint",
       ok(true, 'ember-runtime/tests/suites/mutable_array/clear.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/mutable_array/insertAt",
+define("ember-runtime/tests/suites/mutable_array/insertAt",
   ["ember-runtime/tests/suites/suite","ember-metal/property_get","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -41570,7 +41866,7 @@ enifed("ember-runtime/tests/suites/mutable_array/insertAt",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/mutable_array/insertAt.jshint",
+define("ember-runtime/tests/suites/mutable_array/insertAt.jshint",
   [],
   function() {
     "use strict";
@@ -41579,7 +41875,7 @@ enifed("ember-runtime/tests/suites/mutable_array/insertAt.jshint",
       ok(true, 'ember-runtime/tests/suites/mutable_array/insertAt.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/mutable_array/popObject",
+define("ember-runtime/tests/suites/mutable_array/popObject",
   ["ember-runtime/tests/suites/suite","ember-metal/property_get","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -41655,7 +41951,7 @@ enifed("ember-runtime/tests/suites/mutable_array/popObject",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/mutable_array/popObject.jshint",
+define("ember-runtime/tests/suites/mutable_array/popObject.jshint",
   [],
   function() {
     "use strict";
@@ -41664,7 +41960,7 @@ enifed("ember-runtime/tests/suites/mutable_array/popObject.jshint",
       ok(true, 'ember-runtime/tests/suites/mutable_array/popObject.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/mutable_array/pushObject",
+define("ember-runtime/tests/suites/mutable_array/pushObject",
   ["ember-runtime/tests/suites/suite","ember-metal/property_get","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -41727,7 +42023,7 @@ enifed("ember-runtime/tests/suites/mutable_array/pushObject",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/mutable_array/pushObject.jshint",
+define("ember-runtime/tests/suites/mutable_array/pushObject.jshint",
   [],
   function() {
     "use strict";
@@ -41736,7 +42032,7 @@ enifed("ember-runtime/tests/suites/mutable_array/pushObject.jshint",
       ok(true, 'ember-runtime/tests/suites/mutable_array/pushObject.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/mutable_array/pushObjects",
+define("ember-runtime/tests/suites/mutable_array/pushObjects",
   ["ember-runtime/tests/suites/suite","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -41756,7 +42052,7 @@ enifed("ember-runtime/tests/suites/mutable_array/pushObjects",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/mutable_array/pushObjects.jshint",
+define("ember-runtime/tests/suites/mutable_array/pushObjects.jshint",
   [],
   function() {
     "use strict";
@@ -41765,7 +42061,7 @@ enifed("ember-runtime/tests/suites/mutable_array/pushObjects.jshint",
       ok(true, 'ember-runtime/tests/suites/mutable_array/pushObjects.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/mutable_array/removeAt",
+define("ember-runtime/tests/suites/mutable_array/removeAt",
   ["ember-runtime/tests/suites/suite","ember-metal/property_get","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -41894,7 +42190,7 @@ enifed("ember-runtime/tests/suites/mutable_array/removeAt",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/mutable_array/removeAt.jshint",
+define("ember-runtime/tests/suites/mutable_array/removeAt.jshint",
   [],
   function() {
     "use strict";
@@ -41903,7 +42199,7 @@ enifed("ember-runtime/tests/suites/mutable_array/removeAt.jshint",
       ok(true, 'ember-runtime/tests/suites/mutable_array/removeAt.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/mutable_array/removeObject",
+define("ember-runtime/tests/suites/mutable_array/removeObject",
   ["ember-runtime/tests/suites/suite","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -41971,7 +42267,7 @@ enifed("ember-runtime/tests/suites/mutable_array/removeObject",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/mutable_array/removeObject.jshint",
+define("ember-runtime/tests/suites/mutable_array/removeObject.jshint",
   [],
   function() {
     "use strict";
@@ -41980,7 +42276,7 @@ enifed("ember-runtime/tests/suites/mutable_array/removeObject.jshint",
       ok(true, 'ember-runtime/tests/suites/mutable_array/removeObject.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/mutable_array/replace",
+define("ember-runtime/tests/suites/mutable_array/replace",
   ["ember-runtime/tests/suites/suite","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -42128,7 +42424,7 @@ enifed("ember-runtime/tests/suites/mutable_array/replace",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/mutable_array/replace.jshint",
+define("ember-runtime/tests/suites/mutable_array/replace.jshint",
   [],
   function() {
     "use strict";
@@ -42137,7 +42433,7 @@ enifed("ember-runtime/tests/suites/mutable_array/replace.jshint",
       ok(true, 'ember-runtime/tests/suites/mutable_array/replace.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/mutable_array/reverseObjects",
+define("ember-runtime/tests/suites/mutable_array/reverseObjects",
   ["ember-runtime/tests/suites/suite","ember-metal/property_get","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -42171,7 +42467,7 @@ enifed("ember-runtime/tests/suites/mutable_array/reverseObjects",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/mutable_array/reverseObjects.jshint",
+define("ember-runtime/tests/suites/mutable_array/reverseObjects.jshint",
   [],
   function() {
     "use strict";
@@ -42180,7 +42476,7 @@ enifed("ember-runtime/tests/suites/mutable_array/reverseObjects.jshint",
       ok(true, 'ember-runtime/tests/suites/mutable_array/reverseObjects.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/mutable_array/setObjects",
+define("ember-runtime/tests/suites/mutable_array/setObjects",
   ["ember-runtime/tests/suites/suite","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -42234,7 +42530,7 @@ enifed("ember-runtime/tests/suites/mutable_array/setObjects",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/mutable_array/setObjects.jshint",
+define("ember-runtime/tests/suites/mutable_array/setObjects.jshint",
   [],
   function() {
     "use strict";
@@ -42243,7 +42539,7 @@ enifed("ember-runtime/tests/suites/mutable_array/setObjects.jshint",
       ok(true, 'ember-runtime/tests/suites/mutable_array/setObjects.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/mutable_array/shiftObject",
+define("ember-runtime/tests/suites/mutable_array/shiftObject",
   ["ember-runtime/tests/suites/suite","ember-metal/property_get","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -42321,7 +42617,7 @@ enifed("ember-runtime/tests/suites/mutable_array/shiftObject",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/mutable_array/shiftObject.jshint",
+define("ember-runtime/tests/suites/mutable_array/shiftObject.jshint",
   [],
   function() {
     "use strict";
@@ -42330,7 +42626,7 @@ enifed("ember-runtime/tests/suites/mutable_array/shiftObject.jshint",
       ok(true, 'ember-runtime/tests/suites/mutable_array/shiftObject.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/mutable_array/unshiftObject",
+define("ember-runtime/tests/suites/mutable_array/unshiftObject",
   ["ember-runtime/tests/suites/suite","ember-metal/property_get","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -42418,7 +42714,7 @@ enifed("ember-runtime/tests/suites/mutable_array/unshiftObject",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/mutable_array/unshiftObject.jshint",
+define("ember-runtime/tests/suites/mutable_array/unshiftObject.jshint",
   [],
   function() {
     "use strict";
@@ -42427,7 +42723,7 @@ enifed("ember-runtime/tests/suites/mutable_array/unshiftObject.jshint",
       ok(true, 'ember-runtime/tests/suites/mutable_array/unshiftObject.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/mutable_array/unshiftObjects",
+define("ember-runtime/tests/suites/mutable_array/unshiftObjects",
   ["ember-runtime/tests/suites/suite","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -42512,7 +42808,7 @@ enifed("ember-runtime/tests/suites/mutable_array/unshiftObjects",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/mutable_array/unshiftObjects.jshint",
+define("ember-runtime/tests/suites/mutable_array/unshiftObjects.jshint",
   [],
   function() {
     "use strict";
@@ -42521,7 +42817,7 @@ enifed("ember-runtime/tests/suites/mutable_array/unshiftObjects.jshint",
       ok(true, 'ember-runtime/tests/suites/mutable_array/unshiftObjects.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/mutable_enumerable",
+define("ember-runtime/tests/suites/mutable_enumerable",
   ["ember-runtime/tests/suites/enumerable","ember-runtime/tests/suites/mutable_enumerable/addObject","ember-runtime/tests/suites/mutable_enumerable/removeObject","ember-runtime/tests/suites/mutable_enumerable/removeObjects","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
@@ -42538,7 +42834,7 @@ enifed("ember-runtime/tests/suites/mutable_enumerable",
 
     __exports__["default"] = MutableEnumerableTests;
   });
-enifed("ember-runtime/tests/suites/mutable_enumerable.jshint",
+define("ember-runtime/tests/suites/mutable_enumerable.jshint",
   [],
   function() {
     "use strict";
@@ -42547,7 +42843,7 @@ enifed("ember-runtime/tests/suites/mutable_enumerable.jshint",
       ok(true, 'ember-runtime/tests/suites/mutable_enumerable.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/mutable_enumerable/addObject",
+define("ember-runtime/tests/suites/mutable_enumerable/addObject",
   ["ember-runtime/tests/suites/suite","ember-metal/property_get","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -42625,7 +42921,7 @@ enifed("ember-runtime/tests/suites/mutable_enumerable/addObject",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/mutable_enumerable/addObject.jshint",
+define("ember-runtime/tests/suites/mutable_enumerable/addObject.jshint",
   [],
   function() {
     "use strict";
@@ -42634,7 +42930,7 @@ enifed("ember-runtime/tests/suites/mutable_enumerable/addObject.jshint",
       ok(true, 'ember-runtime/tests/suites/mutable_enumerable/addObject.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/mutable_enumerable/removeObject",
+define("ember-runtime/tests/suites/mutable_enumerable/removeObject",
   ["ember-runtime/tests/suites/suite","ember-metal/property_get","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -42713,7 +43009,7 @@ enifed("ember-runtime/tests/suites/mutable_enumerable/removeObject",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/mutable_enumerable/removeObject.jshint",
+define("ember-runtime/tests/suites/mutable_enumerable/removeObject.jshint",
   [],
   function() {
     "use strict";
@@ -42722,7 +43018,7 @@ enifed("ember-runtime/tests/suites/mutable_enumerable/removeObject.jshint",
       ok(true, 'ember-runtime/tests/suites/mutable_enumerable/removeObject.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/mutable_enumerable/removeObjects",
+define("ember-runtime/tests/suites/mutable_enumerable/removeObjects",
   ["ember-runtime/tests/suites/suite","ember-metal/property_get","ember-metal/core","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -42917,7 +43213,7 @@ enifed("ember-runtime/tests/suites/mutable_enumerable/removeObjects",
 
     __exports__["default"] = suite;
   });
-enifed("ember-runtime/tests/suites/mutable_enumerable/removeObjects.jshint",
+define("ember-runtime/tests/suites/mutable_enumerable/removeObjects.jshint",
   [],
   function() {
     "use strict";
@@ -42926,7 +43222,7 @@ enifed("ember-runtime/tests/suites/mutable_enumerable/removeObjects.jshint",
       ok(true, 'ember-runtime/tests/suites/mutable_enumerable/removeObjects.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/suites/suite",
+define("ember-runtime/tests/suites/suite",
   ["ember-runtime/system/object","ember-metal/mixin","ember-metal/utils","ember-metal/property_get","ember-metal/enumerable_utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
@@ -43066,7 +43362,7 @@ enifed("ember-runtime/tests/suites/suite",
 
     __exports__["default"] = Suite;
   });
-enifed("ember-runtime/tests/suites/suite.jshint",
+define("ember-runtime/tests/suites/suite.jshint",
   [],
   function() {
     "use strict";
@@ -43075,7 +43371,7 @@ enifed("ember-runtime/tests/suites/suite.jshint",
       ok(true, 'ember-runtime/tests/suites/suite.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/application/base_test",
+define("ember-runtime/tests/system/application/base_test",
   ["ember-runtime/system/namespace","ember-runtime/system/application"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -43089,7 +43385,7 @@ enifed("ember-runtime/tests/system/application/base_test",
       ok(Namespace.detect(Application), 'Ember.Application subclass of Ember.Namespace');
     });
   });
-enifed("ember-runtime/tests/system/application/base_test.jshint",
+define("ember-runtime/tests/system/application/base_test.jshint",
   [],
   function() {
     "use strict";
@@ -43098,7 +43394,7 @@ enifed("ember-runtime/tests/system/application/base_test.jshint",
       ok(true, 'ember-runtime/tests/system/application/base_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/array_proxy/arranged_content_test",
+define("ember-runtime/tests/system/array_proxy/arranged_content_test",
   ["ember-metal/core","ember-metal/run_loop","ember-metal/computed","ember-runtime/system/array_proxy"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -43405,7 +43701,7 @@ enifed("ember-runtime/tests/system/array_proxy/arranged_content_test",
       equal(array.get('firstObject'), '5', 'returns first arranged object');
     });
   });
-enifed("ember-runtime/tests/system/array_proxy/arranged_content_test.jshint",
+define("ember-runtime/tests/system/array_proxy/arranged_content_test.jshint",
   [],
   function() {
     "use strict";
@@ -43414,7 +43710,7 @@ enifed("ember-runtime/tests/system/array_proxy/arranged_content_test.jshint",
       ok(true, 'ember-runtime/tests/system/array_proxy/arranged_content_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/array_proxy/content_change_test",
+define("ember-runtime/tests/system/array_proxy/content_change_test",
   ["ember-metal/core","ember-metal/property_set","ember-metal/run_loop","ember-runtime/system/array_proxy","ember-runtime/controllers/array_controller"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -43501,7 +43797,7 @@ enifed("ember-runtime/tests/system/array_proxy/content_change_test",
       ok(true, "No exception was raised");
     });
   });
-enifed("ember-runtime/tests/system/array_proxy/content_change_test.jshint",
+define("ember-runtime/tests/system/array_proxy/content_change_test.jshint",
   [],
   function() {
     "use strict";
@@ -43510,7 +43806,7 @@ enifed("ember-runtime/tests/system/array_proxy/content_change_test.jshint",
       ok(true, 'ember-runtime/tests/system/array_proxy/content_change_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/array_proxy/content_update_test",
+define("ember-runtime/tests/system/array_proxy/content_update_test",
   ["ember-metal/core","ember-metal/computed","ember-runtime/system/array_proxy"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -43545,7 +43841,7 @@ enifed("ember-runtime/tests/system/array_proxy/content_update_test",
       ok(observerCalled, "contentArrayDidChange is invoked");
     });
   });
-enifed("ember-runtime/tests/system/array_proxy/content_update_test.jshint",
+define("ember-runtime/tests/system/array_proxy/content_update_test.jshint",
   [],
   function() {
     "use strict";
@@ -43554,7 +43850,7 @@ enifed("ember-runtime/tests/system/array_proxy/content_update_test.jshint",
       ok(true, 'ember-runtime/tests/system/array_proxy/content_update_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/array_proxy/suite_test",
+define("ember-runtime/tests/system/array_proxy/suite_test",
   ["ember-metal/core","ember-runtime/tests/suites/mutable_array","ember-runtime/system/array_proxy","ember-metal/property_get"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -43582,7 +43878,7 @@ enifed("ember-runtime/tests/system/array_proxy/suite_test",
 
     }).run();
   });
-enifed("ember-runtime/tests/system/array_proxy/suite_test.jshint",
+define("ember-runtime/tests/system/array_proxy/suite_test.jshint",
   [],
   function() {
     "use strict";
@@ -43591,7 +43887,7 @@ enifed("ember-runtime/tests/system/array_proxy/suite_test.jshint",
       ok(true, 'ember-runtime/tests/system/array_proxy/suite_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/deferred_test",
+define("ember-runtime/tests/system/deferred_test",
   ["ember-metal/run_loop","ember-runtime/system/deferred"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -43634,7 +43930,7 @@ enifed("ember-runtime/tests/system/deferred_test",
       });
     });
   });
-enifed("ember-runtime/tests/system/deferred_test.jshint",
+define("ember-runtime/tests/system/deferred_test.jshint",
   [],
   function() {
     "use strict";
@@ -43643,7 +43939,7 @@ enifed("ember-runtime/tests/system/deferred_test.jshint",
       ok(true, 'ember-runtime/tests/system/deferred_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/lazy_load_test",
+define("ember-runtime/tests/system/lazy_load_test",
   ["ember-metal/run_loop","ember-runtime/system/lazy_load"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -43718,7 +44014,7 @@ enifed("ember-runtime/tests/system/lazy_load_test",
       });
     }
   });
-enifed("ember-runtime/tests/system/lazy_load_test.jshint",
+define("ember-runtime/tests/system/lazy_load_test.jshint",
   [],
   function() {
     "use strict";
@@ -43727,7 +44023,7 @@ enifed("ember-runtime/tests/system/lazy_load_test.jshint",
       ok(true, 'ember-runtime/tests/system/lazy_load_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/namespace/base_test",
+define("ember-runtime/tests/system/namespace/base_test",
   ["ember-metal/core","ember-metal/run_loop","ember-metal/property_get","ember-runtime/system/object","ember-runtime/system/namespace"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -43860,7 +44156,7 @@ enifed("ember-runtime/tests/system/namespace/base_test",
       equal(Namespace.byName('CF'), undefined, "namespace can not be found after destroyed");
     });
   });
-enifed("ember-runtime/tests/system/namespace/base_test.jshint",
+define("ember-runtime/tests/system/namespace/base_test.jshint",
   [],
   function() {
     "use strict";
@@ -43869,7 +44165,7 @@ enifed("ember-runtime/tests/system/namespace/base_test.jshint",
       ok(true, 'ember-runtime/tests/system/namespace/base_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/native_array/copyable_suite_test",
+define("ember-runtime/tests/system/native_array/copyable_suite_test",
   ["ember-runtime/tests/suites/copyable","ember-metal/utils"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -43904,7 +44200,7 @@ enifed("ember-runtime/tests/system/native_array/copyable_suite_test",
       ok(copiedArray[0] !== array[0], "objects inside should be unique");
     });
   });
-enifed("ember-runtime/tests/system/native_array/copyable_suite_test.jshint",
+define("ember-runtime/tests/system/native_array/copyable_suite_test.jshint",
   [],
   function() {
     "use strict";
@@ -43913,7 +44209,7 @@ enifed("ember-runtime/tests/system/native_array/copyable_suite_test.jshint",
       ok(true, 'ember-runtime/tests/system/native_array/copyable_suite_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/native_array/suite_test",
+define("ember-runtime/tests/system/native_array/suite_test",
   ["ember-runtime/tests/suites/mutable_array"],
   function(__dependency1__) {
     "use strict";
@@ -43937,7 +44233,7 @@ enifed("ember-runtime/tests/system/native_array/suite_test",
 
     }).run();
   });
-enifed("ember-runtime/tests/system/native_array/suite_test.jshint",
+define("ember-runtime/tests/system/native_array/suite_test.jshint",
   [],
   function() {
     "use strict";
@@ -43946,7 +44242,7 @@ enifed("ember-runtime/tests/system/native_array/suite_test.jshint",
       ok(true, 'ember-runtime/tests/system/native_array/suite_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/object/computed_test",
+define("ember-runtime/tests/system/object/computed_test",
   ["ember-metal/computed","ember-metal/property_get","ember-metal/mixin","ember-metal/tests/props_helper","ember-runtime/system/object"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -44093,7 +44389,7 @@ enifed("ember-runtime/tests/system/object/computed_test",
 
       var ClassWithNoMetadata = EmberObject.extend({
         computedProperty: computed(function() {
-        })["volatile"](),
+        }).volatile(),
 
         staticProperty: 12
       });
@@ -44193,7 +44489,7 @@ enifed("ember-runtime/tests/system/object/computed_test",
       deepEqual(list.sort(), ['bar', 'foo', 'baz'].sort(), 'expected three computed properties');
     });
   });
-enifed("ember-runtime/tests/system/object/computed_test.jshint",
+define("ember-runtime/tests/system/object/computed_test.jshint",
   [],
   function() {
     "use strict";
@@ -44202,7 +44498,7 @@ enifed("ember-runtime/tests/system/object/computed_test.jshint",
       ok(true, 'ember-runtime/tests/system/object/computed_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/object/create_test",
+define("ember-runtime/tests/system/object/create_test",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/computed","ember-metal/mixin","ember-metal/run_loop","ember-metal/events","ember-runtime/system/object","ember-metal/keys"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
     "use strict";
@@ -44251,7 +44547,7 @@ enifed("ember-runtime/tests/system/object/create_test",
       equal(o.get('foo'), 'bar');
     });
 
-    
+    if (Ember.FEATURES.isEnabled('mandatory-setter')) {
       test("sets up mandatory setters for watched simple properties", function() {
 
         var MyClass = EmberObject.extend({
@@ -44276,7 +44572,7 @@ enifed("ember-runtime/tests/system/object/create_test",
         descriptor = Object.getOwnPropertyDescriptor(o, 'bar');
         ok(!descriptor.set, 'Mandatory setter was not setup');
       });
-    
+    }
 
     test("allows bindings to be defined", function() {
       var obj = EmberObject.create({
@@ -44561,7 +44857,7 @@ enifed("ember-runtime/tests/system/object/create_test",
       deepEqual(actualProperties, expectedProperties, 'internal properties do not leak');
     });
   });
-enifed("ember-runtime/tests/system/object/create_test.jshint",
+define("ember-runtime/tests/system/object/create_test.jshint",
   [],
   function() {
     "use strict";
@@ -44570,7 +44866,7 @@ enifed("ember-runtime/tests/system/object/create_test.jshint",
       ok(true, 'ember-runtime/tests/system/object/create_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/object/destroy_test",
+define("ember-runtime/tests/system/object/destroy_test",
   ["ember-metal/run_loop","ember-metal/platform","ember-metal/mixin","ember-metal/property_set","ember-metal/binding","ember-metal/property_events","ember-metal/keys","ember-metal/tests/props_helper","ember-runtime/system/object"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
     "use strict";
@@ -44746,7 +45042,7 @@ enifed("ember-runtime/tests/system/object/destroy_test",
       ok(foo.get('value'), 'foo is synced when the binding is updated in the willDestroy hook');
     });
   });
-enifed("ember-runtime/tests/system/object/destroy_test.jshint",
+define("ember-runtime/tests/system/object/destroy_test.jshint",
   [],
   function() {
     "use strict";
@@ -44755,7 +45051,7 @@ enifed("ember-runtime/tests/system/object/destroy_test.jshint",
       ok(true, 'ember-runtime/tests/system/object/destroy_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/object/detectInstance_test",
+define("ember-runtime/tests/system/object/detectInstance_test",
   ["ember-runtime/system/object"],
   function(__dependency1__) {
     "use strict";
@@ -44796,7 +45092,7 @@ enifed("ember-runtime/tests/system/object/detectInstance_test",
 
     });
   });
-enifed("ember-runtime/tests/system/object/detectInstance_test.jshint",
+define("ember-runtime/tests/system/object/detectInstance_test.jshint",
   [],
   function() {
     "use strict";
@@ -44805,7 +45101,7 @@ enifed("ember-runtime/tests/system/object/detectInstance_test.jshint",
       ok(true, 'ember-runtime/tests/system/object/detectInstance_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/object/detect_test",
+define("ember-runtime/tests/system/object/detect_test",
   ["ember-runtime/system/object"],
   function(__dependency1__) {
     "use strict";
@@ -44841,7 +45137,7 @@ enifed("ember-runtime/tests/system/object/detect_test",
 
     });
   });
-enifed("ember-runtime/tests/system/object/detect_test.jshint",
+define("ember-runtime/tests/system/object/detect_test.jshint",
   [],
   function() {
     "use strict";
@@ -44850,7 +45146,7 @@ enifed("ember-runtime/tests/system/object/detect_test.jshint",
       ok(true, 'ember-runtime/tests/system/object/detect_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/object/events_test",
+define("ember-runtime/tests/system/object/events_test",
   ["ember-runtime/system/object","ember-runtime/mixins/evented"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -44997,7 +45293,7 @@ enifed("ember-runtime/tests/system/object/events_test",
       equal(ret, obj, '#one returns self');
     });
   });
-enifed("ember-runtime/tests/system/object/events_test.jshint",
+define("ember-runtime/tests/system/object/events_test.jshint",
   [],
   function() {
     "use strict";
@@ -45006,7 +45302,7 @@ enifed("ember-runtime/tests/system/object/events_test.jshint",
       ok(true, 'ember-runtime/tests/system/object/events_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/object/extend_test",
+define("ember-runtime/tests/system/object/extend_test",
   ["ember-metal/property_get","ember-runtime/system/object"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -45096,7 +45392,7 @@ enifed("ember-runtime/tests/system/object/extend_test",
       deepEqual(get(yetAnother.constructor, 'things'), ['foo', 'baz'], "subclass should have base class' and its own");
     });
   });
-enifed("ember-runtime/tests/system/object/extend_test.jshint",
+define("ember-runtime/tests/system/object/extend_test.jshint",
   [],
   function() {
     "use strict";
@@ -45105,7 +45401,7 @@ enifed("ember-runtime/tests/system/object/extend_test.jshint",
       ok(true, 'ember-runtime/tests/system/object/extend_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/object/observer_test",
+define("ember-runtime/tests/system/object/observer_test",
   ["ember-metal/core","ember-metal/mixin","ember-metal/run_loop","ember-metal/tests/props_helper","ember-runtime/system/object"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -45341,7 +45637,7 @@ enifed("ember-runtime/tests/system/object/observer_test",
       equal(changed, true, 'child should have been notified of change to path');
     });
   });
-enifed("ember-runtime/tests/system/object/observer_test.jshint",
+define("ember-runtime/tests/system/object/observer_test.jshint",
   [],
   function() {
     "use strict";
@@ -45350,7 +45646,7 @@ enifed("ember-runtime/tests/system/object/observer_test.jshint",
       ok(true, 'ember-runtime/tests/system/object/observer_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/object/reopenClass_test",
+define("ember-runtime/tests/system/object/reopenClass_test",
   ["ember-metal/property_get","ember-runtime/system/object"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -45385,7 +45681,7 @@ enifed("ember-runtime/tests/system/object/reopenClass_test",
       equal(get(SubSub, 'bar'), 'BAR', 'Adds property');
     });
   });
-enifed("ember-runtime/tests/system/object/reopenClass_test.jshint",
+define("ember-runtime/tests/system/object/reopenClass_test.jshint",
   [],
   function() {
     "use strict";
@@ -45394,7 +45690,7 @@ enifed("ember-runtime/tests/system/object/reopenClass_test.jshint",
       ok(true, 'ember-runtime/tests/system/object/reopenClass_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/object/reopen_test",
+define("ember-runtime/tests/system/object/reopen_test",
   ["ember-metal/property_get","ember-runtime/system/object"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -45442,7 +45738,7 @@ enifed("ember-runtime/tests/system/object/reopen_test",
       equal(Subclass.create().get('trololol'), true, "reopen works");
     });
   });
-enifed("ember-runtime/tests/system/object/reopen_test.jshint",
+define("ember-runtime/tests/system/object/reopen_test.jshint",
   [],
   function() {
     "use strict";
@@ -45451,7 +45747,7 @@ enifed("ember-runtime/tests/system/object/reopen_test.jshint",
       ok(true, 'ember-runtime/tests/system/object/reopen_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/object/strict-mode-test",
+define("ember-runtime/tests/system/object/strict-mode-test",
   ["ember-runtime/system/object"],
   function(__dependency1__) {
     "use strict";
@@ -45483,7 +45779,7 @@ enifed("ember-runtime/tests/system/object/strict-mode-test",
       equal(bar.callBlah(), 'bar', 'can call local function without call/apply');
     });
   });
-enifed("ember-runtime/tests/system/object/strict-mode-test.jshint",
+define("ember-runtime/tests/system/object/strict-mode-test.jshint",
   [],
   function() {
     "use strict";
@@ -45492,7 +45788,7 @@ enifed("ember-runtime/tests/system/object/strict-mode-test.jshint",
       ok(true, 'ember-runtime/tests/system/object/strict-mode-test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/object/subclasses_test",
+define("ember-runtime/tests/system/object/subclasses_test",
   ["ember-metal/run_loop","ember-metal/computed","ember-runtime/system/object"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -45533,7 +45829,7 @@ enifed("ember-runtime/tests/system/object/subclasses_test",
       equal(subSub.get('greeting'), 'hello world');
     });
   });
-enifed("ember-runtime/tests/system/object/subclasses_test.jshint",
+define("ember-runtime/tests/system/object/subclasses_test.jshint",
   [],
   function() {
     "use strict";
@@ -45542,7 +45838,7 @@ enifed("ember-runtime/tests/system/object/subclasses_test.jshint",
       ok(true, 'ember-runtime/tests/system/object/subclasses_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/object/toString_test",
+define("ember-runtime/tests/system/object/toString_test",
   ["ember-metal/core","ember-metal/utils","ember-runtime/system/object","ember-runtime/system/namespace"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -45645,7 +45941,7 @@ enifed("ember-runtime/tests/system/object/toString_test",
       equal(foo.toString(), '<Foo:'+guidFor(foo)+':fooey>', 'Includes toStringExtension result');
     });
   });
-enifed("ember-runtime/tests/system/object/toString_test.jshint",
+define("ember-runtime/tests/system/object/toString_test.jshint",
   [],
   function() {
     "use strict";
@@ -45654,7 +45950,7 @@ enifed("ember-runtime/tests/system/object/toString_test.jshint",
       ok(true, 'ember-runtime/tests/system/object/toString_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/object_proxy_test",
+define("ember-runtime/tests/system/object_proxy_test",
   ["ember-metal/observer","ember-metal/computed","ember-metal/watching","ember-metal/tests/props_helper","ember-runtime/system/object_proxy"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -45854,7 +46150,7 @@ enifed("ember-runtime/tests/system/object_proxy_test",
       equal(get(proxyObject, 'prop'), undefined, 'sets the `undefined` value to the proxied content');
     });
   });
-enifed("ember-runtime/tests/system/object_proxy_test.jshint",
+define("ember-runtime/tests/system/object_proxy_test.jshint",
   [],
   function() {
     "use strict";
@@ -45863,7 +46159,7 @@ enifed("ember-runtime/tests/system/object_proxy_test.jshint",
       ok(true, 'ember-runtime/tests/system/object_proxy_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/set/copyable_suite_test",
+define("ember-runtime/tests/system/set/copyable_suite_test",
   ["ember-runtime/tests/suites/copyable","ember-runtime/system/set","ember-metal/utils","ember-metal/property_get"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -45906,7 +46202,7 @@ enifed("ember-runtime/tests/system/set/copyable_suite_test",
       shouldBeFreezable: true
     }).run();
   });
-enifed("ember-runtime/tests/system/set/copyable_suite_test.jshint",
+define("ember-runtime/tests/system/set/copyable_suite_test.jshint",
   [],
   function() {
     "use strict";
@@ -45915,7 +46211,7 @@ enifed("ember-runtime/tests/system/set/copyable_suite_test.jshint",
       ok(true, 'ember-runtime/tests/system/set/copyable_suite_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/set/enumerable_suite_test",
+define("ember-runtime/tests/system/set/enumerable_suite_test",
   ["ember-runtime/tests/suites/mutable_enumerable","ember-runtime/system/set","ember-metal/property_get"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -45957,7 +46253,7 @@ enifed("ember-runtime/tests/system/set/enumerable_suite_test",
 
     }).run();
   });
-enifed("ember-runtime/tests/system/set/enumerable_suite_test.jshint",
+define("ember-runtime/tests/system/set/enumerable_suite_test.jshint",
   [],
   function() {
     "use strict";
@@ -45966,7 +46262,7 @@ enifed("ember-runtime/tests/system/set/enumerable_suite_test.jshint",
       ok(true, 'ember-runtime/tests/system/set/enumerable_suite_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/set/extra_test",
+define("ember-runtime/tests/system/set/extra_test",
   ["ember-metal/enumerable_utils","ember-metal/property_get","ember-metal/observer","ember-runtime/system/set"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -46070,7 +46366,7 @@ enifed("ember-runtime/tests/system/set/extra_test",
       equal(aSet.shift, aSet.pop, 'shift -> pop');
     });
   });
-enifed("ember-runtime/tests/system/set/extra_test.jshint",
+define("ember-runtime/tests/system/set/extra_test.jshint",
   [],
   function() {
     "use strict";
@@ -46079,7 +46375,7 @@ enifed("ember-runtime/tests/system/set/extra_test.jshint",
       ok(true, 'ember-runtime/tests/system/set/extra_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/string/camelize_test",
+define("ember-runtime/tests/system/string/camelize_test",
   ["ember-metal/core","ember-runtime/system/string"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -46136,7 +46432,7 @@ enifed("ember-runtime/tests/system/string/camelize_test",
       }
     });
   });
-enifed("ember-runtime/tests/system/string/camelize_test.jshint",
+define("ember-runtime/tests/system/string/camelize_test.jshint",
   [],
   function() {
     "use strict";
@@ -46145,7 +46441,7 @@ enifed("ember-runtime/tests/system/string/camelize_test.jshint",
       ok(true, 'ember-runtime/tests/system/string/camelize_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/string/capitalize_test",
+define("ember-runtime/tests/system/string/capitalize_test",
   ["ember-metal/core","ember-runtime/system/string"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -46195,7 +46491,7 @@ enifed("ember-runtime/tests/system/string/capitalize_test",
       }
     });
   });
-enifed("ember-runtime/tests/system/string/capitalize_test.jshint",
+define("ember-runtime/tests/system/string/capitalize_test.jshint",
   [],
   function() {
     "use strict";
@@ -46204,7 +46500,7 @@ enifed("ember-runtime/tests/system/string/capitalize_test.jshint",
       ok(true, 'ember-runtime/tests/system/string/capitalize_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/string/classify_test",
+define("ember-runtime/tests/system/string/classify_test",
   ["ember-metal/core","ember-runtime/system/string"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -46247,7 +46543,7 @@ enifed("ember-runtime/tests/system/string/classify_test",
       }
     });
   });
-enifed("ember-runtime/tests/system/string/classify_test.jshint",
+define("ember-runtime/tests/system/string/classify_test.jshint",
   [],
   function() {
     "use strict";
@@ -46256,7 +46552,7 @@ enifed("ember-runtime/tests/system/string/classify_test.jshint",
       ok(true, 'ember-runtime/tests/system/string/classify_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/string/dasherize_test",
+define("ember-runtime/tests/system/string/dasherize_test",
   ["ember-metal/core","ember-runtime/system/string"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -46306,7 +46602,7 @@ enifed("ember-runtime/tests/system/string/dasherize_test",
       }
     });
   });
-enifed("ember-runtime/tests/system/string/dasherize_test.jshint",
+define("ember-runtime/tests/system/string/dasherize_test.jshint",
   [],
   function() {
     "use strict";
@@ -46315,7 +46611,7 @@ enifed("ember-runtime/tests/system/string/dasherize_test.jshint",
       ok(true, 'ember-runtime/tests/system/string/dasherize_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/string/decamelize_test",
+define("ember-runtime/tests/system/string/decamelize_test",
   ["ember-metal/core","ember-runtime/system/string"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -46365,7 +46661,7 @@ enifed("ember-runtime/tests/system/string/decamelize_test",
       }
     });
   });
-enifed("ember-runtime/tests/system/string/decamelize_test.jshint",
+define("ember-runtime/tests/system/string/decamelize_test.jshint",
   [],
   function() {
     "use strict";
@@ -46374,7 +46670,7 @@ enifed("ember-runtime/tests/system/string/decamelize_test.jshint",
       ok(true, 'ember-runtime/tests/system/string/decamelize_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/string/fmt_string_test",
+define("ember-runtime/tests/system/string/fmt_string_test",
   ["ember-metal/core","ember-runtime/system/string"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -46423,7 +46719,7 @@ enifed("ember-runtime/tests/system/string/fmt_string_test",
       equal(fmt('%@ %@', ['John'], 'Doe'), '[John] Doe');
     });
   });
-enifed("ember-runtime/tests/system/string/fmt_string_test.jshint",
+define("ember-runtime/tests/system/string/fmt_string_test.jshint",
   [],
   function() {
     "use strict";
@@ -46432,7 +46728,7 @@ enifed("ember-runtime/tests/system/string/fmt_string_test.jshint",
       ok(true, 'ember-runtime/tests/system/string/fmt_string_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/string/loc_test",
+define("ember-runtime/tests/system/string/loc_test",
   ["ember-metal/core","ember-runtime/system/string"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -46496,7 +46792,7 @@ enifed("ember-runtime/tests/system/string/loc_test",
       equal(loc('_Hello %@ %@', ['John'], 'Doe'), 'Bonjour [John] Doe');
     });
   });
-enifed("ember-runtime/tests/system/string/loc_test.jshint",
+define("ember-runtime/tests/system/string/loc_test.jshint",
   [],
   function() {
     "use strict";
@@ -46505,7 +46801,7 @@ enifed("ember-runtime/tests/system/string/loc_test.jshint",
       ok(true, 'ember-runtime/tests/system/string/loc_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/string/underscore_test",
+define("ember-runtime/tests/system/string/underscore_test",
   ["ember-metal/core","ember-runtime/system/string"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -46548,7 +46844,7 @@ enifed("ember-runtime/tests/system/string/underscore_test",
       }
     });
   });
-enifed("ember-runtime/tests/system/string/underscore_test.jshint",
+define("ember-runtime/tests/system/string/underscore_test.jshint",
   [],
   function() {
     "use strict";
@@ -46557,7 +46853,7 @@ enifed("ember-runtime/tests/system/string/underscore_test.jshint",
       ok(true, 'ember-runtime/tests/system/string/underscore_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/string/w_test",
+define("ember-runtime/tests/system/string/w_test",
   ["ember-metal/core","ember-runtime/system/string"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -46593,7 +46889,7 @@ enifed("ember-runtime/tests/system/string/w_test",
       }
     });
   });
-enifed("ember-runtime/tests/system/string/w_test.jshint",
+define("ember-runtime/tests/system/string/w_test.jshint",
   [],
   function() {
     "use strict";
@@ -46602,7 +46898,7 @@ enifed("ember-runtime/tests/system/string/w_test.jshint",
       ok(true, 'ember-runtime/tests/system/string/w_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/subarray_test",
+define("ember-runtime/tests/system/subarray_test",
   ["ember-metal/enumerable_utils","ember-runtime/system/subarray"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -46732,7 +47028,7 @@ enifed("ember-runtime/tests/system/subarray_test",
       equal(operationsString(), "r:2 f:1 r:1", "left-composition does not confuse right non-composition");
     });
   });
-enifed("ember-runtime/tests/system/subarray_test.jshint",
+define("ember-runtime/tests/system/subarray_test.jshint",
   [],
   function() {
     "use strict";
@@ -46741,7 +47037,7 @@ enifed("ember-runtime/tests/system/subarray_test.jshint",
       ok(true, 'ember-runtime/tests/system/subarray_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/tracked_array_test",
+define("ember-runtime/tests/system/tracked_array_test",
   ["ember-runtime/system/tracked_array"],
   function(__dependency1__) {
     "use strict";
@@ -47001,7 +47297,7 @@ enifed("ember-runtime/tests/system/tracked_array_test",
       equal(trackedArray.toString(), "r:6", "after `apply` operations become retain:n");
     });
   });
-enifed("ember-runtime/tests/system/tracked_array_test.jshint",
+define("ember-runtime/tests/system/tracked_array_test.jshint",
   [],
   function() {
     "use strict";
@@ -47010,7 +47306,7 @@ enifed("ember-runtime/tests/system/tracked_array_test.jshint",
       ok(true, 'ember-runtime/tests/system/tracked_array_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/utils",
+define("ember-runtime/tests/utils",
   ["ember-metal/run_loop","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -47029,7 +47325,7 @@ enifed("ember-runtime/tests/utils",
     __exports__.runAppend = runAppend;
     __exports__.runDestroy = runDestroy;
   });
-enifed("ember-runtime/tests/utils.jshint",
+define("ember-runtime/tests/utils.jshint",
   [],
   function() {
     "use strict";
@@ -47038,7 +47334,7 @@ enifed("ember-runtime/tests/utils.jshint",
       ok(true, 'ember-runtime/tests/utils.js should pass jshint.'); 
     });
   });
-enifed("ember-testing.jshint",
+define("ember-testing.jshint",
   [],
   function() {
     "use strict";
@@ -47047,7 +47343,7 @@ enifed("ember-testing.jshint",
       ok(true, 'ember-testing.js should pass jshint.'); 
     });
   });
-enifed("ember-testing/adapters/adapter.jshint",
+define("ember-testing/adapters/adapter.jshint",
   [],
   function() {
     "use strict";
@@ -47056,7 +47352,7 @@ enifed("ember-testing/adapters/adapter.jshint",
       ok(true, 'ember-testing/adapters/adapter.js should pass jshint.'); 
     });
   });
-enifed("ember-testing/adapters/qunit.jshint",
+define("ember-testing/adapters/qunit.jshint",
   [],
   function() {
     "use strict";
@@ -47065,7 +47361,7 @@ enifed("ember-testing/adapters/qunit.jshint",
       ok(true, 'ember-testing/adapters/qunit.js should pass jshint.'); 
     });
   });
-enifed("ember-testing/helpers.jshint",
+define("ember-testing/helpers.jshint",
   [],
   function() {
     "use strict";
@@ -47074,7 +47370,7 @@ enifed("ember-testing/helpers.jshint",
       ok(true, 'ember-testing/helpers.js should pass jshint.'); 
     });
   });
-enifed("ember-testing/initializers.jshint",
+define("ember-testing/initializers.jshint",
   [],
   function() {
     "use strict";
@@ -47083,7 +47379,7 @@ enifed("ember-testing/initializers.jshint",
       ok(true, 'ember-testing/initializers.js should pass jshint.'); 
     });
   });
-enifed("ember-testing/setup_for_testing.jshint",
+define("ember-testing/setup_for_testing.jshint",
   [],
   function() {
     "use strict";
@@ -47092,7 +47388,7 @@ enifed("ember-testing/setup_for_testing.jshint",
       ok(true, 'ember-testing/setup_for_testing.js should pass jshint.'); 
     });
   });
-enifed("ember-testing/support.jshint",
+define("ember-testing/support.jshint",
   [],
   function() {
     "use strict";
@@ -47101,7 +47397,7 @@ enifed("ember-testing/support.jshint",
       ok(true, 'ember-testing/support.js should pass jshint.'); 
     });
   });
-enifed("ember-testing/test.jshint",
+define("ember-testing/test.jshint",
   [],
   function() {
     "use strict";
@@ -47110,7 +47406,7 @@ enifed("ember-testing/test.jshint",
       ok(true, 'ember-testing/test.js should pass jshint.'); 
     });
   });
-enifed("ember-testing/tests/acceptance_test",
+define("ember-testing/tests/acceptance_test",
   ["ember-metal/run_loop","ember-views/system/jquery","ember-testing/test","ember-testing/adapters/qunit","ember-views/views/view","ember-testing/initializers","ember-application/system/application","ember-routing/system/route","ember-htmlbars/system/compile","ember-routing"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
     "use strict";
@@ -47412,7 +47708,7 @@ enifed("ember-testing/tests/acceptance_test",
       });
     });
   });
-enifed("ember-testing/tests/acceptance_test.jshint",
+define("ember-testing/tests/acceptance_test.jshint",
   [],
   function() {
     "use strict";
@@ -47421,7 +47717,7 @@ enifed("ember-testing/tests/acceptance_test.jshint",
       ok(true, 'ember-testing/tests/acceptance_test.js should pass jshint.'); 
     });
   });
-enifed("ember-testing/tests/adapters/adapter_test",
+define("ember-testing/tests/adapters/adapter_test",
   ["ember-metal/run_loop","ember-testing/adapters/adapter"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -47458,7 +47754,7 @@ enifed("ember-testing/tests/adapters/adapter_test",
       equal(thrown, error);
     });
   });
-enifed("ember-testing/tests/adapters/adapter_test.jshint",
+define("ember-testing/tests/adapters/adapter_test.jshint",
   [],
   function() {
     "use strict";
@@ -47467,7 +47763,7 @@ enifed("ember-testing/tests/adapters/adapter_test.jshint",
       ok(true, 'ember-testing/tests/adapters/adapter_test.js should pass jshint.'); 
     });
   });
-enifed("ember-testing/tests/adapters/qunit_test",
+define("ember-testing/tests/adapters/qunit_test",
   ["ember-metal/run_loop","ember-testing/adapters/qunit"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -47522,7 +47818,7 @@ enifed("ember-testing/tests/adapters/qunit_test",
       }
     });
   });
-enifed("ember-testing/tests/adapters/qunit_test.jshint",
+define("ember-testing/tests/adapters/qunit_test.jshint",
   [],
   function() {
     "use strict";
@@ -47531,7 +47827,7 @@ enifed("ember-testing/tests/adapters/qunit_test.jshint",
       ok(true, 'ember-testing/tests/adapters/qunit_test.js should pass jshint.'); 
     });
   });
-enifed("ember-testing/tests/adapters_test",
+define("ember-testing/tests/adapters_test",
   ["ember-metal/run_loop","ember-testing/test","ember-testing/adapters/adapter","ember-testing/adapters/qunit","ember-application/system/application"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -47588,7 +47884,7 @@ enifed("ember-testing/tests/adapters_test",
       ok(Test.adapter instanceof QUnitAdapter);
     });
   });
-enifed("ember-testing/tests/adapters_test.jshint",
+define("ember-testing/tests/adapters_test.jshint",
   [],
   function() {
     "use strict";
@@ -47597,7 +47893,7 @@ enifed("ember-testing/tests/adapters_test.jshint",
       ok(true, 'ember-testing/tests/adapters_test.js should pass jshint.'); 
     });
   });
-enifed("ember-testing/tests/helper_registration_test",
+define("ember-testing/tests/helper_registration_test",
   ["ember-metal/run_loop","ember-testing/test","ember-application/system/application"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -47684,7 +47980,7 @@ enifed("ember-testing/tests/helper_registration_test",
       ok(!helperContainer.boot, "once unregistered the helper is not added to the helperContainer");
     });
   });
-enifed("ember-testing/tests/helper_registration_test.jshint",
+define("ember-testing/tests/helper_registration_test.jshint",
   [],
   function() {
     "use strict";
@@ -47693,7 +47989,7 @@ enifed("ember-testing/tests/helper_registration_test.jshint",
       ok(true, 'ember-testing/tests/helper_registration_test.js should pass jshint.'); 
     });
   });
-enifed("ember-testing/tests/helpers_test",
+define("ember-testing/tests/helpers_test",
   ["ember-metal/core","ember-metal/run_loop","ember-runtime/system/object","ember-runtime/ext/rsvp","ember-views/views/view","ember-views/system/jquery","ember-testing/test","ember-testing/helpers","ember-testing/initializers","ember-testing/setup_for_testing","ember-routing/system/router","ember-routing/system/route","ember-application/system/application","ember-htmlbars/system/compile"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__) {
     "use strict";
@@ -48512,7 +48808,7 @@ enifed("ember-testing/tests/helpers_test",
       App.testHelpers.findWithAssert('.who-cares');
     });
   });
-enifed("ember-testing/tests/helpers_test.jshint",
+define("ember-testing/tests/helpers_test.jshint",
   [],
   function() {
     "use strict";
@@ -48521,7 +48817,7 @@ enifed("ember-testing/tests/helpers_test.jshint",
       ok(true, 'ember-testing/tests/helpers_test.js should pass jshint.'); 
     });
   });
-enifed("ember-testing/tests/integration_test",
+define("ember-testing/tests/integration_test",
   ["ember-metal/core","ember-metal/run_loop","ember-runtime/system/object","ember-runtime/controllers/array_controller","ember-views/system/jquery","ember-views/views/view","ember-testing/test","ember-routing/system/route","ember-application/system/application","ember-htmlbars/system/compile","ember-application"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__) {
     "use strict";
@@ -48648,7 +48944,7 @@ enifed("ember-testing/tests/integration_test",
       });
     });
   });
-enifed("ember-testing/tests/integration_test.jshint",
+define("ember-testing/tests/integration_test.jshint",
   [],
   function() {
     "use strict";
@@ -48657,7 +48953,7 @@ enifed("ember-testing/tests/integration_test.jshint",
       ok(true, 'ember-testing/tests/integration_test.js should pass jshint.'); 
     });
   });
-enifed("ember-testing/tests/simple_setup",
+define("ember-testing/tests/simple_setup",
   ["ember-metal/run_loop","ember-views/system/jquery"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -48677,7 +48973,7 @@ enifed("ember-testing/tests/simple_setup",
       }
     });
   });
-enifed("ember-testing/tests/simple_setup.jshint",
+define("ember-testing/tests/simple_setup.jshint",
   [],
   function() {
     "use strict";
@@ -48686,7 +48982,7 @@ enifed("ember-testing/tests/simple_setup.jshint",
       ok(true, 'ember-testing/tests/simple_setup.js should pass jshint.'); 
     });
   });
-enifed("ember-views.jshint",
+define("ember-views.jshint",
   [],
   function() {
     "use strict";
@@ -48695,7 +48991,7 @@ enifed("ember-views.jshint",
       ok(true, 'ember-views.js should pass jshint.'); 
     });
   });
-enifed("ember-views/component_lookup.jshint",
+define("ember-views/component_lookup.jshint",
   [],
   function() {
     "use strict";
@@ -48704,7 +49000,7 @@ enifed("ember-views/component_lookup.jshint",
       ok(true, 'ember-views/component_lookup.js should pass jshint.'); 
     });
   });
-enifed("ember-views/mixins/component_template_deprecation.jshint",
+define("ember-views/mixins/component_template_deprecation.jshint",
   [],
   function() {
     "use strict";
@@ -48713,7 +49009,7 @@ enifed("ember-views/mixins/component_template_deprecation.jshint",
       ok(true, 'ember-views/mixins/component_template_deprecation.js should pass jshint.'); 
     });
   });
-enifed("ember-views/mixins/text_support.jshint",
+define("ember-views/mixins/text_support.jshint",
   [],
   function() {
     "use strict";
@@ -48722,7 +49018,7 @@ enifed("ember-views/mixins/text_support.jshint",
       ok(true, 'ember-views/mixins/text_support.js should pass jshint.'); 
     });
   });
-enifed("ember-views/mixins/view_target_action_support.jshint",
+define("ember-views/mixins/view_target_action_support.jshint",
   [],
   function() {
     "use strict";
@@ -48731,7 +49027,7 @@ enifed("ember-views/mixins/view_target_action_support.jshint",
       ok(true, 'ember-views/mixins/view_target_action_support.js should pass jshint.'); 
     });
   });
-enifed("ember-views/streams/class_name_binding.jshint",
+define("ember-views/streams/class_name_binding.jshint",
   [],
   function() {
     "use strict";
@@ -48740,7 +49036,7 @@ enifed("ember-views/streams/class_name_binding.jshint",
       ok(true, 'ember-views/streams/class_name_binding.js should pass jshint.'); 
     });
   });
-enifed("ember-views/streams/conditional_stream.jshint",
+define("ember-views/streams/conditional_stream.jshint",
   [],
   function() {
     "use strict";
@@ -48749,7 +49045,7 @@ enifed("ember-views/streams/conditional_stream.jshint",
       ok(true, 'ember-views/streams/conditional_stream.js should pass jshint.'); 
     });
   });
-enifed("ember-views/streams/context_stream.jshint",
+define("ember-views/streams/context_stream.jshint",
   [],
   function() {
     "use strict";
@@ -48758,7 +49054,7 @@ enifed("ember-views/streams/context_stream.jshint",
       ok(true, 'ember-views/streams/context_stream.js should pass jshint.'); 
     });
   });
-enifed("ember-views/streams/key_stream.jshint",
+define("ember-views/streams/key_stream.jshint",
   [],
   function() {
     "use strict";
@@ -48767,7 +49063,7 @@ enifed("ember-views/streams/key_stream.jshint",
       ok(true, 'ember-views/streams/key_stream.js should pass jshint.'); 
     });
   });
-enifed("ember-views/streams/utils.jshint",
+define("ember-views/streams/utils.jshint",
   [],
   function() {
     "use strict";
@@ -48776,7 +49072,7 @@ enifed("ember-views/streams/utils.jshint",
       ok(true, 'ember-views/streams/utils.js should pass jshint.'); 
     });
   });
-enifed("ember-views/system/action_manager.jshint",
+define("ember-views/system/action_manager.jshint",
   [],
   function() {
     "use strict";
@@ -48785,7 +49081,7 @@ enifed("ember-views/system/action_manager.jshint",
       ok(true, 'ember-views/system/action_manager.js should pass jshint.'); 
     });
   });
-enifed("ember-views/system/event_dispatcher.jshint",
+define("ember-views/system/event_dispatcher.jshint",
   [],
   function() {
     "use strict";
@@ -48794,7 +49090,7 @@ enifed("ember-views/system/event_dispatcher.jshint",
       ok(true, 'ember-views/system/event_dispatcher.js should pass jshint.'); 
     });
   });
-enifed("ember-views/system/ext.jshint",
+define("ember-views/system/ext.jshint",
   [],
   function() {
     "use strict";
@@ -48803,7 +49099,7 @@ enifed("ember-views/system/ext.jshint",
       ok(true, 'ember-views/system/ext.js should pass jshint.'); 
     });
   });
-enifed("ember-views/system/jquery.jshint",
+define("ember-views/system/jquery.jshint",
   [],
   function() {
     "use strict";
@@ -48812,7 +49108,7 @@ enifed("ember-views/system/jquery.jshint",
       ok(true, 'ember-views/system/jquery.js should pass jshint.'); 
     });
   });
-enifed("ember-views/system/render_buffer.jshint",
+define("ember-views/system/render_buffer.jshint",
   [],
   function() {
     "use strict";
@@ -48821,7 +49117,7 @@ enifed("ember-views/system/render_buffer.jshint",
       ok(true, 'ember-views/system/render_buffer.js should pass jshint.'); 
     });
   });
-enifed("ember-views/system/renderer.jshint",
+define("ember-views/system/renderer.jshint",
   [],
   function() {
     "use strict";
@@ -48830,7 +49126,7 @@ enifed("ember-views/system/renderer.jshint",
       ok(true, 'ember-views/system/renderer.js should pass jshint.'); 
     });
   });
-enifed("ember-views/system/utils.jshint",
+define("ember-views/system/utils.jshint",
   [],
   function() {
     "use strict";
@@ -48839,7 +49135,7 @@ enifed("ember-views/system/utils.jshint",
       ok(true, 'ember-views/system/utils.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/mixins/view_target_action_support_test",
+define("ember-views/tests/mixins/view_target_action_support_test",
   ["ember-runtime/system/object","ember-views/views/view","ember-views/mixins/view_target_action_support"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -48891,7 +49187,7 @@ enifed("ember-views/tests/mixins/view_target_action_support_test",
       ok(true === view.triggerAction(), "a valid target and action were specified");
     });
   });
-enifed("ember-views/tests/mixins/view_target_action_support_test.jshint",
+define("ember-views/tests/mixins/view_target_action_support_test.jshint",
   [],
   function() {
     "use strict";
@@ -48900,7 +49196,7 @@ enifed("ember-views/tests/mixins/view_target_action_support_test.jshint",
       ok(true, 'ember-views/tests/mixins/view_target_action_support_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/streams/class_string_for_value_test",
+define("ember-views/tests/streams/class_string_for_value_test",
   ["ember-views/streams/class_name_binding"],
   function(__dependency1__) {
     "use strict";
@@ -48956,7 +49252,7 @@ enifed("ember-views/tests/streams/class_string_for_value_test",
       equal(classStringForValue("content.propertyName", ['emberjs'], "truthyClass"), "truthyClass", "returns className if given");
     });
   });
-enifed("ember-views/tests/streams/class_string_for_value_test.jshint",
+define("ember-views/tests/streams/class_string_for_value_test.jshint",
   [],
   function() {
     "use strict";
@@ -48965,7 +49261,7 @@ enifed("ember-views/tests/streams/class_string_for_value_test.jshint",
       ok(true, 'ember-views/tests/streams/class_string_for_value_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/streams/parse_property_path_test",
+define("ember-views/tests/streams/parse_property_path_test",
   ["ember-views/streams/class_name_binding"],
   function(__dependency1__) {
     "use strict";
@@ -49018,7 +49314,7 @@ enifed("ember-views/tests/streams/parse_property_path_test",
       equal(parsed.classNames, "::falsyClass", "there is a classNames");
     });
   });
-enifed("ember-views/tests/streams/parse_property_path_test.jshint",
+define("ember-views/tests/streams/parse_property_path_test.jshint",
   [],
   function() {
     "use strict";
@@ -49027,7 +49323,7 @@ enifed("ember-views/tests/streams/parse_property_path_test.jshint",
       ok(true, 'ember-views/tests/streams/parse_property_path_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/system/event_dispatcher_test",
+define("ember-views/tests/system/event_dispatcher_test",
   ["ember-metal/core","ember-metal/property_get","ember-metal/run_loop","ember-runtime/system/object","ember-views/system/jquery","ember-views/views/view","ember-views/system/event_dispatcher","ember-views/views/container_view"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
     "use strict";
@@ -49423,7 +49719,7 @@ enifed("ember-views/tests/system/event_dispatcher_test",
       jQuery("#leView").trigger("myevent");
     });
   });
-enifed("ember-views/tests/system/event_dispatcher_test.jshint",
+define("ember-views/tests/system/event_dispatcher_test.jshint",
   [],
   function() {
     "use strict";
@@ -49432,7 +49728,7 @@ enifed("ember-views/tests/system/event_dispatcher_test.jshint",
       ok(true, 'ember-views/tests/system/event_dispatcher_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/system/ext_test",
+define("ember-views/tests/system/ext_test",
   ["ember-metal/run_loop","ember-views/views/view"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -49471,7 +49767,7 @@ enifed("ember-views/tests/system/ext_test",
       });
     });
   });
-enifed("ember-views/tests/system/ext_test.jshint",
+define("ember-views/tests/system/ext_test.jshint",
   [],
   function() {
     "use strict";
@@ -49480,7 +49776,7 @@ enifed("ember-views/tests/system/ext_test.jshint",
       ok(true, 'ember-views/tests/system/ext_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/system/jquery_ext_test",
+define("ember-views/tests/system/jquery_ext_test",
   ["ember-metal/run_loop","ember-views/system/event_dispatcher","ember-views/system/jquery","ember-views/views/view"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -49571,7 +49867,7 @@ enifed("ember-views/tests/system/jquery_ext_test",
       });
     }
   });
-enifed("ember-views/tests/system/jquery_ext_test.jshint",
+define("ember-views/tests/system/jquery_ext_test.jshint",
   [],
   function() {
     "use strict";
@@ -49580,7 +49876,7 @@ enifed("ember-views/tests/system/jquery_ext_test.jshint",
       ok(true, 'ember-views/tests/system/jquery_ext_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/system/render_buffer_test",
+define("ember-views/tests/system/render_buffer_test",
   ["ember-views/system/jquery","ember-views/system/render_buffer"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -49924,7 +50220,7 @@ enifed("ember-views/tests/system/render_buffer_test",
 
     }
   });
-enifed("ember-views/tests/system/render_buffer_test.jshint",
+define("ember-views/tests/system/render_buffer_test.jshint",
   [],
   function() {
     "use strict";
@@ -49933,7 +50229,7 @@ enifed("ember-views/tests/system/render_buffer_test.jshint",
       ok(true, 'ember-views/tests/system/render_buffer_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/system/view_utils_test",
+define("ember-views/tests/system/view_utils_test",
   ["ember-metal/run_loop","ember-views/views/view"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -50006,7 +50302,7 @@ enifed("ember-views/tests/system/view_utils_test",
       ok(Ember.ViewUtils.getViewBoundingClientRect(view) instanceof ClientRectCtor);
     });
   });
-enifed("ember-views/tests/system/view_utils_test.jshint",
+define("ember-views/tests/system/view_utils_test.jshint",
   [],
   function() {
     "use strict";
@@ -50015,7 +50311,7 @@ enifed("ember-views/tests/system/view_utils_test.jshint",
       ok(true, 'ember-views/tests/system/view_utils_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/checkbox_test",
+define("ember-views/tests/views/checkbox_test",
   ["ember-views/views/checkbox","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-views/system/event_dispatcher"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -50162,7 +50458,7 @@ enifed("ember-views/tests/views/checkbox_test",
       equal(get(checkboxView, 'checked'), false, "changing the checkbox causes the view's value to get updated");
     });
   });
-enifed("ember-views/tests/views/checkbox_test.jshint",
+define("ember-views/tests/views/checkbox_test.jshint",
   [],
   function() {
     "use strict";
@@ -50171,7 +50467,7 @@ enifed("ember-views/tests/views/checkbox_test.jshint",
       ok(true, 'ember-views/tests/views/checkbox_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/collection_test",
+define("ember-views/tests/views/collection_test",
   ["ember-metal/core","ember-metal/property_set","ember-metal/property_get","ember-metal/run_loop","ember-metal/enumerable_utils","ember-metal/mixin","ember-runtime/system/string","ember-runtime/system/array_proxy","ember-runtime/controllers/array_controller","ember-views/system/jquery","ember-views/views/collection_view","ember-views/views/view"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__) {
     "use strict";
@@ -50929,7 +51225,7 @@ enifed("ember-views/tests/views/collection_test",
       }
     });
   });
-enifed("ember-views/tests/views/collection_test.jshint",
+define("ember-views/tests/views/collection_test.jshint",
   [],
   function() {
     "use strict";
@@ -50938,7 +51234,7 @@ enifed("ember-views/tests/views/collection_test.jshint",
       ok(true, 'ember-views/tests/views/collection_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/component_test",
+define("ember-views/tests/views/component_test",
   ["ember-metal/property_set","ember-metal/run_loop","ember-runtime/system/object","ember-runtime/system/service","ember-runtime/system/container","ember-runtime/inject","ember-metal/property_get","ember-views/views/view","ember-views/views/component"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
     "use strict";
@@ -51134,7 +51430,7 @@ enifed("ember-views/tests/views/component_test",
       deepEqual(actionArguments, [firstContext, secondContext], "arguments were sent to the action");
     });
 
-    
+    if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
       QUnit.module('Ember.Component - injected properties');
 
       test("services can be injected into components", function() {
@@ -51151,7 +51447,7 @@ enifed("ember-views/tests/views/component_test",
 
         equal(profilerService, appComponent.get('profilerService'), "service.profiler is injected");
       });
-    
+    }
 
 
     QUnit.module('Ember.Component - subscribed and sent actions trigger errors');
@@ -51191,7 +51487,7 @@ enifed("ember-views/tests/views/component_test",
       appComponent.send('foo', 'baz');
     });
   });
-enifed("ember-views/tests/views/component_test.jshint",
+define("ember-views/tests/views/component_test.jshint",
   [],
   function() {
     "use strict";
@@ -51200,7 +51496,7 @@ enifed("ember-views/tests/views/component_test.jshint",
       ok(true, 'ember-views/tests/views/component_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/container_view_test",
+define("ember-views/tests/views/container_view_test",
   ["ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-metal/computed","ember-runtime/controllers/controller","ember-views/system/jquery","ember-views/views/view","ember-views/views/container_view"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
     "use strict";
@@ -51986,7 +52282,7 @@ enifed("ember-views/tests/views/container_view_test",
       ok(observerFired, 'View pushed, observer fired');
     });
   });
-enifed("ember-views/tests/views/container_view_test.jshint",
+define("ember-views/tests/views/container_view_test.jshint",
   [],
   function() {
     "use strict";
@@ -51995,7 +52291,7 @@ enifed("ember-views/tests/views/container_view_test.jshint",
       ok(true, 'ember-views/tests/views/container_view_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/instrumentation_test",
+define("ember-views/tests/views/instrumentation_test",
   ["ember-metal/instrumentation","ember-metal/run_loop","ember-views/views/view"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -52056,7 +52352,7 @@ enifed("ember-views/tests/views/instrumentation_test",
       confirmPayload(beforeCalls[0], view);
     });
   });
-enifed("ember-views/tests/views/instrumentation_test.jshint",
+define("ember-views/tests/views/instrumentation_test.jshint",
   [],
   function() {
     "use strict";
@@ -52065,7 +52361,7 @@ enifed("ember-views/tests/views/instrumentation_test.jshint",
       ok(true, 'ember-views/tests/views/instrumentation_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/metamorph_view_test",
+define("ember-views/tests/views/metamorph_view_test",
   ["ember-views/system/jquery","ember-metal/run_loop","ember-views/views/view","ember-metal/property_get","ember-metal/property_set","ember-metal/mixin","ember-htmlbars/system/compile","ember-views/views/metamorph_view"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
     "use strict";
@@ -52316,7 +52612,7 @@ enifed("ember-views/tests/views/metamorph_view_test",
       });
     });
   });
-enifed("ember-views/tests/views/metamorph_view_test.jshint",
+define("ember-views/tests/views/metamorph_view_test.jshint",
   [],
   function() {
     "use strict";
@@ -52325,7 +52621,7 @@ enifed("ember-views/tests/views/metamorph_view_test.jshint",
       ok(true, 'ember-views/tests/views/metamorph_view_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/select_test",
+define("ember-views/tests/views/select_test",
   ["ember-views/views/select","ember-runtime/system/object","ember-metal/run_loop","ember-views/system/jquery","ember-metal/enumerable_utils","ember-views/system/event_dispatcher"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
@@ -53052,7 +53348,7 @@ enifed("ember-views/tests/views/select_test",
       equal(select.get('selection'), ebryn);
     });
   });
-enifed("ember-views/tests/views/select_test.jshint",
+define("ember-views/tests/views/select_test.jshint",
   [],
   function() {
     "use strict";
@@ -53061,7 +53357,7 @@ enifed("ember-views/tests/views/select_test.jshint",
       ok(true, 'ember-views/tests/views/select_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/simple_bound_view_test",
+define("ember-views/tests/views/simple_bound_view_test",
   ["ember-metal/streams/stream","ember-views/views/simple_bound_view"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -53103,7 +53399,7 @@ enifed("ember-views/tests/views/simple_bound_view_test",
       equal(value, 'baz', 'expected call to morph.update with "baz"');
     });
   });
-enifed("ember-views/tests/views/simple_bound_view_test.jshint",
+define("ember-views/tests/views/simple_bound_view_test.jshint",
   [],
   function() {
     "use strict";
@@ -53112,7 +53408,7 @@ enifed("ember-views/tests/views/simple_bound_view_test.jshint",
       ok(true, 'ember-views/tests/views/simple_bound_view_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/text_area_test",
+define("ember-views/tests/views/text_area_test",
   ["ember-runtime/system/object","ember-metal/array","ember-metal/run_loop","ember-views/views/text_area","ember-metal/property_get","ember-metal/property_set"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
@@ -53344,7 +53640,7 @@ enifed("ember-views/tests/views/text_area_test",
       ok(wasCalled, "invokes cancel method");
     });
   });
-enifed("ember-views/tests/views/text_area_test.jshint",
+define("ember-views/tests/views/text_area_test.jshint",
   [],
   function() {
     "use strict";
@@ -53353,7 +53649,7 @@ enifed("ember-views/tests/views/text_area_test.jshint",
       ok(true, 'ember-views/tests/views/text_area_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/text_field_test",
+define("ember-views/tests/views/text_field_test",
   ["ember-metal/run_loop","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/object","ember-views/views/text_field","ember-views/system/event_dispatcher","ember-views/system/jquery"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
     "use strict";
@@ -53923,7 +54219,7 @@ enifed("ember-views/tests/views/text_field_test",
       equal(caretPosition(view.$()), 5, 'The keyUp event should not result in the cursor being reset due to the bind-attr observers');
     });
   });
-enifed("ember-views/tests/views/text_field_test.jshint",
+define("ember-views/tests/views/text_field_test.jshint",
   [],
   function() {
     "use strict";
@@ -53932,7 +54228,7 @@ enifed("ember-views/tests/views/text_field_test.jshint",
       ok(true, 'ember-views/tests/views/text_field_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/view/actions_test",
+define("ember-views/tests/views/view/actions_test",
   ["ember-metal/run_loop","ember-metal/mixin","ember-runtime/controllers/controller","ember-runtime/system/object","ember-views/views/view"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -54037,7 +54333,7 @@ enifed("ember-views/tests/views/view/actions_test",
       });
     });
   });
-enifed("ember-views/tests/views/view/actions_test.jshint",
+define("ember-views/tests/views/view/actions_test.jshint",
   [],
   function() {
     "use strict";
@@ -54046,7 +54342,7 @@ enifed("ember-views/tests/views/view/actions_test.jshint",
       ok(true, 'ember-views/tests/views/view/actions_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/view/append_to_test",
+define("ember-views/tests/views/view/append_to_test",
   ["ember-metal/property_get","ember-metal/run_loop","ember-views/system/jquery","ember-views/views/view","ember-views/views/container_view"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -54332,7 +54628,7 @@ enifed("ember-views/tests/views/view/append_to_test",
       ok(get(view, 'childViews.length') === 0, "Destroyed child views should be removed from their parent");
     });
   });
-enifed("ember-views/tests/views/view/append_to_test.jshint",
+define("ember-views/tests/views/view/append_to_test.jshint",
   [],
   function() {
     "use strict";
@@ -54341,7 +54637,7 @@ enifed("ember-views/tests/views/view/append_to_test.jshint",
       ok(true, 'ember-views/tests/views/view/append_to_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/view/attribute_bindings_test",
+define("ember-views/tests/views/view/attribute_bindings_test",
   ["ember-metal/core","ember-metal/run_loop","ember-metal/observer","ember-metal/property_events","ember-views/views/view"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -54649,7 +54945,7 @@ enifed("ember-views/tests/views/view/attribute_bindings_test",
       }, 'You cannot use class as an attributeBinding, use classNameBindings instead.');
     });
   });
-enifed("ember-views/tests/views/view/attribute_bindings_test.jshint",
+define("ember-views/tests/views/view/attribute_bindings_test.jshint",
   [],
   function() {
     "use strict";
@@ -54658,7 +54954,7 @@ enifed("ember-views/tests/views/view/attribute_bindings_test.jshint",
       ok(true, 'ember-views/tests/views/view/attribute_bindings_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/view/child_views_test",
+define("ember-views/tests/views/view/child_views_test",
   ["ember-metal/run_loop","ember-views/views/view"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -54742,7 +55038,7 @@ enifed("ember-views/tests/views/view/child_views_test",
       });
     });
   });
-enifed("ember-views/tests/views/view/child_views_test.jshint",
+define("ember-views/tests/views/view/child_views_test.jshint",
   [],
   function() {
     "use strict";
@@ -54751,7 +55047,7 @@ enifed("ember-views/tests/views/view/child_views_test.jshint",
       ok(true, 'ember-views/tests/views/view/child_views_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/view/class_name_bindings_test",
+define("ember-views/tests/views/view/class_name_bindings_test",
   ["ember-metal/property_set","ember-metal/run_loop","ember-metal/property_events","ember-metal/watching","ember-runtime/system/object","ember-views/views/view"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
@@ -55029,7 +55325,7 @@ enifed("ember-views/tests/views/view/class_name_bindings_test",
       }, /classNameBindings must not have spaces in them/i);
     });
   });
-enifed("ember-views/tests/views/view/class_name_bindings_test.jshint",
+define("ember-views/tests/views/view/class_name_bindings_test.jshint",
   [],
   function() {
     "use strict";
@@ -55038,7 +55334,7 @@ enifed("ember-views/tests/views/view/class_name_bindings_test.jshint",
       ok(true, 'ember-views/tests/views/view/class_name_bindings_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/view/context_test",
+define("ember-views/tests/views/view/context_test",
   ["ember-metal/run_loop","ember-views/views/view","ember-views/views/container_view"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -55085,7 +55381,7 @@ enifed("ember-views/tests/views/view/context_test",
       });
     });
   });
-enifed("ember-views/tests/views/view/context_test.jshint",
+define("ember-views/tests/views/view/context_test.jshint",
   [],
   function() {
     "use strict";
@@ -55094,7 +55390,7 @@ enifed("ember-views/tests/views/view/context_test.jshint",
       ok(true, 'ember-views/tests/views/view/context_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/view/controller_test",
+define("ember-views/tests/views/view/controller_test",
   ["ember-metal/run_loop","ember-views/views/container_view"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -55149,7 +55445,7 @@ enifed("ember-views/tests/views/view/controller_test",
       });
     });
   });
-enifed("ember-views/tests/views/view/controller_test.jshint",
+define("ember-views/tests/views/view/controller_test.jshint",
   [],
   function() {
     "use strict";
@@ -55158,7 +55454,7 @@ enifed("ember-views/tests/views/view/controller_test.jshint",
       ok(true, 'ember-views/tests/views/view/controller_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/view/create_child_view_test",
+define("ember-views/tests/views/view/create_child_view_test",
   ["ember-metal/property_get","ember-metal/run_loop","ember-views/views/view"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -55259,7 +55555,7 @@ enifed("ember-views/tests/views/view/create_child_view_test",
       });
     });
   });
-enifed("ember-views/tests/views/view/create_child_view_test.jshint",
+define("ember-views/tests/views/view/create_child_view_test.jshint",
   [],
   function() {
     "use strict";
@@ -55268,7 +55564,7 @@ enifed("ember-views/tests/views/view/create_child_view_test.jshint",
       ok(true, 'ember-views/tests/views/view/create_child_view_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/view/create_element_test",
+define("ember-views/tests/views/view/create_element_test",
   ["ember-metal/property_get","ember-metal/run_loop","ember-views/views/view","ember-views/views/container_view","ember-metal-views/tests/test_helpers"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -55412,7 +55708,7 @@ enifed("ember-views/tests/views/view/create_element_test",
       ok(view.$('#foo').length, 'has element with child elementId');
     });
   });
-enifed("ember-views/tests/views/view/create_element_test.jshint",
+define("ember-views/tests/views/view/create_element_test.jshint",
   [],
   function() {
     "use strict";
@@ -55421,7 +55717,7 @@ enifed("ember-views/tests/views/view/create_element_test.jshint",
       ok(true, 'ember-views/tests/views/view/create_element_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/view/destroy_element_test",
+define("ember-views/tests/views/view/destroy_element_test",
   ["ember-metal/property_get","ember-metal/run_loop","ember-views/views/view","ember-views/views/container_view"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -55518,7 +55814,7 @@ enifed("ember-views/tests/views/view/destroy_element_test",
       ok(!parent.find('#'+view.get('elementId')).length, 'element no longer in parent node');
     });
   });
-enifed("ember-views/tests/views/view/destroy_element_test.jshint",
+define("ember-views/tests/views/view/destroy_element_test.jshint",
   [],
   function() {
     "use strict";
@@ -55527,7 +55823,7 @@ enifed("ember-views/tests/views/view/destroy_element_test.jshint",
       ok(true, 'ember-views/tests/views/view/destroy_element_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/view/destroy_test",
+define("ember-views/tests/views/view/destroy_test",
   ["ember-metal/property_get","ember-metal/run_loop","ember-views/views/view"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -55555,7 +55851,7 @@ enifed("ember-views/tests/views/view/destroy_test",
       });
     });
   });
-enifed("ember-views/tests/views/view/destroy_test.jshint",
+define("ember-views/tests/views/view/destroy_test.jshint",
   [],
   function() {
     "use strict";
@@ -55564,7 +55860,7 @@ enifed("ember-views/tests/views/view/destroy_test.jshint",
       ok(true, 'ember-views/tests/views/view/destroy_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/view/element_test",
+define("ember-views/tests/views/view/element_test",
   ["ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-views/views/view","ember-views/views/container_view"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -55631,7 +55927,7 @@ enifed("ember-views/tests/views/view/element_test",
       equal(view.get('elementId'), 'one', 'elementId is still "one"');
     });
   });
-enifed("ember-views/tests/views/view/element_test.jshint",
+define("ember-views/tests/views/view/element_test.jshint",
   [],
   function() {
     "use strict";
@@ -55640,7 +55936,7 @@ enifed("ember-views/tests/views/view/element_test.jshint",
       ok(true, 'ember-views/tests/views/view/element_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/view/evented_test",
+define("ember-views/tests/views/view/evented_test",
   ["ember-metal/run_loop","ember-runtime/system/object","ember-views/views/view"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -55706,7 +56002,7 @@ enifed("ember-views/tests/views/view/evented_test",
       });
     });
   });
-enifed("ember-views/tests/views/view/evented_test.jshint",
+define("ember-views/tests/views/view/evented_test.jshint",
   [],
   function() {
     "use strict";
@@ -55715,7 +56011,7 @@ enifed("ember-views/tests/views/view/evented_test.jshint",
       ok(true, 'ember-views/tests/views/view/evented_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/view/init_test",
+define("ember-views/tests/views/view/init_test",
   ["ember-metal/core","ember-metal/property_get","ember-metal/run_loop","ember-metal/computed","ember-views/views/view"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -55757,7 +56053,7 @@ enifed("ember-views/tests/views/view/init_test",
           elementId: 'test',
           classNames: computed(function() {
             return ['className'];
-          })["volatile"]()
+          }).volatile()
         });
       }, /Only arrays are allowed/i);
     });
@@ -55768,12 +56064,12 @@ enifed("ember-views/tests/views/view/init_test",
           elementId: 'test',
           classNameBindings: computed(function() {
             return ['className'];
-          })["volatile"]()
+          }).volatile()
         });
       }, /Only arrays are allowed/i);
     });
   });
-enifed("ember-views/tests/views/view/init_test.jshint",
+define("ember-views/tests/views/view/init_test.jshint",
   [],
   function() {
     "use strict";
@@ -55782,7 +56078,7 @@ enifed("ember-views/tests/views/view/init_test.jshint",
       ok(true, 'ember-views/tests/views/view/init_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/view/inject_test",
+define("ember-views/tests/views/view/inject_test",
   ["ember-runtime/system/service","ember-runtime/system/container","ember-runtime/inject","ember-views/views/view"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -55791,7 +56087,7 @@ enifed("ember-views/tests/views/view/inject_test",
     var inject = __dependency3__["default"];
     var View = __dependency4__["default"];
 
-    
+    if (Ember.FEATURES.isEnabled('ember-metal-injected-properties')) {
       QUnit.module('EmberView - injected properties');
 
       test("services can be injected into views", function() {
@@ -55808,9 +56104,9 @@ enifed("ember-views/tests/views/view/inject_test",
 
         equal(profilerService, appView.get('profilerService'), "service.profiler is injected");
       });
-    
+    }
   });
-enifed("ember-views/tests/views/view/inject_test.jshint",
+define("ember-views/tests/views/view/inject_test.jshint",
   [],
   function() {
     "use strict";
@@ -55819,7 +56115,7 @@ enifed("ember-views/tests/views/view/inject_test.jshint",
       ok(true, 'ember-views/tests/views/view/inject_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/view/is_visible_test",
+define("ember-views/tests/views/view/is_visible_test",
   ["ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-views/views/view","ember-views/views/container_view"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -56045,7 +56341,7 @@ enifed("ember-views/tests/views/view/is_visible_test",
       equal(grandchildBecameVisible, 1);
     });
   });
-enifed("ember-views/tests/views/view/is_visible_test.jshint",
+define("ember-views/tests/views/view/is_visible_test.jshint",
   [],
   function() {
     "use strict";
@@ -56054,7 +56350,7 @@ enifed("ember-views/tests/views/view/is_visible_test.jshint",
       ok(true, 'ember-views/tests/views/view/is_visible_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/view/jquery_test",
+define("ember-views/tests/views/view/jquery_test",
   ["ember-metal/property_get","ember-metal/run_loop","ember-views/views/view"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -56117,7 +56413,7 @@ enifed("ember-views/tests/views/view/jquery_test",
       equal(jquery.length, 0, 'view.$(body) should have no elements');
     });
   });
-enifed("ember-views/tests/views/view/jquery_test.jshint",
+define("ember-views/tests/views/view/jquery_test.jshint",
   [],
   function() {
     "use strict";
@@ -56126,7 +56422,7 @@ enifed("ember-views/tests/views/view/jquery_test.jshint",
       ok(true, 'ember-views/tests/views/view/jquery_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/view/layout_test",
+define("ember-views/tests/views/view/layout_test",
   ["container","ember-metal/property_get","ember-metal/run_loop","ember-views/views/view"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -56258,7 +56554,7 @@ enifed("ember-views/tests/views/view/layout_test",
       equal("Herp derp", view.$().text(), "the layout has access to the template");
     });
   });
-enifed("ember-views/tests/views/view/layout_test.jshint",
+define("ember-views/tests/views/view/layout_test.jshint",
   [],
   function() {
     "use strict";
@@ -56267,7 +56563,7 @@ enifed("ember-views/tests/views/view/layout_test.jshint",
       ok(true, 'ember-views/tests/views/view/layout_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/view/nearest_of_type_test",
+define("ember-views/tests/views/view/nearest_of_type_test",
   ["ember-metal/run_loop","ember-metal/mixin","ember-views/views/view"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -56340,7 +56636,7 @@ enifed("ember-views/tests/views/view/nearest_of_type_test",
 
     }());
   });
-enifed("ember-views/tests/views/view/nearest_of_type_test.jshint",
+define("ember-views/tests/views/view/nearest_of_type_test.jshint",
   [],
   function() {
     "use strict";
@@ -56349,7 +56645,7 @@ enifed("ember-views/tests/views/view/nearest_of_type_test.jshint",
       ok(true, 'ember-views/tests/views/view/nearest_of_type_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/view/nested_view_ordering_test",
+define("ember-views/tests/views/view/nested_view_ordering_test",
   ["container","ember-metal/run_loop","ember-views/views/view","ember-htmlbars/system/compile"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -56396,7 +56692,7 @@ enifed("ember-views/tests/views/view/nested_view_ordering_test",
       equal(insertedLast, "outer", "didInsertElement called on outer view after inner view");
     });
   });
-enifed("ember-views/tests/views/view/nested_view_ordering_test.jshint",
+define("ember-views/tests/views/view/nested_view_ordering_test.jshint",
   [],
   function() {
     "use strict";
@@ -56405,7 +56701,7 @@ enifed("ember-views/tests/views/view/nested_view_ordering_test.jshint",
       ok(true, 'ember-views/tests/views/view/nested_view_ordering_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/view/remove_test",
+define("ember-views/tests/views/view/remove_test",
   ["ember-metal/property_get","ember-metal/run_loop","ember-metal/enumerable_utils","ember-views/system/jquery","ember-views/views/view","ember-views/views/container_view"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
@@ -56569,7 +56865,7 @@ enifed("ember-views/tests/views/view/remove_test",
       ok(viewElem.length === 0, "view's element doesn't exist in DOM");
     });
   });
-enifed("ember-views/tests/views/view/remove_test.jshint",
+define("ember-views/tests/views/view/remove_test.jshint",
   [],
   function() {
     "use strict";
@@ -56578,7 +56874,7 @@ enifed("ember-views/tests/views/view/remove_test.jshint",
       ok(true, 'ember-views/tests/views/view/remove_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/view/render_test",
+define("ember-views/tests/views/view/render_test",
   ["ember-metal/property_get","ember-metal/run_loop","ember-views/system/jquery","ember-views/views/view","ember-views/views/container_view","ember-metal/computed","ember-htmlbars/system/compile"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
     "use strict";
@@ -56827,7 +57123,7 @@ enifed("ember-views/tests/views/view/render_test",
       ok(view.$('tr').length, 'inner view is tr');
     });
   });
-enifed("ember-views/tests/views/view/render_test.jshint",
+define("ember-views/tests/views/view/render_test.jshint",
   [],
   function() {
     "use strict";
@@ -56836,7 +57132,7 @@ enifed("ember-views/tests/views/view/render_test.jshint",
       ok(true, 'ember-views/tests/views/view/render_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/view/replace_in_test",
+define("ember-views/tests/views/view/replace_in_test",
   ["ember-metal/property_get","ember-metal/run_loop","ember-views/system/jquery","ember-views/views/view","ember-views/views/container_view"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -56947,7 +57243,7 @@ enifed("ember-views/tests/views/view/replace_in_test",
       ok(viewElem.length > 0, "creates and replaces the view's element");
     });
   });
-enifed("ember-views/tests/views/view/replace_in_test.jshint",
+define("ember-views/tests/views/view/replace_in_test.jshint",
   [],
   function() {
     "use strict";
@@ -56956,7 +57252,7 @@ enifed("ember-views/tests/views/view/replace_in_test.jshint",
       ok(true, 'ember-views/tests/views/view/replace_in_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/view/state_deprecation_test",
+define("ember-views/tests/views/view/state_deprecation_test",
   ["ember-metal/platform","ember-metal/run_loop","ember-views/views/view"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -57003,7 +57299,7 @@ enifed("ember-views/tests/views/view/state_deprecation_test",
       ok(view, 'view was created');
     });
   });
-enifed("ember-views/tests/views/view/state_deprecation_test.jshint",
+define("ember-views/tests/views/view/state_deprecation_test.jshint",
   [],
   function() {
     "use strict";
@@ -57012,7 +57308,7 @@ enifed("ember-views/tests/views/view/state_deprecation_test.jshint",
       ok(true, 'ember-views/tests/views/view/state_deprecation_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/view/stream_test",
+define("ember-views/tests/views/view/stream_test",
   ["ember-metal/run_loop","ember-views/views/view"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -57092,7 +57388,7 @@ enifed("ember-views/tests/views/view/stream_test",
       equal(stream._label, 'view.foo', 'stream is labeled');
     });
   });
-enifed("ember-views/tests/views/view/stream_test.jshint",
+define("ember-views/tests/views/view/stream_test.jshint",
   [],
   function() {
     "use strict";
@@ -57101,7 +57397,7 @@ enifed("ember-views/tests/views/view/stream_test.jshint",
       ok(true, 'ember-views/tests/views/view/stream_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/view/template_test",
+define("ember-views/tests/views/view/template_test",
   ["container","ember-metal/property_get","ember-metal/run_loop","ember-runtime/system/object","ember-views/views/view"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -57360,7 +57656,7 @@ enifed("ember-views/tests/views/view/template_test",
       }, /Container was not found when looking up a views template./);
     });
   });
-enifed("ember-views/tests/views/view/template_test.jshint",
+define("ember-views/tests/views/view/template_test.jshint",
   [],
   function() {
     "use strict";
@@ -57369,7 +57665,7 @@ enifed("ember-views/tests/views/view/template_test.jshint",
       ok(true, 'ember-views/tests/views/view/template_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/view/transition_to_deprecation_test",
+define("ember-views/tests/views/view/transition_to_deprecation_test",
   ["ember-views/views/view","ember-metal/run_loop"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -57405,7 +57701,7 @@ enifed("ember-views/tests/views/view/transition_to_deprecation_test",
       ok(true);
     });
   });
-enifed("ember-views/tests/views/view/transition_to_deprecation_test.jshint",
+define("ember-views/tests/views/view/transition_to_deprecation_test.jshint",
   [],
   function() {
     "use strict";
@@ -57414,7 +57710,7 @@ enifed("ember-views/tests/views/view/transition_to_deprecation_test.jshint",
       ok(true, 'ember-views/tests/views/view/transition_to_deprecation_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/view/view_lifecycle_test",
+define("ember-views/tests/views/view/view_lifecycle_test",
   ["ember-metal/core","ember-metal/run_loop","ember-runtime/system/object","ember-views/system/jquery","ember-views/views/view"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -57798,7 +58094,7 @@ enifed("ember-views/tests/views/view/view_lifecycle_test",
       });
     });
   });
-enifed("ember-views/tests/views/view/view_lifecycle_test.jshint",
+define("ember-views/tests/views/view/view_lifecycle_test.jshint",
   [],
   function() {
     "use strict";
@@ -57807,7 +58103,7 @@ enifed("ember-views/tests/views/view/view_lifecycle_test.jshint",
       ok(true, 'ember-views/tests/views/view/view_lifecycle_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/tests/views/view/virtual_views_test",
+define("ember-views/tests/views/view/virtual_views_test",
   ["ember-metal/property_get","ember-metal/run_loop","ember-views/system/jquery","ember-views/views/view"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -57909,7 +58205,7 @@ enifed("ember-views/tests/views/view/virtual_views_test",
       equal(rootView.get('childViews.length'), 0, "has no childView");
     });
   });
-enifed("ember-views/tests/views/view/virtual_views_test.jshint",
+define("ember-views/tests/views/view/virtual_views_test.jshint",
   [],
   function() {
     "use strict";
@@ -57918,7 +58214,7 @@ enifed("ember-views/tests/views/view/virtual_views_test.jshint",
       ok(true, 'ember-views/tests/views/view/virtual_views_test.js should pass jshint.'); 
     });
   });
-enifed("ember-views/views/bound_view.jshint",
+define("ember-views/views/bound_view.jshint",
   [],
   function() {
     "use strict";
@@ -57927,7 +58223,7 @@ enifed("ember-views/views/bound_view.jshint",
       ok(true, 'ember-views/views/bound_view.js should pass jshint.'); 
     });
   });
-enifed("ember-views/views/checkbox.jshint",
+define("ember-views/views/checkbox.jshint",
   [],
   function() {
     "use strict";
@@ -57936,7 +58232,7 @@ enifed("ember-views/views/checkbox.jshint",
       ok(true, 'ember-views/views/checkbox.js should pass jshint.'); 
     });
   });
-enifed("ember-views/views/collection_view.jshint",
+define("ember-views/views/collection_view.jshint",
   [],
   function() {
     "use strict";
@@ -57945,7 +58241,7 @@ enifed("ember-views/views/collection_view.jshint",
       ok(true, 'ember-views/views/collection_view.js should pass jshint.'); 
     });
   });
-enifed("ember-views/views/component.jshint",
+define("ember-views/views/component.jshint",
   [],
   function() {
     "use strict";
@@ -57954,7 +58250,7 @@ enifed("ember-views/views/component.jshint",
       ok(true, 'ember-views/views/component.js should pass jshint.'); 
     });
   });
-enifed("ember-views/views/container_view.jshint",
+define("ember-views/views/container_view.jshint",
   [],
   function() {
     "use strict";
@@ -57963,7 +58259,7 @@ enifed("ember-views/views/container_view.jshint",
       ok(true, 'ember-views/views/container_view.js should pass jshint.'); 
     });
   });
-enifed("ember-views/views/core_view.jshint",
+define("ember-views/views/core_view.jshint",
   [],
   function() {
     "use strict";
@@ -57972,7 +58268,7 @@ enifed("ember-views/views/core_view.jshint",
       ok(true, 'ember-views/views/core_view.js should pass jshint.'); 
     });
   });
-enifed("ember-views/views/each.jshint",
+define("ember-views/views/each.jshint",
   [],
   function() {
     "use strict";
@@ -57981,7 +58277,7 @@ enifed("ember-views/views/each.jshint",
       ok(true, 'ember-views/views/each.js should pass jshint.'); 
     });
   });
-enifed("ember-views/views/metamorph_view.jshint",
+define("ember-views/views/metamorph_view.jshint",
   [],
   function() {
     "use strict";
@@ -57990,7 +58286,7 @@ enifed("ember-views/views/metamorph_view.jshint",
       ok(true, 'ember-views/views/metamorph_view.js should pass jshint.'); 
     });
   });
-enifed("ember-views/views/select.jshint",
+define("ember-views/views/select.jshint",
   [],
   function() {
     "use strict";
@@ -57999,7 +58295,7 @@ enifed("ember-views/views/select.jshint",
       ok(true, 'ember-views/views/select.js should pass jshint.'); 
     });
   });
-enifed("ember-views/views/simple_bound_view.jshint",
+define("ember-views/views/simple_bound_view.jshint",
   [],
   function() {
     "use strict";
@@ -58008,7 +58304,7 @@ enifed("ember-views/views/simple_bound_view.jshint",
       ok(true, 'ember-views/views/simple_bound_view.js should pass jshint.'); 
     });
   });
-enifed("ember-views/views/states.jshint",
+define("ember-views/views/states.jshint",
   [],
   function() {
     "use strict";
@@ -58017,7 +58313,7 @@ enifed("ember-views/views/states.jshint",
       ok(true, 'ember-views/views/states.js should pass jshint.'); 
     });
   });
-enifed("ember-views/views/states/default.jshint",
+define("ember-views/views/states/default.jshint",
   [],
   function() {
     "use strict";
@@ -58026,7 +58322,7 @@ enifed("ember-views/views/states/default.jshint",
       ok(true, 'ember-views/views/states/default.js should pass jshint.'); 
     });
   });
-enifed("ember-views/views/states/destroying.jshint",
+define("ember-views/views/states/destroying.jshint",
   [],
   function() {
     "use strict";
@@ -58035,7 +58331,7 @@ enifed("ember-views/views/states/destroying.jshint",
       ok(true, 'ember-views/views/states/destroying.js should pass jshint.'); 
     });
   });
-enifed("ember-views/views/states/has_element.jshint",
+define("ember-views/views/states/has_element.jshint",
   [],
   function() {
     "use strict";
@@ -58044,7 +58340,7 @@ enifed("ember-views/views/states/has_element.jshint",
       ok(true, 'ember-views/views/states/has_element.js should pass jshint.'); 
     });
   });
-enifed("ember-views/views/states/in_buffer.jshint",
+define("ember-views/views/states/in_buffer.jshint",
   [],
   function() {
     "use strict";
@@ -58053,7 +58349,7 @@ enifed("ember-views/views/states/in_buffer.jshint",
       ok(true, 'ember-views/views/states/in_buffer.js should pass jshint.'); 
     });
   });
-enifed("ember-views/views/states/in_dom.jshint",
+define("ember-views/views/states/in_dom.jshint",
   [],
   function() {
     "use strict";
@@ -58062,7 +58358,7 @@ enifed("ember-views/views/states/in_dom.jshint",
       ok(true, 'ember-views/views/states/in_dom.js should pass jshint.'); 
     });
   });
-enifed("ember-views/views/states/pre_render.jshint",
+define("ember-views/views/states/pre_render.jshint",
   [],
   function() {
     "use strict";
@@ -58071,7 +58367,7 @@ enifed("ember-views/views/states/pre_render.jshint",
       ok(true, 'ember-views/views/states/pre_render.js should pass jshint.'); 
     });
   });
-enifed("ember-views/views/text_area.jshint",
+define("ember-views/views/text_area.jshint",
   [],
   function() {
     "use strict";
@@ -58080,7 +58376,7 @@ enifed("ember-views/views/text_area.jshint",
       ok(true, 'ember-views/views/text_area.js should pass jshint.'); 
     });
   });
-enifed("ember-views/views/text_field.jshint",
+define("ember-views/views/text_field.jshint",
   [],
   function() {
     "use strict";
@@ -58089,7 +58385,7 @@ enifed("ember-views/views/text_field.jshint",
       ok(true, 'ember-views/views/text_field.js should pass jshint.'); 
     });
   });
-enifed("ember-views/views/view.jshint",
+define("ember-views/views/view.jshint",
   [],
   function() {
     "use strict";
@@ -58098,7 +58394,7 @@ enifed("ember-views/views/view.jshint",
       ok(true, 'ember-views/views/view.js should pass jshint.'); 
     });
   });
-enifed("ember-views/views/with_view.jshint",
+define("ember-views/views/with_view.jshint",
   [],
   function() {
     "use strict";
@@ -58107,7 +58403,7 @@ enifed("ember-views/views/with_view.jshint",
       ok(true, 'ember-views/views/with_view.js should pass jshint.'); 
     });
   });
-enifed("ember.jshint",
+define("ember.jshint",
   [],
   function() {
     "use strict";
@@ -58116,7 +58412,7 @@ enifed("ember.jshint",
       ok(true, 'ember.js should pass jshint.'); 
     });
   });
-enifed("ember/tests/application_lifecycle",
+define("ember/tests/application_lifecycle",
   ["ember"],
   function(__dependency1__) {
     "use strict";
@@ -58234,7 +58530,7 @@ enifed("ember/tests/application_lifecycle",
       equal(Ember.controllerFor(container, 'application').get('selectedMenuItem'), null);
     });
   });
-enifed("ember/tests/application_lifecycle.jshint",
+define("ember/tests/application_lifecycle.jshint",
   [],
   function() {
     "use strict";
@@ -58243,7 +58539,7 @@ enifed("ember/tests/application_lifecycle.jshint",
       ok(true, 'ember/tests/application_lifecycle.js should pass jshint.'); 
     });
   });
-enifed("ember/tests/component_registration_test",
+define("ember/tests/component_registration_test",
   ["ember","ember-htmlbars/system/compile","ember-htmlbars/helpers"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -58598,7 +58894,7 @@ enifed("ember/tests/component_registration_test",
       Ember.$('#fizzbuzz', "#wrapper").click();
     });
   });
-enifed("ember/tests/component_registration_test.jshint",
+define("ember/tests/component_registration_test.jshint",
   [],
   function() {
     "use strict";
@@ -58607,7 +58903,7 @@ enifed("ember/tests/component_registration_test.jshint",
       ok(true, 'ember/tests/component_registration_test.js should pass jshint.'); 
     });
   });
-enifed("ember/tests/global-api-test",
+define("ember/tests/global-api-test",
   ["ember"],
   function(__dependency1__) {
     "use strict";
@@ -58623,7 +58919,7 @@ enifed("ember/tests/global-api-test",
     confirmExport('Ember.DefaultResolver');
     confirmExport('Ember.generateController');
   });
-enifed("ember/tests/global-api-test.jshint",
+define("ember/tests/global-api-test.jshint",
   [],
   function() {
     "use strict";
@@ -58632,7 +58928,7 @@ enifed("ember/tests/global-api-test.jshint",
       ok(true, 'ember/tests/global-api-test.js should pass jshint.'); 
     });
   });
-enifed("ember/tests/helpers/helper_registration_test",
+define("ember/tests/helpers/helper_registration_test",
   ["ember","ember-htmlbars/compat"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -58749,7 +59045,7 @@ enifed("ember/tests/helpers/helper_registration_test",
 
     }
   });
-enifed("ember/tests/helpers/helper_registration_test.jshint",
+define("ember/tests/helpers/helper_registration_test.jshint",
   [],
   function() {
     "use strict";
@@ -58758,7 +59054,7 @@ enifed("ember/tests/helpers/helper_registration_test.jshint",
       ok(true, 'ember/tests/helpers/helper_registration_test.js should pass jshint.'); 
     });
   });
-enifed("ember/tests/helpers/link_to_test",
+define("ember/tests/helpers/link_to_test",
   ["ember","ember-htmlbars/compat"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -60516,7 +60812,7 @@ enifed("ember/tests/helpers/link_to_test",
       equal(router.get('location.path'), '', 'url was not updated');
     });
   });
-enifed("ember/tests/helpers/link_to_test.jshint",
+define("ember/tests/helpers/link_to_test.jshint",
   [],
   function() {
     "use strict";
@@ -60525,7 +60821,7 @@ enifed("ember/tests/helpers/link_to_test.jshint",
       ok(true, 'ember/tests/helpers/link_to_test.js should pass jshint.'); 
     });
   });
-enifed("ember/tests/homepage_example_test",
+define("ember/tests/homepage_example_test",
   ["ember","ember-htmlbars/compat"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -60609,7 +60905,7 @@ enifed("ember/tests/homepage_example_test",
       equal($fixture.find('li:nth-of-type(2)').text(), 'Hello, Yehuda Katz!');
     });
   });
-enifed("ember/tests/homepage_example_test.jshint",
+define("ember/tests/homepage_example_test.jshint",
   [],
   function() {
     "use strict";
@@ -60618,7 +60914,7 @@ enifed("ember/tests/homepage_example_test.jshint",
       ok(true, 'ember/tests/homepage_example_test.js should pass jshint.'); 
     });
   });
-enifed("ember/tests/location_test",
+define("ember/tests/location_test",
   ["ember","ember-runtime/copy"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -60675,7 +60971,7 @@ enifed("ember/tests/location_test",
       equal(Ember.get(location, 'rootURL'), '/rootdir/');
     });
   });
-enifed("ember/tests/location_test.jshint",
+define("ember/tests/location_test.jshint",
   [],
   function() {
     "use strict";
@@ -60684,7 +60980,7 @@ enifed("ember/tests/location_test.jshint",
       ok(true, 'ember/tests/location_test.js should pass jshint.'); 
     });
   });
-enifed("ember/tests/routing/basic_test",
+define("ember/tests/routing/basic_test",
   ["ember","ember-metal/enumerable_utils","ember-metal/property_get","ember-metal/property_set","ember-views/system/action_manager","ember-htmlbars/compat"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
@@ -64092,7 +64388,7 @@ enifed("ember/tests/routing/basic_test",
       }, /\bboom\b/);
     });
   });
-enifed("ember/tests/routing/basic_test.jshint",
+define("ember/tests/routing/basic_test.jshint",
   [],
   function() {
     "use strict";
@@ -64101,7 +64397,7 @@ enifed("ember/tests/routing/basic_test.jshint",
       ok(true, 'ember/tests/routing/basic_test.js should pass jshint.'); 
     });
   });
-enifed("ember/tests/routing/query_params_test",
+define("ember/tests/routing/query_params_test",
   ["ember","ember-metal/computed","ember-metal/platform","ember-runtime/system/string","ember-htmlbars/compat"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -65727,7 +66023,7 @@ enifed("ember/tests/routing/query_params_test",
       equal(parentChildController.get('page'), 2);
     });
   });
-enifed("ember/tests/routing/query_params_test.jshint",
+define("ember/tests/routing/query_params_test.jshint",
   [],
   function() {
     "use strict";
@@ -65736,7 +66032,7 @@ enifed("ember/tests/routing/query_params_test.jshint",
       ok(true, 'ember/tests/routing/query_params_test.js should pass jshint.'); 
     });
   });
-enifed("ember/tests/routing/substates_test",
+define("ember/tests/routing/substates_test",
   ["ember","ember-htmlbars/compat"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -66454,7 +66750,7 @@ enifed("ember/tests/routing/substates_test",
       });
     }
   });
-enifed("ember/tests/routing/substates_test.jshint",
+define("ember/tests/routing/substates_test.jshint",
   [],
   function() {
     "use strict";

@@ -5,11 +5,11 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.2df18500
+ * @version   1.11.0-beta.1+canary.f6d9ff91
  */
 
 (function() {
-var enifed, requireModule, eriuqer, requirejs, Ember;
+var define, requireModule, require, requirejs, Ember;
 
 (function() {
   Ember = this.Ember = this.Ember || {};
@@ -19,11 +19,11 @@ var enifed, requireModule, eriuqer, requirejs, Ember;
   if (typeof Ember.__loader === 'undefined') {
     var registry = {}, seen = {};
 
-    enifed = function(name, deps, callback) {
+    define = function(name, deps, callback) {
       registry[name] = { deps: deps, callback: callback };
     };
 
-    requirejs = eriuqer = requireModule = function(name) {
+    requirejs = require = requireModule = function(name) {
       var s = seen[name];
 
       if (s !== undefined) { return seen[name]; }
@@ -76,17 +76,17 @@ var enifed, requireModule, eriuqer, requirejs, Ember;
     requirejs._eak_seen = registry;
 
     Ember.__loader = {
-      define: enifed,
-      require: eriuqer,
+      define: define,
+      require: require,
       registry: registry
     };
   } else {
-    enifed = Ember.__loader.define;
-    requirejs = eriuqer = requireModule = Ember.__loader.require;
+    define = Ember.__loader.define;
+    requirejs = require = requireModule = Ember.__loader.require;
   }
 })();
 
-enifed("ember-debug",
+define("ember-debug",
   ["ember-metal/core","ember-metal/error","ember-metal/logger","ember-metal/environment","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
@@ -344,7 +344,7 @@ enifed("ember-debug",
       Ember.warn('Please use `ember.debug.js` instead of `ember.js` for development and debugging.');
     }
   });
-enifed("ember-testing",
+define("ember-testing",
   ["ember-metal/core","ember-testing/initializers","ember-testing/support","ember-testing/setup_for_testing","ember-testing/test","ember-testing/adapters/adapter","ember-testing/adapters/qunit","ember-testing/helpers"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
     "use strict";
@@ -372,7 +372,7 @@ enifed("ember-testing",
     Ember.Test.QUnitAdapter = QUnitAdapter;
     Ember.setupForTesting = setupForTesting;
   });
-enifed("ember-testing/adapters/adapter",
+define("ember-testing/adapters/adapter",
   ["ember-runtime/system/object","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -436,7 +436,7 @@ enifed("ember-testing/adapters/adapter",
 
     __exports__["default"] = Adapter;
   });
-enifed("ember-testing/adapters/qunit",
+define("ember-testing/adapters/qunit",
   ["ember-testing/adapters/adapter","ember-metal/utils","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -463,7 +463,7 @@ enifed("ember-testing/adapters/qunit",
       }
     });
   });
-enifed("ember-testing/helpers",
+define("ember-testing/helpers",
   ["ember-metal/property_get","ember-metal/error","ember-metal/run_loop","ember-views/system/jquery","ember-testing/test"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
@@ -909,7 +909,7 @@ enifed("ember-testing/helpers",
     */
     asyncHelper('triggerEvent', triggerEvent);
   });
-enifed("ember-testing/initializers",
+define("ember-testing/initializers",
   ["ember-runtime/system/lazy_load"],
   function(__dependency1__) {
     "use strict";
@@ -931,7 +931,7 @@ enifed("ember-testing/initializers",
       }
     });
   });
-enifed("ember-testing/setup_for_testing",
+define("ember-testing/setup_for_testing",
   ["ember-metal/core","ember-testing/adapters/qunit","ember-views/system/jquery","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -986,7 +986,7 @@ enifed("ember-testing/setup_for_testing",
       jQuery(document).on('ajaxComplete', decrementAjaxPendingRequests);
     }
   });
-enifed("ember-testing/support",
+define("ember-testing/support",
   ["ember-metal/core","ember-views/system/jquery","ember-metal/environment"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
@@ -1050,7 +1050,7 @@ enifed("ember-testing/support",
       });
     }
   });
-enifed("ember-testing/test",
+define("ember-testing/test",
   ["ember-metal/core","ember-metal/run_loop","ember-metal/platform","ember-runtime/compare","ember-runtime/ext/rsvp","ember-testing/setup_for_testing","ember-application/system/application","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
