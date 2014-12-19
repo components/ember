@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.4fcf04c8
+ * @version   1.11.0-beta.1+canary.c8fe5949
  */
 
 (function() {
@@ -11908,7 +11908,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.4fcf04c8
+      @version 1.11.0-beta.1+canary.c8fe5949
     */
 
     if ('undefined' === typeof Ember) {
@@ -11935,10 +11935,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.4fcf04c8'
+      @default '1.11.0-beta.1+canary.c8fe5949'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.4fcf04c8';
+    Ember.VERSION = '1.11.0-beta.1+canary.c8fe5949';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -19910,9 +19910,9 @@ enifed("ember-routing-views/views/link",
     };
 
     var linkViewClassNameBindings = ['active', 'loading', 'disabled'];
-    if (Ember.FEATURES.isEnabled('ember-routing-transitioning-classes')) {
+    
       linkViewClassNameBindings = ['active', 'loading', 'disabled', 'transitioningIn', 'transitioningOut'];
-    }
+    
 
     /**
       `Ember.LinkView` renders an element whose `click` event triggers a
@@ -20193,14 +20193,14 @@ enifed("ember-routing-views/views/link",
         var willBeActive = get(this, 'willBeActive');
         if (typeof willBeActive === 'undefined') { return false; }
 
-        return !get(this, 'active') && willBeActive;
+        return !get(this, 'active') && willBeActive && 'ember-transitioning-in';
       }),
 
       transitioningOut: computed('active', 'willBeActive', function() {
         var willBeActive = get(this, 'willBeActive');
         if (typeof willBeActive === 'undefined') { return false; }
 
-        return get(this, 'active') && !willBeActive;
+        return get(this, 'active') && !willBeActive && 'ember-transitioning-out';
       }),
 
       /**
@@ -20270,9 +20270,9 @@ enifed("ember-routing-views/views/link",
           transition.method('replace');
         }
 
-        if (Ember.FEATURES.isEnabled('ember-routing-transitioning-classes')) {
+        
           return;
-        }
+        
 
         // Schedule eager URL update, but after we've given the transition
         // a chance to synchronously redirect.

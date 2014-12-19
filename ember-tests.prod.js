@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.4fcf04c8
+ * @version   1.11.0-beta.1+canary.c8fe5949
  */
 
 (function() {
@@ -59254,12 +59254,9 @@ enifed("ember/tests/helpers/link_to_test",
 
     test("The {{link-to}} helper unwraps controllers", function() {
 
-      if (Ember.FEATURES.isEnabled('ember-routing-transitioning-classes')) {
+      
         expect(4);
-      } else {
-        expect(5);
-      }
-
+      
       Router.map(function() {
         this.route('filter', { path: '/filters/:filter' });
       });
@@ -60393,7 +60390,7 @@ enifed("ember/tests/helpers/link_to_test",
 
     }
 
-    if (Ember.FEATURES.isEnabled('ember-routing-transitioning-classes')) {
+    
 
       QUnit.module("The {{link-to}} helper: .transitioning-in .transitioning-out CSS classes", {
         setup: function() {
@@ -60443,16 +60440,16 @@ enifed("ember/tests/helpers/link_to_test",
         Ember.run($about, 'click');
 
         assertHasClass('active', $index, true, $about, false, $other, false);
-        assertHasClass('transitioning-in',  $index, false, $about, true, $other, false);
-        assertHasClass('transitioning-out', $index, true, $about, false, $other, false);
+        assertHasClass('ember-transitioning-in',  $index, false, $about, true, $other, false);
+        assertHasClass('ember-transitioning-out', $index, true, $about, false, $other, false);
 
         Ember.run(aboutDefer, 'resolve');
 
         assertHasClass('active', $index, false, $about, true, $other, false);
-        assertHasClass('transitioning-in',  $index, false, $about, false, $other, false);
-        assertHasClass('transitioning-out', $index, false, $about, false, $other, false);
+        assertHasClass('ember-transitioning-in',  $index, false, $about, false, $other, false);
+        assertHasClass('ember-transitioning-out', $index, false, $about, false, $other, false);
       });
-    }
+    
   });
 enifed("ember/tests/helpers/link_to_test.jshint",
   [],
