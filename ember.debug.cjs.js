@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.b9735656
+ * @version   1.11.0-beta.1+canary.ad675d5e
  */
 
 (function() {
@@ -12310,7 +12310,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.b9735656
+      @version 1.11.0-beta.1+canary.ad675d5e
     */
 
     if ('undefined' === typeof Ember) {
@@ -12337,10 +12337,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.b9735656'
+      @default '1.11.0-beta.1+canary.ad675d5e'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.b9735656';
+    Ember.VERSION = '1.11.0-beta.1+canary.ad675d5e';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -20399,6 +20399,11 @@ enifed("ember-routing-views/views/link",
       return req;
     };
 
+    var linkViewClassNameBindings = ['active', 'loading', 'disabled'];
+    if (Ember.FEATURES.isEnabled('ember-routing-transitioning-classes')) {
+      linkViewClassNameBindings = ['active', 'loading', 'disabled', 'transitioningIn', 'transitioningOut'];
+    }
+
     /**
       `Ember.LinkView` renders an element whose `click` event triggers a
       transition of the application's instance of `Ember.Router` to
@@ -20521,7 +20526,7 @@ enifed("ember-routing-views/views/link",
         @type Array
         @default ['active', 'loading', 'disabled']
        **/
-      classNameBindings: ['active', 'loading', 'disabled'],
+      classNameBindings: linkViewClassNameBindings,
 
       /**
         By default the `{{link-to}}` helper responds to the `click` event. You
@@ -20661,56 +20666,32 @@ enifed("ember-routing-views/views/link",
         @property active
       **/
       active: computed('loadedParams', function computeLinkViewActive() {
-        if (get(this, 'loading')) { return false; }
-
         var router = get(this, 'router');
-        var loadedParams = get(this, 'loadedParams');
-        var contexts = loadedParams.models;
-        var currentWhen = this['current-when'] || this.currentWhen;
-        var isCurrentWhenSpecified = Boolean(currentWhen);
-        currentWhen = currentWhen || loadedParams.targetRouteName;
+        if (!router) { return; }
+        return computeActive(this, router.currentState);
+      }),
 
-        function isActiveForRoute(routeName) {
-          var handlers = router.router.recognizer.handlersFor(routeName);
-          var leafName = handlers[handlers.length-1].handler;
-          var maximumContexts = numberOfContextsAcceptedByHandler(routeName, handlers);
+      willBeActive: computed('router.targetState', function() {
+        var router = get(this, 'router');
+        if (!router) { return; }
+        var targetState = router.targetState;
+        if (router.currentState === targetState) { return; }
 
-          // NOTE: any ugliness in the calculation of activeness is largely
-          // due to the fact that we support automatic normalizing of
-          // `resource` -> `resource.index`, even though there might be
-          // dynamic segments / query params defined on `resource.index`
-          // which complicates (and makes somewhat ambiguous) the calculation
-          // of activeness for links that link to `resource` instead of
-          // directly to `resource.index`.
+        return !!computeActive(this, targetState);
+      }),
 
-          // if we don't have enough contexts revert back to full route name
-          // this is because the leaf route will use one of the contexts
-          if (contexts.length > maximumContexts) {
-            routeName = leafName;
-          }
+      transitioningIn: computed('active', 'willBeActive', function() {
+        var willBeActive = get(this, 'willBeActive');
+        if (typeof willBeActive === 'undefined') { return false; }
 
-          var args = routeArgs(routeName, contexts, null);
-          var isActive = router.isActive.apply(router, args);
-          if (!isActive) { return false; }
+        return !get(this, 'active') && willBeActive;
+      }),
 
-          var emptyQueryParams = Ember.isEmpty(Ember.keys(loadedParams.queryParams));
+      transitioningOut: computed('active', 'willBeActive', function() {
+        var willBeActive = get(this, 'willBeActive');
+        if (typeof willBeActive === 'undefined') { return false; }
 
-          if (!isCurrentWhenSpecified && !emptyQueryParams && isActive) {
-            var visibleQueryParams = {};
-            merge(visibleQueryParams, loadedParams.queryParams);
-            router._prepareQueryParams(loadedParams.targetRouteName, loadedParams.models, visibleQueryParams);
-            isActive = shallowEqual(visibleQueryParams, router.router.state.queryParams);
-          }
-
-          return isActive;
-        }
-
-        currentWhen = currentWhen.split(' ');
-        for (var i = 0, len = currentWhen.length; i < len; i++) {
-          if (isActiveForRoute(currentWhen[i])) {
-            return get(this, 'activeClass');
-          }
-        }
+        return get(this, 'active') && !willBeActive;
       }),
 
       /**
@@ -20778,6 +20759,10 @@ enifed("ember-routing-views/views/link",
         var transition = router._doTransition(loadedParams.targetRouteName, loadedParams.models, loadedParams.queryParams);
         if (get(this, 'replace')) {
           transition.method('replace');
+        }
+
+        if (Ember.FEATURES.isEnabled('ember-routing-transitioning-classes')) {
+          return;
         }
 
         // Schedule eager URL update, but after we've given the transition
@@ -20963,15 +20948,44 @@ enifed("ember-routing-views/views/link",
       return true;
     }
 
-    function shallowEqual(a, b) {
-      var k;
-      for (k in a) {
-        if (a.hasOwnProperty(k) && a[k] !== b[k]) { return false; }
+    function computeActive(route, routerState) {
+      if (get(route, 'loading')) { return false; }
+
+      var currentWhen = route['current-when'] || route.currentWhen;
+      var isCurrentWhenSpecified = !!currentWhen;
+      currentWhen = currentWhen || get(route, 'loadedParams').targetRouteName;
+      currentWhen = currentWhen.split(' ');
+      for (var i = 0, len = currentWhen.length; i < len; i++) {
+        if (isActiveForRoute(route, currentWhen[i], isCurrentWhenSpecified, routerState)) {
+          return get(route, 'activeClass');
+        }
       }
-      for (k in b) {
-        if (b.hasOwnProperty(k) && a[k] !== b[k]) { return false; }
+    }
+
+    function isActiveForRoute(route, routeName, isCurrentWhenSpecified, routerState) {
+      var router = get(route, 'router');
+      var loadedParams = get(route, 'loadedParams');
+      var contexts = loadedParams.models;
+
+      var handlers = router.router.recognizer.handlersFor(routeName);
+      var leafName = handlers[handlers.length-1].handler;
+      var maximumContexts = numberOfContextsAcceptedByHandler(routeName, handlers);
+
+      // NOTE: any ugliness in the calculation of activeness is largely
+      // due to the fact that we support automatic normalizing of
+      // `resource` -> `resource.index`, even though there might be
+      // dynamic segments / query params defined on `resource.index`
+      // which complicates (and makes somewhat ambiguous) the calculation
+      // of activeness for links that link to `resource` instead of
+      // directly to `resource.index`.
+
+      // if we don't have enough contexts revert back to full route name
+      // this is because the leaf route will use one of the contexts
+      if (contexts.length > maximumContexts) {
+        routeName = leafName;
       }
-      return true;
+
+      return routerState.isActiveIntent(routeName, contexts, loadedParams.queryParams, !isCurrentWhenSpecified);
     }
 
     __exports__.LinkView = LinkView;
@@ -24944,8 +24958,8 @@ enifed("ember-routing/system/route",
     __exports__["default"] = Route;
   });
 enifed("ember-routing/system/router",
-  ["ember-metal/core","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/properties","ember-metal/computed","ember-metal/merge","ember-metal/run_loop","ember-runtime/system/string","ember-runtime/system/object","ember-runtime/mixins/evented","ember-routing/system/dsl","ember-views/views/view","ember-routing/location/api","ember-views/views/metamorph_view","ember-routing/utils","ember-metal/platform","router","router/transition","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __exports__) {
+  ["ember-metal/core","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/properties","ember-metal/computed","ember-metal/merge","ember-metal/run_loop","ember-runtime/system/string","ember-runtime/system/object","ember-runtime/mixins/evented","ember-routing/system/dsl","ember-views/views/view","ember-routing/location/api","ember-views/views/metamorph_view","ember-routing/utils","ember-metal/platform","./router_state","router","router/transition","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // FEATURES, Logger, assert
@@ -24969,12 +24983,14 @@ enifed("ember-routing/system/router",
     var stashParamNames = __dependency16__.stashParamNames;
     var create = __dependency17__.create;
 
+    var RouterState = __dependency18__["default"];
+
     /**
     @module ember
     @submodule ember-routing
     */
 
-    var Router = __dependency18__["default"];
+    var Router = __dependency19__["default"];
 
     function K() { return this; }
 
@@ -25094,9 +25110,10 @@ enifed("ember-routing/system/router",
       didTransition: function(infos) {
         updatePaths(this);
 
-        this._cancelLoadingEvent();
+        this._cancelSlowTransitionTimer();
 
         this.notifyPropertyChange('url');
+        this.set('currentState', this.targetState);
 
         // Put this in the runloop so url will be accurate. Seems
         // less surprising than didTransition being out of sync.
@@ -25116,7 +25133,7 @@ enifed("ember-routing/system/router",
 
       _doURLTransition: function(routerJsMethod, url) {
         var transition = this.router[routerJsMethod](url || '/');
-        listenForTransitionErrors(transition);
+        didBeginTransition(transition, this);
         return transition;
       },
 
@@ -25184,8 +25201,7 @@ enifed("ember-routing/system/router",
         @since 1.7.0
       */
       isActiveIntent: function(routeName, models, queryParams) {
-        var router = this.router;
-        return router.isActive.apply(router, arguments);
+        return this.currentState.isActiveIntent(routeName, models, queryParams);
       },
 
       send: function(name, context) {
@@ -25388,7 +25404,7 @@ enifed("ember-routing/system/router",
         var transitionArgs = routeArgs(targetRouteName, models, queryParams);
         var transitionPromise = this.router.transitionTo.apply(this.router, transitionArgs);
 
-        listenForTransitionErrors(transitionPromise);
+        didBeginTransition(transitionPromise, this);
 
         return transitionPromise;
       },
@@ -25486,25 +25502,34 @@ enifed("ember-routing/system/router",
       },
 
       _scheduleLoadingEvent: function(transition, originRoute) {
-        this._cancelLoadingEvent();
-        this._loadingStateTimer = run.scheduleOnce('routerTransitions', this, '_fireLoadingEvent', transition, originRoute);
+        this._cancelSlowTransitionTimer();
+        this._slowTransitionTimer = run.scheduleOnce('routerTransitions', this, '_handleSlowTransition', transition, originRoute);
       },
 
-      _fireLoadingEvent: function(transition, originRoute) {
+      currentState: null,
+      targetState: null,
+
+      _handleSlowTransition: function(transition, originRoute) {
         if (!this.router.activeTransition) {
           // Don't fire an event if we've since moved on from
           // the transition that put us in a loading state.
           return;
         }
 
+        this.set('targetState', RouterState.create({
+          emberRouter: this,
+          routerJs: this.router,
+          routerJsState: this.router.activeTransition.state
+        }));
+
         transition.trigger(true, 'loading', transition, originRoute);
       },
 
-      _cancelLoadingEvent: function () {
-        if (this._loadingStateTimer) {
-          run.cancel(this._loadingStateTimer);
+      _cancelSlowTransitionTimer: function () {
+        if (this._slowTransitionTimer) {
+          run.cancel(this._slowTransitionTimer);
         }
-        this._loadingStateTimer = null;
+        this._slowTransitionTimer = null;
       }
     });
 
@@ -25806,7 +25831,18 @@ enifed("ember-routing/system/router",
       }
     });
 
-    function listenForTransitionErrors(transition) {
+    function didBeginTransition(transition, router) {
+      var routerState = RouterState.create({
+        emberRouter: router,
+        routerJs: router.router,
+        routerJsState: transition.state
+      });
+
+      if (!router.currentState) {
+        router.set('currentState', routerState);
+      }
+      router.set('targetState', routerState);
+
       transition.then(null, function(error) {
         if (!error || !error.name) { return; }
 
@@ -25835,6 +25871,50 @@ enifed("ember-routing/system/router",
     }
 
     __exports__["default"] = EmberRouter;
+  });
+enifed("ember-routing/system/router_state",
+  ["ember-metal/core","ember-runtime/system/object","ember-metal/merge","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+    "use strict";
+    var Ember = __dependency1__["default"];
+    var EmberObject = __dependency2__["default"];
+    var merge = __dependency3__["default"];
+
+    var RouterState = EmberObject.extend({
+      emberRouter: null,
+      routerJs: null,
+      routerJsState: null,
+
+      isActiveIntent: function(routeName, models, queryParams, queryParamsMustMatch) {
+        var state = this.routerJsState;
+        if (!this.routerJs.isActiveIntent(routeName, models, null, state)) { return false; }
+
+        var emptyQueryParams = Ember.isEmpty(Ember.keys(queryParams));
+
+        if (queryParamsMustMatch && !emptyQueryParams) {
+          var visibleQueryParams = {};
+          merge(visibleQueryParams, queryParams);
+
+          this.emberRouter._prepareQueryParams(routeName, models, visibleQueryParams);
+          return shallowEqual(visibleQueryParams, state.queryParams);
+        }
+
+        return true;
+      }
+    });
+
+    function shallowEqual(a, b) {
+      var k;
+      for (k in a) {
+        if (a.hasOwnProperty(k) && a[k] !== b[k]) { return false; }
+      }
+      for (k in b) {
+        if (b.hasOwnProperty(k) && a[k] !== b[k]) { return false; }
+      }
+      return true;
+    }
+
+    __exports__["default"] = RouterState;
   });
 enifed("ember-routing/utils",
   ["ember-metal/utils","exports"],
@@ -51434,8 +51514,9 @@ enifed("router/router",
         return intent.applyToState(state, this.recognizer, this.getHandler);
       },
 
-      isActiveIntent: function(handlerName, contexts, queryParams) {
-        var targetHandlerInfos = this.state.handlerInfos,
+      isActiveIntent: function(handlerName, contexts, queryParams, _state) {
+        var state = _state || this.state,
+            targetHandlerInfos = state.handlerInfos,
             found = false, names, object, handlerInfo, handlerObj, i, len;
 
         if (!targetHandlerInfos.length) { return false; }
@@ -51454,8 +51535,8 @@ enifed("router/router",
           return false;
         }
 
-        var state = new TransitionState();
-        state.handlerInfos = targetHandlerInfos.slice(0, index + 1);
+        var testState = new TransitionState();
+        testState.handlerInfos = targetHandlerInfos.slice(0, index + 1);
         recogHandlers = recogHandlers.slice(0, index + 1);
 
         var intent = new NamedTransitionIntent({
@@ -51463,9 +51544,9 @@ enifed("router/router",
           contexts: contexts
         });
 
-        var newState = intent.applyToHandlers(state, recogHandlers, this.getHandler, targetHandler, true, true);
+        var newState = intent.applyToHandlers(testState, recogHandlers, this.getHandler, targetHandler, true, true);
 
-        var handlersEqual = handlerInfosEqual(newState.handlerInfos, state.handlerInfos);
+        var handlersEqual = handlerInfosEqual(newState.handlerInfos, testState.handlerInfos);
         if (!queryParams || !handlersEqual) {
           return handlersEqual;
         }
@@ -51474,7 +51555,7 @@ enifed("router/router",
         var activeQPsOnNewHandler = {};
         merge(activeQPsOnNewHandler, queryParams);
 
-        var activeQueryParams  = this.state.queryParams;
+        var activeQueryParams  = state.queryParams;
         for (var key in activeQueryParams) {
           if (activeQueryParams.hasOwnProperty(key) &&
               activeQPsOnNewHandler.hasOwnProperty(key)) {
@@ -51573,32 +51654,33 @@ enifed("router/router",
     */
     function setupContexts(router, newState, transition) {
       var partition = partitionHandlers(router.state, newState);
+      var i, l, handler;
 
-      forEach(partition.exited, function(handlerInfo) {
-        var handler = handlerInfo.handler;
+      for (i=0, l=partition.exited.length; i<l; i++) {
+        handler = partition.exited[i].handler;
         delete handler.context;
 
         callHook(handler, 'reset', true, transition);
         callHook(handler, 'exit', transition);
-      });
+      }
 
       var oldState = router.oldState = router.state;
       router.state = newState;
       var currentHandlerInfos = router.currentHandlerInfos = partition.unchanged.slice();
 
       try {
-        forEach(partition.reset, function(handlerInfo) {
-          var handler = handlerInfo.handler;
+        for (i=0, l=partition.reset.length; i<l; i++) {
+          handler = partition.reset[i].handler;
           callHook(handler, 'reset', false, transition);
-        });
+        }
 
-        forEach(partition.updatedContext, function(handlerInfo) {
-          return handlerEnteredOrUpdated(currentHandlerInfos, handlerInfo, false, transition);
-        });
+        for (i=0, l=partition.updatedContext.length; i<l; i++) {
+          handlerEnteredOrUpdated(currentHandlerInfos, partition.updatedContext[i], false, transition);
+        }
 
-        forEach(partition.entered, function(handlerInfo) {
-          return handlerEnteredOrUpdated(currentHandlerInfos, handlerInfo, true, transition);
-        });
+        for (i=0, l=partition.entered.length; i<l; i++) {
+          handlerEnteredOrUpdated(currentHandlerInfos, partition.entered[i], true, transition);
+        }
       } catch(e) {
         router.state = oldState;
         router.currentHandlerInfos = oldState.handlerInfos;
@@ -52869,15 +52951,23 @@ enifed("router/utils",
              obj[hookName] && hookName;
     }
 
-    function callHook(obj, hookName) {
-      var args = slice.call(arguments, 2);
-      return applyHook(obj, hookName, args);
+    function callHook(obj, _hookName, arg1, arg2) {
+      var hookName = resolveHook(obj, _hookName);
+      return hookName && obj[hookName].call(obj, arg1, arg2);
     }
 
     function applyHook(obj, _hookName, args) {
       var hookName = resolveHook(obj, _hookName);
       if (hookName) {
-        return obj[hookName].apply(obj, args);
+        if (args.length === 0) {
+          return obj[hookName].call(obj);
+        } else if (args.length === 1) {
+          return obj[hookName].call(obj, args[0]);
+        } else if (args.length === 2) {
+          return obj[hookName].call(obj, args[0], args[1]);
+        } else {
+          return obj[hookName].apply(obj, args);
+        }
       }
     }
 

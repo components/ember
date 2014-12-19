@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.b9735656
+ * @version   1.11.0-beta.1+canary.ad675d5e
  */
 
 (function() {
@@ -28159,6 +28159,15 @@ enifed("ember-routing/system/router.jshint",
     module('JSHint - ember-routing/system');
     test('ember-routing/system/router.js should pass jshint', function() { 
       ok(true, 'ember-routing/system/router.js should pass jshint.'); 
+    });
+  });
+enifed("ember-routing/system/router_state.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-routing/system');
+    test('ember-routing/system/router_state.js should pass jshint', function() { 
+      ok(true, 'ember-routing/system/router_state.js should pass jshint.'); 
     });
   });
 enifed("ember-routing/tests/location/auto_location_test",
@@ -59385,7 +59394,12 @@ enifed("ember/tests/helpers/link_to_test",
     });
 
     test("The {{link-to}} helper unwraps controllers", function() {
-      expect(5);
+
+      if (Ember.FEATURES.isEnabled('ember-routing-transitioning-classes')) {
+        expect(4);
+      } else {
+        expect(5);
+      }
 
       Router.map(function() {
         this.route('filter', { path: '/filters/:filter' });
@@ -60400,6 +60414,8 @@ enifed("ember/tests/helpers/link_to_test",
     }
 
     var aboutDefer;
+
+    if (!Ember.FEATURES.isEnabled('ember-routing-transitioning-classes')) {
     QUnit.module("The {{link-to}} helper: eager URL updating", {
       setup: function() {
         Ember.run(function() {
@@ -60515,6 +60531,69 @@ enifed("ember/tests/helpers/link_to_test",
       equal(updateCount, 0);
       equal(router.get('location.path'), '', 'url was not updated');
     });
+
+    }
+
+    if (Ember.FEATURES.isEnabled('ember-routing-transitioning-classes')) {
+
+      QUnit.module("The {{link-to}} helper: .transitioning-in .transitioning-out CSS classes", {
+        setup: function() {
+          Ember.run(function() {
+            sharedSetup();
+
+            container.register('router:main', Router);
+
+            Router.map(function() {
+              this.route('about');
+              this.route('other');
+            });
+
+            App.AboutRoute = Ember.Route.extend({
+              model: function() {
+                aboutDefer = Ember.RSVP.defer();
+                return aboutDefer.promise;
+              }
+            });
+
+            Ember.TEMPLATES.application = compile("{{outlet}}{{link-to 'Index' 'index' id='index-link'}}{{link-to 'About' 'about' id='about-link'}}{{link-to 'Other' 'other' id='other-link'}}");
+          });
+        },
+
+        teardown: function() {
+          sharedTeardown();
+          aboutDefer = null;
+        }
+      });
+
+      test("while a transition is underway", function() {
+        expect(18);
+        bootApplication();
+
+        function assertHasClass(className) {
+          var i = 1;
+          while (i < arguments.length) {
+            var $a = arguments[i];
+            var shouldHaveClass = arguments[i+1];
+            equal($a.hasClass(className), shouldHaveClass, $a.attr('id') + " should " + (shouldHaveClass ? '' : "not ") + "have class " + className);
+            i +=2;
+          }
+        }
+
+        var $index = Ember.$('#index-link'), $about = Ember.$('#about-link'), $other = Ember.$('#other-link');
+
+        Ember.run($about, 'click');
+
+        assertHasClass('active', $index, true, $about, false, $other, false);
+        assertHasClass('transitioning-in',  $index, false, $about, true, $other, false);
+        assertHasClass('transitioning-out', $index, true, $about, false, $other, false);
+
+        Ember.run(aboutDefer, 'resolve');
+
+        assertHasClass('active', $index, false, $about, true, $other, false);
+        assertHasClass('transitioning-in',  $index, false, $about, false, $other, false);
+        assertHasClass('transitioning-out', $index, false, $about, false, $other, false);
+      });
+    }
   });
 enifed("ember/tests/helpers/link_to_test.jshint",
   [],
