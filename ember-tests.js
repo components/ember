@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.ad675d5e
+ * @version   1.11.0-beta.1+canary.4fcf04c8
  */
 
 (function() {
@@ -26543,79 +26543,6 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test",
       ok(showCalled, "should call action with keyup");
     });
 
-    if (Ember.FEATURES.isEnabled("ember-routing-handlebars-action-with-key-code")) {
-      test("it can trigger actions for key events with specific key codes", function() {
-        var showCalled = false;
-
-        view = EmberView.create({
-          template: compile("<input type='text' class='keyup-with-key-codes' {{action 'show' on='keyUp' withKeyCode='13'}}>" +
-            "<input type='text' class='keydown-with-key-codes' {{action 'show' on='keyDown' withKeyCode='13'}}>" +
-            "<input type='text' class='keypress-with-key-codes' {{action 'show' on='keyPress' withKeyCode='13'}}>" +
-            "<input type='text' class='keyup-without-key-codes' {{action 'show' on='keyUp'}}>")
-        });
-
-        var controller = EmberController.extend({
-          actions: {
-            show: function() {
-              showCalled = true;
-            }
-          }
-        }).create();
-
-        run(function() {
-          view.set('controller', controller);
-          view.appendTo('#qunit-fixture');
-        });
-
-        function enterEvent(eventType) {
-          var event = jQuery.Event(eventType);
-          event["char"] = '\n';
-          event.which = 13;
-          return event;
-        }
-
-        function nonEnterEvent(eventType) {
-          var event = jQuery.Event(eventType);
-          event["char"] = 'a';
-          event.which = 65;
-          return event;
-        }
-
-        view.$('input.keyup-with-key-codes').trigger(nonEnterEvent('keyup'));
-        ok(!showCalled, "should not call action with a's keyup");
-
-
-        view.$('input.keyup-with-key-codes').trigger(enterEvent('keyup'));
-        ok(showCalled, "should call action with enter's keyup");
-
-        showCalled = false;
-
-        view.$('input.keydown-with-key-codes').trigger(nonEnterEvent('keydown'));
-        ok(!showCalled, "should not call action with a's keydown");
-
-        view.$('input.keydown-with-key-codes').trigger(enterEvent('keydown'));
-        ok(showCalled, "should call action with enter's keydown");
-
-        showCalled = false;
-
-        view.$('input.keypress-with-key-codes').trigger(nonEnterEvent('keypress'));
-        ok(!showCalled, "should not call action with a's keypress");
-
-
-        view.$('input.keypress-with-key-codes').trigger(enterEvent('keypress'));
-        ok(showCalled, "should call action with enter's keypress");
-
-        showCalled = false;
-
-        view.$('input.keyup-without-key-codes').trigger(nonEnterEvent('keyup'));
-        ok(showCalled, "should call action with a's keyup");
-
-        showCalled = false;
-
-        view.$('input.keyup-without-key-codes').trigger(enterEvent('keyup'));
-        ok(showCalled, "should call action with enter's keyup");
-      });
-    }
     test("a quoteless parameter should allow dynamic lookup of the actionName", function(){
       expect(4);
       var lastAction;
@@ -32751,14 +32678,12 @@ enifed("ember-runtime/tests/computed/reduce_computed_test.jshint",
     });
   });
 enifed("ember-runtime/tests/controllers/array_controller_test",
-  ["ember-metal/core","ember-metal/computed","ember-runtime/tests/suites/mutable_array","ember-runtime/controllers/array_controller","ember-runtime/controllers/object_controller"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
+  ["ember-metal/core","ember-runtime/tests/suites/mutable_array","ember-runtime/controllers/array_controller"],
+  function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
     var Ember = __dependency1__["default"];
-    var computed = __dependency2__.computed;
-    var MutableArrayTests = __dependency3__["default"];
-    var ArrayController = __dependency4__["default"];
-    var ObjectController = __dependency5__["default"];
+    var MutableArrayTests = __dependency2__["default"];
+    var ArrayController = __dependency3__["default"];
 
     QUnit.module("ember-runtime/controllers/array_controller_test");
 
@@ -32794,24 +32719,6 @@ enifed("ember-runtime/tests/controllers/array_controller_test",
       controller.pushObject('item');
       equal(controller.get('length'), 1);
     });
-
-    if (Ember.FEATURES.isEnabled("ember-runtime-item-controller-inline-class")) {
-      test("Ember.ArrayController can accept a controller class directly as the value for itemController", function() {
-        var controller = ArrayController.create({
-          itemController: ObjectController.extend({
-            expand: computed(function() {
-              return this.get('text') + ' is working!';
-            }).property('text')
-          })
-        });
-
-        controller.pushObjects([{
-          text: 'itemController'
-        }]);
-
-        strictEqual(controller.get('firstObject.expand'), 'itemController is working!');
-      });
-    }
   });
 enifed("ember-runtime/tests/controllers/array_controller_test.jshint",
   [],
@@ -49037,20 +48944,18 @@ enifed("ember-views/tests/streams/parse_property_path_test.jshint",
     });
   });
 enifed("ember-views/tests/system/event_dispatcher_test",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/run_loop","ember-runtime/system/object","ember-views/system/jquery","ember-views/views/view","ember-views/system/event_dispatcher","ember-views/views/container_view"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
+  ["ember-metal/property_get","ember-metal/run_loop","ember-runtime/system/object","ember-views/system/jquery","ember-views/views/view","ember-views/system/event_dispatcher","ember-views/views/container_view"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
     "use strict";
-    var Ember = __dependency1__["default"];
-    // A, FEATURES, assert
-    var get = __dependency2__.get;
-    var run = __dependency3__["default"];
+    var get = __dependency1__.get;
+    var run = __dependency2__["default"];
 
-    var EmberObject = __dependency4__["default"];
+    var EmberObject = __dependency3__["default"];
 
-    var jQuery = __dependency5__["default"];
-    var View = __dependency6__["default"];
-    var EventDispatcher = __dependency7__["default"];
-    var ContainerView = __dependency8__["default"];
+    var jQuery = __dependency4__["default"];
+    var View = __dependency5__["default"];
+    var EventDispatcher = __dependency6__["default"];
+    var ContainerView = __dependency7__["default"];
 
     var view;
     var dispatcher;
@@ -49329,52 +49234,6 @@ enifed("ember-views/tests/system/event_dispatcher_test",
 
       jQuery('#test-view').trigger('mousedown');
     });
-
-    if (Ember.FEATURES.isEnabled("event-dispatcher-can-disable-event-manager")) {
-
-      test("should not dispatch events to view event Manager when canDispatchToEventManager is false", function () {
-
-        var eventManagerCounter=0;
-        var viewCounter=0;
-
-        run(function() {
-          dispatcher.destroy();
-        });
-
-        run(function() {
-          dispatcher = EventDispatcher.create({
-            canDispatchToEventManager: false
-          });
-          dispatcher.setup();
-        });
-
-        view = ContainerView.create({
-          render: function(buffer) {
-            buffer.push('<input id="is-done" type="checkbox">');
-          },
-
-          eventManager: EmberObject.create({
-            mouseDown: function() {
-              eventManagerCounter++;
-            }
-          }),
-
-          mouseDown: function() {
-            viewCounter++;
-          }
-        });
-
-        run(function() {
-          view.append();
-        });
-
-        jQuery('#is-done').trigger('mousedown');
-        equal(viewCounter, 1, "event should go to view");
-        equal(eventManagerCounter, 0, "event should not go to manager");
-
-      });
-
-    }
 
     QUnit.module("EventDispatcher#setup", {
       setup: function() {
@@ -63938,76 +63797,34 @@ enifed("ember/tests/routing/basic_test",
       Ember.Logger.error = originalLoggerError;
     });
 
-    if (Ember.FEATURES.isEnabled("ember-routing-will-change-hooks")) {
-      test("willLeave, willChangeModel actions fire on routes", function() {
-        expect(2);
+    test("willLeave, willChangeContext, willChangeModel actions don't fire unless feature flag enabled", function() {
+      expect(1);
 
-        App.Router.map(function() {
-          this.route('user', { path: '/user/:id' });
-        });
-
-        function shouldNotFire() {
-          ok(false, "this action shouldn't have been received");
-        }
-
-        var willChangeFired = false, willLeaveFired = false;
-        App.IndexRoute = Ember.Route.extend({
-          actions: {
-            willChangeModel: shouldNotFire,
-            willChangeContext: shouldNotFire,
-            willLeave: function() {
-              willLeaveFired = true;
-            }
-          }
-        });
-
-        App.UserRoute = Ember.Route.extend({
-          actions: {
-            willChangeModel: function() {
-              willChangeFired = true;
-            },
-            willChangeContext: shouldNotFire,
-            willLeave: shouldNotFire
-          }
-        });
-
-        bootApplication();
-
-        Ember.run(router, 'transitionTo', 'user', { id: 'wat' });
-        ok(willLeaveFired, "#actions.willLeaveFired");
-        Ember.run(router, 'transitionTo', 'user', { id: 'lol' });
-        ok(willChangeFired, "user#actions.willChangeModel");
+      App.Router.map(function() {
+        this.route('about');
       });
-    } else {
-      test("willLeave, willChangeContext, willChangeModel actions don't fire unless feature flag enabled", function() {
-        expect(1);
 
-        App.Router.map(function() {
-          this.route('about');
-        });
+      function shouldNotFire() {
+        ok(false, "this action shouldn't have been received");
+      }
 
-        function shouldNotFire() {
-          ok(false, "this action shouldn't have been received");
+      App.IndexRoute = Ember.Route.extend({
+        actions: {
+          willChangeModel: shouldNotFire,
+          willChangeContext: shouldNotFire,
+          willLeave: shouldNotFire
         }
-
-        App.IndexRoute = Ember.Route.extend({
-          actions: {
-            willChangeModel: shouldNotFire,
-            willChangeContext: shouldNotFire,
-            willLeave: shouldNotFire
-          }
-        });
-
-        App.AboutRoute = Ember.Route.extend({
-          setupController: function() {
-            ok(true, "about route was entered");
-          }
-        });
-
-        bootApplication();
-        Ember.run(router, 'transitionTo', 'about');
       });
-    }
+
+      App.AboutRoute = Ember.Route.extend({
+        setupController: function() {
+          ok(true, "about route was entered");
+        }
+      });
+
+      bootApplication();
+      Ember.run(router, 'transitionTo', 'about');
+    });
 
     test("Errors in transitionTo within redirect hook are logged", function() {
       expect(3);

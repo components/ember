@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.ad675d5e
+ * @version   1.11.0-beta.1+canary.4fcf04c8
  */
 
 (function() {
@@ -4849,7 +4849,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.ad675d5e
+      @version 1.11.0-beta.1+canary.4fcf04c8
     */
 
     if ('undefined' === typeof Ember) {
@@ -4876,10 +4876,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.ad675d5e'
+      @default '1.11.0-beta.1+canary.4fcf04c8'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.ad675d5e';
+    Ember.VERSION = '1.11.0-beta.1+canary.4fcf04c8';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -14235,7 +14235,7 @@ define("ember-runtime/controllers/array_controller",
       controllerAt: function(idx, object, controllerClass) {
         var container = get(this, 'container');
         var subControllers = this._subControllers;
-        var fullName, subController, subControllerFactory, parentController, options;
+        var fullName, subController, parentController;
 
         if (subControllers.length > idx) {
           subController = subControllers[idx];
@@ -14251,40 +14251,17 @@ define("ember-runtime/controllers/array_controller",
           parentController = this;
         }
 
-        if (Ember.FEATURES.isEnabled("ember-runtime-item-controller-inline-class")) {
-          options = {
-            target: parentController,
-            parentController: parentController,
-            model: object
-          };
+        fullName = 'controller:' + controllerClass;
 
-          if (typeof controllerClass === 'string') {
-            fullName = 'controller:' + controllerClass;
-
-            if (!container.has(fullName)) {
-              throw new EmberError('Could not resolve itemController: "' + controllerClass + '"');
-            }
-
-            subControllerFactory = container.lookupFactory(fullName);
-          } else {
-            subControllerFactory = controllerClass;
-            options.container = container;
-          }
-
-          subController = subControllerFactory.create(options);
-        } else {
-          fullName = 'controller:' + controllerClass;
-
-          if (!container.has(fullName)) {
-            throw new EmberError('Could not resolve itemController: "' + controllerClass + '"');
-          }
-
-          subController = container.lookupFactory(fullName).create({
-            target: parentController,
-            parentController: parentController,
-            model: object
-          });
+        if (!container.has(fullName)) {
+          throw new EmberError('Could not resolve itemController: "' + controllerClass + '"');
         }
+
+        subController = container.lookupFactory(fullName).create({
+          target: parentController,
+          parentController: parentController,
+          model: object
+        });
 
         subControllers[idx] = subController;
 

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.ad675d5e
+ * @version   1.11.0-beta.1+canary.4fcf04c8
  */
 
 (function() {
@@ -12310,7 +12310,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.ad675d5e
+      @version 1.11.0-beta.1+canary.4fcf04c8
     */
 
     if ('undefined' === typeof Ember) {
@@ -12337,10 +12337,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.ad675d5e'
+      @default '1.11.0-beta.1+canary.4fcf04c8'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.ad675d5e';
+    Ember.VERSION = '1.11.0-beta.1+canary.4fcf04c8';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -19316,8 +19316,8 @@ enifed("ember-routing-htmlbars",
     __exports__["default"] = Ember;
   });
 enifed("ember-routing-htmlbars/helpers/action",
-  ["ember-metal/core","ember-metal/utils","ember-metal/run_loop","ember-views/streams/utils","ember-views/system/utils","ember-views/system/action_manager","ember-metal/array","ember-metal/streams/utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
+  ["ember-metal/core","ember-metal/utils","ember-metal/run_loop","ember-views/streams/utils","ember-views/system/utils","ember-views/system/action_manager","ember-metal/streams/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -19331,8 +19331,7 @@ enifed("ember-routing-htmlbars/helpers/action",
     var readUnwrappedModel = __dependency4__.readUnwrappedModel;
     var isSimpleClick = __dependency5__.isSimpleClick;
     var ActionManager = __dependency6__["default"];
-    var indexOf = __dependency7__.indexOf;
-    var isStream = __dependency8__.isStream;
+    var isStream = __dependency7__.isStream;
 
     function actionArgs(parameters, actionName) {
       var ret, i, l;
@@ -19387,14 +19386,6 @@ enifed("ember-routing-htmlbars/helpers/action",
       return true;
     };
 
-    var keyEvents = ['keyUp', 'keyPress', 'keyDown'];
-
-    function ignoreKeyEvent(eventName, event, keyCode) {
-      var any = 'any';
-      keyCode = keyCode || any;
-      return indexOf.call(keyEvents, eventName) !== -1 && keyCode !== any && keyCode !== event.which.toString();
-    }
-
     ActionHelper.registerAction = function(actionNameOrStream, options, allowedKeys) {
       var actionId = uuid();
       var eventName = options.eventName;
@@ -19414,12 +19405,6 @@ enifed("ember-routing-htmlbars/helpers/action",
           }
 
           var target = options.target.value();
-
-          if (Ember.FEATURES.isEnabled("ember-routing-handlebars-action-with-key-code")) {
-            if (ignoreKeyEvent(eventName, event, options.withKeyCode)) {
-              return;
-            }
-          }
 
           var actionName;
 
@@ -25769,12 +25754,8 @@ enifed("ember-routing/system/router",
         if (!router) {
           router = new Router();
 
-          if (Ember.FEATURES.isEnabled("ember-routing-will-change-hooks")) {
-            router._willChangeContextEvent = 'willChangeModel';
-          } else {
-            router._triggerWillChangeContext = K;
-            router._triggerWillLeave = K;
-          }
+          router._triggerWillChangeContext = K;
+          router._triggerWillLeave = K;
 
           router.callbacks = [];
           router.triggerEvent = triggerEvent;
@@ -28382,7 +28363,7 @@ enifed("ember-runtime/controllers/array_controller",
       controllerAt: function(idx, object, controllerClass) {
         var container = get(this, 'container');
         var subControllers = this._subControllers;
-        var fullName, subController, subControllerFactory, parentController, options;
+        var fullName, subController, parentController;
 
         if (subControllers.length > idx) {
           subController = subControllers[idx];
@@ -28398,40 +28379,17 @@ enifed("ember-runtime/controllers/array_controller",
           parentController = this;
         }
 
-        if (Ember.FEATURES.isEnabled("ember-runtime-item-controller-inline-class")) {
-          options = {
-            target: parentController,
-            parentController: parentController,
-            model: object
-          };
+        fullName = 'controller:' + controllerClass;
 
-          if (typeof controllerClass === 'string') {
-            fullName = 'controller:' + controllerClass;
-
-            if (!container.has(fullName)) {
-              throw new EmberError('Could not resolve itemController: "' + controllerClass + '"');
-            }
-
-            subControllerFactory = container.lookupFactory(fullName);
-          } else {
-            subControllerFactory = controllerClass;
-            options.container = container;
-          }
-
-          subController = subControllerFactory.create(options);
-        } else {
-          fullName = 'controller:' + controllerClass;
-
-          if (!container.has(fullName)) {
-            throw new EmberError('Could not resolve itemController: "' + controllerClass + '"');
-          }
-
-          subController = container.lookupFactory(fullName).create({
-            target: parentController,
-            parentController: parentController,
-            model: object
-          });
+        if (!container.has(fullName)) {
+          throw new EmberError('Could not resolve itemController: "' + controllerClass + '"');
         }
+
+        subController = container.lookupFactory(fullName).create({
+          target: parentController,
+          parentController: parentController,
+          model: object
+        });
 
         subControllers[idx] = subController;
 
