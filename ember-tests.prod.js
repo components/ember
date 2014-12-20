@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.c8fe5949
+ * @version   1.11.0-beta.1+canary.f936f4de
  */
 
 (function() {
@@ -9780,6 +9780,107 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
 
         equal(view.$().text(), 'innerOk');
       });
+
+      test("`if` helper with inline form: respects isTruthy when object changes", function() {
+        view = EmberView.create({
+          conditional: Ember.Object.create({isTruthy: false}),
+          template: compile('{{if view.conditional "truthy" "falsy"}}')
+        });
+
+        runAppend(view);
+
+        equal(view.$().text(), 'falsy');
+
+        run(function() {
+          view.set('conditional', Ember.Object.create({isTruthy: true}));
+        });
+
+        equal(view.$().text(), 'truthy');
+
+        run(function() {
+          view.set('conditional', Ember.Object.create({isTruthy: false}));
+        });
+
+        equal(view.$().text(), 'falsy');
+
+      });
+
+      test("`if` helper with inline form: respects isTruthy when property changes", function() {
+        var candidate = Ember.Object.create({isTruthy: false});
+
+        view = EmberView.create({
+          conditional: candidate,
+          template: compile('{{if view.conditional "truthy" "falsy"}}')
+        });
+
+        runAppend(view);
+
+        equal(view.$().text(), 'falsy');
+
+        run(function() {
+          candidate.set('isTruthy', true);
+        });
+
+        equal(view.$().text(), 'truthy');
+
+        run(function() {
+          candidate.set('isTruthy', false);
+        });
+
+        equal(view.$().text(), 'falsy');
+
+      });
+
+      test("`if` helper with inline form: respects length test when list content changes", function() {
+        var list = Ember.A();
+
+        view = EmberView.create({
+          conditional: list,
+          template: compile('{{if view.conditional "truthy" "falsy"}}')
+        });
+
+        runAppend(view);
+
+        equal(view.$().text(), 'falsy');
+
+        run(function() {
+          list.pushObject(1);
+        });
+
+        equal(view.$().text(), 'truthy');
+
+        run(function() {
+          list.replace(0, 1);
+        });
+
+        equal(view.$().text(), 'falsy');
+
+      });
+
+      test("`if` helper with inline form: respects length test when list itself", function() {
+        view = EmberView.create({
+          conditional: [],
+          template: compile('{{if view.conditional "truthy" "falsy"}}')
+        });
+
+        runAppend(view);
+
+        equal(view.$().text(), 'falsy');
+
+        run(function() {
+          view.set('conditional', [1]);
+        });
+
+        equal(view.$().text(), 'truthy');
+
+        run(function() {
+          view.set('conditional', []);
+        });
+
+        equal(view.$().text(), 'falsy');
+
+      });
+
     }
   });
 enifed("ember-htmlbars/tests/helpers/if_unless_test.jshint",
@@ -16068,6 +16169,15 @@ enifed("ember-metal/set_properties.jshint",
     module('JSHint - ember-metal');
     test('ember-metal/set_properties.js should pass jshint', function() { 
       ok(true, 'ember-metal/set_properties.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal/streams/conditional.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal/streams');
+    test('ember-metal/streams/conditional.js should pass jshint', function() { 
+      ok(true, 'ember-metal/streams/conditional.js should pass jshint.'); 
     });
   });
 enifed("ember-metal/streams/simple.jshint",
@@ -48656,15 +48766,6 @@ enifed("ember-views/streams/class_name_binding.jshint",
       ok(true, 'ember-views/streams/class_name_binding.js should pass jshint.'); 
     });
   });
-enifed("ember-views/streams/conditional_stream.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-views/streams');
-    test('ember-views/streams/conditional_stream.js should pass jshint', function() { 
-      ok(true, 'ember-views/streams/conditional_stream.js should pass jshint.'); 
-    });
-  });
 enifed("ember-views/streams/context_stream.jshint",
   [],
   function() {
@@ -48681,6 +48782,15 @@ enifed("ember-views/streams/key_stream.jshint",
     module('JSHint - ember-views/streams');
     test('ember-views/streams/key_stream.js should pass jshint', function() { 
       ok(true, 'ember-views/streams/key_stream.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/streams/should_display.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/streams');
+    test('ember-views/streams/should_display.js should pass jshint', function() { 
+      ok(true, 'ember-views/streams/should_display.js should pass jshint.'); 
     });
   });
 enifed("ember-views/streams/utils.jshint",

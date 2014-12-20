@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.c8fe5949
+ * @version   1.11.0-beta.1+canary.f936f4de
  */
 
 (function() {
@@ -4849,7 +4849,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.c8fe5949
+      @version 1.11.0-beta.1+canary.f936f4de
     */
 
     if ('undefined' === typeof Ember) {
@@ -4876,10 +4876,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.c8fe5949'
+      @default '1.11.0-beta.1+canary.f936f4de'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.c8fe5949';
+    Ember.VERSION = '1.11.0-beta.1+canary.f936f4de';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -10263,6 +10263,62 @@ define("ember-metal/set_properties",
       });
       return obj;
     }
+  });
+define("ember-metal/streams/conditional",
+  ["ember-metal/streams/stream","ember-metal/streams/utils","ember-metal/platform","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+    "use strict";
+    var Stream = __dependency1__["default"];
+    var read = __dependency2__.read;
+    var subscribe = __dependency2__.subscribe;
+    var unsubscribe = __dependency2__.unsubscribe;
+    var isStream = __dependency2__.isStream;
+    var create = __dependency3__.create;
+
+    __exports__["default"] = function conditional(test, consequent, alternate) {
+      if (isStream(test)) {
+        return new ConditionalStream(test, consequent, alternate);
+      } else {
+        if (test) {
+          return consequent;
+        } else {
+          return alternate;
+        }
+      }
+    }
+
+    function ConditionalStream(test, consequent, alternate) {
+      this.init();
+
+      this.oldTestResult = undefined;
+      this.test = test;
+      this.consequent = consequent;
+      this.alternate = alternate;
+    }
+
+    ConditionalStream.prototype = create(Stream.prototype);
+
+    ConditionalStream.prototype.valueFn = function() {
+      var oldTestResult = this.oldTestResult;
+      var newTestResult = !!read(this.test);
+
+      if (newTestResult !== oldTestResult) {
+        switch (oldTestResult) {
+          case true: unsubscribe(this.consequent, this.notify, this); break;
+          case false: unsubscribe(this.alternate, this.notify, this); break;
+          case undefined: subscribe(this.test, this.notify, this);
+        }
+
+        switch (newTestResult) {
+          case true: subscribe(this.consequent, this.notify, this); break;
+          case false: subscribe(this.alternate, this.notify, this);
+        }
+
+        this.oldTestResult = newTestResult;
+      }
+
+      return newTestResult ? read(this.consequent) : read(this.alternate);
+    };
   });
 define("ember-metal/streams/simple",
   ["ember-metal/merge","ember-metal/streams/stream","ember-metal/platform","ember-metal/streams/utils","exports"],
