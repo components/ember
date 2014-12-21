@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.a45c4066
+ * @version   1.11.0-beta.1+canary.8ededd19
  */
 
 (function() {
@@ -6657,7 +6657,7 @@ enifed("ember-htmlbars/helpers/each",
     __exports__.eachHelper = eachHelper;
   });
 enifed("ember-htmlbars/helpers/if_unless",
-  ["ember-metal/core","ember-metal/streams/conditional","ember-views/streams/should_display","ember-metal/streams/utils","ember-metal/property_get","ember-views/views/bound_view","ember-htmlbars/templates/empty","exports"],
+  ["ember-metal/core","ember-metal/streams/conditional","ember-views/streams/should_display","ember-metal/streams/utils","ember-metal/property_get","ember-views/views/bound_if_view","ember-htmlbars/templates/empty","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
     /**
@@ -6672,7 +6672,7 @@ enifed("ember-htmlbars/helpers/if_unless",
     var read = __dependency4__.read;
     var get = __dependency5__.get;
     var isStream = __dependency4__.isStream;
-    var BoundIfView = __dependency6__.BoundIfView;
+    var BoundIfView = __dependency6__["default"];
     var emptyTemplate = __dependency7__["default"];
 
 
@@ -7124,12 +7124,12 @@ enifed("ember-htmlbars/helpers/log",
     __exports__.logHelper = logHelper;
   });
 enifed("ember-htmlbars/helpers/partial",
-  ["ember-metal/property_get","ember-metal/streams/utils","ember-views/views/bound_view","ember-views/system/lookup_partial","ember-htmlbars/templates/empty","exports"],
+  ["ember-metal/property_get","ember-metal/streams/utils","ember-views/views/bound_partial_view","ember-views/system/lookup_partial","ember-htmlbars/templates/empty","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     var get = __dependency1__.get;
     var isStream = __dependency2__.isStream;
-    var BoundPartialView = __dependency3__.BoundPartialView;
+    var BoundPartialView = __dependency3__["default"];
     var lookupPartial = __dependency4__["default"];
     var emptyTemplate = __dependency5__["default"];
 
@@ -12295,7 +12295,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.a45c4066
+      @version 1.11.0-beta.1+canary.8ededd19
     */
 
     if ('undefined' === typeof Ember) {
@@ -12322,10 +12322,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.a45c4066'
+      @default '1.11.0-beta.1+canary.8ededd19'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.a45c4066';
+    Ember.VERSION = '1.11.0-beta.1+canary.8ededd19';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -38359,6 +38359,49 @@ enifed("ember-views/mixins/component_template_deprecation",
       }
     });
   });
+enifed("ember-views/mixins/normalized_rerender_if_needed",
+  ["ember-metal/property_get","ember-metal/mixin","ember-metal/merge","ember-views/views/states","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-views
+    */
+
+    var get = __dependency1__.get;
+    var Mixin = __dependency2__.Mixin;
+    var merge = __dependency3__["default"];
+    var cloneStates = __dependency4__.cloneStates;
+    var viewStates = __dependency4__.states;
+
+    var states = cloneStates(viewStates);
+
+    merge(states._default, {
+      rerenderIfNeeded: function() { return this; }
+    });
+
+    merge(states.inDOM, {
+      rerenderIfNeeded: function(view) {
+        if (view.normalizedValue() !== view._lastNormalizedValue) {
+          view.rerender();
+        }
+      }
+    });
+
+    __exports__["default"] = Mixin.create({
+      _states: states,
+
+      normalizedValue: function() {
+        var value = this.lazyValue.value();
+        var valueNormalizer = get(this, 'valueNormalizerFunc');
+        return valueNormalizer ? valueNormalizer(value) : value;
+      },
+
+      rerenderIfNeeded: function() {
+        this.currentState.rerenderIfNeeded(this);
+      },
+    });
+  });
 enifed("ember-views/mixins/text_support",
   ["ember-metal/property_get","ember-metal/property_set","ember-metal/mixin","ember-runtime/mixins/target_action_support","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
@@ -40381,9 +40424,92 @@ enifed("ember-views/system/utils",
 
     __exports__.getViewBoundingClientRect = getViewBoundingClientRect;
   });
+enifed("ember-views/views/bound_if_view",
+  ["ember-metal/property_set","ember-metal/run_loop","ember-views/views/metamorph_view","ember-views/mixins/normalized_rerender_if_needed","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+    "use strict";
+    var set = __dependency1__.set;
+    var run = __dependency2__["default"];
+    var _MetamorphView = __dependency3__["default"];
+    var NormalizedRerenderIfNeededSupport = __dependency4__["default"];
+
+    __exports__["default"] = _MetamorphView.extend(NormalizedRerenderIfNeededSupport, {
+      init: function() {
+        this._super();
+
+        var self = this;
+
+        this.conditionStream.subscribe(this._wrapAsScheduled(function() {
+          run.scheduleOnce('render', self, 'rerenderIfNeeded');
+        }));
+      },
+
+      normalizedValue: function() {
+        return this.conditionStream.value();
+      },
+
+      render: function(buffer) {
+        var result = this.conditionStream.value();
+        this._lastNormalizedValue = result;
+
+        if (result) {
+          set(this, 'template', this.truthyTemplate);
+        } else {
+          set(this, 'template', this.falsyTemplate);
+        }
+
+        return this._super(buffer);
+      }
+    });
+  });
+enifed("ember-views/views/bound_partial_view",
+  ["ember-metal/property_set","ember-metal/run_loop","ember-views/views/metamorph_view","ember-views/mixins/normalized_rerender_if_needed","ember-views/system/lookup_partial","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-views
+    */
+
+    var set = __dependency1__.set;
+    var run = __dependency2__["default"];
+    var _MetamorphView = __dependency3__["default"];
+    var NormalizedRerenderIfNeededSupport = __dependency4__["default"];
+    var lookupPartial = __dependency5__["default"];
+    var run = __dependency2__["default"];
+
+    __exports__["default"] = _MetamorphView.extend(NormalizedRerenderIfNeededSupport, {
+      init: function() {
+        this._super();
+
+        var self = this;
+
+        this.templateNameStream.subscribe(this._wrapAsScheduled(function() {
+          run.scheduleOnce('render', self, 'rerenderIfNeeded');
+        }));
+      },
+
+      normalizedValue: function() {
+        return this.templateNameStream.value();
+      },
+
+      render: function(buffer) {
+        var templateName = this.normalizedValue();
+        this._lastNormalizedValue = templateName;
+
+        if (templateName) {
+          set(this, 'template', lookupPartial(this, templateName));
+        } else {
+          set(this, 'template', this.emptyTemplate);
+        }
+
+        return this._super(buffer);
+      }
+    });
+  });
 enifed("ember-views/views/bound_view",
-  ["ember-metal/property_get","ember-metal/property_set","ember-metal/merge","ember-views/views/states","ember-views/views/metamorph_view","ember-views/system/lookup_partial","ember-metal/mixin","ember-metal/run_loop","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
+  ["ember-metal/property_get","ember-metal/property_set","ember-views/views/metamorph_view","ember-views/mixins/normalized_rerender_if_needed","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -40392,43 +40518,8 @@ enifed("ember-views/views/bound_view",
 
     var get = __dependency1__.get;
     var set = __dependency2__.set;
-    var merge = __dependency3__["default"];
-    var cloneStates = __dependency4__.cloneStates;
-    var viewStates = __dependency4__.states;
-    var _MetamorphView = __dependency5__["default"];
-    var lookupPartial = __dependency6__["default"];
-    var Mixin = __dependency7__.Mixin;
-    var run = __dependency8__["default"];
-
-    function K() { return this; }
-
-    var states = cloneStates(viewStates);
-
-    merge(states._default, {
-      rerenderIfNeeded: K
-    });
-
-    merge(states.inDOM, {
-      rerenderIfNeeded: function(view) {
-        if (view.normalizedValue() !== view._lastNormalizedValue) {
-          view.rerender();
-        }
-      }
-    });
-
-    var NormalizedRerenderIfNeededSupport = Mixin.create({
-      _states: states,
-
-      normalizedValue: function() {
-        var value = this.lazyValue.value();
-        var valueNormalizer = get(this, 'valueNormalizerFunc');
-        return valueNormalizer ? valueNormalizer(value) : value;
-      },
-
-      rerenderIfNeeded: function() {
-        this.currentState.rerenderIfNeeded(this);
-      },
-    });
+    var _MetamorphView = __dependency3__["default"];
+    var NormalizedRerenderIfNeededSupport = __dependency4__["default"];
 
     /**
       `Ember._BoundView` is a private view created by the Handlebars
@@ -40444,7 +40535,7 @@ enifed("ember-views/views/bound_view",
       @extends Ember._MetamorphView
       @private
     */
-    var BoundView = _MetamorphView.extend(NormalizedRerenderIfNeededSupport, {
+    __exports__["default"] = _MetamorphView.extend(NormalizedRerenderIfNeededSupport, {
       instrumentName: 'bound',
 
       /**
@@ -40573,68 +40664,6 @@ enifed("ember-views/views/bound_view",
         return this._super(buffer);
       }
     });
-
-    var BoundIfView = _MetamorphView.extend(NormalizedRerenderIfNeededSupport, {
-      init: function() {
-        this._super();
-
-        var self = this;
-
-        this.conditionStream.subscribe(this._wrapAsScheduled(function() {
-          run.scheduleOnce('render', self, 'rerenderIfNeeded');
-        }));
-      },
-
-      normalizedValue: function() {
-        return this.conditionStream.value();
-      },
-
-      render: function(buffer) {
-        var result = this.conditionStream.value();
-        this._lastNormalizedValue = result;
-
-        if (result) {
-          set(this, 'template', this.truthyTemplate);
-        } else {
-          set(this, 'template', this.falsyTemplate);
-        }
-
-        return this._super(buffer);
-      }
-    });
-
-    var BoundPartialView = _MetamorphView.extend(NormalizedRerenderIfNeededSupport, {
-      init: function() {
-        this._super();
-
-        var self = this;
-
-        this.templateNameStream.subscribe(this._wrapAsScheduled(function() {
-          run.scheduleOnce('render', self, 'rerenderIfNeeded');
-        }));
-      },
-
-      normalizedValue: function() {
-        return this.templateNameStream.value();
-      },
-
-      render: function(buffer) {
-        var templateName = this.normalizedValue();
-        this._lastNormalizedValue = templateName;
-
-        if (templateName) {
-          set(this, 'template', lookupPartial(this, templateName));
-        } else {
-          set(this, 'template', this.emptyTemplate);
-        }
-
-        return this._super(buffer);
-      }
-    });
-
-    __exports__["default"] = BoundView;
-    __exports__.BoundIfView = BoundIfView;
-    __exports__.BoundPartialView = BoundPartialView;
   });
 enifed("ember-views/views/checkbox",
   ["ember-metal/property_get","ember-metal/property_set","ember-views/views/view","exports"],

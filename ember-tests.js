@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.a45c4066
+ * @version   1.11.0-beta.1+canary.8ededd19
  */
 
 (function() {
@@ -48746,6 +48746,15 @@ enifed("ember-views/mixins/component_template_deprecation.jshint",
       ok(true, 'ember-views/mixins/component_template_deprecation.js should pass jshint.'); 
     });
   });
+enifed("ember-views/mixins/normalized_rerender_if_needed.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/mixins');
+    test('ember-views/mixins/normalized_rerender_if_needed.js should pass jshint', function() { 
+      ok(true, 'ember-views/mixins/normalized_rerender_if_needed.js should pass jshint.'); 
+    });
+  });
 enifed("ember-views/mixins/text_support.jshint",
   [],
   function() {
@@ -57909,6 +57918,24 @@ enifed("ember-views/tests/views/view/virtual_views_test.jshint",
     module('JSHint - ember-views/tests/views/view');
     test('ember-views/tests/views/view/virtual_views_test.js should pass jshint', function() { 
       ok(true, 'ember-views/tests/views/view/virtual_views_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/views/bound_if_view.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/views');
+    test('ember-views/views/bound_if_view.js should pass jshint', function() { 
+      ok(true, 'ember-views/views/bound_if_view.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/views/bound_partial_view.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/views');
+    test('ember-views/views/bound_partial_view.js should pass jshint', function() { 
+      ok(true, 'ember-views/views/bound_partial_view.js should pass jshint.'); 
     });
   });
 enifed("ember-views/views/bound_view.jshint",
