@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.a07c0f0e
+ * @version   1.11.0-beta.1+canary.71bf8283
  */
 
 (function() {
@@ -6329,8 +6329,8 @@ enifed("ember-htmlbars/helpers/each",
     __exports__.eachHelper = eachHelper;
   });
 enifed("ember-htmlbars/helpers/if_unless",
-  ["ember-metal/core","ember-htmlbars/helpers/binding","ember-metal/streams/conditional","ember-views/streams/should_display","ember-metal/streams/utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
+  ["ember-metal/core","ember-metal/streams/conditional","ember-views/streams/should_display","ember-metal/streams/utils","ember-metal/property_get","ember-views/views/bound_view","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -6339,10 +6339,14 @@ enifed("ember-htmlbars/helpers/if_unless",
 
     var Ember = __dependency1__["default"];
     // Ember.assert
-    var bind = __dependency2__.bind;
-    var conditional = __dependency3__["default"];
-    var shouldDisplay = __dependency4__["default"];
-    var read = __dependency5__.read;
+    var conditional = __dependency2__["default"];
+    var shouldDisplay = __dependency3__["default"];
+    var ShouldDisplayStream = __dependency3__.ShouldDisplayStream;
+    var read = __dependency4__.read;
+    var get = __dependency5__.get;
+    var isStream = __dependency4__.isStream;
+    var BoundIfView = __dependency6__.BoundIfView;
+
 
     // This is essentially a compatibility shim until we can refactor
     // `BoundView` to natively do stream-based shouldDisplay testing. Note
@@ -6378,10 +6382,26 @@ enifed("ember-htmlbars/helpers/if_unless",
     */
     function boundIfHelper(params, hash, options, env) {
       options.helperName = options.helperName || 'boundIf';
-      return bind.call(this, params[0], hash, options, env, true, shouldDisplayIfHelperContent, shouldDisplayIfHelperContent, [
-       'isTruthy',
-       'length'
-     ]);
+      var property = params[0];
+      var stream = isStream(property) ? property : this.getStream(property);
+
+      var viewOptions = {
+        _morph: options.morph,
+        shouldDisplayFunc: shouldDisplayIfHelperContent,
+        valueNormalizerFunc: shouldDisplayIfHelperContent,
+        displayTemplate: options.template,
+        inverseTemplate: options.inverse,
+        lazyValue: new ShouldDisplayStream(stream),
+        previousContext: get(this, 'context'),
+        templateHash: hash,
+        helperName: options.helperName
+      };
+
+      if (options.keywords) {
+        viewOptions._keywords = options.keywords;
+      }
+
+      this.appendChild(BoundIfView, viewOptions);
     }
 
     /**
@@ -11900,7 +11920,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.a07c0f0e
+      @version 1.11.0-beta.1+canary.71bf8283
     */
 
     if ('undefined' === typeof Ember) {
@@ -11927,10 +11947,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.a07c0f0e'
+      @default '1.11.0-beta.1+canary.71bf8283'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.a07c0f0e';
+    Ember.VERSION = '1.11.0-beta.1+canary.71bf8283';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -37322,6 +37342,8 @@ enifed("ember-views/streams/should_display",
 
       return !!newPredicate;
     };
+
+    __exports__.ShouldDisplayStream = ShouldDisplayStream;
   });
 enifed("ember-views/streams/utils",
   ["ember-metal/core","ember-metal/property_get","ember-metal/path_cache","ember-runtime/system/string","ember-metal/streams/utils","ember-views/views/view","ember-runtime/mixins/controller","exports"],
@@ -38511,8 +38533,8 @@ enifed("ember-views/system/utils",
     __exports__.getViewBoundingClientRect = getViewBoundingClientRect;
   });
 enifed("ember-views/views/bound_view",
-  ["ember-metal/property_get","ember-metal/property_set","ember-metal/merge","ember-htmlbars/utils/string","ember-views/views/states","ember-views/views/metamorph_view","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+  ["ember-metal/property_get","ember-metal/property_set","ember-metal/merge","ember-htmlbars/utils/string","ember-views/views/states","ember-views/views/metamorph_view","ember-metal/mixin","ember-metal/run_loop","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -38527,6 +38549,8 @@ enifed("ember-views/views/bound_view",
     var cloneStates = __dependency5__.cloneStates;
     var viewStates = __dependency5__.states;
     var _MetamorphView = __dependency6__["default"];
+    var Mixin = __dependency7__.Mixin;
+    var run = __dependency8__["default"];
 
     function K() { return this; }
 
@@ -38544,6 +38568,20 @@ enifed("ember-views/views/bound_view",
       }
     });
 
+    var NormalizedRerenderIfNeededSupport = Mixin.create({
+      _states: states,
+
+      normalizedValue: function() {
+        var value = this.lazyValue.value();
+        var valueNormalizer = get(this, 'valueNormalizerFunc');
+        return valueNormalizer ? valueNormalizer(value) : value;
+      },
+
+      rerenderIfNeeded: function() {
+        this.currentState.rerenderIfNeeded(this);
+      },
+    });
+
     /**
       `Ember._BoundView` is a private view created by the Handlebars
       `{{bind}}` helpers that is used to keep track of bound properties.
@@ -38558,10 +38596,8 @@ enifed("ember-views/views/bound_view",
       @extends Ember._MetamorphView
       @private
     */
-    var BoundView = _MetamorphView.extend({
+    var BoundView = _MetamorphView.extend(NormalizedRerenderIfNeededSupport, {
       instrumentName: 'bound',
-
-      _states: states,
 
       /**
         The function used to determine if the `displayTemplate` or
@@ -38619,16 +38655,6 @@ enifed("ember-views/views/bound_view",
       inverseTemplate: null,
 
       lazyValue: null,
-
-      normalizedValue: function() {
-        var value = this.lazyValue.value();
-        var valueNormalizer = get(this, 'valueNormalizerFunc');
-        return valueNormalizer ? valueNormalizer(value) : value;
-      },
-
-      rerenderIfNeeded: function() {
-        this.currentState.rerenderIfNeeded(this);
-      },
 
       /**
         Determines which template to invoke, sets up the correct state based on
@@ -38707,7 +38733,45 @@ enifed("ember-views/views/bound_view",
       }
     });
 
+
+    var BoundIfView = _MetamorphView.extend(NormalizedRerenderIfNeededSupport, {
+      init: function() {
+        this._super();
+
+        var self = this;
+
+        this.lazyValue.subscribe(this._wrapAsScheduled(function() {
+          run.scheduleOnce('render', self, 'rerenderIfNeeded');
+        }));
+      },
+
+      render: function(buffer) {
+        var context = get(this, 'previousContext');
+
+        var inverseTemplate = get(this, 'inverseTemplate');
+        var displayTemplate = get(this, 'displayTemplate');
+        var shouldDisplay   = get(this, 'shouldDisplayFunc');
+
+        var result = this.normalizedValue();
+
+        this._lastNormalizedValue = result;
+
+        if (shouldDisplay(result)) {
+          set(this, 'template', displayTemplate);
+          set(this, '_context', context);
+        } else if (inverseTemplate) {
+          set(this, 'template', inverseTemplate);
+          set(this, '_context', context);
+        } else {
+          set(this, 'template', function() { return ''; });
+        }
+
+        return this._super(buffer);
+      }
+    });
+
     __exports__["default"] = BoundView;
+    __exports__.BoundIfView = BoundIfView;
   });
 enifed("ember-views/views/checkbox",
   ["ember-metal/property_get","ember-metal/property_set","ember-views/views/view","exports"],
