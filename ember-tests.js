@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.9d25b292
+ * @version   1.11.0-beta.1+canary.a07c0f0e
  */
 
 (function() {
@@ -53063,8 +53063,7 @@ enifed("ember-views/tests/views/simple_bound_view_test",
       var lazyValue = new Stream(function() {
         return obj.foo;
       });
-      var isEscaped = true;
-      var view = new SimpleBoundView(lazyValue, isEscaped);
+      var view = new SimpleBoundView(lazyValue);
       view._morph = {
         update: function(newValue) {
           value = newValue;

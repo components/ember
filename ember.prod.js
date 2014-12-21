@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.9d25b292
+ * @version   1.11.0-beta.1+canary.a07c0f0e
  */
 
 (function() {
@@ -11900,7 +11900,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.9d25b292
+      @version 1.11.0-beta.1+canary.a07c0f0e
     */
 
     if ('undefined' === typeof Ember) {
@@ -11927,10 +11927,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.9d25b292'
+      @default '1.11.0-beta.1+canary.a07c0f0e'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.9d25b292';
+    Ember.VERSION = '1.11.0-beta.1+canary.a07c0f0e';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -40909,8 +40909,8 @@ enifed("ember-views/views/select",
     __exports__.SelectOptgroup = SelectOptgroup;
   });
 enifed("ember-views/views/simple_bound_view",
-  ["ember-metal/error","ember-metal/run_loop","ember-htmlbars/utils/string","ember-metal/utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+  ["ember-metal/error","ember-metal/run_loop","ember-metal/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -40919,19 +40919,13 @@ enifed("ember-views/views/simple_bound_view",
 
     var EmberError = __dependency1__["default"];
     var run = __dependency2__["default"];
-    var htmlbarsSafeString = __dependency3__.SafeString;
-    var htmlbarsHtmlSafe = __dependency3__.htmlSafe;
-    var GUID_KEY = __dependency4__.GUID_KEY;
-    var uuid = __dependency4__.uuid;
+    var GUID_KEY = __dependency3__.GUID_KEY;
+    var uuid = __dependency3__.uuid;
 
     function K() { return this; }
 
-    var SafeString = htmlbarsSafeString;
-    var htmlSafe = htmlbarsHtmlSafe;
-
-    function SimpleBoundView(lazyValue, isEscaped) {
-      this.lazyValue = lazyValue;
-      this.isEscaped = isEscaped;
+    function SimpleBoundView(stream) {
+      this.stream = stream;
       this[GUID_KEY] = uuid();
       this._lastNormalizedValue = undefined;
       this.state = 'preRender';
@@ -40962,15 +40956,13 @@ enifed("ember-views/views/simple_bound_view",
       propertyDidChange: K,
 
       normalizedValue: function() {
-        var result = this.lazyValue.value();
+        var result = this.stream.value();
 
         if (result === null || result === undefined) {
-          result = "";
-        } else if (!this.isEscaped && !(result instanceof SafeString)) {
-          result = htmlSafe(result);
+          return "";
+        } else {
+          return result;
         }
-
-        return result;
       },
 
       render: function(buffer) {
@@ -41010,7 +41002,7 @@ enifed("ember-views/views/simple_bound_view",
     };
 
     function appendSimpleBoundView(parentView, morph, stream) {
-      var view = new SimpleBoundView(stream, morph.escaped);
+      var view = new SimpleBoundView(stream);
       view._morph = morph;
 
       stream.subscribe(parentView._wrapAsScheduled(function() {
