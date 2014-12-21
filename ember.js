@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.77c0cd32
+ * @version   1.11.0-beta.1+canary.b8654788
  */
 
 (function() {
@@ -12295,7 +12295,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.77c0cd32
+      @version 1.11.0-beta.1+canary.b8654788
     */
 
     if ('undefined' === typeof Ember) {
@@ -12322,10 +12322,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.77c0cd32'
+      @default '1.11.0-beta.1+canary.b8654788'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.77c0cd32';
+    Ember.VERSION = '1.11.0-beta.1+canary.b8654788';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -18300,11 +18300,48 @@ enifed("ember-metal/utils",
     var GUID_KEY = intern('__ember' + (+ new Date()));
 
     var GUID_DESC = {
-      writable:    false,
-      configurable: false,
-      enumerable:  false,
+      writable:     true,
+      configurable: true,
+      enumerable:   false,
       value: null
     };
+    __exports__.GUID_DESC = GUID_DESC;
+    var undefinedDescriptor = {
+      configurable: true,
+      writable: true,
+      enumerable: false,
+      value: undefined
+    };
+
+    var nullDescriptor = {
+      configurable: true,
+      writable: true,
+      enumerable: false,
+      value: null
+    };
+
+    var META_DESC = {
+      writable: true,
+      configurable: true,
+      enumerable: false,
+      value: null
+    };
+
+    var EMBER_META_PROPERTY = {
+      name: '__ember_meta__',
+      descriptor: META_DESC
+    };
+    __exports__.EMBER_META_PROPERTY = EMBER_META_PROPERTY;
+    var GUID_KEY_PROPERTY = {
+      name: GUID_KEY,
+      descriptor: nullDescriptor
+    };
+    __exports__.GUID_KEY_PROPERTY = GUID_KEY_PROPERTY;
+    var NEXT_SUPER_PROPERTY = {
+      name: '__nextSuper',
+      descriptor: undefinedDescriptor
+    };
+    __exports__.NEXT_SUPER_PROPERTY = NEXT_SUPER_PROPERTY;
 
     /**
       Generates a new guid, optionally saving the guid to the object that you
@@ -18331,7 +18368,11 @@ enifed("ember-metal/utils",
           obj[GUID_KEY] = ret;
         } else {
           GUID_DESC.value = ret;
-          o_defineProperty(obj, GUID_KEY, GUID_DESC);
+          if (obj.__defineNonEnumerable) {
+            obj.__defineNonEnumerable(GUID_KEY_PROPERTY);
+          } else {
+            o_defineProperty(obj, GUID_KEY, GUID_DESC);
+          }
         }
       }
       return ret;
@@ -18385,7 +18426,12 @@ enifed("ember-metal/utils",
             obj[GUID_KEY] = ret;
           } else {
             GUID_DESC.value = ret;
-            o_defineProperty(obj, GUID_KEY, GUID_DESC);
+
+            if (obj.__defineNonEnumerable) {
+              obj.__defineNonEnumerable(GUID_KEY_PROPERTY);
+            } else {
+              o_defineProperty(obj, GUID_KEY, GUID_DESC);
+            }
           }
           return ret;
       }
@@ -18394,14 +18440,6 @@ enifed("ember-metal/utils",
     __exports__.guidFor = guidFor;// ..........................................................
     // META
     //
-
-    var META_DESC = {
-      writable: true,
-      configurable: false,
-      enumerable: false,
-      value: null
-    };
-
     function Meta(obj) {
       this.descs = {};
       this.watching = {};
@@ -18465,7 +18503,13 @@ enifed("ember-metal/utils",
       if (writable===false) return ret || EMPTY_META;
 
       if (!ret) {
-        if (canDefineNonEnumerableProperties) o_defineProperty(obj, '__ember_meta__', META_DESC);
+        if (canDefineNonEnumerableProperties) {
+          if (obj.__defineNonEnumerable) {
+            obj.__defineNonEnumerable(EMBER_META_PROPERTY);
+          } else {
+            o_defineProperty(obj, '__ember_meta__', META_DESC);
+          }
+        }
 
         ret = new Meta(obj);
 
@@ -18481,7 +18525,11 @@ enifed("ember-metal/utils",
         ret.descs.constructor = null;
 
       } else if (ret.source !== obj) {
-        if (canDefineNonEnumerableProperties) o_defineProperty(obj, '__ember_meta__', META_DESC);
+        if (obj.__defineNonEnumerable) {
+          obj.__defineNonEnumerable(EMBER_META_PROPERTY);
+        } else {
+          o_defineProperty(obj, '__ember_meta__', META_DESC);
+        }
 
         ret = o_create(ret);
         ret.descs     = o_create(ret.descs);
@@ -33860,7 +33908,8 @@ enifed("ember-runtime/system/core_object",
     var apply = __dependency3__.apply;
     var o_create = __dependency4__.create;
     var generateGuid = __dependency3__.generateGuid;
-    var GUID_KEY = __dependency3__.GUID_KEY;
+    var GUID_KEY_PROPERTY = __dependency3__.GUID_KEY_PROPERTY;
+    var NEXT_SUPER_PROPERTY = __dependency3__.NEXT_SUPER_PROPERTY;
     var meta = __dependency3__.meta;
     var makeArray = __dependency3__.makeArray;
     var finishChains = __dependency5__.finishChains;
@@ -33890,20 +33939,6 @@ enifed("ember-runtime/system/core_object",
     var reopen = Mixin.prototype.reopen;
     var hasCachedComputedProperties = false;
 
-    var undefinedDescriptor = {
-      configurable: true,
-      writable: true,
-      enumerable: false,
-      value: undefined
-    };
-
-    var nullDescriptor = {
-      configurable: true,
-      writable: true,
-      enumerable: false,
-      value: null
-    };
-
     function makeCtor() {
 
       // Note: avoid accessing any properties on the object since it makes the
@@ -33917,8 +33952,8 @@ enifed("ember-runtime/system/core_object",
         if (!wasApplied) {
           Class.proto(); // prepare prototype...
         }
-        o_defineProperty(this, GUID_KEY, nullDescriptor);
-        o_defineProperty(this, '__nextSuper', undefinedDescriptor);
+        this.__defineNonEnumerable(GUID_KEY_PROPERTY);
+        this.__defineNonEnumerable(NEXT_SUPER_PROPERTY);
         var m = meta(this);
         var proto = m.proto;
         m.proto = this;
@@ -34100,6 +34135,10 @@ enifed("ember-runtime/system/core_object",
         @method init
       */
       init: function() {},
+      __defineNonEnumerable: function(property) {
+        o_defineProperty(this, property.name, property.descriptor);
+        //this[property.name] = property.descriptor.value;
+      },
 
       /**
         Defines the properties that will be concatenated from the superclass
@@ -45264,6 +45303,10 @@ enifed("ember-views/views/view",
         this.classNames = emberA(this.classNames.slice());
       },
 
+      __defineNonEnumerable: function(property) {
+        this[property.name] = property.descriptor.value;
+      },
+
       appendChild: function(view, options) {
         return this.currentState.appendChild(this, view, options);
       },
@@ -45476,10 +45519,12 @@ enifed("ember-views/views/view",
 
         return false;
       },
+
       transitionTo: function(state, children) {
         Ember.deprecate("Ember.View#transitionTo has been deprecated, it is for internal use only");
         this._transitionTo(state, children);
       },
+
       _transitionTo: function(state, children) {
         var priorState = this.currentState;
         var currentState = this.currentState = this._states[state];
