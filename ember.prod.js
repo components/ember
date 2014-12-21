@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.a569802d
+ * @version   1.11.0-beta.1+canary.c5516234
  */
 
 (function() {
@@ -6340,22 +6340,12 @@ enifed("ember-htmlbars/helpers/if_unless",
     // Ember.assert
     var conditional = __dependency2__["default"];
     var shouldDisplay = __dependency3__["default"];
-    var ShouldDisplayStream = __dependency3__.ShouldDisplayStream;
     var read = __dependency4__.read;
     var get = __dependency5__.get;
     var isStream = __dependency4__.isStream;
     var BoundIfView = __dependency6__.BoundIfView;
     var emptyTemplate = __dependency7__["default"];
 
-
-    // This is essentially a compatibility shim until we can refactor
-    // `BoundView` to natively do stream-based shouldDisplay testing. Note
-    // that this doesn't incur any actual stream creation when the input
-    // isn't a stream, because `shouldDisplay` is optimized to do
-    // the right thing.
-    function shouldDisplayIfHelperContent(result) {
-      return read(shouldDisplay(result));
-    }
 
     /**
       Use the `boundIf` helper to create a conditional that re-evaluates
@@ -6381,19 +6371,12 @@ enifed("ember-htmlbars/helpers/if_unless",
 
       var viewOptions = {
         _morph: options.morph,
-        shouldDisplayFunc: shouldDisplayIfHelperContent,
-        valueNormalizerFunc: shouldDisplayIfHelperContent,
-        displayTemplate: options.template,
-        inverseTemplate: options.inverse,
-        lazyValue: new ShouldDisplayStream(stream),
-        previousContext: get(this, 'context'),
-        templateHash: hash,
+        _context: get(this, 'context'),
+        conditionStream: shouldDisplay(stream),
+        truthyTemplate: options.template,
+        falsyTemplate: options.inverse,
         helperName: options.helperName
       };
-
-      if (options.keywords) {
-        viewOptions._keywords = options.keywords;
-      }
 
       this.appendChild(BoundIfView, viewOptions);
     }
@@ -11940,7 +11923,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.a569802d
+      @version 1.11.0-beta.1+canary.c5516234
     */
 
     if ('undefined' === typeof Ember) {
@@ -11967,10 +11950,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.a569802d'
+      @default '1.11.0-beta.1+canary.c5516234'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.a569802d';
+    Ember.VERSION = '1.11.0-beta.1+canary.c5516234';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -37361,8 +37344,6 @@ enifed("ember-views/streams/should_display",
 
       return !!newPredicate;
     };
-
-    __exports__.ShouldDisplayStream = ShouldDisplayStream;
   });
 enifed("ember-views/streams/utils",
   ["ember-metal/core","ember-metal/property_get","ember-metal/path_cache","ember-runtime/system/string","ember-metal/streams/utils","ember-views/views/view","ember-runtime/mixins/controller","exports"],
@@ -38750,30 +38731,23 @@ enifed("ember-views/views/bound_view",
 
         var self = this;
 
-        this.lazyValue.subscribe(this._wrapAsScheduled(function() {
+        this.conditionStream.subscribe(this._wrapAsScheduled(function() {
           run.scheduleOnce('render', self, 'rerenderIfNeeded');
         }));
       },
 
+      normalizedValue: function() {
+        return this.conditionStream.value();
+      },
+
       render: function(buffer) {
-        var context = get(this, 'previousContext');
-
-        var inverseTemplate = get(this, 'inverseTemplate');
-        var displayTemplate = get(this, 'displayTemplate');
-        var shouldDisplay   = get(this, 'shouldDisplayFunc');
-
-        var result = this.normalizedValue();
-
+        var result = this.conditionStream.value();
         this._lastNormalizedValue = result;
 
-        if (shouldDisplay(result)) {
-          set(this, 'template', displayTemplate);
-          set(this, '_context', context);
-        } else if (inverseTemplate) {
-          set(this, 'template', inverseTemplate);
-          set(this, '_context', context);
+        if (result) {
+          set(this, 'template', this.truthyTemplate);
         } else {
-          set(this, 'template', function() { return ''; });
+          set(this, 'template', this.falsyTemplate);
         }
 
         return this._super(buffer);
