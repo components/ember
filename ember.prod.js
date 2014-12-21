@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.a45c4066
+ * @version   1.11.0-beta.1+canary.9762f021
  */
 
 (function() {
@@ -11894,7 +11894,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.a45c4066
+      @version 1.11.0-beta.1+canary.9762f021
     */
 
     if ('undefined' === typeof Ember) {
@@ -11921,10 +11921,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.a45c4066'
+      @default '1.11.0-beta.1+canary.9762f021'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.a45c4066';
+    Ember.VERSION = '1.11.0-beta.1+canary.9762f021';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -36387,6 +36387,7 @@ enifed("ember-views",
     var BoundView = __dependency19__["default"];
     var SimpleBoundView = __dependency20__["default"];
     var _MetamorphView = __dependency21__["default"];
+    var _SimpleMetamorphView = __dependency21__._SimpleMetamorphView;
     var _Metamorph = __dependency21__._Metamorph;
     var Select = __dependency22__.Select;
     var SelectOption = __dependency22__.SelectOption;
@@ -36421,6 +36422,7 @@ enifed("ember-views",
 
     Ember._SimpleBoundView = SimpleBoundView;
     Ember._BoundView = BoundView;
+    Ember._SimpleMetamorphView = _SimpleMetamorphView;
     Ember._MetamorphView = _MetamorphView;
     Ember._Metamorph = _Metamorph;
     Ember.Select = Select;
@@ -40047,8 +40049,9 @@ enifed("ember-views/views/core_view",
 
     /**
       `Ember.CoreView` is an abstract class that exists to give view-like behavior
-      to both Ember's main view class `Ember.View` and other classes that don't need
-      the fully functionaltiy of `Ember.View`.
+      to both Ember's main view class `Ember.View` and other classes like
+      `Ember._SimpleMetamorphView` that don't need the fully functionaltiy of
+      `Ember.View`.
 
       Unless you have specific needs for `CoreView`, you will use `Ember.View`
       in your applications.
@@ -40269,15 +40272,16 @@ enifed("ember-views/views/each",
     });
   });
 enifed("ember-views/views/metamorph_view",
-  ["ember-metal/core","ember-views/views/view","ember-metal/mixin","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["ember-metal/core","ember-views/views/core_view","ember-views/views/view","ember-metal/mixin","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     /*jshint newcap:false*/
     var Ember = __dependency1__["default"];
     // Ember.deprecate
 
-    var View = __dependency2__["default"];
-    var Mixin = __dependency3__.Mixin;
+    var CoreView = __dependency2__["default"];
+    var View = __dependency3__["default"];
+    var Mixin = __dependency4__.Mixin;
 
     /**
     @module ember
@@ -40311,6 +40315,16 @@ enifed("ember-views/views/metamorph_view",
       @private
     */
     __exports__["default"] = View.extend(_Metamorph);
+
+    /**
+      @class _SimpleMetamorphView
+      @namespace Ember
+      @extends Ember.CoreView
+      @uses Ember._Metamorph
+      @private
+    */
+    var _SimpleMetamorphView = CoreView.extend(_Metamorph);
+    __exports__._SimpleMetamorphView = _SimpleMetamorphView;
   });
 enifed("ember-views/views/select",
   ["ember-metal/enumerable_utils","ember-metal/property_get","ember-metal/property_set","ember-views/views/view","ember-views/views/collection_view","ember-metal/utils","ember-metal/is_none","ember-metal/computed","ember-runtime/system/native_array","ember-metal/mixin","ember-metal/properties","ember-metal/run_loop","ember-htmlbars/templates/select","exports"],
