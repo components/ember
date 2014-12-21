@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.3c3c9d3f
+ * @version   1.11.0-beta.1+canary.4bb7302c
  */
 
 (function() {
@@ -6062,7 +6062,6 @@ enifed("ember-htmlbars/helpers/binding",
         inverseTemplate: options.inverse,
         lazyValue: lazyValue,
         previousContext: get(this, 'context'),
-        isEscaped: !hash.unescaped,
         templateHash: hash,
         helperName: options.helperName
       };
@@ -12322,7 +12321,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.3c3c9d3f
+      @version 1.11.0-beta.1+canary.4bb7302c
     */
 
     if ('undefined' === typeof Ember) {
@@ -12349,10 +12348,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.3c3c9d3f'
+      @default '1.11.0-beta.1+canary.4bb7302c'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.3c3c9d3f';
+    Ember.VERSION = '1.11.0-beta.1+canary.4bb7302c';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -19699,12 +19698,12 @@ enifed("ember-routing-htmlbars/helpers/action",
     __exports__.actionHelper = actionHelper;
   });
 enifed("ember-routing-htmlbars/helpers/link-to",
-  ["ember-metal/core","ember-routing-views/views/link","ember-metal/streams/utils","ember-runtime/mixins/controller","ember-htmlbars/utils/string","ember-htmlbars","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+  ["ember-metal/core","ember-routing-views/views/link","ember-metal/streams/utils","ember-runtime/mixins/controller","ember-htmlbars","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     /**
     @module ember
-    @submodule ember-routing-handlebars
+    @submodule ember-routing-htmlbars
     */
 
     var Ember = __dependency1__["default"];
@@ -19713,7 +19712,6 @@ enifed("ember-routing-htmlbars/helpers/link-to",
     var read = __dependency3__.read;
     var isStream = __dependency3__.isStream;
     var ControllerMixin = __dependency4__["default"];
-    var escapeExpression = __dependency5__.escapeExpression;
 
     // We need the HTMLBars view helper from ensure ember-htmlbars.
     // This ensures it is loaded first:
@@ -19981,7 +19979,6 @@ enifed("ember-routing-htmlbars/helpers/link-to",
       @see {Ember.LinkView}
     */
     function linkToHelper(params, hash, options, env) {
-      var shouldEscape = !hash.unescaped;
       var queryParamsObject;
 
       Ember.assert("You must provide one or more parameters to the link-to helper.", params.length);
@@ -19999,6 +19996,7 @@ enifed("ember-routing-htmlbars/helpers/link-to",
 
       if (!options.template) {
         var linkTitle = params.shift();
+        var shouldEscape = options.morph.escaped;
 
         if (isStream(linkTitle)) {
           hash.linkTitle = { stream: linkTitle };
@@ -20006,12 +20004,12 @@ enifed("ember-routing-htmlbars/helpers/link-to",
 
         options.template = {
           isHTMLBars: true,
-          render: function() {
-            var value = read(linkTitle);
-            if (value) {
-              return shouldEscape ? escapeExpression(value) : value;
+          render: function(view, env) {
+            var value = read(linkTitle) || "";
+            if (shouldEscape) {
+              return env.dom.createTextNode(value);
             } else {
-              return "";
+              return value;
             }
           }
         };
@@ -40387,8 +40385,8 @@ enifed("ember-views/system/utils",
     __exports__.getViewBoundingClientRect = getViewBoundingClientRect;
   });
 enifed("ember-views/views/bound_view",
-  ["ember-metal/property_get","ember-metal/property_set","ember-metal/merge","ember-htmlbars/utils/string","ember-views/views/states","ember-views/views/metamorph_view","ember-metal/mixin","ember-metal/run_loop","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
+  ["ember-metal/property_get","ember-metal/property_set","ember-metal/merge","ember-views/views/states","ember-views/views/metamorph_view","ember-metal/mixin","ember-metal/run_loop","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -40398,13 +40396,11 @@ enifed("ember-views/views/bound_view",
     var get = __dependency1__.get;
     var set = __dependency2__.set;
     var merge = __dependency3__["default"];
-    var escapeExpression = __dependency4__.escapeExpression;
-    var SafeString = __dependency4__.SafeString;
-    var cloneStates = __dependency5__.cloneStates;
-    var viewStates = __dependency5__.states;
-    var _MetamorphView = __dependency6__["default"];
-    var Mixin = __dependency7__.Mixin;
-    var run = __dependency8__["default"];
+    var cloneStates = __dependency4__.cloneStates;
+    var viewStates = __dependency4__.states;
+    var _MetamorphView = __dependency5__["default"];
+    var Mixin = __dependency6__.Mixin;
+    var run = __dependency7__["default"];
 
     function K() { return this; }
 
@@ -40528,10 +40524,6 @@ enifed("ember-views/views/bound_view",
         @param {Ember.RenderBuffer} buffer
       */
       render: function(buffer) {
-        // If not invoked via a triple-mustache ({{{foo}}}), escape
-        // the content of the template.
-        var escape = get(this, 'isEscaped');
-
         var shouldDisplay = get(this, 'shouldDisplayFunc');
         var preserveContext = get(this, 'preserveContext');
         var context = get(this, 'previousContext');
@@ -40562,11 +40554,8 @@ enifed("ember-views/views/bound_view",
             // expression to the render context and return.
               if (result === null || result === undefined) {
                 result = "";
-              } else if (!(result instanceof SafeString)) {
-                result = String(result);
               }
 
-              if (escape) { result = escapeExpression(result); }
               buffer.push(result);
               return;
             }

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.3c3c9d3f
+ * @version   1.11.0-beta.1+canary.4bb7302c
  */
 
 (function() {
@@ -26905,7 +26905,7 @@ enifed("ember-routing-htmlbars/tests/helpers/link-to_test",
 
     var view;
 
-    QUnit.module("Handlebars {{link-to}} helper", {
+    QUnit.module("ember-routing-htmlbars: link-to helper", {
       teardown: function() {
         runDestroy(view);
       }
@@ -26959,10 +26959,9 @@ enifed("ember-routing-htmlbars/tests/helpers/link-to_test",
       equal(view.$().text(), 'foo');
     });
 
-    test("escapes title in non-block form", function() {
+    test("escaped inline form (double curlies) escapes link title", function() {
       view = EmberView.create({
         title: "<b>blah</b>",
-
         template: compile("{{link-to view.title}}")
       });
 
@@ -26971,11 +26970,10 @@ enifed("ember-routing-htmlbars/tests/helpers/link-to_test",
       equal(view.$('b').length, 0, 'no <b> were found');
     });
 
-    test("does not escape title in non-block form when `unescaped` is true", function() {
+    test("unescaped inline form (triple curlies) does not escape link title", function() {
       view = EmberView.create({
         title: "<b>blah</b>",
-
-        template: compile("{{link-to view.title unescaped=true}}")
+        template: compile("{{{link-to view.title}}}")
       });
 
       runAppend(view);
