@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.4bb7302c
+ * @version   1.11.0-beta.1+canary.3ffad215
  */
 
 (function() {
@@ -6657,8 +6657,8 @@ enifed("ember-htmlbars/helpers/each",
     __exports__.eachHelper = eachHelper;
   });
 enifed("ember-htmlbars/helpers/if_unless",
-  ["ember-metal/core","ember-metal/streams/conditional","ember-views/streams/should_display","ember-metal/streams/utils","ember-metal/property_get","ember-views/views/bound_view","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+  ["ember-metal/core","ember-metal/streams/conditional","ember-views/streams/should_display","ember-metal/streams/utils","ember-metal/property_get","ember-views/views/bound_view","ember-htmlbars/templates/empty","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -6674,6 +6674,7 @@ enifed("ember-htmlbars/helpers/if_unless",
     var get = __dependency5__.get;
     var isStream = __dependency4__.isStream;
     var BoundIfView = __dependency6__.BoundIfView;
+    var emptyTemplate = __dependency7__["default"];
 
 
     // This is essentially a compatibility shim until we can refactor
@@ -6685,12 +6686,6 @@ enifed("ember-htmlbars/helpers/if_unless",
       return read(shouldDisplay(result));
     }
 
-    var EMPTY_TEMPLATE = {
-      isHTMLBars: true,
-      render: function() {
-        return '';
-      }
-    };
     /**
       Use the `boundIf` helper to create a conditional that re-evaluates
       whenever the truthiness of the bound value changes.
@@ -6787,7 +6782,7 @@ enifed("ember-htmlbars/helpers/if_unless",
         }
       }
 
-      options.inverse = options.inverse || EMPTY_TEMPLATE;
+      options.inverse = options.inverse || emptyTemplate;
 
       options.helperName = options.helperName || ('if ');
 
@@ -6811,7 +6806,7 @@ enifed("ember-htmlbars/helpers/if_unless",
       Ember.assert("You must pass a block to the unless helper", !!options.template);
 
       var template = options.template;
-      var inverse = options.inverse || EMPTY_TEMPLATE;
+      var inverse = options.inverse || emptyTemplate;
       var helperName = 'unless';
 
       options.template = inverse;
@@ -8935,6 +8930,32 @@ enifed("ember-htmlbars/templates/component",
           dom.repairClonedNode(fragment,[0,1]);
           var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
           content(morph0, "yield", context, [], {}, {morph: morph0}, env);
+          return fragment;
+        }
+      };
+    }());
+     __exports__["default"] = template(t);
+  });
+enifed("ember-htmlbars/templates/empty",
+  ["ember-htmlbars/system/template","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    var template = __dependency1__["default"];
+    var t = (function() {
+      return {
+        isHTMLBars: true,
+        cachedFragment: null,
+        build: function build(dom) {
+          var el0 = dom.createDocumentFragment();
+          return el0;
+        },
+        render: function render(context, env, contextualElement) {
+          var dom = env.dom;
+          dom.detectNamespace(contextualElement);
+          if (this.cachedFragment === null) {
+            this.cachedFragment = this.build(dom);
+          }
+          var fragment = dom.cloneNode(this.cachedFragment, true);
           return fragment;
         }
       };
@@ -12321,7 +12342,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.4bb7302c
+      @version 1.11.0-beta.1+canary.3ffad215
     */
 
     if ('undefined' === typeof Ember) {
@@ -12348,10 +12369,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.4bb7302c'
+      @default '1.11.0-beta.1+canary.3ffad215'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.4bb7302c';
+    Ember.VERSION = '1.11.0-beta.1+canary.3ffad215';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
