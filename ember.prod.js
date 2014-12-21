@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.8ededd19
+ * @version   1.11.0-beta.1+canary.77c0cd32
  */
 
 (function() {
@@ -11894,7 +11894,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.8ededd19
+      @version 1.11.0-beta.1+canary.77c0cd32
     */
 
     if ('undefined' === typeof Ember) {
@@ -11921,10 +11921,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.8ededd19'
+      @default '1.11.0-beta.1+canary.77c0cd32'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.8ededd19';
+    Ember.VERSION = '1.11.0-beta.1+canary.77c0cd32';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -40366,6 +40366,7 @@ enifed("ember-views/views/select",
     var observer = __dependency10__.observer;
     var defineProperty = __dependency11__.defineProperty;
     var run = __dependency12__["default"];
+    var map = __dependency1__.map;
 
     var htmlbarsTemplate = __dependency13__["default"];
 
@@ -40400,35 +40401,25 @@ enifed("ember-views/views/select",
       },
 
       selected: computed(function() {
-        var content = get(this, 'content');
+        var value = get(this, 'value');
         var selection = get(this, 'parentView.selection');
         if (get(this, 'parentView.multiple')) {
-          return selection && indexOf(selection, content.valueOf()) > -1;
+          return selection && indexOf(selection, value) > -1;
         } else {
           // Primitives get passed through bindings as objects... since
           // `new Number(4) !== 4`, we use `==` below
-          return content == selection; // jshint ignore:line
+          return value === get(this, 'parentView.value');
         }
       }).property('content', 'parentView.selection'),
 
       labelPathDidChange: observer('parentView.optionLabelPath', function() {
         var labelPath = get(this, 'parentView.optionLabelPath');
-
-        if (!labelPath) { return; }
-
-        defineProperty(this, 'label', computed(function() {
-          return get(this, labelPath);
-        }).property(labelPath));
+        defineProperty(this, 'label', computed.alias(labelPath));
       }),
 
       valuePathDidChange: observer('parentView.optionValuePath', function() {
         var valuePath = get(this, 'parentView.optionValuePath');
-
-        if (!valuePath) { return; }
-
-        defineProperty(this, 'value', computed(function() {
-          return get(this, valuePath);
-        }).property(valuePath));
+        defineProperty(this, 'value', computed.alias(valuePath));
       })
     });
 
@@ -40774,11 +40765,11 @@ enifed("ember-views/views/select",
         @type String
         @default null
       */
-      value: computed(function(key, value) {
+      value: computed('_valuePath', 'selection', function(key, value) {
         if (arguments.length === 2) { return value; }
-        var valuePath = get(this, 'optionValuePath').replace(/^content\.?/, '');
+        var valuePath = get(this, '_valuePath');
         return valuePath ? get(this, 'selection.' + valuePath) : get(this, 'selection');
-      }).property('selection'),
+      }),
 
       /**
         If given, a top-most dummy option will be rendered to serve as a user
@@ -40940,31 +40931,47 @@ enifed("ember-views/views/select",
       },
 
       _selectionDidChangeSingle: function() {
-        var content = get(this, 'content');
-        var selection = get(this, 'selection');
+        var value = get(this, 'value');
         var self = this;
-        if (selection && selection.then) {
-          selection.then(function(resolved) {
-            // Ensure that we don't overwrite a new selection
-            if (self.get('selection') === selection) {
-              self._setSelectionIndex(content, resolved);
+        if(value && value.then) {
+          value.then(function (resolved) {
+            // Ensure that we don't overwrite new value
+            if(get(self, 'value') === value) {
+              self._setSelectedIndex(resolved);
             }
           });
         } else {
-          this._setSelectionIndex(content, selection);
+          this._setSelectedIndex(value);
         }
       },
 
-      _setSelectionIndex: function(content, selection) {
+      _setSelectedIndex: function (selectionValue) {
         var el = get(this, 'element');
+        var content = get(this, 'contentValues');
         if (!el) { return; }
 
-        var selectionIndex = content ? indexOf(content, selection) : -1;
+        var selectionIndex = content.indexOf(selectionValue);
         var prompt = get(this, 'prompt');
 
         if (prompt) { selectionIndex += 1; }
         if (el) { el.selectedIndex = selectionIndex; }
       },
+
+      _valuePath: computed('optionValuePath', function () {
+        var optionValuePath = get(this, 'optionValuePath');
+        return optionValuePath.replace(/^content\.?/, '');
+      }),
+
+      contentValues: computed('content.[]', '_valuePath', function () {
+        var valuePath = get(this, '_valuePath');
+        var content = get(this, 'content') || [];
+
+        if (valuePath) {
+          return map(content, function (el) { return get(el, valuePath); });
+        } else {
+          return map(content, function (el) { return el; });
+        }
+      }),
 
       _selectionDidChangeMultiple: function() {
         var content = get(this, 'content');
