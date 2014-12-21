@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.c5516234
+ * @version   1.11.0-beta.1+canary.9762f021
  */
 
 (function() {
@@ -48843,6 +48843,15 @@ enifed("ember-views/system/jquery.jshint",
     module('JSHint - ember-views/system');
     test('ember-views/system/jquery.js should pass jshint', function() { 
       ok(true, 'ember-views/system/jquery.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/system/lookup_partial.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/system');
+    test('ember-views/system/lookup_partial.js should pass jshint', function() { 
+      ok(true, 'ember-views/system/lookup_partial.js should pass jshint.'); 
     });
   });
 enifed("ember-views/system/render_buffer.jshint",

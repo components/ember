@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.c5516234
+ * @version   1.11.0-beta.1+canary.9762f021
  */
 
 (function() {
@@ -7124,15 +7124,14 @@ enifed("ember-htmlbars/helpers/log",
     __exports__.logHelper = logHelper;
   });
 enifed("ember-htmlbars/helpers/partial",
-  ["ember-metal/core","ember-metal/is_none","./binding","ember-metal/streams/utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+  ["ember-metal/property_get","ember-metal/streams/utils","ember-views/views/bound_view","ember-views/system/lookup_partial","ember-htmlbars/templates/empty","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
-    var Ember = __dependency1__["default"];
-    // Ember.assert
-
-    var isNone = __dependency2__["default"];
-    var bind = __dependency3__.bind;
-    var isStream = __dependency4__.isStream;
+    var get = __dependency1__.get;
+    var isStream = __dependency2__.isStream;
+    var BoundPartialView = __dependency3__.BoundPartialView;
+    var lookupPartial = __dependency4__["default"];
+    var emptyTemplate = __dependency5__["default"];
 
     /**
     @module ember
@@ -7180,52 +7179,23 @@ enifed("ember-htmlbars/helpers/partial",
     */
 
     function partialHelper(params, hash, options, env) {
-      options.helperName = options.helperName || 'partial';
+      var templateName = params[0];
 
-      var name = params[0];
-
-      if (isStream(name)) {
-        options.template = createPartialTemplate(name);
-        bind.call(this, name, hash, options, env, true, exists);
+      if (isStream(templateName)) {
+        this.appendChild(BoundPartialView, {
+          _morph: options.morph,
+          _context: get(this, 'context'),
+          templateNameStream: templateName,
+          emptyTemplate: emptyTemplate,
+          helperName: options.helperName || 'partial'
+        });
       } else {
-        return renderPartial(name, this, env, options.morph.contextualElement);
+        var template = lookupPartial(this, templateName);
+        return template.render(this, env, options.morph.contextualElement);
       }
     }
 
-    __exports__.partialHelper = partialHelper;function exists(value) {
-      return !isNone(value);
-    }
-
-    function lookupPartial(view, templateName) {
-      var nameParts = templateName.split("/");
-      var lastPart = nameParts[nameParts.length - 1];
-
-      nameParts[nameParts.length - 1] = "_" + lastPart;
-
-      var underscoredName = nameParts.join('/');
-      var template = view.templateForName(underscoredName);
-      if (!template) {
-        template = view.templateForName(templateName);
-      }
-
-      Ember.assert('Unable to find partial with name "'+templateName+'"', !!template);
-
-      return template;
-    }
-
-    function renderPartial(name, view, env, contextualElement) {
-      var template = lookupPartial(view, name);
-      return template.render(view, env, contextualElement);
-    }
-
-    function createPartialTemplate(nameStream) {
-      return {
-        isHTMLBars: true,
-        render: function(view, env, contextualElement) {
-          return renderPartial(nameStream.value(), view, env, contextualElement);
-        }
-      };
-    }
+    __exports__.partialHelper = partialHelper;
   });
 enifed("ember-htmlbars/helpers/template",
   ["ember-metal/core","exports"],
@@ -12325,7 +12295,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.c5516234
+      @version 1.11.0-beta.1+canary.9762f021
     */
 
     if ('undefined' === typeof Ember) {
@@ -12352,10 +12322,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.c5516234'
+      @default '1.11.0-beta.1+canary.9762f021'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.c5516234';
+    Ember.VERSION = '1.11.0-beta.1+canary.9762f021';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -39580,6 +39550,33 @@ enifed("ember-views/system/jquery",
 
     __exports__["default"] = jQuery;
   });
+enifed("ember-views/system/lookup_partial",
+  ["ember-metal/core","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    var Ember = __dependency1__["default"];
+    // Ember.assert
+
+    __exports__["default"] = function lookupPartial(view, templateName) {
+      var nameParts = templateName.split("/");
+      var lastPart = nameParts[nameParts.length - 1];
+
+      nameParts[nameParts.length - 1] = "_" + lastPart;
+
+      var underscoredName = nameParts.join('/');
+      var template = view.templateForName(underscoredName);
+      if (!template) {
+        template = view.templateForName(templateName);
+      }
+
+      Ember.assert(
+        'Unable to find partial with name "' + templateName + '"',
+        !!template
+      );
+
+      return template;
+    }
+  });
 enifed("ember-views/system/render_buffer",
   ["ember-views/system/jquery","morph","ember-metal/core","ember-metal/platform","ember-metal/environment","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
@@ -40387,8 +40384,8 @@ enifed("ember-views/system/utils",
     __exports__.getViewBoundingClientRect = getViewBoundingClientRect;
   });
 enifed("ember-views/views/bound_view",
-  ["ember-metal/property_get","ember-metal/property_set","ember-metal/merge","ember-views/views/states","ember-views/views/metamorph_view","ember-metal/mixin","ember-metal/run_loop","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
+  ["ember-metal/property_get","ember-metal/property_set","ember-metal/merge","ember-views/views/states","ember-views/views/metamorph_view","ember-views/system/lookup_partial","ember-metal/mixin","ember-metal/run_loop","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -40401,8 +40398,9 @@ enifed("ember-views/views/bound_view",
     var cloneStates = __dependency4__.cloneStates;
     var viewStates = __dependency4__.states;
     var _MetamorphView = __dependency5__["default"];
-    var Mixin = __dependency6__.Mixin;
-    var run = __dependency7__["default"];
+    var lookupPartial = __dependency6__["default"];
+    var Mixin = __dependency7__.Mixin;
+    var run = __dependency8__["default"];
 
     function K() { return this; }
 
@@ -40578,7 +40576,6 @@ enifed("ember-views/views/bound_view",
       }
     });
 
-
     var BoundIfView = _MetamorphView.extend(NormalizedRerenderIfNeededSupport, {
       init: function() {
         this._super();
@@ -40608,8 +40605,38 @@ enifed("ember-views/views/bound_view",
       }
     });
 
+    var BoundPartialView = _MetamorphView.extend(NormalizedRerenderIfNeededSupport, {
+      init: function() {
+        this._super();
+
+        var self = this;
+
+        this.templateNameStream.subscribe(this._wrapAsScheduled(function() {
+          run.scheduleOnce('render', self, 'rerenderIfNeeded');
+        }));
+      },
+
+      normalizedValue: function() {
+        return this.templateNameStream.value();
+      },
+
+      render: function(buffer) {
+        var templateName = this.normalizedValue();
+        this._lastNormalizedValue = templateName;
+
+        if (templateName) {
+          set(this, 'template', lookupPartial(this, templateName));
+        } else {
+          set(this, 'template', this.emptyTemplate);
+        }
+
+        return this._super(buffer);
+      }
+    });
+
     __exports__["default"] = BoundView;
     __exports__.BoundIfView = BoundIfView;
+    __exports__.BoundPartialView = BoundPartialView;
   });
 enifed("ember-views/views/checkbox",
   ["ember-metal/property_get","ember-metal/property_set","ember-views/views/view","exports"],
