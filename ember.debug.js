@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.c3704663
+ * @version   1.11.0-beta.1+canary.1dcef078
  */
 
 (function() {
@@ -8059,8 +8059,8 @@ enifed("ember-htmlbars/helpers/view",
     __exports__.viewHelper = viewHelper;
   });
 enifed("ember-htmlbars/helpers/with",
-  ["ember-metal/core","ember-metal/is_none","ember-htmlbars/helpers/binding","ember-views/views/with_view","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+  ["ember-metal/core","ember-views/views/with_view","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -8069,9 +8069,7 @@ enifed("ember-htmlbars/helpers/with",
 
     var Ember = __dependency1__["default"];
     // Ember.assert
-    var isNone = __dependency2__["default"];
-    var bind = __dependency3__.bind;
-    var WithView = __dependency4__["default"];
+    var WithView = __dependency2__["default"];
 
     /**
       Use the `{{with}}` helper when you want to aliases the to a new name. It's helpful
@@ -8146,12 +8144,19 @@ enifed("ember-htmlbars/helpers/with",
         preserveContext = false;
       }
 
-      bind.call(this, params[0], hash, options, env, preserveContext, exists, undefined, undefined, WithView);
+      this.appendChild(WithView, {
+        _morph: options.morph,
+        withValue: params[0],
+        preserveContext: preserveContext,
+        previousContext: this.get('context'),
+        controllerName: hash.controller,
+        mainTemplate: options.template,
+        inverseTemplate: options.inverse,
+        helperName: options.helperName || 'with'
+      });
     }
 
-    __exports__.withHelper = withHelper;function exists(value) {
-      return !isNone(value);
-    }
+    __exports__.withHelper = withHelper;
   });
 enifed("ember-htmlbars/helpers/yield",
   ["ember-metal/core","ember-metal/property_get","exports"],
@@ -12439,7 +12444,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.c3704663
+      @version 1.11.0-beta.1+canary.1dcef078
     */
 
     if ('undefined' === typeof Ember) {
@@ -12466,10 +12471,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.c3704663'
+      @default '1.11.0-beta.1+canary.1dcef078'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.c3704663';
+    Ember.VERSION = '1.11.0-beta.1+canary.1dcef078';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -45892,53 +45897,76 @@ enifed("ember-views/views/view",
     __exports__["default"] = View;
   });
 enifed("ember-views/views/with_view",
-  ["ember-metal/property_set","ember-metal/utils","ember-views/views/bound_view","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["ember-metal/property_set","ember-metal/run_loop","ember-views/views/metamorph_view","ember-views/mixins/normalized_rerender_if_needed","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
-
     /**
     @module ember
     @submodule ember-views
     */
 
     var set = __dependency1__.set;
-    var apply = __dependency2__.apply;
-    var BoundView = __dependency3__["default"];
+    var run = __dependency2__["default"];
+    var _MetamorphView = __dependency3__["default"];
+    var NormalizedRerenderIfNeededSupport = __dependency4__["default"];
+    var run = __dependency2__["default"];
 
-    __exports__["default"] = BoundView.extend({
+    __exports__["default"] = _MetamorphView.extend(NormalizedRerenderIfNeededSupport, {
       init: function() {
-        apply(this, this._super, arguments);
+        this._super();
 
-        var controllerName  = this.templateHash.controller;
+        var self = this;
 
+        this.withValue.subscribe(this._wrapAsScheduled(function() {
+          run.scheduleOnce('render', self, 'rerenderIfNeeded');
+        }));
+
+        var controllerName = this.controllerName;
         if (controllerName) {
-          var previousContext = this.previousContext;
-          var controller = this.container.lookupFactory('controller:'+controllerName).create({
-            parentController: previousContext,
-            target: previousContext
+          var controllerFactory = this.container.lookupFactory('controller:'+controllerName);
+          var controller = controllerFactory.create({
+            parentController: this.previousContext,
+            target: this.previousContext
           });
 
           this._generatedController = controller;
 
           if (this.preserveContext) {
             this._blockArguments = [ controller ];
-            this.lazyValue.subscribe(function(modelStream) {
+            this.withValue.subscribe(function(modelStream) {
               set(controller, 'model', modelStream.value());
             });
           } else {
             set(this, 'controller', controller);
-            this.valueNormalizerFunc = function(result) {
-              controller.set('model', result);
-              return controller;
-            };
           }
 
-          set(controller, 'model', this.lazyValue.value());
+          set(controller, 'model', this.withValue.value());
         } else {
           if (this.preserveContext) {
-            this._blockArguments = [ this.lazyValue ];
+            this._blockArguments = [ this.withValue ];
           }
         }
+      },
+
+      normalizedValue: function() {
+        return this.withValue.value();
+      },
+
+      render: function(buffer) {
+        var withValue = this.normalizedValue();
+        this._lastNormalizedValue = withValue;
+
+        if (!this.preserveContext && !this.controllerName) {
+          set(this, '_context', withValue);
+        }
+
+        if (withValue) {
+          set(this, 'template', this.mainTemplate);
+        } else {
+          set(this, 'template', this.inverseTemplate);
+        }
+
+        return this._super(buffer);
       },
 
       willDestroy: function() {
