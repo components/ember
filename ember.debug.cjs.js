@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.142cabe7
+ * @version   1.11.0-beta.1+canary.384f9fa6
  */
 
 (function() {
@@ -4930,8 +4930,8 @@ enifed("ember-extension-support/data_adapter",
     });
   });
 enifed("ember-htmlbars",
-  ["ember-metal/core","ember-htmlbars/hooks/content","ember-htmlbars/hooks/component","ember-htmlbars/hooks/element","ember-htmlbars/hooks/subexpr","ember-htmlbars/hooks/attribute","ember-htmlbars/hooks/concat","ember-htmlbars/hooks/get","ember-htmlbars/hooks/set","morph","ember-htmlbars/system/template","ember-htmlbars/system/compile","ember-htmlbars/system/make-view-helper","ember-htmlbars/system/make_bound_helper","ember-htmlbars/helpers","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/bind-attr","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/partial","ember-htmlbars/helpers/template","ember-htmlbars/helpers/input","ember-htmlbars/helpers/text_area","ember-htmlbars/helpers/collection","ember-htmlbars/helpers/each","ember-htmlbars/helpers/unbound","ember-htmlbars/plugins","ember-htmlbars/plugins/transform-each-in-to-hash","ember-htmlbars/plugins/transform-with-as-to-hash","ember-metal/environment","ember-htmlbars/system/bootstrap","ember-htmlbars/compat","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __dependency31__, __dependency32__, __dependency33__, __dependency34__, __dependency35__, __dependency36__, __dependency37__, __exports__) {
+  ["ember-metal/core","ember-htmlbars/hooks/content","ember-htmlbars/hooks/component","ember-htmlbars/hooks/element","ember-htmlbars/hooks/subexpr","ember-htmlbars/hooks/attribute","ember-htmlbars/hooks/concat","ember-htmlbars/hooks/get","ember-htmlbars/hooks/set","morph","ember-htmlbars/system/template","ember-htmlbars/system/compile","ember-htmlbars/system/make-view-helper","ember-htmlbars/system/make_bound_helper","ember-htmlbars/helpers","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/bind-attr","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/partial","ember-htmlbars/helpers/template","ember-htmlbars/helpers/input","ember-htmlbars/helpers/text_area","ember-htmlbars/helpers/collection","ember-htmlbars/helpers/each","ember-htmlbars/helpers/unbound","ember-htmlbars/plugins","ember-htmlbars/plugins/transform-each-in-to-hash","ember-htmlbars/plugins/transform-with-as-to-hash","ember-metal/environment","ember-htmlbars/system/bootstrap","ember-htmlbars/compat","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __dependency31__, __dependency32__, __dependency33__, __dependency34__, __dependency35__, __dependency36__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var content = __dependency2__["default"];
@@ -4951,32 +4951,31 @@ enifed("ember-htmlbars",
     var registerHelper = __dependency15__.registerHelper;
     var helper = __dependency15__.helper;
     var helpers = __dependency15__["default"];
-    var bindHelper = __dependency16__.bindHelper;
-    var viewHelper = __dependency17__.viewHelper;
-    var yieldHelper = __dependency18__.yieldHelper;
-    var withHelper = __dependency19__.withHelper;
-    var logHelper = __dependency20__.logHelper;
-    var debuggerHelper = __dependency21__.debuggerHelper;
-    var bindAttrHelper = __dependency22__.bindAttrHelper;
-    var bindAttrHelperDeprecated = __dependency22__.bindAttrHelperDeprecated;
-    var ifHelper = __dependency23__.ifHelper;
-    var unlessHelper = __dependency23__.unlessHelper;
-    var unboundIfHelper = __dependency23__.unboundIfHelper;
-    var boundIfHelper = __dependency23__.boundIfHelper;
-    var locHelper = __dependency24__.locHelper;
-    var partialHelper = __dependency25__.partialHelper;
-    var templateHelper = __dependency26__.templateHelper;
-    var inputHelper = __dependency27__.inputHelper;
-    var textareaHelper = __dependency28__.textareaHelper;
-    var collectionHelper = __dependency29__.collectionHelper;
-    var eachHelper = __dependency30__.eachHelper;
-    var unboundHelper = __dependency31__.unboundHelper;
+    var viewHelper = __dependency16__.viewHelper;
+    var yieldHelper = __dependency17__.yieldHelper;
+    var withHelper = __dependency18__.withHelper;
+    var logHelper = __dependency19__.logHelper;
+    var debuggerHelper = __dependency20__.debuggerHelper;
+    var bindAttrHelper = __dependency21__.bindAttrHelper;
+    var bindAttrHelperDeprecated = __dependency21__.bindAttrHelperDeprecated;
+    var ifHelper = __dependency22__.ifHelper;
+    var unlessHelper = __dependency22__.unlessHelper;
+    var unboundIfHelper = __dependency22__.unboundIfHelper;
+    var boundIfHelper = __dependency22__.boundIfHelper;
+    var locHelper = __dependency23__.locHelper;
+    var partialHelper = __dependency24__.partialHelper;
+    var templateHelper = __dependency25__.templateHelper;
+    var inputHelper = __dependency26__.inputHelper;
+    var textareaHelper = __dependency27__.textareaHelper;
+    var collectionHelper = __dependency28__.collectionHelper;
+    var eachHelper = __dependency29__.eachHelper;
+    var unboundHelper = __dependency30__.unboundHelper;
 
-    var registerASTPlugin = __dependency32__.registerASTPlugin;
-    var TransformEachInToHash = __dependency33__["default"];
-    var TransformWithAsToHash = __dependency34__["default"];
+    var registerASTPlugin = __dependency31__.registerASTPlugin;
+    var TransformEachInToHash = __dependency32__["default"];
+    var TransformWithAsToHash = __dependency33__["default"];
 
-    var environment = __dependency35__["default"];
+    var environment = __dependency34__["default"];
 
     // importing adds template bootstrapping
     // initializer to enable embedded templates
@@ -4984,8 +4983,6 @@ enifed("ember-htmlbars",
     // importing ember-htmlbars/compat updates the
     // Ember.Handlebars global if htmlbars is enabled
 
-    registerHelper('bindHelper', bindHelper);
-    registerHelper('bind', bindHelper);
     registerHelper('view', viewHelper);
     registerHelper('yield', yieldHelper);
     registerHelper('with', withHelper);
@@ -6161,124 +6158,6 @@ enifed("ember-htmlbars/helpers/bind-attr",
 
     __exports__.bindAttrHelper = bindAttrHelper;
     __exports__.bindAttrHelperDeprecated = bindAttrHelperDeprecated;
-  });
-enifed("ember-htmlbars/helpers/binding",
-  ["ember-metal/is_none","ember-metal/run_loop","ember-metal/property_get","ember-metal/streams/simple","ember-views/views/bound_view","ember-metal/streams/utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-htmlbars
-    */
-
-    var isNone = __dependency1__["default"];
-    var run = __dependency2__["default"];
-    var get = __dependency3__.get;
-    var SimpleStream = __dependency4__["default"];
-    var BoundView = __dependency5__["default"];
-    var isStream = __dependency6__.isStream;
-
-    function exists(value) {
-      return !isNone(value);
-    }
-
-    // Binds a property into the DOM. This will create a hook in DOM that the
-    // KVO system will look for and update if the property changes.
-    function bind(property, hash, options, env, preserveContext, shouldDisplay, valueNormalizer, childProperties, _viewClass) {
-      var valueStream = isStream(property) ? property : this.getStream(property);
-      var lazyValue;
-
-      if (childProperties) {
-        lazyValue = new SimpleStream(valueStream);
-
-        var subscriber = function(childStream) {
-          childStream.value();
-          lazyValue.notify();
-        };
-
-        for (var i = 0; i < childProperties.length; i++) {
-          var childStream = valueStream.get(childProperties[i]);
-          childStream.value();
-          childStream.subscribe(subscriber);
-        }
-      } else {
-        lazyValue = valueStream;
-      }
-
-      // Set up observers for observable objects
-      var viewClass = _viewClass || BoundView;
-      var viewOptions = {
-        _morph: options.morph,
-        preserveContext: preserveContext,
-        shouldDisplayFunc: shouldDisplay,
-        valueNormalizerFunc: valueNormalizer,
-        displayTemplate: options.template,
-        inverseTemplate: options.inverse,
-        lazyValue: lazyValue,
-        previousContext: get(this, 'context'),
-        templateHash: hash,
-        helperName: options.helperName
-      };
-
-      if (options.keywords) {
-        viewOptions._keywords = options.keywords;
-      }
-
-      // Create the view that will wrap the output of this template/property
-      // and add it to the nearest view's childViews array.
-      // See the documentation of Ember._BoundView for more.
-      var bindView = this.createChildView(viewClass, viewOptions);
-
-      this.appendChild(bindView);
-
-      lazyValue.subscribe(this._wrapAsScheduled(function() {
-        run.scheduleOnce('render', bindView, 'rerenderIfNeeded');
-      }));
-    }
-
-    /**
-      `bind` can be used to display a value, then update that value if it
-      changes. For example, if you wanted to print the `title` property of
-      `content`:
-
-      ```handlebars
-      {{bind "content.title"}}
-      ```
-
-      This will return the `title` property as a string, then create a new observer
-      at the specified path. If it changes, it will update the value in DOM. Note
-      that if you need to support IE7 and IE8 you must modify the model objects
-      properties using `Ember.get()` and `Ember.set()` for this to work as it
-      relies on Ember's KVO system. For all other browsers this will be handled for
-      you automatically.
-
-      @private
-      @method bind
-      @for Ember.Handlebars.helpers
-      @param {String} property Property to bind
-      @param {Function} render Context to provide for rendering
-      @return {String} HTML string
-    */
-    function bindHelper(params, hash, options, env) {
-      Ember.assert("You must pass exactly one argument to the bind helper", params.length === 1);
-
-      var property = params[0];
-
-      if (typeof property === 'string') {
-        property = this.getStream(property);
-      }
-
-      if (options.template) {
-        options.helperName = 'bind';
-        Ember.deprecate("The block form of bind, {{#bind foo}}{{/bind}}, has been deprecated and will be removed.");
-        bind.call(this, property, hash, options, env, false, exists);
-      } else {
-        return property;
-      }
-    }
-
-    __exports__.bind = bind;
-    __exports__.bindHelper = bindHelper;
   });
 enifed("ember-htmlbars/helpers/collection",
   ["ember-metal/core","ember-metal/mixin","ember-runtime/system/string","ember-metal/property_get","ember-htmlbars/helpers/view","ember-views/views/collection_view","ember-views/streams/utils","ember-metal/enumerable_utils","ember-views/streams/class_name_binding","exports"],
@@ -12444,7 +12323,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.142cabe7
+      @version 1.11.0-beta.1+canary.384f9fa6
     */
 
     if ('undefined' === typeof Ember) {
@@ -12471,10 +12350,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.142cabe7'
+      @default '1.11.0-beta.1+canary.384f9fa6'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.142cabe7';
+    Ember.VERSION = '1.11.0-beta.1+canary.384f9fa6';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -38409,8 +38288,8 @@ enifed("ember-testing/test",
     __exports__["default"] = Test;
   });
 enifed("ember-views",
-  ["ember-runtime","ember-views/system/jquery","ember-views/system/utils","ember-views/system/render_buffer","ember-views/system/ext","ember-views/views/states","ember-views/views/core_view","ember-views/views/view","ember-views/views/container_view","ember-views/views/collection_view","ember-views/views/component","ember-views/system/event_dispatcher","ember-views/mixins/view_target_action_support","ember-views/component_lookup","ember-views/views/checkbox","ember-views/mixins/text_support","ember-views/views/text_field","ember-views/views/text_area","ember-views/views/bound_view","ember-views/views/simple_bound_view","ember-views/views/metamorph_view","ember-views/views/select","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __exports__) {
+  ["ember-runtime","ember-views/system/jquery","ember-views/system/utils","ember-views/system/render_buffer","ember-views/system/ext","ember-views/views/states","ember-views/views/core_view","ember-views/views/view","ember-views/views/container_view","ember-views/views/collection_view","ember-views/views/component","ember-views/system/event_dispatcher","ember-views/mixins/view_target_action_support","ember-views/component_lookup","ember-views/views/checkbox","ember-views/mixins/text_support","ember-views/views/text_field","ember-views/views/text_area","ember-views/views/simple_bound_view","ember-views/views/metamorph_view","ember-views/views/select","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __exports__) {
     "use strict";
     /**
     Ember Views
@@ -38446,13 +38325,12 @@ enifed("ember-views",
     var TextField = __dependency17__["default"];
     var TextArea = __dependency18__["default"];
 
-    var BoundView = __dependency19__["default"];
-    var SimpleBoundView = __dependency20__["default"];
-    var _MetamorphView = __dependency21__["default"];
-    var _Metamorph = __dependency21__._Metamorph;
-    var Select = __dependency22__.Select;
-    var SelectOption = __dependency22__.SelectOption;
-    var SelectOptgroup = __dependency22__.SelectOptgroup;
+    var SimpleBoundView = __dependency19__["default"];
+    var _MetamorphView = __dependency20__["default"];
+    var _Metamorph = __dependency20__._Metamorph;
+    var Select = __dependency21__.Select;
+    var SelectOption = __dependency21__.SelectOption;
+    var SelectOptgroup = __dependency21__.SelectOptgroup;
     // END IMPORTS
 
     /**
@@ -38482,7 +38360,6 @@ enifed("ember-views",
     Ember.TextArea = TextArea;
 
     Ember._SimpleBoundView = SimpleBoundView;
-    Ember._BoundView = BoundView;
     Ember._MetamorphView = _MetamorphView;
     Ember._Metamorph = _Metamorph;
     Ember.Select = Select;
@@ -40740,164 +40617,6 @@ enifed("ember-views/views/bound_partial_view",
           set(this, 'template', lookupPartial(this, templateName));
         } else {
           set(this, 'template', this.emptyTemplate);
-        }
-
-        return this._super(buffer);
-      }
-    });
-  });
-enifed("ember-views/views/bound_view",
-  ["ember-metal/property_get","ember-metal/property_set","ember-views/views/metamorph_view","ember-views/mixins/normalized_rerender_if_needed","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-views
-    */
-
-    var get = __dependency1__.get;
-    var set = __dependency2__.set;
-    var _MetamorphView = __dependency3__["default"];
-    var NormalizedRerenderIfNeededSupport = __dependency4__["default"];
-
-    /**
-      `Ember._BoundView` is a private view created by the Handlebars
-      `{{bind}}` helpers that is used to keep track of bound properties.
-
-      Every time a property is bound using a `{{mustache}}`, an anonymous subclass
-      of `Ember._BoundView` is created with the appropriate sub-template
-      and context set up. When the associated property changes, just the template
-      for this view will re-render.
-
-      @class _BoundView
-      @namespace Ember
-      @extends Ember._MetamorphView
-      @private
-    */
-    __exports__["default"] = _MetamorphView.extend(NormalizedRerenderIfNeededSupport, {
-      instrumentName: 'bound',
-
-      /**
-        The function used to determine if the `displayTemplate` or
-        `inverseTemplate` should be rendered. This should be a function that takes
-        a value and returns a Boolean.
-
-        @property shouldDisplayFunc
-        @type Function
-        @default null
-      */
-      shouldDisplayFunc: null,
-
-      /**
-        Whether the template rendered by this view gets passed the context object
-        of its parent template, or gets passed the value of retrieving `path`
-        from the `pathRoot`.
-
-        For example, this is true when using the `{{#if}}` helper, because the
-        template inside the helper should look up properties relative to the same
-        object as outside the block. This would be `false` when used with `{{#with
-        foo}}` because the template should receive the object found by evaluating
-        `foo`.
-
-        @property preserveContext
-        @type Boolean
-        @default false
-      */
-      preserveContext: false,
-
-      /**
-        If `preserveContext` is true, this is the object that will be used
-        to render the template.
-
-        @property previousContext
-        @type Object
-      */
-      previousContext: null,
-
-      /**
-        The template to render when `shouldDisplayFunc` evaluates to `true`.
-
-        @property displayTemplate
-        @type Function
-        @default null
-      */
-      displayTemplate: null,
-
-      /**
-        The template to render when `shouldDisplayFunc` evaluates to `false`.
-
-        @property inverseTemplate
-        @type Function
-        @default null
-      */
-      inverseTemplate: null,
-
-      lazyValue: null,
-
-      /**
-        Determines which template to invoke, sets up the correct state based on
-        that logic, then invokes the default `Ember.View` `render` implementation.
-
-        This method will first look up the `path` key on `pathRoot`,
-        then pass that value to the `shouldDisplayFunc` function. If that returns
-        `true,` the `displayTemplate` function will be rendered to DOM. Otherwise,
-        `inverseTemplate`, if specified, will be rendered.
-
-        For example, if this `Ember._BoundView` represented the `{{#with
-        foo}}` helper, it would look up the `foo` property of its context, and
-        `shouldDisplayFunc` would always return true. The object found by looking
-        up `foo` would be passed to `displayTemplate`.
-
-        @method render
-        @param {Ember.RenderBuffer} buffer
-      */
-      render: function(buffer) {
-        var shouldDisplay = get(this, 'shouldDisplayFunc');
-        var preserveContext = get(this, 'preserveContext');
-        var context = get(this, 'previousContext');
-
-        var inverseTemplate = get(this, 'inverseTemplate');
-        var displayTemplate = get(this, 'displayTemplate');
-
-        var result = this.normalizedValue();
-
-        this._lastNormalizedValue = result;
-
-        // First, test the conditional to see if we should
-        // render the template or not.
-        if (shouldDisplay(result)) {
-          set(this, 'template', displayTemplate);
-
-          // If we are preserving the context (for example, if this
-          // is an #if block, call the template with the same object.
-          if (preserveContext) {
-            set(this, '_context', context);
-          } else {
-          // Otherwise, determine if this is a block bind or not.
-          // If so, pass the specified object to the template
-            if (displayTemplate) {
-              set(this, '_context', result);
-            } else {
-            // This is not a bind block, just push the result of the
-            // expression to the render context and return.
-              if (result === null || result === undefined) {
-                result = "";
-              }
-
-              buffer.push(result);
-              return;
-            }
-          }
-        } else if (inverseTemplate) {
-          set(this, 'template', inverseTemplate);
-
-          if (preserveContext) {
-            set(this, '_context', context);
-          } else {
-            set(this, '_context', result);
-          }
-        } else {
-          set(this, 'template', function() { return ''; });
         }
 
         return this._super(buffer);
