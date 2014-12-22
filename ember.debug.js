@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.876eecf6
+ * @version   1.11.0-beta.1+canary.c3704663
  */
 
 (function() {
@@ -8134,7 +8134,7 @@ enifed("ember-htmlbars/helpers/with",
 
       var preserveContext;
 
-      if (hash.keywordName || options.blockParams) {
+      if (options.blockParams) {
         preserveContext = true;
       } else {
         Ember.deprecate(
@@ -8552,7 +8552,7 @@ enifed("ember-htmlbars/plugins/transform-with-as-to-hash",
       with
 
       ```handlebars
-      {{#with foo.bar keywordName="bar"}}
+      {{#with foo.bar as |bar|}}
       {{/with}}
       ```
 
@@ -8572,22 +8572,12 @@ enifed("ember-htmlbars/plugins/transform-with-as-to-hash",
     TransformWithAsToHash.prototype.transform = function TransformWithAsToHash_transform(ast) {
       var pluginContext = this;
       var walker = new pluginContext.syntax.Walker();
-      var b = pluginContext.syntax.builders;
 
       walker.visit(ast, function(node) {
         if (pluginContext.validate(node)) {
           var removedParams = node.sexpr.params.splice(1, 2);
           var keyword = removedParams[1].original;
-
-          // TODO: This may not be necessary.
-          if (!node.sexpr.hash) {
-            node.sexpr.hash = b.hash();
-          }
-
-          node.sexpr.hash.pairs.push(b.pair(
-            'keywordName',
-            b.string(keyword)
-          ));
+          node.program.blockParams = [ keyword ];
         }
       });
 
@@ -12449,7 +12439,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.876eecf6
+      @version 1.11.0-beta.1+canary.c3704663
     */
 
     if ('undefined' === typeof Ember) {
@@ -12476,10 +12466,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.876eecf6'
+      @default '1.11.0-beta.1+canary.c3704663'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.876eecf6';
+    Ember.VERSION = '1.11.0-beta.1+canary.c3704663';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -45919,10 +45909,7 @@ enifed("ember-views/views/with_view",
       init: function() {
         apply(this, this._super, arguments);
 
-        var keywordName     = this.templateHash.keywordName;
         var controllerName  = this.templateHash.controller;
-
-        this._blockArguments = [this.lazyValue];
 
         if (controllerName) {
           var previousContext = this.previousContext;
@@ -45934,7 +45921,7 @@ enifed("ember-views/views/with_view",
           this._generatedController = controller;
 
           if (this.preserveContext) {
-            this._keywords[keywordName] = controller;
+            this._blockArguments = [ controller ];
             this.lazyValue.subscribe(function(modelStream) {
               set(controller, 'model', modelStream.value());
             });
@@ -45949,7 +45936,7 @@ enifed("ember-views/views/with_view",
           set(controller, 'model', this.lazyValue.value());
         } else {
           if (this.preserveContext) {
-            this._keywords[keywordName] = this.lazyValue;
+            this._blockArguments = [ this.lazyValue ];
           }
         }
       },
