@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.2+pre.f0928b07
+ * @version   1.10.0-beta.2+pre.be3fe655
  */
 
 (function() {
@@ -4852,7 +4852,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.2+pre.f0928b07
+      @version 1.10.0-beta.2+pre.be3fe655
     */
 
     if ('undefined' === typeof Ember) {
@@ -4879,10 +4879,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.2+pre.f0928b07'
+      @default '1.10.0-beta.2+pre.be3fe655'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.2+pre.f0928b07';
+    Ember.VERSION = '1.10.0-beta.2+pre.be3fe655';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -8454,7 +8454,7 @@ define("ember-metal/path_cache",
 
     var isGlobalCache       = new Cache(1000, function(key) { return IS_GLOBAL.test(key);          });
     var isGlobalPathCache   = new Cache(1000, function(key) { return IS_GLOBAL_PATH.test(key);     });
-    var hasThisCache        = new Cache(1000, function(key) { return key.indexOf(HAS_THIS) !== -1; });
+    var hasThisCache        = new Cache(1000, function(key) { return key.lastIndexOf(HAS_THIS, 0) === 0; });
     var firstDotIndexCache  = new Cache(1000, function(key) { return key.indexOf('.');             });
 
     var firstKeyCache = new Cache(1000, function(path) {
@@ -9495,13 +9495,15 @@ define("ember-metal/property_set",
         if (isUnknown && 'function' === typeof obj.setUnknownProperty) {
           obj.setUnknownProperty(keyName, value);
         } else if (meta && meta.watching[keyName] > 0) {
-          
-            if (hasPropertyAccessors) {
-              currentValue = meta.values[keyName];
-            } else {
-              currentValue = obj[keyName];
-            }
-                    // only trigger a change if the value has changed
+          if (meta.proto !== obj) {
+            
+              if (hasPropertyAccessors) {
+                currentValue = meta.values[keyName];
+              } else {
+                currentValue = obj[keyName];
+              }
+                      }
+          // only trigger a change if the value has changed
           if (value !== currentValue) {
             propertyWillChange(obj, keyName);
             

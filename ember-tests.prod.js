@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.2+pre.f0928b07
+ * @version   1.10.0-beta.2+pre.be3fe655
  */
 
 (function() {
@@ -5061,7 +5061,7 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
       equal(view.$().text(), 'BROGRAMMER', "helper output is correct");
 
       run(function() {
-        set(view.controller, 'name', 'wes');
+        set(view, 'controller.name', 'wes');
       });
 
       equal(view.$().text(), 'WES', "helper output updated");
@@ -5109,7 +5109,7 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
       equal(view.$().text(), 'BROGRAMMER', "helper output is correct");
 
       run(function() {
-        set(view.controller.person, 'name', 'wes');
+        set(view, 'controller.person.name', 'wes');
       });
 
       equal(view.$().text(), 'WES', "helper output updated");
@@ -5258,7 +5258,7 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
       equal(view.$().text(), 'ZOIDNERD', "helper correctly re-rendered after second bound helper property changed");
 
       run(function() {
-        view.controller.setProperties({
+        view.get('controller').setProperties({
           thing1: "WOOT",
           thing2: "YEAH"
         });
@@ -5382,7 +5382,7 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
 
       equal(view.$().text(), '2 1 11', "helper output is correct");
 
-      run(view.controller, 'set', 'aNumber', 5);
+      run(view, 'set', 'controller.aNumber', 5);
 
       equal(view.$().text(), '6 5 11', "helper still updates as expected");
     });
@@ -5405,10 +5405,10 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
 
       equal(view.$().text(), 'jerkwaterloo jerkwater willdidi', "helper output is correct");
 
-      run(view.controller, 'set', 'word', 'bird');
+      run(view, 'set', 'controller.word', 'bird');
       equal(view.$().text(), 'birdloo bird willdidi', "helper still updates as expected");
 
-      run(view.controller, 'set', 'loo', 'soup-de-doo');
+      run(view, 'set', 'controller.loo', 'soup-de-doo');
       equal(view.$().text(), 'birdloo bird willdidi', "helper still updates as expected");
       equal(helperCount, 5, "changing controller property with same name as quoted string doesn't re-render helper");
     });
@@ -5434,8 +5434,8 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
       equal(view.$().text(), '|NOPE 0|NOPE |NOPE false|NOPE OMG|GMO |NOPE 0|NOPE |NOPE false|NOPE OMG|GMO ', "helper output is correct");
 
       run(function() {
-        view.controller.things.pushObject('blorg');
-        view.controller.things.shiftObject();
+        view.get('controller.things').pushObject('blorg');
+        view.get('controller.things').shiftObject();
       });
 
       equal(view.$().text(), '0|NOPE |NOPE false|NOPE OMG|GMO blorg|grolb 0|NOPE |NOPE false|NOPE OMG|GMO blorg|grolb ', "helper output is still correct");
@@ -5461,7 +5461,7 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
 
       equal(view.$().text(), '|NOPE 5|5 |NOPE 5|5 ', "helper output is correct");
 
-      run(view.controller.things, 'pushObject', { foo: 6 });
+      run(view.get('controller.things'), 'pushObject', { foo: 6 });
 
       equal(view.$().text(), '|NOPE 5|5 6|6 |NOPE 5|5 6|6 ', "helper output is correct");
     });
@@ -15299,6 +15299,11 @@ enifed("ember-metal/tests/accessors/getPath_test",
               baz: { biff: 'BIFF' }
             }
           },
+          foothis: {
+            bar: {
+              baz: { biff: 'BIFF' }
+            }
+          },
           falseValue: false
         };
 
@@ -15337,6 +15342,10 @@ enifed("ember-metal/tests/accessors/getPath_test",
 
     test('[obj, foo.bar] -> obj.foo.bar', function() {
       deepEqual(get(obj, 'foo.bar'), obj.foo.bar);
+    });
+
+    test('[obj, foothis.bar] -> obj.foothis.bar', function() {
+      deepEqual(get(obj, 'foothis.bar'), obj.foothis.bar);
     });
 
     test('[obj, this.foo] -> obj.foo', function() {
@@ -51023,17 +51032,16 @@ enifed("ember-views/tests/views/instrumentation_test.jshint",
     });
   });
 enifed("ember-views/tests/views/metamorph_view_test",
-  ["ember-views/system/jquery","ember-metal/run_loop","ember-views/views/view","ember-metal/property_get","ember-metal/property_set","ember-metal/mixin","ember-htmlbars/system/compile","ember-views/views/metamorph_view"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
+  ["ember-views/system/jquery","ember-metal/run_loop","ember-views/views/view","ember-metal/property_get","ember-metal/property_set","ember-htmlbars/system/compile","ember-views/views/metamorph_view"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
     "use strict";
     var jQuery = __dependency1__["default"];
     var run = __dependency2__["default"];
     var EmberView = __dependency3__["default"];
     var get = __dependency4__.get;
     var set = __dependency5__.set;
-    var observer = __dependency6__.observer;
-    var compile = __dependency7__["default"];
-    var _MetamorphView = __dependency8__["default"];
+    var compile = __dependency6__["default"];
+    var _MetamorphView = __dependency7__["default"];
 
     var view, childView, metamorphView;
 
@@ -51190,7 +51198,7 @@ enifed("ember-views/tests/views/metamorph_view_test",
     });
 
     test("replacing a Metamorph should invalidate childView elements", function() {
-      var elementOnDidChange, elementOnDidInsert;
+      var elementOnDidInsert;
 
       view = EmberView.create({
         show: false,
@@ -51204,10 +51212,6 @@ enifed("ember-views/tests/views/metamorph_view_test",
             this.get('element');
           },
 
-          elementDidChange: observer('element', function() {
-            elementOnDidChange = this.get('element');
-          }),
-
           didInsertElement: function() {
             elementOnDidInsert = this.get('element');
           }
@@ -51220,7 +51224,6 @@ enifed("ember-views/tests/views/metamorph_view_test",
 
       run(function() { view.set('show', true); });
 
-      ok(elementOnDidChange, "should have an element on change");
       ok(elementOnDidInsert, "should have an element on insert");
 
       run(function() { view.destroy(); });
@@ -54572,20 +54575,22 @@ enifed("ember-views/tests/views/view/element_test",
       equal(get(view, 'element'), dom, 'now has set element');
     });
 
-    test("should not allow the elementId to be changed after inserted", function() {
-      view = EmberView.create({
-        elementId: 'one'
+    Ember.runInDebug(function() {
+      test("should not allow the elementId to be changed after inserted", function() {
+        view = EmberView.create({
+          elementId: 'one'
+        });
+
+        run(function() {
+          view.appendTo('#qunit-fixture');
+        });
+
+        raises(function() {
+          view.set('elementId', 'two');
+        }, "raises elementId changed exception");
+
+        equal(view.get('elementId'), 'one', 'elementId is still "one"');
       });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      raises(function() {
-        view.set('elementId', 'two');
-      }, "raises elementId changed exception");
-
-      equal(view.get('elementId'), 'one', 'elementId is still "one"');
     });
   });
 enifed("ember-views/tests/views/view/element_test.jshint",

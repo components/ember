@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.2+pre.f0928b07
+ * @version   1.10.0-beta.2+pre.be3fe655
  */
 
 (function() {
@@ -5810,8 +5810,8 @@ enifed("ember-htmlbars/helpers/binding",
     __exports__.bindHelper = bindHelper;
   });
 enifed("ember-htmlbars/helpers/collection",
-  ["ember-metal/core","ember-metal/mixin","ember-runtime/system/string","ember-metal/property_get","ember-htmlbars/helpers/view","ember-views/views/collection_view","ember-views/streams/utils","ember-metal/enumerable_utils","ember-views/streams/class_name_binding","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __exports__) {
+  ["ember-metal/core","ember-metal/mixin","ember-runtime/system/string","ember-metal/property_get","ember-htmlbars/helpers/view","ember-views/views/collection_view","ember-views/streams/utils","ember-metal/enumerable_utils","ember-views/streams/class_name_binding","ember-metal/binding","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -5828,6 +5828,7 @@ enifed("ember-htmlbars/helpers/collection",
     var readViewFactory = __dependency7__.readViewFactory;
     var map = __dependency8__.map;
     var streamifyClassNameBinding = __dependency9__.streamifyClassNameBinding;
+    var Binding = __dependency10__.Binding;
 
     /**
       `{{collection}}` is a `Ember.Handlebars` helper for adding instances of
@@ -5966,7 +5967,8 @@ enifed("ember-htmlbars/helpers/collection",
           view      = data.view,
           // This should be deterministic, and should probably come from a
           // parent view and not the controller.
-          container = (view.controller && view.controller.container ? view.controller.container : view.container);
+          controller = get(view, 'controller'),
+          container = (controller && controller.container ? controller.container : view.container);
 
       // If passed a path string, convert that into an object.
       // Otherwise, just default to the standard class.
@@ -6040,9 +6042,9 @@ enifed("ember-htmlbars/helpers/collection",
       if (emptyViewClass) { hash.emptyView = emptyViewClass; }
 
       if (hash.keyword) {
-        itemHash._contextBinding = '_parentView.context';
+        itemHash._contextBinding = Binding.oneWay('_parentView.context');
       } else {
-        itemHash._contextBinding = 'content';
+        itemHash._contextBinding = Binding.oneWay('content');
       }
 
       var viewOptions = ViewHelper.propertiesFromHTMLOptions(itemHash, {}, { data: data });
@@ -7611,7 +7613,7 @@ enifed("ember-htmlbars/helpers/with",
       
       var preserveContext;
 
-      if (hash.keywordName || options.blockParams) {
+      if (options.blockParams) {
         preserveContext = true;
       } else {
                 preserveContext = false;
@@ -8018,7 +8020,7 @@ enifed("ember-htmlbars/plugins/transform-with-as-to-hash",
       with
 
       ```handlebars
-      {{#with foo.bar keywordName="bar"}}
+      {{#with foo.bar as |bar|}}
       {{/with}}
       ```
 
@@ -8038,22 +8040,12 @@ enifed("ember-htmlbars/plugins/transform-with-as-to-hash",
     TransformWithAsToHash.prototype.transform = function TransformWithAsToHash_transform(ast) {
       var pluginContext = this;
       var walker = new pluginContext.syntax.Walker();
-      var b = pluginContext.syntax.builders;
 
       walker.visit(ast, function(node) {
         if (pluginContext.validate(node)) {
           var removedParams = node.sexpr.params.splice(1, 2);
           var keyword = removedParams[1].original;
-
-          // TODO: This may not be necessary.
-          if (!node.sexpr.hash) {
-            node.sexpr.hash = b.hash();
-          }
-
-          node.sexpr.hash.pairs.push(b.pair(
-            'keywordName',
-            b.string(keyword)
-          ));
+          node.program.blockParams = [ keyword ];
         }
       });
 
@@ -11869,7 +11861,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.2+pre.f0928b07
+      @version 1.10.0-beta.2+pre.be3fe655
     */
 
     if ('undefined' === typeof Ember) {
@@ -11896,10 +11888,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.2+pre.f0928b07'
+      @default '1.10.0-beta.2+pre.be3fe655'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.2+pre.f0928b07';
+    Ember.VERSION = '1.10.0-beta.2+pre.be3fe655';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -15452,7 +15444,7 @@ enifed("ember-metal/path_cache",
 
     var isGlobalCache       = new Cache(1000, function(key) { return IS_GLOBAL.test(key);          });
     var isGlobalPathCache   = new Cache(1000, function(key) { return IS_GLOBAL_PATH.test(key);     });
-    var hasThisCache        = new Cache(1000, function(key) { return key.indexOf(HAS_THIS) !== -1; });
+    var hasThisCache        = new Cache(1000, function(key) { return key.lastIndexOf(HAS_THIS, 0) === 0; });
     var firstDotIndexCache  = new Cache(1000, function(key) { return key.indexOf('.');             });
 
     var firstKeyCache = new Cache(1000, function(path) {
@@ -16458,9 +16450,11 @@ enifed("ember-metal/property_set",
         if (isUnknown && 'function' === typeof obj.setUnknownProperty) {
           obj.setUnknownProperty(keyName, value);
         } else if (meta && meta.watching[keyName] > 0) {
-          
-            currentValue = obj[keyName];
-          
+          if (meta.proto !== obj) {
+            
+              currentValue = obj[keyName];
+            
+          }
           // only trigger a change if the value has changed
           if (value !== currentValue) {
             propertyWillChange(obj, keyName);
@@ -19820,6 +19814,22 @@ enifed("ember-routing-views/views/link",
       rel: null,
 
       /**
+        Sets the `tabindex` attribute of the `LinkView`'s HTML element.
+
+        @property tabindex
+        @default null
+      **/
+      tabindex: null,
+
+      /**
+        Sets the `target` attribute of the `LinkView`'s HTML element.
+
+        @property target
+        @default null
+      **/
+      target: null,
+
+      /**
         The CSS class to apply to `LinkView`'s element when its `active`
         property is `true`.
 
@@ -19867,7 +19877,7 @@ enifed("ember-routing-views/views/link",
 
         @property attributeBindings
         @type Array | String
-        @default ['href', 'title', 'rel']
+        @default ['href', 'title', 'rel', 'tabindex', 'target']
        **/
       attributeBindings: ['href', 'title', 'rel', 'tabindex'],
 
@@ -20615,13 +20625,28 @@ enifed("ember-routing/ext/controller",
         ```javascript
         aController.transitionToRoute('/');
         aController.transitionToRoute('/blog/post/1/comment/13');
+        aController.transitionToRoute('/blog/posts?sort=title');
+        ```
+
+        An options hash with a `queryParams` property may be provided as
+        the final argument to add query parameters to the destination URL.
+
+        ```javascript
+        aController.transitionToRoute('blogPost', 1, {
+          queryParams: {showComments: 'true'}
+        });
+
+        // if you just want to transition the query parameters without changing the route
+        aController.transitionToRoute({queryParams: {sort: 'date'}});
         ```
 
         See also [replaceRoute](/api/classes/Ember.ControllerMixin.html#method_replaceRoute).
 
         @param {String} name the name of the route or a URL
         @param {...Object} models the model(s) or identifier(s) to be used
-        while transitioning to the route.
+          while transitioning to the route.
+        @param {Object} [options] optional hash with a queryParams property
+          containing a mapping of query parameters
         @for Ember.ControllerMixin
         @method transitionToRoute
       */
@@ -23063,6 +23088,19 @@ enifed("ember-routing/system/route",
         ```javascript
         this.transitionTo('/');
         this.transitionTo('/blog/post/1/comment/13');
+        this.transitionTo('/blog/posts?sort=title');
+        ```
+
+        An options hash with a `queryParams` property may be provided as
+        the final argument to add query parameters to the destination URL.
+
+        ```javascript
+        this.transitionTo('blogPost', 1, {
+          queryParams: {showComments: 'true'}
+        });
+
+        // if you just want to transition the query parameters without changing the route
+        this.transitionTo({queryParams: {sort: 'date'}});
         ```
 
         See also 'replaceWith'.
@@ -23130,10 +23168,30 @@ enifed("ember-routing/system/route",
         });
         ```
 
+        Nested Route with Query String Example
+
+        ```javascript
+        App.Router.map(function() {
+          this.resource('fruits', function() {
+            this.route('apples');
+          });
+        });
+
+        App.IndexRoute = Ember.Route.extend({
+          actions: {
+            transitionToApples: function() {
+              this.transitionTo('fruits.apples', {queryParams: {color: 'red'}});
+            }
+          }
+        });
+        ```
+
         @method transitionTo
         @param {String} name the name of the route or a URL
         @param {...Object} models the model(s) or identifier(s) to be used while
           transitioning to the route.
+        @param {Object} [options] optional hash with a queryParams property
+          containing a mapping of query parameters
         @return {Transition} the transition object associated with this
           attempted transition
       */
@@ -24338,6 +24396,7 @@ enifed("ember-routing/system/router",
       @class Router
       @namespace Ember
       @extends Ember.Object
+      @uses Ember.Evented
     */
     var EmberRouter = EmberObject.extend(Evented, {
       /**
@@ -38053,11 +38112,11 @@ enifed("ember-views/system/renderer",
         // provided buffer operation (for example, `insertAfter` will
         // insert a new buffer after the "parent buffer").
         var tagName = view.tagName;
-        if (!tagName) {
+        if (tagName === undefined) {
           tagName = get(view, 'tagName');
                   }
         var classNameBindings = view.classNameBindings;
-        var taglessViewWithClassBindings = tagName === '' && classNameBindings.length > 0;
+        var taglessViewWithClassBindings = tagName === '' && (classNameBindings && classNameBindings.length > 0);
 
         if (tagName === null || tagName === undefined) {
           tagName = 'div';
@@ -38090,9 +38149,7 @@ enifed("ember-views/system/renderer",
 
         view.buffer = null;
         if (element && element.nodeType === 1) {
-          // We have hooks, we shouldn't make element observable
-          // consider just doing view.element = element
-          set(view, 'element', element);
+          view.element = element;
         }
         return element;
       };
@@ -39702,7 +39759,8 @@ enifed("ember-views/views/core_view",
 
       init: function() {
         this._super();
-        this._transitionTo('preRender');
+        this._state = 'preRender';
+        this.currentState = this._states.preRender;
         this._isVisible = get(this, 'isVisible');
       },
 
@@ -40648,6 +40706,7 @@ enifed("ember-views/views/simple_bound_view",
     SimpleBoundView.prototype = {
       isVirtual: true,
       isView: true,
+      tagName: '',
 
       destroy: function () {
         if (this.updateId) {
@@ -41005,10 +41064,7 @@ enifed("ember-views/views/states/in_dom",
                     View.views[view.elementId] = view;
         }
 
-        addBeforeObserver(view, 'elementId', function() {
-          throw new EmberError("Changing a view's elementId after creation is not allowed");
-        });
-      },
+              },
 
       exit: function(view) {
         if (!View) { View = requireModule('ember-views/views/view')["default"]; } // ES6TODO: this sucks. Have to avoid cycles...
@@ -41983,6 +42039,8 @@ enifed("ember-views/views/view",
         return template || get(this, 'defaultTemplate');
       }),
 
+      _controller: null,
+
       /**
         The controller managing this view. If this property is set, it will be
         made available for use by the template.
@@ -41990,7 +42048,16 @@ enifed("ember-views/views/view",
         @property controller
         @type Object
       */
-      controller: computed('_parentView', function(key) {
+      controller: computed(function(key, value) {
+        if (arguments.length === 2) {
+          this._controller = value;
+          return value;
+        }
+
+        if (this._controller) {
+          return this._controller;
+        }
+
         var parentView = get(this, '_parentView');
         return parentView ? get(parentView, 'controller') : null;
       }),
@@ -42087,7 +42154,11 @@ enifed("ember-views/views/view",
         @property _context
         @private
       */
-      _context: computed(function(key) {
+      _context: computed(function(key, value) {
+        if (arguments.length === 2) {
+          return value;
+        }
+
         var parentView, controller;
 
         if (controller = get(this, 'controller')) {
@@ -42795,7 +42866,7 @@ enifed("ember-views/views/view",
       applyAttributesToBuffer: function(buffer) {
         // Creates observers for all registered class name and attribute bindings,
         // then adds them to the element.
-        var classNameBindings = get(this, 'classNameBindings');
+        var classNameBindings = this.classNameBindings;
         if (classNameBindings.length) {
           this._applyClassNameBindings(classNameBindings);
         }
@@ -42803,7 +42874,7 @@ enifed("ember-views/views/view",
         // Pass the render buffer so the method can apply attributes directly.
         // This isn't needed for class name bindings because they use the
         // existing classNames infrastructure.
-        var attributeBindings = get(this, 'attributeBindings');
+        var attributeBindings = this.attributeBindings;
         if (attributeBindings.length) {
           this._applyAttributeBindings(buffer, attributeBindings);
         }
@@ -43424,10 +43495,7 @@ enifed("ember-views/views/with_view",
       init: function() {
         apply(this, this._super, arguments);
 
-        var keywordName     = this.templateHash.keywordName;
         var controllerName  = this.templateHash.controller;
-
-        this._blockArguments = [this.lazyValue];
 
         if (controllerName) {
           var previousContext = this.previousContext;
@@ -43439,7 +43507,7 @@ enifed("ember-views/views/with_view",
           this._generatedController = controller;
 
           if (this.preserveContext) {
-            this._keywords[keywordName] = controller;
+            this._blockArguments = [ controller ];
             this.lazyValue.subscribe(function(modelStream) {
               set(controller, 'model', modelStream.value());
             });
@@ -43454,7 +43522,7 @@ enifed("ember-views/views/with_view",
           set(controller, 'model', this.lazyValue.value());
         } else {
           if (this.preserveContext) {
-            this._keywords[keywordName] = this.lazyValue;
+            this._blockArguments = [ this.lazyValue ];
           }
         }
       },
