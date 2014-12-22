@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.7022d09d
+ * @version   1.11.0-beta.1+canary.876eecf6
  */
 
 (function() {
@@ -922,7 +922,7 @@ enifed("ember-testing/initializers",
         Application.initializer({
           name: name,
 
-          initialize: function(container, application){
+          initialize: function(registry, application){
             if (application.testing) {
               application.deferReadiness();
             }

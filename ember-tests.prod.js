@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.7022d09d
+ * @version   1.11.0-beta.1+canary.876eecf6
  */
 
 (function() {
@@ -104,6 +104,15 @@ enifed("container/container.jshint",
       ok(true, 'container/container.js should pass jshint.'); 
     });
   });
+enifed("container/registry.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - container');
+    test('container/registry.js should pass jshint', function() { 
+      ok(true, 'container/registry.js should pass jshint.'); 
+    });
+  });
 enifed("container/tests/container_helper",
   ["exports"],
   function(__exports__) {
@@ -186,12 +195,12 @@ enifed("container/tests/container_helper.jshint",
     });
   });
 enifed("container/tests/container_test",
-  ["container/tests/container_helper","container"],
+  ["container/tests/container_helper","container/registry"],
   function(__dependency1__, __dependency2__) {
     "use strict";
     var factory = __dependency1__.factory;
 
-    var Container = __dependency2__["default"];
+    var Registry = __dependency2__["default"];
 
     var originalModelInjections;
 
@@ -205,10 +214,11 @@ enifed("container/tests/container_test",
     });
 
     test("A registered factory returns the same instance each time", function() {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
       var PostController = factory();
 
-      container.register('controller:post', PostController);
+      registry.register('controller:post', PostController);
 
       var postController = container.lookup('controller:post');
 
@@ -218,10 +228,11 @@ enifed("container/tests/container_test",
     });
 
     test("A registered factory is returned from lookupFactory", function() {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
       var PostController = factory();
 
-      container.register('controller:post', PostController);
+      registry.register('controller:post', PostController);
 
       var PostControllerFactory = container.lookupFactory('controller:post');
 
@@ -230,19 +241,21 @@ enifed("container/tests/container_test",
     });
 
     test("A registered factory is returned from lookupFactory is the same factory each time", function() {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
       var PostController = factory();
 
-      container.register('controller:post', PostController);
+      registry.register('controller:post', PostController);
 
       deepEqual(container.lookupFactory('controller:post'), container.lookupFactory('controller:post'), 'The return of lookupFactory is always the same');
     });
 
     test("A factory returned from lookupFactory has a debugkey", function() {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
       var PostController = factory();
 
-      container.register('controller:post', PostController);
+      registry.register('controller:post', PostController);
       var PostFactory = container.lookupFactory('controller:post');
 
       ok(!PostFactory.container, 'factory instance receives a container');
@@ -250,15 +263,16 @@ enifed("container/tests/container_test",
     });
 
     test("fallback for to create time injections if factory has no extend", function() {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
       var AppleController = factory();
       var PostController = factory();
 
       PostController.extend = undefined; // remove extend
 
-      container.register('controller:apple', AppleController);
-      container.register('controller:post', PostController);
-      container.injection('controller:post', 'apple', 'controller:apple');
+      registry.register('controller:apple', AppleController);
+      registry.register('controller:post', PostController);
+      registry.injection('controller:post', 'apple', 'controller:apple');
 
       var postController = container.lookup('controller:post');
 
@@ -269,11 +283,12 @@ enifed("container/tests/container_test",
     });
 
     test("The descendants of a factory returned from lookupFactory have a container and debugkey", function(){
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
       var PostController = factory();
       var instance;
 
-      container.register('controller:post', PostController);
+      registry.register('controller:post', PostController);
       instance = container.lookupFactory('controller:post').create();
 
       ok(instance.container, 'factory instance receives a container');
@@ -283,10 +298,11 @@ enifed("container/tests/container_test",
     });
 
     test("A registered factory returns a fresh instance if singleton: false is passed as an option", function() {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
       var PostController = factory();
 
-      container.register('controller:post', PostController);
+      registry.register('controller:post', PostController);
 
       var postController1 = container.lookup('controller:post');
       var postController2 = container.lookup('controller:post', { singleton: false });
@@ -304,70 +320,28 @@ enifed("container/tests/container_test",
       ok(postController4 instanceof PostController, "All instances are instances of the registered factory");
     });
 
-    test("A registered factory returns true for `has` if an item is registered", function() {
-      var container = new Container();
-      var PostController = factory();
-
-      container.register('controller:post', PostController);
-
-      equal(container.has('controller:post'), true, "The `has` method returned true for registered factories");
-      equal(container.has('controller:posts'), false, "The `has` method returned false for unregistered factories");
-    });
-
-    test("A Registered factory can be unregistered, and all cached instances are removed", function() {
-      var container = new Container();
-      var PostController = factory();
-
-      container.register('controller:post', PostController);
-
-      equal(container.has('controller:post'), true, "container is aware of the PostController");
-
-      ok(container.lookup('controller:post') instanceof PostController, "lookup is correct instance");
-
-      container.unregister("controller:post");
-
-      equal(container.has('controller:post'), false, "container is no-longer aware of the PostController");
-      equal(container.lookup('controller:post'), undefined, "lookup no longer returns a controller");
-
-      // re-registration continues to work
-      container.register('controller:post', PostController);
-
-      equal(container.has('controller:post'), true, "container is aware of the PostController");
-
-      ok(container.lookup('controller:post') instanceof PostController, "lookup is correct instance");
-    });
-
     test("A container lookup has access to the container", function() {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
       var PostController = factory();
 
-      container.register('controller:post', PostController);
+      registry.register('controller:post', PostController);
 
       var postController = container.lookup('controller:post');
 
       equal(postController.container, container);
     });
 
-    test("Throw exception when trying to inject `type:thing` on all type(s)", function(){
-      var container = new Container();
-      var PostController = factory();
-
-      container.register('controller:post', PostController);
-
-      throws(function(){
-        container.typeInjection('controller', 'injected', 'controller:post');
-      }, 'Cannot inject a `controller:post` on other controller(s). Register the `controller:post` as a different type and perform the typeInjection.');
-    });
-
     test("A factory type with a registered injection's instances receive that injection", function() {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
       var PostController = factory();
       var Store = factory();
 
-      container.register('controller:post', PostController);
-      container.register('store:main', Store);
+      registry.register('controller:post', PostController);
+      registry.register('store:main', Store);
 
-      container.typeInjection('controller', 'store', 'store:main');
+      registry.typeInjection('controller', 'store', 'store:main');
 
       var postController = container.lookup('controller:post');
       var store = container.lookup('store:main');
@@ -376,14 +350,15 @@ enifed("container/tests/container_test",
     });
 
     test("An individual factory with a registered injection receives the injection", function() {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
       var PostController = factory();
       var Store = factory();
 
-      container.register('controller:post', PostController);
-      container.register('store:main', Store);
+      registry.register('controller:post', PostController);
+      registry.register('store:main', Store);
 
-      container.injection('controller:post', 'store', 'store:main');
+      registry.injection('controller:post', 'store', 'store:main');
 
       var postController = container.lookup('controller:post');
       var store = container.lookup('store:main');
@@ -397,17 +372,18 @@ enifed("container/tests/container_test",
     });
 
     test("A factory with both type and individual injections", function() {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
       var PostController = factory();
       var Store = factory();
       var Router = factory();
 
-      container.register('controller:post', PostController);
-      container.register('store:main', Store);
-      container.register('router:main', Router);
+      registry.register('controller:post', PostController);
+      registry.register('store:main', Store);
+      registry.register('router:main', Router);
 
-      container.injection('controller:post', 'store', 'store:main');
-      container.typeInjection('controller', 'router', 'router:main');
+      registry.injection('controller:post', 'store', 'store:main');
+      registry.typeInjection('controller', 'router', 'router:main');
 
       var postController = container.lookup('controller:post');
       var store = container.lookup('store:main');
@@ -418,17 +394,18 @@ enifed("container/tests/container_test",
     });
 
     test("A factory with both type and individual factoryInjections", function() {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
       var PostController = factory();
       var Store = factory();
       var Router = factory();
 
-      container.register('controller:post', PostController);
-      container.register('store:main', Store);
-      container.register('router:main', Router);
+      registry.register('controller:post', PostController);
+      registry.register('store:main', Store);
+      registry.register('router:main', Router);
 
-      container.factoryInjection('controller:post', 'store', 'store:main');
-      container.factoryTypeInjection('controller', 'router', 'router:main');
+      registry.factoryInjection('controller:post', 'store', 'store:main');
+      registry.factoryTypeInjection('controller', 'router', 'router:main');
 
       var PostControllerFactory = container.lookupFactory('controller:post');
       var store = container.lookup('store:main');
@@ -439,10 +416,11 @@ enifed("container/tests/container_test",
     });
 
     test("A non-singleton instance is never cached", function() {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
       var PostView = factory();
 
-      container.register('view:post', PostView, { singleton: false });
+      registry.register('view:post', PostView, { singleton: false });
 
       var postView1 = container.lookup('view:post');
       var postView2 = container.lookup('view:post');
@@ -451,23 +429,26 @@ enifed("container/tests/container_test",
     });
 
     test("A non-instantiated property is not instantiated", function() {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
 
       var template = function() {};
-      container.register('template:foo', template, { instantiate: false });
+      registry.register('template:foo', template, { instantiate: false });
       equal(container.lookup('template:foo'), template);
     });
 
     test("A failed lookup returns undefined", function() {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
 
       equal(container.lookup('doesnot:exist'), undefined);
     });
 
     test("An invalid factory throws an error", function() {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
 
-      container.register('controller:foo', {});
+      registry.register('controller:foo', {});
 
       throws(function() {
         container.lookup('controller:foo');
@@ -477,7 +458,8 @@ enifed("container/tests/container_test",
     test("Injecting a failed lookup raises an error", function() {
       Ember.MODEL_FACTORY_INJECTIONS = true;
 
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
 
       var fooInstance = {};
       var fooFactory  = {};
@@ -487,8 +469,8 @@ enifed("container/tests/container_test",
         extend: function(args) { return fooFactory;  }
       };
 
-      container.register('model:foo', Foo);
-      container.injection('model:foo', 'store', 'store:main');
+      registry.register('model:foo', Foo);
+      registry.injection('model:foo', 'store', 'store:main');
 
       throws(function() {
         container.lookup('model:foo');
@@ -496,27 +478,29 @@ enifed("container/tests/container_test",
     });
 
     test("Injecting a falsy value does not raise an error", function() {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
       var ApplicationController = factory();
 
-      container.register('controller:application', ApplicationController);
-      container.register('user:current', null, { instantiate: false });
-      container.injection('controller:application', 'currentUser', 'user:current');
+      registry.register('controller:application', ApplicationController);
+      registry.register('user:current', null, { instantiate: false });
+      registry.injection('controller:application', 'currentUser', 'user:current');
 
       equal(container.lookup('controller:application').currentUser, null);
     });
 
     test("Destroying the container destroys any cached singletons", function() {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
       var PostController = factory();
       var PostView = factory();
       var template = function() {};
 
-      container.register('controller:post', PostController);
-      container.register('view:post', PostView, { singleton: false });
-      container.register('template:post', template, { instantiate: false });
+      registry.register('controller:post', PostController);
+      registry.register('view:post', PostView, { singleton: false });
+      registry.register('template:post', template, { instantiate: false });
 
-      container.injection('controller:post', 'postView', 'view:post');
+      registry.injection('controller:post', 'postView', 'view:post');
 
       var postController = container.lookup('controller:post');
       var postView = postController.postView;
@@ -529,11 +513,12 @@ enifed("container/tests/container_test",
       ok(!postView.isDestroyed, "Non-singletons are not destroyed");
     });
 
-    test("The container can take a hook to resolve factories lazily", function() {
-      var container = new Container();
+    test("The container can use a registry hook to resolve factories lazily", function() {
+      var registry = new Registry();
+      var container = registry.container();
       var PostController = factory();
 
-      container.resolver = function(fullName) {
+      registry.resolver = function(fullName) {
         if (fullName === 'controller:post') {
           return PostController;
         }
@@ -544,136 +529,48 @@ enifed("container/tests/container_test",
       ok(postController instanceof PostController, "The correct factory was provided");
     });
 
-    test("The container respect the resolver hook for `has`", function() {
-      var container = new Container();
-      var PostController = factory();
-
-      container.resolver = function(fullName) {
-        if (fullName === 'controller:post') {
-          return PostController;
-        }
-      };
-
-      ok(container.has('controller:post'), "the `has` method uses the resolver hook");
-    });
-
     test("The container normalizes names before resolving", function() {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
       var PostController = factory();
 
-      container.normalize = function(fullName) {
+      registry.normalizeFullName = function(fullName) {
         return 'controller:post';
       };
 
-      container.register('controller:post', PostController);
+      registry.register('controller:post', PostController);
       var postController = container.lookup('controller:normalized');
 
       ok(postController instanceof PostController, "Normalizes the name before resolving");
-    });
-
-    test("The container normalizes names when unregistering", function() {
-      var container = new Container();
-      var PostController = factory();
-
-      container.normalize = function(fullName) {
-        return 'controller:post';
-      };
-
-      container.register('controller:post', PostController);
-      var postController = container.lookup('controller:normalized');
-
-      ok(postController instanceof PostController, "Normalizes the name before resolving");
-
-      container.unregister('controller:post');
-      postController = container.lookup('controller:normalized');
-
-      equal(postController, undefined);
-    });
-
-    test("The container normalizes names when resolving", function() {
-      var container = new Container();
-      var PostController = factory();
-
-      container.normalize = function(fullName) {
-        return 'controller:post';
-      };
-
-      container.register('controller:post', PostController);
-      var type = container.resolve('controller:normalized');
-
-      equal(type === PostController, true, "Normalizes the name when resolving");
     });
 
     test("The container normalizes names when looking factory up", function() {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
       var PostController = factory();
 
-      container.normalize = function(fullName) {
+      registry.normalizeFullName = function(fullName) {
         return 'controller:post';
       };
 
-      container.register('controller:post', PostController);
+      registry.register('controller:post', PostController);
       var fact = container.lookupFactory('controller:normalized');
 
       equal(fact.toString() === PostController.extend().toString(), true, "Normalizes the name when looking factory up");
     });
 
-    test("The container normalizes names when checking if the factory or instance is present", function() {
-      var container = new Container();
-      var PostController = factory();
-
-      container.normalize = function(fullName) {
-        return 'controller:post';
-      };
-
-      container.register('controller:post', PostController);
-      var isPresent = container.has('controller:normalized');
-
-      equal(isPresent, true, "Normalizes the name when checking if the factory or instance is present");
-    });
-
-    test("validateFullName throws an error if name is incorrect", function() {
-      var container = new Container();
-      var PostController = factory();
-
-      container.normalize = function(fullName) {
-        return 'controller:post';
-      };
-
-      container.register('controller:post', PostController);
-      throws(function() {
-        container.lookupFactory('post');
-      }, 'TypeError: Invalid Fullname, expected: `type:name` got: post');
-    });
-
-    test("The container normalizes names when injecting", function() {
-      var container = new Container();
-      var PostController = factory();
-      var user = { name: 'Stef' };
-
-      container.normalize = function(fullName) {
-        return 'controller:post';
-      };
-
-      container.register('controller:post', PostController);
-      container.register('user:post', user, { instantiate: false });
-      container.injection('controller:post', 'user', 'controller:normalized');
-
-      deepEqual(container.lookup('controller:post'), user, "Normalizes the name when injecting");
-    });
-
-    test("The container can get options that should be applied to a given factory", function(){
-      var container = new Container();
-
+    test("The container can get options that should be applied to a given factory", function() {
+      var registry = new Registry();
+      var container = registry.container();
       var PostView = factory();
 
-      container.resolver = function(fullName) {
+      registry.resolver = function(fullName) {
         if (fullName === 'view:post') {
           return PostView;
         }
       };
 
-      container.options('view:post', {instantiate: true, singleton: false});
+      registry.options('view:post', {instantiate: true, singleton: false});
 
       var postView1 = container.lookup('view:post');
       var postView2 = container.lookup('view:post');
@@ -685,16 +582,17 @@ enifed("container/tests/container_test",
     });
 
     test("The container can get options that should be applied to all factories for a given type", function() {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
       var PostView = factory();
 
-      container.resolver = function(fullName) {
+      registry.resolver = function(fullName) {
         if (fullName === 'view:post') {
           return PostView;
         }
       };
 
-      container.optionsForType('view', { singleton: false });
+      registry.optionsForType('view', { singleton: false });
 
       var postView1 = container.lookup('view:post');
       var postView2 = container.lookup('view:post');
@@ -705,113 +603,12 @@ enifed("container/tests/container_test",
       ok(postView1 !== postView2, "The two lookups are different");
     });
 
-    test("cannot register an `undefined` factory", function(){
-      var container = new Container();
-
-      throws(function(){
-        container.register('controller:apple', undefined);
-      }, '');
-    });
-
-    test("can re-register a factory", function(){
-      var container = new Container();
-      var FirstApple = factory('first');
-      var SecondApple = factory('second');
-
-      container.register('controller:apple', FirstApple);
-      container.register('controller:apple', SecondApple);
-
-      ok(container.lookup('controller:apple') instanceof SecondApple);
-    });
-
-    test("cannot re-register a factory if has been looked up", function(){
-      var container = new Container();
-      var FirstApple = factory('first');
-      var SecondApple = factory('second');
-
-      container.register('controller:apple', FirstApple);
-      ok(container.lookup('controller:apple') instanceof FirstApple);
-
-      throws(function(){
-        container.register('controller:apple', SecondApple);
-      }, 'Cannot re-register: `controller:apple`, as it has already been looked up.');
-
-      ok(container.lookup('controller:apple') instanceof FirstApple);
-    });
-
-
-    test('container.has should not accidentally cause injections on that factory to be run. (Mitigate merely on observing)', function(){
-      expect(1);
-
-      var container = new Container();
-      var FirstApple = factory('first');
-      var SecondApple = factory('second');
-
-      SecondApple.extend = function(a,b,c) {
-        ok(false, 'should not extend or touch the injected model, merely to inspect existence of another');
-      };
-
-      container.register('controller:apple', FirstApple);
-      container.register('controller:second-apple', SecondApple);
-      container.injection('controller:apple', 'badApple', 'controller:second-apple');
-
-      ok(container.has('controller:apple'));
-    });
-
-    test('once resolved, always return the same result', function() {
-      expect(1);
-
-      var container = new Container();
-
-      container.resolver = function() {
-        return 'bar';
-      };
-
-      var Bar = container.resolve('models:bar');
-
-      container.resolver = function() {
-        return 'not bar';
-      };
-
-      equal(container.resolve('models:bar'), Bar);
-    });
-
-    test('once looked up, assert if an injection is registered for the entry', function() {
-      expect(1);
-
-      var container = new Container();
-      var Apple = factory();
-      var Worm = factory();
-
-      container.register('apple:main', Apple);
-      container.register('worm:main', Worm);
-      container.lookup('apple:main');
-      throws(function() {
-        container.injection('apple:main', 'worm', 'worm:main');
-      }, "Attempted to register an injection for a type that has already been looked up. ('apple:main', 'worm', 'worm:main')");
-    });
-
-    test("Once looked up, assert if a factoryInjection is registered for the factory", function() {
-      expect(1);
-
-      var container = new Container();
-      var Apple = factory();
-      var Worm = factory();
-
-      container.register('apple:main', Apple);
-      container.register('worm:main', Worm);
-
-      container.lookupFactory('apple:main');
-      throws(function() {
-        container.factoryInjection('apple:main', 'worm', 'worm:main');
-      }, "Attempted to register a factoryInjection for a type that has already been looked up. ('apple:main', 'worm', 'worm:main')");
-    });
-
     test("factory resolves are cached", function() {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
       var PostController = factory();
       var resolveWasCalled = [];
-      container.resolve = function(fullName) {
+      registry.resolve = function(fullName) {
         resolveWasCalled.push(fullName);
         return PostController;
       };
@@ -825,10 +622,11 @@ enifed("container/tests/container_test",
     });
 
     test("factory for non extendables (MODEL) resolves are cached", function() {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
       var PostController = factory();
       var resolveWasCalled = [];
-      container.resolve = function(fullName) {
+      registry.resolve = function(fullName) {
         resolveWasCalled.push(fullName);
         return PostController;
       };
@@ -842,10 +640,12 @@ enifed("container/tests/container_test",
     });
 
     test("factory for non extendables resolves are cached", function() {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
       var PostController = {};
       var resolveWasCalled = [];
-      container.resolve = function(fullName) {
+
+      registry.resolve = function(fullName) {
         resolveWasCalled.push(fullName);
         return PostController;
       };
@@ -862,7 +662,8 @@ enifed("container/tests/container_test",
       test("The `_onLookup` hook is called on factories when looked up the first time", function() {
         expect(2);
 
-        var container = new Container();
+        var registry = new Registry();
+        var container = registry.container();
         var Apple = factory();
 
         Apple.reopenClass({
@@ -872,14 +673,15 @@ enifed("container/tests/container_test",
           }
         });
 
-        container.register('apple:main', Apple);
+        registry.register('apple:main', Apple);
 
         container.lookupFactory('apple:main');
         container.lookupFactory('apple:main');
       });
 
       test("A factory's lazy injections are validated when first instantiated", function() {
-        var container = new Container();
+        var registry = new Registry();
+        var container = registry.container();
         var Apple = factory();
         var Orange = factory();
 
@@ -889,8 +691,8 @@ enifed("container/tests/container_test",
           }
         });
 
-        container.register('apple:main', Apple);
-        container.register('orange:main', Orange);
+        registry.register('apple:main', Apple);
+        registry.register('orange:main', Orange);
 
         throws(function() {
           container.lookup('apple:main');
@@ -900,7 +702,8 @@ enifed("container/tests/container_test",
       test("Lazy injection validations are cached", function() {
         expect(1);
 
-        var container = new Container();
+        var registry = new Registry();
+        var container = registry.container();
         var Apple = factory();
         var Orange = factory();
 
@@ -911,8 +714,8 @@ enifed("container/tests/container_test",
           }
         });
 
-        container.register('apple:main', Apple);
-        container.register('orange:main', Orange);
+        registry.register('apple:main', Apple);
+        registry.register('orange:main', Orange);
 
         container.lookup('apple:main');
         container.lookup('apple:main');
@@ -928,104 +731,291 @@ enifed("container/tests/container_test.jshint",
       ok(true, 'container/tests/container_test.js should pass jshint.'); 
     });
   });
-enifed("container/tests/sub_container_test",
+enifed("container/tests/registry_test",
   ["container/tests/container_helper","container"],
   function(__dependency1__, __dependency2__) {
     "use strict";
     var factory = __dependency1__.factory;
 
-    var Container = __dependency2__["default"];
-    var container;
+    var Registry = __dependency2__.Registry;
 
-    QUnit.module("Container (sub-containers)", {
+    var originalModelInjections;
+
+    QUnit.module("Registry", {
       setup: function() {
-        container = new Container();
-        var PostController = factory();
-
-        container.register('controller:post', PostController);
+        originalModelInjections = Ember.MODEL_FACTORY_INJECTIONS;
       },
-
       teardown: function() {
-        if (!container.isDestroyed) {
-          container.destroy();
-        }
+        Ember.MODEL_FACTORY_INJECTIONS = originalModelInjections;
       }
     });
 
-    test("Singletons already found on the parent container will be found again on the sub-container", function() {
-      var postController = container.lookup('controller:post');
-      var subContainer = container.child();
-
-      equal(postController, subContainer.lookup('controller:post'));
-    });
-
-    test("Destroying a sub-container doesn't destroy any singletons on the parent", function() {
-      var postController = container.lookup('controller:post');
-      var subContainer = container.child();
-      subContainer.destroy();
-
-      equal(postController.isDestroyed, undefined, "The parent's singletons are not destroyed");
-    });
-
-    test("Looking up a singleton that wasn't yet looked up on a child container will cache it on the child", function() {
-      var subContainer1 = container.child();
-      var subContainer2 = container.child();
-
-      var postController1 = subContainer1.lookup('controller:post');
-      var postController2 = subContainer2.lookup('controller:post');
-
-      notEqual(postController1, postController2);
-    });
-
-    test("Destroying a parent container destroys the sub-containers", function() {
-      var subContainer1 = container.child();
-      var subContainer2 = container.child();
-
-      var postController1 = subContainer1.lookup('controller:post');
-      var postController2 = subContainer2.lookup('controller:post');
-
-      container.destroy();
-
-      equal(postController1.isDestroyed, true, "The child's singleton is destroyed");
-      equal(postController2.isDestroyed, true, "The child's singleton is destroyed");
-    });
-
-    test("Resolver is inherited from parent container", function() {
-      var otherController = factory();
-      container.resolver = function(fullName) {
-        return otherController;
-      };
-      var subContainer = container.child();
-
-      equal(subContainer.resolve('controller:post'), otherController, 'should use parent resolver');
-      equal(container.resolve('controller:post'), otherController, 'should use resolver');
-    });
-
-    test("Type injections should be inherited", function() {
-      var container = new Container();
+    test("A registered factory is returned from resolve", function() {
+      var registry = new Registry();
       var PostController = factory();
-      var Store = factory();
 
-      container.register('controller:post', PostController);
-      container.register('store:main', Store);
+      registry.register('controller:post', PostController);
 
-      container.typeInjection('controller', 'store', 'store:main');
+      var PostControllerFactory = registry.resolve('controller:post');
 
-      var store = container.lookup('store:main');
+      ok(PostControllerFactory, 'factory is returned');
+      ok(PostControllerFactory.create() instanceof  PostController, "The return of factory.create is an instance of PostController");
+    });
 
-      var childContainer = container.child();
-      var postController = childContainer.lookup('controller:post');
+    test("The registered factory returned from resolve is the same factory each time", function() {
+      var registry = new Registry();
+      var PostController = factory();
 
-      equal(postController.store, store);
+      registry.register('controller:post', PostController);
+
+      deepEqual(registry.resolve('controller:post'), registry.resolve('controller:post'), 'The return of resolve is always the same');
+    });
+
+    test("A registered factory returns true for `has` if an item is registered", function() {
+      var registry = new Registry();
+      var PostController = factory();
+
+      registry.register('controller:post', PostController);
+
+      equal(registry.has('controller:post'), true, "The `has` method returned true for registered factories");
+      equal(registry.has('controller:posts'), false, "The `has` method returned false for unregistered factories");
+    });
+
+    test("Throw exception when trying to inject `type:thing` on all type(s)", function(){
+      var registry = new Registry();
+      var PostController = factory();
+
+      registry.register('controller:post', PostController);
+
+      throws(function(){
+        registry.typeInjection('controller', 'injected', 'controller:post');
+      }, 'Cannot inject a `controller:post` on other controller(s). Register the `controller:post` as a different type and perform the typeInjection.');
+    });
+
+    test("The registry can take a hook to resolve factories lazily", function() {
+      var registry = new Registry();
+      var PostController = factory();
+
+      registry.resolver = function(fullName) {
+        if (fullName === 'controller:post') {
+          return PostController;
+        }
+      };
+
+      strictEqual(registry.resolve('controller:post'), PostController, "The correct factory was provided");
+    });
+
+    test("The registry respect the resolver hook for `has`", function() {
+      var registry = new Registry();
+      var PostController = factory();
+
+      registry.resolver = function(fullName) {
+        if (fullName === 'controller:post') {
+          return PostController;
+        }
+      };
+
+      ok(registry.has('controller:post'), "the `has` method uses the resolver hook");
+    });
+
+    test("The registry normalizes names when resolving", function() {
+      var registry = new Registry();
+      var PostController = factory();
+
+      registry.normalizeFullName = function(fullName) {
+        return 'controller:post';
+      };
+
+      registry.register('controller:post', PostController);
+      var type = registry.resolve('controller:normalized');
+
+      strictEqual(type, PostController, "Normalizes the name when resolving");
+    });
+
+    test("The registry normalizes names when checking if the factory is registered", function() {
+      var registry = new Registry();
+      var PostController = factory();
+
+      registry.normalizeFullName = function(fullName) {
+        return 'controller:post';
+      };
+
+      registry.register('controller:post', PostController);
+      var isPresent = registry.has('controller:normalized');
+
+      equal(isPresent, true, "Normalizes the name when checking if the factory or instance is present");
+    });
+
+    test("validateFullName throws an error if name is incorrect", function() {
+      var registry = new Registry();
+      var PostController = factory();
+
+      registry.normalize = function(fullName) {
+        return 'controller:post';
+      };
+
+      registry.register('controller:post', PostController);
+      throws(function() {
+        registry.resolve('post');
+      }, 'TypeError: Invalid Fullname, expected: `type:name` got: post');
+    });
+
+    test("The registry normalizes names when injecting", function() {
+      var registry = new Registry();
+      var PostController = factory();
+      var user = { name: 'Stef' };
+
+      registry.normalize = function(fullName) {
+        return 'controller:post';
+      };
+
+      registry.register('controller:post', PostController);
+      registry.register('user:post', user, { instantiate: false });
+      registry.injection('controller:post', 'user', 'controller:normalized');
+
+      deepEqual(registry.resolve('controller:post'), user, "Normalizes the name when injecting");
+    });
+
+    test("cannot register an `undefined` factory", function(){
+      var registry = new Registry();
+
+      throws(function(){
+        registry.register('controller:apple', undefined);
+      }, '');
+    });
+
+    test("can re-register a factory", function(){
+      var registry = new Registry();
+      var FirstApple = factory('first');
+      var SecondApple = factory('second');
+
+      registry.register('controller:apple', FirstApple);
+      registry.register('controller:apple', SecondApple);
+
+      ok(registry.resolve('controller:apple').create() instanceof SecondApple);
+    });
+
+    test("cannot re-register a factory if it has been resolved", function(){
+      var registry = new Registry();
+      var FirstApple = factory('first');
+      var SecondApple = factory('second');
+
+      registry.register('controller:apple', FirstApple);
+      strictEqual(registry.resolve('controller:apple'), FirstApple);
+
+      throws(function(){
+        registry.register('controller:apple', SecondApple);
+      }, 'Cannot re-register: `controller:apple`, as it has already been resolved.');
+
+      strictEqual(registry.resolve('controller:apple'), FirstApple);
+    });
+
+    test('registry.has should not accidentally cause injections on that factory to be run. (Mitigate merely on observing)', function(){
+      expect(1);
+
+      var registry = new Registry();
+      var FirstApple = factory('first');
+      var SecondApple = factory('second');
+
+      SecondApple.extend = function(a,b,c) {
+        ok(false, 'should not extend or touch the injected model, merely to inspect existence of another');
+      };
+
+      registry.register('controller:apple', FirstApple);
+      registry.register('controller:second-apple', SecondApple);
+      registry.injection('controller:apple', 'badApple', 'controller:second-apple');
+
+      ok(registry.has('controller:apple'));
+    });
+
+    test('once resolved, always return the same result', function() {
+      expect(1);
+
+      var registry = new Registry();
+
+      registry.resolver = function() {
+        return 'bar';
+      };
+
+      var Bar = registry.resolve('models:bar');
+
+      registry.resolver = function() {
+        return 'not bar';
+      };
+
+      equal(registry.resolve('models:bar'), Bar);
+    });
+
+    test("factory resolves are cached", function() {
+      var registry = new Registry();
+      var PostController = factory();
+      var resolveWasCalled = [];
+      registry.resolver = function(fullName) {
+        resolveWasCalled.push(fullName);
+        return PostController;
+      };
+
+      deepEqual(resolveWasCalled, []);
+      registry.resolve('controller:post');
+      deepEqual(resolveWasCalled, ['controller:post']);
+
+      registry.resolve('controller:post');
+      deepEqual(resolveWasCalled, ['controller:post']);
+    });
+
+    test("factory for non extendables (MODEL) resolves are cached", function() {
+      var registry = new Registry();
+      var PostController = factory();
+      var resolveWasCalled = [];
+      registry.resolver = function(fullName) {
+        resolveWasCalled.push(fullName);
+        return PostController;
+      };
+
+      deepEqual(resolveWasCalled, []);
+      registry.resolve('model:post');
+      deepEqual(resolveWasCalled, ['model:post']);
+
+      registry.resolve('model:post');
+      deepEqual(resolveWasCalled, ['model:post']);
+    });
+
+    test("factory for non extendables resolves are cached", function() {
+      var registry = new Registry();
+      var PostController = {};
+      var resolveWasCalled = [];
+      registry.resolver = function(fullName) {
+        resolveWasCalled.push(fullName);
+        return PostController;
+      };
+
+      deepEqual(resolveWasCalled, []);
+      registry.resolve('foo:post');
+      deepEqual(resolveWasCalled, ['foo:post']);
+
+      registry.resolve('foo:post');
+      deepEqual(resolveWasCalled, ['foo:post']);
+    });
+
+    test ("registry.container creates an associated container", function() {
+      var registry = new Registry();
+      var PostController = factory();
+      registry.register('controller:post', PostController);
+
+      var container = registry.container();
+      var postController = container.lookup('controller:post');
+
+      ok(postController instanceof PostController, "The lookup is an instance of the registered factory");
+      strictEqual(registry._defaultContainer, container, "_defaultContainer is set to the first created container and used for Ember 1.x Container compatibility");
     });
   });
-enifed("container/tests/sub_container_test.jshint",
+enifed("container/tests/registry_test.jshint",
   [],
   function() {
     "use strict";
     module('JSHint - container/tests');
-    test('container/tests/sub_container_test.js should pass jshint', function() { 
-      ok(true, 'container/tests/sub_container_test.js should pass jshint.'); 
+    test('container/tests/registry_test.js should pass jshint', function() { 
+      ok(true, 'container/tests/registry_test.js should pass jshint.'); 
     });
   });
 enifed("ember-application.jshint",
@@ -1390,7 +1380,7 @@ enifed("ember-application/tests/system/controller_test",
 
     var Controller = __dependency1__["default"];
 
-    var Container = __dependency3__["default"];
+    var Registry = __dependency3__.Registry;
     var A = __dependency4__.A;
     var ArrayController = __dependency5__["default"];
     var computed = __dependency6__.computed;
@@ -1408,13 +1398,14 @@ enifed("ember-application/tests/system/controller_test",
     });
 
     test("If a controller specifies a dependency, it is accessible", function() {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
 
-      container.register('controller:post', Controller.extend({
+      registry.register('controller:post', Controller.extend({
         needs: 'posts'
       }));
 
-      container.register('controller:posts', Controller.extend());
+      registry.register('controller:posts', Controller.extend());
 
       var postController = container.lookup('controller:post');
       var postsController = container.lookup('controller:posts');
@@ -1423,9 +1414,10 @@ enifed("ember-application/tests/system/controller_test",
     });
 
     test("If a controller specifies an unavailable dependency, it raises", function() {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
 
-      container.register('controller:post', Controller.extend({
+      registry.register('controller:post', Controller.extend({
         needs: ['comments']
       }));
 
@@ -1433,7 +1425,7 @@ enifed("ember-application/tests/system/controller_test",
         container.lookup('controller:post');
       }, /controller:comments/);
 
-      container.register('controller:blog', Controller.extend({
+      registry.register('controller:blog', Controller.extend({
         needs: ['posts', 'comments']
       }));
 
@@ -1443,19 +1435,20 @@ enifed("ember-application/tests/system/controller_test",
     });
 
     test("Mixin sets up controllers if there is needs before calling super", function() {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
 
-      container.register('controller:other', ArrayController.extend({
+      registry.register('controller:other', ArrayController.extend({
         needs: 'posts',
         model: computed.alias('controllers.posts')
       }));
 
-      container.register('controller:another', ArrayController.extend({
+      registry.register('controller:another', ArrayController.extend({
         needs: 'posts',
         modelBinding: 'controllers.posts'
       }));
 
-      container.register('controller:posts', ArrayController.extend());
+      registry.register('controller:posts', ArrayController.extend());
 
       container.lookup('controller:posts').set('model', A(['a','b','c']));
 
@@ -1464,10 +1457,11 @@ enifed("ember-application/tests/system/controller_test",
     });
 
     test("raises if trying to get a controller that was not pre-defined in `needs`", function() {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
 
-      container.register('controller:foo', Controller.extend());
-      container.register('controller:bar', Controller.extend({
+      registry.register('controller:foo', Controller.extend());
+      registry.register('controller:bar', Controller.extend({
         needs: 'foo'
       }));
 
@@ -1488,13 +1482,14 @@ enifed("ember-application/tests/system/controller_test",
     });
 
     test ("setting the value of a controller dependency should not be possible", function(){
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
 
-      container.register('controller:post', Controller.extend({
+      registry.register('controller:post', Controller.extend({
         needs: 'posts'
       }));
 
-      container.register('controller:posts', Controller.extend());
+      registry.register('controller:posts', Controller.extend());
 
       var postController = container.lookup('controller:post');
       container.lookup('controller:posts');
@@ -1510,10 +1505,11 @@ enifed("ember-application/tests/system/controller_test",
     });
 
     test("raises if a dependency with a period is requested", function() {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
 
-      container.register('controller:big.bird', Controller.extend());
-      container.register('controller:foo', Controller.extend({
+      registry.register('controller:big.bird', Controller.extend());
+      registry.register('controller:foo', Controller.extend({
         needs: 'big.bird'
       }));
 
@@ -1612,13 +1608,14 @@ enifed("ember-application/tests/system/dependency_injection/default_resolver_tes
     var Application = __dependency7__["default"];
     var registerHelper = __dependency8__.registerHelper;
 
-    var locator, application, originalLookup, originalLoggerInfo;
+    var registry, locator, application, originalLookup, originalLoggerInfo;
 
     QUnit.module("Ember.Application Depedency Injection", {
       setup: function() {
         originalLookup = Ember.lookup;
         application = run(Application, 'create');
 
+        registry = application.__registry__;
         locator = application.__container__;
         originalLoggerInfo = Logger.info;
       },
@@ -1668,7 +1665,7 @@ enifed("ember-application/tests/system/dependency_injection/default_resolver_tes
     test('the default resolver looks up arbitrary types on the namespace', function() {
       application.FooManager = EmberObject.extend({});
 
-      detectEqual(application.FooManager, locator.resolver('manager:foo'),"looks up FooManager on application");
+      detectEqual(application.FooManager, registry.resolver('manager:foo'), "looks up FooManager on application");
     });
 
     test("the default resolver resolves models on the namespace", function() {
@@ -1709,14 +1706,14 @@ enifed("ember-application/tests/system/dependency_injection/default_resolver_tes
     });
 
     test("the default resolver throws an error if the fullName to resolve is invalid", function(){
-      raises(function(){ locator.resolve(undefined);}, TypeError, /Invalid fullName/ );
-      raises(function(){ locator.resolve(null);     }, TypeError, /Invalid fullName/ );
-      raises(function(){ locator.resolve('');       }, TypeError, /Invalid fullName/ );
-      raises(function(){ locator.resolve('');       }, TypeError, /Invalid fullName/ );
-      raises(function(){ locator.resolve(':');      }, TypeError, /Invalid fullName/ );
-      raises(function(){ locator.resolve('model');  }, TypeError, /Invalid fullName/ );
-      raises(function(){ locator.resolve('model:'); }, TypeError, /Invalid fullName/ );
-      raises(function(){ locator.resolve(':type');  }, TypeError, /Invalid fullName/ );
+      raises(function(){ registry.resolve(undefined);}, TypeError, /Invalid fullName/ );
+      raises(function(){ registry.resolve(null);     }, TypeError, /Invalid fullName/ );
+      raises(function(){ registry.resolve('');       }, TypeError, /Invalid fullName/ );
+      raises(function(){ registry.resolve('');       }, TypeError, /Invalid fullName/ );
+      raises(function(){ registry.resolve(':');      }, TypeError, /Invalid fullName/ );
+      raises(function(){ registry.resolve('model');  }, TypeError, /Invalid fullName/ );
+      raises(function(){ registry.resolve('model:'); }, TypeError, /Invalid fullName/ );
+      raises(function(){ registry.resolve(':type');  }, TypeError, /Invalid fullName/ );
     });
 
     test("the default resolver logs hits if `LOG_RESOLVER` is set", function() {
@@ -1732,7 +1729,7 @@ enifed("ember-application/tests/system/dependency_injection/default_resolver_tes
         equal(lookupDescription, 'App.ScoobyDoo');
       };
 
-      locator.resolve('doo:scooby');
+      registry.resolve('doo:scooby');
     });
 
     test("the default resolver logs misses if `LOG_RESOLVER` is set", function() {
@@ -1747,7 +1744,7 @@ enifed("ember-application/tests/system/dependency_injection/default_resolver_tes
         equal(lookupDescription, 'App.ScoobyDoo');
       };
 
-      locator.resolve('doo:scooby');
+      registry.resolve('doo:scooby');
     });
 
     test("doesn't log without LOG_RESOLVER", function(){
@@ -1759,8 +1756,8 @@ enifed("ember-application/tests/system/dependency_injection/default_resolver_tes
         infoCount = infoCount + 1;
       };
 
-      locator.resolve('doo:scooby');
-      locator.resolve('doo:scrappy');
+      registry.resolve('doo:scooby');
+      registry.resolve('doo:scrappy');
       equal(infoCount, 0, 'Logger.info should not be called if LOG_RESOLVER is not set');
     });
   });
@@ -1781,12 +1778,12 @@ enifed("ember-application/tests/system/dependency_injection/normalization_test",
     var forEach = __dependency2__.forEach;
     var Application = __dependency3__["default"];
 
-    var application, locator;
+    var application, registry;
 
     QUnit.module("Ember.Application Depedency Injection – normalization", {
       setup: function() {
         application = run(Application, 'create');
-        locator = application.__container__;
+        registry = application.__registry__;
       },
 
       teardown: function() {
@@ -1795,30 +1792,30 @@ enifed("ember-application/tests/system/dependency_injection/normalization_test",
     });
 
     test('normalization', function() {
-      ok(locator.normalize, 'locator#normalize is present');
+      ok(registry.normalize, 'registry#normalize is present');
 
-      equal(locator.normalize('foo:bar'), 'foo:bar');
+      equal(registry.normalize('foo:bar'), 'foo:bar');
 
-      equal(locator.normalize('controller:posts'), 'controller:posts');
-      equal(locator.normalize('controller:posts_index'), 'controller:postsIndex');
-      equal(locator.normalize('controller:posts.index'), 'controller:postsIndex');
-      equal(locator.normalize('controller:posts.post.index'), 'controller:postsPostIndex');
-      equal(locator.normalize('controller:posts_post.index'), 'controller:postsPostIndex');
-      equal(locator.normalize('controller:posts.post_index'), 'controller:postsPostIndex');
-      equal(locator.normalize('controller:postsIndex'), 'controller:postsIndex');
-      equal(locator.normalize('controller:blogPosts.index'), 'controller:blogPostsIndex');
-      equal(locator.normalize('controller:blog/posts.index'), 'controller:blog/postsIndex');
-      equal(locator.normalize('controller:blog/posts.post.index'), 'controller:blog/postsPostIndex');
-      equal(locator.normalize('controller:blog/posts_post.index'), 'controller:blog/postsPostIndex');
+      equal(registry.normalize('controller:posts'), 'controller:posts');
+      equal(registry.normalize('controller:posts_index'), 'controller:postsIndex');
+      equal(registry.normalize('controller:posts.index'), 'controller:postsIndex');
+      equal(registry.normalize('controller:posts.post.index'), 'controller:postsPostIndex');
+      equal(registry.normalize('controller:posts_post.index'), 'controller:postsPostIndex');
+      equal(registry.normalize('controller:posts.post_index'), 'controller:postsPostIndex');
+      equal(registry.normalize('controller:postsIndex'), 'controller:postsIndex');
+      equal(registry.normalize('controller:blogPosts.index'), 'controller:blogPostsIndex');
+      equal(registry.normalize('controller:blog/posts.index'), 'controller:blog/postsIndex');
+      equal(registry.normalize('controller:blog/posts.post.index'), 'controller:blog/postsPostIndex');
+      equal(registry.normalize('controller:blog/posts_post.index'), 'controller:blog/postsPostIndex');
 
-      equal(locator.normalize('template:blog/posts_index'), 'template:blog/posts_index');
+      equal(registry.normalize('template:blog/posts_index'), 'template:blog/posts_index');
     });
 
     test('normalization is indempotent', function() {
       var examples = ['controller:posts', 'controller:posts.post.index', 'controller:blog/posts.post_index', 'template:foo_bar'];
 
       forEach.call(examples, function (example) {
-        equal(locator.normalize(locator.normalize(example)), locator.normalize(example));
+        equal(registry.normalize(registry.normalize(example)), registry.normalize(example));
       });
     });
   });
@@ -1895,7 +1892,7 @@ enifed("ember-application/tests/system/dependency_injection/to_string_test",
         });
       });
 
-      App.__container__.register('model:peter', EmberObject.extend());
+      App.__registry__.register('model:peter', EmberObject.extend());
 
       var peter = App.__container__.lookup('model:peter');
       var guid = guidFor(peter);
@@ -1923,7 +1920,7 @@ enifed("ember-application/tests/system/dependency_injection_test",
     var EmberApplication = Application;
 
     var originalLookup = Ember.lookup;
-    var locator, lookup, application, originalModelInjections;
+    var registry, locator, lookup, application, originalModelInjections;
 
     QUnit.module("Ember.Application Dependency Injection", {
       setup: function() {
@@ -1944,6 +1941,7 @@ enifed("ember-application/tests/system/dependency_injection_test",
         application.register('communication:main', application.Email, {singleton: false});
         application.register('controller:postIndex', application.PostIndexController, {singleton: true});
 
+        registry = application.__registry__;
         locator = application.__container__;
 
         lookup = Ember.lookup = {};
@@ -1967,11 +1965,11 @@ enifed("ember-application/tests/system/dependency_injection_test",
     });
 
     test('registered entities can be looked up later', function() {
-      equal(locator.resolve('model:person'), application.Person);
-      equal(locator.resolve('model:user'), application.User);
-      equal(locator.resolve('fruit:favorite'), application.Orange);
-      equal(locator.resolve('communication:main'), application.Email);
-      equal(locator.resolve('controller:postIndex'), application.PostIndexController);
+      equal(registry.resolve('model:person'), application.Person);
+      equal(registry.resolve('model:user'), application.User);
+      equal(registry.resolve('fruit:favorite'), application.Orange);
+      equal(registry.resolve('communication:main'), application.Email);
+      equal(registry.resolve('controller:postIndex'), application.PostIndexController);
 
       equal(locator.lookup('fruit:favorite'), locator.lookup('fruit:favorite'), 'singleton lookup worked');
       ok(locator.lookup('model:user') !== locator.lookup('model:user'), 'non-singleton lookup worked');
@@ -2046,7 +2044,7 @@ enifed("ember-application/tests/system/initializers_test",
       MyApplication.initializer({
         name: 'fourth',
         after: 'third',
-        initialize: function(container) {
+        initialize: function(registry) {
           order.push('fourth');
         }
       });
@@ -2055,7 +2053,7 @@ enifed("ember-application/tests/system/initializers_test",
         name: 'second',
         after: 'first',
         before: 'third',
-        initialize: function(container) {
+        initialize: function(registry) {
           order.push('second');
         }
       });
@@ -2064,7 +2062,7 @@ enifed("ember-application/tests/system/initializers_test",
         name: 'fifth',
         after: 'fourth',
         before: 'sixth',
-        initialize: function(container) {
+        initialize: function(registry) {
           order.push('fifth');
         }
       });
@@ -2072,21 +2070,21 @@ enifed("ember-application/tests/system/initializers_test",
       MyApplication.initializer({
         name: 'first',
         before: 'second',
-        initialize: function(container) {
+        initialize: function(registry) {
           order.push('first');
         }
       });
 
       MyApplication.initializer({
         name: 'third',
-        initialize: function(container) {
+        initialize: function(registry) {
           order.push('third');
         }
       });
 
       MyApplication.initializer({
         name: 'sixth',
-        initialize: function(container) {
+        initialize: function(registry) {
           order.push('sixth');
         }
       });
@@ -2106,34 +2104,34 @@ enifed("ember-application/tests/system/initializers_test",
       var a = {
         name: "a",
         before: "b",
-        initialize: function(container) {
+        initialize: function(registry) {
           order.push('a');
         }
       };
       var b = {
         name: "b",
-        initialize: function(container) {
+        initialize: function(registry) {
           order.push('b');
         }
       };
       var c = {
         name: "c",
         after: "b",
-        initialize: function(container) {
+        initialize: function(registry) {
           order.push('c');
         }
       };
       var afterB = {
         name: "after b",
         after: "b",
-        initialize: function(container) {
+        initialize: function(registry) {
           order.push("after b");
         }
       };
       var afterC = {
         name: "after c",
         after: "c",
-        initialize: function(container) {
+        initialize: function(registry) {
           order.push("after c");
         }
       };
@@ -2163,14 +2161,14 @@ enifed("ember-application/tests/system/initializers_test",
       var FirstApp = Application.extend();
       FirstApp.initializer({
         name: 'first',
-        initialize: function(container) {
+        initialize: function(registry) {
           firstInitializerRunCount++;
         }
       });
       var SecondApp = Application.extend();
       SecondApp.initializer({
         name: 'second',
-        initialize: function(container) {
+        initialize: function(registry) {
           secondInitializerRunCount++;
         }
       });
@@ -2199,7 +2197,7 @@ enifed("ember-application/tests/system/initializers_test",
       var FirstApp = Application.extend();
       FirstApp.initializer({
         name: 'first',
-        initialize: function(container) {
+        initialize: function(registry) {
           firstInitializerRunCount++;
         }
       });
@@ -2207,7 +2205,7 @@ enifed("ember-application/tests/system/initializers_test",
       var SecondApp = FirstApp.extend();
       SecondApp.initializer({
         name: 'second',
-        initialize: function(container) {
+        initialize: function(registry) {
           secondInitializerRunCount++;
         }
       });
@@ -2237,13 +2235,13 @@ enifed("ember-application/tests/system/initializers_test",
       var FirstApp = Application.extend();
       FirstApp.initializer({
         name: 'shouldNotCollide',
-        initialize: function(container) {}
+        initialize: function(registry) {}
       });
 
       var SecondApp = Application.extend();
       SecondApp.initializer({
         name: 'shouldNotCollide',
-        initialize: function(container) {}
+        initialize: function(registry) {}
       });
     });
   });
@@ -2651,7 +2649,7 @@ enifed("ember-application/tests/system/readiness_test.jshint",
     });
   });
 enifed("ember-application/tests/system/reset_test",
-  ["ember-metal/run_loop","ember-metal/property_get","ember-metal/property_set","ember-application/system/application","ember-runtime/system/object","ember-routing/system/router","ember-views/views/view","ember-runtime/controllers/controller","ember-views/system/jquery","container/container"],
+  ["ember-metal/run_loop","ember-metal/property_get","ember-metal/property_set","ember-application/system/application","ember-runtime/system/object","ember-routing/system/router","ember-views/views/view","ember-runtime/controllers/controller","ember-views/system/jquery","container/registry"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__) {
     "use strict";
     var run = __dependency1__["default"];
@@ -2663,7 +2661,7 @@ enifed("ember-application/tests/system/reset_test",
     var View = __dependency7__["default"];
     var Controller = __dependency8__["default"];
     var jQuery = __dependency9__["default"];
-    var Container = __dependency10__["default"];
+    var Registry = __dependency10__["default"];
 
     var application;
     var EmberApplication = Application;
@@ -2758,8 +2756,8 @@ enifed("ember-application/tests/system/reset_test",
       };
 
       // this is pretty awful. We should make this less Global-ly.
-      var originalRegister = Container.prototype.register;
-      Container.prototype.register = function(name, type, options){
+      var originalRegister = Registry.prototype.register;
+      Registry.prototype.register = function(name, type, options){
         if (name === "event_dispatcher:main") {
           return mock_event_dispatcher;
         } else {
@@ -2782,9 +2780,9 @@ enifed("ember-application/tests/system/reset_test",
 
         equal(eventDispatcherWasDestroyed, 1);
         equal(eventDispatcherWasSetup, 2, "setup called after reset");
-      } catch (error) { Container.prototype.register = originalRegister; }
+      } catch (error) { Registry.prototype.register = originalRegister; }
 
-      Container.prototype.register = originalRegister;
+      Registry.prototype.register = originalRegister;
     });
 
     test("When an application is reset, the ApplicationView is torn down", function() {
@@ -2900,10 +2898,11 @@ enifed("ember-application/tests/system/reset_test",
 
       Application.initializer({
         name: "store",
-        initialize: function(container, application) {
-          application.register('store:main', application.Store);
+        initialize: function(registry, application) {
+          registry.unregister('store:main');
+          registry.register('store:main', application.Store);
 
-          container.lookup('store:main');
+          application.__container__.lookup('store:main');
         }
       });
 
@@ -3832,7 +3831,7 @@ enifed("ember-extension-support/tests/data_adapter_test",
           App = EmberApplication.create();
           App.toString = function() { return 'App'; };
           App.deferReadiness();
-          App.__container__.register('data-adapter:main', DataAdapter);
+          App.__registry__.register('data-adapter:main', DataAdapter);
         });
       },
       teardown: function() {
@@ -3881,7 +3880,7 @@ enifed("ember-extension-support/tests/data_adapter_test",
           return [PostClass];
         }
       });
-      App.__container__.register('container-debug-adapter:main', StubContainerDebugAdapter);
+      App.__registry__.register('container-debug-adapter:main', StubContainerDebugAdapter);
 
       adapter = App.__container__.lookup('data-adapter:main');
       adapter.reopen({
@@ -5298,7 +5297,7 @@ enifed("ember-htmlbars/tests/compat/handlebars_get_test",
     var _MetamorphView = __dependency2__["default"];
     var EmberView = __dependency3__["default"];
     var handlebarsGet = __dependency4__["default"];
-    var Container = __dependency5__["default"];
+    var Registry = __dependency5__.Registry;
     var runAppend = __dependency6__.runAppend;
     var runDestroy = __dependency6__.runDestroy;
 
@@ -5307,22 +5306,23 @@ enifed("ember-htmlbars/tests/compat/handlebars_get_test",
     var compile = EmberHandlebars.compile;
 
     var originalLookup = Ember.lookup;
-    var TemplateTests, container, lookup, view;
+    var TemplateTests, registry, container, lookup, view;
 
     QUnit.module("ember-htmlbars: Ember.Handlebars.get", {
       setup: function() {
         Ember.lookup = lookup = {};
-        container = new Container();
-        container.optionsForType('template', { instantiate: false });
-        container.optionsForType('helper', { instantiate: false });
-        container.register('view:default', _MetamorphView);
-        container.register('view:toplevel', EmberView.extend());
+        registry = new Registry();
+        container = registry.container();
+        registry.optionsForType('template', { instantiate: false });
+        registry.optionsForType('helper', { instantiate: false });
+        registry.register('view:default', _MetamorphView);
+        registry.register('view:toplevel', EmberView.extend());
       },
 
       teardown: function() {
         runDestroy(container);
         runDestroy(view);
-        container = view = null;
+        registry = container = view = null;
 
         Ember.lookup = lookup = originalLookup;
         TemplateTests = null;
@@ -5332,7 +5332,7 @@ enifed("ember-htmlbars/tests/compat/handlebars_get_test",
     test('it can lookup a path from the current context', function() {
       expect(1);
 
-      container.register('helper:handlebars-get', function(path, options) {
+      registry.register('helper:handlebars-get', function(path, options) {
         var context = options.contexts && options.contexts[0] || this;
 
         ignoreDeprecation(function() {
@@ -5354,7 +5354,7 @@ enifed("ember-htmlbars/tests/compat/handlebars_get_test",
     test('it can lookup a path from the current keywords', function() {
       expect(1);
 
-      container.register('helper:handlebars-get', function(path, options) {
+      registry.register('helper:handlebars-get', function(path, options) {
         var context = options.contexts && options.contexts[0] || this;
 
         ignoreDeprecation(function() {
@@ -5378,7 +5378,7 @@ enifed("ember-htmlbars/tests/compat/handlebars_get_test",
 
       lookup.Blammo = { foo: 'blah'};
 
-      container.register('helper:handlebars-get', function(path, options) {
+      registry.register('helper:handlebars-get', function(path, options) {
         var context = options.contexts && options.contexts[0] || this;
 
         ignoreDeprecation(function() {
@@ -5398,7 +5398,7 @@ enifed("ember-htmlbars/tests/compat/handlebars_get_test",
     test('it raises a deprecation warning on use', function() {
       expect(1);
 
-      container.register('helper:handlebars-get', function(path, options) {
+      registry.register('helper:handlebars-get', function(path, options) {
         var context = options.contexts && options.contexts[0] || this;
 
         expectDeprecation(function() {
@@ -5561,28 +5561,30 @@ enifed("ember-htmlbars/tests/compat/helper_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/compat/make-view-helper_test",
-  ["ember-views/views/view","container/container","ember-htmlbars/system/compile","ember-htmlbars/system/make-view-helper","ember-views/views/component","ember-runtime/tests/utils"],
+  ["ember-views/views/view","container/registry","ember-htmlbars/system/compile","ember-htmlbars/system/make-view-helper","ember-views/views/component","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
     var EmberView = __dependency1__["default"];
-    var Container = __dependency2__["default"];
+    var Registry = __dependency2__["default"];
     var compile = __dependency3__["default"];
     var makeViewHelper = __dependency4__["default"];
     var Component = __dependency5__["default"];
     var runAppend = __dependency6__.runAppend;
     var runDestroy = __dependency6__.runDestroy;
 
-    var container, view;
+    var registry, container, view;
 
     QUnit.module('ember-htmlbars: makeViewHelper compat', {
       setup: function() {
-        container = new Container();
-        container.optionsForType('helper', { instantiate: false });
+        registry = new Registry();
+        container = registry.container();
+        registry.optionsForType('helper', { instantiate: false });
       },
 
       teardown: function() {
         runDestroy(container);
         runDestroy(view);
+        registry = container = view = null;
       }
     });
 
@@ -5593,7 +5595,7 @@ enifed("ember-htmlbars/tests/compat/make-view-helper_test",
         layout: compile('woot!')
       });
       var helper = makeViewHelper(ViewHelperComponent);
-      container.register('helper:view-helper', helper);
+      registry.register('helper:view-helper', helper);
 
       view = EmberView.extend({
         template: compile('{{view-helper}}'),
@@ -6382,7 +6384,7 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test",
     var A = __dependency7__.A;
     var computed = __dependency8__.computed;
     var observersFor = __dependency9__.observersFor;
-    var Container = __dependency10__["default"];
+    var Registry = __dependency10__.Registry;
     var set = __dependency11__.set;
     var runAppend = __dependency12__.runAppend;
     var runDestroy = __dependency12__.runDestroy;
@@ -6394,7 +6396,7 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test",
     var view;
 
     var originalLookup = Ember.lookup;
-    var TemplateTests, container, lookup;
+    var TemplateTests, registry, container, lookup;
 
     /**
       This module specifically tests integration with Handlebars and Ember-specific
@@ -6407,16 +6409,17 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test",
       setup: function() {
         Ember.lookup = lookup = {};
         lookup.TemplateTests = TemplateTests = Namespace.create();
-        container = new Container();
-        container.optionsForType('template', { instantiate: false });
-        container.register('view:default', _MetamorphView);
-        container.register('view:toplevel', EmberView.extend());
+        registry = new Registry();
+        container = registry.container();
+        registry.optionsForType('template', { instantiate: false });
+        registry.register('view:default', _MetamorphView);
+        registry.register('view:toplevel', EmberView.extend());
       },
 
       teardown: function() {
         runDestroy(container);
         runDestroy(view);
-        container = view = null;
+        registry = container = view = null;
 
         Ember.lookup = lookup = originalLookup;
         TemplateTests = null;
@@ -6920,7 +6923,7 @@ enifed("ember-htmlbars/tests/helpers/bind_test",
     var run = __dependency3__["default"];
     var _MetamorphView = __dependency4__["default"];
     var compile = __dependency5__["default"];
-    var Container = __dependency6__["default"];
+    var Registry = __dependency6__.Registry;
     var ObjectController = __dependency7__["default"];
 
     var get = __dependency8__.get;
@@ -6928,19 +6931,20 @@ enifed("ember-htmlbars/tests/helpers/bind_test",
     var runAppend = __dependency10__.runAppend;
     var runDestroy = __dependency10__.runDestroy;
 
-    var view, container;
+    var view, registry, container;
 
     QUnit.module("ember-htmlbars: {{bind}} helper", {
       setup: function() {
-        container = new Container();
-        container.optionsForType('template', { instantiate: false });
-        container.register('view:default', _MetamorphView);
-        container.register('view:toplevel', EmberView.extend());
+        registry = new Registry();
+        container = registry.container();
+        registry.optionsForType('template', { instantiate: false });
+        registry.register('view:default', _MetamorphView);
+        registry.register('view:toplevel', EmberView.extend());
       },
       teardown: function() {
         runDestroy(container);
         runDestroy(view);
-        container = view = null;
+        registry = container = view = null;
       }
     });
 
@@ -7001,13 +7005,14 @@ enifed("ember-htmlbars/tests/helpers/bind_test",
 
     QUnit.module("ember-htmlbars: {{bind}} with a container, block forms", {
       setup: function() {
-        container = new Container();
-        container.optionsForType('template', { instantiate: false });
+        registry = new Registry();
+        container = registry.container();
+        registry.optionsForType('template', { instantiate: false });
       },
       teardown: function() {
         runDestroy(container);
         runDestroy(view);
-        container = view = null;
+        registry = container = view = null;
       }
     });
 
@@ -7017,7 +7022,7 @@ enifed("ember-htmlbars/tests/helpers/bind_test",
       
       var template = compile(
         '<h1 id="first">{{#bind view.content}}{{#bind foo}}{{bind baz}}{{/bind}}{{/bind}}</h1>' );
-      container.register('template:foo', template);
+      registry.register('template:foo', template);
 
       view = EmberView.create({
         container: container,
@@ -7063,7 +7068,7 @@ enifed("ember-htmlbars/tests/helpers/bind_test",
       
       var template = compile(
         '<h1>Today\'s Menu</h1>{{#bind view.coffee}}<h2>{{color}} coffee</h2><span id="price">{{bind price}}</span>{{/bind}}');
-      container.register('template:menu', template);
+      registry.register('template:menu', template);
 
       run(function() {
         view = EmberView.create({
@@ -7113,7 +7118,7 @@ enifed("ember-htmlbars/tests/helpers/bind_test",
 
     test("Template updates correctly if a path is passed to the bind helper", function() {
       var template = compile('<h1>{{bind view.coffee.price}}</h1>');
-      container.register('template:menu', template);
+      registry.register('template:menu', template);
 
       view = EmberView.create({
         container: container,
@@ -7143,7 +7148,7 @@ enifed("ember-htmlbars/tests/helpers/bind_test",
 
     test("Template updates correctly if a path is passed to the bind helper and the context object is an ObjectController", function() {
       var template = compile('<h1>{{bind view.coffee.price}}</h1>');
-      container.register('template:menu', template);
+      registry.register('template:menu', template);
 
       var controller = ObjectController.create();
 
@@ -7178,7 +7183,7 @@ enifed("ember-htmlbars/tests/helpers/bind_test",
     });
 
     test('View should update when a property changes and the bind helper is used', function() {
-      container.register('template:foo', compile('<h1 id="first">{{#with view.content as thing}}{{bind "thing.wham"}}{{/with}}</h1>'));
+      registry.register('template:foo', compile('<h1 id="first">{{#with view.content as thing}}{{bind "thing.wham"}}{{/with}}</h1>'));
 
       view = EmberView.create({
         container: container,
@@ -7220,7 +7225,7 @@ enifed("ember-htmlbars/tests/helpers/collection_test",
     var EmberView = __dependency3__["default"];
     var ArrayProxy = __dependency4__["default"];
     var Namespace = __dependency5__["default"];
-    var Container = __dependency6__["default"];
+    var Registry = __dependency6__.Registry;
     var A = __dependency7__.A;
     var run = __dependency8__["default"];
     var get = __dependency9__.get;
@@ -7237,7 +7242,7 @@ enifed("ember-htmlbars/tests/helpers/collection_test",
     var view;
 
     var originalLookup = Ember.lookup;
-    var TemplateTests, container, lookup;
+    var TemplateTests, registry, container, lookup;
 
 
     function nthChild(view, nth) {
@@ -7254,16 +7259,18 @@ enifed("ember-htmlbars/tests/helpers/collection_test",
       setup: function() {
         Ember.lookup = lookup = {};
         lookup.TemplateTests = TemplateTests = Namespace.create();
-        container = new Container();
-        container.optionsForType('template', { instantiate: false });
-        // container.register('view:default', _MetamorphView);
-        container.register('view:toplevel', EmberView.extend());
+        registry = new Registry();
+        container = registry.container();
+
+        registry.optionsForType('template', { instantiate: false });
+        // registry.register('view:default', _MetamorphView);
+        registry.register('view:toplevel', EmberView.extend());
       },
 
       teardown: function() {
         runDestroy(container);
         runDestroy(view);
-        container = view = null;
+        registry = container = view = null;
 
         Ember.lookup = lookup = originalLookup;
         TemplateTests = null;
@@ -7334,7 +7341,7 @@ enifed("ember-htmlbars/tests/helpers/collection_test",
     });
 
     test("itemViewClass works in the #collection via container", function() {
-      container.register('view:example-item', EmberView.extend({
+      registry.register('view:example-item', EmberView.extend({
         isAlsoCustom: true
       }));
 
@@ -7370,14 +7377,15 @@ enifed("ember-htmlbars/tests/helpers/collection_test",
     });
 
     test("collection helper should try to use container to resolve view", function() {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
 
       var ACollectionView = CollectionView.extend({
             tagName: 'ul',
             content: A(['foo', 'bar', 'baz'])
       });
 
-      container.register('view:collectionTest', ACollectionView);
+      registry.register('view:collectionTest', ACollectionView);
 
       var controller = {container: container};
       view = EmberView.create({
@@ -7755,14 +7763,14 @@ enifed("ember-htmlbars/tests/helpers/collection_test",
     });
 
     test("should render nested collections", function() {
-
-      var container = new Container();
-      container.register('view:inner-list', CollectionView.extend({
+      var registry = new Registry();
+      var container = registry.container();
+      registry.register('view:inner-list', CollectionView.extend({
         tagName: 'ul',
         content: A(['one','two','three'])
       }));
 
-      container.register('view:outer-list', CollectionView.extend({
+      registry.register('view:outer-list', CollectionView.extend({
         tagName: 'ul',
         content: A(['foo'])
       }));
@@ -7873,7 +7881,8 @@ enifed("ember-htmlbars/tests/helpers/collection_test",
     test("context should be content", function() {
       var view;
 
-      var container = new Container();
+      registry = new Registry();
+      container = registry.container();
 
       var items = A([
         EmberObject.create({name: 'Dave'}),
@@ -7881,7 +7890,7 @@ enifed("ember-htmlbars/tests/helpers/collection_test",
         EmberObject.create({name: 'Sara'})
       ]);
 
-      container.register('view:an-item', EmberView.extend({
+      registry.register('view:an-item', EmberView.extend({
         template: compile("Greetings {{name}}")
       }));
 
@@ -8009,7 +8018,7 @@ enifed("ember-htmlbars/tests/helpers/each_test",
     var A = __dependency8__.A;
     var EmberController = __dependency9__["default"];
     var ObjectController = __dependency10__["default"];
-    var Container = __dependency11__["default"];
+    var Registry = __dependency11__.Registry;
 
     var get = __dependency12__.get;
     var set = __dependency13__.set;
@@ -8018,7 +8027,7 @@ enifed("ember-htmlbars/tests/helpers/each_test",
 
     var compile = __dependency15__["default"];
 
-    var people, view, container;
+    var people, view, registry, container;
     var template, templateMyView, MyView;
 
     // This function lets us write {{#EACH|people|p}} {{p}} {{/each}}
@@ -8083,9 +8092,11 @@ enifed("ember-htmlbars/tests/helpers/each_test",
         template = templateFor("{{#each view.people}}{{name}}{{/each}}");
         people = A([{ name: "Steve Holt" }, { name: "Annabelle" }]);
 
-        container = new Container();
-        container.register('view:default', _MetamorphView);
-        container.register('view:toplevel', EmberView.extend());
+        registry = new Registry();
+        container = registry.container();
+
+        registry.register('view:default', _MetamorphView);
+        registry.register('view:toplevel', EmberView.extend());
 
         view = EmberView.create({
           container: container,
@@ -8106,7 +8117,7 @@ enifed("ember-htmlbars/tests/helpers/each_test",
       teardown: function() {
         runDestroy(container);
         runDestroy(view);
-        container = view = null;
+        registry = container = view = null;
 
         Ember.lookup = originalLookup;
       }
@@ -8327,7 +8338,7 @@ enifed("ember-htmlbars/tests/helpers/each_test",
         container: container
       };
 
-      container.register('controller:array', ArrayController.extend());
+      registry.register('controller:array', ArrayController.extend());
 
       view = EmberView.create({
         container: container,
@@ -8336,7 +8347,7 @@ enifed("ember-htmlbars/tests/helpers/each_test",
         controller: parentController
       });
 
-      container.register('controller:person', Controller);
+      registry.register('controller:person', Controller);
 
       runAppend(view);
 
@@ -8376,7 +8387,7 @@ enifed("ember-htmlbars/tests/helpers/each_test",
             company: 'Yapp'
           };
 
-      container.register('controller:array', ArrayController.extend());
+      registry.register('controller:array', ArrayController.extend());
       runDestroy(view);
 
       view = EmberView.create({
@@ -8386,7 +8397,7 @@ enifed("ember-htmlbars/tests/helpers/each_test",
         controller: parentController
       });
 
-      container.register('controller:person', Controller);
+      registry.register('controller:person', Controller);
 
       runAppend(view);
 
@@ -8405,8 +8416,8 @@ enifed("ember-htmlbars/tests/helpers/each_test",
             company: 'Yapp'
           });
 
-      container.register('controller:people', PeopleController);
-      container.register('controller:person', PersonController);
+      registry.register('controller:people', PeopleController);
+      registry.register('controller:person', PersonController);
       runDestroy(view);
 
       view = EmberView.create({
@@ -8437,9 +8448,9 @@ enifed("ember-htmlbars/tests/helpers/each_test",
           });
        var CompanyController = EmberController.extend();
 
-      container.register('controller:company', CompanyController);
-      container.register('controller:people', PeopleController);
-      container.register('controller:person', PersonController);
+      registry.register('controller:company', CompanyController);
+      registry.register('controller:people', PeopleController);
+      registry.register('controller:person', PersonController);
 
       runDestroy(view);
       view = EmberView.create({
@@ -8461,7 +8472,7 @@ enifed("ember-htmlbars/tests/helpers/each_test",
         })
       });
 
-      container.register('controller:array', ArrayController.extend());
+      registry.register('controller:array', ArrayController.extend());
 
       runDestroy(view);
       view = EmberView.create({
@@ -8473,7 +8484,7 @@ enifed("ember-htmlbars/tests/helpers/each_test",
         }
       });
 
-      container.register('controller:person', Controller);
+      registry.register('controller:person', Controller);
 
       runAppend(view);
 
@@ -8500,7 +8511,7 @@ enifed("ember-htmlbars/tests/helpers/each_test",
         }
       });
 
-      container.register('view:anItemView', itemView);
+      registry.register('view:anItemView', itemView);
 
       runAppend(view);
 
@@ -8522,10 +8533,10 @@ enifed("ember-htmlbars/tests/helpers/each_test",
         }
       });
 
-      container.register('view:an-item-view', itemView);
-      container.resolve = function(fullname) {
+      registry.register('view:an-item-view', itemView);
+      registry.resolve = function(fullname) {
         equal(fullname, "view:an-item-view", "leaves fullname untouched");
-        return Container.prototype.resolve.call(this, fullname);
+        return Registry.prototype.resolve.call(this, fullname);
       };
       runAppend(view);
 
@@ -8695,9 +8706,11 @@ enifed("ember-htmlbars/tests/helpers/each_test",
     function testEachWithItem(moduleName, useBlockParams) {
       QUnit.module(moduleName, {
         setup: function() {
-          container = new Container();
-          container.register('view:default', _MetamorphView);
-          container.register('view:toplevel', EmberView.extend());
+          registry = new Registry();
+          container = registry.container();
+
+          registry.register('view:default', _MetamorphView);
+          registry.register('view:toplevel', EmberView.extend());
         },
         teardown: function() {
           runDestroy(container);
@@ -8815,7 +8828,8 @@ enifed("ember-htmlbars/tests/helpers/each_test",
           })
         });
 
-        var container = new Container();
+        registry = new Registry();
+        container = registry.container();
 
         people = A([{ name: "Steve Holt" }, { name: "Annabelle" }]);
 
@@ -8825,7 +8839,7 @@ enifed("ember-htmlbars/tests/helpers/each_test",
           controllerName: 'controller:parentController'
         };
 
-        container.register('controller:array', ArrayController.extend());
+        registry.register('controller:array', ArrayController.extend());
 
         view = EmberView.create({
           container: container,
@@ -8833,7 +8847,7 @@ enifed("ember-htmlbars/tests/helpers/each_test",
           controller: parentController
         });
 
-        container.register('controller:person', Controller);
+        registry.register('controller:person', Controller);
 
         runAppend(view);
 
@@ -8868,10 +8882,11 @@ enifed("ember-htmlbars/tests/helpers/each_test",
               company: 'Yapp',
               controllerName: 'controller:people'
             });
-        var container = new Container();
+        registry = new Registry();
+        container = registry.container();
 
-        container.register('controller:people', PeopleController);
-        container.register('controller:person', PersonController);
+        registry.register('controller:people', PeopleController);
+        registry.register('controller:person', PersonController);
 
         view = EmberView.create({
           container: container,
@@ -8939,7 +8954,7 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
     "use strict";
     var run = __dependency1__["default"];
     var Namespace = __dependency2__["default"];
-    var Container = __dependency3__["default"];
+    var Registry = __dependency3__.Registry;
     var EmberView = __dependency4__["default"];
     var ObjectProxy = __dependency5__["default"];
     var EmberObject = __dependency6__["default"];
@@ -8955,22 +8970,23 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
 
     var originalLookup = Ember.lookup;
 
-    var view, lookup, container, TemplateTests;
+    var view, lookup, registry, container, TemplateTests;
 
     QUnit.module("ember-htmlbars: {{#if}} and {{#unless}} helpers", {
       setup: function() {
         Ember.lookup = lookup = {};
         lookup.TemplateTests = TemplateTests = Namespace.create();
-        container = new Container();
-        container.optionsForType('template', { instantiate: false });
-        container.register('view:default', _MetamorphView);
-        container.register('view:toplevel', EmberView.extend());
+        registry = new Registry();
+        container = registry.container();
+        registry.optionsForType('template', { instantiate: false });
+        registry.register('view:default', _MetamorphView);
+        registry.register('view:toplevel', EmberView.extend());
       },
 
       teardown: function() {
         runDestroy(container);
         runDestroy(view);
-        container = view = null;
+        registry = container = view = null;
 
         Ember.lookup = lookup = originalLookup;
         TemplateTests = null;
@@ -9190,7 +9206,7 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
     });
 
     test('should update the block when object passed to #unless helper changes', function() {
-      container.register('template:advice', compile('<h1>{{#unless view.onDrugs}}{{view.doWellInSchool}}{{/unless}}</h1>'));
+      registry.register('template:advice', compile('<h1>{{#unless view.onDrugs}}{{view.doWellInSchool}}{{/unless}}</h1>'));
 
       view = EmberView.create({
         container: container,
@@ -9268,7 +9284,7 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
     });
 
     test('should update the block when object passed to #if helper changes', function() {
-      container.register('template:menu', compile('<h1>{{#if view.inception}}{{view.INCEPTION}}{{/if}}</h1>'));
+      registry.register('template:menu', compile('<h1>{{#if view.inception}}{{view.INCEPTION}}{{/if}}</h1>'));
 
       view = EmberView.create({
         container: container,
@@ -9300,7 +9316,7 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
     });
 
     test('should update the block when object passed to #if helper changes and an inverse is supplied', function() {
-      container.register('template:menu', compile('<h1>{{#if view.inception}}{{view.INCEPTION}}{{else}}{{view.SAD}}{{/if}}</h1>'));
+      registry.register('template:menu', compile('<h1>{{#if view.inception}}{{view.INCEPTION}}{{else}}{{view.SAD}}{{/if}}</h1>'));
 
       view = EmberView.create({
         container: container,
@@ -9376,7 +9392,7 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
     });
 
     test('should update the block when object passed to #unless helper changes', function() {
-      container.register('template:advice', compile('<h1>{{#unless view.onDrugs}}{{view.doWellInSchool}}{{/unless}}</h1>'));
+      registry.register('template:advice', compile('<h1>{{#unless view.onDrugs}}{{view.doWellInSchool}}{{/unless}}</h1>'));
 
       view = EmberView.create({
         container: container,
@@ -9454,7 +9470,7 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
     });
 
     test('should update the block when object passed to #if helper changes', function() {
-      container.register('template:menu', compile('<h1>{{#if view.inception}}{{view.INCEPTION}}{{/if}}</h1>'));
+      registry.register('template:menu', compile('<h1>{{#if view.inception}}{{view.INCEPTION}}{{/if}}</h1>'));
 
       view = EmberView.create({
         container: container,
@@ -9486,7 +9502,7 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
     });
 
     test('should update the block when object passed to #if helper changes and an inverse is supplied', function() {
-      container.register('template:menu', compile('<h1>{{#if view.inception}}{{view.INCEPTION}}{{else}}{{view.SAD}}{{/if}}</h1>'));
+      registry.register('template:menu', compile('<h1>{{#if view.inception}}{{view.INCEPTION}}{{else}}{{view.SAD}}{{/if}}</h1>'));
 
       view = EmberView.create({
         container: container,
@@ -10401,20 +10417,21 @@ enifed("ember-htmlbars/tests/helpers/partial_test",
     var EmberView = __dependency3__["default"];
     var jQuery = __dependency4__["default"];
     var trim = jQuery.trim;
-    var Container = __dependency5__["default"];
+    var Registry = __dependency5__.Registry;
     var compile = __dependency6__["default"];
     var runAppend = __dependency7__.runAppend;
     var runDestroy = __dependency7__.runDestroy;
 
-    var MyApp, lookup, view, container;
+    var MyApp, lookup, view, registry, container;
     var originalLookup = Ember.lookup;
 
     QUnit.module("Support for {{partial}} helper", {
       setup: function() {
         Ember.lookup = lookup = { Ember: Ember };
         MyApp = lookup.MyApp = EmberObject.create({});
-        container = new Container();
-        container.optionsForType('template', { instantiate: false });
+        registry = new Registry();
+        container = registry.container();
+        registry.optionsForType('template', { instantiate: false });
       },
       teardown: function() {
         runDestroy(view);
@@ -10423,7 +10440,7 @@ enifed("ember-htmlbars/tests/helpers/partial_test",
     });
 
     test("should render other templates registered with the container", function() {
-      container.register('template:_subTemplateFromContainer', compile('sub-template'));
+      registry.register('template:_subTemplateFromContainer', compile('sub-template'));
 
       view = EmberView.create({
         container: container,
@@ -10436,7 +10453,7 @@ enifed("ember-htmlbars/tests/helpers/partial_test",
     });
 
     test("should render other slash-separated templates registered with the container", function() {
-      container.register('template:child/_subTemplateFromContainer', compile("sub-template"));
+      registry.register('template:child/_subTemplateFromContainer', compile("sub-template"));
 
       view = EmberView.create({
         container: container,
@@ -10449,7 +10466,7 @@ enifed("ember-htmlbars/tests/helpers/partial_test",
     });
 
     test("should use the current view's context", function() {
-      container.register('template:_person_name', compile("{{firstName}} {{lastName}}"));
+      registry.register('template:_person_name', compile("{{firstName}} {{lastName}}"));
 
       view = EmberView.create({
         container: container,
@@ -10466,8 +10483,8 @@ enifed("ember-htmlbars/tests/helpers/partial_test",
     });
 
     test("Quoteless parameters passed to {{template}} perform a bound property lookup of the partial name", function() {
-      container.register('template:_subTemplate', compile("sub-template"));
-      container.register('template:_otherTemplate', compile("other-template"));
+      registry.register('template:_subTemplate', compile("sub-template"));
+      registry.register('template:_otherTemplate', compile("other-template"));
 
       view = EmberView.create({
         container: container,
@@ -10510,29 +10527,32 @@ enifed("ember-htmlbars/tests/helpers/template_test",
     var jQuery = __dependency3__["default"];
     var trim = jQuery.trim;
 
-    var Container = __dependency4__["default"];
+    var Registry = __dependency4__.Registry;
     var compile = __dependency5__["default"];
     var runAppend = __dependency6__.runAppend;
     var runDestroy = __dependency6__.runDestroy;
 
-    var MyApp, lookup, view, container;
+    var MyApp, lookup, view, registry, container;
     var originalLookup = Ember.lookup;
 
     QUnit.module("Support for {{template}} helper", {
       setup: function() {
         Ember.lookup = lookup = { Ember: Ember };
         MyApp = lookup.MyApp = EmberObject.create({});
-        container = new Container();
-        container.optionsForType('template', { instantiate: false });
+        registry = new Registry();
+        container = registry.container();
+        registry.optionsForType('template', { instantiate: false });
       },
       teardown: function() {
         runDestroy(view);
+        runDestroy(container);
+        registry = container = view = null;
         Ember.lookup = originalLookup;
       }
     });
 
     test("should render other templates via the container (DEPRECATED)", function() {
-      container.register('template:sub_template_from_container', compile('sub-template'));
+      registry.register('template:sub_template_from_container', compile('sub-template'));
 
       view = EmberView.create({
         container: container,
@@ -10547,7 +10567,7 @@ enifed("ember-htmlbars/tests/helpers/template_test",
     });
 
     test("should use the current view's context (DEPRECATED)", function() {
-      container.register('template:person_name', compile("{{firstName}} {{lastName}}"));
+      registry.register('template:person_name', compile("{{firstName}} {{lastName}}"));
 
       view = EmberView.create({
         container: container,
@@ -10654,7 +10674,7 @@ enifed("ember-htmlbars/tests/helpers/unbound_test",
     var registerBoundHelper = __dependency11__["default"];
     var makeBoundHelper = __dependency12__["default"];
 
-    var Container = __dependency13__["default"];
+    var Registry = __dependency13__.Registry;
     var runAppend = __dependency14__.runAppend;
     var runDestroy = __dependency14__.runDestroy;
 
@@ -10664,7 +10684,7 @@ enifed("ember-htmlbars/tests/helpers/unbound_test",
     }
 
 
-    var view, lookup, container;
+    var view, lookup, registry, container;
     var originalLookup = Ember.lookup;
 
     QUnit.module('ember-htmlbars: {{#unbound}} helper', {
@@ -10927,20 +10947,23 @@ enifed("ember-htmlbars/tests/helpers/unbound_test",
     QUnit.module("ember-htmlbars: {{#unbound}} helper -- Container Lookup", {
       setup: function() {
         Ember.lookup = lookup = { Ember: Ember };
-        container = new Container();
-        container.optionsForType('helper', { instantiate: false });
+        registry = new Registry();
+        container = registry.container();
+        registry.optionsForType('helper', { instantiate: false });
       },
 
       teardown: function() {
         runDestroy(view);
+        runDestroy(container);
         Ember.lookup = originalLookup;
+        registry = container = view = null;
       }
     });
 
     test("should lookup helpers in the container", function() {
       expectDeprecationInHTMLBars();
 
-      container.register('helper:up-case', makeBoundHelper(function(value) {
+      registry.register('helper:up-case', makeBoundHelper(function(value) {
         return value.toUpperCase();
       }));
 
@@ -11044,13 +11067,13 @@ enifed("ember-htmlbars/tests/helpers/unbound_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helpers/view_test",
-  ["ember-metal/property_set","ember-views/views/view","container/container","ember-metal/run_loop","ember-views/system/jquery","ember-views/views/text_field","ember-runtime/system/namespace","ember-runtime/system/object","ember-views/views/container_view","ember-views/views/metamorph_view","htmlbars-util/safe-string","ember-htmlbars/compat/precompile","ember-htmlbars/system/compile","ember-htmlbars/system/template","ember-metal/observer","ember-runtime/controllers/object_controller","ember-runtime/tests/utils","ember-metal/property_get","ember-metal/computed"],
+  ["ember-metal/property_set","ember-views/views/view","container/registry","ember-metal/run_loop","ember-views/system/jquery","ember-views/views/text_field","ember-runtime/system/namespace","ember-runtime/system/object","ember-views/views/container_view","ember-views/views/metamorph_view","htmlbars-util/safe-string","ember-htmlbars/compat/precompile","ember-htmlbars/system/compile","ember-htmlbars/system/template","ember-metal/observer","ember-runtime/controllers/object_controller","ember-runtime/tests/utils","ember-metal/property_get","ember-metal/computed"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__) {
     "use strict";
     /*globals EmberDev */
     var set = __dependency1__.set;
     var EmberView = __dependency2__["default"];
-    var Container = __dependency3__["default"];
+    var Registry = __dependency3__["default"];
     var run = __dependency4__["default"];
     var jQuery = __dependency5__["default"];
     var TextField = __dependency6__["default"];
@@ -11071,7 +11094,7 @@ enifed("ember-htmlbars/tests/helpers/view_test",
     var get = __dependency18__.get;
     var computed = __dependency19__.computed;
 
-    var view, originalLookup, container, lookup;
+    var view, originalLookup, registry, container, lookup;
 
     var trim = jQuery.trim;
 
@@ -11095,16 +11118,17 @@ enifed("ember-htmlbars/tests/helpers/view_test",
         originalLookup = Ember.lookup;
         Ember.lookup = lookup = {};
 
-        container = new Container();
-        container.optionsForType('template', { instantiate: false });
-        container.register('view:default', _MetamorphView);
-        container.register('view:toplevel', EmberView.extend());
+        registry = new Registry();
+        container = registry.container();
+        registry.optionsForType('template', { instantiate: false });
+        registry.register('view:default', _MetamorphView);
+        registry.register('view:toplevel', EmberView.extend());
       },
 
       teardown: function() {
         runDestroy(container);
         runDestroy(view);
-        container = view = null;
+        registry = container = view = null;
 
         Ember.lookup = lookup = originalLookup;
       }
@@ -11410,8 +11434,9 @@ enifed("ember-htmlbars/tests/helpers/view_test",
     test("allows you to pass attributes that will be assigned to the class instance, like class=\"foo\"", function() {
       expect(4);
 
-      var container = new Container();
-      container.register('view:toplevel', EmberView.extend());
+      registry = new Registry();
+      container = registry.container();
+      registry.register('view:toplevel', EmberView.extend());
 
       view = EmberView.extend({
         template: compile('{{view id="foo" tagName="h1" class="foo"}}{{#view id="bar" class="bar"}}Bar{{/view}}'),
@@ -11652,7 +11677,7 @@ enifed("ember-htmlbars/tests/helpers/view_test",
     });
 
     test('views set the template of their children to a passed block', function() {
-      container.register('template:parent', compile('<h1>{{#view}}<span>It worked!</span>{{/view}}</h1>'));
+      registry.register('template:parent', compile('<h1>{{#view}}<span>It worked!</span>{{/view}}</h1>'));
 
       view = EmberView.create({
         container: container,
@@ -11671,10 +11696,10 @@ enifed("ember-htmlbars/tests/helpers/view_test",
         something:         'visible'
       });
 
-      container.register('controller:label', ObjectController, { instantiate: true });
-      container.register('view:label',       LabelView);
-      container.register('template:label',   compile('<div id="child-view"></div>'));
-      container.register('template:nester',  compile('{{render "label"}}'));
+      registry.register('controller:label', ObjectController, { instantiate: true });
+      registry.register('view:label',       LabelView);
+      registry.register('template:label',   compile('<div id="child-view"></div>'));
+      registry.register('template:nester',  compile('{{render "label"}}'));
 
       view = EmberView.create({
         container:    container,
@@ -11690,8 +11715,8 @@ enifed("ember-htmlbars/tests/helpers/view_test",
     });
 
     test('child views can be inserted using the {{view}} helper', function() {
-      container.register('template:nester', compile('<h1 id="hello-world">Hello {{world}}</h1>{{view view.labelView}}'));
-      container.register('template:nested', compile('<div id="child-view">Goodbye {{cruel}} {{world}}</div>'));
+      registry.register('template:nester', compile('<h1 id="hello-world">Hello {{world}}</h1>{{view view.labelView}}'));
+      registry.register('template:nested', compile('<div id="child-view">Goodbye {{cruel}} {{world}}</div>'));
 
       var context = {
         world: 'world!'
@@ -11740,8 +11765,8 @@ enifed("ember-htmlbars/tests/helpers/view_test",
     });
 
     test('Template views add an elementId to child views created using the view helper', function() {
-      container.register('template:parent', compile('<div>{{view view.childView}}</div>'));
-      container.register('template:child',  compile('I can\'t believe it\'s not butter.'));
+      registry.register('template:parent', compile('<div>{{view view.childView}}</div>'));
+      registry.register('template:child',  compile('I can\'t believe it\'s not butter.'));
 
       var ChildView = EmberView.extend({
         container: container,
@@ -11808,7 +11833,7 @@ enifed("ember-htmlbars/tests/helpers/view_test",
     });
 
     test('{{view}} id attribute should set id on layer', function() {
-      container.register('template:foo', compile('{{#view view.idView id="bar"}}baz{{/view}}'));
+      registry.register('template:foo', compile('{{#view view.idView id="bar"}}baz{{/view}}'));
 
       var IdView = EmberView;
 
@@ -11825,7 +11850,7 @@ enifed("ember-htmlbars/tests/helpers/view_test",
     });
 
     test('{{view}} tag attribute should set tagName of the view', function() {
-      container.register('template:foo', compile('{{#view view.tagView tag="span"}}baz{{/view}}'));
+      registry.register('template:foo', compile('{{#view view.tagView tag="span"}}baz{{/view}}'));
 
       var TagView = EmberView;
 
@@ -11842,7 +11867,7 @@ enifed("ember-htmlbars/tests/helpers/view_test",
     });
 
     test('{{view}} class attribute should set class on layer', function() {
-      container.register('template:foo', compile('{{#view view.idView class="bar"}}baz{{/view}}'));
+      registry.register('template:foo', compile('{{#view view.idView class="bar"}}baz{{/view}}'));
 
       var IdView = EmberView;
 
@@ -12023,7 +12048,7 @@ enifed("ember-htmlbars/tests/helpers/view_test",
     });
 
     test('{{view}} should be able to bind class names to truthy properties', function() {
-      container.register('template:template', compile('{{#view view.classBindingView classBinding="view.number:is-truthy"}}foo{{/view}}'));
+      registry.register('template:template', compile('{{#view view.classBindingView classBinding="view.number:is-truthy"}}foo{{/view}}'));
 
       var ClassBindingView = EmberView.extend();
 
@@ -12046,7 +12071,7 @@ enifed("ember-htmlbars/tests/helpers/view_test",
     });
 
     test('{{view}} should be able to bind class names to truthy or falsy properties', function() {
-      container.register('template:template', compile('{{#view view.classBindingView classBinding="view.number:is-truthy:is-falsy"}}foo{{/view}}'));
+      registry.register('template:template', compile('{{#view view.classBindingView classBinding="view.number:is-truthy:is-falsy"}}foo{{/view}}'));
 
       var ClassBindingView = EmberView.extend();
 
@@ -12366,7 +12391,7 @@ enifed("ember-htmlbars/tests/helpers/with_test",
     var set = __dependency5__.set;
     var get = __dependency6__.get;
     var ObjectController = __dependency7__["default"];
-    var Container = __dependency8__["default"];
+    var Registry = __dependency8__.Registry;
     var compile = __dependency9__["default"];
     var runAppend = __dependency10__.runAppend;
     var runDestroy = __dependency10__.runDestroy;
@@ -12580,7 +12605,8 @@ enifed("ember-htmlbars/tests/helpers/with_test",
       });
 
       var person = EmberObject.create({name: 'Steve Holt'});
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
 
       var parentController = EmberObject.create({
         container: container,
@@ -12594,7 +12620,7 @@ enifed("ember-htmlbars/tests/helpers/with_test",
         controller: parentController
       });
 
-      container.register('controller:person', Controller);
+      registry.register('controller:person', Controller);
 
       expectDeprecation(function(){
         runAppend(view);
@@ -12636,7 +12662,8 @@ enifed("ember-htmlbars/tests/helpers/with_test",
       });
 
       var people = A([{ name: "Steve Holt" }, { name: "Carl Weathers" }]);
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
 
       var parentController = EmberObject.create({
         container: container,
@@ -12650,7 +12677,7 @@ enifed("ember-htmlbars/tests/helpers/with_test",
         controller: parentController
       });
 
-      container.register('controller:person', Controller);
+      registry.register('controller:person', Controller);
 
       runAppend(view);
 
@@ -12668,7 +12695,8 @@ enifed("ember-htmlbars/tests/helpers/with_test",
       });
 
       var person = EmberObject.create({name: 'Steve Holt'});
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
 
       var parentController = EmberObject.create({
         container: container,
@@ -12682,7 +12710,7 @@ enifed("ember-htmlbars/tests/helpers/with_test",
         controller: parentController
       });
 
-      container.register('controller:person', PersonController);
+      registry.register('controller:person', PersonController);
 
       runAppend(view);
 
@@ -12721,7 +12749,8 @@ enifed("ember-htmlbars/tests/helpers/with_test",
       });
 
       var person = EmberObject.create({name: 'Steve Holt'});
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
 
       var parentController = EmberObject.create({
         container: container,
@@ -12735,7 +12764,7 @@ enifed("ember-htmlbars/tests/helpers/with_test",
         controller: parentController
       });
 
-      container.register('controller:person', Controller);
+      registry.register('controller:person', Controller);
 
       expectDeprecation(function(){
         runAppend(view);
@@ -12756,7 +12785,8 @@ enifed("ember-htmlbars/tests/helpers/with_test",
       });
 
       var person = EmberObject.create({name: 'Steve Holt'});
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
 
       var parentController = EmberObject.create({
         container: container,
@@ -12770,7 +12800,7 @@ enifed("ember-htmlbars/tests/helpers/with_test",
         controller: parentController
       });
 
-      container.register('controller:person', Controller);
+      registry.register('controller:person', Controller);
 
       runAppend(view);
 
@@ -12877,7 +12907,7 @@ enifed("ember-htmlbars/tests/helpers/yield_test",
     var run = __dependency1__["default"];
     var EmberView = __dependency2__["default"];
     var computed = __dependency3__.computed;
-    var Container = __dependency4__["default"];
+    var Registry = __dependency4__.Registry;
     var get = __dependency5__.get;
     var set = __dependency6__.set;
     var A = __dependency7__.A;
@@ -12890,18 +12920,21 @@ enifed("ember-htmlbars/tests/helpers/yield_test",
     var runAppend = __dependency12__.runAppend;
     var runDestroy = __dependency12__.runDestroy;
 
-    var view, container;
+    var view, registry, container;
 
     QUnit.module("ember-htmlbars: Support for {{yield}} helper", {
       setup: function() {
-        container = new Container();
-        container.optionsForType('template', { instantiate: false });
+        registry = new Registry();
+        container = registry.container();
+        registry.optionsForType('template', { instantiate: false });
       },
       teardown: function() {
         run(function() {
           Ember.TEMPLATES = {};
         });
         runDestroy(view);
+        runDestroy(container);
+        registry = container = view = null;
       }
     });
 
@@ -12921,10 +12954,10 @@ enifed("ember-htmlbars/tests/helpers/yield_test",
     });
 
     test("block should work properly even when templates are not hard-coded", function() {
-      container.register('template:nester', compile('<div class="wrapper"><h1>{{title}}</h1>{{yield}}</div>'));
-      container.register('template:nested', compile('{{#view "with-layout" title="My Fancy Page"}}<div class="page-body">Show something interesting here</div>{{/view}}'));
+      registry.register('template:nester', compile('<div class="wrapper"><h1>{{title}}</h1>{{yield}}</div>'));
+      registry.register('template:nested', compile('{{#view "with-layout" title="My Fancy Page"}}<div class="page-body">Show something interesting here</div>{{/view}}'));
 
-      container.register('view:with-layout', EmberView.extend({
+      registry.register('view:with-layout', EmberView.extend({
         container: container,
         layoutName: 'nester'
       }));
@@ -13258,26 +13291,17 @@ enifed("ember-htmlbars/tests/helpers/yield_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/hooks/component_test",
-  ["ember-views/component_lookup","container","ember-views/views/view","ember-htmlbars/system/compile","ember-runtime/tests/utils"],
+  ["ember-views/component_lookup","container/registry","ember-views/views/view","ember-htmlbars/system/compile","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
     var ComponentLookup = __dependency1__["default"];
-    var Container = __dependency2__["default"];
+    var Registry = __dependency2__["default"];
     var EmberView = __dependency3__["default"];
     var compile = __dependency4__["default"];
     var runAppend = __dependency5__.runAppend;
     var runDestroy = __dependency5__.runDestroy;
 
-    var view, container;
-
-    function generateContainer() {
-      var container = new Container();
-
-      container.optionsForType('template', { instantiate: false });
-      container.register('component-lookup:main', ComponentLookup);
-
-      return container;
-    }
+    var view, registry, container;
 
     // this is working around a bug in defeatureify that prevents nested flags
     // from being stripped
@@ -13290,16 +13314,22 @@ enifed("ember-htmlbars/tests/hooks/component_test",
       if (componentGenerationEnabled) {
         QUnit.module("ember-htmlbars: component hook", {
           setup: function() {
-            container = generateContainer();
+            registry = new Registry();
+            container = registry.container();
+
+            registry.optionsForType('template', { instantiate: false });
+            registry.register('component-lookup:main', ComponentLookup);
           },
 
           teardown: function(){
             runDestroy(view);
+            runDestroy(container);
+            registry = container = view = null;
           }
         });
 
         test("component is looked up from the container", function() {
-          container.register('template:components/foo-bar', compile('yippie!'));
+          registry.register('template:components/foo-bar', compile('yippie!'));
 
           view = EmberView.create({
             container: container,
@@ -13625,10 +13655,10 @@ enifed("ember-htmlbars/tests/integration/binding_integration_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/integration/block_params_test",
-  ["container/container","ember-metal/run_loop","ember-views/component_lookup","ember-views/views/view","ember-htmlbars/system/compile","ember-htmlbars/helpers","ember-runtime/tests/utils"],
+  ["container/registry","ember-metal/run_loop","ember-views/component_lookup","ember-views/views/view","ember-htmlbars/system/compile","ember-htmlbars/helpers","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
     "use strict";
-    var Container = __dependency1__["default"];
+    var Registry = __dependency1__["default"];
     var run = __dependency2__["default"];
     var ComponentLookup = __dependency3__["default"];
     var View = __dependency4__["default"];
@@ -13638,7 +13668,7 @@ enifed("ember-htmlbars/tests/integration/block_params_test",
     var runAppend = __dependency7__.runAppend;
     var runDestroy = __dependency7__.runDestroy;
 
-    var container, view;
+    var registry, container, view;
 
     function aliasHelper(params, hash, options, env) {
       this.appendChild(View, {
@@ -13655,18 +13685,22 @@ enifed("ember-htmlbars/tests/integration/block_params_test",
       setup: function() {
         registerHelper('alias', aliasHelper);
 
-        container = new Container();
-        container.optionsForType('component', { singleton: false });
-        container.optionsForType('view', { singleton: false });
-        container.optionsForType('template', { instantiate: false });
-        container.optionsForType('helper', { instantiate: false });
-        container.register('component-lookup:main', ComponentLookup);
+        registry = new Registry();
+        container = registry.container();
+        registry.optionsForType('component', { singleton: false });
+        registry.optionsForType('view', { singleton: false });
+        registry.optionsForType('template', { instantiate: false });
+        registry.optionsForType('helper', { instantiate: false });
+        registry.register('component-lookup:main', ComponentLookup);
       },
+
       teardown: function() {
         delete helpers.alias;
 
         runDestroy(container);
         runDestroy(view);
+
+        registry = container = view = null;
       }
     });
 
@@ -13719,7 +13753,7 @@ enifed("ember-htmlbars/tests/integration/block_params_test",
     });
 
     test("components can yield values", function() {
-      container.register('template:components/x-alias', compile('{{yield param.name}}'));
+      registry.register('template:components/x-alias', compile('{{yield param.name}}'));
 
       view = View.create({
         container: container,
@@ -13764,39 +13798,41 @@ enifed("ember-htmlbars/tests/integration/block_params_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/integration/component_invocation_test",
-  ["ember-views/views/view","container/container","ember-views/system/jquery","ember-htmlbars/system/compile","ember-views/component_lookup","ember-runtime/tests/utils"],
+  ["ember-views/views/view","container/registry","ember-views/system/jquery","ember-htmlbars/system/compile","ember-views/component_lookup","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
     var EmberView = __dependency1__["default"];
-    var Container = __dependency2__["default"];
+    var Registry = __dependency2__["default"];
     var jQuery = __dependency3__["default"];
     var compile = __dependency4__["default"];
     var ComponentLookup = __dependency5__["default"];
     var runAppend = __dependency6__.runAppend;
     var runDestroy = __dependency6__.runDestroy;
 
-    var container, view;
+    var registry, container, view;
 
     QUnit.module('component - invocation', {
       setup: function() {
-        container = new Container();
-        container.optionsForType('component', { singleton: false });
-        container.optionsForType('view', { singleton: false });
-        container.optionsForType('template', { instantiate: false });
-        container.optionsForType('helper', { instantiate: false });
-        container.register('component-lookup:main', ComponentLookup);
+        registry = new Registry();
+        container = registry.container();
+        registry.optionsForType('component', { singleton: false });
+        registry.optionsForType('view', { singleton: false });
+        registry.optionsForType('template', { instantiate: false });
+        registry.optionsForType('helper', { instantiate: false });
+        registry.register('component-lookup:main', ComponentLookup);
       },
 
       teardown: function() {
         runDestroy(container);
         runDestroy(view);
+        registry = container = view = null;
       }
     });
 
     test('non-block without properties', function() {
       expect(1);
 
-      container.register('template:components/non-block', compile('In layout'));
+      registry.register('template:components/non-block', compile('In layout'));
 
       view = EmberView.extend({
         template: compile('{{non-block}}'),
@@ -13811,7 +13847,7 @@ enifed("ember-htmlbars/tests/integration/component_invocation_test",
     test('block without properties', function() {
       expect(1);
 
-      container.register('template:components/with-block', compile('In layout - {{yield}}'));
+      registry.register('template:components/with-block', compile('In layout - {{yield}}'));
 
       view = EmberView.extend({
         template: compile('{{#with-block}}In template{{/with-block}}'),
@@ -13826,7 +13862,7 @@ enifed("ember-htmlbars/tests/integration/component_invocation_test",
     test('non-block with properties', function() {
       expect(1);
 
-      container.register('template:components/non-block', compile('In layout - someProp: {{someProp}}'));
+      registry.register('template:components/non-block', compile('In layout - someProp: {{someProp}}'));
 
       view = EmberView.extend({
         template: compile('{{non-block someProp="something here"}}'),
@@ -13841,7 +13877,7 @@ enifed("ember-htmlbars/tests/integration/component_invocation_test",
     test('block with properties', function() {
       expect(1);
 
-      container.register('template:components/with-block', compile('In layout - someProp: {{someProp}} - {{yield}}'));
+      registry.register('template:components/with-block', compile('In layout - someProp: {{someProp}} - {{yield}}'));
 
       view = EmberView.extend({
         template: compile('{{#with-block someProp="something here"}}In template{{/with-block}}'),
@@ -14471,7 +14507,7 @@ enifed("ember-htmlbars/tests/integration/with_view_test",
     var run = __dependency1__["default"];
     var jQuery = __dependency2__["default"];
     var EmberView = __dependency3__["default"];
-    var Container = __dependency4__["default"];
+    var Registry = __dependency4__.Registry;
     var EmberObject = __dependency5__["default"];
     var _MetamorphView = __dependency6__["default"];
     var compile = __dependency7__["default"];
@@ -14480,26 +14516,27 @@ enifed("ember-htmlbars/tests/integration/with_view_test",
 
     var set = __dependency9__.set;
 
-    var view, container;
+    var view, registry, container;
     var trim = jQuery.trim;
 
     QUnit.module('ember-htmlbars: {{#with}} and {{#view}} integration', {
       setup: function() {
-        container = new Container();
-        container.optionsForType('template', { instantiate: false });
-        container.register('view:default', _MetamorphView);
-        container.register('view:toplevel', EmberView.extend());
+        registry = new Registry();
+        container = registry.container();
+        registry.optionsForType('template', { instantiate: false });
+        registry.register('view:default', _MetamorphView);
+        registry.register('view:toplevel', EmberView.extend());
       },
 
       teardown: function() {
         runDestroy(container);
         runDestroy(view);
-        container = view = null;
+        registry = container = view = null;
       }
     });
 
     test('View should update when the property used with the #with helper changes [DEPRECATED]', function() {
-      container.register('template:foo', compile('<h1 id="first">{{#with view.content}}{{wham}}{{/with}}</h1>'));
+      registry.register('template:foo', compile('<h1 id="first">{{#with view.content}}{{wham}}{{/with}}</h1>'));
 
       view = EmberView.create({
         container: container,
@@ -14573,9 +14610,9 @@ enifed("ember-htmlbars/tests/integration/with_view_test",
     });
 
     test('child views can be inserted inside a bind block', function() {
-      container.register('template:nester', compile('<h1 id="hello-world">Hello {{world}}</h1>{{view view.bqView}}'));
-      container.register('template:nested', compile('<div id="child-view">Goodbye {{#with content as thing}}{{thing.blah}} {{view view.otherView}}{{/with}} {{world}}</div>'));
-      container.register('template:other',  compile('cruel'));
+      registry.register('template:nester', compile('<h1 id="hello-world">Hello {{world}}</h1>{{view view.bqView}}'));
+      registry.register('template:nested', compile('<div id="child-view">Goodbye {{#with content as thing}}{{thing.blah}} {{view view.otherView}}{{/with}} {{world}}</div>'));
+      registry.register('template:other',  compile('cruel'));
 
       var context = {
         world: 'world!'
@@ -14613,7 +14650,7 @@ enifed("ember-htmlbars/tests/integration/with_view_test",
     });
 
     test('views render their template in the context of the parent view\'s context', function() {
-      container.register('template:parent', compile('<h1>{{#with content as person}}{{#view}}{{person.firstName}} {{person.lastName}}{{/view}}{{/with}}</h1>'));
+      registry.register('template:parent', compile('<h1>{{#with content as person}}{{#view}}{{person.firstName}} {{person.lastName}}{{/view}}{{/with}}</h1>'));
 
       var context = {
         content: {
@@ -14633,7 +14670,7 @@ enifed("ember-htmlbars/tests/integration/with_view_test",
     });
 
     test('views make a view keyword available that allows template to reference view context', function() {
-      container.register('template:parent', compile('<h1>{{#with view.content as person}}{{#view person.subview}}{{view.firstName}} {{person.lastName}}{{/view}}{{/with}}</h1>'));
+      registry.register('template:parent', compile('<h1>{{#with view.content as person}}{{#view person.subview}}{{view.firstName}} {{person.lastName}}{{/view}}{{/with}}</h1>'));
 
       view = EmberView.create({
         container: container,
@@ -14927,12 +14964,12 @@ enifed("ember-htmlbars/tests/system/compile_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/system/lookup-helper_test",
-  ["ember-htmlbars/system/lookup-helper","ember-views/component_lookup","container","ember-views/views/component"],
+  ["ember-htmlbars/system/lookup-helper","ember-views/component_lookup","container/registry","ember-views/views/component"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
     var lookupHelper = __dependency1__["default"];
     var ComponentLookup = __dependency2__["default"];
-    var Container = __dependency3__["default"];
+    var Registry = __dependency3__["default"];
     var Component = __dependency4__["default"];
 
     function generateEnv(helpers) {
@@ -14942,10 +14979,11 @@ enifed("ember-htmlbars/tests/system/lookup-helper_test",
     }
 
     function generateContainer() {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
 
-      container.optionsForType('helper', { instantiate: false });
-      container.register('component-lookup:main', ComponentLookup);
+      registry.optionsForType('helper', { instantiate: false });
+      registry.register('component-lookup:main', ComponentLookup);
 
       return container;
     }
@@ -14994,7 +15032,7 @@ enifed("ember-htmlbars/tests/system/lookup-helper_test",
 
       function someName() {}
       someName.isHTMLBars = true;
-      view.container.register('helper:some-name', someName);
+      view.container._registry.register('helper:some-name', someName);
 
       var actual = lookupHelper('some-name', view, env);
 
@@ -15012,7 +15050,7 @@ enifed("ember-htmlbars/tests/system/lookup-helper_test",
       function someName() {
         called = true;
       }
-      view.container.register('helper:some-name', someName);
+      view.container._registry.register('helper:some-name', someName);
 
       var actual = lookupHelper('some-name', view, env);
 
@@ -15035,7 +15073,7 @@ enifed("ember-htmlbars/tests/system/lookup-helper_test",
         container: generateContainer()
       };
 
-      view.container.unregister('component-lookup:main');
+      view.container._registry.unregister('component-lookup:main');
 
       expectAssertion(function() {
         lookupHelper('some-name', view, env);
@@ -15048,7 +15086,7 @@ enifed("ember-htmlbars/tests/system/lookup-helper_test",
         container: generateContainer()
       };
 
-      view.container.register('component:some-name', Component);
+      view.container._registry.register('component:some-name', Component);
 
       lookupHelper('some-name', view, env);
 
@@ -15065,12 +15103,12 @@ enifed("ember-htmlbars/tests/system/lookup-helper_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/system/make_bound_helper_test",
-  ["ember-views/views/view","ember-metal/run_loop","container","ember-htmlbars/system/make_bound_helper","ember-htmlbars/system/compile","ember-runtime/tests/utils","ember-runtime/system/string","ember-views/views/simple_bound_view","ember-runtime/system/object"],
+  ["ember-views/views/view","ember-metal/run_loop","container/registry","ember-htmlbars/system/make_bound_helper","ember-htmlbars/system/compile","ember-runtime/tests/utils","ember-runtime/system/string","ember-views/views/simple_bound_view","ember-runtime/system/object"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
     "use strict";
     var EmberView = __dependency1__["default"];
     var run = __dependency2__["default"];
-    var Container = __dependency3__["default"];
+    var Registry = __dependency3__["default"];
     var makeBoundHelper = __dependency4__["default"];
     var compile = __dependency5__["default"];
     var runAppend = __dependency6__.runAppend;
@@ -15079,10 +15117,10 @@ enifed("ember-htmlbars/tests/system/make_bound_helper_test",
     var SimpleBoundView = __dependency8__["default"];
     var EmberObject = __dependency9__["default"];
 
-    var view, container;
+    var view, registry, container;
 
     function registerRepeatHelper() {
-      container.register('helper:x-repeat', makeBoundHelper(function(params, hash, options, env) {
+      registry.register('helper:x-repeat', makeBoundHelper(function(params, hash, options, env) {
         var times = hash.times || 1;
         return new Array(times + 1).join( params[0] );
       }));
@@ -15092,18 +15130,20 @@ enifed("ember-htmlbars/tests/system/make_bound_helper_test",
 
     QUnit.module("ember-htmlbars: makeBoundHelper", {
       setup: function() {
-        container = new Container();
-        container.optionsForType('helper', { instantiate: false });
+        registry = new Registry();
+        container = registry.container();
+        registry.optionsForType('helper', { instantiate: false });
       },
 
       teardown: function() {
         runDestroy(view);
         runDestroy(container);
+        registry = container = view = null;
       }
     });
 
     test("should update bound helpers in a subexpression when properties change", function() {
-      container.register('helper:x-dasherize', makeBoundHelper(function(params, hash, options, env) {
+      registry.register('helper:x-dasherize', makeBoundHelper(function(params, hash, options, env) {
         return dasherize(params[0]);
       }));
 
@@ -15123,7 +15163,7 @@ enifed("ember-htmlbars/tests/system/make_bound_helper_test",
     });
 
     test("should update bound helpers when properties change", function() {
-      container.register('helper:x-capitalize', makeBoundHelper(function(params, hash, options, env) {
+      registry.register('helper:x-capitalize', makeBoundHelper(function(params, hash, options, env) {
         return params[0].toUpperCase();
       }));
 
@@ -15164,7 +15204,7 @@ enifed("ember-htmlbars/tests/system/make_bound_helper_test",
     });
 
     test("bound helpers should support keywords", function() {
-      container.register('helper:x-capitalize', makeBoundHelper(function(params, hash, options, env) {
+      registry.register('helper:x-capitalize', makeBoundHelper(function(params, hash, options, env) {
         return params[0].toUpperCase();
       }));
 
@@ -15180,7 +15220,7 @@ enifed("ember-htmlbars/tests/system/make_bound_helper_test",
     });
 
     test("bound helpers should not process `fooBinding` style hash properties", function() {
-      container.register('helper:x-repeat', makeBoundHelper(function(params, hash, options, env) {
+      registry.register('helper:x-repeat', makeBoundHelper(function(params, hash, options, env) {
         equal(hash.timesBinding, "numRepeats");
       }));
 
@@ -15198,7 +15238,7 @@ enifed("ember-htmlbars/tests/system/make_bound_helper_test",
 
     test("bound helpers should support multiple bound properties", function() {
 
-      container.register('helper:x-combine', makeBoundHelper(function(params, hash, options, env) {
+      registry.register('helper:x-combine', makeBoundHelper(function(params, hash, options, env) {
         return params.join('');
       }));
 
@@ -15228,7 +15268,7 @@ enifed("ember-htmlbars/tests/system/make_bound_helper_test",
     });
 
     test("bound helpers can be invoked with zero args", function() {
-      container.register('helper:x-troll', makeBoundHelper(function(params, hash) {
+      registry.register('helper:x-troll', makeBoundHelper(function(params, hash) {
         return hash.text || "TROLOLOL";
       }));
 
@@ -15259,7 +15299,7 @@ enifed("ember-htmlbars/tests/system/make_bound_helper_test",
     });
 
     test("shouldn't treat raw numbers as bound paths", function() {
-      container.register('helper:x-sum', makeBoundHelper(function(params) {
+      registry.register('helper:x-sum', makeBoundHelper(function(params) {
         return params[0] + params[1];
       }));
 
@@ -15279,7 +15319,7 @@ enifed("ember-htmlbars/tests/system/make_bound_helper_test",
     });
 
     test("should have correct argument types", function() {
-      container.register('helper:get-type', makeBoundHelper(function(params) {
+      registry.register('helper:get-type', makeBoundHelper(function(params) {
         return typeof params[0];
       }));
 
@@ -25904,7 +25944,7 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test",
     var EventDispatcher = __dependency4__["default"];
     var ActionManager = __dependency5__["default"];
 
-    var Container = __dependency6__["default"];
+    var Registry = __dependency6__.Registry;
     var EmberObject = __dependency7__["default"];
     var EmberController = __dependency8__["default"];
     var EmberObjectController = __dependency9__["default"];
@@ -26080,7 +26120,8 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test",
       };
 
       var PersonController = EmberObjectController.extend();
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
       var parentController = EmberObject.create({
         container: container
       });
@@ -26092,7 +26133,7 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test",
         controller: parentController
       });
 
-      container.register('controller:person', PersonController);
+      registry.register('controller:person', PersonController);
 
       expectDeprecation(function() {
         runAppend(view);
@@ -26114,7 +26155,8 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test",
         }
       });
 
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
       var parentController = EmberObject.create({
         container: container,
         people: Ember.A([
@@ -26129,7 +26171,7 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test",
         controller: parentController
       });
 
-      container.register('controller:people', PeopleController);
+      registry.register('controller:people', PeopleController);
 
       runAppend(view);
 
@@ -27094,7 +27136,7 @@ enifed("ember-routing-htmlbars/tests/helpers/link-to_test.jshint",
     });
   });
 enifed("ember-routing-htmlbars/tests/helpers/outlet_test",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","container/container","ember-runtime/system/namespace","ember-runtime/system/string","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-routing/system/router","ember-routing/location/hash_location","ember-views/views/metamorph_view","ember-routing/ext/view","ember-views/views/container_view","ember-views/system/jquery","ember-routing-htmlbars/helpers/outlet","ember-htmlbars/system/compile","ember-htmlbars/helpers","ember-runtime/tests/utils"],
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","container/registry","ember-runtime/system/namespace","ember-runtime/system/string","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-routing/system/router","ember-routing/location/hash_location","ember-views/views/metamorph_view","ember-routing/ext/view","ember-views/views/container_view","ember-views/system/jquery","ember-routing-htmlbars/helpers/outlet","ember-htmlbars/system/compile","ember-htmlbars/helpers","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__) {
     "use strict";
     var Ember = __dependency1__["default"];
@@ -27103,7 +27145,7 @@ enifed("ember-routing-htmlbars/tests/helpers/outlet_test",
     var set = __dependency3__.set;
     var run = __dependency4__["default"];
 
-    var Container = __dependency5__["default"];
+    var Registry = __dependency5__["default"];
     var Namespace = __dependency6__["default"];
     var decamelize = __dependency7__.decamelize;
     var classify = __dependency7__.classify;
@@ -27127,25 +27169,29 @@ enifed("ember-routing-htmlbars/tests/helpers/outlet_test",
     var runAppend = __dependency20__.runAppend;
     var runDestroy = __dependency20__.runDestroy;
 
-    var buildContainer = function(namespace) {
-      var container = new Container();
+    var buildRegistry = function(namespace) {
+      var registry = new Registry();
 
-      container.set = set;
-      container.resolver = resolverFor(namespace);
-      container.optionsForType('view', { singleton: false });
-      container.optionsForType('template', { instantiate: false });
-      container.register('application:main', namespace, { instantiate: false });
-      container.injection('router:main', 'namespace', 'application:main');
+      registry.set = set;
+      registry.resolver = resolverFor(namespace);
+      registry.optionsForType('view', { singleton: false });
+      registry.optionsForType('template', { instantiate: false });
+      registry.register('application:main', namespace, { instantiate: false });
+      registry.injection('router:main', 'namespace', 'application:main');
 
-      container.register('location:hash', HashLocation);
+      registry.register('location:hash', HashLocation);
 
-      container.register('controller:basic', Controller, { instantiate: false });
-      container.register('controller:object', ObjectController, { instantiate: false });
-      container.register('controller:array', ArrayController, { instantiate: false });
+      registry.register('controller:basic', Controller, { instantiate: false });
+      registry.register('controller:object', ObjectController, { instantiate: false });
+      registry.register('controller:array', ArrayController, { instantiate: false });
 
-      container.typeInjection('route', 'router', 'router:main');
+      registry.typeInjection('route', 'router', 'router:main');
 
-      return container;
+      return registry;
+    };
+
+    var buildContainer = function(registry) {
+      return registry.container();
     };
 
     function resolverFor(namespace) {
@@ -27170,7 +27216,7 @@ enifed("ember-routing-htmlbars/tests/helpers/outlet_test",
 
     var trim = jQuery.trim;
 
-    var view, container, originalOutletHelper;
+    var view, registry, container, originalOutletHelper;
 
     QUnit.module("ember-routing-htmlbars: {{outlet}} helper", {
 
@@ -27179,9 +27225,10 @@ enifed("ember-routing-htmlbars/tests/helpers/outlet_test",
         registerHelper('outlet', outletHelper);
 
         var namespace = Namespace.create();
-        container = buildContainer(namespace);
-        container.register('view:default', _MetamorphView);
-        container.register('router:main', EmberRouter.extend());
+        registry = buildRegistry(namespace);
+        container = buildContainer(registry);
+        registry.register('view:default', _MetamorphView);
+        registry.register('router:main', EmberRouter.extend());
       },
       teardown: function() {
         delete helpers['outlet'];
@@ -27189,6 +27236,7 @@ enifed("ember-routing-htmlbars/tests/helpers/outlet_test",
 
         runDestroy(container);
         runDestroy(view);
+        registry = container = view = null;
       }
     });
 
@@ -27256,7 +27304,7 @@ enifed("ember-routing-htmlbars/tests/helpers/outlet_test",
 
       ContainerView = EmberContainerView.extend();
 
-      container.register("view:containerView", ContainerView);
+      registry.register("view:containerView", ContainerView);
 
       template = "<h1>HI</h1>{{outlet view='containerView'}}";
 
@@ -27490,7 +27538,7 @@ enifed("ember-routing-htmlbars/tests/helpers/outlet_test.jshint",
     });
   });
 enifed("ember-routing-htmlbars/tests/helpers/render_test",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-metal/platform","ember-metal/mixin","container/container","ember-runtime/system/namespace","ember-runtime/system/string","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-routing/system/router","ember-routing/location/hash_location","ember-htmlbars/helpers","ember-htmlbars/system/compile","ember-routing/ext/view","ember-views/views/metamorph_view","ember-views/system/jquery","ember-views/system/action_manager","ember-routing-htmlbars/helpers/render","ember-routing-htmlbars/helpers/action","ember-routing-htmlbars/helpers/outlet"],
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-metal/platform","ember-metal/mixin","container/registry","ember-runtime/system/namespace","ember-runtime/system/string","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-routing/system/router","ember-routing/location/hash_location","ember-htmlbars/helpers","ember-htmlbars/system/compile","ember-routing/ext/view","ember-views/views/metamorph_view","ember-views/system/jquery","ember-views/system/action_manager","ember-routing-htmlbars/helpers/render","ember-routing-htmlbars/helpers/action","ember-routing-htmlbars/helpers/outlet"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__) {
     "use strict";
     var Ember = __dependency1__["default"];
@@ -27501,7 +27549,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
     var canDefineNonEnumerableProperties = __dependency5__.canDefineNonEnumerableProperties;
     var observer = __dependency6__.observer;
 
-    var Container = __dependency7__["default"];
+    var Registry = __dependency7__["default"];
     var Namespace = __dependency8__["default"];
     var classify = __dependency9__.classify;
     var decamelize = __dependency9__.decamelize;
@@ -27535,22 +27583,23 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
     }
 
     function buildContainer(namespace) {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
 
-      container.set = emberSet;
-      container.resolver = resolverFor(namespace);
-      container.optionsForType('view', { singleton: false });
-      container.optionsForType('template', { instantiate: false });
-      container.register('application:main', namespace, { instantiate: false });
-      container.injection('router:main', 'namespace', 'application:main');
+      registry.set = emberSet;
+      registry.resolver = resolverFor(namespace);
+      registry.optionsForType('view', { singleton: false });
+      registry.optionsForType('template', { instantiate: false });
+      registry.register('application:main', namespace, { instantiate: false });
+      registry.injection('router:main', 'namespace', 'application:main');
 
-      container.register('location:hash', HashLocation);
+      registry.register('location:hash', HashLocation);
 
-      container.register('controller:basic', EmberController, { instantiate: false });
-      container.register('controller:object', EmberObjectController, { instantiate: false });
-      container.register('controller:array', EmberArrayController, { instantiate: false });
+      registry.register('controller:basic', EmberController, { instantiate: false });
+      registry.register('controller:object', EmberObjectController, { instantiate: false });
+      registry.register('controller:array', EmberArrayController, { instantiate: false });
 
-      container.typeInjection('route', 'router', 'router:main');
+      registry.typeInjection('route', 'router', 'router:main');
 
       return container;
     }
@@ -27591,8 +27640,8 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
 
         var namespace = Namespace.create();
         container = buildContainer(namespace);
-        container.register('view:default', _MetamorphView);
-        container.register('router:main', EmberRouter.extend());
+        container._registry.register('view:default', _MetamorphView);
+        container._registry.register('router:main', EmberRouter.extend());
       },
       teardown: function() {
         delete helpers['render'];
@@ -27650,7 +27699,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
     test("{{render}} helper should not have assertion if template is supplied in block-form", function() {
       var template = "<h1>HI</h1>{{#render 'good'}} {{name}}{{/render}}";
       var controller = EmberController.extend({container: container});
-      container.register('controller:good', EmberController.extend({ name: 'Rob'}));
+      container._registry.register('controller:good', EmberController.extend({ name: 'Rob'}));
       view = EmberView.create({
         controller: controller.create(),
         template: compile(template)
@@ -27669,7 +27718,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
         template: compile(template)
       });
 
-      container.register('view:oops', EmberView.extend());
+      container._registry.register('view:oops', EmberView.extend());
 
       appendView(view);
 
@@ -27696,7 +27745,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
       });
 
       var PostController = EmberObjectController.extend();
-      container.register('controller:post', PostController);
+      container._registry.register('controller:post', PostController);
 
       Ember.TEMPLATES['post'] = compile("<p>{{title}}</p>");
 
@@ -27737,7 +27786,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
         })
       });
 
-      container.register('controller:post', PostController);
+      container._registry.register('controller:post', PostController);
 
       Ember.TEMPLATES['post'] = compile("<p>{{title}}</p>");
 
@@ -27750,7 +27799,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
     test("{{render}} helper should raise an error when a given controller name does not resolve to a controller", function() {
       var template = '<h1>HI</h1>{{render "home" controller="postss"}}';
       var controller = EmberController.extend({container: container});
-      container.register('controller:posts', EmberArrayController.extend());
+      container._registry.register('controller:posts', EmberArrayController.extend());
       view = EmberView.create({
         controller: controller.create(),
         template: compile(template)
@@ -27766,7 +27815,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
     test("{{render}} helper should render with given controller", function() {
       var template = '<h1>HI</h1>{{render "home" controller="posts"}}';
       var controller = EmberController.extend({container: container});
-      container.register('controller:posts', EmberArrayController.extend());
+      container._registry.register('controller:posts', EmberArrayController.extend());
       view = EmberView.create({
         controller: controller.create(),
         template: compile(template)
@@ -27818,7 +27867,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
       });
 
       var PostController = EmberObjectController.extend();
-      container.register('controller:post', PostController, {singleton: false});
+      container._registry.register('controller:post', PostController, {singleton: false});
 
       Ember.TEMPLATES['post'] = compile("<p>{{title}}</p>");
 
@@ -27860,7 +27909,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
       });
 
       var PostController = EmberObjectController.extend();
-      container.register('controller:post', PostController);
+      container._registry.register('controller:post', PostController);
 
       Ember.TEMPLATES['post'] = compile("<p>{{title}}</p>");
 
@@ -27885,7 +27934,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
       });
 
       var PostController = EmberObjectController.extend();
-      container.register('controller:post', PostController, {singleton: false});
+      container._registry.register('controller:post', PostController, {singleton: false});
 
       Ember.TEMPLATES['post'] = compile("<p>{{#unless model}}NOTHING{{/unless}}</p>");
 
@@ -27918,7 +27967,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
       });
 
       var PostController = EmberObjectController.extend();
-      container.register('controller:post', PostController, {singleton: false});
+      container._registry.register('controller:post', PostController, {singleton: false});
 
       Ember.TEMPLATES['post'] = compile("<p>Title:{{title}}</p>");
 
@@ -27955,7 +28004,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
         role: "Mom"
       });
 
-      container.register('controller:posts', EmberArrayController.extend());
+      container._registry.register('controller:posts', EmberArrayController.extend());
 
       view = EmberView.create({
         controller: controller.create(),
@@ -28012,7 +28061,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
       var template = '<h1>BLOG</h1>{{render "blog.post"}}';
 
       var controller = EmberController.extend({container: container});
-      container.register('controller:blog.post', EmberObjectController.extend());
+      container._registry.register('controller:blog.post', EmberObjectController.extend());
 
       view = EmberView.create({
         controller: controller.create(),
@@ -28032,7 +28081,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
       var template = '<h1>BLOG</h1>{{render "blog/post"}}';
 
       var controller = EmberController.extend({container: container});
-      container.register('controller:blog.post', EmberObjectController.extend());
+      container._registry.register('controller:blog.post', EmberObjectController.extend());
 
       view = EmberView.create({
         controller: controller.create(),
@@ -29117,7 +29166,7 @@ enifed("ember-routing/tests/location/history_location_test.jshint",
     });
   });
 enifed("ember-routing/tests/system/controller_for_test",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","container/container","ember-runtime/system/namespace","ember-runtime/system/string","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-routing/system/controller_for","ember-routing/system/generate_controller"],
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","container/registry","ember-runtime/system/namespace","ember-runtime/system/string","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-routing/system/controller_for","ember-routing/system/generate_controller"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__) {
     "use strict";
     var Ember = __dependency1__["default"];
@@ -29126,7 +29175,7 @@ enifed("ember-routing/tests/system/controller_for_test",
     var set = __dependency3__.set;
     var run = __dependency4__["default"];
 
-    var Container = __dependency5__["default"];
+    var Registry = __dependency5__["default"];
     var Namespace = __dependency6__["default"];
     var classify = __dependency7__.classify;
     var Controller = __dependency8__["default"];
@@ -29137,17 +29186,18 @@ enifed("ember-routing/tests/system/controller_for_test",
     var generateController = __dependency12__["default"];
 
     var buildContainer = function(namespace) {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
 
-      container.set = set;
-      container.resolver = resolverFor(namespace);
-      container.optionsForType('view', { singleton: false });
+      registry.set = set;
+      registry.resolver = resolverFor(namespace);
+      registry.optionsForType('view', { singleton: false });
 
-      container.register('application:main', namespace, { instantiate: false });
+      registry.register('application:main', namespace, { instantiate: false });
 
-      container.register('controller:basic', Controller, { instantiate: false });
-      container.register('controller:object', ObjectController, { instantiate: false });
-      container.register('controller:array', ArrayController, { instantiate: false });
+      registry.register('controller:basic', Controller, { instantiate: false });
+      registry.register('controller:object', ObjectController, { instantiate: false });
+      registry.register('controller:array', ArrayController, { instantiate: false });
 
       return container;
     };
@@ -29164,8 +29214,6 @@ enifed("ember-routing/tests/system/controller_for_test",
         var className = classify(name) + classify(type);
         var factory = get(namespace, className);
 
-
-
         if (factory) { return factory; }
       };
     }
@@ -29176,7 +29224,7 @@ enifed("ember-routing/tests/system/controller_for_test",
       setup: function() {
         namespace = Namespace.create();
         container = buildContainer(namespace);
-        container.register('controller:app', Controller.extend());
+        container._registry.register('controller:app', Controller.extend());
         appController = container.lookup('controller:app');
       },
       teardown: function() {
@@ -29347,17 +29395,17 @@ enifed("ember-routing/tests/system/dsl_test.jshint",
     });
   });
 enifed("ember-routing/tests/system/route_test",
-  ["ember-metal/run_loop","container/container","ember-runtime/system/service","ember-runtime/system/object","ember-routing/system/route","ember-runtime/inject"],
+  ["ember-metal/run_loop","container/registry","ember-runtime/system/service","ember-runtime/system/object","ember-routing/system/route","ember-runtime/inject"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
     var run = __dependency1__["default"];
-    var Container = __dependency2__["default"];
+    var Registry = __dependency2__["default"];
     var Service = __dependency3__["default"];
     var EmberObject = __dependency4__["default"];
     var EmberRoute = __dependency5__["default"];
     var inject = __dependency6__["default"];
 
-    var route, routeOne, routeTwo, container, lookupHash;
+    var route, routeOne, routeTwo, lookupHash;
 
     function createRoute(){
       route = EmberRoute.create();
@@ -29386,7 +29434,7 @@ enifed("ember-routing/tests/system/route_test",
         }
       });
 
-      container = {
+      var container = {
         has: function() { return true; },
         lookupFactory: lookupFactory
       };
@@ -29409,7 +29457,8 @@ enifed("ember-routing/tests/system/route_test",
       expect(8);
       run(route, 'destroy');
 
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
       var post = {
         id: 1
       };
@@ -29423,10 +29472,10 @@ enifed("ember-routing/tests/system/route_test",
         }
       });
 
-      container.register('route:index',  EmberRoute);
-      container.register('store:main', Store);
+      registry.register('route:index',  EmberRoute);
+      registry.register('store:main', Store);
 
-      container.injection('route', 'store', 'store:main');
+      registry.injection('route', 'store', 'store:main');
 
       route = container.lookup('route:index');
 
@@ -29438,11 +29487,12 @@ enifed("ember-routing/tests/system/route_test",
       expect(1);
       run(route, 'destroy');
 
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
       var Post = EmberObject.extend();
 
-      container.register('route:index', EmberRoute);
-      container.register('model:post',  Post);
+      registry.register('route:index', EmberRoute);
+      registry.register('model:post',  Post);
 
       route = container.lookup('route:index');
 
@@ -29455,8 +29505,9 @@ enifed("ember-routing/tests/system/route_test",
       expect(1);
       run(route, 'destroy');
 
-      var container = new Container();
-      container.register('route:index', EmberRoute);
+      var registry = new Registry();
+      var container = registry.container();
+      registry.register('route:index', EmberRoute);
 
       route = container.lookup('route:index');
 
@@ -29470,8 +29521,10 @@ enifed("ember-routing/tests/system/route_test",
 
       run(route, 'destroy');
 
-      var container = new Container();
-      container.register('route:index',  EmberRoute);
+      var registry = new Registry();
+      var container = registry.container();
+
+      registry.register('route:index',  EmberRoute);
 
       route = container.lookup('route:index');
 
@@ -29483,7 +29536,8 @@ enifed("ember-routing/tests/system/route_test",
     });
 
     test("modelFor doesn't require the router", function() {
-      var container = new Container();
+      var registry = new Registry();
+      var container = registry.container();
       route.container = container;
 
       var foo = { name: 'foo' };
@@ -29493,7 +29547,7 @@ enifed("ember-routing/tests/system/route_test",
         currentModel: foo
       });
 
-      container.register('route:foo', fooRoute);
+      registry.register('route:foo', fooRoute);
 
       equal(route.modelFor('foo'), foo);
     });
@@ -29546,7 +29600,7 @@ enifed("ember-routing/tests/system/route_test",
 
     QUnit.module("Ember.Route interaction", {
       setup: function() {
-        container = {
+        var container = {
           lookup: function(fullName) {
             return lookupHash[fullName];
           }
@@ -29582,13 +29636,14 @@ enifed("ember-routing/tests/system/route_test",
       QUnit.module('Route injected properties');
 
       test("services can be injected into routes", function() {
-        var container = new Container();
+        var registry = new Registry();
+        var container = registry.container();
 
-        container.register('route:application', EmberRoute.extend({
+        registry.register('route:application', EmberRoute.extend({
           authService: inject.service('auth')
         }));
 
-        container.register('service:auth', Service.extend());
+        registry.register('service:auth', Service.extend());
 
         var appRoute = container.lookup('route:application'),
           authService = container.lookup('service:auth');
@@ -29607,19 +29662,20 @@ enifed("ember-routing/tests/system/route_test.jshint",
     });
   });
 enifed("ember-routing/tests/system/router_test",
-  ["ember-metal/run_loop","ember-runtime/copy","ember-metal/merge","ember-metal/enumerable_utils","container/container","ember-routing/location/hash_location","ember-routing/location/auto_location","ember-routing/system/router"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
+  ["ember-metal/run_loop","ember-runtime/copy","ember-metal/merge","ember-metal/enumerable_utils","container/registry","ember-routing/location/hash_location","ember-routing/location/auto_location","ember-routing/system/router","ember-runtime/tests/utils"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
     "use strict";
     var run = __dependency1__["default"];
     var copy = __dependency2__["default"];
     var merge = __dependency3__["default"];
     var map = __dependency4__.map;
-    var Container = __dependency5__["default"];
+    var Registry = __dependency5__["default"];
     var HashLocation = __dependency6__["default"];
     var AutoLocation = __dependency7__["default"];
     var EmberRouter = __dependency8__["default"];
+    var runDestroy = __dependency9__.runDestroy;
 
-    var container, Router, router;
+    var registry, container, Router, router;
 
     function createRouter(overrides) {
       var opts = merge({ container: container }, overrides);
@@ -29628,18 +29684,20 @@ enifed("ember-routing/tests/system/router_test",
 
     QUnit.module("Ember Router", {
       setup: function() {
-        container = new Container();
+        registry = new Registry();
+        container = registry.container();
 
         //register the HashLocation (the default)
-        container.register('location:hash', HashLocation);
+        registry.register('location:hash', HashLocation);
 
         // ensure rootURL is injected into any locations
-        container.injection('location', 'rootURL', '-location-setting:root-url');
+        registry.injection('location', 'rootURL', '-location-setting:root-url');
 
         Router = EmberRouter.extend();
       },
       teardown: function() {
-        container = Router = router = null;
+        runDestroy(container);
+        registry = container = Router = router = null;
       }
     });
 
@@ -29692,7 +29750,7 @@ enifed("ember-routing/tests/system/router_test",
       };
       AutoTestLocation._getSupportsHistory = function() { return false; };
 
-      container.register('location:auto', AutoTestLocation);
+      container._registry.register('location:auto', AutoTestLocation);
 
       createRouter({
         location: 'auto',
@@ -29735,7 +29793,7 @@ enifed("ember-routing/tests/system/router_test",
         create: function () { return this; }
       };
 
-      container.register('location:fake', FakeLocation);
+      container._registry.register('location:fake', FakeLocation);
 
       router = Router.create({
         container: container,
@@ -29767,7 +29825,7 @@ enifed("ember-routing/tests/system/router_test",
 
       AutoTestLocation._getSupportsHistory = function() { return false; };
 
-      container.register('location:auto', AutoTestLocation);
+      container._registry.register('location:auto', AutoTestLocation);
 
       createRouter({
         location: 'auto',
@@ -32944,7 +33002,7 @@ enifed("ember-runtime/tests/controllers/controller_test",
     var ObjectController = __dependency3__["default"];
     var Mixin = __dependency4__["default"];
     var Object = __dependency5__["default"];
-    var Container = __dependency6__["default"];
+    var Registry = __dependency6__.Registry;
     var inject = __dependency7__["default"];
     var get = __dependency8__.get;
 
@@ -33125,27 +33183,31 @@ enifed("ember-runtime/tests/controllers/controller_test",
       if (!EmberDev.runningProdBuild) {
         test("defining a controller on a non-controller should fail assertion", function(){
           expectAssertion(function() {
-            var container = new Container();
+            var registry = new Registry();
+            var container = registry.container();
+
             var AnObject = Object.extend({
               container: container,
               foo: inject.controller('bar')
             });
 
-            container.register('foo:main', AnObject);
+            registry.register('foo:main', AnObject);
 
             container.lookupFactory('foo:main');
+
           }, /Defining an injected controller property on a non-controller is not allowed./);
         });
       }
 
       test("controllers can be injected into controllers", function() {
-        var container = new Container();
+        var registry = new Registry();
+        var container = registry.container();
 
-        container.register('controller:post', Controller.extend({
+        registry.register('controller:post', Controller.extend({
           postsController: inject.controller('posts')
         }));
 
-        container.register('controller:posts', Controller.extend());
+        registry.register('controller:posts', Controller.extend());
 
         var postController = container.lookup('controller:post'),
           postsController = container.lookup('controller:posts');
@@ -33154,13 +33216,14 @@ enifed("ember-runtime/tests/controllers/controller_test",
       });
 
       test("services can be injected into controllers", function() {
-        var container = new Container();
+        var registry = new Registry();
+        var container = registry.container();
 
-        container.register('controller:application', Controller.extend({
+        registry.register('controller:application', Controller.extend({
           authService: inject.service('auth')
         }));
 
-        container.register('service:auth', Service.extend());
+        registry.register('service:auth', Service.extend());
 
         var appController = container.lookup('controller:application'),
           authService = container.lookup('service:auth');
@@ -33179,7 +33242,7 @@ enifed("ember-runtime/tests/controllers/controller_test.jshint",
     });
   });
 enifed("ember-runtime/tests/controllers/item_controller_class_test",
-  ["ember-metal/core","ember-metal/utils","ember-metal/run_loop","ember-metal/property_get","ember-metal/computed","ember-runtime/compare","ember-runtime/system/object","ember-runtime/controllers/array_controller","ember-runtime/controllers/object_controller","ember-runtime/computed/reduce_computed_macros","container"],
+  ["ember-metal/core","ember-metal/utils","ember-metal/run_loop","ember-metal/property_get","ember-metal/computed","ember-runtime/compare","ember-runtime/system/object","ember-runtime/controllers/array_controller","ember-runtime/controllers/object_controller","ember-runtime/computed/reduce_computed_macros","container/registry"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__) {
     "use strict";
     var Ember = __dependency1__["default"];
@@ -33192,14 +33255,15 @@ enifed("ember-runtime/tests/controllers/item_controller_class_test",
     var ArrayController = __dependency8__["default"];
     var ObjectController = __dependency9__["default"];
     var sort = __dependency10__.sort;
-    var Container = __dependency11__["default"];
+    var Registry = __dependency11__["default"];
 
-    var lannisters, arrayController, controllerClass, otherControllerClass, container, itemControllerCount,
+    var lannisters, arrayController, controllerClass, otherControllerClass, registry, container, itemControllerCount,
         tywin, jaime, cersei, tyrion;
 
     QUnit.module("Ember.ArrayController - itemController", {
       setup: function() {
-        container = new Container();
+        registry = new Registry();
+        container = registry.container();
 
         tywin = EmberObject.create({ name: 'Tywin' });
         jaime = EmberObject.create({ name: 'Jaime' });
@@ -33225,13 +33289,14 @@ enifed("ember-runtime/tests/controllers/item_controller_class_test",
           }
         });
 
-        container.register("controller:Item", controllerClass);
-        container.register("controller:OtherItem", otherControllerClass);
+        registry.register("controller:Item", controllerClass);
+        registry.register("controller:OtherItem", otherControllerClass);
       },
       teardown: function() {
         run(function() {
           container.destroy();
         });
+        registry = container = null;
       }
     });
 
@@ -33517,7 +33582,8 @@ enifed("ember-runtime/tests/controllers/item_controller_class_test",
 
     QUnit.module('Ember.ArrayController - itemController with arrayComputed', {
       setup: function() {
-        container = new Container();
+        registry = new Registry();
+        container = registry.container();
 
         cersei = EmberObject.create({ name: 'Cersei' });
         jaime = EmberObject.create({ name: 'Jaime' });
@@ -33536,7 +33602,7 @@ enifed("ember-runtime/tests/controllers/item_controller_class_test",
           }
         });
 
-        container.register("controller:Item", controllerClass);
+        registry.register("controller:Item", controllerClass);
       },
       teardown: function() {
         run(function() {
@@ -34221,7 +34287,7 @@ enifed("ember-runtime/tests/inject_test",
     var InjectedProperty = __dependency1__["default"];
     var createInjectionHelper = __dependency2__.createInjectionHelper;
     var inject = __dependency2__["default"];
-    var Container = __dependency3__["default"];
+    var Registry = __dependency3__.Registry;
     var Object = __dependency4__["default"];
 
     
@@ -34243,27 +34309,29 @@ enifed("ember-runtime/tests/inject_test",
             ok(true, 'should call validation method');
           });
 
-          var container = new Container();
+          var registry = new Registry();
+          var container = registry.container();
+
           var AnObject = Object.extend({
             container: container,
             bar: inject.foo(),
             baz: inject.foo()
           });
 
-          container.register('foo:main', AnObject);
-
+          registry.register('foo:main', AnObject);
           container.lookupFactory('foo:main');
         });
       }
 
       test("attempting to inject a nonexistent container key should error", function() {
-        var container = new Container();
+        var registry = new Registry();
+        var container = registry.container();
         var AnObject = Object.extend({
           container: container,
           foo: new InjectedProperty('bar', 'baz')
         });
 
-        container.register('foo:main', AnObject);
+        registry.register('foo:main', AnObject);
 
         throws(function() {
           container.lookup('foo:main');
@@ -51036,7 +51104,7 @@ enifed("ember-views/tests/views/component_test",
     var run = __dependency2__["default"];
     var EmberObject = __dependency3__["default"];
     var Service = __dependency4__["default"];
-    var Container = __dependency5__["default"];
+    var Registry = __dependency5__.Registry;
     var inject = __dependency6__["default"];
     var get = __dependency7__.get;
 
@@ -51228,13 +51296,14 @@ enifed("ember-views/tests/views/component_test",
       QUnit.module('Ember.Component - injected properties');
 
       test("services can be injected into components", function() {
-        var container = new Container();
+        var registry = new Registry();
+        var container = registry.container();
 
-        container.register('component:application', Component.extend({
+        registry.register('component:application', Component.extend({
           profilerService: inject.service('profiler')
         }));
 
-        container.register('service:profiler', Service.extend());
+        registry.register('service:profiler', Service.extend());
 
         var appComponent = container.lookup('component:application'),
         profilerService = container.lookup('service:profiler');
@@ -51258,7 +51327,7 @@ enifed("ember-views/tests/views/component_test",
       }).create();
 
       appComponent.send('foo', 'bar');
-     
+
       throws(function() {
         appComponent.send('baz', 'bar');
       }, /had no action handler for: baz/, 'asdf');
@@ -55878,7 +55947,7 @@ enifed("ember-views/tests/views/view/inject_test",
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
     var Service = __dependency1__["default"];
-    var Container = __dependency2__["default"];
+    var Registry = __dependency2__.Registry;
     var inject = __dependency3__["default"];
     var View = __dependency4__["default"];
 
@@ -55886,13 +55955,14 @@ enifed("ember-views/tests/views/view/inject_test",
       QUnit.module('EmberView - injected properties');
 
       test("services can be injected into views", function() {
-        var container = new Container();
+        var registry = new Registry();
+        var container = registry.container();
 
-        container.register('view:application', View.extend({
+        registry.register('view:application', View.extend({
           profilerService: inject.service('profiler')
         }));
 
-        container.register('service:profiler', Service.extend());
+        registry.register('service:profiler', Service.extend());
 
         var appView = container.lookup('view:application'),
           profilerService = container.lookup('service:profiler');
@@ -56218,25 +56288,29 @@ enifed("ember-views/tests/views/view/jquery_test.jshint",
     });
   });
 enifed("ember-views/tests/views/view/layout_test",
-  ["container","ember-metal/property_get","ember-metal/run_loop","ember-views/views/view"],
+  ["container/registry","ember-metal/property_get","ember-metal/run_loop","ember-views/views/view"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
-    var Container = __dependency1__["default"];
+    var Registry = __dependency1__["default"];
     var get = __dependency2__.get;
     var run = __dependency3__["default"];
     var EmberView = __dependency4__["default"];
 
-    var container, view;
+    var registry, container, view;
 
     QUnit.module("EmberView - Layout Functionality", {
       setup: function() {
-        container = new Container();
-        container.optionsForType('template', { instantiate: false });
+        registry = new Registry();
+        container = registry.container();
+        registry.optionsForType('template', { instantiate: false });
       },
+
       teardown: function() {
         run(function() {
           view.destroy();
+          container.destroy();
         });
+        registry = container = view = null;
       }
     });
 
@@ -56255,8 +56329,8 @@ enifed("ember-views/tests/views/view/layout_test",
       var templateCalled = 0;
       var layoutCalled = 0;
 
-      container.register('template:template', function() { templateCalled++; });
-      container.register('template:layout', function() { layoutCalled++; });
+      registry.register('template:template', function() { templateCalled++; });
+      registry.register('template:layout', function() { layoutCalled++; });
 
       view = EmberView.create({
         container: container,
@@ -56273,7 +56347,7 @@ enifed("ember-views/tests/views/view/layout_test",
     });
 
     test("should call the function of the associated template with itself as the context", function() {
-      container.register('template:testTemplate', function(dataSource) {
+      registry.register('template:testTemplate', function(dataSource) {
         return "<h1 id='twas-called'>template was called for " + get(dataSource, 'personName') + "</h1>";
       });
 
@@ -56441,31 +56515,34 @@ enifed("ember-views/tests/views/view/nearest_of_type_test.jshint",
     });
   });
 enifed("ember-views/tests/views/view/nested_view_ordering_test",
-  ["container","ember-metal/run_loop","ember-views/views/view","ember-htmlbars/system/compile"],
+  ["container/registry","ember-metal/run_loop","ember-views/views/view","ember-htmlbars/system/compile"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
-    var Container = __dependency1__["default"];
+    var Registry = __dependency1__["default"];
     var run = __dependency2__["default"];
 
     var EmberView = __dependency3__["default"];
     var compile = __dependency4__["default"];
 
-    var container, view;
+    var registry, container, view;
 
     QUnit.module("EmberView - Nested View Ordering", {
       setup: function() {
-        container = new Container();
+        registry = new Registry();
+        container = registry.container();
       },
       teardown: function() {
         run(function() {
           if (view) { view.destroy(); }
+          container.destroy();
         });
+        registry = container = view = null;
       }
     });
 
     test("should call didInsertElement on child views before parent", function() {
       var insertedLast;
-      
+
       view = EmberView.create({
         didInsertElement: function(){
           insertedLast = "outer";
@@ -56474,7 +56551,7 @@ enifed("ember-views/tests/views/view/nested_view_ordering_test",
         template: compile("{{view \"inner\"}}")
       });
 
-      container.register("view:inner", EmberView.extend({
+      registry.register("view:inner", EmberView.extend({
         didInsertElement: function(){
           insertedLast = "inner";
         }
@@ -57193,25 +57270,28 @@ enifed("ember-views/tests/views/view/stream_test.jshint",
     });
   });
 enifed("ember-views/tests/views/view/template_test",
-  ["container","ember-metal/property_get","ember-metal/run_loop","ember-runtime/system/object","ember-views/views/view"],
+  ["container/registry","ember-metal/property_get","ember-metal/run_loop","ember-runtime/system/object","ember-views/views/view"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
-    var Container = __dependency1__["default"];
+    var Registry = __dependency1__["default"];
     var get = __dependency2__.get;
     var run = __dependency3__["default"];
     var EmberObject = __dependency4__["default"];
     var EmberView = __dependency5__["default"];
 
-    var container, view;
+    var registry, container, view;
 
     QUnit.module("EmberView - Template Functionality", {
       setup: function() {
-        container = new Container();
-        container.optionsForType('template', { instantiate: false });
+        registry = new Registry();
+        container = registry.container();
+        registry.optionsForType('template', { instantiate: false });
       },
       teardown: function() {
         run(function() {
           if (view) { view.destroy(); }
+          container.destroy();
+          registry = container = view = null;
         });
       }
     });
@@ -57243,7 +57323,7 @@ enifed("ember-views/tests/views/view/template_test",
     }
 
     test("should call the function of the associated template", function() {
-      container.register('template:testTemplate', function() {
+      registry.register('template:testTemplate', function() {
         return "<h1 id='twas-called'>template was called</h1>";
       });
 
@@ -57260,7 +57340,7 @@ enifed("ember-views/tests/views/view/template_test",
     });
 
     test("should call the function of the associated template with itself as the context", function() {
-      container.register('template:testTemplate', function(dataSource) {
+      registry.register('template:testTemplate', function(dataSource) {
         return "<h1 id='twas-called'>template was called for " + get(dataSource, 'personName') + "</h1>";
       });
 
@@ -57319,7 +57399,7 @@ enifed("ember-views/tests/views/view/template_test",
     test("should not use defaultTemplate if template is provided", function() {
       var View;
 
-      container.register('template:foobar', function() { return 'foo'; });
+      registry.register('template:foobar', function() { return 'foo'; });
 
       View = EmberView.extend({
         container: container,
@@ -58360,7 +58440,7 @@ enifed("ember/tests/component_registration_test",
     var compile = __dependency2__["default"];
     var helpers = __dependency3__["default"];
 
-    var App, container;
+    var App, registry, container;
     var originalHelpers;
 
     function prepare(){
@@ -58408,6 +58488,7 @@ enifed("ember/tests/component_registration_test",
           location: 'none'
         });
 
+        registry = App.__registry__;
         container = App.__container__;
 
         if (callback) { callback(); }
@@ -58428,7 +58509,7 @@ enifed("ember/tests/component_registration_test",
 
     test("If a component is registered, it is used", function() {
       boot(function() {
-        container.register('component:expand-it', Ember.Component.extend({
+        registry.register('component:expand-it', Ember.Component.extend({
           classNames: 'testing123'
         }));
       });
@@ -58444,7 +58525,7 @@ enifed("ember/tests/component_registration_test",
       expectDeprecation(/Do not specify template on a Component/);
 
       boot(function() {
-        container.register('component:my-hero', Ember.Component.extend({
+        registry.register('component:my-hero', Ember.Component.extend({
           classNames: 'testing123',
           template: function() { return "watch him as he GOES"; }
         }));
@@ -58459,8 +58540,8 @@ enifed("ember/tests/component_registration_test",
       Ember.TEMPLATES.application = compile("<div id='wrapper'>hello world {{sally-rutherford}}-{{#sally-rutherford}}!!!{{/sally-rutherford}}</div>");
 
       boot(function() {
-        container.register('template:components/sally-rutherford', compile("funkytowny{{yield}}"));
-        container.register('component:sally-rutherford', Ember.Component);
+        registry.register('template:components/sally-rutherford', compile("funkytowny{{yield}}"));
+        registry.register('component:sally-rutherford', Ember.Component);
       });
 
       equal(Ember.$('#wrapper').text(), "hello world funkytowny-funkytowny!!!", "The component is composed correctly");
@@ -58472,7 +58553,7 @@ enifed("ember/tests/component_registration_test",
       Ember.TEMPLATES.application = compile("<div id='wrapper'>hello world {{borf-snorlax}}-{{#borf-snorlax}}!!!{{/borf-snorlax}}</div>");
 
       boot(function() {
-        container.register('template:components/borf-snorlax', compile("goodfreakingTIMES{{yield}}"));
+        registry.register('template:components/borf-snorlax', compile("goodfreakingTIMES{{yield}}"));
       });
 
       equal(Ember.$('#wrapper').text(), "hello world goodfreakingTIMES-goodfreakingTIMES!!!", "The component is composed correctly");
@@ -58484,32 +58565,12 @@ enifed("ember/tests/component_registration_test",
       Ember.TEMPLATES.application = compile("<div id='wrapper'>{{user-name}} hello {{api-key}} world</div>");
 
       boot(function() {
-        container.register('controller:application', Ember.Controller.extend({
+        registry.register('controller:application', Ember.Controller.extend({
           'user-name': 'machty'
         }));
       });
 
       equal(Ember.$('#wrapper').text(), "machty hello  world", "The component is composed correctly");
-    });
-
-    test("Component lookups should take place on components' subcontainers", function() {
-      expect(1);
-
-      Ember.TEMPLATES.application = compile("<div id='wrapper'>{{#sally-rutherford}}{{mach-ty}}{{/sally-rutherford}}</div>");
-
-      boot(function() {
-        container.register('component:sally-rutherford', Ember.Component.extend({
-          init: function() {
-            this._super();
-            this.container = new Ember.Container(this.container);
-            this.container.register('component:mach-ty', Ember.Component.extend({
-              didInsertElement: function() {
-                ok(true, "mach-ty was rendered");
-              }
-            }));
-          }
-        }));
-      });
     });
 
     test("Assigning templateName to a component should setup the template as a layout (DEPRECATED)", function(){
@@ -58521,11 +58582,11 @@ enifed("ember/tests/component_registration_test",
       expectDeprecation(/Do not specify templateName on a Component/);
 
       boot(function() {
-        container.register('controller:application', Ember.Controller.extend({
+        registry.register('controller:application', Ember.Controller.extend({
           'text': 'outer'
         }));
 
-        container.register('component:my-component', Ember.Component.extend({
+        registry.register('component:my-component', Ember.Component.extend({
           text: 'inner',
           templateName: 'foo-bar-baz'
         }));
@@ -58542,11 +58603,11 @@ enifed("ember/tests/component_registration_test",
       Ember.TEMPLATES['bar'] = compile("{{text}}-{{yield}}");
 
       boot(function() {
-        container.register('controller:application', Ember.Controller.extend({
+        registry.register('controller:application', Ember.Controller.extend({
           'text': 'outer'
         }));
 
-        container.register('component:my-component', Ember.Component.extend({
+        registry.register('component:my-component', Ember.Component.extend({
           text: 'inner',
           layoutName: 'bar',
           templateName: 'foo'
@@ -58579,11 +58640,11 @@ enifed("ember/tests/component_registration_test",
       Ember.TEMPLATES['components/my-component'] = compile("{{text}}-{{yield}}");
 
       boot(function() {
-        container.register('controller:application', Ember.Controller.extend({
+        registry.register('controller:application', Ember.Controller.extend({
           'text': 'outer'
         }));
 
-        container.register('component:my-component', Ember.Component.extend({
+        registry.register('component:my-component', Ember.Component.extend({
           text: 'inner'
         }));
       });
@@ -58595,11 +58656,11 @@ enifed("ember/tests/component_registration_test",
       Ember.TEMPLATES.application = compile("<div id='wrapper'>{{#my-component}}{{text}}{{/my-component}}</div>");
 
       boot(function() {
-        container.register('controller:application', Ember.Controller.extend({
+        registry.register('controller:application', Ember.Controller.extend({
           'text': 'outer'
         }));
 
-        container.register('component:my-component', Ember.Component.extend({
+        registry.register('component:my-component', Ember.Component.extend({
           text: 'inner'
         }));
       });
@@ -58612,11 +58673,11 @@ enifed("ember/tests/component_registration_test",
       Ember.TEMPLATES['components/my-component'] = compile("{{text}}");
 
       boot(function() {
-        container.register('controller:application', Ember.Controller.extend({
+        registry.register('controller:application', Ember.Controller.extend({
           'text': 'outer'
         }));
 
-        container.register('component:my-component', Ember.Component.extend({
+        registry.register('component:my-component', Ember.Component.extend({
           text: 'inner'
         }));
       });
@@ -58628,11 +58689,11 @@ enifed("ember/tests/component_registration_test",
       Ember.TEMPLATES.application = compile("<div id='wrapper'>{{my-component}}</div>");
 
       boot(function() {
-        container.register('controller:application', Ember.Controller.extend({
+        registry.register('controller:application', Ember.Controller.extend({
           'text': 'outer'
         }));
 
-        container.register('component:my-component', Ember.Component.extend({
+        registry.register('component:my-component', Ember.Component.extend({
           didInsertElement: function() {
             this.$().html('Some text inserted by jQuery');
           }
@@ -58646,12 +58707,12 @@ enifed("ember/tests/component_registration_test",
       Ember.TEMPLATES.application = compile("<div id='wrapper'>{{my-component data=foo}}</div>");
 
       boot(function() {
-        container.register('controller:application', Ember.Controller.extend({
+        registry.register('controller:application', Ember.Controller.extend({
           'text': 'outer',
           'foo': 'Some text inserted by jQuery'
         }));
 
-        container.register('component:my-component', Ember.Component.extend({
+        registry.register('component:my-component', Ember.Component.extend({
           didInsertElement: function() {
             this.$().html(this.get('data'));
           }
@@ -58666,7 +58727,7 @@ enifed("ember/tests/component_registration_test",
       Ember.TEMPLATES.application = compile("<div id='wrapper'>{{#my-component}}<a href='#' id='fizzbuzz' {{action 'fizzbuzz'}}>Fizzbuzz</a>{{/my-component}}</div>");
 
       boot(function() {
-        container.register('controller:application', Ember.Controller.extend({
+        registry.register('controller:application', Ember.Controller.extend({
           actions: {
             fizzbuzz: function(){
               ok(true, 'action triggered on parent');
@@ -58674,7 +58735,7 @@ enifed("ember/tests/component_registration_test",
           }
         }));
 
-        container.register('component:my-component', Ember.Component.extend());
+        registry.register('component:my-component', Ember.Component.extend());
       });
 
       Ember.run(function(){
@@ -58687,7 +58748,7 @@ enifed("ember/tests/component_registration_test",
       Ember.TEMPLATES['components/my-component'] = compile("<a href='#' id='fizzbuzz' {{action 'fizzbuzz'}}>Fizzbuzz</a>");
 
       boot(function() {
-        container.register('controller:application', Ember.Controller.extend({
+        registry.register('controller:application', Ember.Controller.extend({
           actions: {
             fizzbuzz: function(){
               ok(false, 'action triggered on the wrong context');
@@ -58695,7 +58756,7 @@ enifed("ember/tests/component_registration_test",
           }
         }));
 
-        container.register('component:my-component', Ember.Component.extend({
+        registry.register('component:my-component', Ember.Component.extend({
           actions: {
             fizzbuzz: function(){
               ok(true, 'action triggered on component');
@@ -58753,7 +58814,7 @@ enifed("ember/tests/helpers/helper_registration_test",
     helpers = EmberHandlebars.helpers;
     makeBoundHelper = EmberHandlebars.makeBoundHelper;
 
-    var App, container;
+    var App, registry, container;
 
     function reverseHelper(value) {
       return arguments.length > 1 ? value.split('').reverse().join('') : "--";
@@ -58783,6 +58844,7 @@ enifed("ember/tests/helpers/helper_registration_test",
           location: 'none'
         });
 
+        registry = App.__registry__;
         container = App.__container__;
 
         if (callback) { callback(); }
@@ -58801,7 +58863,7 @@ enifed("ember/tests/helpers/helper_registration_test",
       Ember.TEMPLATES.application = compile("<div id='wrapper'>{{x-borf}} {{x-borf YES}}</div>");
 
       boot(function() {
-        container.register('helper:x-borf', function(val) {
+        registry.register('helper:x-borf', function(val) {
           return arguments.length > 1 ? val : "BORF";
         });
       });
@@ -58815,10 +58877,10 @@ enifed("ember/tests/helpers/helper_registration_test",
       Ember.TEMPLATES.application = compile("<div id='wrapper'>{{x-reverse}} {{x-reverse foo}}</div>");
 
       boot(function() {
-        container.register('controller:application', Ember.Controller.extend({
+        registry.register('controller:application', Ember.Controller.extend({
           foo: "alex"
         }));
-        container.register('helper:x-reverse', makeBoundHelper(reverseHelper));
+        registry.register('helper:x-reverse', makeBoundHelper(reverseHelper));
       });
 
       equal(Ember.$('#wrapper').text(), "-- xela", "The bound helper was invoked from the container");
@@ -58843,10 +58905,10 @@ enifed("ember/tests/helpers/helper_registration_test",
       Ember.TEMPLATES.application = compile("<div id='wrapper'>{{omg}}|{{omg 'GRRR'}}|{{yorp}}|{{yorp 'ahh'}}</div>");
 
       boot(function() {
-        container.register('helper:omg', function() {
+        registry.register('helper:omg', function() {
           return "OMG";
         });
-        container.register('helper:yorp', makeBoundHelper(function() {
+        registry.register('helper:yorp', makeBoundHelper(function() {
           return "YORP";
         }));
       });
@@ -58876,7 +58938,7 @@ enifed("ember/tests/helpers/link_to_test",
 
     var compile = EmberHandlebars.compile;
 
-    var Router, App, AppView, router, container;
+    var Router, App, AppView, router, registry, container;
     var set = Ember.set;
 
     function bootApplication() {
@@ -58928,6 +58990,7 @@ enifed("ember/tests/helpers/link_to_test",
       });
 
       Router = App.Router;
+      registry = App.__registry__;
       container = App.__container__;
     }
 
@@ -58951,8 +59014,10 @@ enifed("ember/tests/helpers/link_to_test",
             templateName: 'app'
           });
 
-          container.register('view:app', AppView);
-          container.register('router:main', Router);
+          registry.register('view:app', AppView);
+
+          registry.unregister('router:main');
+          registry.register('router:main', Router);
         });
       },
 
@@ -60169,7 +60234,8 @@ enifed("ember/tests/helpers/link_to_test",
             bat: 'borf'
           });
 
-          container.register('router:main', Router);
+          registry.unregister('router:main');
+          registry.register('router:main', Router);
         });
       },
 
@@ -60377,17 +60443,17 @@ enifed("ember/tests/helpers/link_to_test",
       Ember.TEMPLATES.index = compile(
         "{{#link-to (query-params page=pageNumber) id='page-link'}}Index{{/link-to}} ");
 
-        App.IndexController = Ember.Controller.extend({
-          queryParams: ['page'],
-          page: 1,
-          pageNumber: 5
-        });
+      App.IndexController = Ember.Controller.extend({
+        queryParams: ['page'],
+        page: 1,
+        pageNumber: 5
+      });
 
-        bootApplication();
+      bootApplication();
 
-        shouldNotBeActive('#page-link');
-        Ember.run(router, 'handleURL', '/?page=5');
-        shouldBeActive('#page-link');
+      shouldNotBeActive('#page-link');
+      Ember.run(router, 'handleURL', '/?page=5');
+      shouldBeActive('#page-link');
     });
 
     test("The {{link-to}} applies active class when query-param is array", function() {
@@ -60457,33 +60523,33 @@ enifed("ember/tests/helpers/link_to_test",
 
       Ember.TEMPLATES.application = compile(
         "{{#link-to 'parent' (query-params page=1) current-when='parent' id='app-link'}}Parent{{/link-to}} {{outlet}}");
-        Ember.TEMPLATES.parent = compile(
-          "{{#link-to 'parent' (query-params page=1) current-when='parent' id='parent-link'}}Parent{{/link-to}} {{outlet}}");
+      Ember.TEMPLATES.parent = compile(
+        "{{#link-to 'parent' (query-params page=1) current-when='parent' id='parent-link'}}Parent{{/link-to}} {{outlet}}");
 
-          App.ParentController = Ember.ObjectController.extend({
-            queryParams: ['page'],
-            page: 1
-          });
+      App.ParentController = Ember.ObjectController.extend({
+        queryParams: ['page'],
+        page: 1
+      });
 
-          bootApplication();
-          equal(Ember.$('#app-link').attr('href'), '/parent');
-          shouldNotBeActive('#app-link');
+      bootApplication();
+      equal(Ember.$('#app-link').attr('href'), '/parent');
+      shouldNotBeActive('#app-link');
 
-          Ember.run(router, 'handleURL', '/parent?page=2');
-          equal(Ember.$('#app-link').attr('href'), '/parent');
-          shouldBeActive('#app-link');
-          equal(Ember.$('#parent-link').attr('href'), '/parent');
-          shouldBeActive('#parent-link');
+      Ember.run(router, 'handleURL', '/parent?page=2');
+      equal(Ember.$('#app-link').attr('href'), '/parent');
+      shouldBeActive('#app-link');
+      equal(Ember.$('#parent-link').attr('href'), '/parent');
+      shouldBeActive('#parent-link');
 
-          var parentController = container.lookup('controller:parent');
-          equal(parentController.get('page'), 2);
-          Ember.run(parentController, 'set', 'page', 3);
-          equal(router.get('location.path'), '/parent?page=3');
-          shouldBeActive('#app-link');
-          shouldBeActive('#parent-link');
+      var parentController = container.lookup('controller:parent');
+      equal(parentController.get('page'), 2);
+      Ember.run(parentController, 'set', 'page', 3);
+      equal(router.get('location.path'), '/parent?page=3');
+      shouldBeActive('#app-link');
+      shouldBeActive('#parent-link');
 
-          Ember.$('#app-link').click();
-          equal(router.get('location.path'), '/parent');
+      Ember.$('#app-link').click();
+      equal(router.get('location.path'), '/parent');
     });
 
     function basicEagerURLUpdateTest(setTagName) {
@@ -60513,121 +60579,122 @@ enifed("ember/tests/helpers/link_to_test",
     var aboutDefer;
 
     if (!Ember.FEATURES.isEnabled('ember-routing-transitioning-classes')) {
-    QUnit.module("The {{link-to}} helper: eager URL updating", {
-      setup: function() {
-        Ember.run(function() {
-          sharedSetup();
+      QUnit.module("The {{link-to}} helper: eager URL updating", {
+        setup: function() {
+          Ember.run(function() {
+            sharedSetup();
 
-          container.register('router:main', Router);
+            registry.unregister('router:main');
+            registry.register('router:main', Router);
 
-          Router.map(function() {
-            this.route('about');
+            Router.map(function() {
+              this.route('about');
+            });
+
+            App.AboutRoute = Ember.Route.extend({
+              model: function() {
+                aboutDefer = Ember.RSVP.defer();
+                return aboutDefer.promise;
+              }
+            });
+
+            Ember.TEMPLATES.application = compile("{{outlet}}{{link-to 'Index' 'index' id='index-link'}}{{link-to 'About' 'about' id='about-link'}}");
           });
-
-          App.AboutRoute = Ember.Route.extend({
-            model: function() {
-              aboutDefer = Ember.RSVP.defer();
-              return aboutDefer.promise;
-            }
-          });
-
-          Ember.TEMPLATES.application = compile("{{outlet}}{{link-to 'Index' 'index' id='index-link'}}{{link-to 'About' 'about' id='about-link'}}");
-        });
-      },
-
-      teardown: function() {
-        sharedTeardown();
-        aboutDefer = null;
-      }
-    });
-
-    test("invoking a link-to with a slow promise eager updates url", function() {
-      basicEagerURLUpdateTest(false);
-    });
-
-    test("when link-to eagerly updates url, the path it provides does NOT include the rootURL", function() {
-      expect(2);
-
-      // HistoryLocation is the only Location class that will cause rootURL to be
-      // prepended to link-to href's right now
-      var HistoryTestLocation = Ember.HistoryLocation.extend({
-        location: {
-          hash: '',
-          hostname: 'emberjs.com',
-          href: 'http://emberjs.com/app/',
-          pathname: '/app/',
-          protocol: 'http:',
-          port: '',
-          search: ''
         },
 
-        // Don't actually touch the URL
-        replaceState: function(path) {},
-        pushState: function(path) {},
-
-        setURL: function(path) {
-          set(this, 'path', path);
-        },
-
-        replaceURL: function(path) {
-          set(this, 'path', path);
+        teardown: function() {
+          sharedTeardown();
+          aboutDefer = null;
         }
       });
 
-      container.register('location:historyTest', HistoryTestLocation);
-
-      Router.reopen({
-        location: 'historyTest',
-        rootURL: '/app/'
+      test("invoking a link-to with a slow promise eager updates url", function() {
+        basicEagerURLUpdateTest(false);
       });
 
-      bootApplication();
+      test("when link-to eagerly updates url, the path it provides does NOT include the rootURL", function() {
+        expect(2);
 
-      // href should have rootURL prepended
-      equal(Ember.$('#about-link').attr('href'), '/app/about');
+        // HistoryLocation is the only Location class that will cause rootURL to be
+        // prepended to link-to href's right now
+        var HistoryTestLocation = Ember.HistoryLocation.extend({
+          location: {
+            hash: '',
+            hostname: 'emberjs.com',
+            href: 'http://emberjs.com/app/',
+            pathname: '/app/',
+            protocol: 'http:',
+            port: '',
+            search: ''
+          },
 
-      Ember.run(Ember.$('#about-link'), 'click');
+          // Don't actually touch the URL
+          replaceState: function(path) {},
+          pushState: function(path) {},
 
-      // Actual path provided to Location class should NOT have rootURL
-      equal(router.get('location.path'), '/about');
-    });
+          setURL: function(path) {
+            set(this, 'path', path);
+          },
 
-    test("non `a` tags also eagerly update URL", function() {
-      basicEagerURLUpdateTest(true);
-    });
-
-    test("invoking a link-to with a promise that rejects on the run loop doesn't update url", function() {
-      App.AboutRoute = Ember.Route.extend({
-        model: function() {
-          return Ember.RSVP.reject();
-        }
-      });
-
-      bootApplication();
-      Ember.run(Ember.$('#about-link'), 'click');
-
-      // Shouldn't have called update url.
-      equal(updateCount, 0);
-      equal(router.get('location.path'), '', 'url was not updated');
-    });
-
-    test("invoking a link-to whose transition gets aborted in will transition doesn't update the url", function() {
-      App.IndexRoute = Ember.Route.extend({
-        actions: {
-          willTransition: function(transition) {
-            ok(true, "aborting transition");
-            transition.abort();
+          replaceURL: function(path) {
+            set(this, 'path', path);
           }
-        }
+        });
+
+        registry.register('location:historyTest', HistoryTestLocation);
+
+        Router.reopen({
+          location: 'historyTest',
+          rootURL: '/app/'
+        });
+
+        bootApplication();
+
+        // href should have rootURL prepended
+        equal(Ember.$('#about-link').attr('href'), '/app/about');
+
+        Ember.run(Ember.$('#about-link'), 'click');
+
+        // Actual path provided to Location class should NOT have rootURL
+        equal(router.get('location.path'), '/about');
       });
 
-      bootApplication();
-      Ember.run(Ember.$('#about-link'), 'click');
+      test("non `a` tags also eagerly update URL", function() {
+        basicEagerURLUpdateTest(true);
+      });
 
-      // Shouldn't have called update url.
-      equal(updateCount, 0);
-      equal(router.get('location.path'), '', 'url was not updated');
-    });
+      test("invoking a link-to with a promise that rejects on the run loop doesn't update url", function() {
+        App.AboutRoute = Ember.Route.extend({
+          model: function() {
+            return Ember.RSVP.reject();
+          }
+        });
+
+        bootApplication();
+        Ember.run(Ember.$('#about-link'), 'click');
+
+        // Shouldn't have called update url.
+        equal(updateCount, 0);
+        equal(router.get('location.path'), '', 'url was not updated');
+      });
+
+      test("invoking a link-to whose transition gets aborted in will transition doesn't update the url", function() {
+        App.IndexRoute = Ember.Route.extend({
+          actions: {
+            willTransition: function(transition) {
+              ok(true, "aborting transition");
+              transition.abort();
+            }
+          }
+        });
+
+        bootApplication();
+        Ember.run(Ember.$('#about-link'), 'click');
+
+        // Shouldn't have called update url.
+        equal(updateCount, 0);
+        equal(router.get('location.path'), '', 'url was not updated');
+      });
 
     }
 
@@ -60638,7 +60705,8 @@ enifed("ember/tests/helpers/link_to_test",
           Ember.run(function() {
             sharedSetup();
 
-            container.register('router:main', Router);
+            registry.unregister('router:main');
+            registry.register('router:main', Router);
 
             Router.map(function() {
               this.route('about');
@@ -60829,7 +60897,7 @@ enifed("ember/tests/location_test",
             location: 'none',
             rootURL: '/rootdir/'
           });
-          App.__container__.register('location:auto', AutoTestLocation );
+          App.__registry__.register('location:auto', AutoTestLocation );
           App.deferReadiness();
         });
       },
@@ -60873,7 +60941,7 @@ enifed("ember/tests/routing/basic_test",
 
     var compile = EmberHandlebars.compile;
 
-    var Router, App, router, container, originalLoggerError;
+    var Router, App, router, registry, container, originalLoggerError;
 
     function bootApplication() {
       router = container.lookup('router:main');
@@ -60931,6 +60999,7 @@ enifed("ember/tests/routing/basic_test",
           App.LoadingRoute = Ember.Route.extend({
           });
 
+          registry = App.__registry__;
           container = App.__container__;
 
           Ember.TEMPLATES.application = compile("{{outlet}}");
@@ -61392,7 +61461,7 @@ enifed("ember/tests/routing/basic_test",
         }
       });
 
-      container.register('controller:home', Ember.Controller.extend());
+      registry.register('controller:home', Ember.Controller.extend());
 
       bootApplication();
 
@@ -61412,7 +61481,7 @@ enifed("ember/tests/routing/basic_test",
         controllerName: 'myController'
       });
 
-      container.register('controller:myController', Ember.Controller.extend({
+      registry.register('controller:myController', Ember.Controller.extend({
         myValue: "foo"
       }));
 
@@ -61438,7 +61507,7 @@ enifed("ember/tests/routing/basic_test",
         }
       });
 
-      container.register('controller:myController', Ember.Controller.extend({
+      registry.register('controller:myController', Ember.Controller.extend({
         myValue: "foo"
       }));
 
@@ -61461,11 +61530,11 @@ enifed("ember/tests/routing/basic_test",
         controllerName: 'myController'
       });
 
-      container.register('controller:home', Ember.Controller.extend({
+      registry.register('controller:home', Ember.Controller.extend({
         myValue: "home"
       }));
 
-      container.register('controller:myController', Ember.Controller.extend({
+      registry.register('controller:myController', Ember.Controller.extend({
         myValue: "myController"
       }));
 
@@ -61577,7 +61646,7 @@ enifed("ember/tests/routing/basic_test",
 
       bootApplication();
 
-      container.register('controller:special', Ember.Controller.extend());
+      registry.register('controller:special', Ember.Controller.extend());
 
       handleURL("/specials/1");
 
@@ -61611,7 +61680,7 @@ enifed("ember/tests/routing/basic_test",
 
       bootApplication();
 
-      container.register('controller:special', Ember.Controller.extend());
+      registry.register('controller:special', Ember.Controller.extend());
 
       handleURL("/specials/1");
 
@@ -61657,7 +61726,7 @@ enifed("ember/tests/routing/basic_test",
 
       bootApplication();
 
-      container.register('controller:special', Ember.Controller.extend());
+      registry.register('controller:special', Ember.Controller.extend());
 
       handleURL("/specials/1");
 
@@ -61705,7 +61774,7 @@ enifed("ember/tests/routing/basic_test",
 
       bootApplication();
 
-      container.register('controller:special', Ember.Controller.extend());
+      registry.register('controller:special', Ember.Controller.extend());
 
       handleURL("/specials/1");
 
@@ -61869,7 +61938,7 @@ enifed("ember/tests/routing/basic_test",
 
       bootApplication();
 
-      container.register('controller:special', Ember.Controller.extend());
+      registry.register('controller:special', Ember.Controller.extend());
 
       var transition = handleURL('/');
 
@@ -61965,7 +62034,7 @@ enifed("ember/tests/routing/basic_test",
 
       bootApplication();
 
-      container.register('controller:special', Ember.Controller.extend());
+      registry.register('controller:special', Ember.Controller.extend());
 
       equal(Ember.$('h3', '#qunit-fixture').text(), "Home", "The app is now in the initial state");
       equal(rootSetup, 1, "The root setup was triggered");
@@ -62031,7 +62100,7 @@ enifed("ember/tests/routing/basic_test",
         }
       });
 
-      container.register('controller:home', controller);
+      registry.register('controller:home', controller);
 
       bootApplication();
 
@@ -62259,7 +62328,7 @@ enifed("ember/tests/routing/basic_test",
         }
       });
 
-      container.register('controller:home', controller);
+      registry.register('controller:home', controller);
 
       bootApplication();
 
@@ -62982,7 +63051,7 @@ enifed("ember/tests/routing/basic_test",
       });
 
 
-      container.register('location:historyTest', HistoryTestLocation);
+      registry.register('location:historyTest', HistoryTestLocation);
 
       Router.reopen({
         location: 'historyTest',
@@ -63017,7 +63086,7 @@ enifed("ember/tests/routing/basic_test",
         }
       });
 
-      container.register('location:history-test', HistoryTestLocation);
+      registry.register('location:history-test', HistoryTestLocation);
 
       Router.reopen({
         location: 'history-test',
@@ -64247,7 +64316,7 @@ enifed("ember/tests/routing/query_params_test",
 
     var compile = EmberHandlebars.compile;
 
-    var Router, App, router, container;
+    var Router, App, router, registry, container;
     var get = Ember.get;
 
     function withoutMeta(object) {
@@ -64319,8 +64388,10 @@ enifed("ember/tests/routing/query_params_test",
 
         App.deferReadiness();
 
+        registry = App.__registry__;
         container = App.__container__;
-        container.register('location:test', TestLocation);
+
+        registry.register('location:test', TestLocation);
 
         startingURL = expectedReplaceURL = expectedPushURL = '';
 
