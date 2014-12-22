@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.b8654788
+ * @version   1.11.0-beta.1+canary.7022d09d
  */
 
 (function() {
@@ -55704,20 +55704,22 @@ enifed("ember-views/tests/views/view/element_test",
       equal(get(view, 'element'), dom, 'now has set element');
     });
 
-    test("should not allow the elementId to be changed after inserted", function() {
-      view = EmberView.create({
-        elementId: 'one'
+    Ember.runInDebug(function() {
+      test("should not allow the elementId to be changed after inserted", function() {
+        view = EmberView.create({
+          elementId: 'one'
+        });
+
+        run(function() {
+          view.appendTo('#qunit-fixture');
+        });
+
+        raises(function() {
+          view.set('elementId', 'two');
+        }, "raises elementId changed exception");
+
+        equal(view.get('elementId'), 'one', 'elementId is still "one"');
       });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      raises(function() {
-        view.set('elementId', 'two');
-      }, "raises elementId changed exception");
-
-      equal(view.get('elementId'), 'one', 'elementId is still "one"');
     });
   });
 enifed("ember-views/tests/views/view/element_test.jshint",
