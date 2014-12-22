@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.384f9fa6
+ * @version   1.11.0-beta.1+canary.082e1ffb
  */
 
 (function() {
@@ -6160,8 +6160,8 @@ enifed("ember-htmlbars/helpers/bind-attr",
     __exports__.bindAttrHelperDeprecated = bindAttrHelperDeprecated;
   });
 enifed("ember-htmlbars/helpers/collection",
-  ["ember-metal/core","ember-metal/mixin","ember-runtime/system/string","ember-metal/property_get","ember-htmlbars/helpers/view","ember-views/views/collection_view","ember-views/streams/utils","ember-metal/enumerable_utils","ember-views/streams/class_name_binding","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __exports__) {
+  ["ember-metal/core","ember-metal/mixin","ember-runtime/system/string","ember-metal/property_get","ember-htmlbars/helpers/view","ember-views/views/collection_view","ember-views/streams/utils","ember-metal/enumerable_utils","ember-views/streams/class_name_binding","ember-metal/binding","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -6178,6 +6178,7 @@ enifed("ember-htmlbars/helpers/collection",
     var readViewFactory = __dependency7__.readViewFactory;
     var map = __dependency8__.map;
     var streamifyClassNameBinding = __dependency9__.streamifyClassNameBinding;
+    var Binding = __dependency10__.Binding;
 
     /**
       `{{collection}}` is a `Ember.Handlebars` helper for adding instances of
@@ -6319,7 +6320,8 @@ enifed("ember-htmlbars/helpers/collection",
           view      = data.view,
           // This should be deterministic, and should probably come from a
           // parent view and not the controller.
-          container = (view.controller && view.controller.container ? view.controller.container : view.container);
+          controller = get(view, 'controller'),
+          container = (controller && controller.container ? controller.container : view.container);
 
       // If passed a path string, convert that into an object.
       // Otherwise, just default to the standard class.
@@ -6395,9 +6397,9 @@ enifed("ember-htmlbars/helpers/collection",
       if (emptyViewClass) { hash.emptyView = emptyViewClass; }
 
       if (hash.keyword) {
-        itemHash._contextBinding = '_parentView.context';
+        itemHash._contextBinding = Binding.oneWay('_parentView.context');
       } else {
-        itemHash._contextBinding = 'content';
+        itemHash._contextBinding = Binding.oneWay('content');
       }
 
       var viewOptions = ViewHelper.propertiesFromHTMLOptions(itemHash, {}, { data: data });
@@ -12323,7 +12325,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.384f9fa6
+      @version 1.11.0-beta.1+canary.082e1ffb
     */
 
     if ('undefined' === typeof Ember) {
@@ -12350,10 +12352,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.384f9fa6'
+      @default '1.11.0-beta.1+canary.082e1ffb'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.384f9fa6';
+    Ember.VERSION = '1.11.0-beta.1+canary.082e1ffb';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -16984,13 +16986,15 @@ enifed("ember-metal/property_set",
         if (isUnknown && 'function' === typeof obj.setUnknownProperty) {
           obj.setUnknownProperty(keyName, value);
         } else if (meta && meta.watching[keyName] > 0) {
-          
-            if (hasPropertyAccessors) {
-              currentValue = meta.values[keyName];
-            } else {
-              currentValue = obj[keyName];
-            }
-                    // only trigger a change if the value has changed
+          if (meta.proto !== obj) {
+            
+              if (hasPropertyAccessors) {
+                currentValue = meta.values[keyName];
+              } else {
+                currentValue = obj[keyName];
+              }
+                      }
+          // only trigger a change if the value has changed
           if (value !== currentValue) {
             propertyWillChange(obj, keyName);
             
@@ -40377,12 +40381,12 @@ enifed("ember-views/system/renderer",
         // provided buffer operation (for example, `insertAfter` will
         // insert a new buffer after the "parent buffer").
         var tagName = view.tagName;
-        if (!tagName) {
+        if (tagName === undefined) {
           tagName = get(view, 'tagName');
           Ember.deprecate('In the future using a computed property to define tagName will not be permitted. That value will be respected, but changing it will not update the element.', !tagName);
         }
         var classNameBindings = view.classNameBindings;
-        var taglessViewWithClassBindings = tagName === '' && classNameBindings.length > 0;
+        var taglessViewWithClassBindings = tagName === '' && (classNameBindings && classNameBindings.length > 0);
 
         if (tagName === null || tagName === undefined) {
           tagName = 'div';
@@ -40416,9 +40420,7 @@ enifed("ember-views/system/renderer",
 
         view.buffer = null;
         if (element && element.nodeType === 1) {
-          // We have hooks, we shouldn't make element observable
-          // consider just doing view.element = element
-          set(view, 'element', element);
+          view.element = element;
         }
         return element;
       };
@@ -42880,6 +42882,7 @@ enifed("ember-views/views/simple_bound_view",
     SimpleBoundView.prototype = {
       isVirtual: true,
       isView: true,
+      tagName: '',
 
       destroy: function () {
         if (this.updateId) {
@@ -44218,6 +44221,8 @@ enifed("ember-views/views/view",
         return template || get(this, 'defaultTemplate');
       }),
 
+      _controller: null,
+
       /**
         The controller managing this view. If this property is set, it will be
         made available for use by the template.
@@ -44225,7 +44230,16 @@ enifed("ember-views/views/view",
         @property controller
         @type Object
       */
-      controller: computed('_parentView', function(key) {
+      controller: computed(function(key, value) {
+        if (arguments.length === 2) {
+          this._controller = value;
+          return value;
+        }
+
+        if (this._controller) {
+          return this._controller;
+        }
+
         var parentView = get(this, '_parentView');
         return parentView ? get(parentView, 'controller') : null;
       }),
@@ -44324,7 +44338,11 @@ enifed("ember-views/views/view",
         @property _context
         @private
       */
-      _context: computed(function(key) {
+      _context: computed(function(key, value) {
+        if (arguments.length === 2) {
+          return value;
+        }
+
         var parentView, controller;
 
         if (controller = get(this, 'controller')) {
@@ -45040,7 +45058,7 @@ enifed("ember-views/views/view",
       applyAttributesToBuffer: function(buffer) {
         // Creates observers for all registered class name and attribute bindings,
         // then adds them to the element.
-        var classNameBindings = get(this, 'classNameBindings');
+        var classNameBindings = this.classNameBindings;
         if (classNameBindings.length) {
           this._applyClassNameBindings(classNameBindings);
         }
@@ -45048,7 +45066,7 @@ enifed("ember-views/views/view",
         // Pass the render buffer so the method can apply attributes directly.
         // This isn't needed for class name bindings because they use the
         // existing classNames infrastructure.
-        var attributeBindings = get(this, 'attributeBindings');
+        var attributeBindings = this.attributeBindings;
         if (attributeBindings.length) {
           this._applyAttributeBindings(buffer, attributeBindings);
         }
