@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.f06d12f4
+ * @version   1.11.0-beta.1+canary.db7f83d9
  */
 
 (function() {
@@ -46701,6 +46701,24 @@ enifed("ember-template-compiler/system/compile.jshint",
     module('JSHint - ember-template-compiler/system');
     test('ember-template-compiler/system/compile.js should pass jshint', function() { 
       ok(true, 'ember-template-compiler/system/compile.js should pass jshint.'); 
+    });
+  });
+enifed("ember-template-compiler/system/compile_options.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-template-compiler/system');
+    test('ember-template-compiler/system/compile_options.js should pass jshint', function() { 
+      ok(true, 'ember-template-compiler/system/compile_options.js should pass jshint.'); 
+    });
+  });
+enifed("ember-template-compiler/system/precompile.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-template-compiler/system');
+    test('ember-template-compiler/system/precompile.js should pass jshint', function() { 
+      ok(true, 'ember-template-compiler/system/precompile.js should pass jshint.'); 
     });
   });
 enifed("ember-template-compiler/system/template.jshint",
