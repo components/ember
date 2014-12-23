@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.86761ef4
+ * @version   1.11.0-beta.1+canary.80709083
  */
 
 (function() {
@@ -4063,6 +4063,15 @@ enifed("ember-htmlbars/attr_nodes/quoted.jshint",
       ok(true, 'ember-htmlbars/attr_nodes/quoted.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/attr_nodes/sanitized.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/attr_nodes');
+    test('ember-htmlbars/attr_nodes/sanitized.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/attr_nodes/sanitized.js should pass jshint.'); 
+    });
+  });
 enifed("ember-htmlbars/attr_nodes/simple.jshint",
   [],
   function() {
@@ -5079,6 +5088,123 @@ enifed("ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test.jshint",
     module('JSHint - ember-htmlbars/tests/attr_nodes');
     test('ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/tests/attr_nodes/sanitized_test",
+  ["ember-views/views/view","ember-template-compiler/system/compile","ember-htmlbars/utils/string","ember-runtime/tests/utils"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+    "use strict";
+    /* jshint scripturl:true */
+
+    var EmberView = __dependency1__["default"];
+    var compile = __dependency2__["default"];
+    var SafeString = __dependency3__.SafeString;
+    var runAppend = __dependency4__.runAppend;
+    var runDestroy = __dependency4__.runDestroy;
+
+    var view;
+
+    QUnit.module("ember-htmlbars: sanitized attribute", {
+      teardown: function(){
+        runDestroy(view);
+      }
+    });
+
+    if (Ember.FEATURES.isEnabled('ember-htmlbars-attribute-syntax')) {
+
+    var badTags = [
+      { tag: 'a', attr: 'href',
+        unquotedTemplate: compile("<a href={{url}}></a>"),
+        quotedTemplate: compile("<a href='{{url}}'></a>"),
+        multipartTemplate: compile("<a href='{{protocol}}{{path}}'></a>") },
+      { tag: 'body', attr: 'background',
+        unquotedTemplate: compile("<body background={{url}}></body>"),
+        quotedTemplate: compile("<body background='{{url}}'></body>"),
+        multipartTemplate: compile("<body background='{{protocol}}{{path}}'></body>") },
+      { tag: 'link', attr: 'href',
+        unquotedTemplate: compile("<link href={{url}}>"),
+        quotedTemplate: compile("<link href='{{url}}'>"),
+        multipartTemplate: compile("<link href='{{protocol}}{{path}}'>") },
+      { tag: 'img', attr: 'src',
+        unquotedTemplate: compile("<img src={{url}}>"),
+        quotedTemplate: compile("<img src='{{url}}'>"),
+        multipartTemplate: compile("<img src='{{protocol}}{{path}}'>") },
+      { tag: 'iframe', attr: 'src',
+        unquotedTemplate: compile("<iframe src={{url}}></iframe>"),
+        quotedTemplate: compile("<iframe src='{{url}}'></iframe>"),
+        multipartTemplate: compile("<iframe src='{{protocol}}{{path}}'></iframe>") }
+    ];
+
+    for (var i=0, l=badTags.length; i<l; i++) {
+      (function(){
+        var subject = badTags[i];
+
+        test(subject.tag +" "+subject.attr+" is sanitized when using blacklisted protocol", function() {
+          view = EmberView.create({
+            context: {url: 'javascript://example.com'},
+            template: subject.unquotedTemplate
+          });
+          runAppend(view);
+
+          equal( view.element.firstChild.getAttribute(subject.attr),
+                 "unsafe:javascript://example.com",
+                 "attribute is output" );
+        });
+
+        test(subject.tag +" "+subject.attr+" is sanitized when using quoted non-whitelisted protocol", function() {
+          view = EmberView.create({
+            context: {url: 'javascript://example.com'},
+            template: subject.quotedTemplate
+          });
+          runAppend(view);
+
+          equal( view.element.firstChild.getAttribute(subject.attr),
+                 "unsafe:javascript://example.com",
+                 "attribute is output" );
+        });
+
+        test(subject.tag +" "+subject.attr+" is not sanitized when using non-whitelisted protocol with a SafeString", function() {
+          view = EmberView.create({
+            context: {url: new SafeString('javascript://example.com')},
+            template: subject.unquotedTemplate
+          });
+
+          try {
+            runAppend(view);
+
+            equal( view.element.firstChild.getAttribute(subject.attr),
+                   "javascript://example.com",
+                   "attribute is output" );
+          } catch(e) {
+            // IE does not allow javascript: to be set on img src
+            ok(true, 'caught exception '+e);
+          }
+        });
+
+        test(subject.tag+" "+subject.attr+" is sanitized when using quoted+concat non-whitelisted protocol", function() {
+          view = EmberView.create({
+            context: {protocol: 'javascript:', path: '//example.com'},
+            template: subject.multipartTemplate
+          });
+          runAppend(view);
+
+          equal( view.element.firstChild.getAttribute(subject.attr),
+                 "unsafe:javascript://example.com",
+                 "attribute is output" );
+        });
+
+      })(); //jshint ignore:line
+    }
+
+    }
+  });
+enifed("ember-htmlbars/tests/attr_nodes/sanitized_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/tests/attr_nodes');
+    test('ember-htmlbars/tests/attr_nodes/sanitized_test.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/tests/attr_nodes/sanitized_test.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/tests/attr_nodes/svg_test",
@@ -6338,7 +6464,6 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test",
 
     var helpers = __dependency14__["default"];
     var compile = __dependency15__["default"];
-
     var view;
 
     var originalLookup = Ember.lookup;
@@ -10163,6 +10288,105 @@ enifed("ember-htmlbars/tests/helpers/partial_test.jshint",
       ok(true, 'ember-htmlbars/tests/helpers/partial_test.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/tests/helpers/sanitized_bind_attr_test",
+  ["ember-views/views/view","ember-template-compiler/system/compile","ember-metal/run_loop","ember-htmlbars/utils/string","ember-runtime/tests/utils"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
+    "use strict";
+    /* jshint scripturl:true */
+
+    var EmberView = __dependency1__["default"];
+    var compile = __dependency2__["default"];
+    var run = __dependency3__["default"];
+    var SafeString = __dependency4__.SafeString;
+    var runAppend = __dependency5__.runAppend;
+    var runDestroy = __dependency5__.runDestroy;
+
+    var view;
+
+    QUnit.module("ember-htmlbars: sanitized attribute", {
+      teardown: function(){
+        runDestroy(view);
+      }
+    });
+
+    var badTags = [
+      { tag: 'a', attr: 'href',
+        template: compile('<a {{bind-attr href=view.badValue}}></a>') },
+      { tag: 'body', attr: 'background',
+        template: compile('<body {{bind-attr background=view.badValue}}></body>') },
+      { tag: 'link', attr: 'href',
+        template: compile('<link {{bind-attr href=view.badValue}}>') },
+      { tag: 'img', attr: 'src',
+        template: compile('<img {{bind-attr src=view.badValue}}>') }
+    ];
+
+    for (var i=0, l=badTags.length; i<l; i++) {
+      (function(){
+        var tagName = badTags[i].tag;
+        var attr = badTags[i].attr;
+        var template = badTags[i].template;
+
+        test("XSS - should not bind unsafe "+tagName+" "+attr+" values", function() {
+          view = EmberView.create({
+            template: template,
+            badValue: "javascript:alert('XSS')"
+          });
+
+          runAppend(view);
+
+          equal( view.element.firstChild.getAttribute(attr),
+                 "unsafe:javascript:alert('XSS')",
+                 "attribute is output" );
+        });
+
+        test("XSS - should not bind unsafe "+tagName+" "+attr+" values on rerender", function() {
+          view = EmberView.create({
+            template: template,
+            badValue: "/sunshine/and/rainbows"
+          });
+
+          runAppend(view);
+
+          equal( view.element.firstChild.getAttribute(attr),
+                 "/sunshine/and/rainbows",
+                 "attribute is output" );
+
+          run(view, 'set', 'badValue', "javascript:alert('XSS')");
+
+          equal( view.element.firstChild.getAttribute(attr),
+                 "unsafe:javascript:alert('XSS')",
+                 "attribute is output" );
+        });
+
+        test("should bind unsafe "+tagName+" "+attr+" values if they are SafeString", function() {
+          view = EmberView.create({
+            template: template,
+            badValue: new SafeString("javascript:alert('XSS')")
+          });
+
+          try {
+            runAppend(view);
+
+            equal( view.element.firstChild.getAttribute(attr),
+                   "javascript:alert('XSS')",
+                   "attribute is output" );
+          } catch(e) {
+            // IE does not allow javascript: to be set on img src
+            ok(true, 'caught exception '+e);
+          }
+        });
+      })(); //jshint ignore:line
+    }
+  });
+enifed("ember-htmlbars/tests/helpers/sanitized_bind_attr_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/tests/helpers');
+    test('ember-htmlbars/tests/helpers/sanitized_bind_attr_test.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/tests/helpers/sanitized_bind_attr_test.js should pass jshint.'); 
+    });
+  });
 enifed("ember-htmlbars/tests/helpers/template_test",
   ["ember-views/views/view","ember-runtime/system/object","ember-views/system/jquery","ember-runtime/system/container","ember-template-compiler/system/compile","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
@@ -10374,6 +10598,36 @@ enifed("ember-htmlbars/tests/helpers/unbound_test",
           })
         }));
       }, EmberError);
+    });
+
+    test('should property escape unsafe hrefs', function() {
+      /* jshint scripturl:true */
+
+      expect(3);
+
+      runDestroy(view);
+
+      view = EmberView.create({
+        template: compile('<ul>{{#each person in view.people}}<a href="{{unbound person.url}}">{{person.name}}</a>{{/each}}</ul>'),
+        people: A([{
+          name: 'Bob',
+          url: 'javascript:bob-is-cool'
+        }, {
+          name: 'James',
+          url: 'vbscript:james-is-cool'
+        }, {
+          name: 'Richard',
+          url: 'javascript:richard-is-cool'
+        }])
+      });
+
+      runAppend(view);
+
+      var links = view.$('a');
+      for (var i = 0, l = links.length; i < l; i++) {
+        var link = links[i];
+        equal(link.protocol, 'unsafe:', 'properly escaped');
+      }
     });
 
     QUnit.module("ember-htmlbars: {{#unbound boundHelper arg1 arg2... argN}} form: render unbound helper invocations", {
@@ -48685,6 +48939,15 @@ enifed("ember-views/system/renderer.jshint",
       ok(true, 'ember-views/system/renderer.js should pass jshint.'); 
     });
   });
+enifed("ember-views/system/sanitize_attribute_value.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/system');
+    test('ember-views/system/sanitize_attribute_value.js should pass jshint', function() { 
+      ok(true, 'ember-views/system/sanitize_attribute_value.js should pass jshint.'); 
+    });
+  });
 enifed("ember-views/system/utils.jshint",
   [],
   function() {
@@ -49738,6 +50001,74 @@ enifed("ember-views/tests/system/render_buffer_test.jshint",
     module('JSHint - ember-views/tests/system');
     test('ember-views/tests/system/render_buffer_test.js should pass jshint', function() { 
       ok(true, 'ember-views/tests/system/render_buffer_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/tests/system/sanitize_attribute_value_test",
+  ["ember-views/system/sanitize_attribute_value","ember-htmlbars/utils/string"],
+  function(__dependency1__, __dependency2__) {
+    "use strict";
+    var sanitizeAttributeValue = __dependency1__["default"];
+    var SafeString = __dependency2__.SafeString;
+
+    QUnit.module('ember-views: sanitizeAttributeValue(null, "href")');
+
+    var goodProtocols = [ 'https', 'http', 'ftp', 'tel', 'file'];
+
+    for (var i = 0, l = goodProtocols.length; i < l; i++) {
+      buildProtocolTest(goodProtocols[i]);
+    }
+
+    function buildProtocolTest(protocol) {
+      test('allows ' + protocol + ' protocol when element is not provided', function() {
+        expect(1);
+
+        var expected = protocol + '://foo.com';
+        var actual = sanitizeAttributeValue(null, 'href', expected);
+
+        equal(actual, expected, 'protocol not escaped');
+      });
+    }
+
+    test('blocks javascript: protocol', function() {
+      /* jshint scripturl:true */
+
+      expect(1);
+
+      var expected = 'javascript:alert("foo")';
+      var actual = sanitizeAttributeValue(null, 'href', expected);
+
+      equal(actual, 'unsafe:' + expected, 'protocol escaped');
+    });
+
+    test('blocks blacklisted protocols', function() {
+      /* jshint scripturl:true */
+
+      expect(1);
+
+      var expected = 'javascript:alert("foo")';
+      var actual = sanitizeAttributeValue(null, 'href', expected);
+
+      equal(actual, 'unsafe:' + expected, 'protocol escaped');
+    });
+
+    test('does not block SafeStrings', function() {
+      /* jshint scripturl:true */
+
+      expect(1);
+
+      var expected = 'javascript:alert("foo")';
+      var actual = sanitizeAttributeValue(null, 'href', new SafeString(expected));
+
+      equal(actual, expected, 'protocol unescaped');
+    });
+  });
+enifed("ember-views/tests/system/sanitize_attribute_value_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/tests/system');
+    test('ember-views/tests/system/sanitize_attribute_value_test.js should pass jshint', function() { 
+      ok(true, 'ember-views/tests/system/sanitize_attribute_value_test.js should pass jshint.'); 
     });
   });
 enifed("ember-views/tests/system/view_utils_test",
@@ -54143,15 +54474,16 @@ enifed("ember-views/tests/views/view/append_to_test.jshint",
     });
   });
 enifed("ember-views/tests/views/view/attribute_bindings_test",
-  ["ember-metal/core","ember-metal/run_loop","ember-metal/observer","ember-metal/property_events","ember-views/views/view"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
+  ["ember-metal/core","ember-metal/run_loop","ember-metal/observer","ember-metal/property_events","ember-htmlbars/utils/string","ember-views/views/view"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var run = __dependency2__["default"];
     var observersFor = __dependency3__.observersFor;
     var changeProperties = __dependency4__.changeProperties;
+    var SafeString = __dependency5__.SafeString;
 
-    var EmberView = __dependency5__["default"];
+    var EmberView = __dependency6__["default"];
 
     var originalLookup = Ember.lookup;
     var lookup, view;
@@ -54448,6 +54780,25 @@ enifed("ember-views/tests/views/view/attribute_bindings_test",
       expectAssertion(function() {
         appendView();
       }, 'You cannot use class as an attributeBinding, use classNameBindings instead.');
+    });
+
+    test("blacklists href bindings based on protocol", function() {
+      /* jshint scripturl:true */
+
+      view = EmberView.create({
+        attributeBindings: ['href'],
+        href: "javascript:alert('foo')"
+      });
+
+      appendView();
+
+      equal(view.$().attr('href'), "unsafe:javascript:alert('foo')", "value property sanitized");
+
+      run(function() {
+        view.set('href', new SafeString(view.get('href')));
+      });
+
+      equal(view.$().attr('href'), "javascript:alert('foo')", "value is not defined");
     });
   });
 enifed("ember-views/tests/views/view/attribute_bindings_test.jshint",
