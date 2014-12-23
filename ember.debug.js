@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.2+pre.eb8ec650
+ * @version   1.10.0-beta.2+pre.a31d8d2f
  */
 
 (function() {
@@ -12031,7 +12031,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.2+pre.eb8ec650
+      @version 1.10.0-beta.2+pre.a31d8d2f
     */
 
     if ('undefined' === typeof Ember) {
@@ -12058,10 +12058,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.2+pre.eb8ec650'
+      @default '1.10.0-beta.2+pre.a31d8d2f'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.2+pre.eb8ec650';
+    Ember.VERSION = '1.10.0-beta.2+pre.a31d8d2f';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -36601,20 +36601,22 @@ enifed("ember-runtime/system/tracked_array",
     }
   });
 enifed("ember-template-compiler",
-  ["ember-template-compiler/system/precompile","ember-template-compiler/system/compile","ember-template-compiler/system/template","ember-template-compiler/plugins","ember-template-compiler/plugins/transform-each-in-to-hash","ember-template-compiler/plugins/transform-with-as-to-hash","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+  ["ember-metal/core","ember-template-compiler/system/precompile","ember-template-compiler/system/compile","ember-template-compiler/system/template","ember-template-compiler/plugins","ember-template-compiler/plugins/transform-each-in-to-hash","ember-template-compiler/plugins/transform-with-as-to-hash","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
-    var precompile = __dependency1__["default"];
-    var compile = __dependency2__["default"];
-    var template = __dependency3__["default"];
-    var registerPlugin = __dependency4__.registerPlugin;
+    var _Ember = __dependency1__["default"];
+    var precompile = __dependency2__["default"];
+    var compile = __dependency3__["default"];
+    var template = __dependency4__["default"];
+    var registerPlugin = __dependency5__.registerPlugin;
 
-    var TransformEachInToHash = __dependency5__["default"];
-    var TransformWithAsToHash = __dependency6__["default"];
+    var TransformEachInToHash = __dependency6__["default"];
+    var TransformWithAsToHash = __dependency7__["default"];
 
     registerPlugin('ast', TransformWithAsToHash);
     registerPlugin('ast', TransformEachInToHash);
 
+    __exports__._Ember = _Ember;
     __exports__.precompile = precompile;
     __exports__.compile = compile;
     __exports__.template = template;
@@ -36811,7 +36813,7 @@ enifed("ember-template-compiler/system/compile",
       @param {String} templateString This is the string to be compiled by HTMLBars.
     */
     __exports__["default"] = function(templateString) {
-      var templateSpec = compile(templateString, compileOptions);
+      var templateSpec = compile(templateString, compileOptions());
 
       return template(templateSpec);
     }
@@ -36828,17 +36830,19 @@ enifed("ember-template-compiler/system/compile_options",
     var Ember = __dependency1__["default"];
     var plugins = __dependency2__["default"];
 
-    var disableComponentGeneration = true;
-    
     /**
       @private
       @property compileOptions
     */
-    __exports__["default"] = {
-      disableComponentGeneration: disableComponentGeneration,
+    __exports__["default"] = function() {
+      var disableComponentGeneration = true;
+      
+      return {
+        disableComponentGeneration: disableComponentGeneration,
 
-      plugins: plugins
-    };
+        plugins: plugins
+      };
+    }
   });
 enifed("ember-template-compiler/system/precompile",
   ["htmlbars-compiler/compiler","ember-template-compiler/system/compile_options","exports"],
@@ -36863,7 +36867,7 @@ enifed("ember-template-compiler/system/precompile",
       @param {String} templateString This is the string to be compiled by HTMLBars.
     */
     __exports__["default"] = function(templateString) {
-      return compileSpec(templateString, compileOptions);
+      return compileSpec(templateString, compileOptions());
     }
   });
 enifed("ember-template-compiler/system/template",
