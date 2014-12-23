@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.9f50ddd2
+ * @version   1.11.0-beta.1+canary.c39c42f4
  */
 
 (function() {
@@ -4636,7 +4636,7 @@ enifed("ember-htmlbars",
 
     var compile = __dependency2__.compile;
     var template = __dependency2__.template;
-    var registerASTPlugin = __dependency2__.registerASTPlugin;
+    var registerPlugin = __dependency2__.registerPlugin;
 
     var content = __dependency3__["default"];
     var component = __dependency4__["default"];
@@ -4711,7 +4711,7 @@ enifed("ember-htmlbars",
         compile: compile,
         makeViewHelper: makeViewHelper,
         makeBoundHelper: makeBoundHelper,
-        registerASTPlugin: registerASTPlugin
+        registerPlugin: registerPlugin
       };
 
     
@@ -11688,7 +11688,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.9f50ddd2
+      @version 1.11.0-beta.1+canary.c39c42f4
     */
 
     if ('undefined' === typeof Ember) {
@@ -11715,10 +11715,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.9f50ddd2'
+      @default '1.11.0-beta.1+canary.c39c42f4'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.9f50ddd2';
+    Ember.VERSION = '1.11.0-beta.1+canary.c39c42f4';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -36238,17 +36238,17 @@ enifed("ember-template-compiler",
     "use strict";
     var compile = __dependency1__["default"];
     var template = __dependency2__["default"];
-    var registerASTPlugin = __dependency3__.registerASTPlugin;
+    var registerPlugin = __dependency3__.registerPlugin;
 
     var TransformEachInToHash = __dependency4__["default"];
     var TransformWithAsToHash = __dependency5__["default"];
 
-    registerASTPlugin(TransformWithAsToHash);
-    registerASTPlugin(TransformEachInToHash);
+    registerPlugin('ast', TransformWithAsToHash);
+    registerPlugin('ast', TransformEachInToHash);
 
     __exports__.compile = compile;
     __exports__.template = template;
-    __exports__.registerASTPlugin = registerASTPlugin;
+    __exports__.registerPlugin = registerPlugin;
   });
 enifed("ember-template-compiler/plugins",
   ["exports"],
@@ -36273,11 +36273,15 @@ enifed("ember-template-compiler/plugins",
       @private
       @method registerASTPlugin
     */
-    function registerASTPlugin(Plugin) {
-      plugins.ast.push(Plugin);
+    function registerPlugin(type, Plugin) {
+      if (!plugins[type]) {
+        throw new Error('Attempting to register "' + Plugin + '" as "' + type + '" which is not a valid HTMLBars plugin type.');
+      }
+
+      plugins[type].push(Plugin);
     }
 
-    __exports__.registerASTPlugin = registerASTPlugin;__exports__["default"] = plugins;
+    __exports__.registerPlugin = registerPlugin;__exports__["default"] = plugins;
   });
 enifed("ember-template-compiler/plugins/transform-each-in-to-hash",
   ["exports"],

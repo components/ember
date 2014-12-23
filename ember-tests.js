@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.9f50ddd2
+ * @version   1.11.0-beta.1+canary.c39c42f4
  */
 
 (function() {
@@ -46821,7 +46821,7 @@ enifed("ember-template-compiler/tests/plugins_test",
   function(__dependency1__, __dependency2__) {
     "use strict";
     var plugins = __dependency1__["default"];
-    var registerASTPlugin = __dependency1__.registerASTPlugin;
+    var registerPlugin = __dependency1__.registerPlugin;
     var compile = __dependency2__["default"];
 
     var originalASTPlugins;
@@ -46849,9 +46849,15 @@ enifed("ember-template-compiler/tests/plugins_test",
         return ast;
       };
 
-      registerASTPlugin(TestPlugin);
+      registerPlugin('ast', TestPlugin);
 
       compile('some random template');
+    });
+
+    test('registering an unknown type throws an error', function() {
+      throws(function() {
+        registerPlugin('asdf', "whatever");
+      }, /Attempting to register "whatever" as "asdf" which is not a valid HTMLBars plugin type./);
     });
   });
 enifed("ember-template-compiler/tests/plugins_test.jshint",
