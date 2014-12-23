@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.2+pre.be3fe655
+ * @version   1.10.0-beta.2+pre.eb8ec650
  */
 
 (function() {
@@ -4769,51 +4769,51 @@ enifed("ember-extension-support/data_adapter",
     });
   });
 enifed("ember-htmlbars",
-  ["ember-metal/core","ember-htmlbars/hooks/content","ember-htmlbars/hooks/component","ember-htmlbars/hooks/element","ember-htmlbars/hooks/subexpr","ember-htmlbars/hooks/attribute","ember-htmlbars/hooks/concat","ember-htmlbars/hooks/get","ember-htmlbars/hooks/set","morph","ember-htmlbars/system/template","ember-htmlbars/system/compile","ember-htmlbars/system/make-view-helper","ember-htmlbars/system/make_bound_helper","ember-htmlbars/helpers","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/bind-attr","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/partial","ember-htmlbars/helpers/template","ember-htmlbars/helpers/input","ember-htmlbars/helpers/text_area","ember-htmlbars/helpers/collection","ember-htmlbars/helpers/each","ember-htmlbars/helpers/unbound","ember-htmlbars/plugins","ember-htmlbars/plugins/transform-each-in-to-hash","ember-htmlbars/plugins/transform-with-as-to-hash","ember-htmlbars/system/bootstrap","ember-htmlbars/compat","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __dependency31__, __dependency32__, __dependency33__, __dependency34__, __dependency35__, __dependency36__, __exports__) {
+  ["ember-metal/core","ember-template-compiler","ember-htmlbars/hooks/content","ember-htmlbars/hooks/component","ember-htmlbars/hooks/element","ember-htmlbars/hooks/subexpr","ember-htmlbars/hooks/attribute","ember-htmlbars/hooks/concat","ember-htmlbars/hooks/get","ember-htmlbars/hooks/set","morph","ember-htmlbars/system/make-view-helper","ember-htmlbars/system/make_bound_helper","ember-htmlbars/helpers","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/bind-attr","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/partial","ember-htmlbars/helpers/template","ember-htmlbars/helpers/input","ember-htmlbars/helpers/text_area","ember-htmlbars/helpers/collection","ember-htmlbars/helpers/each","ember-htmlbars/helpers/unbound","ember-htmlbars/system/bootstrap","ember-htmlbars/compat","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __dependency31__, __dependency32__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
-    var content = __dependency2__["default"];
-    var component = __dependency3__["default"];
-    var element = __dependency4__["default"];
-    var subexpr = __dependency5__["default"];
-    var attribute = __dependency6__["default"];
-    var concat = __dependency7__["default"];
-    var get = __dependency8__["default"];
-    var set = __dependency9__["default"];
-    var DOMHelper = __dependency10__.DOMHelper;
-    var template = __dependency11__["default"];
-    var compile = __dependency12__["default"];
-    var makeViewHelper = __dependency13__["default"];
-    var makeBoundHelper = __dependency14__["default"];
 
-    var registerHelper = __dependency15__.registerHelper;
-    var helper = __dependency15__.helper;
-    var helpers = __dependency15__["default"];
-    var bindHelper = __dependency16__.bindHelper;
-    var viewHelper = __dependency17__.viewHelper;
-    var yieldHelper = __dependency18__.yieldHelper;
-    var withHelper = __dependency19__.withHelper;
-    var logHelper = __dependency20__.logHelper;
-    var debuggerHelper = __dependency21__.debuggerHelper;
-    var bindAttrHelper = __dependency22__.bindAttrHelper;
-    var bindAttrHelperDeprecated = __dependency22__.bindAttrHelperDeprecated;
-    var ifHelper = __dependency23__.ifHelper;
-    var unlessHelper = __dependency23__.unlessHelper;
-    var unboundIfHelper = __dependency23__.unboundIfHelper;
-    var boundIfHelper = __dependency23__.boundIfHelper;
-    var locHelper = __dependency24__.locHelper;
-    var partialHelper = __dependency25__.partialHelper;
-    var templateHelper = __dependency26__.templateHelper;
-    var inputHelper = __dependency27__.inputHelper;
-    var textareaHelper = __dependency28__.textareaHelper;
-    var collectionHelper = __dependency29__.collectionHelper;
-    var eachHelper = __dependency30__.eachHelper;
-    var unboundHelper = __dependency31__.unboundHelper;
+    var precompile = __dependency2__.precompile;
+    var compile = __dependency2__.compile;
+    var template = __dependency2__.template;
+    var registerPlugin = __dependency2__.registerPlugin;
 
-    var registerASTPlugin = __dependency32__.registerASTPlugin;
-    var TransformEachInToHash = __dependency33__["default"];
-    var TransformWithAsToHash = __dependency34__["default"];
+    var content = __dependency3__["default"];
+    var component = __dependency4__["default"];
+    var element = __dependency5__["default"];
+    var subexpr = __dependency6__["default"];
+    var attribute = __dependency7__["default"];
+    var concat = __dependency8__["default"];
+    var get = __dependency9__["default"];
+    var set = __dependency10__["default"];
+    var DOMHelper = __dependency11__.DOMHelper;
+    var makeViewHelper = __dependency12__["default"];
+    var makeBoundHelper = __dependency13__["default"];
+
+    var registerHelper = __dependency14__.registerHelper;
+    var helper = __dependency14__.helper;
+    var helpers = __dependency14__["default"];
+    var bindHelper = __dependency15__.bindHelper;
+    var viewHelper = __dependency16__.viewHelper;
+    var yieldHelper = __dependency17__.yieldHelper;
+    var withHelper = __dependency18__.withHelper;
+    var logHelper = __dependency19__.logHelper;
+    var debuggerHelper = __dependency20__.debuggerHelper;
+    var bindAttrHelper = __dependency21__.bindAttrHelper;
+    var bindAttrHelperDeprecated = __dependency21__.bindAttrHelperDeprecated;
+    var ifHelper = __dependency22__.ifHelper;
+    var unlessHelper = __dependency22__.unlessHelper;
+    var unboundIfHelper = __dependency22__.unboundIfHelper;
+    var boundIfHelper = __dependency22__.boundIfHelper;
+    var locHelper = __dependency23__.locHelper;
+    var partialHelper = __dependency24__.partialHelper;
+    var templateHelper = __dependency25__.templateHelper;
+    var inputHelper = __dependency26__.inputHelper;
+    var textareaHelper = __dependency27__.textareaHelper;
+    var collectionHelper = __dependency28__.collectionHelper;
+    var eachHelper = __dependency29__.eachHelper;
+    var unboundHelper = __dependency30__.unboundHelper;
 
     // importing adds template bootstrapping
     // initializer to enable embedded templates
@@ -4844,9 +4844,6 @@ enifed("ember-htmlbars",
     registerHelper('unbound', unboundHelper);
     registerHelper('concat', concat);
 
-    registerASTPlugin(TransformWithAsToHash);
-    registerASTPlugin(TransformEachInToHash);
-
     
       Ember.HTMLBars = {
         helpers: helpers,
@@ -4854,9 +4851,10 @@ enifed("ember-htmlbars",
         _registerHelper: registerHelper,
         template: template,
         compile: compile,
+        precompile: precompile,
         makeViewHelper: makeViewHelper,
         makeBoundHelper: makeBoundHelper,
-        registerASTPlugin: registerASTPlugin
+        registerPlugin: registerPlugin
       };
 
     
@@ -5145,22 +5143,22 @@ enifed("ember-htmlbars/attr_nodes/utils",
     __exports__.normalizeProperty = normalizeProperty;
   });
 enifed("ember-htmlbars/compat",
-  ["ember-metal/core","ember-htmlbars/helpers","ember-htmlbars/system/template","ember-htmlbars/system/compile","ember-htmlbars/compat/helper","ember-htmlbars/compat/handlebars-get","ember-htmlbars/compat/make-bound-helper","ember-htmlbars/compat/register-bound-helper","ember-htmlbars/compat/precompile","ember-htmlbars/system/make-view-helper","ember-htmlbars/utils/string","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
+  ["ember-metal/core","ember-htmlbars/helpers","ember-template-compiler","ember-htmlbars/compat/helper","ember-htmlbars/compat/handlebars-get","ember-htmlbars/compat/make-bound-helper","ember-htmlbars/compat/register-bound-helper","ember-htmlbars/compat/precompile","ember-htmlbars/system/make-view-helper","ember-htmlbars/utils/string","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var helpers = __dependency2__["default"];
-    var template = __dependency3__["default"];
-    var compile = __dependency4__["default"];
-    var compatRegisterHelper = __dependency5__.registerHandlebarsCompatibleHelper;
-    var compatHandlebarsHelper = __dependency5__.handlebarsHelper;
-    var compatHandlebarsGet = __dependency6__["default"];
-    var compatMakeBoundHelper = __dependency7__["default"];
-    var compatRegisterBoundHelper = __dependency8__["default"];
-    var compatPrecompile = __dependency9__["default"];
-    var makeViewHelper = __dependency10__["default"];
-    var SafeString = __dependency11__.SafeString;
-    var escapeExpression = __dependency11__.escapeExpression;
+    var template = __dependency3__.template;
+    var compile = __dependency3__.compile;
+    var compatRegisterHelper = __dependency4__.registerHandlebarsCompatibleHelper;
+    var compatHandlebarsHelper = __dependency4__.handlebarsHelper;
+    var compatHandlebarsGet = __dependency5__["default"];
+    var compatMakeBoundHelper = __dependency6__["default"];
+    var compatRegisterBoundHelper = __dependency7__["default"];
+    var compatPrecompile = __dependency8__["default"];
+    var makeViewHelper = __dependency9__["default"];
+    var SafeString = __dependency10__.SafeString;
+    var escapeExpression = __dependency10__.escapeExpression;
 
     var EmberHandlebars;
     
@@ -8279,172 +8277,8 @@ enifed("ember-htmlbars/hooks/subexpr",
       }
     }
   });
-enifed("ember-htmlbars/plugins",
-  ["exports"],
-  function(__exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-htmlbars
-    */
-
-    /**
-     @private
-     @property helpers
-    */
-    var plugins = {
-      ast: [ ]
-    };
-
-    /**
-      Adds an AST plugin to be used by Ember.HTMLBars.compile.
-
-      @private
-      @method registerASTPlugin
-    */
-    function registerASTPlugin(Plugin) {
-      plugins.ast.push(Plugin);
-    }
-
-    __exports__.registerASTPlugin = registerASTPlugin;__exports__["default"] = plugins;
-  });
-enifed("ember-htmlbars/plugins/transform-each-in-to-hash",
-  ["exports"],
-  function(__exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-htmlbars
-    */
-
-
-    /**
-      An HTMLBars AST transformation that replaces all instances of
-
-      ```handlebars
-      {{#each item in items}}
-      {{/each}}
-      ```
-
-      with
-
-      ```handlebars
-      {{#each items keyword="item"}}
-      {{/each}}
-      ```
-
-      @class TransformEachInToHash
-      @private
-    */
-    function TransformEachInToHash() {
-      // set later within HTMLBars to the syntax package
-      this.syntax = null;
-    }
-
-    /**
-      @private
-      @method transform
-      @param {AST} The AST to be transformed.
-    */
-    TransformEachInToHash.prototype.transform = function TransformEachInToHash_transform(ast) {
-      var pluginContext = this;
-      var walker = new pluginContext.syntax.Walker();
-      var b = pluginContext.syntax.builders;
-
-      walker.visit(ast, function(node) {
-        if (pluginContext.validate(node)) {
-          var removedParams = node.sexpr.params.splice(0, 2);
-          var keyword = removedParams[0].original;
-
-          // TODO: This may not be necessary.
-          if (!node.sexpr.hash) {
-            node.sexpr.hash = b.hash();
-          }
-
-          node.sexpr.hash.pairs.push(b.pair(
-            'keyword',
-            b.string(keyword)
-          ));
-        }
-      });
-
-      return ast;
-    };
-
-    TransformEachInToHash.prototype.validate = function TransformEachInToHash_validate(node) {
-      return (node.type === 'BlockStatement' || node.type === 'MustacheStatement') &&
-        node.sexpr.path.original === 'each' &&
-        node.sexpr.params.length === 3 &&
-        node.sexpr.params[1].type === 'PathExpression' &&
-        node.sexpr.params[1].original === 'in';
-    };
-
-    __exports__["default"] = TransformEachInToHash;
-  });
-enifed("ember-htmlbars/plugins/transform-with-as-to-hash",
-  ["exports"],
-  function(__exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-htmlbars
-    */
-
-    /**
-      An HTMLBars AST transformation that replaces all instances of
-
-      ```handlebars
-      {{#with foo.bar as bar}}
-      {{/with}}
-      ```
-
-      with
-
-      ```handlebars
-      {{#with foo.bar as |bar|}}
-      {{/with}}
-      ```
-
-      @private
-      @class TransformWithAsToHash
-    */
-    function TransformWithAsToHash() {
-      // set later within HTMLBars to the syntax package
-      this.syntax = null;
-    }
-
-    /**
-      @private
-      @method transform
-      @param {AST} The AST to be transformed.
-    */
-    TransformWithAsToHash.prototype.transform = function TransformWithAsToHash_transform(ast) {
-      var pluginContext = this;
-      var walker = new pluginContext.syntax.Walker();
-
-      walker.visit(ast, function(node) {
-        if (pluginContext.validate(node)) {
-          var removedParams = node.sexpr.params.splice(1, 2);
-          var keyword = removedParams[1].original;
-          node.program.blockParams = [ keyword ];
-        }
-      });
-
-      return ast;
-    };
-
-    TransformWithAsToHash.prototype.validate = function TransformWithAsToHash_validate(node) {
-      return node.type === 'BlockStatement' &&
-        node.sexpr.path.original === 'with' &&
-        node.sexpr.params.length === 3 &&
-        node.sexpr.params[1].type === 'PathExpression' &&
-        node.sexpr.params[1].original === 'as';
-    };
-
-    __exports__["default"] = TransformWithAsToHash;
-  });
 enifed("ember-htmlbars/system/bootstrap",
-  ["ember-metal/core","ember-views/component_lookup","ember-views/system/jquery","ember-metal/error","ember-runtime/system/lazy_load","ember-htmlbars/system/compile","exports"],
+  ["ember-metal/core","ember-views/component_lookup","ember-views/system/jquery","ember-metal/error","ember-runtime/system/lazy_load","ember-template-compiler/system/compile","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     /*globals Handlebars */
@@ -8549,42 +8383,6 @@ enifed("ember-htmlbars/system/bootstrap",
     });
 
     __exports__["default"] = bootstrap;
-  });
-enifed("ember-htmlbars/system/compile",
-  ["ember-metal/core","htmlbars-compiler/compiler","ember-htmlbars/system/template","ember-htmlbars/plugins","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-htmlbars
-    */
-
-    var Ember = __dependency1__["default"];
-    var compile = __dependency2__.compile;
-    var template = __dependency3__["default"];
-
-    var plugins = __dependency4__["default"];
-
-    var disableComponentGeneration = true;
-    
-    /**
-      Uses HTMLBars `compile` function to process a string into a compiled template.
-
-      This is not present in production builds.
-
-      @private
-      @method template
-      @param {String} templateString This is the string to be compiled by HTMLBars.
-    */
-    __exports__["default"] = function(templateString) {
-      var templateSpec = compile(templateString, {
-        disableComponentGeneration: disableComponentGeneration,
-
-        plugins: plugins
-      });
-
-      return template(templateSpec);
-    }
   });
 enifed("ember-htmlbars/system/helper",
   ["exports"],
@@ -8819,33 +8617,8 @@ enifed("ember-htmlbars/system/make_bound_helper",
       return new Helper(helperFunc);
     }
   });
-enifed("ember-htmlbars/system/template",
-  ["exports"],
-  function(__exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-htmlbars
-    */
-
-    /**
-      Augments the detault precompiled output of an HTMLBars template with
-      additional information needed by Ember.
-
-      @private
-      @method template
-      @param {Function} templateSpec This is the compiled HTMLBars template spec.
-    */
-
-    __exports__["default"] = function(templateSpec) {
-      templateSpec.isTop = true;
-      templateSpec.isMethod = false;
-
-      return templateSpec;
-    }
-  });
 enifed("ember-htmlbars/templates/component",
-  ["ember-htmlbars/system/template","exports"],
+  ["ember-template-compiler/system/template","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
     var template = __dependency1__["default"];
@@ -8879,7 +8652,7 @@ enifed("ember-htmlbars/templates/component",
      __exports__["default"] = template(t);
   });
 enifed("ember-htmlbars/templates/select",
-  ["ember-htmlbars/system/template","exports"],
+  ["ember-template-compiler/system/template","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
     var template = __dependency1__["default"];
@@ -12258,7 +12031,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.2+pre.be3fe655
+      @version 1.10.0-beta.2+pre.eb8ec650
     */
 
     if ('undefined' === typeof Ember) {
@@ -12285,10 +12058,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.2+pre.be3fe655'
+      @default '1.10.0-beta.2+pre.eb8ec650'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.2+pre.be3fe655';
+    Ember.VERSION = '1.10.0-beta.2+pre.eb8ec650';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -36825,6 +36598,297 @@ enifed("ember-runtime/system/tracked_array",
       this.index = index;
       this.split = split;
       this.rangeStart = rangeStart;
+    }
+  });
+enifed("ember-template-compiler",
+  ["ember-template-compiler/system/precompile","ember-template-compiler/system/compile","ember-template-compiler/system/template","ember-template-compiler/plugins","ember-template-compiler/plugins/transform-each-in-to-hash","ember-template-compiler/plugins/transform-with-as-to-hash","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+    "use strict";
+    var precompile = __dependency1__["default"];
+    var compile = __dependency2__["default"];
+    var template = __dependency3__["default"];
+    var registerPlugin = __dependency4__.registerPlugin;
+
+    var TransformEachInToHash = __dependency5__["default"];
+    var TransformWithAsToHash = __dependency6__["default"];
+
+    registerPlugin('ast', TransformWithAsToHash);
+    registerPlugin('ast', TransformEachInToHash);
+
+    __exports__.precompile = precompile;
+    __exports__.compile = compile;
+    __exports__.template = template;
+    __exports__.registerPlugin = registerPlugin;
+  });
+enifed("ember-template-compiler/plugins",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-template-compiler
+    */
+
+    /**
+     @private
+     @property helpers
+    */
+    var plugins = {
+      ast: [ ]
+    };
+
+    /**
+      Adds an AST plugin to be used by Ember.HTMLBars.compile.
+
+      @private
+      @method registerASTPlugin
+    */
+    function registerPlugin(type, Plugin) {
+      if (!plugins[type]) {
+        throw new Error('Attempting to register "' + Plugin + '" as "' + type + '" which is not a valid HTMLBars plugin type.');
+      }
+
+      plugins[type].push(Plugin);
+    }
+
+    __exports__.registerPlugin = registerPlugin;__exports__["default"] = plugins;
+  });
+enifed("ember-template-compiler/plugins/transform-each-in-to-hash",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
+
+    /**
+      An HTMLBars AST transformation that replaces all instances of
+
+      ```handlebars
+      {{#each item in items}}
+      {{/each}}
+      ```
+
+      with
+
+      ```handlebars
+      {{#each items keyword="item"}}
+      {{/each}}
+      ```
+
+      @class TransformEachInToHash
+      @private
+    */
+    function TransformEachInToHash() {
+      // set later within HTMLBars to the syntax package
+      this.syntax = null;
+    }
+
+    /**
+      @private
+      @method transform
+      @param {AST} The AST to be transformed.
+    */
+    TransformEachInToHash.prototype.transform = function TransformEachInToHash_transform(ast) {
+      var pluginContext = this;
+      var walker = new pluginContext.syntax.Walker();
+      var b = pluginContext.syntax.builders;
+
+      walker.visit(ast, function(node) {
+        if (pluginContext.validate(node)) {
+          var removedParams = node.sexpr.params.splice(0, 2);
+          var keyword = removedParams[0].original;
+
+          // TODO: This may not be necessary.
+          if (!node.sexpr.hash) {
+            node.sexpr.hash = b.hash();
+          }
+
+          node.sexpr.hash.pairs.push(b.pair(
+            'keyword',
+            b.string(keyword)
+          ));
+        }
+      });
+
+      return ast;
+    };
+
+    TransformEachInToHash.prototype.validate = function TransformEachInToHash_validate(node) {
+      return (node.type === 'BlockStatement' || node.type === 'MustacheStatement') &&
+        node.sexpr.path.original === 'each' &&
+        node.sexpr.params.length === 3 &&
+        node.sexpr.params[1].type === 'PathExpression' &&
+        node.sexpr.params[1].original === 'in';
+    };
+
+    __exports__["default"] = TransformEachInToHash;
+  });
+enifed("ember-template-compiler/plugins/transform-with-as-to-hash",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
+    /**
+      An HTMLBars AST transformation that replaces all instances of
+
+      ```handlebars
+      {{#with foo.bar as bar}}
+      {{/with}}
+      ```
+
+      with
+
+      ```handlebars
+      {{#with foo.bar as |bar|}}
+      {{/with}}
+      ```
+
+      @private
+      @class TransformWithAsToHash
+    */
+    function TransformWithAsToHash() {
+      // set later within HTMLBars to the syntax package
+      this.syntax = null;
+    }
+
+    /**
+      @private
+      @method transform
+      @param {AST} The AST to be transformed.
+    */
+    TransformWithAsToHash.prototype.transform = function TransformWithAsToHash_transform(ast) {
+      var pluginContext = this;
+      var walker = new pluginContext.syntax.Walker();
+
+      walker.visit(ast, function(node) {
+        if (pluginContext.validate(node)) {
+          var removedParams = node.sexpr.params.splice(1, 2);
+          var keyword = removedParams[1].original;
+          node.program.blockParams = [ keyword ];
+        }
+      });
+
+      return ast;
+    };
+
+    TransformWithAsToHash.prototype.validate = function TransformWithAsToHash_validate(node) {
+      return node.type === 'BlockStatement' &&
+        node.sexpr.path.original === 'with' &&
+        node.sexpr.params.length === 3 &&
+        node.sexpr.params[1].type === 'PathExpression' &&
+        node.sexpr.params[1].original === 'as';
+    };
+
+    __exports__["default"] = TransformWithAsToHash;
+  });
+enifed("ember-template-compiler/system/compile",
+  ["htmlbars-compiler/compiler","ember-template-compiler/system/compile_options","ember-template-compiler/system/template","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-template-compiler
+    */
+
+    var compile = __dependency1__.compile;
+    var compileOptions = __dependency2__["default"];
+    var template = __dependency3__["default"];
+
+    /**
+      Uses HTMLBars `compile` function to process a string into a compiled template.
+
+      This is not present in production builds.
+
+      @private
+      @method compile
+      @param {String} templateString This is the string to be compiled by HTMLBars.
+    */
+    __exports__["default"] = function(templateString) {
+      var templateSpec = compile(templateString, compileOptions);
+
+      return template(templateSpec);
+    }
+  });
+enifed("ember-template-compiler/system/compile_options",
+  ["ember-metal/core","ember-template-compiler/plugins","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-template-compiler
+    */
+
+    var Ember = __dependency1__["default"];
+    var plugins = __dependency2__["default"];
+
+    var disableComponentGeneration = true;
+    
+    /**
+      @private
+      @property compileOptions
+    */
+    __exports__["default"] = {
+      disableComponentGeneration: disableComponentGeneration,
+
+      plugins: plugins
+    };
+  });
+enifed("ember-template-compiler/system/precompile",
+  ["htmlbars-compiler/compiler","ember-template-compiler/system/compile_options","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-template-compiler
+    */
+
+    var compileSpec = __dependency1__.compileSpec;
+    var compileOptions = __dependency2__["default"];
+
+    /**
+      Uses HTMLBars `compile` function to process a string into a compiled template string.
+      The returned string must be passed through `Ember.HTMLBars.template`.
+
+      This is not present in production builds.
+
+      @private
+      @method precompile
+      @param {String} templateString This is the string to be compiled by HTMLBars.
+    */
+    __exports__["default"] = function(templateString) {
+      return compileSpec(templateString, compileOptions);
+    }
+  });
+enifed("ember-template-compiler/system/template",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-template-compiler
+    */
+
+    /**
+      Augments the detault precompiled output of an HTMLBars template with
+      additional information needed by Ember.
+
+      @private
+      @method template
+      @param {Function} templateSpec This is the compiled HTMLBars template spec.
+    */
+
+    __exports__["default"] = function(templateSpec) {
+      templateSpec.isTop = true;
+      templateSpec.isMethod = false;
+
+      return templateSpec;
     }
   });
 enifed("ember-testing",
