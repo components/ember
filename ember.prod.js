@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.2+pre.a31d8d2f
+ * @version   1.10.0-beta.2
  */
 
 (function() {
@@ -4588,8 +4588,8 @@ enifed("ember-htmlbars",
     __exports__.defaultEnv = defaultEnv;
   });
 enifed("ember-htmlbars/attr_nodes",
-  ["ember-htmlbars/attr_nodes/quoted","ember-htmlbars/attr_nodes/unquoted","ember-htmlbars/attr_nodes/unquoted_nonproperty","ember-metal/platform","ember-htmlbars/attr_nodes/utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
+  ["ember-htmlbars/attr_nodes/quoted","ember-htmlbars/attr_nodes/unquoted","ember-htmlbars/attr_nodes/unquoted_nonproperty","ember-views/system/sanitize_attribute_value","ember-htmlbars/attr_nodes/sanitized","ember-metal/platform","ember-htmlbars/attr_nodes/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -4599,8 +4599,10 @@ enifed("ember-htmlbars/attr_nodes",
     var QuotedAttrNode = __dependency1__["default"];
     var UnquotedAttrNode = __dependency2__["default"];
     var UnquotedNonpropertyAttrNode = __dependency3__["default"];
-    var o_create = __dependency4__.create;
-    var normalizeProperty = __dependency5__.normalizeProperty;
+    var badAttributes = __dependency4__.badAttributes;
+    var SanitizedAttrNode = __dependency5__["default"];
+    var o_create = __dependency6__.create;
+    var normalizeProperty = __dependency7__.normalizeProperty;
 
     var svgNamespaceURI = 'http://www.w3.org/2000/svg';
 
@@ -4608,6 +4610,11 @@ enifed("ember-htmlbars/attr_nodes",
     unquotedAttrNodeTypes['class'] = UnquotedNonpropertyAttrNode;
 
     var quotedAttrNodeTypes = o_create(null);
+
+    for (var attrName in badAttributes) {
+      unquotedAttrNodeTypes[attrName] = SanitizedAttrNode;
+      quotedAttrNodeTypes[attrName] = SanitizedAttrNode;
+    }
 
     __exports__["default"] = function attrNodeTypeFor(attrName, element, quoted) {
       var result;
@@ -4715,6 +4722,36 @@ enifed("ember-htmlbars/attr_nodes/quoted",
     };
 
     __exports__["default"] = QuotedAttrNode;
+  });
+enifed("ember-htmlbars/attr_nodes/sanitized",
+  ["./simple","ember-metal/platform","ember-metal/streams/utils","ember-views/system/sanitize_attribute_value","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
+    var SimpleAttrNode = __dependency1__["default"];
+    var o_create = __dependency2__.create;
+    var chainStream = __dependency3__.chainStream;
+    var read = __dependency3__.read;
+    var sanitizeAttributeValue = __dependency4__["default"];
+
+    function SanitizedAttrNode(element, attrName, attrValue, dom) {
+      var sanitizedValue = chainStream(attrValue, function(){
+        var unsafeValue = read(attrValue);
+        var safeValue = sanitizeAttributeValue(element, attrName, unsafeValue);
+
+        return safeValue;
+      });
+
+      this.init(element, attrName, sanitizedValue, dom);
+    }
+
+    SanitizedAttrNode.prototype = o_create(SimpleAttrNode.prototype);
+
+    __exports__["default"] = SanitizedAttrNode;
   });
 enifed("ember-htmlbars/attr_nodes/simple",
   ["ember-metal/run_loop","exports"],
@@ -5484,8 +5521,8 @@ enifed("ember-htmlbars/helpers",
     __exports__.registerBoundHelper = registerBoundHelper;__exports__["default"] = helpers;
   });
 enifed("ember-htmlbars/helpers/bind-attr",
-  ["ember-metal/core","ember-runtime/system/string","ember-htmlbars/attr_nodes/quoted","ember-htmlbars/attr_nodes/legacy_bind","ember-metal/keys","ember-htmlbars/helpers","ember-metal/enumerable_utils","ember-metal/streams/utils","ember-views/streams/class_name_binding","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __exports__) {
+  ["ember-metal/core","ember-runtime/system/string","ember-htmlbars/attr_nodes/quoted","ember-htmlbars/attr_nodes/legacy_bind","ember-views/system/sanitize_attribute_value","ember-htmlbars/attr_nodes/sanitized","ember-metal/keys","ember-htmlbars/helpers","ember-metal/enumerable_utils","ember-metal/streams/utils","ember-views/streams/class_name_binding","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -5498,12 +5535,14 @@ enifed("ember-htmlbars/helpers/bind-attr",
     var fmt = __dependency2__.fmt;
     var QuotedAttrNode = __dependency3__["default"];
     var LegacyBindAttrNode = __dependency4__["default"];
-    var keys = __dependency5__["default"];
-    var helpers = __dependency6__["default"];
-    var map = __dependency7__.map;
-    var isStream = __dependency8__.isStream;
-    var concat = __dependency8__.concat;
-    var streamifyClassNameBinding = __dependency9__.streamifyClassNameBinding;
+    var badAttributes = __dependency5__.badAttributes;
+    var SanitizedAttrNode = __dependency6__["default"];
+    var keys = __dependency7__["default"];
+    var helpers = __dependency8__["default"];
+    var map = __dependency9__.map;
+    var isStream = __dependency10__.isStream;
+    var concat = __dependency10__.concat;
+    var streamifyClassNameBinding = __dependency11__.streamifyClassNameBinding;
 
     /**
       `bind-attr` allows you to create a binding between DOM element attributes and
@@ -5657,7 +5696,11 @@ enifed("ember-htmlbars/helpers/bind-attr",
         } else {
                     lazyValue = view.getStream(path);
         }
-        new LegacyBindAttrNode(element, attr, lazyValue, env.dom);
+        if (badAttributes[attr]) {
+          new SanitizedAttrNode(element, attr, lazyValue, env.dom);
+        } else {
+          new LegacyBindAttrNode(element, attr, lazyValue, env.dom);
+        }
       }
     }
 
@@ -7738,8 +7781,8 @@ enifed("ember-htmlbars/helpers/yield",
     __exports__.yieldHelper = yieldHelper;
   });
 enifed("ember-htmlbars/hooks/attribute",
-  ["ember-htmlbars/attr_nodes","ember-metal/error","ember-metal/streams/utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["ember-htmlbars/attr_nodes","ember-metal/error","ember-metal/streams/utils","ember-views/system/sanitize_attribute_value","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -7749,6 +7792,7 @@ enifed("ember-htmlbars/hooks/attribute",
     var attrNodeTypeFor = __dependency1__["default"];
     var EmberError = __dependency2__["default"];
     var isStream = __dependency3__.isStream;
+    var sanitizeAttributeValue = __dependency4__["default"];
 
     var boundAttributesEnabled = false;
 
@@ -7761,7 +7805,8 @@ enifed("ember-htmlbars/hooks/attribute",
         if (isStream(attrValue)) {
           throw new EmberError('Bound attributes are not yet supported in Ember.js');
         } else {
-          env.dom.setAttribute(element, attrName, attrValue);
+          var sanitizedValue = sanitizeAttributeValue(element, attrName, attrValue);
+          env.dom.setAttribute(element, attrName, sanitizedValue);
         }
       }
     }
@@ -11634,7 +11679,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.2+pre.a31d8d2f
+      @version 1.10.0-beta.2
     */
 
     if ('undefined' === typeof Ember) {
@@ -11661,10 +11706,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.2+pre.a31d8d2f'
+      @default '1.10.0-beta.2'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.2+pre.a31d8d2f';
+    Ember.VERSION = '1.10.0-beta.2';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -38277,6 +38322,60 @@ enifed("ember-views/system/renderer",
 
     __exports__["default"] = EmberRenderer;
   });
+enifed("ember-views/system/sanitize_attribute_value",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    /* jshint scripturl:true */
+
+    var parsingNode;
+    var badProtocols = {
+      'javascript:': true,
+      'vbscript:': true
+    };
+
+    var badTags = {
+      'A': true,
+      'BODY': true,
+      'LINK': true,
+      'IMG': true,
+      'IFRAME': true
+    };
+
+    var badAttributes = {
+      'href': true,
+      'src': true,
+      'background': true
+    };
+    __exports__.badAttributes = badAttributes;
+    __exports__["default"] = function sanitizeAttributeValue(element, attribute, value) {
+      var tagName;
+
+      if (!parsingNode) {
+        parsingNode = document.createElement('a');
+      }
+
+      if (!element) {
+        tagName = null;
+      } else {
+        tagName = element.tagName;
+      }
+
+      if (value && value.toHTML) {
+        return value.toHTML();
+      }
+
+      if ((tagName === null || badTags[tagName]) && badAttributes[attribute]) {
+        parsingNode.href = value;
+
+        if (badProtocols[parsingNode.protocol] === true) {
+          return 'unsafe:' + value;
+        }
+      }
+
+      return value;
+    }
+  });
 enifed("ember-views/system/utils",
   ["exports"],
   function(__exports__) {
@@ -41342,8 +41441,8 @@ enifed("ember-views/views/text_field",
     });
   });
 enifed("ember-views/views/view",
-  ["ember-metal/core","ember-metal/platform","ember-runtime/mixins/evented","ember-runtime/system/object","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/set_properties","ember-metal/run_loop","ember-metal/observer","ember-metal/properties","ember-metal/utils","ember-metal/computed","ember-metal/mixin","ember-metal/streams/simple","ember-views/streams/key_stream","ember-metal/streams/stream_binding","ember-views/streams/context_stream","ember-metal/is_none","ember-metal/deprecate_property","ember-runtime/system/native_array","ember-views/streams/class_name_binding","ember-metal/enumerable_utils","ember-metal/property_events","ember-views/system/jquery","ember-views/system/ext","ember-views/views/core_view","ember-metal/streams/utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __exports__) {
+  ["ember-metal/core","ember-metal/platform","ember-runtime/mixins/evented","ember-runtime/system/object","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/set_properties","ember-metal/run_loop","ember-metal/observer","ember-metal/properties","ember-metal/utils","ember-metal/computed","ember-metal/mixin","ember-metal/streams/simple","ember-views/streams/key_stream","ember-metal/streams/stream_binding","ember-views/streams/context_stream","ember-metal/is_none","ember-metal/deprecate_property","ember-runtime/system/native_array","ember-views/streams/class_name_binding","ember-metal/enumerable_utils","ember-metal/property_events","ember-views/system/jquery","ember-views/system/ext","ember-views/views/core_view","ember-metal/streams/utils","ember-views/system/sanitize_attribute_value","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __exports__) {
     "use strict";
     // Ember.assert, Ember.deprecate, Ember.warn, Ember.TEMPLATES,
     // jQuery, Ember.lookup,
@@ -41395,6 +41494,7 @@ enifed("ember-views/views/view",
     var subscribe = __dependency28__.subscribe;
     var read = __dependency28__.read;
     var isStream = __dependency28__.isStream;
+    var sanitizeAttributeValue = __dependency29__["default"];
 
     function K() { return this; }
 
@@ -43516,7 +43616,8 @@ enifed("ember-views/views/view",
     View.childViewsProperty = childViewsProperty;
 
     // Used by Handlebars helpers, view element attributes
-    View.applyAttributeBindings = function(elem, name, value) {
+    View.applyAttributeBindings = function(elem, name, initialValue) {
+      var value = sanitizeAttributeValue(elem[0], name, initialValue);
       var type = typeOf(value);
 
       // if this changes, also change the logic in ember-handlebars/lib/helpers/binding.js
