@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.c39c42f4
+ * @version   1.11.0-beta.1+canary.f06d12f4
  */
 
 (function() {
@@ -11688,7 +11688,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.c39c42f4
+      @version 1.11.0-beta.1+canary.f06d12f4
     */
 
     if ('undefined' === typeof Ember) {
@@ -11715,10 +11715,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.c39c42f4'
+      @default '1.11.0-beta.1+canary.f06d12f4'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.c39c42f4';
+    Ember.VERSION = '1.11.0-beta.1+canary.f06d12f4';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -15731,35 +15731,18 @@ enifed("ember-metal/properties",
 
         descs[keyName] = desc;
         
-          if (watching && hasPropertyAccessors) {
-            objectDefineProperty(obj, keyName, {
-              configurable: true,
-              enumerable: true,
-              writable: true,
-              value: undefined // make enumerable
-            });
-          } else {
-            obj[keyName] = undefined; // make enumerable
-          }
-                if (desc.setup) { desc.setup(obj, keyName); }
+          obj[keyName] = undefined; // make enumerable
+        
+        if (desc.setup) { desc.setup(obj, keyName); }
       } else {
         descs[keyName] = undefined; // shadow descriptor in proto
         if (desc == null) {
           value = data;
 
           
-            if (watching && hasPropertyAccessors) {
-              meta.values[keyName] = data;
-              objectDefineProperty(obj, keyName, {
-                configurable: true,
-                enumerable: true,
-                set: MANDATORY_SETTER_FUNCTION(keyName),
-                get: DEFAULT_GETTER_FUNCTION(keyName)
-              });
-            } else {
-              obj[keyName] = data;
-            }
-                  } else {
+            obj[keyName] = data;
+          
+        } else {
           value = desc;
 
           // compatibility with ES5
@@ -16160,12 +16143,9 @@ enifed("ember-metal/property_get",
         return desc.get(obj, keyName);
       } else {
         
-          if (hasPropertyAccessors && meta && meta.watching[keyName] > 0) {
-            ret = meta.values[keyName];
-          } else {
-            ret = obj[keyName];
-          }
+          ret = obj[keyName];
         
+
         if (ret === undefined &&
             'object' === typeof obj && !(keyName in obj) && 'function' === typeof obj.unknownProperty) {
           return obj.unknownProperty(keyName);
@@ -16317,29 +16297,16 @@ enifed("ember-metal/property_set",
         } else if (meta && meta.watching[keyName] > 0) {
           if (meta.proto !== obj) {
             
-              if (hasPropertyAccessors) {
-                currentValue = meta.values[keyName];
-              } else {
-                currentValue = obj[keyName];
-              }
-                      }
+              currentValue = obj[keyName];
+            
+          }
           // only trigger a change if the value has changed
           if (value !== currentValue) {
             propertyWillChange(obj, keyName);
             
-              if (hasPropertyAccessors) {
-                if (
-                  (currentValue === undefined && !(keyName in obj)) ||
-                  !Object.prototype.propertyIsEnumerable.call(obj, keyName)
-                ) {
-                  defineProperty(obj, keyName, null, value); // setup mandatory setter
-                } else {
-                  meta.values[keyName] = value;
-                }
-              } else {
-                obj[keyName] = value;
-              }
-                        propertyDidChange(obj, keyName);
+              obj[keyName] = value;
+            
+            propertyDidChange(obj, keyName);
           }
         } else {
           obj[keyName] = value;
@@ -17833,11 +17800,6 @@ enifed("ember-metal/utils",
     var EMPTY_META = new Meta(null);
 
     
-      if (hasPropertyAccessors) {
-        EMPTY_META.values = {};
-      }
-    
-
     /**
       Retrieves the meta hash for an object. If `writable` is true ensures the
       hash is writable for this object as well.
@@ -17872,11 +17834,6 @@ enifed("ember-metal/utils",
         ret = new Meta(obj);
 
         
-          if (hasPropertyAccessors) {
-            ret.values = {};
-          }
-        
-
         obj['__ember_meta__'] = ret;
 
         // make sure we don't accidentally try to create constructor like desc
@@ -17897,11 +17854,6 @@ enifed("ember-metal/utils",
         ret.source    = obj;
 
         
-          if (hasPropertyAccessors) {
-            ret.values = o_create(ret.values);
-          }
-        
-
         obj['__ember_meta__'] = ret;
       }
       return ret;
@@ -18502,35 +18454,13 @@ enifed("ember-metal/watch_key",
           obj.willWatchProperty(keyName);
         }
 
-        
-          if (hasPropertyAccessors) {
-            handleMandatorySetter(m, obj, keyName);
-          }
-        
-      } else {
+              } else {
         watching[keyName] = (watching[keyName] || 0) + 1;
       }
     }
 
     __exports__.watchKey = watchKey;
     
-      var handleMandatorySetter = function handleMandatorySetter(m, obj, keyName) {
-        var descriptor = Object.getOwnPropertyDescriptor && Object.getOwnPropertyDescriptor(obj, keyName);
-        var configurable = descriptor ? descriptor.configurable : true;
-
-        // this x in Y deopts, so keeping it in this function is better;
-        if (configurable && keyName in obj) {
-          m.values[keyName] = obj[keyName];
-          o_defineProperty(obj, keyName, {
-            configurable: true,
-            enumerable: Object.prototype.propertyIsEnumerable.call(obj, keyName),
-            set: MANDATORY_SETTER_FUNCTION(keyName),
-            get: DEFAULT_GETTER_FUNCTION(keyName)
-          });
-        }
-      };
-    
-
     function unwatchKey(obj, keyName, meta) {
       var m = meta || metaFor(obj);
       var watching = m.watching;
@@ -18545,26 +18475,7 @@ enifed("ember-metal/watch_key",
           obj.didUnwatchProperty(keyName);
         }
 
-        
-          if (hasPropertyAccessors && keyName in obj) {
-            o_defineProperty(obj, keyName, {
-              configurable: true,
-              enumerable: Object.prototype.propertyIsEnumerable.call(obj, keyName),
-              set: function(val) {
-                // redefine to set as enumerable
-                o_defineProperty(obj, keyName, {
-                  configurable: true,
-                  writable: true,
-                  enumerable: true,
-                  value: val
-                });
-                delete m.values[keyName];
-              },
-              get: DEFAULT_GETTER_FUNCTION(keyName)
-            });
-          }
-        
-      } else if (watching[keyName] > 1) {
+              } else if (watching[keyName] > 1) {
         watching[keyName]--;
       }
     }
@@ -33302,12 +33213,9 @@ enifed("ember-runtime/system/core_object",
                   this.setUnknownProperty(keyName, value);
                 } else {
                   
-                    if (hasPropertyAccessors) {
-                      defineProperty(this, keyName, null, value); // setup mandatory setter
-                    } else {
-                      this[keyName] = value;
-                    }
-                                  }
+                    this[keyName] = value;
+                  
+                }
               }
             }
           }
