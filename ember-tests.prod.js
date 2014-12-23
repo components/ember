@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.082e1ffb
+ * @version   1.11.0-beta.1+canary.6f1f68e9
  */
 
 (function() {
@@ -64569,7 +64569,7 @@ enifed("ember/tests/routing/query_params_test",
 
       App.ApplicationRoute = Ember.Route.extend({
         queryParams: [
-          {'commitBy': { replace: true }}
+          { commitBy: { replace: true } }
         ]
       });
 
@@ -64606,7 +64606,7 @@ enifed("ember/tests/routing/query_params_test",
       expect(2);
       App.ApplicationController = Ember.Controller.extend({
         queryParams: [
-          {commitBy: "commit_by"}
+          { commitBy: 'commit_by' }
         ]
       });
 
