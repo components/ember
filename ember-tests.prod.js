@@ -15273,6 +15273,11 @@ enifed("ember-metal/tests/accessors/getPath_test",
               baz: { biff: 'BIFF' }
             }
           },
+          foothis: {
+            bar: {
+              baz: { biff: 'BIFF' }
+            }
+          },
           falseValue: false
         };
 
@@ -15311,6 +15316,10 @@ enifed("ember-metal/tests/accessors/getPath_test",
 
     test('[obj, foo.bar] -> obj.foo.bar', function() {
       deepEqual(get(obj, 'foo.bar'), obj.foo.bar);
+    });
+
+    test('[obj, foothis.bar] -> obj.foothis.bar', function() {
+      deepEqual(get(obj, 'foothis.bar'), obj.foothis.bar);
     });
 
     test('[obj, this.foo] -> obj.foo', function() {

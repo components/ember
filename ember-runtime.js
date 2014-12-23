@@ -8375,7 +8375,7 @@ define("ember-metal/path_cache",
 
     var isGlobalCache       = new Cache(1000, function(key) { return IS_GLOBAL.test(key);          });
     var isGlobalPathCache   = new Cache(1000, function(key) { return IS_GLOBAL_PATH.test(key);     });
-    var hasThisCache        = new Cache(1000, function(key) { return key.indexOf(HAS_THIS) !== -1; });
+    var hasThisCache        = new Cache(1000, function(key) { return key.lastIndexOf(HAS_THIS, 0) === 0; });
     var firstDotIndexCache  = new Cache(1000, function(key) { return key.indexOf('.');             });
 
     var firstKeyCache = new Cache(1000, function(path) {
