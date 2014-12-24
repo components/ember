@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.c1784650
+ * @version   1.11.0-beta.1+canary.39f2b68d
  */
 
 (function() {
@@ -1110,6 +1110,10 @@ enifed("container/container",
     var emberKeys = __dependency2__["default"];
     var dictionary = __dependency3__["default"];
 
+    // TODO - Temporary workaround for v0.4.0 of the ES6 transpiler, which lacks support for circular dependencies.
+    // See the below usage of requireModule. Instead, it should be possible to simply `import Registry from './registry';`
+    var Registry;
+
     /**
      A lightweight container used to instantiate and cache objects.
 
@@ -1124,15 +1128,19 @@ enifed("container/container",
      @class Container
      */
     function Container(registry, options) {
-      
-      options = options || {};
+      this._registry = registry || (function() {
+        
+        // TODO - See note above about transpiler import workaround.
+        if (!Registry) { Registry = requireModule('container/registry')['default']; }
+        
+        return new Registry();
+      }());
 
-      this._registry    = registry;
-      this.cache        = dictionary(options.cache || null);
-      this.factoryCache = dictionary(options.factoryCache || null);
+      this.cache        = dictionary(options && options.cache ? options.cache : null);
+      this.factoryCache = dictionary(options && options.factoryCache ? options.factoryCache : null);
 
       
-        this.validationCache = dictionary(options.validationCache || null);
+        this.validationCache = dictionary(options && options.validationCache ? options.validationCache : null);
       
     }
 
@@ -1469,7 +1477,7 @@ enifed("container/container",
     __exports__["default"] = Container;
   });
 enifed("container/registry",
-  ["ember-metal/core","ember-metal/dictionary","container/container","exports"],
+  ["ember-metal/core","ember-metal/dictionary","./container","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
@@ -1493,12 +1501,10 @@ enifed("container/registry",
      @class Registry
     */
     function Registry(options) {
-      options = options || {};
+      this.resolver = options && options.resolver ? options.resolver : function() {};
 
-      this.resolver = options.resolver || function() {};
-
-      this.registrations  = dictionary(options.registrations || null);
-      this.typeInjections = dictionary(options.typeInjections || null);
+      this.registrations  = dictionary(options && options.registrations ? options.registrations : null);
+      this.typeInjections = dictionary(options && options.typeInjections ? options.typeInjections : null);
       this.injections     = dictionary(null);
       this.factoryTypeInjections = dictionary(null);
       this.factoryInjections     = dictionary(null);
@@ -1506,8 +1512,8 @@ enifed("container/registry",
       this._normalizeCache = dictionary(null);
       this._resolveCache   = dictionary(null);
 
-      this._options     = dictionary(options.options || null);
-      this._typeOptions = dictionary(options.typeOptions || null);
+      this._options     = dictionary(options && options.options ? options.options : null);
+      this._typeOptions = dictionary(options && options.typeOptions ? options.typeOptions : null);
     }
 
     Registry.prototype = {
@@ -11653,7 +11659,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.c1784650
+      @version 1.11.0-beta.1+canary.39f2b68d
     */
 
     if ('undefined' === typeof Ember) {
@@ -11680,10 +11686,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.c1784650'
+      @default '1.11.0-beta.1+canary.39f2b68d'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.c1784650';
+    Ember.VERSION = '1.11.0-beta.1+canary.39f2b68d';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
