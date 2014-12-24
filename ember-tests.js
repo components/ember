@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.1e61692e
+ * @version   1.11.0-beta.1+canary.a72bf207
  */
 
 (function() {
@@ -87,6 +87,15 @@ var enifed, requireModule, eriuqer, requirejs, Ember;
   }
 })();
 
+enifed("container.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - .');
+    test('container.js should pass jscs', function() {
+      ok(true, 'container.js should pass jscs.');
+    });
+  });
 enifed("container.jshint",
   [],
   function() {
@@ -96,6 +105,15 @@ enifed("container.jshint",
       ok(true, 'container.js should pass jshint.'); 
     });
   });
+enifed("container/container.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - container');
+    test('container/container.js should pass jscs', function() {
+      ok(true, 'container/container.js should pass jscs.');
+    });
+  });
 enifed("container/container.jshint",
   [],
   function() {
@@ -103,6 +121,15 @@ enifed("container/container.jshint",
     module('JSHint - container');
     test('container/container.js should pass jshint', function() { 
       ok(true, 'container/container.js should pass jshint.'); 
+    });
+  });
+enifed("container/registry.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - container');
+    test('container/registry.js should pass jscs', function() {
+      ok(true, 'container/registry.js should pass jscs.');
     });
   });
 enifed("container/registry.jshint",
@@ -185,6 +212,15 @@ enifed("container/tests/container_helper",
 
     __exports__.factory = factory;
     __exports__.setProperties = setProperties;
+  });
+enifed("container/tests/container_helper.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - container/tests');
+    test('container/tests/container_helper.js should pass jscs', function() {
+      ok(true, 'container/tests/container_helper.js should pass jscs.');
+    });
   });
 enifed("container/tests/container_helper.jshint",
   [],
@@ -723,6 +759,15 @@ enifed("container/tests/container_test",
       });
     
   });
+enifed("container/tests/container_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - container/tests');
+    test('container/tests/container_test.js should pass jscs', function() {
+      ok(true, 'container/tests/container_test.js should pass jscs.');
+    });
+  });
 enifed("container/tests/container_test.jshint",
   [],
   function() {
@@ -1010,6 +1055,15 @@ enifed("container/tests/registry_test",
       strictEqual(registry._defaultContainer, container, "_defaultContainer is set to the first created container and used for Ember 1.x Container compatibility");
     });
   });
+enifed("container/tests/registry_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - container/tests');
+    test('container/tests/registry_test.js should pass jscs', function() {
+      ok(true, 'container/tests/registry_test.js should pass jscs.');
+    });
+  });
 enifed("container/tests/registry_test.jshint",
   [],
   function() {
@@ -1017,6 +1071,15 @@ enifed("container/tests/registry_test.jshint",
     module('JSHint - container/tests');
     test('container/tests/registry_test.js should pass jshint', function() { 
       ok(true, 'container/tests/registry_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-application.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - .');
+    test('ember-application.js should pass jscs', function() {
+      ok(true, 'ember-application.js should pass jscs.');
     });
   });
 enifed("ember-application.jshint",
@@ -1028,6 +1091,15 @@ enifed("ember-application.jshint",
       ok(true, 'ember-application.js should pass jshint.'); 
     });
   });
+enifed("ember-application/ext/controller.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-application/ext');
+    test('ember-application/ext/controller.js should pass jscs', function() {
+      ok(true, 'ember-application/ext/controller.js should pass jscs.');
+    });
+  });
 enifed("ember-application/ext/controller.jshint",
   [],
   function() {
@@ -1037,6 +1109,15 @@ enifed("ember-application/ext/controller.jshint",
       ok(true, 'ember-application/ext/controller.js should pass jshint.'); 
     });
   });
+enifed("ember-application/system/application.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-application/system');
+    test('ember-application/system/application.js should pass jscs', function() {
+      ok(true, 'ember-application/system/application.js should pass jscs.');
+    });
+  });
 enifed("ember-application/system/application.jshint",
   [],
   function() {
@@ -1044,6 +1125,15 @@ enifed("ember-application/system/application.jshint",
     module('JSHint - ember-application/system');
     test('ember-application/system/application.js should pass jshint', function() { 
       ok(true, 'ember-application/system/application.js should pass jshint.'); 
+    });
+  });
+enifed("ember-application/system/resolver.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-application/system');
+    test('ember-application/system/resolver.js should pass jscs', function() {
+      ok(true, 'ember-application/system/resolver.js should pass jscs.');
     });
   });
 enifed("ember-application/system/resolver.jshint",
@@ -1364,6 +1454,15 @@ enifed("ember-application/tests/system/application_test",
       ok(app.__container__.lookup('view:select'), "Select control is registered into views");
     });
   });
+enifed("ember-application/tests/system/application_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-application/tests/system');
+    test('ember-application/tests/system/application_test.js should pass jscs', function() {
+      ok(true, 'ember-application/tests/system/application_test.js should pass jscs.');
+    });
+  });
 enifed("ember-application/tests/system/application_test.jshint",
   [],
   function() {
@@ -1537,6 +1636,15 @@ enifed("ember-application/tests/system/controller_test",
       equal(broController.get('foo'), 5, "`needs` dependencies can be stubbed");
     });
   });
+enifed("ember-application/tests/system/controller_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-application/tests/system');
+    test('ember-application/tests/system/controller_test.js should pass jscs', function() {
+      ok(true, 'ember-application/tests/system/controller_test.js should pass jscs.');
+    });
+  });
 enifed("ember-application/tests/system/controller_test.jshint",
   [],
   function() {
@@ -1584,6 +1692,15 @@ enifed("ember-application/tests/system/dependency_injection/custom_resolver_test
 
     test("a resolver can be supplied to application", function() {
       equal(jQuery("h1", application.rootElement).text(), "Fallback");
+    });
+  });
+enifed("ember-application/tests/system/dependency_injection/custom_resolver_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-application/tests/system/dependency_injection');
+    test('ember-application/tests/system/dependency_injection/custom_resolver_test.js should pass jscs', function() {
+      ok(true, 'ember-application/tests/system/dependency_injection/custom_resolver_test.js should pass jscs.');
     });
   });
 enifed("ember-application/tests/system/dependency_injection/custom_resolver_test.jshint",
@@ -1762,6 +1879,15 @@ enifed("ember-application/tests/system/dependency_injection/default_resolver_tes
       equal(infoCount, 0, 'Logger.info should not be called if LOG_RESOLVER is not set');
     });
   });
+enifed("ember-application/tests/system/dependency_injection/default_resolver_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-application/tests/system/dependency_injection');
+    test('ember-application/tests/system/dependency_injection/default_resolver_test.js should pass jscs', function() {
+      ok(true, 'ember-application/tests/system/dependency_injection/default_resolver_test.js should pass jscs.');
+    });
+  });
 enifed("ember-application/tests/system/dependency_injection/default_resolver_test.jshint",
   [],
   function() {
@@ -1818,6 +1944,15 @@ enifed("ember-application/tests/system/dependency_injection/normalization_test",
       forEach.call(examples, function (example) {
         equal(registry.normalize(registry.normalize(example)), registry.normalize(example));
       });
+    });
+  });
+enifed("ember-application/tests/system/dependency_injection/normalization_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-application/tests/system/dependency_injection');
+    test('ember-application/tests/system/dependency_injection/normalization_test.js should pass jscs', function() {
+      ok(true, 'ember-application/tests/system/dependency_injection/normalization_test.js should pass jscs.');
     });
   });
 enifed("ember-application/tests/system/dependency_injection/normalization_test.jshint",
@@ -1899,6 +2034,15 @@ enifed("ember-application/tests/system/dependency_injection/to_string_test",
       var guid = guidFor(peter);
 
       equal(peter.toString(), '<model:peter:' + guid + '>', 'expecting the supermodel to be peter');
+    });
+  });
+enifed("ember-application/tests/system/dependency_injection/to_string_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-application/tests/system/dependency_injection');
+    test('ember-application/tests/system/dependency_injection/to_string_test.js should pass jscs', function() {
+      ok(true, 'ember-application/tests/system/dependency_injection/to_string_test.js should pass jscs.');
     });
   });
 enifed("ember-application/tests/system/dependency_injection/to_string_test.jshint",
@@ -1989,6 +2133,15 @@ enifed("ember-application/tests/system/dependency_injection_test",
       equal(person.get('fruit'), fruit);
 
       ok(application.Email.detectInstance(user.get('communication')));
+    });
+  });
+enifed("ember-application/tests/system/dependency_injection_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-application/tests/system');
+    test('ember-application/tests/system/dependency_injection_test.js should pass jscs', function() {
+      ok(true, 'ember-application/tests/system/dependency_injection_test.js should pass jscs.');
     });
   });
 enifed("ember-application/tests/system/dependency_injection_test.jshint",
@@ -2246,6 +2399,15 @@ enifed("ember-application/tests/system/initializers_test",
       });
     });
   });
+enifed("ember-application/tests/system/initializers_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-application/tests/system');
+    test('ember-application/tests/system/initializers_test.js should pass jscs', function() {
+      ok(true, 'ember-application/tests/system/initializers_test.js should pass jscs.');
+    });
+  });
 enifed("ember-application/tests/system/initializers_test.jshint",
   [],
   function() {
@@ -2494,6 +2656,15 @@ enifed("ember-application/tests/system/logging_test",
       });
     });
   });
+enifed("ember-application/tests/system/logging_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-application/tests/system');
+    test('ember-application/tests/system/logging_test.js should pass jscs', function() {
+      ok(true, 'ember-application/tests/system/logging_test.js should pass jscs.');
+    });
+  });
 enifed("ember-application/tests/system/logging_test.jshint",
   [],
   function() {
@@ -2638,6 +2809,15 @@ enifed("ember-application/tests/system/readiness_test",
       expectAssertion(function() {
         application.deferReadiness();
       });
+    });
+  });
+enifed("ember-application/tests/system/readiness_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-application/tests/system');
+    test('ember-application/tests/system/readiness_test.js should pass jscs', function() {
+      ok(true, 'ember-application/tests/system/readiness_test.js should pass jscs.');
     });
   });
 enifed("ember-application/tests/system/readiness_test.jshint",
@@ -2938,6 +3118,15 @@ enifed("ember-application/tests/system/reset_test",
       equal(listeners['hashchange'].length, 1, 'hashchange event only exists once');
     });
   });
+enifed("ember-application/tests/system/reset_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-application/tests/system');
+    test('ember-application/tests/system/reset_test.js should pass jscs', function() {
+      ok(true, 'ember-application/tests/system/reset_test.js should pass jscs.');
+    });
+  });
 enifed("ember-application/tests/system/reset_test.jshint",
   [],
   function() {
@@ -2945,6 +3134,15 @@ enifed("ember-application/tests/system/reset_test.jshint",
     module('JSHint - ember-application/tests/system');
     test('ember-application/tests/system/reset_test.js should pass jshint', function() { 
       ok(true, 'ember-application/tests/system/reset_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-debug.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - .');
+    test('ember-debug.js should pass jscs', function() {
+      ok(true, 'ember-debug.js should pass jscs.');
     });
   });
 enifed("ember-debug.jshint",
@@ -3066,6 +3264,15 @@ enifed("ember-debug/tests/main_test",
       ok(true, 'assertions were not thrown');
     });
   });
+enifed("ember-debug/tests/main_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-debug/tests');
+    test('ember-debug/tests/main_test.js should pass jscs', function() {
+      ok(true, 'ember-debug/tests/main_test.js should pass jscs.');
+    });
+  });
 enifed("ember-debug/tests/main_test.jshint",
   [],
   function() {
@@ -3156,6 +3363,15 @@ enifed("ember-debug/tests/warn_if_using_stripped_feature_flags_test",
       };
 
       confirmWarns('FEATURE["fred"] is set as enabled, but FEATURE flags are only available in canary builds.');
+    });
+  });
+enifed("ember-debug/tests/warn_if_using_stripped_feature_flags_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-debug/tests');
+    test('ember-debug/tests/warn_if_using_stripped_feature_flags_test.js should pass jscs', function() {
+      ok(true, 'ember-debug/tests/warn_if_using_stripped_feature_flags_test.js should pass jscs.');
     });
   });
 enifed("ember-debug/tests/warn_if_using_stripped_feature_flags_test.jshint",
@@ -3709,6 +3925,15 @@ enifed("ember-dev/test-helper/utils",
     var o_create;
     __exports__.o_create = o_create;
   });
+enifed("ember-extension-support.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - .');
+    test('ember-extension-support.js should pass jscs', function() {
+      ok(true, 'ember-extension-support.js should pass jscs.');
+    });
+  });
 enifed("ember-extension-support.jshint",
   [],
   function() {
@@ -3718,6 +3943,15 @@ enifed("ember-extension-support.jshint",
       ok(true, 'ember-extension-support.js should pass jshint.'); 
     });
   });
+enifed("ember-extension-support/container_debug_adapter.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-extension-support');
+    test('ember-extension-support/container_debug_adapter.js should pass jscs', function() {
+      ok(true, 'ember-extension-support/container_debug_adapter.js should pass jscs.');
+    });
+  });
 enifed("ember-extension-support/container_debug_adapter.jshint",
   [],
   function() {
@@ -3725,6 +3959,15 @@ enifed("ember-extension-support/container_debug_adapter.jshint",
     module('JSHint - ember-extension-support');
     test('ember-extension-support/container_debug_adapter.js should pass jshint', function() { 
       ok(true, 'ember-extension-support/container_debug_adapter.js should pass jshint.'); 
+    });
+  });
+enifed("ember-extension-support/data_adapter.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-extension-support');
+    test('ember-extension-support/data_adapter.js should pass jscs', function() {
+      ok(true, 'ember-extension-support/data_adapter.js should pass jscs.');
     });
   });
 enifed("ember-extension-support/data_adapter.jshint",
@@ -3791,6 +4034,15 @@ enifed("ember-extension-support/tests/container_debug_adapter_test",
 
       equal(controllerClasses.length, 1, "found 1 class");
       equal(controllerClasses[0], 'post', "found the right class");
+    });
+  });
+enifed("ember-extension-support/tests/container_debug_adapter_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-extension-support/tests');
+    test('ember-extension-support/tests/container_debug_adapter_test.js should pass jscs', function() {
+      ok(true, 'ember-extension-support/tests/container_debug_adapter_test.js should pass jscs.');
     });
   });
 enifed("ember-extension-support/tests/container_debug_adapter_test.jshint",
@@ -4019,6 +4271,15 @@ enifed("ember-extension-support/tests/data_adapter_test",
       equal(updatesCalled, 1, 'Release function removes observers');
     });
   });
+enifed("ember-extension-support/tests/data_adapter_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-extension-support/tests');
+    test('ember-extension-support/tests/data_adapter_test.js should pass jscs', function() {
+      ok(true, 'ember-extension-support/tests/data_adapter_test.js should pass jscs.');
+    });
+  });
 enifed("ember-extension-support/tests/data_adapter_test.jshint",
   [],
   function() {
@@ -4026,6 +4287,15 @@ enifed("ember-extension-support/tests/data_adapter_test.jshint",
     module('JSHint - ember-extension-support/tests');
     test('ember-extension-support/tests/data_adapter_test.js should pass jshint', function() { 
       ok(true, 'ember-extension-support/tests/data_adapter_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - .');
+    test('ember-htmlbars.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars.jshint",
@@ -4037,6 +4307,15 @@ enifed("ember-htmlbars.jshint",
       ok(true, 'ember-htmlbars.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/attr_nodes.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars');
+    test('ember-htmlbars/attr_nodes.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/attr_nodes.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/attr_nodes.jshint",
   [],
   function() {
@@ -4044,6 +4323,15 @@ enifed("ember-htmlbars/attr_nodes.jshint",
     module('JSHint - ember-htmlbars');
     test('ember-htmlbars/attr_nodes.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/attr_nodes.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/attr_nodes/legacy_bind.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/attr_nodes');
+    test('ember-htmlbars/attr_nodes/legacy_bind.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/attr_nodes/legacy_bind.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/attr_nodes/legacy_bind.jshint",
@@ -4055,6 +4343,15 @@ enifed("ember-htmlbars/attr_nodes/legacy_bind.jshint",
       ok(true, 'ember-htmlbars/attr_nodes/legacy_bind.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/attr_nodes/quoted.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/attr_nodes');
+    test('ember-htmlbars/attr_nodes/quoted.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/attr_nodes/quoted.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/attr_nodes/quoted.jshint",
   [],
   function() {
@@ -4062,6 +4359,15 @@ enifed("ember-htmlbars/attr_nodes/quoted.jshint",
     module('JSHint - ember-htmlbars/attr_nodes');
     test('ember-htmlbars/attr_nodes/quoted.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/attr_nodes/quoted.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/attr_nodes/sanitized.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/attr_nodes');
+    test('ember-htmlbars/attr_nodes/sanitized.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/attr_nodes/sanitized.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/attr_nodes/sanitized.jshint",
@@ -4073,6 +4379,15 @@ enifed("ember-htmlbars/attr_nodes/sanitized.jshint",
       ok(true, 'ember-htmlbars/attr_nodes/sanitized.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/attr_nodes/simple.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/attr_nodes');
+    test('ember-htmlbars/attr_nodes/simple.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/attr_nodes/simple.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/attr_nodes/simple.jshint",
   [],
   function() {
@@ -4080,6 +4395,15 @@ enifed("ember-htmlbars/attr_nodes/simple.jshint",
     module('JSHint - ember-htmlbars/attr_nodes');
     test('ember-htmlbars/attr_nodes/simple.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/attr_nodes/simple.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/attr_nodes/unquoted.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/attr_nodes');
+    test('ember-htmlbars/attr_nodes/unquoted.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/attr_nodes/unquoted.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/attr_nodes/unquoted.jshint",
@@ -4091,6 +4415,15 @@ enifed("ember-htmlbars/attr_nodes/unquoted.jshint",
       ok(true, 'ember-htmlbars/attr_nodes/unquoted.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/attr_nodes/unquoted_nonproperty.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/attr_nodes');
+    test('ember-htmlbars/attr_nodes/unquoted_nonproperty.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/attr_nodes/unquoted_nonproperty.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/attr_nodes/unquoted_nonproperty.jshint",
   [],
   function() {
@@ -4098,6 +4431,15 @@ enifed("ember-htmlbars/attr_nodes/unquoted_nonproperty.jshint",
     module('JSHint - ember-htmlbars/attr_nodes');
     test('ember-htmlbars/attr_nodes/unquoted_nonproperty.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/attr_nodes/unquoted_nonproperty.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/attr_nodes/utils.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/attr_nodes');
+    test('ember-htmlbars/attr_nodes/utils.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/attr_nodes/utils.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/attr_nodes/utils.jshint",
@@ -4109,6 +4451,15 @@ enifed("ember-htmlbars/attr_nodes/utils.jshint",
       ok(true, 'ember-htmlbars/attr_nodes/utils.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/compat.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars');
+    test('ember-htmlbars/compat.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/compat.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/compat.jshint",
   [],
   function() {
@@ -4116,6 +4467,15 @@ enifed("ember-htmlbars/compat.jshint",
     module('JSHint - ember-htmlbars');
     test('ember-htmlbars/compat.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/compat.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/compat/handlebars-get.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/compat');
+    test('ember-htmlbars/compat/handlebars-get.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/compat/handlebars-get.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/compat/handlebars-get.jshint",
@@ -4127,6 +4487,15 @@ enifed("ember-htmlbars/compat/handlebars-get.jshint",
       ok(true, 'ember-htmlbars/compat/handlebars-get.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/compat/helper.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/compat');
+    test('ember-htmlbars/compat/helper.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/compat/helper.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/compat/helper.jshint",
   [],
   function() {
@@ -4134,6 +4503,15 @@ enifed("ember-htmlbars/compat/helper.jshint",
     module('JSHint - ember-htmlbars/compat');
     test('ember-htmlbars/compat/helper.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/compat/helper.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/compat/make-bound-helper.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/compat');
+    test('ember-htmlbars/compat/make-bound-helper.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/compat/make-bound-helper.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/compat/make-bound-helper.jshint",
@@ -4145,6 +4523,15 @@ enifed("ember-htmlbars/compat/make-bound-helper.jshint",
       ok(true, 'ember-htmlbars/compat/make-bound-helper.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/compat/precompile.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/compat');
+    test('ember-htmlbars/compat/precompile.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/compat/precompile.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/compat/precompile.jshint",
   [],
   function() {
@@ -4152,6 +4539,15 @@ enifed("ember-htmlbars/compat/precompile.jshint",
     module('JSHint - ember-htmlbars/compat');
     test('ember-htmlbars/compat/precompile.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/compat/precompile.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/compat/register-bound-helper.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/compat');
+    test('ember-htmlbars/compat/register-bound-helper.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/compat/register-bound-helper.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/compat/register-bound-helper.jshint",
@@ -4163,6 +4559,15 @@ enifed("ember-htmlbars/compat/register-bound-helper.jshint",
       ok(true, 'ember-htmlbars/compat/register-bound-helper.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/helpers.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars');
+    test('ember-htmlbars/helpers.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/helpers.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/helpers.jshint",
   [],
   function() {
@@ -4170,6 +4575,15 @@ enifed("ember-htmlbars/helpers.jshint",
     module('JSHint - ember-htmlbars');
     test('ember-htmlbars/helpers.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/helpers.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/helpers/bind-attr.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/helpers');
+    test('ember-htmlbars/helpers/bind-attr.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/helpers/bind-attr.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/helpers/bind-attr.jshint",
@@ -4181,6 +4595,15 @@ enifed("ember-htmlbars/helpers/bind-attr.jshint",
       ok(true, 'ember-htmlbars/helpers/bind-attr.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/helpers/collection.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/helpers');
+    test('ember-htmlbars/helpers/collection.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/helpers/collection.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/helpers/collection.jshint",
   [],
   function() {
@@ -4188,6 +4611,15 @@ enifed("ember-htmlbars/helpers/collection.jshint",
     module('JSHint - ember-htmlbars/helpers');
     test('ember-htmlbars/helpers/collection.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/helpers/collection.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/helpers/debugger.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/helpers');
+    test('ember-htmlbars/helpers/debugger.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/helpers/debugger.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/helpers/debugger.jshint",
@@ -4199,6 +4631,15 @@ enifed("ember-htmlbars/helpers/debugger.jshint",
       ok(true, 'ember-htmlbars/helpers/debugger.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/helpers/each.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/helpers');
+    test('ember-htmlbars/helpers/each.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/helpers/each.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/helpers/each.jshint",
   [],
   function() {
@@ -4206,6 +4647,15 @@ enifed("ember-htmlbars/helpers/each.jshint",
     module('JSHint - ember-htmlbars/helpers');
     test('ember-htmlbars/helpers/each.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/helpers/each.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/helpers/if_unless.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/helpers');
+    test('ember-htmlbars/helpers/if_unless.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/helpers/if_unless.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/helpers/if_unless.jshint",
@@ -4217,6 +4667,15 @@ enifed("ember-htmlbars/helpers/if_unless.jshint",
       ok(true, 'ember-htmlbars/helpers/if_unless.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/helpers/input.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/helpers');
+    test('ember-htmlbars/helpers/input.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/helpers/input.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/helpers/input.jshint",
   [],
   function() {
@@ -4224,6 +4683,15 @@ enifed("ember-htmlbars/helpers/input.jshint",
     module('JSHint - ember-htmlbars/helpers');
     test('ember-htmlbars/helpers/input.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/helpers/input.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/helpers/loc.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/helpers');
+    test('ember-htmlbars/helpers/loc.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/helpers/loc.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/helpers/loc.jshint",
@@ -4235,6 +4703,15 @@ enifed("ember-htmlbars/helpers/loc.jshint",
       ok(true, 'ember-htmlbars/helpers/loc.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/helpers/log.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/helpers');
+    test('ember-htmlbars/helpers/log.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/helpers/log.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/helpers/log.jshint",
   [],
   function() {
@@ -4242,6 +4719,15 @@ enifed("ember-htmlbars/helpers/log.jshint",
     module('JSHint - ember-htmlbars/helpers');
     test('ember-htmlbars/helpers/log.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/helpers/log.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/helpers/partial.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/helpers');
+    test('ember-htmlbars/helpers/partial.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/helpers/partial.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/helpers/partial.jshint",
@@ -4253,6 +4739,15 @@ enifed("ember-htmlbars/helpers/partial.jshint",
       ok(true, 'ember-htmlbars/helpers/partial.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/helpers/template.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/helpers');
+    test('ember-htmlbars/helpers/template.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/helpers/template.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/helpers/template.jshint",
   [],
   function() {
@@ -4260,6 +4755,15 @@ enifed("ember-htmlbars/helpers/template.jshint",
     module('JSHint - ember-htmlbars/helpers');
     test('ember-htmlbars/helpers/template.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/helpers/template.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/helpers/text_area.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/helpers');
+    test('ember-htmlbars/helpers/text_area.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/helpers/text_area.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/helpers/text_area.jshint",
@@ -4271,6 +4775,15 @@ enifed("ember-htmlbars/helpers/text_area.jshint",
       ok(true, 'ember-htmlbars/helpers/text_area.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/helpers/unbound.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/helpers');
+    test('ember-htmlbars/helpers/unbound.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/helpers/unbound.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/helpers/unbound.jshint",
   [],
   function() {
@@ -4278,6 +4791,15 @@ enifed("ember-htmlbars/helpers/unbound.jshint",
     module('JSHint - ember-htmlbars/helpers');
     test('ember-htmlbars/helpers/unbound.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/helpers/unbound.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/helpers/view.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/helpers');
+    test('ember-htmlbars/helpers/view.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/helpers/view.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/helpers/view.jshint",
@@ -4289,6 +4811,15 @@ enifed("ember-htmlbars/helpers/view.jshint",
       ok(true, 'ember-htmlbars/helpers/view.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/helpers/with.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/helpers');
+    test('ember-htmlbars/helpers/with.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/helpers/with.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/helpers/with.jshint",
   [],
   function() {
@@ -4296,6 +4827,15 @@ enifed("ember-htmlbars/helpers/with.jshint",
     module('JSHint - ember-htmlbars/helpers');
     test('ember-htmlbars/helpers/with.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/helpers/with.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/helpers/yield.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/helpers');
+    test('ember-htmlbars/helpers/yield.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/helpers/yield.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/helpers/yield.jshint",
@@ -4307,6 +4847,15 @@ enifed("ember-htmlbars/helpers/yield.jshint",
       ok(true, 'ember-htmlbars/helpers/yield.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/hooks/attribute.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/hooks');
+    test('ember-htmlbars/hooks/attribute.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/hooks/attribute.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/hooks/attribute.jshint",
   [],
   function() {
@@ -4314,6 +4863,15 @@ enifed("ember-htmlbars/hooks/attribute.jshint",
     module('JSHint - ember-htmlbars/hooks');
     test('ember-htmlbars/hooks/attribute.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/hooks/attribute.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/hooks/component.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/hooks');
+    test('ember-htmlbars/hooks/component.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/hooks/component.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/hooks/component.jshint",
@@ -4325,6 +4883,15 @@ enifed("ember-htmlbars/hooks/component.jshint",
       ok(true, 'ember-htmlbars/hooks/component.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/hooks/concat.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/hooks');
+    test('ember-htmlbars/hooks/concat.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/hooks/concat.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/hooks/concat.jshint",
   [],
   function() {
@@ -4332,6 +4899,15 @@ enifed("ember-htmlbars/hooks/concat.jshint",
     module('JSHint - ember-htmlbars/hooks');
     test('ember-htmlbars/hooks/concat.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/hooks/concat.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/hooks/content.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/hooks');
+    test('ember-htmlbars/hooks/content.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/hooks/content.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/hooks/content.jshint",
@@ -4343,6 +4919,15 @@ enifed("ember-htmlbars/hooks/content.jshint",
       ok(true, 'ember-htmlbars/hooks/content.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/hooks/element.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/hooks');
+    test('ember-htmlbars/hooks/element.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/hooks/element.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/hooks/element.jshint",
   [],
   function() {
@@ -4350,6 +4935,15 @@ enifed("ember-htmlbars/hooks/element.jshint",
     module('JSHint - ember-htmlbars/hooks');
     test('ember-htmlbars/hooks/element.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/hooks/element.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/hooks/get.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/hooks');
+    test('ember-htmlbars/hooks/get.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/hooks/get.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/hooks/get.jshint",
@@ -4361,6 +4955,15 @@ enifed("ember-htmlbars/hooks/get.jshint",
       ok(true, 'ember-htmlbars/hooks/get.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/hooks/set.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/hooks');
+    test('ember-htmlbars/hooks/set.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/hooks/set.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/hooks/set.jshint",
   [],
   function() {
@@ -4368,6 +4971,15 @@ enifed("ember-htmlbars/hooks/set.jshint",
     module('JSHint - ember-htmlbars/hooks');
     test('ember-htmlbars/hooks/set.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/hooks/set.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/hooks/subexpr.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/hooks');
+    test('ember-htmlbars/hooks/subexpr.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/hooks/subexpr.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/hooks/subexpr.jshint",
@@ -4379,6 +4991,15 @@ enifed("ember-htmlbars/hooks/subexpr.jshint",
       ok(true, 'ember-htmlbars/hooks/subexpr.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/system/bootstrap.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/system');
+    test('ember-htmlbars/system/bootstrap.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/system/bootstrap.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/system/bootstrap.jshint",
   [],
   function() {
@@ -4386,6 +5007,15 @@ enifed("ember-htmlbars/system/bootstrap.jshint",
     module('JSHint - ember-htmlbars/system');
     test('ember-htmlbars/system/bootstrap.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/system/bootstrap.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/system/helper.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/system');
+    test('ember-htmlbars/system/helper.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/system/helper.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/system/helper.jshint",
@@ -4397,6 +5027,15 @@ enifed("ember-htmlbars/system/helper.jshint",
       ok(true, 'ember-htmlbars/system/helper.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/system/lookup-helper.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/system');
+    test('ember-htmlbars/system/lookup-helper.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/system/lookup-helper.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/system/lookup-helper.jshint",
   [],
   function() {
@@ -4406,6 +5045,15 @@ enifed("ember-htmlbars/system/lookup-helper.jshint",
       ok(true, 'ember-htmlbars/system/lookup-helper.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/system/make-view-helper.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/system');
+    test('ember-htmlbars/system/make-view-helper.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/system/make-view-helper.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/system/make-view-helper.jshint",
   [],
   function() {
@@ -4413,6 +5061,15 @@ enifed("ember-htmlbars/system/make-view-helper.jshint",
     module('JSHint - ember-htmlbars/system');
     test('ember-htmlbars/system/make-view-helper.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/system/make-view-helper.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/system/make_bound_helper.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/system');
+    test('ember-htmlbars/system/make_bound_helper.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/system/make_bound_helper.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/system/make_bound_helper.jshint",
@@ -4528,6 +5185,15 @@ enifed("ember-htmlbars/tests/attr_nodes/boolean_test",
     });
 
     }
+  });
+enifed("ember-htmlbars/tests/attr_nodes/boolean_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/attr_nodes');
+    test('ember-htmlbars/tests/attr_nodes/boolean_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/attr_nodes/boolean_test.js should pass jscs.');
+    });
   });
 enifed("ember-htmlbars/tests/attr_nodes/boolean_test.jshint",
   [],
@@ -4697,6 +5363,15 @@ enifed("ember-htmlbars/tests/attr_nodes/class_test",
     });
 
     }
+  });
+enifed("ember-htmlbars/tests/attr_nodes/class_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/attr_nodes');
+    test('ember-htmlbars/tests/attr_nodes/class_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/attr_nodes/class_test.js should pass jscs.');
+    });
   });
 enifed("ember-htmlbars/tests/attr_nodes/class_test.jshint",
   [],
@@ -4969,6 +5644,15 @@ enifed("ember-htmlbars/tests/attr_nodes/data_test",
       });
     }
   });
+enifed("ember-htmlbars/tests/attr_nodes/data_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/attr_nodes');
+    test('ember-htmlbars/tests/attr_nodes/data_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/attr_nodes/data_test.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/tests/attr_nodes/data_test.jshint",
   [],
   function() {
@@ -5015,6 +5699,15 @@ enifed("ember-htmlbars/tests/attr_nodes/href_test",
     });
 
     }
+  });
+enifed("ember-htmlbars/tests/attr_nodes/href_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/attr_nodes');
+    test('ember-htmlbars/tests/attr_nodes/href_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/attr_nodes/href_test.js should pass jscs.');
+    });
   });
 enifed("ember-htmlbars/tests/attr_nodes/href_test.jshint",
   [],
@@ -5081,6 +5774,15 @@ enifed("ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test",
     });
 
     }
+  });
+enifed("ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/attr_nodes');
+    test('ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test.js should pass jscs.');
+    });
   });
 enifed("ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test.jshint",
   [],
@@ -5199,6 +5901,15 @@ enifed("ember-htmlbars/tests/attr_nodes/sanitized_test",
 
     }
   });
+enifed("ember-htmlbars/tests/attr_nodes/sanitized_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/attr_nodes');
+    test('ember-htmlbars/tests/attr_nodes/sanitized_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/attr_nodes/sanitized_test.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/tests/attr_nodes/sanitized_test.jshint",
   [],
   function() {
@@ -5290,6 +6001,15 @@ enifed("ember-htmlbars/tests/attr_nodes/svg_test",
 
     }
   });
+enifed("ember-htmlbars/tests/attr_nodes/svg_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/attr_nodes');
+    test('ember-htmlbars/tests/attr_nodes/svg_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/attr_nodes/svg_test.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/tests/attr_nodes/svg_test.jshint",
   [],
   function() {
@@ -5351,6 +6071,15 @@ enifed("ember-htmlbars/tests/attr_nodes/value_test",
     });
 
     }
+  });
+enifed("ember-htmlbars/tests/attr_nodes/value_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/attr_nodes');
+    test('ember-htmlbars/tests/attr_nodes/value_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/attr_nodes/value_test.js should pass jscs.');
+    });
   });
 enifed("ember-htmlbars/tests/attr_nodes/value_test.jshint",
   [],
@@ -5490,6 +6219,15 @@ enifed("ember-htmlbars/tests/compat/handlebars_get_test",
       runAppend(view);
     });
   });
+enifed("ember-htmlbars/tests/compat/handlebars_get_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/compat');
+    test('ember-htmlbars/tests/compat/handlebars_get_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/compat/handlebars_get_test.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/tests/compat/handlebars_get_test.jshint",
   [],
   function() {
@@ -5624,6 +6362,15 @@ enifed("ember-htmlbars/tests/compat/helper_test",
 
     
   });
+enifed("ember-htmlbars/tests/compat/helper_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/compat');
+    test('ember-htmlbars/tests/compat/helper_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/compat/helper_test.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/tests/compat/helper_test.jshint",
   [],
   function() {
@@ -5678,6 +6425,15 @@ enifed("ember-htmlbars/tests/compat/make-view-helper_test",
       runAppend(view);
 
       equal(view.$().text(), 'woot!');
+    });
+  });
+enifed("ember-htmlbars/tests/compat/make-view-helper_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/compat');
+    test('ember-htmlbars/tests/compat/make-view-helper_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/compat/make-view-helper_test.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/tests/compat/make-view-helper_test.jshint",
@@ -6276,6 +7032,15 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
       equal(view.$().text(), 'aaa');
     });
   });
+enifed("ember-htmlbars/tests/compat/make_bound_helper_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/compat');
+    test('ember-htmlbars/tests/compat/make_bound_helper_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/compat/make_bound_helper_test.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/tests/compat/make_bound_helper_test.jshint",
   [],
   function() {
@@ -6322,6 +7087,15 @@ enifed("ember-htmlbars/tests/compat/precompile_test",
     });
 
     }
+  });
+enifed("ember-htmlbars/tests/compat/precompile_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/compat');
+    test('ember-htmlbars/tests/compat/precompile_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/compat/precompile_test.js should pass jscs.');
+    });
   });
 enifed("ember-htmlbars/tests/compat/precompile_test.jshint",
   [],
@@ -6431,6 +7205,15 @@ enifed("ember-htmlbars/tests/helper_test",
       });
 
       equal(view.$().text(), 'bar', 're-renders the bound value');
+    });
+  });
+enifed("ember-htmlbars/tests/helper_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests');
+    test('ember-htmlbars/tests/helper_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/helper_test.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/tests/helper_test.jshint",
@@ -6975,6 +7758,15 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test",
       });
       runAppend(view);
       equal(matchingElement.length, 1, 'element is in the DOM when didInsertElement');
+    });
+  });
+enifed("ember-htmlbars/tests/helpers/bind_attr_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/helpers');
+    test('ember-htmlbars/tests/helpers/bind_attr_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/helpers/bind_attr_test.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/tests/helpers/bind_attr_test.jshint",
@@ -7680,6 +8472,15 @@ enifed("ember-htmlbars/tests/helpers/collection_test",
       runDestroy(view);
     });
   });
+enifed("ember-htmlbars/tests/helpers/collection_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/helpers');
+    test('ember-htmlbars/tests/helpers/collection_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/helpers/collection_test.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/tests/helpers/collection_test.jshint",
   [],
   function() {
@@ -7762,6 +8563,15 @@ enifed("ember-htmlbars/tests/helpers/debug_test",
       strictEqual(logCalls[2], 0);
       strictEqual(logCalls[3], 'two');
       strictEqual(logCalls[4], true);
+    });
+  });
+enifed("ember-htmlbars/tests/helpers/debug_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/helpers');
+    test('ember-htmlbars/tests/helpers/debug_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/helpers/debug_test.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/tests/helpers/debug_test.jshint",
@@ -8709,6 +9519,15 @@ enifed("ember-htmlbars/tests/helpers/each_test",
     
       testEachWithItem("{{#each bar as |foo|}}", true);
     
+  });
+enifed("ember-htmlbars/tests/helpers/each_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/helpers');
+    test('ember-htmlbars/tests/helpers/each_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/helpers/each_test.js should pass jscs.');
+    });
   });
 enifed("ember-htmlbars/tests/helpers/each_test.jshint",
   [],
@@ -9670,6 +10489,15 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
 
     }
   });
+enifed("ember-htmlbars/tests/helpers/if_unless_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/helpers');
+    test('ember-htmlbars/tests/helpers/if_unless_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/helpers/if_unless_test.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/tests/helpers/if_unless_test.jshint",
   [],
   function() {
@@ -9995,6 +10823,15 @@ enifed("ember-htmlbars/tests/helpers/input_test",
       equal(view.$('input').prop('checked'), false, "the checkbox isn't checked yet");
     });
   });
+enifed("ember-htmlbars/tests/helpers/input_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/helpers');
+    test('ember-htmlbars/tests/helpers/input_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/helpers/input_test.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/tests/helpers/input_test.jshint",
   [],
   function() {
@@ -10088,6 +10925,15 @@ enifed("ember-htmlbars/tests/helpers/loc_test",
     });
     
   });
+enifed("ember-htmlbars/tests/helpers/loc_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/helpers');
+    test('ember-htmlbars/tests/helpers/loc_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/helpers/loc_test.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/tests/helpers/loc_test.jshint",
   [],
   function() {
@@ -10168,6 +11014,15 @@ enifed("ember-htmlbars/tests/helpers/log_test",
 
       equal(view.$().text(), '', 'shouldn\'t render any text');
       equal(logCalls[0], 'one', 'should call log with item one');
+    });
+  });
+enifed("ember-htmlbars/tests/helpers/log_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/helpers');
+    test('ember-htmlbars/tests/helpers/log_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/helpers/log_test.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/tests/helpers/log_test.jshint",
@@ -10280,6 +11135,15 @@ enifed("ember-htmlbars/tests/helpers/partial_test",
       equal(trim(view.$().text()), "This  is pretty great.");
     });
   });
+enifed("ember-htmlbars/tests/helpers/partial_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/helpers');
+    test('ember-htmlbars/tests/helpers/partial_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/helpers/partial_test.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/tests/helpers/partial_test.jshint",
   [],
   function() {
@@ -10379,6 +11243,15 @@ enifed("ember-htmlbars/tests/helpers/sanitized_bind_attr_test",
       })(); //jshint ignore:line
     }
   });
+enifed("ember-htmlbars/tests/helpers/sanitized_bind_attr_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/helpers');
+    test('ember-htmlbars/tests/helpers/sanitized_bind_attr_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/helpers/sanitized_bind_attr_test.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/tests/helpers/sanitized_bind_attr_test.jshint",
   [],
   function() {
@@ -10455,6 +11328,15 @@ enifed("ember-htmlbars/tests/helpers/template_test",
       equal(trim(view.$().text()), "Who is Kris Selden?");
     });
   });
+enifed("ember-htmlbars/tests/helpers/template_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/helpers');
+    test('ember-htmlbars/tests/helpers/template_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/helpers/template_test.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/tests/helpers/template_test.jshint",
   [],
   function() {
@@ -10514,6 +11396,15 @@ enifed("ember-htmlbars/tests/helpers/text_area_test",
       equal(textArea.$('textarea').val(), "Lorem ipsum dolor", "The contents are included");
       set(controller, 'val', "sit amet");
       equal(textArea.$('textarea').val(), "sit amet", "The new contents are included");
+    });
+  });
+enifed("ember-htmlbars/tests/helpers/text_area_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/helpers');
+    test('ember-htmlbars/tests/helpers/text_area_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/helpers/text_area_test.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/tests/helpers/text_area_test.jshint",
@@ -10955,6 +11846,15 @@ enifed("ember-htmlbars/tests/helpers/unbound_test",
 
       equal(view.$('li.not-cool').length, 1, 'correct number of not cool people');
       equal(view.$('li.is-cool').length, 2, 'correct number of cool people');
+    });
+  });
+enifed("ember-htmlbars/tests/helpers/unbound_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/helpers');
+    test('ember-htmlbars/tests/helpers/unbound_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/helpers/unbound_test.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/tests/helpers/unbound_test.jshint",
@@ -12270,6 +13170,15 @@ enifed("ember-htmlbars/tests/helpers/view_test",
       }, /must be a subclass or an instance of Ember.View/);
     });
   });
+enifed("ember-htmlbars/tests/helpers/view_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/helpers');
+    test('ember-htmlbars/tests/helpers/view_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/helpers/view_test.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/tests/helpers/view_test.jshint",
   [],
   function() {
@@ -12790,6 +13699,15 @@ enifed("ember-htmlbars/tests/helpers/with_test",
       });
     
   });
+enifed("ember-htmlbars/tests/helpers/with_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/helpers');
+    test('ember-htmlbars/tests/helpers/with_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/helpers/with_test.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/tests/helpers/with_test.jshint",
   [],
   function() {
@@ -13181,6 +14099,15 @@ enifed("ember-htmlbars/tests/helpers/yield_test",
       equal(view.$('div > p').text(), "hello", "view keyword inside component yield block should refer to the correct view");
     });
   });
+enifed("ember-htmlbars/tests/helpers/yield_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/helpers');
+    test('ember-htmlbars/tests/helpers/yield_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/helpers/yield_test.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/tests/helpers/yield_test.jshint",
   [],
   function() {
@@ -13254,6 +14181,15 @@ enifed("ember-htmlbars/tests/hooks/component_test",
       }
     
   });
+enifed("ember-htmlbars/tests/hooks/component_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/hooks');
+    test('ember-htmlbars/tests/hooks/component_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/hooks/component_test.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/tests/hooks/component_test.jshint",
   [],
   function() {
@@ -13320,6 +14256,15 @@ enifed("ember-htmlbars/tests/hooks/text_node_test",
       });
     
   });
+enifed("ember-htmlbars/tests/hooks/text_node_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/hooks');
+    test('ember-htmlbars/tests/hooks/text_node_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/hooks/text_node_test.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/tests/hooks/text_node_test.jshint",
   [],
   function() {
@@ -13347,6 +14292,15 @@ enifed("ember-htmlbars/tests/htmlbars_test",
         equalHTML(output, "ohai");
       });
     
+  });
+enifed("ember-htmlbars/tests/htmlbars_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests');
+    test('ember-htmlbars/tests/htmlbars_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/htmlbars_test.js should pass jscs.');
+    });
   });
 enifed("ember-htmlbars/tests/htmlbars_test.jshint",
   [],
@@ -13545,6 +14499,15 @@ enifed("ember-htmlbars/tests/integration/binding_integration_test",
       equal(trim(view.$().text()), 'binding: down, string: down');
     });
   });
+enifed("ember-htmlbars/tests/integration/binding_integration_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/integration');
+    test('ember-htmlbars/tests/integration/binding_integration_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/integration/binding_integration_test.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/tests/integration/binding_integration_test.jshint",
   [],
   function() {
@@ -13688,6 +14651,15 @@ enifed("ember-htmlbars/tests/integration/block_params_test",
 
     
   });
+enifed("ember-htmlbars/tests/integration/block_params_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/integration');
+    test('ember-htmlbars/tests/integration/block_params_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/integration/block_params_test.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/tests/integration/block_params_test.jshint",
   [],
   function() {
@@ -13787,6 +14759,15 @@ enifed("ember-htmlbars/tests/integration/component_invocation_test",
       runAppend(view);
 
       equal(jQuery('#qunit-fixture').text(), 'In layout - someProp: something here - In template');
+    });
+  });
+enifed("ember-htmlbars/tests/integration/component_invocation_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/integration');
+    test('ember-htmlbars/tests/integration/component_invocation_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/integration/component_invocation_test.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/tests/integration/component_invocation_test.jshint",
@@ -13922,6 +14903,15 @@ enifed("ember-htmlbars/tests/integration/escape_integration_test",
       equal(view.$('i').length, 2, 'creates an element when value is updated');
     });
   });
+enifed("ember-htmlbars/tests/integration/escape_integration_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/integration');
+    test('ember-htmlbars/tests/integration/escape_integration_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/integration/escape_integration_test.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/tests/integration/escape_integration_test.jshint",
   [],
   function() {
@@ -14007,6 +14997,15 @@ enifed("ember-htmlbars/tests/integration/globals_integration_test",
         runAppend(view);
       }, 'Global lookup of Global.Space from a Handlebars template is deprecated.');
       equal(view.$().text(), Ember.lookup.Global.Space);
+    });
+  });
+enifed("ember-htmlbars/tests/integration/globals_integration_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/integration');
+    test('ember-htmlbars/tests/integration/globals_integration_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/integration/globals_integration_test.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/tests/integration/globals_integration_test.jshint",
@@ -14311,6 +15310,15 @@ enifed("ember-htmlbars/tests/integration/select_in_template_test",
       equal(select.$('option:eq(1)').prop('selected'), true, "selected proprty is set to proper option");
     });
   });
+enifed("ember-htmlbars/tests/integration/select_in_template_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/integration');
+    test('ember-htmlbars/tests/integration/select_in_template_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/integration/select_in_template_test.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/tests/integration/select_in_template_test.jshint",
   [],
   function() {
@@ -14389,6 +15397,15 @@ enifed("ember-htmlbars/tests/integration/tagless_views_rerender_test",
       });
 
       equal(view.$().text(), '');
+    });
+  });
+enifed("ember-htmlbars/tests/integration/tagless_views_rerender_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/integration');
+    test('ember-htmlbars/tests/integration/tagless_views_rerender_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/integration/tagless_views_rerender_test.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/tests/integration/tagless_views_rerender_test.jshint",
@@ -14589,6 +15606,15 @@ enifed("ember-htmlbars/tests/integration/with_view_test",
       equal(view.$('h1').text(), 'Brodele del Heeeyyyyyy', 'renders properties from parent context');
     });
   });
+enifed("ember-htmlbars/tests/integration/with_view_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/integration');
+    test('ember-htmlbars/tests/integration/with_view_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/integration/with_view_test.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/tests/integration/with_view_test.jshint",
   [],
   function() {
@@ -14767,6 +15793,15 @@ enifed("ember-htmlbars/tests/system/bootstrap_test",
       });
     }
   });
+enifed("ember-htmlbars/tests/system/bootstrap_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/system');
+    test('ember-htmlbars/tests/system/bootstrap_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/system/bootstrap_test.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/tests/system/bootstrap_test.jshint",
   [],
   function() {
@@ -14904,6 +15939,15 @@ enifed("ember-htmlbars/tests/system/lookup-helper_test",
       lookupHelper('some-name', view, env);
 
       ok(view.container.lookup('helper:some-name'), 'new helper was registered');
+    });
+  });
+enifed("ember-htmlbars/tests/system/lookup-helper_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/system');
+    test('ember-htmlbars/tests/system/lookup-helper_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/system/lookup-helper_test.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/tests/system/lookup-helper_test.jshint",
@@ -15198,6 +16242,15 @@ enifed("ember-htmlbars/tests/system/make_bound_helper_test",
 
     
   });
+enifed("ember-htmlbars/tests/system/make_bound_helper_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/system');
+    test('ember-htmlbars/tests/system/make_bound_helper_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/system/make_bound_helper_test.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/tests/system/make_bound_helper_test.jshint",
   [],
   function() {
@@ -15223,6 +16276,15 @@ enifed("ember-htmlbars/tests/system/make_view_helper_test",
       expectAssertion(function(){
         helper.helperFunction(['foo'], {}, {}, {});
       }, "You can only pass attributes (such as name=value) not bare values to a helper for a View found in 'Some Random Class'");
+    });
+  });
+enifed("ember-htmlbars/tests/system/make_view_helper_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/system');
+    test('ember-htmlbars/tests/system/make_view_helper_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/system/make_view_helper_test.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/tests/system/make_view_helper_test.jshint",
@@ -15257,6 +16319,15 @@ enifed("ember-htmlbars/tests/utils/string_test",
       equal(htmlSafe().toString(), "", "should return an empty string");
     });
   });
+enifed("ember-htmlbars/tests/utils/string_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/utils');
+    test('ember-htmlbars/tests/utils/string_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/utils/string_test.js should pass jscs.');
+    });
+  });
 enifed("ember-htmlbars/tests/utils/string_test.jshint",
   [],
   function() {
@@ -15264,6 +16335,15 @@ enifed("ember-htmlbars/tests/utils/string_test.jshint",
     module('JSHint - ember-htmlbars/tests/utils');
     test('ember-htmlbars/tests/utils/string_test.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/tests/utils/string_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/utils/string.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/utils');
+    test('ember-htmlbars/utils/string.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/utils/string.js should pass jscs.');
     });
   });
 enifed("ember-htmlbars/utils/string.jshint",
@@ -15275,6 +16355,15 @@ enifed("ember-htmlbars/utils/string.jshint",
       ok(true, 'ember-htmlbars/utils/string.js should pass jshint.'); 
     });
   });
+enifed("ember-metal-views.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - .');
+    test('ember-metal-views.js should pass jscs', function() {
+      ok(true, 'ember-metal-views.js should pass jscs.');
+    });
+  });
 enifed("ember-metal-views.jshint",
   [],
   function() {
@@ -15282,6 +16371,15 @@ enifed("ember-metal-views.jshint",
     module('JSHint - .');
     test('ember-metal-views.js should pass jshint', function() { 
       ok(true, 'ember-metal-views.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal-views/renderer.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal-views');
+    test('ember-metal-views/renderer.js should pass jscs', function() {
+      ok(true, 'ember-metal-views/renderer.js should pass jscs.');
     });
   });
 enifed("ember-metal-views/renderer.jshint",
@@ -15315,6 +16413,15 @@ enifed("ember-metal-views/tests/attributes_test",
       equal(el.getAttribute('disabled'), 'disabled', "The attribute alias was set");
 
       subject().destroy(view);
+    });
+  });
+enifed("ember-metal-views/tests/attributes_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal-views/tests');
+    test('ember-metal-views/tests/attributes_test.js should pass jscs', function() {
+      ok(true, 'ember-metal-views/tests/attributes_test.js should pass jscs.');
     });
   });
 enifed("ember-metal-views/tests/attributes_test.jshint",
@@ -15369,6 +16476,15 @@ enifed("ember-metal-views/tests/children_test",
       equalHTML('qunit-fixture', "<ul><li>ohai</li></ul>");
 
       subject().destroy(view);
+    });
+  });
+enifed("ember-metal-views/tests/children_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal-views/tests');
+    test('ember-metal-views/tests/children_test.js should pass jscs', function() {
+      ok(true, 'ember-metal-views/tests/children_test.js should pass jscs.');
     });
   });
 enifed("ember-metal-views/tests/children_test.jshint",
@@ -15525,6 +16641,15 @@ enifed("ember-metal-views/tests/main_test",
       equalHTML('qunit-fixture', '<div class="foo bar">ohai</div>');
     });
   });
+enifed("ember-metal-views/tests/main_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal-views/tests');
+    test('ember-metal-views/tests/main_test.js should pass jscs', function() {
+      ok(true, 'ember-metal-views/tests/main_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal-views/tests/main_test.jshint",
   [],
   function() {
@@ -15678,6 +16803,15 @@ enifed("ember-metal-views/tests/test_helpers",
 
     __exports__.appendTo = appendTo;
   });
+enifed("ember-metal-views/tests/test_helpers.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal-views/tests');
+    test('ember-metal-views/tests/test_helpers.js should pass jscs', function() {
+      ok(true, 'ember-metal-views/tests/test_helpers.js should pass jscs.');
+    });
+  });
 enifed("ember-metal-views/tests/test_helpers.jshint",
   [],
   function() {
@@ -15685,6 +16819,15 @@ enifed("ember-metal-views/tests/test_helpers.jshint",
     module('JSHint - ember-metal-views/tests');
     test('ember-metal-views/tests/test_helpers.js should pass jshint', function() { 
       ok(true, 'ember-metal-views/tests/test_helpers.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - .');
+    test('ember-metal.js should pass jscs', function() {
+      ok(true, 'ember-metal.js should pass jscs.');
     });
   });
 enifed("ember-metal.jshint",
@@ -15696,6 +16839,15 @@ enifed("ember-metal.jshint",
       ok(true, 'ember-metal.js should pass jshint.'); 
     });
   });
+enifed("ember-metal/alias.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/alias.js should pass jscs', function() {
+      ok(true, 'ember-metal/alias.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/alias.jshint",
   [],
   function() {
@@ -15703,6 +16855,15 @@ enifed("ember-metal/alias.jshint",
     module('JSHint - ember-metal');
     test('ember-metal/alias.js should pass jshint', function() { 
       ok(true, 'ember-metal/alias.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal/array.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/array.js should pass jscs', function() {
+      ok(true, 'ember-metal/array.js should pass jscs.');
     });
   });
 enifed("ember-metal/array.jshint",
@@ -15714,6 +16875,15 @@ enifed("ember-metal/array.jshint",
       ok(true, 'ember-metal/array.js should pass jshint.'); 
     });
   });
+enifed("ember-metal/binding.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/binding.js should pass jscs', function() {
+      ok(true, 'ember-metal/binding.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/binding.jshint",
   [],
   function() {
@@ -15721,6 +16891,15 @@ enifed("ember-metal/binding.jshint",
     module('JSHint - ember-metal');
     test('ember-metal/binding.js should pass jshint', function() { 
       ok(true, 'ember-metal/binding.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal/cache.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/cache.js should pass jscs', function() {
+      ok(true, 'ember-metal/cache.js should pass jscs.');
     });
   });
 enifed("ember-metal/cache.jshint",
@@ -15732,6 +16911,15 @@ enifed("ember-metal/cache.jshint",
       ok(true, 'ember-metal/cache.js should pass jshint.'); 
     });
   });
+enifed("ember-metal/chains.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/chains.js should pass jscs', function() {
+      ok(true, 'ember-metal/chains.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/chains.jshint",
   [],
   function() {
@@ -15739,6 +16927,15 @@ enifed("ember-metal/chains.jshint",
     module('JSHint - ember-metal');
     test('ember-metal/chains.js should pass jshint', function() { 
       ok(true, 'ember-metal/chains.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal/computed.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/computed.js should pass jscs', function() {
+      ok(true, 'ember-metal/computed.js should pass jscs.');
     });
   });
 enifed("ember-metal/computed.jshint",
@@ -15750,6 +16947,15 @@ enifed("ember-metal/computed.jshint",
       ok(true, 'ember-metal/computed.js should pass jshint.'); 
     });
   });
+enifed("ember-metal/computed_macros.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/computed_macros.js should pass jscs', function() {
+      ok(true, 'ember-metal/computed_macros.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/computed_macros.jshint",
   [],
   function() {
@@ -15757,6 +16963,15 @@ enifed("ember-metal/computed_macros.jshint",
     module('JSHint - ember-metal');
     test('ember-metal/computed_macros.js should pass jshint', function() { 
       ok(true, 'ember-metal/computed_macros.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal/core.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/core.js should pass jscs', function() {
+      ok(true, 'ember-metal/core.js should pass jscs.');
     });
   });
 enifed("ember-metal/core.jshint",
@@ -15768,6 +16983,15 @@ enifed("ember-metal/core.jshint",
       ok(true, 'ember-metal/core.js should pass jshint.'); 
     });
   });
+enifed("ember-metal/dependent_keys.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/dependent_keys.js should pass jscs', function() {
+      ok(true, 'ember-metal/dependent_keys.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/dependent_keys.jshint",
   [],
   function() {
@@ -15775,6 +16999,15 @@ enifed("ember-metal/dependent_keys.jshint",
     module('JSHint - ember-metal');
     test('ember-metal/dependent_keys.js should pass jshint', function() { 
       ok(true, 'ember-metal/dependent_keys.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal/deprecate_property.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/deprecate_property.js should pass jscs', function() {
+      ok(true, 'ember-metal/deprecate_property.js should pass jscs.');
     });
   });
 enifed("ember-metal/deprecate_property.jshint",
@@ -15786,6 +17019,15 @@ enifed("ember-metal/deprecate_property.jshint",
       ok(true, 'ember-metal/deprecate_property.js should pass jshint.'); 
     });
   });
+enifed("ember-metal/dictionary.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/dictionary.js should pass jscs', function() {
+      ok(true, 'ember-metal/dictionary.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/dictionary.jshint",
   [],
   function() {
@@ -15793,6 +17035,15 @@ enifed("ember-metal/dictionary.jshint",
     module('JSHint - ember-metal');
     test('ember-metal/dictionary.js should pass jshint', function() { 
       ok(true, 'ember-metal/dictionary.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal/enumerable_utils.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/enumerable_utils.js should pass jscs', function() {
+      ok(true, 'ember-metal/enumerable_utils.js should pass jscs.');
     });
   });
 enifed("ember-metal/enumerable_utils.jshint",
@@ -15804,6 +17055,15 @@ enifed("ember-metal/enumerable_utils.jshint",
       ok(true, 'ember-metal/enumerable_utils.js should pass jshint.'); 
     });
   });
+enifed("ember-metal/environment.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/environment.js should pass jscs', function() {
+      ok(true, 'ember-metal/environment.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/environment.jshint",
   [],
   function() {
@@ -15811,6 +17071,15 @@ enifed("ember-metal/environment.jshint",
     module('JSHint - ember-metal');
     test('ember-metal/environment.js should pass jshint', function() { 
       ok(true, 'ember-metal/environment.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal/error.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/error.js should pass jscs', function() {
+      ok(true, 'ember-metal/error.js should pass jscs.');
     });
   });
 enifed("ember-metal/error.jshint",
@@ -15822,6 +17091,15 @@ enifed("ember-metal/error.jshint",
       ok(true, 'ember-metal/error.js should pass jshint.'); 
     });
   });
+enifed("ember-metal/events.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/events.js should pass jscs', function() {
+      ok(true, 'ember-metal/events.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/events.jshint",
   [],
   function() {
@@ -15829,6 +17107,15 @@ enifed("ember-metal/events.jshint",
     module('JSHint - ember-metal');
     test('ember-metal/events.js should pass jshint', function() { 
       ok(true, 'ember-metal/events.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal/expand_properties.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/expand_properties.js should pass jscs', function() {
+      ok(true, 'ember-metal/expand_properties.js should pass jscs.');
     });
   });
 enifed("ember-metal/expand_properties.jshint",
@@ -15840,6 +17127,15 @@ enifed("ember-metal/expand_properties.jshint",
       ok(true, 'ember-metal/expand_properties.js should pass jshint.'); 
     });
   });
+enifed("ember-metal/get_properties.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/get_properties.js should pass jscs', function() {
+      ok(true, 'ember-metal/get_properties.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/get_properties.jshint",
   [],
   function() {
@@ -15847,6 +17143,15 @@ enifed("ember-metal/get_properties.jshint",
     module('JSHint - ember-metal');
     test('ember-metal/get_properties.js should pass jshint', function() { 
       ok(true, 'ember-metal/get_properties.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal/injected_property.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/injected_property.js should pass jscs', function() {
+      ok(true, 'ember-metal/injected_property.js should pass jscs.');
     });
   });
 enifed("ember-metal/injected_property.jshint",
@@ -15858,6 +17163,15 @@ enifed("ember-metal/injected_property.jshint",
       ok(true, 'ember-metal/injected_property.js should pass jshint.'); 
     });
   });
+enifed("ember-metal/instrumentation.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/instrumentation.js should pass jscs', function() {
+      ok(true, 'ember-metal/instrumentation.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/instrumentation.jshint",
   [],
   function() {
@@ -15865,6 +17179,15 @@ enifed("ember-metal/instrumentation.jshint",
     module('JSHint - ember-metal');
     test('ember-metal/instrumentation.js should pass jshint', function() { 
       ok(true, 'ember-metal/instrumentation.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal/is_blank.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/is_blank.js should pass jscs', function() {
+      ok(true, 'ember-metal/is_blank.js should pass jscs.');
     });
   });
 enifed("ember-metal/is_blank.jshint",
@@ -15876,6 +17199,15 @@ enifed("ember-metal/is_blank.jshint",
       ok(true, 'ember-metal/is_blank.js should pass jshint.'); 
     });
   });
+enifed("ember-metal/is_empty.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/is_empty.js should pass jscs', function() {
+      ok(true, 'ember-metal/is_empty.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/is_empty.jshint",
   [],
   function() {
@@ -15883,6 +17215,15 @@ enifed("ember-metal/is_empty.jshint",
     module('JSHint - ember-metal');
     test('ember-metal/is_empty.js should pass jshint', function() { 
       ok(true, 'ember-metal/is_empty.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal/is_none.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/is_none.js should pass jscs', function() {
+      ok(true, 'ember-metal/is_none.js should pass jscs.');
     });
   });
 enifed("ember-metal/is_none.jshint",
@@ -15894,6 +17235,15 @@ enifed("ember-metal/is_none.jshint",
       ok(true, 'ember-metal/is_none.js should pass jshint.'); 
     });
   });
+enifed("ember-metal/is_present.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/is_present.js should pass jscs', function() {
+      ok(true, 'ember-metal/is_present.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/is_present.jshint",
   [],
   function() {
@@ -15901,6 +17251,15 @@ enifed("ember-metal/is_present.jshint",
     module('JSHint - ember-metal');
     test('ember-metal/is_present.js should pass jshint', function() { 
       ok(true, 'ember-metal/is_present.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal/keys.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/keys.js should pass jscs', function() {
+      ok(true, 'ember-metal/keys.js should pass jscs.');
     });
   });
 enifed("ember-metal/keys.jshint",
@@ -15912,6 +17271,15 @@ enifed("ember-metal/keys.jshint",
       ok(true, 'ember-metal/keys.js should pass jshint.'); 
     });
   });
+enifed("ember-metal/libraries.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/libraries.js should pass jscs', function() {
+      ok(true, 'ember-metal/libraries.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/libraries.jshint",
   [],
   function() {
@@ -15919,6 +17287,15 @@ enifed("ember-metal/libraries.jshint",
     module('JSHint - ember-metal');
     test('ember-metal/libraries.js should pass jshint', function() { 
       ok(true, 'ember-metal/libraries.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal/logger.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/logger.js should pass jscs', function() {
+      ok(true, 'ember-metal/logger.js should pass jscs.');
     });
   });
 enifed("ember-metal/logger.jshint",
@@ -15930,6 +17307,15 @@ enifed("ember-metal/logger.jshint",
       ok(true, 'ember-metal/logger.js should pass jshint.'); 
     });
   });
+enifed("ember-metal/map.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/map.js should pass jscs', function() {
+      ok(true, 'ember-metal/map.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/map.jshint",
   [],
   function() {
@@ -15937,6 +17323,15 @@ enifed("ember-metal/map.jshint",
     module('JSHint - ember-metal');
     test('ember-metal/map.js should pass jshint', function() { 
       ok(true, 'ember-metal/map.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal/merge.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/merge.js should pass jscs', function() {
+      ok(true, 'ember-metal/merge.js should pass jscs.');
     });
   });
 enifed("ember-metal/merge.jshint",
@@ -15948,6 +17343,15 @@ enifed("ember-metal/merge.jshint",
       ok(true, 'ember-metal/merge.js should pass jshint.'); 
     });
   });
+enifed("ember-metal/mixin.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/mixin.js should pass jscs', function() {
+      ok(true, 'ember-metal/mixin.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/mixin.jshint",
   [],
   function() {
@@ -15955,6 +17359,15 @@ enifed("ember-metal/mixin.jshint",
     module('JSHint - ember-metal');
     test('ember-metal/mixin.js should pass jshint', function() { 
       ok(true, 'ember-metal/mixin.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal/observer.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/observer.js should pass jscs', function() {
+      ok(true, 'ember-metal/observer.js should pass jscs.');
     });
   });
 enifed("ember-metal/observer.jshint",
@@ -15966,6 +17379,15 @@ enifed("ember-metal/observer.jshint",
       ok(true, 'ember-metal/observer.js should pass jshint.'); 
     });
   });
+enifed("ember-metal/observer_set.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/observer_set.js should pass jscs', function() {
+      ok(true, 'ember-metal/observer_set.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/observer_set.jshint",
   [],
   function() {
@@ -15973,6 +17395,15 @@ enifed("ember-metal/observer_set.jshint",
     module('JSHint - ember-metal');
     test('ember-metal/observer_set.js should pass jshint', function() { 
       ok(true, 'ember-metal/observer_set.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal/path_cache.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/path_cache.js should pass jscs', function() {
+      ok(true, 'ember-metal/path_cache.js should pass jscs.');
     });
   });
 enifed("ember-metal/path_cache.jshint",
@@ -15984,6 +17415,15 @@ enifed("ember-metal/path_cache.jshint",
       ok(true, 'ember-metal/path_cache.js should pass jshint.'); 
     });
   });
+enifed("ember-metal/platform.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/platform.js should pass jscs', function() {
+      ok(true, 'ember-metal/platform.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/platform.jshint",
   [],
   function() {
@@ -15991,6 +17431,15 @@ enifed("ember-metal/platform.jshint",
     module('JSHint - ember-metal');
     test('ember-metal/platform.js should pass jshint', function() { 
       ok(true, 'ember-metal/platform.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal/platform/create.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/platform');
+    test('ember-metal/platform/create.js should pass jscs', function() {
+      ok(true, 'ember-metal/platform/create.js should pass jscs.');
     });
   });
 enifed("ember-metal/platform/create.jshint",
@@ -16002,6 +17451,15 @@ enifed("ember-metal/platform/create.jshint",
       ok(true, 'ember-metal/platform/create.js should pass jshint.'); 
     });
   });
+enifed("ember-metal/platform/define_properties.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/platform');
+    test('ember-metal/platform/define_properties.js should pass jscs', function() {
+      ok(true, 'ember-metal/platform/define_properties.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/platform/define_properties.jshint",
   [],
   function() {
@@ -16009,6 +17467,15 @@ enifed("ember-metal/platform/define_properties.jshint",
     module('JSHint - ember-metal/platform');
     test('ember-metal/platform/define_properties.js should pass jshint', function() { 
       ok(true, 'ember-metal/platform/define_properties.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal/platform/define_property.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/platform');
+    test('ember-metal/platform/define_property.js should pass jscs', function() {
+      ok(true, 'ember-metal/platform/define_property.js should pass jscs.');
     });
   });
 enifed("ember-metal/platform/define_property.jshint",
@@ -16020,6 +17487,15 @@ enifed("ember-metal/platform/define_property.jshint",
       ok(true, 'ember-metal/platform/define_property.js should pass jshint.'); 
     });
   });
+enifed("ember-metal/properties.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/properties.js should pass jscs', function() {
+      ok(true, 'ember-metal/properties.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/properties.jshint",
   [],
   function() {
@@ -16027,6 +17503,15 @@ enifed("ember-metal/properties.jshint",
     module('JSHint - ember-metal');
     test('ember-metal/properties.js should pass jshint', function() { 
       ok(true, 'ember-metal/properties.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal/property_events.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/property_events.js should pass jscs', function() {
+      ok(true, 'ember-metal/property_events.js should pass jscs.');
     });
   });
 enifed("ember-metal/property_events.jshint",
@@ -16038,6 +17523,15 @@ enifed("ember-metal/property_events.jshint",
       ok(true, 'ember-metal/property_events.js should pass jshint.'); 
     });
   });
+enifed("ember-metal/property_get.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/property_get.js should pass jscs', function() {
+      ok(true, 'ember-metal/property_get.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/property_get.jshint",
   [],
   function() {
@@ -16045,6 +17539,15 @@ enifed("ember-metal/property_get.jshint",
     module('JSHint - ember-metal');
     test('ember-metal/property_get.js should pass jshint', function() { 
       ok(true, 'ember-metal/property_get.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal/property_set.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/property_set.js should pass jscs', function() {
+      ok(true, 'ember-metal/property_set.js should pass jscs.');
     });
   });
 enifed("ember-metal/property_set.jshint",
@@ -16056,6 +17559,15 @@ enifed("ember-metal/property_set.jshint",
       ok(true, 'ember-metal/property_set.js should pass jshint.'); 
     });
   });
+enifed("ember-metal/run_loop.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/run_loop.js should pass jscs', function() {
+      ok(true, 'ember-metal/run_loop.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/run_loop.jshint",
   [],
   function() {
@@ -16063,6 +17575,15 @@ enifed("ember-metal/run_loop.jshint",
     module('JSHint - ember-metal');
     test('ember-metal/run_loop.js should pass jshint', function() { 
       ok(true, 'ember-metal/run_loop.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal/set_properties.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/set_properties.js should pass jscs', function() {
+      ok(true, 'ember-metal/set_properties.js should pass jscs.');
     });
   });
 enifed("ember-metal/set_properties.jshint",
@@ -16074,6 +17595,15 @@ enifed("ember-metal/set_properties.jshint",
       ok(true, 'ember-metal/set_properties.js should pass jshint.'); 
     });
   });
+enifed("ember-metal/streams/conditional.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/streams');
+    test('ember-metal/streams/conditional.js should pass jscs', function() {
+      ok(true, 'ember-metal/streams/conditional.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/streams/conditional.jshint",
   [],
   function() {
@@ -16081,6 +17611,15 @@ enifed("ember-metal/streams/conditional.jshint",
     module('JSHint - ember-metal/streams');
     test('ember-metal/streams/conditional.js should pass jshint', function() { 
       ok(true, 'ember-metal/streams/conditional.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal/streams/simple.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/streams');
+    test('ember-metal/streams/simple.js should pass jscs', function() {
+      ok(true, 'ember-metal/streams/simple.js should pass jscs.');
     });
   });
 enifed("ember-metal/streams/simple.jshint",
@@ -16092,6 +17631,15 @@ enifed("ember-metal/streams/simple.jshint",
       ok(true, 'ember-metal/streams/simple.js should pass jshint.'); 
     });
   });
+enifed("ember-metal/streams/stream.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/streams');
+    test('ember-metal/streams/stream.js should pass jscs', function() {
+      ok(true, 'ember-metal/streams/stream.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/streams/stream.jshint",
   [],
   function() {
@@ -16101,6 +17649,15 @@ enifed("ember-metal/streams/stream.jshint",
       ok(true, 'ember-metal/streams/stream.js should pass jshint.'); 
     });
   });
+enifed("ember-metal/streams/stream_binding.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/streams');
+    test('ember-metal/streams/stream_binding.js should pass jscs', function() {
+      ok(true, 'ember-metal/streams/stream_binding.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/streams/stream_binding.jshint",
   [],
   function() {
@@ -16108,6 +17665,15 @@ enifed("ember-metal/streams/stream_binding.jshint",
     module('JSHint - ember-metal/streams');
     test('ember-metal/streams/stream_binding.js should pass jshint', function() { 
       ok(true, 'ember-metal/streams/stream_binding.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal/streams/utils.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/streams');
+    test('ember-metal/streams/utils.js should pass jscs', function() {
+      ok(true, 'ember-metal/streams/utils.js should pass jscs.');
     });
   });
 enifed("ember-metal/streams/utils.jshint",
@@ -16229,6 +17795,15 @@ enifed("ember-metal/tests/accessors/getPath_test",
       deepEqual(get('Foo.bar'), Foo.bar);
     });
   });
+enifed("ember-metal/tests/accessors/getPath_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/accessors');
+    test('ember-metal/tests/accessors/getPath_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/accessors/getPath_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/accessors/getPath_test.jshint",
   [],
   function() {
@@ -16260,6 +17835,15 @@ enifed("ember-metal/tests/accessors/getProperties_test",
       deepEqual(getProperties(obj, ["firstName", "lastName"]), { firstName: 'Steve', lastName: 'Jobs' });
       deepEqual(getProperties(obj, ["firstName"]), { firstName: 'Steve' });
       deepEqual(getProperties(obj, []), {});
+    });
+  });
+enifed("ember-metal/tests/accessors/getProperties_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/accessors');
+    test('ember-metal/tests/accessors/getProperties_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/accessors/getProperties_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/accessors/getProperties_test.jshint",
@@ -16445,6 +18029,15 @@ enifed("ember-metal/tests/accessors/get_test",
       equal(getWithDefault(theRealObject, 'someProperty', "fail"), 'foo', 'should return the set value, not false');
     });
   });
+enifed("ember-metal/tests/accessors/get_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/accessors');
+    test('ember-metal/tests/accessors/get_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/accessors/get_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/accessors/get_test.jshint",
   [],
   function() {
@@ -16475,6 +18068,15 @@ enifed("ember-metal/tests/accessors/isGlobalPath_test",
     test("if the path starts with a lowercase character, it is not a global path", function() {
       ok( !isGlobalPath('myObj') );
       ok( !isGlobalPath('myObj.SecondProperty') );
+    });
+  });
+enifed("ember-metal/tests/accessors/isGlobalPath_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/accessors');
+    test('ember-metal/tests/accessors/isGlobalPath_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/accessors/isGlobalPath_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/accessors/isGlobalPath_test.jshint",
@@ -16585,6 +18187,15 @@ enifed("ember-metal/tests/accessors/mandatory_setters_test",
         });
       }
       });
+enifed("ember-metal/tests/accessors/mandatory_setters_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/accessors');
+    test('ember-metal/tests/accessors/mandatory_setters_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/accessors/mandatory_setters_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/accessors/mandatory_setters_test.jshint",
   [],
   function() {
@@ -16700,6 +18311,15 @@ enifed("ember-metal/tests/accessors/normalizeTuple_test",
 
     test('[null, Foo.bar] -> [Foo, bar]', function() {
       deepEqual(normalizeTuple(null, 'Foo.bar'), [Foo, 'bar']);
+    });
+  });
+enifed("ember-metal/tests/accessors/normalizeTuple_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/accessors');
+    test('ember-metal/tests/accessors/normalizeTuple_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/accessors/normalizeTuple_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/accessors/normalizeTuple_test.jshint",
@@ -16837,6 +18457,15 @@ enifed("ember-metal/tests/accessors/setPath_test",
       ok(true, "does not raise");
     });
   });
+enifed("ember-metal/tests/accessors/setPath_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/accessors');
+    test('ember-metal/tests/accessors/setPath_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/accessors/setPath_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/accessors/setPath_test.jshint",
   [],
   function() {
@@ -16895,6 +18524,15 @@ enifed("ember-metal/tests/accessors/set_test",
 
       equal(set(obj, 'foo', "BAR"), 'BAR', 'should return set value');
       equal(obj.count, 1, 'should have invoked');
+    });
+  });
+enifed("ember-metal/tests/accessors/set_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/accessors');
+    test('ember-metal/tests/accessors/set_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/accessors/set_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/accessors/set_test.jshint",
@@ -16975,6 +18613,15 @@ enifed("ember-metal/tests/alias_test",
       expectAssertion(function() {
         defineProperty(obj, 'bar', alias('bar'));
       }, "Setting alias 'bar' on self");
+    });
+  });
+enifed("ember-metal/tests/alias_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests');
+    test('ember-metal/tests/alias_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/alias_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/alias_test.jshint",
@@ -17106,6 +18753,15 @@ enifed("ember-metal/tests/binding/connect_test",
       equal(get(a, 'foo'), 'BAZ', 'should have synced binding on new obj');
     });
   });
+enifed("ember-metal/tests/binding/connect_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/binding');
+    test('ember-metal/tests/binding/connect_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/binding/connect_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/binding/connect_test.jshint",
   [],
   function() {
@@ -17162,6 +18818,15 @@ enifed("ember-metal/tests/binding/oneWay_test",
       equal(get(MyApp, 'foo.value'), 'BIFF', 'foo synced');
       equal(get(MyApp, 'bar.value'), 'BIFF', 'foo synced');
 
+    });
+  });
+enifed("ember-metal/tests/binding/oneWay_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/binding');
+    test('ember-metal/tests/binding/oneWay_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/binding/oneWay_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/binding/oneWay_test.jshint",
@@ -17316,6 +18981,15 @@ enifed("ember-metal/tests/binding/sync_test",
       });
     });
   });
+enifed("ember-metal/tests/binding/sync_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/binding');
+    test('ember-metal/tests/binding/sync_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/binding/sync_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/binding/sync_test.jshint",
   [],
   function() {
@@ -17382,6 +19056,15 @@ enifed("ember-metal/tests/cache_test",
       equal(cache.get("c"), "C");
     });
   });
+enifed("ember-metal/tests/cache_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests');
+    test('ember-metal/tests/cache_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/cache_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/cache_test.jshint",
   [],
   function() {
@@ -17411,6 +19094,15 @@ enifed("ember-metal/tests/chains_test",
       finishChains(childObj);
 
       ok(obj['__ember_meta__'].chains !== childObj['__ember_meta__'].chains, "The chains object is copied");
+    });
+  });
+enifed("ember-metal/tests/chains_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests');
+    test('ember-metal/tests/chains_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/chains_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/chains_test.jshint",
@@ -18590,6 +20282,15 @@ enifed("ember-metal/tests/computed_test",
       equal(get(obj, 'quz'), null);
     });
   });
+enifed("ember-metal/tests/computed_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests');
+    test('ember-metal/tests/computed_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/computed_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/computed_test.jshint",
   [],
   function() {
@@ -18658,6 +20359,15 @@ enifed("ember-metal/tests/core/inspect_test",
       ok(inspected.match(/13:24:11/), "The inspected date has its time");
     });
   });
+enifed("ember-metal/tests/core/inspect_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/core');
+    test('ember-metal/tests/core/inspect_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/core/inspect_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/core/inspect_test.jshint",
   [],
   function() {
@@ -18694,6 +20404,15 @@ enifed("ember-metal/tests/enumerable_utils_test",
       EnumerableUtils.replace([], 0, undefined, new Array(491519));  // max + 1 in FireFox 22.0
     });
   });
+enifed("ember-metal/tests/enumerable_utils_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests');
+    test('ember-metal/tests/enumerable_utils_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/enumerable_utils_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/enumerable_utils_test.jshint",
   [],
   function() {
@@ -18715,6 +20434,15 @@ enifed("ember-metal/tests/error_test",
       }, function(e) {
         return e.message === 'A Message';
       }, 'the assigned message was displayed' );
+    });
+  });
+enifed("ember-metal/tests/error_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests');
+    test('ember-metal/tests/error_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/error_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/error_test.jshint",
@@ -19013,6 +20741,15 @@ enifed("ember-metal/tests/events_test",
       equal(triggered, 1, 'should invoke from subclass property');
     });
   });
+enifed("ember-metal/tests/events_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests');
+    test('ember-metal/tests/events_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/events_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/events_test.jshint",
   [],
   function() {
@@ -19102,6 +20839,15 @@ enifed("ember-metal/tests/expand_properties_test",
       deepEqual(expected.sort(), foundProperties.sort());
     });
   });
+enifed("ember-metal/tests/expand_properties_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests');
+    test('ember-metal/tests/expand_properties_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/expand_properties_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/expand_properties_test.jshint",
   [],
   function() {
@@ -19168,6 +20914,15 @@ enifed("ember-metal/tests/features_test",
       equal(isEnabled('barney'), true,  "returns flag value if true");
       equal(isEnabled('wilma'),  false, "returns false if flag is not set");
       equal(isEnabled('betty'),  undefined, "returns flag value if undefined");
+    });
+  });
+enifed("ember-metal/tests/features_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests');
+    test('ember-metal/tests/features_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/features_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/features_test.jshint",
@@ -19243,6 +20998,15 @@ enifed("ember-metal/tests/injected_property_test",
         equal(get(obj, 'foo'), 'type:foo', 'should lookup the type using the property name');
       });
     
+  });
+enifed("ember-metal/tests/injected_property_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests');
+    test('ember-metal/tests/injected_property_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/injected_property_test.js should pass jscs.');
+    });
   });
 enifed("ember-metal/tests/injected_property_test.jshint",
   [],
@@ -19471,6 +21235,15 @@ enifed("ember-metal/tests/instrumentation_test",
       instrument("render.handlebars", null, function() {});
     });
   });
+enifed("ember-metal/tests/instrumentation_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests');
+    test('ember-metal/tests/instrumentation_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/instrumentation_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/instrumentation_test.jshint",
   [],
   function() {
@@ -19508,6 +21281,15 @@ enifed("ember-metal/tests/is_blank_test",
       equal(false, isBlank({}),        "for an empty Object");
       equal(true,  isBlank(object),    "for an Object that has zero 'length'");
       equal(false, isBlank([1,2,3]),   "for a non-empty array");
+    });
+  });
+enifed("ember-metal/tests/is_blank_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests');
+    test('ember-metal/tests/is_blank_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/is_blank_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/is_blank_test.jshint",
@@ -19561,6 +21343,15 @@ enifed("ember-metal/tests/is_empty_test",
       equal(false, isEmpty(orderedSet), "Ordered set is not empty");
     });
   });
+enifed("ember-metal/tests/is_empty_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests');
+    test('ember-metal/tests/is_empty_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/is_empty_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/is_empty_test.jshint",
   [],
   function() {
@@ -19592,6 +21383,15 @@ enifed("ember-metal/tests/is_none_test",
       equal(false, isNone(0),         "for 0");
       equal(false, isNone([]),        "for an empty Array");
       equal(false, isNone({}),        "for an empty Object");
+    });
+  });
+enifed("ember-metal/tests/is_none_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests');
+    test('ember-metal/tests/is_none_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/is_none_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/is_none_test.jshint",
@@ -19632,6 +21432,15 @@ enifed("ember-metal/tests/is_present_test",
     equal(true,  isPresent({}),        "for an empty Object");
     equal(false, isPresent(object),    "for an Object that has zero 'length'");
     equal(true,  isPresent([1,2,3]),   "for a non-empty array");
+    });
+  });
+enifed("ember-metal/tests/is_present_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests');
+    test('ember-metal/tests/is_present_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/is_present_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/is_present_test.jshint",
@@ -19766,6 +21575,15 @@ enifed("ember-metal/tests/keys_test",
       deepEqual(keys(beer), ['type']);
     });
   });
+enifed("ember-metal/tests/keys_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests');
+    test('ember-metal/tests/keys_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/keys_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/keys_test.jshint",
   [],
   function() {
@@ -19873,6 +21691,15 @@ enifed("ember-metal/tests/libraries_test",
       }, 'Using Ember.libraries.each() is deprecated. Access to a list of registered libraries is currently a private API. If you are not knowingly accessing this method, your out-of-date Ember Inspector may be doing so.');
     });
   });
+enifed("ember-metal/tests/libraries_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests');
+    test('ember-metal/tests/libraries_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/libraries_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/libraries_test.jshint",
   [],
   function() {
@@ -19895,6 +21722,15 @@ enifed("ember-metal/tests/main_test",
 
       equal(lib.name, 'Ember');
       equal(lib.version, Ember.VERSION);
+    });
+  });
+enifed("ember-metal/tests/main_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests');
+    test('ember-metal/tests/main_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/main_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/main_test.jshint",
@@ -20490,6 +22326,15 @@ enifed("ember-metal/tests/map_test",
       equal(map.add(obj), map, 'when it is already in the set');
     });
   });
+enifed("ember-metal/tests/map_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests');
+    test('ember-metal/tests/map_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/map_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/map_test.jshint",
   [],
   function() {
@@ -20582,6 +22427,15 @@ enifed("ember-metal/tests/mixin/alias_method_test",
       validateAliasMethod(obj);
     });
   });
+enifed("ember-metal/tests/mixin/alias_method_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/mixin');
+    test('ember-metal/tests/mixin/alias_method_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/mixin/alias_method_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/mixin/alias_method_test.jshint",
   [],
   function() {
@@ -20634,6 +22488,15 @@ enifed("ember-metal/tests/mixin/apply_test",
       mixin(obj, { tagName: undefined });
 
       strictEqual(get(obj, 'tagName'), '');
+    });
+  });
+enifed("ember-metal/tests/mixin/apply_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/mixin');
+    test('ember-metal/tests/mixin/apply_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/mixin/apply_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/mixin/apply_test.jshint",
@@ -20792,6 +22655,15 @@ enifed("ember-metal/tests/mixin/computed_test",
       ok(!cpWasCalled, "The default setter was called, not the CP itself");
     });
   });
+enifed("ember-metal/tests/mixin/computed_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/mixin');
+    test('ember-metal/tests/mixin/computed_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/mixin/computed_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/mixin/computed_test.jshint",
   [],
   function() {
@@ -20921,6 +22793,15 @@ enifed("ember-metal/tests/mixin/concatenatedProperties_test",
       equal(get(obj, 'foobar'), 'foobar');
     });
   });
+enifed("ember-metal/tests/mixin/concatenatedProperties_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/mixin');
+    test('ember-metal/tests/mixin/concatenatedProperties_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/mixin/concatenatedProperties_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/mixin/concatenatedProperties_test.jshint",
   [],
   function() {
@@ -20970,6 +22851,15 @@ enifed("ember-metal/tests/mixin/detect_test",
     test('detect handles null values', function() {
       var MixinA = Mixin.create();
       equal(MixinA.detect(null), false);
+    });
+  });
+enifed("ember-metal/tests/mixin/detect_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/mixin');
+    test('ember-metal/tests/mixin/detect_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/mixin/detect_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/mixin/detect_test.jshint",
@@ -21038,6 +22928,15 @@ enifed("ember-metal/tests/mixin/introspection_test",
       }
 
       deepEqual(mapGuids(Mixin.mixins(obj)), mapGuids([PrivateProperty, PublicProperty, PrivateMethod, PublicMethod, Combined, BarProperties, BarMethods]), 'should return included mixins');
+    });
+  });
+enifed("ember-metal/tests/mixin/introspection_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/mixin');
+    test('ember-metal/tests/mixin/introspection_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/mixin/introspection_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/mixin/introspection_test.jshint",
@@ -21196,6 +23095,15 @@ enifed("ember-metal/tests/mixin/mergedProperties_test",
       expectAssertion(function() {
         mixin({}, MixinA, MixinB);
       }, 'You passed in `["a"]` as the value for `foo` but `foo` cannot be an Array');
+    });
+  });
+enifed("ember-metal/tests/mixin/mergedProperties_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/mixin');
+    test('ember-metal/tests/mixin/mergedProperties_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/mixin/mergedProperties_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/mixin/mergedProperties_test.jshint",
@@ -21412,6 +23320,15 @@ enifed("ember-metal/tests/mixin/method_test",
       cnt = 0;
       obj.foo();
       equal(cnt, 3, 'should invoke all 3 methods');
+    });
+  });
+enifed("ember-metal/tests/mixin/method_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/mixin');
+    test('ember-metal/tests/mixin/method_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/mixin/method_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/mixin/method_test.jshint",
@@ -21642,6 +23559,15 @@ enifed("ember-metal/tests/mixin/observer_test",
       equal(get(obj, 'count'), 1, 'should invoke observer after change');
     });
   });
+enifed("ember-metal/tests/mixin/observer_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/mixin');
+    test('ember-metal/tests/mixin/observer_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/mixin/observer_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/mixin/observer_test.jshint",
   [],
   function() {
@@ -21702,6 +23628,15 @@ enifed("ember-metal/tests/mixin/reopen_test",
       });
 
       equal(result, "Breakfast!");
+    });
+  });
+enifed("ember-metal/tests/mixin/reopen_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/mixin');
+    test('ember-metal/tests/mixin/reopen_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/mixin/reopen_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/mixin/reopen_test.jshint",
@@ -21770,6 +23705,15 @@ enifed("ember-metal/tests/mixin/required_test",
       equal(get(obj, 'foo'), 'FOO', 'should now be defined');
     });
   });
+enifed("ember-metal/tests/mixin/required_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/mixin');
+    test('ember-metal/tests/mixin/required_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/mixin/required_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/mixin/required_test.jshint",
   [],
   function() {
@@ -21800,6 +23744,15 @@ enifed("ember-metal/tests/mixin/without_test",
       equal(obj.foo, 'FOO', 'should defined foo');
       equal(obj.bar, undefined, 'should not define bar');
 
+    });
+  });
+enifed("ember-metal/tests/mixin/without_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/mixin');
+    test('ember-metal/tests/mixin/without_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/mixin/without_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/mixin/without_test.jshint",
@@ -23036,6 +24989,15 @@ enifed("ember-metal/tests/observer_test",
       equal(removedAfterLastChangeObserver.didChangeCount,    1, 'removeObserver called after the last change still sees 1');
     });
   });
+enifed("ember-metal/tests/observer_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests');
+    test('ember-metal/tests/observer_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/observer_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/observer_test.jshint",
   [],
   function() {
@@ -23113,6 +25075,15 @@ enifed("ember-metal/tests/performance_test",
       equal(count, 0, "should not have recomputed property");
     });
   });
+enifed("ember-metal/tests/performance_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests');
+    test('ember-metal/tests/performance_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/performance_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/performance_test.jshint",
   [],
   function() {
@@ -23167,6 +25138,15 @@ enifed("ember-metal/tests/platform/create_test",
       });
 
       notEqual(obj.repl, obj2.repl, 'should not pollute parent object');
+    });
+  });
+enifed("ember-metal/tests/platform/create_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/platform');
+    test('ember-metal/tests/platform/create_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/platform/create_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/platform/create_test.jshint",
@@ -23301,6 +25281,15 @@ enifed("ember-metal/tests/platform/defineProperty_test",
       });
     }
   });
+enifed("ember-metal/tests/platform/defineProperty_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/platform');
+    test('ember-metal/tests/platform/defineProperty_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/platform/defineProperty_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/platform/defineProperty_test.jshint",
   [],
   function() {
@@ -23399,6 +25388,15 @@ enifed("ember-metal/tests/properties_test",
       });
     }
   });
+enifed("ember-metal/tests/properties_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests');
+    test('ember-metal/tests/properties_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/properties_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/properties_test.jshint",
   [],
   function() {
@@ -23468,6 +25466,15 @@ enifed("ember-metal/tests/props_helper",
     __exports__.testWithDefault = testWithDefault;
     __exports__.testBoth = testBoth;
   });
+enifed("ember-metal/tests/props_helper.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests');
+    test('ember-metal/tests/props_helper.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/props_helper.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/props_helper.jshint",
   [],
   function() {
@@ -23509,6 +25516,15 @@ enifed("ember-metal/tests/run_loop/add_queue_test",
       equal(queues.length, 3, "queue was not added twice");
     });
   });
+enifed("ember-metal/tests/run_loop/add_queue_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/run_loop');
+    test('ember-metal/tests/run_loop/add_queue_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/run_loop/add_queue_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/run_loop/add_queue_test.jshint",
   [],
   function() {
@@ -23538,6 +25554,15 @@ enifed("ember-metal/tests/run_loop/debounce_test",
     test('Ember.run.debounce uses Backburner.debounce', function() {
       run.debounce(function() {});
       ok(wasCalled, 'Ember.run.debounce used');
+    });
+  });
+enifed("ember-metal/tests/run_loop/debounce_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/run_loop');
+    test('ember-metal/tests/run_loop/debounce_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/run_loop/debounce_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/run_loop/debounce_test.jshint",
@@ -23789,6 +25814,15 @@ enifed("ember-metal/tests/run_loop/later_test",
       });
     });
   });
+enifed("ember-metal/tests/run_loop/later_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/run_loop');
+    test('ember-metal/tests/run_loop/later_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/run_loop/later_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/run_loop/later_test.jshint",
   [],
   function() {
@@ -23850,6 +25884,15 @@ enifed("ember-metal/tests/run_loop/next_test",
         QUnit.start();
         ok(secondRunLoop && secondRunLoop === thirdRunLoop, 'callbacks coalesced into same run loop');
       }, 20);
+    });
+  });
+enifed("ember-metal/tests/run_loop/next_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/run_loop');
+    test('ember-metal/tests/run_loop/next_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/run_loop/next_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/run_loop/next_test.jshint",
@@ -23924,6 +25967,15 @@ enifed("ember-metal/tests/run_loop/once_test",
       });
     });
   });
+enifed("ember-metal/tests/run_loop/once_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/run_loop');
+    test('ember-metal/tests/run_loop/once_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/run_loop/once_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/run_loop/once_test.jshint",
   [],
   function() {
@@ -23966,6 +26018,15 @@ enifed("ember-metal/tests/run_loop/onerror_test",
       deepEqual(caught, thrown);
 
       Ember.onerror = undefined;
+    });
+  });
+enifed("ember-metal/tests/run_loop/onerror_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/run_loop');
+    test('ember-metal/tests/run_loop/onerror_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/run_loop/onerror_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/run_loop/onerror_test.jshint",
@@ -24018,6 +26079,15 @@ enifed("ember-metal/tests/run_loop/run_bind_test",
       asyncFunction(run.bind(asyncCallback, asyncCallback, 1));
     });
   });
+enifed("ember-metal/tests/run_loop/run_bind_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/run_loop');
+    test('ember-metal/tests/run_loop/run_bind_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/run_loop/run_bind_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/run_loop/run_bind_test.jshint",
   [],
   function() {
@@ -24046,6 +26116,15 @@ enifed("ember-metal/tests/run_loop/run_test",
       deepEqual(run(obj, obj.foo), ['BAR', 'FOO'], 'pass obj and obj.method');
       deepEqual(run(obj, 'foo'), ['BAR', 'FOO'], 'pass obj and "method"');
       deepEqual(run(obj, obj.checkArgs, 'hello', 'world'), ['hello', 'BAR', 'world'], 'pass obj, obj.method, and extra arguments');
+    });
+  });
+enifed("ember-metal/tests/run_loop/run_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/run_loop');
+    test('ember-metal/tests/run_loop/run_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/run_loop/run_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/run_loop/run_test.jshint",
@@ -24141,6 +26220,15 @@ enifed("ember-metal/tests/run_loop/schedule_test",
       }, /wrap any code with asynchronous side-effects in an run/);
     });
   });
+enifed("ember-metal/tests/run_loop/schedule_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/run_loop');
+    test('ember-metal/tests/run_loop/schedule_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/run_loop/schedule_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/run_loop/schedule_test.jshint",
   [],
   function() {
@@ -24186,6 +26274,15 @@ enifed("ember-metal/tests/run_loop/sync_test",
       expect(0);
 
       run.sync();
+    });
+  });
+enifed("ember-metal/tests/run_loop/sync_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/run_loop');
+    test('ember-metal/tests/run_loop/sync_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/run_loop/sync_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/run_loop/sync_test.jshint",
@@ -24242,6 +26339,15 @@ enifed("ember-metal/tests/run_loop/unwind_test",
 
     });
   });
+enifed("ember-metal/tests/run_loop/unwind_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/run_loop');
+    test('ember-metal/tests/run_loop/unwind_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/run_loop/unwind_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/run_loop/unwind_test.jshint",
   [],
   function() {
@@ -24280,6 +26386,15 @@ enifed("ember-metal/tests/set_properties_test",
         foo: 2,
         baz: 2
       }, 'Set an additional, previously unset property');
+    });
+  });
+enifed("ember-metal/tests/set_properties_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests');
+    test('ember-metal/tests/set_properties_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/set_properties_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/set_properties_test.jshint",
@@ -24333,6 +26448,15 @@ enifed("ember-metal/tests/streams/simple_stream_test",
 
       stream.setValue("blorg");
       equal(stream.value(), "zlurp");
+    });
+  });
+enifed("ember-metal/tests/streams/simple_stream_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/streams');
+    test('ember-metal/tests/streams/simple_stream_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/streams/simple_stream_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/streams/simple_stream_test.jshint",
@@ -24497,6 +26621,15 @@ enifed("ember-metal/tests/streams/stream_binding_test",
       equal(counter, 2);
     });
   });
+enifed("ember-metal/tests/streams/stream_binding_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/streams');
+    test('ember-metal/tests/streams/stream_binding_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/streams/stream_binding_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/streams/stream_binding_test.jshint",
   [],
   function() {
@@ -24543,6 +26676,15 @@ enifed("ember-metal/tests/utils/can_invoke_test",
       equal(canInvoke(obj, 'foobar'), false);
     });
   });
+enifed("ember-metal/tests/utils/can_invoke_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/utils');
+    test('ember-metal/tests/utils/can_invoke_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/utils/can_invoke_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/utils/can_invoke_test.jshint",
   [],
   function() {
@@ -24564,6 +26706,15 @@ enifed("ember-metal/tests/utils/generate_guid_test",
       var a = {};
 
       ok( generateGuid(a, 'tyrell').indexOf('tyrell') > -1, "guid can be prefixed" );
+    });
+  });
+enifed("ember-metal/tests/utils/generate_guid_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/utils');
+    test('ember-metal/tests/utils/generate_guid_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/utils/generate_guid_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/utils/generate_guid_test.jshint",
@@ -24663,6 +26814,15 @@ enifed("ember-metal/tests/utils/guidFor_test",
       nanGuid( a );
     });
   });
+enifed("ember-metal/tests/utils/guidFor_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/utils');
+    test('ember-metal/tests/utils/guidFor_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/utils/guidFor_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/utils/guidFor_test.jshint",
   [],
   function() {
@@ -24698,6 +26858,15 @@ enifed("ember-metal/tests/utils/is_array_test",
       equal( isArray(length),   true,  "{length: 12}" );
       equal( isArray(global),   false, "global" );
       equal( isArray(fn),       false, "function() {}" );
+    });
+  });
+enifed("ember-metal/tests/utils/is_array_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/utils');
+    test('ember-metal/tests/utils/is_array_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/utils/is_array_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/utils/is_array_test.jshint",
@@ -24799,6 +26968,15 @@ enifed("ember-metal/tests/utils/meta_test",
         });
       }
     }
+  });
+enifed("ember-metal/tests/utils/meta_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/utils');
+    test('ember-metal/tests/utils/meta_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/utils/meta_test.js should pass jscs.');
+    });
   });
 enifed("ember-metal/tests/utils/meta_test.jshint",
   [],
@@ -24935,6 +27113,15 @@ enifed("ember-metal/tests/utils/try_catch_finally_test",
       equal(finalizeCount, 1, 'finalize was called once');
     });
   });
+enifed("ember-metal/tests/utils/try_catch_finally_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/utils');
+    test('ember-metal/tests/utils/try_catch_finally_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/utils/try_catch_finally_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/utils/try_catch_finally_test.jshint",
   [],
   function() {
@@ -25025,6 +27212,15 @@ enifed("ember-metal/tests/utils/try_finally_test",
       equal(finalizeCount, 1, 'finalize was called once');
     });
   });
+enifed("ember-metal/tests/utils/try_finally_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/utils');
+    test('ember-metal/tests/utils/try_finally_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/utils/try_finally_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/utils/try_finally_test.jshint",
   [],
   function() {
@@ -25069,6 +27265,15 @@ enifed("ember-metal/tests/utils/try_invoke_test",
 
     test("should return what the method returns when asked to perform a method that takes arguments and exists on the object", function() {
       equal(tryInvoke(obj, 'aMethodThatTakesArguments', [true, true]), true);
+    });
+  });
+enifed("ember-metal/tests/utils/try_invoke_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/utils');
+    test('ember-metal/tests/utils/try_invoke_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/utils/try_invoke_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/utils/try_invoke_test.jshint",
@@ -25116,6 +27321,15 @@ enifed("ember-metal/tests/utils/type_of_test",
         equal( typeOf(klass),     'class',      "class");
         equal( typeOf(instance),  'instance',   "instance");
       }
+    });
+  });
+enifed("ember-metal/tests/utils/type_of_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/utils');
+    test('ember-metal/tests/utils/type_of_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/utils/type_of_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/utils/type_of_test.jshint",
@@ -25207,6 +27421,15 @@ enifed("ember-metal/tests/watching/isWatching_test",
       }, function(obj, key, fn) {
         removeObserver(obj, 'length', obj, fn);
       }, 'length');
+    });
+  });
+enifed("ember-metal/tests/watching/isWatching_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/watching');
+    test('ember-metal/tests/watching/isWatching_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/watching/isWatching_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/watching/isWatching_test.jshint",
@@ -25328,6 +27551,15 @@ enifed("ember-metal/tests/watching/unwatch_test",
       equal(willCount, 0, 'should NOT have invoked willCount');
       equal(didCount, 0, 'should NOT have invoked didCount');
 
+    });
+  });
+enifed("ember-metal/tests/watching/unwatch_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/watching');
+    test('ember-metal/tests/watching/unwatch_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/watching/unwatch_test.js should pass jscs.');
     });
   });
 enifed("ember-metal/tests/watching/unwatch_test.jshint",
@@ -25610,6 +27842,15 @@ enifed("ember-metal/tests/watching/watch_test",
       equal(arr.length, 10, 'property should be accessible on arr');
     });
   });
+enifed("ember-metal/tests/watching/watch_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal/tests/watching');
+    test('ember-metal/tests/watching/watch_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/watching/watch_test.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/tests/watching/watch_test.jshint",
   [],
   function() {
@@ -25617,6 +27858,15 @@ enifed("ember-metal/tests/watching/watch_test.jshint",
     module('JSHint - ember-metal/tests/watching');
     test('ember-metal/tests/watching/watch_test.js should pass jshint', function() { 
       ok(true, 'ember-metal/tests/watching/watch_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal/utils.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/utils.js should pass jscs', function() {
+      ok(true, 'ember-metal/utils.js should pass jscs.');
     });
   });
 enifed("ember-metal/utils.jshint",
@@ -25628,6 +27878,15 @@ enifed("ember-metal/utils.jshint",
       ok(true, 'ember-metal/utils.js should pass jshint.'); 
     });
   });
+enifed("ember-metal/watch_key.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/watch_key.js should pass jscs', function() {
+      ok(true, 'ember-metal/watch_key.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/watch_key.jshint",
   [],
   function() {
@@ -25635,6 +27894,15 @@ enifed("ember-metal/watch_key.jshint",
     module('JSHint - ember-metal');
     test('ember-metal/watch_key.js should pass jshint', function() { 
       ok(true, 'ember-metal/watch_key.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal/watch_path.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/watch_path.js should pass jscs', function() {
+      ok(true, 'ember-metal/watch_path.js should pass jscs.');
     });
   });
 enifed("ember-metal/watch_path.jshint",
@@ -25646,6 +27914,15 @@ enifed("ember-metal/watch_path.jshint",
       ok(true, 'ember-metal/watch_path.js should pass jshint.'); 
     });
   });
+enifed("ember-metal/watching.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-metal');
+    test('ember-metal/watching.js should pass jscs', function() {
+      ok(true, 'ember-metal/watching.js should pass jscs.');
+    });
+  });
 enifed("ember-metal/watching.jshint",
   [],
   function() {
@@ -25653,6 +27930,15 @@ enifed("ember-metal/watching.jshint",
     module('JSHint - ember-metal');
     test('ember-metal/watching.js should pass jshint', function() { 
       ok(true, 'ember-metal/watching.js should pass jshint.'); 
+    });
+  });
+enifed("ember-routing-htmlbars.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - .');
+    test('ember-routing-htmlbars.js should pass jscs', function() {
+      ok(true, 'ember-routing-htmlbars.js should pass jscs.');
     });
   });
 enifed("ember-routing-htmlbars.jshint",
@@ -25664,6 +27950,15 @@ enifed("ember-routing-htmlbars.jshint",
       ok(true, 'ember-routing-htmlbars.js should pass jshint.'); 
     });
   });
+enifed("ember-routing-htmlbars/helpers/action.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing-htmlbars/helpers');
+    test('ember-routing-htmlbars/helpers/action.js should pass jscs', function() {
+      ok(true, 'ember-routing-htmlbars/helpers/action.js should pass jscs.');
+    });
+  });
 enifed("ember-routing-htmlbars/helpers/action.jshint",
   [],
   function() {
@@ -25671,6 +27966,15 @@ enifed("ember-routing-htmlbars/helpers/action.jshint",
     module('JSHint - ember-routing-htmlbars/helpers');
     test('ember-routing-htmlbars/helpers/action.js should pass jshint', function() { 
       ok(true, 'ember-routing-htmlbars/helpers/action.js should pass jshint.'); 
+    });
+  });
+enifed("ember-routing-htmlbars/helpers/link-to.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing-htmlbars/helpers');
+    test('ember-routing-htmlbars/helpers/link-to.js should pass jscs', function() {
+      ok(true, 'ember-routing-htmlbars/helpers/link-to.js should pass jscs.');
     });
   });
 enifed("ember-routing-htmlbars/helpers/link-to.jshint",
@@ -25682,6 +27986,15 @@ enifed("ember-routing-htmlbars/helpers/link-to.jshint",
       ok(true, 'ember-routing-htmlbars/helpers/link-to.js should pass jshint.'); 
     });
   });
+enifed("ember-routing-htmlbars/helpers/outlet.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing-htmlbars/helpers');
+    test('ember-routing-htmlbars/helpers/outlet.js should pass jscs', function() {
+      ok(true, 'ember-routing-htmlbars/helpers/outlet.js should pass jscs.');
+    });
+  });
 enifed("ember-routing-htmlbars/helpers/outlet.jshint",
   [],
   function() {
@@ -25691,6 +28004,15 @@ enifed("ember-routing-htmlbars/helpers/outlet.jshint",
       ok(true, 'ember-routing-htmlbars/helpers/outlet.js should pass jshint.'); 
     });
   });
+enifed("ember-routing-htmlbars/helpers/query-params.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing-htmlbars/helpers');
+    test('ember-routing-htmlbars/helpers/query-params.js should pass jscs', function() {
+      ok(true, 'ember-routing-htmlbars/helpers/query-params.js should pass jscs.');
+    });
+  });
 enifed("ember-routing-htmlbars/helpers/query-params.jshint",
   [],
   function() {
@@ -25698,6 +28020,15 @@ enifed("ember-routing-htmlbars/helpers/query-params.jshint",
     module('JSHint - ember-routing-htmlbars/helpers');
     test('ember-routing-htmlbars/helpers/query-params.js should pass jshint', function() { 
       ok(true, 'ember-routing-htmlbars/helpers/query-params.js should pass jshint.'); 
+    });
+  });
+enifed("ember-routing-htmlbars/helpers/render.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing-htmlbars/helpers');
+    test('ember-routing-htmlbars/helpers/render.js should pass jscs', function() {
+      ok(true, 'ember-routing-htmlbars/helpers/render.js should pass jscs.');
     });
   });
 enifed("ember-routing-htmlbars/helpers/render.jshint",
@@ -26787,6 +29118,15 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test",
       equal(event.isDefaultPrevented(), false, "should not preventDefault");
     });
   });
+enifed("ember-routing-htmlbars/tests/helpers/action_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing-htmlbars/tests/helpers');
+    test('ember-routing-htmlbars/tests/helpers/action_test.js should pass jscs', function() {
+      ok(true, 'ember-routing-htmlbars/tests/helpers/action_test.js should pass jscs.');
+    });
+  });
 enifed("ember-routing-htmlbars/tests/helpers/action_test.jshint",
   [],
   function() {
@@ -26900,6 +29240,15 @@ enifed("ember-routing-htmlbars/tests/helpers/link-to_test",
       runAppend(view);
 
       equal(view.$().text(), 'Text');
+    });
+  });
+enifed("ember-routing-htmlbars/tests/helpers/link-to_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing-htmlbars/tests/helpers');
+    test('ember-routing-htmlbars/tests/helpers/link-to_test.js should pass jscs', function() {
+      ok(true, 'ember-routing-htmlbars/tests/helpers/link-to_test.js should pass jscs.');
     });
   });
 enifed("ember-routing-htmlbars/tests/helpers/link-to_test.jshint",
@@ -27304,6 +29653,15 @@ enifed("ember-routing-htmlbars/tests/helpers/outlet_test",
         }, "Using {{outlet}} with an unquoted name is not supported.");
       });
       });
+enifed("ember-routing-htmlbars/tests/helpers/outlet_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing-htmlbars/tests/helpers');
+    test('ember-routing-htmlbars/tests/helpers/outlet_test.js should pass jscs', function() {
+      ok(true, 'ember-routing-htmlbars/tests/helpers/outlet_test.js should pass jscs.');
+    });
+  });
 enifed("ember-routing-htmlbars/tests/helpers/outlet_test.jshint",
   [],
   function() {
@@ -27906,6 +30264,15 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
     });
 
       });
+enifed("ember-routing-htmlbars/tests/helpers/render_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing-htmlbars/tests/helpers');
+    test('ember-routing-htmlbars/tests/helpers/render_test.js should pass jscs', function() {
+      ok(true, 'ember-routing-htmlbars/tests/helpers/render_test.js should pass jscs.');
+    });
+  });
 enifed("ember-routing-htmlbars/tests/helpers/render_test.jshint",
   [],
   function() {
@@ -27913,6 +30280,15 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test.jshint",
     module('JSHint - ember-routing-htmlbars/tests/helpers');
     test('ember-routing-htmlbars/tests/helpers/render_test.js should pass jshint', function() { 
       ok(true, 'ember-routing-htmlbars/tests/helpers/render_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-routing-views.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - .');
+    test('ember-routing-views.js should pass jscs', function() {
+      ok(true, 'ember-routing-views.js should pass jscs.');
     });
   });
 enifed("ember-routing-views.jshint",
@@ -27937,6 +30313,15 @@ enifed("ember-routing-views/tests/main_test",
       ok(Ember.OutletView, "OutletView is exported correctly");
     });
   });
+enifed("ember-routing-views/tests/main_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing-views/tests');
+    test('ember-routing-views/tests/main_test.js should pass jscs', function() {
+      ok(true, 'ember-routing-views/tests/main_test.js should pass jscs.');
+    });
+  });
 enifed("ember-routing-views/tests/main_test.jshint",
   [],
   function() {
@@ -27944,6 +30329,15 @@ enifed("ember-routing-views/tests/main_test.jshint",
     module('JSHint - ember-routing-views/tests');
     test('ember-routing-views/tests/main_test.js should pass jshint', function() { 
       ok(true, 'ember-routing-views/tests/main_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-routing-views/views/link.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing-views/views');
+    test('ember-routing-views/views/link.js should pass jscs', function() {
+      ok(true, 'ember-routing-views/views/link.js should pass jscs.');
     });
   });
 enifed("ember-routing-views/views/link.jshint",
@@ -27955,6 +30349,15 @@ enifed("ember-routing-views/views/link.jshint",
       ok(true, 'ember-routing-views/views/link.js should pass jshint.'); 
     });
   });
+enifed("ember-routing-views/views/outlet.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing-views/views');
+    test('ember-routing-views/views/outlet.js should pass jscs', function() {
+      ok(true, 'ember-routing-views/views/outlet.js should pass jscs.');
+    });
+  });
 enifed("ember-routing-views/views/outlet.jshint",
   [],
   function() {
@@ -27962,6 +30365,15 @@ enifed("ember-routing-views/views/outlet.jshint",
     module('JSHint - ember-routing-views/views');
     test('ember-routing-views/views/outlet.js should pass jshint', function() { 
       ok(true, 'ember-routing-views/views/outlet.js should pass jshint.'); 
+    });
+  });
+enifed("ember-routing.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - .');
+    test('ember-routing.js should pass jscs', function() {
+      ok(true, 'ember-routing.js should pass jscs.');
     });
   });
 enifed("ember-routing.jshint",
@@ -27973,6 +30385,15 @@ enifed("ember-routing.jshint",
       ok(true, 'ember-routing.js should pass jshint.'); 
     });
   });
+enifed("ember-routing/ext/controller.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing/ext');
+    test('ember-routing/ext/controller.js should pass jscs', function() {
+      ok(true, 'ember-routing/ext/controller.js should pass jscs.');
+    });
+  });
 enifed("ember-routing/ext/controller.jshint",
   [],
   function() {
@@ -27980,6 +30401,15 @@ enifed("ember-routing/ext/controller.jshint",
     module('JSHint - ember-routing/ext');
     test('ember-routing/ext/controller.js should pass jshint', function() { 
       ok(true, 'ember-routing/ext/controller.js should pass jshint.'); 
+    });
+  });
+enifed("ember-routing/ext/run_loop.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing/ext');
+    test('ember-routing/ext/run_loop.js should pass jscs', function() {
+      ok(true, 'ember-routing/ext/run_loop.js should pass jscs.');
     });
   });
 enifed("ember-routing/ext/run_loop.jshint",
@@ -27991,6 +30421,15 @@ enifed("ember-routing/ext/run_loop.jshint",
       ok(true, 'ember-routing/ext/run_loop.js should pass jshint.'); 
     });
   });
+enifed("ember-routing/ext/view.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing/ext');
+    test('ember-routing/ext/view.js should pass jscs', function() {
+      ok(true, 'ember-routing/ext/view.js should pass jscs.');
+    });
+  });
 enifed("ember-routing/ext/view.jshint",
   [],
   function() {
@@ -27998,6 +30437,15 @@ enifed("ember-routing/ext/view.jshint",
     module('JSHint - ember-routing/ext');
     test('ember-routing/ext/view.js should pass jshint', function() { 
       ok(true, 'ember-routing/ext/view.js should pass jshint.'); 
+    });
+  });
+enifed("ember-routing/location/api.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing/location');
+    test('ember-routing/location/api.js should pass jscs', function() {
+      ok(true, 'ember-routing/location/api.js should pass jscs.');
     });
   });
 enifed("ember-routing/location/api.jshint",
@@ -28009,6 +30457,15 @@ enifed("ember-routing/location/api.jshint",
       ok(true, 'ember-routing/location/api.js should pass jshint.'); 
     });
   });
+enifed("ember-routing/location/auto_location.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing/location');
+    test('ember-routing/location/auto_location.js should pass jscs', function() {
+      ok(true, 'ember-routing/location/auto_location.js should pass jscs.');
+    });
+  });
 enifed("ember-routing/location/auto_location.jshint",
   [],
   function() {
@@ -28016,6 +30473,15 @@ enifed("ember-routing/location/auto_location.jshint",
     module('JSHint - ember-routing/location');
     test('ember-routing/location/auto_location.js should pass jshint', function() { 
       ok(true, 'ember-routing/location/auto_location.js should pass jshint.'); 
+    });
+  });
+enifed("ember-routing/location/feature_detect.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing/location');
+    test('ember-routing/location/feature_detect.js should pass jscs', function() {
+      ok(true, 'ember-routing/location/feature_detect.js should pass jscs.');
     });
   });
 enifed("ember-routing/location/feature_detect.jshint",
@@ -28027,6 +30493,15 @@ enifed("ember-routing/location/feature_detect.jshint",
       ok(true, 'ember-routing/location/feature_detect.js should pass jshint.'); 
     });
   });
+enifed("ember-routing/location/hash_location.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing/location');
+    test('ember-routing/location/hash_location.js should pass jscs', function() {
+      ok(true, 'ember-routing/location/hash_location.js should pass jscs.');
+    });
+  });
 enifed("ember-routing/location/hash_location.jshint",
   [],
   function() {
@@ -28034,6 +30509,15 @@ enifed("ember-routing/location/hash_location.jshint",
     module('JSHint - ember-routing/location');
     test('ember-routing/location/hash_location.js should pass jshint', function() { 
       ok(true, 'ember-routing/location/hash_location.js should pass jshint.'); 
+    });
+  });
+enifed("ember-routing/location/history_location.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing/location');
+    test('ember-routing/location/history_location.js should pass jscs', function() {
+      ok(true, 'ember-routing/location/history_location.js should pass jscs.');
     });
   });
 enifed("ember-routing/location/history_location.jshint",
@@ -28045,6 +30529,15 @@ enifed("ember-routing/location/history_location.jshint",
       ok(true, 'ember-routing/location/history_location.js should pass jshint.'); 
     });
   });
+enifed("ember-routing/location/none_location.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing/location');
+    test('ember-routing/location/none_location.js should pass jscs', function() {
+      ok(true, 'ember-routing/location/none_location.js should pass jscs.');
+    });
+  });
 enifed("ember-routing/location/none_location.jshint",
   [],
   function() {
@@ -28052,6 +30545,15 @@ enifed("ember-routing/location/none_location.jshint",
     module('JSHint - ember-routing/location');
     test('ember-routing/location/none_location.js should pass jshint', function() { 
       ok(true, 'ember-routing/location/none_location.js should pass jshint.'); 
+    });
+  });
+enifed("ember-routing/system/cache.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing/system');
+    test('ember-routing/system/cache.js should pass jscs', function() {
+      ok(true, 'ember-routing/system/cache.js should pass jscs.');
     });
   });
 enifed("ember-routing/system/cache.jshint",
@@ -28063,6 +30565,15 @@ enifed("ember-routing/system/cache.jshint",
       ok(true, 'ember-routing/system/cache.js should pass jshint.'); 
     });
   });
+enifed("ember-routing/system/controller_for.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing/system');
+    test('ember-routing/system/controller_for.js should pass jscs', function() {
+      ok(true, 'ember-routing/system/controller_for.js should pass jscs.');
+    });
+  });
 enifed("ember-routing/system/controller_for.jshint",
   [],
   function() {
@@ -28070,6 +30581,15 @@ enifed("ember-routing/system/controller_for.jshint",
     module('JSHint - ember-routing/system');
     test('ember-routing/system/controller_for.js should pass jshint', function() { 
       ok(true, 'ember-routing/system/controller_for.js should pass jshint.'); 
+    });
+  });
+enifed("ember-routing/system/dsl.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing/system');
+    test('ember-routing/system/dsl.js should pass jscs', function() {
+      ok(true, 'ember-routing/system/dsl.js should pass jscs.');
     });
   });
 enifed("ember-routing/system/dsl.jshint",
@@ -28081,6 +30601,15 @@ enifed("ember-routing/system/dsl.jshint",
       ok(true, 'ember-routing/system/dsl.js should pass jshint.'); 
     });
   });
+enifed("ember-routing/system/generate_controller.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing/system');
+    test('ember-routing/system/generate_controller.js should pass jscs', function() {
+      ok(true, 'ember-routing/system/generate_controller.js should pass jscs.');
+    });
+  });
 enifed("ember-routing/system/generate_controller.jshint",
   [],
   function() {
@@ -28088,6 +30617,15 @@ enifed("ember-routing/system/generate_controller.jshint",
     module('JSHint - ember-routing/system');
     test('ember-routing/system/generate_controller.js should pass jshint', function() { 
       ok(true, 'ember-routing/system/generate_controller.js should pass jshint.'); 
+    });
+  });
+enifed("ember-routing/system/query_params.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing/system');
+    test('ember-routing/system/query_params.js should pass jscs', function() {
+      ok(true, 'ember-routing/system/query_params.js should pass jscs.');
     });
   });
 enifed("ember-routing/system/query_params.jshint",
@@ -28099,6 +30637,15 @@ enifed("ember-routing/system/query_params.jshint",
       ok(true, 'ember-routing/system/query_params.js should pass jshint.'); 
     });
   });
+enifed("ember-routing/system/route.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing/system');
+    test('ember-routing/system/route.js should pass jscs', function() {
+      ok(true, 'ember-routing/system/route.js should pass jscs.');
+    });
+  });
 enifed("ember-routing/system/route.jshint",
   [],
   function() {
@@ -28108,6 +30655,15 @@ enifed("ember-routing/system/route.jshint",
       ok(true, 'ember-routing/system/route.js should pass jshint.'); 
     });
   });
+enifed("ember-routing/system/router.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing/system');
+    test('ember-routing/system/router.js should pass jscs', function() {
+      ok(true, 'ember-routing/system/router.js should pass jscs.');
+    });
+  });
 enifed("ember-routing/system/router.jshint",
   [],
   function() {
@@ -28115,6 +30671,15 @@ enifed("ember-routing/system/router.jshint",
     module('JSHint - ember-routing/system');
     test('ember-routing/system/router.js should pass jshint', function() { 
       ok(true, 'ember-routing/system/router.js should pass jshint.'); 
+    });
+  });
+enifed("ember-routing/system/router_state.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing/system');
+    test('ember-routing/system/router_state.js should pass jscs', function() {
+      ok(true, 'ember-routing/system/router_state.js should pass jscs.');
     });
   });
 enifed("ember-routing/system/router_state.jshint",
@@ -28500,6 +31065,15 @@ enifed("ember-routing/tests/location/auto_location_test",
       equal(AutoTestLocation._history, environment.history, 'AutoLocation._history === environment.history');
     });
   });
+enifed("ember-routing/tests/location/auto_location_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing/tests/location');
+    test('ember-routing/tests/location/auto_location_test.js should pass jscs', function() {
+      ok(true, 'ember-routing/tests/location/auto_location_test.js should pass jscs.');
+    });
+  });
 enifed("ember-routing/tests/location/auto_location_test.jshint",
   [],
   function() {
@@ -28698,6 +31272,15 @@ enifed("ember-routing/tests/location/hash_location_test",
 
         // clean up
         Ember.$ = oldJquery;
+    });
+  });
+enifed("ember-routing/tests/location/hash_location_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing/tests/location');
+    test('ember-routing/tests/location/hash_location_test.js should pass jscs', function() {
+      ok(true, 'ember-routing/tests/location/hash_location_test.js should pass jscs.');
     });
   });
 enifed("ember-routing/tests/location/hash_location_test.jshint",
@@ -28932,6 +31515,15 @@ enifed("ember-routing/tests/location/history_location_test",
         equal(location.getURL(), '/foo/bar?time=morphin#pink-power-ranger');
     });
   });
+enifed("ember-routing/tests/location/history_location_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing/tests/location');
+    test('ember-routing/tests/location/history_location_test.js should pass jscs', function() {
+      ok(true, 'ember-routing/tests/location/history_location_test.js should pass jscs.');
+    });
+  });
 enifed("ember-routing/tests/location/history_location_test.jshint",
   [],
   function() {
@@ -29086,6 +31678,15 @@ enifed("ember-routing/tests/system/controller_for_test",
 
     });
   });
+enifed("ember-routing/tests/system/controller_for_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing/tests/system');
+    test('ember-routing/tests/system/controller_for_test.js should pass jscs', function() {
+      ok(true, 'ember-routing/tests/system/controller_for_test.js should pass jscs.');
+    });
+  });
 enifed("ember-routing/tests/system/controller_for_test.jshint",
   [],
   function() {
@@ -29161,6 +31762,15 @@ enifed("ember-routing/tests/system/dsl_test",
       ok(router.recognizer.names['bleep'], 'parent name was used as base of nested routes');
       ok(router.recognizer.names['bleep.bloop'], 'parent name was used as base of nested routes');
       ok(router.recognizer.names['bleep.bloop.blork'], 'parent name was used as base of nested routes');
+    });
+  });
+enifed("ember-routing/tests/system/dsl_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing/tests/system');
+    test('ember-routing/tests/system/dsl_test.js should pass jscs', function() {
+      ok(true, 'ember-routing/tests/system/dsl_test.js should pass jscs.');
     });
   });
 enifed("ember-routing/tests/system/dsl_test.jshint",
@@ -29430,6 +32040,15 @@ enifed("ember-routing/tests/system/route_test",
       });
     
   });
+enifed("ember-routing/tests/system/route_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing/tests/system');
+    test('ember-routing/tests/system/route_test.js should pass jscs', function() {
+      ok(true, 'ember-routing/tests/system/route_test.js should pass jscs.');
+    });
+  });
 enifed("ember-routing/tests/system/route_test.jshint",
   [],
   function() {
@@ -29626,6 +32245,15 @@ enifed("ember-routing/tests/system/router_test",
       router.handleURL('/foo/bar?time=morphin#pink-power-ranger');
     });
   });
+enifed("ember-routing/tests/system/router_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing/tests/system');
+    test('ember-routing/tests/system/router_test.js should pass jscs', function() {
+      ok(true, 'ember-routing/tests/system/router_test.js should pass jscs.');
+    });
+  });
 enifed("ember-routing/tests/system/router_test.jshint",
   [],
   function() {
@@ -29633,6 +32261,15 @@ enifed("ember-routing/tests/system/router_test.jshint",
     module('JSHint - ember-routing/tests/system');
     test('ember-routing/tests/system/router_test.js should pass jshint', function() { 
       ok(true, 'ember-routing/tests/system/router_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-routing/utils.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing');
+    test('ember-routing/utils.js should pass jscs', function() {
+      ok(true, 'ember-routing/utils.js should pass jscs.');
     });
   });
 enifed("ember-routing/utils.jshint",
@@ -29644,6 +32281,15 @@ enifed("ember-routing/utils.jshint",
       ok(true, 'ember-routing/utils.js should pass jshint.'); 
     });
   });
+enifed("ember-runtime.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - .');
+    test('ember-runtime.js should pass jscs', function() {
+      ok(true, 'ember-runtime.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime.jshint",
   [],
   function() {
@@ -29651,6 +32297,15 @@ enifed("ember-runtime.jshint",
     module('JSHint - .');
     test('ember-runtime.js should pass jshint', function() { 
       ok(true, 'ember-runtime.js should pass jshint.'); 
+    });
+  });
+enifed("ember-runtime/compare.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime');
+    test('ember-runtime/compare.js should pass jscs', function() {
+      ok(true, 'ember-runtime/compare.js should pass jscs.');
     });
   });
 enifed("ember-runtime/compare.jshint",
@@ -29662,6 +32317,15 @@ enifed("ember-runtime/compare.jshint",
       ok(true, 'ember-runtime/compare.js should pass jshint.'); 
     });
   });
+enifed("ember-runtime/computed/array_computed.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/computed');
+    test('ember-runtime/computed/array_computed.js should pass jscs', function() {
+      ok(true, 'ember-runtime/computed/array_computed.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/computed/array_computed.jshint",
   [],
   function() {
@@ -29669,6 +32333,15 @@ enifed("ember-runtime/computed/array_computed.jshint",
     module('JSHint - ember-runtime/computed');
     test('ember-runtime/computed/array_computed.js should pass jshint', function() { 
       ok(true, 'ember-runtime/computed/array_computed.js should pass jshint.'); 
+    });
+  });
+enifed("ember-runtime/computed/reduce_computed.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/computed');
+    test('ember-runtime/computed/reduce_computed.js should pass jscs', function() {
+      ok(true, 'ember-runtime/computed/reduce_computed.js should pass jscs.');
     });
   });
 enifed("ember-runtime/computed/reduce_computed.jshint",
@@ -29680,6 +32353,15 @@ enifed("ember-runtime/computed/reduce_computed.jshint",
       ok(true, 'ember-runtime/computed/reduce_computed.js should pass jshint.'); 
     });
   });
+enifed("ember-runtime/computed/reduce_computed_macros.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/computed');
+    test('ember-runtime/computed/reduce_computed_macros.js should pass jscs', function() {
+      ok(true, 'ember-runtime/computed/reduce_computed_macros.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/computed/reduce_computed_macros.jshint",
   [],
   function() {
@@ -29687,6 +32369,15 @@ enifed("ember-runtime/computed/reduce_computed_macros.jshint",
     module('JSHint - ember-runtime/computed');
     test('ember-runtime/computed/reduce_computed_macros.js should pass jshint', function() { 
       ok(true, 'ember-runtime/computed/reduce_computed_macros.js should pass jshint.'); 
+    });
+  });
+enifed("ember-runtime/controllers/array_controller.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/controllers');
+    test('ember-runtime/controllers/array_controller.js should pass jscs', function() {
+      ok(true, 'ember-runtime/controllers/array_controller.js should pass jscs.');
     });
   });
 enifed("ember-runtime/controllers/array_controller.jshint",
@@ -29698,6 +32389,15 @@ enifed("ember-runtime/controllers/array_controller.jshint",
       ok(true, 'ember-runtime/controllers/array_controller.js should pass jshint.'); 
     });
   });
+enifed("ember-runtime/controllers/controller.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/controllers');
+    test('ember-runtime/controllers/controller.js should pass jscs', function() {
+      ok(true, 'ember-runtime/controllers/controller.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/controllers/controller.jshint",
   [],
   function() {
@@ -29705,6 +32405,15 @@ enifed("ember-runtime/controllers/controller.jshint",
     module('JSHint - ember-runtime/controllers');
     test('ember-runtime/controllers/controller.js should pass jshint', function() { 
       ok(true, 'ember-runtime/controllers/controller.js should pass jshint.'); 
+    });
+  });
+enifed("ember-runtime/controllers/object_controller.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/controllers');
+    test('ember-runtime/controllers/object_controller.js should pass jscs', function() {
+      ok(true, 'ember-runtime/controllers/object_controller.js should pass jscs.');
     });
   });
 enifed("ember-runtime/controllers/object_controller.jshint",
@@ -29716,6 +32425,15 @@ enifed("ember-runtime/controllers/object_controller.jshint",
       ok(true, 'ember-runtime/controllers/object_controller.js should pass jshint.'); 
     });
   });
+enifed("ember-runtime/copy.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime');
+    test('ember-runtime/copy.js should pass jscs', function() {
+      ok(true, 'ember-runtime/copy.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/copy.jshint",
   [],
   function() {
@@ -29723,6 +32441,15 @@ enifed("ember-runtime/copy.jshint",
     module('JSHint - ember-runtime');
     test('ember-runtime/copy.js should pass jshint', function() { 
       ok(true, 'ember-runtime/copy.js should pass jshint.'); 
+    });
+  });
+enifed("ember-runtime/core.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime');
+    test('ember-runtime/core.js should pass jscs', function() {
+      ok(true, 'ember-runtime/core.js should pass jscs.');
     });
   });
 enifed("ember-runtime/core.jshint",
@@ -29734,6 +32461,15 @@ enifed("ember-runtime/core.jshint",
       ok(true, 'ember-runtime/core.js should pass jshint.'); 
     });
   });
+enifed("ember-runtime/ext/function.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/ext');
+    test('ember-runtime/ext/function.js should pass jscs', function() {
+      ok(true, 'ember-runtime/ext/function.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/ext/function.jshint",
   [],
   function() {
@@ -29743,6 +32479,12 @@ enifed("ember-runtime/ext/function.jshint",
       ok(true, 'ember-runtime/ext/function.js should pass jshint.'); 
     });
   });
+enifed("ember-runtime/ext/rsvp.jscs-test",
+  [],
+  function() {
+    "use strict";
+
+  });
 enifed("ember-runtime/ext/rsvp.jshint",
   [],
   function() {
@@ -29750,6 +32492,15 @@ enifed("ember-runtime/ext/rsvp.jshint",
     module('JSHint - ember-runtime/ext');
     test('ember-runtime/ext/rsvp.js should pass jshint', function() { 
       ok(true, 'ember-runtime/ext/rsvp.js should pass jshint.'); 
+    });
+  });
+enifed("ember-runtime/ext/string.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/ext');
+    test('ember-runtime/ext/string.js should pass jscs', function() {
+      ok(true, 'ember-runtime/ext/string.js should pass jscs.');
     });
   });
 enifed("ember-runtime/ext/string.jshint",
@@ -29761,6 +32512,15 @@ enifed("ember-runtime/ext/string.jshint",
       ok(true, 'ember-runtime/ext/string.js should pass jshint.'); 
     });
   });
+enifed("ember-runtime/inject.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime');
+    test('ember-runtime/inject.js should pass jscs', function() {
+      ok(true, 'ember-runtime/inject.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/inject.jshint",
   [],
   function() {
@@ -29768,6 +32528,15 @@ enifed("ember-runtime/inject.jshint",
     module('JSHint - ember-runtime');
     test('ember-runtime/inject.js should pass jshint', function() { 
       ok(true, 'ember-runtime/inject.js should pass jshint.'); 
+    });
+  });
+enifed("ember-runtime/mixins/-proxy.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/mixins');
+    test('ember-runtime/mixins/-proxy.js should pass jscs', function() {
+      ok(true, 'ember-runtime/mixins/-proxy.js should pass jscs.');
     });
   });
 enifed("ember-runtime/mixins/-proxy.jshint",
@@ -29779,6 +32548,15 @@ enifed("ember-runtime/mixins/-proxy.jshint",
       ok(true, 'ember-runtime/mixins/-proxy.js should pass jshint.'); 
     });
   });
+enifed("ember-runtime/mixins/action_handler.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/mixins');
+    test('ember-runtime/mixins/action_handler.js should pass jscs', function() {
+      ok(true, 'ember-runtime/mixins/action_handler.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/mixins/action_handler.jshint",
   [],
   function() {
@@ -29786,6 +32564,15 @@ enifed("ember-runtime/mixins/action_handler.jshint",
     module('JSHint - ember-runtime/mixins');
     test('ember-runtime/mixins/action_handler.js should pass jshint', function() { 
       ok(true, 'ember-runtime/mixins/action_handler.js should pass jshint.'); 
+    });
+  });
+enifed("ember-runtime/mixins/array.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/mixins');
+    test('ember-runtime/mixins/array.js should pass jscs', function() {
+      ok(true, 'ember-runtime/mixins/array.js should pass jscs.');
     });
   });
 enifed("ember-runtime/mixins/array.jshint",
@@ -29797,6 +32584,15 @@ enifed("ember-runtime/mixins/array.jshint",
       ok(true, 'ember-runtime/mixins/array.js should pass jshint.'); 
     });
   });
+enifed("ember-runtime/mixins/comparable.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/mixins');
+    test('ember-runtime/mixins/comparable.js should pass jscs', function() {
+      ok(true, 'ember-runtime/mixins/comparable.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/mixins/comparable.jshint",
   [],
   function() {
@@ -29804,6 +32600,15 @@ enifed("ember-runtime/mixins/comparable.jshint",
     module('JSHint - ember-runtime/mixins');
     test('ember-runtime/mixins/comparable.js should pass jshint', function() { 
       ok(true, 'ember-runtime/mixins/comparable.js should pass jshint.'); 
+    });
+  });
+enifed("ember-runtime/mixins/controller.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/mixins');
+    test('ember-runtime/mixins/controller.js should pass jscs', function() {
+      ok(true, 'ember-runtime/mixins/controller.js should pass jscs.');
     });
   });
 enifed("ember-runtime/mixins/controller.jshint",
@@ -29815,6 +32620,15 @@ enifed("ember-runtime/mixins/controller.jshint",
       ok(true, 'ember-runtime/mixins/controller.js should pass jshint.'); 
     });
   });
+enifed("ember-runtime/mixins/controller_content_model_alias_deprecation.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/mixins');
+    test('ember-runtime/mixins/controller_content_model_alias_deprecation.js should pass jscs', function() {
+      ok(true, 'ember-runtime/mixins/controller_content_model_alias_deprecation.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/mixins/controller_content_model_alias_deprecation.jshint",
   [],
   function() {
@@ -29822,6 +32636,15 @@ enifed("ember-runtime/mixins/controller_content_model_alias_deprecation.jshint",
     module('JSHint - ember-runtime/mixins');
     test('ember-runtime/mixins/controller_content_model_alias_deprecation.js should pass jshint', function() { 
       ok(true, 'ember-runtime/mixins/controller_content_model_alias_deprecation.js should pass jshint.'); 
+    });
+  });
+enifed("ember-runtime/mixins/copyable.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/mixins');
+    test('ember-runtime/mixins/copyable.js should pass jscs', function() {
+      ok(true, 'ember-runtime/mixins/copyable.js should pass jscs.');
     });
   });
 enifed("ember-runtime/mixins/copyable.jshint",
@@ -29833,6 +32656,15 @@ enifed("ember-runtime/mixins/copyable.jshint",
       ok(true, 'ember-runtime/mixins/copyable.js should pass jshint.'); 
     });
   });
+enifed("ember-runtime/mixins/deferred.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/mixins');
+    test('ember-runtime/mixins/deferred.js should pass jscs', function() {
+      ok(true, 'ember-runtime/mixins/deferred.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/mixins/deferred.jshint",
   [],
   function() {
@@ -29840,6 +32672,15 @@ enifed("ember-runtime/mixins/deferred.jshint",
     module('JSHint - ember-runtime/mixins');
     test('ember-runtime/mixins/deferred.js should pass jshint', function() { 
       ok(true, 'ember-runtime/mixins/deferred.js should pass jshint.'); 
+    });
+  });
+enifed("ember-runtime/mixins/enumerable.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/mixins');
+    test('ember-runtime/mixins/enumerable.js should pass jscs', function() {
+      ok(true, 'ember-runtime/mixins/enumerable.js should pass jscs.');
     });
   });
 enifed("ember-runtime/mixins/enumerable.jshint",
@@ -29851,6 +32692,15 @@ enifed("ember-runtime/mixins/enumerable.jshint",
       ok(true, 'ember-runtime/mixins/enumerable.js should pass jshint.'); 
     });
   });
+enifed("ember-runtime/mixins/evented.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/mixins');
+    test('ember-runtime/mixins/evented.js should pass jscs', function() {
+      ok(true, 'ember-runtime/mixins/evented.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/mixins/evented.jshint",
   [],
   function() {
@@ -29858,6 +32708,15 @@ enifed("ember-runtime/mixins/evented.jshint",
     module('JSHint - ember-runtime/mixins');
     test('ember-runtime/mixins/evented.js should pass jshint', function() { 
       ok(true, 'ember-runtime/mixins/evented.js should pass jshint.'); 
+    });
+  });
+enifed("ember-runtime/mixins/freezable.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/mixins');
+    test('ember-runtime/mixins/freezable.js should pass jscs', function() {
+      ok(true, 'ember-runtime/mixins/freezable.js should pass jscs.');
     });
   });
 enifed("ember-runtime/mixins/freezable.jshint",
@@ -29869,6 +32728,15 @@ enifed("ember-runtime/mixins/freezable.jshint",
       ok(true, 'ember-runtime/mixins/freezable.js should pass jshint.'); 
     });
   });
+enifed("ember-runtime/mixins/mutable_array.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/mixins');
+    test('ember-runtime/mixins/mutable_array.js should pass jscs', function() {
+      ok(true, 'ember-runtime/mixins/mutable_array.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/mixins/mutable_array.jshint",
   [],
   function() {
@@ -29876,6 +32744,15 @@ enifed("ember-runtime/mixins/mutable_array.jshint",
     module('JSHint - ember-runtime/mixins');
     test('ember-runtime/mixins/mutable_array.js should pass jshint', function() { 
       ok(true, 'ember-runtime/mixins/mutable_array.js should pass jshint.'); 
+    });
+  });
+enifed("ember-runtime/mixins/mutable_enumerable.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/mixins');
+    test('ember-runtime/mixins/mutable_enumerable.js should pass jscs', function() {
+      ok(true, 'ember-runtime/mixins/mutable_enumerable.js should pass jscs.');
     });
   });
 enifed("ember-runtime/mixins/mutable_enumerable.jshint",
@@ -29887,6 +32764,15 @@ enifed("ember-runtime/mixins/mutable_enumerable.jshint",
       ok(true, 'ember-runtime/mixins/mutable_enumerable.js should pass jshint.'); 
     });
   });
+enifed("ember-runtime/mixins/observable.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/mixins');
+    test('ember-runtime/mixins/observable.js should pass jscs', function() {
+      ok(true, 'ember-runtime/mixins/observable.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/mixins/observable.jshint",
   [],
   function() {
@@ -29894,6 +32780,15 @@ enifed("ember-runtime/mixins/observable.jshint",
     module('JSHint - ember-runtime/mixins');
     test('ember-runtime/mixins/observable.js should pass jshint', function() { 
       ok(true, 'ember-runtime/mixins/observable.js should pass jshint.'); 
+    });
+  });
+enifed("ember-runtime/mixins/promise_proxy.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/mixins');
+    test('ember-runtime/mixins/promise_proxy.js should pass jscs', function() {
+      ok(true, 'ember-runtime/mixins/promise_proxy.js should pass jscs.');
     });
   });
 enifed("ember-runtime/mixins/promise_proxy.jshint",
@@ -29905,6 +32800,15 @@ enifed("ember-runtime/mixins/promise_proxy.jshint",
       ok(true, 'ember-runtime/mixins/promise_proxy.js should pass jshint.'); 
     });
   });
+enifed("ember-runtime/mixins/sortable.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/mixins');
+    test('ember-runtime/mixins/sortable.js should pass jscs', function() {
+      ok(true, 'ember-runtime/mixins/sortable.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/mixins/sortable.jshint",
   [],
   function() {
@@ -29912,6 +32816,15 @@ enifed("ember-runtime/mixins/sortable.jshint",
     module('JSHint - ember-runtime/mixins');
     test('ember-runtime/mixins/sortable.js should pass jshint', function() { 
       ok(true, 'ember-runtime/mixins/sortable.js should pass jshint.'); 
+    });
+  });
+enifed("ember-runtime/mixins/target_action_support.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/mixins');
+    test('ember-runtime/mixins/target_action_support.js should pass jscs', function() {
+      ok(true, 'ember-runtime/mixins/target_action_support.js should pass jscs.');
     });
   });
 enifed("ember-runtime/mixins/target_action_support.jshint",
@@ -29923,6 +32836,15 @@ enifed("ember-runtime/mixins/target_action_support.jshint",
       ok(true, 'ember-runtime/mixins/target_action_support.js should pass jshint.'); 
     });
   });
+enifed("ember-runtime/system/application.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/system');
+    test('ember-runtime/system/application.js should pass jscs', function() {
+      ok(true, 'ember-runtime/system/application.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/system/application.jshint",
   [],
   function() {
@@ -29930,6 +32852,15 @@ enifed("ember-runtime/system/application.jshint",
     module('JSHint - ember-runtime/system');
     test('ember-runtime/system/application.js should pass jshint', function() { 
       ok(true, 'ember-runtime/system/application.js should pass jshint.'); 
+    });
+  });
+enifed("ember-runtime/system/array_proxy.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/system');
+    test('ember-runtime/system/array_proxy.js should pass jscs', function() {
+      ok(true, 'ember-runtime/system/array_proxy.js should pass jscs.');
     });
   });
 enifed("ember-runtime/system/array_proxy.jshint",
@@ -29941,6 +32872,15 @@ enifed("ember-runtime/system/array_proxy.jshint",
       ok(true, 'ember-runtime/system/array_proxy.js should pass jshint.'); 
     });
   });
+enifed("ember-runtime/system/container.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/system');
+    test('ember-runtime/system/container.js should pass jscs', function() {
+      ok(true, 'ember-runtime/system/container.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/system/container.jshint",
   [],
   function() {
@@ -29948,6 +32888,15 @@ enifed("ember-runtime/system/container.jshint",
     module('JSHint - ember-runtime/system');
     test('ember-runtime/system/container.js should pass jshint', function() { 
       ok(true, 'ember-runtime/system/container.js should pass jshint.'); 
+    });
+  });
+enifed("ember-runtime/system/core_object.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/system');
+    test('ember-runtime/system/core_object.js should pass jscs', function() {
+      ok(true, 'ember-runtime/system/core_object.js should pass jscs.');
     });
   });
 enifed("ember-runtime/system/core_object.jshint",
@@ -29959,6 +32908,15 @@ enifed("ember-runtime/system/core_object.jshint",
       ok(true, 'ember-runtime/system/core_object.js should pass jshint.'); 
     });
   });
+enifed("ember-runtime/system/deferred.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/system');
+    test('ember-runtime/system/deferred.js should pass jscs', function() {
+      ok(true, 'ember-runtime/system/deferred.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/system/deferred.jshint",
   [],
   function() {
@@ -29966,6 +32924,15 @@ enifed("ember-runtime/system/deferred.jshint",
     module('JSHint - ember-runtime/system');
     test('ember-runtime/system/deferred.js should pass jshint', function() { 
       ok(true, 'ember-runtime/system/deferred.js should pass jshint.'); 
+    });
+  });
+enifed("ember-runtime/system/each_proxy.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/system');
+    test('ember-runtime/system/each_proxy.js should pass jscs', function() {
+      ok(true, 'ember-runtime/system/each_proxy.js should pass jscs.');
     });
   });
 enifed("ember-runtime/system/each_proxy.jshint",
@@ -29977,6 +32944,15 @@ enifed("ember-runtime/system/each_proxy.jshint",
       ok(true, 'ember-runtime/system/each_proxy.js should pass jshint.'); 
     });
   });
+enifed("ember-runtime/system/lazy_load.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/system');
+    test('ember-runtime/system/lazy_load.js should pass jscs', function() {
+      ok(true, 'ember-runtime/system/lazy_load.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/system/lazy_load.jshint",
   [],
   function() {
@@ -29984,6 +32960,15 @@ enifed("ember-runtime/system/lazy_load.jshint",
     module('JSHint - ember-runtime/system');
     test('ember-runtime/system/lazy_load.js should pass jshint', function() { 
       ok(true, 'ember-runtime/system/lazy_load.js should pass jshint.'); 
+    });
+  });
+enifed("ember-runtime/system/namespace.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/system');
+    test('ember-runtime/system/namespace.js should pass jscs', function() {
+      ok(true, 'ember-runtime/system/namespace.js should pass jscs.');
     });
   });
 enifed("ember-runtime/system/namespace.jshint",
@@ -29995,6 +32980,15 @@ enifed("ember-runtime/system/namespace.jshint",
       ok(true, 'ember-runtime/system/namespace.js should pass jshint.'); 
     });
   });
+enifed("ember-runtime/system/native_array.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/system');
+    test('ember-runtime/system/native_array.js should pass jscs', function() {
+      ok(true, 'ember-runtime/system/native_array.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/system/native_array.jshint",
   [],
   function() {
@@ -30002,6 +32996,15 @@ enifed("ember-runtime/system/native_array.jshint",
     module('JSHint - ember-runtime/system');
     test('ember-runtime/system/native_array.js should pass jshint', function() { 
       ok(true, 'ember-runtime/system/native_array.js should pass jshint.'); 
+    });
+  });
+enifed("ember-runtime/system/object.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/system');
+    test('ember-runtime/system/object.js should pass jscs', function() {
+      ok(true, 'ember-runtime/system/object.js should pass jscs.');
     });
   });
 enifed("ember-runtime/system/object.jshint",
@@ -30013,6 +33016,15 @@ enifed("ember-runtime/system/object.jshint",
       ok(true, 'ember-runtime/system/object.js should pass jshint.'); 
     });
   });
+enifed("ember-runtime/system/object_proxy.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/system');
+    test('ember-runtime/system/object_proxy.js should pass jscs', function() {
+      ok(true, 'ember-runtime/system/object_proxy.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/system/object_proxy.jshint",
   [],
   function() {
@@ -30020,6 +33032,15 @@ enifed("ember-runtime/system/object_proxy.jshint",
     module('JSHint - ember-runtime/system');
     test('ember-runtime/system/object_proxy.js should pass jshint', function() { 
       ok(true, 'ember-runtime/system/object_proxy.js should pass jshint.'); 
+    });
+  });
+enifed("ember-runtime/system/service.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/system');
+    test('ember-runtime/system/service.js should pass jscs', function() {
+      ok(true, 'ember-runtime/system/service.js should pass jscs.');
     });
   });
 enifed("ember-runtime/system/service.jshint",
@@ -30031,6 +33052,15 @@ enifed("ember-runtime/system/service.jshint",
       ok(true, 'ember-runtime/system/service.js should pass jshint.'); 
     });
   });
+enifed("ember-runtime/system/set.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/system');
+    test('ember-runtime/system/set.js should pass jscs', function() {
+      ok(true, 'ember-runtime/system/set.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/system/set.jshint",
   [],
   function() {
@@ -30038,6 +33068,15 @@ enifed("ember-runtime/system/set.jshint",
     module('JSHint - ember-runtime/system');
     test('ember-runtime/system/set.js should pass jshint', function() { 
       ok(true, 'ember-runtime/system/set.js should pass jshint.'); 
+    });
+  });
+enifed("ember-runtime/system/string.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/system');
+    test('ember-runtime/system/string.js should pass jscs', function() {
+      ok(true, 'ember-runtime/system/string.js should pass jscs.');
     });
   });
 enifed("ember-runtime/system/string.jshint",
@@ -30049,6 +33088,15 @@ enifed("ember-runtime/system/string.jshint",
       ok(true, 'ember-runtime/system/string.js should pass jshint.'); 
     });
   });
+enifed("ember-runtime/system/subarray.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/system');
+    test('ember-runtime/system/subarray.js should pass jscs', function() {
+      ok(true, 'ember-runtime/system/subarray.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/system/subarray.jshint",
   [],
   function() {
@@ -30056,6 +33104,15 @@ enifed("ember-runtime/system/subarray.jshint",
     module('JSHint - ember-runtime/system');
     test('ember-runtime/system/subarray.js should pass jshint', function() { 
       ok(true, 'ember-runtime/system/subarray.js should pass jshint.'); 
+    });
+  });
+enifed("ember-runtime/system/tracked_array.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/system');
+    test('ember-runtime/system/tracked_array.js should pass jscs', function() {
+      ok(true, 'ember-runtime/system/tracked_array.js should pass jscs.');
     });
   });
 enifed("ember-runtime/system/tracked_array.jshint",
@@ -30084,6 +33141,15 @@ enifed("ember-runtime/tests/computed/compose_computed_test",
     var EmberObject = __dependency9__["default"];
 
       });
+enifed("ember-runtime/tests/computed/compose_computed_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/computed');
+    test('ember-runtime/tests/computed/compose_computed_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/computed/compose_computed_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/computed/compose_computed_test.jshint",
   [],
   function() {
@@ -30143,6 +33209,15 @@ enifed("ember-runtime/tests/computed/computed_macros_test",
 
       equal(get(obj, 'bestLannisterSpecified'), true, "empty respects strings");
       equal(get(obj, 'LannistersKnown'), true, "empty respects array mutations");
+    });
+  });
+enifed("ember-runtime/tests/computed/computed_macros_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/computed');
+    test('ember-runtime/tests/computed/computed_macros_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/computed/computed_macros_test.js should pass jscs.');
     });
   });
 enifed("ember-runtime/tests/computed/computed_macros_test.jshint",
@@ -31678,6 +34753,15 @@ enifed("ember-runtime/tests/computed/reduce_computed_macros_test",
       equal(sum(), 6, 'recomputes when elements are removed');
     });
   });
+enifed("ember-runtime/tests/computed/reduce_computed_macros_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/computed');
+    test('ember-runtime/tests/computed/reduce_computed_macros_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/computed/reduce_computed_macros_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/computed/reduce_computed_macros_test.jshint",
   [],
   function() {
@@ -32708,6 +35792,15 @@ enifed("ember-runtime/tests/computed/reduce_computed_test",
       deepEqual(callbackItems, ['remove:true', 'add:true', 'remove:true', 'add:true'], "item property flushes that depend on a shared prop are gated by a semaphore");
     });
   });
+enifed("ember-runtime/tests/computed/reduce_computed_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/computed');
+    test('ember-runtime/tests/computed/reduce_computed_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/computed/reduce_computed_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/computed/reduce_computed_test.jshint",
   [],
   function() {
@@ -32758,6 +35851,15 @@ enifed("ember-runtime/tests/controllers/array_controller_test",
       var controller = ArrayController.create();
       controller.pushObject('item');
       equal(controller.get('length'), 1);
+    });
+  });
+enifed("ember-runtime/tests/controllers/array_controller_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/controllers');
+    test('ember-runtime/tests/controllers/array_controller_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/controllers/array_controller_test.js should pass jscs.');
     });
   });
 enifed("ember-runtime/tests/controllers/array_controller_test.jshint",
@@ -33009,6 +36111,15 @@ enifed("ember-runtime/tests/controllers/controller_test",
         equal(authService, appController.get('authService'), "service.auth is injected");
       });
     
+  });
+enifed("ember-runtime/tests/controllers/controller_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/controllers');
+    test('ember-runtime/tests/controllers/controller_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/controllers/controller_test.js should pass jscs.');
+    });
   });
 enifed("ember-runtime/tests/controllers/controller_test.jshint",
   [],
@@ -33402,6 +36513,15 @@ enifed("ember-runtime/tests/controllers/item_controller_class_test",
       deepEqual(arrayController.get('sorted').mapProperty('name'), ['Jaime', 'Cersei'], "ArrayController items can be sorted on itemController properties");
     });
   });
+enifed("ember-runtime/tests/controllers/item_controller_class_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/controllers');
+    test('ember-runtime/tests/controllers/item_controller_class_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/controllers/item_controller_class_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/controllers/item_controller_class_test.jshint",
   [],
   function() {
@@ -33435,6 +36555,15 @@ enifed("ember-runtime/tests/controllers/object_controller_test",
       }).create();
       controller.set('model', {});
       ok(true, "should not fail");
+    });
+  });
+enifed("ember-runtime/tests/controllers/object_controller_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/controllers');
+    test('ember-runtime/tests/controllers/object_controller_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/controllers/object_controller_test.js should pass jscs.');
     });
   });
 enifed("ember-runtime/tests/controllers/object_controller_test.jshint",
@@ -33528,6 +36657,15 @@ enifed("ember-runtime/tests/core/compare_test",
       equal(compare('c', one),    -1, 'Second item comparable - returns  1 (negated)');
     });
   });
+enifed("ember-runtime/tests/core/compare_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/core');
+    test('ember-runtime/tests/core/compare_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/core/compare_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/core/compare_test.jshint",
   [],
   function() {
@@ -33565,6 +36703,15 @@ enifed("ember-runtime/tests/core/copy_test",
       obj.foo = 'bar';
 
       equal(copy(obj).foo, 'bar', 'bar should still be bar');
+    });
+  });
+enifed("ember-runtime/tests/core/copy_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/core');
+    test('ember-runtime/tests/core/copy_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/core/copy_test.js should pass jscs.');
     });
   });
 enifed("ember-runtime/tests/core/copy_test.jshint",
@@ -33619,6 +36766,15 @@ enifed("ember-runtime/tests/core/isEqual_test",
       equal(isEqual(obj, obj), false, 'should return false because isEqual returns false');
     });
   });
+enifed("ember-runtime/tests/core/isEqual_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/core');
+    test('ember-runtime/tests/core/isEqual_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/core/isEqual_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/core/isEqual_test.jshint",
   [],
   function() {
@@ -33644,6 +36800,15 @@ enifed("ember-runtime/tests/core/is_array_test",
       equal(isArray(arrayProxy), true, "[]");
     });
   });
+enifed("ember-runtime/tests/core/is_array_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/core');
+    test('ember-runtime/tests/core/is_array_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/core/is_array_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/core/is_array_test.jshint",
   [],
   function() {
@@ -33667,6 +36832,15 @@ enifed("ember-runtime/tests/core/is_empty_test",
       var arrayProxy = ArrayProxy.create({ content: Ember.A() });
 
       equal(true,  isEmpty(arrayProxy), "for an ArrayProxy that has empty content");
+    });
+  });
+enifed("ember-runtime/tests/core/is_empty_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/core');
+    test('ember-runtime/tests/core/is_empty_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/core/is_empty_test.js should pass jscs.');
     });
   });
 enifed("ember-runtime/tests/core/is_empty_test.jshint",
@@ -33701,6 +36875,15 @@ enifed("ember-runtime/tests/core/type_test",
       equal(typeOf(object.method), 'function',  "item of type function") ;
       equal(typeOf(EmberObject),     'class',     "item of type class");
       equal(typeOf(new Error()),   'error',     "item of type error");
+    });
+  });
+enifed("ember-runtime/tests/core/type_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/core');
+    test('ember-runtime/tests/core/type_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/core/type_test.js should pass jscs.');
     });
   });
 enifed("ember-runtime/tests/core/type_test.jshint",
@@ -33823,6 +37006,15 @@ enifed("ember-runtime/tests/ext/function_test",
       equal(get(obj, 'fullName'), 'Wilma ', 'should return the new computed value');
     });
   });
+enifed("ember-runtime/tests/ext/function_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/ext');
+    test('ember-runtime/tests/ext/function_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/ext/function_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/ext/function_test.jshint",
   [],
   function() {
@@ -33887,6 +37079,15 @@ enifed("ember-runtime/tests/ext/mixin_test",
       ok(get(obj2, 'fooBinding') instanceof Binding, 'should be a binding object');
       equal(get(obj2, 'foo'), 'BARG', 'binding should be created and synced');
 
+    });
+  });
+enifed("ember-runtime/tests/ext/mixin_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/ext');
+    test('ember-runtime/tests/ext/mixin_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/ext/mixin_test.js should pass jscs.');
     });
   });
 enifed("ember-runtime/tests/ext/mixin_test.jshint",
@@ -34047,6 +37248,15 @@ enifed("ember-runtime/tests/ext/rsvp_test",
       }
     });
   });
+enifed("ember-runtime/tests/ext/rsvp_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/ext');
+    test('ember-runtime/tests/ext/rsvp_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/ext/rsvp_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/ext/rsvp_test.jshint",
   [],
   function() {
@@ -34126,6 +37336,15 @@ enifed("ember-runtime/tests/inject_test",
       });
     
   });
+enifed("ember-runtime/tests/inject_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests');
+    test('ember-runtime/tests/inject_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/inject_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/inject_test.jshint",
   [],
   function() {
@@ -34193,6 +37412,15 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/chained_test",
       observerFiredCount = 0;
       run(function() { set(child1, 'name', "Hanna"); });
       equal(observerFiredCount, 0, "observer did not fire after removing changing property on a removed object");
+    });
+  });
+enifed("ember-runtime/tests/legacy_1x/mixins/observable/chained_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/legacy_1x/mixins/observable');
+    test('ember-runtime/tests/legacy_1x/mixins/observable/chained_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/legacy_1x/mixins/observable/chained_test.js should pass jscs.');
     });
   });
 enifed("ember-runtime/tests/legacy_1x/mixins/observable/chained_test.jshint",
@@ -35157,6 +38385,15 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
       expect(1);
     });
   });
+enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/legacy_1x/mixins/observable');
+    test('ember-runtime/tests/legacy_1x/mixins/observable/observable_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/legacy_1x/mixins/observable/observable_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test.jshint",
   [],
   function() {
@@ -35212,6 +38449,15 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observersForKey_test",
       equal(get(observers, 'length'), 2, "o2.observersForKey should return an array with length 2");
       equal(observers[0][0], o2, "first item in observers array should be o2");
       equal(observers[1][0], o3, "second item in observers array should be o3");
+    });
+  });
+enifed("ember-runtime/tests/legacy_1x/mixins/observable/observersForKey_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/legacy_1x/mixins/observable');
+    test('ember-runtime/tests/legacy_1x/mixins/observable/observersForKey_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/legacy_1x/mixins/observable/observersForKey_test.js should pass jscs.');
     });
   });
 enifed("ember-runtime/tests/legacy_1x/mixins/observable/observersForKey_test.jshint",
@@ -35368,6 +38614,15 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test",
       a.set('b', 'foo');
       equal(a.get('b'), 'foo', 'should have invalidated the cache so that the newly set value is actually set');
 
+    });
+  });
+enifed("ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/legacy_1x/mixins/observable');
+    test('ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test.js should pass jscs.');
     });
   });
 enifed("ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test.jshint",
@@ -35711,6 +38966,15 @@ enifed("ember-runtime/tests/legacy_1x/system/binding_test",
       equal(get(TestNamespace.toObject, 'relative'), "newerValue");
     });
   });
+enifed("ember-runtime/tests/legacy_1x/system/binding_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/legacy_1x/system');
+    test('ember-runtime/tests/legacy_1x/system/binding_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/legacy_1x/system/binding_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/legacy_1x/system/binding_test.jshint",
   [],
   function() {
@@ -35878,6 +39142,15 @@ enifed("ember-runtime/tests/legacy_1x/system/object/base_test",
     test("Checking the detectInstance() function on an object and its subclass", function() {
       ok(EmberObject.detectInstance(obj.create()));
       ok(obj.detectInstance(obj.create()));
+    });
+  });
+enifed("ember-runtime/tests/legacy_1x/system/object/base_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/legacy_1x/system/object');
+    test('ember-runtime/tests/legacy_1x/system/object/base_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/legacy_1x/system/object/base_test.js should pass jscs.');
     });
   });
 enifed("ember-runtime/tests/legacy_1x/system/object/base_test.jshint",
@@ -36064,6 +39337,15 @@ enifed("ember-runtime/tests/legacy_1x/system/object/bindings_test",
       ok(get(testObject, 'foo') !== 'bar', 'binding should not have synced');
     });
   });
+enifed("ember-runtime/tests/legacy_1x/system/object/bindings_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/legacy_1x/system/object');
+    test('ember-runtime/tests/legacy_1x/system/object/bindings_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/legacy_1x/system/object/bindings_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/legacy_1x/system/object/bindings_test.jshint",
   [],
   function() {
@@ -36179,6 +39461,15 @@ enifed("ember-runtime/tests/legacy_1x/system/object/concatenated_test",
 
         deepEqual(values, expected, EmberStringUtils.fmt("should concatenate functions property (expected: %@, got: %@)", [expected, values]));
       });
+  });
+enifed("ember-runtime/tests/legacy_1x/system/object/concatenated_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/legacy_1x/system/object');
+    test('ember-runtime/tests/legacy_1x/system/object/concatenated_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/legacy_1x/system/object/concatenated_test.js should pass jscs.');
+    });
   });
 enifed("ember-runtime/tests/legacy_1x/system/object/concatenated_test.jshint",
   [],
@@ -36299,6 +39590,15 @@ enifed("ember-runtime/tests/legacy_1x/system/run_loop_test",
 
       //Since binding triggered after the end loop the value changed to 'change'.
       equal(MyApp.second.get("output"), "change") ;
+    });
+  });
+enifed("ember-runtime/tests/legacy_1x/system/run_loop_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/legacy_1x/system');
+    test('ember-runtime/tests/legacy_1x/system/run_loop_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/legacy_1x/system/run_loop_test.js should pass jscs.');
     });
   });
 enifed("ember-runtime/tests/legacy_1x/system/run_loop_test.jshint",
@@ -36654,6 +39954,15 @@ enifed("ember-runtime/tests/legacy_1x/system/set_test",
       equal(obj.contains(set[4]), true);
     });
   });
+enifed("ember-runtime/tests/legacy_1x/system/set_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/legacy_1x/system');
+    test('ember-runtime/tests/legacy_1x/system/set_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/legacy_1x/system/set_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/legacy_1x/system/set_test.jshint",
   [],
   function() {
@@ -36684,6 +39993,15 @@ enifed("ember-runtime/tests/mixins/action_handler_test",
           controller.create();
         });
       });
+    });
+  });
+enifed("ember-runtime/tests/mixins/action_handler_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/mixins');
+    test('ember-runtime/tests/mixins/action_handler_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/mixins/action_handler_test.js should pass jscs.');
     });
   });
 enifed("ember-runtime/tests/mixins/action_handler_test.jshint",
@@ -37160,6 +40478,15 @@ enifed("ember-runtime/tests/mixins/array_test",
       equal(count, 2, "observers should only be called once");
     });
   });
+enifed("ember-runtime/tests/mixins/array_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/mixins');
+    test('ember-runtime/tests/mixins/array_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/mixins/array_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/mixins/array_test.jshint",
   [],
   function() {
@@ -37213,6 +40540,15 @@ enifed("ember-runtime/tests/mixins/comparable_test",
       equal(compare(r2, r1), 1);
     });
   });
+enifed("ember-runtime/tests/mixins/comparable_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/mixins');
+    test('ember-runtime/tests/mixins/comparable_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/mixins/comparable_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/mixins/comparable_test.jshint",
   [],
   function() {
@@ -37262,6 +40598,15 @@ enifed("ember-runtime/tests/mixins/copyable_test",
         return get(a, 'id') === get(b,'id');
       }
     }).run();
+  });
+enifed("ember-runtime/tests/mixins/copyable_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/mixins');
+    test('ember-runtime/tests/mixins/copyable_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/mixins/copyable_test.js should pass jscs.');
+    });
   });
 enifed("ember-runtime/tests/mixins/copyable_test.jshint",
   [],
@@ -37644,6 +40989,15 @@ enifed("ember-runtime/tests/mixins/deferred_test",
       });
     }
   });
+enifed("ember-runtime/tests/mixins/deferred_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/mixins');
+    test('ember-runtime/tests/mixins/deferred_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/mixins/deferred_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/mixins/deferred_test.jshint",
   [],
   function() {
@@ -38006,6 +41360,15 @@ enifed("ember-runtime/tests/mixins/enumerable_test",
       deepEqual(observer._after, null);
     });
   });
+enifed("ember-runtime/tests/mixins/enumerable_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/mixins');
+    test('ember-runtime/tests/mixins/enumerable_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/mixins/enumerable_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/mixins/enumerable_test.jshint",
   [],
   function() {
@@ -38085,6 +41448,15 @@ enifed("ember-runtime/tests/mixins/mutable_array_test",
       }
 
     }).run();
+  });
+enifed("ember-runtime/tests/mixins/mutable_array_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/mixins');
+    test('ember-runtime/tests/mixins/mutable_array_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/mixins/mutable_array_test.js should pass jscs.');
+    });
   });
 enifed("ember-runtime/tests/mixins/mutable_array_test.jshint",
   [],
@@ -38168,6 +41540,15 @@ enifed("ember-runtime/tests/mixins/mutable_enumerable_test",
       }
 
     }).run();
+  });
+enifed("ember-runtime/tests/mixins/mutable_enumerable_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/mixins');
+    test('ember-runtime/tests/mixins/mutable_enumerable_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/mixins/mutable_enumerable_test.js should pass jscs.');
+    });
   });
 enifed("ember-runtime/tests/mixins/mutable_enumerable_test.jshint",
   [],
@@ -38281,6 +41662,15 @@ enifed("ember-runtime/tests/mixins/observable_test",
       });
       obj.incrementProperty('age');
       equal(25, obj.get('age'));
+    });
+  });
+enifed("ember-runtime/tests/mixins/observable_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/mixins');
+    test('ember-runtime/tests/mixins/observable_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/mixins/observable_test.js should pass jscs.');
     });
   });
 enifed("ember-runtime/tests/mixins/observable_test.jshint",
@@ -38558,6 +41948,15 @@ enifed("ember-runtime/tests/mixins/promise_proxy_test",
       } catch(e) {
         equal(e, error);
       }
+    });
+  });
+enifed("ember-runtime/tests/mixins/promise_proxy_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/mixins');
+    test('ember-runtime/tests/mixins/promise_proxy_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/mixins/promise_proxy_test.js should pass jscs.');
     });
   });
 enifed("ember-runtime/tests/mixins/promise_proxy_test.jshint",
@@ -38955,6 +42354,15 @@ enifed("ember-runtime/tests/mixins/sortable_test",
       equal(sortedArrayController.objectAt(0).name, 'Scumbag Bryn', 'array is sorted by name');
     });
   });
+enifed("ember-runtime/tests/mixins/sortable_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/mixins');
+    test('ember-runtime/tests/mixins/sortable_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/mixins/sortable_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/mixins/sortable_test.jshint",
   [],
   function() {
@@ -39149,6 +42557,15 @@ enifed("ember-runtime/tests/mixins/target_action_support_test",
       ok(true === obj.triggerAction({actionContext: null}), "a valid target and action were specified");
     });
   });
+enifed("ember-runtime/tests/mixins/target_action_support_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/mixins');
+    test('ember-runtime/tests/mixins/target_action_support_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/mixins/target_action_support_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/mixins/target_action_support_test.jshint",
   [],
   function() {
@@ -39210,6 +42627,15 @@ enifed("ember-runtime/tests/suites/array",
     __exports__.ArrayTests = ArrayTests;
     __exports__.ObserverClass = ObserverClass;
   });
+enifed("ember-runtime/tests/suites/array.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites');
+    test('ember-runtime/tests/suites/array.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/array.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/suites/array.jshint",
   [],
   function() {
@@ -39250,6 +42676,15 @@ enifed("ember-runtime/tests/suites/array/indexOf",
     });
 
     __exports__["default"] = suite;
+  });
+enifed("ember-runtime/tests/suites/array/indexOf.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/array');
+    test('ember-runtime/tests/suites/array/indexOf.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/array/indexOf.js should pass jscs.');
+    });
   });
 enifed("ember-runtime/tests/suites/array/indexOf.jshint",
   [],
@@ -39333,6 +42768,15 @@ enifed("ember-runtime/tests/suites/array/lastIndexOf",
 
     __exports__["default"] = suite;
   });
+enifed("ember-runtime/tests/suites/array/lastIndexOf.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/array');
+    test('ember-runtime/tests/suites/array/lastIndexOf.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/array/lastIndexOf.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/suites/array/lastIndexOf.jshint",
   [],
   function() {
@@ -39376,6 +42820,15 @@ enifed("ember-runtime/tests/suites/array/objectAt",
     });
 
     __exports__["default"] = suite;
+  });
+enifed("ember-runtime/tests/suites/array/objectAt.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/array');
+    test('ember-runtime/tests/suites/array/objectAt.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/array/objectAt.js should pass jscs.');
+    });
   });
 enifed("ember-runtime/tests/suites/array/objectAt.jshint",
   [],
@@ -39436,6 +42889,15 @@ enifed("ember-runtime/tests/suites/copyable",
 
     __exports__["default"] = CopyableTests;
   });
+enifed("ember-runtime/tests/suites/copyable.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites');
+    test('ember-runtime/tests/suites/copyable.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/copyable.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/suites/copyable.jshint",
   [],
   function() {
@@ -39462,6 +42924,15 @@ enifed("ember-runtime/tests/suites/copyable/copy",
     });
 
     __exports__["default"] = suite;
+  });
+enifed("ember-runtime/tests/suites/copyable/copy.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/copyable');
+    test('ember-runtime/tests/suites/copyable/copy.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/copyable/copy.js should pass jscs.');
+    });
   });
 enifed("ember-runtime/tests/suites/copyable/copy.jshint",
   [],
@@ -39505,6 +42976,15 @@ enifed("ember-runtime/tests/suites/copyable/frozenCopy",
     });
 
     __exports__["default"] = suite;
+  });
+enifed("ember-runtime/tests/suites/copyable/frozenCopy.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/copyable');
+    test('ember-runtime/tests/suites/copyable/frozenCopy.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/copyable/frozenCopy.js should pass jscs.');
+    });
   });
 enifed("ember-runtime/tests/suites/copyable/frozenCopy.jshint",
   [],
@@ -39820,6 +43300,15 @@ enifed("ember-runtime/tests/suites/enumerable",
     __exports__.EnumerableTests = EnumerableTests;
     __exports__.ObserverClass = ObserverClass;
   });
+enifed("ember-runtime/tests/suites/enumerable.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites');
+    test('ember-runtime/tests/suites/enumerable.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/enumerable.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/suites/enumerable.jshint",
   [],
   function() {
@@ -39922,6 +43411,15 @@ enifed("ember-runtime/tests/suites/enumerable/any",
 
     __exports__["default"] = suite;
   });
+enifed("ember-runtime/tests/suites/enumerable/any.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/enumerable');
+    test('ember-runtime/tests/suites/enumerable/any.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/enumerable/any.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/suites/enumerable/any.jshint",
   [],
   function() {
@@ -39948,6 +43446,15 @@ enifed("ember-runtime/tests/suites/enumerable/compact",
     });
 
     __exports__["default"] = suite;
+  });
+enifed("ember-runtime/tests/suites/enumerable/compact.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/enumerable');
+    test('ember-runtime/tests/suites/enumerable/compact.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/enumerable/compact.js should pass jscs.');
+    });
   });
 enifed("ember-runtime/tests/suites/enumerable/compact.jshint",
   [],
@@ -39981,6 +43488,15 @@ enifed("ember-runtime/tests/suites/enumerable/contains",
     });
 
     __exports__["default"] = suite;
+  });
+enifed("ember-runtime/tests/suites/enumerable/contains.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/enumerable');
+    test('ember-runtime/tests/suites/enumerable/contains.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/enumerable/contains.js should pass jscs.');
+    });
   });
 enifed("ember-runtime/tests/suites/enumerable/contains.jshint",
   [],
@@ -40089,6 +43605,15 @@ enifed("ember-runtime/tests/suites/enumerable/every",
     });
 
     __exports__["default"] = suite;
+  });
+enifed("ember-runtime/tests/suites/enumerable/every.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/enumerable');
+    test('ember-runtime/tests/suites/enumerable/every.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/enumerable/every.js should pass jscs.');
+    });
   });
 enifed("ember-runtime/tests/suites/enumerable/every.jshint",
   [],
@@ -40247,6 +43772,15 @@ enifed("ember-runtime/tests/suites/enumerable/filter",
 
     __exports__["default"] = suite;
   });
+enifed("ember-runtime/tests/suites/enumerable/filter.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/enumerable');
+    test('ember-runtime/tests/suites/enumerable/filter.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/enumerable/filter.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/suites/enumerable/filter.jshint",
   [],
   function() {
@@ -40368,6 +43902,15 @@ enifed("ember-runtime/tests/suites/enumerable/find",
 
     __exports__["default"] = suite;
   });
+enifed("ember-runtime/tests/suites/enumerable/find.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/enumerable');
+    test('ember-runtime/tests/suites/enumerable/find.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/enumerable/find.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/suites/enumerable/find.jshint",
   [],
   function() {
@@ -40399,6 +43942,15 @@ enifed("ember-runtime/tests/suites/enumerable/firstObject",
     });
 
     __exports__["default"] = suite;
+  });
+enifed("ember-runtime/tests/suites/enumerable/firstObject.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/enumerable');
+    test('ember-runtime/tests/suites/enumerable/firstObject.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/enumerable/firstObject.js should pass jscs.');
+    });
   });
 enifed("ember-runtime/tests/suites/enumerable/firstObject.jshint",
   [],
@@ -40488,6 +44040,15 @@ enifed("ember-runtime/tests/suites/enumerable/forEach",
 
     __exports__["default"] = suite;
   });
+enifed("ember-runtime/tests/suites/enumerable/forEach.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/enumerable');
+    test('ember-runtime/tests/suites/enumerable/forEach.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/enumerable/forEach.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/suites/enumerable/forEach.jshint",
   [],
   function() {
@@ -40535,6 +44096,15 @@ enifed("ember-runtime/tests/suites/enumerable/invoke",
     });
 
     __exports__["default"] = suite;
+  });
+enifed("ember-runtime/tests/suites/enumerable/invoke.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/enumerable');
+    test('ember-runtime/tests/suites/enumerable/invoke.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/enumerable/invoke.js should pass jscs.');
+    });
   });
 enifed("ember-runtime/tests/suites/enumerable/invoke.jshint",
   [],
@@ -40624,6 +44194,15 @@ enifed("ember-runtime/tests/suites/enumerable/is_any",
 
     __exports__["default"] = suite;
   });
+enifed("ember-runtime/tests/suites/enumerable/is_any.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/enumerable');
+    test('ember-runtime/tests/suites/enumerable/is_any.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/enumerable/is_any.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/suites/enumerable/is_any.jshint",
   [],
   function() {
@@ -40658,6 +44237,15 @@ enifed("ember-runtime/tests/suites/enumerable/lastObject",
     });
 
     __exports__["default"] = suite;
+  });
+enifed("ember-runtime/tests/suites/enumerable/lastObject.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/enumerable');
+    test('ember-runtime/tests/suites/enumerable/lastObject.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/enumerable/lastObject.js should pass jscs.');
+    });
   });
 enifed("ember-runtime/tests/suites/enumerable/lastObject.jshint",
   [],
@@ -40749,6 +44337,15 @@ enifed("ember-runtime/tests/suites/enumerable/map",
 
     __exports__["default"] = suite;
   });
+enifed("ember-runtime/tests/suites/enumerable/map.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/enumerable');
+    test('ember-runtime/tests/suites/enumerable/map.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/enumerable/map.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/suites/enumerable/map.jshint",
   [],
   function() {
@@ -40784,6 +44381,15 @@ enifed("ember-runtime/tests/suites/enumerable/mapBy",
     });
 
     __exports__["default"] = suite;
+  });
+enifed("ember-runtime/tests/suites/enumerable/mapBy.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/enumerable');
+    test('ember-runtime/tests/suites/enumerable/mapBy.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/enumerable/mapBy.js should pass jscs.');
+    });
   });
 enifed("ember-runtime/tests/suites/enumerable/mapBy.jshint",
   [],
@@ -40823,6 +44429,15 @@ enifed("ember-runtime/tests/suites/enumerable/reduce",
     });
 
     __exports__["default"] = suite;
+  });
+enifed("ember-runtime/tests/suites/enumerable/reduce.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/enumerable');
+    test('ember-runtime/tests/suites/enumerable/reduce.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/enumerable/reduce.js should pass jscs.');
+    });
   });
 enifed("ember-runtime/tests/suites/enumerable/reduce.jshint",
   [],
@@ -40991,6 +44606,15 @@ enifed("ember-runtime/tests/suites/enumerable/reject",
 
     __exports__["default"] = suite;
   });
+enifed("ember-runtime/tests/suites/enumerable/reject.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/enumerable');
+    test('ember-runtime/tests/suites/enumerable/reject.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/enumerable/reject.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/suites/enumerable/reject.jshint",
   [],
   function() {
@@ -41029,6 +44653,15 @@ enifed("ember-runtime/tests/suites/enumerable/sortBy",
 
     __exports__["default"] = suite;
   });
+enifed("ember-runtime/tests/suites/enumerable/sortBy.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/enumerable');
+    test('ember-runtime/tests/suites/enumerable/sortBy.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/enumerable/sortBy.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/suites/enumerable/sortBy.jshint",
   [],
   function() {
@@ -41054,6 +44687,15 @@ enifed("ember-runtime/tests/suites/enumerable/toArray",
     });
 
     __exports__["default"] = suite;
+  });
+enifed("ember-runtime/tests/suites/enumerable/toArray.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/enumerable');
+    test('ember-runtime/tests/suites/enumerable/toArray.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/enumerable/toArray.js should pass jscs.');
+    });
   });
 enifed("ember-runtime/tests/suites/enumerable/toArray.jshint",
   [],
@@ -41096,6 +44738,15 @@ enifed("ember-runtime/tests/suites/enumerable/uniq",
     });
 
     __exports__["default"] = suite;
+  });
+enifed("ember-runtime/tests/suites/enumerable/uniq.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/enumerable');
+    test('ember-runtime/tests/suites/enumerable/uniq.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/enumerable/uniq.js should pass jscs.');
+    });
   });
 enifed("ember-runtime/tests/suites/enumerable/uniq.jshint",
   [],
@@ -41140,6 +44791,15 @@ enifed("ember-runtime/tests/suites/enumerable/without",
 
     __exports__["default"] = suite;
   });
+enifed("ember-runtime/tests/suites/enumerable/without.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/enumerable');
+    test('ember-runtime/tests/suites/enumerable/without.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/enumerable/without.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/suites/enumerable/without.jshint",
   [],
   function() {
@@ -41177,6 +44837,15 @@ enifed("ember-runtime/tests/suites/mutable_array",
     MutableArrayTests.importModuleTests(reverseObjectsTests);
 
     __exports__["default"] = MutableArrayTests;
+  });
+enifed("ember-runtime/tests/suites/mutable_array.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites');
+    test('ember-runtime/tests/suites/mutable_array.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/mutable_array.js should pass jscs.');
+    });
   });
 enifed("ember-runtime/tests/suites/mutable_array.jshint",
   [],
@@ -41255,6 +44924,15 @@ enifed("ember-runtime/tests/suites/mutable_array/addObject",
 
     __exports__["default"] = suite;
   });
+enifed("ember-runtime/tests/suites/mutable_array/addObject.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/mutable_array');
+    test('ember-runtime/tests/suites/mutable_array/addObject.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/mutable_array/addObject.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/suites/mutable_array/addObject.jshint",
   [],
   function() {
@@ -41317,6 +44995,15 @@ enifed("ember-runtime/tests/suites/mutable_array/clear",
     });
 
     __exports__["default"] = suite;
+  });
+enifed("ember-runtime/tests/suites/mutable_array/clear.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/mutable_array');
+    test('ember-runtime/tests/suites/mutable_array/clear.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/mutable_array/clear.js should pass jscs.');
+    });
   });
 enifed("ember-runtime/tests/suites/mutable_array/clear.jshint",
   [],
@@ -41536,6 +45223,15 @@ enifed("ember-runtime/tests/suites/mutable_array/insertAt",
 
     __exports__["default"] = suite;
   });
+enifed("ember-runtime/tests/suites/mutable_array/insertAt.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/mutable_array');
+    test('ember-runtime/tests/suites/mutable_array/insertAt.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/mutable_array/insertAt.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/suites/mutable_array/insertAt.jshint",
   [],
   function() {
@@ -41621,6 +45317,15 @@ enifed("ember-runtime/tests/suites/mutable_array/popObject",
 
     __exports__["default"] = suite;
   });
+enifed("ember-runtime/tests/suites/mutable_array/popObject.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/mutable_array');
+    test('ember-runtime/tests/suites/mutable_array/popObject.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/mutable_array/popObject.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/suites/mutable_array/popObject.jshint",
   [],
   function() {
@@ -41693,6 +45398,15 @@ enifed("ember-runtime/tests/suites/mutable_array/pushObject",
 
     __exports__["default"] = suite;
   });
+enifed("ember-runtime/tests/suites/mutable_array/pushObject.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/mutable_array');
+    test('ember-runtime/tests/suites/mutable_array/pushObject.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/mutable_array/pushObject.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/suites/mutable_array/pushObject.jshint",
   [],
   function() {
@@ -41721,6 +45435,15 @@ enifed("ember-runtime/tests/suites/mutable_array/pushObjects",
     });
 
     __exports__["default"] = suite;
+  });
+enifed("ember-runtime/tests/suites/mutable_array/pushObjects.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/mutable_array');
+    test('ember-runtime/tests/suites/mutable_array/pushObjects.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/mutable_array/pushObjects.js should pass jscs.');
+    });
   });
 enifed("ember-runtime/tests/suites/mutable_array/pushObjects.jshint",
   [],
@@ -41860,6 +45583,15 @@ enifed("ember-runtime/tests/suites/mutable_array/removeAt",
 
     __exports__["default"] = suite;
   });
+enifed("ember-runtime/tests/suites/mutable_array/removeAt.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/mutable_array');
+    test('ember-runtime/tests/suites/mutable_array/removeAt.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/mutable_array/removeAt.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/suites/mutable_array/removeAt.jshint",
   [],
   function() {
@@ -41936,6 +45668,15 @@ enifed("ember-runtime/tests/suites/mutable_array/removeObject",
     });
 
     __exports__["default"] = suite;
+  });
+enifed("ember-runtime/tests/suites/mutable_array/removeObject.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/mutable_array');
+    test('ember-runtime/tests/suites/mutable_array/removeObject.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/mutable_array/removeObject.js should pass jscs.');
+    });
   });
 enifed("ember-runtime/tests/suites/mutable_array/removeObject.jshint",
   [],
@@ -42094,6 +45835,15 @@ enifed("ember-runtime/tests/suites/mutable_array/replace",
 
     __exports__["default"] = suite;
   });
+enifed("ember-runtime/tests/suites/mutable_array/replace.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/mutable_array');
+    test('ember-runtime/tests/suites/mutable_array/replace.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/mutable_array/replace.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/suites/mutable_array/replace.jshint",
   [],
   function() {
@@ -42136,6 +45886,15 @@ enifed("ember-runtime/tests/suites/mutable_array/reverseObjects",
     });
 
     __exports__["default"] = suite;
+  });
+enifed("ember-runtime/tests/suites/mutable_array/reverseObjects.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/mutable_array');
+    test('ember-runtime/tests/suites/mutable_array/reverseObjects.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/mutable_array/reverseObjects.js should pass jscs.');
+    });
   });
 enifed("ember-runtime/tests/suites/mutable_array/reverseObjects.jshint",
   [],
@@ -42199,6 +45958,15 @@ enifed("ember-runtime/tests/suites/mutable_array/setObjects",
     });
 
     __exports__["default"] = suite;
+  });
+enifed("ember-runtime/tests/suites/mutable_array/setObjects.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/mutable_array');
+    test('ember-runtime/tests/suites/mutable_array/setObjects.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/mutable_array/setObjects.js should pass jscs.');
+    });
   });
 enifed("ember-runtime/tests/suites/mutable_array/setObjects.jshint",
   [],
@@ -42286,6 +46054,15 @@ enifed("ember-runtime/tests/suites/mutable_array/shiftObject",
     });
 
     __exports__["default"] = suite;
+  });
+enifed("ember-runtime/tests/suites/mutable_array/shiftObject.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/mutable_array');
+    test('ember-runtime/tests/suites/mutable_array/shiftObject.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/mutable_array/shiftObject.js should pass jscs.');
+    });
   });
 enifed("ember-runtime/tests/suites/mutable_array/shiftObject.jshint",
   [],
@@ -42384,6 +46161,15 @@ enifed("ember-runtime/tests/suites/mutable_array/unshiftObject",
 
     __exports__["default"] = suite;
   });
+enifed("ember-runtime/tests/suites/mutable_array/unshiftObject.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/mutable_array');
+    test('ember-runtime/tests/suites/mutable_array/unshiftObject.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/mutable_array/unshiftObject.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/suites/mutable_array/unshiftObject.jshint",
   [],
   function() {
@@ -42478,6 +46264,15 @@ enifed("ember-runtime/tests/suites/mutable_array/unshiftObjects",
 
     __exports__["default"] = suite;
   });
+enifed("ember-runtime/tests/suites/mutable_array/unshiftObjects.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/mutable_array');
+    test('ember-runtime/tests/suites/mutable_array/unshiftObjects.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/mutable_array/unshiftObjects.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/suites/mutable_array/unshiftObjects.jshint",
   [],
   function() {
@@ -42503,6 +46298,15 @@ enifed("ember-runtime/tests/suites/mutable_enumerable",
     MutableEnumerableTests.importModuleTests(removeObjectsTests);
 
     __exports__["default"] = MutableEnumerableTests;
+  });
+enifed("ember-runtime/tests/suites/mutable_enumerable.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites');
+    test('ember-runtime/tests/suites/mutable_enumerable.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/mutable_enumerable.js should pass jscs.');
+    });
   });
 enifed("ember-runtime/tests/suites/mutable_enumerable.jshint",
   [],
@@ -42591,6 +46395,15 @@ enifed("ember-runtime/tests/suites/mutable_enumerable/addObject",
 
     __exports__["default"] = suite;
   });
+enifed("ember-runtime/tests/suites/mutable_enumerable/addObject.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/mutable_enumerable');
+    test('ember-runtime/tests/suites/mutable_enumerable/addObject.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/mutable_enumerable/addObject.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/suites/mutable_enumerable/addObject.jshint",
   [],
   function() {
@@ -42678,6 +46491,15 @@ enifed("ember-runtime/tests/suites/mutable_enumerable/removeObject",
     });
 
     __exports__["default"] = suite;
+  });
+enifed("ember-runtime/tests/suites/mutable_enumerable/removeObject.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/mutable_enumerable');
+    test('ember-runtime/tests/suites/mutable_enumerable/removeObject.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/mutable_enumerable/removeObject.js should pass jscs.');
+    });
   });
 enifed("ember-runtime/tests/suites/mutable_enumerable/removeObject.jshint",
   [],
@@ -42883,6 +46705,15 @@ enifed("ember-runtime/tests/suites/mutable_enumerable/removeObjects",
 
     __exports__["default"] = suite;
   });
+enifed("ember-runtime/tests/suites/mutable_enumerable/removeObjects.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites/mutable_enumerable');
+    test('ember-runtime/tests/suites/mutable_enumerable/removeObjects.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/mutable_enumerable/removeObjects.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/suites/mutable_enumerable/removeObjects.jshint",
   [],
   function() {
@@ -43032,6 +46863,15 @@ enifed("ember-runtime/tests/suites/suite",
 
     __exports__["default"] = Suite;
   });
+enifed("ember-runtime/tests/suites/suite.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/suites');
+    test('ember-runtime/tests/suites/suite.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/suites/suite.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/suites/suite.jshint",
   [],
   function() {
@@ -43053,6 +46893,15 @@ enifed("ember-runtime/tests/system/application/base_test",
     test('Ember.Application should be a subclass of Ember.Namespace', function() {
 
       ok(Namespace.detect(Application), 'Ember.Application subclass of Ember.Namespace');
+    });
+  });
+enifed("ember-runtime/tests/system/application/base_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/application');
+    test('ember-runtime/tests/system/application/base_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/application/base_test.js should pass jscs.');
     });
   });
 enifed("ember-runtime/tests/system/application/base_test.jshint",
@@ -43371,6 +47220,15 @@ enifed("ember-runtime/tests/system/array_proxy/arranged_content_test",
       equal(array.get('firstObject'), '5', 'returns first arranged object');
     });
   });
+enifed("ember-runtime/tests/system/array_proxy/arranged_content_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/array_proxy');
+    test('ember-runtime/tests/system/array_proxy/arranged_content_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/array_proxy/arranged_content_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/system/array_proxy/arranged_content_test.jshint",
   [],
   function() {
@@ -43467,6 +47325,15 @@ enifed("ember-runtime/tests/system/array_proxy/content_change_test",
       ok(true, "No exception was raised");
     });
   });
+enifed("ember-runtime/tests/system/array_proxy/content_change_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/array_proxy');
+    test('ember-runtime/tests/system/array_proxy/content_change_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/array_proxy/content_change_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/system/array_proxy/content_change_test.jshint",
   [],
   function() {
@@ -43511,6 +47378,15 @@ enifed("ember-runtime/tests/system/array_proxy/content_update_test",
       ok(observerCalled, "contentArrayDidChange is invoked");
     });
   });
+enifed("ember-runtime/tests/system/array_proxy/content_update_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/array_proxy');
+    test('ember-runtime/tests/system/array_proxy/content_update_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/array_proxy/content_update_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/system/array_proxy/content_update_test.jshint",
   [],
   function() {
@@ -43547,6 +47423,15 @@ enifed("ember-runtime/tests/system/array_proxy/suite_test",
       }
 
     }).run();
+  });
+enifed("ember-runtime/tests/system/array_proxy/suite_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/array_proxy');
+    test('ember-runtime/tests/system/array_proxy/suite_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/array_proxy/suite_test.js should pass jscs.');
+    });
   });
 enifed("ember-runtime/tests/system/array_proxy/suite_test.jshint",
   [],
@@ -43598,6 +47483,15 @@ enifed("ember-runtime/tests/system/deferred_test",
           equal(rejectedValue, rejected, "The resolved value should be correct");
         });
       });
+    });
+  });
+enifed("ember-runtime/tests/system/deferred_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system');
+    test('ember-runtime/tests/system/deferred_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/deferred_test.js should pass jscs.');
     });
   });
 enifed("ember-runtime/tests/system/deferred_test.jshint",
@@ -43683,6 +47577,15 @@ enifed("ember-runtime/tests/system/lazy_load_test",
         });
       });
     }
+  });
+enifed("ember-runtime/tests/system/lazy_load_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system');
+    test('ember-runtime/tests/system/lazy_load_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/lazy_load_test.js should pass jscs.');
+    });
   });
 enifed("ember-runtime/tests/system/lazy_load_test.jshint",
   [],
@@ -43826,6 +47729,15 @@ enifed("ember-runtime/tests/system/namespace/base_test",
       equal(Namespace.byName('CF'), undefined, "namespace can not be found after destroyed");
     });
   });
+enifed("ember-runtime/tests/system/namespace/base_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/namespace');
+    test('ember-runtime/tests/system/namespace/base_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/namespace/base_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/system/namespace/base_test.jshint",
   [],
   function() {
@@ -43870,6 +47782,15 @@ enifed("ember-runtime/tests/system/native_array/copyable_suite_test",
       ok(copiedArray[0] !== array[0], "objects inside should be unique");
     });
   });
+enifed("ember-runtime/tests/system/native_array/copyable_suite_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/native_array');
+    test('ember-runtime/tests/system/native_array/copyable_suite_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/native_array/copyable_suite_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/system/native_array/copyable_suite_test.jshint",
   [],
   function() {
@@ -43902,6 +47823,15 @@ enifed("ember-runtime/tests/system/native_array/suite_test",
       }
 
     }).run();
+  });
+enifed("ember-runtime/tests/system/native_array/suite_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/native_array');
+    test('ember-runtime/tests/system/native_array/suite_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/native_array/suite_test.js should pass jscs.');
+    });
   });
 enifed("ember-runtime/tests/system/native_array/suite_test.jshint",
   [],
@@ -44157,6 +48087,15 @@ enifed("ember-runtime/tests/system/object/computed_test",
       });
 
       deepEqual(list.sort(), ['bar', 'foo', 'baz'].sort(), 'expected three computed properties');
+    });
+  });
+enifed("ember-runtime/tests/system/object/computed_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/object');
+    test('ember-runtime/tests/system/object/computed_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/object/computed_test.js should pass jscs.');
     });
   });
 enifed("ember-runtime/tests/system/object/computed_test.jshint",
@@ -44527,6 +48466,15 @@ enifed("ember-runtime/tests/system/object/create_test",
       deepEqual(actualProperties, expectedProperties, 'internal properties do not leak');
     });
   });
+enifed("ember-runtime/tests/system/object/create_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/object');
+    test('ember-runtime/tests/system/object/create_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/object/create_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/system/object/create_test.jshint",
   [],
   function() {
@@ -44712,6 +48660,15 @@ enifed("ember-runtime/tests/system/object/destroy_test",
       ok(foo.get('value'), 'foo is synced when the binding is updated in the willDestroy hook');
     });
   });
+enifed("ember-runtime/tests/system/object/destroy_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/object');
+    test('ember-runtime/tests/system/object/destroy_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/object/destroy_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/system/object/destroy_test.jshint",
   [],
   function() {
@@ -44762,6 +48719,15 @@ enifed("ember-runtime/tests/system/object/detectInstance_test",
 
     });
   });
+enifed("ember-runtime/tests/system/object/detectInstance_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/object');
+    test('ember-runtime/tests/system/object/detectInstance_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/object/detectInstance_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/system/object/detectInstance_test.jshint",
   [],
   function() {
@@ -44805,6 +48771,15 @@ enifed("ember-runtime/tests/system/object/detect_test",
       ok( !C.detect(B), 'B is not a C class' );
       ok( C.detect(C), 'C is a C class' );
 
+    });
+  });
+enifed("ember-runtime/tests/system/object/detect_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/object');
+    test('ember-runtime/tests/system/object/detect_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/object/detect_test.js should pass jscs.');
     });
   });
 enifed("ember-runtime/tests/system/object/detect_test.jshint",
@@ -44963,6 +48938,15 @@ enifed("ember-runtime/tests/system/object/events_test",
       equal(ret, obj, '#one returns self');
     });
   });
+enifed("ember-runtime/tests/system/object/events_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/object');
+    test('ember-runtime/tests/system/object/events_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/object/events_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/system/object/events_test.jshint",
   [],
   function() {
@@ -45060,6 +49044,15 @@ enifed("ember-runtime/tests/system/object/extend_test",
       deepEqual(get(some.constructor, 'things'), ['foo'], 'base class should have just its value');
       deepEqual(get(another.constructor, 'things'), ['foo', 'bar'], "subclass should have base class' and its own");
       deepEqual(get(yetAnother.constructor, 'things'), ['foo', 'baz'], "subclass should have base class' and its own");
+    });
+  });
+enifed("ember-runtime/tests/system/object/extend_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/object');
+    test('ember-runtime/tests/system/object/extend_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/object/extend_test.js should pass jscs.');
     });
   });
 enifed("ember-runtime/tests/system/object/extend_test.jshint",
@@ -45307,6 +49300,15 @@ enifed("ember-runtime/tests/system/object/observer_test",
       equal(changed, true, 'child should have been notified of change to path');
     });
   });
+enifed("ember-runtime/tests/system/object/observer_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/object');
+    test('ember-runtime/tests/system/object/observer_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/object/observer_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/system/object/observer_test.jshint",
   [],
   function() {
@@ -45349,6 +49351,15 @@ enifed("ember-runtime/tests/system/object/reopenClass_test",
 
       equal(SubSub.foo(), 'FOO', 'Adds method');
       equal(get(SubSub, 'bar'), 'BAR', 'Adds property');
+    });
+  });
+enifed("ember-runtime/tests/system/object/reopenClass_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/object');
+    test('ember-runtime/tests/system/object/reopenClass_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/object/reopenClass_test.js should pass jscs.');
     });
   });
 enifed("ember-runtime/tests/system/object/reopenClass_test.jshint",
@@ -45408,6 +49419,15 @@ enifed("ember-runtime/tests/system/object/reopen_test",
       equal(Subclass.create().get('trololol'), true, "reopen works");
     });
   });
+enifed("ember-runtime/tests/system/object/reopen_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/object');
+    test('ember-runtime/tests/system/object/reopen_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/object/reopen_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/system/object/reopen_test.jshint",
   [],
   function() {
@@ -45447,6 +49467,15 @@ enifed("ember-runtime/tests/system/object/strict-mode-test",
       var bar = Bar.create();
 
       equal(bar.callBlah(), 'bar', 'can call local function without call/apply');
+    });
+  });
+enifed("ember-runtime/tests/system/object/strict-mode-test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/object');
+    test('ember-runtime/tests/system/object/strict-mode-test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/object/strict-mode-test.js should pass jscs.');
     });
   });
 enifed("ember-runtime/tests/system/object/strict-mode-test.jshint",
@@ -45497,6 +49526,15 @@ enifed("ember-runtime/tests/system/object/subclasses_test",
         objWithChains.set('obj.hi', 'hello');
       });
       equal(subSub.get('greeting'), 'hello world');
+    });
+  });
+enifed("ember-runtime/tests/system/object/subclasses_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/object');
+    test('ember-runtime/tests/system/object/subclasses_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/object/subclasses_test.js should pass jscs.');
     });
   });
 enifed("ember-runtime/tests/system/object/subclasses_test.jshint",
@@ -45609,6 +49647,15 @@ enifed("ember-runtime/tests/system/object/toString_test",
 
       equal(bar.toString(), '<Bar:'+guidFor(bar)+'>', 'does not include toStringExtension part');
       equal(foo.toString(), '<Foo:'+guidFor(foo)+':fooey>', 'Includes toStringExtension result');
+    });
+  });
+enifed("ember-runtime/tests/system/object/toString_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/object');
+    test('ember-runtime/tests/system/object/toString_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/object/toString_test.js should pass jscs.');
     });
   });
 enifed("ember-runtime/tests/system/object/toString_test.jshint",
@@ -45820,6 +49867,15 @@ enifed("ember-runtime/tests/system/object_proxy_test",
       equal(get(proxyObject, 'prop'), undefined, 'sets the `undefined` value to the proxied content');
     });
   });
+enifed("ember-runtime/tests/system/object_proxy_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system');
+    test('ember-runtime/tests/system/object_proxy_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/object_proxy_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/system/object_proxy_test.jshint",
   [],
   function() {
@@ -45872,6 +49928,15 @@ enifed("ember-runtime/tests/system/set/copyable_suite_test",
       shouldBeFreezable: true
     }).run();
   });
+enifed("ember-runtime/tests/system/set/copyable_suite_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/set');
+    test('ember-runtime/tests/system/set/copyable_suite_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/set/copyable_suite_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/system/set/copyable_suite_test.jshint",
   [],
   function() {
@@ -45922,6 +49987,15 @@ enifed("ember-runtime/tests/system/set/enumerable_suite_test",
       }
 
     }).run();
+  });
+enifed("ember-runtime/tests/system/set/enumerable_suite_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/set');
+    test('ember-runtime/tests/system/set/enumerable_suite_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/set/enumerable_suite_test.js should pass jscs.');
+    });
   });
 enifed("ember-runtime/tests/system/set/enumerable_suite_test.jshint",
   [],
@@ -46036,6 +50110,15 @@ enifed("ember-runtime/tests/system/set/extra_test",
       equal(aSet.shift, aSet.pop, 'shift -> pop');
     });
   });
+enifed("ember-runtime/tests/system/set/extra_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/set');
+    test('ember-runtime/tests/system/set/extra_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/set/extra_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/system/set/extra_test.jshint",
   [],
   function() {
@@ -46102,6 +50185,15 @@ enifed("ember-runtime/tests/system/string/camelize_test",
       }
     });
   });
+enifed("ember-runtime/tests/system/string/camelize_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/string');
+    test('ember-runtime/tests/system/string/camelize_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/string/camelize_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/system/string/camelize_test.jshint",
   [],
   function() {
@@ -46161,6 +50253,15 @@ enifed("ember-runtime/tests/system/string/capitalize_test",
       }
     });
   });
+enifed("ember-runtime/tests/system/string/capitalize_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/string');
+    test('ember-runtime/tests/system/string/capitalize_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/string/capitalize_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/system/string/capitalize_test.jshint",
   [],
   function() {
@@ -46211,6 +50312,15 @@ enifed("ember-runtime/tests/system/string/classify_test",
       if (Ember.EXTEND_PROTOTYPES) {
         deepEqual('InnerHTML'.classify(), 'InnerHTML');
       }
+    });
+  });
+enifed("ember-runtime/tests/system/string/classify_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/string');
+    test('ember-runtime/tests/system/string/classify_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/string/classify_test.js should pass jscs.');
     });
   });
 enifed("ember-runtime/tests/system/string/classify_test.jshint",
@@ -46272,6 +50382,15 @@ enifed("ember-runtime/tests/system/string/dasherize_test",
       }
     });
   });
+enifed("ember-runtime/tests/system/string/dasherize_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/string');
+    test('ember-runtime/tests/system/string/dasherize_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/string/dasherize_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/system/string/dasherize_test.jshint",
   [],
   function() {
@@ -46331,6 +50450,15 @@ enifed("ember-runtime/tests/system/string/decamelize_test",
       }
     });
   });
+enifed("ember-runtime/tests/system/string/decamelize_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/string');
+    test('ember-runtime/tests/system/string/decamelize_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/string/decamelize_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/system/string/decamelize_test.jshint",
   [],
   function() {
@@ -46387,6 +50515,15 @@ enifed("ember-runtime/tests/system/string/fmt_string_test",
     test("works with argument form", function() {
       equal(fmt('%@', 'John'), 'John');
       equal(fmt('%@ %@', ['John'], 'Doe'), '[John] Doe');
+    });
+  });
+enifed("ember-runtime/tests/system/string/fmt_string_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/string');
+    test('ember-runtime/tests/system/string/fmt_string_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/string/fmt_string_test.js should pass jscs.');
     });
   });
 enifed("ember-runtime/tests/system/string/fmt_string_test.jshint",
@@ -46462,6 +50599,15 @@ enifed("ember-runtime/tests/system/string/loc_test",
       equal(loc('_Hello %@ %@', ['John'], 'Doe'), 'Bonjour [John] Doe');
     });
   });
+enifed("ember-runtime/tests/system/string/loc_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/string');
+    test('ember-runtime/tests/system/string/loc_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/string/loc_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/system/string/loc_test.jshint",
   [],
   function() {
@@ -46514,6 +50660,15 @@ enifed("ember-runtime/tests/system/string/underscore_test",
       }
     });
   });
+enifed("ember-runtime/tests/system/string/underscore_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/string');
+    test('ember-runtime/tests/system/string/underscore_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/string/underscore_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/system/string/underscore_test.jshint",
   [],
   function() {
@@ -46557,6 +50712,15 @@ enifed("ember-runtime/tests/system/string/w_test",
       if (Ember.EXTEND_PROTOTYPES) {
         deepEqual('one\ttwo  three'.w(), ['one','two','three']);
       }
+    });
+  });
+enifed("ember-runtime/tests/system/string/w_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system/string');
+    test('ember-runtime/tests/system/string/w_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/string/w_test.js should pass jscs.');
     });
   });
 enifed("ember-runtime/tests/system/string/w_test.jshint",
@@ -46696,6 +50860,15 @@ enifed("ember-runtime/tests/system/subarray_test",
 
       subarray.addItem(1, true);
       equal(operationsString(), "r:2 f:1 r:1", "left-composition does not confuse right non-composition");
+    });
+  });
+enifed("ember-runtime/tests/system/subarray_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system');
+    test('ember-runtime/tests/system/subarray_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/subarray_test.js should pass jscs.');
     });
   });
 enifed("ember-runtime/tests/system/subarray_test.jshint",
@@ -46967,6 +51140,15 @@ enifed("ember-runtime/tests/system/tracked_array_test",
       equal(trackedArray.toString(), "r:6", "after `apply` operations become retain:n");
     });
   });
+enifed("ember-runtime/tests/system/tracked_array_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests/system');
+    test('ember-runtime/tests/system/tracked_array_test.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/system/tracked_array_test.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/system/tracked_array_test.jshint",
   [],
   function() {
@@ -46995,6 +51177,15 @@ enifed("ember-runtime/tests/utils",
     __exports__.runAppend = runAppend;
     __exports__.runDestroy = runDestroy;
   });
+enifed("ember-runtime/tests/utils.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-runtime/tests');
+    test('ember-runtime/tests/utils.js should pass jscs', function() {
+      ok(true, 'ember-runtime/tests/utils.js should pass jscs.');
+    });
+  });
 enifed("ember-runtime/tests/utils.jshint",
   [],
   function() {
@@ -47002,6 +51193,15 @@ enifed("ember-runtime/tests/utils.jshint",
     module('JSHint - ember-runtime/tests');
     test('ember-runtime/tests/utils.js should pass jshint', function() { 
       ok(true, 'ember-runtime/tests/utils.js should pass jshint.'); 
+    });
+  });
+enifed("ember-template-compiler.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - .');
+    test('ember-template-compiler.js should pass jscs', function() {
+      ok(true, 'ember-template-compiler.js should pass jscs.');
     });
   });
 enifed("ember-template-compiler.jshint",
@@ -47013,6 +51213,15 @@ enifed("ember-template-compiler.jshint",
       ok(true, 'ember-template-compiler.js should pass jshint.'); 
     });
   });
+enifed("ember-template-compiler/plugins.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-template-compiler');
+    test('ember-template-compiler/plugins.js should pass jscs', function() {
+      ok(true, 'ember-template-compiler/plugins.js should pass jscs.');
+    });
+  });
 enifed("ember-template-compiler/plugins.jshint",
   [],
   function() {
@@ -47020,6 +51229,15 @@ enifed("ember-template-compiler/plugins.jshint",
     module('JSHint - ember-template-compiler');
     test('ember-template-compiler/plugins.js should pass jshint', function() { 
       ok(true, 'ember-template-compiler/plugins.js should pass jshint.'); 
+    });
+  });
+enifed("ember-template-compiler/plugins/transform-each-in-to-hash.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-template-compiler/plugins');
+    test('ember-template-compiler/plugins/transform-each-in-to-hash.js should pass jscs', function() {
+      ok(true, 'ember-template-compiler/plugins/transform-each-in-to-hash.js should pass jscs.');
     });
   });
 enifed("ember-template-compiler/plugins/transform-each-in-to-hash.jshint",
@@ -47031,6 +51249,15 @@ enifed("ember-template-compiler/plugins/transform-each-in-to-hash.jshint",
       ok(true, 'ember-template-compiler/plugins/transform-each-in-to-hash.js should pass jshint.'); 
     });
   });
+enifed("ember-template-compiler/plugins/transform-with-as-to-hash.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-template-compiler/plugins');
+    test('ember-template-compiler/plugins/transform-with-as-to-hash.js should pass jscs', function() {
+      ok(true, 'ember-template-compiler/plugins/transform-with-as-to-hash.js should pass jscs.');
+    });
+  });
 enifed("ember-template-compiler/plugins/transform-with-as-to-hash.jshint",
   [],
   function() {
@@ -47038,6 +51265,15 @@ enifed("ember-template-compiler/plugins/transform-with-as-to-hash.jshint",
     module('JSHint - ember-template-compiler/plugins');
     test('ember-template-compiler/plugins/transform-with-as-to-hash.js should pass jshint', function() { 
       ok(true, 'ember-template-compiler/plugins/transform-with-as-to-hash.js should pass jshint.'); 
+    });
+  });
+enifed("ember-template-compiler/system/compile.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-template-compiler/system');
+    test('ember-template-compiler/system/compile.js should pass jscs', function() {
+      ok(true, 'ember-template-compiler/system/compile.js should pass jscs.');
     });
   });
 enifed("ember-template-compiler/system/compile.jshint",
@@ -47049,6 +51285,15 @@ enifed("ember-template-compiler/system/compile.jshint",
       ok(true, 'ember-template-compiler/system/compile.js should pass jshint.'); 
     });
   });
+enifed("ember-template-compiler/system/compile_options.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-template-compiler/system');
+    test('ember-template-compiler/system/compile_options.js should pass jscs', function() {
+      ok(true, 'ember-template-compiler/system/compile_options.js should pass jscs.');
+    });
+  });
 enifed("ember-template-compiler/system/compile_options.jshint",
   [],
   function() {
@@ -47058,6 +51303,15 @@ enifed("ember-template-compiler/system/compile_options.jshint",
       ok(true, 'ember-template-compiler/system/compile_options.js should pass jshint.'); 
     });
   });
+enifed("ember-template-compiler/system/precompile.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-template-compiler/system');
+    test('ember-template-compiler/system/precompile.js should pass jscs', function() {
+      ok(true, 'ember-template-compiler/system/precompile.js should pass jscs.');
+    });
+  });
 enifed("ember-template-compiler/system/precompile.jshint",
   [],
   function() {
@@ -47065,6 +51319,15 @@ enifed("ember-template-compiler/system/precompile.jshint",
     module('JSHint - ember-template-compiler/system');
     test('ember-template-compiler/system/precompile.js should pass jshint', function() { 
       ok(true, 'ember-template-compiler/system/precompile.js should pass jshint.'); 
+    });
+  });
+enifed("ember-template-compiler/system/template.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-template-compiler/system');
+    test('ember-template-compiler/system/template.js should pass jscs', function() {
+      ok(true, 'ember-template-compiler/system/template.js should pass jscs.');
     });
   });
 enifed("ember-template-compiler/system/template.jshint",
@@ -47081,6 +51344,15 @@ enifed("ember-template-compiler/tests/main_test",
   function() {
     "use strict";
 
+  });
+enifed("ember-template-compiler/tests/main_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-template-compiler/tests');
+    test('ember-template-compiler/tests/main_test.js should pass jscs', function() {
+      ok(true, 'ember-template-compiler/tests/main_test.js should pass jscs.');
+    });
   });
 enifed("ember-template-compiler/tests/main_test.jshint",
   [],
@@ -47135,6 +51407,15 @@ enifed("ember-template-compiler/tests/plugins_test",
       }, /Attempting to register "whatever" as "asdf" which is not a valid HTMLBars plugin type./);
     });
   });
+enifed("ember-template-compiler/tests/plugins_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-template-compiler/tests');
+    test('ember-template-compiler/tests/plugins_test.js should pass jscs', function() {
+      ok(true, 'ember-template-compiler/tests/plugins_test.js should pass jscs.');
+    });
+  });
 enifed("ember-template-compiler/tests/plugins_test.jshint",
   [],
   function() {
@@ -47175,6 +51456,15 @@ enifed("ember-template-compiler/tests/system/compile_test",
 
     
   });
+enifed("ember-template-compiler/tests/system/compile_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-template-compiler/tests/system');
+    test('ember-template-compiler/tests/system/compile_test.js should pass jscs', function() {
+      ok(true, 'ember-template-compiler/tests/system/compile_test.js should pass jscs.');
+    });
+  });
 enifed("ember-template-compiler/tests/system/compile_test.jshint",
   [],
   function() {
@@ -47212,6 +51502,15 @@ enifed("ember-template-compiler/tests/system/template_test",
 
     
   });
+enifed("ember-template-compiler/tests/system/template_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-template-compiler/tests/system');
+    test('ember-template-compiler/tests/system/template_test.js should pass jscs', function() {
+      ok(true, 'ember-template-compiler/tests/system/template_test.js should pass jscs.');
+    });
+  });
 enifed("ember-template-compiler/tests/system/template_test.jshint",
   [],
   function() {
@@ -47219,6 +51518,15 @@ enifed("ember-template-compiler/tests/system/template_test.jshint",
     module('JSHint - ember-template-compiler/tests/system');
     test('ember-template-compiler/tests/system/template_test.js should pass jshint', function() { 
       ok(true, 'ember-template-compiler/tests/system/template_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-testing.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - .');
+    test('ember-testing.js should pass jscs', function() {
+      ok(true, 'ember-testing.js should pass jscs.');
     });
   });
 enifed("ember-testing.jshint",
@@ -47230,6 +51538,15 @@ enifed("ember-testing.jshint",
       ok(true, 'ember-testing.js should pass jshint.'); 
     });
   });
+enifed("ember-testing/adapters/adapter.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-testing/adapters');
+    test('ember-testing/adapters/adapter.js should pass jscs', function() {
+      ok(true, 'ember-testing/adapters/adapter.js should pass jscs.');
+    });
+  });
 enifed("ember-testing/adapters/adapter.jshint",
   [],
   function() {
@@ -47237,6 +51554,15 @@ enifed("ember-testing/adapters/adapter.jshint",
     module('JSHint - ember-testing/adapters');
     test('ember-testing/adapters/adapter.js should pass jshint', function() { 
       ok(true, 'ember-testing/adapters/adapter.js should pass jshint.'); 
+    });
+  });
+enifed("ember-testing/adapters/qunit.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-testing/adapters');
+    test('ember-testing/adapters/qunit.js should pass jscs', function() {
+      ok(true, 'ember-testing/adapters/qunit.js should pass jscs.');
     });
   });
 enifed("ember-testing/adapters/qunit.jshint",
@@ -47248,6 +51574,15 @@ enifed("ember-testing/adapters/qunit.jshint",
       ok(true, 'ember-testing/adapters/qunit.js should pass jshint.'); 
     });
   });
+enifed("ember-testing/helpers.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-testing');
+    test('ember-testing/helpers.js should pass jscs', function() {
+      ok(true, 'ember-testing/helpers.js should pass jscs.');
+    });
+  });
 enifed("ember-testing/helpers.jshint",
   [],
   function() {
@@ -47255,6 +51590,15 @@ enifed("ember-testing/helpers.jshint",
     module('JSHint - ember-testing');
     test('ember-testing/helpers.js should pass jshint', function() { 
       ok(true, 'ember-testing/helpers.js should pass jshint.'); 
+    });
+  });
+enifed("ember-testing/initializers.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-testing');
+    test('ember-testing/initializers.js should pass jscs', function() {
+      ok(true, 'ember-testing/initializers.js should pass jscs.');
     });
   });
 enifed("ember-testing/initializers.jshint",
@@ -47266,6 +51610,15 @@ enifed("ember-testing/initializers.jshint",
       ok(true, 'ember-testing/initializers.js should pass jshint.'); 
     });
   });
+enifed("ember-testing/setup_for_testing.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-testing');
+    test('ember-testing/setup_for_testing.js should pass jscs', function() {
+      ok(true, 'ember-testing/setup_for_testing.js should pass jscs.');
+    });
+  });
 enifed("ember-testing/setup_for_testing.jshint",
   [],
   function() {
@@ -47275,6 +51628,15 @@ enifed("ember-testing/setup_for_testing.jshint",
       ok(true, 'ember-testing/setup_for_testing.js should pass jshint.'); 
     });
   });
+enifed("ember-testing/support.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-testing');
+    test('ember-testing/support.js should pass jscs', function() {
+      ok(true, 'ember-testing/support.js should pass jscs.');
+    });
+  });
 enifed("ember-testing/support.jshint",
   [],
   function() {
@@ -47282,6 +51644,15 @@ enifed("ember-testing/support.jshint",
     module('JSHint - ember-testing');
     test('ember-testing/support.js should pass jshint', function() { 
       ok(true, 'ember-testing/support.js should pass jshint.'); 
+    });
+  });
+enifed("ember-testing/test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-testing');
+    test('ember-testing/test.js should pass jscs', function() {
+      ok(true, 'ember-testing/test.js should pass jscs.');
     });
   });
 enifed("ember-testing/test.jshint",
@@ -47595,6 +51966,15 @@ enifed("ember-testing/tests/acceptance_test",
       });
     });
   });
+enifed("ember-testing/tests/acceptance_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-testing/tests');
+    test('ember-testing/tests/acceptance_test.js should pass jscs', function() {
+      ok(true, 'ember-testing/tests/acceptance_test.js should pass jscs.');
+    });
+  });
 enifed("ember-testing/tests/acceptance_test.jshint",
   [],
   function() {
@@ -47641,6 +52021,15 @@ enifed("ember-testing/tests/adapters/adapter_test",
         thrown = e;
       }
       equal(thrown, error);
+    });
+  });
+enifed("ember-testing/tests/adapters/adapter_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-testing/tests/adapters');
+    test('ember-testing/tests/adapters/adapter_test.js should pass jscs', function() {
+      ok(true, 'ember-testing/tests/adapters/adapter_test.js should pass jscs.');
     });
   });
 enifed("ember-testing/tests/adapters/adapter_test.jshint",
@@ -47708,6 +52097,15 @@ enifed("ember-testing/tests/adapters/qunit_test",
       }
     });
   });
+enifed("ember-testing/tests/adapters/qunit_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-testing/tests/adapters');
+    test('ember-testing/tests/adapters/qunit_test.js should pass jscs', function() {
+      ok(true, 'ember-testing/tests/adapters/qunit_test.js should pass jscs.');
+    });
+  });
 enifed("ember-testing/tests/adapters/qunit_test.jshint",
   [],
   function() {
@@ -47772,6 +52170,15 @@ enifed("ember-testing/tests/adapters_test",
       });
 
       ok(Test.adapter instanceof QUnitAdapter);
+    });
+  });
+enifed("ember-testing/tests/adapters_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-testing/tests');
+    test('ember-testing/tests/adapters_test.js should pass jscs', function() {
+      ok(true, 'ember-testing/tests/adapters_test.js should pass jscs.');
     });
   });
 enifed("ember-testing/tests/adapters_test.jshint",
@@ -47868,6 +52275,15 @@ enifed("ember-testing/tests/helper_registration_test",
 
       ok(!App.testHelpers.boot, "once unregistered the helper is not added to App.testHelpers");
       ok(!helperContainer.boot, "once unregistered the helper is not added to the helperContainer");
+    });
+  });
+enifed("ember-testing/tests/helper_registration_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-testing/tests');
+    test('ember-testing/tests/helper_registration_test.js should pass jscs', function() {
+      ok(true, 'ember-testing/tests/helper_registration_test.js should pass jscs.');
     });
   });
 enifed("ember-testing/tests/helper_registration_test.jshint",
@@ -48699,6 +53115,15 @@ enifed("ember-testing/tests/helpers_test",
       App.testHelpers.findWithAssert('.who-cares');
     });
   });
+enifed("ember-testing/tests/helpers_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-testing/tests');
+    test('ember-testing/tests/helpers_test.js should pass jscs', function() {
+      ok(true, 'ember-testing/tests/helpers_test.js should pass jscs.');
+    });
+  });
 enifed("ember-testing/tests/helpers_test.jshint",
   [],
   function() {
@@ -48836,6 +53261,15 @@ enifed("ember-testing/tests/integration_test",
       });
     });
   });
+enifed("ember-testing/tests/integration_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-testing/tests');
+    test('ember-testing/tests/integration_test.js should pass jscs', function() {
+      ok(true, 'ember-testing/tests/integration_test.js should pass jscs.');
+    });
+  });
 enifed("ember-testing/tests/integration_test.jshint",
   [],
   function() {
@@ -48865,6 +53299,15 @@ enifed("ember-testing/tests/simple_setup",
       }
     });
   });
+enifed("ember-testing/tests/simple_setup.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-testing/tests');
+    test('ember-testing/tests/simple_setup.js should pass jscs', function() {
+      ok(true, 'ember-testing/tests/simple_setup.js should pass jscs.');
+    });
+  });
 enifed("ember-testing/tests/simple_setup.jshint",
   [],
   function() {
@@ -48872,6 +53315,15 @@ enifed("ember-testing/tests/simple_setup.jshint",
     module('JSHint - ember-testing/tests');
     test('ember-testing/tests/simple_setup.js should pass jshint', function() { 
       ok(true, 'ember-testing/tests/simple_setup.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - .');
+    test('ember-views.js should pass jscs', function() {
+      ok(true, 'ember-views.js should pass jscs.');
     });
   });
 enifed("ember-views.jshint",
@@ -48883,6 +53335,15 @@ enifed("ember-views.jshint",
       ok(true, 'ember-views.js should pass jshint.'); 
     });
   });
+enifed("ember-views/component_lookup.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views');
+    test('ember-views/component_lookup.js should pass jscs', function() {
+      ok(true, 'ember-views/component_lookup.js should pass jscs.');
+    });
+  });
 enifed("ember-views/component_lookup.jshint",
   [],
   function() {
@@ -48890,6 +53351,15 @@ enifed("ember-views/component_lookup.jshint",
     module('JSHint - ember-views');
     test('ember-views/component_lookup.js should pass jshint', function() { 
       ok(true, 'ember-views/component_lookup.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/mixins/component_template_deprecation.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/mixins');
+    test('ember-views/mixins/component_template_deprecation.js should pass jscs', function() {
+      ok(true, 'ember-views/mixins/component_template_deprecation.js should pass jscs.');
     });
   });
 enifed("ember-views/mixins/component_template_deprecation.jshint",
@@ -48901,6 +53371,15 @@ enifed("ember-views/mixins/component_template_deprecation.jshint",
       ok(true, 'ember-views/mixins/component_template_deprecation.js should pass jshint.'); 
     });
   });
+enifed("ember-views/mixins/normalized_rerender_if_needed.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/mixins');
+    test('ember-views/mixins/normalized_rerender_if_needed.js should pass jscs', function() {
+      ok(true, 'ember-views/mixins/normalized_rerender_if_needed.js should pass jscs.');
+    });
+  });
 enifed("ember-views/mixins/normalized_rerender_if_needed.jshint",
   [],
   function() {
@@ -48908,6 +53387,15 @@ enifed("ember-views/mixins/normalized_rerender_if_needed.jshint",
     module('JSHint - ember-views/mixins');
     test('ember-views/mixins/normalized_rerender_if_needed.js should pass jshint', function() { 
       ok(true, 'ember-views/mixins/normalized_rerender_if_needed.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/mixins/text_support.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/mixins');
+    test('ember-views/mixins/text_support.js should pass jscs', function() {
+      ok(true, 'ember-views/mixins/text_support.js should pass jscs.');
     });
   });
 enifed("ember-views/mixins/text_support.jshint",
@@ -48919,6 +53407,15 @@ enifed("ember-views/mixins/text_support.jshint",
       ok(true, 'ember-views/mixins/text_support.js should pass jshint.'); 
     });
   });
+enifed("ember-views/mixins/view_target_action_support.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/mixins');
+    test('ember-views/mixins/view_target_action_support.js should pass jscs', function() {
+      ok(true, 'ember-views/mixins/view_target_action_support.js should pass jscs.');
+    });
+  });
 enifed("ember-views/mixins/view_target_action_support.jshint",
   [],
   function() {
@@ -48926,6 +53423,15 @@ enifed("ember-views/mixins/view_target_action_support.jshint",
     module('JSHint - ember-views/mixins');
     test('ember-views/mixins/view_target_action_support.js should pass jshint', function() { 
       ok(true, 'ember-views/mixins/view_target_action_support.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/streams/class_name_binding.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/streams');
+    test('ember-views/streams/class_name_binding.js should pass jscs', function() {
+      ok(true, 'ember-views/streams/class_name_binding.js should pass jscs.');
     });
   });
 enifed("ember-views/streams/class_name_binding.jshint",
@@ -48937,6 +53443,15 @@ enifed("ember-views/streams/class_name_binding.jshint",
       ok(true, 'ember-views/streams/class_name_binding.js should pass jshint.'); 
     });
   });
+enifed("ember-views/streams/context_stream.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/streams');
+    test('ember-views/streams/context_stream.js should pass jscs', function() {
+      ok(true, 'ember-views/streams/context_stream.js should pass jscs.');
+    });
+  });
 enifed("ember-views/streams/context_stream.jshint",
   [],
   function() {
@@ -48944,6 +53459,15 @@ enifed("ember-views/streams/context_stream.jshint",
     module('JSHint - ember-views/streams');
     test('ember-views/streams/context_stream.js should pass jshint', function() { 
       ok(true, 'ember-views/streams/context_stream.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/streams/key_stream.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/streams');
+    test('ember-views/streams/key_stream.js should pass jscs', function() {
+      ok(true, 'ember-views/streams/key_stream.js should pass jscs.');
     });
   });
 enifed("ember-views/streams/key_stream.jshint",
@@ -48955,6 +53479,15 @@ enifed("ember-views/streams/key_stream.jshint",
       ok(true, 'ember-views/streams/key_stream.js should pass jshint.'); 
     });
   });
+enifed("ember-views/streams/should_display.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/streams');
+    test('ember-views/streams/should_display.js should pass jscs', function() {
+      ok(true, 'ember-views/streams/should_display.js should pass jscs.');
+    });
+  });
 enifed("ember-views/streams/should_display.jshint",
   [],
   function() {
@@ -48962,6 +53495,15 @@ enifed("ember-views/streams/should_display.jshint",
     module('JSHint - ember-views/streams');
     test('ember-views/streams/should_display.js should pass jshint', function() { 
       ok(true, 'ember-views/streams/should_display.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/streams/utils.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/streams');
+    test('ember-views/streams/utils.js should pass jscs', function() {
+      ok(true, 'ember-views/streams/utils.js should pass jscs.');
     });
   });
 enifed("ember-views/streams/utils.jshint",
@@ -48973,6 +53515,15 @@ enifed("ember-views/streams/utils.jshint",
       ok(true, 'ember-views/streams/utils.js should pass jshint.'); 
     });
   });
+enifed("ember-views/system/action_manager.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/system');
+    test('ember-views/system/action_manager.js should pass jscs', function() {
+      ok(true, 'ember-views/system/action_manager.js should pass jscs.');
+    });
+  });
 enifed("ember-views/system/action_manager.jshint",
   [],
   function() {
@@ -48980,6 +53531,15 @@ enifed("ember-views/system/action_manager.jshint",
     module('JSHint - ember-views/system');
     test('ember-views/system/action_manager.js should pass jshint', function() { 
       ok(true, 'ember-views/system/action_manager.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/system/event_dispatcher.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/system');
+    test('ember-views/system/event_dispatcher.js should pass jscs', function() {
+      ok(true, 'ember-views/system/event_dispatcher.js should pass jscs.');
     });
   });
 enifed("ember-views/system/event_dispatcher.jshint",
@@ -48991,6 +53551,15 @@ enifed("ember-views/system/event_dispatcher.jshint",
       ok(true, 'ember-views/system/event_dispatcher.js should pass jshint.'); 
     });
   });
+enifed("ember-views/system/ext.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/system');
+    test('ember-views/system/ext.js should pass jscs', function() {
+      ok(true, 'ember-views/system/ext.js should pass jscs.');
+    });
+  });
 enifed("ember-views/system/ext.jshint",
   [],
   function() {
@@ -48998,6 +53567,15 @@ enifed("ember-views/system/ext.jshint",
     module('JSHint - ember-views/system');
     test('ember-views/system/ext.js should pass jshint', function() { 
       ok(true, 'ember-views/system/ext.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/system/jquery.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/system');
+    test('ember-views/system/jquery.js should pass jscs', function() {
+      ok(true, 'ember-views/system/jquery.js should pass jscs.');
     });
   });
 enifed("ember-views/system/jquery.jshint",
@@ -49009,6 +53587,15 @@ enifed("ember-views/system/jquery.jshint",
       ok(true, 'ember-views/system/jquery.js should pass jshint.'); 
     });
   });
+enifed("ember-views/system/lookup_partial.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/system');
+    test('ember-views/system/lookup_partial.js should pass jscs', function() {
+      ok(true, 'ember-views/system/lookup_partial.js should pass jscs.');
+    });
+  });
 enifed("ember-views/system/lookup_partial.jshint",
   [],
   function() {
@@ -49016,6 +53603,15 @@ enifed("ember-views/system/lookup_partial.jshint",
     module('JSHint - ember-views/system');
     test('ember-views/system/lookup_partial.js should pass jshint', function() { 
       ok(true, 'ember-views/system/lookup_partial.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/system/render_buffer.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/system');
+    test('ember-views/system/render_buffer.js should pass jscs', function() {
+      ok(true, 'ember-views/system/render_buffer.js should pass jscs.');
     });
   });
 enifed("ember-views/system/render_buffer.jshint",
@@ -49027,6 +53623,15 @@ enifed("ember-views/system/render_buffer.jshint",
       ok(true, 'ember-views/system/render_buffer.js should pass jshint.'); 
     });
   });
+enifed("ember-views/system/renderer.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/system');
+    test('ember-views/system/renderer.js should pass jscs', function() {
+      ok(true, 'ember-views/system/renderer.js should pass jscs.');
+    });
+  });
 enifed("ember-views/system/renderer.jshint",
   [],
   function() {
@@ -49036,6 +53641,15 @@ enifed("ember-views/system/renderer.jshint",
       ok(true, 'ember-views/system/renderer.js should pass jshint.'); 
     });
   });
+enifed("ember-views/system/sanitize_attribute_value.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/system');
+    test('ember-views/system/sanitize_attribute_value.js should pass jscs', function() {
+      ok(true, 'ember-views/system/sanitize_attribute_value.js should pass jscs.');
+    });
+  });
 enifed("ember-views/system/sanitize_attribute_value.jshint",
   [],
   function() {
@@ -49043,6 +53657,15 @@ enifed("ember-views/system/sanitize_attribute_value.jshint",
     module('JSHint - ember-views/system');
     test('ember-views/system/sanitize_attribute_value.js should pass jshint', function() { 
       ok(true, 'ember-views/system/sanitize_attribute_value.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/system/utils.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/system');
+    test('ember-views/system/utils.js should pass jscs', function() {
+      ok(true, 'ember-views/system/utils.js should pass jscs.');
     });
   });
 enifed("ember-views/system/utils.jshint",
@@ -49104,6 +53727,15 @@ enifed("ember-views/tests/mixins/view_target_action_support_test",
       });
 
       ok(true === view.triggerAction(), "a valid target and action were specified");
+    });
+  });
+enifed("ember-views/tests/mixins/view_target_action_support_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/mixins');
+    test('ember-views/tests/mixins/view_target_action_support_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/mixins/view_target_action_support_test.js should pass jscs.');
     });
   });
 enifed("ember-views/tests/mixins/view_target_action_support_test.jshint",
@@ -49171,6 +53803,15 @@ enifed("ember-views/tests/streams/class_string_for_value_test",
       equal(classStringForValue("content.propertyName", ['emberjs'], "truthyClass"), "truthyClass", "returns className if given");
     });
   });
+enifed("ember-views/tests/streams/class_string_for_value_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/streams');
+    test('ember-views/tests/streams/class_string_for_value_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/streams/class_string_for_value_test.js should pass jscs.');
+    });
+  });
 enifed("ember-views/tests/streams/class_string_for_value_test.jshint",
   [],
   function() {
@@ -49231,6 +53872,15 @@ enifed("ember-views/tests/streams/parse_property_path_test",
       equal(parsed.className, undefined, "className is undefined");
       equal(parsed.falsyClassName, "falsyClass", "falsyClassName is extracted");
       equal(parsed.classNames, "::falsyClass", "there is a classNames");
+    });
+  });
+enifed("ember-views/tests/streams/parse_property_path_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/streams');
+    test('ember-views/tests/streams/parse_property_path_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/streams/parse_property_path_test.js should pass jscs.');
     });
   });
 enifed("ember-views/tests/streams/parse_property_path_test.jshint",
@@ -49590,6 +54240,15 @@ enifed("ember-views/tests/system/event_dispatcher_test",
       jQuery("#leView").trigger("myevent");
     });
   });
+enifed("ember-views/tests/system/event_dispatcher_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/system');
+    test('ember-views/tests/system/event_dispatcher_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/system/event_dispatcher_test.js should pass jscs.');
+    });
+  });
 enifed("ember-views/tests/system/event_dispatcher_test.jshint",
   [],
   function() {
@@ -49636,6 +54295,15 @@ enifed("ember-views/tests/system/ext_test",
       run(function() {
         parentView.destroy();
       });
+    });
+  });
+enifed("ember-views/tests/system/ext_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/system');
+    test('ember-views/tests/system/ext_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/system/ext_test.js should pass jscs.');
     });
   });
 enifed("ember-views/tests/system/ext_test.jshint",
@@ -49737,6 +54405,15 @@ enifed("ember-views/tests/system/jquery_ext_test",
         equal(receivedEvent.dataTransfer, 'success', "copies dataTransfer property to jQuery event");
       });
     }
+  });
+enifed("ember-views/tests/system/jquery_ext_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/system');
+    test('ember-views/tests/system/jquery_ext_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/system/jquery_ext_test.js should pass jscs.');
+    });
   });
 enifed("ember-views/tests/system/jquery_ext_test.jshint",
   [],
@@ -50091,6 +54768,15 @@ enifed("ember-views/tests/system/render_buffer_test",
 
     }
   });
+enifed("ember-views/tests/system/render_buffer_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/system');
+    test('ember-views/tests/system/render_buffer_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/system/render_buffer_test.js should pass jscs.');
+    });
+  });
 enifed("ember-views/tests/system/render_buffer_test.jshint",
   [],
   function() {
@@ -50157,6 +54843,15 @@ enifed("ember-views/tests/system/sanitize_attribute_value_test",
       var actual = sanitizeAttributeValue(null, 'href', new SafeString(expected));
 
       equal(actual, expected, 'protocol unescaped');
+    });
+  });
+enifed("ember-views/tests/system/sanitize_attribute_value_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/system');
+    test('ember-views/tests/system/sanitize_attribute_value_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/system/sanitize_attribute_value_test.js should pass jscs.');
     });
   });
 enifed("ember-views/tests/system/sanitize_attribute_value_test.jshint",
@@ -50239,6 +54934,15 @@ enifed("ember-views/tests/system/view_utils_test",
       run(function() { view.appendTo('#qunit-fixture'); });
 
       ok(Ember.ViewUtils.getViewBoundingClientRect(view) instanceof ClientRectCtor);
+    });
+  });
+enifed("ember-views/tests/system/view_utils_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/system');
+    test('ember-views/tests/system/view_utils_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/system/view_utils_test.js should pass jscs.');
     });
   });
 enifed("ember-views/tests/system/view_utils_test.jshint",
@@ -50395,6 +55099,15 @@ enifed("ember-views/tests/views/checkbox_test",
 
       equal(!!checkboxView.$().prop('checked'), false, "after clicking a checkbox, the checked property changed");
       equal(get(checkboxView, 'checked'), false, "changing the checkbox causes the view's value to get updated");
+    });
+  });
+enifed("ember-views/tests/views/checkbox_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views');
+    test('ember-views/tests/views/checkbox_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/checkbox_test.js should pass jscs.');
     });
   });
 enifed("ember-views/tests/views/checkbox_test.jshint",
@@ -51164,6 +55877,15 @@ enifed("ember-views/tests/views/collection_test",
       }
     });
   });
+enifed("ember-views/tests/views/collection_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views');
+    test('ember-views/tests/views/collection_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/collection_test.js should pass jscs.');
+    });
+  });
 enifed("ember-views/tests/views/collection_test.jshint",
   [],
   function() {
@@ -51425,6 +56147,15 @@ enifed("ember-views/tests/views/component_test",
       });
 
       appComponent.send('foo', 'baz');
+    });
+  });
+enifed("ember-views/tests/views/component_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views');
+    test('ember-views/tests/views/component_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/component_test.js should pass jscs.');
     });
   });
 enifed("ember-views/tests/views/component_test.jshint",
@@ -52222,6 +56953,15 @@ enifed("ember-views/tests/views/container_view_test",
       ok(observerFired, 'View pushed, observer fired');
     });
   });
+enifed("ember-views/tests/views/container_view_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views');
+    test('ember-views/tests/views/container_view_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/container_view_test.js should pass jscs.');
+    });
+  });
 enifed("ember-views/tests/views/container_view_test.jshint",
   [],
   function() {
@@ -52290,6 +57030,15 @@ enifed("ember-views/tests/views/instrumentation_test",
       run(view, 'createElement');
 
       confirmPayload(beforeCalls[0], view);
+    });
+  });
+enifed("ember-views/tests/views/instrumentation_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views');
+    test('ember-views/tests/views/instrumentation_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/instrumentation_test.js should pass jscs.');
     });
   });
 enifed("ember-views/tests/views/instrumentation_test.jshint",
@@ -52544,6 +57293,15 @@ enifed("ember-views/tests/views/metamorph_view_test",
       run(function() {
         view.destroy();
       });
+    });
+  });
+enifed("ember-views/tests/views/metamorph_view_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views');
+    test('ember-views/tests/views/metamorph_view_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/metamorph_view_test.js should pass jscs.');
     });
   });
 enifed("ember-views/tests/views/metamorph_view_test.jshint",
@@ -53282,6 +58040,15 @@ enifed("ember-views/tests/views/select_test",
       equal(select.get('selection'), ebryn);
     });
   });
+enifed("ember-views/tests/views/select_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views');
+    test('ember-views/tests/views/select_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/select_test.js should pass jscs.');
+    });
+  });
 enifed("ember-views/tests/views/select_test.jshint",
   [],
   function() {
@@ -53330,6 +58097,15 @@ enifed("ember-views/tests/views/simple_bound_view_test",
       view.update();
 
       equal(value, 'baz', 'expected call to morph.update with "baz"');
+    });
+  });
+enifed("ember-views/tests/views/simple_bound_view_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views');
+    test('ember-views/tests/views/simple_bound_view_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/simple_bound_view_test.js should pass jscs.');
     });
   });
 enifed("ember-views/tests/views/simple_bound_view_test.jshint",
@@ -53571,6 +58347,15 @@ enifed("ember-views/tests/views/text_area_test",
 
       textArea.trigger('keyUp', event);
       ok(wasCalled, "invokes cancel method");
+    });
+  });
+enifed("ember-views/tests/views/text_area_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views');
+    test('ember-views/tests/views/text_area_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/text_area_test.js should pass jscs.');
     });
   });
 enifed("ember-views/tests/views/text_area_test.jshint",
@@ -54152,6 +58937,15 @@ enifed("ember-views/tests/views/text_field_test",
       equal(caretPosition(view.$()), 5, 'The keyUp event should not result in the cursor being reset due to the bind-attr observers');
     });
   });
+enifed("ember-views/tests/views/text_field_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views');
+    test('ember-views/tests/views/text_field_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/text_field_test.js should pass jscs.');
+    });
+  });
 enifed("ember-views/tests/views/text_field_test.jshint",
   [],
   function() {
@@ -54264,6 +59058,15 @@ enifed("ember-views/tests/views/view/actions_test",
       EmberObject.create({
         actions: ['foo']
       });
+    });
+  });
+enifed("ember-views/tests/views/view/actions_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/actions_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/view/actions_test.js should pass jscs.');
     });
   });
 enifed("ember-views/tests/views/view/actions_test.jshint",
@@ -54559,6 +59362,15 @@ enifed("ember-views/tests/views/view/append_to_test",
       });
 
       ok(get(view, 'childViews.length') === 0, "Destroyed child views should be removed from their parent");
+    });
+  });
+enifed("ember-views/tests/views/view/append_to_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/append_to_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/view/append_to_test.js should pass jscs.');
     });
   });
 enifed("ember-views/tests/views/view/append_to_test.jshint",
@@ -54898,6 +59710,15 @@ enifed("ember-views/tests/views/view/attribute_bindings_test",
       equal(view.$().attr('href'), "javascript:alert('foo')", "value is not defined");
     });
   });
+enifed("ember-views/tests/views/view/attribute_bindings_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/attribute_bindings_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/view/attribute_bindings_test.js should pass jscs.');
+    });
+  });
 enifed("ember-views/tests/views/view/attribute_bindings_test.jshint",
   [],
   function() {
@@ -54989,6 +59810,15 @@ enifed("ember-views/tests/views/view/child_views_test",
       run(function() {
         outer.destroy();
       });
+    });
+  });
+enifed("ember-views/tests/views/view/child_views_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/child_views_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/view/child_views_test.js should pass jscs.');
     });
   });
 enifed("ember-views/tests/views/view/child_views_test.jshint",
@@ -55278,6 +60108,15 @@ enifed("ember-views/tests/views/view/class_name_bindings_test",
       }, /classNameBindings must not have spaces in them/i);
     });
   });
+enifed("ember-views/tests/views/view/class_name_bindings_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/class_name_bindings_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/view/class_name_bindings_test.js should pass jscs.');
+    });
+  });
 enifed("ember-views/tests/views/view/class_name_bindings_test.jshint",
   [],
   function() {
@@ -55332,6 +60171,15 @@ enifed("ember-views/tests/views/view/context_test",
         middleView.destroy();
         outerView.destroy();
       });
+    });
+  });
+enifed("ember-views/tests/views/view/context_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/context_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/view/context_test.js should pass jscs.');
     });
   });
 enifed("ember-views/tests/views/view/context_test.jshint",
@@ -55396,6 +60244,15 @@ enifed("ember-views/tests/views/view/controller_test",
         child.destroy();
         grandchild.destroy();
       });
+    });
+  });
+enifed("ember-views/tests/views/view/controller_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/controller_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/view/controller_test.js should pass jscs.');
     });
   });
 enifed("ember-views/tests/views/view/controller_test.jshint",
@@ -55506,6 +60363,15 @@ enifed("ember-views/tests/views/view/create_child_view_test",
       expectAssertion(function(){
         view.createChildView('bro');
       });
+    });
+  });
+enifed("ember-views/tests/views/view/create_child_view_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/create_child_view_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/view/create_child_view_test.js should pass jscs.');
     });
   });
 enifed("ember-views/tests/views/view/create_child_view_test.jshint",
@@ -55661,6 +60527,15 @@ enifed("ember-views/tests/views/view/create_element_test",
       ok(view.$('#foo').length, 'has element with child elementId');
     });
   });
+enifed("ember-views/tests/views/view/create_element_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/create_element_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/view/create_element_test.js should pass jscs.');
+    });
+  });
 enifed("ember-views/tests/views/view/create_element_test.jshint",
   [],
   function() {
@@ -55767,6 +60642,15 @@ enifed("ember-views/tests/views/view/destroy_element_test",
       ok(!parent.find('#'+view.get('elementId')).length, 'element no longer in parent node');
     });
   });
+enifed("ember-views/tests/views/view/destroy_element_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/destroy_element_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/view/destroy_element_test.js should pass jscs.');
+    });
+  });
 enifed("ember-views/tests/views/view/destroy_element_test.jshint",
   [],
   function() {
@@ -55802,6 +60686,15 @@ enifed("ember-views/tests/views/view/destroy_test",
       run(function() {
         parentView.destroy();
       });
+    });
+  });
+enifed("ember-views/tests/views/view/destroy_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/destroy_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/view/destroy_test.js should pass jscs.');
     });
   });
 enifed("ember-views/tests/views/view/destroy_test.jshint",
@@ -55882,6 +60775,15 @@ enifed("ember-views/tests/views/view/element_test",
       });
     });
   });
+enifed("ember-views/tests/views/view/element_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/element_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/view/element_test.js should pass jscs.');
+    });
+  });
 enifed("ember-views/tests/views/view/element_test.jshint",
   [],
   function() {
@@ -55957,6 +60859,15 @@ enifed("ember-views/tests/views/view/evented_test",
       });
     });
   });
+enifed("ember-views/tests/views/view/evented_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/evented_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/view/evented_test.js should pass jscs.');
+    });
+  });
 enifed("ember-views/tests/views/view/evented_test.jshint",
   [],
   function() {
@@ -56024,6 +60935,15 @@ enifed("ember-views/tests/views/view/init_test",
       }, /Only arrays are allowed/i);
     });
   });
+enifed("ember-views/tests/views/view/init_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/init_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/view/init_test.js should pass jscs.');
+    });
+  });
 enifed("ember-views/tests/views/view/init_test.jshint",
   [],
   function() {
@@ -56061,6 +60981,15 @@ enifed("ember-views/tests/views/view/inject_test",
         equal(profilerService, appView.get('profilerService'), "service.profiler is injected");
       });
     
+  });
+enifed("ember-views/tests/views/view/inject_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/inject_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/view/inject_test.js should pass jscs.');
+    });
   });
 enifed("ember-views/tests/views/view/inject_test.jshint",
   [],
@@ -56297,6 +61226,15 @@ enifed("ember-views/tests/views/view/is_visible_test",
       equal(grandchildBecameVisible, 1);
     });
   });
+enifed("ember-views/tests/views/view/is_visible_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/is_visible_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/view/is_visible_test.js should pass jscs.');
+    });
+  });
 enifed("ember-views/tests/views/view/is_visible_test.jshint",
   [],
   function() {
@@ -56367,6 +61305,15 @@ enifed("ember-views/tests/views/view/jquery_test",
 
       var jquery = view.$('body'); // would normally work if not scoped to view
       equal(jquery.length, 0, 'view.$(body) should have no elements');
+    });
+  });
+enifed("ember-views/tests/views/view/jquery_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/jquery_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/view/jquery_test.js should pass jscs.');
     });
   });
 enifed("ember-views/tests/views/view/jquery_test.jshint",
@@ -56514,6 +61461,15 @@ enifed("ember-views/tests/views/view/layout_test",
       equal("Herp derp", view.$().text(), "the layout has access to the template");
     });
   });
+enifed("ember-views/tests/views/view/layout_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/layout_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/view/layout_test.js should pass jscs.');
+    });
+  });
 enifed("ember-views/tests/views/view/layout_test.jshint",
   [],
   function() {
@@ -56596,6 +61552,15 @@ enifed("ember-views/tests/views/view/nearest_of_type_test",
 
     }());
   });
+enifed("ember-views/tests/views/view/nearest_of_type_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/nearest_of_type_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/view/nearest_of_type_test.js should pass jscs.');
+    });
+  });
 enifed("ember-views/tests/views/view/nearest_of_type_test.jshint",
   [],
   function() {
@@ -56653,6 +61618,15 @@ enifed("ember-views/tests/views/view/nested_view_ordering_test",
       });
 
       equal(insertedLast, "outer", "didInsertElement called on outer view after inner view");
+    });
+  });
+enifed("ember-views/tests/views/view/nested_view_ordering_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/nested_view_ordering_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/view/nested_view_ordering_test.js should pass jscs.');
     });
   });
 enifed("ember-views/tests/views/view/nested_view_ordering_test.jshint",
@@ -56826,6 +61800,15 @@ enifed("ember-views/tests/views/view/remove_test",
 
       var viewElem = jQuery('#'+get(view, 'elementId'));
       ok(viewElem.length === 0, "view's element doesn't exist in DOM");
+    });
+  });
+enifed("ember-views/tests/views/view/remove_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/remove_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/view/remove_test.js should pass jscs.');
     });
   });
 enifed("ember-views/tests/views/view/remove_test.jshint",
@@ -57086,6 +62069,15 @@ enifed("ember-views/tests/views/view/render_test",
       ok(view.$('tr').length, 'inner view is tr');
     });
   });
+enifed("ember-views/tests/views/view/render_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/render_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/view/render_test.js should pass jscs.');
+    });
+  });
 enifed("ember-views/tests/views/view/render_test.jshint",
   [],
   function() {
@@ -57206,6 +62198,15 @@ enifed("ember-views/tests/views/view/replace_in_test",
       ok(viewElem.length > 0, "creates and replaces the view's element");
     });
   });
+enifed("ember-views/tests/views/view/replace_in_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/replace_in_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/view/replace_in_test.js should pass jscs.');
+    });
+  });
 enifed("ember-views/tests/views/view/replace_in_test.jshint",
   [],
   function() {
@@ -57260,6 +62261,15 @@ enifed("ember-views/tests/views/view/state_deprecation_test",
       var view = EmberView.create();
 
       ok(view, 'view was created');
+    });
+  });
+enifed("ember-views/tests/views/view/state_deprecation_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/state_deprecation_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/view/state_deprecation_test.js should pass jscs.');
     });
   });
 enifed("ember-views/tests/views/view/state_deprecation_test.jshint",
@@ -57349,6 +62359,15 @@ enifed("ember-views/tests/views/view/stream_test",
       stream = view.getStream('view.foo');
 
       equal(stream._label, 'view.foo', 'stream is labeled');
+    });
+  });
+enifed("ember-views/tests/views/view/stream_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/stream_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/view/stream_test.js should pass jscs.');
     });
   });
 enifed("ember-views/tests/views/view/stream_test.jshint",
@@ -57622,6 +62641,15 @@ enifed("ember-views/tests/views/view/template_test",
       }, /Container was not found when looking up a views template./);
     });
   });
+enifed("ember-views/tests/views/view/template_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/template_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/view/template_test.js should pass jscs.');
+    });
+  });
 enifed("ember-views/tests/views/view/template_test.jshint",
   [],
   function() {
@@ -57665,6 +62693,15 @@ enifed("ember-views/tests/views/view/transition_to_deprecation_test",
       view = EmberView.create();
       view._transitionTo('preRender');
       ok(true);
+    });
+  });
+enifed("ember-views/tests/views/view/transition_to_deprecation_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/transition_to_deprecation_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/view/transition_to_deprecation_test.js should pass jscs.');
     });
   });
 enifed("ember-views/tests/views/view/transition_to_deprecation_test.jshint",
@@ -58060,6 +63097,15 @@ enifed("ember-views/tests/views/view/view_lifecycle_test",
       });
     });
   });
+enifed("ember-views/tests/views/view/view_lifecycle_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/view_lifecycle_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/view/view_lifecycle_test.js should pass jscs.');
+    });
+  });
 enifed("ember-views/tests/views/view/view_lifecycle_test.jshint",
   [],
   function() {
@@ -58171,6 +63217,15 @@ enifed("ember-views/tests/views/view/virtual_views_test",
       equal(rootView.get('childViews.length'), 0, "has no childView");
     });
   });
+enifed("ember-views/tests/views/view/virtual_views_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/tests/views/view');
+    test('ember-views/tests/views/view/virtual_views_test.js should pass jscs', function() {
+      ok(true, 'ember-views/tests/views/view/virtual_views_test.js should pass jscs.');
+    });
+  });
 enifed("ember-views/tests/views/view/virtual_views_test.jshint",
   [],
   function() {
@@ -58178,6 +63233,15 @@ enifed("ember-views/tests/views/view/virtual_views_test.jshint",
     module('JSHint - ember-views/tests/views/view');
     test('ember-views/tests/views/view/virtual_views_test.js should pass jshint', function() { 
       ok(true, 'ember-views/tests/views/view/virtual_views_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/views/bound_if_view.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/views');
+    test('ember-views/views/bound_if_view.js should pass jscs', function() {
+      ok(true, 'ember-views/views/bound_if_view.js should pass jscs.');
     });
   });
 enifed("ember-views/views/bound_if_view.jshint",
@@ -58189,6 +63253,15 @@ enifed("ember-views/views/bound_if_view.jshint",
       ok(true, 'ember-views/views/bound_if_view.js should pass jshint.'); 
     });
   });
+enifed("ember-views/views/bound_partial_view.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/views');
+    test('ember-views/views/bound_partial_view.js should pass jscs', function() {
+      ok(true, 'ember-views/views/bound_partial_view.js should pass jscs.');
+    });
+  });
 enifed("ember-views/views/bound_partial_view.jshint",
   [],
   function() {
@@ -58196,6 +63269,15 @@ enifed("ember-views/views/bound_partial_view.jshint",
     module('JSHint - ember-views/views');
     test('ember-views/views/bound_partial_view.js should pass jshint', function() { 
       ok(true, 'ember-views/views/bound_partial_view.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/views/checkbox.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/views');
+    test('ember-views/views/checkbox.js should pass jscs', function() {
+      ok(true, 'ember-views/views/checkbox.js should pass jscs.');
     });
   });
 enifed("ember-views/views/checkbox.jshint",
@@ -58207,6 +63289,15 @@ enifed("ember-views/views/checkbox.jshint",
       ok(true, 'ember-views/views/checkbox.js should pass jshint.'); 
     });
   });
+enifed("ember-views/views/collection_view.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/views');
+    test('ember-views/views/collection_view.js should pass jscs', function() {
+      ok(true, 'ember-views/views/collection_view.js should pass jscs.');
+    });
+  });
 enifed("ember-views/views/collection_view.jshint",
   [],
   function() {
@@ -58214,6 +63305,15 @@ enifed("ember-views/views/collection_view.jshint",
     module('JSHint - ember-views/views');
     test('ember-views/views/collection_view.js should pass jshint', function() { 
       ok(true, 'ember-views/views/collection_view.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/views/component.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/views');
+    test('ember-views/views/component.js should pass jscs', function() {
+      ok(true, 'ember-views/views/component.js should pass jscs.');
     });
   });
 enifed("ember-views/views/component.jshint",
@@ -58225,6 +63325,15 @@ enifed("ember-views/views/component.jshint",
       ok(true, 'ember-views/views/component.js should pass jshint.'); 
     });
   });
+enifed("ember-views/views/container_view.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/views');
+    test('ember-views/views/container_view.js should pass jscs', function() {
+      ok(true, 'ember-views/views/container_view.js should pass jscs.');
+    });
+  });
 enifed("ember-views/views/container_view.jshint",
   [],
   function() {
@@ -58232,6 +63341,15 @@ enifed("ember-views/views/container_view.jshint",
     module('JSHint - ember-views/views');
     test('ember-views/views/container_view.js should pass jshint', function() { 
       ok(true, 'ember-views/views/container_view.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/views/core_view.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/views');
+    test('ember-views/views/core_view.js should pass jscs', function() {
+      ok(true, 'ember-views/views/core_view.js should pass jscs.');
     });
   });
 enifed("ember-views/views/core_view.jshint",
@@ -58243,6 +63361,15 @@ enifed("ember-views/views/core_view.jshint",
       ok(true, 'ember-views/views/core_view.js should pass jshint.'); 
     });
   });
+enifed("ember-views/views/each.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/views');
+    test('ember-views/views/each.js should pass jscs', function() {
+      ok(true, 'ember-views/views/each.js should pass jscs.');
+    });
+  });
 enifed("ember-views/views/each.jshint",
   [],
   function() {
@@ -58250,6 +63377,15 @@ enifed("ember-views/views/each.jshint",
     module('JSHint - ember-views/views');
     test('ember-views/views/each.js should pass jshint', function() { 
       ok(true, 'ember-views/views/each.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/views/metamorph_view.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/views');
+    test('ember-views/views/metamorph_view.js should pass jscs', function() {
+      ok(true, 'ember-views/views/metamorph_view.js should pass jscs.');
     });
   });
 enifed("ember-views/views/metamorph_view.jshint",
@@ -58261,6 +63397,15 @@ enifed("ember-views/views/metamorph_view.jshint",
       ok(true, 'ember-views/views/metamorph_view.js should pass jshint.'); 
     });
   });
+enifed("ember-views/views/select.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/views');
+    test('ember-views/views/select.js should pass jscs', function() {
+      ok(true, 'ember-views/views/select.js should pass jscs.');
+    });
+  });
 enifed("ember-views/views/select.jshint",
   [],
   function() {
@@ -58268,6 +63413,15 @@ enifed("ember-views/views/select.jshint",
     module('JSHint - ember-views/views');
     test('ember-views/views/select.js should pass jshint', function() { 
       ok(true, 'ember-views/views/select.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/views/simple_bound_view.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/views');
+    test('ember-views/views/simple_bound_view.js should pass jscs', function() {
+      ok(true, 'ember-views/views/simple_bound_view.js should pass jscs.');
     });
   });
 enifed("ember-views/views/simple_bound_view.jshint",
@@ -58279,6 +63433,15 @@ enifed("ember-views/views/simple_bound_view.jshint",
       ok(true, 'ember-views/views/simple_bound_view.js should pass jshint.'); 
     });
   });
+enifed("ember-views/views/states.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/views');
+    test('ember-views/views/states.js should pass jscs', function() {
+      ok(true, 'ember-views/views/states.js should pass jscs.');
+    });
+  });
 enifed("ember-views/views/states.jshint",
   [],
   function() {
@@ -58286,6 +63449,15 @@ enifed("ember-views/views/states.jshint",
     module('JSHint - ember-views/views');
     test('ember-views/views/states.js should pass jshint', function() { 
       ok(true, 'ember-views/views/states.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/views/states/default.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/views/states');
+    test('ember-views/views/states/default.js should pass jscs', function() {
+      ok(true, 'ember-views/views/states/default.js should pass jscs.');
     });
   });
 enifed("ember-views/views/states/default.jshint",
@@ -58297,6 +63469,15 @@ enifed("ember-views/views/states/default.jshint",
       ok(true, 'ember-views/views/states/default.js should pass jshint.'); 
     });
   });
+enifed("ember-views/views/states/destroying.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/views/states');
+    test('ember-views/views/states/destroying.js should pass jscs', function() {
+      ok(true, 'ember-views/views/states/destroying.js should pass jscs.');
+    });
+  });
 enifed("ember-views/views/states/destroying.jshint",
   [],
   function() {
@@ -58304,6 +63485,15 @@ enifed("ember-views/views/states/destroying.jshint",
     module('JSHint - ember-views/views/states');
     test('ember-views/views/states/destroying.js should pass jshint', function() { 
       ok(true, 'ember-views/views/states/destroying.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/views/states/has_element.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/views/states');
+    test('ember-views/views/states/has_element.js should pass jscs', function() {
+      ok(true, 'ember-views/views/states/has_element.js should pass jscs.');
     });
   });
 enifed("ember-views/views/states/has_element.jshint",
@@ -58315,6 +63505,15 @@ enifed("ember-views/views/states/has_element.jshint",
       ok(true, 'ember-views/views/states/has_element.js should pass jshint.'); 
     });
   });
+enifed("ember-views/views/states/in_buffer.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/views/states');
+    test('ember-views/views/states/in_buffer.js should pass jscs', function() {
+      ok(true, 'ember-views/views/states/in_buffer.js should pass jscs.');
+    });
+  });
 enifed("ember-views/views/states/in_buffer.jshint",
   [],
   function() {
@@ -58322,6 +63521,15 @@ enifed("ember-views/views/states/in_buffer.jshint",
     module('JSHint - ember-views/views/states');
     test('ember-views/views/states/in_buffer.js should pass jshint', function() { 
       ok(true, 'ember-views/views/states/in_buffer.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/views/states/in_dom.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/views/states');
+    test('ember-views/views/states/in_dom.js should pass jscs', function() {
+      ok(true, 'ember-views/views/states/in_dom.js should pass jscs.');
     });
   });
 enifed("ember-views/views/states/in_dom.jshint",
@@ -58333,6 +63541,15 @@ enifed("ember-views/views/states/in_dom.jshint",
       ok(true, 'ember-views/views/states/in_dom.js should pass jshint.'); 
     });
   });
+enifed("ember-views/views/states/pre_render.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/views/states');
+    test('ember-views/views/states/pre_render.js should pass jscs', function() {
+      ok(true, 'ember-views/views/states/pre_render.js should pass jscs.');
+    });
+  });
 enifed("ember-views/views/states/pre_render.jshint",
   [],
   function() {
@@ -58340,6 +63557,15 @@ enifed("ember-views/views/states/pre_render.jshint",
     module('JSHint - ember-views/views/states');
     test('ember-views/views/states/pre_render.js should pass jshint', function() { 
       ok(true, 'ember-views/views/states/pre_render.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/views/text_area.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/views');
+    test('ember-views/views/text_area.js should pass jscs', function() {
+      ok(true, 'ember-views/views/text_area.js should pass jscs.');
     });
   });
 enifed("ember-views/views/text_area.jshint",
@@ -58351,6 +63577,15 @@ enifed("ember-views/views/text_area.jshint",
       ok(true, 'ember-views/views/text_area.js should pass jshint.'); 
     });
   });
+enifed("ember-views/views/text_field.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/views');
+    test('ember-views/views/text_field.js should pass jscs', function() {
+      ok(true, 'ember-views/views/text_field.js should pass jscs.');
+    });
+  });
 enifed("ember-views/views/text_field.jshint",
   [],
   function() {
@@ -58358,6 +63593,15 @@ enifed("ember-views/views/text_field.jshint",
     module('JSHint - ember-views/views');
     test('ember-views/views/text_field.js should pass jshint', function() { 
       ok(true, 'ember-views/views/text_field.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/views/view.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/views');
+    test('ember-views/views/view.js should pass jscs', function() {
+      ok(true, 'ember-views/views/view.js should pass jscs.');
     });
   });
 enifed("ember-views/views/view.jshint",
@@ -58369,6 +63613,15 @@ enifed("ember-views/views/view.jshint",
       ok(true, 'ember-views/views/view.js should pass jshint.'); 
     });
   });
+enifed("ember-views/views/with_view.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-views/views');
+    test('ember-views/views/with_view.js should pass jscs', function() {
+      ok(true, 'ember-views/views/with_view.js should pass jscs.');
+    });
+  });
 enifed("ember-views/views/with_view.jshint",
   [],
   function() {
@@ -58376,6 +63629,15 @@ enifed("ember-views/views/with_view.jshint",
     module('JSHint - ember-views/views');
     test('ember-views/views/with_view.js should pass jshint', function() { 
       ok(true, 'ember-views/views/with_view.js should pass jshint.'); 
+    });
+  });
+enifed("ember.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - .');
+    test('ember.js should pass jscs', function() {
+      ok(true, 'ember.js should pass jscs.');
     });
   });
 enifed("ember.jshint",
@@ -58503,6 +63765,15 @@ enifed("ember/tests/application_lifecycle",
 
       equal(Ember.controllerFor(container, 'home').get('selectedMenuItem'), null);
       equal(Ember.controllerFor(container, 'application').get('selectedMenuItem'), null);
+    });
+  });
+enifed("ember/tests/application_lifecycle.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember/tests');
+    test('ember/tests/application_lifecycle.js should pass jscs', function() {
+      ok(true, 'ember/tests/application_lifecycle.js should pass jscs.');
     });
   });
 enifed("ember/tests/application_lifecycle.jshint",
@@ -58850,6 +64121,15 @@ enifed("ember/tests/component_registration_test",
       Ember.$('#fizzbuzz', "#wrapper").click();
     });
   });
+enifed("ember/tests/component_registration_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember/tests');
+    test('ember/tests/component_registration_test.js should pass jscs', function() {
+      ok(true, 'ember/tests/component_registration_test.js should pass jscs.');
+    });
+  });
 enifed("ember/tests/component_registration_test.jshint",
   [],
   function() {
@@ -58874,6 +64154,15 @@ enifed("ember/tests/global-api-test",
 
     confirmExport('Ember.DefaultResolver');
     confirmExport('Ember.generateController');
+  });
+enifed("ember/tests/global-api-test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember/tests');
+    test('ember/tests/global-api-test.js should pass jscs', function() {
+      ok(true, 'ember/tests/global-api-test.js should pass jscs.');
+    });
   });
 enifed("ember/tests/global-api-test.jshint",
   [],
@@ -59001,6 +64290,15 @@ enifed("ember/tests/helpers/helper_registration_test",
     });
 
     }
+  });
+enifed("ember/tests/helpers/helper_registration_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember/tests/helpers');
+    test('ember/tests/helpers/helper_registration_test.js should pass jscs', function() {
+      ok(true, 'ember/tests/helpers/helper_registration_test.js should pass jscs.');
+    });
   });
 enifed("ember/tests/helpers/helper_registration_test.jshint",
   [],
@@ -60845,6 +66143,15 @@ enifed("ember/tests/helpers/link_to_test",
       });
     
   });
+enifed("ember/tests/helpers/link_to_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember/tests/helpers');
+    test('ember/tests/helpers/link_to_test.js should pass jscs', function() {
+      ok(true, 'ember/tests/helpers/link_to_test.js should pass jscs.');
+    });
+  });
 enifed("ember/tests/helpers/link_to_test.jshint",
   [],
   function() {
@@ -60938,6 +66245,15 @@ enifed("ember/tests/homepage_example_test",
       equal($fixture.find('li:nth-of-type(2)').text(), 'Hello, Yehuda Katz!');
     });
   });
+enifed("ember/tests/homepage_example_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember/tests');
+    test('ember/tests/homepage_example_test.js should pass jscs', function() {
+      ok(true, 'ember/tests/homepage_example_test.js should pass jscs.');
+    });
+  });
 enifed("ember/tests/homepage_example_test.jshint",
   [],
   function() {
@@ -61002,6 +66318,15 @@ enifed("ember/tests/location_test",
 
       var location = App.__container__.lookup('location:auto');
       equal(Ember.get(location, 'rootURL'), '/rootdir/');
+    });
+  });
+enifed("ember/tests/location_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember/tests');
+    test('ember/tests/location_test.js should pass jscs', function() {
+      ok(true, 'ember/tests/location_test.js should pass jscs.');
     });
   });
 enifed("ember/tests/location_test.jshint",
@@ -64395,6 +69720,15 @@ enifed("ember/tests/routing/basic_test",
       }, /\bboom\b/);
     });
   });
+enifed("ember/tests/routing/basic_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember/tests/routing');
+    test('ember/tests/routing/basic_test.js should pass jscs', function() {
+      ok(true, 'ember/tests/routing/basic_test.js should pass jscs.');
+    });
+  });
 enifed("ember/tests/routing/basic_test.jshint",
   [],
   function() {
@@ -66033,6 +71367,15 @@ enifed("ember/tests/routing/query_params_test",
       equal(parentChildController.get('page'), 2);
     });
   });
+enifed("ember/tests/routing/query_params_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember/tests/routing');
+    test('ember/tests/routing/query_params_test.js should pass jscs', function() {
+      ok(true, 'ember/tests/routing/query_params_test.js should pass jscs.');
+    });
+  });
 enifed("ember/tests/routing/query_params_test.jshint",
   [],
   function() {
@@ -66760,6 +72103,15 @@ enifed("ember/tests/routing/substates_test",
         equal(Ember.$('#app', '#qunit-fixture').text(), "INDEX");
       });
     }
+  });
+enifed("ember/tests/routing/substates_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember/tests/routing');
+    test('ember/tests/routing/substates_test.js should pass jscs', function() {
+      ok(true, 'ember/tests/routing/substates_test.js should pass jscs.');
+    });
   });
 enifed("ember/tests/routing/substates_test.jshint",
   [],
