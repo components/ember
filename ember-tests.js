@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.aef8553c
+ * @version   1.11.0-beta.1+canary.13a15d2d
  */
 
 (function() {
@@ -8944,11 +8944,11 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
       equal(lookupCalled, false, 'controller option should NOT be used');
     });
 
-    test('should not update boundIf if truthiness does not change', function() {
+    test('should not rerender if truthiness does not change', function() {
       var renderCount = 0;
 
       view = EmberView.create({
-        template: compile('<h1 id="first">{{#boundIf "view.shouldDisplay"}}{{view view.InnerViewClass}}{{/boundIf}}</h1>'),
+        template: compile('<h1 id="first">{{#if view.shouldDisplay}}{{view view.InnerViewClass}}{{/if}}</h1>'),
 
         shouldDisplay: true,
 
@@ -9504,7 +9504,7 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
 
         expectAssertion(function() {
           runAppend(view);
-        }, 'If helper in inline form expects between two and three arguments');
+        }, /The inline form of the `if` and `unless` helpers expect two or three arguments/);
       });
 
       test("`if` helper with inline form: raises when using less than two arguments", function() {
@@ -9515,7 +9515,7 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
 
         expectAssertion(function() {
           runAppend(view);
-        }, 'If helper in inline form expects between two and three arguments');
+        }, /The inline form of the `if` and `unless` helpers expect two or three arguments/);
       });
 
       test("`if` helper with inline form: works when used in a sub expression", function() {
