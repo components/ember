@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.a72bf207
+ * @version   1.11.0-beta.1+canary.459ac75d
  */
 
 (function() {
@@ -3142,7 +3142,7 @@ enifed("ember-debug.jscs-test",
     "use strict";
     module('JSCS - .');
     test('ember-debug.js should pass jscs', function() {
-      ok(true, 'ember-debug.js should pass jscs.');
+      ok(false, 'ember-debug.js should pass jscs.\nIf statement without curly braces at ember-debug.js :\n    64 |  if (!test) {\n    65 |    Logger.warn("WARNING: "+message);\n    66 |    if (\'trace\' in Logger) Logger.trace();\n------------^\n    67 |  }\n    68 |};');
     });
   });
 enifed("ember-debug.jshint",
@@ -14043,7 +14043,10 @@ enifed("ember-htmlbars/tests/helpers/yield_test",
         layout: compile("{{yield}}"),
         _yield: function (context, options, morph) {
           count++;
-          if (count > 1) throw new EmberError('is looping');
+          if (count > 1) {
+            throw new EmberError('is looping');
+          }
+
           return this._super(context, options, morph);
         }
       });
@@ -17879,7 +17882,9 @@ enifed("ember-metal/tests/accessors/get_test",
       };
 
       for(var key in obj) {
-        if (!obj.hasOwnProperty(key)) continue;
+        if (!obj.hasOwnProperty(key)) {
+          continue;
+        }
         equal(get(obj, key), obj[key], key);
       }
 
@@ -17962,7 +17967,9 @@ enifed("ember-metal/tests/accessors/get_test",
       };
 
       for(var key in obj) {
-        if (!obj.hasOwnProperty(key)) continue;
+        if (!obj.hasOwnProperty(key)) {
+          continue;
+        }
         equal(getWithDefault(obj, key, "fail"), obj[key], key);
       }
 
@@ -18436,7 +18443,10 @@ enifed("ember-metal/tests/accessors/set_test",
       };
 
       for(var key in obj) {
-        if (!obj.hasOwnProperty(key)) continue;
+        if (!obj.hasOwnProperty(key)) {
+          continue;
+        }
+
         equal(set(newObj, key, obj[key]), obj[key], 'should return value');
         equal(get(newObj, key), obj[key], 'should set value');
       }
@@ -18583,7 +18593,9 @@ enifed("ember-metal/tests/binding/connect_test",
     var get = __dependency6__.get;
 
     function performTest(binding, a, b, get, set, connect) {
-      if (connect === undefined) connect = function() {binding.connect(a);};
+      if (connect === undefined) {
+        connect = function() {binding.connect(a);};
+      }
 
       ok(!run.currentRunLoop, 'performTest should not have a currentRunLoop');
 
@@ -19680,7 +19692,9 @@ enifed("ember-metal/tests/computed_test",
       defineProperty(obj, 'foo', computed(function() {}));
 
       var found = [];
-      for(var key in obj) found.push(key);
+      for(var key in obj) {
+        found.push(key);
+      }
       ok(indexOf(found, 'foo')>=0, 'should find computed property in iteration found=' + found);
       ok('foo' in obj, 'foo in obj should pass');
     });
@@ -23192,7 +23206,9 @@ enifed("ember-metal/tests/mixin/method_test",
       var remaining = 3;
       var MixinA = Mixin.create({
         foo: function() {
-          if (remaining-- > 0) this._super();
+          if (remaining-- > 0) {
+            this._super();
+          }
         }
       });
 
@@ -24147,8 +24163,9 @@ enifed("ember-metal/tests/observer_test",
           throw exc;
         });
       } catch(err) {
-        if (err !== exc)
+        if (err !== exc) {
           throw err;
+        }
       }
 
       equal(fooCount, 1, 'foo should have fired once');
@@ -25107,7 +25124,9 @@ enifed("ember-metal/tests/platform/defineProperty_test",
     function isEnumerable(obj, keyName) {
       var keys = [];
       for(var key in obj) {
-        if (obj.hasOwnProperty(key)) keys.push(key);
+        if (obj.hasOwnProperty(key)) {
+          keys.push(key);
+        }
       }
       return EnumerableUtils.indexOf(keys, keyName)>=0;
     }
@@ -25365,8 +25384,11 @@ enifed("ember-metal/tests/props_helper",
       });
 
       test(testname+' using accessors', function() {
-        if (Ember.USES_ACCESSORS) callback(aget, aset);
-        else ok('SKIPPING ACCESSORS');
+        if (Ember.USES_ACCESSORS) {
+          callback(aget, aset);
+        } else {
+          ok('SKIPPING ACCESSORS');
+        }
       });
     };
 
@@ -25395,8 +25417,11 @@ enifed("ember-metal/tests/props_helper",
       });
 
       test(testname+' using accessors', function() {
-        if (Ember.USES_ACCESSORS) callback(aget, aset);
-        else ok('SKIPPING ACCESSORS');
+        if (Ember.USES_ACCESSORS) {
+          callback(aget, aset);
+        } else {
+          ok('SKIPPING ACCESSORS');
+        }
       });
     };
 
@@ -26191,7 +26216,9 @@ enifed("ember-metal/tests/run_loop/sync_test",
         function cntup() { cnt++; }
 
         function syncfunc() {
-          if (++cnt<5) run.schedule('sync', syncfunc);
+          if (++cnt<5) {
+            run.schedule('sync', syncfunc);
+          }
           run.schedule('actions', cntup);
         }
 
@@ -27411,7 +27438,10 @@ enifed("ember-metal/tests/watching/unwatch_test",
 
       var obj = {};
       defineProperty(obj, 'foo', computed(function(keyName, value) {
-        if (value !== undefined) this.__foo = value;
+        if (value !== undefined) {
+          this.__foo = value;
+        }
+
         return this.__foo;
       }));
       addListeners(obj, 'foo');
@@ -27553,7 +27583,10 @@ enifed("ember-metal/tests/watching/watch_test",
     testBoth('watching a computed property', function(get, set) {
       var obj = {};
       Ember.defineProperty(obj, 'foo', Ember.computed(function(keyName, value) {
-        if (value !== undefined) this.__foo = value;
+        if (value !== undefined) {
+          this.__foo = value;
+        }
+
         return this.__foo;
       }));
       addListeners(obj, 'foo');
@@ -37745,12 +37778,17 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
           // two computed properties that depend on a third property
           state: 'on',
           isOn: computed(function(key, value) {
-            if (value !== undefined) this.set('state', 'on');
+            if (value !== undefined) {
+              this.set('state', 'on');
+            }
+
             return this.get('state') === 'on';
           }).property('state')["volatile"](),
 
           isOff: computed(function(key, value) {
-            if (value !== undefined) this.set('state', 'off');
+            if (value !== undefined) {
+              this.set('state', 'off');
+            }
             return this.get('state') === 'off';
           }).property('state')["volatile"]()
 
@@ -40531,7 +40569,10 @@ enifed("ember-runtime/tests/mixins/copyable_test",
       },
 
       isEqual: function(a, b) {
-        if (!(a instanceof CopyableObject) || !(b instanceof CopyableObject)) return false;
+        if (!(a instanceof CopyableObject) || !(b instanceof CopyableObject)) {
+          return false;
+        }
+
         return get(a, 'id') === get(b,'id');
       }
     }).run();
@@ -40976,7 +41017,10 @@ enifed("ember-runtime/tests/mixins/enumerable_test",
       },
 
       addObject: function(obj) {
-        if (indexOf(this._content, obj)>=0) return this;
+        if (indexOf(this._content, obj)>=0) {
+          return this;
+        }
+
         this._content.push(obj);
         this.enumerableContentDidChange();
       },
@@ -41424,7 +41468,10 @@ enifed("ember-runtime/tests/mixins/mutable_enumerable_test",
       _content: null,
 
       addObject: function(obj) {
-        if (indexOf(this._content, obj)>=0) return this;
+        if (indexOf(this._content, obj)>=0) {
+          return this;
+        }
+
         this.enumerableContentWillChange(null, [obj]);
         this._content.push(obj);
         this.enumerableContentDidChange(null, [obj]);
@@ -41432,7 +41479,9 @@ enifed("ember-runtime/tests/mixins/mutable_enumerable_test",
 
       removeObject: function(obj) {
         var idx = indexOf(this._content, obj);
-        if (idx<0) return this;
+        if (idx<0) {
+          return this;
+        }
 
         this.enumerableContentWillChange([obj], null);
         this._content.splice(idx, 1);
@@ -42994,7 +43043,10 @@ enifed("ember-runtime/tests/suites/enumerable",
       observeBefore: function(obj) {
         var keys = Array.prototype.slice.call(arguments, 1);
         var loc  = keys.length;
-        while(--loc>=0) addBeforeObserver(obj, keys[loc], this, 'propertyWillChange');
+        while(--loc>=0) {
+          addBeforeObserver(obj, keys[loc], this, 'propertyWillChange');
+        }
+
         return this;
       },
 
@@ -43012,7 +43064,9 @@ enifed("ember-runtime/tests/suites/enumerable",
           var keys = Array.prototype.slice.call(arguments, 1);
           var loc  = keys.length;
 
-          while(--loc>=0) obj.addObserver(keys[loc], this, 'propertyDidChange');
+          while(--loc>=0) {
+            obj.addObserver(keys[loc], this, 'propertyDidChange');
+          }
         } else {
           this.isEnabled = false;
         }
@@ -43032,10 +43086,19 @@ enifed("ember-runtime/tests/suites/enumerable",
         @returns {Boolean}
       */
       validate: function(key, value) {
-        if (!this.isEnabled) return true;
-        if (!this._keys[key]) return false;
-        if (arguments.length>1) return this._values[key] === value;
-        else return true;
+        if (!this.isEnabled) {
+          return true;
+        }
+
+        if (!this._keys[key]) {
+          return false;
+        }
+
+        if (arguments.length>1) {
+          return this._values[key] === value;
+        } else {
+          return true;
+        }
       },
 
       /**
@@ -43108,7 +43171,10 @@ enifed("ember-runtime/tests/suites/enumerable",
       */
       newFixture: function(cnt) {
         var ret = [];
-        while(--cnt >= 0) ret.push(generateGuid());
+        while(--cnt >= 0) {
+          ret.push(generateGuid());
+        }
+
         return ret;
       },
 
@@ -43185,8 +43251,14 @@ enifed("ember-runtime/tests/suites/enumerable",
       */
       newObserver: function(obj) {
         var ret = get(this, 'observerClass').create();
-        if (arguments.length>0) ret.observeBefore.apply(ret, arguments);
-        if (arguments.length>0) ret.observe.apply(ret, arguments);
+        if (arguments.length>0) {
+          ret.observeBefore.apply(ret, arguments);
+        }
+
+        if (arguments.length>0) {
+          ret.observe.apply(ret, arguments);
+        }
+
         return ret;
       },
 
@@ -46728,7 +46800,10 @@ enifed("ember-runtime/tests/suites/suite",
       },
 
       module: function(desc, opts) {
-        if (!opts) opts = {};
+        if (!opts) {
+          opts = {};
+        }
+
         var setup = opts.setup;
         var teardown = opts.teardown;
         this.reopen({
@@ -46738,11 +46813,15 @@ enifed("ember-runtime/tests/suites/suite",
             var ctx = this;
             QUnit.module(title, {
               setup: function() {
-                if (setup) setup.call(ctx);
+                if (setup) {
+                  setup.call(ctx);
+                }
               },
 
               teardown: function() {
-                if (teardown) teardown.call(ctx);
+                if (teardown) {
+                  teardown.call(ctx);
+                }
               }
             });
           }
@@ -46754,8 +46833,12 @@ enifed("ember-runtime/tests/suites/suite",
           run: function() {
             this._super();
             var ctx = this;
-            if (!func) test(name); // output warning
-            else test(name, function() { func.call(ctx); });
+
+            if (!func) {
+              test(name); // output warning
+            } else {
+              test(name, function() { func.call(ctx); });
+            }
           }
         });
       },
@@ -47699,9 +47782,18 @@ enifed("ember-runtime/tests/system/native_array/copyable_suite_test",
       },
 
       isEqual: function(a,b) {
-        if (!(a instanceof Array)) return false;
-        if (!(b instanceof Array)) return false;
-        if (a.length !== b.length) return false;
+        if (!(a instanceof Array)) {
+          return false;
+        }
+
+        if (!(b instanceof Array)) {
+          return false;
+        }
+
+        if (a.length !== b.length) {
+          return false;
+        }
+
         return a[0]===b[0];
       },
 
@@ -49831,8 +49923,14 @@ enifed("ember-runtime/tests/system/set/copyable_suite_test",
       },
 
       isEqual: function(a,b) {
-        if (!(a instanceof Set)) return false;
-        if (!(b instanceof Set)) return false;
+        if (!(a instanceof Set)) {
+          return false;
+        }
+
+        if (!(b instanceof Set)) {
+          return false;
+        }
+
         return get(a, 'firstObject') === get(b, 'firstObject');
       },
 

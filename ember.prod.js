@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.a72bf207
+ * @version   1.11.0-beta.1+canary.459ac75d
  */
 
 (function() {
@@ -4108,7 +4108,10 @@ enifed("ember-extension-support/container_debug_adapter",
         @return {boolean} whether a list is available for this type.
       */
       canCatalogEntriesByType: function(type) {
-        if (type === 'model' || type === 'template') return false;
+        if (type === 'model' || type === 'template') {
+          return false;
+        }
+
         return true;
       },
 
@@ -9325,12 +9328,20 @@ enifed("ember-metal/array",
         var len = this.length;
         var idx;
 
-        if (fromIndex === undefined) fromIndex = len-1;
-        else fromIndex = (fromIndex < 0) ? Math.ceil(fromIndex) : Math.floor(fromIndex);
-        if (fromIndex < 0) fromIndex += len;
+        if (fromIndex === undefined) {
+          fromIndex = len-1;
+        } else {
+          fromIndex = (fromIndex < 0) ? Math.ceil(fromIndex) : Math.floor(fromIndex);
+        }
+
+        if (fromIndex < 0) {
+          fromIndex += len;
+        }
 
         for(idx = fromIndex;idx>=0;idx--) {
-          if (this[idx] === obj) return idx ;
+          if (this[idx] === obj) {
+            return idx ;
+          }
         }
         return -1;
     });
@@ -10035,7 +10046,9 @@ enifed("ember-metal/chains",
     var ChainNodePrototype = ChainNode.prototype;
 
     function lazyGet(obj, key) {
-      if (!obj) return undefined;
+      if (!obj) {
+        return undefined;
+      }
 
       var meta = obj['__ember_meta__'];
       // check if object meant only to be a prototype
@@ -11665,7 +11678,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.a72bf207
+      @version 1.11.0-beta.1+canary.459ac75d
     */
 
     if ('undefined' === typeof Ember) {
@@ -11692,10 +11705,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.a72bf207'
+      @default '1.11.0-beta.1+canary.459ac75d'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.a72bf207';
+    Ember.VERSION = '1.11.0-beta.1+canary.459ac75d';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -11906,7 +11919,9 @@ enifed("ember-metal/dependent_keys",
       // add all of its dependent keys.
       var depsMeta, idx, len, depKey, keys;
       var depKeys = desc._dependentKeys;
-      if (!depKeys) return;
+      if (!depKeys) {
+        return;
+      }
 
       depsMeta = metaForDeps(meta);
 
@@ -11926,7 +11941,9 @@ enifed("ember-metal/dependent_keys",
       // remove all of its dependent keys.
       var depKeys = desc._dependentKeys;
       var depsMeta, idx, len, depKey, keys;
-      if (!depKeys) return;
+      if (!depKeys) {
+        return;
+      }
 
       depsMeta = metaForDeps(meta);
 
@@ -12466,9 +12483,13 @@ enifed("ember-metal/events",
       var actionIndex = indexOf(actions, target, method);
       var flags = 0;
 
-      if (once) flags |= ONCE;
+      if (once) {
+        flags |= ONCE;
+      }
 
-      if (actionIndex !== -1) { return; }
+      if (actionIndex !== -1) {
+        return;
+      }
 
       actions.push(target, method, flags);
 
@@ -15516,7 +15537,10 @@ enifed("ember-metal/platform/define_property",
       @return {void}
     */
     var defineProperty = (function checkCompliance(defineProperty) {
-      if (!defineProperty) return;
+      if (!defineProperty) {
+        return;
+      }
+
       try {
         var a = 5;
         var obj = {};
@@ -15530,9 +15554,14 @@ enifed("ember-metal/platform/define_property",
             a = v;
           }
         });
-        if (obj.a !== 5) return;
+        if (obj.a !== 5) {
+          return;
+        }
+
         obj.a = 10;
-        if (a !== 10) return;
+        if (a !== 10) {
+          return;
+        }
 
         // check non-enumerability
         defineProperty(obj, 'a', {
@@ -15542,19 +15571,25 @@ enifed("ember-metal/platform/define_property",
           value: true
         });
         for (var key in obj) {
-          if (key === 'a') return;
+          if (key === 'a') {
+            return;
+          }
         }
 
         // Detects a bug in Android <3.2 where you cannot redefine a property using
         // Object.defineProperty once accessors have already been set.
-        if (obj.a !== true) return;
+        if (obj.a !== true) {
+          return;
+        }
 
         // Detects a bug in Android <3 where redefining a property without a value changes the value
         // Object.defineProperty once accessors have already been set.
         defineProperty(obj, 'a', {
           enumerable: false
         });
-        if (obj.a !== true) return;
+        if (obj.a !== true) {
+          return;
+        }
 
         // defineProperty is compliant
         return defineProperty;
@@ -15701,7 +15736,9 @@ enifed("ember-metal/properties",
     function defineProperty(obj, keyName, desc, data, meta) {
       var descs, existingDesc, watching, value;
 
-      if (!meta) meta = metaFor(obj);
+      if (!meta) {
+        meta = metaFor(obj);
+      }
       descs = meta.descs;
       existingDesc = meta.descs[keyName];
       var watchEntry = meta.watching[keyName];
@@ -16159,8 +16196,13 @@ enifed("ember-metal/property_get",
       var isGlobal = !hasThis && isGlobalPath(path);
       var key;
 
-      if (!target || isGlobal) target = Ember.lookup;
-      if (hasThis) path = path.slice(5);
+      if (!target || isGlobal) {
+        target = Ember.lookup;
+      }
+
+      if (hasThis) {
+        path = path.slice(5);
+      }
 
       
       if (target === Ember.lookup) {
@@ -16170,7 +16212,9 @@ enifed("ember-metal/property_get",
       }
 
       // must return some kind of path to be valid else other things will break.
-      if (!path || path.length===0) throw new EmberError('Path cannot be empty');
+      if (!path || path.length===0) {
+        throw new EmberError('Path cannot be empty');
+      }
 
       return [ target, path ];
     }
@@ -17589,7 +17633,9 @@ enifed("ember-metal/utils",
       var obj = {};
       obj[str] = 1;
       for (var key in obj) {
-        if (key === str) return key;
+        if (key === str) {
+          return key;
+        }
       }
       return str;
     }
@@ -17672,7 +17718,10 @@ enifed("ember-metal/utils",
       @return {String} the guid
     */
     function generateGuid(obj, prefix) {
-      if (!prefix) prefix = GUID_PREFIX;
+      if (!prefix) {
+        prefix = GUID_PREFIX;
+      }
+
       var ret = (prefix + uuid());
       if (obj) {
         if (obj[GUID_KEY] === null) {
@@ -17706,8 +17755,13 @@ enifed("ember-metal/utils",
     function guidFor(obj) {
 
       // special cases where we don't want to add a key to object
-      if (obj === undefined) return "(undefined)";
-      if (obj === null) return "(null)";
+      if (obj === undefined) {
+        return "(undefined)";
+      }
+
+      if (obj === null) {
+        return "(null)";
+      }
 
       var ret;
       var type = typeof obj;
@@ -17716,21 +17770,38 @@ enifed("ember-metal/utils",
       switch(type) {
         case 'number':
           ret = numberCache[obj];
-          if (!ret) ret = numberCache[obj] = 'nu'+obj;
+
+          if (!ret) {
+            ret = numberCache[obj] = 'nu'+obj;
+          }
+
           return ret;
 
         case 'string':
           ret = stringCache[obj];
-          if (!ret) ret = stringCache[obj] = 'st' + uuid();
+
+          if (!ret) {
+            ret = stringCache[obj] = 'st' + uuid();
+          }
+
           return ret;
 
         case 'boolean':
           return obj ? '(true)' : '(false)';
 
         default:
-          if (obj[GUID_KEY]) return obj[GUID_KEY];
-          if (obj === Object) return '(Object)';
-          if (obj === Array)  return '(Array)';
+          if (obj[GUID_KEY]) {
+            return obj[GUID_KEY];
+          }
+
+          if (obj === Object) {
+            return '(Object)';
+          }
+
+          if (obj === Array)  {
+            return '(Array)';
+          }
+
           ret = GUID_PREFIX + uuid();
 
           if (obj[GUID_KEY] === null) {
@@ -17806,7 +17877,9 @@ enifed("ember-metal/utils",
     */
     function meta(obj, writable) {
       var ret = obj['__ember_meta__'];
-      if (writable===false) return ret || EMPTY_META;
+      if (writable===false) {
+        return ret || EMPTY_META;
+      }
 
       if (!ret) {
         if (canDefineNonEnumerableProperties) {
@@ -18322,11 +18395,17 @@ enifed("ember-metal/utils",
       ret = (item === null || item === undefined) ? String(item) : TYPE_MAP[toString.call(item)] || 'object';
 
       if (ret === 'function') {
-        if (EmberObject && EmberObject.detect(item)) ret = 'class';
+        if (EmberObject && EmberObject.detect(item)) {
+          ret = 'class';
+        }
       } else if (ret === 'object') {
-        if (item instanceof Error) ret = 'error';
-        else if (EmberObject && item instanceof EmberObject) ret = 'instance';
-        else if (item instanceof Date) ret = 'date';
+        if (item instanceof Error) {
+          ret = 'error';
+        } else if (EmberObject && item instanceof EmberObject) {
+          ret = 'instance';
+        } else if (item instanceof Date) {
+          ret = 'date';
+        }
       }
 
       return ret;
@@ -19687,8 +19766,9 @@ enifed("ember-routing-views/views/link",
       var req = 0;
       for (var i = 0, l = handlerInfos.length; i < l; i++) {
         req = req + handlerInfos[i].names.length;
-        if (handlerInfos[i].handler === handler)
+        if (handlerInfos[i].handler === handler) {
           break;
+        }
       }
 
       return req;
@@ -20860,7 +20940,10 @@ enifed("ember-routing/ext/view",
         @method _finishDisconnections
        */
       _finishDisconnections: function() {
-        if (this.isDestroyed) return; // _outlets will be gone anyway
+        if (this.isDestroyed) {
+          return; // _outlets will be gone anyway
+        }
+
         var outlets = get(this, '_outlets');
         var pendingDisconnections = this._pendingDisconnections;
         this._pendingDisconnections = null;
@@ -31026,7 +31109,10 @@ enifed("ember-runtime/mixins/freezable",
         @return {Object} receiver
       */
       freeze: function() {
-        if (get(this, 'isFrozen')) return this;
+        if (get(this, 'isFrozen')) {
+          return this;
+        }
+
         set(this, 'isFrozen', true);
         return this;
       }
@@ -31123,7 +31209,10 @@ enifed("ember-runtime/mixins/mutable_array",
       */
       clear: function () {
         var len = get(this, 'length');
-        if (len === 0) return this;
+        if (len === 0) {
+          return this;
+        }
+
         this.replace(0, len, EMPTY);
         return this;
       },
@@ -31144,7 +31233,10 @@ enifed("ember-runtime/mixins/mutable_array",
         @return {Ember.Array} receiver
       */
       insertAt: function(idx, object) {
-        if (idx > get(this, 'length')) throw new EmberError(OUT_OF_RANGE_EXCEPTION);
+        if (idx > get(this, 'length')) {
+          throw new EmberError(OUT_OF_RANGE_EXCEPTION);
+        }
+
         this.replace(idx, 0, [object]);
         return this;
       },
@@ -31176,7 +31268,10 @@ enifed("ember-runtime/mixins/mutable_array",
           }
 
           // fast case
-          if (len === undefined) len = 1;
+          if (len === undefined) {
+            len = 1;
+          }
+
           this.replace(start, len, EMPTY);
         }
 
@@ -31238,7 +31333,9 @@ enifed("ember-runtime/mixins/mutable_array",
       */
       popObject: function() {
         var len = get(this, 'length');
-        if (len === 0) return null;
+        if (len === 0) {
+          return null;
+        }
 
         var ret = this.objectAt(len-1);
         this.removeAt(len-1, 1);
@@ -31259,7 +31356,10 @@ enifed("ember-runtime/mixins/mutable_array",
         @return object
       */
       shiftObject: function() {
-        if (get(this, 'length') === 0) return null;
+        if (get(this, 'length') === 0) {
+          return null;
+        }
+
         var ret = this.objectAt(0);
         this.removeAt(0);
         return ret;
@@ -31312,7 +31412,10 @@ enifed("ember-runtime/mixins/mutable_array",
        */
       reverseObjects: function() {
         var len = get(this, 'length');
-        if (len === 0) return this;
+        if (len === 0) {
+          return this;
+        }
+
         var objects = this.toArray().reverse();
         this.replace(0, len, objects);
         return this;
@@ -31334,7 +31437,9 @@ enifed("ember-runtime/mixins/mutable_array",
         @return {Ember.Array} receiver with the new content
        */
       setObjects: function(objects) {
-        if (objects.length === 0) return this.clear();
+        if (objects.length === 0) {
+          return this.clear();
+        }
 
         var len = get(this, 'length');
         this.replace(0, len, objects);
@@ -31363,7 +31468,10 @@ enifed("ember-runtime/mixins/mutable_array",
         var loc = get(this, 'length') || 0;
         while(--loc >= 0) {
           var curObject = this.objectAt(loc);
-          if (curObject === obj) this.removeAt(loc);
+
+          if (curObject === obj) {
+            this.removeAt(loc);
+          }
         }
         return this;
       },
@@ -31383,7 +31491,10 @@ enifed("ember-runtime/mixins/mutable_array",
         @return {Ember.Array} receiver
       */
       addObject: function(obj) {
-        if (!this.contains(obj)) this.pushObject(obj);
+        if (!this.contains(obj)) {
+          this.pushObject(obj);
+        }
+
         return this;
       }
 
@@ -32576,7 +32687,10 @@ enifed("ember-runtime/mixins/target_action_support",
 
         if (typeOf(target) === "string") {
           var value = get(this, target);
-          if (value === undefined) { value = get(Ember.lookup, target); }
+          if (value === undefined) {
+            value = get(Ember.lookup, target);
+          }
+
           return value;
         } else {
           return target;
@@ -32673,7 +32787,9 @@ enifed("ember-runtime/mixins/target_action_support",
                         ret = target[action].apply(target, args(actionContext));
           }
 
-          if (ret !== false) ret = true;
+          if (ret !== false) {
+            ret = true;
+          }
 
           return ret;
         } else {
@@ -32945,7 +33061,10 @@ enifed("ember-runtime/system/array_proxy",
 
       _replace: function(idx, amt, objects) {
         var content = get(this, 'content');
-                if (content) this.replaceContent(idx, amt, objects);
+                if (content) {
+          this.replaceContent(idx, amt, objects);
+        }
+
         return this;
       },
 
@@ -32958,7 +33077,10 @@ enifed("ember-runtime/system/array_proxy",
       },
 
       _insertAt: function(idx, object) {
-        if (idx > get(this, 'content.length')) throw new EmberError(OUT_OF_RANGE_EXCEPTION);
+        if (idx > get(this, 'content.length')) {
+          throw new EmberError(OUT_OF_RANGE_EXCEPTION);
+        }
+
         this._replace(idx, 0, [object]);
         return this;
       },
@@ -32982,7 +33104,9 @@ enifed("ember-runtime/system/array_proxy",
             throw new EmberError(OUT_OF_RANGE_EXCEPTION);
           }
 
-          if (len === undefined) len = 1;
+          if (len === undefined) {
+            len = 1;
+          }
 
           // Get a list of indices in original content to remove
           for (i=start; i<start+len; i++) {
@@ -33017,7 +33141,9 @@ enifed("ember-runtime/system/array_proxy",
       },
 
       setObjects: function(objects) {
-        if (objects.length === 0) return this.clear();
+        if (objects.length === 0) {
+          return this.clear();
+        }
 
         var len = get(this, 'length');
         this._replace(0, len, objects);
@@ -34038,7 +34164,9 @@ enifed("ember-runtime/system/each_proxy",
     function addObserverForContentKey(content, keyName, proxy, idx, loc) {
       var objects = proxy._objects;
       var guid;
-      if (!objects) objects = proxy._objects = {};
+      if (!objects) {
+        objects = proxy._objects = {};
+      }
 
       while(--loc>=idx) {
         var item = content.objectAt(loc);
@@ -34049,7 +34177,10 @@ enifed("ember-runtime/system/each_proxy",
           // keep track of the index each item was found at so we can map
           // it back when the obj changes.
           guid = guidFor(item);
-          if (!objects[guid]) objects[guid] = [];
+          if (!objects[guid]) {
+            objects[guid] = [];
+          }
+
           objects[guid].push(loc);
         }
       }
@@ -34057,7 +34188,10 @@ enifed("ember-runtime/system/each_proxy",
 
     function removeObserverForContentKey(content, keyName, proxy, idx, loc) {
       var objects = proxy._objects;
-      if (!objects) objects = proxy._objects = {};
+      if (!objects) {
+        objects = proxy._objects = {};
+      }
+
       var indicies, guid;
 
       while(--loc>=idx) {
@@ -34176,7 +34310,10 @@ enifed("ember-runtime/system/each_proxy",
 
       beginObservingContentKey: function(keyName) {
         var keys = this._keys;
-        if (!keys) keys = this._keys = {};
+        if (!keys) {
+          keys = this._keys = {};
+        }
+
         if (!keys[keyName]) {
           keys[keyName] = 1;
           var content = this._content;
@@ -34555,9 +34692,13 @@ enifed("ember-runtime/system/native_array",
       // because length is a built-in property we need to know to just get the
       // original property.
       get: function(key) {
-        if (key==='length') return this.length;
-        else if ('number' === typeof key) return this[key];
-        else return this._super(key);
+        if (key==='length') {
+          return this.length;
+        } else if ('number' === typeof key) {
+          return this[key];
+        } else {
+          return this._super(key);
+        }
       },
 
       objectAt: function(idx) {
@@ -34567,7 +34708,9 @@ enifed("ember-runtime/system/native_array",
       // primitive for array support.
       replace: function(idx, amt, objects) {
 
-        if (this.isFrozen) throw FROZEN_ERROR;
+        if (this.isFrozen) {
+          throw FROZEN_ERROR;
+        }
 
         // if we replaced exactly the same number of items, then pass only the
         // replaced range. Otherwise, pass the full remaining array length
@@ -34611,7 +34754,9 @@ enifed("ember-runtime/system/native_array",
     // Remove any methods implemented natively so we don't override them
     var ignore = ['length'];
     forEach(NativeArray.keys(), function(methodName) {
-      if (Array.prototype[methodName]) ignore.push(methodName);
+      if (Array.prototype[methodName]) {
+        ignore.push(methodName);
+      }
     });
 
     if (ignore.length > 0) {
@@ -35040,13 +35185,19 @@ enifed("ember-runtime/system/set",
       */
       isEqual: function(obj) {
         // fail fast
-        if (!Enumerable.detect(obj)) return false;
+        if (!Enumerable.detect(obj)) {
+          return false;
+        }
 
         var loc = get(this, 'length');
-        if (get(obj, 'length') !== loc) return false;
+        if (get(obj, 'length') !== loc) {
+          return false;
+        }
 
         while(--loc >= 0) {
-          if (!obj.contains(this[loc])) return false;
+          if (!obj.contains(this[loc])) {
+            return false;
+          }
         }
 
         return true;
@@ -35106,7 +35257,10 @@ enifed("ember-runtime/system/set",
         @return {Object} The removed object from the set or null.
       */
       pop: function() {
-        if (get(this, 'isFrozen')) throw new EmberError(FROZEN_ERROR);
+        if (get(this, 'isFrozen')) {
+          throw new EmberError(FROZEN_ERROR);
+        }
+
         var obj = this.length > 0 ? this[this.length-1] : null;
         this.remove(obj);
         return obj;
@@ -35203,7 +35357,10 @@ enifed("ember-runtime/system/set",
 
       init: function(items) {
                 this._super();
-        if (items) this.addObjects(items);
+
+        if (items) {
+          this.addObjects(items);
+        }
       },
 
       // implement Ember.Enumerable
@@ -35223,15 +35380,22 @@ enifed("ember-runtime/system/set",
 
       // implements Ember.MutableEnumerable
       addObject: function(obj) {
-        if (get(this, 'isFrozen')) throw new EmberError(FROZEN_ERROR);
-        if (isNone(obj)) return this; // nothing to do
+        if (get(this, 'isFrozen')) {
+          throw new EmberError(FROZEN_ERROR);
+        }
+
+        if (isNone(obj)) {
+          return this; // nothing to do
+        }
 
         var guid = guidFor(obj);
         var idx  = this[guid];
         var len  = get(this, 'length');
         var added;
 
-        if (idx>=0 && idx<len && (this[idx] === obj)) return this; // added
+        if (idx>=0 && idx<len && (this[idx] === obj)) {
+          return this; // added
+        }
 
         added = [obj];
 
@@ -35251,8 +35415,13 @@ enifed("ember-runtime/system/set",
 
       // implements Ember.MutableEnumerable
       removeObject: function(obj) {
-        if (get(this, 'isFrozen')) throw new EmberError(FROZEN_ERROR);
-        if (isNone(obj)) return this; // nothing to do
+        if (get(this, 'isFrozen')) {
+          throw new EmberError(FROZEN_ERROR);
+        }
+
+        if (isNone(obj)) {
+          return this; // nothing to do
+        }
 
         var guid = guidFor(obj);
         var idx  = this[guid];
@@ -41173,8 +41342,10 @@ enifed("ember-views/views/states/default",
       },
 
       destroyElement: function(view) {
-        if (view._renderer)
+        if (view._renderer) {
           view._renderer.remove(view, false);
+        }
+
         return view;
       },
 
@@ -41255,7 +41426,10 @@ enifed("ember-views/views/states/has_element",
         }
         // TODO: should be scheduled with renderer
         run.scheduleOnce('render', function () {
-          if (view.isDestroying) return;
+          if (view.isDestroying) {
+            return;
+          }
+
           view._renderer.renderTree(view, view._parentView);
         });
       },
@@ -41384,7 +41558,9 @@ enifed("ember-views/views/states/in_dom",
       exit: function(view) {
         if (!View) { View = requireModule('ember-views/views/view')["default"]; } // ES6TODO: this sucks. Have to avoid cycles...
 
-        if (!this.isVirtual) delete View.views[view.elementId];
+        if (!this.isVirtual) {
+          delete View.views[view.elementId];
+        }
       }
     });
 
@@ -42649,7 +42825,10 @@ enifed("ember-views/views/view",
           keywords.view.setSource(this.isVirtual ? parentKeywords.view : this);
 
           for (var name in parentKeywords) {
-            if (keywords[name]) continue;
+            if (keywords[name]) {
+              continue;
+            }
+
             keywords[name] = parentKeywords[name];
           }
         } else {
