@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.459ac75d
+ * @version   1.11.0-beta.1+canary.238f0286
  */
 
 (function() {
@@ -11678,7 +11678,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.459ac75d
+      @version 1.11.0-beta.1+canary.238f0286
     */
 
     if ('undefined' === typeof Ember) {
@@ -11705,10 +11705,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.459ac75d'
+      @default '1.11.0-beta.1+canary.238f0286'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.459ac75d';
+    Ember.VERSION = '1.11.0-beta.1+canary.238f0286';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -25382,6 +25382,7 @@ enifed("ember-runtime",
     var TrackedArray = __dependency8__["default"];
     var SubArray = __dependency9__["default"];
     var Container = __dependency10__.Container;
+    var Registry = __dependency10__.Registry;
     var ArrayProxy = __dependency11__["default"];
     var ObjectProxy = __dependency12__["default"];
     var CoreObject = __dependency13__["default"];
@@ -25505,6 +25506,7 @@ enifed("ember-runtime",
     Ember.TrackedArray = TrackedArray;
     Ember.SubArray = SubArray;
     Ember.Container = Container;
+    Ember.Registry = Registry;
     Ember.Namespace = Namespace;
     Ember.Enumerable = Enumerable;
     Ember.ArrayProxy = ArrayProxy;
