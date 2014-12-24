@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.51652ff1
+ * @version   1.11.0-beta.1+canary.bca48cf9
  */
 
 (function() {
@@ -17,7 +17,8 @@ var enifed, requireModule, eriuqer, requirejs, Ember;
   function UNDEFINED() { }
 
   if (typeof Ember.__loader === 'undefined') {
-    var registry = {}, seen = {};
+    var registry = {};
+    var seen = {};
 
     enifed = function(name, deps, callback) {
       registry[name] = { deps: deps, callback: callback };

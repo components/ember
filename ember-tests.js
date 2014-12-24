@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.51652ff1
+ * @version   1.11.0-beta.1+canary.bca48cf9
  */
 
 (function() {
@@ -17,7 +17,8 @@ var enifed, requireModule, eriuqer, requirejs, Ember;
   function UNDEFINED() { }
 
   if (typeof Ember.__loader === 'undefined') {
-    var registry = {}, seen = {};
+    var registry = {};
+    var seen = {};
 
     enifed = function(name, deps, callback) {
       registry[name] = { deps: deps, callback: callback };
@@ -32984,8 +32985,8 @@ enifed("ember-runtime/tests/controllers/controller_test",
 
         registry.register('controller:posts', Controller.extend());
 
-        var postController = container.lookup('controller:post'),
-          postsController = container.lookup('controller:posts');
+        var postController = container.lookup('controller:post');
+        var postsController = container.lookup('controller:posts');
 
         equal(postsController, postController.get('postsController'), "controller.posts is injected");
       });
@@ -33000,8 +33001,8 @@ enifed("ember-runtime/tests/controllers/controller_test",
 
         registry.register('service:auth', Service.extend());
 
-        var appController = container.lookup('controller:application'),
-          authService = container.lookup('service:auth');
+        var appController = container.lookup('controller:application');
+        var authService = container.lookup('service:auth');
 
         equal(authService, appController.get('authService'), "service.auth is injected");
       });
@@ -47690,7 +47691,8 @@ enifed("ember-testing/tests/adapters/qunit_test",
     });
 
     test("exception causes a failing assertion", function() {
-      var error = {err: 'hai'}, originalOk = window.ok;
+      var error = {err: 'hai'};
+      var originalOk = window.ok;
       try {
         window.ok = function(val, msg){
           originalOk(!val, "ok is called with false");
@@ -47893,7 +47895,8 @@ enifed("ember-testing/tests/helpers_test",
     var EmberApplication = __dependency13__["default"];
     var compile = __dependency14__["default"];
 
-    var App, originalAdapter = Test.adapter;
+    var App;
+    var originalAdapter = Test.adapter;
 
     function cleanup(){
       // Teardown setupForTesting
@@ -48717,7 +48720,8 @@ enifed("ember-testing/tests/integration_test",
     var compile = __dependency10__["default"];
 
 
-    var App, find, visit, originalAdapter = Test.adapter;
+    var App, find, visit;
+    var originalAdapter = Test.adapter;
 
     QUnit.module("ember-testing Integration", {
       setup: function() {
@@ -51374,8 +51378,8 @@ enifed("ember-views/tests/views/component_test",
 
         registry.register('service:profiler', Service.extend());
 
-        var appComponent = container.lookup('component:application'),
-        profilerService = container.lookup('service:profiler');
+        var appComponent = container.lookup('component:application');
+        var profilerService = container.lookup('service:profiler');
 
         equal(profilerService, appComponent.get('profilerService'), "service.profiler is injected");
       });
@@ -56047,8 +56051,8 @@ enifed("ember-views/tests/views/view/inject_test",
 
         registry.register('service:profiler', Service.extend());
 
-        var appView = container.lookup('view:application'),
-          profilerService = container.lookup('service:profiler');
+        var appView = container.lookup('view:application');
+        var profilerService = container.lookup('service:profiler');
 
         equal(profilerService, appView.get('profilerService'), "service.profiler is injected");
       });
@@ -59730,7 +59734,8 @@ enifed("ember/tests/helpers/link_to_test",
 
       expect(19);
 
-      var oldWarn = Ember.Logger.warn, warnCalled = false;
+      var oldWarn = Ember.Logger.warn;
+      var warnCalled = false;
       Ember.Logger.warn = function() { warnCalled = true; };
       Ember.TEMPLATES.index = compile("{{#link-to destinationRoute routeContext loadingClass='i-am-loading' id='context-link'}}string{{/link-to}}{{#link-to secondRoute loadingClass='i-am-loading' id='static-link'}}string{{/link-to}}");
 
@@ -60818,7 +60823,9 @@ enifed("ember/tests/helpers/link_to_test",
           }
         }
 
-        var $index = Ember.$('#index-link'), $about = Ember.$('#about-link'), $other = Ember.$('#other-link');
+        var $index = Ember.$('#index-link');
+        var $about = Ember.$('#about-link');
+        var $other = Ember.$('#other-link');
 
         Ember.run($about, 'click');
 
@@ -62104,7 +62111,10 @@ enifed("ember/tests/routing/basic_test",
         "<p>LOADING!</p>"
       );
 
-      var rootSetup = 0, rootRender = 0, rootModel = 0, rootSerialize = 0;
+      var rootSetup = 0;
+      var rootRender = 0;
+      var rootModel = 0;
+      var rootSerialize = 0;
 
       bootApplication();
 

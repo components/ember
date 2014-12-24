@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.51652ff1
+ * @version   1.11.0-beta.1+canary.bca48cf9
  */
 
 (function() {
@@ -17,7 +17,8 @@ var enifed, requireModule, eriuqer, requirejs, Ember;
   function UNDEFINED() { }
 
   if (typeof Ember.__loader === 'undefined') {
-    var registry = {}, seen = {};
+    var registry = {};
+    var seen = {};
 
     enifed = function(name, deps, callback) {
       registry[name] = { deps: deps, callback: callback };
@@ -4987,7 +4988,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.51652ff1
+      @version 1.11.0-beta.1+canary.bca48cf9
     */
 
     if ('undefined' === typeof Ember) {
@@ -5014,10 +5015,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.51652ff1'
+      @default '1.11.0-beta.1+canary.bca48cf9'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.51652ff1';
+    Ember.VERSION = '1.11.0-beta.1+canary.bca48cf9';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -5226,7 +5227,8 @@ enifed("ember-metal/dependent_keys",
     function addDependentKeys(desc, obj, keyName, meta) {
       // the descriptor has a list of dependent keys, so
       // add all of its dependent keys.
-      var depKeys = desc._dependentKeys, depsMeta, idx, len, depKey, keys;
+      var depsMeta, idx, len, depKey, keys;
+      var depKeys = desc._dependentKeys;
       if (!depKeys) return;
 
       depsMeta = metaForDeps(meta);
@@ -5245,7 +5247,8 @@ enifed("ember-metal/dependent_keys",
     __exports__.addDependentKeys = addDependentKeys;function removeDependentKeys(desc, obj, keyName, meta) {
       // the descriptor has a list of dependent keys, so
       // remove all of its dependent keys.
-      var depKeys = desc._dependentKeys, depsMeta, idx, len, depKey, keys;
+      var depKeys = desc._dependentKeys;
+      var depsMeta, idx, len, depKey, keys;
       if (!depKeys) return;
 
       depsMeta = metaForDeps(meta);
@@ -5939,7 +5942,8 @@ enifed("ember-metal/events",
       @param obj
     */
     function watchedEvents(obj) {
-      var listeners = obj['__ember_meta__'].listeners, ret = [];
+      var listeners = obj['__ember_meta__'].listeners;
+      var ret = [];
 
       if (listeners) {
         for (var eventName in listeners) {
@@ -5980,7 +5984,10 @@ enifed("ember-metal/events",
       if (!actions) { return; }
 
       for (var i = actions.length - 3; i >= 0; i -= 3) { // looping in reverse for once listeners
-        var target = actions[i], method = actions[i+1], flags = actions[i+2];
+        var target = actions[i];
+        var method = actions[i+1];
+        var flags = actions[i+2];
+
         if (!method) { continue; }
         if (flags & SUSPENDED) { continue; }
         if (flags & ONCE) { removeListener(obj, eventName, target, method); }
@@ -6419,7 +6426,9 @@ enifed("ember-metal/instrumentation",
       @return {Subscriber}
     */
     function subscribe(pattern, object) {
-      var paths = pattern.split("."), path, regex = [];
+      var paths = pattern.split(".");
+      var path;
+      var regex = [];
 
       for (var i=0, l=paths.length; i<l; i++) {
         path = paths[i];
@@ -6661,9 +6670,9 @@ enifed("ember-metal/keys",
       // modified from
       // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
       keys = (function () {
-        var hasOwnProperty = Object.prototype.hasOwnProperty,
-            hasDontEnumBug = !({toString: null}).propertyIsEnumerable('toString'),
-            dontEnums = [
+        var hasOwnProperty = Object.prototype.hasOwnProperty;
+        var hasDontEnumBug = !({toString: null}).propertyIsEnumerable('toString');
+        var dontEnums = [
               'toString',
               'toLocaleString',
               'valueOf',
@@ -6671,8 +6680,8 @@ enifed("ember-metal/keys",
               'isPrototypeOf',
               'propertyIsEnumerable',
               'constructor'
-            ],
-            dontEnumsLength = dontEnums.length;
+            ];
+       var dontEnumsLength = dontEnums.length;
 
         return function keys(obj) {
           if (typeof obj !== 'object' && (typeof obj !== 'function' || obj === null)) {
@@ -11826,7 +11835,8 @@ enifed("ember-metal/watch_key",
       // can't watch length on Array - it is special...
       if (keyName === 'length' && typeOf(obj) === 'array') { return; }
 
-      var m = meta || metaFor(obj), watching = m.watching;
+      var m = meta || metaFor(obj);
+      var watching = m.watching;
 
       // activate watching first time
       if (!watching[keyName]) {
@@ -12033,7 +12043,9 @@ enifed("ember-metal/watching",
       @return {void}
     */
     function destroy(obj) {
-      var meta = obj['__ember_meta__'], node, nodes, key, nodeObject;
+      var meta = obj['__ember_meta__'];
+      var node, nodes, key, nodeObject;
+
       if (meta) {
         obj['__ember_meta__'] = null;
         // remove chainWatchers to remove circular references that would prevent GC
@@ -22158,7 +22170,10 @@ enifed("ember-runtime/system/set",
       },
 
       copy: function() {
-        var C = this.constructor, ret = new C(), loc = get(this, 'length');
+        var C = this.constructor;
+        var ret = new C();
+        var loc = get(this, 'length');
+
         set(ret, 'length', loc);
         while(--loc>=0) {
           ret[loc] = this[loc];
@@ -22168,7 +22183,10 @@ enifed("ember-runtime/system/set",
       },
 
       toString: function() {
-        var len = this.length, idx, array = [];
+        var len = this.length;
+        var array = [];
+        var idx;
+
         for(idx = 0; idx < len; idx++) {
           array[idx] = this[idx];
         }
