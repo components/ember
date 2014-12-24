@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.13a15d2d
+ * @version   1.11.0-beta.1+canary.aef8553c
  */
 
 (function() {
@@ -4964,6 +4964,8 @@ enifed("ember-htmlbars",
     var bindAttrHelperDeprecated = __dependency20__.bindAttrHelperDeprecated;
     var ifHelper = __dependency21__.ifHelper;
     var unlessHelper = __dependency21__.unlessHelper;
+    var unboundIfHelper = __dependency21__.unboundIfHelper;
+    var boundIfHelper = __dependency21__.boundIfHelper;
     var locHelper = __dependency22__.locHelper;
     var partialHelper = __dependency23__.partialHelper;
     var templateHelper = __dependency24__.templateHelper;
@@ -4986,6 +4988,8 @@ enifed("ember-htmlbars",
     registerHelper('with', withHelper);
     registerHelper('if', ifHelper);
     registerHelper('unless', unlessHelper);
+    registerHelper('unboundIf', unboundIfHelper);
+    registerHelper('boundIf', boundIfHelper);
     registerHelper('log', logHelper);
     registerHelper('debugger', debuggerHelper);
     registerHelper('loc', locHelper);
@@ -5580,7 +5584,10 @@ enifed("ember-htmlbars/compat/make-bound-helper",
         // If none of the hash parameters are bound, act as an unbound helper.
         // This prevents views from being unnecessarily created
         var hasStream = scanArray(params) || scanHash(hash);
-        if (hasStream) {
+
+        if (env.data.isUnbound || !hasStream){
+          return valueFn();
+        } else {
           var lazyValue = new Stream(valueFn);
 
           for (i = 0; i < numParams; i++) {
@@ -5615,8 +5622,6 @@ enifed("ember-htmlbars/compat/make-bound-helper",
           }
 
           return lazyValue;
-        } else {
-          return valueFn();
         }
       }
 
@@ -6728,7 +6733,7 @@ enifed("ember-htmlbars/helpers/each",
     __exports__.eachHelper = eachHelper;
   });
 enifed("ember-htmlbars/helpers/if_unless",
-  ["ember-metal/core","ember-metal/streams/conditional","ember-views/streams/should_display","ember-metal/property_get","ember-metal/streams/utils","ember-views/views/bound_if_view","ember-htmlbars/templates/empty","exports"],
+  ["ember-metal/core","ember-metal/streams/conditional","ember-views/streams/should_display","ember-metal/streams/utils","ember-metal/property_get","ember-views/views/bound_if_view","ember-htmlbars/templates/empty","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
     /**
@@ -6740,93 +6745,145 @@ enifed("ember-htmlbars/helpers/if_unless",
     // Ember.assert
     var conditional = __dependency2__["default"];
     var shouldDisplay = __dependency3__["default"];
-    var get = __dependency4__.get;
-    var isStream = __dependency5__.isStream;
+    var read = __dependency4__.read;
+    var get = __dependency5__.get;
+    var isStream = __dependency4__.isStream;
     var BoundIfView = __dependency6__["default"];
     var emptyTemplate = __dependency7__["default"];
 
+
     /**
+      Use the `boundIf` helper to create a conditional that re-evaluates
+      whenever the truthiness of the bound value changes.
+
+      ```handlebars
+      {{#boundIf "content.shouldDisplayTitle"}}
+        {{content.title}}
+      {{/boundIf}}
+      ```
+
+      @private
+      @method boundIf
+      @for Ember.Handlebars.helpers
+      @param {String} property Property to bind
+      @param {Function} fn Context to provide for rendering
+      @return {String} HTML string
+    */
+    function boundIfHelper(params, hash, options, env) {
+      options.helperName = options.helperName || 'boundIf';
+      var property = params[0];
+      var stream = isStream(property) ? property : this.getStream(property);
+
+      var viewOptions = {
+        _morph: options.morph,
+        _context: get(this, 'context'),
+        conditionStream: shouldDisplay(stream),
+        truthyTemplate: options.template,
+        falsyTemplate: options.inverse,
+        helperName: options.helperName
+      };
+
+      this.appendChild(BoundIfView, viewOptions);
+    }
+
+    /**
+      @private
+
+      Use the `unboundIf` helper to create a conditional that evaluates once.
+
+      ```handlebars
+      {{#unboundIf "content.shouldDisplayTitle"}}
+        {{content.title}}
+      {{/unboundIf}}
+      ```
+
+      @method unboundIf
+      @for Ember.Handlebars.helpers
+      @param {String} property Property to bind
+      @param {Function} fn Context to provide for rendering
+      @return {String} HTML string
+      @since 1.4.0
+    */
+    function unboundIfHelper(params, hash, options, env) {
+      var template = options.template;
+      var value = params[0];
+
+      if (!read(shouldDisplay(value))) {
+        template = options.inverse;
+      }
+
+      return template.render(this, env, options.morph.contextualElement);
+    }
+
+    function _inlineIfAssertion(params) {
+      Ember.assert("If helper in inline form expects between two and three arguments", params.length === 2 || params.length === 3);
+    }
+
+    /**
+      See [boundIf](/api/classes/Ember.Handlebars.helpers.html#method_boundIf)
+      and [unboundIf](/api/classes/Ember.Handlebars.helpers.html#method_unboundIf)
+
       @method if
       @for Ember.Handlebars.helpers
+      @param {Function} context
+      @param {Hash} options
+      @return {String} HTML string
     */
     function ifHelper(params, hash, options, env) {
-      var helperName = options.helperName || 'if';
-      return appendConditional(this, false, helperName, params, hash, options, env);
+      Ember.assert("If helper in block form expect exactly one argument", !options.template || params.length === 1);
+      if (Ember.FEATURES.isEnabled('ember-htmlbars-inline-if-helper')) {
+        if (!options.template) {
+          _inlineIfAssertion(params);
+          var condition = params[0];
+          var truthy = params[1];
+          var falsy = params[2];
+          return conditional(shouldDisplay(condition), truthy, falsy);
+        }
+      }
+
+      options.inverse = options.inverse || emptyTemplate;
+
+      options.helperName = options.helperName || ('if ');
+
+      if (env.data.isUnbound) {
+        env.data.isUnbound = false;
+        return env.helpers.unboundIf.helperFunction.call(this, params, hash, options, env);
+      } else {
+        return env.helpers.boundIf.helperFunction.call(this, params, hash, options, env);
+      }
     }
 
     /**
       @method unless
       @for Ember.Handlebars.helpers
+      @param {Function} context
+      @param {Hash} options
+      @return {String} HTML string
     */
     function unlessHelper(params, hash, options, env) {
-      var helperName = options.helperName || 'unless';
-      return appendConditional(this, true, helperName, params, hash, options, env);
-    }
+      Ember.assert("You must pass exactly one argument to the unless helper", params.length === 1);
+      Ember.assert("You must pass a block to the unless helper", !!options.template);
 
+      var template = options.template;
+      var inverse = options.inverse || emptyTemplate;
+      var helperName = 'unless';
 
-    function assertInlineIfNotEnabled() {
-      Ember.assert(
-        "To use the inline forms of the `if` and `unless` helpers you must " +
-        "enable the `ember-htmlbars-inline-if-helper` feature flag."
-      );
-    }
+      options.template = inverse;
+      options.inverse = template;
 
-    function appendConditional(view, inverted, helperName, params, hash, options, env) {
-      if (options.template || options.inverse) {
-        return appendBlockConditional(view, inverted, helperName, params, hash, options, env);
+      options.helperName = options.helperName || helperName;
+
+      if (env.data.isUnbound) {
+        env.data.isUnbound = false;
+        return env.helpers.unboundIf.helperFunction.call(this, params, hash, options, env);
       } else {
-        if (Ember.FEATURES.isEnabled('ember-htmlbars-inline-if-helper')) {
-          return appendInlineConditional(view, inverted, helperName, params, hash, options, env);
-        } else {
-          assertInlineIfNotEnabled();
-        }
+        return env.helpers.boundIf.helperFunction.call(this, params, hash, options, env);
       }
-    }
-
-    function appendBlockConditional(view, inverted, helperName, params, hash, options, env) {
-      Ember.assert(
-        "The block form of the `if` and `unless` helpers expect exactly one " +
-        "argument, e.g. `{{#if newMessages}} You have new messages. {{/if}}.`",
-        params.length === 1
-      );
-
-      var condition = shouldDisplay(params[0]);
-      var truthyTemplate = (inverted ? options.inverse : options.template) || emptyTemplate;
-      var falsyTemplate = (inverted ? options.template : options.inverse) || emptyTemplate;
-
-      if (isStream(condition)) {
-        view.appendChild(BoundIfView, {
-          _morph: options.morph,
-          _context: get(view, 'context'),
-          conditionStream: condition,
-          truthyTemplate: truthyTemplate,
-          falsyTemplate: falsyTemplate,
-          helperName: helperName
-        });
-      } else {
-        var template = condition ? truthyTemplate : falsyTemplate;
-        if (template) {
-          return template.render(view, env, options.morph.contextualElement);
-        }
-      }
-    }
-
-    function appendInlineConditional(view, inverted, helperName, params) {
-      Ember.assert(
-        "The inline form of the `if` and `unless` helpers expect two or " +
-        "three arguments, e.g. `{{if trialExpired 'Expired' expiryDate}}` " +
-        "or `{{unless isFirstLogin 'Welcome back!'}}`.",
-        params.length === 2 || params.length === 3
-      );
-
-      return conditional(
-        shouldDisplay(params[0]),
-        inverted ? params[2] : params[1],
-        inverted ? params[1] : params[2]
-      );
     }
 
     __exports__.ifHelper = ifHelper;
+    __exports__.boundIfHelper = boundIfHelper;
+    __exports__.unboundIfHelper = unboundIfHelper;
     __exports__.unlessHelper = unlessHelper;
   });
 enifed("ember-htmlbars/helpers/input",
@@ -7452,13 +7509,12 @@ enifed("ember-htmlbars/helpers/text_area",
     __exports__.textareaHelper = textareaHelper;
   });
 enifed("ember-htmlbars/helpers/unbound",
-  ["ember-metal/error","ember-metal/mixin","ember-metal/streams/utils","ember-htmlbars/system/lookup-helper","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+  ["ember-htmlbars/system/lookup-helper","ember-metal/streams/utils","ember-metal/error","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
-    var EmberError = __dependency1__["default"];
-    var IS_BINDING = __dependency2__.IS_BINDING;
-    var read = __dependency3__.read;
-    var lookupHelper = __dependency4__["default"];
+    var lookupHelper = __dependency1__["default"];
+    var read = __dependency2__.read;
+    var EmberError = __dependency3__["default"];
 
     /**
     @module ember
@@ -7486,57 +7542,40 @@ enifed("ember-htmlbars/helpers/unbound",
       @return {String} HTML string
     */
     function unboundHelper(params, hash, options, env) {
-      Ember.assert(
-        "The `unbound` helper expects at least one argument, " +
-        "e.g. `{{unbound user.name}}`.",
-        params.length > 0
-      );
+      var length = params.length;
+      var result;
 
-      if (params.length === 1) {
-        return read(params[0]);
-      } else {
-        options.helperName = options.helperName || 'unbound';
+      options.helperName = options.helperName || 'unbound';
+
+      if (length === 1) {
+        result = read(params[0]);
+      } else if (length >= 2) {
+        env.data.isUnbound = true;
 
         var helperName = params[0]._label;
+        var args = [];
+
+        for (var i = 1, l = params.length; i < l; i++) {
+          var value = read(params[i]);
+
+          args.push(value);
+        }
+
         var helper = lookupHelper(helperName, this, env);
 
         if (!helper) {
           throw new EmberError('HTMLBars error: Could not find component or helper named ' + helperName + '.');
         }
 
-        return helper.helperFunction.call(this, readParams(params), readHash(hash, this), options, env);
-      }
-    }
+        result = helper.helperFunction.call(this, args, hash, options, env);
 
-    __exports__.unboundHelper = unboundHelper;function readParams(params) {
-      var l = params.length;
-      var unboundParams = new Array(l - 1);
-
-      for (var i = 1; i < l; i++) {
-        unboundParams[i-1] = read(params[i]);
+        delete env.data.isUnbound;
       }
 
-      return unboundParams;
+      return result;
     }
 
-    function readHash(hash, view) {
-      var unboundHash = {};
-
-      for (var prop in hash) {
-        if (IS_BINDING.test(prop)) {
-          var value = hash[prop];
-          if (typeof value === 'string') {
-            value = view.getStream(value);
-          }
-
-          unboundHash[prop.slice(0, -7)] = read(value);
-        } else {
-          unboundHash[prop] = read(hash[prop]);
-        }
-      }
-
-      return unboundHash;
-    }
+    __exports__.unboundHelper = unboundHelper;
   });
 enifed("ember-htmlbars/helpers/view",
   ["ember-metal/core","ember-runtime/system/object","ember-metal/property_get","ember-metal/streams/simple","ember-metal/keys","ember-metal/mixin","ember-metal/streams/utils","ember-views/streams/utils","ember-views/views/view","ember-metal/enumerable_utils","ember-views/streams/class_name_binding","exports"],
@@ -8638,7 +8677,10 @@ enifed("ember-htmlbars/system/make_bound_helper",
         // If none of the hash parameters are bound, act as an unbound helper.
         // This prevents views from being unnecessarily created
         var hasStream = scanArray(params) || scanHash(hash);
-        if (hasStream) {
+
+        if (env.data.isUnbound || !hasStream) {
+          return valueFn();
+        } else {
           var lazyValue = new Stream(valueFn);
 
           for (var i = 0; i < numParams; i++) {
@@ -8652,8 +8694,6 @@ enifed("ember-htmlbars/system/make_bound_helper",
           }
 
           return lazyValue;
-        } else {
-          return valueFn();
         }
       }
 
@@ -12100,7 +12140,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.13a15d2d
+      @version 1.11.0-beta.1+canary.aef8553c
     */
 
     if ('undefined' === typeof Ember) {
@@ -12127,10 +12167,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.13a15d2d'
+      @default '1.11.0-beta.1+canary.aef8553c'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.13a15d2d';
+    Ember.VERSION = '1.11.0-beta.1+canary.aef8553c';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
