@@ -6312,14 +6312,15 @@ enifed("ember-htmlbars/helpers/collection",
 
       Ember.assert("You cannot pass more than one argument to the collection helper", params.length <= 1);
 
-      var data      = env.data,
-          template  = options.template,
-          inverse   = options.inverse,
-          view      = data.view,
-          // This should be deterministic, and should probably come from a
-          // parent view and not the controller.
-          controller = get(view, 'controller'),
-          container = (controller && controller.container ? controller.container : view.container);
+      var data      = env.data;
+      var  template  = options.template;
+      var  inverse   = options.inverse;
+      var  view      = data.view;
+
+      // This should be deterministic, and should probably come from a
+      // parent view and not the controller.
+      var  controller = get(view, 'controller');
+      var  container = (controller && controller.container ? controller.container : view.container);
 
       // If passed a path string, convert that into an object.
       // Otherwise, just default to the standard class.
@@ -21125,7 +21126,8 @@ enifed("ember-routing/ext/controller",
     var ALL_PERIODS_REGEX = /\./g;
 
     function accumulateQueryParamDescriptors(_desc, accum) {
-      var desc = _desc, tmp;
+      var desc = _desc;
+      var tmp;
       if (typeOf(desc) === 'string') {
         tmp = {};
         tmp[desc] = { as: null };
@@ -24624,7 +24626,8 @@ enifed("ember-routing/system/route",
     function handlerInfoFor(route, handlerInfos, _offset) {
       if (!handlerInfos) { return; }
 
-      var offset = _offset || 0, current;
+      var offset = _offset || 0;
+      var current;
       for (var i=0, l=handlerInfos.length; i<l; i++) {
         current = handlerInfos[i].handler;
         if (current === route) { return handlerInfos[i+offset]; }
@@ -24632,7 +24635,8 @@ enifed("ember-routing/system/route",
     }
 
     function parentTemplate(route) {
-      var parent = parentRoute(route), template;
+      var parent = parentRoute(route);
+      var template;
 
       if (!parent) { return; }
 
@@ -24941,7 +24945,8 @@ enifed("ember-routing/system/router",
       },
 
       transitionTo: function() {
-        var args = slice.call(arguments), queryParams;
+        var args = slice.call(arguments);
+        var queryParams;
         if (resemblesURL(args[0])) {
           return this._doURLTransition('transitionTo', args[0]);
         }

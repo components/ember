@@ -28220,7 +28220,8 @@ enifed("ember-routing/tests/system/controller_for_test",
     });
 
     test("generateController should create App.ObjectController if provided", function() {
-      var context = {}, controller;
+      var context = {};
+      var controller;
       namespace.ObjectController = ObjectController.extend();
 
       controller = generateController(container, 'home', context);
@@ -28230,7 +28231,8 @@ enifed("ember-routing/tests/system/controller_for_test",
     });
 
     test("generateController should create App.ArrayController if provided", function() {
-      var context = Ember.A(), controller;
+      var context = Ember.A();
+      var controller;
       namespace.ArrayController = ArrayController.extend();
 
       controller = generateController(container, 'home', context);
@@ -28562,8 +28564,8 @@ enifed("ember-routing/tests/system/route_test",
 
         container.register('service:auth', Service.extend());
 
-        var appRoute = container.lookup('route:application'),
-          authService = container.lookup('service:auth');
+        var appRoute = container.lookup('route:application');
+        var authService = container.lookup('service:auth');
 
         equal(authService, appRoute.get('authService'), "service.auth is injected");
       });
@@ -46761,7 +46763,9 @@ enifed("ember-testing/tests/adapters/adapter_test",
     // });
 
     test("exception throws", function() {
-      var error = "Hai", thrown;
+      var error = "Hai";
+      var thrown;
+
       try {
         adapter.exception(error);
       } catch (e) {
@@ -61778,7 +61782,8 @@ enifed("ember/tests/routing/basic_test",
         this.route("home");
       });
 
-      var chooseFollowed = 0, destination;
+      var chooseFollowed = 0;
+      var destination;
 
       App.ChooseRoute = Ember.Route.extend({
         redirect: function() {
@@ -63471,7 +63476,8 @@ enifed("ember/tests/routing/query_params_test",
       });
     }
 
-    var startingURL = '', expectedReplaceURL, expectedPushURL;
+    var startingURL = '';
+    var expectedReplaceURL, expectedPushURL;
 
     function setAndFlush(obj, prop, value) {
       Ember.run(obj, 'set', prop, value);
