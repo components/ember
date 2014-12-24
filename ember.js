@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.39f2b68d
+ * @version   1.11.0-beta.1+canary.ad88a927
  */
 
 (function() {
@@ -3858,7 +3858,8 @@ enifed("ember-application/system/resolver",
 
       _parseName: function(fullName) {
         var nameParts = fullName.split(':');
-        var type = nameParts[0], fullNameWithoutType = nameParts[1];
+        var type = nameParts[0];
+        var fullNameWithoutType = nameParts[1];
         var name = fullNameWithoutType;
         var namespace = get(this, 'namespace');
         var root = namespace;
@@ -4420,7 +4421,8 @@ enifed("ember-extension-support/container_debug_adapter",
         @return {Array} An array of strings.
       */
       catalogEntriesByType: function(type) {
-        var namespaces = emberA(Namespace.NAMESPACES), types = emberA();
+        var namespaces = emberA(Namespace.NAMESPACES);
+        var types = emberA();
         var typeSuffixRegex = new RegExp(classify(type) + "$");
 
         namespaces.forEach(function(namespace) {
@@ -4629,7 +4631,10 @@ enifed("ember-extension-support/data_adapter",
         @return {Function} Method to call to remove all observers
       */
       watchRecords: function(type, recordsAdded, recordsUpdated, recordsRemoved) {
-        var self = this, releaseMethods = emberA(), records = this.getRecords(type), release;
+        var self = this;
+        var releaseMethods = emberA();
+        var records = this.getRecords(type);
+        var release;
 
         var recordUpdated = function(updatedRecord) {
           recordsUpdated([updatedRecord]);
@@ -12072,7 +12077,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.39f2b68d
+      @version 1.11.0-beta.1+canary.ad88a927
     */
 
     if ('undefined' === typeof Ember) {
@@ -12099,10 +12104,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.39f2b68d'
+      @default '1.11.0-beta.1+canary.ad88a927'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.39f2b68d';
+    Ember.VERSION = '1.11.0-beta.1+canary.ad88a927';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -14545,7 +14550,8 @@ enifed("ember-metal/merge",
 
       ```javascript
       Ember.merge({first: 'Tom'}, {last: 'Dale'}); // {first: 'Tom', last: 'Dale'}
-      var a = {first: 'Yehuda'}, b = {last: 'Katz'};
+      var a = {first: 'Yehuda'};
+      var b = {last: 'Katz'};
       Ember.merge(a, b); // a == {first: 'Yehuda', last: 'Katz'}, b == {last: 'Katz'}
       ```
 
@@ -21066,7 +21072,8 @@ enifed("ember-routing/ext/controller",
         @private
       */
       _calculateCacheKey: function(prefix, _parts, values) {
-        var parts = _parts || [], suffixes = "";
+        var parts = _parts || [];
+        var suffixes = "";
         for (var i = 0, len = parts.length; i < len; ++i) {
           var part = parts[i];
           var value = get(values, part);
@@ -22899,7 +22906,9 @@ enifed("ember-routing/system/route",
         var qpProps = get(controllerProto, '_normalizedQueryParams');
         var cacheMeta = get(controllerProto, '_cacheMeta');
 
-        var qps = [], map = {}, self = this;
+        var qps = [];
+        var map = {};
+        var self = this;
         for (var propName in qpProps) {
           if (!qpProps.hasOwnProperty(propName)) { continue; }
 
@@ -24219,7 +24228,8 @@ enifed("ember-routing/system/route",
         if (params.length < 1) { return; }
         if (!model) { return; }
 
-        var name = params[0], object = {};
+        var name = params[0];
+        var object = {};
 
         if (/_id$/.test(name) && params.length === 1) {
           object[name] = get(model, "id");
@@ -25230,7 +25240,8 @@ enifed("ember-routing/system/router",
       },
 
       _setupRouter: function(router, location) {
-        var lastURL, emberRouter = this;
+        var lastURL;
+        var emberRouter = this;
 
         router.getHandler = this._getHandlerFunction();
 
@@ -25335,7 +25346,8 @@ enifed("ember-routing/system/router",
           return this._qpCache[leafRouteName];
         }
 
-        var map = {}, qps = [];
+        var map = {};
+        var qps = [];
         this._qpCache[leafRouteName] = {
           map: map,
           qps: qps

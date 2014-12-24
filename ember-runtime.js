@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.39f2b68d
+ * @version   1.11.0-beta.1+canary.ad88a927
  */
 
 (function() {
@@ -4994,7 +4994,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.39f2b68d
+      @version 1.11.0-beta.1+canary.ad88a927
     */
 
     if ('undefined' === typeof Ember) {
@@ -5021,10 +5021,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.39f2b68d'
+      @default '1.11.0-beta.1+canary.ad88a927'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.39f2b68d';
+    Ember.VERSION = '1.11.0-beta.1+canary.ad88a927';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -7467,7 +7467,8 @@ enifed("ember-metal/merge",
 
       ```javascript
       Ember.merge({first: 'Tom'}, {last: 'Dale'}); // {first: 'Tom', last: 'Dale'}
-      var a = {first: 'Yehuda'}, b = {last: 'Katz'};
+      var a = {first: 'Yehuda'};
+      var b = {last: 'Katz'};
       Ember.merge(a, b); // a == {first: 'Yehuda', last: 'Katz'}, b == {last: 'Katz'}
       ```
 

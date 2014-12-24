@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.39f2b68d
+ * @version   1.11.0-beta.1+canary.ad88a927
  */
 
 (function() {
@@ -62590,8 +62590,13 @@ enifed("ember/tests/routing/basic_test",
         });
       });
 
-      var post1 = {}, post2 = {}, post3 = {}, currentPost;
-      var share1 = {}, share2 = {}, share3 = {};
+      var post1 = {};
+      var post2 = {};
+      var post3 = {};
+      var currentPost;
+      var share1 = {};
+      var share2 = {};
+      var share3 = {};
 
       var posts = {
         1: post1,
@@ -62657,7 +62662,10 @@ enifed("ember/tests/routing/basic_test",
         });
       });
 
-      var post1 = {}, post2 = {}, post3 = {}, currentPost;
+      var post1 = {};
+      var post2 = {};
+      var post3 = {};
+      var currentPost;
 
       var posts = {
         1: post1,
@@ -62700,7 +62708,10 @@ enifed("ember/tests/routing/basic_test",
         });
       });
 
-      var post1 = {}, post2 = {}, post3 = {}, currentPost;
+      var post1 = {};
+      var post2 = {};
+      var post3 = {};
+      var currentPost;
 
       var posts = {
         1: post1,
@@ -66104,7 +66115,8 @@ enifed("ember/tests/routing/substates_test",
 
     test("Slow promise from a child route of application enters nested loading state", function() {
 
-      var broModel = {}, broDeferred = Ember.RSVP.defer();
+      var broModel = {};
+      var broDeferred = Ember.RSVP.defer();
 
       Router.map(function() {
         this.route('bro');
