@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.34130cb0
+ * @version   1.11.0-beta.1+canary.1e61692e
  */
 
 (function() {
@@ -6362,14 +6362,15 @@ enifed("ember-htmlbars/helpers/collection",
 
       Ember.assert("You cannot pass more than one argument to the collection helper", params.length <= 1);
 
-      var data      = env.data,
-          template  = options.template,
-          inverse   = options.inverse,
-          view      = data.view,
-          // This should be deterministic, and should probably come from a
-          // parent view and not the controller.
-          controller = get(view, 'controller'),
-          container = (controller && controller.container ? controller.container : view.container);
+      var data      = env.data;
+      var  template  = options.template;
+      var  inverse   = options.inverse;
+      var  view      = data.view;
+
+      // This should be deterministic, and should probably come from a
+      // parent view and not the controller.
+      var  controller = get(view, 'controller');
+      var  container = (controller && controller.container ? controller.container : view.container);
 
       // If passed a path string, convert that into an object.
       // Otherwise, just default to the standard class.
@@ -12077,7 +12078,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.34130cb0
+      @version 1.11.0-beta.1+canary.1e61692e
     */
 
     if ('undefined' === typeof Ember) {
@@ -12104,10 +12105,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.34130cb0'
+      @default '1.11.0-beta.1+canary.1e61692e'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.34130cb0';
+    Ember.VERSION = '1.11.0-beta.1+canary.1e61692e';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -21246,7 +21247,8 @@ enifed("ember-routing/ext/controller",
     var ALL_PERIODS_REGEX = /\./g;
 
     function accumulateQueryParamDescriptors(_desc, accum) {
-      var desc = _desc, tmp;
+      var desc = _desc;
+      var tmp;
       if (typeOf(desc) === 'string') {
         tmp = {};
         tmp[desc] = { as: null };
@@ -24739,7 +24741,8 @@ enifed("ember-routing/system/route",
     function handlerInfoFor(route, handlerInfos, _offset) {
       if (!handlerInfos) { return; }
 
-      var offset = _offset || 0, current;
+      var offset = _offset || 0;
+      var current;
       for (var i=0, l=handlerInfos.length; i<l; i++) {
         current = handlerInfos[i].handler;
         if (current === route) { return handlerInfos[i+offset]; }
@@ -24747,7 +24750,8 @@ enifed("ember-routing/system/route",
     }
 
     function parentTemplate(route) {
-      var parent = parentRoute(route), template;
+      var parent = parentRoute(route);
+      var template;
 
       if (!parent) { return; }
 
@@ -25059,7 +25063,8 @@ enifed("ember-routing/system/router",
       },
 
       transitionTo: function() {
-        var args = slice.call(arguments), queryParams;
+        var args = slice.call(arguments);
+        var queryParams;
         if (resemblesURL(args[0])) {
           return this._doURLTransition('transitionTo', args[0]);
         }
