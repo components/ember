@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.ad88a927
+ * @version   1.11.0-beta.1+canary.34130cb0
  */
 
 (function() {
@@ -1132,7 +1132,7 @@ enifed("container/container",
         
         // TODO - See note above about transpiler import workaround.
         if (!Registry) { Registry = requireModule('container/registry')['default']; }
-        
+
         return new Registry();
       }());
 
@@ -11664,7 +11664,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.ad88a927
+      @version 1.11.0-beta.1+canary.34130cb0
     */
 
     if ('undefined' === typeof Ember) {
@@ -11691,10 +11691,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.ad88a927'
+      @default '1.11.0-beta.1+canary.34130cb0'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.ad88a927';
+    Ember.VERSION = '1.11.0-beta.1+canary.34130cb0';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -21544,7 +21544,7 @@ enifed("ember-routing/location/hash_location",
       getURL: function() {
         var originalPath = this.getHash().substr(1);
         var outPath = originalPath;
-        
+
         if (outPath.charAt(0) !== '/') {
           outPath = '/';
 
@@ -29820,7 +29820,7 @@ enifed("ember-runtime/mixins/enumerable",
         var found = this.find(function(item) {
           return item === obj;
         });
-        
+
         return found !== undefined;
       },
 

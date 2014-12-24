@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.ad88a927
+ * @version   1.11.0-beta.1+canary.34130cb0
  */
 
 (function() {
@@ -28542,7 +28542,7 @@ enifed("ember-routing/tests/location/hash_location_test",
         createLocation({
           _location: mockBrowserLocation('/')
         });
-        
+
         equal(location.getURL(), '/');
     });
 
@@ -57245,7 +57245,7 @@ enifed("ember-views/tests/views/view/stream_test",
         controller: {
           name: 'Robert'
         },
-        
+
         foo: 'bar'
       });
 

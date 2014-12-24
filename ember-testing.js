@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.ad88a927
+ * @version   1.11.0-beta.1+canary.34130cb0
  */
 
 (function() {
@@ -281,7 +281,7 @@ enifed("ember-debug",
       any specific FEATURES flag is truthy.
 
       This method is called automatically in debug canary builds.
-      
+
       @private
       @method _warnIfUsingStrippedFeatureFlags
       @return {void}
@@ -303,7 +303,7 @@ enifed("ember-debug",
       // Complain if they're using FEATURE flags in builds other than canary
       Ember.FEATURES['features-stripped-test'] = true;
       var featuresWereStripped = true;
-      
+
       if (Ember.FEATURES.isEnabled('features-stripped-test')) {
         featuresWereStripped = false;
       }
