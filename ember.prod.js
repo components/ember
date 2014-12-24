@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.13a15d2d
+ * @version   1.11.0-beta.1+canary.51652ff1
  */
 
 (function() {
@@ -7292,61 +7292,34 @@ enifed("ember-htmlbars/helpers/view",
         return extensions;
       },
 
-      helper: function(newView, hash, options, env) {
-        var data = env.data;
-        var template = options.template;
-        var newViewProto;
+      helper: function(viewInstanceOrClass, hash, options, env) {
+        var currentView = env.data.view;
+        var viewProto;
 
-        makeBindings(hash, options, env.data.view);
+        makeBindings(hash, options, currentView);
 
-        var viewOptions = this.propertiesFromHTMLOptions(hash, options, env);
-        var currentView = data.view;
+        var props = this.propertiesFromHTMLOptions(hash, options, env);
 
-        if (View.detectInstance(newView)) {
-          newViewProto = newView;
+        if (View.detectInstance(viewInstanceOrClass)) {
+          viewProto = viewInstanceOrClass;
         } else {
-          newViewProto = newView.proto();
+          viewProto = viewInstanceOrClass.proto();
         }
 
-        if (template) {
-                    viewOptions.template = template;
-        }
-
-        // We only want to override the `_context` computed property if there is
-        // no specified controller. See View#_context for more information.
-        if (!newViewProto.controller && !newViewProto.controllerBinding && !viewOptions.controller && !viewOptions.controllerBinding) {
-          viewOptions._context = get(currentView, 'context'); // TODO: is this right?!
-        }
-
-        viewOptions._morph = options.morph;
-
-        currentView.appendChild(newView, viewOptions);
-      },
-
-      instanceHelper: function(newView, hash, options, env) {
-        var data = env.data;
         var template = options.template;
-
-        makeBindings(hash, options, env.data.view);
-
-        
-        var viewOptions = this.propertiesFromHTMLOptions(hash, options, env);
-        var currentView = data.view;
-
         if (template) {
-                    viewOptions.template = template;
+                    props.template = template;
         }
 
         // We only want to override the `_context` computed property if there is
         // no specified controller. See View#_context for more information.
-        if (!newView.controller && !newView.controllerBinding &&
-            !viewOptions.controller && !viewOptions.controllerBinding) {
-          viewOptions._context = get(currentView, 'context'); // TODO: is this right?!
+        if (!viewProto.controller && !viewProto.controllerBinding && !props.controller && !props.controllerBinding) {
+          props._context = get(currentView, 'context'); // TODO: is this right?!
         }
 
-        viewOptions._morph = options.morph;
+        props._morph = options.morph;
 
-        currentView.appendChild(newView, viewOptions);
+        currentView.appendChild(viewInstanceOrClass, props);
       }
     });
     __exports__.ViewHelper = ViewHelper;
@@ -11679,7 +11652,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.13a15d2d
+      @version 1.11.0-beta.1+canary.51652ff1
     */
 
     if ('undefined' === typeof Ember) {
@@ -11706,10 +11679,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.13a15d2d'
+      @default '1.11.0-beta.1+canary.51652ff1'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.13a15d2d';
+    Ember.VERSION = '1.11.0-beta.1+canary.51652ff1';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -19634,7 +19607,7 @@ enifed("ember-routing-htmlbars/helpers/render",
 
       options.helperName = options.helperName || ('render "' + name + '"');
 
-      ViewHelper.instanceHelper(view, hash, options, env);
+      ViewHelper.helper(view, hash, options, env);
     }
 
     __exports__.renderHelper = renderHelper;
