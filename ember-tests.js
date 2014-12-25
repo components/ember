@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.57c0d5ff
+ * @version   1.11.0-beta.1+canary.c5120193
  */
 
 (function() {
@@ -31506,7 +31506,7 @@ enifed("ember-routing/tests/location/history_location_test",
     test("HistoryLocation.getURL() includes location.search", function() {
         expect(1);
 
-        HistoryTestLocation.reopen({  
+        HistoryTestLocation.reopen({
           init: function() {
             this._super();
             set(this, 'location', mockBrowserLocation('/foo/bar?time=morphin'));
@@ -31521,7 +31521,7 @@ enifed("ember-routing/tests/location/history_location_test",
     test("HistoryLocation.getURL() includes location.hash", function() {
         expect(1);
 
-        HistoryTestLocation.reopen({  
+        HistoryTestLocation.reopen({
           init: function() {
             this._super();
             set(this, 'location', mockBrowserLocation('/foo/bar#pink-power-ranger'));
@@ -31536,7 +31536,7 @@ enifed("ember-routing/tests/location/history_location_test",
     test("HistoryLocation.getURL() includes location.hash and location.search", function() {
         expect(1);
 
-        HistoryTestLocation.reopen({  
+        HistoryTestLocation.reopen({
           init: function() {
             this._super();
             set(this, 'location', mockBrowserLocation('/foo/bar?time=morphin#pink-power-ranger'));
