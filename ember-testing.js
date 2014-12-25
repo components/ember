@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.238f0286
+ * @version   1.11.0-beta.1+canary.57c0d5ff
  */
 
 (function() {
@@ -156,7 +156,9 @@ enifed("ember-debug",
     Ember.warn = function(message, test) {
       if (!test) {
         Logger.warn("WARNING: "+message);
-        if ('trace' in Logger) Logger.trace();
+        if ('trace' in Logger) {
+          Logger.trace();
+        }
       }
     };
 

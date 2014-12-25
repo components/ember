@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.238f0286
+ * @version   1.11.0-beta.1+canary.57c0d5ff
  */
 
 (function() {
@@ -3142,7 +3142,7 @@ enifed("ember-debug.jscs-test",
     "use strict";
     module('JSCS - .');
     test('ember-debug.js should pass jscs', function() {
-      ok(false, 'ember-debug.js should pass jscs.\nIf statement without curly braces at ember-debug.js :\n    64 |  if (!test) {\n    65 |    Logger.warn("WARNING: "+message);\n    66 |    if (\'trace\' in Logger) Logger.trace();\n------------^\n    67 |  }\n    68 |};');
+      ok(true, 'ember-debug.js should pass jscs.');
     });
   });
 enifed("ember-debug.jshint",
@@ -5350,7 +5350,7 @@ enifed("ember-htmlbars/tests/attr_nodes/class_test",
       view = EmberView.create({
         context: {
           showA: 'a',
-          showB: 'b',
+          showB: 'b'
         },
         template: compile("<div class='r {{showB}} {{showA}} c'></div>")
       });
@@ -7718,7 +7718,7 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test",
 
     test("should keep class in the order it appears in", function() {
       view = EmberView.create({
-        template: compile('<span {{bind-attr class=":foo :baz"}}></span>'),
+        template: compile('<span {{bind-attr class=":foo :baz"}}></span>')
       });
 
       runAppend(view);
@@ -11007,7 +11007,7 @@ enifed("ember-htmlbars/tests/helpers/log_test",
     test('should be able to log `this`', function() {
       view = EmberView.create({
         context: 'one',
-        template: compile('{{log this}}'),
+        template: compile('{{log this}}')
       });
 
       runAppend(view);
@@ -14873,7 +14873,7 @@ enifed("ember-htmlbars/tests/integration/escape_integration_test",
     test('should escape HTML in primitive value contexts when using normal mustaches', function() {
       view = EmberView.create({
         context: '<b>Max</b><b>James</b>',
-        template: compile('{{this}}'),
+        template: compile('{{this}}')
       });
 
       runAppend(view);
@@ -14892,7 +14892,7 @@ enifed("ember-htmlbars/tests/integration/escape_integration_test",
     test('should not escape HTML in primitive value contexts when using triple mustaches', function() {
       view = EmberView.create({
         context: '<b>Max</b><b>James</b>',
-        template: compile('{{{this}}}'),
+        template: compile('{{{this}}}')
       });
 
       runAppend(view);
@@ -22009,7 +22009,7 @@ enifed("ember-metal/tests/map_test",
         var expectations = [
           { value: 1, key: "a", context: unboundThis },
           { value: 2, key: "b", context: unboundThis },
-          { value: 3, key: "c", context: unboundThis },
+          { value: 3, key: "c", context: unboundThis }
         ];
 
         map.forEach(function(value, key, theMap) {
@@ -22037,7 +22037,7 @@ enifed("ember-metal/tests/map_test",
         var expectations = [
           { value: 1, key: "a", context: context },
           { value: 2, key: "b", context: context },
-          { value: 3, key: "c", context: context },
+          { value: 3, key: "c", context: context }
         ];
 
         map.forEach(function(value, key, theMap) {
@@ -22096,7 +22096,7 @@ enifed("ember-metal/tests/map_test",
           { value: 1, key: "a", context: unboundThis },
           { value: 2, key: "b", context: unboundThis },
           { value: 3, key: "c", context: unboundThis },
-          { value: 4, key: "d", context: unboundThis },
+          { value: 4, key: "d", context: unboundThis }
         ];
 
         map.forEach(function(value, key, theMap) {
@@ -29608,7 +29608,7 @@ enifed("ember-routing-htmlbars/tests/helpers/outlet_test",
     test("should not throw deprecations if {{outlet}} is used with a quoted name", function() {
       expectNoDeprecation();
       view = EmberView.create({
-        template: compile("{{outlet \"foo\"}}"),
+        template: compile("{{outlet \"foo\"}}")
       });
       runAppend(view);
     });
@@ -29616,7 +29616,7 @@ enifed("ember-routing-htmlbars/tests/helpers/outlet_test",
     
       test("should throw an assertion if {{outlet}} used with unquoted name", function() {
         view = EmberView.create({
-          template: compile("{{outlet foo}}"),
+          template: compile("{{outlet foo}}")
         });
         expectAssertion(function() {
           runAppend(view);
