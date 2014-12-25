@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.e9195592
+ * @version   1.11.0-beta.1+canary.23b762fd
  */
 
 (function() {
@@ -3291,7 +3291,9 @@ enifed("ember-application/system/application",
         var router = this.__container__.lookup('router:main');
         if (!router) { return; }
 
-        router.startRouting();
+        var moduleBasedResolver = this.Resolver && this.Resolver.moduleBasedResolver;
+
+        router.startRouting(moduleBasedResolver);
       },
 
       handleURL: function(url) {
@@ -11683,7 +11685,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.e9195592
+      @version 1.11.0-beta.1+canary.23b762fd
     */
 
     if ('undefined' === typeof Ember) {
@@ -11710,10 +11712,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.e9195592'
+      @default '1.11.0-beta.1+canary.23b762fd'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.e9195592';
+    Ember.VERSION = '1.11.0-beta.1+canary.23b762fd';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -22110,8 +22112,9 @@ enifed("ember-routing/system/dsl",
     @submodule ember-routing
     */
 
-    function DSL(name) {
+    function DSL(name, options) {
       this.parent = name;
+      this.enableLoadingSubtates = options && options.enableLoadingSubtates;
       this.matches = [];
     }
     __exports__["default"] = DSL;
@@ -22130,13 +22133,18 @@ enifed("ember-routing/system/dsl",
         var type = options.resetNamespace === true ? 'resource' : 'route';
         
         if (Ember.FEATURES.isEnabled("ember-routing-named-substates")) {
-          createRoute(this, name + '_loading', {resetNamespace: options.resetNamespace});
-          createRoute(this, name + '_error', { path: "/_unused_dummy_error_path_route_" + name + "/:error"});
+          if (this.enableLoadingSubtates) {
+            createRoute(this, name + '_loading', {resetNamespace: options.resetNamespace});
+            createRoute(this, name + '_error', { path: "/_unused_dummy_error_path_route_" + name + "/:error"});
+          }
         }
 
         if (callback) {
           var fullName = getFullName(this, name, options.resetNamespace);
-          var dsl = new DSL(fullName);
+          var dsl = new DSL(fullName, {
+            enableLoadingSubtates: this.enableLoadingSubtates
+          });
+
           createRoute(dsl, 'loading');
           createRoute(dsl, 'error', { path: "/_unused_dummy_error_path_route_" + name + "/:error" });
 
@@ -24439,16 +24447,40 @@ enifed("ember-routing/system/router",
       */
       rootURL: '/',
 
+      _initRouterJs: function(moduleBasedResolver) {
+        var router = this.router = new Router();
+        router.triggerEvent = triggerEvent;
+
+        router._triggerWillChangeContext = K;
+        router._triggerWillLeave = K;
+
+        var dslCallbacks = this.constructor.dslCallbacks || [K];
+        var dsl = new EmberRouterDSL(null, {
+          enableLoadingSubtates: !!moduleBasedResolver
+        });
+
+        function generateDSL() {
+          this.resource('application', { path: "/" }, function() {
+            for (var i=0; i < dslCallbacks.length; i++) {
+              dslCallbacks[i].call(this);
+            }
+          });
+        }
+
+        generateDSL.call(dsl);
+
+        if (get(this, 'namespace.LOG_TRANSITIONS_INTERNAL')) {
+          router.log = Ember.Logger.debug;
+        }
+
+        router.map(dsl.generate());
+      },
+
       init: function() {
-        this.router = this.constructor.router || this.constructor.map(K);
         this._activeViews = {};
         this._setupLocation();
         this._qpCache = {};
         this._queuedQPChanges = {};
-
-        if (get(this, 'namespace.LOG_TRANSITIONS_INTERNAL')) {
-          this.router.log = Ember.Logger.debug;
-        }
       },
 
       /**
@@ -24471,8 +24503,9 @@ enifed("ember-routing/system/router",
         @method startRouting
         @private
       */
-      startRouting: function() {
-        this.router = this.router || this.constructor.map(K);
+      startRouting: function(moduleBasedResolver) {
+
+        this._initRouterJs(moduleBasedResolver);
 
         var router = this.router;
         var location = get(this, 'location');
@@ -24636,7 +24669,9 @@ enifed("ember-routing/system/router",
         @method reset
        */
       reset: function() {
-        this.router.reset();
+        if (this.router) {
+          this.router.reset();
+        }
       },
 
       _lookupActiveView: function(templateName) {
@@ -25168,30 +25203,15 @@ enifed("ember-routing/system/router",
         @param callback
       */
       map: function(callback) {
-        var router = this.router;
-        if (!router) {
-          router = new Router();
 
-          router._triggerWillChangeContext = K;
-          router._triggerWillLeave = K;
-
-          router.callbacks = [];
-          router.triggerEvent = triggerEvent;
-          this.reopenClass({ router: router });
+        if (!this.dslCallbacks) {
+          this.dslCallbacks = [];
+          this.reopenClass({ dslCallbacks: this.dslCallbacks });
         }
 
-        var dsl = EmberRouterDSL.map(function() {
-          this.resource('application', { path: "/" }, function() {
-            for (var i=0; i < router.callbacks.length; i++) {
-              router.callbacks[i].call(this);
-            }
-            callback.call(this);
-          });
-        });
+        this.dslCallbacks.push(callback);
 
-        router.callbacks.push(callback);
-        router.map(dsl.generate());
-        return router;
+        return this;
       },
 
       _routePath: function(handlerInfos) {

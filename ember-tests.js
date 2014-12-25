@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.e9195592
+ * @version   1.11.0-beta.1+canary.23b762fd
  */
 
 (function() {
@@ -31788,22 +31788,32 @@ enifed("ember-routing/tests/system/dsl_test",
       forEach(reservedNames, function(reservedName) {
 
         expectAssertion(function() {
+          Router = EmberRouter.extend();
+
           Router.map(function() {
             this.route(reservedName);
           });
+
+          var router = Router.create();
+          router._initRouterJs();
         }, "'" + reservedName + "' cannot be used as a route name.");
 
         expectAssertion(function() {
+          Router = EmberRouter.extend();
+
           Router.map(function() {
             this.resource(reservedName);
           });
+
+          var router = Router.create();
+          router._initRouterJs();
         }, "'" + reservedName + "' cannot be used as a resource name.");
 
       });
     });
 
     test("should reset namespace if nested with resource", function(){
-      var router = Router.map(function(){
+      Router = Router.map(function(){
         this.resource('bleep', function(){
           this.resource('bloop', function() {
             this.resource('blork');
@@ -31811,13 +31821,16 @@ enifed("ember-routing/tests/system/dsl_test",
         });
       });
 
-      ok(router.recognizer.names['bleep'], 'nested resources do not contain parent name');
-      ok(router.recognizer.names['bloop'], 'nested resources do not contain parent name');
-      ok(router.recognizer.names['blork'], 'nested resources do not contain parent name');
+      var router = Router.create();
+      router._initRouterJs();
+
+      ok(router.router.recognizer.names['bleep'], 'nested resources do not contain parent name');
+      ok(router.router.recognizer.names['bloop'], 'nested resources do not contain parent name');
+      ok(router.router.recognizer.names['blork'], 'nested resources do not contain parent name');
     });
 
     test("should retain resource namespace if nested with routes", function(){
-      var router = Router.map(function(){
+      Router = Router.map(function(){
         this.route('bleep', function(){
           this.route('bloop', function() {
             this.route('blork');
@@ -31825,10 +31838,45 @@ enifed("ember-routing/tests/system/dsl_test",
         });
       });
 
-      ok(router.recognizer.names['bleep'], 'parent name was used as base of nested routes');
-      ok(router.recognizer.names['bleep.bloop'], 'parent name was used as base of nested routes');
-      ok(router.recognizer.names['bleep.bloop.blork'], 'parent name was used as base of nested routes');
+      var router = Router.create();
+      router._initRouterJs();
+
+      ok(router.router.recognizer.names['bleep'], 'parent name was used as base of nested routes');
+      ok(router.router.recognizer.names['bleep.bloop'], 'parent name was used as base of nested routes');
+      ok(router.router.recognizer.names['bleep.bloop.blork'], 'parent name was used as base of nested routes');
     });
+
+    if (Ember.FEATURES.isEnabled("ember-routing-named-substates")) {
+    // jscs:disable validateIndentation
+
+    test("should add loading and error routes if _isRouterMapResult is true", function(){
+      Router.map(function(){
+        this.route('blork');
+      });
+
+      var router = Router.create();
+      router._initRouterJs(true);
+
+      ok(router.router.recognizer.names['blork'], 'main route was created');
+      ok(router.router.recognizer.names['blork_loading'], 'loading route was added');
+      ok(router.router.recognizer.names['blork_error'], 'error route was added');
+    });
+
+    test("should not add loading and error routes if _isRouterMapResult is false", function(){
+      Router.map(function(){
+        this.route('blork');
+      });
+
+      var router = Router.create();
+      router._initRouterJs(false);
+
+      ok(router.router.recognizer.names['blork'], 'main route was created');
+      ok(!router.router.recognizer.names['blork_loading'], 'loading route was not added');
+      ok(!router.router.recognizer.names['blork_error'], 'error route was not added');
+    });
+
+    // jscs:enable validateIndentation
+    }
   });
 enifed("ember-routing/tests/system/dsl_test.jscs-test",
   [],
@@ -32165,15 +32213,15 @@ enifed("ember-routing/tests/system/router_test",
     });
 
     test("can create a router without a container", function() {
-      var router = Router.create();
+      Router.create();
 
-      ok(router.router);
+      ok(true, 'no errors were thrown when creating without a container');
     });
 
-    test("should create a router if one does not exist on the constructor", function() {
+    test("should not create a router.js instance upon init", function() {
       createRouter();
 
-      ok(router.router);
+      ok(!router.router);
     });
 
     test("should destroy its location upon destroying the routers container.", function() {
@@ -71523,6 +71571,115 @@ enifed("ember/tests/routing/query_params_test.jshint",
       ok(true, 'ember/tests/routing/query_params_test.js should pass jshint.'); 
     });
   });
+enifed("ember/tests/routing/router_map_test",
+  ["ember","ember-template-compiler/system/compile"],
+  function(__dependency1__, __dependency2__) {
+    "use strict";
+    var compile = __dependency2__["default"];
+
+    var Router, router, App, container;
+
+    function bootApplication() {
+      router = container.lookup('router:main');
+      Ember.run(App, 'advanceReadiness');
+    }
+
+    function handleURL(path) {
+      return Ember.run(function() {
+        return router.handleURL(path).then(function(value) {
+          ok(true, 'url: `' + path + '` was handled');
+          return value;
+        }, function(reason) {
+          ok(false, 'failed to visit:`' + path + '` reason: `' + QUnit.jsDump.parse(reason));
+          throw reason;
+        });
+      });
+    }
+
+    QUnit.module("Router.map", {
+      setup: function() {
+        Ember.run(function() {
+          App = Ember.Application.create({
+            name: "App",
+            rootElement: '#qunit-fixture'
+          });
+
+          App.deferReadiness();
+
+          App.Router.reopen({
+            location: 'none'
+          });
+
+          Router = App.Router;
+
+          container = App.__container__;
+        });
+      },
+
+      teardown: function() {
+        Ember.run(function() {
+          App.destroy();
+          App = null;
+
+          Ember.TEMPLATES = {};
+          //Ember.Logger.error = originalLoggerError;
+        });
+      }
+    });
+
+    test("Router.map returns an Ember Router class", function () {
+      expect(1);
+
+      var ret = App.Router.map(function() {
+        this.route('hello');
+      });
+
+      ok(Ember.Router.detect(ret));
+    });
+
+    test("Router.map can be called multiple times", function () {
+      expect(4);
+
+      Ember.TEMPLATES.hello = compile("Hello!");
+      Ember.TEMPLATES.goodbye = compile("Goodbye!");
+
+      App.Router.map(function() {
+        this.route('hello');
+      });
+
+      App.Router.map(function() {
+        this.route('goodbye');
+      });
+
+      bootApplication();
+
+      handleURL('/hello');
+
+      equal(Ember.$('#qunit-fixture').text(), "Hello!", "The hello template was rendered");
+
+      handleURL('/goodbye');
+
+      equal(Ember.$('#qunit-fixture').text(), "Goodbye!", "The goodbye template was rendered");
+    });
+  });
+enifed("ember/tests/routing/router_map_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember/tests/routing');
+    test('ember/tests/routing/router_map_test.js should pass jscs', function() {
+      ok(true, 'ember/tests/routing/router_map_test.js should pass jscs.');
+    });
+  });
+enifed("ember/tests/routing/router_map_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember/tests/routing');
+    test('ember/tests/routing/router_map_test.js should pass jshint', function() { 
+      ok(true, 'ember/tests/routing/router_map_test.js should pass jshint.'); 
+    });
+  });
 enifed("ember/tests/routing/substates_test",
   ["ember","ember-htmlbars/compat"],
   function(__dependency1__, __dependency2__) {
@@ -71950,6 +72107,9 @@ enifed("ember/tests/routing/substates_test",
 
         expect(2);
 
+        // fake a modules resolver
+        App.Resolver = { moduleBasedResolver: true };
+
         var appDeferred = Ember.RSVP.defer();
 
         App.ApplicationRoute = Ember.Route.extend({
@@ -71977,10 +72137,12 @@ enifed("ember/tests/routing/substates_test",
 
         expect(3);
 
+        // fake a modules resolver
+        App.Resolver = { moduleBasedResolver: true };
+
         templates['application_loading'] = 'TOPLEVEL LOADING';
 
         var appDeferred = Ember.RSVP.defer();
-
         App.ApplicationRoute = Ember.Route.extend({
           model: function() {
             return appDeferred.promise;
@@ -72011,6 +72173,10 @@ enifed("ember/tests/routing/substates_test",
       test("Default error event moves into nested route, prioritizing more specifically named error route", function() {
 
         expect(5);
+
+        // fake a modules resolver
+        App.Resolver = { moduleBasedResolver: true };
+
 
         templates['grandma'] = "GRANDMA {{outlet}}";
         templates['grandma/error'] = "ERROR: {{msg}}";
@@ -72056,6 +72222,9 @@ enifed("ember/tests/routing/substates_test",
 
         expect(2);
 
+        // fake a modules resolver
+        App.Resolver = { moduleBasedResolver: true };
+
         templates['foo/bar_loading'] = "FOOBAR LOADING";
         templates['foo/bar/index'] = "YAY";
 
@@ -72088,6 +72257,9 @@ enifed("ember/tests/routing/substates_test",
 
         expect(2);
 
+        // fake a modules resolver
+        App.Resolver = { moduleBasedResolver: true };
+
         templates['foo/bar_loading'] = "FOOBAR LOADING";
         templates['foo/bar'] = "YAY";
 
@@ -72119,6 +72291,9 @@ enifed("ember/tests/routing/substates_test",
 
         expect(1);
 
+        // fake a modules resolver
+        App.Resolver = { moduleBasedResolver: true };
+
         templates['foo/bar_error'] = "FOOBAR ERROR: {{msg}}";
         templates['foo/bar'] = "YAY";
 
@@ -72146,6 +72321,9 @@ enifed("ember/tests/routing/substates_test",
       test("Prioritized loading substate entry works with auto-generated index routes", function() {
 
         expect(2);
+
+        // fake a modules resolver
+        App.Resolver = { moduleBasedResolver: true };
 
         templates['foo/index_loading'] = "FOO LOADING";
         templates['foo/index'] = "YAY";
@@ -72184,6 +72362,9 @@ enifed("ember/tests/routing/substates_test",
 
         expect(1);
 
+        // fake a modules resolver
+        App.Resolver = { moduleBasedResolver: true };
+
         templates['foo/index_error'] = "FOO ERROR: {{msg}}";
         templates['foo/index'] = "YAY";
         templates['foo'] = "{{outlet}}";
@@ -72217,6 +72398,9 @@ enifed("ember/tests/routing/substates_test",
       test("Rejected promises returned from ApplicationRoute transition into top-level application_error", function() {
 
         expect(2);
+
+        // fake a modules resolver
+        App.Resolver = { moduleBasedResolver: true };
 
         templates['application_error'] = '<p id="toplevel-error">TOPLEVEL ERROR: {{msg}}</p>';
 
