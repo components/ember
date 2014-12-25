@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.c5120193
+ * @version   1.11.0-beta.1+canary.cc71d0bd
  */
 
 (function() {
@@ -658,7 +658,9 @@ enifed("ember-testing/helpers",
             var context = waiter[0];
             var callback = waiter[1];
             return !callback.call(context);
-          })) { return; }
+          })) {
+            return;
+          }
           // Stop polling
           clearInterval(watcher);
 

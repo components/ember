@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.c5120193
+ * @version   1.11.0-beta.1+canary.cc71d0bd
  */
 
 (function() {
@@ -4000,7 +4000,7 @@ enifed("ember-application/system/resolver",
         var className = classify(parsedName.name);
         var factory = get(parsedName.root, className);
 
-         if (factory) { return factory; }
+        if (factory) { return factory; }
       },
       /**
         Look up the specified object (from parsedName) on the appropriate
@@ -4038,8 +4038,11 @@ enifed("ember-application/system/resolver",
       _logLookup: function(found, parsedName) {
         var symbol, padding;
 
-        if (found) { symbol = '[✓]'; }
-        else       { symbol = '[ ]'; }
+        if (found) {
+          symbol = '[✓]';
+        } else {
+          symbol = '[ ]';
+        }
 
         if (parsedName.fullName.length > 60) {
           padding = '.';
@@ -8394,6 +8397,7 @@ enifed("ember-htmlbars/system/bootstrap",
 
     onLoad('Ember.Application', function(Application) {
       
+        // jscs:disable validateIndentation
 
       Application.initializer({
         name: 'domTemplates',
@@ -8406,6 +8410,7 @@ enifed("ember-htmlbars/system/bootstrap",
         initialize: registerComponentLookup
       });
 
+        // jscs:enable validateIndentation
       
     });
 
@@ -9732,25 +9737,25 @@ enifed("ember-metal/array",
     });
 
     var lastIndexOf = defineNativeShim(ArrayPrototype.lastIndexOf, function(obj, fromIndex) {
-        var len = this.length;
-        var idx;
+      var len = this.length;
+      var idx;
 
-        if (fromIndex === undefined) {
-          fromIndex = len-1;
-        } else {
-          fromIndex = (fromIndex < 0) ? Math.ceil(fromIndex) : Math.floor(fromIndex);
-        }
+      if (fromIndex === undefined) {
+        fromIndex = len-1;
+      } else {
+        fromIndex = (fromIndex < 0) ? Math.ceil(fromIndex) : Math.floor(fromIndex);
+      }
 
-        if (fromIndex < 0) {
-          fromIndex += len;
-        }
+      if (fromIndex < 0) {
+        fromIndex += len;
+      }
 
-        for(idx = fromIndex;idx>=0;idx--) {
-          if (this[idx] === obj) {
-            return idx ;
-          }
+      for(idx = fromIndex;idx>=0;idx--) {
+        if (this[idx] === obj) {
+          return idx ;
         }
-        return -1;
+      }
+      return -1;
     });
 
     var filter = defineNativeShim(ArrayPrototype.filter, function (fn, context) {
@@ -12093,7 +12098,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.c5120193
+      @version 1.11.0-beta.1+canary.cc71d0bd
     */
 
     if ('undefined' === typeof Ember) {
@@ -12120,10 +12125,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.c5120193'
+      @default '1.11.0-beta.1+canary.cc71d0bd'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.c5120193';
+    Ember.VERSION = '1.11.0-beta.1+canary.cc71d0bd';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -12820,7 +12825,8 @@ enifed("ember-metal/events",
       // of the array and search in reverse
       for (var i = array.length - 3 ; i >=0; i -= 3) {
         if (target === array[i] && method === array[i + 1]) {
-             index = i; break;
+          index = i;
+          break;
         }
       }
       return index;
@@ -13794,7 +13800,7 @@ enifed("ember-metal/keys",
               'propertyIsEnumerable',
               'constructor'
             ];
-       var dontEnumsLength = dontEnums.length;
+        var dontEnumsLength = dontEnums.length;
 
         return function keys(obj) {
           if (typeof obj !== 'object' && (typeof obj !== 'function' || obj === null)) {
@@ -16847,8 +16853,11 @@ enifed("ember-metal/property_set",
       }
 
       if (!root) {
-        if (tolerant) { return; }
-        else { throw new EmberError('Property set failed: object in path "'+path+'" could not be found or was destroyed.'); }
+        if (tolerant) {
+          return;
+        } else {
+          throw new EmberError('Property set failed: object in path "'+path+'" could not be found or was destroyed.');
+        }
       }
 
       return set(root, keyName, value);
@@ -18662,8 +18671,8 @@ enifed("ember-metal/utils",
     var needsFinallyFix = (function() {
       var count = 0;
       try{
-        try { }
-        finally {
+        try {
+        } finally {
           count++;
           throw new Error('needsFinallyFixTest');
         }
@@ -22011,7 +22020,7 @@ enifed("ember-routing/location/auto_location",
           // If the path already has a trailing slash, remove the one
           // from the hashed route so we don't double up.
           if (path.slice(-1) === '/') {
-              routeHash = routeHash.substr(1);
+            routeHash = routeHash.substr(1);
           }
 
           // This is the "expected" final order
@@ -35278,8 +35287,11 @@ enifed("ember-runtime/system/namespace",
     function superClassString(mixin) {
       var superclass = mixin.superclass;
       if (superclass) {
-        if (superclass[NAME_KEY]) { return superclass[NAME_KEY]; }
-        else { return superClassString(superclass); }
+        if (superclass[NAME_KEY]) {
+          return superclass[NAME_KEY];
+        } else {
+          return superClassString(superclass);
+        }
       } else {
         return;
       }
@@ -36873,9 +36885,9 @@ enifed("ember-runtime/system/tracked_array",
         var rightOp = rightArrayOperation && rightArrayOperation.type;
 
         if (leftOp === INSERT) {
-            // merge left
-            leftArrayOperation.count += newArrayOperation.count;
-            leftArrayOperation.items = leftArrayOperation.items.concat(newArrayOperation.items);
+          // merge left
+          leftArrayOperation.count += newArrayOperation.count;
+          leftArrayOperation.items = leftArrayOperation.items.concat(newArrayOperation.items);
 
           if (rightOp === INSERT) {
             // also merge right (we have split an insert with an insert)
@@ -37618,7 +37630,9 @@ enifed("ember-testing/helpers",
             var context = waiter[0];
             var callback = waiter[1];
             return !callback.call(context);
-          })) { return; }
+          })) {
+            return;
+          }
           // Stop polling
           clearInterval(watcher);
 
@@ -42268,8 +42282,11 @@ enifed("ember-views/views/core_view",
 
       // return the current view, not including virtual views
       concreteView: computed('parentView', function() {
-        if (!this.isVirtual) { return this; }
-        else { return get(this, 'parentView.concreteView'); }
+        if (!this.isVirtual) {
+          return this;
+        } else {
+          return get(this, 'parentView.concreteView');
+        }
       }),
 
       instrumentName: 'core_view',

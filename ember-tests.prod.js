@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.c5120193
+ * @version   1.11.0-beta.1+canary.cc71d0bd
  */
 
 (function() {
@@ -3063,11 +3063,11 @@ enifed("ember-application/tests/system/reset_test",
       var DS = {
         Store: EmberObject.extend({
           init: function() {
-             if (!get(DS, 'defaultStore')) {
+            if (!get(DS, 'defaultStore')) {
               set(DS, 'defaultStore', this);
-             }
+            }
 
-             this._super();
+            this._super();
           },
           willDestroy: function() {
             if (get(DS, 'defaultStore') === this) {
@@ -5097,6 +5097,7 @@ enifed("ember-htmlbars/tests/attr_nodes/boolean_test",
     }
 
     if (Ember.FEATURES.isEnabled('ember-htmlbars-attribute-syntax')) {
+    // jscs:disable validateIndentation
 
     QUnit.module("ember-htmlbars: boolean attribute", {
       teardown: function(){
@@ -5184,6 +5185,8 @@ enifed("ember-htmlbars/tests/attr_nodes/boolean_test",
             'boolean property is set true');
     });
 
+
+    // jscs:enable validateIndentation
     }
   });
 enifed("ember-htmlbars/tests/attr_nodes/boolean_test.jscs-test",
@@ -5225,6 +5228,7 @@ enifed("ember-htmlbars/tests/attr_nodes/class_test",
     }
 
     if (Ember.FEATURES.isEnabled('ember-htmlbars-attribute-syntax')) {
+    // jscs:disable validateIndentation
 
     QUnit.module("ember-htmlbars: class attribute", {
       teardown: function(){
@@ -5362,6 +5366,7 @@ enifed("ember-htmlbars/tests/attr_nodes/class_test",
       ok(view.element.firstChild.className, 'r b a c', 'classes are in the right order');
     });
 
+    // jscs:enable validateIndentation
     }
   });
 enifed("ember-htmlbars/tests/attr_nodes/class_test.jscs-test",
@@ -5678,6 +5683,7 @@ enifed("ember-htmlbars/tests/attr_nodes/href_test",
     }
 
     if (Ember.FEATURES.isEnabled('ember-htmlbars-attribute-syntax')) {
+    // jscs:disable validateIndentation
 
     QUnit.module("ember-htmlbars: href attribute", {
       teardown: function(){
@@ -5698,6 +5704,7 @@ enifed("ember-htmlbars/tests/attr_nodes/href_test",
                      "attribute is output");
     });
 
+    // jscs:enable validateIndentation
     }
   });
 enifed("ember-htmlbars/tests/attr_nodes/href_test.jscs-test",
@@ -5734,6 +5741,7 @@ enifed("ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test",
     }
 
     if (Ember.FEATURES.isEnabled('ember-htmlbars-attribute-syntax')) {
+    // jscs:disable validateIndentation
 
     QUnit.module("ember-htmlbars: nonmatching reflection", {
       teardown: function(){
@@ -5773,6 +5781,7 @@ enifed("ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test",
       equal(view.element.firstChild.maxLength, 524288);
     });
 
+    // jscs:enable validateIndentation
     }
   });
 enifed("ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test.jscs-test",
@@ -5814,6 +5823,7 @@ enifed("ember-htmlbars/tests/attr_nodes/sanitized_test",
     });
 
     if (Ember.FEATURES.isEnabled('ember-htmlbars-attribute-syntax')) {
+    // jscs:disable validateIndentation
 
     var badTags = [
       { tag: 'a', attr: 'href',
@@ -5899,6 +5909,7 @@ enifed("ember-htmlbars/tests/attr_nodes/sanitized_test",
       })(); //jshint ignore:line
     }
 
+    // jscs:enable validateIndentation
     }
   });
 enifed("ember-htmlbars/tests/attr_nodes/sanitized_test.jscs-test",
@@ -5935,6 +5946,7 @@ enifed("ember-htmlbars/tests/attr_nodes/svg_test",
     }
 
     if (Ember.FEATURES.isEnabled('ember-htmlbars-attribute-syntax')) {
+    // jscs:disable validateIndentation
 
     QUnit.module("ember-htmlbars: svg attribute", {
       teardown: function(){
@@ -5999,6 +6011,7 @@ enifed("ember-htmlbars/tests/attr_nodes/svg_test",
       equalInnerHTML(view.element, '<svg class="red tall"></svg>', "attribute is output");
     });
 
+    // jscs:enable validateIndentation
     }
   });
 enifed("ember-htmlbars/tests/attr_nodes/svg_test.jscs-test",
@@ -6035,6 +6048,7 @@ enifed("ember-htmlbars/tests/attr_nodes/value_test",
     }
 
     if (Ember.FEATURES.isEnabled('ember-htmlbars-attribute-syntax')) {
+    // jscs:disable validateIndentation
 
     QUnit.module("ember-htmlbars: value attribute", {
       teardown: function(){
@@ -6070,6 +6084,7 @@ enifed("ember-htmlbars/tests/attr_nodes/value_test",
             'property is set true');
     });
 
+    // jscs:enable validateIndentation
     }
   });
 enifed("ember-htmlbars/tests/attr_nodes/value_test.jscs-test",
@@ -6253,6 +6268,7 @@ enifed("ember-htmlbars/tests/compat/helper_test",
     var view;
 
     
+    // jscs:disable validateIndentation
 
     QUnit.module('ember-htmlbars: Handlebars compatible helpers', {
       teardown: function() {
@@ -6360,6 +6376,7 @@ enifed("ember-htmlbars/tests/compat/helper_test",
       runAppend(view);
     });
 
+    // jscs:enable validateIndentation
     
   });
 enifed("ember-htmlbars/tests/compat/helper_test.jscs-test",
@@ -6482,7 +6499,7 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
         var count = options.hash.count || 1;
         var a = [];
         while(a.length < count) {
-            a.push(value);
+          a.push(value);
         }
         return a.join('');
       });
@@ -7079,6 +7096,7 @@ enifed("ember-htmlbars/tests/compat/precompile_test",
     });
 
     if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    // jscs:disable validateIndentation
 
     test("precompile creates an object when passed an AST", function(){
       var ast = parse(template);
@@ -7086,6 +7104,7 @@ enifed("ember-htmlbars/tests/compat/precompile_test",
       equal(typeof(result), "object");
     });
 
+    // jscs:enable validateIndentation
     }
   });
 enifed("ember-htmlbars/tests/compat/precompile_test.jscs-test",
@@ -8913,7 +8932,7 @@ enifed("ember-htmlbars/tests/helpers/each_test",
         })
       });
 
-     runDestroy(view);
+      runDestroy(view);
 
       var parentController = {
         container: container
@@ -9027,7 +9046,7 @@ enifed("ember-htmlbars/tests/helpers/each_test",
             }),
             company: 'Yapp'
           });
-       var CompanyController = EmberController.extend();
+      var CompanyController = EmberController.extend();
 
       registry.register('controller:company', CompanyController);
       registry.register('controller:people', PeopleController);
@@ -10900,6 +10919,7 @@ enifed("ember-htmlbars/tests/helpers/loc_test",
     });
 
     
+    // jscs:disable validateIndentation
     test('localize throws an assertion if the second parameter is a binding', function() {
       var view = buildView('{{loc "Hello %@" name}}', {
         name: 'Bob Foster'
@@ -10923,6 +10943,7 @@ enifed("ember-htmlbars/tests/helpers/loc_test",
 
       runDestroy(view);
     });
+    // jscs:enable validateIndentation
     
   });
 enifed("ember-htmlbars/tests/helpers/loc_test.jscs-test",
@@ -11566,7 +11587,7 @@ enifed("ember-htmlbars/tests/helpers/unbound_test",
           var count = options.hash.count;
           var a = [];
           while(a.length < count) {
-              a.push(value);
+            a.push(value);
           }
           return a.join('');
         });
@@ -13937,6 +13958,7 @@ enifed("ember-htmlbars/tests/helpers/yield_test",
     });
 
     if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    // jscs:disable validateIndentation
 
     test("yield uses the layout context for non component [DEPRECATED]", function() {
       view = EmberView.create({
@@ -13957,6 +13979,7 @@ enifed("ember-htmlbars/tests/helpers/yield_test",
       equal('outerinner', view.$('p').text(), "Yield points at the right context");
     });
 
+    // jscs:enable validateIndentation
     }
 
     test("yield view should be a virtual view", function() {
@@ -14546,6 +14569,7 @@ enifed("ember-htmlbars/tests/integration/block_params_test",
     }
 
     
+    // jscs:disable validateIndentation
 
     QUnit.module("ember-htmlbars: block params", {
       setup: function() {
@@ -14652,6 +14676,7 @@ enifed("ember-htmlbars/tests/integration/block_params_test",
       equal(view.$().text(), "ebryn[trek[machty]trek]ebryn[machty[trek]machty]ebryn");
     });
 
+    // jscs:enable validateIndentation
     
   });
 enifed("ember-htmlbars/tests/integration/block_params_test.jscs-test",
@@ -15987,6 +16012,7 @@ enifed("ember-htmlbars/tests/system/make_bound_helper_test",
     }
 
     
+    // jscs:disable validateIndentation
 
     QUnit.module("ember-htmlbars: makeBoundHelper", {
       setup: function() {
@@ -16243,6 +16269,7 @@ enifed("ember-htmlbars/tests/system/make_bound_helper_test",
       equal(view.$().text(), 'aaa');
     });
 
+    // jscs:enable validateIndentation
     
   });
 enifed("ember-htmlbars/tests/system/make_bound_helper_test.jscs-test",
@@ -19700,21 +19727,21 @@ enifed("ember-metal/tests/computed_test",
     });
 
     testBoth("when setting a value after it had been retrieved empty don't pass function UNDEFINED as oldValue", function(get, set) {
-        var obj = {};
-        var oldValueIsNoFunction = true;
+      var obj = {};
+      var oldValueIsNoFunction = true;
 
-        defineProperty(obj, 'foo', computed(function(key, value, oldValue) {
-            if(typeof oldValue === 'function') {
-                oldValueIsNoFunction = false;
-            }
+      defineProperty(obj, 'foo', computed(function(key, value, oldValue) {
+        if(typeof oldValue === 'function') {
+          oldValueIsNoFunction = false;
+        }
 
-            return undefined;
-        }));
+        return undefined;
+      }));
 
-        get(obj, 'foo');
-        set(obj, 'foo', undefined);
+      get(obj, 'foo');
+      set(obj, 'foo', undefined);
 
-        ok(oldValueIsNoFunction);
+      ok(oldValueIsNoFunction);
     });
 
     QUnit.module('computed - setter');
@@ -20511,12 +20538,12 @@ enifed("ember-metal/tests/events_test",
       addListener(obj, 'event!', otherTarget, otherTarget.method);
 
       function callback() {
-          /*jshint validthis:true */
-          equal(this, target);
+        /*jshint validthis:true */
+        equal(this, target);
 
-          sendEvent(obj, 'event!');
+        sendEvent(obj, 'event!');
 
-          return 'result';
+        return 'result';
       }
 
       sendEvent(obj, 'event!');
@@ -21363,26 +21390,26 @@ enifed("ember-metal/tests/is_present_test",
     QUnit.module("Ember.isPresent");
 
     test("Ember.isPresent", function() {
-    var string = "string";
-    var fn = function() {};
-    var object = {length: 0};
+      var string = "string";
+      var fn = function() {};
+      var object = {length: 0};
 
-    equal(false, isPresent(),          "for no params");
-    equal(false, isPresent(null),      "for null");
-    equal(false, isPresent(undefined), "for undefined");
-    equal(false, isPresent(""),        "for an empty String");
-    equal(false, isPresent("  "),      "for a whitespace String");
-    equal(false, isPresent("\n\t"),    "for another whitespace String");
-    equal(true,  isPresent("\n\t Hi"), "for a String with whitespaces");
-    equal(true,  isPresent(true),      "for true");
-    equal(true,  isPresent(false),     "for false");
-    equal(true,  isPresent(string),    "for a String");
-    equal(true,  isPresent(fn),        "for a Function");
-    equal(true,  isPresent(0),         "for 0");
-    equal(false, isPresent([]),        "for an empty Array");
-    equal(true,  isPresent({}),        "for an empty Object");
-    equal(false, isPresent(object),    "for an Object that has zero 'length'");
-    equal(true,  isPresent([1,2,3]),   "for a non-empty array");
+      equal(false, isPresent(),          "for no params");
+      equal(false, isPresent(null),      "for null");
+      equal(false, isPresent(undefined), "for undefined");
+      equal(false, isPresent(""),        "for an empty String");
+      equal(false, isPresent("  "),      "for a whitespace String");
+      equal(false, isPresent("\n\t"),    "for another whitespace String");
+      equal(true,  isPresent("\n\t Hi"), "for a String with whitespaces");
+      equal(true,  isPresent(true),      "for true");
+      equal(true,  isPresent(false),     "for false");
+      equal(true,  isPresent(string),    "for a String");
+      equal(true,  isPresent(fn),        "for a Function");
+      equal(true,  isPresent(0),         "for 0");
+      equal(false, isPresent([]),        "for an empty Array");
+      equal(true,  isPresent({}),        "for an empty Object");
+      equal(false, isPresent(object),    "for an Object that has zero 'length'");
+      equal(true,  isPresent([1,2,3]),   "for a non-empty array");
     });
   });
 enifed("ember-metal/tests/is_present_test.jscs-test",
@@ -24002,12 +24029,12 @@ enifed("ember-metal/tests/observer_test",
       addObserver(obj, 'foo', otherTarget, otherTarget.method);
 
       function callback() {
-          /*jshint validthis:true */
-          equal(this, target);
+        /*jshint validthis:true */
+        equal(this, target);
 
-          set(obj, 'foo', '2');
+        set(obj, 'foo', '2');
 
-          return 'result';
+        return 'result';
       }
 
       set(obj, 'foo', '1');
@@ -24039,12 +24066,12 @@ enifed("ember-metal/tests/observer_test",
       addObserver(obj, 'foo', otherTarget, otherTarget.method);
 
       function callback() {
-          /*jshint validthis:true */
-          equal(this, target);
+        /*jshint validthis:true */
+        equal(this, target);
 
-          set(obj, 'foo', '2');
+        set(obj, 'foo', '2');
 
-          return 'result';
+        return 'result';
       }
 
       set(obj, 'foo', '1');
@@ -24077,12 +24104,12 @@ enifed("ember-metal/tests/observer_test",
       addObserver(obj, 'foo', otherTarget, otherTarget.method);
 
       function callback() {
-          /*jshint validthis:true */
-          equal(this, target);
+        /*jshint validthis:true */
+        equal(this, target);
 
-          set(obj, 'foo', '2');
+        set(obj, 'foo', '2');
 
-          return 'result';
+        return 'result';
       }
 
       set(obj, 'foo', '1');
@@ -24114,12 +24141,12 @@ enifed("ember-metal/tests/observer_test",
       addObserver(obj, 'foo', otherTarget, otherTarget.method);
 
       function callback() {
-          /*jshint validthis:true */
-          equal(this, target);
+        /*jshint validthis:true */
+        equal(this, target);
 
-          set(obj, 'foo', '2');
+        set(obj, 'foo', '2');
 
-          return 'result';
+        return 'result';
       }
 
       set(obj, 'foo', '1');
@@ -28156,6 +28183,7 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test",
     });
 
     if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    // jscs:disable validateIndentation
     test("should target the current controller inside an {{each}} loop [DEPRECATED]", function() {
       var registeredTarget;
 
@@ -28187,6 +28215,7 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test",
 
       equal(registeredTarget, itemController, "the item controller is the target of action");
     });
+    // jscs:enable validateIndentation
     }
 
     test("should target the with-controller inside an {{#with controller='person'}} [DEPRECATED]", function() {
@@ -29547,6 +29576,7 @@ enifed("ember-routing-htmlbars/tests/helpers/outlet_test",
 
     // TODO: Remove flag when {{with}} is fixed.
     if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    // jscs:disable validateIndentation
 
     test("Outlets bind to the current template's view, not inner contexts [DEPRECATED]", function() {
       var parentTemplate = "<h1>HI</h1>{{#if view.alwaysTrue}}{{#with this}}{{outlet}}{{/with}}{{/if}}";
@@ -29573,6 +29603,7 @@ enifed("ember-routing-htmlbars/tests/helpers/outlet_test",
       equal(output, "BOTTOM", "all templates were rendered");
     });
 
+    // jscs:enable validateIndentation
     }
 
     test("should support layouts", function() {
@@ -30202,6 +30233,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
     });
 
     
+    // jscs:disable validateIndentation
 
     test("throws an assertion if {{render}} is called with an unquoted template name", function(){
       var template = '<h1>HI</h1>{{render home}}';
@@ -30233,6 +30265,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
       }, "The second argument of {{render}} must be a path, e.g. {{render \"post\" post}}.");
     });
 
+    // jscs:enable validateIndentation
       });
 enifed("ember-routing-htmlbars/tests/helpers/render_test.jscs-test",
   [],
@@ -31114,134 +31147,134 @@ enifed("ember-routing/tests/location/hash_location_test",
     });
 
     test("HashLocation.getURL() returns the current url", function() {
-        expect(1);
+      expect(1);
 
-        createLocation({
-          _location: mockBrowserLocation('/#/foo/bar')
-        });
+      createLocation({
+        _location: mockBrowserLocation('/#/foo/bar')
+      });
 
-        equal(location.getURL(), '/foo/bar');
+      equal(location.getURL(), '/foo/bar');
     });
 
     test("HashLocation.getURL() includes extra hashes", function() {
-        expect(1);
+      expect(1);
 
-        createLocation({
-          _location: mockBrowserLocation('/#/foo#bar#car')
-        });
+      createLocation({
+        _location: mockBrowserLocation('/#/foo#bar#car')
+      });
 
-        equal(location.getURL(), '/foo#bar#car');
+      equal(location.getURL(), '/foo#bar#car');
     });
 
     test("HashLocation.getURL() assumes location.hash without #/ prefix is not a route path", function() {
-        expect(1);
+      expect(1);
 
-        createLocation({
-          _location: mockBrowserLocation('/#foo#bar')
-        });
+      createLocation({
+        _location: mockBrowserLocation('/#foo#bar')
+      });
 
-        equal(location.getURL(), '/#foo#bar');
+      equal(location.getURL(), '/#foo#bar');
     });
 
     test("HashLocation.getURL() returns a normal forward slash when there is no location.hash", function() {
-        expect(1);
+      expect(1);
 
-        createLocation({
-          _location: mockBrowserLocation('/')
-        });
+      createLocation({
+        _location: mockBrowserLocation('/')
+      });
 
-        equal(location.getURL(), '/');
+      equal(location.getURL(), '/');
     });
 
     test("HashLocation.setURL() correctly sets the url", function() {
-        expect(2);
+      expect(2);
 
-        createLocation();
+      createLocation();
 
-        location.setURL('/bar');
+      location.setURL('/bar');
 
-        equal(get(location, 'location.hash'), '/bar');
-        equal(get(location, 'lastSetURL'), '/bar');
+      equal(get(location, 'location.hash'), '/bar');
+      equal(get(location, 'lastSetURL'), '/bar');
     });
 
     test("HashLocation.replaceURL() correctly replaces to the path with a page reload", function() {
-        expect(2);
+      expect(2);
 
-        createLocation({
-          _location: {
-            replace: function(path) {
-              equal(path, '#/foo');
-            }
+      createLocation({
+        _location: {
+          replace: function(path) {
+            equal(path, '#/foo');
           }
-        });
+        }
+      });
 
-        location.replaceURL('/foo');
+      location.replaceURL('/foo');
 
-        equal(get(location, 'lastSetURL'), '/foo');
+      equal(get(location, 'lastSetURL'), '/foo');
     });
 
     test("HashLocation.onUpdateURL() registers a hashchange callback", function() {
-        expect(3);
+      expect(3);
 
-        var oldJquery = Ember.$;
+      var oldJquery = Ember.$;
 
-        Ember.$ = function (element) {
-          equal(element, window);
-          return {
-            on: function(eventName, callback) {
-              equal(eventName, 'hashchange.ember-location-' + guid);
-              equal(Object.prototype.toString.call(callback), '[object Function]');
-            }
-          };
+      Ember.$ = function (element) {
+        equal(element, window);
+        return {
+          on: function(eventName, callback) {
+            equal(eventName, 'hashchange.ember-location-' + guid);
+            equal(Object.prototype.toString.call(callback), '[object Function]');
+          }
         };
+      };
 
-        createLocation({
-          // Mock so test teardown doesn't fail
-          willDestroy: function () {}
-        });
+      createLocation({
+        // Mock so test teardown doesn't fail
+        willDestroy: function () {}
+      });
 
-        var guid = guidFor(location);
+      var guid = guidFor(location);
 
-        location.onUpdateURL(function () {});
+      location.onUpdateURL(function () {});
 
-        // clean up
-        Ember.$ = oldJquery;
+      // clean up
+      Ember.$ = oldJquery;
     });
 
     test("HashLocation.formatURL() prepends a # to the provided string", function() {
-        expect(1);
+      expect(1);
 
-        createLocation();
+      createLocation();
 
-        equal(location.formatURL('/foo#bar'), '#/foo#bar');
+      equal(location.formatURL('/foo#bar'), '#/foo#bar');
     });
 
     test("HashLocation.willDestroy() cleans up hashchange event listener", function() {
-        expect(2);
+      expect(2);
 
-        var oldJquery = Ember.$;
+      var oldJquery = Ember.$;
 
-        Ember.$ = function (element) {
-          equal(element, window);
+      Ember.$ = function (element) {
+        equal(element, window);
 
-          return {
-            off: function(eventName) {
-              equal(eventName, 'hashchange.ember-location-' + guid);
-            }
-          };
+        return {
+          off: function(eventName) {
+            equal(eventName, 'hashchange.ember-location-' + guid);
+          }
         };
+      };
 
-        createLocation();
+      createLocation();
 
-        var guid = guidFor(location);
+      var guid = guidFor(location);
 
-        location.willDestroy();
+      location.willDestroy();
 
-        // noop so test teardown doesn't call our mocked jQuery again
-        location.willDestroy = function() {};
+      // noop so test teardown doesn't call our mocked jQuery again
+      location.willDestroy = function() {};
 
-        // clean up
-        Ember.$ = oldJquery;
+      // clean up
+      Ember.$ = oldJquery;
     });
   });
 enifed("ember-routing/tests/location/hash_location_test.jscs-test",
@@ -31358,131 +31391,131 @@ enifed("ember-routing/tests/location/history_location_test",
     });
 
     test("base URL is removed when retrieving the current pathname", function() {
-        expect(1);
+      expect(1);
 
-        HistoryTestLocation.reopen({
-            init: function() {
-                this._super();
+      HistoryTestLocation.reopen({
+        init: function() {
+          this._super();
 
-                set(this, 'location', mockBrowserLocation('/base/foo/bar'));
-                set(this, 'baseURL', '/base/');
-            },
+          set(this, 'location', mockBrowserLocation('/base/foo/bar'));
+          set(this, 'baseURL', '/base/');
+        },
 
-            initState: function() {
-                this._super();
+        initState: function() {
+          this._super();
 
-                equal(this.getURL(), '/foo/bar');
-            }
-        });
+          equal(this.getURL(), '/foo/bar');
+        }
+      });
 
-        createLocation();
-        location.initState();
+      createLocation();
+      location.initState();
     });
 
     test("base URL is preserved when moving around", function() {
-        expect(1);
+      expect(1);
 
-        HistoryTestLocation.reopen({
-            init: function() {
-                this._super();
+      HistoryTestLocation.reopen({
+        init: function() {
+          this._super();
 
-                set(this, 'location', mockBrowserLocation('/base/foo/bar'));
-                set(this, 'baseURL', '/base/');
-            }
-        });
+          set(this, 'location', mockBrowserLocation('/base/foo/bar'));
+          set(this, 'baseURL', '/base/');
+        }
+      });
 
-        createLocation();
-        location.initState();
-        location.setURL('/one/two');
+      createLocation();
+      location.initState();
+      location.setURL('/one/two');
 
-        equal(location._historyState.path, '/base/one/two');
+      equal(location._historyState.path, '/base/one/two');
     });
 
     test("setURL continues to set even with a null state (iframes may set this)", function() {
-        expect(1);
+      expect(1);
 
-        createLocation();
-        location.initState();
+      createLocation();
+      location.initState();
 
-        FakeHistory.pushState(null);
-        location.setURL('/three/four');
+      FakeHistory.pushState(null);
+      location.setURL('/three/four');
 
-        equal(location._historyState.path, '/three/four');
+      equal(location._historyState.path, '/three/four');
     });
 
     test("replaceURL continues to set even with a null state (iframes may set this)", function() {
-        expect(1);
+      expect(1);
 
-        createLocation();
-        location.initState();
+      createLocation();
+      location.initState();
 
-        FakeHistory.pushState(null);
-        location.replaceURL('/three/four');
+      FakeHistory.pushState(null);
+      location.replaceURL('/three/four');
 
-        equal(location._historyState.path, '/three/four');
+      equal(location._historyState.path, '/three/four');
     });
 
     test("HistoryLocation.getURL() returns the current url, excluding both rootURL and baseURL", function() {
-        expect(1);
+      expect(1);
 
-        HistoryTestLocation.reopen({
-          init: function() {
-            this._super();
+      HistoryTestLocation.reopen({
+        init: function() {
+          this._super();
 
-            set(this, 'location', mockBrowserLocation('/base/foo/bar'));
-            set(this, 'rootURL', '/app/');
-            set(this, 'baseURL', '/base/');
-          }
-        });
+          set(this, 'location', mockBrowserLocation('/base/foo/bar'));
+          set(this, 'rootURL', '/app/');
+          set(this, 'baseURL', '/base/');
+        }
+      });
 
-        createLocation();
+      createLocation();
 
-        equal(location.getURL(), '/foo/bar');
+      equal(location.getURL(), '/foo/bar');
     });
 
     test("HistoryLocation.getURL() includes location.search", function() {
-        expect(1);
+      expect(1);
 
-        HistoryTestLocation.reopen({
-          init: function() {
-            this._super();
-            set(this, 'location', mockBrowserLocation('/foo/bar?time=morphin'));
-          }
-        });
+      HistoryTestLocation.reopen({
+        init: function() {
+          this._super();
+          set(this, 'location', mockBrowserLocation('/foo/bar?time=morphin'));
+        }
+      });
 
-        createLocation();
+      createLocation();
 
-        equal(location.getURL(), '/foo/bar?time=morphin');
+      equal(location.getURL(), '/foo/bar?time=morphin');
     });
 
     test("HistoryLocation.getURL() includes location.hash", function() {
-        expect(1);
+      expect(1);
 
-        HistoryTestLocation.reopen({
-          init: function() {
-            this._super();
-            set(this, 'location', mockBrowserLocation('/foo/bar#pink-power-ranger'));
-          }
-        });
+      HistoryTestLocation.reopen({
+        init: function() {
+          this._super();
+          set(this, 'location', mockBrowserLocation('/foo/bar#pink-power-ranger'));
+        }
+      });
 
-        createLocation();
+      createLocation();
 
-        equal(location.getURL(), '/foo/bar#pink-power-ranger');
+      equal(location.getURL(), '/foo/bar#pink-power-ranger');
     });
 
     test("HistoryLocation.getURL() includes location.hash and location.search", function() {
-        expect(1);
+      expect(1);
 
-        HistoryTestLocation.reopen({
-          init: function() {
-            this._super();
-            set(this, 'location', mockBrowserLocation('/foo/bar?time=morphin#pink-power-ranger'));
-          }
-        });
+      HistoryTestLocation.reopen({
+        init: function() {
+          this._super();
+          set(this, 'location', mockBrowserLocation('/foo/bar?time=morphin#pink-power-ranger'));
+        }
+      });
 
-        createLocation();
+      createLocation();
 
-        equal(location.getURL(), '/foo/bar?time=morphin#pink-power-ranger');
+      equal(location.getURL(), '/foo/bar?time=morphin#pink-power-ranger');
     });
   });
 enifed("ember-routing/tests/location/history_location_test.jscs-test",
@@ -34947,41 +34980,41 @@ enifed("ember-runtime/tests/computed/reduce_computed_test",
       deepEqual(get(obj, 'foo'), ['a:1', 'a:2', 'r:1', 'r:2'], "removed item from brace-expanded dependency");
     });
 
-      test("multiple item property keys can be specified via brace expansion", function() {
-        var expected = Ember.A();
-        var item = { propA: 'A', propB: 'B', propC: 'C' };
-        var obj = EmberObject.createWithMixins({
-              bar: Ember.A([item]),
-              foo: reduceComputed({
-                initialValue: Ember.A(),
-                addedItem: function(array, item, changeMeta) {
-                  array.pushObject('a:' + get(item, 'propA') + ':' + get(item, 'propB') + ':' + get(item, 'propC'));
-                  return array;
-                },
-                removedItem: function(array, item, changeMeta) {
-                  array.pushObject('r:' + get(item, 'propA') + ':' + get(item, 'propB') + ':' + get(item, 'propC'));
-                  return array;
-                }
-              }).property('bar.@each.{propA,propB}')
-            });
-
-        expected.pushObjects(['a:A:B:C']);
-        deepEqual(get(obj, 'foo'), expected, "initially added dependent item");
-
-        set(item, 'propA', 'AA');
-
-        expected.pushObjects(['r:AA:B:C', 'a:AA:B:C']);
-        deepEqual(get(obj, 'foo'), expected, "observing item property key specified via brace expansion");
-
-        set(item, 'propB', 'BB');
-
-        expected.pushObjects(['r:AA:BB:C', 'a:AA:BB:C']);
-        deepEqual(get(obj, 'foo'), expected, "observing item property key specified via brace expansion");
-
-        set(item, 'propC', 'CC');
-
-        deepEqual(get(obj, 'foo'), expected, "not observing unspecified item properties");
+    test("multiple item property keys can be specified via brace expansion", function() {
+      var expected = Ember.A();
+      var item = { propA: 'A', propB: 'B', propC: 'C' };
+      var obj = EmberObject.createWithMixins({
+        bar: Ember.A([item]),
+        foo: reduceComputed({
+          initialValue: Ember.A(),
+          addedItem: function(array, item, changeMeta) {
+            array.pushObject('a:' + get(item, 'propA') + ':' + get(item, 'propB') + ':' + get(item, 'propC'));
+            return array;
+          },
+          removedItem: function(array, item, changeMeta) {
+            array.pushObject('r:' + get(item, 'propA') + ':' + get(item, 'propB') + ':' + get(item, 'propC'));
+            return array;
+          }
+        }).property('bar.@each.{propA,propB}')
       });
+
+      expected.pushObjects(['a:A:B:C']);
+      deepEqual(get(obj, 'foo'), expected, "initially added dependent item");
+
+      set(item, 'propA', 'AA');
+
+      expected.pushObjects(['r:AA:B:C', 'a:AA:B:C']);
+      deepEqual(get(obj, 'foo'), expected, "observing item property key specified via brace expansion");
+
+      set(item, 'propB', 'BB');
+
+      expected.pushObjects(['r:AA:BB:C', 'a:AA:BB:C']);
+      deepEqual(get(obj, 'foo'), expected, "observing item property key specified via brace expansion");
+
+      set(item, 'propC', 'CC');
+
+      deepEqual(get(obj, 'foo'), expected, "not observing unspecified item properties");
+    });
 
     test("doubly nested item property keys (@each.foo.@each) are not supported", function() {
       run(function() {
@@ -38505,38 +38538,39 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test",
           }
 
         });
-        }
+      }
     });
-
 
     test("should observe the changes within the nested begin / end property changes", function() {
 
       //start the outer nest
       ObjectA.beginPropertyChanges();
-        // Inner nest
-        ObjectA.beginPropertyChanges();
-            ObjectA.set('foo', 'changeFooValue');
-          equal(ObjectA.prop, "propValue") ;
-          ObjectA.endPropertyChanges();
+
+      // Inner nest
+      ObjectA.beginPropertyChanges();
+      ObjectA.set('foo', 'changeFooValue');
+
+      equal(ObjectA.prop, "propValue") ;
+      ObjectA.endPropertyChanges();
 
         //end inner nest
-        ObjectA.set('prop', 'changePropValue');
-        equal(ObjectA.newFoo, "newFooValue") ;
+      ObjectA.set('prop', 'changePropValue');
+      equal(ObjectA.newFoo, "newFooValue") ;
+
       //close the outer nest
       ObjectA.endPropertyChanges();
 
       equal(ObjectA.prop, "changedPropValue") ;
       equal(ObjectA.newFoo, "changedNewFooValue") ;
-
     });
 
     test("should observe the changes within the begin and end property changes", function() {
 
       ObjectA.beginPropertyChanges();
-        ObjectA.set('foo', 'changeFooValue');
+      ObjectA.set('foo', 'changeFooValue');
 
       equal(ObjectA.prop, "propValue") ;
-        ObjectA.endPropertyChanges();
+      ObjectA.endPropertyChanges();
 
       equal(ObjectA.prop, "changedPropValue") ;
     });
@@ -39090,22 +39124,22 @@ enifed("ember-runtime/tests/legacy_1x/system/object/base_test",
     QUnit.module("EmberObject superclass and subclasses", {
       setup: function() {
         obj = EmberObject.extend ({
-        method1: function() {
-          return "hello";
-        }
-      });
-      obj1 = obj.extend();
-      don = obj1.create ({
-        method2: function() {
-          return this.superclass();
-        }
-      });
+          method1: function() {
+            return "hello";
+          }
+        });
+        obj1 = obj.extend();
+        don = obj1.create ({
+          method2: function() {
+            return this.superclass();
+          }
+        });
       },
 
       teardown: function() {
-      obj = undefined ;
-        obj1 = undefined ;
-        don = undefined ;
+        obj = undefined;
+        obj1 = undefined;
+        don = undefined;
       }
     });
 
@@ -39352,90 +39386,90 @@ enifed("ember-runtime/tests/legacy_1x/system/object/concatenated_test",
 
     function K() { return this; }
 
-      var klass;
+    var klass;
 
-      QUnit.module("EmberObject Concatenated Properties", {
-        setup: function() {
-          klass = EmberObject.extend({
-            concatenatedProperties: ['values', 'functions'],
-            values: ['a', 'b', 'c'],
-            functions: [K]
-          });
-        }
-      });
-
-      test("concatenates instances", function() {
-        var obj = klass.create({
-          values: ['d', 'e', 'f']
+    QUnit.module("EmberObject Concatenated Properties", {
+      setup: function() {
+        klass = EmberObject.extend({
+          concatenatedProperties: ['values', 'functions'],
+          values: ['a', 'b', 'c'],
+          functions: [K]
         });
+      }
+    });
 
-        var values = get(obj, 'values');
-        var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
-
-        deepEqual(values, expected, EmberStringUtils.fmt("should concatenate values property (expected: %@, got: %@)", [expected, values]));
+    test("concatenates instances", function() {
+      var obj = klass.create({
+        values: ['d', 'e', 'f']
       });
 
-      test("concatenates subclasses", function() {
-        var subKlass = klass.extend({
-          values: ['d', 'e', 'f']
-        });
-        var obj = subKlass.create();
+      var values = get(obj, 'values');
+      var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
 
-        var values = get(obj, 'values');
-        var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
+      deepEqual(values, expected, EmberStringUtils.fmt("should concatenate values property (expected: %@, got: %@)", [expected, values]));
+    });
 
-        deepEqual(values, expected, EmberStringUtils.fmt("should concatenate values property (expected: %@, got: %@)", [expected, values]));
+    test("concatenates subclasses", function() {
+      var subKlass = klass.extend({
+        values: ['d', 'e', 'f']
       });
+      var obj = subKlass.create();
 
-      test("concatenates reopen", function() {
-        klass.reopen({
-          values: ['d', 'e', 'f']
-        });
-        var obj = klass.create();
+      var values = get(obj, 'values');
+      var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
 
-        var values = get(obj, 'values');
-        var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
+      deepEqual(values, expected, EmberStringUtils.fmt("should concatenate values property (expected: %@, got: %@)", [expected, values]));
+    });
 
-        deepEqual(values, expected, EmberStringUtils.fmt("should concatenate values property (expected: %@, got: %@)", [expected, values]));
+    test("concatenates reopen", function() {
+      klass.reopen({
+        values: ['d', 'e', 'f']
       });
+      var obj = klass.create();
 
-      test("concatenates mixin", function() {
-        var mixin = {
-          values: ['d', 'e']
-        };
-        var subKlass = klass.extend(mixin, {
-          values: ['f']
-        });
-        var obj = subKlass.create();
+      var values = get(obj, 'values');
+      var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
 
-        var values = get(obj, 'values');
-        var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
+      deepEqual(values, expected, EmberStringUtils.fmt("should concatenate values property (expected: %@, got: %@)", [expected, values]));
+    });
 
-        deepEqual(values, expected, EmberStringUtils.fmt("should concatenate values property (expected: %@, got: %@)", [expected, values]));
+    test("concatenates mixin", function() {
+      var mixin = {
+        values: ['d', 'e']
+      };
+      var subKlass = klass.extend(mixin, {
+        values: ['f']
       });
+      var obj = subKlass.create();
 
-      test("concatenates reopen, subclass, and instance", function() {
-        klass.reopen({ values: ['d'] });
-        var subKlass = klass.extend({ values: ['e'] });
-        var obj = subKlass.create({ values: ['f'] });
+      var values = get(obj, 'values');
+      var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
 
-        var values = get(obj, 'values');
-        var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
+      deepEqual(values, expected, EmberStringUtils.fmt("should concatenate values property (expected: %@, got: %@)", [expected, values]));
+    });
 
-        deepEqual(values, expected, EmberStringUtils.fmt("should concatenate values property (expected: %@, got: %@)", [expected, values]));
+    test("concatenates reopen, subclass, and instance", function() {
+      klass.reopen({ values: ['d'] });
+      var subKlass = klass.extend({ values: ['e'] });
+      var obj = subKlass.create({ values: ['f'] });
+
+      var values = get(obj, 'values');
+      var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
+
+      deepEqual(values, expected, EmberStringUtils.fmt("should concatenate values property (expected: %@, got: %@)", [expected, values]));
+    });
+
+    test("concatenates subclasses when the values are functions", function() {
+      var subKlass = klass.extend({
+        functions: K
       });
+      var obj = subKlass.create();
 
-      test("concatenates subclasses when the values are functions", function() {
-        var subKlass = klass.extend({
-          functions: K
-        });
-        var obj = subKlass.create();
+      var values = get(obj, 'functions');
+      var expected = [K, K];
 
-        var values = get(obj, 'functions');
-        var expected = [K, K];
-
-        deepEqual(values, expected, EmberStringUtils.fmt("should concatenate functions property (expected: %@, got: %@)", [expected, values]));
-      });
+      deepEqual(values, expected, EmberStringUtils.fmt("should concatenate functions property (expected: %@, got: %@)", [expected, values]));
+    });
   });
 enifed("ember-runtime/tests/legacy_1x/system/object/concatenated_test.jscs-test",
   [],
@@ -39508,14 +39542,14 @@ enifed("ember-runtime/tests/legacy_1x/system/run_loop_test",
       run(function () {
 
         //Binding of output of MyApp.first object to input of MyApp.second object
-          binding1 = Binding.from("first.output")
-            .to("second.input").connect(MyApp) ;
+        binding1 = Binding.from("first.output")
+          .to("second.input").connect(MyApp) ;
 
         //Binding of output of MyApp.second object to input of MyApp.third object
         binding2 = Binding.from("second.output")
           .to("third.input").connect(MyApp) ;
-
       });
+
       run(function () {
         // Based on the above binding if you change the output of MyApp.first
         // object it should change the all the variable of
@@ -39527,7 +39561,6 @@ enifed("ember-runtime/tests/legacy_1x/system/run_loop_test",
 
         //since binding has not taken into effect the value still remains as change.
         equal(MyApp.second.get("output"), "MyApp.first") ;
-
       }); // allows bindings to trigger...
 
       //Value of the output variable changed to 'change'
@@ -39545,7 +39578,7 @@ enifed("ember-runtime/tests/legacy_1x/system/run_loop_test",
 
         //Binding of output of MyApp.second object to input of MyApp.third object
         binding2 = Binding.from("second.output")
-            .to("third.input").connect(MyApp) ;
+          .to("third.input").connect(MyApp) ;
       });
 
       run(function () {
@@ -42273,16 +42306,16 @@ enifed("ember-runtime/tests/mixins/sortable_test",
           sortedArrayController = ArrayController.create({
             sortProperties: ['name'],
             sortFunction: function(v, w) {
-                var lowerV = v.toLowerCase();
-                var lowerW = w.toLowerCase();
+              var lowerV = v.toLowerCase();
+              var lowerW = w.toLowerCase();
 
-                if (lowerV < lowerW) {
-                  return -1;
-                }
-                if (lowerV > lowerW) {
-                  return 1;
-                }
-                return 0;
+              if (lowerV < lowerW) {
+                return -1;
+              }
+              if (lowerV > lowerW) {
+                return 1;
+              }
+              return 0;
             }
           });
           var array = [{ id: 1, name: "Scumbag Dale" },
@@ -42315,17 +42348,17 @@ enifed("ember-runtime/tests/mixins/sortable_test",
         sortedArrayController = ArrayProxy.createWithMixins(SortableMixin, {
           sortProperties: ['name'],
           sortFunction: function(v, w) {
-                var lowerV = v.toLowerCase();
-                var lowerW = w.toLowerCase();
+            var lowerV = v.toLowerCase();
+            var lowerW = w.toLowerCase();
 
-                if (lowerV < lowerW) {
-                  return -1;
-                }
-                if (lowerV > lowerW) {
-                  return 1;
-                }
-                return 0;
+            if (lowerV < lowerW) {
+              return -1;
             }
+            if (lowerV > lowerW) {
+              return 1;
+            }
+            return 0;
+          }
         });
         var array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
         unsortedArray = Ember.A(Ember.A(array).copy());
@@ -43397,11 +43430,11 @@ enifed("ember-runtime/tests/suites/enumerable/any",
 
     suite.test('any should be aliased to some', function() {
       var obj = this.newObject();
-          var ary = this.toArray(obj);
-          var anyFound = [];
-          var someFound = [];
-          var cnt = ary.length - 2;
-          var anyResult, someResult;
+      var ary = this.toArray(obj);
+      var anyFound = [];
+      var someFound = [];
+      var cnt = ary.length - 2;
+      var anyResult, someResult;
 
       anyResult = obj.any(function(i) { anyFound.push(i); return false; });
       someResult = obj.some(function(i) { someFound.push(i); return false; });
@@ -48218,7 +48251,7 @@ enifed("ember-runtime/tests/system/object/create_test",
 
     test("throws if you try to call _super in a method", function() {
       expectAssertion(function() {
-         EmberObject.create({
+        EmberObject.create({
           foo: function() {
             this._super();
           }
@@ -51442,6 +51475,7 @@ enifed("ember-template-compiler/tests/system/compile_test",
     var htmlbarsCompile = __dependency2__.compile;
 
     
+    // jscs:disable validateIndentation
 
     QUnit.module('ember-htmlbars: compile');
 
@@ -51463,6 +51497,7 @@ enifed("ember-template-compiler/tests/system/compile_test",
       ok(actual.isMethod === false, 'sets isMethod via template function');
     });
 
+    // jscs:enable validateIndentation
     
   });
 enifed("ember-template-compiler/tests/system/compile_test.jscs-test",
@@ -51490,6 +51525,7 @@ enifed("ember-template-compiler/tests/system/template_test",
     var template = __dependency1__["default"];
 
     
+    // jscs:disable validateIndentation
 
     QUnit.module('ember-htmlbars: template');
 
@@ -51509,6 +51545,7 @@ enifed("ember-template-compiler/tests/system/template_test",
       equal(test.isMethod, false, 'sets isMethod on the provided function');
     });
 
+    // jscs:enable validateIndentation
     
   });
 enifed("ember-template-compiler/tests/system/template_test.jscs-test",
@@ -54721,59 +54758,59 @@ enifed("ember-views/tests/system/render_buffer_test",
 
     if ('namespaceURI' in document.createElement('div')) {
 
-    QUnit.module("RenderBuffer namespaces");
+      QUnit.module("RenderBuffer namespaces");
 
-    test("properly makes a content string SVG namespace inside an SVG tag", function() {
-      var buffer = new RenderBuffer('svg', document.body);
-      buffer.generateElement();
-      buffer.push('<path></path>foo');
+      test("properly makes a content string SVG namespace inside an SVG tag", function() {
+        var buffer = new RenderBuffer('svg', document.body);
+        buffer.generateElement();
+        buffer.push('<path></path>foo');
 
-      var element = buffer.element();
-      ok(element.tagName, 'SVG', 'element is svg');
-      equal(element.namespaceURI, svgNamespace, 'element is svg namespace');
+        var element = buffer.element();
+        ok(element.tagName, 'SVG', 'element is svg');
+        equal(element.namespaceURI, svgNamespace, 'element is svg namespace');
 
-      ok(element.childNodes[0].tagName, 'PATH', 'element is path');
-      equal(element.childNodes[0].namespaceURI, svgNamespace, 'element is svg namespace');
-    });
+        ok(element.childNodes[0].tagName, 'PATH', 'element is path');
+        equal(element.childNodes[0].namespaceURI, svgNamespace, 'element is svg namespace');
+      });
 
-    test("properly makes a path element svg namespace inside SVG context", function() {
-      var buffer = new RenderBuffer('path', document.createElementNS(svgNamespace, 'svg'));
-      buffer.generateElement();
-      buffer.push('<g></g>');
+      test("properly makes a path element svg namespace inside SVG context", function() {
+        var buffer = new RenderBuffer('path', document.createElementNS(svgNamespace, 'svg'));
+        buffer.generateElement();
+        buffer.push('<g></g>');
 
-      var element = buffer.element();
-      ok(element.tagName, 'PATH', 'element is PATH');
-      equal(element.namespaceURI, svgNamespace, 'element is svg namespace');
+        var element = buffer.element();
+        ok(element.tagName, 'PATH', 'element is PATH');
+        equal(element.namespaceURI, svgNamespace, 'element is svg namespace');
 
-      ok(element.childNodes[0].tagName, 'G', 'element is g');
-      equal(element.childNodes[0].namespaceURI, svgNamespace, 'element is svg namespace');
-    });
+        ok(element.childNodes[0].tagName, 'G', 'element is g');
+        equal(element.childNodes[0].namespaceURI, svgNamespace, 'element is svg namespace');
+      });
 
-    test("properly makes a foreignObject svg namespace inside SVG context", function() {
-      var buffer = new RenderBuffer('foreignObject', document.createElementNS(svgNamespace, 'svg'));
-      buffer.generateElement();
-      buffer.push('<div></div>');
+      test("properly makes a foreignObject svg namespace inside SVG context", function() {
+        var buffer = new RenderBuffer('foreignObject', document.createElementNS(svgNamespace, 'svg'));
+        buffer.generateElement();
+        buffer.push('<div></div>');
 
-      var element = buffer.element();
-      ok(element.tagName, 'FOREIGNOBJECT', 'element is foreignObject');
-      equal(element.namespaceURI, svgNamespace, 'element is svg namespace');
+        var element = buffer.element();
+        ok(element.tagName, 'FOREIGNOBJECT', 'element is foreignObject');
+        equal(element.namespaceURI, svgNamespace, 'element is svg namespace');
 
-      ok(element.childNodes[0].tagName, 'DIV', 'element is div');
-      equal(element.childNodes[0].namespaceURI, xhtmlNamespace, 'element is xhtml namespace');
-    });
+        ok(element.childNodes[0].tagName, 'DIV', 'element is div');
+        equal(element.childNodes[0].namespaceURI, xhtmlNamespace, 'element is xhtml namespace');
+      });
 
-    test("properly makes a div xhtml namespace inside foreignObject context", function() {
-      var buffer = new RenderBuffer('div', document.createElementNS(svgNamespace, 'foreignObject'));
-      buffer.generateElement();
-      buffer.push('<div></div>');
+      test("properly makes a div xhtml namespace inside foreignObject context", function() {
+        var buffer = new RenderBuffer('div', document.createElementNS(svgNamespace, 'foreignObject'));
+        buffer.generateElement();
+        buffer.push('<div></div>');
 
-      var element = buffer.element();
-      ok(element.tagName, 'DIV', 'element is div');
-      equal(element.namespaceURI, xhtmlNamespace, 'element is xhtml namespace');
+        var element = buffer.element();
+        ok(element.tagName, 'DIV', 'element is div');
+        equal(element.namespaceURI, xhtmlNamespace, 'element is xhtml namespace');
 
-      ok(element.childNodes[0].tagName, 'DIV', 'element is div');
-      equal(element.childNodes[0].namespaceURI, xhtmlNamespace, 'element is xhtml namespace');
-    });
+        ok(element.childNodes[0].tagName, 'DIV', 'element is div');
+        equal(element.childNodes[0].namespaceURI, xhtmlNamespace, 'element is xhtml namespace');
+      });
 
     }
   });
@@ -58151,7 +58188,7 @@ enifed("ember-views/tests/views/text_area_test",
 
     QUnit.module("TextArea", {
       setup: function() {
-       TestObject = window.TestObject = EmberObject.create({
+        TestObject = window.TestObject = EmberObject.create({
           value: null
         });
 
@@ -61539,26 +61576,25 @@ enifed("ember-views/tests/views/view/nearest_of_type_test",
         equal(child.nearestOfType(Mixin), parentView, "finds closest view in the hierarchy by class");
       });
 
-    test("nearestWithProperty should search immediate parent", function() {
-      var childView;
+      test("nearestWithProperty should search immediate parent", function() {
+        var childView;
 
-      view = View.create({
-        myProp: true,
+        view = View.create({
+          myProp: true,
 
-        render: function(buffer) {
-          this.appendChild(View.create());
-        }
+          render: function(buffer) {
+            this.appendChild(View.create());
+          }
+        });
+
+        run(function() {
+          view.appendTo('#qunit-fixture');
+        });
+
+        childView = view.get('childViews')[0];
+        equal(childView.nearestWithProperty('myProp'), view);
+
       });
-
-      run(function() {
-        view.appendTo('#qunit-fixture');
-      });
-
-      childView = view.get('childViews')[0];
-      equal(childView.nearestWithProperty('myProp'), view);
-
-    });
-
     }());
   });
 enifed("ember-views/tests/views/view/nearest_of_type_test.jscs-test",
@@ -63980,6 +64016,7 @@ enifed("ember/tests/component_registration_test",
     });
 
     if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    // jscs:disable validateIndentation
       // ember-htmlbars doesn't throw an exception when a helper is not found
 
     test('Using name of component that does not exist', function () {
@@ -63990,6 +64027,7 @@ enifed("ember/tests/component_registration_test",
       }, /Could not find component or helper named 'no-good'/);
     });
 
+    // jscs:enable validateIndentation
     }
 
     QUnit.module("Application Lifecycle - Component Context", {
@@ -64268,6 +64306,7 @@ enifed("ember/tests/helpers/helper_registration_test",
     });
 
     if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
+    // jscs:disable validateIndentation
 
       // we have unit tests for this in ember-htmlbars/tests/system/lookup-helper
       // and we are not going to recreate the handlebars helperMissing concept
@@ -64298,6 +64337,7 @@ enifed("ember/tests/helpers/helper_registration_test",
       helpers.helperMissing = realHelperMissing;
     });
 
+    // jscs:enable validateIndentation
     }
   });
 enifed("ember/tests/helpers/helper_registration_test.jscs-test",
