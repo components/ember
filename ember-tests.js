@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.1cda1f2e
+ * @version   1.11.0-beta.1+canary.2a33b1cf
  */
 
 (function() {
@@ -14338,8 +14338,8 @@ enifed("ember-htmlbars/tests/htmlbars_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/integration/binding_integration_test",
-  ["ember-metal/run_loop","ember-views/system/jquery","ember-views/views/view","ember-metal/binding","ember-runtime/system/object","ember-metal/computed","ember-views/views/container_view","ember-template-compiler/system/compile","ember-htmlbars/helpers/view","ember-runtime/tests/utils","ember-htmlbars/helpers","ember-metal/property_set"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__) {
+  ["ember-metal/run_loop","ember-views/system/jquery","ember-views/views/view","ember-metal/binding","ember-runtime/system/object","ember-metal/computed","ember-views/views/container_view","ember-template-compiler/system/compile","ember-runtime/tests/utils","ember-htmlbars/helpers","ember-metal/property_set"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__) {
     "use strict";
     var run = __dependency1__["default"];
     var jQuery = __dependency2__["default"];
@@ -14349,12 +14349,11 @@ enifed("ember-htmlbars/tests/integration/binding_integration_test",
     var computed = __dependency6__.computed;
     var ContainerView = __dependency7__["default"];
     var compile = __dependency8__["default"];
-    var ViewHelper = __dependency9__.ViewHelper;
-    var runAppend = __dependency10__.runAppend;
-    var runDestroy = __dependency10__.runDestroy;
-    var registerHelper = __dependency11__.registerHelper;
+    var runAppend = __dependency9__.runAppend;
+    var runDestroy = __dependency9__.runDestroy;
+    var registerHelper = __dependency10__.registerHelper;
 
-    var set = __dependency12__.set;
+    var set = __dependency11__.set;
 
     var compile, view, MyApp, originalLookup, lookup;
 
@@ -14499,30 +14498,28 @@ enifed("ember-htmlbars/tests/integration/binding_integration_test",
     });
 
     test('should accept bindings as a string or an Ember.Binding', function() {
-      var viewClass = EmberView.extend({
-        template: compile('binding: {{view.bindingTest}}, string: {{view.stringTest}}')
-      });
-
-      registerHelper('boogie', function(params, hash, options, env) {
-        var id = params[0];
-        hash.bindingTestBinding = Binding.oneWay('context.' + id._label);
-        hash.stringTestBinding = id;
-
-        var result = ViewHelper.helper(viewClass, hash, options, env);
-
-        return result;
+      var ViewWithBindings = EmberView.extend({
+        oneWayBindingTestBinding: Binding.oneWay('context.direction'),
+        twoWayBindingTestBinding: Binding.from('context.direction'),
+        stringBindingTestBinding: 'context.direction',
+        template: compile(
+          "one way: {{view.oneWayBindingTest}}, " +
+          "two way: {{view.twoWayBindingTest}}, " +
+          "string: {{view.stringBindingTest}}"
+        )
       });
 
       view = EmberView.create({
+        viewWithBindingsClass: ViewWithBindings,
         context: EmberObject.create({
-          direction: 'down'
+          direction: "down"
         }),
-        template: compile('{{boogie direction}}')
+        template: compile("{{view view.viewWithBindingsClass}}")
       });
 
       runAppend(view);
 
-      equal(trim(view.$().text()), 'binding: down, string: down');
+      equal(trim(view.$().text()), "one way: down, two way: down, string: down");
     });
   });
 enifed("ember-htmlbars/tests/integration/binding_integration_test.jscs-test",
