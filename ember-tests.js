@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.2a33b1cf
+ * @version   1.11.0-beta.1+canary.02db2752
  */
 
 (function() {
@@ -4991,6 +4991,24 @@ enifed("ember-htmlbars/hooks/subexpr.jshint",
       ok(true, 'ember-htmlbars/hooks/subexpr.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/system/append-templated-view.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/system');
+    test('ember-htmlbars/system/append-templated-view.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/system/append-templated-view.js should pass jscs.');
+    });
+  });
+enifed("ember-htmlbars/system/append-templated-view.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/system');
+    test('ember-htmlbars/system/append-templated-view.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/system/append-templated-view.js should pass jshint.'); 
+    });
+  });
 enifed("ember-htmlbars/system/bootstrap.jscs-test",
   [],
   function() {
@@ -5079,6 +5097,24 @@ enifed("ember-htmlbars/system/make_bound_helper.jshint",
     module('JSHint - ember-htmlbars/system');
     test('ember-htmlbars/system/make_bound_helper.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/system/make_bound_helper.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/system/merge-view-bindings.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/system');
+    test('ember-htmlbars/system/merge-view-bindings.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/system/merge-view-bindings.js should pass jscs.');
+    });
+  });
+enifed("ember-htmlbars/system/merge-view-bindings.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/system');
+    test('ember-htmlbars/system/merge-view-bindings.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/system/merge-view-bindings.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/tests/attr_nodes/boolean_test",
@@ -12512,7 +12548,6 @@ enifed("ember-htmlbars/tests/helpers/view_test",
     test('{{view}} should not override class bindings defined on a child view', function() {
       var LabelView = EmberView.extend({
         container:         container,
-        templateName:      'nested',
         classNameBindings: ['something'],
         something:         'visible'
       });
