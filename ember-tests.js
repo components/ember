@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.02db2752
+ * @version   1.11.0-beta.1+canary.980ca039
  */
 
 (function() {
@@ -18168,6 +18168,12 @@ enifed("ember-metal/tests/accessors/mandatory_setters_test",
 
     QUnit.module('mandatory-setters');
 
+    function hasMandatorySetter(object, property) {
+      var meta = metaFor(object);
+
+      return property in meta.values;
+    }
+
     
       if (hasPropertyAccessors) {
         test('does not assert if property is not being watched', function() {
@@ -18180,6 +18186,50 @@ enifed("ember-metal/tests/accessors/mandatory_setters_test",
 
           obj.someProp = 'blastix';
           equal(get(obj, 'someProp'), 'blastix');
+        });
+
+        test('should not setup mandatory-setter if property is not writable', function() {
+          expect(6);
+
+          var obj = { };
+
+          defineProperty(obj, 'a', { value: true });
+          defineProperty(obj, 'b', { value: false });
+          defineProperty(obj, 'c', { value: undefined });
+          defineProperty(obj, 'd', { value: undefined, writable: false});
+          defineProperty(obj, 'e', { value: undefined, configurable: false});
+          defineProperty(obj, 'f', { value: undefined, configurable: true});
+
+          watch(obj, 'a');
+          watch(obj, 'b');
+          watch(obj, 'c');
+          watch(obj, 'd');
+          watch(obj, 'e');
+          watch(obj, 'f');
+
+          ok(!hasMandatorySetter(obj, 'a'), 'mandatory-setter should not be installed');
+          ok(!hasMandatorySetter(obj, 'b'), 'mandatory-setter should not be installed');
+          ok(!hasMandatorySetter(obj, 'c'), 'mandatory-setter should not be installed');
+          ok(!hasMandatorySetter(obj, 'd'), 'mandatory-setter should not be installed');
+          ok(!hasMandatorySetter(obj, 'e'), 'mandatory-setter should not be installed');
+          ok(!hasMandatorySetter(obj, 'f'), 'mandatory-setter should not be installed');
+        });
+
+        test('should not setup mandatory-setter if setter is already setup on property', function() {
+          expect(2);
+
+          var obj = { someProp: null };
+
+          defineProperty(obj, 'someProp', {
+            set: function(value) {
+              equal(value, 'foo-bar', 'custom setter was called');
+            }
+          });
+
+          watch(obj, 'someProp');
+          ok(!hasMandatorySetter(obj, 'someProp'), 'mandatory-setter should not be installed');
+
+          obj.someProp = 'foo-bar';
         });
 
         test('should assert if set without Ember.set when property is being watched', function() {
