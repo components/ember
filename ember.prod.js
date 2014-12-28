@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.3+pre.f53ff08c
+ * @version   1.10.0-beta.3+pre.6000a321
  */
 
 (function() {
@@ -11681,7 +11681,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.3+pre.f53ff08c
+      @version 1.10.0-beta.3+pre.6000a321
     */
 
     if ('undefined' === typeof Ember) {
@@ -11708,10 +11708,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.3+pre.f53ff08c'
+      @default '1.10.0-beta.3+pre.6000a321'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.3+pre.f53ff08c';
+    Ember.VERSION = '1.10.0-beta.3+pre.6000a321';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -23110,7 +23110,7 @@ enifed("ember-routing/system/route",
 
         ```javascript
         App.Router.map(function() {
-          this.route("index");
+          this.route('index');
         });
 
         App.ApplicationRoute = Ember.Route.extend({
@@ -26689,14 +26689,15 @@ enifed("ember-runtime/computed/reduce_computed_macros",
       The callback method you provide should have the following signature.
       `item` is the current item in the iteration.
       `index` is the integer index of the current item in the iteration.
+      `array` is the dependant array itself.
 
       ```javascript
-      function(item, index);
+      function(item, index, array);
       ```
 
       ```javascript
       var Hamster = Ember.Object.extend({
-        remainingChores: Ember.computed.filter('chores', function(chore, index) {
+        remainingChores: Ember.computed.filter('chores', function(chore, index, array) {
           return !chore.done;
         })
       });
@@ -26725,7 +26726,7 @@ enifed("ember-runtime/computed/reduce_computed_macros",
         },
 
         addedItem: function (array, item, changeMeta, instanceMeta) {
-          var match = !!callback.call(this, item, changeMeta.index);
+          var match = !!callback.call(this, item, changeMeta.index, changeMeta.arrayChanged);
           var filterIndex = instanceMeta.filteredArrayIndexes.addItem(changeMeta.index, match);
 
           if (match) {

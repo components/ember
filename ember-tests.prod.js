@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.3+pre.f53ff08c
+ * @version   1.10.0-beta.3+pre.6000a321
  */
 
 (function() {
@@ -15665,6 +15665,12 @@ enifed("ember-metal/tests/accessors/mandatory_setters_test",
 
     QUnit.module('mandatory-setters');
 
+    function hasMandatorySetter(object, property) {
+      var meta = metaFor(object);
+
+      return property in meta.values;
+    }
+
     
       test('does not assert', function() {
         var obj = {
@@ -29502,6 +29508,20 @@ enifed("ember-runtime/tests/computed/reduce_computed_macros_test",
       });
 
       deepEqual(get(obj, 'filtered'), ['b'], "index is passed to callback correctly");
+    });
+
+    test("it passes the array to the callback", function() {
+      var array = Ember.A(['a', 'b', 'c']);
+
+      run(function() {
+        obj = EmberObject.createWithMixins({
+          array: array,
+          filtered: computedFilter('array', function (item, index, array) { return index === array.get('length') - 2; })
+        });
+        get(obj, 'filtered');
+      });
+
+      deepEqual(get(obj, 'filtered'), ['b'], "array is passed to callback correctly");
     });
 
     test("it caches properly", function() {
