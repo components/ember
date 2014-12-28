@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.980ca039
+ * @version   1.11.0-beta.1+canary.64deee79
  */
 
 (function() {
@@ -5259,9 +5259,9 @@ enifed("ember-htmlbars/tests/attr_nodes/class_test",
     }
 
     var isInlineIfEnabled = false;
-    if (Ember.FEATURES.isEnabled('ember-htmlbars-inline-if-helper')) {
+    
       isInlineIfEnabled = true;
-    }
+    
 
     if (Ember.FEATURES.isEnabled('ember-htmlbars-attribute-syntax')) {
     // jscs:disable validateIndentation
@@ -10272,7 +10272,7 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
       equal(Ember.$('#qunit-fixture').text(), 'test');
     });
 
-    if (Ember.FEATURES.isEnabled('ember-htmlbars-inline-if-helper')) {
+    
       test("`if` helper with inline form: renders the second argument when conditional is truthy", function() {
         view = EmberView.create({
           conditional: true,
@@ -10542,7 +10542,7 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
 
       });
 
-    }
+    
   });
 enifed("ember-htmlbars/tests/helpers/if_unless_test.jscs-test",
   [],
@@ -31821,7 +31821,7 @@ enifed("ember-routing/tests/system/dsl_test",
       ok(router.router.recognizer.names['bleep.bloop.blork'], 'parent name was used as base of nested routes');
     });
 
-    if (Ember.FEATURES.isEnabled("ember-routing-named-substates")) {
+    
     // jscs:disable validateIndentation
 
     test("should add loading and error routes if _isRouterMapResult is true", function(){
@@ -31851,7 +31851,7 @@ enifed("ember-routing/tests/system/dsl_test",
     });
 
     // jscs:enable validateIndentation
-    }
+    
   });
 enifed("ember-routing/tests/system/dsl_test.jscs-test",
   [],
@@ -72064,7 +72064,7 @@ enifed("ember/tests/routing/substates_test",
       equal(appController.get('currentPath'), 'grandma.error', "Initial route fully loaded");
     });
 
-    if (Ember.FEATURES.isEnabled("ember-routing-named-substates")) {
+    
 
       test("Slow promises returned from ApplicationRoute#model enter ApplicationLoadingRoute if present", function() {
 
@@ -72387,7 +72387,7 @@ enifed("ember/tests/routing/substates_test",
 
         equal(Ember.$('#app', '#qunit-fixture').text(), "INDEX");
       });
-    }
+    
   });
 enifed("ember/tests/routing/substates_test.jscs-test",
   [],

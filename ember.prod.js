@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.980ca039
+ * @version   1.11.0-beta.1+canary.64deee79
  */
 
 (function() {
@@ -6456,12 +6456,9 @@ enifed("ember-htmlbars/helpers/if_unless",
       if (options.template || options.inverse) {
         return appendBlockConditional(view, inverted, helperName, params, hash, options, env);
       } else {
-        if (Ember.FEATURES.isEnabled('ember-htmlbars-inline-if-helper')) {
+        
           return appendInlineConditional(view, inverted, helperName, params, hash, options, env);
-        } else {
-          assertInlineIfNotEnabled();
-        }
-      }
+              }
     }
 
     function appendBlockConditional(view, inverted, helperName, params, hash, options, env) {
@@ -11677,7 +11674,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.980ca039
+      @version 1.11.0-beta.1+canary.64deee79
     */
 
     if ('undefined' === typeof Ember) {
@@ -11704,10 +11701,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.980ca039'
+      @default '1.11.0-beta.1+canary.64deee79'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.980ca039';
+    Ember.VERSION = '1.11.0-beta.1+canary.64deee79';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -22137,12 +22134,12 @@ enifed("ember-routing/system/dsl",
 
         var type = options.resetNamespace === true ? 'resource' : 'route';
         
-        if (Ember.FEATURES.isEnabled("ember-routing-named-substates")) {
+        
           if (this.enableLoadingSubtates) {
             createRoute(this, name + '_loading', {resetNamespace: options.resetNamespace});
             createRoute(this, name + '_error', { path: "/_unused_dummy_error_path_route_" + name + "/:error"});
           }
-        }
+        
 
         if (callback) {
           var fullName = getFullName(this, name, options.resetNamespace);
@@ -25089,13 +25086,13 @@ enifed("ember-routing/system/router",
       var targetChildRouteName = originatingChildRoute.routeName.split('.').pop();
       var namespace = parentRoute.routeName === 'application' ? '' : parentRoute.routeName + '.';
 
-      if (Ember.FEATURES.isEnabled("ember-routing-named-substates")) {
+      
         // First, try a named loading state, e.g. 'foo_loading'
         childName = namespace + targetChildRouteName + '_' + name;
         if (routeHasBeenDefined(router, childName)) {
           return childName;
         }
-      }
+      
 
       // Second, try general loading state, e.g. 'loading'
       childName = namespace + name;
