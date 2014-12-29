@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.3a217c94
+ * @version   1.11.0-beta.1+canary.a31c9aeb
  */
 
 (function() {
@@ -2656,9 +2656,9 @@ enifed("ember-metal/array",
         fromIndex += len;
       }
 
-      for(idx = fromIndex;idx>=0;idx--) {
+      for (idx = fromIndex; idx >= 0; idx--) {
         if (this[idx] === obj) {
-          return idx ;
+          return idx;
         }
       }
       return -1;
@@ -3534,7 +3534,7 @@ enifed("ember-metal/chains",
     ChainNodePrototype.willChange = function(events) {
       var chains = this._chains;
       if (chains) {
-        for(var key in chains) {
+        for (var key in chains) {
           if (!chains.hasOwnProperty(key)) {
             continue;
           }
@@ -3604,7 +3604,7 @@ enifed("ember-metal/chains",
       // then notify chains...
       var chains = this._chains;
       if (chains) {
-        for(var key in chains) {
+        for (var key in chains) {
           if (!chains.hasOwnProperty(key)) { continue; }
           chains[key].didChange(events);
         }
@@ -3630,7 +3630,7 @@ enifed("ember-metal/chains",
         // finish any current chains node watchers that reference obj
         chainWatchers = m.chainWatchers;
         if (chainWatchers) {
-          for(var key in chainWatchers) {
+          for (var key in chainWatchers) {
             if (!chainWatchers.hasOwnProperty(key)) {
               continue;
             }
@@ -3985,7 +3985,7 @@ enifed("ember-metal/computed",
 
         if (result === UNDEFINED) {
           return undefined;
-        }  else if (result !== undefined) {
+        } else if (result !== undefined) {
           return result;
         }
 
@@ -4081,7 +4081,7 @@ enifed("ember-metal/computed",
       }
 
       if (cacheable && cache[keyName] !== undefined) {
-        if(cache[keyName] !== UNDEFINED) {
+        if (cache[keyName] !== UNDEFINED) {
           cachedValue = cache[keyName];
         }
 
@@ -4291,7 +4291,7 @@ enifed("ember-metal/computed_macros",
 
     function getProperties(self, propertyNames) {
       var ret = {};
-      for(var i = 0; i < propertyNames.length; i++) {
+      for (var i = 0; i < propertyNames.length; i++) {
         ret[propertyNames[i]] = get(self, propertyNames[i]);
       }
       return ret;
@@ -5004,7 +5004,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.3a217c94
+      @version 1.11.0-beta.1+canary.a31c9aeb
     */
 
     if ('undefined' === typeof Ember) {
@@ -5031,10 +5031,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.3a217c94'
+      @default '1.11.0-beta.1+canary.a31c9aeb'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.3a217c94';
+    Ember.VERSION = '1.11.0-beta.1+canary.a31c9aeb';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -5051,7 +5051,7 @@ enifed("ember-metal/core",
       // do nothing if Ember.ENV is already setup
     } else if ('undefined' !== typeof EmberENV) {
       Ember.ENV = EmberENV;
-    } else if('undefined' !== typeof ENV) {
+    } else if ('undefined' !== typeof ENV) {
       Ember.ENV = ENV;
     } else {
       Ember.ENV = {};
@@ -5251,7 +5251,7 @@ enifed("ember-metal/dependent_keys",
 
       depsMeta = metaForDeps(meta);
 
-      for(idx = 0, len = depKeys.length; idx < len; idx++) {
+      for (idx = 0, len = depKeys.length; idx < len; idx++) {
         depKey = depKeys[idx];
         // Lookup keys meta for depKey
         keys = keysForDep(depsMeta, depKey);
@@ -5273,7 +5273,7 @@ enifed("ember-metal/dependent_keys",
 
       depsMeta = metaForDeps(meta);
 
-      for(idx = 0, len = depKeys.length; idx < len; idx++) {
+      for (idx = 0, len = depKeys.length; idx < len; idx++) {
         depKey = depKeys[idx];
         // Lookup keys meta for depKey
         keys = keysForDep(depsMeta, depKey);
@@ -6218,7 +6218,7 @@ enifed("ember-metal/get_properties",
         i = 0;
         propertyNames = arguments[1];
       }
-      for(var len = propertyNames.length; i < len; i++) {
+      for (var len = propertyNames.length; i < len; i++) {
         ret[propertyNames[i]] = get(obj, propertyNames[i]);
       }
       return ret;
@@ -7789,7 +7789,7 @@ enifed("ember-metal/mixin",
         delete values[keyName];
       }
 
-      for(var i=0, l=mixins.length; i<l; i++) {
+      for (var i=0, l=mixins.length; i<l; i++) {
         mixin = mixins[i];
         Ember.assert('Expected hash or Mixin instance, got ' + Object.prototype.toString.call(mixin),
                      typeof mixin === 'object' && mixin !== null && Object.prototype.toString.call(mixin) !== '[object Array]');
@@ -7950,7 +7950,7 @@ enifed("ember-metal/mixin",
       // * Copying `toString` in broken browsers
       mergeMixins(mixins, mixinsMeta(obj), descs, values, obj, keys);
 
-      for(var i = 0, l = keys.length; i < l; i++) {
+      for (var i = 0, l = keys.length; i < l; i++) {
         key = keys[i];
         if (key === 'constructor' || !values.hasOwnProperty(key)) { continue; }
 
@@ -8121,7 +8121,7 @@ enifed("ember-metal/mixin",
       var mixins = this.mixins;
       var idx;
 
-      for(idx=0; idx < len; idx++) {
+      for (idx=0; idx < len; idx++) {
         mixin = arguments[idx];
         Ember.assert('Expected hash or Mixin instance, got ' + Object.prototype.toString.call(mixin),
                      typeof mixin === 'object' && mixin !== null &&
@@ -8206,7 +8206,7 @@ enifed("ember-metal/mixin",
       var seen = {};
       var ret = [];
       _keys(keys, this, seen);
-      for(var key in keys) {
+      for (var key in keys) {
         if (keys.hasOwnProperty(key)) {
           ret.push(key);
         }
@@ -9342,7 +9342,7 @@ enifed("ember-metal/property_events",
       var events = [];
       var i, l;
 
-      for(i = 0, l = nodes.length; i < l; i++) {
+      for (i = 0, l = nodes.length; i < l; i++) {
         nodes[i].willChange(events);
       }
 
@@ -9361,7 +9361,7 @@ enifed("ember-metal/property_events",
       var events = suppressEvents ? null : [];
       var i, l;
 
-      for(i = 0, l = nodes.length; i < l; i++) {
+      for (i = 0, l = nodes.length; i < l; i++) {
         nodes[i].didChange(events);
       }
 
@@ -11167,7 +11167,7 @@ enifed("ember-metal/utils",
       var type = typeof obj;
 
       // Don't allow prototype changes to String etc. to change the guidFor
-      switch(type) {
+      switch (type) {
         case 'number':
           ret = numberCache[obj];
 
@@ -11576,7 +11576,7 @@ enifed("ember-metal/utils",
     __exports__.tryInvoke = tryInvoke;// https://github.com/emberjs/ember.js/pull/1617
     var needsFinallyFix = (function() {
       var count = 0;
-      try{
+      try {
         try {
         } finally {
           count++;
@@ -11851,7 +11851,7 @@ enifed("ember-metal/utils",
 
       var v;
       var ret = [];
-      for(var key in obj) {
+      for (var key in obj) {
         if (obj.hasOwnProperty(key)) {
           v = obj[key];
           if (v === 'toString') { continue; } // ignore useless items
@@ -15014,8 +15014,8 @@ enifed("ember-runtime/ext/function",
       FunctionPrototype.observesImmediately = function () {
         Ember.assert('Immediate observers must observe internal properties only, ' +
                      'not properties on other objects.', function checkIsInternalProperty() {
-          for(var i = 0, l = arguments.length; i < l; i++) {
-            if(arguments[i].indexOf('.') !== -1) {
+          for (var i = 0, l = arguments.length; i < l; i++) {
+            if (arguments[i].indexOf('.') !== -1) {
               return false;
             }
           }
@@ -16798,7 +16798,7 @@ enifed("ember-runtime/mixins/enumerable",
           target = null;
         }
 
-        for(var idx = 0; idx < len; idx++) {
+        for (var idx = 0; idx < len; idx++) {
           var next = this.nextObject(idx, last, context) ;
           callback.call(target, next, idx, this);
           last = next ;
@@ -17076,7 +17076,7 @@ enifed("ember-runtime/mixins/enumerable",
         var last = null;
         var next, ret;
 
-        for(var idx = 0; idx < len && !found; idx++) {
+        for (var idx = 0; idx < len && !found; idx++) {
           next = this.nextObject(idx, last, context);
 
           if (found = callback.call(target, next, idx, this)) {
@@ -17696,7 +17696,7 @@ enifed("ember-runtime/mixins/enumerable",
         var sortKeys = arguments;
 
         return this.toArray().sort(function(a, b) {
-          for(var i = 0; i < sortKeys.length; i++) {
+          for (var i = 0; i < sortKeys.length; i++) {
             var key = sortKeys[i];
             var propA = get(a, key);
             var propB = get(b, key);
@@ -18314,7 +18314,7 @@ enifed("ember-runtime/mixins/mutable_array",
       */
       removeObject: function(obj) {
         var loc = get(this, 'length') || 0;
-        while(--loc >= 0) {
+        while (--loc >= 0) {
           var curObject = this.objectAt(loc);
 
           if (curObject === obj) {
@@ -20809,7 +20809,7 @@ enifed("ember-runtime/system/core_object",
 
       detect: function(obj) {
         if ('function' !== typeof obj) { return false; }
-        while(obj) {
+        while (obj) {
           if (obj===this) { return true; }
           obj = obj.superclass;
         }
@@ -21051,7 +21051,7 @@ enifed("ember-runtime/system/each_proxy",
         objects = proxy._objects = {};
       }
 
-      while(--loc>=idx) {
+      while (--loc >= idx) {
         var item = content.objectAt(loc);
         if (item) {
           Ember.assert('When using @each to observe the array ' + content + ', the array must return an object', typeOf(item) === 'instance' || typeOf(item) === 'object');
@@ -21078,7 +21078,7 @@ enifed("ember-runtime/system/each_proxy",
 
       var indicies, guid;
 
-      while(--loc>=idx) {
+      while (--loc >= idx) {
         var item = content.objectAt(loc);
         if (item) {
           removeBeforeObserver(item, keyName, proxy, 'contentKeyWillChange');
@@ -21142,7 +21142,7 @@ enifed("ember-runtime/system/each_proxy",
         lim = removedCnt>0 ? idx+removedCnt : -1;
         beginPropertyChanges(this);
 
-        for(key in keys) {
+        for (key in keys) {
           if (!keys.hasOwnProperty(key)) { continue; }
 
           if (lim>0) { removeObserverForContentKey(content, key, this, idx, lim); }
@@ -21160,7 +21160,7 @@ enifed("ember-runtime/system/each_proxy",
 
         lim = addedCnt>0 ? idx+addedCnt : -1;
         changeProperties(function() {
-          for(var key in keys) {
+          for (var key in keys) {
             if (!keys.hasOwnProperty(key)) { continue; }
 
             if (lim>0) { addObserverForContentKey(content, key, this, idx, lim); }
@@ -21398,7 +21398,7 @@ enifed("ember-runtime/system/namespace",
       NAMESPACES_BY_ID[paths.join('.')] = root;
 
       // Loop over all of the keys in the namespace, looking for classes
-      for(var key in root) {
+      for (var key in root) {
         if (!hasOwnProp.call(root, key)) { continue; }
         var obj = root[key];
 
@@ -22081,7 +22081,7 @@ enifed("ember-runtime/system/set",
           return false;
         }
 
-        while(--loc >= 0) {
+        while (--loc >= 0) {
           if (!obj.contains(this[loc])) {
             return false;
           }
@@ -22356,7 +22356,7 @@ enifed("ember-runtime/system/set",
         var loc = get(this, 'length');
 
         set(ret, 'length', loc);
-        while(--loc>=0) {
+        while (--loc >= 0) {
           ret[loc] = this[loc];
           ret[guidFor(this[loc])] = loc;
         }
@@ -22368,7 +22368,7 @@ enifed("ember-runtime/system/set",
         var array = [];
         var idx;
 
-        for(idx = 0; idx < len; idx++) {
+        for (idx = 0; idx < len; idx++) {
           array[idx] = this[idx];
         }
         return fmt("Ember.Set<%@>", [array.join(',')]);

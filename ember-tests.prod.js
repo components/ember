@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.3a217c94
+ * @version   1.11.0-beta.1+canary.a31c9aeb
  */
 
 (function() {
@@ -6441,7 +6441,7 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
       helper('repeat', function(value, options) {
         var count = options.hash.count || 1;
         var a = [];
-        while(a.length < count) {
+        while (a.length < count) {
           a.push(value);
         }
         return a.join('');
@@ -6707,7 +6707,7 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
         var options = arguments[arguments.length - 1];
         var values = [].slice.call(arguments, 0, -1);
         var a = [];
-        for(var i = 0; i < values.length; ++i) {
+        for (var i = 0; i < values.length; ++i) {
           var propertyName = options.data.properties[i];
           a.push(propertyName);
         }
@@ -11460,7 +11460,7 @@ enifed("ember-htmlbars/tests/helpers/unbound_test",
         registerBoundHelper('repeat', function(value, options) {
           var count = options.hash.count;
           var a = [];
-          while(a.length < count) {
+          while (a.length < count) {
             a.push(value);
           }
           return a.join('');
@@ -17778,7 +17778,7 @@ enifed("ember-metal/tests/accessors/get_test",
         nullValue: null
       };
 
-      for(var key in obj) {
+      for (var key in obj) {
         if (!obj.hasOwnProperty(key)) {
           continue;
         }
@@ -17863,7 +17863,7 @@ enifed("ember-metal/tests/accessors/get_test",
         nullValue: null
       };
 
-      for(var key in obj) {
+      for (var key in obj) {
         if (!obj.hasOwnProperty(key)) {
           continue;
         }
@@ -18345,7 +18345,7 @@ enifed("ember-metal/tests/accessors/set_test",
         undefinedValue: 'emberjs'
       };
 
-      for(var key in obj) {
+      for (var key in obj) {
         if (!obj.hasOwnProperty(key)) {
           continue;
         }
@@ -19595,7 +19595,7 @@ enifed("ember-metal/tests/computed_test",
       defineProperty(obj, 'foo', computed(function() {}));
 
       var found = [];
-      for(var key in obj) {
+      for (var key in obj) {
         found.push(key);
       }
       ok(indexOf(found, 'foo')>=0, 'should find computed property in iteration found=' + found);
@@ -19607,7 +19607,7 @@ enifed("ember-metal/tests/computed_test",
       var oldValueIsNoFunction = true;
 
       defineProperty(obj, 'foo', computed(function(key, value, oldValue) {
-        if(typeof oldValue === 'function') {
+        if (typeof oldValue === 'function') {
           oldValueIsNoFunction = false;
         }
 
@@ -25026,7 +25026,7 @@ enifed("ember-metal/tests/platform/defineProperty_test",
 
     function isEnumerable(obj, keyName) {
       var keys = [];
-      for(var key in obj) {
+      for (var key in obj) {
         if (obj.hasOwnProperty(key)) {
           keys.push(key);
         }
@@ -25532,7 +25532,7 @@ enifed("ember-metal/tests/run_loop/later_test",
         // run loop has to flush, it would have considered
         // the timer already expired.
         var pauseUntil = +new Date() + 100;
-        while(+new Date() < pauseUntil) { /* do nothing - sleeping */ }
+        while (+new Date() < pauseUntil) { /* do nothing - sleeping */ }
       });
 
       ok(firstRunLoop, "first run loop captured");
@@ -25664,7 +25664,7 @@ enifed("ember-metal/tests/run_loop/later_test",
           // make sure that invokeLaterTimers doesn't end up scheduling
           // a negative setTimeout.
           var pauseUntil = +new Date() + 60;
-          while(+new Date() < pauseUntil) { /* do nothing - sleeping */ }
+          while (+new Date() < pauseUntil) { /* do nothing - sleeping */ }
         }, 1);
 
         run.later(function() {
@@ -27181,7 +27181,7 @@ enifed("ember-metal/tests/utils/type_of_test",
       equal( typeOf(error),       'error',      "error");
       equal( typeOf(object),      'object',     "object");
 
-      if(Ember.Object) {
+      if (Ember.Object) {
         var klass       = Ember.Object.extend();
         var instance    = Ember.Object.create();
 
@@ -37817,7 +37817,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
         // property. Other properties blindly call set.
         expectedLength = 3;
         equal(calls.length, expectedLength, fmt('set(%@) should be called the right amount of times', [key]));
-        for(idx=0;idx<2;idx++) {
+        for (idx=0;idx<2;idx++) {
           equal(calls[idx], values[idx], fmt('call #%@ to set(%@) should have passed value %@', [idx+1, key, values[idx]]));
         }
       });
@@ -38040,7 +38040,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
           getEach: function() {
             var keys = ['normal','abnormal'];
             var ret = [];
-            for(var idx=0; idx<keys.length;idx++) {
+            for (var idx=0; idx<keys.length;idx++) {
               ret[ret.length] = this.get(keys[idx]);
             }
             return ret ;
@@ -42619,7 +42619,7 @@ enifed("ember-runtime/tests/suites/array/indexOf",
       var len      = 3;
       var idx;
 
-      for(idx=0;idx<len;idx++) {
+      for (idx=0;idx<len;idx++) {
         equal(obj.indexOf(expected[idx]), idx, fmt('obj.indexOf(%@) should match idx', [expected[idx]]));
       }
 
@@ -42669,7 +42669,7 @@ enifed("ember-runtime/tests/suites/array/lastIndexOf",
       var len      = 3;
       var idx;
 
-      for(idx=0;idx<len;idx++) {
+      for (idx=0;idx<len;idx++) {
         equal(obj.lastIndexOf(expected[idx]), idx,
           fmt('obj.lastIndexOf(%@) should match idx', [expected[idx]]));
       }
@@ -42682,7 +42682,7 @@ enifed("ember-runtime/tests/suites/array/lastIndexOf",
       var len      = 3;
       var idx;
 
-      for(idx=0;idx<len;idx++) {
+      for (idx=0;idx<len;idx++) {
         equal(obj.lastIndexOf(expected[idx], len), idx,
           fmt('obj.lastIndexOfs(%@) should match idx', [expected[idx]]));
       }
@@ -42695,7 +42695,7 @@ enifed("ember-runtime/tests/suites/array/lastIndexOf",
       var len      = 3;
       var idx;
 
-      for(idx=0;idx<len;idx++) {
+      for (idx=0;idx<len;idx++) {
         equal(obj.lastIndexOf(expected[idx], len + 1), idx,
           fmt('obj.lastIndexOf(%@) should match idx', [expected[idx]]));
       }
@@ -42760,7 +42760,7 @@ enifed("ember-runtime/tests/suites/array/objectAt",
       var len      = expected.length;
       var idx;
 
-      for(idx=0;idx<len;idx++) {
+      for (idx=0;idx<len;idx++) {
         equal(obj.objectAt(idx), expected[idx], fmt('obj.objectAt(%@) should match', [idx]));
       }
 
@@ -43014,7 +43014,7 @@ enifed("ember-runtime/tests/suites/enumerable",
       observeBefore: function(obj) {
         var keys = Array.prototype.slice.call(arguments, 1);
         var loc  = keys.length;
-        while(--loc>=0) {
+        while (--loc>=0) {
           addBeforeObserver(obj, keys[loc], this, 'propertyWillChange');
         }
 
@@ -43035,7 +43035,7 @@ enifed("ember-runtime/tests/suites/enumerable",
           var keys = Array.prototype.slice.call(arguments, 1);
           var loc  = keys.length;
 
-          while(--loc>=0) {
+          while (--loc >= 0) {
             obj.addObserver(keys[loc], this, 'propertyDidChange');
           }
         } else {
@@ -43142,7 +43142,7 @@ enifed("ember-runtime/tests/suites/enumerable",
       */
       newFixture: function(cnt) {
         var ret = [];
-        while(--cnt >= 0) {
+        while (--cnt >= 0) {
           ret.push(generateGuid());
         }
 
@@ -43161,7 +43161,7 @@ enifed("ember-runtime/tests/suites/enumerable",
       newObjectsFixture: function(cnt) {
         var ret = [];
         var item;
-        while(--cnt >= 0) {
+        while (--cnt >= 0) {
           item = {};
           guidFor(item);
           ret.push(item);
@@ -47609,7 +47609,7 @@ enifed("ember-runtime/tests/system/namespace/base_test",
       teardown: function() {
         Ember.BOOTED = false;
 
-        for(var prop in lookup) {
+        for (var prop in lookup) {
           if (lookup[prop]) { run(lookup[prop], 'destroy'); }
         }
 
@@ -50056,7 +50056,7 @@ enifed("ember-runtime/tests/system/set/extra_test",
         aSet = new Set([1,2,3]);
       });
 
-      while(count<10 && (obj = aSet.pop())) {
+      while (count<10 && (obj = aSet.pop())) {
         equal(aSet.contains(obj), false, 'set should no longer contain object');
         count++;
         equal(get(aSet, 'length'), 3-count, 'length should be shorter');
@@ -55940,8 +55940,8 @@ enifed("ember-views/tests/views/component_test",
       },
       teardown: function() {
         run(function() {
-          if(component)  { component.destroy(); }
-          if(controller) { controller.destroy(); }
+          if (component)  { component.destroy(); }
+          if (controller) { controller.destroy(); }
         });
       }
     });
@@ -60308,7 +60308,7 @@ enifed("ember-views/tests/views/view/create_child_view_test",
       teardown: function() {
         run(function() {
           view.destroy();
-          if(newView) { newView.destroy(); }
+          if (newView) { newView.destroy(); }
         });
       }
     });
