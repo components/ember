@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.3+pre.ceb7a844
+ * @version   1.10.0-beta.3+pre.8613522a
  */
 
 (function() {
@@ -4479,8 +4479,8 @@ enifed("ember-extension-support/data_adapter",
     });
   });
 enifed("ember-htmlbars",
-  ["ember-metal/core","ember-template-compiler","ember-htmlbars/hooks/content","ember-htmlbars/hooks/component","ember-htmlbars/hooks/element","ember-htmlbars/hooks/subexpr","ember-htmlbars/hooks/attribute","ember-htmlbars/hooks/concat","ember-htmlbars/hooks/get","ember-htmlbars/hooks/set","morph","ember-htmlbars/system/make-view-helper","ember-htmlbars/system/make_bound_helper","ember-htmlbars/helpers","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/bind-attr","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/partial","ember-htmlbars/helpers/template","ember-htmlbars/helpers/input","ember-htmlbars/helpers/text_area","ember-htmlbars/helpers/collection","ember-htmlbars/helpers/each","ember-htmlbars/helpers/unbound","ember-htmlbars/system/bootstrap","ember-htmlbars/compat","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __dependency31__, __dependency32__, __exports__) {
+  ["ember-metal/core","ember-template-compiler","ember-htmlbars/hooks/inline","ember-htmlbars/hooks/content","ember-htmlbars/hooks/component","ember-htmlbars/hooks/block","ember-htmlbars/hooks/element","ember-htmlbars/hooks/subexpr","ember-htmlbars/hooks/attribute","ember-htmlbars/hooks/concat","ember-htmlbars/hooks/get","ember-htmlbars/hooks/set","morph","ember-htmlbars/system/make-view-helper","ember-htmlbars/system/make_bound_helper","ember-htmlbars/helpers","ember-htmlbars/helpers/binding","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/bind-attr","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/partial","ember-htmlbars/helpers/template","ember-htmlbars/helpers/input","ember-htmlbars/helpers/text_area","ember-htmlbars/helpers/collection","ember-htmlbars/helpers/each","ember-htmlbars/helpers/unbound","ember-htmlbars/system/bootstrap","ember-htmlbars/compat","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __dependency31__, __dependency32__, __dependency33__, __dependency34__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
 
@@ -4489,41 +4489,43 @@ enifed("ember-htmlbars",
     var template = __dependency2__.template;
     var registerPlugin = __dependency2__.registerPlugin;
 
-    var content = __dependency3__["default"];
-    var component = __dependency4__["default"];
-    var element = __dependency5__["default"];
-    var subexpr = __dependency6__["default"];
-    var attribute = __dependency7__["default"];
-    var concat = __dependency8__["default"];
-    var get = __dependency9__["default"];
-    var set = __dependency10__["default"];
-    var DOMHelper = __dependency11__.DOMHelper;
-    var makeViewHelper = __dependency12__["default"];
-    var makeBoundHelper = __dependency13__["default"];
+    var inline = __dependency3__["default"];
+    var content = __dependency4__["default"];
+    var component = __dependency5__["default"];
+    var block = __dependency6__["default"];
+    var element = __dependency7__["default"];
+    var subexpr = __dependency8__["default"];
+    var attribute = __dependency9__["default"];
+    var concat = __dependency10__["default"];
+    var get = __dependency11__["default"];
+    var set = __dependency12__["default"];
+    var DOMHelper = __dependency13__.DOMHelper;
+    var makeViewHelper = __dependency14__["default"];
+    var makeBoundHelper = __dependency15__["default"];
 
-    var registerHelper = __dependency14__.registerHelper;
-    var helper = __dependency14__.helper;
-    var helpers = __dependency14__["default"];
-    var bindHelper = __dependency15__.bindHelper;
-    var viewHelper = __dependency16__.viewHelper;
-    var yieldHelper = __dependency17__.yieldHelper;
-    var withHelper = __dependency18__.withHelper;
-    var logHelper = __dependency19__.logHelper;
-    var debuggerHelper = __dependency20__.debuggerHelper;
-    var bindAttrHelper = __dependency21__.bindAttrHelper;
-    var bindAttrHelperDeprecated = __dependency21__.bindAttrHelperDeprecated;
-    var ifHelper = __dependency22__.ifHelper;
-    var unlessHelper = __dependency22__.unlessHelper;
-    var unboundIfHelper = __dependency22__.unboundIfHelper;
-    var boundIfHelper = __dependency22__.boundIfHelper;
-    var locHelper = __dependency23__.locHelper;
-    var partialHelper = __dependency24__.partialHelper;
-    var templateHelper = __dependency25__.templateHelper;
-    var inputHelper = __dependency26__.inputHelper;
-    var textareaHelper = __dependency27__.textareaHelper;
-    var collectionHelper = __dependency28__.collectionHelper;
-    var eachHelper = __dependency29__.eachHelper;
-    var unboundHelper = __dependency30__.unboundHelper;
+    var registerHelper = __dependency16__.registerHelper;
+    var helper = __dependency16__.helper;
+    var helpers = __dependency16__["default"];
+    var bindHelper = __dependency17__.bindHelper;
+    var viewHelper = __dependency18__.viewHelper;
+    var yieldHelper = __dependency19__.yieldHelper;
+    var withHelper = __dependency20__.withHelper;
+    var logHelper = __dependency21__.logHelper;
+    var debuggerHelper = __dependency22__.debuggerHelper;
+    var bindAttrHelper = __dependency23__.bindAttrHelper;
+    var bindAttrHelperDeprecated = __dependency23__.bindAttrHelperDeprecated;
+    var ifHelper = __dependency24__.ifHelper;
+    var unlessHelper = __dependency24__.unlessHelper;
+    var unboundIfHelper = __dependency24__.unboundIfHelper;
+    var boundIfHelper = __dependency24__.boundIfHelper;
+    var locHelper = __dependency25__.locHelper;
+    var partialHelper = __dependency26__.partialHelper;
+    var templateHelper = __dependency27__.templateHelper;
+    var inputHelper = __dependency28__.inputHelper;
+    var textareaHelper = __dependency29__.textareaHelper;
+    var collectionHelper = __dependency30__.collectionHelper;
+    var eachHelper = __dependency31__.eachHelper;
+    var unboundHelper = __dependency32__.unboundHelper;
 
     // importing adds template bootstrapping
     // initializer to enable embedded templates
@@ -4575,7 +4577,9 @@ enifed("ember-htmlbars",
       hooks: {
         get: get,
         set: set,
+        inline: inline,
         content: content,
+        block: block,
         element: element,
         subexpr: subexpr,
         component: component,
@@ -4586,306 +4590,6 @@ enifed("ember-htmlbars",
       helpers: helpers
     };
     __exports__.defaultEnv = defaultEnv;
-  });
-enifed("ember-htmlbars/attr_nodes",
-  ["ember-htmlbars/attr_nodes/quoted","ember-htmlbars/attr_nodes/unquoted","ember-htmlbars/attr_nodes/unquoted_nonproperty","ember-views/system/sanitize_attribute_value","ember-htmlbars/attr_nodes/sanitized","ember-metal/platform","ember-htmlbars/attr_nodes/utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-htmlbars
-    */
-
-    var QuotedAttrNode = __dependency1__["default"];
-    var UnquotedAttrNode = __dependency2__["default"];
-    var UnquotedNonpropertyAttrNode = __dependency3__["default"];
-    var badAttributes = __dependency4__.badAttributes;
-    var SanitizedAttrNode = __dependency5__["default"];
-    var o_create = __dependency6__.create;
-    var normalizeProperty = __dependency7__.normalizeProperty;
-
-    var svgNamespaceURI = 'http://www.w3.org/2000/svg';
-
-    var unquotedAttrNodeTypes = o_create(null);
-    unquotedAttrNodeTypes['class'] = UnquotedNonpropertyAttrNode;
-
-    var quotedAttrNodeTypes = o_create(null);
-
-    for (var attrName in badAttributes) {
-      unquotedAttrNodeTypes[attrName] = SanitizedAttrNode;
-      quotedAttrNodeTypes[attrName] = SanitizedAttrNode;
-    }
-
-    __exports__["default"] = function attrNodeTypeFor(attrName, element, quoted) {
-      var result;
-      if (quoted) {
-        result = quotedAttrNodeTypes[attrName];
-        if (!result) {
-          result = QuotedAttrNode;
-          quotedAttrNodeTypes[attrName] = result;
-        }
-      } else {
-        result = unquotedAttrNodeTypes[attrName];
-        if (!result) {
-          if (element.namespaceURI === svgNamespaceURI) {
-            result = UnquotedNonpropertyAttrNode;
-          } else {
-            var normalized = normalizeProperty(element, attrName);
-            if (normalized) {
-              result = UnquotedAttrNode;
-            } else {
-              result = UnquotedNonpropertyAttrNode;
-            }
-          }
-          unquotedAttrNodeTypes[attrName] = result;
-        }
-      }
-
-      return result;
-    }
-  });
-enifed("ember-htmlbars/attr_nodes/legacy_bind",
-  ["ember-runtime/system/string","ember-metal/utils","ember-metal/is_none","./simple","ember-metal/platform","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-htmlbars
-    */
-
-    var fmt = __dependency1__.fmt;
-    var typeOf = __dependency2__.typeOf;
-    var isNone = __dependency3__["default"];
-    var SimpleAttrNode = __dependency4__["default"];
-    var o_create = __dependency5__.create;
-
-    function LegacyBindAttrNode(element, attrName, attrValue, dom) {
-      this.init(element, attrName, attrValue, dom);
-    }
-
-    LegacyBindAttrNode.prototype = o_create(SimpleAttrNode.prototype);
-
-    LegacyBindAttrNode.prototype.super$init = SimpleAttrNode.prototype.init;
-
-    LegacyBindAttrNode.prototype.render = function render() {
-      var name = this.attrName;
-      var value = this.currentValue;
-      var type = typeOf(value);
-
-      
-      // if this changes, also change the logic in ember-handlebars/lib/helpers/binding.js
-      if (name !== 'value' && (type === 'string' || (type === 'number' && !isNaN(value)))) {
-        this.dom.setAttribute(this.element, name, value);
-      } else if (name === 'value' || type === 'boolean') {
-        if (isNone(value) || value === false) {
-          // `null`, `undefined` or `false` should remove attribute
-          this.dom.removeAttribute(this.element, name);
-          // In IE8 `prop` couldn't remove attribute when name is `required`.
-          if (name === 'required') {
-            this.dom.setProperty(this.element, name, null);
-          } else {
-            this.dom.setProperty(this.element, name, '');
-          }
-        } else {
-          // value should always be properties
-          this.dom.setProperty(this.element, name, value);
-        }
-      } else if (!value) {
-        if (this.lastValue !== null) {
-          this.dom.removeAttribute(this.element, name);
-        }
-      }
-    };
-
-    __exports__["default"] = LegacyBindAttrNode;
-  });
-enifed("ember-htmlbars/attr_nodes/quoted",
-  ["./simple","ember-metal/platform","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-htmlbars
-    */
-
-    var SimpleAttrNode = __dependency1__["default"];
-    var o_create = __dependency2__.create;
-
-    function QuotedAttrNode(element, attrName, attrValue, dom) {
-      this.init(element, attrName, attrValue, dom);
-    }
-
-    QuotedAttrNode.prototype = o_create(SimpleAttrNode.prototype);
-
-    QuotedAttrNode.prototype.render = function render(){
-      this.dom.setAttribute(this.element, this.attrName, this.currentValue);
-    };
-
-    __exports__["default"] = QuotedAttrNode;
-  });
-enifed("ember-htmlbars/attr_nodes/sanitized",
-  ["./simple","ember-metal/platform","ember-metal/streams/utils","ember-views/system/sanitize_attribute_value","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-htmlbars
-    */
-
-    var SimpleAttrNode = __dependency1__["default"];
-    var o_create = __dependency2__.create;
-    var chainStream = __dependency3__.chainStream;
-    var read = __dependency3__.read;
-    var sanitizeAttributeValue = __dependency4__["default"];
-
-    function SanitizedAttrNode(element, attrName, attrValue, dom) {
-      var sanitizedValue = chainStream(attrValue, function(){
-        var unsafeValue = read(attrValue);
-        var safeValue = sanitizeAttributeValue(element, attrName, unsafeValue);
-
-        return safeValue;
-      });
-
-      this.init(element, attrName, sanitizedValue, dom);
-    }
-
-    SanitizedAttrNode.prototype = o_create(SimpleAttrNode.prototype);
-
-    __exports__["default"] = SanitizedAttrNode;
-  });
-enifed("ember-htmlbars/attr_nodes/simple",
-  ["ember-metal/run_loop","exports"],
-  function(__dependency1__, __exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-htmlbars
-    */
-
-    var run = __dependency1__["default"];
-
-    function SimpleAttrNode() {
-      // abstract class
-    }
-
-    SimpleAttrNode.prototype.init = function init(element, attrName, simpleAttrValue, dom){
-      this.element = element;
-      this.attrName = attrName;
-      this.attrValue = simpleAttrValue;
-      this.dom = dom;
-      this.isDirty = true;
-      this.lastValue = null;
-      this.currentValue = null;
-
-      if (this.attrValue.isStream) {
-        this.attrValue.subscribe(this.markDirty, this);
-        this.renderIfDirty();
-      } else {
-        this.currentValue = simpleAttrValue;
-        this.render();
-      }
-    };
-
-    SimpleAttrNode.prototype.markDirty = function markDirty(){
-      this.isDirty = true;
-      run.schedule('render', this, this.renderIfDirty);
-    };
-
-    SimpleAttrNode.prototype.renderIfDirty = function renderIfDirty(){
-      if (this.isDirty) {
-        this.isDirty = false;
-        var value = this.attrValue.value();
-        if (value !== this.currentValue) {
-          this.lastValue = this.currentValue;
-          this.currentValue = value;
-          this.render();
-        }
-      }
-    };
-
-    SimpleAttrNode.prototype.render = function render(){
-      this.dom.setProperty(this.element, this.attrName, this.currentValue);
-    };
-
-    __exports__["default"] = SimpleAttrNode;
-  });
-enifed("ember-htmlbars/attr_nodes/unquoted",
-  ["./simple","ember-metal/platform","ember-htmlbars/attr_nodes/utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-htmlbars
-    */
-
-    var SimpleAttrNode = __dependency1__["default"];
-    var o_create = __dependency2__.create;
-    var normalizeProperty = __dependency3__.normalizeProperty;
-
-    function UnquotedAttrNode(element, attrName, attrValue, dom) {
-      var normalizedAttrName = normalizeProperty(element, attrName) || attrName;
-      this.init(element, normalizedAttrName, attrValue, dom);
-    }
-
-    UnquotedAttrNode.prototype = o_create(SimpleAttrNode.prototype);
-
-    __exports__["default"] = UnquotedAttrNode;
-  });
-enifed("ember-htmlbars/attr_nodes/unquoted_nonproperty",
-  ["./simple","ember-metal/platform","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-htmlbars
-    */
-
-    var SimpleAttrNode = __dependency1__["default"];
-    var o_create = __dependency2__.create;
-
-    function UnquotedNonpropertyAttrNode(element, attrName, attrValue, dom) {
-      this.init(element, attrName, attrValue, dom);
-    }
-
-    UnquotedNonpropertyAttrNode.prototype = o_create(SimpleAttrNode.prototype);
-
-    UnquotedNonpropertyAttrNode.prototype.render = function render(){
-      if (this.currentValue === null) {
-        if (this.lastValue !== null) {
-          this.dom.removeAttribute(this.element, this.attrName);
-        }
-      } else {
-        this.dom.setAttribute(this.element, this.attrName, this.currentValue);
-      }
-    };
-
-    __exports__["default"] = UnquotedNonpropertyAttrNode;
-  });
-enifed("ember-htmlbars/attr_nodes/utils",
-  ["ember-metal/platform","ember-metal/keys","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
-    "use strict";
-    var o_create = __dependency1__.create;
-    var keys = __dependency2__["default"];
-
-    var propertyCaches = o_create(null);
-    __exports__.propertyCaches = propertyCaches;
-    function normalizeProperty(element, attrName) {
-      var tagName = element.tagName;
-      var cache = propertyCaches[tagName];
-      if (!cache) {
-        cache = o_create(null);
-        var properties = keys(element);
-        for (var i=0, l=properties.length;i<l;i++) {
-          cache[properties[i].toLowerCase()] = properties[i];
-        }
-        propertyCaches[tagName] = cache;
-      }
-
-      return cache[attrName.toLowerCase()];
-    }
-
-    __exports__.normalizeProperty = normalizeProperty;
   });
 enifed("ember-htmlbars/compat",
   ["ember-metal/core","ember-htmlbars/helpers","ember-template-compiler","ember-htmlbars/compat/helper","ember-htmlbars/compat/handlebars-get","ember-htmlbars/compat/make-bound-helper","ember-htmlbars/compat/register-bound-helper","ember-htmlbars/compat/precompile","ember-htmlbars/system/make-view-helper","ember-htmlbars/utils/string","exports"],
@@ -5521,8 +5225,8 @@ enifed("ember-htmlbars/helpers",
     __exports__.registerBoundHelper = registerBoundHelper;__exports__["default"] = helpers;
   });
 enifed("ember-htmlbars/helpers/bind-attr",
-  ["ember-metal/core","ember-runtime/system/string","ember-htmlbars/attr_nodes/quoted","ember-htmlbars/attr_nodes/legacy_bind","ember-views/system/sanitize_attribute_value","ember-htmlbars/attr_nodes/sanitized","ember-metal/keys","ember-htmlbars/helpers","ember-metal/enumerable_utils","ember-metal/streams/utils","ember-views/streams/class_name_binding","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __exports__) {
+  ["ember-metal/core","ember-runtime/system/string","ember-views/attr_nodes/attr_node","ember-views/attr_nodes/legacy_bind","ember-metal/keys","ember-htmlbars/helpers","ember-metal/enumerable_utils","ember-metal/streams/utils","ember-views/streams/class_name_binding","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -5533,16 +5237,14 @@ enifed("ember-htmlbars/helpers/bind-attr",
     // Ember.assert
 
     var fmt = __dependency2__.fmt;
-    var QuotedAttrNode = __dependency3__["default"];
+    var AttrNode = __dependency3__["default"];
     var LegacyBindAttrNode = __dependency4__["default"];
-    var badAttributes = __dependency5__.badAttributes;
-    var SanitizedAttrNode = __dependency6__["default"];
-    var keys = __dependency7__["default"];
-    var helpers = __dependency8__["default"];
-    var map = __dependency9__.map;
-    var isStream = __dependency10__.isStream;
-    var concat = __dependency10__.concat;
-    var streamifyClassNameBinding = __dependency11__.streamifyClassNameBinding;
+    var keys = __dependency5__["default"];
+    var helpers = __dependency6__["default"];
+    var map = __dependency7__.map;
+    var isStream = __dependency8__.isStream;
+    var concat = __dependency8__.concat;
+    var streamifyClassNameBinding = __dependency9__.streamifyClassNameBinding;
 
     /**
       `bind-attr` allows you to create a binding between DOM element attributes and
@@ -5676,31 +5378,33 @@ enifed("ember-htmlbars/helpers/bind-attr",
       // Handle classes differently, as we can bind multiple classes
       var classNameBindings = hash['class'];
       if (classNameBindings !== null && classNameBindings !== undefined) {
-        if (isStream(classNameBindings)) {
-          new QuotedAttrNode(element, 'class', classNameBindings, env.dom);
-        } else {
-          var classNameBindingsStream = applyClassNameBindings(classNameBindings, view);
-          new QuotedAttrNode(element, 'class', classNameBindingsStream, env.dom);
+        if (!isStream(classNameBindings)) {
+          classNameBindings = applyClassNameBindings(classNameBindings, view);
         }
-        delete hash['class'];
+
+        var classView = new AttrNode('class', classNameBindings);
+        classView._morph = env.dom.createAttrMorph(element, 'class');
+        view.appendChild(classView);
       }
 
       var attrKeys = keys(hash);
 
-      var attr, path, lazyValue;
+      var attr, path, lazyValue, attrView;
       for (var i=0, l=attrKeys.length;i<l;i++) {
         attr = attrKeys[i];
+        if (attr === 'class') {
+          continue;
+        }
         path = hash[attr];
         if (isStream(path)) {
           lazyValue = path;
         } else {
                     lazyValue = view.getStream(path);
         }
-        if (badAttributes[attr]) {
-          new SanitizedAttrNode(element, attr, lazyValue, env.dom);
-        } else {
-          new LegacyBindAttrNode(element, attr, lazyValue, env.dom);
-        }
+
+        attrView = new LegacyBindAttrNode(attr, lazyValue);
+        attrView._morph = env.dom.createAttrMorph(element, attr);
+        view.appendChild(attrView);
       }
     }
 
@@ -6003,10 +5707,10 @@ enifed("ember-htmlbars/helpers/collection",
 
       
       
-      var data      = env.data;
-      var  template  = options.template;
-      var  inverse   = options.inverse;
-      var  view      = data.view;
+      var data     = env.data;
+      var template = options.template;
+      var inverse  = options.inverse;
+      var view     = data.view;
 
       // This should be deterministic, and should probably come from a
       // parent view and not the controller.
@@ -6335,7 +6039,7 @@ enifed("ember-htmlbars/helpers/each",
       var path = params[0] || this.getStream('');
 
       
-      if (options.blockParams) {
+      if (options.template && options.template.blockParams) {
         hash.keyword = true;
       }
 
@@ -7656,7 +7360,7 @@ enifed("ember-htmlbars/helpers/with",
       
       var preserveContext;
 
-      if (options.blockParams) {
+      if (options.template.blockParams) {
         preserveContext = true;
       } else {
                 preserveContext = false;
@@ -7783,7 +7487,7 @@ enifed("ember-htmlbars/helpers/yield",
     __exports__.yieldHelper = yieldHelper;
   });
 enifed("ember-htmlbars/hooks/attribute",
-  ["ember-htmlbars/attr_nodes","ember-metal/error","ember-metal/streams/utils","ember-views/system/sanitize_attribute_value","exports"],
+  ["ember-views/attr_nodes/attr_node","ember-metal/error","ember-metal/streams/utils","ember-views/system/sanitize_attribute_value","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     /**
@@ -7791,7 +7495,7 @@ enifed("ember-htmlbars/hooks/attribute",
     @submodule ember-htmlbars
     */
 
-    var attrNodeTypeFor = __dependency1__["default"];
+    var AttrNode = __dependency1__["default"];
     var EmberError = __dependency2__["default"];
     var isStream = __dependency3__.isStream;
     var sanitizeAttributeValue = __dependency4__["default"];
@@ -7799,17 +7503,49 @@ enifed("ember-htmlbars/hooks/attribute",
     var boundAttributesEnabled = false;
 
     
-    __exports__["default"] = function attribute(element, attrName, quoted, view, attrValue, options, env) {
+    __exports__["default"] = function attribute(env, morph, element, attrName, attrValue) {
       if (boundAttributesEnabled) {
-        var AttrNode = attrNodeTypeFor(attrName, element, quoted);
-        new AttrNode(element, attrName, attrValue, env.dom);
+        var attrNode = new AttrNode(attrName, attrValue);
+        attrNode._morph = morph;
+        env.data.view.appendChild(attrNode);
       } else {
         if (isStream(attrValue)) {
           throw new EmberError('Bound attributes are not yet supported in Ember.js');
         } else {
           var sanitizedValue = sanitizeAttributeValue(element, attrName, attrValue);
-          env.dom.setAttribute(element, attrName, sanitizedValue);
+          env.dom.setProperty(element, attrName, sanitizedValue);
         }
+      }
+    }
+  });
+enifed("ember-htmlbars/hooks/block",
+  ["ember-views/views/simple_bound_view","ember-metal/streams/utils","ember-htmlbars/system/lookup-helper","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
+    var appendSimpleBoundView = __dependency1__.appendSimpleBoundView;
+    var isStream = __dependency2__.isStream;
+    var lookupHelper = __dependency3__["default"];
+
+    __exports__["default"] = function block(env, morph, view, path, params, hash, template, inverse) {
+      var helper = lookupHelper(path, view, env);
+
+      var options = {
+        morph: morph,
+        template: template,
+        inverse: inverse,
+        isBlock: true
+      };
+      var result = helper.helperFunction.call(view, params, hash, options, env);
+
+      if (isStream(result)) {
+        appendSimpleBoundView(view, morph, result);
+      } else {
+        morph.setContent(result);
       }
     }
   });
@@ -7825,12 +7561,11 @@ enifed("ember-htmlbars/hooks/component",
     var Ember = __dependency1__["default"];
     var lookupHelper = __dependency2__["default"];
 
-    __exports__["default"] = function component(morph, tagName, view, hash, options, env) {
-      var params = [];
+    __exports__["default"] = function component(env, morph, view, tagName, attrs, template) {
       var helper = lookupHelper(tagName, view, env);
 
       
-      return helper.helperFunction.call(view, params, hash, options, env);
+      return helper.helperFunction.call(view, [], attrs, {morph: morph, template: template}, env);
     }
   });
 enifed("ember-htmlbars/hooks/concat",
@@ -7844,12 +7579,12 @@ enifed("ember-htmlbars/hooks/concat",
 
     var streamConcat = __dependency1__.concat;
 
-    __exports__["default"] = function concat(params) {
-      return streamConcat(params, '');
+    __exports__["default"] = function concat(env, parts) {
+      return streamConcat(parts, '');
     }
   });
 enifed("ember-htmlbars/hooks/content",
-  ["ember-htmlbars/hooks/subexpr","ember-views/views/simple_bound_view","ember-metal/streams/utils","exports"],
+  ["ember-views/views/simple_bound_view","ember-metal/streams/utils","ember-htmlbars/system/lookup-helper","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     /**
@@ -7857,17 +7592,28 @@ enifed("ember-htmlbars/hooks/content",
     @submodule ember-htmlbars
     */
 
-    var subexpr = __dependency1__["default"];
-    var appendSimpleBoundView = __dependency2__.appendSimpleBoundView;
-    var isStream = __dependency3__.isStream;
+    var appendSimpleBoundView = __dependency1__.appendSimpleBoundView;
+    var isStream = __dependency2__.isStream;
+    var lookupHelper = __dependency3__["default"];
 
-    __exports__["default"] = function content(morph, path, view, params, hash, options, env) {
-      var result = subexpr(path, view, params, hash, options, env);
+    __exports__["default"] = function content(env, morph, view, path) {
+      var helper = lookupHelper(path, view, env);
+      var result;
+
+      if (helper) {
+        var options = {
+          morph: morph,
+          isInline: true
+        };
+        result = helper.helperFunction.call(view, [], {}, options, env);
+      } else {
+        result = view.getStream(path);
+      }
 
       if (isStream(result)) {
         appendSimpleBoundView(view, morph, result);
       } else {
-        morph.update(result);
+        morph.setContent(result);
       }
     }
   });
@@ -7882,10 +7628,13 @@ enifed("ember-htmlbars/hooks/element",
 
     var lookupHelper = __dependency1__["default"];
 
-    __exports__["default"] = function element(domElement, path, view, params, hash, options, env) { //jshint ignore:line
+    __exports__["default"] = function element(env, domElement, view, path, params, hash) { //jshint ignore:line
       var helper = lookupHelper(path, view, env);
 
       if (helper) {
+        var options = {
+          element: domElement
+        };
         return helper.helperFunction.call(view, params, hash, options, env);
       } else {
         return view.getStream(path);
@@ -7901,8 +7650,34 @@ enifed("ember-htmlbars/hooks/get",
     @submodule ember-htmlbars
     */
 
-    __exports__["default"] = function get(view, path) {
+    __exports__["default"] = function get(env, view, path) {
       return view.getStream(path);
+    }
+  });
+enifed("ember-htmlbars/hooks/inline",
+  ["ember-views/views/simple_bound_view","ember-metal/streams/utils","ember-htmlbars/system/lookup-helper","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
+    var appendSimpleBoundView = __dependency1__.appendSimpleBoundView;
+    var isStream = __dependency2__.isStream;
+    var lookupHelper = __dependency3__["default"];
+
+    __exports__["default"] = function inline(env, morph, view, path, params, hash) {
+      var helper = lookupHelper(path, view, env);
+
+      
+      var result = helper.helperFunction.call(view, params, hash, {morph: morph}, env);
+
+      if (isStream(result)) {
+        appendSimpleBoundView(view, morph, result);
+      } else {
+        morph.setContent(result);
+      }
     }
   });
 enifed("ember-htmlbars/hooks/set",
@@ -7917,7 +7692,7 @@ enifed("ember-htmlbars/hooks/set",
     var Ember = __dependency1__["default"];
     var EmberError = __dependency2__["default"];
 
-    __exports__["default"] = function set(view, name, value) {
+    __exports__["default"] = function set(env, view, name, value) {
       
         view._keywords[name] = value;
           }
@@ -7933,14 +7708,14 @@ enifed("ember-htmlbars/hooks/subexpr",
 
     var lookupHelper = __dependency1__["default"];
 
-    __exports__["default"] = function subexpr(path, view, params, hash, options, env) {
+    __exports__["default"] = function subexpr(env, view, path, params, hash) {
       var helper = lookupHelper(path, view, env);
 
-      if (helper) {
-        return helper.helperFunction.call(view, params, hash, options, env);
-      } else {
-        return view.getStream(path);
-      }
+      
+      var options = {
+        isInline: true
+      };
+      return helper.helperFunction.call(view, params, hash, options, env);
     }
   });
 enifed("ember-htmlbars/system/bootstrap",
@@ -8286,7 +8061,9 @@ enifed("ember-htmlbars/templates/component",
     var t = (function() {
       return {
         isHTMLBars: true,
+        blockParams: 0,
         cachedFragment: null,
+        hasRendered: false,
         build: function build(dom) {
           var el0 = dom.createDocumentFragment();
           var el1 = dom.createTextNode("");
@@ -8299,13 +8076,21 @@ enifed("ember-htmlbars/templates/component",
           var dom = env.dom;
           var hooks = env.hooks, content = hooks.content;
           dom.detectNamespace(contextualElement);
+          var fragment;
           if (this.cachedFragment === null) {
-            this.cachedFragment = this.build(dom);
+            fragment = this.build(dom);
+            if (this.hasRendered) {
+              this.cachedFragment = fragment;
+            } else {
+              this.hasRendered = true;
+            }
           }
-          var fragment = dom.cloneNode(this.cachedFragment, true);
+          if (this.cachedFragment) {
+            fragment = dom.cloneNode(this.cachedFragment, true);
+          }
           dom.repairClonedNode(fragment,[0,1]);
           var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
-          content(morph0, "yield", context, [], {}, {morph: morph0}, env);
+          content(env, morph0, context, "yield");
           return fragment;
         }
       };
@@ -8321,22 +8106,32 @@ enifed("ember-htmlbars/templates/select",
       var child0 = (function() {
         return {
           isHTMLBars: true,
+          blockParams: 0,
           cachedFragment: null,
+          hasRendered: false,
           build: function build(dom) {
             var el0 = dom.createElement("option");
-            dom.setAttribute(el0,"value","");
+            dom.setProperty(el0,"value","");
             return el0;
           },
           render: function render(context, env, contextualElement) {
             var dom = env.dom;
             var hooks = env.hooks, content = hooks.content;
             dom.detectNamespace(contextualElement);
+            var fragment;
             if (this.cachedFragment === null) {
-              this.cachedFragment = this.build(dom);
+              fragment = this.build(dom);
+              if (this.hasRendered) {
+                this.cachedFragment = fragment;
+              } else {
+                this.hasRendered = true;
+              }
             }
-            var fragment = dom.cloneNode(this.cachedFragment, true);
+            if (this.cachedFragment) {
+              fragment = dom.cloneNode(this.cachedFragment, true);
+            }
             var morph0 = dom.createMorphAt(fragment,-1,-1);
-            content(morph0, "view.prompt", context, [], {}, {morph: morph0}, env);
+            content(env, morph0, context, "view.prompt");
             return fragment;
           }
         };
@@ -8345,7 +8140,9 @@ enifed("ember-htmlbars/templates/select",
         var child0 = (function() {
           return {
             isHTMLBars: true,
+            blockParams: 0,
             cachedFragment: null,
+            hasRendered: false,
             build: function build(dom) {
               var el0 = dom.createDocumentFragment();
               var el1 = dom.createTextNode("");
@@ -8356,22 +8153,32 @@ enifed("ember-htmlbars/templates/select",
             },
             render: function render(context, env, contextualElement) {
               var dom = env.dom;
-              var hooks = env.hooks, get = hooks.get, content = hooks.content;
+              var hooks = env.hooks, get = hooks.get, inline = hooks.inline;
               dom.detectNamespace(contextualElement);
+              var fragment;
               if (this.cachedFragment === null) {
-                this.cachedFragment = this.build(dom);
+                fragment = this.build(dom);
+                if (this.hasRendered) {
+                  this.cachedFragment = fragment;
+                } else {
+                  this.hasRendered = true;
+                }
               }
-              var fragment = dom.cloneNode(this.cachedFragment, true);
+              if (this.cachedFragment) {
+                fragment = dom.cloneNode(this.cachedFragment, true);
+              }
               dom.repairClonedNode(fragment,[0,1]);
               var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
-              content(morph0, "view", context, [get(context, "view.groupView", env)], {"content": get(context, "group.content", env), "label": get(context, "group.label", env)}, {morph: morph0}, env);
+              inline(env, morph0, context, "view", [get(env, context, "view.groupView")], {"content": get(env, context, "group.content"), "label": get(env, context, "group.label")});
               return fragment;
             }
           };
         }());
         return {
           isHTMLBars: true,
+          blockParams: 0,
           cachedFragment: null,
+          hasRendered: false,
           build: function build(dom) {
             var el0 = dom.createDocumentFragment();
             var el1 = dom.createTextNode("");
@@ -8382,15 +8189,23 @@ enifed("ember-htmlbars/templates/select",
           },
           render: function render(context, env, contextualElement) {
             var dom = env.dom;
-            var hooks = env.hooks, get = hooks.get, content = hooks.content;
+            var hooks = env.hooks, get = hooks.get, block = hooks.block;
             dom.detectNamespace(contextualElement);
+            var fragment;
             if (this.cachedFragment === null) {
-              this.cachedFragment = this.build(dom);
+              fragment = this.build(dom);
+              if (this.hasRendered) {
+                this.cachedFragment = fragment;
+              } else {
+                this.hasRendered = true;
+              }
             }
-            var fragment = dom.cloneNode(this.cachedFragment, true);
+            if (this.cachedFragment) {
+              fragment = dom.cloneNode(this.cachedFragment, true);
+            }
             dom.repairClonedNode(fragment,[0,1]);
             var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
-            content(morph0, "each", context, [get(context, "view.groupedContent", env)], {"keyword": "group"}, {morph: morph0, template: child0}, env);
+            block(env, morph0, context, "each", [get(env, context, "view.groupedContent")], {"keyword": "group"}, child0, null);
             return fragment;
           }
         };
@@ -8399,7 +8214,9 @@ enifed("ember-htmlbars/templates/select",
         var child0 = (function() {
           return {
             isHTMLBars: true,
+            blockParams: 0,
             cachedFragment: null,
+            hasRendered: false,
             build: function build(dom) {
               var el0 = dom.createDocumentFragment();
               var el1 = dom.createTextNode("");
@@ -8410,22 +8227,32 @@ enifed("ember-htmlbars/templates/select",
             },
             render: function render(context, env, contextualElement) {
               var dom = env.dom;
-              var hooks = env.hooks, get = hooks.get, content = hooks.content;
+              var hooks = env.hooks, get = hooks.get, inline = hooks.inline;
               dom.detectNamespace(contextualElement);
+              var fragment;
               if (this.cachedFragment === null) {
-                this.cachedFragment = this.build(dom);
+                fragment = this.build(dom);
+                if (this.hasRendered) {
+                  this.cachedFragment = fragment;
+                } else {
+                  this.hasRendered = true;
+                }
               }
-              var fragment = dom.cloneNode(this.cachedFragment, true);
+              if (this.cachedFragment) {
+                fragment = dom.cloneNode(this.cachedFragment, true);
+              }
               dom.repairClonedNode(fragment,[0,1]);
               var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
-              content(morph0, "view", context, [get(context, "view.optionView", env)], {"content": get(context, "item", env)}, {morph: morph0}, env);
+              inline(env, morph0, context, "view", [get(env, context, "view.optionView")], {"content": get(env, context, "item")});
               return fragment;
             }
           };
         }());
         return {
           isHTMLBars: true,
+          blockParams: 0,
           cachedFragment: null,
+          hasRendered: false,
           build: function build(dom) {
             var el0 = dom.createDocumentFragment();
             var el1 = dom.createTextNode("");
@@ -8436,22 +8263,32 @@ enifed("ember-htmlbars/templates/select",
           },
           render: function render(context, env, contextualElement) {
             var dom = env.dom;
-            var hooks = env.hooks, get = hooks.get, content = hooks.content;
+            var hooks = env.hooks, get = hooks.get, block = hooks.block;
             dom.detectNamespace(contextualElement);
+            var fragment;
             if (this.cachedFragment === null) {
-              this.cachedFragment = this.build(dom);
+              fragment = this.build(dom);
+              if (this.hasRendered) {
+                this.cachedFragment = fragment;
+              } else {
+                this.hasRendered = true;
+              }
             }
-            var fragment = dom.cloneNode(this.cachedFragment, true);
+            if (this.cachedFragment) {
+              fragment = dom.cloneNode(this.cachedFragment, true);
+            }
             dom.repairClonedNode(fragment,[0,1]);
             var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
-            content(morph0, "each", context, [get(context, "view.content", env)], {"keyword": "item"}, {morph: morph0, template: child0}, env);
+            block(env, morph0, context, "each", [get(env, context, "view.content")], {"keyword": "item"}, child0, null);
             return fragment;
           }
         };
       }());
       return {
         isHTMLBars: true,
+        blockParams: 0,
         cachedFragment: null,
+        hasRendered: false,
         build: function build(dom) {
           var el0 = dom.createDocumentFragment();
           var el1 = dom.createTextNode("");
@@ -8464,17 +8301,25 @@ enifed("ember-htmlbars/templates/select",
         },
         render: function render(context, env, contextualElement) {
           var dom = env.dom;
-          var hooks = env.hooks, get = hooks.get, content = hooks.content;
+          var hooks = env.hooks, get = hooks.get, block = hooks.block;
           dom.detectNamespace(contextualElement);
+          var fragment;
           if (this.cachedFragment === null) {
-            this.cachedFragment = this.build(dom);
+            fragment = this.build(dom);
+            if (this.hasRendered) {
+              this.cachedFragment = fragment;
+            } else {
+              this.hasRendered = true;
+            }
           }
-          var fragment = dom.cloneNode(this.cachedFragment, true);
+          if (this.cachedFragment) {
+            fragment = dom.cloneNode(this.cachedFragment, true);
+          }
           dom.repairClonedNode(fragment,[0,1]);
           var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
           var morph1 = dom.createMorphAt(fragment,1,2,contextualElement);
-          content(morph0, "if", context, [get(context, "view.prompt", env)], {}, {morph: morph0, template: child0}, env);
-          content(morph1, "if", context, [get(context, "view.optionGroupPath", env)], {}, {morph: morph1, template: child1, inverse: child2}, env);
+          block(env, morph0, context, "if", [get(env, context, "view.prompt")], {}, child0, null);
+          block(env, morph1, context, "if", [get(env, context, "view.optionGroupPath")], {}, child1, child2);
           return fragment;
         }
       };
@@ -8619,7 +8464,7 @@ enifed("ember-metal-views/renderer",
           // was previously called on a view.
           contextualElement = document.body;
         }
-                element = this.createElement(view, contextualElement);
+        element = this.createElement(view, contextualElement);
 
         parents[level++] = parentIndex;
         parentIndex = index;
@@ -8786,7 +8631,7 @@ enifed("ember-metal-views/renderer",
       }
 
       if (view._morph) {
-        view._morph.update(element);
+        view._morph.setContent(element);
       } else if (parentView) {
         if (index === -1) {
           view._morph = parentView._childViewsMorph.append(element);
@@ -11681,7 +11526,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.3+pre.ceb7a844
+      @version 1.10.0-beta.3+pre.8613522a
     */
 
     if ('undefined' === typeof Ember) {
@@ -11708,10 +11553,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.3+pre.ceb7a844'
+      @default '1.10.0-beta.3+pre.8613522a'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.3+pre.ceb7a844';
+    Ember.VERSION = '1.10.0-beta.3+pre.8613522a';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -36365,6 +36210,107 @@ enifed("ember-views",
 
     __exports__["default"] = Ember;
   });
+enifed("ember-views/attr_nodes/attr_node",
+  ["ember-metal/streams/utils","ember-metal/run_loop","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
+    var read = __dependency1__.read;
+    var subscribe = __dependency1__.subscribe;
+    var unsubscribe = __dependency1__.unsubscribe;
+    var run = __dependency2__["default"];
+
+    function AttrNode(attrName, attrValue) {
+      this.init(attrName, attrValue);
+    }
+
+    AttrNode.prototype.init = function init(attrName, simpleAttrValue){
+      this.isView = true;
+
+      // That these semantics are used is very unfortunate.
+      this.tagName = '';
+      this.classNameBindings = [];
+
+      this.attrName = attrName;
+      this.attrValue = simpleAttrValue;
+      this.isDirty = true;
+      this.lastValue = null;
+
+      subscribe(this.attrValue, this.rerender, this);
+    };
+
+    AttrNode.prototype.renderIfDirty = function renderIfDirty(){
+      if (this.isDirty) {
+        var value = read(this.attrValue);
+        if (value !== this.lastValue) {
+          this._renderer.renderTree(this, this._parentView);
+        } else {
+          this.isDirty = false;
+        }
+      }
+    };
+
+    AttrNode.prototype.render = function render(buffer) {
+      this.isDirty = false;
+      var value = read(this.attrValue);
+
+      this._morph.setContent(value);
+
+      this.lastValue = value;
+    };
+
+    AttrNode.prototype.rerender = function render() {
+      this.isDirty = true;
+      run.schedule('render', this, this.renderIfDirty);
+    };
+
+    AttrNode.prototype.destroy = function render() {
+      this.isDirty = false;
+      unsubscribe(this.attrValue, this.rerender, this);
+
+      var parent = this._parentView;
+      if (parent) { parent.removeChild(this); }
+    };
+
+    __exports__["default"] = AttrNode;
+  });
+enifed("ember-views/attr_nodes/legacy_bind",
+  ["./attr_node","ember-runtime/system/string","ember-metal/utils","ember-metal/streams/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+
+    var AttrNode = __dependency1__["default"];
+    var fmt = __dependency2__.fmt;
+    var typeOf = __dependency3__.typeOf;
+    var read = __dependency4__.read;
+
+    function LegacyBindAttrNode(attrName, attrValue) {
+      this.init(attrName, attrValue);
+    }
+
+    LegacyBindAttrNode.prototype = AttrNode.prototype;
+
+    LegacyBindAttrNode.prototype.render = function render(buffer) {
+      this.isDirty = false;
+      var value = read(this.attrValue);
+      var type = typeOf(value);
+
+      
+      this._morph.setContent(value);
+
+      this.lastValue = value;
+    };
+
+    __exports__["default"] = LegacyBindAttrNode;
+  });
 enifed("ember-views/component_lookup",
   ["ember-runtime/system/object","exports"],
   function(__dependency1__, __exports__) {
@@ -38092,7 +38038,7 @@ enifed("ember-views/system/render_buffer",
 
         if (props) {
           for (prop in props) {
-            this.dom.setProperty(element, prop, props[prop]);
+            this.dom.setPropertyStrict(element, prop, props[prop]);
           }
 
           this.elementProperties = null;
@@ -40937,7 +40883,7 @@ enifed("ember-views/views/simple_bound_view",
         // doesn't diff SafeString instances
         if (value !== this._lastNormalizedValue) {
           this._lastNormalizedValue = value;
-          this._morph.update(value);
+          this._morph.setContent(value);
         }
       },
 
@@ -43818,6 +43764,11 @@ enifed("htmlbars-compiler/fragment-javascript-compiler",
     var processOpcodes = __dependency1__.processOpcodes;
     var string = __dependency2__.string;
 
+    var svgNamespace = "http://www.w3.org/2000/svg",
+    // http://www.w3.org/html/wg/drafts/html/master/syntax.html#html-integration-point
+        svgHTMLIntegrationPoints = {'foreignObject':true, 'desc':true, 'title':true};
+
+
     function FragmentJavaScriptCompiler() {
       this.source = [];
       this.depth = -1;
@@ -43829,6 +43780,8 @@ enifed("htmlbars-compiler/fragment-javascript-compiler",
       this.source.length = 0;
       this.depth = -1;
       this.indent = (options && options.indent) || "";
+      this.namespaceFrameStack = [{namespace: null, depth: null}];
+      this.domNamespace = null;
 
       this.source.push('function build(dom) {\n');
       processOpcodes(this, opcodes);
@@ -43844,7 +43797,14 @@ enifed("htmlbars-compiler/fragment-javascript-compiler",
 
     FragmentJavaScriptCompiler.prototype.createElement = function(tagName) {
       var el = 'el'+(++this.depth);
+      if (tagName === 'svg') {
+        this.pushNamespaceFrame({namespace: svgNamespace, depth: this.depth});
+      }
+      this.ensureNamespace();
       this.source.push(this.indent+'  var '+el+' = dom.createElement('+string(tagName)+');\n');
+      if (svgHTMLIntegrationPoints[tagName]) {
+        this.pushNamespaceFrame({namespace: null, depth: this.depth});
+      }
     };
 
     FragmentJavaScriptCompiler.prototype.createText = function(str) {
@@ -43864,17 +43824,36 @@ enifed("htmlbars-compiler/fragment-javascript-compiler",
 
     FragmentJavaScriptCompiler.prototype.setAttribute = function(name, value) {
       var el = 'el'+this.depth;
-      this.source.push(this.indent+'  dom.setAttribute('+el+','+string(name)+','+string(value)+');\n');
+      this.source.push(this.indent+'  dom.setProperty('+el+','+string(name)+','+string(value)+');\n');
     };
 
     FragmentJavaScriptCompiler.prototype.appendChild = function() {
+      if (this.depth === this.getCurrentNamespaceFrame().depth) {
+        this.popNamespaceFrame();
+      }
       var child = 'el'+(this.depth--);
       var el = 'el'+this.depth;
       this.source.push(this.indent+'  dom.appendChild('+el+', '+child+');\n');
     };
 
-    FragmentJavaScriptCompiler.prototype.setNamespace = function(namespace) {
-      this.source.push(this.indent+'  dom.setNamespace('+(namespace ? string(namespace) : 'null')+');\n');
+    FragmentJavaScriptCompiler.prototype.getCurrentNamespaceFrame = function() {
+      return this.namespaceFrameStack[this.namespaceFrameStack.length-1];
+    };
+
+    FragmentJavaScriptCompiler.prototype.pushNamespaceFrame = function(frame) {
+      this.namespaceFrameStack.push(frame);
+    };
+
+    FragmentJavaScriptCompiler.prototype.popNamespaceFrame = function() {
+      return this.namespaceFrameStack.pop();
+    };
+
+    FragmentJavaScriptCompiler.prototype.ensureNamespace = function() {
+      var correctNamespace = this.getCurrentNamespaceFrame().namespace;
+      if (this.domNamespace !== correctNamespace) {
+        this.source.push(this.indent+'  dom.setNamespace('+(correctNamespace ? string(correctNamespace) : 'null')+');\n');
+        this.domNamespace = correctNamespace;
+      }
     };
   });
 enifed("htmlbars-compiler/fragment-opcode-compiler",
@@ -43956,14 +43935,13 @@ enifed("htmlbars-compiler/hydration-javascript-compiler",
     "use strict";
     var processOpcodes = __dependency1__.processOpcodes;
     var string = __dependency2__.string;
-    var quoteHash = __dependency2__.hash;
     var array = __dependency2__.array;
 
     function HydrationJavaScriptCompiler() {
       this.stack = [];
       this.source = [];
       this.mustaches = [];
-      this.parents = ['fragment'];
+      this.parents = [['fragment']];
       this.parentCount = 0;
       this.morphs = [];
       this.fragmentProcessing = [];
@@ -43979,7 +43957,7 @@ enifed("htmlbars-compiler/hydration-javascript-compiler",
       this.mustaches.length = 0;
       this.source.length = 0;
       this.parents.length = 1;
-      this.parents[0] = 'fragment';
+      this.parents[0] = ['fragment'];
       this.morphs.length = 0;
       this.fragmentProcessing.length = 0;
       this.parentCount = 0;
@@ -44041,124 +44019,113 @@ enifed("htmlbars-compiler/hydration-javascript-compiler",
       }
     };
 
+    prototype.pushHook = function(name, args) {
+      this.hooks[name] = true;
+      this.stack.push(name + '(' + args.join(', ') + ')');
+    };
+
     prototype.pushGetHook = function(path) {
-      this.hooks.get = true;
-      this.stack.push('get(context, ' + string(path) + ', env)');
+      this.pushHook('get', [
+        'env',
+        'context',
+        string(path)
+      ]);
     };
 
     prototype.pushSexprHook = function() {
-      this.hooks.subexpr = true;
-      var path = this.stack.pop();
-      var params = this.stack.pop();
-      var hash = this.stack.pop();
-      this.stack.push('subexpr(' + path + ', context, ' + params + ', ' + hash + ', {}, env)');
+      this.pushHook('subexpr', [
+        'env',
+        'context',
+        this.stack.pop(), // path
+        this.stack.pop(), // params
+        this.stack.pop() // hash
+      ]);
     };
 
     prototype.pushConcatHook = function() {
-      this.hooks.concat = true;
-      var parts = this.stack.pop();
-      this.stack.push('concat(' + parts + ', env)');
+      this.pushHook('concat', [
+        'env',
+        this.stack.pop() // parts
+      ]);
+    };
+
+    prototype.printHook = function(name, args) {
+      this.hooks[name] = true;
+      this.source.push(this.indent + '  ' + name + '(' + args.join(', ') + ');\n');
     };
 
     prototype.printSetHook = function(name, index) {
-      this.hooks.set = true;
-      this.source.push(this.indent + '  set(context, ' + string(name) +', blockArguments[' + index + ']);\n');
+      this.printHook('set', [
+        'env',
+        'context',
+        string(name),
+        'blockArguments[' + index + ']'
+      ]);
     };
 
-    prototype.printContentHookForBlockHelper = function(morphNum, templateId, inverseId, blockParamsLength) {
-      var path = this.stack.pop();
-      var params = this.stack.pop();
-      var hash = this.stack.pop();
-
-      var options = [];
-
-      options.push('morph: morph' + morphNum);
-
-      if (templateId !== null) {
-        options.push('template: child' + templateId);
-      }
-
-      if (inverseId !== null) {
-        options.push('inverse: child' + inverseId);
-      }
-
-      if (blockParamsLength) {
-        options.push('blockParams: ' + blockParamsLength);
-      }
-
-      this.printContentHook(morphNum, path, params, hash, options);
+    prototype.printBlockHook = function(morphNum, templateId, inverseId) {
+      this.printHook('block', [
+        'env',
+        'morph' + morphNum,
+        'context',
+        this.stack.pop(), // path
+        this.stack.pop(), // params
+        this.stack.pop(), // hash
+        templateId === null ? 'null' : 'child' + templateId,
+        inverseId === null ? 'null' : 'child' + inverseId
+      ]);
     };
 
-    prototype.printContentHookForInlineHelper = function(morphNum) {
-      var path = this.stack.pop();
-      var params = this.stack.pop();
-      var hash = this.stack.pop();
-
-      var options = [];
-      options.push('morph: morph' + morphNum);
-
-      this.printContentHook(morphNum, path, params, hash, options);
+    prototype.printInlineHook = function(morphNum) {
+      this.printHook('inline', [
+        'env',
+        'morph' + morphNum,
+        'context',
+        this.stack.pop(), // path
+        this.stack.pop(), // params
+        this.stack.pop() // hash
+      ]);
     };
 
-    prototype.printContentHookForAmbiguous = function(morphNum) {
-      var path = this.stack.pop();
-
-      var options = [];
-      options.push('morph: morph' + morphNum);
-
-      this.printContentHook(morphNum, path, '[]', '{}', options);
+    prototype.printContentHook = function(morphNum) {
+      this.printHook('content', [
+        'env',
+        'morph' + morphNum,
+        'context',
+        this.stack.pop() // path
+      ]);
     };
 
-    prototype.printContentHook = function(morphNum, path, params, hash, pairs) {
-      this.hooks.content = true;
-
-      var args = ['morph' + morphNum, path, 'context', params, hash, quoteHash(pairs), 'env'];
-      this.source.push(this.indent+'  content(' + args.join(', ') + ');\n');
+    prototype.printComponentHook = function(morphNum, templateId) {
+      this.printHook('component', [
+        'env',
+        'morph' + morphNum,
+        'context',
+        this.stack.pop(), // path
+        this.stack.pop(), // attrs
+        templateId === null ? 'null' : 'child' + templateId
+      ]);
     };
 
-    prototype.printComponentHook = function(morphNum, templateId, blockParamsLength) {
-      this.hooks.component = true;
-      
-      var path = this.stack.pop();
-      var hash = this.stack.pop();
-
-      var options = [];
-
-      options.push('morph: morph' + morphNum);
-
-      if (templateId !== null) {
-        options.push('template: child' + templateId);
-      }
-
-      if (blockParamsLength) {
-        options.push('blockParams: ' + blockParamsLength);
-      }
-
-      var args = ['morph' + morphNum, path, 'context', hash, quoteHash(options), 'env'];
-      this.source.push(this.indent+'  component(' + args.join(', ') + ');\n');
-    };
-
-    prototype.printAttributeHook = function(elementNum, quoted) {
-      this.hooks.attribute = true;
-
-      var name = this.stack.pop();
-      var value = this.stack.pop();
-
-      this.source.push(this.indent + '  attribute(element' + elementNum + ', ' + name + ', ' + quoted + ', context, ' + value + ', {}, env);\n');
+    prototype.printAttributeHook = function(attrMorphNum, elementNum) {
+      this.printHook('attribute', [
+        'env',
+        'attrMorph' + attrMorphNum,
+        'element' + elementNum,
+        this.stack.pop(), // name
+        this.stack.pop() // value
+      ]);
     };
 
     prototype.printElementHook = function(elementNum) {
-      this.hooks.element = true;
-
-      var path = this.stack.pop();
-      var params = this.stack.pop();
-      var hash = this.stack.pop();
-
-      var options = [];
-      options.push('element: element' + elementNum);
-
-      var args = ['element' + elementNum, path, 'context', params, hash, quoteHash(options), 'env'];
-      this.source.push(this.indent+'  element(' + args.join(', ') + ');\n');
+      this.printHook('element', [
+        'env',
+        'element' + elementNum,
+        'context',
+        this.stack.pop(), // path
+        this.stack.pop(), // params
+        this.stack.pop() // hash
+      ]);
     };
 
     prototype.createMorph = function(morphNum, parentPath, startIndex, endIndex, escaped) {
@@ -44172,6 +44139,12 @@ enifed("htmlbars-compiler/hydration-javascript-compiler",
         (isRoot ? ",contextualElement)" : ")");
 
       this.morphs.push(['morph' + morphNum, morph]);
+    };
+
+    prototype.createAttrMorph = function(attrMorphNum, elementNum, name, escaped) {
+      var morphMethod = escaped ? 'createAttrMorph' : 'createUnsafeAttrMorph';
+      var morph = "dom."+morphMethod+"(element"+elementNum+", '"+name+"')";
+      this.morphs.push(['attrMorph' + attrMorphNum, morph]);
     };
 
     prototype.repairClonedNode = function(blankChildTextNodes, isElementChecked) {
@@ -44188,11 +44161,14 @@ enifed("htmlbars-compiler/hydration-javascript-compiler",
     prototype.shareElement = function(elementNum){
       var elementNodesName = "element" + elementNum;
       this.fragmentProcessing.push('var '+elementNodesName+' = '+this.getParent()+';');
-      this.parents[this.parents.length-1] = elementNodesName;
+      this.parents[this.parents.length-1] = [elementNodesName];
     };
 
     prototype.consumeParent = function(i) {
-      this.parents.push(this.getParent() + '.childNodes[' + i + ']');
+      var newParent = this.lastParent().slice();
+      newParent.push(i);
+
+      this.parents.push(newParent);
     };
 
     prototype.popParent = function() {
@@ -44200,6 +44176,17 @@ enifed("htmlbars-compiler/hydration-javascript-compiler",
     };
 
     prototype.getParent = function() {
+      var last = this.lastParent().slice();
+      var frag = last.shift();
+
+      if (!last.length) {
+        return frag;
+      }
+
+      return 'dom.childAt(' + frag + ', [' + last.join(', ') + '])';
+    };
+
+    prototype.lastParent = function() {
       return this.parents[this.parents.length-1];
     };
   });
@@ -44236,6 +44223,7 @@ enifed("htmlbars-compiler/hydration-opcode-compiler",
       this.currentDOMChildIndex = 0;
       this.morphs = [];
       this.morphNum = 0;
+      this.attrMorphNum = 0;
       this.element = null;
       this.elementNum = -1;
     }
@@ -44267,6 +44255,7 @@ enifed("htmlbars-compiler/hydration-opcode-compiler",
       this.templateId = 0;
       this.currentDOMChildIndex = -1;
       this.morphNum = 0;
+      this.attrMorphNum = 0;
 
       var blockParams = program.blockParams || [];
 
@@ -44328,8 +44317,6 @@ enifed("htmlbars-compiler/hydration-opcode-compiler",
 
     HydrationOpcodeCompiler.prototype.block = function(block, childIndex, childrenLength) {
       var sexpr = block.sexpr;
-      var program = block.program || {};
-      var blockParams = program.blockParams || [];
 
       var currentDOMChildIndex = this.currentDOMChildIndex;
       var start = (currentDOMChildIndex < 0) ? null : currentDOMChildIndex;
@@ -44342,7 +44329,7 @@ enifed("htmlbars-compiler/hydration-opcode-compiler",
       var inverseId = block.inverse === null ? null : this.templateId++;
 
       prepareSexpr(this, sexpr);
-      this.opcode('printContentHookForBlockHelper', morphNum, templateId, inverseId, blockParams.length);
+      this.opcode('printBlockHook', morphNum, templateId, inverseId);
     };
 
     HydrationOpcodeCompiler.prototype.component = function(component, childIndex, childrenLength) {
@@ -44381,16 +44368,15 @@ enifed("htmlbars-compiler/hydration-opcode-compiler",
 
     HydrationOpcodeCompiler.prototype.attribute = function(attr) {
       var value = attr.value;
-      var quoted;
-      
+      var escaped = true;
+
       // TODO: Introduce context specific AST nodes to avoid switching here.
       if (value.type === 'TextNode') {
         return;
       } else if (value.type === 'MustacheStatement') {
-        quoted = false;
+        escaped = value.escaped;
         this.accept(unwrapMustache(value));
       } else if (value.type === 'ConcatStatement') {
-        quoted = true;
         prepareParams(this, value.parts);
         this.opcode('pushConcatHook');
       }
@@ -44402,7 +44388,9 @@ enifed("htmlbars-compiler/hydration-opcode-compiler",
         this.element = null;
       }
 
-      this.opcode('printAttributeHook', this.elementNum, value.type === 'ConcatStatement');
+      var attrMorphNum = this.attrMorphNum++;
+      this.opcode('createAttrMorph', attrMorphNum, this.elementNum, attr.name, escaped);
+      this.opcode('printAttributeHook', attrMorphNum, this.elementNum);
     };
 
     HydrationOpcodeCompiler.prototype.elementHelper = function(sexpr) {
@@ -44429,10 +44417,10 @@ enifed("htmlbars-compiler/hydration-opcode-compiler",
 
       if (isHelper(sexpr)) {
         prepareSexpr(this, sexpr);
-        this.opcode('printContentHookForInlineHelper', morphNum);
+        this.opcode('printInlineHook', morphNum);
       } else {
         preparePath(this, sexpr.path);
-        this.opcode('printContentHookForAmbiguous', morphNum);
+        this.opcode('printContentHook', morphNum);
       }
     };
 
@@ -44611,16 +44599,26 @@ enifed("htmlbars-compiler/template-compiler",
         this.getChildTemplateVars(indent + '  ') +
         indent+'  return {\n' +
         indent+'    isHTMLBars: true,\n' +
+        indent+'    blockParams: ' + blockParams.length + ',\n' +
         indent+'    cachedFragment: null,\n' +
+        indent+'    hasRendered: false,\n' +
         indent+'    build: ' + fragmentProgram + ',\n' +
         indent+'    render: function render(' + templateSignature + ') {\n' +
         indent+'      var dom = env.dom;\n' +
         this.getHydrationHooks(indent + '      ', this.hydrationCompiler.hooks) +
         indent+'      dom.detectNamespace(contextualElement);\n' +
+        indent+'      var fragment;\n' +
         indent+'      if (this.cachedFragment === null) {\n' +
-        indent+'        this.cachedFragment = this.build(dom);\n' +
+        indent+'        fragment = this.build(dom);\n' +
+        indent+'        if (this.hasRendered) {\n' +
+        indent+'          this.cachedFragment = fragment;\n' +
+        indent+'        } else {\n' +
+        indent+'          this.hasRendered = true;\n' +
+        indent+'        }\n' +
         indent+'      }\n' +
-        indent+'      var fragment = dom.cloneNode(this.cachedFragment, true);\n' +
+        indent+'      if (this.cachedFragment) {\n' +
+        indent+'        fragment = dom.cloneNode(this.cachedFragment, true);\n' +
+        indent+'      }\n' +
         hydrationProgram +
         indent+'      return fragment;\n' +
         indent+'    }\n' +
@@ -44674,17 +44672,6 @@ enifed("htmlbars-compiler/template-visitor",
   function(__exports__) {
     "use strict";
     var push = Array.prototype.push;
-
-    function elementIntroducesNamespace(element, parentElement){
-      return (
-        // Root element. Those that have a namespace are entered.
-        (!parentElement && element.namespaceURI) ||
-        // Inner elements to a namespace
-        ( parentElement &&
-          ( !element.isHTMLIntegrationPoint && parentElement.namespaceURI !== element.namespaceURI )
-        )
-      );
-    }
 
     function Frame() {
       this.parentNode = null;
@@ -44806,15 +44793,7 @@ enifed("htmlbars-compiler/template-visitor",
         parentNode.type === 'Program' && parentFrame.childCount === 1
       ];
 
-      var lastNode = parentFrame.childIndex === parentFrame.childCount-1,
-          introducesNamespace = elementIntroducesNamespace(element, parentFrame.parentNode);
-      if ( !lastNode && introducesNamespace ) {
-        elementFrame.actions.push(['setNamespace', [parentNode.namespaceURI]]);
-      }
       elementFrame.actions.push(['closeElement', actionArgs]);
-      if ( !lastNode && element.isHTMLIntergrationPoint ) {
-        elementFrame.actions.push(['setNamespace', []]);
-      }
 
       for (var i = element.attributes.length - 1; i >= 0; i--) {
         this.visit(element.attributes[i]);
@@ -44825,14 +44804,8 @@ enifed("htmlbars-compiler/template-visitor",
         this.visit(element.children[i]);
       }
 
-      if ( element.isHTMLIntergrationPoint ) {
-        elementFrame.actions.push(['setNamespace', []]);
-      }
       elementFrame.actions.push(['openElement', actionArgs.concat([
         elementFrame.mustacheCount, elementFrame.blankChildTextNodes.reverse() ])]);
-      if ( introducesNamespace ) {
-        elementFrame.actions.push(['setNamespace', [element.namespaceURI]]);
-      }
       this.popFrame();
 
       // Propagate the element's frame state to the parent frame
@@ -46374,16 +46347,15 @@ enifed("htmlbars-syntax/handlebars/utils",
     __exports__.appendContextPath = appendContextPath;
   });
 enifed("htmlbars-syntax/node-handlers",
-  ["./builders","./tokens","../htmlbars-util/array-utils","./utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+  ["./builders","../htmlbars-util/array-utils","./utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     var buildProgram = __dependency1__.buildProgram;
     var buildBlock = __dependency1__.buildBlock;
     var buildHash = __dependency1__.buildHash;
-    var Chars = __dependency2__.Chars;
-    var forEach = __dependency3__.forEach;
-    var appendChild = __dependency4__.appendChild;
-    var postprocessProgram = __dependency4__.postprocessProgram;
+    var forEach = __dependency2__.forEach;
+    var appendChild = __dependency3__.appendChild;
+    var postprocessProgram = __dependency3__.postprocessProgram;
 
     var nodeHandlers = {
 
@@ -46419,7 +46391,7 @@ enifed("htmlbars-syntax/node-handlers",
         delete block.closeStrip;
 
         if (this.tokenizer.state === 'comment') {
-          this.tokenizer.token.addChar('{{' + this.sourceForMustache(block) + '}}');
+          this.tokenizer.addChar('{{' + this.sourceForMustache(block) + '}}');
           return;
         }
 
@@ -46439,7 +46411,7 @@ enifed("htmlbars-syntax/node-handlers",
         delete mustache.strip;
 
         if (this.tokenizer.state === 'comment') {
-          this.tokenizer.token.addChar('{{' + this.sourceForMustache(mustache) + '}}');
+          this.tokenizer.addChar('{{' + this.sourceForMustache(mustache) + '}}');
           return;
         }
 
@@ -46517,8 +46489,7 @@ enifed("htmlbars-syntax/node-handlers",
     function switchToHandlebars(processor) {
       var token = processor.tokenizer.token;
 
-      // TODO: Monkey patch Chars.addChar like attributes
-      if (token instanceof Chars) {
+      if (token && token.type === 'Chars') {
         processor.acceptToken(token);
         processor.tokenizer.token = null;
       }
@@ -46542,7 +46513,7 @@ enifed("htmlbars-syntax/node-handlers",
     __exports__["default"] = nodeHandlers;
   });
 enifed("htmlbars-syntax/parser",
-  ["./handlebars/compiler/base","../simple-html-tokenizer","../simple-html-tokenizer/entity-parser","../simple-html-tokenizer/char-refs/full","./node-handlers","./token-handlers","../htmlbars-syntax","exports"],
+  ["./handlebars/compiler/base","./tokenizer","../simple-html-tokenizer/entity-parser","../simple-html-tokenizer/char-refs/full","./node-handlers","./token-handlers","../htmlbars-syntax","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
     var parse = __dependency1__.parse;
@@ -46659,28 +46630,6 @@ enifed("htmlbars-syntax/token-handlers",
       voidMap[tagName] = true;
     });
 
-    var svgNamespace = "http://www.w3.org/2000/svg",
-        // http://www.w3.org/html/wg/drafts/html/master/syntax.html#html-integration-point
-        svgHTMLIntegrationPoints = {'foreignObject':true, 'desc':true, 'title':true};
-
-    function applyNamespace(tag, element, currentElement){
-      if (tag.tagName === 'svg') {
-        element.namespaceURI = svgNamespace;
-      } else if (
-        currentElement.type === 'ElementNode' &&
-        currentElement.namespaceURI &&
-        !currentElement.isHTMLIntegrationPoint
-      ) {
-        element.namespaceURI = currentElement.namespaceURI;
-      }
-    }
-
-    function applyHTMLIntegrationPoint(tag, element){
-      if (svgHTMLIntegrationPoints[tag.tagName]) {
-        element.isHTMLIntegrationPoint = true;
-      }
-    }
-
     // Except for `mustache`, all tokens are only allowed outside of
     // a start or end tag.
     var tokenHandlers = {
@@ -46703,8 +46652,6 @@ enifed("htmlbars-syntax/token-handlers",
           end: { line: null, column: null}
         };
 
-        applyNamespace(tag, element, this.currentElement());
-        applyHTMLIntegrationPoint(tag, element);
         this.elementStack.push(element);
         if (voidMap.hasOwnProperty(tag.tagName) || tag.selfClosing) {
           tokenHandlers.EndTag.call(this, tag);
@@ -46720,39 +46667,38 @@ enifed("htmlbars-syntax/token-handlers",
       },
 
       MustacheStatement: function(mustache) {
-        var state = this.tokenizer.state;
-        var token = this.tokenizer.token;
+        var tokenizer = this.tokenizer;
 
-        switch(state) {
+        switch(tokenizer.state) {
           // Tag helpers
           case "tagName":
-            token.addTagHelper(mustache.sexpr);
-            this.tokenizer.state = "beforeAttributeName";
+            tokenizer.addTagHelper(mustache.sexpr);
+            tokenizer.state = "beforeAttributeName";
             return;
           case "beforeAttributeName":
-            token.addTagHelper(mustache.sexpr);
+            tokenizer.addTagHelper(mustache.sexpr);
             return;
           case "attributeName":
           case "afterAttributeName":
-            this.tokenizer.finalizeAttributeValue();
-            token.addTagHelper(mustache.sexpr);
-            this.tokenizer.state = "beforeAttributeName";
+            tokenizer.finalizeAttributeValue();
+            tokenizer.addTagHelper(mustache.sexpr);
+            tokenizer.state = "beforeAttributeName";
             return;
           case "afterAttributeValueQuoted":
-            token.addTagHelper(mustache.sexpr);
-            this.tokenizer.state = "beforeAttributeName";
+            tokenizer.addTagHelper(mustache.sexpr);
+            tokenizer.state = "beforeAttributeName";
             return;
 
           // Attribute values
           case "beforeAttributeValue":
-            token.markAttributeQuoted(false);
-            token.addToAttributeValue(mustache);
-            this.tokenizer.state = 'attributeValueUnquoted';
+            tokenizer.markAttributeQuoted(false);
+            tokenizer.addToAttributeValue(mustache);
+            tokenizer.state = 'attributeValueUnquoted';
             return;
           case "attributeValueDoubleQuoted":
           case "attributeValueSingleQuoted":
           case "attributeValueUnquoted":
-            token.addToAttributeValue(mustache);
+            tokenizer.addToAttributeValue(mustache);
             return;
 
           // TODO: Only append child when the tokenizer state makes
@@ -46767,12 +46713,7 @@ enifed("htmlbars-syntax/token-handlers",
         var parent = this.currentElement();
         var disableComponentGeneration = this.options.disableComponentGeneration === true;
 
-        if (element.tag !== tag.tagName) {
-          throw new Error(
-            "Closing tag `" + tag.tagName + "` (on line " + tag.lastLine + ") " +
-            "did not match last open tag `" + element.tag + "` (on line " + element.loc.start.line + ")."
-          );
-        }
+        validateEndTag(tag, element);
 
         if (disableComponentGeneration || element.tag.indexOf("-") === -1) {
           appendChild(parent, element);
@@ -46788,32 +46729,52 @@ enifed("htmlbars-syntax/token-handlers",
 
     };
 
+    function validateEndTag(tag, element) {
+      var error;
+
+      if (voidMap[tag.tagName] && element.tag === undefined) {
+        // For void elements, we check element.tag is undefined because endTag is called by the startTag token handler in
+        // the normal case, so checking only voidMap[tag.tagName] would lead to an error being thrown on the opening tag.
+        error = "Invalid end tag " + formatEndTagInfo(tag) + " (void elements cannot have end tags).";
+      } else if (element.tag === undefined) {
+        error = "Closing tag " + formatEndTagInfo(tag) + " without an open tag.";
+      } else if (element.tag !== tag.tagName) {
+        error = "Closing tag " + formatEndTagInfo(tag) + " did not match last open tag `" + element.tag + "` (on line " +
+                element.loc.start.line + ").";
+      }
+
+      if (error) { throw new Error(error); }
+    }
+
+    function formatEndTagInfo(tag) {
+      return "`" + tag.tagName + "` (on line " + tag.lastLine + ")";
+    }
+
     __exports__["default"] = tokenHandlers;
   });
-enifed("htmlbars-syntax/tokens",
+enifed("htmlbars-syntax/tokenizer",
   ["../simple-html-tokenizer","./utils","./builders","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
-    var Chars = __dependency1__.Chars;
-    var StartTag = __dependency1__.StartTag;
-    var EndTag = __dependency1__.EndTag;
+    var Tokenizer = __dependency1__.Tokenizer;
     var isHelper = __dependency2__.isHelper;
     var builders = __dependency3__["default"];
 
-    StartTag.prototype.startAttribute = function(char) {
+    Tokenizer.prototype.createAttribute = function(char) {
       this.currentAttribute = builders.attr(char.toLowerCase(), [], null);
-      this.attributes.push(this.currentAttribute);
+      this.token.attributes.push(this.currentAttribute);
+      this.state = 'attributeName';
     };
 
-    StartTag.prototype.markAttributeQuoted = function(value) {
+    Tokenizer.prototype.markAttributeQuoted = function(value) {
       this.currentAttribute.quoted = value;
     };
 
-    StartTag.prototype.addToAttributeName = function(char) {
+    Tokenizer.prototype.addToAttributeName = function(char) {
       this.currentAttribute.name += char;
     };
 
-    StartTag.prototype.addToAttributeValue = function(char) {
+    Tokenizer.prototype.addToAttributeValue = function(char) {
       var value = this.currentAttribute.value;
 
       if (!this.currentAttribute.quoted && value.length > 0 &&
@@ -46839,12 +46800,7 @@ enifed("htmlbars-syntax/tokens",
       }
     };
 
-    StartTag.prototype.finalize = function() {
-      this.finalizeAttributeValue();
-      return this;
-    };
-
-    StartTag.prototype.finalizeAttributeValue = function() {
+    Tokenizer.prototype.finalizeAttributeValue = function() {
       if (this.currentAttribute) {
         this.currentAttribute.value = prepareAttributeValue(this.currentAttribute);
         delete this.currentAttribute.quoted;
@@ -46852,8 +46808,8 @@ enifed("htmlbars-syntax/tokens",
       }
     };
 
-    StartTag.prototype.addTagHelper = function(helper) {
-      var helpers = this.helpers = this.helpers || [];
+    Tokenizer.prototype.addTagHelper = function(helper) {
+      var helpers = this.token.helpers = this.token.helpers || [];
       helpers.push(helper);
     };
 
@@ -46887,9 +46843,7 @@ enifed("htmlbars-syntax/tokens",
       }
     }
 
-    __exports__.unwrapMustache = unwrapMustache;__exports__.Chars = Chars;
-    __exports__.StartTag = StartTag;
-    __exports__.EndTag = EndTag;
+    __exports__.unwrapMustache = unwrapMustache;__exports__.Tokenizer = Tokenizer;
   });
 enifed("htmlbars-syntax/utils",
   ["./builders","exports"],
@@ -47310,26 +47264,131 @@ enifed("htmlbars-util/safe-string",
     __exports__["default"] = SafeString;
   });
 enifed("morph",
-  ["./morph/morph","./morph/dom-helper","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
-    "use strict";
-    var Morph = __dependency1__["default"];
-    var DOMHelper = __dependency2__["default"];
-
-    __exports__.Morph = Morph;
-    __exports__.DOMHelper = DOMHelper;
-  });
-enifed("morph/dom-helper",
-  ["../morph/morph","./dom-helper/build-html-dom","./dom-helper/classes","exports"],
+  ["./morph/morph","./morph/attr-morph","./morph/dom-helper","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
-    /* global window:false */
     var Morph = __dependency1__["default"];
-    var buildHTMLDOM = __dependency2__.buildHTMLDOM;
-    var svgNamespace = __dependency2__.svgNamespace;
-    var svgHTMLIntegrationPoints = __dependency2__.svgHTMLIntegrationPoints;
-    var addClasses = __dependency3__.addClasses;
-    var removeClasses = __dependency3__.removeClasses;
+    var AttrMorph = __dependency2__["default"];
+    var DOMHelper = __dependency3__["default"];
+
+    __exports__.Morph = Morph;
+    __exports__.AttrMorph = AttrMorph;
+    __exports__.DOMHelper = DOMHelper;
+  });
+enifed("morph/attr-morph",
+  ["./attr-morph/sanitize-attribute-value","./dom-helper/prop","./dom-helper/build-html-dom","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+    "use strict";
+    var sanitizeAttributeValue = __dependency1__.sanitizeAttributeValue;
+    var normalizeProperty = __dependency2__.normalizeProperty;
+    var svgNamespace = __dependency3__.svgNamespace;
+
+    function updateProperty(value) {
+      this.domHelper.setPropertyStrict(this.element, this.attrName, value);
+    }
+
+    function updateAttribute(value) {
+      if (value === null) {
+        this.domHelper.removeAttribute(this.element, this.attrName);
+      } else {
+        this.domHelper.setAttribute(this.element, this.attrName, value);
+      }
+    }
+
+    function AttrMorph(element, attrName, domHelper) {
+      this.element = element;
+      this.domHelper = domHelper;
+      this.escaped = true;
+
+      var normalizedAttrName = normalizeProperty(this.element, attrName);
+      if (element.namespaceURI === svgNamespace || attrName === 'style' || !normalizedAttrName) {
+        this.attrName = attrName;
+        this._update = updateAttribute;
+      } else {
+        this.attrName = normalizedAttrName;
+        this._update = updateProperty;
+      }
+    }
+
+    AttrMorph.prototype.setContent = function (value) {
+      if (this.escaped) {
+        var sanitized = sanitizeAttributeValue(this.element, this.attrName, value);
+        this._update(sanitized);
+      } else {
+        this._update(value);
+      }
+    };
+
+    __exports__["default"] = AttrMorph;
+  });
+enifed("morph/attr-morph/sanitize-attribute-value",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    /* jshint scripturl:true */
+
+    var parsingNode;
+    var badProtocols = {
+      'javascript:': true,
+      'vbscript:': true
+    };
+
+    var badTags = {
+      'A': true,
+      'BODY': true,
+      'LINK': true,
+      'IMG': true,
+      'IFRAME': true
+    };
+
+    var badAttributes = {
+      'href': true,
+      'src': true,
+      'background': true
+    };
+    __exports__.badAttributes = badAttributes;
+    function sanitizeAttributeValue(element, attribute, value) {
+      var tagName;
+
+      if (!parsingNode) {
+        parsingNode = document.createElement('a');
+      }
+
+      if (!element) {
+        tagName = null;
+      } else {
+        tagName = element.tagName;
+      }
+
+      if (value && value.toHTML) {
+        return value.toHTML();
+      }
+
+      if ((tagName === null || badTags[tagName]) && badAttributes[attribute]) {
+        parsingNode.href = value;
+
+        if (badProtocols[parsingNode.protocol] === true) {
+          return 'unsafe:' + value;
+        }
+      }
+
+      return value;
+    }
+
+    __exports__.sanitizeAttributeValue = sanitizeAttributeValue;
+  });
+enifed("morph/dom-helper",
+  ["../morph/morph","../morph/attr-morph","./dom-helper/build-html-dom","./dom-helper/classes","./dom-helper/prop","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
+    "use strict";
+    var Morph = __dependency1__["default"];
+    var AttrMorph = __dependency2__["default"];
+    var buildHTMLDOM = __dependency3__.buildHTMLDOM;
+    var svgNamespace = __dependency3__.svgNamespace;
+    var svgHTMLIntegrationPoints = __dependency3__.svgHTMLIntegrationPoints;
+    var addClasses = __dependency4__.addClasses;
+    var removeClasses = __dependency4__.removeClasses;
+    var normalizeProperty = __dependency5__.normalizeProperty;
 
     var doc = typeof document === 'undefined' ? false : document;
 
@@ -47429,15 +47488,19 @@ enifed("morph/dom-helper",
      * @param {HTMLDocument} _document The document DOM methods are proxied to
      */
     function DOMHelper(_document){
-      this.document = _document || window.document;
+      this.document = _document || document;
+      if (!this.document) {
+        throw new Error("A document object must be passed to the DOMHelper, or available on the global scope");
+      }
       this.namespace = null;
     }
 
     var prototype = DOMHelper.prototype;
     prototype.constructor = DOMHelper;
 
-    prototype.getElementById = function(id) {
-      return this.document.getElementById(id);
+    prototype.getElementById = function(id, rootNode) {
+      rootNode = rootNode || this.document;
+      return rootNode.getElementById(id);
     };
 
     prototype.insertBefore = function(element, childElement, referenceChild) {
@@ -47446,6 +47509,16 @@ enifed("morph/dom-helper",
 
     prototype.appendChild = function(element, childElement) {
       return element.appendChild(childElement);
+    };
+
+    prototype.childAt = function(element, indices) {
+      var child = element;
+
+      for (var i = 0; i < indices.length; i++) {
+        child = child.childNodes[indices[i]];
+      }
+
+      return child;
     };
 
     prototype.appendText = function(element, text) {
@@ -47460,8 +47533,30 @@ enifed("morph/dom-helper",
       element.removeAttribute(name);
     };
 
-    prototype.setProperty = function(element, name, value) {
+    prototype.setPropertyStrict = function(element, name, value) {
       element[name] = value;
+    };
+
+    prototype.setProperty = function(element, name, value) {
+      var lowercaseName = name.toLowerCase();
+      if (element.namespaceURI === svgNamespace || lowercaseName === 'style') {
+        if (value === null) {
+          element.removeAttribute(name);
+        } else {
+          element.setAttribute(name, value);
+        }
+      } else {
+        var normalized = normalizeProperty(element, name);
+        if (normalized) {
+          element[normalized] = value;
+        } else {
+          if (value === null) {
+            element.removeAttribute(name);
+          } else {
+            element.setAttribute(name, value);
+          }
+        }
+      }
     };
 
     if (doc && doc.createElementNS) {
@@ -47532,6 +47627,16 @@ enifed("morph/dom-helper",
     prototype.cloneNode = function(element, deep){
       var clone = element.cloneNode(!!deep);
       return clone;
+    };
+
+    prototype.createAttrMorph = function(element, attrName){
+      return new AttrMorph(element, attrName, this);
+    };
+
+    prototype.createUnsafeAttrMorph = function(element, attrName){
+      var morph = this.createAttrMorph(element, attrName);
+      morph.escaped = false;
+      return morph;
     };
 
     prototype.createMorph = function(parent, start, end, contextualElement){
@@ -48017,6 +48122,32 @@ enifed("morph/dom-helper/classes",
     __exports__.addClasses = addClasses;
     __exports__.removeClasses = removeClasses;
   });
+enifed("morph/dom-helper/prop",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    // TODO should this be an o_create kind of thing?
+    var propertyCaches = {};
+    __exports__.propertyCaches = propertyCaches;
+    function normalizeProperty(element, attrName) {
+      var tagName = element.tagName;
+      var key;
+      var cache = propertyCaches[tagName];
+      if (!cache) {
+        // TODO should this be an o_create kind of thing?
+        cache = {};
+        for (key in element) {
+          cache[key.toLowerCase()] = key;
+        }
+        propertyCaches[tagName] = cache;
+      }
+
+      // presumes that the attrName has been lowercased.
+      return cache[attrName];
+    }
+
+    __exports__.normalizeProperty = normalizeProperty;
+  });
 enifed("morph/morph",
   ["exports"],
   function(__exports__) {
@@ -48093,7 +48224,7 @@ enifed("morph/morph",
       }
     };
 
-    Morph.prototype.update = function (nodeOrString) {
+    Morph.prototype.setContent = function (nodeOrString) {
       this._update(this.element || this.parent(), nodeOrString);
     };
 
@@ -56170,39 +56301,50 @@ enifed("simple-html-tokenizer/tokenizer",
         }
       },
 
-      tag: function(Type, char) {
+      createTag: function(Type, char) {
         var lastToken = this.token;
         this.token = new Type(char);
         this.state = 'tagName';
         return lastToken;
       },
 
+      addToTagName: function(char) {
+        this.token.tagName += char;
+      },
+
       selfClosing: function() {
         this.token.selfClosing = true;
       },
 
-      attribute: function(char) {
-        this.token.startAttribute(char);
+      createAttribute: function(char) {
+        this._currentAttribute = [char.toLowerCase(), "", null];
+        this.token.attributes.push(this._currentAttribute);
         this.state = 'attributeName';
       },
 
       addToAttributeName: function(char) {
-        this.token.addToAttributeName(char);
+        this._currentAttribute[0] += char;
       },
 
       markAttributeQuoted: function(value) {
-        this.token.markAttributeQuoted(value);
+        this._currentAttribute[2] = value;
       },
 
       finalizeAttributeValue: function() {
-        this.token.finalizeAttributeValue();
+        if (this._currentAttribute) {
+          if (this._currentAttribute[2] === null) {
+            this._currentAttribute[2] = false;
+          }
+          this._currentAttribute = undefined;
+        }
       },
 
       addToAttributeValue: function(char) {
-        this.token.addToAttributeValue(char);
+        this._currentAttribute[1] = this._currentAttribute[1] || "";
+        this._currentAttribute[1] += char;
       },
 
-      commentStart: function() {
+      createComment: function() {
         var lastToken = this.token;
         this.token = new Comment();
         this.state = 'commentStart';
@@ -56210,7 +56352,18 @@ enifed("simple-html-tokenizer/tokenizer",
       },
 
       addToComment: function(char) {
-        this.token.addChar(char);
+        this.addChar(char);
+      },
+
+      addChar: function(char) {
+        this.token.chars += char;
+      },
+
+      finalizeToken: function() {
+        if (this.token.type === 'StartTag') {
+          this.finalizeAttributeValue();
+        }
+        return this.token;
       },
 
       emitData: function() {
@@ -56223,7 +56376,7 @@ enifed("simple-html-tokenizer/tokenizer",
 
       emitToken: function() {
         this.addLocInfo();
-        var lastToken = this.token.finalize();
+        var lastToken = this.finalizeToken();
         this.token = null;
         this.state = 'data';
         return lastToken;
@@ -56235,7 +56388,7 @@ enifed("simple-html-tokenizer/tokenizer",
           this.markFirst();
         }
 
-        this.token.addChar(char);
+        this.addChar(char);
       },
 
       markFirst: function(line, column) {
@@ -56267,7 +56420,6 @@ enifed("simple-html-tokenizer/tokenizer",
           } else {
             this.column++;
           }
-          // console.log(this.state, char);
           return this.states[this.state].call(this, char);
         } else {
           this.addLocInfo(this.line, this.column);
@@ -56294,14 +56446,14 @@ enifed("simple-html-tokenizer/tokenizer",
           } else if (char === "/") {
             this.state = 'endTagOpen';
           } else if (isAlpha(char)) {
-            return this.tag(StartTag, char.toLowerCase());
+            return this.createTag(StartTag, char.toLowerCase());
           }
         },
 
         markupDeclaration: function(char) {
           if (char === "-" && this.input.charAt(this["char"]) === "-") {
             this["char"]++;
-            this.commentStart();
+            this.createComment();
           }
         },
 
@@ -56361,7 +56513,7 @@ enifed("simple-html-tokenizer/tokenizer",
           } else if (char === ">") {
             return this.emitToken();
           } else {
-            this.token.addToTagName(char);
+            this.addToTagName(char);
           }
         },
 
@@ -56373,7 +56525,7 @@ enifed("simple-html-tokenizer/tokenizer",
           } else if (char === ">") {
             return this.emitToken();
           } else {
-            this.attribute(char);
+            this.createAttribute(char);
           }
         },
 
@@ -56402,7 +56554,7 @@ enifed("simple-html-tokenizer/tokenizer",
             return this.emitToken();
           } else {
             this.finalizeAttributeValue();
-            this.attribute(char);
+            this.createAttribute(char);
           }
         },
 
@@ -56484,7 +56636,7 @@ enifed("simple-html-tokenizer/tokenizer",
 
         endTagOpen: function(char) {
           if (isAlpha(char)) {
-            this.tag(EndTag, char.toLowerCase());
+            this.createTag(EndTag, char.toLowerCase());
           }
         }
       }
@@ -56501,84 +56653,24 @@ enifed("simple-html-tokenizer/tokens",
       this.tagName = tagName || '';
       this.attributes = attributes || [];
       this.selfClosing = selfClosing === true;
-      this._currentAttribute = undefined;
     }
 
-    __exports__.StartTag = StartTag;StartTag.prototype = {
-      addToTagName: function(char) {
-        this.tagName += char;
-      },
-
-      startAttribute: function(char) {
-        this._currentAttribute = [char.toLowerCase(), "", null];
-        this.attributes.push(this._currentAttribute);
-      },
-
-      addToAttributeName: function(char) {
-        this._currentAttribute[0] += char;
-      },
-
-      markAttributeQuoted: function(value) {
-        this._currentAttribute[2] = value;
-      },
-
-      addToAttributeValue: function(char) {
-        this._currentAttribute[1] = this._currentAttribute[1] || "";
-        this._currentAttribute[1] += char;
-      },
-
-      finalizeAttributeValue: function() {
-        if (this._currentAttribute) {
-          if (this._currentAttribute[2] === null) {
-            this._currentAttribute[2] = false;
-          }
-          this._currentAttribute = undefined;
-        }
-      },
-
-      finalize: function() {
-        this.finalizeAttributeValue();
-        return this;
-      }
-    };
-
-    function EndTag(tagName) {
+    __exports__.StartTag = StartTag;function EndTag(tagName) {
       this.type = 'EndTag';
       this.tagName = tagName || '';
     }
 
-    __exports__.EndTag = EndTag;EndTag.prototype = {
-      addToTagName: function(char) {
-        this.tagName += char;
-      },
-      finalize: function () {
-        return this;
-      }
-    };
-
-    function Chars(chars) {
+    __exports__.EndTag = EndTag;function Chars(chars) {
       this.type = 'Chars';
       this.chars = chars || "";
     }
 
-    __exports__.Chars = Chars;Chars.prototype = {
-      addChar: function(char) {
-        this.chars += char;
-      }
-    };
-
-    function Comment(chars) {
+    __exports__.Chars = Chars;function Comment(chars) {
       this.type = 'Comment';
       this.chars = chars || '';
     }
 
-    __exports__.Comment = Comment;Comment.prototype = {
-      addChar: function(char) {
-        this.chars += char;
-      },
-
-      finalize: function() { return this; }
-    };
+    __exports__.Comment = Comment;
   });
 enifed("simple-html-tokenizer/utils",
   ["exports"],

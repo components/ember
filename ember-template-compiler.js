@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.3+pre.ceb7a844
+ * @version   1.10.0-beta.3+pre.8613522a
  */
 
 (function() {
@@ -114,7 +114,7 @@ define("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.3+pre.ceb7a844
+      @version 1.10.0-beta.3+pre.8613522a
     */
 
     if ('undefined' === typeof Ember) {
@@ -141,10 +141,10 @@ define("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.3+pre.ceb7a844'
+      @default '1.10.0-beta.3+pre.8613522a'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.3+pre.ceb7a844';
+    Ember.VERSION = '1.10.0-beta.3+pre.8613522a';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -681,6 +681,11 @@ define("htmlbars-compiler/fragment-javascript-compiler",
     var processOpcodes = __dependency1__.processOpcodes;
     var string = __dependency2__.string;
 
+    var svgNamespace = "http://www.w3.org/2000/svg",
+    // http://www.w3.org/html/wg/drafts/html/master/syntax.html#html-integration-point
+        svgHTMLIntegrationPoints = {'foreignObject':true, 'desc':true, 'title':true};
+
+
     function FragmentJavaScriptCompiler() {
       this.source = [];
       this.depth = -1;
@@ -692,6 +697,8 @@ define("htmlbars-compiler/fragment-javascript-compiler",
       this.source.length = 0;
       this.depth = -1;
       this.indent = (options && options.indent) || "";
+      this.namespaceFrameStack = [{namespace: null, depth: null}];
+      this.domNamespace = null;
 
       this.source.push('function build(dom) {\n');
       processOpcodes(this, opcodes);
@@ -707,7 +714,14 @@ define("htmlbars-compiler/fragment-javascript-compiler",
 
     FragmentJavaScriptCompiler.prototype.createElement = function(tagName) {
       var el = 'el'+(++this.depth);
+      if (tagName === 'svg') {
+        this.pushNamespaceFrame({namespace: svgNamespace, depth: this.depth});
+      }
+      this.ensureNamespace();
       this.source.push(this.indent+'  var '+el+' = dom.createElement('+string(tagName)+');\n');
+      if (svgHTMLIntegrationPoints[tagName]) {
+        this.pushNamespaceFrame({namespace: null, depth: this.depth});
+      }
     };
 
     FragmentJavaScriptCompiler.prototype.createText = function(str) {
@@ -727,17 +741,36 @@ define("htmlbars-compiler/fragment-javascript-compiler",
 
     FragmentJavaScriptCompiler.prototype.setAttribute = function(name, value) {
       var el = 'el'+this.depth;
-      this.source.push(this.indent+'  dom.setAttribute('+el+','+string(name)+','+string(value)+');\n');
+      this.source.push(this.indent+'  dom.setProperty('+el+','+string(name)+','+string(value)+');\n');
     };
 
     FragmentJavaScriptCompiler.prototype.appendChild = function() {
+      if (this.depth === this.getCurrentNamespaceFrame().depth) {
+        this.popNamespaceFrame();
+      }
       var child = 'el'+(this.depth--);
       var el = 'el'+this.depth;
       this.source.push(this.indent+'  dom.appendChild('+el+', '+child+');\n');
     };
 
-    FragmentJavaScriptCompiler.prototype.setNamespace = function(namespace) {
-      this.source.push(this.indent+'  dom.setNamespace('+(namespace ? string(namespace) : 'null')+');\n');
+    FragmentJavaScriptCompiler.prototype.getCurrentNamespaceFrame = function() {
+      return this.namespaceFrameStack[this.namespaceFrameStack.length-1];
+    };
+
+    FragmentJavaScriptCompiler.prototype.pushNamespaceFrame = function(frame) {
+      this.namespaceFrameStack.push(frame);
+    };
+
+    FragmentJavaScriptCompiler.prototype.popNamespaceFrame = function() {
+      return this.namespaceFrameStack.pop();
+    };
+
+    FragmentJavaScriptCompiler.prototype.ensureNamespace = function() {
+      var correctNamespace = this.getCurrentNamespaceFrame().namespace;
+      if (this.domNamespace !== correctNamespace) {
+        this.source.push(this.indent+'  dom.setNamespace('+(correctNamespace ? string(correctNamespace) : 'null')+');\n');
+        this.domNamespace = correctNamespace;
+      }
     };
   });
 define("htmlbars-compiler/fragment-opcode-compiler",
@@ -819,14 +852,13 @@ define("htmlbars-compiler/hydration-javascript-compiler",
     "use strict";
     var processOpcodes = __dependency1__.processOpcodes;
     var string = __dependency2__.string;
-    var quoteHash = __dependency2__.hash;
     var array = __dependency2__.array;
 
     function HydrationJavaScriptCompiler() {
       this.stack = [];
       this.source = [];
       this.mustaches = [];
-      this.parents = ['fragment'];
+      this.parents = [['fragment']];
       this.parentCount = 0;
       this.morphs = [];
       this.fragmentProcessing = [];
@@ -842,7 +874,7 @@ define("htmlbars-compiler/hydration-javascript-compiler",
       this.mustaches.length = 0;
       this.source.length = 0;
       this.parents.length = 1;
-      this.parents[0] = 'fragment';
+      this.parents[0] = ['fragment'];
       this.morphs.length = 0;
       this.fragmentProcessing.length = 0;
       this.parentCount = 0;
@@ -904,124 +936,113 @@ define("htmlbars-compiler/hydration-javascript-compiler",
       }
     };
 
+    prototype.pushHook = function(name, args) {
+      this.hooks[name] = true;
+      this.stack.push(name + '(' + args.join(', ') + ')');
+    };
+
     prototype.pushGetHook = function(path) {
-      this.hooks.get = true;
-      this.stack.push('get(context, ' + string(path) + ', env)');
+      this.pushHook('get', [
+        'env',
+        'context',
+        string(path)
+      ]);
     };
 
     prototype.pushSexprHook = function() {
-      this.hooks.subexpr = true;
-      var path = this.stack.pop();
-      var params = this.stack.pop();
-      var hash = this.stack.pop();
-      this.stack.push('subexpr(' + path + ', context, ' + params + ', ' + hash + ', {}, env)');
+      this.pushHook('subexpr', [
+        'env',
+        'context',
+        this.stack.pop(), // path
+        this.stack.pop(), // params
+        this.stack.pop() // hash
+      ]);
     };
 
     prototype.pushConcatHook = function() {
-      this.hooks.concat = true;
-      var parts = this.stack.pop();
-      this.stack.push('concat(' + parts + ', env)');
+      this.pushHook('concat', [
+        'env',
+        this.stack.pop() // parts
+      ]);
+    };
+
+    prototype.printHook = function(name, args) {
+      this.hooks[name] = true;
+      this.source.push(this.indent + '  ' + name + '(' + args.join(', ') + ');\n');
     };
 
     prototype.printSetHook = function(name, index) {
-      this.hooks.set = true;
-      this.source.push(this.indent + '  set(context, ' + string(name) +', blockArguments[' + index + ']);\n');
+      this.printHook('set', [
+        'env',
+        'context',
+        string(name),
+        'blockArguments[' + index + ']'
+      ]);
     };
 
-    prototype.printContentHookForBlockHelper = function(morphNum, templateId, inverseId, blockParamsLength) {
-      var path = this.stack.pop();
-      var params = this.stack.pop();
-      var hash = this.stack.pop();
-
-      var options = [];
-
-      options.push('morph: morph' + morphNum);
-
-      if (templateId !== null) {
-        options.push('template: child' + templateId);
-      }
-
-      if (inverseId !== null) {
-        options.push('inverse: child' + inverseId);
-      }
-
-      if (blockParamsLength) {
-        options.push('blockParams: ' + blockParamsLength);
-      }
-
-      this.printContentHook(morphNum, path, params, hash, options);
+    prototype.printBlockHook = function(morphNum, templateId, inverseId) {
+      this.printHook('block', [
+        'env',
+        'morph' + morphNum,
+        'context',
+        this.stack.pop(), // path
+        this.stack.pop(), // params
+        this.stack.pop(), // hash
+        templateId === null ? 'null' : 'child' + templateId,
+        inverseId === null ? 'null' : 'child' + inverseId
+      ]);
     };
 
-    prototype.printContentHookForInlineHelper = function(morphNum) {
-      var path = this.stack.pop();
-      var params = this.stack.pop();
-      var hash = this.stack.pop();
-
-      var options = [];
-      options.push('morph: morph' + morphNum);
-
-      this.printContentHook(morphNum, path, params, hash, options);
+    prototype.printInlineHook = function(morphNum) {
+      this.printHook('inline', [
+        'env',
+        'morph' + morphNum,
+        'context',
+        this.stack.pop(), // path
+        this.stack.pop(), // params
+        this.stack.pop() // hash
+      ]);
     };
 
-    prototype.printContentHookForAmbiguous = function(morphNum) {
-      var path = this.stack.pop();
-
-      var options = [];
-      options.push('morph: morph' + morphNum);
-
-      this.printContentHook(morphNum, path, '[]', '{}', options);
+    prototype.printContentHook = function(morphNum) {
+      this.printHook('content', [
+        'env',
+        'morph' + morphNum,
+        'context',
+        this.stack.pop() // path
+      ]);
     };
 
-    prototype.printContentHook = function(morphNum, path, params, hash, pairs) {
-      this.hooks.content = true;
-
-      var args = ['morph' + morphNum, path, 'context', params, hash, quoteHash(pairs), 'env'];
-      this.source.push(this.indent+'  content(' + args.join(', ') + ');\n');
+    prototype.printComponentHook = function(morphNum, templateId) {
+      this.printHook('component', [
+        'env',
+        'morph' + morphNum,
+        'context',
+        this.stack.pop(), // path
+        this.stack.pop(), // attrs
+        templateId === null ? 'null' : 'child' + templateId
+      ]);
     };
 
-    prototype.printComponentHook = function(morphNum, templateId, blockParamsLength) {
-      this.hooks.component = true;
-      
-      var path = this.stack.pop();
-      var hash = this.stack.pop();
-
-      var options = [];
-
-      options.push('morph: morph' + morphNum);
-
-      if (templateId !== null) {
-        options.push('template: child' + templateId);
-      }
-
-      if (blockParamsLength) {
-        options.push('blockParams: ' + blockParamsLength);
-      }
-
-      var args = ['morph' + morphNum, path, 'context', hash, quoteHash(options), 'env'];
-      this.source.push(this.indent+'  component(' + args.join(', ') + ');\n');
-    };
-
-    prototype.printAttributeHook = function(elementNum, quoted) {
-      this.hooks.attribute = true;
-
-      var name = this.stack.pop();
-      var value = this.stack.pop();
-
-      this.source.push(this.indent + '  attribute(element' + elementNum + ', ' + name + ', ' + quoted + ', context, ' + value + ', {}, env);\n');
+    prototype.printAttributeHook = function(attrMorphNum, elementNum) {
+      this.printHook('attribute', [
+        'env',
+        'attrMorph' + attrMorphNum,
+        'element' + elementNum,
+        this.stack.pop(), // name
+        this.stack.pop() // value
+      ]);
     };
 
     prototype.printElementHook = function(elementNum) {
-      this.hooks.element = true;
-
-      var path = this.stack.pop();
-      var params = this.stack.pop();
-      var hash = this.stack.pop();
-
-      var options = [];
-      options.push('element: element' + elementNum);
-
-      var args = ['element' + elementNum, path, 'context', params, hash, quoteHash(options), 'env'];
-      this.source.push(this.indent+'  element(' + args.join(', ') + ');\n');
+      this.printHook('element', [
+        'env',
+        'element' + elementNum,
+        'context',
+        this.stack.pop(), // path
+        this.stack.pop(), // params
+        this.stack.pop() // hash
+      ]);
     };
 
     prototype.createMorph = function(morphNum, parentPath, startIndex, endIndex, escaped) {
@@ -1035,6 +1056,12 @@ define("htmlbars-compiler/hydration-javascript-compiler",
         (isRoot ? ",contextualElement)" : ")");
 
       this.morphs.push(['morph' + morphNum, morph]);
+    };
+
+    prototype.createAttrMorph = function(attrMorphNum, elementNum, name, escaped) {
+      var morphMethod = escaped ? 'createAttrMorph' : 'createUnsafeAttrMorph';
+      var morph = "dom."+morphMethod+"(element"+elementNum+", '"+name+"')";
+      this.morphs.push(['attrMorph' + attrMorphNum, morph]);
     };
 
     prototype.repairClonedNode = function(blankChildTextNodes, isElementChecked) {
@@ -1051,11 +1078,14 @@ define("htmlbars-compiler/hydration-javascript-compiler",
     prototype.shareElement = function(elementNum){
       var elementNodesName = "element" + elementNum;
       this.fragmentProcessing.push('var '+elementNodesName+' = '+this.getParent()+';');
-      this.parents[this.parents.length-1] = elementNodesName;
+      this.parents[this.parents.length-1] = [elementNodesName];
     };
 
     prototype.consumeParent = function(i) {
-      this.parents.push(this.getParent() + '.childNodes[' + i + ']');
+      var newParent = this.lastParent().slice();
+      newParent.push(i);
+
+      this.parents.push(newParent);
     };
 
     prototype.popParent = function() {
@@ -1063,6 +1093,17 @@ define("htmlbars-compiler/hydration-javascript-compiler",
     };
 
     prototype.getParent = function() {
+      var last = this.lastParent().slice();
+      var frag = last.shift();
+
+      if (!last.length) {
+        return frag;
+      }
+
+      return 'dom.childAt(' + frag + ', [' + last.join(', ') + '])';
+    };
+
+    prototype.lastParent = function() {
       return this.parents[this.parents.length-1];
     };
   });
@@ -1099,6 +1140,7 @@ define("htmlbars-compiler/hydration-opcode-compiler",
       this.currentDOMChildIndex = 0;
       this.morphs = [];
       this.morphNum = 0;
+      this.attrMorphNum = 0;
       this.element = null;
       this.elementNum = -1;
     }
@@ -1130,6 +1172,7 @@ define("htmlbars-compiler/hydration-opcode-compiler",
       this.templateId = 0;
       this.currentDOMChildIndex = -1;
       this.morphNum = 0;
+      this.attrMorphNum = 0;
 
       var blockParams = program.blockParams || [];
 
@@ -1191,8 +1234,6 @@ define("htmlbars-compiler/hydration-opcode-compiler",
 
     HydrationOpcodeCompiler.prototype.block = function(block, childIndex, childrenLength) {
       var sexpr = block.sexpr;
-      var program = block.program || {};
-      var blockParams = program.blockParams || [];
 
       var currentDOMChildIndex = this.currentDOMChildIndex;
       var start = (currentDOMChildIndex < 0) ? null : currentDOMChildIndex;
@@ -1205,7 +1246,7 @@ define("htmlbars-compiler/hydration-opcode-compiler",
       var inverseId = block.inverse === null ? null : this.templateId++;
 
       prepareSexpr(this, sexpr);
-      this.opcode('printContentHookForBlockHelper', morphNum, templateId, inverseId, blockParams.length);
+      this.opcode('printBlockHook', morphNum, templateId, inverseId);
     };
 
     HydrationOpcodeCompiler.prototype.component = function(component, childIndex, childrenLength) {
@@ -1244,16 +1285,15 @@ define("htmlbars-compiler/hydration-opcode-compiler",
 
     HydrationOpcodeCompiler.prototype.attribute = function(attr) {
       var value = attr.value;
-      var quoted;
-      
+      var escaped = true;
+
       // TODO: Introduce context specific AST nodes to avoid switching here.
       if (value.type === 'TextNode') {
         return;
       } else if (value.type === 'MustacheStatement') {
-        quoted = false;
+        escaped = value.escaped;
         this.accept(unwrapMustache(value));
       } else if (value.type === 'ConcatStatement') {
-        quoted = true;
         prepareParams(this, value.parts);
         this.opcode('pushConcatHook');
       }
@@ -1265,7 +1305,9 @@ define("htmlbars-compiler/hydration-opcode-compiler",
         this.element = null;
       }
 
-      this.opcode('printAttributeHook', this.elementNum, value.type === 'ConcatStatement');
+      var attrMorphNum = this.attrMorphNum++;
+      this.opcode('createAttrMorph', attrMorphNum, this.elementNum, attr.name, escaped);
+      this.opcode('printAttributeHook', attrMorphNum, this.elementNum);
     };
 
     HydrationOpcodeCompiler.prototype.elementHelper = function(sexpr) {
@@ -1292,10 +1334,10 @@ define("htmlbars-compiler/hydration-opcode-compiler",
 
       if (isHelper(sexpr)) {
         prepareSexpr(this, sexpr);
-        this.opcode('printContentHookForInlineHelper', morphNum);
+        this.opcode('printInlineHook', morphNum);
       } else {
         preparePath(this, sexpr.path);
-        this.opcode('printContentHookForAmbiguous', morphNum);
+        this.opcode('printContentHook', morphNum);
       }
     };
 
@@ -1474,16 +1516,26 @@ define("htmlbars-compiler/template-compiler",
         this.getChildTemplateVars(indent + '  ') +
         indent+'  return {\n' +
         indent+'    isHTMLBars: true,\n' +
+        indent+'    blockParams: ' + blockParams.length + ',\n' +
         indent+'    cachedFragment: null,\n' +
+        indent+'    hasRendered: false,\n' +
         indent+'    build: ' + fragmentProgram + ',\n' +
         indent+'    render: function render(' + templateSignature + ') {\n' +
         indent+'      var dom = env.dom;\n' +
         this.getHydrationHooks(indent + '      ', this.hydrationCompiler.hooks) +
         indent+'      dom.detectNamespace(contextualElement);\n' +
+        indent+'      var fragment;\n' +
         indent+'      if (this.cachedFragment === null) {\n' +
-        indent+'        this.cachedFragment = this.build(dom);\n' +
+        indent+'        fragment = this.build(dom);\n' +
+        indent+'        if (this.hasRendered) {\n' +
+        indent+'          this.cachedFragment = fragment;\n' +
+        indent+'        } else {\n' +
+        indent+'          this.hasRendered = true;\n' +
+        indent+'        }\n' +
         indent+'      }\n' +
-        indent+'      var fragment = dom.cloneNode(this.cachedFragment, true);\n' +
+        indent+'      if (this.cachedFragment) {\n' +
+        indent+'        fragment = dom.cloneNode(this.cachedFragment, true);\n' +
+        indent+'      }\n' +
         hydrationProgram +
         indent+'      return fragment;\n' +
         indent+'    }\n' +
@@ -1537,17 +1589,6 @@ define("htmlbars-compiler/template-visitor",
   function(__exports__) {
     "use strict";
     var push = Array.prototype.push;
-
-    function elementIntroducesNamespace(element, parentElement){
-      return (
-        // Root element. Those that have a namespace are entered.
-        (!parentElement && element.namespaceURI) ||
-        // Inner elements to a namespace
-        ( parentElement &&
-          ( !element.isHTMLIntegrationPoint && parentElement.namespaceURI !== element.namespaceURI )
-        )
-      );
-    }
 
     function Frame() {
       this.parentNode = null;
@@ -1669,15 +1710,7 @@ define("htmlbars-compiler/template-visitor",
         parentNode.type === 'Program' && parentFrame.childCount === 1
       ];
 
-      var lastNode = parentFrame.childIndex === parentFrame.childCount-1,
-          introducesNamespace = elementIntroducesNamespace(element, parentFrame.parentNode);
-      if ( !lastNode && introducesNamespace ) {
-        elementFrame.actions.push(['setNamespace', [parentNode.namespaceURI]]);
-      }
       elementFrame.actions.push(['closeElement', actionArgs]);
-      if ( !lastNode && element.isHTMLIntergrationPoint ) {
-        elementFrame.actions.push(['setNamespace', []]);
-      }
 
       for (var i = element.attributes.length - 1; i >= 0; i--) {
         this.visit(element.attributes[i]);
@@ -1688,14 +1721,8 @@ define("htmlbars-compiler/template-visitor",
         this.visit(element.children[i]);
       }
 
-      if ( element.isHTMLIntergrationPoint ) {
-        elementFrame.actions.push(['setNamespace', []]);
-      }
       elementFrame.actions.push(['openElement', actionArgs.concat([
         elementFrame.mustacheCount, elementFrame.blankChildTextNodes.reverse() ])]);
-      if ( introducesNamespace ) {
-        elementFrame.actions.push(['setNamespace', [element.namespaceURI]]);
-      }
       this.popFrame();
 
       // Propagate the element's frame state to the parent frame
@@ -3237,16 +3264,15 @@ define("htmlbars-syntax/handlebars/utils",
     __exports__.appendContextPath = appendContextPath;
   });
 define("htmlbars-syntax/node-handlers",
-  ["./builders","./tokens","../htmlbars-util/array-utils","./utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+  ["./builders","../htmlbars-util/array-utils","./utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     var buildProgram = __dependency1__.buildProgram;
     var buildBlock = __dependency1__.buildBlock;
     var buildHash = __dependency1__.buildHash;
-    var Chars = __dependency2__.Chars;
-    var forEach = __dependency3__.forEach;
-    var appendChild = __dependency4__.appendChild;
-    var postprocessProgram = __dependency4__.postprocessProgram;
+    var forEach = __dependency2__.forEach;
+    var appendChild = __dependency3__.appendChild;
+    var postprocessProgram = __dependency3__.postprocessProgram;
 
     var nodeHandlers = {
 
@@ -3282,7 +3308,7 @@ define("htmlbars-syntax/node-handlers",
         delete block.closeStrip;
 
         if (this.tokenizer.state === 'comment') {
-          this.tokenizer.token.addChar('{{' + this.sourceForMustache(block) + '}}');
+          this.tokenizer.addChar('{{' + this.sourceForMustache(block) + '}}');
           return;
         }
 
@@ -3302,7 +3328,7 @@ define("htmlbars-syntax/node-handlers",
         delete mustache.strip;
 
         if (this.tokenizer.state === 'comment') {
-          this.tokenizer.token.addChar('{{' + this.sourceForMustache(mustache) + '}}');
+          this.tokenizer.addChar('{{' + this.sourceForMustache(mustache) + '}}');
           return;
         }
 
@@ -3380,8 +3406,7 @@ define("htmlbars-syntax/node-handlers",
     function switchToHandlebars(processor) {
       var token = processor.tokenizer.token;
 
-      // TODO: Monkey patch Chars.addChar like attributes
-      if (token instanceof Chars) {
+      if (token && token.type === 'Chars') {
         processor.acceptToken(token);
         processor.tokenizer.token = null;
       }
@@ -3405,7 +3430,7 @@ define("htmlbars-syntax/node-handlers",
     __exports__["default"] = nodeHandlers;
   });
 define("htmlbars-syntax/parser",
-  ["./handlebars/compiler/base","../simple-html-tokenizer","../simple-html-tokenizer/entity-parser","../simple-html-tokenizer/char-refs/full","./node-handlers","./token-handlers","../htmlbars-syntax","exports"],
+  ["./handlebars/compiler/base","./tokenizer","../simple-html-tokenizer/entity-parser","../simple-html-tokenizer/char-refs/full","./node-handlers","./token-handlers","../htmlbars-syntax","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
     var parse = __dependency1__.parse;
@@ -3522,28 +3547,6 @@ define("htmlbars-syntax/token-handlers",
       voidMap[tagName] = true;
     });
 
-    var svgNamespace = "http://www.w3.org/2000/svg",
-        // http://www.w3.org/html/wg/drafts/html/master/syntax.html#html-integration-point
-        svgHTMLIntegrationPoints = {'foreignObject':true, 'desc':true, 'title':true};
-
-    function applyNamespace(tag, element, currentElement){
-      if (tag.tagName === 'svg') {
-        element.namespaceURI = svgNamespace;
-      } else if (
-        currentElement.type === 'ElementNode' &&
-        currentElement.namespaceURI &&
-        !currentElement.isHTMLIntegrationPoint
-      ) {
-        element.namespaceURI = currentElement.namespaceURI;
-      }
-    }
-
-    function applyHTMLIntegrationPoint(tag, element){
-      if (svgHTMLIntegrationPoints[tag.tagName]) {
-        element.isHTMLIntegrationPoint = true;
-      }
-    }
-
     // Except for `mustache`, all tokens are only allowed outside of
     // a start or end tag.
     var tokenHandlers = {
@@ -3566,8 +3569,6 @@ define("htmlbars-syntax/token-handlers",
           end: { line: null, column: null}
         };
 
-        applyNamespace(tag, element, this.currentElement());
-        applyHTMLIntegrationPoint(tag, element);
         this.elementStack.push(element);
         if (voidMap.hasOwnProperty(tag.tagName) || tag.selfClosing) {
           tokenHandlers.EndTag.call(this, tag);
@@ -3583,39 +3584,38 @@ define("htmlbars-syntax/token-handlers",
       },
 
       MustacheStatement: function(mustache) {
-        var state = this.tokenizer.state;
-        var token = this.tokenizer.token;
+        var tokenizer = this.tokenizer;
 
-        switch(state) {
+        switch(tokenizer.state) {
           // Tag helpers
           case "tagName":
-            token.addTagHelper(mustache.sexpr);
-            this.tokenizer.state = "beforeAttributeName";
+            tokenizer.addTagHelper(mustache.sexpr);
+            tokenizer.state = "beforeAttributeName";
             return;
           case "beforeAttributeName":
-            token.addTagHelper(mustache.sexpr);
+            tokenizer.addTagHelper(mustache.sexpr);
             return;
           case "attributeName":
           case "afterAttributeName":
-            this.tokenizer.finalizeAttributeValue();
-            token.addTagHelper(mustache.sexpr);
-            this.tokenizer.state = "beforeAttributeName";
+            tokenizer.finalizeAttributeValue();
+            tokenizer.addTagHelper(mustache.sexpr);
+            tokenizer.state = "beforeAttributeName";
             return;
           case "afterAttributeValueQuoted":
-            token.addTagHelper(mustache.sexpr);
-            this.tokenizer.state = "beforeAttributeName";
+            tokenizer.addTagHelper(mustache.sexpr);
+            tokenizer.state = "beforeAttributeName";
             return;
 
           // Attribute values
           case "beforeAttributeValue":
-            token.markAttributeQuoted(false);
-            token.addToAttributeValue(mustache);
-            this.tokenizer.state = 'attributeValueUnquoted';
+            tokenizer.markAttributeQuoted(false);
+            tokenizer.addToAttributeValue(mustache);
+            tokenizer.state = 'attributeValueUnquoted';
             return;
           case "attributeValueDoubleQuoted":
           case "attributeValueSingleQuoted":
           case "attributeValueUnquoted":
-            token.addToAttributeValue(mustache);
+            tokenizer.addToAttributeValue(mustache);
             return;
 
           // TODO: Only append child when the tokenizer state makes
@@ -3630,12 +3630,7 @@ define("htmlbars-syntax/token-handlers",
         var parent = this.currentElement();
         var disableComponentGeneration = this.options.disableComponentGeneration === true;
 
-        if (element.tag !== tag.tagName) {
-          throw new Error(
-            "Closing tag `" + tag.tagName + "` (on line " + tag.lastLine + ") " +
-            "did not match last open tag `" + element.tag + "` (on line " + element.loc.start.line + ")."
-          );
-        }
+        validateEndTag(tag, element);
 
         if (disableComponentGeneration || element.tag.indexOf("-") === -1) {
           appendChild(parent, element);
@@ -3651,32 +3646,52 @@ define("htmlbars-syntax/token-handlers",
 
     };
 
+    function validateEndTag(tag, element) {
+      var error;
+
+      if (voidMap[tag.tagName] && element.tag === undefined) {
+        // For void elements, we check element.tag is undefined because endTag is called by the startTag token handler in
+        // the normal case, so checking only voidMap[tag.tagName] would lead to an error being thrown on the opening tag.
+        error = "Invalid end tag " + formatEndTagInfo(tag) + " (void elements cannot have end tags).";
+      } else if (element.tag === undefined) {
+        error = "Closing tag " + formatEndTagInfo(tag) + " without an open tag.";
+      } else if (element.tag !== tag.tagName) {
+        error = "Closing tag " + formatEndTagInfo(tag) + " did not match last open tag `" + element.tag + "` (on line " +
+                element.loc.start.line + ").";
+      }
+
+      if (error) { throw new Error(error); }
+    }
+
+    function formatEndTagInfo(tag) {
+      return "`" + tag.tagName + "` (on line " + tag.lastLine + ")";
+    }
+
     __exports__["default"] = tokenHandlers;
   });
-define("htmlbars-syntax/tokens",
+define("htmlbars-syntax/tokenizer",
   ["../simple-html-tokenizer","./utils","./builders","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
-    var Chars = __dependency1__.Chars;
-    var StartTag = __dependency1__.StartTag;
-    var EndTag = __dependency1__.EndTag;
+    var Tokenizer = __dependency1__.Tokenizer;
     var isHelper = __dependency2__.isHelper;
     var builders = __dependency3__["default"];
 
-    StartTag.prototype.startAttribute = function(char) {
+    Tokenizer.prototype.createAttribute = function(char) {
       this.currentAttribute = builders.attr(char.toLowerCase(), [], null);
-      this.attributes.push(this.currentAttribute);
+      this.token.attributes.push(this.currentAttribute);
+      this.state = 'attributeName';
     };
 
-    StartTag.prototype.markAttributeQuoted = function(value) {
+    Tokenizer.prototype.markAttributeQuoted = function(value) {
       this.currentAttribute.quoted = value;
     };
 
-    StartTag.prototype.addToAttributeName = function(char) {
+    Tokenizer.prototype.addToAttributeName = function(char) {
       this.currentAttribute.name += char;
     };
 
-    StartTag.prototype.addToAttributeValue = function(char) {
+    Tokenizer.prototype.addToAttributeValue = function(char) {
       var value = this.currentAttribute.value;
 
       if (!this.currentAttribute.quoted && value.length > 0 &&
@@ -3702,12 +3717,7 @@ define("htmlbars-syntax/tokens",
       }
     };
 
-    StartTag.prototype.finalize = function() {
-      this.finalizeAttributeValue();
-      return this;
-    };
-
-    StartTag.prototype.finalizeAttributeValue = function() {
+    Tokenizer.prototype.finalizeAttributeValue = function() {
       if (this.currentAttribute) {
         this.currentAttribute.value = prepareAttributeValue(this.currentAttribute);
         delete this.currentAttribute.quoted;
@@ -3715,8 +3725,8 @@ define("htmlbars-syntax/tokens",
       }
     };
 
-    StartTag.prototype.addTagHelper = function(helper) {
-      var helpers = this.helpers = this.helpers || [];
+    Tokenizer.prototype.addTagHelper = function(helper) {
+      var helpers = this.token.helpers = this.token.helpers || [];
       helpers.push(helper);
     };
 
@@ -3750,9 +3760,7 @@ define("htmlbars-syntax/tokens",
       }
     }
 
-    __exports__.unwrapMustache = unwrapMustache;__exports__.Chars = Chars;
-    __exports__.StartTag = StartTag;
-    __exports__.EndTag = EndTag;
+    __exports__.unwrapMustache = unwrapMustache;__exports__.Tokenizer = Tokenizer;
   });
 define("htmlbars-syntax/utils",
   ["./builders","exports"],
@@ -6558,39 +6566,50 @@ define("simple-html-tokenizer/tokenizer",
         }
       },
 
-      tag: function(Type, char) {
+      createTag: function(Type, char) {
         var lastToken = this.token;
         this.token = new Type(char);
         this.state = 'tagName';
         return lastToken;
       },
 
+      addToTagName: function(char) {
+        this.token.tagName += char;
+      },
+
       selfClosing: function() {
         this.token.selfClosing = true;
       },
 
-      attribute: function(char) {
-        this.token.startAttribute(char);
+      createAttribute: function(char) {
+        this._currentAttribute = [char.toLowerCase(), "", null];
+        this.token.attributes.push(this._currentAttribute);
         this.state = 'attributeName';
       },
 
       addToAttributeName: function(char) {
-        this.token.addToAttributeName(char);
+        this._currentAttribute[0] += char;
       },
 
       markAttributeQuoted: function(value) {
-        this.token.markAttributeQuoted(value);
+        this._currentAttribute[2] = value;
       },
 
       finalizeAttributeValue: function() {
-        this.token.finalizeAttributeValue();
+        if (this._currentAttribute) {
+          if (this._currentAttribute[2] === null) {
+            this._currentAttribute[2] = false;
+          }
+          this._currentAttribute = undefined;
+        }
       },
 
       addToAttributeValue: function(char) {
-        this.token.addToAttributeValue(char);
+        this._currentAttribute[1] = this._currentAttribute[1] || "";
+        this._currentAttribute[1] += char;
       },
 
-      commentStart: function() {
+      createComment: function() {
         var lastToken = this.token;
         this.token = new Comment();
         this.state = 'commentStart';
@@ -6598,7 +6617,18 @@ define("simple-html-tokenizer/tokenizer",
       },
 
       addToComment: function(char) {
-        this.token.addChar(char);
+        this.addChar(char);
+      },
+
+      addChar: function(char) {
+        this.token.chars += char;
+      },
+
+      finalizeToken: function() {
+        if (this.token.type === 'StartTag') {
+          this.finalizeAttributeValue();
+        }
+        return this.token;
       },
 
       emitData: function() {
@@ -6611,7 +6641,7 @@ define("simple-html-tokenizer/tokenizer",
 
       emitToken: function() {
         this.addLocInfo();
-        var lastToken = this.token.finalize();
+        var lastToken = this.finalizeToken();
         this.token = null;
         this.state = 'data';
         return lastToken;
@@ -6623,7 +6653,7 @@ define("simple-html-tokenizer/tokenizer",
           this.markFirst();
         }
 
-        this.token.addChar(char);
+        this.addChar(char);
       },
 
       markFirst: function(line, column) {
@@ -6655,7 +6685,6 @@ define("simple-html-tokenizer/tokenizer",
           } else {
             this.column++;
           }
-          // console.log(this.state, char);
           return this.states[this.state].call(this, char);
         } else {
           this.addLocInfo(this.line, this.column);
@@ -6682,14 +6711,14 @@ define("simple-html-tokenizer/tokenizer",
           } else if (char === "/") {
             this.state = 'endTagOpen';
           } else if (isAlpha(char)) {
-            return this.tag(StartTag, char.toLowerCase());
+            return this.createTag(StartTag, char.toLowerCase());
           }
         },
 
         markupDeclaration: function(char) {
           if (char === "-" && this.input.charAt(this["char"]) === "-") {
             this["char"]++;
-            this.commentStart();
+            this.createComment();
           }
         },
 
@@ -6749,7 +6778,7 @@ define("simple-html-tokenizer/tokenizer",
           } else if (char === ">") {
             return this.emitToken();
           } else {
-            this.token.addToTagName(char);
+            this.addToTagName(char);
           }
         },
 
@@ -6761,7 +6790,7 @@ define("simple-html-tokenizer/tokenizer",
           } else if (char === ">") {
             return this.emitToken();
           } else {
-            this.attribute(char);
+            this.createAttribute(char);
           }
         },
 
@@ -6790,7 +6819,7 @@ define("simple-html-tokenizer/tokenizer",
             return this.emitToken();
           } else {
             this.finalizeAttributeValue();
-            this.attribute(char);
+            this.createAttribute(char);
           }
         },
 
@@ -6872,7 +6901,7 @@ define("simple-html-tokenizer/tokenizer",
 
         endTagOpen: function(char) {
           if (isAlpha(char)) {
-            this.tag(EndTag, char.toLowerCase());
+            this.createTag(EndTag, char.toLowerCase());
           }
         }
       }
@@ -6889,84 +6918,24 @@ define("simple-html-tokenizer/tokens",
       this.tagName = tagName || '';
       this.attributes = attributes || [];
       this.selfClosing = selfClosing === true;
-      this._currentAttribute = undefined;
     }
 
-    __exports__.StartTag = StartTag;StartTag.prototype = {
-      addToTagName: function(char) {
-        this.tagName += char;
-      },
-
-      startAttribute: function(char) {
-        this._currentAttribute = [char.toLowerCase(), "", null];
-        this.attributes.push(this._currentAttribute);
-      },
-
-      addToAttributeName: function(char) {
-        this._currentAttribute[0] += char;
-      },
-
-      markAttributeQuoted: function(value) {
-        this._currentAttribute[2] = value;
-      },
-
-      addToAttributeValue: function(char) {
-        this._currentAttribute[1] = this._currentAttribute[1] || "";
-        this._currentAttribute[1] += char;
-      },
-
-      finalizeAttributeValue: function() {
-        if (this._currentAttribute) {
-          if (this._currentAttribute[2] === null) {
-            this._currentAttribute[2] = false;
-          }
-          this._currentAttribute = undefined;
-        }
-      },
-
-      finalize: function() {
-        this.finalizeAttributeValue();
-        return this;
-      }
-    };
-
-    function EndTag(tagName) {
+    __exports__.StartTag = StartTag;function EndTag(tagName) {
       this.type = 'EndTag';
       this.tagName = tagName || '';
     }
 
-    __exports__.EndTag = EndTag;EndTag.prototype = {
-      addToTagName: function(char) {
-        this.tagName += char;
-      },
-      finalize: function () {
-        return this;
-      }
-    };
-
-    function Chars(chars) {
+    __exports__.EndTag = EndTag;function Chars(chars) {
       this.type = 'Chars';
       this.chars = chars || "";
     }
 
-    __exports__.Chars = Chars;Chars.prototype = {
-      addChar: function(char) {
-        this.chars += char;
-      }
-    };
-
-    function Comment(chars) {
+    __exports__.Chars = Chars;function Comment(chars) {
       this.type = 'Comment';
       this.chars = chars || '';
     }
 
-    __exports__.Comment = Comment;Comment.prototype = {
-      addChar: function(char) {
-        this.chars += char;
-      },
-
-      finalize: function() { return this; }
-    };
+    __exports__.Comment = Comment;
   });
 define("simple-html-tokenizer/utils",
   ["exports"],

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.3+pre.ceb7a844
+ * @version   1.10.0-beta.3+pre.8613522a
  */
 
 (function() {
@@ -4037,78 +4037,6 @@ enifed("ember-htmlbars.jshint",
       ok(true, 'ember-htmlbars.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/attr_nodes.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-htmlbars');
-    test('ember-htmlbars/attr_nodes.js should pass jshint', function() { 
-      ok(true, 'ember-htmlbars/attr_nodes.js should pass jshint.'); 
-    });
-  });
-enifed("ember-htmlbars/attr_nodes/legacy_bind.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-htmlbars/attr_nodes');
-    test('ember-htmlbars/attr_nodes/legacy_bind.js should pass jshint', function() { 
-      ok(true, 'ember-htmlbars/attr_nodes/legacy_bind.js should pass jshint.'); 
-    });
-  });
-enifed("ember-htmlbars/attr_nodes/quoted.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-htmlbars/attr_nodes');
-    test('ember-htmlbars/attr_nodes/quoted.js should pass jshint', function() { 
-      ok(true, 'ember-htmlbars/attr_nodes/quoted.js should pass jshint.'); 
-    });
-  });
-enifed("ember-htmlbars/attr_nodes/sanitized.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-htmlbars/attr_nodes');
-    test('ember-htmlbars/attr_nodes/sanitized.js should pass jshint', function() { 
-      ok(true, 'ember-htmlbars/attr_nodes/sanitized.js should pass jshint.'); 
-    });
-  });
-enifed("ember-htmlbars/attr_nodes/simple.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-htmlbars/attr_nodes');
-    test('ember-htmlbars/attr_nodes/simple.js should pass jshint', function() { 
-      ok(true, 'ember-htmlbars/attr_nodes/simple.js should pass jshint.'); 
-    });
-  });
-enifed("ember-htmlbars/attr_nodes/unquoted.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-htmlbars/attr_nodes');
-    test('ember-htmlbars/attr_nodes/unquoted.js should pass jshint', function() { 
-      ok(true, 'ember-htmlbars/attr_nodes/unquoted.js should pass jshint.'); 
-    });
-  });
-enifed("ember-htmlbars/attr_nodes/unquoted_nonproperty.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-htmlbars/attr_nodes');
-    test('ember-htmlbars/attr_nodes/unquoted_nonproperty.js should pass jshint', function() { 
-      ok(true, 'ember-htmlbars/attr_nodes/unquoted_nonproperty.js should pass jshint.'); 
-    });
-  });
-enifed("ember-htmlbars/attr_nodes/utils.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-htmlbars/attr_nodes');
-    test('ember-htmlbars/attr_nodes/utils.js should pass jshint', function() { 
-      ok(true, 'ember-htmlbars/attr_nodes/utils.js should pass jshint.'); 
-    });
-  });
 enifed("ember-htmlbars/compat.jshint",
   [],
   function() {
@@ -4325,6 +4253,15 @@ enifed("ember-htmlbars/hooks/attribute.jshint",
       ok(true, 'ember-htmlbars/hooks/attribute.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/hooks/block.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/hooks');
+    test('ember-htmlbars/hooks/block.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/hooks/block.js should pass jshint.'); 
+    });
+  });
 enifed("ember-htmlbars/hooks/component.jshint",
   [],
   function() {
@@ -4368,6 +4305,15 @@ enifed("ember-htmlbars/hooks/get.jshint",
     module('JSHint - ember-htmlbars/hooks');
     test('ember-htmlbars/hooks/get.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/hooks/get.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/hooks/inline.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/hooks');
+    test('ember-htmlbars/hooks/inline.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/hooks/inline.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/hooks/set.jshint",
@@ -4549,6 +4495,13 @@ enifed("ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test",
 
     function appendView(view) {
       run(function() { view.appendTo('#qunit-fixture'); });
+    }
+
+    function canSetFalsyMaxLength() {
+      var input = document.createElement('input');
+      input.maxLength = 0;
+
+      return input.maxLength === 0;
     }
 
       });
@@ -8373,12 +8326,12 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
     test("The `unless` helper does not error on undefined", function() {
       view = EmberView.create({
         undefinedValue: undefined,
-        template: compile('{{#unless view.undefinedValue}}Yep{{/unless}}{{#unbound unless view.undefinedValue}}Yep{{/unbound}}')
+        template: compile('{{#unless view.undefinedValue}}YepBound{{/unless}}{{#unbound unless view.undefinedValue}}YepUnbound{{/unbound}}')
       });
 
       runAppend(view);
 
-      equal(view.$().text(), 'YepYep');
+      equal(view.$().text(), 'YepBoundYepUnbound');
     });
 
     test("The `if` helper does not print the contents for an object proxy without content", function() {
@@ -8599,29 +8552,6 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
       equal(view.$().text(), '');
     });
 
-    test('views within an if statement should be sane on re-render', function() {
-      view = EmberView.create({
-        template: compile('{{#if view.display}}{{input}}{{/if}}'),
-        display: false
-      });
-
-      runAppend(view);
-
-      equal(view.$('input').length, 0);
-
-      run(function() {
-        // Setting twice will trigger the observer twice, this is intentional
-        view.set('display', true);
-        view.set('display', 'yes');
-      });
-
-      var textfield = view.$('input');
-      equal(textfield.length, 1);
-
-      // Make sure the view is still registered in View.views
-      ok(EmberView.views[textfield.attr('id')]);
-    });
-
     test('should update the block when object passed to #if helper changes', function() {
       container.register('template:menu', compile('<h1>{{#if view.inception}}{{view.INCEPTION}}{{/if}}</h1>'));
 
@@ -8785,29 +8715,6 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
       equal(view.$().text(), '');
     });
 
-    test('views within an if statement should be sane on re-render', function() {
-      view = EmberView.create({
-        template: compile('{{#if view.display}}{{input}}{{/if}}'),
-        display: false
-      });
-
-      runAppend(view);
-
-      equal(view.$('input').length, 0);
-
-      run(function() {
-        // Setting twice will trigger the observer twice, this is intentional
-        view.set('display', true);
-        view.set('display', 'yes');
-      });
-
-      var textfield = view.$('input');
-      equal(textfield.length, 1);
-
-      // Make sure the view is still registered in View.views
-      ok(EmberView.views[textfield.attr('id')]);
-    });
-
     test('should update the block when object passed to #if helper changes', function() {
       container.register('template:menu', compile('<h1>{{#if view.inception}}{{view.INCEPTION}}{{/if}}</h1>'));
 
@@ -8873,29 +8780,6 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
 
         equal(view.$('h1').text(), 'BOOOOOOOONG doodoodoodoodooodoodoodoo', 'precond - renders block when conditional is true');
       });
-    });
-
-    test('views within an if statement should be sane on re-render', function() {
-      view = EmberView.create({
-        template: compile('{{#if view.display}}{{input}}{{/if}}'),
-        display: false
-      });
-
-      runAppend(view);
-
-      equal(view.$('input').length, 0);
-
-      run(function() {
-        // Setting twice will trigger the observer twice, this is intentional
-        view.set('display', true);
-        view.set('display', 'yes');
-      });
-
-      var textfield = view.$('input');
-      equal(textfield.length, 1);
-
-      // Make sure the view is still registered in View.views
-      ok(EmberView.views[textfield.attr('id')]);
     });
 
     test('the {{this}} helper should not fail on removal', function() {
@@ -47949,6 +47833,24 @@ enifed("ember-views.jshint",
       ok(true, 'ember-views.js should pass jshint.'); 
     });
   });
+enifed("ember-views/attr_nodes/attr_node.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/attr_nodes');
+    test('ember-views/attr_nodes/attr_node.js should pass jshint', function() { 
+      ok(true, 'ember-views/attr_nodes/attr_node.js should pass jshint.'); 
+    });
+  });
+enifed("ember-views/attr_nodes/legacy_bind.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-views/attr_nodes');
+    test('ember-views/attr_nodes/legacy_bind.js should pass jshint', function() { 
+      ok(true, 'ember-views/attr_nodes/legacy_bind.js should pass jshint.'); 
+    });
+  });
 enifed("ember-views/component_lookup.jshint",
   [],
   function() {
@@ -52359,7 +52261,7 @@ enifed("ember-views/tests/views/simple_bound_view_test",
       var isEscaped = true;
       var view = new SimpleBoundView(lazyValue, isEscaped);
       view._morph = {
-        update: function(newValue) {
+        setContent: function(newValue) {
           value = newValue;
         }
       };
@@ -52368,19 +52270,19 @@ enifed("ember-views/tests/views/simple_bound_view_test",
 
       view.update();
 
-      equal(value, 'bar', 'expected call to morph.update with "bar"');
+      equal(value, 'bar', 'expected call to morph.setContent with "bar"');
       value = null;
 
       view.update();
 
-      equal(value, null, 'expected no call to morph.update');
+      equal(value, null, 'expected no call to morph.setContent');
 
       obj.foo = 'baz'; // change property
       lazyValue.notify();
 
       view.update();
 
-      equal(value, 'baz', 'expected call to morph.update with "baz"');
+      equal(value, 'baz', 'expected call to morph.setContent with "baz"');
     });
   });
 enifed("ember-views/tests/views/simple_bound_view_test.jshint",
