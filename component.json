@@ -1,12 +1,12 @@
 {
   "name": "ember",
   "repo": "components/ember",
-  "version": "1.11.0-beta.1+canary.e48ea574",
+  "version": "1.11.0-beta.1+canary.403e082f",
   "main": "ember.debug.js",
   "scripts": [
     "ember.debug.js"
   ],
   "dependencies": {
-    "components/jquery": ">= 1.7.0 <= 2.1.0"
+    "components/jquery": ">= 1.7.0 < 2.2.0"
   }
 }
