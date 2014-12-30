@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.16034798
+ * @version   1.11.0-beta.1+canary.9c38ba0d
  */
 
 (function() {
@@ -19139,7 +19139,7 @@ enifed("ember-metal/tests/computed_test",
     var objA, objB;
     QUnit.module('computed should inherit through prototype', {
       setup: function() {
-        objA = { __foo: 'FOO' } ;
+        objA = { __foo: 'FOO' };
         defineProperty(objA, 'foo', computed(function(key, value) {
           if (value !== undefined) {
             this['__'+key] = 'computed '+value;
@@ -19175,7 +19175,7 @@ enifed("ember-metal/tests/computed_test",
 
     QUnit.module('redefining computed property to normal', {
       setup: function() {
-        objA = { __foo: 'FOO' } ;
+        objA = { __foo: 'FOO' };
         defineProperty(objA, 'foo', computed(function(key, value) {
           if (value !== undefined) {
             this['__'+key] = 'computed '+value;
@@ -19211,7 +19211,7 @@ enifed("ember-metal/tests/computed_test",
 
     QUnit.module('redefining computed property to another property', {
       setup: function() {
-        objA = { __foo: 'FOO' } ;
+        objA = { __foo: 'FOO' };
         defineProperty(objA, 'foo', computed(function(key, value) {
           if (value !== undefined) {
             this['__'+key] = 'A '+value;
@@ -22877,7 +22877,7 @@ enifed("ember-metal/tests/mixin/introspection_test",
 
     var Combined = Mixin.create(BarProperties, BarMethods);
 
-    var obj ;
+    var obj;
 
     QUnit.module('Basic introspection', {
       setup: function() {
@@ -24648,7 +24648,7 @@ enifed("ember-metal/tests/observer_test",
 
     testBoth('depending on a simple chain', function(get, set) {
 
-      var val ;
+      var val;
       addObserver(obj, 'foo.bar.baz.biff', function(target, key) {
         val = get(target, key);
         count++;
@@ -25597,7 +25597,7 @@ enifed("ember-metal/tests/run_loop/later_test",
 
     asyncTest('should invoke after specified period of time - target/method', function() {
 
-      var obj = { invoked: false } ;
+      var obj = { invoked: false };
 
       run(function() {
         run.later(obj, function() { this.invoked = true; }, 100);
@@ -25611,7 +25611,7 @@ enifed("ember-metal/tests/run_loop/later_test",
 
     asyncTest('should invoke after specified period of time - target/method/args', function() {
 
-      var obj = { invoked: 0 } ;
+      var obj = { invoked: 0 };
 
       run(function() {
         run.later(obj, function(amt) { this.invoked += amt; }, 10, 100);
@@ -26126,7 +26126,7 @@ enifed("ember-metal/tests/run_loop/schedule_test",
       run(function() {
         run.schedule('actions', function() { cnt++; });
         run.schedule('actions', function() { cnt++; });
-        equal(cnt, 0, 'should not run action yet') ;
+        equal(cnt, 0, 'should not run action yet');
       });
 
       equal(cnt, 2, 'should flush actions now');
@@ -26138,12 +26138,12 @@ enifed("ember-metal/tests/run_loop/schedule_test",
 
       run(function() {
         run.schedule('actions', function() { cnt++; });
-        equal(cnt, 0, 'should not run action yet') ;
+        equal(cnt, 0, 'should not run action yet');
 
         run(function() {
           run.schedule('actions', function() { cnt++; });
         });
-        equal(cnt, 1, 'should not run action yet') ;
+        equal(cnt, 1, 'should not run action yet');
 
       });
 
@@ -26238,7 +26238,7 @@ enifed("ember-metal/tests/run_loop/sync_test",
 
         syncfunc();
 
-        equal(cnt, 1, 'should not run action yet') ;
+        equal(cnt, 1, 'should not run action yet');
         run.sync();
 
         equal(cnt, 5, 'should have run sync queue continuously');
@@ -36924,7 +36924,7 @@ enifed("ember-runtime/tests/core/type_test",
       equal(typeOf(arr),           'array',     "item of type array");
       equal(typeOf(obj),           'object',    "item of type object");
       equal(typeOf(object),        'instance',  "item of type instance");
-      equal(typeOf(object.method), 'function',  "item of type function") ;
+      equal(typeOf(object.method), 'function',  "item of type function");
       equal(typeOf(EmberObject),     'class',     "item of type class");
       equal(typeOf(new Error()),   'error',     "item of type error");
     });
@@ -36959,7 +36959,7 @@ enifed("ember-runtime/tests/ext/function_test",
 
       if (Ember.EXTEND_PROTOTYPES === false) {
         ok("undefined" === typeof Function.prototype.observes, 'Function.prototype helper disabled');
-        return ;
+        return;
       }
 
       var MyMixin = Ember.Mixin.create({
@@ -36986,7 +36986,7 @@ enifed("ember-runtime/tests/ext/function_test",
 
       if (Ember.EXTEND_PROTOTYPES === false) {
         ok("undefined" === typeof Function.prototype.on, 'Function.prototype helper disabled');
-        return ;
+        return;
       }
 
       var MyMixin = Ember.Mixin.create({
@@ -37011,7 +37011,7 @@ enifed("ember-runtime/tests/ext/function_test",
 
       if (Ember.EXTEND_PROTOTYPES === false) {
         ok('Function.prototype helper disabled');
-        return ;
+        return;
       }
 
       var MyMixin = Ember.Mixin.create({
@@ -37037,7 +37037,7 @@ enifed("ember-runtime/tests/ext/function_test",
 
       if (Ember.EXTEND_PROTOTYPES === false) {
         ok("undefined" === typeof Function.prototype.property, 'Function.prototype helper disabled');
-        return ;
+        return;
       }
 
       var MyClass = Ember.Object.extend({
@@ -37296,7 +37296,7 @@ enifed("ember-runtime/tests/ext/rsvp_test",
         run(RSVP, 'reject', jqXHR);
       } finally {
         Ember.onerror = wasOnError;
-        Ember.testing = wasEmberTesting ;
+        Ember.testing = wasEmberTesting;
       }
     });
   });
@@ -37550,8 +37550,8 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
           nullProperty: null,
 
           unknownProperty: function(key, value) {
-            this.lastUnknownProperty = key ;
-            return "unknown" ;
+            this.lastUnknownProperty = key;
+            return "unknown";
           }
 
         });
@@ -37560,25 +37560,25 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
     });
 
     test("should get normal properties", function() {
-      equal(object.get('normal'), 'value') ;
+      equal(object.get('normal'), 'value');
     });
 
     test("should call computed properties and return their result", function() {
-      equal(object.get("computed"), "value") ;
+      equal(object.get("computed"), "value");
     });
 
     test("should return the function for a non-computed property", function() {
-      var value = object.get("method") ;
-      equal(typeOf(value), 'function') ;
+      var value = object.get("method");
+      equal(typeOf(value), 'function');
     });
 
     test("should return null when property value is null", function() {
-      equal(object.get("nullProperty"), null) ;
+      equal(object.get("nullProperty"), null);
     });
 
     test("should call unknownProperty when value is undefined", function() {
-      equal(object.get("unknown"), "unknown") ;
-      equal(object.lastUnknownProperty, "unknown") ;
+      equal(object.get("unknown"), "unknown");
+      equal(object.lastUnknownProperty, "unknown");
     });
 
     // ..........................................................
@@ -37599,8 +37599,8 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
           nullProperty: null,
 
           unknownProperty: function(key, value) {
-            this.lastUnknownProperty = key ;
-            return "unknown" ;
+            this.lastUnknownProperty = key;
+            return "unknown";
           }
 
         });
@@ -37614,25 +37614,25 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
     });
 
     test("should get normal properties on Ember.Observable", function() {
-      equal(get(objectA, 'normal'), 'value') ;
+      equal(get(objectA, 'normal'), 'value');
     });
 
     test("should call computed properties on Ember.Observable and return their result", function() {
-      equal(get(objectA, "computed"), "value") ;
+      equal(get(objectA, "computed"), "value");
     });
 
     test("should return the function for a non-computed property on Ember.Observable", function() {
-      var value = get(objectA, "method") ;
-      equal(typeOf(value), 'function') ;
+      var value = get(objectA, "method");
+      equal(typeOf(value), 'function');
     });
 
     test("should return null when property value is null on Ember.Observable", function() {
-      equal(get(objectA, "nullProperty"), null) ;
+      equal(get(objectA, "nullProperty"), null);
     });
 
     test("should call unknownProperty when value is undefined on Ember.Observable", function() {
-      equal(get(object, "unknown"), "unknown") ;
-      equal(object.lastUnknownProperty, "unknown") ;
+      equal(get(object, "unknown"), "unknown");
+      equal(object.lastUnknownProperty, "unknown");
     });
 
     test("should get normal properties on standard objects", function() {
@@ -37728,18 +37728,18 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
           _computed: "computed",
           computed: computed(function(key, value) {
             if (value !== undefined) {
-              this._computed = value ;
+              this._computed = value;
             }
-            return this._computed ;
+            return this._computed;
           })["volatile"](),
 
           // method, but not a property
           _method: "method",
           method: function(key, value) {
             if (value !== undefined) {
-              this._method = value ;
+              this._method = value;
             }
-            return this._method ;
+            return this._method;
           },
 
           // null property
@@ -37748,12 +37748,12 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
           // unknown property
           _unknown: 'unknown',
           unknownProperty: function(key) {
-            return this._unknown ;
+            return this._unknown;
           },
 
           setUnknownProperty: function(key, value) {
-            this._unknown = value ;
-            return this._unknown ;
+            this._unknown = value;
+            return this._unknown;
           }
         });
       }
@@ -37761,15 +37761,15 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
     });
 
     test("should change normal properties and return this", function() {
-      var ret = object.set("normal", "changed") ;
-      equal(object.normal, "changed") ;
-      equal(ret, object) ;
+      var ret = object.set("normal", "changed");
+      equal(object.normal, "changed");
+      equal(ret, object);
     });
 
     test("should call computed properties passing value and return this", function() {
-      var ret = object.set("computed", "changed") ;
-      equal(object._computed, "changed") ;
-      equal(ret, object) ;
+      var ret = object.set("computed", "changed");
+      equal(object._computed, "changed");
+      equal(ret, object);
     });
 
     test("should change normal properties when passing undefined", function() {
@@ -37779,22 +37779,22 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
     });
 
     test("should replace the function for a non-computed property and return this", function() {
-      var ret = object.set("method", "changed") ;
-      equal(object._method, "method") ; // make sure this was NOT run
-      ok(typeOf(object.method) !== 'function') ;
-      equal(ret, object) ;
+      var ret = object.set("method", "changed");
+      equal(object._method, "method"); // make sure this was NOT run
+      ok(typeOf(object.method) !== 'function');
+      equal(ret, object);
     });
 
     test("should replace prover when property value is null", function() {
-      var ret = object.set("nullProperty", "changed") ;
-      equal(object.nullProperty, "changed") ;
-      equal(ret, object) ;
+      var ret = object.set("nullProperty", "changed");
+      equal(object.nullProperty, "changed");
+      equal(ret, object);
     });
 
     test("should call unknownProperty with value when property is undefined", function() {
-      var ret = object.set("unknown", "changed") ;
-      equal(object._unknown, "changed") ;
-      equal(ret, object) ;
+      var ret = object.set("unknown", "changed");
+      equal(object._unknown, "changed");
+      equal(ret, object);
     });
 
     // ..........................................................
@@ -37874,7 +37874,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
             return this.get('state') === 'off';
           }).property('state')["volatile"]()
 
-        }) ;
+        });
       },
       teardown: function() {
         Ember.lookup = originalLookup;
@@ -38154,7 +38154,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
             for (var idx=0; idx<keys.length;idx++) {
               ret[ret.length] = this.get(keys[idx]);
             }
-            return ret ;
+            return ret;
           },
 
           newObserver: function() {
@@ -38264,7 +38264,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
           },
 
           chainedObserver: function() {
-            this.normal2 = 'chainedPropertyObserved' ;
+            this.normal2 = 'chainedPropertyObserved';
           }
 
         });
@@ -38306,7 +38306,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
             this.normal2 = 'newDependentValue';
           },
           removeChainedObserver: function() {
-            this.normal2 = 'chainedPropertyObserved' ;
+            this.normal2 = 'chainedPropertyObserved';
           },
 
           observableValue: "hello world",
@@ -38387,7 +38387,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
           computed: function() {
             this.normal = 'newValue';
           }
-        }) ;
+        });
 
         lookup = Ember.lookup = {
           'Namespace': {
@@ -38405,12 +38405,12 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
     test("should bind property with method parameter as undefined", function() {
       // creating binding
       run(function() {
-        objectA.bind("name", "Namespace.objectB.normal", undefined) ;
+        objectA.bind("name", "Namespace.objectB.normal", undefined);
       });
 
       // now make a change to see if the binding triggers.
       run(function() {
-        objectB.set("normal", "changedValue") ;
+        objectB.set("normal", "changedValue");
       });
 
       // support new-style bindings if available
@@ -38582,7 +38582,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test",
 
           starProp: null,
           starObserver: function(target, key, value, rev) {
-            revMatches = (rev === target.propertyRevision) ;
+            revMatches = (rev === target.propertyRevision);
             this.starProp = key;
           }
 
@@ -38599,18 +38599,18 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test",
       ObjectA.beginPropertyChanges();
       ObjectA.set('foo', 'changeFooValue');
 
-      equal(ObjectA.prop, "propValue") ;
+      equal(ObjectA.prop, "propValue");
       ObjectA.endPropertyChanges();
 
         //end inner nest
       ObjectA.set('prop', 'changePropValue');
-      equal(ObjectA.newFoo, "newFooValue") ;
+      equal(ObjectA.newFoo, "newFooValue");
 
       //close the outer nest
       ObjectA.endPropertyChanges();
 
-      equal(ObjectA.prop, "changedPropValue") ;
-      equal(ObjectA.newFoo, "changedNewFooValue") ;
+      equal(ObjectA.prop, "changedPropValue");
+      equal(ObjectA.newFoo, "changedNewFooValue");
     });
 
     test("should observe the changes within the begin and end property changes", function() {
@@ -38618,27 +38618,27 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test",
       ObjectA.beginPropertyChanges();
       ObjectA.set('foo', 'changeFooValue');
 
-      equal(ObjectA.prop, "propValue") ;
+      equal(ObjectA.prop, "propValue");
       ObjectA.endPropertyChanges();
 
-      equal(ObjectA.prop, "changedPropValue") ;
+      equal(ObjectA.prop, "changedPropValue");
     });
 
     test("should indicate that the property of an object has just changed", function() {
       // inidicate that proprty of foo will change to its subscribers
-      ObjectA.propertyWillChange('foo') ;
+      ObjectA.propertyWillChange('foo');
 
       //Value of the prop is unchanged yet as this will be changed when foo changes
-      equal(ObjectA.prop, 'propValue' ) ;
+      equal(ObjectA.prop, 'propValue' );
 
       //change the value of foo.
       ObjectA.set('foo', 'changeFooValue');
 
       // Indicate the subscribers of foo that the value has just changed
-      ObjectA.propertyDidChange('foo', null) ;
+      ObjectA.propertyDidChange('foo', null);
 
       // Values of prop has just changed
-      equal(ObjectA.prop, 'changedPropValue') ;
+      equal(ObjectA.prop, 'changedPropValue');
     });
 
     test("should notify that the property of an object has changed", function() {
@@ -38648,7 +38648,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test",
       ObjectA.notifyPropertyChange('newFoo', 'fooValue');
 
       //value of newProp changed.
-      equal(ObjectA.newProp, 'changedNewPropValue') ;
+      equal(ObjectA.newProp, 'changedNewPropValue');
     });
 
     test("should invalidate function property cache when notifyPropertyChange is called", function() {
@@ -38749,8 +38749,8 @@ enifed("ember-runtime/tests/legacy_1x/system/binding_test",
 
     QUnit.module("basic object binding", {
       setup: function() {
-        fromObject = EmberObject.create({ value: 'start' }) ;
-        toObject = EmberObject.create({ value: 'end' }) ;
+        fromObject = EmberObject.create({ value: 'start' });
+        toObject = EmberObject.create({ value: 'end' });
         root = { fromObject: fromObject, toObject: toObject };
         run(function () {
           binding = bind(root, 'toObject.value', 'fromObject.value');
@@ -38764,18 +38764,18 @@ enifed("ember-runtime/tests/legacy_1x/system/binding_test",
 
     test("fromObject change should propagate to toObject only after flush", function() {
       run(function () {
-        set(fromObject, "value", "change") ;
-        equal(get(toObject, "value"), "start") ;
+        set(fromObject, "value", "change");
+        equal(get(toObject, "value"), "start");
       });
-      equal(get(toObject, "value"), "change") ;
+      equal(get(toObject, "value"), "change");
     });
 
     test("toObject change should propagate to fromObject only after flush", function() {
       run(function () {
-        set(toObject, "value", "change") ;
-        equal(get(fromObject, "value"), "start") ;
+        set(toObject, "value", "change");
+        equal(get(fromObject, "value"), "start");
       });
-      equal(get(fromObject, "value"), "change") ;
+      equal(get(fromObject, "value"), "change");
     });
 
     test("deferred observing during bindings", function() {
@@ -38829,8 +38829,8 @@ enifed("ember-runtime/tests/legacy_1x/system/binding_test",
 
       setup: function() {
         run(function() {
-          fromObject = EmberObject.create({ value: 'start' }) ;
-          toObject = EmberObject.create({ value: 'end' }) ;
+          fromObject = EmberObject.create({ value: 'start' });
+          toObject = EmberObject.create({ value: 'end' });
           root = { fromObject: fromObject, toObject: toObject };
           binding = oneWay(root, 'toObject.value', 'fromObject.value');
         });
@@ -38866,18 +38866,18 @@ enifed("ember-runtime/tests/legacy_1x/system/binding_test",
 
       setup: function() {
         run(function() {
-          first = EmberObject.create({ output: 'first' }) ;
+          first = EmberObject.create({ output: 'first' });
 
           second = EmberObject.createWithMixins({
             input: 'second',
             output: 'second',
 
             inputDidChange: emberObserver("input", function() {
-              set(this, "output", get(this, "input")) ;
+              set(this, "output", get(this, "input"));
             })
-          }) ;
+          });
 
-          third = EmberObject.create({ input: "third" }) ;
+          third = EmberObject.create({ input: "third" });
 
           root = { first: first, second: second, third: third };
           binding1 = bind(root, 'second.input', 'first.output');
@@ -38891,15 +38891,15 @@ enifed("ember-runtime/tests/legacy_1x/system/binding_test",
 
     test("changing first output should propograte to third after flush", function() {
       run(function() {
-        set(first, "output", "change") ;
-        equal("change", get(first, "output"), "first.output") ;
-        ok("change" !== get(third, "input"), "third.input") ;
+        set(first, "output", "change");
+        equal("change", get(first, "output"), "first.output");
+        ok("change" !== get(third, "input"), "third.input");
       });
 
-      equal("change", get(first, "output"), "first.output") ;
-      equal("change", get(second, "input"), "second.input") ;
-      equal("change", get(second, "output"), "second.output") ;
-      equal("change", get(third, "input"), "third.input") ;
+      equal("change", get(first, "output"), "first.output");
+      equal("change", get(second, "input"), "second.input");
+      equal("change", get(second, "output"), "second.output");
+      equal("change", get(third, "input"), "third.input");
     });
 
     // ..........................................................
@@ -39091,25 +39091,25 @@ enifed("ember-runtime/tests/legacy_1x/system/object/base_test",
       },
 
       teardown: function() {
-        obj = undefined ;
+        obj = undefined;
       }
 
     });
 
     test("Should return its properties when requested using EmberObject#get", function() {
-      equal(get(obj, 'foo'), 'bar') ;
-      equal(get(obj, 'total'), 12345) ;
+      equal(get(obj, 'foo'), 'bar');
+      equal(get(obj, 'total'), 12345);
     });
 
     test("Should allow changing of those properties by calling EmberObject#set", function() {
-      equal(get(obj, 'foo'), 'bar') ;
-      equal(get(obj, 'total'), 12345) ;
+      equal(get(obj, 'foo'), 'bar');
+      equal(get(obj, 'total'), 12345);
 
-      set(obj,  'foo', 'Chunky Bacon' ) ;
-      set(obj,  'total', 12 ) ;
+      set(obj,  'foo', 'Chunky Bacon' );
+      set(obj,  'total', 12 );
 
-      equal(get(obj, 'foo'), 'Chunky Bacon') ;
-      equal(get(obj, 'total'), 12) ;
+      equal(get(obj, 'foo'), 'Chunky Bacon');
+      equal(get(obj, 'total'), 12);
     });
 
 
@@ -39266,20 +39266,20 @@ enifed("ember-runtime/tests/legacy_1x/system/object/bindings_test",
         fromObject = EmberObject.create({
           bar: "foo",
           extraObject: null
-        }) ;
+        });
 
         extraObject = EmberObject.create({
           foo: "extraObjectValue"
-        }) ;
+        });
 
         lookup['TestNamespace'] = TestNamespace = {
           fromObject: fromObject,
           testObject: testObject
-        } ;
+        };
       },
 
       teardown: function() {
-        testObject = fromObject = extraObject = null ;
+        testObject = fromObject = extraObject = null;
         Ember.lookup = originalLookup;
       }
 
@@ -39302,10 +39302,10 @@ enifed("ember-runtime/tests/legacy_1x/system/object/bindings_test",
     test("bind(.bar) should bind to relative path", function() {
       run(function() {
         // create binding
-        testObject.bind("foo", "bar") ;
+        testObject.bind("foo", "bar");
 
         // now make a change to see if the binding triggers.
-        set(testObject, "bar", "changedValue") ;
+        set(testObject, "bar", "changedValue");
       });
 
       equal("changedValue", get(testObject, "foo"), "testObject.foo");
@@ -39326,22 +39326,22 @@ enifed("ember-runtime/tests/legacy_1x/system/object/bindings_test",
         fromObject = EmberObject.create({
           bar: "foo",
           extraObject: null
-        }) ;
+        });
 
         extraObject = EmberObject.create({
           foo: "extraObjectValue"
-        }) ;
+        });
 
         lookup['TestNamespace'] = TestNamespace = {
           fromObject: fromObject,
           testObject: TestObject
-        } ;
+        };
       },
 
       teardown: function() {
         Ember.lookup = originalLookup;
-        TestObject = fromObject = extraObject = null ;
-      //  delete TestNamespace ;
+        TestObject = fromObject = extraObject = null;
+      //  delete TestNamespace;
       }
 
     };
@@ -39354,10 +39354,10 @@ enifed("ember-runtime/tests/legacy_1x/system/object/bindings_test",
       run(function() {
         testObject = TestObject.createWithMixins({
           fooBinding: "TestNamespace.fromObject.bar"
-        }) ;
+        });
 
         // now make a change to see if the binding triggers.
-        set(fromObject, "bar", "changedValue") ;
+        set(fromObject, "bar", "changedValue");
       });
 
       equal("changedValue", get(testObject, "foo"), "testObject.foo");
@@ -39569,21 +39569,21 @@ enifed("ember-runtime/tests/legacy_1x/system/run_loop_test",
         MyApp = {};
         MyApp.first = EmberObject.createWithMixins(Observable, {
           output: 'MyApp.first'
-        }) ;
+        });
 
         MyApp.second = EmberObject.createWithMixins(Observable, {
           input: 'MyApp.second',
           output: 'MyApp.second',
 
           inputDidChange: emberObserver("input", function() {
-            this.set("output", this.get("input")) ;
+            this.set("output", this.get("input"));
           })
 
-        }) ;
+        });
 
         MyApp.third = EmberObject.createWithMixins(Observable, {
           input: "MyApp.third"
-        }) ;
+        });
       }
     });
 
@@ -39592,61 +39592,61 @@ enifed("ember-runtime/tests/legacy_1x/system/run_loop_test",
 
         //Binding of output of MyApp.first object to input of MyApp.second object
         binding1 = Binding.from("first.output")
-          .to("second.input").connect(MyApp) ;
+          .to("second.input").connect(MyApp);
 
         //Binding of output of MyApp.second object to input of MyApp.third object
         binding2 = Binding.from("second.output")
-          .to("third.input").connect(MyApp) ;
+          .to("third.input").connect(MyApp);
       });
 
       run(function () {
         // Based on the above binding if you change the output of MyApp.first
         // object it should change the all the variable of
         //  MyApp.first,MyApp.second and MyApp.third object
-        MyApp.first.set("output", "change") ;
+        MyApp.first.set("output", "change");
 
         //Changes the output of the MyApp.first object
-        equal(MyApp.first.get("output"), "change") ;
+        equal(MyApp.first.get("output"), "change");
 
         //since binding has not taken into effect the value still remains as change.
-        equal(MyApp.second.get("output"), "MyApp.first") ;
+        equal(MyApp.second.get("output"), "MyApp.first");
       }); // allows bindings to trigger...
 
       //Value of the output variable changed to 'change'
-      equal(MyApp.first.get("output"), "change") ;
+      equal(MyApp.first.get("output"), "change");
 
       //Since binding triggered after the end loop the value changed to 'change'.
-      equal(MyApp.second.get("output"), "change") ;
+      equal(MyApp.second.get("output"), "change");
     });
 
     test("Should propagate bindings after the RunLoop completes", function() {
       run(function () {
         //Binding of output of MyApp.first object to input of MyApp.second object
         binding1 = Binding.from("first.output")
-          .to("second.input").connect(MyApp) ;
+          .to("second.input").connect(MyApp);
 
         //Binding of output of MyApp.second object to input of MyApp.third object
         binding2 = Binding.from("second.output")
-          .to("third.input").connect(MyApp) ;
+          .to("third.input").connect(MyApp);
       });
 
       run(function () {
         //Based on the above binding if you change the output of MyApp.first object it should
         //change the all the variable of MyApp.first,MyApp.second and MyApp.third object
-        MyApp.first.set("output", "change") ;
+        MyApp.first.set("output", "change");
 
         //Changes the output of the MyApp.first object
-        equal(MyApp.first.get("output"), "change") ;
+        equal(MyApp.first.get("output"), "change");
 
         //since binding has not taken into effect the value still remains as change.
-        equal(MyApp.second.get("output"), "MyApp.first") ;
+        equal(MyApp.second.get("output"), "MyApp.first");
       });
 
       //Value of the output variable changed to 'change'
-      equal(MyApp.first.get("output"), "change") ;
+      equal(MyApp.first.get("output"), "change");
 
       //Since binding triggered after the end loop the value changed to 'change'.
-      equal(MyApp.second.get("output"), "change") ;
+      equal(MyApp.second.get("output"), "change");
     });
   });
 enifed("ember-runtime/tests/legacy_1x/system/run_loop_test.jscs-test",
@@ -39693,33 +39693,33 @@ enifed("ember-runtime/tests/legacy_1x/system/set_test",
 
       setup: function() {
         // create objects...
-        a = { name: "a" } ;
-        b = { name: "b" } ;
-        c = { name: "c" } ;
+        a = { name: "a" };
+        b = { name: "b" };
+        c = { name: "c" };
       },
 
       teardown: function() {
-        a = undefined ;
-        b = undefined ;
-        c = undefined ;
+        a = undefined;
+        b = undefined;
+        c = undefined;
       }
 
     });
 
     test("new Set() should create empty set", function() {
       ignoreDeprecation(function() {
-        var set = new Set() ;
-        equal(set.length, 0) ;
+        var set = new Set();
+        equal(set.length, 0);
       });
     });
 
     test("new Set([1,2,3]) should create set with three items in them", function() {
       ignoreDeprecation(function() {
-        var set = new Set(Ember.A([a,b,c])) ;
-        equal(set.length, 3) ;
-        equal(set.contains(a), true) ;
-        equal(set.contains(b), true) ;
-        equal(set.contains(c), true) ;
+        var set = new Set(Ember.A([a,b,c]));
+        equal(set.length, 3);
+        equal(set.contains(a), true);
+        equal(set.contains(b), true);
+        equal(set.contains(c), true);
       });
     });
 
@@ -39728,18 +39728,18 @@ enifed("ember-runtime/tests/legacy_1x/system/set_test",
         _content: [a,b,c],
         length: 3,
         objectAt: function(idx) { return this._content[idx]; }
-      }) ;
+      });
 
       ignoreDeprecation(function() {
-        var set = new Set(arrayLikeObject) ;
-        equal(set.length, 3) ;
-        equal(set.contains(a), true) ;
-        equal(set.contains(b), true) ;
-        equal(set.contains(c), true) ;
+        var set = new Set(arrayLikeObject);
+        equal(set.length, 3);
+        equal(set.contains(a), true);
+        equal(set.contains(b), true);
+        equal(set.contains(c), true);
       });
     });
 
-    var set ; // global variables
+    var set; // global variables
 
     // The tests below also end up testing the contains() method pretty
     // exhaustively.
@@ -39747,56 +39747,56 @@ enifed("ember-runtime/tests/legacy_1x/system/set_test",
 
       setup: function() {
         ignoreDeprecation(function() {
-          set = new Set() ;
+          set = new Set();
         });
       },
 
       teardown: function() {
-        set = undefined ;
+        set = undefined;
       }
 
     });
 
     test("should add an EmberObject", function() {
-      var obj = EmberObject.create() ;
+      var obj = EmberObject.create();
 
-      var oldLength = set.length ;
-      set.add(obj) ;
-      equal(set.contains(obj), true, "contains()") ;
-      equal(set.length, oldLength+1, "new set length") ;
+      var oldLength = set.length;
+      set.add(obj);
+      equal(set.contains(obj), true, "contains()");
+      equal(set.length, oldLength+1, "new set length");
     });
 
     test("should add a regular hash", function() {
-      var obj = {} ;
+      var obj = {};
 
-      var oldLength = set.length ;
-      set.add(obj) ;
-      equal(set.contains(obj), true, "contains()") ;
-      equal(set.length, oldLength+1, "new set length") ;
+      var oldLength = set.length;
+      set.add(obj);
+      equal(set.contains(obj), true, "contains()");
+      equal(set.length, oldLength+1, "new set length");
     });
 
     test("should add a string", function() {
-      var obj = "String!" ;
+      var obj = "String!";
 
-      var oldLength = set.length ;
-      set.add(obj) ;
-      equal(set.contains(obj), true, "contains()") ;
-      equal(set.length, oldLength+1, "new set length") ;
+      var oldLength = set.length;
+      set.add(obj);
+      equal(set.contains(obj), true, "contains()");
+      equal(set.length, oldLength+1, "new set length");
     });
 
     test("should add a number", function() {
-      var obj = 23 ;
+      var obj = 23;
 
-      var oldLength = set.length ;
-      set.add(obj) ;
-      equal(set.contains(obj), true, "contains()") ;
-      equal(set.length, oldLength+1, "new set length") ;
+      var oldLength = set.length;
+      set.add(obj);
+      equal(set.contains(obj), true, "contains()");
+      equal(set.length, oldLength+1, "new set length");
     });
 
     test("should add bools", function() {
-      var oldLength = set.length ;
+      var oldLength = set.length;
 
-      set.add(true) ;
+      set.add(true);
       equal(set.contains(true), true, "contains(true)");
       equal(set.length, oldLength+1, "new set length");
 
@@ -39806,46 +39806,46 @@ enifed("ember-runtime/tests/legacy_1x/system/set_test",
     });
 
     test("should add 0", function() {
-      var oldLength = set.length ;
+      var oldLength = set.length;
 
-      set.add(0) ;
+      set.add(0);
       equal(set.contains(0), true, "contains(0)");
       equal(set.length, oldLength+1, "new set length");
     });
 
     test("should add a function", function() {
-      var obj = function() { return "Test function"; } ;
+      var obj = function() { return "Test function"; };
 
-      var oldLength = set.length ;
-      set.add(obj) ;
-      equal(set.contains(obj), true, "contains()") ;
-      equal(set.length, oldLength+1, "new set length") ;
+      var oldLength = set.length;
+      set.add(obj);
+      equal(set.contains(obj), true, "contains()");
+      equal(set.length, oldLength+1, "new set length");
     });
 
     test("should NOT add a null", function() {
-      set.add(null) ;
-      equal(set.length, 0) ;
-      equal(set.contains(null), false) ;
+      set.add(null);
+      equal(set.length, 0);
+      equal(set.contains(null), false);
     });
 
     test("should NOT add an undefined", function() {
-      set.add(undefined) ;
-      equal(set.length, 0) ;
-      equal(set.contains(undefined), false) ;
+      set.add(undefined);
+      equal(set.length, 0);
+      equal(set.contains(undefined), false);
     });
 
     test("adding an item, removing it, adding another item", function() {
-      var item1 = "item1" ;
-      var item2 = "item2" ;
+      var item1 = "item1";
+      var item2 = "item2";
 
-      set.add(item1) ; // add to set
-      set.remove(item1) ; //remove from set
-      set.add(item2) ;
+      set.add(item1); // add to set
+      set.remove(item1); //remove from set
+      set.add(item2);
 
-      equal(set.contains(item1), false, "set.contains(item1)") ;
+      equal(set.contains(item1), false, "set.contains(item1)");
 
-      set.add(item1) ; // re-add to set
-      equal(set.length, 2, "set.length") ;
+      set.add(item1); // re-add to set
+      equal(set.length, 2, "set.length");
     });
 
     QUnit.module("Set.remove + Set.contains", {
@@ -39858,106 +39858,106 @@ enifed("ember-runtime/tests/legacy_1x/system/set_test",
             EmberObject.create({ dummy: true }),
             { isHash: true },
             "Not the String",
-            16, true, false, 0])) ;
+            16, true, false, 0]));
         });
       },
 
       teardown: function() {
-        set = undefined ;
+        set = undefined;
       }
 
     });
 
     test("should remove an EmberObject and reduce length", function() {
-      var obj = EmberObject.create() ;
-      set.add(obj) ;
-      equal(set.contains(obj), true) ;
-      var oldLength = set.length ;
+      var obj = EmberObject.create();
+      set.add(obj);
+      equal(set.contains(obj), true);
+      var oldLength = set.length;
 
-      set.remove(obj) ;
-      equal(set.contains(obj), false, "should be removed") ;
-      equal(set.length, oldLength-1, "should be 1 shorter") ;
+      set.remove(obj);
+      equal(set.contains(obj), false, "should be removed");
+      equal(set.length, oldLength-1, "should be 1 shorter");
     });
 
     test("should remove a regular hash and reduce length", function() {
-      var obj = {} ;
-      set.add(obj) ;
-      equal(set.contains(obj), true) ;
-      var oldLength = set.length ;
+      var obj = {};
+      set.add(obj);
+      equal(set.contains(obj), true);
+      var oldLength = set.length;
 
-      set.remove(obj) ;
-      equal(set.contains(obj), false, "should be removed") ;
-      equal(set.length, oldLength-1, "should be 1 shorter") ;
+      set.remove(obj);
+      equal(set.contains(obj), false, "should be removed");
+      equal(set.length, oldLength-1, "should be 1 shorter");
     });
 
     test("should remove a string and reduce length", function() {
-      var obj = "String!" ;
-      set.add(obj) ;
-      equal(set.contains(obj), true) ;
-      var oldLength = set.length ;
+      var obj = "String!";
+      set.add(obj);
+      equal(set.contains(obj), true);
+      var oldLength = set.length;
 
-      set.remove(obj) ;
-      equal(set.contains(obj), false, "should be removed") ;
-      equal(set.length, oldLength-1, "should be 1 shorter") ;
+      set.remove(obj);
+      equal(set.contains(obj), false, "should be removed");
+      equal(set.length, oldLength-1, "should be 1 shorter");
     });
 
     test("should remove a number and reduce length", function() {
-      var obj = 23 ;
-      set.add(obj) ;
-      equal(set.contains(obj), true) ;
-      var oldLength = set.length ;
+      var obj = 23;
+      set.add(obj);
+      equal(set.contains(obj), true);
+      var oldLength = set.length;
 
-      set.remove(obj) ;
-      equal(set.contains(obj), false, "should be removed") ;
-      equal(set.length, oldLength-1, "should be 1 shorter") ;
+      set.remove(obj);
+      equal(set.contains(obj), false, "should be removed");
+      equal(set.length, oldLength-1, "should be 1 shorter");
     });
 
     test("should remove a bools and reduce length", function() {
-      var oldLength = set.length ;
-      set.remove(true) ;
-      equal(set.contains(true), false, "should be removed") ;
-      equal(set.length, oldLength-1, "should be 1 shorter") ;
+      var oldLength = set.length;
+      set.remove(true);
+      equal(set.contains(true), false, "should be removed");
+      equal(set.length, oldLength-1, "should be 1 shorter");
 
       set.remove(false);
-      equal(set.contains(false), false, "should be removed") ;
-      equal(set.length, oldLength-2, "should be 2 shorter") ;
+      equal(set.contains(false), false, "should be removed");
+      equal(set.length, oldLength-2, "should be 2 shorter");
     });
 
     test("should remove 0 and reduce length", function() {
       var oldLength = set.length;
-      set.remove(0) ;
-      equal(set.contains(0), false, "should be removed") ;
-      equal(set.length, oldLength-1, "should be 1 shorter") ;
+      set.remove(0);
+      equal(set.contains(0), false, "should be removed");
+      equal(set.length, oldLength-1, "should be 1 shorter");
     });
 
     test("should remove a function and reduce length", function() {
-      var obj = function() { return "Test function"; } ;
-      set.add(obj) ;
-      equal(set.contains(obj), true) ;
-      var oldLength = set.length ;
+      var obj = function() { return "Test function"; };
+      set.add(obj);
+      equal(set.contains(obj), true);
+      var oldLength = set.length;
 
-      set.remove(obj) ;
-      equal(set.contains(obj), false, "should be removed") ;
-      equal(set.length, oldLength-1, "should be 1 shorter") ;
+      set.remove(obj);
+      equal(set.contains(obj), false, "should be removed");
+      equal(set.length, oldLength-1, "should be 1 shorter");
     });
 
     test("should NOT remove a null", function() {
-      var oldLength = set.length ;
-      set.remove(null) ;
-      equal(set.length, oldLength) ;
+      var oldLength = set.length;
+      set.remove(null);
+      equal(set.length, oldLength);
     });
 
     test("should NOT remove an undefined", function() {
-      var oldLength = set.length ;
-      set.remove(undefined) ;
-      equal(set.length, oldLength) ;
+      var oldLength = set.length;
+      set.remove(undefined);
+      equal(set.length, oldLength);
     });
 
     test("should ignore removing an object not in the set", function() {
-      var obj = EmberObject.create() ;
-      var oldLength = set.length ;
-      set.remove(obj) ;
-      equal(set.length, oldLength) ;
+      var obj = EmberObject.create();
+      var oldLength = set.length;
+      set.remove(obj);
+      equal(set.length, oldLength);
     });
 
     QUnit.module("Set.pop + Set.copy", {
@@ -39969,17 +39969,17 @@ enifed("ember-runtime/tests/legacy_1x/system/set_test",
             EmberObject.create({ dummy: true }),
             { isHash: true },
             "Not the String",
-            16, false])) ;
+            16, false]));
         });
       },
 
       teardown: function() {
-        set = undefined ;
+        set = undefined;
       }
     });
 
     test("the pop() should remove an arbitrary object from the set", function() {
-      var oldLength = set.length ;
+      var oldLength = set.length;
       var obj = set.pop();
       ok(!isNone(obj), 'pops up an item');
       equal(set.length, oldLength-1, 'length shorter by 1');
@@ -43941,7 +43941,7 @@ enifed("ember-runtime/tests/suites/enumerable/find",
     });
 
     suite.test('should return first object with truthy prop', function() {
-      var ary, obj ;
+      var ary, obj;
 
       ary = [
         { foo: 'foo', bar: false },
@@ -44077,7 +44077,7 @@ enifed("ember-runtime/tests/suites/enumerable/forEach",
     suite.test('forEach should iterate over list after mutation', function() {
       if (get(this, 'canTestMutation')) {
         expect(0);
-        return ;
+        return;
       }
 
       var obj = this.newObject();
@@ -44375,7 +44375,7 @@ enifed("ember-runtime/tests/suites/enumerable/map",
     suite.test('map should iterate over list after mutation', function() {
       if (get(this, 'canTestMutation')) {
         expect(0);
-        return ;
+        return;
       }
 
       var obj = this.newObject();
@@ -45796,7 +45796,7 @@ enifed("ember-runtime/tests/suites/mutable_array/replace",
       observer = this.newObserver(obj, '[]', '@each', 'length', 'firstObject', 'lastObject');
       obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
 
-      obj.replace(0, 0, exp) ;
+      obj.replace(0, 0, exp);
 
       deepEqual(this.toArray(obj), exp, 'post item results');
 
@@ -45818,7 +45818,7 @@ enifed("ember-runtime/tests/suites/mutable_array/replace",
       observer = this.newObserver(obj, '[]', '@each', 'length', 'firstObject', 'lastObject');
       obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
 
-      obj.replace(1, 2, replace) ;
+      obj.replace(1, 2, replace);
 
       deepEqual(this.toArray(obj), after, 'post item results');
 
@@ -45841,7 +45841,7 @@ enifed("ember-runtime/tests/suites/mutable_array/replace",
       observer = this.newObserver(obj, '[]', '@each', 'length', 'firstObject', 'lastObject');
       obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
 
-      obj.replace(1, 2, replace) ;
+      obj.replace(1, 2, replace);
 
       deepEqual(this.toArray(obj), after, 'post item results');
 
@@ -45864,7 +45864,7 @@ enifed("ember-runtime/tests/suites/mutable_array/replace",
       observer = this.newObserver(obj, '[]', '@each', 'length', 'firstObject', 'lastObject');
       obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
 
-      obj.replace(1, 0, replace) ;
+      obj.replace(1, 0, replace);
 
       deepEqual(this.toArray(obj), after, 'post item results');
 
@@ -60464,7 +60464,7 @@ enifed("ember-views/tests/views/view/create_child_view_test",
     });
 
     test("should set newView.parentView to receiver", function() {
-      newView = view.createChildView(myViewClass) ;
+      newView = view.createChildView(myViewClass);
 
       equal(newView.container, container, 'expects to share container with parent');
       equal(get(newView, 'parentView'), view, 'newView.parentView == view');
@@ -60886,7 +60886,7 @@ enifed("ember-views/tests/views/view/element_test",
     });
 
     test("returns null if the view has no element and no parent view", function() {
-      view = EmberView.create() ;
+      view = EmberView.create();
       equal(get(view, 'parentView'), null, 'precond - has no parentView');
       equal(get(view, 'element'), null, 'has no element');
     });
@@ -61409,7 +61409,7 @@ enifed("ember-views/tests/views/view/jquery_test",
     var run = __dependency2__["default"];
     var EmberView = __dependency3__["default"];
 
-    var view ;
+    var view;
     QUnit.module("EmberView#$", {
       setup: function() {
         view = EmberView.extend({

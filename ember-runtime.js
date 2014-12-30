@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.16034798
+ * @version   1.11.0-beta.1+canary.9c38ba0d
  */
 
 (function() {
@@ -5008,7 +5008,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.16034798
+      @version 1.11.0-beta.1+canary.9c38ba0d
     */
 
     if ('undefined' === typeof Ember) {
@@ -5035,10 +5035,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.16034798'
+      @default '1.11.0-beta.1+canary.9c38ba0d'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.16034798';
+    Ember.VERSION = '1.11.0-beta.1+canary.9c38ba0d';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -16813,15 +16813,15 @@ enifed("ember-runtime/mixins/enumerable",
         }
 
         for (var idx = 0; idx < len; idx++) {
-          var next = this.nextObject(idx, last, context) ;
+          var next = this.nextObject(idx, last, context);
           callback.call(target, next, idx, this);
-          last = next ;
+          last = next;
         }
 
-        last = null ;
+        last = null;
         context = pushCtx(context);
 
-        return this ;
+        return this;
       },
 
       /**
@@ -16885,7 +16885,7 @@ enifed("ember-runtime/mixins/enumerable",
           ret[idx] = callback.call(target, x, idx, i);
         });
 
-        return ret ;
+        return ret;
       },
 
       /**
@@ -16951,7 +16951,7 @@ enifed("ember-runtime/mixins/enumerable",
           }
         });
 
-        return ret ;
+        return ret;
       },
 
       /**
@@ -17692,7 +17692,7 @@ enifed("ember-runtime/mixins/enumerable",
 
         propertyDidChange(this, '[]');
 
-        return this ;
+        return this;
       },
 
       /**
@@ -20000,12 +20000,12 @@ enifed("ember-runtime/system/array_proxy",
           endPropertyChanges();
         }
 
-        return this ;
+        return this;
       },
 
       pushObject: function(obj) {
-        this._insertAt(get(this, 'content.length'), obj) ;
-        return obj ;
+        this._insertAt(get(this, 'content.length'), obj);
+        return obj;
       },
 
       pushObjects: function(objects) {
@@ -20027,8 +20027,8 @@ enifed("ember-runtime/system/array_proxy",
       },
 
       unshiftObject: function(obj) {
-        this._insertAt(0, obj) ;
-        return obj ;
+        this._insertAt(0, obj);
+        return obj;
       },
 
       unshiftObjects: function(objects) {
@@ -21632,7 +21632,7 @@ enifed("ember-runtime/system/native_array",
       // If you ask for an unknown property, then try to collect the value
       // from member items.
       unknownProperty: function(key, value) {
-        var ret;// = this.reducedProperty(key, value) ;
+        var ret;// = this.reducedProperty(key, value);
         if (value !== undefined && ret === undefined) {
           ret = this[key] = value;
         }
