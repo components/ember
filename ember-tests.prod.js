@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.049d7ae3
+ * @version   1.11.0-beta.1+canary.06082906
  */
 
 (function() {
@@ -2184,13 +2184,13 @@ enifed("ember-application/tests/system/initializers_test",
 
       expectAssertion(function() {
         run(function() {
-          MyApplication.initializer({name:'initializer'});
+          MyApplication.initializer({name: 'initializer'});
         });
       });
 
       expectAssertion(function() {
         run(function() {
-          MyApplication.initializer({initialize:Ember.K});
+          MyApplication.initializer({initialize: Ember.K});
         });
       });
 
@@ -4000,7 +4000,7 @@ enifed("ember-extension-support/tests/container_debug_adapter_test",
     }
 
     QUnit.module("Container Debug Adapter", {
-      setup:function() {
+      setup: function() {
         run(function() {
           App = Application.create();  // ES6TODO: this comes from the ember-application package NOT ember-runtime
           App.toString = function() { return 'App'; };
@@ -4083,7 +4083,7 @@ enifed("ember-extension-support/tests/data_adapter_test",
     });
 
     QUnit.module("Data Adapter", {
-      setup:function() {
+      setup: function() {
         run(function() {
           App = EmberApplication.create();
           App.toString = function() { return 'App'; };
@@ -26248,7 +26248,7 @@ enifed("ember-metal/tests/set_properties_test",
 
       deepEqual(setProperties({}, {foo: 1}),  {foo: 1}, 'Set a single property');
 
-      deepEqual(setProperties({}, {foo:1, bar: 1}), {foo: 1, bar: 1}, 'Set multiple properties');
+      deepEqual(setProperties({}, {foo: 1, bar: 1}), {foo: 1, bar: 1}, 'Set multiple properties');
 
       deepEqual(setProperties({foo: 2, baz: 2}, {foo: 1}), {foo: 1, baz: 2}, 'Set one of multiple properties');
 
@@ -33535,10 +33535,10 @@ enifed("ember-runtime/tests/computed/reduce_computed_macros_test",
       setup: function() {
         obj = EmberObject.createWithMixins({
           array: Ember.A([
-            {name: "one", a:1, b:false},
-            {name: "two", a:2, b:false},
-            {name: "three", a:1, b:true},
-            {name: "four", b:true}
+            {name: "one", a: 1, b: false},
+            {name: "two", a: 2, b: false},
+            {name: "three", a: 1, b: true},
+            {name: "four", b: true}
           ]),
           a1s: computedFilterBy('array', 'a', 1),
           as: computedFilterBy('array', 'a'),
@@ -33571,7 +33571,7 @@ enifed("ember-runtime/tests/computed/reduce_computed_macros_test",
       deepEqual(bs.mapBy('name'), ['one', 'three'], "arrays computed by filtered property respond to property changes");
 
       run(function() {
-        array.pushObject({name:"five", a:6, b:true});
+        array.pushObject({name: "five", a: 6, b: true});
       });
       deepEqual(as.mapBy('name'), ['two', 'three', 'four', 'five'], "arrays computed by filter property respond to added objects");
       deepEqual(bs.mapBy('name'), ['one', 'three', 'five'], "arrays computed by filtered property respond to added objects");
@@ -33583,7 +33583,7 @@ enifed("ember-runtime/tests/computed/reduce_computed_macros_test",
       deepEqual(bs.mapBy('name'), ['one', 'three'], "arrays computed by filtered property respond to removed objects");
 
       run(function() {
-        set(obj, 'array', Ember.A([{name: "six", a:12, b:true}]));
+        set(obj, 'array', Ember.A([{name: "six", a: 12, b: true}]));
       });
       deepEqual(as.mapBy('name'), ['six'], "arrays computed by filter property respond to array changes");
       deepEqual(bs.mapBy('name'), ['six'], "arrays computed by filtered property respond to array changes");
@@ -33596,7 +33596,7 @@ enifed("ember-runtime/tests/computed/reduce_computed_macros_test",
       deepEqual(a1s.mapBy('name'), ['one', 'three'], "properties can be filtered by matching value");
 
       run(function() {
-        array.pushObject({ name: "five", a:1 });
+        array.pushObject({ name: "five", a: 1 });
       });
       deepEqual(a1s.mapBy('name'), ['one', 'three', 'five'], "arrays computed by matching value respond to added objects");
 
@@ -33623,7 +33623,7 @@ enifed("ember-runtime/tests/computed/reduce_computed_macros_test",
       deepEqual(a1bs.mapBy('name'), [], "properties can be filtered by matching value");
 
       run(function() {
-        set(obj, 'array', Ember.A([{name: 'item1', a:1, b:true}]));
+        set(obj, 'array', Ember.A([{name: 'item1', a: 1, b: true}]));
       });
 
       a1bs = get(obj, 'a1bs');
@@ -38050,7 +38050,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
             return ret ;
           },
 
-          newObserver:function() {
+          newObserver: function() {
             this.abnormal = 'changedValueObserved';
           },
 
@@ -38139,8 +38139,8 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
 
         ObjectC = ObservableObject.create({
 
-          objectE:ObservableObject.create({
-            propertyVal:"chainedProperty"
+          objectE: ObservableObject.create({
+            propertyVal: "chainedProperty"
           }),
 
           normal: 'value',
@@ -38156,7 +38156,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
             this.incrementor= this.incrementor+1;
           },
 
-          chainedObserver:function() {
+          chainedObserver: function() {
             this.normal2 = 'chainedPropertyObserved' ;
           }
 
@@ -38183,8 +38183,8 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
       setup: function() {
         ObjectD = ObservableObject.create({
 
-          objectF:ObservableObject.create({
-            propertyVal:"chainedProperty"
+          objectF: ObservableObject.create({
+            propertyVal: "chainedProperty"
           }),
 
           normal: 'value',
@@ -38198,7 +38198,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
           removeAction: function() {
             this.normal2 = 'newDependentValue';
           },
-          removeChainedObserver:function() {
+          removeChainedObserver: function() {
             this.normal2 = 'chainedPropertyObserved' ;
           },
 
@@ -38277,7 +38277,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
 
         objectB = ObservableObject.create({
           normal: "value",
-          computed:function() {
+          computed: function() {
             this.normal = 'newValue';
           }
         }) ;

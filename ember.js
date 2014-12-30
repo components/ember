@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.049d7ae3
+ * @version   1.11.0-beta.1+canary.06082906
  */
 
 (function() {
@@ -11953,7 +11953,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.049d7ae3
+      @version 1.11.0-beta.1+canary.06082906
     */
 
     if ('undefined' === typeof Ember) {
@@ -11980,10 +11980,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.049d7ae3'
+      @default '1.11.0-beta.1+canary.06082906'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.049d7ae3';
+    Ember.VERSION = '1.11.0-beta.1+canary.06082906';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -15702,7 +15702,7 @@ enifed("ember-metal/platform/create",
       /* jshint scripturl:true, proto:true */
       // Contributed by Brandon Benvie, October, 2012
       var createEmpty;
-      var supportsProto = !({'__proto__':null} instanceof Object);
+      var supportsProto = !({'__proto__': null} instanceof Object);
       // the following produces false positives
       // in Opera Mini => not a reliable check
       // Object.prototype.__proto__ === null
