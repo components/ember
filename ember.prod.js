@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.06082906
+ * @version   1.11.0-beta.1+canary.ca4f180b
  */
 
 (function() {
@@ -11533,7 +11533,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.06082906
+      @version 1.11.0-beta.1+canary.ca4f180b
     */
 
     if ('undefined' === typeof Ember) {
@@ -11560,10 +11560,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.06082906'
+      @default '1.11.0-beta.1+canary.ca4f180b'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.06082906';
+    Ember.VERSION = '1.11.0-beta.1+canary.ca4f180b';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -14101,7 +14101,7 @@ enifed("ember-metal/mixin",
     // ensure we prime superFunction to mitigate
     // v8 bug potentially incorrectly deopts this function: https://code.google.com/p/v8/issues/detail?id=3709
     var primer = {
-      __nextSuper: function(a,b,c,d ) { }
+      __nextSuper: function(a, b, c, d ) { }
     };
 
     superFunction.call(primer);
@@ -18312,8 +18312,12 @@ enifed("ember-metal/utils",
 
     __exports__.inspect = inspect;// The following functions are intentionally minified to keep the functions
     // below Chrome's function body size inlining limit of 600 chars.
-
-    function apply(t /* target */, m /* method */, a /* args */) {
+    /**
+      @param {Object} target
+      @param {Function} method
+      @param {Array} args
+    */
+    function apply(t, m, a) {
       var l = a && a.length;
       if (!a || !l) { return m.call(t); }
       switch (l) {
@@ -18326,7 +18330,12 @@ enifed("ember-metal/utils",
       }
     }
 
-    __exports__.apply = apply;function applyStr(t /* target */, m /* method */, a /* args */) {
+    __exports__.apply = apply;/**
+      @param {Object} target
+      @param {String} method
+      @param {Array} args
+    */
+    function applyStr(t, m, a) {
       var l = a && a.length;
       if (!a || !l) { return t[m](); }
       switch (l) {
@@ -33008,7 +33017,7 @@ enifed("ember-runtime/system/array_proxy",
           }
 
           // Replace in reverse order since indices will change
-          indices.sort(function(a,b) { return b - a; });
+          indices.sort(function(a, b) { return b - a; });
 
           beginPropertyChanges();
           for (i=0; i<indices.length; i++) {

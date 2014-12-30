@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.06082906
+ * @version   1.11.0-beta.1+canary.ca4f180b
  */
 
 (function() {
@@ -967,7 +967,7 @@ enifed("container/tests/registry_test",
       var FirstApple = factory('first');
       var SecondApple = factory('second');
 
-      SecondApple.extend = function(a,b,c) {
+      SecondApple.extend = function(a, b, c) {
         ok(false, 'should not extend or touch the injected model, merely to inspect existence of another');
       };
 
@@ -19491,7 +19491,7 @@ enifed("ember-metal/tests/computed_test",
       equal(get(obj, 'foo'), 'foo 3', 'cached retrieve');
     });
 
-    testBoth('redefining a property should undo old dependent keys', function(get ,set) {
+    testBoth('redefining a property should undo old dependent keys', function(get, set) {
 
       equal(isWatching(obj, 'bar'), false, 'precond not watching dependent key');
       equal(get(obj, 'foo'), 'bar 1');
@@ -19687,7 +19687,7 @@ enifed("ember-metal/tests/computed_test",
 
     });
 
-    testBoth('chained dependent keys should evaluate computed properties lazily', function(get,set) {
+    testBoth('chained dependent keys should evaluate computed properties lazily', function(get, set) {
       defineProperty(obj.foo.bar, 'b', computed(func));
       defineProperty(obj.foo, 'c', computed(function() {}).property('bar.b'));
       equal(count, 0, 'b should not run');
@@ -23765,7 +23765,7 @@ enifed("ember-metal/tests/observer_test",
 
     QUnit.module('addObserver');
 
-    testBoth('observer should fire when property is modified', function(get,set) {
+    testBoth('observer should fire when property is modified', function(get, set) {
 
       var obj = {};
       var count = 0;
@@ -23912,7 +23912,7 @@ enifed("ember-metal/tests/observer_test",
       equal(count, 2, 'observer not fired on unspecified property');
     });
 
-    testBoth('nested observers should fire in order', function(get,set) {
+    testBoth('nested observers should fire in order', function(get, set) {
       var obj = { foo: 'foo', bar: 'bar' };
       var fooCount = 0;
       var barCount = 0;
@@ -23930,7 +23930,7 @@ enifed("ember-metal/tests/observer_test",
 
     });
 
-    testBoth('removing an chain observer on change should not fail', function(get,set) {
+    testBoth('removing an chain observer on change should not fail', function(get, set) {
       var foo = { bar: 'bar' };
       var obj1 = { foo: foo };
       var obj2 = { foo: foo };
@@ -23964,7 +23964,7 @@ enifed("ember-metal/tests/observer_test",
       equal(count4, 0, 'observer4 did not fire');
     });
 
-    testBoth('removing an chain before observer on change should not fail', function(get,set) {
+    testBoth('removing an chain before observer on change should not fail', function(get, set) {
       var foo = { bar: 'bar' };
       var obj1 = { foo: foo };
       var obj2 = { foo: foo };
@@ -23998,7 +23998,7 @@ enifed("ember-metal/tests/observer_test",
       equal(count4, 0, 'observer4 did not fire');
     });
 
-    testBoth('suspending an observer should not fire during callback', function(get,set) {
+    testBoth('suspending an observer should not fire during callback', function(get, set) {
       var obj = {};
       var target, otherTarget;
 
@@ -24035,7 +24035,7 @@ enifed("ember-metal/tests/observer_test",
     });
 
 
-    testBoth('suspending an observer should not defer change notifications during callback', function(get,set) {
+    testBoth('suspending an observer should not defer change notifications during callback', function(get, set) {
       var obj = {};
       var target, otherTarget;
 
@@ -24073,7 +24073,7 @@ enifed("ember-metal/tests/observer_test",
       deepEqual(otherTarget.values, ['1', '2', '3'], 'should invoke');
     });
 
-    testBoth('suspending observers should not fire during callback', function(get,set) {
+    testBoth('suspending observers should not fire during callback', function(get, set) {
       var obj = {};
       var target, otherTarget;
 
@@ -24110,7 +24110,7 @@ enifed("ember-metal/tests/observer_test",
     });
 
 
-    testBoth('suspending observers should not defer change notifications during callback', function(get,set) {
+    testBoth('suspending observers should not defer change notifications during callback', function(get, set) {
       var obj = {};
       var target, otherTarget;
 
@@ -24148,7 +24148,7 @@ enifed("ember-metal/tests/observer_test",
       deepEqual(otherTarget.values, ['1', '2', '3'], 'should invoke');
     });
 
-    testBoth('deferring property change notifications', function(get,set) {
+    testBoth('deferring property change notifications', function(get, set) {
       var obj = { foo: 'foo' };
       var fooCount = 0;
 
@@ -24162,7 +24162,7 @@ enifed("ember-metal/tests/observer_test",
       equal(fooCount, 1, 'foo should have fired once');
     });
 
-    testBoth('deferring property change notifications safely despite exceptions', function(get,set) {
+    testBoth('deferring property change notifications safely despite exceptions', function(get, set) {
       var obj = { foo: 'foo' };
       var fooCount = 0;
       var exc = new Error("Something unexpected happened!");
@@ -24192,7 +24192,7 @@ enifed("ember-metal/tests/observer_test",
       equal(fooCount, 2, 'foo should have fired again once');
     });
 
-    testBoth('deferring property change notifications will not defer before observers', function(get,set) {
+    testBoth('deferring property change notifications will not defer before observers', function(get, set) {
       var obj = { foo: 'foo' };
       var fooCount = 0;
 
@@ -24233,7 +24233,7 @@ enifed("ember-metal/tests/observer_test",
       equal(events[1], 'foo:change');
     });
 
-    testBoth('addObserver should propagate through prototype', function(get,set) {
+    testBoth('addObserver should propagate through prototype', function(get, set) {
       var obj = { foo: 'foo', count: 0 };
       var obj2;
 
@@ -24251,7 +24251,7 @@ enifed("ember-metal/tests/observer_test",
       equal(obj2.count, 0, 'should not have invoked observer on inherited');
     });
 
-    testBoth('addObserver should respect targets with methods', function(get,set) {
+    testBoth('addObserver should respect targets with methods', function(get, set) {
       var observed = { foo: 'foo' };
 
       var target1 = {
@@ -24321,7 +24321,7 @@ enifed("ember-metal/tests/observer_test",
 
     QUnit.module('removeObserver');
 
-    testBoth('removing observer should stop firing', function(get,set) {
+    testBoth('removing observer should stop firing', function(get, set) {
 
       var obj = {};
       var count = 0;
@@ -24364,7 +24364,7 @@ enifed("ember-metal/tests/observer_test",
       equal(barObserved, 1, 'removed observers should not be called');
     });
 
-    testBoth('removeObserver should respect targets with methods', function(get,set) {
+    testBoth('removeObserver should respect targets with methods', function(get, set) {
       var observed = { foo: 'foo' };
 
       var target1 = {
@@ -24405,7 +24405,7 @@ enifed("ember-metal/tests/observer_test",
 
     QUnit.module('addBeforeObserver');
 
-    testBoth('observer should fire before a property is modified', function(get,set) {
+    testBoth('observer should fire before a property is modified', function(get, set) {
 
       var obj = { foo: 'foo' };
       var count = 0;
@@ -24533,7 +24533,7 @@ enifed("ember-metal/tests/observer_test",
       equal(count, 2, 'observer not fired on unspecified property');
     });
 
-    testBoth('addBeforeObserver should propagate through prototype', function(get,set) {
+    testBoth('addBeforeObserver should propagate through prototype', function(get, set) {
       var obj = { foo: 'foo', count: 0 };
       var obj2;
 
@@ -24550,7 +24550,7 @@ enifed("ember-metal/tests/observer_test",
       equal(obj2.count, 0, 'should not have invoked observer on inherited');
     });
 
-    testBoth('addBeforeObserver should respect targets with methods', function(get,set) {
+    testBoth('addBeforeObserver should respect targets with methods', function(get, set) {
       var observed = { foo: 'foo' };
 
       var target1 = {
@@ -24889,7 +24889,7 @@ enifed("ember-metal/tests/observer_test",
 
     QUnit.module("changeProperties");
 
-    testBoth("observers added/removed during changeProperties should do the right thing.", function(get,set) {
+    testBoth("observers added/removed during changeProperties should do the right thing.", function(get, set) {
       var obj = {
         foo: 0
       };
@@ -25388,10 +25388,10 @@ enifed("ember-metal/tests/props_helper",
     // used by unit tests to test both accessor mode and non-accessor mode
     var testBoth = function(testname, callback) {
 
-      function emberget(x,y) { return getFromEmberMetal(x, y); }
-      function emberset(x,y,z) { return setFromEmberMetal(x, y, z); }
-      function aget(x,y) { return x[y]; }
-      function aset(x,y,z) { return (x[y] = z); }
+      function emberget(x, y) { return getFromEmberMetal(x, y); }
+      function emberset(x, y, z) { return setFromEmberMetal(x, y, z); }
+      function aget(x, y) { return x[y]; }
+      function aset(x, y, z) { return (x[y] = z); }
 
       test(testname+' using getFromEmberMetal()/Ember.set()', function() {
         callback(emberget, emberset);
@@ -25407,12 +25407,12 @@ enifed("ember-metal/tests/props_helper",
     };
 
     var testWithDefault = function(testname, callback) {
-      function emberget(x,y) { return getFromEmberMetal(x, y); }
-      function embergetwithdefault(x,y,z) { return getWithDefaultFromEmberMetal(x, y, z); }
-      function getwithdefault(x,y,z) { return x.getWithDefault(y, z); }
-      function emberset(x,y,z) { return setFromEmberMetal(x, y, z); }
-      function aget(x,y) { return x[y]; }
-      function aset(x,y,z) { return (x[y] = z); }
+      function emberget(x, y) { return getFromEmberMetal(x, y); }
+      function embergetwithdefault(x, y, z) { return getWithDefaultFromEmberMetal(x, y, z); }
+      function getwithdefault(x, y, z) { return x.getWithDefault(y, z); }
+      function emberset(x, y, z) { return setFromEmberMetal(x, y, z); }
+      function aget(x, y) { return x[y]; }
+      function aset(x, y, z) { return (x[y] = z); }
 
       test(testname+' using obj.get()', function() {
         callback(emberget, emberset);
@@ -34442,7 +34442,7 @@ enifed("ember-runtime/tests/computed/reduce_computed_macros_test",
 
             sortProps: Ember.A(['count']),
             sortedItems: computedSort('items', 'sortProps'),
-            customSortedItems: computedSort('items.@each.count', function(a,b){
+            customSortedItems: computedSort('items.@each.count', function(a, b){
               return get(a, 'count') - get(b, 'count');
             })
           });
@@ -35172,11 +35172,11 @@ enifed("ember-runtime/tests/computed/reduce_computed_test",
           exploder: reduceComputed('collection', {
             initialize: function(initialValue, changeMeta, instanceMeta) {},
 
-            addedItem: function(accumulatedValue,item,changeMeta,instanceMeta) {
+            addedItem: function(accumulatedValue, item, changeMeta, instanceMeta) {
               return item;
             },
 
-            removedItem: function(accumulatedValue,item,changeMeta,instanceMeta) {
+            removedItem: function(accumulatedValue, item, changeMeta, instanceMeta) {
               return item;
             }
           })
@@ -35615,7 +35615,7 @@ enifed("ember-runtime/tests/computed/reduce_computed_test",
             };
           },
 
-          addedItem: function(accumulatedValue,item,changeMeta,instanceMeta) {
+          addedItem: function(accumulatedValue, item, changeMeta, instanceMeta) {
             var filterIndex;
             filterIndex = instanceMeta.subArray.addItem(changeMeta.index, item.toUpperCase() === item);
             if (filterIndex > -1) {
@@ -35624,7 +35624,7 @@ enifed("ember-runtime/tests/computed/reduce_computed_test",
             return instanceMeta.firstMatch();
           },
 
-          removedItem: function(accumulatedValue,item,changeMeta,instanceMeta) {
+          removedItem: function(accumulatedValue, item, changeMeta, instanceMeta) {
             var filterIndex = instanceMeta.subArray.removeItem(changeMeta.index);
             if (filterIndex > -1) {
               instanceMeta.matchingItems.removeAt(filterIndex);
@@ -41674,7 +41674,7 @@ enifed("ember-runtime/tests/mixins/observable_test",
       equal("Cook", obj.get("lastName"));
     });
 
-    testBoth('calling setProperties completes safely despite exceptions', function(get,set) {
+    testBoth('calling setProperties completes safely despite exceptions', function(get, set) {
       var exc = new Error("Something unexpected happened!");
       var obj = EmberObject.createWithMixins({
         firstName: "Steve",
@@ -47033,7 +47033,7 @@ enifed("ember-runtime/tests/system/array_proxy/arranged_content_test",
             content: Ember.A([1,2,4,5]),
             arrangedContent: computed(function() {
               var content = this.get('content');
-              return content && Ember.A(content.slice().sort(function(a,b) {
+              return content && Ember.A(content.slice().sort(function(a, b) {
                 if (a == null) { a = -1; }
                 if (b == null) { b = -1; }
                 return b - a;
@@ -47231,7 +47231,7 @@ enifed("ember-runtime/tests/system/array_proxy/arranged_content_test",
 
             arrangedContent: computed(function() {
               var content = this.get('content');
-              return content && Ember.A(content.slice().sort(function(a,b) {
+              return content && Ember.A(content.slice().sort(function(a, b) {
                 if (a == null) { a = -1; }
                 if (b == null) { b = -1; }
                 return b - a;
@@ -47863,7 +47863,7 @@ enifed("ember-runtime/tests/system/native_array/copyable_suite_test",
         return Ember.A([generateGuid()]);
       },
 
-      isEqual: function(a,b) {
+      isEqual: function(a, b) {
         if (!(a instanceof Array)) {
           return false;
         }
@@ -50030,7 +50030,7 @@ enifed("ember-runtime/tests/system/set/copyable_suite_test",
         return set;
       },
 
-      isEqual: function(a,b) {
+      isEqual: function(a, b) {
         if (!(a instanceof Set)) {
           return false;
         }
