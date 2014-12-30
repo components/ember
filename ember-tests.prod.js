@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.9c38ba0d
+ * @version   1.11.0-beta.1+canary.42036a85
  */
 
 (function() {
@@ -36818,7 +36818,7 @@ enifed("ember-runtime/tests/core/type_test",
       equal(typeOf(obj),           'object',    "item of type object");
       equal(typeOf(object),        'instance',  "item of type instance");
       equal(typeOf(object.method), 'function',  "item of type function");
-      equal(typeOf(EmberObject),     'class',     "item of type class");
+      equal(typeOf(EmberObject),   'class',     "item of type class");
       equal(typeOf(new Error()),   'error',     "item of type error");
     });
   });
