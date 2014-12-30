@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.19bcb5b3
+ * @version   1.11.0-beta.1+canary.16034798
  */
 
 (function() {
@@ -8815,6 +8815,9 @@ enifed("ember-metal-views/renderer",
 
     function Renderer() {
       this._uuid = 0;
+
+      // These sizes and values are somewhat arbitrary (but sensible)
+      // pre-allocation defaults.
       this._views = new Array(2000);
       this._queue = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
       this._parents = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
@@ -11953,7 +11956,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.19bcb5b3
+      @version 1.11.0-beta.1+canary.16034798
     */
 
     if ('undefined' === typeof Ember) {
@@ -11980,10 +11983,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.19bcb5b3'
+      @default '1.11.0-beta.1+canary.16034798'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.19bcb5b3';
+    Ember.VERSION = '1.11.0-beta.1+canary.16034798';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
