@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.f953605e
+ * @version   1.11.0-beta.1+canary.79de43f6
  */
 
 (function() {
@@ -5008,7 +5008,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.f953605e
+      @version 1.11.0-beta.1+canary.79de43f6
     */
 
     if ('undefined' === typeof Ember) {
@@ -5035,10 +5035,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.f953605e'
+      @default '1.11.0-beta.1+canary.79de43f6'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.f953605e';
+    Ember.VERSION = '1.11.0-beta.1+canary.79de43f6';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -6722,7 +6722,7 @@ enifed("ember-metal/keys",
 
           for (prop in obj) {
             if (prop !== '_super' &&
-              prop.lastIndexOf('__',0) !== 0 &&
+              prop.lastIndexOf('__', 0) !== 0 &&
               hasOwnProperty.call(obj, prop)) {
               result.push(prop);
             }
@@ -12432,7 +12432,7 @@ enifed("ember-runtime/compare",
       switch (type1) {
         case 'boolean':
         case 'number':
-          return spaceship(v,w);
+          return spaceship(v, w);
 
         case 'string':
           return spaceship(v.localeCompare(w), 0);
@@ -16872,7 +16872,7 @@ enifed("ember-runtime/mixins/enumerable",
         var ret = Ember.A();
 
         this.forEach(function(x, idx, i) {
-          ret[idx] = callback.call(target, x, idx,i);
+          ret[idx] = callback.call(target, x, idx, i);
         });
 
         return ret ;
@@ -17605,7 +17605,7 @@ enifed("ember-runtime/mixins/enumerable",
         if ('number' === typeof adding) {
           addCnt = adding;
         } else if (adding) {
-          addCnt = get(adding,'length');
+          addCnt = get(adding, 'length');
         } else {
           addCnt = adding = -1;
         }

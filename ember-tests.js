@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.f953605e
+ * @version   1.11.0-beta.1+canary.79de43f6
  */
 
 (function() {
@@ -1669,7 +1669,7 @@ enifed("ember-application/tests/system/dependency_injection/custom_resolver_test
 
     var application;
 
-    QUnit.module("Ember.Application Depedency Injection – customResolver",{
+    QUnit.module("Ember.Application Depedency Injection – customResolver", {
       setup: function() {
         function fallbackTemplate() { return "<h1>Fallback</h1>"; }
 
@@ -1982,7 +1982,7 @@ enifed("ember-application/tests/system/dependency_injection/to_string_test",
 
     var originalLookup, App, originalModelInjections;
 
-    QUnit.module("Ember.Application Dependency Injection – toString",{
+    QUnit.module("Ember.Application Dependency Injection – toString", {
       setup: function() {
         originalModelInjections = Ember.MODEL_FACTORY_INJECTIONS;
         Ember.MODEL_FACTORY_INJECTIONS = true;
@@ -2020,7 +2020,7 @@ enifed("ember-application/tests/system/dependency_injection/to_string_test",
     });
 
     test("with a custom resolver", function() {
-      run(App,'destroy');
+      run(App, 'destroy');
 
       run(function(){
         App = Application.create({
@@ -8392,14 +8392,14 @@ enifed("ember-htmlbars/tests/helpers/collection_test",
           ready: true,
           items: A([1,2,3])
         });
-        TemplateTests.datasetController.set('dataset',dataset);
+        TemplateTests.datasetController.set('dataset', dataset);
       });
 
       equal(view.$('ul > li').length, 3, "renders the collection with the correct number of items when the dataset is ready");
 
       run(function() {
         secondDataset = EmberObject.create({ready: false});
-        TemplateTests.datasetController.set('dataset',secondDataset);
+        TemplateTests.datasetController.set('dataset', secondDataset);
       });
 
       equal(view.$().text(), "Loading", "renders the loading text when the second dataset is not ready");
@@ -19700,7 +19700,7 @@ enifed("ember-metal/tests/computed_test",
 
     QUnit.module('computed edge cases');
 
-    test('adding a computed property should show up in key iteration',function() {
+    test('adding a computed property should show up in key iteration', function() {
 
       var obj = {};
       defineProperty(obj, 'foo', computed(function() {}));
@@ -23782,7 +23782,7 @@ enifed("ember-metal/tests/observer_test",
     testBoth('observer should fire when dependent property is modified', function(get, set) {
       var obj = { bar: 'bar' };
       defineProperty(obj, 'foo', computed(function() {
-        return get(this,'bar').toUpperCase();
+        return get(this, 'bar').toUpperCase();
       }).property('bar'));
 
       get(obj, 'foo');
@@ -23842,11 +23842,11 @@ enifed("ember-metal/tests/observer_test",
         var count = 0;
 
         defineProperty(obj, 'foo', computed(function() {
-          return get(this,'bar').toLowerCase();
+          return get(this, 'bar').toLowerCase();
         }).property('bar'));
 
         defineProperty(obj, 'bar', computed(function() {
-          return get(this,'baz').toUpperCase();
+          return get(this, 'baz').toUpperCase();
         }).property('baz'));
 
         mixin(obj, {
@@ -23890,11 +23890,11 @@ enifed("ember-metal/tests/observer_test",
       var count = 0;
 
       defineProperty(obj, 'foo', computed(function() {
-        return get(this,'bar').toLowerCase();
+        return get(this, 'bar').toLowerCase();
       }).property('bar'));
 
       defineProperty(obj, 'bar', computed(function() {
-        return get(this,'baz').toUpperCase();
+        return get(this, 'baz').toUpperCase();
       }).property('baz'));
 
       mixin(obj, {
@@ -23917,7 +23917,7 @@ enifed("ember-metal/tests/observer_test",
       var fooCount = 0;
       var barCount = 0;
 
-      addObserver(obj, 'foo' ,function() { fooCount++; });
+      addObserver(obj, 'foo', function() { fooCount++; });
       addObserver(obj, 'bar', function() {
         set(obj, 'foo', 'BAZ');
         equal(fooCount, 1, 'fooCount should have fired already');
@@ -24152,7 +24152,7 @@ enifed("ember-metal/tests/observer_test",
       var obj = { foo: 'foo' };
       var fooCount = 0;
 
-      addObserver(obj, 'foo' ,function() { fooCount++; });
+      addObserver(obj, 'foo', function() { fooCount++; });
 
       beginPropertyChanges(obj);
       set(obj, 'foo', 'BIFF');
@@ -24168,7 +24168,7 @@ enifed("ember-metal/tests/observer_test",
       var exc = new Error("Something unexpected happened!");
 
       expect(2);
-      addObserver(obj, 'foo' ,function() { fooCount++; });
+      addObserver(obj, 'foo', function() { fooCount++; });
 
       try {
         changeProperties(function() {
@@ -24196,7 +24196,7 @@ enifed("ember-metal/tests/observer_test",
       var obj = { foo: 'foo' };
       var fooCount = 0;
 
-      addBeforeObserver(obj, 'foo' ,function() { fooCount++; });
+      addBeforeObserver(obj, 'foo', function() { fooCount++; });
 
       beginPropertyChanges(obj);
       set(obj, 'foo', 'BIFF');
@@ -24422,7 +24422,7 @@ enifed("ember-metal/tests/observer_test",
     testBoth('observer should fire before dependent property is modified', function(get, set) {
       var obj = { bar: 'bar' };
       defineProperty(obj, 'foo', computed(function() {
-        return get(this,'bar').toUpperCase();
+        return get(this, 'bar').toUpperCase();
       }).property('bar'));
 
       get(obj, 'foo');
@@ -24463,11 +24463,11 @@ enifed("ember-metal/tests/observer_test",
         var count = 0;
 
         defineProperty(obj, 'foo', computed(function() {
-          return get(this,'bar').toLowerCase();
+          return get(this, 'bar').toLowerCase();
         }).property('bar'));
 
         defineProperty(obj, 'bar', computed(function() {
-          return get(this,'baz').toUpperCase();
+          return get(this, 'baz').toUpperCase();
         }).property('baz'));
 
         mixin(obj, {
@@ -24511,11 +24511,11 @@ enifed("ember-metal/tests/observer_test",
       var count = 0;
 
       defineProperty(obj, 'foo', computed(function() {
-        return get(this,'bar').toLowerCase();
+        return get(this, 'bar').toLowerCase();
       }).property('bar'));
 
       defineProperty(obj, 'bar', computed(function() {
-        return get(this,'baz').toUpperCase();
+        return get(this, 'baz').toUpperCase();
       }).property('baz'));
 
       mixin(obj, {
@@ -25388,8 +25388,8 @@ enifed("ember-metal/tests/props_helper",
     // used by unit tests to test both accessor mode and non-accessor mode
     var testBoth = function(testname, callback) {
 
-      function emberget(x,y) { return getFromEmberMetal(x,y); }
-      function emberset(x,y,z) { return setFromEmberMetal(x,y,z); }
+      function emberget(x,y) { return getFromEmberMetal(x, y); }
+      function emberset(x,y,z) { return setFromEmberMetal(x, y, z); }
       function aget(x,y) { return x[y]; }
       function aset(x,y,z) { return (x[y] = z); }
 
@@ -25407,10 +25407,10 @@ enifed("ember-metal/tests/props_helper",
     };
 
     var testWithDefault = function(testname, callback) {
-      function emberget(x,y) { return getFromEmberMetal(x,y); }
-      function embergetwithdefault(x,y,z) { return getWithDefaultFromEmberMetal(x,y,z); }
-      function getwithdefault(x,y,z) { return x.getWithDefault(y,z); }
-      function emberset(x,y,z) { return setFromEmberMetal(x,y,z); }
+      function emberget(x,y) { return getFromEmberMetal(x, y); }
+      function embergetwithdefault(x,y,z) { return getWithDefaultFromEmberMetal(x, y, z); }
+      function getwithdefault(x,y,z) { return x.getWithDefault(y, z); }
+      function emberset(x,y,z) { return setFromEmberMetal(x, y, z); }
       function aget(x,y) { return x[y]; }
       function aset(x,y,z) { return (x[y] = z); }
 
@@ -25470,7 +25470,7 @@ enifed("ember-metal/tests/run_loop/add_queue_test",
     var originalQueues = run.queues;
     var queues;
 
-    QUnit.module('system/run_loop/add_queue_test',{
+    QUnit.module('system/run_loop/add_queue_test', {
       setup: function(){
         run.queues = queues = ['blork', 'bleep'];
       },
@@ -25518,7 +25518,7 @@ enifed("ember-metal/tests/run_loop/debounce_test",
 
     var originalDebounce = run.backburner.debounce;
     var wasCalled = false;
-    QUnit.module('Ember.run.debounce',{
+    QUnit.module('Ember.run.debounce', {
       setup: function() {
         run.backburner.debounce = function() { wasCalled = true; };
       },
@@ -26819,7 +26819,7 @@ enifed("ember-metal/tests/utils/is_array_test",
 
     var global = this;
 
-    test("Ember.isArray" ,function() {
+    test("Ember.isArray", function() {
       var numarray      = [1,2,3];
       var number        = 23;
       var strarray      = ["Hello", "Hi"];
@@ -34306,7 +34306,7 @@ enifed("ember-runtime/tests/computed/reduce_computed_macros_test",
         return lna > lnb ? 1 : -1;
       }
 
-      return sortByFnameAsc(a,b);
+      return sortByFnameAsc(a, b);
     }
 
     function sortByFnameAsc(a, b) {
@@ -35141,7 +35141,7 @@ enifed("ember-runtime/tests/computed/reduce_computed_test",
       equal(removeCalls, 0, 'precond - removed has not been called');
 
       run(function() {
-        numbers.replace(0,2,[7,8,9,10]);
+        numbers.replace(0, 2, [7,8,9,10]);
       });
 
       equal(addCalls, 10, 'add is called for each item added');
@@ -36790,22 +36790,22 @@ enifed("ember-runtime/tests/core/isEqual_test",
       ok( !isEqual(null, undefined),      "null is not equal to undefined" );
     });
 
-    test("strings should be equal",function() {
+    test("strings should be equal", function() {
       ok( !isEqual("Hello", "Hi"),    "different Strings are unequal" );
       ok(  isEqual("Hello", "Hello"), "same Strings are equal" );
     });
 
-    test("numericals should be equal",function() {
+    test("numericals should be equal", function() {
       ok(  isEqual(24, 24), "same numbers are equal" );
       ok( !isEqual(24, 21), "different numbers are inequal" );
     });
 
-    test("dates should be equal",function() {
+    test("dates should be equal", function() {
       ok (  isEqual(new Date(1985, 7, 22), new Date(1985, 7, 22)), "same dates are equal" );
       ok ( !isEqual(new Date(2014, 7, 22), new Date(1985, 7, 22)), "different dates are not equal" );
     });
 
-    test("array should be equal",function() {
+    test("array should be equal", function() {
       // NOTE: We don't test for array contents -- that would be too expensive.
       ok( !isEqual( [1,2], [1,2] ), 'two array instances with the same values should not be equal' );
       ok( !isEqual( [1,2], [1] ),   'two array instances with different values should not be equal' );
@@ -36846,7 +36846,7 @@ enifed("ember-runtime/tests/core/is_array_test",
 
     QUnit.module("Ember Type Checking");
 
-    test("Ember.isArray" ,function() {
+    test("Ember.isArray", function() {
       var arrayProxy = ArrayProxy.create({ content: Ember.A() });
 
       equal(isArray(arrayProxy), true, "[]");
@@ -38174,22 +38174,22 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
 
     });
 
-    test('incrementProperty and decrementProperty',function() {
+    test('incrementProperty and decrementProperty', function() {
       var newValue = object.incrementProperty('numberVal');
 
-      equal(25,newValue,'numerical value incremented');
+      equal(25, newValue, 'numerical value incremented');
       object.numberVal = 24;
       newValue = object.decrementProperty('numberVal');
-      equal(23,newValue,'numerical value decremented');
+      equal(23, newValue, 'numerical value decremented');
       object.numberVal = 25;
       newValue = object.incrementProperty('numberVal', 5);
-      equal(30,newValue,'numerical value incremented by specified increment');
+      equal(30, newValue, 'numerical value incremented by specified increment');
       object.numberVal = 25;
       newValue = object.incrementProperty('numberVal', -5);
-      equal(20,newValue,'minus numerical value incremented by specified increment');
+      equal(20, newValue, 'minus numerical value incremented by specified increment');
       object.numberVal = 25;
       newValue = object.incrementProperty('numberVal', 0);
-      equal(25,newValue,'zero numerical value incremented by specified increment');
+      equal(25, newValue, 'zero numerical value incremented by specified increment');
 
       expectAssertion(function() {
         newValue = object.incrementProperty('numberVal', (0 - void(0))); // Increment by NaN
@@ -38203,17 +38203,17 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
         newValue = object.incrementProperty('numberVal', 1/0); // Increment by Infinity
       }, /Must pass a numeric value to incrementProperty/i);
 
-      equal(25,newValue,'Attempting to increment by non-numeric values should not increment value');
+      equal(25, newValue, 'Attempting to increment by non-numeric values should not increment value');
 
       object.numberVal = 25;
-      newValue = object.decrementProperty('numberVal',5);
-      equal(20,newValue,'numerical value decremented by specified increment');
+      newValue = object.decrementProperty('numberVal', 5);
+      equal(20, newValue, 'numerical value decremented by specified increment');
       object.numberVal = 25;
       newValue = object.decrementProperty('numberVal', -5);
-      equal(30,newValue,'minus numerical value decremented by specified increment');
+      equal(30, newValue, 'minus numerical value decremented by specified increment');
       object.numberVal = 25;
       newValue = object.decrementProperty('numberVal', 0);
-      equal(25,newValue,'zero numerical value decremented by specified increment');
+      equal(25, newValue, 'zero numerical value decremented by specified increment');
 
       expectAssertion(function() {
         newValue = object.decrementProperty('numberVal', (0 - void(0))); // Decrement by NaN
@@ -38227,17 +38227,17 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
         newValue = object.decrementProperty('numberVal', 1/0); // Decrement by Infinity
       }, /Must pass a numeric value to decrementProperty/i);
 
-      equal(25,newValue,'Attempting to decrement by non-numeric values should not decrement value');
+      equal(25, newValue, 'Attempting to decrement by non-numeric values should not decrement value');
     });
 
-    test('toggle function, should be boolean',function() {
-      equal(object.toggleProperty('toggleVal',true,false),object.get('toggleVal'));
-      equal(object.toggleProperty('toggleVal',true,false),object.get('toggleVal'));
-      equal(object.toggleProperty('toggleVal',undefined,undefined),object.get('toggleVal'));
+    test('toggle function, should be boolean', function() {
+      equal(object.toggleProperty('toggleVal', true, false), object.get('toggleVal'));
+      equal(object.toggleProperty('toggleVal', true, false), object.get('toggleVal'));
+      equal(object.toggleProperty('toggleVal', undefined, undefined), object.get('toggleVal'));
     });
 
-    test('should notify array observer when array changes',function() {
-      get(object, 'normalArray').replace(0,0,6);
+    test('should notify array observer when array changes', function() {
+      get(object, 'normalArray').replace(0, 0, 6);
       equal(object.abnormal, 'notifiedObserver', 'observer should be notified');
     });
 
@@ -38273,17 +38273,17 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
 
     test("should register an observer for a property", function() {
       ObjectC.addObserver('normal', ObjectC, 'action');
-      ObjectC.set('normal','newValue');
+      ObjectC.set('normal', 'newValue');
       equal(ObjectC.normal1, 'newZeroValue');
     });
 
     test("should register an observer for a property - Special case of chained property", function() {
-      ObjectC.addObserver('objectE.propertyVal',ObjectC,'chainedObserver');
-      ObjectC.objectE.set('propertyVal',"chainedPropertyValue");
-      equal('chainedPropertyObserved',ObjectC.normal2);
+      ObjectC.addObserver('objectE.propertyVal', ObjectC, 'chainedObserver');
+      ObjectC.objectE.set('propertyVal', "chainedPropertyValue");
+      equal('chainedPropertyObserved', ObjectC.normal2);
       ObjectC.normal2 = 'dependentValue';
-      ObjectC.set('objectE','');
-      equal('chainedPropertyObserved',ObjectC.normal2);
+      ObjectC.set('objectE', '');
+      equal('chainedPropertyObserved', ObjectC.normal2);
     });
 
     QUnit.module("object.removeObserver()", {
@@ -38330,26 +38330,26 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
 
     test("should unregister an observer for a property", function() {
       ObjectD.addObserver('normal', ObjectD, 'addAction');
-      ObjectD.set('normal','newValue');
+      ObjectD.set('normal', 'newValue');
       equal(ObjectD.normal1, 'newZeroValue');
 
-      ObjectD.set('normal1','zeroValue');
+      ObjectD.set('normal1', 'zeroValue');
 
       ObjectD.removeObserver('normal', ObjectD, 'addAction');
-      ObjectD.set('normal','newValue');
+      ObjectD.set('normal', 'newValue');
       equal(ObjectD.normal1, 'zeroValue');
     });
 
 
     test("should unregister an observer for a property - special case when key has a '.' in it.", function() {
-      ObjectD.addObserver('objectF.propertyVal',ObjectD,'removeChainedObserver');
-      ObjectD.objectF.set('propertyVal',"chainedPropertyValue");
-      ObjectD.removeObserver('objectF.propertyVal',ObjectD,'removeChainedObserver');
+      ObjectD.addObserver('objectF.propertyVal', ObjectD, 'removeChainedObserver');
+      ObjectD.objectF.set('propertyVal', "chainedPropertyValue");
+      ObjectD.removeObserver('objectF.propertyVal', ObjectD, 'removeChainedObserver');
       ObjectD.normal2 = 'dependentValue';
-      ObjectD.objectF.set('propertyVal',"removedPropertyValue");
-      equal('dependentValue',ObjectD.normal2);
-      ObjectD.set('objectF','');
-      equal('dependentValue',ObjectD.normal2);
+      ObjectD.objectF.set('propertyVal', "removedPropertyValue");
+      equal('dependentValue', ObjectD.normal2);
+      ObjectD.set('objectF', '');
+      equal('dependentValue', ObjectD.normal2);
     });
 
 
@@ -38405,7 +38405,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
     test("should bind property with method parameter as undefined", function() {
       // creating binding
       run(function() {
-        objectA.bind("name", "Namespace.objectB.normal",undefined) ;
+        objectA.bind("name", "Namespace.objectB.normal", undefined) ;
       });
 
       // now make a change to see if the binding triggers.
@@ -38638,17 +38638,17 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test",
       ObjectA.propertyDidChange('foo', null) ;
 
       // Values of prop has just changed
-      equal(ObjectA.prop,'changedPropValue') ;
+      equal(ObjectA.prop, 'changedPropValue') ;
     });
 
     test("should notify that the property of an object has changed", function() {
       // Notify to its subscriber that the values of 'newFoo' will be changed. In this
       // case the observer is "newProp". Therefore this will call the notifyAction function
       // and value of "newProp" will be changed.
-      ObjectA.notifyPropertyChange('newFoo','fooValue');
+      ObjectA.notifyPropertyChange('newFoo', 'fooValue');
 
       //value of newProp changed.
-      equal(ObjectA.newProp,'changedNewPropValue') ;
+      equal(ObjectA.newProp, 'changedNewPropValue') ;
     });
 
     test("should invalidate function property cache when notifyPropertyChange is called", function() {
@@ -38899,7 +38899,7 @@ enifed("ember-runtime/tests/legacy_1x/system/binding_test",
       equal("change", get(first, "output"), "first.output") ;
       equal("change", get(second, "input"), "second.input") ;
       equal("change", get(second, "output"), "second.output") ;
-      equal("change", get(third,"input"), "third.input") ;
+      equal("change", get(third, "input"), "third.input") ;
     });
 
     // ..........................................................
@@ -39102,7 +39102,7 @@ enifed("ember-runtime/tests/legacy_1x/system/object/base_test",
     });
 
     test("Should allow changing of those properties by calling EmberObject#set", function() {
-      equal(get(obj,'foo'), 'bar') ;
+      equal(get(obj, 'foo'), 'bar') ;
       equal(get(obj, 'total'), 12345) ;
 
       set(obj,  'foo', 'Chunky Bacon' ) ;
@@ -40003,7 +40003,7 @@ enifed("ember-runtime/tests/legacy_1x/system/set_test",
         obj = set.copy();
       });
 
-      equal(oldLength,obj.length,'length of the clone should be same');
+      equal(oldLength, obj.length, 'length of the clone should be same');
       equal(obj.contains(set[0]), true);
       equal(obj.contains(set[1]), true);
       equal(obj.contains(set[2]), true);
@@ -40567,7 +40567,7 @@ enifed("ember-runtime/tests/mixins/comparable_test",
       width: 0,
 
       area: function() {
-        return get(this,'length') * get(this, 'width');
+        return get(this, 'length') * get(this, 'width');
       },
 
       compare: function(a, b) {
@@ -40655,7 +40655,7 @@ enifed("ember-runtime/tests/mixins/copyable_test",
           return false;
         }
 
-        return get(a, 'id') === get(b,'id');
+        return get(a, 'id') === get(b, 'id');
       }
     }).run();
   });
@@ -42522,7 +42522,7 @@ enifed("ember-runtime/tests/mixins/target_action_support_test",
 
     test("it should use an actionContext object specified as a property on the object", function() {
       expect(2);
-      var obj = EmberObject.createWithMixins(TargetActionSupport,{
+      var obj = EmberObject.createWithMixins(TargetActionSupport, {
             action: 'anEvent',
             actionContext: {},
             target: EmberObject.create({
@@ -42541,7 +42541,7 @@ enifed("ember-runtime/tests/mixins/target_action_support_test",
       Ember.lookup = { Test: Test };
       Test.aContext = {};
 
-      var obj = EmberObject.createWithMixins(TargetActionSupport,{
+      var obj = EmberObject.createWithMixins(TargetActionSupport, {
             action: 'anEvent',
             actionContext: 'Test.aContext',
             target: EmberObject.create({
@@ -42560,7 +42560,7 @@ enifed("ember-runtime/tests/mixins/target_action_support_test",
               ok(true, "anEvent method was called");
             }
           });
-      var obj = EmberObject.createWithMixins(TargetActionSupport,{
+      var obj = EmberObject.createWithMixins(TargetActionSupport, {
             action: 'anEvent'
           });
 
@@ -42570,7 +42570,7 @@ enifed("ember-runtime/tests/mixins/target_action_support_test",
     test("it should use the action specified in the argument", function() {
       expect(2);
 
-      var obj = EmberObject.createWithMixins(TargetActionSupport,{
+      var obj = EmberObject.createWithMixins(TargetActionSupport, {
         target: EmberObject.create({
           anEvent: function() {
             ok(true, "anEvent method was called");
@@ -42583,7 +42583,7 @@ enifed("ember-runtime/tests/mixins/target_action_support_test",
     test("it should use the actionContext specified in the argument", function() {
       expect(2);
       var context = {};
-      var obj = EmberObject.createWithMixins(TargetActionSupport,{
+      var obj = EmberObject.createWithMixins(TargetActionSupport, {
         target: EmberObject.create({
           anEvent: function(ctx) {
             ok(context === ctx, "anEvent method was called with the expected context");
@@ -42599,7 +42599,7 @@ enifed("ember-runtime/tests/mixins/target_action_support_test",
       expect(3);
       var param1 = 'someParam';
       var param2 = 'someOtherParam';
-      var obj = EmberObject.createWithMixins(TargetActionSupport,{
+      var obj = EmberObject.createWithMixins(TargetActionSupport, {
         target: EmberObject.create({
           anEvent: function(first, second) {
             ok(first === param1, "anEvent method was called with the expected first argument");
@@ -42614,7 +42614,7 @@ enifed("ember-runtime/tests/mixins/target_action_support_test",
 
     test("it should use a null value specified in the actionContext argument", function() {
       expect(2);
-      var obj = EmberObject.createWithMixins(TargetActionSupport,{
+      var obj = EmberObject.createWithMixins(TargetActionSupport, {
         target: EmberObject.create({
           anEvent: function(ctx) {
             ok(null === ctx, "anEvent method was called with the expected context (null)");
@@ -43446,7 +43446,7 @@ enifed("ember-runtime/tests/suites/enumerable/any",
       result = obj.any(function(i) { found.push(i); return --cnt <= 0; });
       equal(result, true, 'return value of obj.any');
       equal(found.length, exp, 'should invoke proper number of times');
-      deepEqual(found, ary.slice(0,-2), 'items passed during any() should match');
+      deepEqual(found, ary.slice(0, -2), 'items passed during any() should match');
     });
 
 
@@ -43635,7 +43635,7 @@ enifed("ember-runtime/tests/suites/enumerable/every",
       result = obj.every(function(i) { found.push(i); return --cnt>0; });
       equal(result, false, 'return value of obj.every');
       equal(found.length, exp, 'should invoke proper number of times');
-      deepEqual(found, ary.slice(0,-2), 'items passed during every() should match');
+      deepEqual(found, ary.slice(0, -2), 'items passed during every() should match');
     });
 
     // ..........................................................
@@ -43740,7 +43740,7 @@ enifed("ember-runtime/tests/suites/enumerable/filter",
       // return true on all but the last two
       result = obj.filter(function(i) { found.push(i); return --cnt>=0; });
       deepEqual(found, ary, 'should have invoked on each item');
-      deepEqual(result, ary.slice(0,-2), 'filtered array should exclude items');
+      deepEqual(result, ary.slice(0, -2), 'filtered array should exclude items');
     });
 
     // ..........................................................
@@ -43917,7 +43917,7 @@ enifed("ember-runtime/tests/suites/enumerable/find",
       result = obj.find(function(i) { found.push(i); return --cnt >= 0; });
       equal(result, ary[exp-1], 'return value of obj.find');
       equal(found.length, exp, 'should invoke proper number of times');
-      deepEqual(found, ary.slice(0,-2), 'items passed during find() should match');
+      deepEqual(found, ary.slice(0, -2), 'items passed during find() should match');
     });
 
     // ..........................................................
@@ -45659,7 +45659,7 @@ enifed("ember-runtime/tests/suites/mutable_array/removeAt",
       observer = this.newObserver(obj, '[]', '@each', 'length', 'firstObject', 'lastObject');
       obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
 
-      equal(obj.removeAt(1,2), obj, 'return self');
+      equal(obj.removeAt(1, 2), obj, 'return self');
 
       deepEqual(this.toArray(obj), after, 'post item results');
       equal(get(obj, 'length'), after.length, 'length');
@@ -45796,7 +45796,7 @@ enifed("ember-runtime/tests/suites/mutable_array/replace",
       observer = this.newObserver(obj, '[]', '@each', 'length', 'firstObject', 'lastObject');
       obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
 
-      obj.replace(0,0,exp) ;
+      obj.replace(0, 0, exp) ;
 
       deepEqual(this.toArray(obj), exp, 'post item results');
 
@@ -45818,7 +45818,7 @@ enifed("ember-runtime/tests/suites/mutable_array/replace",
       observer = this.newObserver(obj, '[]', '@each', 'length', 'firstObject', 'lastObject');
       obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
 
-      obj.replace(1,2,replace) ;
+      obj.replace(1, 2, replace) ;
 
       deepEqual(this.toArray(obj), after, 'post item results');
 
@@ -45841,7 +45841,7 @@ enifed("ember-runtime/tests/suites/mutable_array/replace",
       observer = this.newObserver(obj, '[]', '@each', 'length', 'firstObject', 'lastObject');
       obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
 
-      obj.replace(1,2,replace) ;
+      obj.replace(1, 2, replace) ;
 
       deepEqual(this.toArray(obj), after, 'post item results');
 
@@ -45864,7 +45864,7 @@ enifed("ember-runtime/tests/suites/mutable_array/replace",
       observer = this.newObserver(obj, '[]', '@each', 'length', 'firstObject', 'lastObject');
       obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
 
-      obj.replace(1,0,replace) ;
+      obj.replace(1, 0, replace) ;
 
       deepEqual(this.toArray(obj), after, 'post item results');
 
@@ -45886,7 +45886,7 @@ enifed("ember-runtime/tests/suites/mutable_array/replace",
       observer = this.newObserver(obj, '[]', '@each', 'length', 'firstObject', 'lastObject');
       obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
 
-      obj.replace(2,2);
+      obj.replace(2, 2);
 
       deepEqual(this.toArray(obj), after, 'post item results');
 
@@ -47075,7 +47075,7 @@ enifed("ember-runtime/tests/system/array_proxy/arranged_content_test",
 
     test("insertAt - raises, indeterminate behavior", function() {
       raises(function() {
-        run(function() { array.insertAt(2,3); });
+        run(function() { array.insertAt(2, 3); });
       });
     });
 
@@ -47119,7 +47119,7 @@ enifed("ember-runtime/tests/system/array_proxy/arranged_content_test",
     });
 
     test("removeAt - removes from index in arrangedContent", function() {
-      run(function() { array.removeAt(1,2); });
+      run(function() { array.removeAt(1, 2); });
       deepEqual(array.get('content'), [1,5]);
     });
 
@@ -47163,7 +47163,7 @@ enifed("ember-runtime/tests/system/array_proxy/arranged_content_test",
     });
 
     test("slice - returns a slice of the arrangedContent", function() {
-      deepEqual(array.slice(1,3), [4,2], 'returns sliced arrangedContent');
+      deepEqual(array.slice(1, 3), [4,2], 'returns sliced arrangedContent');
     });
 
     test("toArray - returns copy of arrangedContent", function() {
@@ -47303,7 +47303,7 @@ enifed("ember-runtime/tests/system/array_proxy/arranged_content_test",
     });
 
     test("slice - returns a slice of the arrangedContent", function() {
-      deepEqual(array.slice(1,3), ['4','2'], 'returns sliced arrangedContent');
+      deepEqual(array.slice(1, 3), ['4','2'], 'returns sliced arrangedContent');
     });
 
     test("toArray - returns copy of arrangedContent", function() {
@@ -47818,7 +47818,7 @@ enifed("ember-runtime/tests/system/namespace/base_test",
     test("Destroying a namespace before caching lookup removes it from the list of namespaces", function(){
       var CF = lookup.CF = Namespace.create();
 
-      run(CF,'destroy');
+      run(CF, 'destroy');
       equal(Namespace.byName('CF'), undefined, "namespace can not be found after destroyed");
     });
 
@@ -47827,7 +47827,7 @@ enifed("ember-runtime/tests/system/namespace/base_test",
 
       equal(Namespace.byName('CF'), CF, "precondition - namespace can be looked up by name");
 
-      run(CF,'destroy');
+      run(CF, 'destroy');
       equal(Namespace.byName('CF'), undefined, "namespace can not be found after destroyed");
     });
   });
@@ -48469,7 +48469,7 @@ enifed("ember-runtime/tests/system/object/create_test",
       });
 
       var obj = ClassA.createWithMixins({ foo: 'FOO' }); // should not throw
-      equal(get(obj,'foo'), 'FOO');
+      equal(get(obj, 'foo'), 'FOO');
     });
 
 
@@ -54298,7 +54298,7 @@ enifed("ember-views/tests/system/event_dispatcher_test",
             // multiple eventManagers in a single view
             // hierarchy would break, but it shows that
             // re-dispatching works
-            view.$().trigger('mousedown',this);
+            view.$().trigger('mousedown', this);
           }
         }),
 
@@ -58573,7 +58573,7 @@ enifed("ember-views/tests/views/text_field_test",
 
       if (ctrl.setSelectionRange) {
         ctrl.focus();
-        ctrl.setSelectionRange(pos,pos);
+        ctrl.setSelectionRange(pos, pos);
       } else if (ctrl.createTextRange) {
         var range = ctrl.createTextRange();
         range.collapse(true);
@@ -64794,7 +64794,7 @@ enifed("ember/tests/helpers/link_to_test",
           this.route("about");
         });
 
-        this.resource("items",function(){
+        this.resource("items", function(){
           this.route('item');
         });
       });
