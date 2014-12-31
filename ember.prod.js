@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.3c73e919
+ * @version   1.11.0-beta.1+canary.658711d3
  */
 
 (function() {
@@ -11536,7 +11536,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.3c73e919
+      @version 1.11.0-beta.1+canary.658711d3
     */
 
     if ('undefined' === typeof Ember) {
@@ -11563,10 +11563,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.3c73e919'
+      @default '1.11.0-beta.1+canary.658711d3'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.3c73e919';
+    Ember.VERSION = '1.11.0-beta.1+canary.658711d3';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -11869,7 +11869,7 @@ enifed("ember-metal/dictionary",
 
     // the delete is meant to hint at runtimes that this object should remain in
     // dictionary mode. This is clearly a runtime specific hack, but currently it
-    // appears worthwile in some usecases. Please note, these deletes do increase
+    // appears worthwhile in some usecases. Please note, these deletes do increase
     // the cost of creation dramatically over a plain Object.create. And as this
     // only makes sense for long-lived dictionaries that aren't instantiated often.
     __exports__["default"] = function makeDictionary(parent) {
@@ -16369,7 +16369,7 @@ enifed("ember-metal/run_loop",
     /**
       Allows you to specify which context to call the specified function in while
       adding the execution of that function to the Ember run loop. This ability
-      makes this method a great way to asynchronusly integrate third-party libraries
+      makes this method a great way to asynchronously integrate third-party libraries
       into your Ember application.
 
       `run.bind` takes two main arguments, the desired context and the function to
@@ -16400,7 +16400,7 @@ enifed("ember-metal/run_loop",
 
       In this example, we use Ember.run.bind to bind the setupEditor message to the
       context of the App.RichTextEditorComponent and to have the invocation of that
-      method be safely handled and excuted by the Ember run loop.
+      method be safely handled and executed by the Ember run loop.
 
       @method bind
       @namespace Ember
@@ -17470,8 +17470,8 @@ enifed("ember-metal/utils",
       manipulation like splitting.
 
       Unfortunately checking equality of different ropes can be quite costly as
-      runtimes must resort to clever string comparison algorithims. These
-      algorithims typically cost in proportion to the length of the string.
+      runtimes must resort to clever string comparison algorithms. These
+      algorithms typically cost in proportion to the length of the string.
       Luckily, this is where the Symbols (interned strings) shine. As Symbols are
       unique by their string content, equality checks can be done by pointer
       comparison.
@@ -19031,7 +19031,7 @@ enifed("ember-routing-htmlbars/helpers/link-to",
       `{{link-to}}` will use your application's Router to
       fill the element's `href` property with a url that
       matches the path to the supplied `routeName` for your
-      routers's configured `Location` scheme, which defaults
+      router's configured `Location` scheme, which defaults
       to Ember.HashLocation.
 
       ### Handling current route
@@ -20829,7 +20829,7 @@ enifed("ember-routing/ext/view",
 
       /**
         Gets an outlet that is pending disconnection and then
-        nullifys the object on the `_outlet` object.
+        nullifies the object on the `_outlet` object.
 
         @private
         @method _finishDisconnections
@@ -21219,7 +21219,7 @@ enifed("ember-routing/location/auto_location",
       /**
         @private
 
-        Redirects the browser using location.replace, prepending the locatin.origin
+        Redirects the browser using location.replace, prepending the location.origin
         to prevent phishing attempts
 
         @method _replacePath
@@ -30558,7 +30558,7 @@ enifed("ember-runtime/mixins/enumerable",
 
       /**
         This property will trigger anytime the enumerable's content changes.
-        You can observe this property to be notified of changes to the enumerables
+        You can observe this property to be notified of changes to the enumerable's
         content.
 
         For plain enumerables, this property is read only. `Array` overrides
@@ -34108,7 +34108,7 @@ enifed("ember-runtime/system/each_proxy",
         objects = proxy._objects = {};
       }
 
-      var indicies, guid;
+      var indices, guid;
 
       while (--loc >= idx) {
         var item = content.objectAt(loc);
@@ -34117,8 +34117,8 @@ enifed("ember-runtime/system/each_proxy",
           removeObserver(item, keyName, proxy, 'contentKeyDidChange');
 
           guid = guidFor(item);
-          indicies = objects[guid];
-          indicies[indexOf.call(indicies, loc)] = null;
+          indices = objects[guid];
+          indices[indexOf.call(indices, loc)] = null;
         }
       }
     }
@@ -36516,7 +36516,7 @@ enifed("ember-template-compiler/system/template",
     */
 
     /**
-      Augments the detault precompiled output of an HTMLBars template with
+      Augments the default precompiled output of an HTMLBars template with
       additional information needed by Ember.
 
       @private
@@ -38874,7 +38874,7 @@ enifed("ember-views/system/utils",
       `getViewClientRects` provides information about the position of the border
       box edges of a view relative to the viewport.
 
-      It is only intended to be used by development tools like the Ember Inpsector
+      It is only intended to be used by development tools like the Ember Inspector
       and may not work on older browsers.
 
       @private
@@ -39189,7 +39189,7 @@ enifed("ember-views/views/collection_view",
 
       For cases where additional customization beyond the use of a single
       `itemViewClass` or `tagName` matching is required CollectionView's
-      `createChildView` method can be overidden:
+      `createChildView` method can be overridden:
 
       ```javascript
       App.CustomCollectionView = Ember.CollectionView.extend({
@@ -42041,7 +42041,7 @@ enifed("ember-views/views/view",
       <div id="ember1" class="ember-view enabled"></div>
       ```
 
-      When isEnabled is `false`, the resulting HTML reprensentation looks like
+      When isEnabled is `false`, the resulting HTML representation looks like
       this:
 
       ```html
@@ -42352,7 +42352,7 @@ enifed("ember-views/views/view",
       as the first argument to the method and an  `Ember.View` object as the
       second. The `Ember.View` will be the view whose rendered HTML was interacted
       with. This may be the view with the `eventManager` property or one of its
-      descendent views.
+      descendant views.
 
       ```javascript
       AView = Ember.View.extend({
@@ -42360,7 +42360,7 @@ enifed("ember-views/views/view",
           doubleClick: function(event, view) {
             // will be called when when an instance's
             // rendered element or any rendering
-            // of this views's descendent
+            // of this view's descendant
             // elements is clicked
           }
         })
@@ -42384,11 +42384,11 @@ enifed("ember-views/views/view",
       ```
 
       Similarly a view's event manager will take precedence for events of any views
-      rendered as a descendent. A method name that matches an event name will not
+      rendered as a descendant. A method name that matches an event name will not
       be called if the view instance was rendered inside the HTML representation of
       a view that has an `eventManager` property defined that handles events of the
       name. Events not handled by the event manager will still trigger method calls
-      on the descendent.
+      on the descendant.
 
       ```javascript
       var App = Ember.Application.create();

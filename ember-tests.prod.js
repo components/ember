@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.3c73e919
+ * @version   1.11.0-beta.1+canary.658711d3
  */
 
 (function() {
@@ -1669,7 +1669,7 @@ enifed("ember-application/tests/system/dependency_injection/custom_resolver_test
 
     var application;
 
-    QUnit.module("Ember.Application Depedency Injection – customResolver", {
+    QUnit.module("Ember.Application Dependency Injection – customResolver", {
       setup: function() {
         function fallbackTemplate() { return "<h1>Fallback</h1>"; }
 
@@ -1911,7 +1911,7 @@ enifed("ember-application/tests/system/dependency_injection/normalization_test",
 
     var application, registry;
 
-    QUnit.module("Ember.Application Depedency Injection – normalization", {
+    QUnit.module("Ember.Application Dependency Injection – normalization", {
       setup: function() {
         application = run(Application, 'create');
         registry = application.__registry__;
@@ -15141,7 +15141,7 @@ enifed("ember-htmlbars/tests/integration/select_in_template_test",
       equal(view.get('selection.value'), 'g', "Precond: Initial bound property is correct");
       equal(select.get('selection.value'), 'g', "Precond: Initial selection is correct");
       equal(selectEl.selectedIndex, 2, "Precond: The DOM reflects the correct selection");
-      equal(select.$('option:eq(2)').prop('selected'), true, "Precond: selected proprty is set to proper option");
+      equal(select.$('option:eq(2)').prop('selected'), true, "Precond: selected property is set to proper option");
 
       select.$('option:eq(2)').removeAttr('selected');
       select.$('option:eq(1)').prop('selected', true);
@@ -15150,7 +15150,7 @@ enifed("ember-htmlbars/tests/integration/select_in_template_test",
       equal(view.get('selection.value'), 'w', "Updated bound property is correct");
       equal(select.get('selection.value'), 'w', "Updated selection is correct");
       equal(selectEl.selectedIndex, 1, "The DOM is updated to reflect the new selection");
-      equal(select.$('option:eq(1)').prop('selected'), true, "Selected proprty is set to proper option");
+      equal(select.$('option:eq(1)').prop('selected'), true, "Selected property is set to proper option");
     }
 
     test("select element should correctly initialize and update selectedIndex and bound properties when using selectionBinding (old xBinding='' syntax)", function() {
@@ -15200,7 +15200,7 @@ enifed("ember-htmlbars/tests/integration/select_in_template_test",
       equal(view.get('selection.val'), 'g', "Precond: Initial bound property is correct");
       equal(select.get('selection.val'), 'g', "Precond: Initial selection is correct");
       equal(selectEl.selectedIndex, 2, "Precond: The DOM reflects the correct selection");
-      equal(select.$('option:eq(1)').prop('selected'), false, "Precond: selected proprty is set to proper option");
+      equal(select.$('option:eq(1)').prop('selected'), false, "Precond: selected property is set to proper option");
 
       select.$('option:eq(2)').removeAttr('selected');
       select.$('option:eq(1)').prop('selected', true);
@@ -15209,7 +15209,7 @@ enifed("ember-htmlbars/tests/integration/select_in_template_test",
       equal(view.get('selection.val'), 'w', "Updated bound property is correct");
       equal(select.get('selection.val'), 'w', "Updated selection is correct");
       equal(selectEl.selectedIndex, 1, "The DOM is updated to reflect the new selection");
-      equal(select.$('option:eq(1)').prop('selected'), true, "selected proprty is set to proper option");
+      equal(select.$('option:eq(1)').prop('selected'), true, "selected property is set to proper option");
     });
   });
 enifed("ember-htmlbars/tests/integration/select_in_template_test.jscs-test",
@@ -15675,7 +15675,7 @@ enifed("ember-htmlbars/tests/system/bootstrap_test",
         equal(view.get('layoutName'), 'components/x-apple', 'has correct layout name');
       });
 
-      test('registerComponents and non-geneated components', function(){
+      test('registerComponents and non-generated components', function(){
         Ember.TEMPLATES['components/x-apple'] = 'asdf';
 
         run(function(){
@@ -24379,7 +24379,7 @@ enifed("ember-metal/tests/observer_test",
       });
     }
 
-    testBoth('before observer watching multiple properties via brce expansion should fire when properties change', function (get, set) {
+    testBoth('before observer watching multiple properties via brace expansion should fire when properties change', function (get, set) {
       var obj = {};
       var count = 0;
 
@@ -24439,7 +24439,7 @@ enifed("ember-metal/tests/observer_test",
 
       obj2.count = 0;
       set(obj, 'foo', 'baz');
-      equal(obj.count, 1, 'should have invoked oberver on parent');
+      equal(obj.count, 1, 'should have invoked observer on parent');
       equal(obj2.count, 0, 'should not have invoked observer on inherited');
     });
 
@@ -33373,7 +33373,7 @@ enifed("ember-runtime/tests/computed/reduce_computed_macros_test",
       deepEqual(get(obj, 'mapped'), [1, 3, 2, 5]);
     });
 
-    test("it is observerable", function() {
+    test("it is observable", function() {
       get(obj, 'mapped');
       var calls = 0;
 
@@ -33387,7 +33387,7 @@ enifed("ember-runtime/tests/computed/reduce_computed_macros_test",
         obj.get('array').pushObject({ v: 5 });
       });
 
-      equal(calls, 1, 'computedMapBy is observerable');
+      equal(calls, 1, 'computedMapBy is observable');
     });
 
 
@@ -38307,7 +38307,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
       });
 
       // support new-style bindings if available
-      equal("changedValue", objectA.get("name"), "objectA.name is binded");
+      equal("changedValue", objectA.get("name"), "objectA.name is bound");
     });
 
     // ..........................................................
@@ -38518,7 +38518,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test",
     });
 
     test("should indicate that the property of an object has just changed", function() {
-      // inidicate that proprty of foo will change to its subscribers
+      // indicate that property of foo will change to its subscribers
       ObjectA.propertyWillChange('foo');
 
       //Value of the prop is unchanged yet as this will be changed when foo changes
@@ -38782,7 +38782,7 @@ enifed("ember-runtime/tests/legacy_1x/system/binding_test",
       }
     });
 
-    test("changing first output should propograte to third after flush", function() {
+    test("changing first output should propagate to third after flush", function() {
       run(function() {
         set(first, "output", "change");
         equal("change", get(first, "output"), "first.output");
@@ -44394,7 +44394,7 @@ enifed("ember-runtime/tests/suites/enumerable/reduce",
 
     suite.module('reduce');
 
-    suite.test('collectes a summary value from an enumeration', function() {
+    suite.test('collects a summary value from an enumeration', function() {
       var obj = this.newObject([1, 2, 3]);
       var res = obj.reduce(function(previousValue, item, index, enumerable) { return previousValue + item; }, 0);
       equal(res, 6);
@@ -46726,13 +46726,13 @@ enifed("ember-runtime/tests/suites/suite",
       own code to verify compliance.
 
       To define a suite, you need to define the tests themselves as well as a
-      callback API implementors can use to tie your tests to their specific class.
+      callback API implementers can use to tie your tests to their specific class.
 
       ## Defining a Callback API
 
       To define the callback API, just extend this class and add your properties
       or methods that must be provided.  Use Ember.required() placeholders for
-      any properties that implementors must define themselves.
+      any properties that implementers must define themselves.
 
       ## Defining Unit Tests
 
@@ -47939,7 +47939,7 @@ enifed("ember-runtime/tests/system/object/computed_test",
       equal(get(obj2, 'foo'), 'BOOM 22');
     });
 
-    testWithDefault('complex depndent keys changing complex dependent keys', function(get, set) {
+    testWithDefault('complex dependent keys changing complex dependent keys', function(get, set) {
 
       var MyClass = EmberObject.extend({
 
@@ -52458,8 +52458,8 @@ enifed("ember-testing/tests/helpers_test",
         documentEvents = {};
       }
 
-      ok(documentEvents['ajaxSend'] === undefined, 'there are no ajaxSend listers setup prior to calling injectTestHelpers');
-      ok(documentEvents['ajaxComplete'] === undefined, 'there are no ajaxComplete listers setup prior to calling injectTestHelpers');
+      ok(documentEvents['ajaxSend'] === undefined, 'there are no ajaxSend listeners setup prior to calling injectTestHelpers');
+      ok(documentEvents['ajaxComplete'] === undefined, 'there are no ajaxComplete listeners setup prior to calling injectTestHelpers');
 
       run(function() {
         setupForTesting();
@@ -54591,7 +54591,7 @@ enifed("ember-views/tests/system/render_buffer_test",
       var el = buffer.element();
       var div = document.createElement('div');
 
-      // some browsers have different escaping strageties
+      // some browsers have different escaping strategies
       // we should ensure the outcome is consistent. Ultimately we now use
       // setAttribute under the hood, so we should always do the right thing.  But
       // this test should be kept to ensure we do. Also, I believe/hope it is
@@ -55559,7 +55559,7 @@ enifed("ember-views/tests/views/collection_test",
       equal(willDestroyElement, 0);
       equal(willDestroy, 0);
       equal(destroy, 0);
-      // Remove whitspace added by IE 8
+      // Remove whitespace added by IE 8
       equal(trim(view.$().text()), '01234');
 
       run(function () {
@@ -55582,7 +55582,7 @@ enifed("ember-views/tests/views/collection_test",
       equal(willDestroyElement, 5);
       equal(willDestroy, 5);
       equal(destroy, 5);
-      // Remove whitspace added by IE 8
+      // Remove whitespace added by IE 8
       equal(trim(view.$().text()), '789');
 
       run(function () {
@@ -55951,11 +55951,11 @@ enifed("ember-views/tests/views/component_test",
     });
 
     test("The context of an Ember.Component is itself", function() {
-      strictEqual(component, component.get('context'), "A components's context is itself");
+      strictEqual(component, component.get('context'), "A component's context is itself");
     });
 
     test("The controller (target of `action`) of an Ember.Component is itself", function() {
-      strictEqual(component, component.get('controller'), "A components's controller is itself");
+      strictEqual(component, component.get('controller'), "A component's controller is itself");
     });
 
     test("A templateName specified to a component is moved to the layoutName", function(){
@@ -56462,7 +56462,7 @@ enifed("ember-views/tests/views/container_view_test",
       equal(container.$().html(),'', "the child view is removed from the DOM");
     });
 
-    test("if a ContainerView starts with an empy currentView, nothing is displayed", function() {
+    test("if a ContainerView starts with an empty currentView, nothing is displayed", function() {
       container = ContainerView.create();
 
       run(function() {
@@ -57200,7 +57200,7 @@ enifed("ember-views/tests/views/metamorph_view_test",
     // Redefining without setup/teardown
     QUnit.module("Metamorph views correctly handle DOM");
 
-    test("a metamorph view calls its childrens' willInsertElement and didInsertElement", function() {
+    test("a metamorph view calls its children's willInsertElement and didInsertElement", function() {
       var parentView;
       var willInsertElementCalled = false;
       var didInsertElementCalled = false;
@@ -58091,7 +58091,7 @@ enifed("ember-views/tests/views/simple_bound_view_test",
 
     QUnit.module('SimpleBoundView');
 
-    test('does not render if update is triggured by normalizedValue is the same as the previous normalizedValue', function(){
+    test('does not render if update is triggered by normalizedValue is the same as the previous normalizedValue', function(){
       var value = null;
       var obj = { 'foo': 'bar' };
       var lazyValue = new Stream(function() {
@@ -70495,7 +70495,7 @@ enifed("ember/tests/routing/query_params_test",
       App.ApplicationRoute = Ember.Route.extend({
         queryParams: Ember.Object.create({
           unknownProperty: function(keyName) {
-            // We are simulating all qps requiring refress
+            // We are simulating all qps requiring refresh
             return { replace: true };
           }
         })

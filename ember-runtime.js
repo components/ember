@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.3c73e919
+ * @version   1.11.0-beta.1+canary.658711d3
  */
 
 (function() {
@@ -5008,7 +5008,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.3c73e919
+      @version 1.11.0-beta.1+canary.658711d3
     */
 
     if ('undefined' === typeof Ember) {
@@ -5035,10 +5035,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.3c73e919'
+      @default '1.11.0-beta.1+canary.658711d3'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.3c73e919';
+    Ember.VERSION = '1.11.0-beta.1+canary.658711d3';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -5342,7 +5342,7 @@ enifed("ember-metal/dictionary",
 
     // the delete is meant to hint at runtimes that this object should remain in
     // dictionary mode. This is clearly a runtime specific hack, but currently it
-    // appears worthwile in some usecases. Please note, these deletes do increase
+    // appears worthwhile in some usecases. Please note, these deletes do increase
     // the cost of creation dramatically over a plain Object.create. And as this
     // only makes sense for long-lived dictionaries that aren't instantiated often.
     __exports__["default"] = function makeDictionary(parent) {
@@ -9908,7 +9908,7 @@ enifed("ember-metal/run_loop",
     /**
       Allows you to specify which context to call the specified function in while
       adding the execution of that function to the Ember run loop. This ability
-      makes this method a great way to asynchronusly integrate third-party libraries
+      makes this method a great way to asynchronously integrate third-party libraries
       into your Ember application.
 
       `run.bind` takes two main arguments, the desired context and the function to
@@ -9939,7 +9939,7 @@ enifed("ember-metal/run_loop",
 
       In this example, we use Ember.run.bind to bind the setupEditor message to the
       context of the App.RichTextEditorComponent and to have the invocation of that
-      method be safely handled and excuted by the Ember run loop.
+      method be safely handled and executed by the Ember run loop.
 
       @method bind
       @namespace Ember
@@ -11012,8 +11012,8 @@ enifed("ember-metal/utils",
       manipulation like splitting.
 
       Unfortunately checking equality of different ropes can be quite costly as
-      runtimes must resort to clever string comparison algorithims. These
-      algorithims typically cost in proportion to the length of the string.
+      runtimes must resort to clever string comparison algorithms. These
+      algorithms typically cost in proportion to the length of the string.
       Luckily, this is where the Symbols (interned strings) shine. As Symbols are
       unique by their string content, equality checks can be done by pointer
       comparison.
@@ -17504,7 +17504,7 @@ enifed("ember-runtime/mixins/enumerable",
 
       /**
         This property will trigger anytime the enumerable's content changes.
-        You can observe this property to be notified of changes to the enumerables
+        You can observe this property to be notified of changes to the enumerable's
         content.
 
         For plain enumerables, this property is read only. `Array` overrides
@@ -21090,7 +21090,7 @@ enifed("ember-runtime/system/each_proxy",
         objects = proxy._objects = {};
       }
 
-      var indicies, guid;
+      var indices, guid;
 
       while (--loc >= idx) {
         var item = content.objectAt(loc);
@@ -21099,8 +21099,8 @@ enifed("ember-runtime/system/each_proxy",
           removeObserver(item, keyName, proxy, 'contentKeyDidChange');
 
           guid = guidFor(item);
-          indicies = objects[guid];
-          indicies[indexOf.call(indicies, loc)] = null;
+          indices = objects[guid];
+          indices[indexOf.call(indices, loc)] = null;
         }
       }
     }
