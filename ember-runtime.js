@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.8291cdc2
+ * @version   1.11.0-beta.1+canary.6dfb020a
  */
 
 (function() {
@@ -2149,7 +2149,7 @@ enifed("container/registry",
       return resolved;
     }
 
-    function has(registry, fullName){
+    function has(registry, fullName) {
       return registry.resolve(fullName) !== undefined;
     }
 
@@ -5008,7 +5008,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.8291cdc2
+      @version 1.11.0-beta.1+canary.6dfb020a
     */
 
     if ('undefined' === typeof Ember) {
@@ -5035,10 +5035,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.8291cdc2'
+      @default '1.11.0-beta.1+canary.6dfb020a'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.8291cdc2';
+    Ember.VERSION = '1.11.0-beta.1+canary.6dfb020a';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -6098,7 +6098,7 @@ enifed("ember-metal/events",
       @param {Function} func
       @return func
     */
-    function on(){
+    function on() {
       var func = a_slice.call(arguments, -1)[0];
       var events = a_slice.call(arguments, 0, -1);
       func.__ember_listens__ = events;
@@ -7563,7 +7563,7 @@ enifed("ember-metal/mixin",
     var REQUIRED;
     var a_slice = [].slice;
 
-    function superFunction(){
+    function superFunction() {
       var func = this.__nextSuper;
       var ret;
 
@@ -10879,7 +10879,7 @@ enifed("ember-metal/streams/utils",
       var length = array.length;
       var containsStream = false;
 
-      for (var i = 0; i < length; i++){
+      for (var i = 0; i < length; i++) {
         if (isStream(array[i])) {
           containsStream = true;
           break;
@@ -13039,7 +13039,7 @@ enifed("ember-runtime/computed/reduce_computed",
       return Math.min(removedCount, length - index);
     }
 
-    function ChangeMeta(dependentArray, item, index, propertyName, property, changedCount, previousValues){
+    function ChangeMeta(dependentArray, item, index, propertyName, property, changedCount, previousValues) {
       this.arrayChanged = dependentArray;
       this.index = index;
       this.item = item;
@@ -13564,15 +13564,15 @@ enifed("ember-runtime/computed/reduce_computed_macros",
      @since 1.4.0
     */
 
-    function sum(dependentKey){
+    function sum(dependentKey) {
       return reduceComputed(dependentKey, {
         initialValue: 0,
 
-        addedItem: function(accumulatedValue, item, changeMeta, instanceMeta){
+        addedItem: function(accumulatedValue, item, changeMeta, instanceMeta) {
           return accumulatedValue + item;
         },
 
-        removedItem: function(accumulatedValue, item, changeMeta, instanceMeta){
+        removedItem: function(accumulatedValue, item, changeMeta, instanceMeta) {
           return accumulatedValue - item;
         }
       });

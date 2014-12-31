@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.8291cdc2
+ * @version   1.11.0-beta.1+canary.6dfb020a
  */
 
 (function() {
@@ -489,27 +489,27 @@ enifed("ember-testing/helpers",
     var asyncHelper = Test.registerAsyncHelper;
     var countAsync = 0;
 
-    function currentRouteName(app){
+    function currentRouteName(app) {
       var appController = app.__container__.lookup('controller:application');
 
       return get(appController, 'currentRouteName');
     }
 
-    function currentPath(app){
+    function currentPath(app) {
       var appController = app.__container__.lookup('controller:application');
 
       return get(appController, 'currentPath');
     }
 
-    function currentURL(app){
+    function currentURL(app) {
       var router = app.__container__.lookup('router:main');
 
       return get(router, 'location').getURL();
     }
 
-    function pauseTest(){
+    function pauseTest() {
       Test.adapter.asyncStart();
-      return new Ember.RSVP.Promise(function(){ }, 'TestAdapter paused promise');
+      return new Ember.RSVP.Promise(function() { }, 'TestAdapter paused promise');
     }
 
     function visit(app, url) {
@@ -534,7 +534,7 @@ enifed("ember-testing/helpers",
       if ($el.is(':input')) {
         var type = $el.prop('type');
         if (type !== 'checkbox' && type !== 'radio' && type !== 'hidden') {
-          run($el, function(){
+          run($el, function() {
             // Firefox does not trigger the `focusin` event if the window
             // does not have focus. If the document doesn't have focus just
             // use trigger('focusin') instead.
@@ -553,7 +553,7 @@ enifed("ember-testing/helpers",
       return app.testHelpers.wait();
     }
 
-    function triggerEvent(app, selector, contextOrType, typeOrOptions, possibleOptions){
+    function triggerEvent(app, selector, contextOrType, typeOrOptions, possibleOptions) {
       var arity = arguments.length;
       var context, type, options;
 
@@ -931,7 +931,7 @@ enifed("ember-testing/initializers",
         Application.initializer({
           name: name,
 
-          initialize: function(registry, application){
+          initialize: function(registry, application) {
             if (application.testing) {
               application.deferReadiness();
             }
@@ -951,12 +951,12 @@ enifed("ember-testing/setup_for_testing",
 
     var Test, requests;
 
-    function incrementAjaxPendingRequests(_, xhr){
+    function incrementAjaxPendingRequests(_, xhr) {
       requests.push(xhr);
       Test.pendingAjaxRequests = requests.length;
     }
 
-    function decrementAjaxPendingRequests(_, xhr){
+    function decrementAjaxPendingRequests(_, xhr) {
       for (var i=0;i<requests.length;i++) {
         if (xhr === requests[i]) {
           requests.splice(i, 1);

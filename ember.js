@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.8291cdc2
+ * @version   1.11.0-beta.1+canary.6dfb020a
  */
 
 (function() {
@@ -2149,7 +2149,7 @@ enifed("container/registry",
       return resolved;
     }
 
-    function has(registry, fullName){
+    function has(registry, fullName) {
       return registry.resolve(fullName) !== undefined;
     }
 
@@ -4951,7 +4951,7 @@ enifed("ember-extension-support/data_adapter",
         @return {Function} The function to call to remove all observers.
       */
       observeRecord: function(record, recordUpdated) {
-        return function(){};
+        return function() {};
       }
     });
   });
@@ -6168,7 +6168,7 @@ enifed("ember-htmlbars/helpers/collection",
 
       if (hash.itemClassBinding) {
         var itemClassBindings = hash.itemClassBinding.split(' ');
-        viewOptions.classNameBindings = map(itemClassBindings, function(classBinding){
+        viewOptions.classNameBindings = map(itemClassBindings, function(classBinding) {
           return streamifyClassNameBinding(view, classBinding);
         });
       }
@@ -11956,7 +11956,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.8291cdc2
+      @version 1.11.0-beta.1+canary.6dfb020a
     */
 
     if ('undefined' === typeof Ember) {
@@ -11983,10 +11983,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.8291cdc2'
+      @default '1.11.0-beta.1+canary.6dfb020a'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.8291cdc2';
+    Ember.VERSION = '1.11.0-beta.1+canary.6dfb020a';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -13046,7 +13046,7 @@ enifed("ember-metal/events",
       @param {Function} func
       @return func
     */
-    function on(){
+    function on() {
       var func = a_slice.call(arguments, -1)[0];
       var events = a_slice.call(arguments, 0, -1);
       func.__ember_listens__ = events;
@@ -14511,7 +14511,7 @@ enifed("ember-metal/mixin",
     var REQUIRED;
     var a_slice = [].slice;
 
-    function superFunction(){
+    function superFunction() {
       var func = this.__nextSuper;
       var ret;
 
@@ -17827,7 +17827,7 @@ enifed("ember-metal/streams/utils",
       var length = array.length;
       var containsStream = false;
 
-      for (var i = 0; i < length; i++){
+      for (var i = 0; i < length; i++) {
         if (isStream(array[i])) {
           containsStream = true;
           break;
@@ -20468,7 +20468,7 @@ enifed("ember-routing-views/views/link",
        @method _setupPathObservers
        @since 1.3.0
       **/
-      _setupPathObservers: function(){
+      _setupPathObservers: function() {
         var params = this.params;
 
         var scheduledRerender = this._wrapAsScheduled(this.rerender);
@@ -20496,7 +20496,7 @@ enifed("ember-routing-views/views/link",
         }
       },
 
-      afterRender: function(){
+      afterRender: function() {
         this._super.apply(this, arguments);
         this._setupPathObservers();
       },
@@ -24151,7 +24151,7 @@ enifed("ember-routing/system/route",
         @param {String} type the model type
         @param {Object} value the value passed to find
       */
-      findModel: function(){
+      findModel: function() {
         var store = get(this, 'store');
         return store.find.apply(store, arguments);
       },
@@ -24169,7 +24169,7 @@ enifed("ember-routing/system/route",
         @method store
         @param {Object} store
       */
-      store: computed(function(){
+      store: computed(function() {
         var container = this.container;
         var routeName = this.routeName;
         var namespace = get(this, 'router.namespace');
@@ -26765,7 +26765,7 @@ enifed("ember-runtime/computed/reduce_computed",
       return Math.min(removedCount, length - index);
     }
 
-    function ChangeMeta(dependentArray, item, index, propertyName, property, changedCount, previousValues){
+    function ChangeMeta(dependentArray, item, index, propertyName, property, changedCount, previousValues) {
       this.arrayChanged = dependentArray;
       this.index = index;
       this.item = item;
@@ -27290,15 +27290,15 @@ enifed("ember-runtime/computed/reduce_computed_macros",
      @since 1.4.0
     */
 
-    function sum(dependentKey){
+    function sum(dependentKey) {
       return reduceComputed(dependentKey, {
         initialValue: 0,
 
-        addedItem: function(accumulatedValue, item, changeMeta, instanceMeta){
+        addedItem: function(accumulatedValue, item, changeMeta, instanceMeta) {
           return accumulatedValue + item;
         },
 
-        removedItem: function(accumulatedValue, item, changeMeta, instanceMeta){
+        removedItem: function(accumulatedValue, item, changeMeta, instanceMeta) {
           return accumulatedValue - item;
         }
       });
@@ -37378,27 +37378,27 @@ enifed("ember-testing/helpers",
     var asyncHelper = Test.registerAsyncHelper;
     var countAsync = 0;
 
-    function currentRouteName(app){
+    function currentRouteName(app) {
       var appController = app.__container__.lookup('controller:application');
 
       return get(appController, 'currentRouteName');
     }
 
-    function currentPath(app){
+    function currentPath(app) {
       var appController = app.__container__.lookup('controller:application');
 
       return get(appController, 'currentPath');
     }
 
-    function currentURL(app){
+    function currentURL(app) {
       var router = app.__container__.lookup('router:main');
 
       return get(router, 'location').getURL();
     }
 
-    function pauseTest(){
+    function pauseTest() {
       Test.adapter.asyncStart();
-      return new Ember.RSVP.Promise(function(){ }, 'TestAdapter paused promise');
+      return new Ember.RSVP.Promise(function() { }, 'TestAdapter paused promise');
     }
 
     function visit(app, url) {
@@ -37423,7 +37423,7 @@ enifed("ember-testing/helpers",
       if ($el.is(':input')) {
         var type = $el.prop('type');
         if (type !== 'checkbox' && type !== 'radio' && type !== 'hidden') {
-          run($el, function(){
+          run($el, function() {
             // Firefox does not trigger the `focusin` event if the window
             // does not have focus. If the document doesn't have focus just
             // use trigger('focusin') instead.
@@ -37442,7 +37442,7 @@ enifed("ember-testing/helpers",
       return app.testHelpers.wait();
     }
 
-    function triggerEvent(app, selector, contextOrType, typeOrOptions, possibleOptions){
+    function triggerEvent(app, selector, contextOrType, typeOrOptions, possibleOptions) {
       var arity = arguments.length;
       var context, type, options;
 
@@ -37820,7 +37820,7 @@ enifed("ember-testing/initializers",
         Application.initializer({
           name: name,
 
-          initialize: function(registry, application){
+          initialize: function(registry, application) {
             if (application.testing) {
               application.deferReadiness();
             }
@@ -37840,12 +37840,12 @@ enifed("ember-testing/setup_for_testing",
 
     var Test, requests;
 
-    function incrementAjaxPendingRequests(_, xhr){
+    function incrementAjaxPendingRequests(_, xhr) {
       requests.push(xhr);
       Test.pendingAjaxRequests = requests.length;
     }
 
-    function decrementAjaxPendingRequests(_, xhr){
+    function decrementAjaxPendingRequests(_, xhr) {
       for (var i=0;i<requests.length;i++) {
         if (xhr === requests[i]) {
           requests.splice(i, 1);
@@ -38585,7 +38585,7 @@ enifed("ember-views/attr_nodes/attr_node",
       this.init(attrName, attrValue);
     }
 
-    AttrNode.prototype.init = function init(attrName, simpleAttrValue){
+    AttrNode.prototype.init = function init(attrName, simpleAttrValue) {
       this.isView = true;
 
       // That these semantics are used is very unfortunate.
@@ -38600,7 +38600,7 @@ enifed("ember-views/attr_nodes/attr_node",
       subscribe(this.attrValue, this.rerender, this);
     };
 
-    AttrNode.prototype.renderIfDirty = function renderIfDirty(){
+    AttrNode.prototype.renderIfDirty = function renderIfDirty() {
       if (this.isDirty) {
         var value = read(this.attrValue);
         if (value !== this.lastValue) {
@@ -39337,7 +39337,7 @@ enifed("ember-views/streams/class_name_binding",
       }
     }
 
-    __exports__.classStringForValue = classStringForValue;function streamifyClassNameBinding(view, classNameBinding, prefix){
+    __exports__.classStringForValue = classStringForValue;function streamifyClassNameBinding(view, classNameBinding, prefix) {
       prefix = prefix || '';
       Ember.assert("classNameBindings must not have spaces in them. Multiple class name bindings can be provided as elements of an array, e.g. ['foo', ':bar']", classNameBinding.indexOf(' ') === -1);
       var parsedPath = parsePropertyPath(classNameBinding);
@@ -39350,7 +39350,7 @@ enifed("ember-views/streams/class_name_binding",
         );
       } else {
         var pathValue = view.getStream(prefix+parsedPath.path);
-        return chainStream(pathValue, function(){
+        return chainStream(pathValue, function() {
           return classStringForValue(
             parsedPath.path,
             read(pathValue),
@@ -40074,7 +40074,7 @@ enifed("ember-views/system/render_buffer",
     var omittedStartTagChildren;
     var omittedStartTagChildTest = /(?:<script)*.*?<([\w:]+)/i;
 
-    function detectOmittedStartTag(string, contextualElement){
+    function detectOmittedStartTag(string, contextualElement) {
       omittedStartTagChildren = omittedStartTagChildren || {
         tr: document.createElement('tbody'),
         col: document.createElement('colgroup')
@@ -42016,7 +42016,7 @@ enifed("ember-views/views/container_view",
     var ContainerView = View.extend(MutableArray, {
       _states: states,
 
-      willWatchProperty: function(prop){
+      willWatchProperty: function(prop) {
         Ember.deprecate(
           "ContainerViews should not be observed as arrays. This behavior will change in future implementations of ContainerView.",
           !prop.match(/\[]/) && prop.indexOf('@') !== 0
@@ -43868,7 +43868,7 @@ enifed("ember-views/views/view",
 
     // Circular dep
     var _htmlbarsDefaultEnv;
-    function buildHTMLBarsDefaultEnv(){
+    function buildHTMLBarsDefaultEnv() {
       if (!_htmlbarsDefaultEnv) {
         _htmlbarsDefaultEnv = eriuqer('ember-htmlbars').defaultEnv;
       }
