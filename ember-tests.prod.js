@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.658711d3
+ * @version   1.11.0-beta.1+canary.8291cdc2
  */
 
 (function() {
@@ -9709,6 +9709,15 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
         view.set('conditional', true);
       });
       equal(view.$().text(), 'Nope');
+    });
+
+    test("The `unbound if` helper should work when its inverse is not present", function() {
+      view = EmberView.create({
+        conditional: false,
+        template: compile('{{#unbound if view.conditional}}Yep{{/unbound}}')
+      });
+      runAppend(view);
+      equal(view.$().text(), '');
     });
 
     test("The `if` helper ignores a controller option", function() {
