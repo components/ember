@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.e35645ee
+ * @version   1.11.0-beta.1+canary.f761252f
  */
 
 (function() {
@@ -11956,7 +11956,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.e35645ee
+      @version 1.11.0-beta.1+canary.f761252f
     */
 
     if ('undefined' === typeof Ember) {
@@ -11983,10 +11983,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.e35645ee'
+      @default '1.11.0-beta.1+canary.f761252f'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.e35645ee';
+    Ember.VERSION = '1.11.0-beta.1+canary.f761252f';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -26371,7 +26371,7 @@ enifed("ember-runtime/computed/array_computed",
       @param {Object} options
       @return {Ember.ComputedProperty}
     */
-    function arrayComputed (options) {
+    function arrayComputed(options) {
       var args;
 
       if (arguments.length > 1) {
@@ -26480,7 +26480,7 @@ enifed("ember-runtime/computed/reduce_computed",
       this.changedItemCount = 0;
     }
 
-    function ItemPropertyObserverContext (dependentArray, index, trackedArray) {
+    function ItemPropertyObserverContext(dependentArray, index, trackedArray) {
       Ember.assert('Internal error: trackedArray is null or undefined', trackedArray);
 
       this.dependentArray = dependentArray;
@@ -27480,7 +27480,7 @@ enifed("ember-runtime/computed/reduce_computed_macros",
       @param {String} propertyKey
       @return {Ember.ComputedProperty} an array mapped to the specified key
     */
-    function mapBy (dependentKey, propertyKey) {
+    function mapBy(dependentKey, propertyKey) {
       var callback = function(item) { return get(item, propertyKey); };
       return map(dependentKey + '.@each.' + propertyKey, callback);
     }
@@ -27587,7 +27587,7 @@ enifed("ember-runtime/computed/reduce_computed_macros",
       @param {*} value
       @return {Ember.ComputedProperty} the filtered array
     */
-    function filterBy (dependentKey, propertyKey, value) {
+    function filterBy(dependentKey, propertyKey, value) {
       var callback;
 
       if (arguments.length === 2) {
@@ -36455,7 +36455,7 @@ enifed("ember-runtime/system/subarray",
       @class SubArray
       @namespace Ember
     */
-    function SubArray (length) {
+    function SubArray(length) {
       if (arguments.length < 1) { length = 0; }
 
       if (length > 0) {
@@ -36915,7 +36915,7 @@ enifed("ember-runtime/system/tracked_array",
       @param {Array} items The items of the operation, if included.  RETAIN and
       INSERT include their items, DELETE does not.
     */
-    function ArrayOperation (operation, count, items) {
+    function ArrayOperation(operation, count, items) {
       this.type = operation; // RETAIN | INSERT | DELETE
       this.count = count;
       this.items = items;
