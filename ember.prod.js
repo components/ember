@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.1e087d22
+ * @version   1.11.0-beta.1+canary.d2d151f3
  */
 
 (function() {
@@ -11540,7 +11540,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.1e087d22
+      @version 1.11.0-beta.1+canary.d2d151f3
     */
 
     if ('undefined' === typeof Ember) {
@@ -11567,10 +11567,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.1e087d22'
+      @default '1.11.0-beta.1+canary.d2d151f3'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.1e087d22';
+    Ember.VERSION = '1.11.0-beta.1+canary.d2d151f3';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -17498,14 +17498,14 @@ enifed("ember-metal/streams/utils",
 
      @private
      @function chain
-     @param {Object|Stream} array An array containing zero or more stream objects
-                                  and zero or more non-stream objects
-     @param {Function} fn function becoming the value function of a new stream,
-                          or in the case of a non-stream object, executed once
-     @return {Object|Stream} String with array elements concatenated and joined by
-                             the provided separator, and any stream array members
-                             having been replaced by the current value of the
-                             stream
+     @param {Object|Stream} value A stream or non-stream object
+     @param {Function} fn function to be run when the stream value changes, or to
+                          be run once in the case of a non-stream object
+     @return {Object|Stream} In the case of a stream `value` parameter, a new
+                             stream that will be updated with the return value of
+                             the provided function `fn`. In the case of a
+                             non-stream object, the return value of the provided
+                             function `fn`.
      */
     function chain(value, fn) {
       if (isStream(value)) {
