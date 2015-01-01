@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.f761252f
+ * @version   1.11.0-beta.1+canary.8a8ca496
  */
 
 (function() {
@@ -1047,7 +1047,7 @@ enifed("container/tests/registry_test",
       deepEqual(resolveWasCalled, ['foo:post']);
     });
 
-    test ("registry.container creates an associated container", function() {
+    test("registry.container creates an associated container", function() {
       var registry = new Registry();
       var PostController = factory();
       registry.register('controller:post', PostController);
@@ -1585,7 +1585,7 @@ enifed("ember-application/tests/system/controller_test",
       'should throw if no such controller was needed');
     });
 
-    test ("setting the value of a controller dependency should not be possible", function() {
+    test("setting the value of a controller dependency should not be possible", function() {
       var registry = new Registry();
       var container = registry.container();
 
@@ -31102,7 +31102,7 @@ enifed("ember-routing/tests/location/hash_location_test",
     function mockBrowserLocation(path) {
       // This is a neat trick to auto-magically extract the hostname from any
       // url by letting the browser do the work ;)
-      var tmp = document.createElement ('a');
+      var tmp = document.createElement('a');
       tmp.href = path;
 
       var protocol = (!tmp.protocol || tmp.protocol === ':') ? 'http' : tmp.protocol;
@@ -31309,7 +31309,7 @@ enifed("ember-routing/tests/location/history_location_test",
     function mockBrowserLocation(path) {
       // This is a neat trick to auto-magically extract the hostname from any
       // url by letting the browser do the work ;)
-      var tmp = document.createElement ('a');
+      var tmp = document.createElement('a');
       tmp.href = path;
 
       var protocol = (!tmp.protocol || tmp.protocol === ':') ? 'http' : tmp.protocol;
@@ -36820,8 +36820,8 @@ enifed("ember-runtime/tests/core/isEqual_test",
     });
 
     test("dates should be equal", function() {
-      ok (  isEqual(new Date(1985, 7, 22), new Date(1985, 7, 22)), "same dates are equal" );
-      ok ( !isEqual(new Date(2014, 7, 22), new Date(1985, 7, 22)), "different dates are not equal" );
+      ok(  isEqual(new Date(1985, 7, 22), new Date(1985, 7, 22)), "same dates are equal" );
+      ok( !isEqual(new Date(2014, 7, 22), new Date(1985, 7, 22)), "different dates are not equal" );
     });
 
     test("array should be equal", function() {
@@ -39191,13 +39191,13 @@ enifed("ember-runtime/tests/legacy_1x/system/object/base_test",
 
     QUnit.module("EmberObject superclass and subclasses", {
       setup: function() {
-        obj = EmberObject.extend ({
+        obj = EmberObject.extend({
           method1: function() {
             return "hello";
           }
         });
         obj1 = obj.extend();
-        don = obj1.create ({
+        don = obj1.create({
           method2: function() {
             return this.superclass();
           }
@@ -67686,7 +67686,7 @@ enifed("ember/tests/routing/basic_test",
       var controller = Ember.Controller.extend({
         actions: {
           showStuff: function(context) {
-            ok (stateIsNotCalled, "an event on the state is not triggered");
+            ok(stateIsNotCalled, "an event on the state is not triggered");
             deepEqual(context, { name: "Tom Dale" }, "an event with context is passed");
             QUnit.start();
           }
@@ -67903,7 +67903,7 @@ enifed("ember/tests/routing/basic_test",
 
         actions: {
           showStuff: function(context) {
-            ok (stateIsNotCalled, "an event on the state is not triggered");
+            ok(stateIsNotCalled, "an event on the state is not triggered");
             deepEqual(context, { name: "Tom Dale" }, "an event with context is passed");
             QUnit.start();
           }
@@ -67917,7 +67917,7 @@ enifed("ember/tests/routing/basic_test",
       var controller = Ember.Controller.extend({
         showStuff: function(context) {
           stateIsNotCalled = false;
-          ok (stateIsNotCalled, "an event on the state is not triggered");
+          ok(stateIsNotCalled, "an event on the state is not triggered");
         }
       });
 
@@ -70190,7 +70190,7 @@ enifed("ember/tests/routing/query_params_test",
         foo: "123",
         init: function() {
           this._super();
-          ok (homeShouldBeCreated, "HomeController should be created at this time");
+          ok(homeShouldBeCreated, "HomeController should be created at this time");
         }
       });
 
@@ -70206,7 +70206,7 @@ enifed("ember/tests/routing/query_params_test",
         lol: "haha",
         init: function() {
           this._super();
-          ok (aboutShouldBeCreated, "AboutController should be created at this time");
+          ok(aboutShouldBeCreated, "AboutController should be created at this time");
         }
       });
 
@@ -70229,7 +70229,7 @@ enifed("ember/tests/routing/query_params_test",
         name: null,
         init: function() {
           this._super();
-          ok (catsIndexShouldBeCreated, "CatsIndexController should be created at this time");
+          ok(catsIndexShouldBeCreated, "CatsIndexController should be created at this time");
         }
       });
 
