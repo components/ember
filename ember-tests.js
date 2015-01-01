@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.e1e8b72c
+ * @version   1.11.0-beta.1+canary.2343ab69
  */
 
 (function() {
@@ -25625,6 +25625,19 @@ enifed("ember-metal/tests/run_loop/later_test",
       }, 10);
     }
 
+    // Synchronous "sleep". This simulates work being done
+    // after run.later was called but before the run loop
+    // has flushed. In previous versions, this would have
+    // caused the run.later callback to have run from
+    // within the run loop flush, since by the time the
+    // run loop has to flush, it would have considered
+    // the timer already expired.
+    function pauseUntil(time) {
+      // jscs:disable
+      while (+new Date() < time) { /* do nothing - sleeping */ }
+      // jscs:enable
+    }
+
     QUnit.module('run.later', {
       teardown: function() {
         window.setTimeout = originalSetTimeout;
@@ -25686,15 +25699,7 @@ enifed("ember-metal/tests/run_loop/later_test",
           secondRunLoop = run.currentRunLoop;
         }, 10, 1);
 
-        // Synchronous "sleep". This simulates work being done
-        // after run.later was called but before the run loop
-        // has flushed. In previous versions, this would have
-        // caused the run.later callback to have run from
-        // within the run loop flush, since by the time the
-        // run loop has to flush, it would have considered
-        // the timer already expired.
-        var pauseUntil = +new Date() + 100;
-        while (+new Date() < pauseUntil) { /* do nothing - sleeping */ }
+        pauseUntil(+new Date() + 100);
       });
 
       ok(firstRunLoop, "first run loop captured");
@@ -25825,8 +25830,7 @@ enifed("ember-metal/tests/run_loop/later_test",
           // fine that they're not called in this run loop; just need to
           // make sure that invokeLaterTimers doesn't end up scheduling
           // a negative setTimeout.
-          var pauseUntil = +new Date() + 60;
-          while (+new Date() < pauseUntil) { /* do nothing - sleeping */ }
+          pauseUntil(+new Date() + 60);
         }, 1);
 
         run.later(function() {

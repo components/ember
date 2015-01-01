@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.e1e8b72c
+ * @version   1.11.0-beta.1+canary.2343ab69
  */
 
 (function() {
@@ -11540,7 +11540,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.e1e8b72c
+      @version 1.11.0-beta.1+canary.2343ab69
     */
 
     if ('undefined' === typeof Ember) {
@@ -11567,10 +11567,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.e1e8b72c'
+      @default '1.11.0-beta.1+canary.2343ab69'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.e1e8b72c';
+    Ember.VERSION = '1.11.0-beta.1+canary.2343ab69';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -11585,7 +11585,7 @@ enifed("ember-metal/core",
 
     if (Ember.ENV) {
       // do nothing if Ember.ENV is already setup
-    } else if ('undefined' !== typeof EmberENV) {
+          } else if ('undefined' !== typeof EmberENV) {
       Ember.ENV = EmberENV;
     } else if ('undefined' !== typeof ENV) {
       Ember.ENV = ENV;
@@ -18034,11 +18034,13 @@ enifed("ember-metal/utils",
     var needsFinallyFix = (function() {
       var count = 0;
       try {
+        // jscs:disable
         try {
         } finally {
           count++;
           throw new Error('needsFinallyFixTest');
         }
+        // jscs:enable
       } catch (e) {}
 
       return count !== 1;
@@ -28767,11 +28769,8 @@ enifed("ember-runtime/mixins/action_handler",
         var target;
 
         if (this._actions && this._actions[actionName]) {
-          if (this._actions[actionName].apply(this, args) === true) {
-            // handler returned true, so this action will bubble
-          } else {
-            return;
-          }
+          var shouldBubble = this._actions[actionName].apply(this, args) === true;
+          if (!shouldBubble) { return; }
         }
 
         if (target = get(this, 'target')) {
@@ -39822,11 +39821,8 @@ enifed("ember-views/views/component",
         var hasAction = this._actions && this._actions[actionName];
 
         if (hasAction) {
-          if (this._actions[actionName].apply(this, args) === true) {
-            // handler returned true, so this action will bubble
-          } else {
-            return;
-          }
+          var shouldBubble = this._actions[actionName].apply(this, args) === true;
+          if (!shouldBubble) { return; }
         }
 
         if (target = get(this, 'target')) {
