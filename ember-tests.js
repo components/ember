@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.8a8ca496
+ * @version   1.11.0-beta.1+canary.015d71e0
  */
 
 (function() {
@@ -23163,7 +23163,10 @@ enifed("ember-metal/tests/mixin/method_test",
       });
 
       var MixinB = Mixin.create({
-        foo: function() { this._super(); cnt++; }
+        foo: function() {
+          this._super();
+          cnt++;
+        }
       });
 
       var objA = {};
@@ -23282,11 +23285,17 @@ enifed("ember-metal/tests/mixin/method_test",
       });
 
       var MixinB = Mixin.create({
-        foo: function() { this._super(); cnt++; }
+        foo: function() {
+          this._super();
+          cnt++;
+        }
       });
 
       var MixinC = Mixin.create({
-        foo: function() { this._super(); cnt++; }
+        foo: function() {
+          this._super();
+          cnt++;
+        }
       });
 
       var obj = {};
@@ -24298,7 +24307,8 @@ enifed("ember-metal/tests/observer_test",
 
     });
 
-    testBoth('addObserver should allow multiple objects to observe a property', function(get, set) { var observed = { foo: 'foo' };
+    testBoth('addObserver should allow multiple objects to observe a property', function(get, set) {
+      var observed = { foo: 'foo' };
 
       var target1 = {
         count: 0,
@@ -25222,8 +25232,14 @@ enifed("ember-metal/tests/platform/defineProperty_test",
 
         var desc = {
           enumerable: true,
-          get: function() { getCnt++; return v; },
-          set: function(val) { setCnt++; v = val; }
+          get: function() {
+            getCnt++;
+            return v;
+          },
+          set: function(val) {
+            setCnt++;
+            v = val;
+          }
         };
 
         defineProperty(obj, 'foo', desc);
@@ -26993,9 +27009,18 @@ enifed("ember-metal/tests/utils/try_catch_finally_test",
         catchableResult = 'catchable return value';
         finalizerResult = undefined;
 
-        tryable   = function() { tryCount++;      return tryableResult;   };
-        catchable = function() { catchCount++;    return catchableResult; };
-        finalizer = function() { finalizeCount++; return finalizerResult; };
+        tryable   = function() {
+          tryCount++;
+          return tryableResult;
+        };
+        catchable = function() {
+          catchCount++;
+          return catchableResult;
+        };
+        finalizer = function() {
+          finalizeCount++;
+          return finalizerResult;
+        };
       },
 
       teardown: function() {
@@ -27035,7 +27060,10 @@ enifed("ember-metal/tests/utils/try_catch_finally_test",
     });
 
     test("try failed", function() {
-      tryable = function() { tryCount++; throw error; };
+      tryable = function() {
+        tryCount++;
+        throw error;
+      };
 
       var result = tryCatchFinally(tryable, catchable, finalizer);
 
@@ -27047,7 +27075,10 @@ enifed("ember-metal/tests/utils/try_catch_finally_test",
     });
 
     test("catch failed", function() {
-      catchable = function() { catchCount++; throw error; };
+      catchable = function() {
+        catchCount++;
+        throw error;
+      };
 
       tryCatchFinally(tryable, catchable, finalizer);
 
@@ -27057,8 +27088,14 @@ enifed("ember-metal/tests/utils/try_catch_finally_test",
     });
 
     test("try and catch failed", function() {
-      tryable = function() { tryCount++; throw error; };
-      catchable = function() { catchCount++; throw error; };
+      tryable = function() {
+        tryCount++;
+        throw error;
+      };
+      catchable = function() {
+        catchCount++;
+        throw error;
+      };
 
       callTryCatchFinallyWithError();
 
@@ -27068,7 +27105,10 @@ enifed("ember-metal/tests/utils/try_catch_finally_test",
     });
 
     test("finally failed", function() {
-      finalizer = function() { finalizeCount++; throw error; };
+      finalizer = function() {
+        finalizeCount++;
+        throw error;
+      };
 
       callTryCatchFinallyWithError();
 
@@ -27078,8 +27118,14 @@ enifed("ember-metal/tests/utils/try_catch_finally_test",
     });
 
     test("finally and try failed", function() {
-      tryable   = function() { tryCount++;      throw error; };
-      finalizer = function() { finalizeCount++; throw error; };
+      tryable   = function() {
+        tryCount++;
+        throw error;
+      };
+      finalizer = function() {
+        finalizeCount++;
+        throw error;
+      };
 
       callTryCatchFinallyWithError();
 
@@ -27089,9 +27135,18 @@ enifed("ember-metal/tests/utils/try_catch_finally_test",
     });
 
     test("finally, catch and try failed", function() {
-      tryable   = function() { tryCount++;      throw error; };
-      catchable = function() { catchCount++; throw error; };
-      finalizer = function() { finalizeCount++; throw error; };
+      tryable   = function() {
+        tryCount++;
+        throw error;
+      };
+      catchable = function() {
+        catchCount++;
+        throw error;
+      };
+      finalizer = function() {
+        finalizeCount++;
+        throw error;
+      };
 
       callTryCatchFinallyWithError();
 
@@ -27134,8 +27189,14 @@ enifed("ember-metal/tests/utils/try_finally_test",
         tryableResult = 'tryable return value';
         finalizerResult = undefined;
 
-        tryable   = function() { tryCount++;      return tryableResult;   };
-        finalizer = function() { finalizeCount++; return finalizerResult; };
+        tryable   = function() {
+          tryCount++;
+          return tryableResult;
+        };
+        finalizer = function() {
+          finalizeCount++;
+          return finalizerResult;
+        };
       },
 
       teardown: function() {
@@ -27172,7 +27233,10 @@ enifed("ember-metal/tests/utils/try_finally_test",
     });
 
     test("try failed", function() {
-      tryable = function() { tryCount++; throw error; };
+      tryable = function() {
+        tryCount++;
+        throw error;
+      };
 
       callTryFinallyWithError();
 
@@ -27181,7 +27245,10 @@ enifed("ember-metal/tests/utils/try_finally_test",
     });
 
     test("finally failed", function() {
-      finalizer = function() { finalizeCount++; throw error; };
+      finalizer = function() {
+        finalizeCount++;
+        throw error;
+      };
 
       callTryFinallyWithError();
 
@@ -27190,8 +27257,14 @@ enifed("ember-metal/tests/utils/try_finally_test",
     });
 
     test("finally and try failed", function() {
-      tryable   = function() { tryCount++;      throw error; };
-      finalizer = function() { finalizeCount++; throw error; };
+      tryable   = function() {
+        tryCount++;
+        throw error;
+      };
+      finalizer = function() {
+        finalizeCount++;
+        throw error;
+      };
 
       callTryFinallyWithError();
 
@@ -35020,8 +35093,14 @@ enifed("ember-runtime/tests/computed/reduce_computed_test",
         baz: Ember.A(),
         foo: reduceComputed({
           initialValue: Ember.A(),
-          addedItem: function(array, item) { array.pushObject('a:' + item); return array; },
-          removedItem: function(array, item) { array.pushObject('r:' + item); return array; }
+          addedItem: function(array, item) {
+            array.pushObject('a:' + item);
+            return array;
+          },
+          removedItem: function(array, item) {
+            array.pushObject('r:' + item);
+            return array;
+          }
         }).property('{bar,baz}')
       });
 
@@ -35263,7 +35342,10 @@ enifed("ember-runtime/tests/computed/reduce_computed_test",
         dependentArray: dependentArray,
         computed: arrayComputed('dependentArray', {
           addedItem: function (acc, item) { return acc; },
-          removedItem: function (acc, item) { acc.pushObject(item); return acc; }
+          removedItem: function (acc, item) {
+            acc.pushObject(item);
+            return acc;
+          }
         })
       }).create();
 
@@ -35305,7 +35387,10 @@ enifed("ember-runtime/tests/computed/reduce_computed_test",
         dependentArray: dependentArray,
         computed: arrayComputed('dependentArray', {
           addedItem: function (acc, item) { return acc; },
-          removedItem: function (acc, item) { acc.pushObject(item); return acc; }
+          removedItem: function (acc, item) {
+            acc.pushObject(item);
+            return acc;
+          }
         })
       }).create();
 
@@ -43451,7 +43536,10 @@ enifed("ember-runtime/tests/suites/enumerable/any",
       var found = [];
       var result;
 
-      result = obj.any(function(i) { found.push(i); return false; });
+      result = obj.any(function(i) {
+        found.push(i);
+        return false;
+      });
       equal(result, false, 'return value of obj.any');
       deepEqual(found, ary, 'items passed during any() should match');
     });
@@ -43464,7 +43552,10 @@ enifed("ember-runtime/tests/suites/enumerable/any",
       var found = [];
       var result;
 
-      result = obj.any(function(i) { found.push(i); return --cnt <= 0; });
+      result = obj.any(function(i) {
+        found.push(i);
+        return --cnt <= 0;
+      });
       equal(result, true, 'return value of obj.any');
       equal(found.length, exp, 'should invoke proper number of times');
       deepEqual(found, ary.slice(0, -2), 'items passed during any() should match');
@@ -43506,17 +43597,29 @@ enifed("ember-runtime/tests/suites/enumerable/any",
       var cnt = ary.length - 2;
       var anyResult, someResult;
 
-      anyResult = obj.any(function(i) { anyFound.push(i); return false; });
-      someResult = obj.some(function(i) { someFound.push(i); return false; });
+      anyResult = obj.any(function(i) {
+        anyFound.push(i);
+        return false;
+      });
+      someResult = obj.some(function(i) {
+        someFound.push(i);
+        return false;
+      });
       equal(someResult, anyResult);
 
       anyFound = [];
       someFound = [];
 
       cnt = ary.length - 2;
-      anyResult = obj.any(function(i) { anyFound.push(i); return --cnt <= 0; });
+      anyResult = obj.any(function(i) {
+        anyFound.push(i);
+        return --cnt <= 0;
+      });
       cnt = ary.length - 2;
-      someResult = obj.some(function(i) { someFound.push(i); return --cnt <= 0; });
+      someResult = obj.some(function(i) {
+        someFound.push(i);
+        return --cnt <= 0;
+      });
 
       equal(someResult, anyResult);
     });
@@ -43640,7 +43743,10 @@ enifed("ember-runtime/tests/suites/enumerable/every",
       var found = [];
       var result;
 
-      result = obj.every(function(i) { found.push(i); return true; });
+      result = obj.every(function(i) {
+        found.push(i);
+        return true;
+      });
       equal(result, true, 'return value of obj.every');
       deepEqual(found, ary, 'items passed during every() should match');
     });
@@ -43653,7 +43759,10 @@ enifed("ember-runtime/tests/suites/enumerable/every",
       var found = [];
       var result;
 
-      result = obj.every(function(i) { found.push(i); return --cnt>0; });
+      result = obj.every(function(i) {
+        found.push(i);
+        return --cnt>0;
+      });
       equal(result, false, 'return value of obj.every');
       equal(found.length, exp, 'should invoke proper number of times');
       deepEqual(found, ary.slice(0, -2), 'items passed during every() should match');
@@ -43759,7 +43868,10 @@ enifed("ember-runtime/tests/suites/enumerable/filter",
       var result;
 
       // return true on all but the last two
-      result = obj.filter(function(i) { found.push(i); return --cnt>=0; });
+      result = obj.filter(function(i) {
+        found.push(i);
+        return --cnt>=0;
+      });
       deepEqual(found, ary, 'should have invoked on each item');
       deepEqual(result, ary.slice(0, -2), 'filtered array should exclude items');
     });
@@ -43922,7 +44034,10 @@ enifed("ember-runtime/tests/suites/enumerable/find",
       var found = [];
       var result;
 
-      result = obj.find(function(i) { found.push(i); return false; });
+      result = obj.find(function(i) {
+        found.push(i);
+        return false;
+      });
       equal(result, undefined, 'return value of obj.find');
       deepEqual(found, ary, 'items passed during find() should match');
     });
@@ -43935,7 +44050,10 @@ enifed("ember-runtime/tests/suites/enumerable/find",
       var found = [];
       var result;
 
-      result = obj.find(function(i) { found.push(i); return --cnt >= 0; });
+      result = obj.find(function(i) {
+        found.push(i);
+        return --cnt >= 0;
+      });
       equal(result, ary[exp-1], 'return value of obj.find');
       equal(found.length, exp, 'should invoke proper number of times');
       deepEqual(found, ary.slice(0, -2), 'items passed during find() should match');
@@ -48462,11 +48580,17 @@ enifed("ember-runtime/tests/system/object/create_test",
     test("Calls all mixin inits if defined", function() {
       var completed = 0;
       var Mixin1 = Mixin.create({
-        init: function() { this._super(); completed++; }
+        init: function() {
+          this._super();
+          completed++;
+        }
       });
 
       var Mixin2 = Mixin.create({
-        init: function() { this._super(); completed++; }
+        init: function() {
+          this._super();
+          completed++;
+        }
       });
 
       EmberObject.createWithMixins(Mixin1, Mixin2);
@@ -49123,12 +49247,18 @@ enifed("ember-runtime/tests/system/object/extend_test",
 
       var AnotherClass = SomeClass.extend({
         barCnt: 0,
-        bar: function() { this.barCnt++; this._super(); }
+        bar: function() {
+          this.barCnt++;
+          this._super();
+        }
       });
 
       var FinalClass = AnotherClass.extend({
         fooCnt: 0,
-        foo: function() { this.fooCnt++; this._super(); }
+        foo: function() {
+          this.fooCnt++;
+          this._super();
+        }
       });
 
       var obj = new FinalClass();
@@ -49139,7 +49269,10 @@ enifed("ember-runtime/tests/system/object/extend_test",
 
       // Try overriding on create also
       obj = FinalClass.createWithMixins({
-        foo: function() { this.fooCnt++; this._super(); }
+        foo: function() {
+          this.fooCnt++;
+          this._super();
+        }
       });
 
       obj.foo();
@@ -56894,7 +57027,10 @@ enifed("ember-views/tests/views/container_view_test",
 
       var count = 0;
       var child = View.create({
-        template: function () { count++; return 'child'; }
+        template: function () {
+          count++;
+          return 'child';
+        }
       });
 
       run(function() {
@@ -56914,7 +57050,10 @@ enifed("ember-views/tests/views/container_view_test",
 
       var count = 0;
       var child = View.create({
-        template: function () { count++; return 'child'; }
+        template: function () {
+          count++;
+          return 'child';
+        }
       });
 
       run(function() {
@@ -56935,7 +57074,10 @@ enifed("ember-views/tests/views/container_view_test",
 
       var count = 0;
       var child = View.create({
-        template: function () { count++; return 'child'; }
+        template: function () {
+          count++;
+          return 'child';
+        }
       });
 
       run(function() {
