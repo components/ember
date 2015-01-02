@@ -5884,13 +5884,16 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test",
       var originalBindAttr = helpers['bind-attr'];
 
       try {
-        helpers['bind-attr'] = function() {
-          equal(arguments[0], 'foo', 'First arg match');
-          equal(arguments[1], 'bar', 'Second arg match');
+        
+          helpers['bind-attr'] = {
+            helperFunction: function() {
+              equal(arguments[0], 'foo', 'First arg match');
+              equal(arguments[1], 'bar', 'Second arg match');
 
-          return 'result';
-        };
-
+              return 'result';
+            }
+          };
+        
         expectDeprecation(function() {
           var result;
 
@@ -5901,6 +5904,27 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test",
       } finally {
         helpers['bind-attr'] = originalBindAttr;
       }
+    });
+
+    test("{{bindAttr}} can be used to bind attributes [DEPRECATED]", function() {
+      expect(3);
+
+      view = EmberView.create({
+        value: 'Test',
+        template: compile('<img src="test.jpg" {{bindAttr alt=view.value}}>')
+      });
+
+      expectDeprecation(function() {
+        runAppend(view);
+      }, /The 'bindAttr' view helper is deprecated in favor of 'bind-attr'/);
+
+      equal(view.$('img').attr('alt'), "Test", "renders initial value");
+
+      run(function() {
+        view.set('value', 'Updated');
+      });
+
+      equal(view.$('img').attr('alt'), "Updated", "updates value");
     });
 
     test("should be able to bind element attributes using {{bind-attr}} inside a block", function() {
@@ -6204,6 +6228,32 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test",
       });
       runAppend(view);
       equal(matchingElement.length, 1, 'element is in the DOM when didInsertElement');
+    });
+
+    test("asserts for <div class='foo' {{bind-attr class='bar'}}></div>", function() {
+      var template = compile('<div class="foo" {{bind-attr class=view.foo}}></div>');
+
+      view = EmberView.create({
+        template: template,
+        foo: 'bar'
+      });
+
+      expectAssertion(function() {
+        runAppend(view);
+      }, /You cannot set `class` manually and via `{{bind-attr}}` helper on the same element/);
+    });
+
+    test("asserts for <div data-bar='foo' {{bind-attr data-bar='blah'}}></div>", function() {
+      var template = compile('<div data-bar="foo" {{bind-attr data-bar=view.blah}}></div>');
+
+      view = EmberView.create({
+        template: template,
+        blah: 'bar'
+      });
+
+      expectAssertion(function() {
+        runAppend(view);
+      }, /You cannot set `data-bar` manually and via `{{bind-attr}}` helper on the same element/);
     });
   });
 enifed("ember-htmlbars/tests/helpers/bind_attr_test.jshint",
