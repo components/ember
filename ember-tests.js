@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.b0ee28d3
+ * @version   1.11.0-beta.1+canary.d677cbb0
  */
 
 (function() {
@@ -58752,9 +58752,8 @@ enifed("ember-views/tests/views/text_field_test",
         selection.moveStart('character', -ctrl.value.length);
 
         caretPos = selection.text.length;
-      }
-      // Firefox support
-      else if (ctrl.selectionStart || ctrl.selectionStart === '0') {
+      } else if (ctrl.selectionStart || ctrl.selectionStart === '0') {
+        // Firefox support
         caretPos = ctrl.selectionStart;
       }
 

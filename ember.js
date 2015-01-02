@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.b0ee28d3
+ * @version   1.11.0-beta.1+canary.d677cbb0
  */
 
 (function() {
@@ -6104,8 +6104,7 @@ enifed("ember-htmlbars/helpers/collection",
       if (path) {
         collectionClass = readViewFactory(path, container);
         Ember.assert(fmt("%@ #collection: Could not find collection class %@", [data.view, path]), !!collectionClass);
-      }
-      else {
+      } else {
         collectionClass = CollectionView;
       }
 
@@ -9594,8 +9593,7 @@ enifed("ember-metal/array",
     var indexOf = defineNativeShim(ArrayPrototype.indexOf, function (obj, fromIndex) {
       if (fromIndex === null || fromIndex === undefined) {
         fromIndex = 0;
-      }
-      else if (fromIndex < 0) {
+      } else if (fromIndex < 0) {
         fromIndex = Math.max(0, this.length + fromIndex);
       }
 
@@ -11969,7 +11967,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.b0ee28d3
+      @version 1.11.0-beta.1+canary.d677cbb0
     */
 
     if ('undefined' === typeof Ember) {
@@ -11996,10 +11994,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.b0ee28d3'
+      @default '1.11.0-beta.1+canary.d677cbb0'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.b0ee28d3';
+    Ember.VERSION = '1.11.0-beta.1+canary.d677cbb0';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -24254,8 +24252,9 @@ enifed("ember-routing/system/route",
           sawParams = true;
         }
 
-        if (!name && sawParams) { return copy(params); }
-        else if (!name) {
+        if (!name && sawParams) {
+          return copy(params);
+        } else if (!name) {
           if (transition.resolveIndex < 1) { return; }
 
           var parentModel = transition.state.handlerInfos[transition.resolveIndex-1].context;
@@ -27121,8 +27120,7 @@ enifed("ember-runtime/computed/reduce_computed",
     ReduceComputedProperty.prototype.initialValue = function () {
       if (typeof this.options.initialValue === 'function') {
         return this.options.initialValue();
-      }
-      else {
+      } else {
         return this.options.initialValue;
       }
     };
@@ -40033,8 +40031,7 @@ enifed("ember-views/system/event_dispatcher",
           result = run(object, handler, evt, view);
           // Do not preventDefault in eventManagers.
           evt.stopPropagation();
-        }
-        else {
+        } else {
           result = this._bubbleEvent(view, evt, eventName);
         }
 
