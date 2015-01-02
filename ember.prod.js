@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.d13a87b4
+ * @version   1.11.0-beta.1+canary.3f78acc7
  */
 
 (function() {
@@ -11537,7 +11537,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.d13a87b4
+      @version 1.11.0-beta.1+canary.3f78acc7
     */
 
     if ('undefined' === typeof Ember) {
@@ -11564,10 +11564,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.d13a87b4'
+      @default '1.11.0-beta.1+canary.3f78acc7'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.d13a87b4';
+    Ember.VERSION = '1.11.0-beta.1+canary.3f78acc7';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -27918,12 +27918,16 @@ enifed("ember-runtime/controllers/controller",
     __exports__["default"] = Controller;
   });
 enifed("ember-runtime/controllers/object_controller",
-  ["ember-runtime/mixins/controller","ember-runtime/system/object_proxy","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["ember-metal/core","ember-runtime/mixins/controller","ember-runtime/system/object_proxy","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
-    var ControllerMixin = __dependency1__["default"];
-    var ObjectProxy = __dependency2__["default"];
+    var Ember = __dependency1__["default"];
+    var ControllerMixin = __dependency2__["default"];
+    var ObjectProxy = __dependency3__["default"];
 
+    var objectControllerDeprecation = 'Ember.ObjectController is deprected, ' +
+      'please use Ember.Controller and use `model.propertyName`.';
+    __exports__.objectControllerDeprecation = objectControllerDeprecation;
     /**
     @module ember
     @submodule ember-runtime
@@ -27941,8 +27945,12 @@ enifed("ember-runtime/controllers/object_controller",
       @namespace Ember
       @extends Ember.ObjectProxy
       @uses Ember.ControllerMixin
+      @deprecated
     **/
-    __exports__["default"] = ObjectProxy.extend(ControllerMixin);
+    __exports__["default"] = ObjectProxy.extend(ControllerMixin, {
+      init: function() {
+              }
+    });
   });
 enifed("ember-runtime/copy",
   ["ember-metal/enumerable_utils","ember-metal/utils","ember-runtime/system/object","ember-runtime/mixins/copyable","exports"],
@@ -28647,7 +28655,7 @@ enifed("ember-runtime/mixins/-proxy",
       unknownProperty: function (key) {
         var content = get(this, 'content');
         if (content) {
-          return get(content, key);
+                    return get(content, key);
         }
       },
 
@@ -28661,6 +28669,7 @@ enifed("ember-runtime/mixins/-proxy",
         }
 
         var content = get(this, 'content');
+        
                 return set(content, key, value);
       }
 
