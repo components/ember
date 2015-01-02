@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.29b4fccb
+ * @version   1.11.0-beta.1+canary.3a3c0b36
  */
 
 (function() {
@@ -10726,9 +10726,28 @@ enifed("ember-metal/computed",
       @extends Ember.Descriptor
       @constructor
     */
-    function ComputedProperty(func, opts) {
-      func.__ember_arity__ = func.length;
-      this.func = func;
+    function ComputedProperty(config, opts) {
+      if (Ember.FEATURES.isEnabled("new-computed-syntax")) {
+        if (typeof config === "function") {
+          config.__ember_arity = config.length;
+          this._getter = config;
+          if (config.__ember_arity > 1) {
+            this._setter = config;
+          }
+        } else {
+          this._getter = config.get;
+          this._setter = config.set;
+          if (this._setter && this._setter.__ember_arity === undefined) {
+            this._setter.__ember_arity = this._setter.length;
+          }
+        }
+      } else {
+        config.__ember_arity = config.length;
+        this._getter = config;
+        if (config.__ember_arity > 1) {
+          this._setter = config;
+        }
+      }
 
       this._dependentKeys = undefined;
       this._suspended = undefined;
@@ -10950,7 +10969,7 @@ enifed("ember-metal/computed",
           return result;
         }
 
-        ret = this.func.call(obj, keyName);
+        ret = this._getter.call(obj, keyName);
         if (ret === undefined) {
           cache[keyName] = UNDEFINED;
         } else {
@@ -10963,7 +10982,7 @@ enifed("ember-metal/computed",
         }
         addDependentKeys(this, obj, keyName, meta);
       } else {
-        ret = this.func.call(obj, keyName);
+        ret = this._getter.call(obj, keyName);
       }
       return ret;
     };
@@ -11030,12 +11049,12 @@ enifed("ember-metal/computed",
 
     ComputedPropertyPrototype._set = function computedPropertySet(obj, keyName, value) {
       var cacheable      = this._cacheable;
-      var func           = this.func;
+      var setter         = this._setter;
       var meta           = metaFor(obj, cacheable);
       var cache          = meta.cache;
       var hadCachedValue = false;
 
-      var funcArgLength, cachedValue, ret;
+      var cachedValue, ret;
 
       if (this._readOnly) {
         throw new EmberError('Cannot set read-only property "' + keyName + '" on object: ' + inspect(obj));
@@ -11049,24 +11068,16 @@ enifed("ember-metal/computed",
         hadCachedValue = true;
       }
 
-      // Check if the CP has been wrapped. If it has, use the
-      // length from the wrapped function.
-
-      funcArgLength = func.wrappedFunction ? func.wrappedFunction.__ember_arity__ : func.__ember_arity__;
-
-      // For backwards-compatibility with computed properties
-      // that check for arguments.length === 2 to determine if
-      // they are being get or set, only pass the old cached
-      // value if the computed property opts into a third
-      // argument.
-      if (funcArgLength === 3) {
-        ret = func.call(obj, keyName, value, cachedValue);
-      } else if (funcArgLength === 2) {
-        ret = func.call(obj, keyName, value);
-      } else {
+      if (!setter) {
         defineProperty(obj, keyName, null, cachedValue);
         set(obj, keyName, value);
         return;
+      } else if (setter.__ember_arity === 2) {
+        // Is there any way of deprecate this in a sensitive way?
+        // Maybe now that getters and setters are the prefered options we can....
+        ret = setter.call(obj, keyName, value);
+      } else {
+        ret = setter.call(obj, keyName, value, cachedValue);
       }
 
       if (hadCachedValue && cachedValue === ret) { return; }
@@ -11171,11 +11182,16 @@ enifed("ember-metal/computed",
         func = args.pop();
       }
 
-      if (typeof func !== "function") {
-        throw new EmberError("Computed Property declared without a property function");
-      }
-
       var cp = new ComputedProperty(func);
+      // jscs:disable
+      if (Ember.FEATURES.isEnabled("new-computed-syntax")) {
+        // Empty block on purpose
+      } else {
+        // jscs:enable
+        if (typeof func !== "function") {
+          throw new EmberError("Computed Property declared without a property function");
+        }
+      }
 
       if (args) {
         cp.property.apply(cp, args);
@@ -11965,7 +11981,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.29b4fccb
+      @version 1.11.0-beta.1+canary.3a3c0b36
     */
 
     if ('undefined' === typeof Ember) {
@@ -11992,10 +12008,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.29b4fccb'
+      @default '1.11.0-beta.1+canary.3a3c0b36'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.29b4fccb';
+    Ember.VERSION = '1.11.0-beta.1+canary.3a3c0b36';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -14629,7 +14645,14 @@ enifed("ember-metal/mixin",
       // to clone the computed property so that other mixins do not receive
       // the wrapped version.
       property = o_create(property);
-      property.func = wrap(property.func, superProperty.func);
+      property._getter = wrap(property._getter, superProperty._getter);
+      if (superProperty._setter) {
+        if (property._setter) {
+          property._setter = wrap(property._setter, superProperty._setter);
+        } else {
+          property._setter = superProperty._setter;
+        }
+      }
 
       return property;
     }
@@ -14728,7 +14751,7 @@ enifed("ember-metal/mixin",
 
         // Wrap descriptor function to implement
         // __nextSuper() if needed
-        if (value.func) {
+        if (value._getter) {
           value = giveDescriptorSuper(meta, key, value, values, descs);
         }
 
@@ -18527,7 +18550,6 @@ enifed("ember-metal/utils",
       }
 
       superWrapper.wrappedFunction = func;
-      superWrapper.wrappedFunction.__ember_arity__ = func.length;
       superWrapper.__ember_observes__ = func.__ember_observes__;
       superWrapper.__ember_observesBefore__ = func.__ember_observesBefore__;
       superWrapper.__ember_listens__ = func.__ember_listens__;
@@ -26352,7 +26374,7 @@ enifed("ember-runtime/computed/array_computed",
 
       ReduceComputedProperty.apply(this, arguments);
 
-      this.func = (function(reduceFunc) {
+      this._getter = (function(reduceFunc) {
         return function (propertyName) {
           if (!cp._hasInstanceMeta(this, propertyName)) {
             // When we recompute an array computed property, we need already
@@ -26367,7 +26389,7 @@ enifed("ember-runtime/computed/array_computed",
 
           return reduceFunc.apply(this, arguments);
         };
-      })(this.func);
+      })(this._getter);
 
       return this;
     }
@@ -27070,7 +27092,7 @@ enifed("ember-runtime/computed/reduce_computed",
       };
 
 
-      this.func = function (propertyName) {
+      this._getter = function (propertyName) {
         Ember.assert('Computed reduce values require at least one dependent key', cp._dependentKeys);
 
         recompute.call(this, propertyName);

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.29b4fccb
+ * @version   1.11.0-beta.1+canary.3a3c0b36
  */
 
 (function() {
@@ -19747,6 +19747,56 @@ enifed("ember-metal/tests/computed_test",
       equal(count, 0, 'b should not run');
     });
 
+    // ..........................................................
+    // improved-cp-syntax
+    //
+
+    if (Ember.FEATURES.isEnabled("new-computed-syntax")) {
+      QUnit.module('computed - improved cp syntax');
+
+      test('setter and getters are passed using an object', function() {
+        var testObj = Ember.Object.extend({
+          a: '1',
+          b: '2',
+          aInt: computed('a', {
+            get: function(keyName) {
+              equal(keyName, 'aInt', 'getter receives the keyName');
+              return parseInt(this.get('a'));
+            },
+            set: function(keyName, value, oldValue) {
+              equal(keyName, 'aInt', 'setter receives the keyName');
+              equal(value, 123, 'setter receives the new value');
+              equal(oldValue, 1, 'setter receives the old value');
+              this.set('a', ""+value); // side effect
+              return parseInt(this.get('a'));
+            }
+          })
+        }).create();
+
+        ok(testObj.get('aInt') === 1, 'getter works');
+        testObj.set('aInt', 123);
+        ok(testObj.get('a') === '123', 'setter works');
+        ok(testObj.get('aInt') === 123, 'cp has been updated too');
+      });
+
+      test('setter can be omited', function() {
+        var testObj = Ember.Object.extend({
+          a: '1',
+          b: '2',
+          aInt: computed('a', {
+            get: function(keyName) {
+              equal(keyName, 'aInt', 'getter receives the keyName');
+              return parseInt(this.get('a'));
+            }
+          })
+        }).create();
+
+        ok(testObj.get('aInt') === 1, 'getter works');
+        ok(testObj.get('a') === '1');
+        testObj.set('aInt', '123');
+        ok(testObj.get('aInt') === '123', 'cp has been updated too');
+      });
+    }
 
     // ..........................................................
     // BUGS
@@ -47698,9 +47748,7 @@ enifed("ember-runtime/tests/system/array_proxy/content_update_test",
       proxy = ArrayProxy.createWithMixins({
         content: Ember.A(),
 
-        arrangedContent: computed('content', function(key, value) {
-          // setup arrangedContent as a different object than content,
-          // which is the default
+        arrangedContent: computed('content', function(key) {
           return Ember.A(this.get('content').slice());
         }),
 
