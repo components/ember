@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.434db39a
+ * @version   1.11.0-beta.1+canary.d1d5578c
  */
 
 (function() {
@@ -5006,7 +5006,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.434db39a
+      @version 1.11.0-beta.1+canary.d1d5578c
     */
 
     if ('undefined' === typeof Ember) {
@@ -5033,10 +5033,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.434db39a'
+      @default '1.11.0-beta.1+canary.d1d5578c'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.434db39a';
+    Ember.VERSION = '1.11.0-beta.1+canary.d1d5578c';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -6708,14 +6708,14 @@ enifed("ember-metal/keys",
         var hasOwnProperty = Object.prototype.hasOwnProperty;
         var hasDontEnumBug = !({toString: null}).propertyIsEnumerable('toString');
         var dontEnums = [
-              'toString',
-              'toLocaleString',
-              'valueOf',
-              'hasOwnProperty',
-              'isPrototypeOf',
-              'propertyIsEnumerable',
-              'constructor'
-            ];
+          'toString',
+          'toLocaleString',
+          'valueOf',
+          'hasOwnProperty',
+          'isPrototypeOf',
+          'propertyIsEnumerable',
+          'constructor'
+        ];
         var dontEnumsLength = dontEnums.length;
 
         return function keys(obj) {
