@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.d1d5578c
+ * @version   1.11.0-beta.1+canary.d7e4d846
  */
 
 (function() {
@@ -5006,7 +5006,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.d1d5578c
+      @version 1.11.0-beta.1+canary.d7e4d846
     */
 
     if ('undefined' === typeof Ember) {
@@ -5033,10 +5033,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.d1d5578c'
+      @default '1.11.0-beta.1+canary.d7e4d846'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.d1d5578c';
+    Ember.VERSION = '1.11.0-beta.1+canary.d7e4d846';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -6706,7 +6706,7 @@ enifed("ember-metal/keys",
       // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
       keys = (function () {
         var hasOwnProperty = Object.prototype.hasOwnProperty;
-        var hasDontEnumBug = !({toString: null}).propertyIsEnumerable('toString');
+        var hasDontEnumBug = !({ toString: null }).propertyIsEnumerable('toString');
         var dontEnums = [
           'toString',
           'toLocaleString',
@@ -8763,7 +8763,7 @@ enifed("ember-metal/platform/create",
       /* jshint scripturl:true, proto:true */
       // Contributed by Brandon Benvie, October, 2012
       var createEmpty;
-      var supportsProto = !({'__proto__': null} instanceof Object);
+      var supportsProto = !({ '__proto__': null } instanceof Object);
       // the following produces false positives
       // in Opera Mini => not a reliable check
       // Object.prototype.__proto__ === null
@@ -21421,7 +21421,7 @@ enifed("ember-runtime/system/lazy_load",
       loaded[name] = object;
 
       if (typeof window === 'object' && typeof window.dispatchEvent === 'function' && typeof CustomEvent === "function") {
-        var event = new CustomEvent(name, {detail: object, name: name});
+        var event = new CustomEvent(name, { detail: object, name: name });
         window.dispatchEvent(event);
       }
 

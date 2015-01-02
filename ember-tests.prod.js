@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.d1d5578c
+ * @version   1.11.0-beta.1+canary.d7e4d846
  */
 
 (function() {
@@ -611,7 +611,7 @@ enifed("container/tests/container_test",
         }
       };
 
-      registry.options('view:post', {instantiate: true, singleton: false});
+      registry.options('view:post', { instantiate: true, singleton: false });
 
       var postView1 = container.lookup('view:post');
       var postView2 = container.lookup('view:post');
@@ -2084,11 +2084,11 @@ enifed("ember-application/tests/system/dependency_injection_test",
         application.User                = EmberObject.extend({});
         application.PostIndexController = EmberObject.extend({});
 
-        application.register('model:person', application.Person, {singleton: false });
-        application.register('model:user', application.User, {singleton: false });
+        application.register('model:person', application.Person, { singleton: false });
+        application.register('model:user', application.User, { singleton: false });
         application.register('fruit:favorite', application.Orange);
-        application.register('communication:main', application.Email, {singleton: false});
-        application.register('controller:postIndex', application.PostIndexController, {singleton: true});
+        application.register('communication:main', application.Email, { singleton: false });
+        application.register('controller:postIndex', application.PostIndexController, { singleton: true });
 
         registry = application.__registry__;
         locator = application.__container__;
@@ -2184,13 +2184,13 @@ enifed("ember-application/tests/system/initializers_test",
 
       expectAssertion(function() {
         run(function() {
-          MyApplication.initializer({name: 'initializer'});
+          MyApplication.initializer({ name: 'initializer' });
         });
       });
 
       expectAssertion(function() {
         run(function() {
-          MyApplication.initializer({initialize: Ember.K});
+          MyApplication.initializer({ initialize: Ember.K });
         });
       });
 
@@ -2638,7 +2638,7 @@ enifed("ember-application/tests/system/logging_test",
 
       App.register('template:application', function() { return 'Template with default view'; });
       App.register('template:foo', function() { return 'Template with custom view'; });
-      App.register('view:posts', View.extend({templateName: 'foo'}));
+      App.register('view:posts', View.extend({ templateName: 'foo' }));
       run(App, 'advanceReadiness');
 
       visit('/posts').then(function() {
@@ -4108,7 +4108,7 @@ enifed("ember-extension-support/tests/data_adapter_test",
           return Ember.A([1,2,3]);
         },
         columnsForType: function() {
-          return [{ name: 'title', desc: 'Title'}];
+          return [{ name: 'title', desc: 'Title' }];
         }
       });
 
@@ -4121,7 +4121,7 @@ enifed("ember-extension-support/tests/data_adapter_test",
         equal(postType.name, 'post', 'Correctly sets the name');
         equal(postType.count, 3, 'Correctly sets the record count');
         strictEqual(postType.object, App.Post, 'Correctly sets the object');
-        deepEqual(postType.columns, [{name: 'title', desc: 'Title'}], 'Correctly sets the columns');
+        deepEqual(postType.columns, [{ name: 'title', desc: 'Title' }], 'Correctly sets the columns');
       };
 
       adapter.watchModelTypes(modelTypesAdded);
@@ -4145,7 +4145,7 @@ enifed("ember-extension-support/tests/data_adapter_test",
           return Ember.A([1,2,3]);
         },
         columnsForType: function() {
-          return [{ name: 'title', desc: 'Title'}];
+          return [{ name: 'title', desc: 'Title' }];
         }
       });
 
@@ -4159,7 +4159,7 @@ enifed("ember-extension-support/tests/data_adapter_test",
         equal(postType.name, PostClass.toString(), 'Correctly sets the name');
         equal(postType.count, 3, 'Correctly sets the record count');
         strictEqual(postType.object, PostClass, 'Correctly sets the object');
-        deepEqual(postType.columns, [{name: 'title', desc: 'Title'}], 'Correctly sets the columns');
+        deepEqual(postType.columns, [{ name: 'title', desc: 'Title' }], 'Correctly sets the columns');
       };
 
       adapter.watchModelTypes(modelTypesAdded);
@@ -5041,7 +5041,7 @@ enifed("ember-htmlbars/tests/attr_nodes/boolean_test",
 
     test("disabled property can be set true", function() {
       view = EmberView.create({
-        context: {isDisabled: true},
+        context: { isDisabled: true },
         template: compile("<input disabled={{isDisabled}}>")
       });
       appendView(view);
@@ -5054,7 +5054,7 @@ enifed("ember-htmlbars/tests/attr_nodes/boolean_test",
 
     test("disabled property can be set false with a blank string", function() {
       view = EmberView.create({
-        context: {isDisabled: ''},
+        context: { isDisabled: '' },
         template: compile("<input disabled={{isDisabled}}>")
       });
       appendView(view);
@@ -5067,7 +5067,7 @@ enifed("ember-htmlbars/tests/attr_nodes/boolean_test",
 
     test("disabled property can be set false", function() {
       view = EmberView.create({
-        context: {isDisabled: false},
+        context: { isDisabled: false },
         template: compile("<input disabled={{isDisabled}}>")
       });
       appendView(view);
@@ -5080,7 +5080,7 @@ enifed("ember-htmlbars/tests/attr_nodes/boolean_test",
 
     test("disabled property can be set true with a string", function() {
       view = EmberView.create({
-        context: {isDisabled: "oh, no a string"},
+        context: { isDisabled: "oh, no a string" },
         template: compile("<input disabled={{isDisabled}}>")
       });
       appendView(view);
@@ -5093,7 +5093,7 @@ enifed("ember-htmlbars/tests/attr_nodes/boolean_test",
 
     test("disabled attribute turns a value to a string", function() {
       view = EmberView.create({
-        context: {isDisabled: false},
+        context: { isDisabled: false },
         template: compile("<input disabled='{{isDisabled}}'>")
       });
       appendView(view);
@@ -5106,7 +5106,7 @@ enifed("ember-htmlbars/tests/attr_nodes/boolean_test",
 
     test("disabled attribute preserves a blank string value", function() {
       view = EmberView.create({
-        context: {isDisabled: ''},
+        context: { isDisabled: '' },
         template: compile("<input disabled='{{isDisabled}}'>")
       });
       appendView(view);
@@ -5176,7 +5176,7 @@ enifed("ember-htmlbars/tests/attr_nodes/class_test",
         didInsertElement: function() {
           matchingElement = this.$('div.blue');
         },
-        context: {color: 'blue'},
+        context: { color: 'blue' },
         template: compile("<div class={{color}}>Hi!</div>")
       });
       appendView(view);
@@ -5187,7 +5187,7 @@ enifed("ember-htmlbars/tests/attr_nodes/class_test",
 
     test("class property can contain multiple classes", function() {
       view = EmberView.create({
-        context: {classes: 'large blue'},
+        context: { classes: 'large blue' },
         template: compile("<div class={{classes}}></div>")
       });
       appendView(view);
@@ -5200,7 +5200,7 @@ enifed("ember-htmlbars/tests/attr_nodes/class_test",
 
     test("class property is removed when updated with a null value", function() {
       view = EmberView.create({
-        context: {"class": 'large'},
+        context: { "class": 'large' },
         template: compile("<div class={{class}}></div>")
       });
       appendView(view);
@@ -5216,7 +5216,7 @@ enifed("ember-htmlbars/tests/attr_nodes/class_test",
 
     test("class attribute concats bound values", function() {
       view = EmberView.create({
-        context: {size: 'large', color: 'blue'},
+        context: { size: 'large', color: 'blue' },
         template: compile("<div class='{{size}} {{color}} round'></div>")
       });
       appendView(view);
@@ -5345,7 +5345,7 @@ enifed("ember-htmlbars/tests/attr_nodes/data_test",
 
       test("property is output", function() {
         view = EmberView.create({
-          context: {name: 'erik'},
+          context: { name: 'erik' },
           template: compile("<div data-name={{name}}>Hi!</div>")
         });
         runAppend(view);
@@ -5359,7 +5359,7 @@ enifed("ember-htmlbars/tests/attr_nodes/data_test",
           didInsertElement: function() {
             matchingElement = this.$('div[data-name=erik]');
           },
-          context: {name: 'erik'},
+          context: { name: 'erik' },
           template: compile("<div data-name={{name}}>Hi!</div>")
         });
         runAppend(view);
@@ -5370,7 +5370,7 @@ enifed("ember-htmlbars/tests/attr_nodes/data_test",
 
       test("quoted attributes are concatenated", function() {
         view = EmberView.create({
-          context: {firstName: 'max', lastName: 'jackson'},
+          context: { firstName: 'max', lastName: 'jackson' },
           template: compile("<div data-name='{{firstName}} {{lastName}}'>Hi!</div>")
         });
         runAppend(view);
@@ -5380,7 +5380,7 @@ enifed("ember-htmlbars/tests/attr_nodes/data_test",
 
       test("quoted attributes are updated when changed", function() {
         view = EmberView.create({
-          context: {firstName: 'max', lastName: 'jackson'},
+          context: { firstName: 'max', lastName: 'jackson' },
           template: compile("<div data-name='{{firstName}} {{lastName}}'>Hi!</div>")
         });
         runAppend(view);
@@ -5394,7 +5394,7 @@ enifed("ember-htmlbars/tests/attr_nodes/data_test",
 
       test("quoted attributes are not removed when value is null", function() {
         view = EmberView.create({
-          context: {firstName: 'max', lastName: 'jackson'},
+          context: { firstName: 'max', lastName: 'jackson' },
           template: compile("<div data-name='{{firstName}}'>Hi!</div>")
         });
         runAppend(view);
@@ -5408,7 +5408,7 @@ enifed("ember-htmlbars/tests/attr_nodes/data_test",
 
       test("unquoted attributes are removed when value is null", function() {
         view = EmberView.create({
-          context: {firstName: 'max'},
+          context: { firstName: 'max' },
           template: compile("<div data-name={{firstName}}>Hi!</div>")
         });
         runAppend(view);
@@ -5422,7 +5422,7 @@ enifed("ember-htmlbars/tests/attr_nodes/data_test",
 
       test("unquoted attributes that are null are not added", function() {
         view = EmberView.create({
-          context: {firstName: null},
+          context: { firstName: null },
           template: compile("<div data-name={{firstName}}>Hi!</div>")
         });
         runAppend(view);
@@ -5432,7 +5432,7 @@ enifed("ember-htmlbars/tests/attr_nodes/data_test",
 
       test("unquoted attributes are added when changing from null", function() {
         view = EmberView.create({
-          context: {firstName: null},
+          context: { firstName: null },
           template: compile("<div data-name={{firstName}}>Hi!</div>")
         });
         runAppend(view);
@@ -5446,7 +5446,7 @@ enifed("ember-htmlbars/tests/attr_nodes/data_test",
 
       test("property value is directly added to attribute", function() {
         view = EmberView.create({
-          context: {name: '"" data-foo="blah"'},
+          context: { name: '"" data-foo="blah"' },
           template: compile("<div data-name={{name}}>Hi!</div>")
         });
         runAppend(view);
@@ -5456,7 +5456,7 @@ enifed("ember-htmlbars/tests/attr_nodes/data_test",
 
       test("path is output", function() {
         view = EmberView.create({
-          context: {name: {firstName: 'erik'}},
+          context: { name: { firstName: 'erik' } },
           template: compile("<div data-name={{name.firstName}}>Hi!</div>")
         });
         runAppend(view);
@@ -5465,7 +5465,7 @@ enifed("ember-htmlbars/tests/attr_nodes/data_test",
       });
 
       test("changed property updates", function() {
-        var context = EmberObject.create({name: 'erik'});
+        var context = EmberObject.create({ name: 'erik' });
         view = EmberView.create({
           context: context,
           template: compile("<div data-name={{name}}>Hi!</div>")
@@ -5482,7 +5482,7 @@ enifed("ember-htmlbars/tests/attr_nodes/data_test",
       test("updates are scheduled in the render queue", function() {
         expect(4);
 
-        var context = EmberObject.create({name: 'erik'});
+        var context = EmberObject.create({ name: 'erik' });
         view = EmberView.create({
           context: context,
           template: compile("<div data-name={{name}}>Hi!</div>")
@@ -5508,7 +5508,7 @@ enifed("ember-htmlbars/tests/attr_nodes/data_test",
 
       test("updates fail silently after an element is destroyed", function() {
 
-        var context = EmberObject.create({name: 'erik'});
+        var context = EmberObject.create({ name: 'erik' });
         view = EmberView.create({
           context: context,
           template: compile("<div data-name={{name}}>Hi!</div>")
@@ -5543,7 +5543,7 @@ enifed("ember-htmlbars/tests/attr_nodes/data_test",
       });
 
       test('calls setAttribute for new values', function() {
-        var context = EmberObject.create({name: 'erik'});
+        var context = EmberObject.create({ name: 'erik' });
         view = EmberView.create({
           context: context,
           template: compile("<div data-name={{name}}>Hi!</div>")
@@ -5561,7 +5561,7 @@ enifed("ember-htmlbars/tests/attr_nodes/data_test",
       });
 
       test('does not call setAttribute if the same value is set', function() {
-        var context = EmberObject.create({name: 'erik'});
+        var context = EmberObject.create({ name: 'erik' });
         view = EmberView.create({
           context: context,
           template: compile("<div data-name={{name}}>Hi!</div>")
@@ -5627,7 +5627,7 @@ enifed("ember-htmlbars/tests/attr_nodes/href_test",
 
     test("href is set", function() {
       view = EmberView.create({
-        context: {url: 'http://example.com'},
+        context: { url: 'http://example.com' },
         template: compile("<a href={{url}}></a>")
       });
       appendView(view);
@@ -5692,7 +5692,7 @@ enifed("ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test",
 
     test("maxlength sets the property and attribute", function() {
       view = EmberView.create({
-        context: {length: 5},
+        context: { length: 5 },
         template: compile("<input maxlength={{length}}>")
       });
       appendView(view);
@@ -5707,7 +5707,7 @@ enifed("ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test",
 
     test("quoted maxlength sets the property and attribute", function() {
       view = EmberView.create({
-        context: {length: 5},
+        context: { length: 5 },
         template: compile("<input maxlength='{{length}}'>")
       });
       appendView(view);
@@ -5801,7 +5801,7 @@ enifed("ember-htmlbars/tests/attr_nodes/sanitized_test",
 
         test(subject.tag +" "+subject.attr+" is sanitized when using blacklisted protocol", function() {
           view = EmberView.create({
-            context: {url: 'javascript://example.com'},
+            context: { url: 'javascript://example.com' },
             template: subject.unquotedTemplate
           });
           runAppend(view);
@@ -5813,7 +5813,7 @@ enifed("ember-htmlbars/tests/attr_nodes/sanitized_test",
 
         test(subject.tag +" "+subject.attr+" is sanitized when using quoted non-whitelisted protocol", function() {
           view = EmberView.create({
-            context: {url: 'javascript://example.com'},
+            context: { url: 'javascript://example.com' },
             template: subject.quotedTemplate
           });
           runAppend(view);
@@ -5825,7 +5825,7 @@ enifed("ember-htmlbars/tests/attr_nodes/sanitized_test",
 
         test(subject.tag +" "+subject.attr+" is not sanitized when using non-whitelisted protocol with a SafeString", function() {
           view = EmberView.create({
-            context: {url: new SafeString('javascript://example.com')},
+            context: { url: new SafeString('javascript://example.com') },
             template: subject.unquotedTemplate
           });
 
@@ -5843,7 +5843,7 @@ enifed("ember-htmlbars/tests/attr_nodes/sanitized_test",
 
         test(subject.tag+" "+subject.attr+" is sanitized when using quoted+concat non-whitelisted protocol", function() {
           view = EmberView.create({
-            context: {protocol: 'javascript:', path: '//example.com'},
+            context: { protocol: 'javascript:', path: '//example.com' },
             template: subject.multipartTemplate
           });
           runAppend(view);
@@ -5906,7 +5906,7 @@ enifed("ember-htmlbars/tests/attr_nodes/svg_test",
     test("unquoted viewBox property is output", function() {
       var viewBoxString = '0 0 100 100';
       view = EmberView.create({
-        context: {viewBoxString: viewBoxString},
+        context: { viewBoxString: viewBoxString },
         template: compile("<svg viewBox={{viewBoxString}}></svg>")
       });
       appendView(view);
@@ -5920,7 +5920,7 @@ enifed("ember-htmlbars/tests/attr_nodes/svg_test",
     test("quoted viewBox property is output", function() {
       var viewBoxString = '0 0 100 100';
       view = EmberView.create({
-        context: {viewBoxString: viewBoxString},
+        context: { viewBoxString: viewBoxString },
         template: compile("<svg viewBox='{{viewBoxString}}'></svg>")
       });
       appendView(view);
@@ -5931,7 +5931,7 @@ enifed("ember-htmlbars/tests/attr_nodes/svg_test",
     test("quoted viewBox property is concat", function() {
       var viewBoxString = '100 100';
       view = EmberView.create({
-        context: {viewBoxString: viewBoxString},
+        context: { viewBoxString: viewBoxString },
         template: compile("<svg viewBox='0 0 {{viewBoxString}}'></svg>")
       });
       appendView(view);
@@ -5946,7 +5946,7 @@ enifed("ember-htmlbars/tests/attr_nodes/svg_test",
 
     test("class is output", function() {
       view = EmberView.create({
-        context: {color: 'blue'},
+        context: { color: 'blue' },
         template: compile("<svg class='{{color}} tall'></svg>")
       });
       appendView(view);
@@ -6007,7 +6007,7 @@ enifed("ember-htmlbars/tests/attr_nodes/value_test",
 
     test("property is output", function() {
       view = EmberView.create({
-        context: {name: 'rick'},
+        context: { name: 'rick' },
         template: compile("<input value={{name}}>")
       });
       appendView(view);
@@ -6020,7 +6020,7 @@ enifed("ember-htmlbars/tests/attr_nodes/value_test",
 
     test("string property is output", function() {
       view = EmberView.create({
-        context: {name: 'rick'},
+        context: { name: 'rick' },
         template: compile("<input value='{{name}}'>")
       });
       appendView(view);
@@ -6140,7 +6140,7 @@ enifed("ember-htmlbars/tests/compat/handlebars_get_test",
     test('it can lookup a path from globals', function() {
       expect(1);
 
-      lookup.Blammo = { foo: 'blah'};
+      lookup.Blammo = { foo: 'blah' };
 
       registry.register('helper:handlebars-get', function(path, options) {
         var context = options.contexts && options.contexts[0] || this;
@@ -6489,7 +6489,7 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
       });
 
       view = EmberView.create({
-        controller: EmberObject.create({name: "Brogrammer"}),
+        controller: EmberObject.create({ name: "Brogrammer" }),
         template: compile("{{capitalize name}}")
       });
 
@@ -6512,7 +6512,7 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
       });
 
       view = EmberView.create({
-        controller: {prop: "isThing"},
+        controller: { prop: "isThing" },
         template: compile("<div {{bind-attr data-foo=(dasherize prop)}}>{{prop}}</div>")
       });
 
@@ -6556,7 +6556,7 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
       registerRepeatHelper();
 
       view = EmberView.create({
-        controller: EmberObject.create({text: 'ab'}),
+        controller: EmberObject.create({ text: 'ab' }),
         template: compile("{{repeat text count=3}}")
       });
 
@@ -6589,7 +6589,7 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
         return value.toUpperCase();
       });
 
-      Ember.lookup = {Text: 'ab'};
+      Ember.lookup = { Text: 'ab' };
 
       view = EmberView.create({
         template: compile("{{capitalize Text}}")
@@ -6610,7 +6610,7 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
       });
 
       view = EmberView.create({
-        controller: EmberObject.create({text: 'ab'}),
+        controller: EmberObject.create({ text: 'ab' }),
         template: compile("{{capitalize this}}")
       });
 
@@ -6623,7 +6623,7 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
       registerRepeatHelper();
 
       view = EmberView.create({
-        controller: EmberObject.create({text: 'ab', numRepeats: 3}),
+        controller: EmberObject.create({ text: 'ab', numRepeats: 3 }),
         template: compile('{{repeat text countBinding="numRepeats"}}')
       });
 
@@ -6649,7 +6649,7 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
       registerRepeatHelper();
 
       view = EmberView.create({
-        controller: EmberObject.create({text: 'ab', numRepeats: 3}),
+        controller: EmberObject.create({ text: 'ab', numRepeats: 3 }),
         template: compile('{{repeat text count=numRepeats}}')
       });
 
@@ -6680,7 +6680,7 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
       });
 
       view = EmberView.create({
-        controller: EmberObject.create({thing1: 'ZOID', thing2: 'BERG'}),
+        controller: EmberObject.create({ thing1: 'ZOID', thing2: 'BERG' }),
         template: compile('{{combine thing1 thing2}}')
       });
 
@@ -6742,7 +6742,7 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
       });
 
       view = EmberView.create({
-        controller: EmberObject.create({trollText: "yumad"}),
+        controller: EmberObject.create({ trollText: "yumad" }),
         template: compile('{{troll}} and {{troll text="bork"}}')
       });
 
@@ -6812,7 +6812,7 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
       });
 
       view = EmberView.create({
-        controller: EmberObject.create({aNumber: 1}),
+        controller: EmberObject.create({ aNumber: 1 }),
         template: compile("{{sum aNumber 1}} {{sum 0 aNumber}} {{sum 5 6}}")
       });
 
@@ -6835,7 +6835,7 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
       });
 
       view = EmberView.create({
-        controller: EmberObject.create({word: "jerkwater", loo: "unused"}),
+        controller: EmberObject.create({ word: "jerkwater", loo: "unused" }),
         template: compile("{{combine word 'loo'}} {{combine '' word}} {{combine 'will' \"didi\"}}")
       });
 
@@ -7943,7 +7943,7 @@ enifed("ember-htmlbars/tests/helpers/collection_test",
 
       registry.register('view:collectionTest', ACollectionView);
 
-      var controller = {container: container};
+      var controller = { container: container };
       view = EmberView.create({
         controller: controller,
         template: compile('{{#collection "collectionTest"}} <label></label> {{/collection}}')
@@ -7992,7 +7992,7 @@ enifed("ember-htmlbars/tests/helpers/collection_test",
       equal(view.$('tr').length, 1, 'Make sure the empty view is there (regression)');
 
       run(function() {
-        listController.pushObject({title : "Go Away, Placeholder Row!"});
+        listController.pushObject({ title : "Go Away, Placeholder Row!" });
       });
 
       equal(view.$('tr').length, 1, 'has one row');
@@ -8425,7 +8425,7 @@ enifed("ember-htmlbars/tests/helpers/collection_test",
       equal(view.$('ul > li').length, 3, "renders the collection with the correct number of items when the dataset is ready");
 
       run(function() {
-        secondDataset = EmberObject.create({ready: false});
+        secondDataset = EmberObject.create({ ready: false });
         TemplateTests.datasetController.set('dataset', secondDataset);
       });
 
@@ -8441,9 +8441,9 @@ enifed("ember-htmlbars/tests/helpers/collection_test",
       container = registry.container();
 
       var items = A([
-        EmberObject.create({name: 'Dave'}),
-        EmberObject.create({name: 'Mary'}),
-        EmberObject.create({name: 'Sara'})
+        EmberObject.create({ name: 'Dave' }),
+        EmberObject.create({ name: 'Mary' }),
+        EmberObject.create({ name: 'Sara' })
       ]);
 
       registry.register('view:an-item', EmberView.extend({
@@ -8826,7 +8826,7 @@ enifed("ember-htmlbars/tests/helpers/each_test",
       equal(selectView.$().find(':selected').text(), 'Please select a name', 'first option is selected');
 
       run(function() {
-        people.pushObject({name: "Black Francis"});
+        people.pushObject({ name: "Black Francis" });
       });
 
       equal(selectView.$().find(':selected').text(), 'Please select a name', 'first option is selected');
@@ -8866,7 +8866,7 @@ enifed("ember-htmlbars/tests/helpers/each_test",
       equal(ulView.$('li').length, 2, "renders two <li> elements");
 
       run(function() {
-        people.pushObject({name: "Black Francis"});
+        people.pushObject({ name: "Black Francis" });
       });
 
       equal(ulView.$('li').length, 3, "renders an additional <li> element when an object is added");
@@ -8885,13 +8885,13 @@ enifed("ember-htmlbars/tests/helpers/each_test",
       equal(tableView.$('td').length, 2, "renders two <td> elements");
 
       run(function() {
-        people.pushObject({name: "Black Francis"});
+        people.pushObject({ name: "Black Francis" });
       });
 
       equal(tableView.$('td').length, 3, "renders an additional <td> element when an object is added");
 
       run(function() {
-        people.insertAt(0, {name: "Kim Deal"});
+        people.insertAt(0, { name: "Kim Deal" });
       });
 
       equal(tableView.$('td').length, 4, "renders an additional <td> when an object is inserted at the beginning of the array");
@@ -9578,7 +9578,7 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
 
     test("unless should keep the current context (#784) [DEPRECATED]", function() {
       view = EmberView.create({
-        o: EmberObject.create({foo: '42'}),
+        o: EmberObject.create({ foo: '42' }),
 
         template: compile('{{#with view.o}}{{#view}}{{#unless view.doesNotExist}}foo: {{foo}}{{/unless}}{{/view}}{{/with}}')
       });
@@ -10322,7 +10322,7 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
 
       test("`if` helper with inline form: respects isTruthy when object changes", function() {
         view = EmberView.create({
-          conditional: Ember.Object.create({isTruthy: false}),
+          conditional: Ember.Object.create({ isTruthy: false }),
           template: compile('{{if view.conditional "truthy" "falsy"}}')
         });
 
@@ -10331,13 +10331,13 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
         equal(view.$().text(), 'falsy');
 
         run(function() {
-          view.set('conditional', Ember.Object.create({isTruthy: true}));
+          view.set('conditional', Ember.Object.create({ isTruthy: true }));
         });
 
         equal(view.$().text(), 'truthy');
 
         run(function() {
-          view.set('conditional', Ember.Object.create({isTruthy: false}));
+          view.set('conditional', Ember.Object.create({ isTruthy: false }));
         });
 
         equal(view.$().text(), 'falsy');
@@ -10345,7 +10345,7 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
       });
 
       test("`if` helper with inline form: respects isTruthy when property changes", function() {
-        var candidate = Ember.Object.create({isTruthy: false});
+        var candidate = Ember.Object.create({ isTruthy: false });
 
         view = EmberView.create({
           conditional: candidate,
@@ -11605,7 +11605,8 @@ enifed("ember-htmlbars/tests/helpers/unbound_test",
               firstName: 'cindy',
               lastName:  'taylor'
             }
-        ])}
+          ])
+        }
       });
       runAppend(view);
 
@@ -11743,7 +11744,7 @@ enifed("ember-htmlbars/tests/helpers/unbound_test",
 
     test("should be able to use unbound helper in #each helper (with objects)", function() {
       view = EmberView.create({
-        items: A([{wham: 'bam'}, {wham: 1}]),
+        items: A([{ wham: 'bam' }, { wham: 1 }]),
         template: compile('<ul>{{#each item in view.items}}<li>{{unbound item.wham}}</li>{{/each}}</ul>')
       });
 
@@ -11998,7 +11999,7 @@ enifed("ember-htmlbars/tests/helpers/view_test",
 
       view = EmberView.extend({
         template: compile("{{view 'fu'}}"),
-        context: {fu: 'boom!'},
+        context: { fu: 'boom!' },
         container: container
       }).create();
 
@@ -13207,7 +13208,7 @@ enifed("ember-htmlbars/tests/helpers/with_test",
           template: compile("Admin: {{#with admin as person}}{{person.name}}{{/with}} User: {{#with user as person}}{{person.name}}{{/with}}"),
           context: {
             admin: { name: "Tom Dale" },
-            user: { name: "Yehuda Katz"}
+            user: { name: "Yehuda Katz" }
           }
         });
 
@@ -13347,7 +13348,7 @@ enifed("ember-htmlbars/tests/helpers/with_test",
         })
       });
 
-      var person = EmberObject.create({name: 'Steve Holt'});
+      var person = EmberObject.create({ name: 'Steve Holt' });
       var registry = new Registry();
       var container = registry.container();
 
@@ -13437,7 +13438,7 @@ enifed("ember-htmlbars/tests/helpers/with_test",
         })
       });
 
-      var person = EmberObject.create({name: 'Steve Holt'});
+      var person = EmberObject.create({ name: 'Steve Holt' });
       var registry = new Registry();
       var container = registry.container();
 
@@ -13491,7 +13492,7 @@ enifed("ember-htmlbars/tests/helpers/with_test",
         }
       });
 
-      var person = EmberObject.create({name: 'Steve Holt'});
+      var person = EmberObject.create({ name: 'Steve Holt' });
       var registry = new Registry();
       var container = registry.container();
 
@@ -13527,7 +13528,7 @@ enifed("ember-htmlbars/tests/helpers/with_test",
         }
       });
 
-      var person = EmberObject.create({name: 'Steve Holt'});
+      var person = EmberObject.create({ name: 'Steve Holt' });
       var registry = new Registry();
       var container = registry.container();
 
@@ -13590,7 +13591,7 @@ enifed("ember-htmlbars/tests/helpers/with_test",
             template: compile("Admin: {{#with admin as |person|}}{{person.name}}{{/with}} User: {{#with user as |person|}}{{person.name}}{{/with}}"),
             context: {
               admin: { name: "Tom Dale" },
-              user: { name: "Yehuda Katz"}
+              user: { name: "Yehuda Katz" }
             }
           });
 
@@ -14161,7 +14162,7 @@ enifed("ember-htmlbars/tests/hooks/text_node_test",
 
       test("property is output", function() {
         view = EmberView.create({
-          context: {name: 'erik'},
+          context: { name: 'erik' },
           template: compile("ohai {{name}}")
         });
         runAppend(view);
@@ -14171,7 +14172,7 @@ enifed("ember-htmlbars/tests/hooks/text_node_test",
 
       test("path is output", function() {
         view = EmberView.create({
-          context: {name: {firstName: 'erik'}},
+          context: { name: { firstName: 'erik' } },
           template: compile("ohai {{name.firstName}}")
         });
         runAppend(view);
@@ -14180,7 +14181,7 @@ enifed("ember-htmlbars/tests/hooks/text_node_test",
       });
 
       test("changed property updates", function() {
-        var context = EmberObject.create({name: 'erik'});
+        var context = EmberObject.create({ name: 'erik' });
         view = EmberView.create({
           context: context,
           template: compile("ohai {{name}}")
@@ -14318,7 +14319,7 @@ enifed("ember-htmlbars/tests/integration/binding_integration_test",
     });
 
     test("should be able to update when bound property updates", function() {
-      MyApp.set('controller', EmberObject.create({name: 'first'}));
+      MyApp.set('controller', EmberObject.create({ name: 'first' }));
 
       var View = EmberView.extend({
         template: compile('<i>{{view.value.name}}, {{view.computed}}</i>'),
@@ -14346,7 +14347,7 @@ enifed("ember-htmlbars/tests/integration/binding_integration_test",
 
     test('should cleanup bound properties on rerender', function() {
       view = EmberView.create({
-        controller: EmberObject.create({name: 'wycats'}),
+        controller: EmberObject.create({ name: 'wycats' }),
         template: compile('{{name}}')
       });
 
@@ -14998,15 +14999,15 @@ enifed("ember-htmlbars/tests/integration/select_in_template_test",
         }).property('firstName', 'lastName')
       });
 
-      var erik = Person.create({id: 4, firstName: 'Erik', lastName: 'Bryn'});
+      var erik = Person.create({ id: 4, firstName: 'Erik', lastName: 'Bryn' });
 
       var application = Namespace.create();
 
       application.peopleController = ArrayController.create({
         content: Ember.A([
-          Person.create({id: 1, firstName: 'Yehuda', lastName: 'Katz'}),
-          Person.create({id: 2, firstName: 'Tom', lastName: 'Dale'}),
-          Person.create({id: 3, firstName: 'Peter', lastName: 'Wagenet'}),
+          Person.create({ id: 1, firstName: 'Yehuda', lastName: 'Katz' }),
+          Person.create({ id: 2, firstName: 'Tom', lastName: 'Dale' }),
+          Person.create({ id: 3, firstName: 'Peter', lastName: 'Wagenet' }),
           erik
         ])
       });
@@ -15042,7 +15043,7 @@ enifed("ember-htmlbars/tests/integration/select_in_template_test",
 
       equal(select.get('selection'), erik, "Selection was updated through binding");
       run(function() {
-        application.peopleController.pushObject(Person.create({id: 5, firstName: "James", lastName: "Rosen"}));
+        application.peopleController.pushObject(Person.create({ id: 5, firstName: "James", lastName: "Rosen" }));
       });
 
       equal(select.$('option').length, 6, "New option was added");
@@ -15050,8 +15051,8 @@ enifed("ember-htmlbars/tests/integration/select_in_template_test",
     });
 
     test("upon content change, the DOM should reflect the selection (#481)", function() {
-      var userOne = {name: 'Mike', options: Ember.A(['a', 'b']), selectedOption: 'a'};
-      var userTwo = {name: 'John', options: Ember.A(['c', 'd']), selectedOption: 'd'};
+      var userOne = { name: 'Mike', options: Ember.A(['a', 'b']), selectedOption: 'a' };
+      var userTwo = { name: 'John', options: Ember.A(['c', 'd']), selectedOption: 'd' };
 
       view = EmberView.create({
         user: userOne,
@@ -15080,8 +15081,8 @@ enifed("ember-htmlbars/tests/integration/select_in_template_test",
     });
 
     test("upon content change with Array-like content, the DOM should reflect the selection", function() {
-      var tom = {id: 4, name: 'Tom'};
-      var sylvain = {id: 5, name: 'Sylvain'};
+      var tom = { id: 4, name: 'Tom' };
+      var sylvain = { id: 5, name: 'Sylvain' };
 
       var proxy = ArrayProxy.create({
         content: Ember.A(),
@@ -15115,7 +15116,7 @@ enifed("ember-htmlbars/tests/integration/select_in_template_test",
 
     function testValueBinding(templateString) {
       view = EmberView.create({
-        collection: Ember.A([{name: 'Wes', value: 'w'}, {name: 'Gordon', value: 'g'}]),
+        collection: Ember.A([{ name: 'Wes', value: 'w' }, { name: 'Gordon', value: 'g' }]),
         val: 'g',
         selectView: SelectView,
         template: compile(templateString)
@@ -15163,8 +15164,8 @@ enifed("ember-htmlbars/tests/integration/select_in_template_test",
 
     function testSelectionBinding(templateString) {
       view = EmberView.create({
-        collection: Ember.A([{name: 'Wes', value: 'w'}, {name: 'Gordon', value: 'g'}]),
-        selection: {name: 'Gordon', value: 'g'},
+        collection: Ember.A([{ name: 'Wes', value: 'w' }, { name: 'Gordon', value: 'g' }]),
+        selection: { name: 'Gordon', value: 'g' },
         selectView: SelectView,
         template: compile(templateString)
       });
@@ -15220,8 +15221,8 @@ enifed("ember-htmlbars/tests/integration/select_in_template_test",
         '    selection=view.selection}}';
 
       view = EmberView.create({
-        collection: Ember.A([{name: 'Wes', val: 'w'}, {name: 'Gordon', val: 'g'}]),
-        selection: {name: 'Gordon', val: 'g'},
+        collection: Ember.A([{ name: 'Wes', val: 'w' }, { name: 'Gordon', val: 'g' }]),
+        selection: { name: 'Gordon', val: 'g' },
         selectView: SelectView,
         template: Ember.Handlebars.compile(templateString)
       });
@@ -15945,7 +15946,7 @@ enifed("ember-htmlbars/tests/system/make_bound_helper_test",
 
       view = EmberView.create({
         container: container,
-        controller: {prop: "isThing"},
+        controller: { prop: "isThing" },
         template: compile("<div {{bind-attr data-foo=(x-dasherize prop)}}>{{prop}}</div>")
       });
 
@@ -15965,7 +15966,7 @@ enifed("ember-htmlbars/tests/system/make_bound_helper_test",
 
       view = EmberView.create({
         container: container,
-        controller: {name: "Brogrammer"},
+        controller: { name: "Brogrammer" },
         template: compile("{{x-capitalize name}}")
       });
 
@@ -16101,7 +16102,7 @@ enifed("ember-htmlbars/tests/system/make_bound_helper_test",
 
       view = EmberView.create({
         container: container,
-        controller: {aNumber: 1},
+        controller: { aNumber: 1 },
         template: compile("{{x-sum aNumber 1}} {{x-sum 0 aNumber}} {{x-sum 5 6}}")
       });
 
@@ -16209,7 +16210,7 @@ enifed("ember-htmlbars/tests/system/make_view_helper_test",
     QUnit.module("ember-htmlbars: makeViewHelper");
 
     test("makes helpful assertion when called with invalid arguments", function() {
-      var viewClass = {toString: function() { return 'Some Random Class'; }};
+      var viewClass = { toString: function() { return 'Some Random Class'; } };
 
       var helper = makeViewHelper(viewClass);
 
@@ -16389,7 +16390,7 @@ enifed("ember-metal-views/tests/children_test",
         isView: true,
         tagName: 'ul',
         childViews: [
-          {isView: true, tagName: 'li', textContent: 'ohai'}
+          { isView: true, tagName: 'li', textContent: 'ohai' }
         ]
       };
 
@@ -16404,7 +16405,7 @@ enifed("ember-metal-views/tests/children_test",
         isView: true,
         tagName: 'ul',
         childViews: [
-          {isView: true, tagName: 'li', textContent: 'ohai'}
+          { isView: true, tagName: 'li', textContent: 'ohai' }
         ],
 
         didInsertElement: function() {
@@ -16456,7 +16457,7 @@ enifed("ember-metal-views/tests/main_test",
 
     // Test the behavior of the helper createElement stub
     test("by default, view renders as a div", function() {
-      view = {isView: true};
+      view = { isView: true };
 
       appendTo(view);
       equalHTML('qunit-fixture', "<div></div>");
@@ -18263,7 +18264,7 @@ enifed("ember-metal/tests/accessors/setPath_test",
     QUnit.module('set with path', moduleOpts);
 
     test('[Foo, bar] -> Foo.bar', function() {
-      Ember.lookup.Foo = {toString: function() { return 'Foo'; }}; // Behave like an Ember.Namespace
+      Ember.lookup.Foo = { toString: function() { return 'Foo'; } }; // Behave like an Ember.Namespace
 
       set(Ember.lookup.Foo, 'bar', 'baz');
       equal(get(Ember.lookup.Foo, 'bar'), 'baz');
@@ -19808,17 +19809,17 @@ enifed("ember-metal/tests/computed_test",
     QUnit.module('CP macros');
 
     testBoth('computed.not', function(get, set) {
-      var obj = {foo: true};
+      var obj = { foo: true };
       defineProperty(obj, 'notFoo', computed.not('foo'));
       equal(get(obj, 'notFoo'), false);
 
-      obj = {foo: {bar: true}};
+      obj = { foo: { bar: true } };
       defineProperty(obj, 'notFoo', computed.not('foo.bar'));
       equal(get(obj, 'notFoo'), false);
     });
 
     testBoth('computed.empty', function(get, set) {
-      var obj = {foo: [], bar: undefined, baz: null, quz: ''};
+      var obj = { foo: [], bar: undefined, baz: null, quz: '' };
       defineProperty(obj, 'fooEmpty', computed.empty('foo'));
       defineProperty(obj, 'barEmpty', computed.empty('bar'));
       defineProperty(obj, 'bazEmpty', computed.empty('baz'));
@@ -19835,7 +19836,7 @@ enifed("ember-metal/tests/computed_test",
     });
 
     testBoth('computed.bool', function(get, set) {
-      var obj = {foo: function() {}, bar: 'asdf', baz: null, quz: false};
+      var obj = { foo: function() {}, bar: 'asdf', baz: null, quz: false };
       defineProperty(obj, 'fooBool', computed.bool('foo'));
       defineProperty(obj, 'barBool', computed.bool('bar'));
       defineProperty(obj, 'bazBool', computed.bool('baz'));
@@ -19847,7 +19848,7 @@ enifed("ember-metal/tests/computed_test",
     });
 
     testBoth('computed.alias', function(get, set) {
-      var obj = { bar: 'asdf', baz: null, quz: false};
+      var obj = { bar: 'asdf', baz: null, quz: false };
       defineProperty(obj, 'bay', computed(function(key) {
         return 'apple';
       }));
@@ -20128,7 +20129,7 @@ enifed("ember-metal/tests/computed_test",
     });
 
     testBoth('computed.deprecatingAlias', function(get, set) {
-      var obj = { bar: 'asdf', baz: null, quz: false};
+      var obj = { bar: 'asdf', baz: null, quz: false };
       defineProperty(obj, 'bay', computed(function(key) {
         return 'apple';
       }));
@@ -21037,7 +21038,7 @@ enifed("ember-metal/tests/instrumentation_test",
     test("instrument with 3 args (name, payload, callback) with payload", function() {
       expect(1);
 
-      var expectedPayload = { hi: 1};
+      var expectedPayload = { hi: 1 };
       subscribe("render", {
         before: function(name, timestamp, payload) {
           deepEqual(payload, expectedPayload);
@@ -21158,7 +21159,7 @@ enifed("ember-metal/tests/is_blank_test",
     test("Ember.isBlank", function() {
       var string = "string";
       var fn = function() {};
-      var object = {length: 0};
+      var object = { length: 0 };
 
       equal(true,  isBlank(null),      "for null");
       equal(true,  isBlank(undefined), "for undefined");
@@ -21208,7 +21209,7 @@ enifed("ember-metal/tests/is_empty_test",
     test("Ember.isEmpty", function() {
       var string = "string";
       var fn = function() {};
-      var object = {length: 0};
+      var object = { length: 0 };
 
       equal(true,  isEmpty(null),      "for null");
       equal(true,  isEmpty(undefined), "for undefined");
@@ -21308,7 +21309,7 @@ enifed("ember-metal/tests/is_present_test",
     test("Ember.isPresent", function() {
       var string = "string";
       var fn = function() {};
-      var object = {length: 0};
+      var object = { length: 0 };
 
       equal(false, isPresent(),          "for no params");
       equal(false, isPresent(null),      "for null");
@@ -23327,7 +23328,7 @@ enifed("ember-metal/tests/mixin/observer_test",
     });
 
     testBoth('observing chain with property before', function(get, set) {
-      var obj2 = {baz: 'baz'};
+      var obj2 = { baz: 'baz' };
 
       var MyMixin = Mixin.create({
         count: 0,
@@ -23345,7 +23346,7 @@ enifed("ember-metal/tests/mixin/observer_test",
     });
 
     testBoth('observing chain with property after', function(get, set) {
-      var obj2 = {baz: 'baz'};
+      var obj2 = { baz: 'baz' };
 
       var MyMixin = Mixin.create({
         count: 0,
@@ -23363,7 +23364,7 @@ enifed("ember-metal/tests/mixin/observer_test",
     });
 
     testBoth('observing chain with property in mixin applied later', function(get, set) {
-      var obj2 = {baz: 'baz'};
+      var obj2 = { baz: 'baz' };
 
       var MyMixin = Mixin.create({
 
@@ -23373,7 +23374,7 @@ enifed("ember-metal/tests/mixin/observer_test",
         })
       });
 
-      var MyMixin2 = Mixin.create({bar: obj2});
+      var MyMixin2 = Mixin.create({ bar: obj2 });
 
       var obj = mixin({}, MyMixin);
       equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
@@ -23386,7 +23387,7 @@ enifed("ember-metal/tests/mixin/observer_test",
     });
 
     testBoth('observing chain with existing property', function(get, set) {
-      var obj2 = {baz: 'baz'};
+      var obj2 = { baz: 'baz' };
 
       var MyMixin = Mixin.create({
         count: 0,
@@ -23395,7 +23396,7 @@ enifed("ember-metal/tests/mixin/observer_test",
         })
       });
 
-      var obj = mixin({bar: obj2}, MyMixin);
+      var obj = mixin({ bar: obj2 }, MyMixin);
       equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
 
       set(obj2, 'baz', "BAZ");
@@ -23403,8 +23404,8 @@ enifed("ember-metal/tests/mixin/observer_test",
     });
 
     testBoth('observing chain with property in mixin before', function(get, set) {
-      var obj2 = {baz: 'baz'};
-      var MyMixin2 = Mixin.create({bar: obj2});
+      var obj2 = { baz: 'baz' };
+      var MyMixin2 = Mixin.create({ bar: obj2 });
 
       var MyMixin = Mixin.create({
         count: 0,
@@ -23421,8 +23422,8 @@ enifed("ember-metal/tests/mixin/observer_test",
     });
 
     testBoth('observing chain with property in mixin after', function(get, set) {
-      var obj2 = {baz: 'baz'};
-      var MyMixin2 = Mixin.create({bar: obj2});
+      var obj2 = { baz: 'baz' };
+      var MyMixin2 = Mixin.create({ bar: obj2 });
 
       var MyMixin = Mixin.create({
         count: 0,
@@ -23439,10 +23440,10 @@ enifed("ember-metal/tests/mixin/observer_test",
     });
 
     testBoth('observing chain with overriden property', function(get, set) {
-      var obj2 = {baz: 'baz'};
-      var obj3 = {baz: 'foo'};
+      var obj2 = { baz: 'baz' };
+      var obj3 = { baz: 'foo' };
 
-      var MyMixin2 = Mixin.create({bar: obj3});
+      var MyMixin2 = Mixin.create({ bar: obj3 });
 
       var MyMixin = Mixin.create({
         count: 0,
@@ -23451,7 +23452,7 @@ enifed("ember-metal/tests/mixin/observer_test",
         })
       });
 
-      var obj = mixin({bar: obj2}, MyMixin, MyMixin2);
+      var obj = mixin({ bar: obj2 }, MyMixin, MyMixin2);
       equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
 
       equal(isWatching(obj2, 'baz'), false, 'should not be watching baz');
@@ -24570,7 +24571,7 @@ enifed("ember-metal/tests/observer_test",
 
     testBoth('depending on a chain with a computed property', function (get, set) {
       defineProperty(obj, 'computed', computed(function () {
-        return {foo: 'bar'};
+        return { foo: 'bar' };
       }));
 
       var changed = 0;
@@ -24937,7 +24938,7 @@ enifed("ember-metal/tests/performance_test",
     QUnit.module("Computed Properties - Number of times evaluated");
 
     test("computed properties that depend on multiple properties should run only once per run loop", function() {
-      var obj = {a: 'a', b: 'b', c: 'c'};
+      var obj = { a: 'a', b: 'b', c: 'c' };
       var cpCount = 0;
       var obsCount = 0;
 
@@ -25266,7 +25267,7 @@ enifed("ember-metal/tests/properties_test",
 
       test("enables access to deprecated property and returns the value of the new property", function() {
         expect(3);
-        var obj = {foo: 'bar'};
+        var obj = { foo: 'bar' };
 
         deprecateProperty(obj, 'baz', 'foo');
 
@@ -25279,7 +25280,7 @@ enifed("ember-metal/tests/properties_test",
 
       test("deprecatedKey is not enumerable", function() {
         expect(2);
-        var obj = {foo: 'bar', blammo: 'whammy'};
+        var obj = { foo: 'bar', blammo: 'whammy' };
 
         deprecateProperty(obj, 'baz', 'foo');
 
@@ -25292,7 +25293,7 @@ enifed("ember-metal/tests/properties_test",
 
       test("enables setter to deprecated property and updates the value of the new property", function() {
         expect(3);
-        var obj = {foo: 'bar'};
+        var obj = { foo: 'bar' };
 
         deprecateProperty(obj, 'baz', 'foo');
 
@@ -26302,13 +26303,13 @@ enifed("ember-metal/tests/set_properties_test",
       deepEqual(setProperties({}, NaN),       {}, 'noop for NaN');
       deepEqual(setProperties({}, {}),        {}, 'meh');
 
-      deepEqual(setProperties({}, {foo: 1}),  {foo: 1}, 'Set a single property');
+      deepEqual(setProperties({}, { foo: 1 }),  { foo: 1 }, 'Set a single property');
 
-      deepEqual(setProperties({}, {foo: 1, bar: 1}), {foo: 1, bar: 1}, 'Set multiple properties');
+      deepEqual(setProperties({}, { foo: 1, bar: 1 }), { foo: 1, bar: 1 }, 'Set multiple properties');
 
-      deepEqual(setProperties({foo: 2, baz: 2}, {foo: 1}), {foo: 1, baz: 2}, 'Set one of multiple properties');
+      deepEqual(setProperties({ foo: 2, baz: 2 }, { foo: 1 }), { foo: 1, baz: 2 }, 'Set one of multiple properties');
 
-      deepEqual(setProperties({foo: 2, baz: 2}, {bar: 2}), {
+      deepEqual(setProperties({ foo: 2, baz: 2 }, { bar: 2 }), {
         bar: 2,
         foo: 2,
         baz: 2
@@ -26774,7 +26775,7 @@ enifed("ember-metal/tests/utils/is_array_test",
       var strarray      = ["Hello", "Hi"];
       var string        = "Hello";
       var object        = {};
-      var length        = {length: 12};
+      var length        = { length: 12 };
       var fn            = function() {};
 
       equal( isArray(numarray), true,  "[1,2,3]" );
@@ -26782,7 +26783,7 @@ enifed("ember-metal/tests/utils/is_array_test",
       equal( isArray(strarray), true,  '["Hello", "Hi"]' );
       equal( isArray(string),   false, '"Hello"' );
       equal( isArray(object),   false, "{}" );
-      equal( isArray(length),   true,  "{length: 12}" );
+      equal( isArray(length),   true,  "{ length: 12 }" );
       equal( isArray(global),   false, "global" );
       equal( isArray(fn),       false, "function() {}" );
     });
@@ -26864,7 +26865,7 @@ enifed("ember-metal/tests/utils/meta_test",
     if (canDefineNonEnumerableProperties) {
       test("meta is not enumerable", function () {
         var proto, obj, props, prop;
-        proto = {foo: 'bar'};
+        proto = { foo: 'bar' };
         meta(proto);
         obj = create(proto);
         meta(obj);
@@ -26888,7 +26889,7 @@ enifed("ember-metal/tests/utils/meta_test",
       if (Ember.imports.jQuery) {
         test("meta is not jQuery.isPlainObject", function () {
           var proto, obj;
-          proto = {foo: 'bar'};
+          proto = { foo: 'bar' };
           equal(jQuery.isPlainObject(meta(proto)), false, 'meta should not be isPlainObject when meta property cannot be marked as enumerable: false');
           obj = create(proto);
           equal(jQuery.isPlainObject(meta(obj)), false, 'meta should not be isPlainObject when meta property cannot be marked as enumerable: false');
@@ -27284,7 +27285,7 @@ enifed("ember-metal/tests/utils/type_of_test",
       var mockedDate  = new MockedDate();
       var date        = new Date();
       var error       = new Error('boum');
-      var object      = {a: 'b'};
+      var object      = { a: 'b' };
 
       equal( typeOf(),            'undefined',  "undefined");
       equal( typeOf(null),        'null',       "null");
@@ -27680,7 +27681,7 @@ enifed("ember-metal/tests/watching/watch_test",
 
     test("watching a chain then defining the property", function () {
       var obj = {};
-      var foo = {bar: 'bar'};
+      var foo = { bar: 'bar' };
       addListeners(obj, 'foo.bar');
       addListeners(foo, 'bar');
 
@@ -27697,8 +27698,8 @@ enifed("ember-metal/tests/watching/watch_test",
 
     test("watching a chain then defining the nested property", function () {
       var bar = {};
-      var obj = {foo: bar};
-      var baz = {baz: 'baz'};
+      var obj = { foo: bar };
+      var baz = { baz: 'baz' };
       addListeners(obj, 'foo.bar.baz');
       addListeners(baz, 'baz');
 
@@ -27780,7 +27781,7 @@ enifed("ember-metal/tests/watching/watch_test",
 
     test('when watching another object, destroy should remove chain watchers from the other object', function() {
       var objA = {};
-      var objB = {foo: 'bar'};
+      var objB = { foo: 'bar' };
       objA.b = objB;
       addListeners(objA, 'b.foo');
 
@@ -28259,8 +28260,8 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test",
       var parentController = EmberObject.create({
         container: container,
         people: Ember.A([
-          {name: 'robert'},
-          {name: 'brian'}
+          { name: 'robert' },
+          { name: 'brian' }
         ])
       });
 
@@ -28518,7 +28519,7 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test",
 
       view = EmberView.create({
         controller: controller,
-        something: {ohai: 'there'},
+        something: { ohai: 'there' },
         template: compile('{{#with view.something as somethingElse}}<a href="#" {{action "edit"}}>click me</a>{{/with}}')
       });
 
@@ -28538,7 +28539,7 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test",
 
       view = EmberView.create({
         controller: controller,
-        something: {ohai: 'there'},
+        something: { ohai: 'there' },
         template: compile('{{#with view.something}}<a href="#" {{action "edit"}}>click me</a>{{/with}}')
       });
 
@@ -28951,9 +28952,9 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test",
       });
 
       var controller = EmberController.extend({
-        allactions: Ember.A([{title: 'Biggity Boom',name: 'biggityBoom'},
-                             {title: 'Whomp Whomp',name: 'whompWhomp'},
-                             {title: 'Sloopy Dookie',name: 'sloopyDookie'}]),
+        allactions: Ember.A([{ title: 'Biggity Boom',name: 'biggityBoom' },
+                             { title: 'Whomp Whomp',name: 'whompWhomp' },
+                             { title: 'Sloopy Dookie',name: 'sloopyDookie' }]),
         actions: {
           biggityBoom: function() {
             lastAction = 'biggityBoom';
@@ -29002,9 +29003,9 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test",
       });
 
       var controller = EmberController.extend({
-        allactions: Ember.A([{title: 'Biggity Boom',name: 'biggityBoom'},
-                             {title: 'Whomp Whomp',name: 'whompWhomp'},
-                             {title: 'Sloopy Dookie',name: 'sloopyDookie'}]),
+        allactions: Ember.A([{ title: 'Biggity Boom',name: 'biggityBoom' },
+                             { title: 'Whomp Whomp',name: 'whompWhomp' },
+                             { title: 'Sloopy Dookie',name: 'sloopyDookie' }]),
         actions: {
           biggityBoom: function() {
             lastAction = 'biggityBoom';
@@ -29797,7 +29798,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
 
     test("{{render}} helper should render given template", function() {
       var template = "<h1>HI</h1>{{render 'home'}}";
-      var controller = EmberController.extend({container: container});
+      var controller = EmberController.extend({ container: container });
       view = EmberView.create({
         controller: controller.create(),
         template: compile(template)
@@ -29813,7 +29814,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
 
     test("{{render}} helper should have assertion if neither template nor view exists", function() {
       var template = "<h1>HI</h1>{{render 'oops'}}";
-      var controller = EmberController.extend({container: container});
+      var controller = EmberController.extend({ container: container });
       view = EmberView.create({
         controller: controller.create(),
         template: compile(template)
@@ -29826,8 +29827,8 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
 
     test("{{render}} helper should not have assertion if template is supplied in block-form", function() {
       var template = "<h1>HI</h1>{{#render 'good'}} {{name}}{{/render}}";
-      var controller = EmberController.extend({container: container});
-      container._registry.register('controller:good', EmberController.extend({ name: 'Rob'}));
+      var controller = EmberController.extend({ container: container });
+      container._registry.register('controller:good', EmberController.extend({ name: 'Rob' }));
       view = EmberView.create({
         controller: controller.create(),
         template: compile(template)
@@ -29840,7 +29841,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
 
     test("{{render}} helper should not have assertion if view exists without a template", function() {
       var template = "<h1>HI</h1>{{render 'oops'}}";
-      var controller = EmberController.extend({container: container});
+      var controller = EmberController.extend({ container: container });
       view = EmberView.create({
         controller: controller.create(),
         template: compile(template)
@@ -29926,7 +29927,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
 
     test("{{render}} helper should raise an error when a given controller name does not resolve to a controller", function() {
       var template = '<h1>HI</h1>{{render "home" controller="postss"}}';
-      var controller = EmberController.extend({container: container});
+      var controller = EmberController.extend({ container: container });
       container._registry.register('controller:posts', EmberArrayController.extend());
       view = EmberView.create({
         controller: controller.create(),
@@ -29942,7 +29943,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
 
     test("{{render}} helper should render with given controller", function() {
       var template = '<h1>HI</h1>{{render "home" controller="posts"}}';
-      var controller = EmberController.extend({container: container});
+      var controller = EmberController.extend({ container: container });
       container._registry.register('controller:posts', EmberArrayController.extend());
       view = EmberView.create({
         controller: controller.create(),
@@ -29959,7 +29960,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
 
     test("{{render}} helper should render a template without a model only once", function() {
       var template = "<h1>HI</h1>{{render 'home'}}<hr/>{{render 'home'}}";
-      var controller = EmberController.extend({container: container});
+      var controller = EmberController.extend({ container: container });
       view = EmberView.create({
         controller: controller.create(),
         template: compile(template)
@@ -29995,7 +29996,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
       });
 
       var PostController = EmberObjectController.extend();
-      container._registry.register('controller:post', PostController, {singleton: false});
+      container._registry.register('controller:post', PostController, { singleton: false });
 
       Ember.TEMPLATES['post'] = compile("<p>{{title}}</p>");
 
@@ -30062,7 +30063,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
       });
 
       var PostController = EmberObjectController.extend();
-      container._registry.register('controller:post', PostController, {singleton: false});
+      container._registry.register('controller:post', PostController, { singleton: false });
 
       Ember.TEMPLATES['post'] = compile("<p>{{#unless model}}NOTHING{{/unless}}</p>");
 
@@ -30095,7 +30096,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
       });
 
       var PostController = EmberObjectController.extend();
-      container._registry.register('controller:post', PostController, {singleton: false});
+      container._registry.register('controller:post', PostController, { singleton: false });
 
       Ember.TEMPLATES['post'] = compile("<p>Title:{{title}}</p>");
 
@@ -30157,7 +30158,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
 
     test("{{render}} helper should be able to render a template again when it was removed", function() {
       var template = "<h1>HI</h1>{{outlet}}";
-      var controller = EmberController.extend({container: container});
+      var controller = EmberController.extend({ container: container });
       view = EmberView.create({
         template: compile(template)
       });
@@ -30188,7 +30189,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
     test("{{render}} works with dot notation", function() {
       var template = '<h1>BLOG</h1>{{render "blog.post"}}';
 
-      var controller = EmberController.extend({container: container});
+      var controller = EmberController.extend({ container: container });
       container._registry.register('controller:blog.post', EmberObjectController.extend());
 
       view = EmberView.create({
@@ -30208,7 +30209,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
     test("{{render}} works with slash notation", function() {
       var template = '<h1>BLOG</h1>{{render "blog/post"}}';
 
-      var controller = EmberController.extend({container: container});
+      var controller = EmberController.extend({ container: container });
       container._registry.register('controller:blog.post', EmberObjectController.extend());
 
       view = EmberView.create({
@@ -30230,7 +30231,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
 
     test("throws an assertion if {{render}} is called with an unquoted template name", function() {
       var template = '<h1>HI</h1>{{render home}}';
-      var controller = EmberController.extend({container: container});
+      var controller = EmberController.extend({ container: container });
       view = EmberView.create({
         controller: controller.create(),
         template: compile(template)
@@ -30245,7 +30246,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
 
     test("throws an assertion if {{render}} is called with a literal for a model", function() {
       var template = '<h1>HI</h1>{{render "home" "model"}}';
-      var controller = EmberController.extend({container: container});
+      var controller = EmberController.extend({ container: container });
       view = EmberView.create({
         controller: controller.create(),
         template: compile(template)
@@ -31874,7 +31875,7 @@ enifed("ember-routing/tests/system/route_test",
       route.container = container;
       route.set('_qp', null);
 
-      equal(route.model({ post_id: 1}), post);
+      equal(route.model({ post_id: 1 }), post);
       equal(route.findModel('post', 1), post, '#findModel returns the correct post');
 
       function lookupFactory(fullName) {
@@ -31911,7 +31912,7 @@ enifed("ember-routing/tests/system/route_test",
 
       route = container.lookup('route:index');
 
-      equal(route.model({ post_id: 1}), post, '#model returns the correct post');
+      equal(route.model({ post_id: 1 }), post, '#model returns the correct post');
       equal(route.findModel('post', 1), post, '#findModel returns the correct post');
     });
 
@@ -31944,7 +31945,7 @@ enifed("ember-routing/tests/system/route_test",
       route = container.lookup('route:index');
 
       expectAssertion(function() {
-        route.model({ post_id: 1});
+        route.model({ post_id: 1 });
       }, "You used the dynamic segment post_id in your route undefined, but undefined.Post did not exist and you did not override your route's `model` hook.");
     });
 
@@ -31961,7 +31962,7 @@ enifed("ember-routing/tests/system/route_test",
       route = container.lookup('route:index');
 
       ignoreAssertion(function() {
-        route.model({ post_id: 1});
+        route.model({ post_id: 1 });
       });
 
       ok(true, 'no error was raised');
@@ -32015,15 +32016,15 @@ enifed("ember-routing/tests/system/route_test",
     });
 
     test("returns the models properties if params does not include *_id", function() {
-      var model = {id: 2, firstName: 'Ned', lastName: 'Ryerson'};
+      var model = { id: 2, firstName: 'Ned', lastName: 'Ryerson' };
 
-      deepEqual(route.serialize(model, ['firstName', 'lastName']), {firstName: 'Ned', lastName: 'Ryerson'}, "serialized correctly");
+      deepEqual(route.serialize(model, ['firstName', 'lastName']), { firstName: 'Ned', lastName: 'Ryerson' }, "serialized correctly");
     });
 
     test("returns model.id if params include *_id", function() {
-      var model = {id: 2};
+      var model = { id: 2 };
 
-      deepEqual(route.serialize(model, ['post_id']), {post_id: 2}, "serialized correctly");
+      deepEqual(route.serialize(model, ['post_id']), { post_id: 2 }, "serialized correctly");
     });
 
     test("returns undefined if model is not set", function() {
@@ -33310,7 +33311,7 @@ enifed("ember-runtime/tests/computed/reduce_computed_macros_test",
         run(function() {
           userFnCalls = 0;
           obj = EmberObject.createWithMixins({
-            array: Ember.A([{ v: 1 }, { v: 3}, { v: 2 }, { v: 1 }]),
+            array: Ember.A([{ v: 1 }, { v: 3 }, { v: 2 }, { v: 1 }]),
 
             mapped: computedMap('array.@each.v', function(item) {
               ++userFnCalls;
@@ -33318,8 +33319,8 @@ enifed("ember-runtime/tests/computed/reduce_computed_macros_test",
             }),
 
             arrayObjects: Ember.A([
-              EmberObject.create({ v: { name: 'Robert' }}),
-              EmberObject.create({ v: { name: 'Leanna' }})]),
+              EmberObject.create({ v: { name: 'Robert' } }),
+              EmberObject.create({ v: { name: 'Leanna' } })]),
             mappedObjects: computedMap('arrayObjects.@each.v', function (item) {
               return {
                 name: item.v.name
@@ -33358,7 +33359,7 @@ enifed("ember-runtime/tests/computed/reduce_computed_macros_test",
       equal(userFnCalls, 4, "precond - mapper called expected number of times");
 
       run(function() {
-        array.addObject({v: 7});
+        array.addObject({ v: 7 });
       });
 
       equal(userFnCalls, 5, "precond - mapper called expected number of times");
@@ -33405,10 +33406,10 @@ enifed("ember-runtime/tests/computed/reduce_computed_macros_test",
     });
 
     test("it maps objects", function() {
-      deepEqual(get(obj, 'mappedObjects'), [{ name: 'Robert'}, { name: 'Leanna' }]);
+      deepEqual(get(obj, 'mappedObjects'), [{ name: 'Robert' }, { name: 'Leanna' }]);
 
       run(function() {
-        obj.get('arrayObjects').pushObject({ v: { name: 'Eddard' }});
+        obj.get('arrayObjects').pushObject({ v: { name: 'Eddard' } });
       });
 
       deepEqual(get(obj, 'mappedObjects'), [{ name: 'Robert' }, { name: 'Leanna' }, { name: 'Eddard' }]);
@@ -33456,7 +33457,7 @@ enifed("ember-runtime/tests/computed/reduce_computed_macros_test",
       setup: function() {
         run(function() {
           obj = EmberObject.createWithMixins({
-            array: Ember.A([{ v: 1 }, { v: 3}, { v: 2 }, { v: 1 }]),
+            array: Ember.A([{ v: 1 }, { v: 3 }, { v: 2 }, { v: 1 }]),
             mapped: computedMapBy('array', 'v')
           });
         });
@@ -33648,10 +33649,10 @@ enifed("ember-runtime/tests/computed/reduce_computed_macros_test",
       setup: function() {
         obj = EmberObject.createWithMixins({
           array: Ember.A([
-            {name: "one", a: 1, b: false},
-            {name: "two", a: 2, b: false},
-            {name: "three", a: 1, b: true},
-            {name: "four", b: true}
+            { name: "one", a: 1, b: false },
+            { name: "two", a: 2, b: false },
+            { name: "three", a: 1, b: true },
+            { name: "four", b: true }
           ]),
           a1s: computedFilterBy('array', 'a', 1),
           as: computedFilterBy('array', 'a'),
@@ -33684,7 +33685,7 @@ enifed("ember-runtime/tests/computed/reduce_computed_macros_test",
       deepEqual(bs.mapBy('name'), ['one', 'three'], "arrays computed by filtered property respond to property changes");
 
       run(function() {
-        array.pushObject({name: "five", a: 6, b: true});
+        array.pushObject({ name: "five", a: 6, b: true });
       });
       deepEqual(as.mapBy('name'), ['two', 'three', 'four', 'five'], "arrays computed by filter property respond to added objects");
       deepEqual(bs.mapBy('name'), ['one', 'three', 'five'], "arrays computed by filtered property respond to added objects");
@@ -33696,7 +33697,7 @@ enifed("ember-runtime/tests/computed/reduce_computed_macros_test",
       deepEqual(bs.mapBy('name'), ['one', 'three'], "arrays computed by filtered property respond to removed objects");
 
       run(function() {
-        set(obj, 'array', Ember.A([{name: "six", a: 12, b: true}]));
+        set(obj, 'array', Ember.A([{ name: "six", a: 12, b: true }]));
       });
       deepEqual(as.mapBy('name'), ['six'], "arrays computed by filter property respond to array changes");
       deepEqual(bs.mapBy('name'), ['six'], "arrays computed by filtered property respond to array changes");
@@ -33736,7 +33737,7 @@ enifed("ember-runtime/tests/computed/reduce_computed_macros_test",
       deepEqual(a1bs.mapBy('name'), [], "properties can be filtered by matching value");
 
       run(function() {
-        set(obj, 'array', Ember.A([{name: 'item1', a: 1, b: true}]));
+        set(obj, 'array', Ember.A([{ name: 'item1', a: 1, b: true }]));
       });
 
       a1bs = get(obj, 'a1bs');
@@ -34647,9 +34648,9 @@ enifed("ember-runtime/tests/computed/reduce_computed_macros_test",
       deepEqual(sorted.mapBy('fname'), ['Cersei', 'Jaime'], "precond - array is initially filtered and sorted");
 
       run(function() {
-        items.pushObject({fname: 'Tywin',   lname: 'Lannister'});
-        items.pushObject({fname: 'Lyanna',  lname: 'Stark'});
-        items.pushObject({fname: 'Gerion',  lname: 'Lannister'});
+        items.pushObject({ fname: 'Tywin',   lname: 'Lannister' });
+        items.pushObject({ fname: 'Lyanna',  lname: 'Stark' });
+        items.pushObject({ fname: 'Gerion',  lname: 'Lannister' });
       });
 
       deepEqual(sorted.mapBy('fname'), ['Cersei', 'Gerion', 'Jaime', 'Tywin'], "updates propagate to array");
@@ -34663,20 +34664,20 @@ enifed("ember-runtime/tests/computed/reduce_computed_macros_test",
       equal(16, get(obj, 'oldestStarkAge'), "precond - end of chain is initially correct");
 
       run(function() {
-        items.pushObject({fname: 'Rickon', lname: 'Stark', age: 5});
+        items.pushObject({ fname: 'Rickon', lname: 'Stark', age: 5 });
       });
 
       equal(16, get(obj, 'oldestStarkAge'), "chain is updated correctly");
 
       run(function() {
-        items.pushObject({fname: 'Eddard', lname: 'Stark', age: 35});
+        items.pushObject({ fname: 'Eddard', lname: 'Stark', age: 35 });
       });
 
       equal(35, get(obj, 'oldestStarkAge'), "chain is updated correctly");
     });
 
     function todo(name, priority) {
-      return EmberObject.create({name: name, priority: priority});
+      return EmberObject.create({ name: name, priority: priority });
     }
 
     function priorityComparator(todoA, todoB) {
@@ -34742,7 +34743,7 @@ enifed("ember-runtime/tests/computed/reduce_computed_macros_test",
         run(function() {
           userFnCalls = 0;
           obj = EmberObject.createWithMixins({
-            array: Ember.A([{ v: 1 }, { v: 3}, { v: 2 }, { v: 1 }]),
+            array: Ember.A([{ v: 1 }, { v: 3 }, { v: 2 }, { v: 1 }]),
             mapped: computedMapBy('array', 'v'),
             max: computedMax('mapped'),
             maxDidChange: observer('max', function() {
@@ -35086,7 +35087,7 @@ enifed("ember-runtime/tests/computed/reduce_computed_test",
     test("doubly nested item property keys (@each.foo.@each) are not supported", function() {
       run(function() {
         obj = EmberObject.createWithMixins({
-          peopleByOrdinalPosition: Ember.A([{ first: Ember.A([EmberObject.create({ name: "Jaime Lannister" })])}]),
+          peopleByOrdinalPosition: Ember.A([{ first: Ember.A([EmberObject.create({ name: "Jaime Lannister" })]) }]),
           people: arrayComputed({
             addedItem: function (array, item) {
               array.pushObject(get(item, 'first.firstObject'));
@@ -35107,7 +35108,7 @@ enifed("ember-runtime/tests/computed/reduce_computed_test",
 
       throws(function() {
         obj = EmberObject.createWithMixins({
-          people: [{ first: Ember.A([EmberObject.create({ name: "Jaime Lannister" })])}],
+          people: [{ first: Ember.A([EmberObject.create({ name: "Jaime Lannister" })]) }],
           names: arrayComputed({
             addedItem: function (array, item) {
               array.pushObject(item);
@@ -36686,7 +36687,7 @@ enifed("ember-runtime/tests/core/compare_test",
         data[8]  = [1, 2];
         data[9]  = [1, 2, 3];
         data[10] = [1, 3];
-        data[11] = {a: 'hash'};
+        data[11] = { a: 'hash' };
         data[12] = EmberObject.create();
         data[13] = function (a) {return a;};
         data[14] = new Date('2012/01/01');
@@ -36765,7 +36766,7 @@ enifed("ember-runtime/tests/core/copy_test",
     QUnit.module("Ember Copy Method");
 
     test("Ember.copy null", function() {
-      var obj = {field: null};
+      var obj = { field: null };
 
       equal(copy(obj, true).field, null, "null should still be null");
     });
@@ -37076,7 +37077,7 @@ enifed("ember-runtime/tests/ext/function_test",
         }.property('firstName', 'lastName')
       });
 
-      var obj = MyClass.create({firstName: 'Fred', lastName: 'Flinstone'});
+      var obj = MyClass.create({ firstName: 'Fred', lastName: 'Flinstone' });
       equal(get(obj, 'fullName'), 'Fred Flinstone', 'should return the computed value');
 
       set(obj, 'firstName', "Wilma");
@@ -40609,8 +40610,8 @@ enifed("ember-runtime/tests/mixins/comparable_test",
     QUnit.module("Comparable", {
 
       setup: function() {
-        r1 = Rectangle.create({length: 6, width: 12});
-        r2 = Rectangle.create({length: 6, width: 13});
+        r1 = Rectangle.create({ length: 6, width: 12 });
+        r2 = Rectangle.create({ length: 6, width: 13 });
       },
 
       teardown: function() {
@@ -41699,7 +41700,7 @@ enifed("ember-runtime/tests/mixins/observable_test",
         companyName: "Apple, Inc."
       });
 
-      obj.setProperties({firstName: "Tim", lastName: "Cook"});
+      obj.setProperties({ firstName: "Tim", lastName: "Cook" });
       equal("Tim", obj.get("firstName"));
       equal("Cook", obj.get("lastName"));
     });
@@ -42109,13 +42110,13 @@ enifed("ember-runtime/tests/mixins/sortable_test",
       equal(sortedArrayController.get('length'), 3, 'array has 3 items');
       equal(sortedArrayController.objectAt(0).name, 'Scumbag Dale', 'array is in it natural order');
 
-      unsortedArray.pushObject({id: 4, name: 'Scumbag Chavard'});
+      unsortedArray.pushObject({ id: 4, name: 'Scumbag Chavard' });
 
       equal(sortedArrayController.get('length'), 4, 'array has 4 items');
       equal(sortedArrayController.objectAt(3).name, 'Scumbag Chavard', 'a new object was inserted in the natural order');
 
       sortedArrayController.set('sortProperties', []);
-      unsortedArray.pushObject({id: 5, name: 'Scumbag Jackson'});
+      unsortedArray.pushObject({ id: 5, name: 'Scumbag Jackson' });
 
       equal(sortedArrayController.get('length'), 5, 'array has 5 items');
       equal(sortedArrayController.objectAt(4).name, 'Scumbag Jackson', 'a new object was inserted in the natural order with empty array as sortProperties');
@@ -42253,12 +42254,12 @@ enifed("ember-runtime/tests/mixins/sortable_test",
     test("you can add objects in sorted order", function() {
       equal(sortedArrayController.get('length'), 3, 'array has 3 items');
 
-      unsortedArray.pushObject({id: 4, name: 'Scumbag Chavard'});
+      unsortedArray.pushObject({ id: 4, name: 'Scumbag Chavard' });
 
       equal(sortedArrayController.get('length'), 4, 'array has 4 items');
       equal(sortedArrayController.objectAt(1).name, 'Scumbag Chavard', 'a new object added to content was inserted according to given constraint');
 
-      sortedArrayController.addObject({id: 5, name: 'Scumbag Fucs'});
+      sortedArrayController.addObject({ id: 5, name: 'Scumbag Fucs' });
 
       equal(sortedArrayController.get('length'), 5, 'array has 5 items');
       equal(sortedArrayController.objectAt(3).name, 'Scumbag Fucs', 'a new object added to controller was inserted according to given constraint');
@@ -42267,12 +42268,12 @@ enifed("ember-runtime/tests/mixins/sortable_test",
     test("you can push objects in sorted order", function() {
       equal(sortedArrayController.get('length'), 3, 'array has 3 items');
 
-      unsortedArray.pushObject({id: 4, name: 'Scumbag Chavard'});
+      unsortedArray.pushObject({ id: 4, name: 'Scumbag Chavard' });
 
       equal(sortedArrayController.get('length'), 4, 'array has 4 items');
       equal(sortedArrayController.objectAt(1).name, 'Scumbag Chavard', 'a new object added to content was inserted according to given constraint');
 
-      sortedArrayController.pushObject({id: 5, name: 'Scumbag Fucs'});
+      sortedArrayController.pushObject({ id: 5, name: 'Scumbag Fucs' });
 
       equal(sortedArrayController.get('length'), 5, 'array has 5 items');
       equal(sortedArrayController.objectAt(3).name, 'Scumbag Fucs', 'a new object added to controller was inserted according to given constraint');
@@ -42281,12 +42282,12 @@ enifed("ember-runtime/tests/mixins/sortable_test",
     test("you can unshift objects in sorted order", function() {
       equal(sortedArrayController.get('length'), 3, 'array has 3 items');
 
-      unsortedArray.unshiftObject({id: 4, name: 'Scumbag Chavard'});
+      unsortedArray.unshiftObject({ id: 4, name: 'Scumbag Chavard' });
 
       equal(sortedArrayController.get('length'), 4, 'array has 4 items');
       equal(sortedArrayController.objectAt(1).name, 'Scumbag Chavard', 'a new object added to content was inserted according to given constraint');
 
-      sortedArrayController.addObject({id: 5, name: 'Scumbag Fucs'});
+      sortedArrayController.addObject({ id: 5, name: 'Scumbag Fucs' });
 
       equal(sortedArrayController.get('length'), 5, 'array has 5 items');
       equal(sortedArrayController.objectAt(3).name, 'Scumbag Fucs', 'a new object added to controller was inserted according to given constraint');
@@ -42594,7 +42595,7 @@ enifed("ember-runtime/tests/mixins/target_action_support_test",
             action: 'anEvent'
           });
 
-      ok(true === obj.triggerAction({target: targetObj}), "a valid target and action were specified");
+      ok(true === obj.triggerAction({ target: targetObj }), "a valid target and action were specified");
     });
 
     test("it should use the action specified in the argument", function() {
@@ -42607,7 +42608,7 @@ enifed("ember-runtime/tests/mixins/target_action_support_test",
           }
         })
       });
-      ok(true === obj.triggerAction({action: 'anEvent'}), "a valid target and action were specified");
+      ok(true === obj.triggerAction({ action: 'anEvent' }), "a valid target and action were specified");
     });
 
     test("it should use the actionContext specified in the argument", function() {
@@ -42622,7 +42623,7 @@ enifed("ember-runtime/tests/mixins/target_action_support_test",
         action: 'anEvent'
       });
 
-      ok(true === obj.triggerAction({actionContext: context}), "a valid target and action were specified");
+      ok(true === obj.triggerAction({ actionContext: context }), "a valid target and action were specified");
     });
 
     test("it should allow multiple arguments from actionContext", function() {
@@ -42639,7 +42640,7 @@ enifed("ember-runtime/tests/mixins/target_action_support_test",
         action: 'anEvent'
       });
 
-      ok(true === obj.triggerAction({actionContext: [param1, param2]}), "a valid target and action were specified");
+      ok(true === obj.triggerAction({ actionContext: [param1, param2] }), "a valid target and action were specified");
     });
 
     test("it should use a null value specified in the actionContext argument", function() {
@@ -42652,7 +42653,7 @@ enifed("ember-runtime/tests/mixins/target_action_support_test",
         }),
         action: 'anEvent'
       });
-      ok(true === obj.triggerAction({actionContext: null}), "a valid target and action were specified");
+      ok(true === obj.triggerAction({ actionContext: null }), "a valid target and action were specified");
     });
   });
 enifed("ember-runtime/tests/mixins/target_action_support_test.jscs-test",
@@ -43839,10 +43840,10 @@ enifed("ember-runtime/tests/suites/enumerable/filter",
       var obj, ary;
 
       ary = [
-        { name: 'obj1', foo: 3},
-        EmberObject.create({ name: 'obj2', foo: 2}),
-        { name: 'obj3', foo: 2},
-        EmberObject.create({ name: 'obj4', foo: 3})
+        { name: 'obj1', foo: 3 },
+        EmberObject.create({ name: 'obj2', foo: 2 }),
+        { name: 'obj3', foo: 2 },
+        EmberObject.create({ name: 'obj4', foo: 3 })
       ];
 
       obj = this.newObject(ary);
@@ -43854,10 +43855,10 @@ enifed("ember-runtime/tests/suites/enumerable/filter",
       var obj, ary;
 
       ary = [
-        { name: 'obj1', foo: 3},
-        EmberObject.create({ name: 'obj2', foo: null}),
-        { name: 'obj3', foo: null},
-        EmberObject.create({ name: 'obj4', foo: 3})
+        { name: 'obj1', foo: 3 },
+        EmberObject.create({ name: 'obj2', foo: null }),
+        { name: 'obj3', foo: null },
+        EmberObject.create({ name: 'obj4', foo: 3 })
       ];
 
       obj = this.newObject(ary);
@@ -43869,8 +43870,8 @@ enifed("ember-runtime/tests/suites/enumerable/filter",
       var obj, ary;
 
       ary = [
-        { name: 'obj1', foo: 3},
-        EmberObject.create({ name: 'obj2', foo: 2})
+        { name: 'obj1', foo: 3 },
+        EmberObject.create({ name: 'obj2', foo: 2 })
       ];
 
       obj = this.newObject(ary);
@@ -43882,12 +43883,12 @@ enifed("ember-runtime/tests/suites/enumerable/filter",
       var obj, ary;
 
       ary = [
-        { name: 'obj1', foo: 3},
-        EmberObject.create({ name: 'obj2', foo: 3}),
-        { name: 'obj3', foo: undefined},
-        EmberObject.create({ name: 'obj4', foo: undefined}),
-        { name: 'obj5'},
-        EmberObject.create({ name: 'obj6'})
+        { name: 'obj1', foo: 3 },
+        EmberObject.create({ name: 'obj2', foo: 3 }),
+        { name: 'obj3', foo: undefined },
+        EmberObject.create({ name: 'obj4', foo: undefined }),
+        { name: 'obj5' },
+        EmberObject.create({ name: 'obj6' })
       ];
 
       obj = this.newObject(ary);
@@ -43899,12 +43900,12 @@ enifed("ember-runtime/tests/suites/enumerable/filter",
       var obj, ary;
 
       ary = [
-        { name: 'obj1', foo: 3},
-        EmberObject.create({ name: 'obj2', foo: 3}),
-        { name: 'obj3', foo: undefined},
-        EmberObject.create({ name: 'obj4', foo: undefined}),
-        { name: 'obj5'},
-        EmberObject.create({ name: 'obj6'})
+        { name: 'obj1', foo: 3 },
+        EmberObject.create({ name: 'obj2', foo: 3 }),
+        { name: 'obj3', foo: undefined },
+        EmberObject.create({ name: 'obj4', foo: undefined }),
+        { name: 'obj5' },
+        EmberObject.create({ name: 'obj6' })
       ];
 
       obj = this.newObject(ary);
@@ -44520,12 +44521,12 @@ enifed("ember-runtime/tests/suites/enumerable/mapBy",
     suite.module('mapBy');
 
     suite.test('get value of each property', function() {
-      var obj = this.newObject([{a: 1},{a: 2}]);
+      var obj = this.newObject([{ a: 1 },{ a: 2 }]);
       equal(obj.mapBy('a').join(''), '12');
     });
 
     suite.test('should work also through getEach alias', function() {
-      var obj = this.newObject([{a: 1},{a: 2}]);
+      var obj = this.newObject([{ a: 1 },{ a: 2 }]);
       equal(obj.getEach('a').join(''), '12');
     });
 
@@ -44675,10 +44676,10 @@ enifed("ember-runtime/tests/suites/enumerable/reject",
       var obj, ary;
 
       ary = [
-        { name: 'obj1', foo: 3},
-        EmberObject.create({ name: 'obj2', foo: 2}),
-        { name: 'obj3', foo: 2},
-        EmberObject.create({ name: 'obj4', foo: 3})
+        { name: 'obj1', foo: 3 },
+        EmberObject.create({ name: 'obj2', foo: 2 }),
+        { name: 'obj3', foo: 2 },
+        EmberObject.create({ name: 'obj4', foo: 3 })
       ];
 
       obj = this.newObject(ary);
@@ -44690,10 +44691,10 @@ enifed("ember-runtime/tests/suites/enumerable/reject",
       var obj, ary;
 
       ary = [
-        { name: 'obj1', foo: 3},
-        EmberObject.create({ name: 'obj2', foo: null}),
-        { name: 'obj3', foo: null},
-        EmberObject.create({ name: 'obj4', foo: 3})
+        { name: 'obj1', foo: 3 },
+        EmberObject.create({ name: 'obj2', foo: null }),
+        { name: 'obj3', foo: null },
+        EmberObject.create({ name: 'obj4', foo: 3 })
       ];
 
       obj = this.newObject(ary);
@@ -44705,8 +44706,8 @@ enifed("ember-runtime/tests/suites/enumerable/reject",
       var obj, ary;
 
       ary = [
-        { name: 'obj1', foo: 3},
-        EmberObject.create({ name: 'obj2', foo: 2})
+        { name: 'obj1', foo: 3 },
+        EmberObject.create({ name: 'obj2', foo: 2 })
       ];
 
       obj = this.newObject(ary);
@@ -44718,12 +44719,12 @@ enifed("ember-runtime/tests/suites/enumerable/reject",
       var obj, ary;
 
       ary = [
-        { name: 'obj1', foo: 3},
-        EmberObject.create({ name: 'obj2', foo: 3}),
-        { name: 'obj3', foo: undefined},
-        EmberObject.create({ name: 'obj4', foo: undefined}),
-        { name: 'obj5'},
-        EmberObject.create({ name: 'obj6'})
+        { name: 'obj1', foo: 3 },
+        EmberObject.create({ name: 'obj2', foo: 3 }),
+        { name: 'obj3', foo: undefined },
+        EmberObject.create({ name: 'obj4', foo: undefined }),
+        { name: 'obj5' },
+        EmberObject.create({ name: 'obj6' })
       ];
 
       obj = this.newObject(ary);
@@ -44735,12 +44736,12 @@ enifed("ember-runtime/tests/suites/enumerable/reject",
       var obj, ary;
 
       ary = [
-        { name: 'obj1', foo: 3},
-        EmberObject.create({ name: 'obj2', foo: 3}),
-        { name: 'obj3', foo: undefined},
-        EmberObject.create({ name: 'obj4', foo: undefined}),
-        { name: 'obj5'},
-        EmberObject.create({ name: 'obj6'}),
+        { name: 'obj1', foo: 3 },
+        EmberObject.create({ name: 'obj2', foo: 3 }),
+        { name: 'obj3', foo: undefined },
+        EmberObject.create({ name: 'obj4', foo: undefined }),
+        { name: 'obj5' },
+        EmberObject.create({ name: 'obj6' }),
         { name: 'obj7', foo: null },
         EmberObject.create({ name: 'obj8', foo: null }),
         { name: 'obj9', foo: false },
@@ -44790,7 +44791,7 @@ enifed("ember-runtime/tests/suites/enumerable/sortBy",
     suite.module('sortBy');
 
     suite.test('sort by value of property', function() {
-      var obj = this.newObject([{a: 2},{a: 1}]);
+      var obj = this.newObject([{ a: 2 },{ a: 1 }]);
       var sorted = obj.sortBy('a');
 
       equal(get(sorted[0], 'a'), 1);
@@ -44798,7 +44799,7 @@ enifed("ember-runtime/tests/suites/enumerable/sortBy",
     });
 
     suite.test('supports multiple propertyNames', function() {
-      var obj = this.newObject([{a: 1, b: 2},{a: 1, b: 1}]);
+      var obj = this.newObject([{ a: 1, b: 2 }, { a: 1, b: 1 }]);
       var sorted = obj.sortBy('a', 'b');
 
       equal(get(sorted[0], 'b'), 1);
@@ -48314,7 +48315,7 @@ enifed("ember-runtime/tests/system/object/create_test",
     QUnit.module('EmberObject.create', moduleOptions);
 
     test("simple properties are set", function() {
-      var o = EmberObject.create({ohai: 'there'});
+      var o = EmberObject.create({ ohai: 'there' });
       equal(o.get('ohai'), 'there');
     });
 
@@ -48326,7 +48327,7 @@ enifed("ember-runtime/tests/system/object/create_test",
         })
       });
 
-      var o = MyClass.create({foo: 'bar'});
+      var o = MyClass.create({ foo: 'bar' });
       equal(o.get('foo'), 'bar');
     });
 
@@ -48349,7 +48350,7 @@ enifed("ember-runtime/tests/system/object/create_test",
         }
       });
 
-      MyClass.create({foo: 'bar'});
+      MyClass.create({ foo: 'bar' });
       ok(setUnknownPropertyCalled, 'setUnknownProperty was called');
     });
 
@@ -49885,15 +49886,15 @@ enifed("ember-runtime/tests/system/object_proxy_test",
       equal(get(content, 'lastName'), 'Huda', 'content should have new value from set on proxy');
       equal(get(proxy, 'lastName'), 'Huda', 'proxy should have new value from set on proxy');
 
-      set(proxy, 'content', {firstName: 'Yehuda', lastName: 'Katz'});
+      set(proxy, 'content', { firstName: 'Yehuda', lastName: 'Katz' });
 
       equal(get(proxy, 'firstName'), 'Yehuda', 'proxy should reflect updated content');
       equal(get(proxy, 'lastName'), 'Katz', 'proxy should reflect updated content');
     });
 
     testBoth("should work with watched properties", function(get, set) {
-      var content1 = {firstName: 'Tom', lastName: 'Dale'};
-      var content2 = {firstName: 'Yehuda', lastName: 'Katz'};
+      var content1 = { firstName: 'Tom', lastName: 'Dale' };
+      var content2 = { firstName: 'Yehuda', lastName: 'Katz' };
       var count = 0;
       var Proxy, proxy, last;
 
@@ -49953,8 +49954,8 @@ enifed("ember-runtime/tests/system/object_proxy_test",
     });
 
     test("set and get should work with paths", function () {
-      var content = {foo: {bar: 'baz'}};
-      var proxy = ObjectProxy.create({content: content});
+      var content = { foo: { bar: 'baz' } };
+      var proxy = ObjectProxy.create({ content: content });
       var count = 0;
 
       proxy.set('foo.bar', 'hello');
@@ -49973,8 +49974,8 @@ enifed("ember-runtime/tests/system/object_proxy_test",
     });
 
     testBoth("should transition between watched and unwatched strategies", function(get, set) {
-      var content = {foo: 'foo'};
-      var proxy = ObjectProxy.create({content: content});
+      var content = { foo: 'foo' };
+      var proxy = ObjectProxy.create({ content: content });
       var count = 0;
 
       function observer() {
@@ -50674,10 +50675,10 @@ enifed("ember-runtime/tests/system/string/fmt_string_test",
       }
     });
 
-    test("'data: %@'.fmt({id: 3}) => 'data: {id: 3}'", function() {
-      equal(fmt('data: %@', [{id: 3}]), 'data: {id: 3}');
+    test("'data: %@'.fmt({ id: 3 }) => 'data: {id: 3}'", function() {
+      equal(fmt('data: %@', [{ id: 3 }]), 'data: {id: 3}');
       if (Ember.EXTEND_PROTOTYPES) {
-        equal('data: %@'.fmt({id: 3}), 'data: {id: 3}');
+        equal('data: %@'.fmt({ id: 3 }), 'data: {id: 3}');
       }
     });
 
@@ -52257,7 +52258,7 @@ enifed("ember-testing/tests/adapters/qunit_test",
     });
 
     test("exception causes a failing assertion", function() {
-      var error = {err: 'hai'};
+      var error = { err: 'hai' };
       var originalOk = window.ok;
       try {
         window.ok = function(val, msg) {
@@ -52694,7 +52695,7 @@ enifed("ember-testing/tests/helpers_test",
     });
 
     test("Ember.Application#removeTestHelpers resets the helperContainer's original values", function() {
-      var helpers = {visit: 'snazzleflabber'};
+      var helpers = { visit: 'snazzleflabber' };
 
       run(function() {
         App = EmberApplication.create();
@@ -53114,7 +53115,7 @@ enifed("ember-testing/tests/helpers_test",
 
     test("pendingAjaxRequests is maintained for ajaxSend and ajaxComplete events", function() {
       equal(Test.pendingAjaxRequests, 0);
-      var xhr = {some: 'xhr'};
+      var xhr = { some: 'xhr' };
       jQuery(document).trigger('ajaxSend', xhr);
       equal(Test.pendingAjaxRequests, 1, 'Ember.Test.pendingAjaxRequests was incremented');
       jQuery(document).trigger('ajaxComplete', xhr);
@@ -53123,7 +53124,7 @@ enifed("ember-testing/tests/helpers_test",
 
     test("pendingAjaxRequests is ignores ajaxComplete events from past setupForTesting calls", function() {
       equal(Test.pendingAjaxRequests, 0);
-      var xhr = {some: 'xhr'};
+      var xhr = { some: 'xhr' };
       jQuery(document).trigger('ajaxSend', xhr);
       equal(Test.pendingAjaxRequests, 1, 'Ember.Test.pendingAjaxRequests was incremented');
 
@@ -53132,7 +53133,7 @@ enifed("ember-testing/tests/helpers_test",
       });
       equal(Test.pendingAjaxRequests, 0, 'Ember.Test.pendingAjaxRequests was reset');
 
-      var altXhr = {some: 'more xhr'};
+      var altXhr = { some: 'more xhr' };
       jQuery(document).trigger('ajaxSend', altXhr);
       equal(Test.pendingAjaxRequests, 1, 'Ember.Test.pendingAjaxRequests was incremented');
       jQuery(document).trigger('ajaxComplete', xhr);
@@ -53190,7 +53191,7 @@ enifed("ember-testing/tests/helpers_test",
                 // should be enough.
                 setTimeout(function() {
                   run(function() {
-                    resolve(EmberObject.create({firstName: 'Tom'}));
+                    resolve(EmberObject.create({ firstName: 'Tom' }));
                   });
                 }, 20);
               });
@@ -53399,8 +53400,8 @@ enifed("ember-testing/tests/integration_test",
     test("template is bound to array of 2 people", function() {
       App.Person.find = function() {
         var people = Ember.A();
-        var first = App.Person.create({firstName: "x"});
-        var last = App.Person.create({firstName: "y"});
+        var first = App.Person.create({ firstName: "x" });
+        var last = App.Person.create({ firstName: "y" });
         run(people, people.pushObject, first);
         run(people, people.pushObject, last);
         return people;
@@ -55871,7 +55872,7 @@ enifed("ember-views/tests/views/collection_test",
     test("a array_proxy that backs an sorted array_controller that backs a collection view functions properly", function() {
 
       var array = Ember.A([{ name: "Other Katz" }]);
-      var arrayProxy = ArrayProxy.create({content: array});
+      var arrayProxy = ArrayProxy.create({ content: array });
 
       var sortedController = ArrayController.create({
         content: arrayProxy,
@@ -56282,7 +56283,7 @@ enifed("ember-views/tests/views/component_test",
     test("Calling sendAction on a component with a context", function() {
       set(component, 'playing', "didStartPlaying");
 
-      var testContext = {song: 'She Broke My Ember'};
+      var testContext = { song: 'She Broke My Ember' };
 
       component.sendAction('playing', testContext);
 
@@ -56292,8 +56293,8 @@ enifed("ember-views/tests/views/component_test",
     test("Calling sendAction on a component with multiple parameters", function() {
       set(component, 'playing', "didStartPlaying");
 
-      var firstContext  = {song: 'She Broke My Ember'};
-      var secondContext = {song: 'My Achey Breaky Ember'};
+      var firstContext  = { song: 'She Broke My Ember' };
+      var secondContext = { song: 'My Achey Breaky Ember' };
 
       component.sendAction('playing', firstContext, secondContext);
 
@@ -57003,8 +57004,8 @@ enifed("ember-views/tests/views/container_view_test",
           buffer.push(this.label);
         }
       });
-      var one = Child.create({label: 'one'});
-      var two = Child.create({label: 'two'});
+      var one = Child.create({ label: 'one' });
+      var two = Child.create({ label: 'two' });
 
       run(function() {
         container.pushObject(one);
@@ -57031,8 +57032,8 @@ enifed("ember-views/tests/views/container_view_test",
           buffer.push(this.label);
         }
       });
-      var one = Child.create({label: 'one'});
-      var two = Child.create({label: 'two'});
+      var one = Child.create({ label: 'one' });
+      var two = Child.create({ label: 'two' });
 
       run(function() {
         container.pushObject(one);
@@ -58223,10 +58224,10 @@ enifed("ember-views/tests/views/select_test",
     test("should be able to get the current selection's value", function() {
       run(function() {
         select.set('content', Ember.A([
-          {label: 'Yehuda Katz', value: 'wycats'},
-          {label: 'Tom Dale', value: 'tomdale'},
-          {label: 'Peter Wagenet', value: 'wagenet'},
-          {label: 'Erik Bryn', value: 'ebryn'}
+          { label: 'Yehuda Katz', value: 'wycats' },
+          { label: 'Tom Dale', value: 'tomdale' },
+          { label: 'Peter Wagenet', value: 'wagenet' },
+          { label: 'Erik Bryn', value: 'ebryn' }
         ]));
         select.set('optionLabelPath', 'content.label');
         select.set('optionValuePath', 'content.value');
@@ -58238,13 +58239,13 @@ enifed("ember-views/tests/views/select_test",
     });
 
     test("should be able to set the current selection by value", function() {
-      var ebryn = {label: 'Erik Bryn', value: 'ebryn'};
+      var ebryn = { label: 'Erik Bryn', value: 'ebryn' };
 
       run(function() {
         select.set('content', Ember.A([
-          {label: 'Yehuda Katz', value: 'wycats'},
-          {label: 'Tom Dale', value: 'tomdale'},
-          {label: 'Peter Wagenet', value: 'wagenet'},
+          { label: 'Yehuda Katz', value: 'wycats' },
+          { label: 'Tom Dale', value: 'tomdale' },
+          { label: 'Peter Wagenet', value: 'wagenet' },
           ebryn
         ]));
         select.set('optionLabelPath', 'content.label');
@@ -60890,7 +60891,7 @@ enifed("ember-views/tests/views/view/destroy_test",
     test("should teardown viewName on parentView when childView is destroyed", function() {
       var viewName = "someChildView";
       var parentView = EmberView.create();
-      var childView = parentView.createChildView(EmberView, {viewName: viewName});
+      var childView = parentView.createChildView(EmberView, { viewName: viewName });
 
       equal(get(parentView, viewName), childView, "Precond - child view was registered on parent");
 
@@ -61572,7 +61573,7 @@ enifed("ember-views/tests/views/view/layout_test",
     test("Layout views return throw if their layout cannot be found", function() {
       view = EmberView.create({
         layoutName: 'cantBeFound',
-        container: { lookup: function() { }}
+        container: { lookup: function() { } }
       });
 
       expectAssertion(function() {
@@ -62625,7 +62626,7 @@ enifed("ember-views/tests/views/view/template_test",
     test("Template views return throw if their template cannot be found", function() {
       view = EmberView.create({
         templateName: 'cantBeFound',
-        container: { lookup: function() { }}
+        container: { lookup: function() { } }
       });
 
       expectAssertion(function() {
@@ -65113,7 +65114,7 @@ enifed("ember/tests/helpers/link_to_test",
 
       App.FilterController = Ember.Controller.extend({
         filter: "unpopular",
-        repo: Ember.Object.create({owner: 'ember', name: 'ember.js'}),
+        repo: Ember.Object.create({ owner: 'ember', name: 'ember.js' }),
         post_id: 123
       });
       Ember.TEMPLATES.filter = compile('<p>{{filter}}</p>{{#link-to "filter" "unpopular" id="link"}}Unpopular{{/link-to}}{{#link-to "filter" filter id="path-link"}}Unpopular{{/link-to}}{{#link-to "post" post_id id="post-path-link"}}Post{{/link-to}}{{#link-to "post" 123 id="post-number-link"}}Post{{/link-to}}{{#link-to "repo" repo id="repo-object-link"}}Repo{{/link-to}}');
@@ -65345,8 +65346,8 @@ enifed("ember/tests/helpers/link_to_test",
         this.route('post', { path: '/posts/:post_id' });
       });
 
-      var post = Ember.Object.create({id: '1'});
-      var secondPost = Ember.Object.create({id: '2'});
+      var post = Ember.Object.create({ id: '1' });
+      var secondPost = Ember.Object.create({ id: '2' });
 
       Ember.TEMPLATES.index = compile('{{#link-to "post" post id="post"}}post{{/link-to}}');
 
@@ -65375,8 +65376,8 @@ enifed("ember/tests/helpers/link_to_test",
         this.route('post', { path: '/posts/:post_id' });
       });
 
-      var post = Ember.Object.create({id: '1'});
-      var secondPost = Ember.Object.create({id: '2'});
+      var post = Ember.Object.create({ id: '1' });
+      var secondPost = Ember.Object.create({ id: '2' });
 
       Ember.TEMPLATES = {
         index: compile(' '),
@@ -65702,11 +65703,11 @@ enifed("ember/tests/helpers/link_to_test",
       });
 
       App.PostController = Ember.Controller.extend({
-        model: {id: 1}
+        model: { id: 1 }
       });
 
       Router.map(function() {
-        this.route("post", {path: 'post/:post_id'});
+        this.route("post", { path: 'post/:post_id' });
       });
 
       bootApplication();
@@ -66694,7 +66695,7 @@ enifed("ember/tests/routing/basic_test",
       });
 
       Router.map(function() {
-        this.route("camelot", {path: "/camelot"});
+        this.route("camelot", { path: "/camelot" });
       });
 
       App.HomeRoute = Ember.Route.extend({
@@ -66820,7 +66821,7 @@ enifed("ember/tests/routing/basic_test",
 
       App.HomepageRoute = Ember.Route.extend({
         renderTemplate: function() {
-          this.render({controller: 'home'});
+          this.render({ controller: 'home' });
         }
       });
 
@@ -66859,13 +66860,13 @@ enifed("ember/tests/routing/basic_test",
       App.BioController = Ember.ObjectController.extend();
 
       Router.map(function() {
-        this.route('home', { path: '/'});
+        this.route('home', { path: '/' });
       });
 
       App.HomeRoute = Ember.Route.extend({
         renderTemplate: function() {
           this.render('bio', {
-            model: {name: 'emberjs'}
+            model: { name: 'emberjs' }
           });
         }
       });
@@ -66906,7 +66907,7 @@ enifed("ember/tests/routing/basic_test",
 
       App.HomeRoute = Ember.Route.extend({
         renderTemplate: function() {
-          this.render({view: 'homePage'});
+          this.render({ view: 'homePage' });
         }
       });
 
@@ -68132,7 +68133,7 @@ enifed("ember/tests/routing/basic_test",
         this.resource("the_post", { path: "/posts/:post_id" }, function() {
           this.route("comments");
 
-          this.resource("shares", { path: "/shares/:share_id"}, function() {
+          this.resource("shares", { path: "/shares/:share_id" }, function() {
             this.route("share");
           });
         });
@@ -68621,7 +68622,7 @@ enifed("ember/tests/routing/basic_test",
 
       App.PostRoute = Ember.Route.extend({
         model: function(params) {
-          return {id: params.postId};
+          return { id: params.postId };
         },
 
         actions: {
@@ -68652,7 +68653,7 @@ enifed("ember/tests/routing/basic_test",
       });
 
       Ember.run(function() {
-        router.send('showPost', {id: '2'});
+        router.send('showPost', { id: '2' });
       });
 
       Ember.run(function() {
@@ -68902,7 +68903,7 @@ enifed("ember/tests/routing/basic_test",
 
       App.PageRoute = Ember.Route.extend({
         model: function(params) {
-          return Ember.Object.create({name: params.name});
+          return Ember.Object.create({ name: params.name });
         }
       });
 
@@ -68930,7 +68931,7 @@ enifed("ember/tests/routing/basic_test",
       equal(insertionCount, 1, "view should have inserted only once");
 
       Ember.run(function() {
-        router.transitionTo('page', Ember.Object.create({name: 'third'}));
+        router.transitionTo('page', Ember.Object.create({ name: 'third' }));
       });
 
       equal(Ember.$('p', '#qunit-fixture').text(), "third");
@@ -69154,7 +69155,7 @@ enifed("ember/tests/routing/basic_test",
             });
           },
           hideModal: function() {
-            this.disconnectOutlet({outlet: 'modal', parentView: 'application'});
+            this.disconnectOutlet({ outlet: 'modal', parentView: 'application' });
           }
         }
       });
@@ -69167,7 +69168,7 @@ enifed("ember/tests/routing/basic_test",
             });
           },
           hideExtra: function() {
-            this.disconnectOutlet({parentView: 'posts/index'});
+            this.disconnectOutlet({ parentView: 'posts/index' });
           }
         }
       });
@@ -69270,13 +69271,13 @@ enifed("ember/tests/routing/basic_test",
       App.PostsRoute = Ember.Route.extend({
         actions: {
           hideSelf: function() {
-            this.disconnectOutlet({outlet: 'main', parentView: 'application'});
+            this.disconnectOutlet({ outlet: 'main', parentView: 'application' });
           },
           showModal: function() {
-            this.render('modal', {into: 'posts', outlet: 'modal'});
+            this.render('modal', { into: 'posts', outlet: 'modal' });
           },
           hideModal: function() {
-            this.disconnectOutlet({outlet: 'modal', parentView: 'posts'});
+            this.disconnectOutlet({ outlet: 'modal', parentView: 'posts' });
           }
         }
       });
@@ -69699,7 +69700,7 @@ enifed("ember/tests/routing/basic_test",
 
       App.YippieRoute = Ember.Route.extend({
         model: function() {
-          return Ember.RSVP.reject({message: rejectedMessage, stack: rejectedStack});
+          return Ember.RSVP.reject({ message: rejectedMessage, stack: rejectedStack });
         }
       });
 
@@ -69788,7 +69789,7 @@ enifed("ember/tests/routing/basic_test",
 
       App.YondoRoute = Ember.Route.extend({
         redirect: function() {
-          this.transitionTo('stink-bomb', {something: 'goes boom'});
+          this.transitionTo('stink-bomb', { something: 'goes boom' });
         }
       });
 
@@ -69814,7 +69815,7 @@ enifed("ember/tests/routing/basic_test",
 
       App.YondoRoute = Ember.Route.extend({
         redirect: function() {
-          this.transitionTo('stink-bomb', {something: 'goes boom'});
+          this.transitionTo('stink-bomb', { something: 'goes boom' });
         }
       });
 
@@ -69906,7 +69907,7 @@ enifed("ember/tests/routing/basic_test",
 
     test("Exception during initialization of initial route is not swallowed", function() {
       Router.map(function() {
-        this.route('boom', {path: '/'});
+        this.route('boom', { path: '/' });
       });
       App.BoomRoute = Ember.Route.extend({
         init: function() {
@@ -69920,7 +69921,7 @@ enifed("ember/tests/routing/basic_test",
 
     test("Exception during load of initial route is not swallowed", function() {
       Router.map(function() {
-        this.route('boom', {path: '/'});
+        this.route('boom', { path: '/' });
       });
       var lookup = container.lookup;
       container.lookup = function() {
@@ -70480,7 +70481,7 @@ enifed("ember/tests/routing/query_params_test",
       App.IndexRoute = Ember.Route.extend({
         queryParams: Ember.Object.create({
           unknownProperty: function(keyName) {
-            return {refreshModel: true};
+            return { refreshModel: true };
           }
         }),
         model: function(params) {
