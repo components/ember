@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.2+pre.51ccc627
+ * @version   1.9.2+pre.7666db94
  */
 
 (function() {
@@ -8422,7 +8422,6 @@ enifed("ember-handlebars/helpers/each",
 
       Ember.deprecate('Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.', keywordName);
 
-      options.hash.emptyViewClass = Ember._MetamorphView;
       options.hash.dataSourceBinding = path;
       options.hashTypes.dataSourceBinding = 'STRING';
       options.helperName = options.helperName || helperName;
@@ -13143,7 +13142,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.2+pre.51ccc627
+      @version 1.9.2+pre.7666db94
     */
 
     if ('undefined' === typeof Ember) {
@@ -13170,10 +13169,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.2+pre.51ccc627'
+      @default '1.9.2+pre.7666db94'
       @static
     */
-    Ember.VERSION = '1.9.2+pre.51ccc627';
+    Ember.VERSION = '1.9.2+pre.7666db94';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
