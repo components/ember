@@ -7327,7 +7327,7 @@ enifed("ember-htmlbars/tests/helpers/each_test",
     var compile = __dependency15__["default"];
 
     var people, view, container;
-    var template, templateMyView, MyView;
+    var template, templateMyView, MyView, MyEmptyView, templateMyEmptyView;
 
     // This function lets us write {{#EACH|people|p}} {{p}} {{/each}}
     // and generate:
@@ -7404,6 +7404,11 @@ enifed("ember-htmlbars/tests/helpers/each_test",
         templateMyView = templateFor("{{name}}");
         lookup.MyView = MyView = EmberView.extend({
           template: templateMyView
+        });
+
+        templateMyEmptyView = templateFor("I'm empty");
+        lookup.MyEmptyView = MyEmptyView = EmberView.extend({
+          template: templateMyEmptyView
         });
 
         expectDeprecation(function() {
@@ -7803,9 +7808,7 @@ enifed("ember-htmlbars/tests/helpers/each_test",
       view = EmberView.create({
         template: templateFor('{{each view.people itemView="anItemView"}}'),
         people: people,
-        controller: {
-          container: container
-        }
+        container: container
       });
 
       container.register('view:anItemView', itemView);
@@ -7825,9 +7828,7 @@ enifed("ember-htmlbars/tests/helpers/each_test",
       view = EmberView.create({
         template: templateFor('{{each view.people itemView="an-item-view"}}'),
         people: people,
-        controller: {
-          container: container
-        }
+        container: container
       });
 
       container.register('view:an-item-view', itemView);
@@ -7912,6 +7913,123 @@ enifed("ember-htmlbars/tests/helpers/each_test",
 
       assertText(view, "Steve HoltAnnabelle");
 
+    });
+
+    test("it supports {{emptyView=}}", function() {
+      var emptyView = EmberView.extend({
+        template: templateFor('emptyView:sad panda')
+      });
+
+      runDestroy(view);
+
+      view = EmberView.create({
+        template: templateFor('{{each view.people emptyView="anEmptyView"}}'),
+        people: A(),
+        container: container
+      });
+
+      container.register('view:anEmptyView', emptyView);
+
+      runAppend(view);
+
+      assertText(view, "emptyView:sad panda");
+    });
+
+    test("it defers all normalization of emptyView names to the resolver", function() {
+      var emptyView = EmberView.extend({
+        template: templateFor('emptyView:sad panda')
+      });
+
+      runDestroy(view);
+
+      view = EmberView.create({
+        template: templateFor('{{each view.people emptyView="an-empty-view"}}'),
+        people: A(),
+        container: container
+      });
+
+      container.register('view:an-empty-view', emptyView);
+
+      container.resolve = function(fullname) {
+        equal(fullname, "view:an-empty-view", "leaves fullname untouched");
+        return Container.prototype.resolve.call(this, fullname);
+      };
+
+      runAppend(view);
+    });
+
+    test("it supports {{emptyViewClass=}} with global (DEPRECATED)", function() {
+      runDestroy(view);
+
+      view = EmberView.create({
+        template: templateFor('{{each view.people emptyViewClass=MyEmptyView}}'),
+        people: A()
+      });
+
+      var deprecation = /Resolved the view "MyEmptyView" on the global context/;
+
+      
+        deprecation = /Global lookup of MyEmptyView from a Handlebars template is deprecated/;
+      
+
+      expectDeprecation(function() {
+        runAppend(view);
+      }, deprecation);
+
+      assertText(view, "I'm empty");
+    });
+
+    test("it supports {{emptyViewClass=}} via container", function() {
+      runDestroy(view);
+
+      view = EmberView.create({
+        container: {
+          lookupFactory: function(name) {
+            equal(name, 'view:my-empty-view');
+            return MyEmptyView;
+          }
+        },
+        template: templateFor('{{each view.people emptyViewClass="my-empty-view"}}'),
+        people: A()
+      });
+
+      runAppend(view);
+
+      assertText(view, "I'm empty");
+    });
+
+    test("it supports {{emptyViewClass=}} with tagName (DEPRECATED)", function() {
+      runDestroy(view);
+
+      view = EmberView.create({
+        template: templateFor('{{each view.people emptyViewClass=MyEmptyView tagName="b"}}'),
+        people: A()
+      });
+
+      expectDeprecation(/Supplying a tagName to Metamorph views is unreliable and is deprecated./);
+
+      runAppend(view);
+
+      equal(view.$('b').length, 1, 'rendered b tag');
+      equal(view.$('b').text(), "I'm empty");
+    });
+
+    test("it supports {{emptyViewClass=}} with in format", function() {
+      runDestroy(view);
+
+      view = EmberView.create({
+        container: {
+          lookupFactory: function(name) {
+            return MyEmptyView;
+          }
+        },
+        template: templateFor('{{each person in view.people emptyViewClass="myEmptyView"}}'),
+        people: A()
+      });
+
+      runAppend(view);
+
+      assertText(view, "I'm empty");
     });
 
     test("it supports {{else}}", function() {

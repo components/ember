@@ -6044,7 +6044,6 @@ enifed("ember-htmlbars/helpers/each",
       }
 
       
-      hash.emptyViewClass = Ember._MetamorphView;
       hash.dataSource = path;
       options.helperName = options.helperName || helperName;
 
