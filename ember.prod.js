@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.2f59937c
+ * @version   1.11.0-beta.1+canary.434db39a
  */
 
 (function() {
@@ -9046,7 +9046,7 @@ enifed("ember-metal/alias",
 
     function AliasedProperty(altKey) {
       this.altKey = altKey;
-      this._dependentKeys = [ altKey ];
+      this._dependentKeys = [altKey];
     }
 
     __exports__.AliasedProperty = AliasedProperty;AliasedProperty.prototype = create(Descriptor.prototype);
@@ -11537,7 +11537,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.2f59937c
+      @version 1.11.0-beta.1+canary.434db39a
     */
 
     if ('undefined' === typeof Ember) {
@@ -11564,10 +11564,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.2f59937c'
+      @default '1.11.0-beta.1+canary.434db39a'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.2f59937c';
+    Ember.VERSION = '1.11.0-beta.1+canary.434db39a';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -16083,7 +16083,7 @@ enifed("ember-metal/property_get",
         throw new EmberError('Path cannot be empty');
       }
 
-      return [ target, path ];
+      return [target, path];
     }
 
     function _getPath(root, path) {
@@ -36387,7 +36387,7 @@ enifed("ember-template-compiler/plugins",
      @property helpers
     */
     var plugins = {
-      ast: [ ]
+      ast: []
     };
 
     /**
@@ -36524,7 +36524,7 @@ enifed("ember-template-compiler/plugins/transform-with-as-to-hash",
         if (pluginContext.validate(node)) {
           var removedParams = node.sexpr.params.splice(1, 2);
           var keyword = removedParams[1].original;
-          node.program.blockParams = [ keyword ];
+          node.program.blockParams = [keyword];
         }
       });
 
@@ -44157,7 +44157,7 @@ enifed("ember-views/views/with_view",
           this._generatedController = controller;
 
           if (this.preserveContext) {
-            this._blockArguments = [ controller ];
+            this._blockArguments = [controller];
             this.withValue.subscribe(function(modelStream) {
               set(controller, 'model', modelStream.value());
             });
@@ -44168,7 +44168,7 @@ enifed("ember-views/views/with_view",
           set(controller, 'model', this.withValue.value());
         } else {
           if (this.preserveContext) {
-            this._blockArguments = [ this.withValue ];
+            this._blockArguments = [this.withValue];
           }
         }
       },
