@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.3f5457ae
+ * @version   1.11.0-beta.1+canary.5f2835f8
  */
 
 (function() {
@@ -33469,41 +33469,6 @@ enifed("ember-runtime/system/tracked_array.jshint",
     module('JSHint - ember-runtime/system');
     test('ember-runtime/system/tracked_array.js should pass jshint', function() { 
       ok(true, 'ember-runtime/system/tracked_array.js should pass jshint.'); 
-    });
-  });
-enifed("ember-runtime/tests/computed/compose_computed_test",
-  ["ember-metal/core","ember-metal/observer","ember-metal/computed","ember-runtime/computed/reduce_computed_macros","ember-metal/run_loop","ember-metal/properties","ember-runtime/compare","ember-metal/tests/props_helper","ember-runtime/system/object"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
-    "use strict";
-    var Ember = __dependency1__["default"];
-    var addObserver = __dependency2__.addObserver;
-    var computed = __dependency3__.computed;
-    var mapBy = __dependency4__.mapBy;
-    var union = __dependency4__.union;
-    var sort = __dependency4__.sort;
-    var run = __dependency5__["default"];
-    var defineProperty = __dependency6__.defineProperty;
-    var compare = __dependency7__["default"];
-    var testBoth = __dependency8__.testBoth;
-    var EmberObject = __dependency9__["default"];
-
-      });
-enifed("ember-runtime/tests/computed/compose_computed_test.jscs-test",
-  [],
-  function() {
-    "use strict";
-    module('JSCS - ember-runtime/tests/computed');
-    test('ember-runtime/tests/computed/compose_computed_test.js should pass jscs', function() {
-      ok(true, 'ember-runtime/tests/computed/compose_computed_test.js should pass jscs.');
-    });
-  });
-enifed("ember-runtime/tests/computed/compose_computed_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-runtime/tests/computed');
-    test('ember-runtime/tests/computed/compose_computed_test.js should pass jshint', function() { 
-      ok(true, 'ember-runtime/tests/computed/compose_computed_test.js should pass jshint.'); 
     });
   });
 enifed("ember-runtime/tests/computed/computed_macros_test",
