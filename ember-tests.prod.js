@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.3e98733d
+ * @version   1.11.0-beta.1+canary.72415161
  */
 
 (function() {
@@ -5046,7 +5046,7 @@ enifed("ember-htmlbars/tests/attr_nodes/boolean_test",
       run(function() { view.appendTo('#qunit-fixture'); });
     }
 
-    if (Ember.FEATURES.isEnabled('ember-htmlbars-attribute-syntax')) {
+    
     // jscs:disable validateIndentation
 
     QUnit.module("ember-htmlbars: boolean attribute", {
@@ -5137,7 +5137,7 @@ enifed("ember-htmlbars/tests/attr_nodes/boolean_test",
 
 
     // jscs:enable validateIndentation
-    }
+    
   });
 enifed("ember-htmlbars/tests/attr_nodes/boolean_test.jscs-test",
   [],
@@ -5177,7 +5177,7 @@ enifed("ember-htmlbars/tests/attr_nodes/class_test",
       isInlineIfEnabled = true;
     
 
-    if (Ember.FEATURES.isEnabled('ember-htmlbars-attribute-syntax')) {
+    
     // jscs:disable validateIndentation
 
     QUnit.module("ember-htmlbars: class attribute", {
@@ -5317,7 +5317,7 @@ enifed("ember-htmlbars/tests/attr_nodes/class_test",
     });
 
     // jscs:enable validateIndentation
-    }
+    
   });
 enifed("ember-htmlbars/tests/attr_nodes/class_test.jscs-test",
   [],
@@ -5353,7 +5353,7 @@ enifed("ember-htmlbars/tests/attr_nodes/data_test",
     var view, originalSetAttribute, setAttributeCalls;
     var dom = defaultEnv.dom;
 
-    if (Ember.FEATURES.isEnabled('ember-htmlbars-attribute-syntax')) {
+    
 
       QUnit.module("ember-htmlbars: data attribute", {
         teardown: function() {
@@ -5597,7 +5597,7 @@ enifed("ember-htmlbars/tests/attr_nodes/data_test",
 
         deepEqual(setAttributeCalls, expected);
       });
-    }
+    
   });
 enifed("ember-htmlbars/tests/attr_nodes/data_test.jscs-test",
   [],
@@ -5632,7 +5632,7 @@ enifed("ember-htmlbars/tests/attr_nodes/href_test",
       run(function() { view.appendTo('#qunit-fixture'); });
     }
 
-    if (Ember.FEATURES.isEnabled('ember-htmlbars-attribute-syntax')) {
+    
     // jscs:disable validateIndentation
 
     QUnit.module("ember-htmlbars: href attribute", {
@@ -5655,7 +5655,7 @@ enifed("ember-htmlbars/tests/attr_nodes/href_test",
     });
 
     // jscs:enable validateIndentation
-    }
+    
   });
 enifed("ember-htmlbars/tests/attr_nodes/href_test.jscs-test",
   [],
@@ -5697,7 +5697,7 @@ enifed("ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test",
       return input.maxLength === 0;
     }
 
-    if (Ember.FEATURES.isEnabled('ember-htmlbars-attribute-syntax')) {
+    
     // jscs:disable validateIndentation
 
     QUnit.module("ember-htmlbars: nonmatching reflection", {
@@ -5747,7 +5747,7 @@ enifed("ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test",
     });
 
     // jscs:enable validateIndentation
-    }
+    
   });
 enifed("ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test.jscs-test",
   [],
@@ -5787,7 +5787,7 @@ enifed("ember-htmlbars/tests/attr_nodes/sanitized_test",
       }
     });
 
-    if (Ember.FEATURES.isEnabled('ember-htmlbars-attribute-syntax')) {
+    
     // jscs:disable validateIndentation
 
     var badTags = [
@@ -5875,7 +5875,7 @@ enifed("ember-htmlbars/tests/attr_nodes/sanitized_test",
     }
 
     // jscs:enable validateIndentation
-    }
+    
   });
 enifed("ember-htmlbars/tests/attr_nodes/sanitized_test.jscs-test",
   [],
@@ -5910,7 +5910,7 @@ enifed("ember-htmlbars/tests/attr_nodes/svg_test",
       run(function() { view.appendTo('#qunit-fixture'); });
     }
 
-    if (Ember.FEATURES.isEnabled('ember-htmlbars-attribute-syntax')) {
+    
     // jscs:disable validateIndentation
 
     QUnit.module("ember-htmlbars: svg attribute", {
@@ -5977,7 +5977,7 @@ enifed("ember-htmlbars/tests/attr_nodes/svg_test",
     });
 
     // jscs:enable validateIndentation
-    }
+    
   });
 enifed("ember-htmlbars/tests/attr_nodes/svg_test.jscs-test",
   [],
@@ -6012,7 +6012,7 @@ enifed("ember-htmlbars/tests/attr_nodes/value_test",
       run(function() { view.appendTo('#qunit-fixture'); });
     }
 
-    if (Ember.FEATURES.isEnabled('ember-htmlbars-attribute-syntax')) {
+    
     // jscs:disable validateIndentation
 
     QUnit.module("ember-htmlbars: value attribute", {
@@ -6050,7 +6050,7 @@ enifed("ember-htmlbars/tests/attr_nodes/value_test",
     });
 
     // jscs:enable validateIndentation
-    }
+    
   });
 enifed("ember-htmlbars/tests/attr_nodes/value_test.jscs-test",
   [],

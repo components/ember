@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.3e98733d
+ * @version   1.11.0-beta.1+canary.72415161
  */
 
 (function() {
@@ -7431,9 +7431,9 @@ enifed("ember-htmlbars/hooks/attribute",
 
     var boundAttributesEnabled = false;
 
-    if (Ember.FEATURES.isEnabled('ember-htmlbars-attribute-syntax')) {
+    
       boundAttributesEnabled = true;
-    }
+    
 
     __exports__["default"] = function attribute(env, morph, element, attrName, attrValue) {
       if (boundAttributesEnabled) {
@@ -11654,7 +11654,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.3e98733d
+      @version 1.11.0-beta.1+canary.72415161
     */
 
     if ('undefined' === typeof Ember) {
@@ -11681,10 +11681,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.3e98733d'
+      @default '1.11.0-beta.1+canary.72415161'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.3e98733d';
+    Ember.VERSION = '1.11.0-beta.1+canary.72415161';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
