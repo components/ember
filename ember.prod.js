@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.651e0d56
+ * @version   1.11.0-beta.1+canary.eff10145
  */
 
 (function() {
@@ -4653,8 +4653,8 @@ enifed("ember-extension-support/data_adapter",
     });
   });
 enifed("ember-htmlbars",
-  ["ember-metal/core","ember-template-compiler","ember-htmlbars/hooks/inline","ember-htmlbars/hooks/content","ember-htmlbars/hooks/component","ember-htmlbars/hooks/block","ember-htmlbars/hooks/element","ember-htmlbars/hooks/subexpr","ember-htmlbars/hooks/attribute","ember-htmlbars/hooks/concat","ember-htmlbars/hooks/get","ember-htmlbars/hooks/set","morph","ember-htmlbars/system/make-view-helper","ember-htmlbars/system/make_bound_helper","ember-htmlbars/helpers","ember-htmlbars/helpers/view","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/bind-attr","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/partial","ember-htmlbars/helpers/template","ember-htmlbars/helpers/input","ember-htmlbars/helpers/text_area","ember-htmlbars/helpers/collection","ember-htmlbars/helpers/each","ember-htmlbars/helpers/unbound","ember-metal/environment","ember-htmlbars/system/bootstrap","ember-htmlbars/compat","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __dependency31__, __dependency32__, __dependency33__, __dependency34__, __exports__) {
+  ["ember-metal/core","ember-template-compiler","ember-htmlbars/hooks/inline","ember-htmlbars/hooks/content","ember-htmlbars/hooks/component","ember-htmlbars/hooks/block","ember-htmlbars/hooks/element","ember-htmlbars/hooks/subexpr","ember-htmlbars/hooks/attribute","ember-htmlbars/hooks/concat","ember-htmlbars/hooks/get","ember-htmlbars/hooks/set","morph","ember-htmlbars/system/make-view-helper","ember-htmlbars/system/make_bound_helper","ember-htmlbars/helpers","ember-htmlbars/helpers/view","ember-htmlbars/helpers/component","ember-htmlbars/helpers/yield","ember-htmlbars/helpers/with","ember-htmlbars/helpers/log","ember-htmlbars/helpers/debugger","ember-htmlbars/helpers/bind-attr","ember-htmlbars/helpers/if_unless","ember-htmlbars/helpers/loc","ember-htmlbars/helpers/partial","ember-htmlbars/helpers/template","ember-htmlbars/helpers/input","ember-htmlbars/helpers/text_area","ember-htmlbars/helpers/collection","ember-htmlbars/helpers/each","ember-htmlbars/helpers/unbound","ember-metal/environment","ember-htmlbars/system/bootstrap","ember-htmlbars/compat","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __dependency31__, __dependency32__, __dependency33__, __dependency34__, __dependency35__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
 
@@ -4681,24 +4681,25 @@ enifed("ember-htmlbars",
     var helper = __dependency16__.helper;
     var helpers = __dependency16__["default"];
     var viewHelper = __dependency17__.viewHelper;
-    var yieldHelper = __dependency18__.yieldHelper;
-    var withHelper = __dependency19__.withHelper;
-    var logHelper = __dependency20__.logHelper;
-    var debuggerHelper = __dependency21__.debuggerHelper;
-    var bindAttrHelper = __dependency22__.bindAttrHelper;
-    var bindAttrHelperDeprecated = __dependency22__.bindAttrHelperDeprecated;
-    var ifHelper = __dependency23__.ifHelper;
-    var unlessHelper = __dependency23__.unlessHelper;
-    var locHelper = __dependency24__.locHelper;
-    var partialHelper = __dependency25__.partialHelper;
-    var templateHelper = __dependency26__.templateHelper;
-    var inputHelper = __dependency27__.inputHelper;
-    var textareaHelper = __dependency28__.textareaHelper;
-    var collectionHelper = __dependency29__.collectionHelper;
-    var eachHelper = __dependency30__.eachHelper;
-    var unboundHelper = __dependency31__.unboundHelper;
+    var componentHelper = __dependency18__.componentHelper;
+    var yieldHelper = __dependency19__.yieldHelper;
+    var withHelper = __dependency20__.withHelper;
+    var logHelper = __dependency21__.logHelper;
+    var debuggerHelper = __dependency22__.debuggerHelper;
+    var bindAttrHelper = __dependency23__.bindAttrHelper;
+    var bindAttrHelperDeprecated = __dependency23__.bindAttrHelperDeprecated;
+    var ifHelper = __dependency24__.ifHelper;
+    var unlessHelper = __dependency24__.unlessHelper;
+    var locHelper = __dependency25__.locHelper;
+    var partialHelper = __dependency26__.partialHelper;
+    var templateHelper = __dependency27__.templateHelper;
+    var inputHelper = __dependency28__.inputHelper;
+    var textareaHelper = __dependency29__.textareaHelper;
+    var collectionHelper = __dependency30__.collectionHelper;
+    var eachHelper = __dependency31__.eachHelper;
+    var unboundHelper = __dependency32__.unboundHelper;
 
-    var environment = __dependency32__["default"];
+    var environment = __dependency33__["default"];
 
     // importing adds template bootstrapping
     // initializer to enable embedded templates
@@ -4707,6 +4708,9 @@ enifed("ember-htmlbars",
     // Ember.Handlebars global if htmlbars is enabled
 
     registerHelper('view', viewHelper);
+    if (Ember.FEATURES.isEnabled('ember-htmlbars-component-helper')) {
+      registerHelper('component', componentHelper);
+    }
     registerHelper('yield', yieldHelper);
     registerHelper('with', withHelper);
     registerHelper('if', ifHelper);
@@ -5865,6 +5869,103 @@ enifed("ember-htmlbars/helpers/collection",
     }
 
     __exports__.collectionHelper = collectionHelper;
+  });
+enifed("ember-htmlbars/helpers/component",
+  ["ember-metal/core","ember-metal/streams/utils","ember-views/streams/utils","ember-metal/error","ember-views/views/bound_component_view","ember-htmlbars/system/merge-view-bindings","ember-htmlbars/system/append-templated-view","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-htmlbars
+    */
+    var Ember = __dependency1__["default"];
+    // Ember.warn, Ember.assert
+    var isStream = __dependency2__.isStream;
+    var read = __dependency2__.read;
+    var readComponentFactory = __dependency3__.readComponentFactory;
+    var EmberError = __dependency4__["default"];
+    var BoundComponentView = __dependency5__["default"];
+    var mergeViewBindings = __dependency6__["default"];
+    var appendTemplatedView = __dependency7__["default"];
+
+    /**
+      The `{{component}}` helper lets you add instances of `Ember.Component` to a
+      template. See [Ember.Component](/api/classes/Ember.Component.html) for
+      additional information on how a `Component` functions.
+
+      `{{component}}`'s primary use is for cases where you want to dynamically
+      change which type of component is rendered as the state of your application
+      changes.
+
+      The provided block will be applied as the template for the component.
+
+      Given an empty `<body>` the following template:
+
+      ```handlebars
+      {{! application.hbs }}
+      {{component infographicComponentName}}
+      ```
+
+      And the following application code
+
+      ```javascript
+      App = Ember.Application.create();
+      App.ApplicationController = Ember.Controller.extend({
+        infographicComponentName: function(){
+          if (this.get('isMarketOpen')) {
+            return "live-updating-chart";
+          } else {
+            return "market-close-summary";
+          }
+        }.property('isMarketOpen')
+      });
+      ```
+
+      The `live-updating-chart` component will be appended when `isMarketOpen` is
+      `true`, and the `market-close-summary` component will be appended when
+      `isMarketOpen` is `false`. If the value changes while the app is running,
+      the component will be automatically swapped out accordingly.
+
+      Note: You should not use this helper when you are consistently rendering the same
+      component. In that case, use standard component syntax, for example:
+
+      ```handlebars
+      {{! application.hbs }}
+      {{live-updating-chart}}
+      ```
+
+      @method component
+      @for Ember.Handlebars.helpers
+    */
+    function componentHelper(params, hash, options, env) {
+      
+      var componentNameParam = params[0];
+      var container = this.container || read(this._keywords.view).container;
+
+      var props = {
+        helperName: options.helperName || 'component'
+      };
+      if (options.template) {
+        props.template = options.template;
+      }
+
+      var viewClass;
+      if (isStream(componentNameParam)) {
+        viewClass = BoundComponentView;
+        props = { _boundComponentOptions: Ember.merge(hash, props) };
+        props._boundComponentOptions.componentNameStream = componentNameParam;
+      } else {
+        viewClass = readComponentFactory(componentNameParam, container);
+        if (!viewClass) {
+          throw new EmberError('HTMLBars error: Could not find component named "' + componentNameParam + '".');
+        }
+        mergeViewBindings(this, props, hash);
+      }
+
+      appendTemplatedView(this, options.morph, viewClass, props);
+    }
+
+    __exports__.componentHelper = componentHelper;
   });
 enifed("ember-htmlbars/helpers/debugger",
   ["ember-metal/logger","exports"],
@@ -11553,7 +11654,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.651e0d56
+      @version 1.11.0-beta.1+canary.eff10145
     */
 
     if ('undefined' === typeof Ember) {
@@ -11580,10 +11681,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.651e0d56'
+      @default '1.11.0-beta.1+canary.eff10145'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.651e0d56';
+    Ember.VERSION = '1.11.0-beta.1+canary.eff10145';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -37821,7 +37922,14 @@ enifed("ember-views/streams/utils",
       return viewClass;
     }
 
-    __exports__.readViewFactory = readViewFactory;function readUnwrappedModel(object) {
+    __exports__.readViewFactory = readViewFactory;function readComponentFactory(nameOrStream, container) {
+      var name = read(nameOrStream);
+      var componentLookup = container.lookup('component-lookup:main');
+      
+      return componentLookup.lookupFactory(name, container);
+    }
+
+    __exports__.readComponentFactory = readComponentFactory;function readUnwrappedModel(object) {
       if (isStream(object)) {
         var result = object.value();
 
@@ -39051,6 +39159,64 @@ enifed("ember-views/system/utils",
     }
 
     __exports__.getViewBoundingClientRect = getViewBoundingClientRect;
+  });
+enifed("ember-views/views/bound_component_view",
+  ["ember-views/views/metamorph_view","ember-metal/streams/utils","ember-views/streams/utils","ember-htmlbars/system/merge-view-bindings","ember-metal/error","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-views
+    */
+
+    var _Metamorph = __dependency1__._Metamorph;
+    var read = __dependency2__.read;
+    var chain = __dependency2__.chain;
+    var subscribe = __dependency2__.subscribe;
+    var unsubscribe = __dependency2__.unsubscribe;
+    var readComponentFactory = __dependency3__.readComponentFactory;
+    var mergeViewBindings = __dependency4__["default"];
+    var EmberError = __dependency5__["default"];
+
+    __exports__["default"] = Ember.ContainerView.extend(_Metamorph, {
+      init: function() {
+        this._super();
+        var componentNameStream = this._boundComponentOptions.componentNameStream;
+        var container = this.container;
+        this.componentClassStream = chain(componentNameStream, function() {
+          return readComponentFactory(componentNameStream, container);
+        });
+
+        subscribe(this.componentClassStream, this._updateBoundChildComponent, this);
+        this._updateBoundChildComponent();
+      },
+      willDestroy: function() {
+        unsubscribe(this.componentClassStream, this._updateBoundChildComponent, this);
+        this._super();
+      },
+      _updateBoundChildComponent: function() {
+        this.replace(0, 1, [this._createNewComponent()]);
+      },
+      _createNewComponent: function() {
+        var componentClass = read(this.componentClassStream);
+        if (!componentClass) {
+          throw new EmberError('HTMLBars error: Could not find component named "' + read(this._boundComponentOptions.componentNameStream) + '".');
+        }
+        var hash    = this._boundComponentOptions;
+        var ignore  = ["_boundComponentOptions", "componentClassStream"];
+        var hashForComponent = {};
+
+        var prop;
+        for (prop in hash) {
+          if (ignore.indexOf(prop) !== -1) { continue; }
+          hashForComponent[prop] = hash[prop];
+        }
+
+        var props   = {};
+        mergeViewBindings(this, props, hashForComponent);
+        return this.createChildView(componentClass, props);
+      }
+    });
   });
 enifed("ember-views/views/bound_if_view",
   ["ember-metal/property_set","ember-metal/run_loop","ember-views/views/metamorph_view","ember-views/mixins/normalized_rerender_if_needed","exports"],
