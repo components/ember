@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.59a3f8c7
+ * @version   1.11.0-beta.1+canary.3f5457ae
  */
 
 (function() {
@@ -11553,7 +11553,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.59a3f8c7
+      @version 1.11.0-beta.1+canary.3f5457ae
     */
 
     if ('undefined' === typeof Ember) {
@@ -11580,10 +11580,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.59a3f8c7'
+      @default '1.11.0-beta.1+canary.3f5457ae'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.59a3f8c7';
+    Ember.VERSION = '1.11.0-beta.1+canary.3f5457ae';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -47338,6 +47338,9 @@ enifed("htmlbars-syntax/tokenizer",
     var builders = __dependency3__["default"];
 
     Tokenizer.prototype.createAttribute = function(char) {
+      if (this.token.type === 'EndTag') {
+        throw new Error('Invalid end tag: closing tag must not have attributes, in ' + formatTokenInfo(this) + '.');
+      }
       this.currentAttribute = builders.attr(char.toLowerCase(), [], null);
       this.token.attributes.push(this.currentAttribute);
       this.state = 'attributeName';
@@ -47354,12 +47357,13 @@ enifed("htmlbars-syntax/tokenizer",
     Tokenizer.prototype.addToAttributeValue = function(char) {
       var value = this.currentAttribute.value;
 
+      if (!this.currentAttribute.quoted && char === '/') {
+        throw new Error("A space is required between an unquoted attribute value and `/`, in " + formatTokenInfo(this) +
+                        '.');
+      }
       if (!this.currentAttribute.quoted && value.length > 0 &&
           (char.type === 'MustacheStatement' || value[0].type === 'MustacheStatement')) {
-        // Get the line number from a mustache, whether it's the one to add or the one already added
-        var mustache = char.type === 'MustacheStatement' ? char : value[0],
-            line = mustache.loc.start.line;
-        throw new Error("Unquoted attribute value must be a single string or mustache (line " + line + ")");
+        throw new Error("Unquoted attribute value must be a single string or mustache (on line " + this.line + ")");
       }
 
       if (typeof char === 'object') {
@@ -47410,6 +47414,10 @@ enifed("htmlbars-syntax/tokenizer",
         default:
           throw new Error("Unsupported node in quoted attribute value: " + node.type);
       }
+    }
+
+    function formatTokenInfo(tokenizer) {
+      return '`' + tokenizer.token.tagName + '` (on line ' + tokenizer.line + ')';
     }
 
     function unwrapMustache(mustache) {
