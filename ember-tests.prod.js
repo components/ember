@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.5f2835f8
+ * @version   1.11.0-beta.1+canary.651e0d56
  */
 
 (function() {
@@ -5806,9 +5806,9 @@ enifed("ember-htmlbars/tests/attr_nodes/sanitized_test",
           });
           runAppend(view);
 
-          equal( view.element.firstChild.getAttribute(subject.attr),
+          equal(view.element.firstChild.getAttribute(subject.attr),
                  "unsafe:javascript://example.com",
-                 "attribute is output" );
+                 "attribute is output");
         });
 
         test(subject.tag +" "+subject.attr+" is sanitized when using quoted non-whitelisted protocol", function() {
@@ -5818,9 +5818,9 @@ enifed("ember-htmlbars/tests/attr_nodes/sanitized_test",
           });
           runAppend(view);
 
-          equal( view.element.firstChild.getAttribute(subject.attr),
+          equal(view.element.firstChild.getAttribute(subject.attr),
                  "unsafe:javascript://example.com",
-                 "attribute is output" );
+                 "attribute is output");
         });
 
         test(subject.tag +" "+subject.attr+" is not sanitized when using non-whitelisted protocol with a SafeString", function() {
@@ -5832,9 +5832,9 @@ enifed("ember-htmlbars/tests/attr_nodes/sanitized_test",
           try {
             runAppend(view);
 
-            equal( view.element.firstChild.getAttribute(subject.attr),
+            equal(view.element.firstChild.getAttribute(subject.attr),
                    "javascript://example.com",
-                   "attribute is output" );
+                   "attribute is output");
           } catch(e) {
             // IE does not allow javascript: to be set on img src
             ok(true, 'caught exception '+e);
@@ -5848,9 +5848,9 @@ enifed("ember-htmlbars/tests/attr_nodes/sanitized_test",
           });
           runAppend(view);
 
-          equal( view.element.firstChild.getAttribute(subject.attr),
+          equal(view.element.firstChild.getAttribute(subject.attr),
                  "unsafe:javascript://example.com",
-                 "attribute is output" );
+                 "attribute is output");
         });
 
       })(); //jshint ignore:line
@@ -11276,9 +11276,9 @@ enifed("ember-htmlbars/tests/helpers/sanitized_bind_attr_test",
 
           runAppend(view);
 
-          equal( view.element.firstChild.getAttribute(attr),
+          equal(view.element.firstChild.getAttribute(attr),
                  "unsafe:javascript:alert('XSS')",
-                 "attribute is output" );
+                 "attribute is output");
         });
 
         test("XSS - should not bind unsafe "+tagName+" "+attr+" values on rerender", function() {
@@ -11289,15 +11289,15 @@ enifed("ember-htmlbars/tests/helpers/sanitized_bind_attr_test",
 
           runAppend(view);
 
-          equal( view.element.firstChild.getAttribute(attr),
+          equal(view.element.firstChild.getAttribute(attr),
                  "/sunshine/and/rainbows",
-                 "attribute is output" );
+                 "attribute is output");
 
           run(view, 'set', 'badValue', "javascript:alert('XSS')");
 
-          equal( view.element.firstChild.getAttribute(attr),
+          equal(view.element.firstChild.getAttribute(attr),
                  "unsafe:javascript:alert('XSS')",
-                 "attribute is output" );
+                 "attribute is output");
         });
 
         test("should bind unsafe "+tagName+" "+attr+" values if they are SafeString", function() {
@@ -11309,9 +11309,9 @@ enifed("ember-htmlbars/tests/helpers/sanitized_bind_attr_test",
           try {
             runAppend(view);
 
-            equal( view.element.firstChild.getAttribute(attr),
+            equal(view.element.firstChild.getAttribute(attr),
                    "javascript:alert('XSS')",
-                   "attribute is output" );
+                   "attribute is output");
           } catch(e) {
             // IE does not allow javascript: to be set on img src
             ok(true, 'caught exception '+e);
@@ -16066,7 +16066,7 @@ enifed("ember-htmlbars/tests/system/make_bound_helper_test",
     function registerRepeatHelper() {
       registry.register('helper:x-repeat', makeBoundHelper(function(params, hash, options, env) {
         var times = hash.times || 1;
-        return new Array(times + 1).join( params[0] );
+        return new Array(times + 1).join(params[0]);
       }));
     }
 
@@ -18149,18 +18149,18 @@ enifed("ember-metal/tests/accessors/isGlobalPath_test",
     QUnit.module('Ember.isGlobalPath');
 
     test("global path's are recognized", function() {
-      ok( isGlobalPath('App.myProperty') );
-      ok( isGlobalPath('App.myProperty.subProperty') );
+      ok(isGlobalPath('App.myProperty'));
+      ok(isGlobalPath('App.myProperty.subProperty'));
     });
 
     test("if there is a 'this' in the path, it's not a global path", function() {
-      ok( !isGlobalPath('this.myProperty') );
-      ok( !isGlobalPath('this') );
+      ok(!isGlobalPath('this.myProperty'));
+      ok(!isGlobalPath('this'));
     });
 
     test("if the path starts with a lowercase character, it is not a global path", function() {
-      ok( !isGlobalPath('myObj') );
-      ok( !isGlobalPath('myObj.SecondProperty') );
+      ok(!isGlobalPath('myObj'));
+      ok(!isGlobalPath('myObj.SecondProperty'));
     });
   });
 enifed("ember-metal/tests/accessors/isGlobalPath_test.jscs-test",
@@ -20522,11 +20522,11 @@ enifed("ember-metal/tests/error_test",
     QUnit.module("Ember Error Throwing");
 
     test("new Ember.Error displays provided message", function() {
-      raises( function() {
+      raises(function() {
         throw new Ember.Error('A Message');
       }, function(e) {
         return e.message === 'A Message';
-      }, 'the assigned message was displayed' );
+      }, 'the assigned message was displayed');
     });
   });
 enifed("ember-metal/tests/error_test.jscs-test",
@@ -26831,7 +26831,7 @@ enifed("ember-metal/tests/utils/generate_guid_test",
     test("Prefix", function() {
       var a = {};
 
-      ok( generateGuid(a, 'tyrell').indexOf('tyrell') > -1, "guid can be prefixed" );
+      ok(generateGuid(a, 'tyrell').indexOf('tyrell') > -1, "guid can be prefixed");
     });
   });
 enifed("ember-metal/tests/utils/generate_guid_test.jscs-test",
@@ -26861,25 +26861,25 @@ enifed("ember-metal/tests/utils/guidFor_test",
     QUnit.module("guidFor");
 
     var sameGuid = function(a, b, message) {
-      equal( guidFor(a), guidFor(b), message );
+      equal(guidFor(a), guidFor(b), message);
     };
 
     var diffGuid = function(a, b, message) {
-      ok( guidFor(a) !== guidFor(b), message);
+      ok(guidFor(a) !== guidFor(b), message);
     };
 
     var nanGuid = function(obj) {
       var type = typeof obj;
-      ok( isNaN(parseInt(guidFor(obj), 0)), "guids for " + type + "don't parse to numbers");
+      ok(isNaN(parseInt(guidFor(obj), 0)), "guids for " + type + "don't parse to numbers");
     };
 
     test("Object", function() {
       var a = {};
       var b = {};
 
-      sameGuid( a, a, "same object always yields same guid" );
-      diffGuid( a, b, "different objects yield different guids" );
-      nanGuid( a );
+      sameGuid(a, a, "same object always yields same guid");
+      diffGuid(a, b, "different objects yield different guids");
+      nanGuid(a);
     });
 
     test("strings", function() {
@@ -26887,10 +26887,10 @@ enifed("ember-metal/tests/utils/guidFor_test",
       var aprime = "string A";
       var b = "String B";
 
-      sameGuid( a, a,      "same string always yields same guid" );
-      sameGuid( a, aprime, "identical strings always yield the same guid" );
-      diffGuid( a, b,      "different strings yield different guids" );
-      nanGuid( a );
+      sameGuid(a, a,      "same string always yields same guid");
+      sameGuid(a, aprime, "identical strings always yield the same guid");
+      diffGuid(a, b,      "different strings yield different guids");
+      nanGuid(a);
     });
 
     test("numbers", function() {
@@ -26898,10 +26898,10 @@ enifed("ember-metal/tests/utils/guidFor_test",
       var aprime = 23;
       var b = 34;
 
-      sameGuid( a, a,      "same numbers always yields same guid" );
-      sameGuid( a, aprime, "identical numbers always yield the same guid" );
-      diffGuid( a, b,      "different numbers yield different guids" );
-      nanGuid( a );
+      sameGuid(a, a,      "same numbers always yields same guid");
+      sameGuid(a, aprime, "identical numbers always yield the same guid");
+      diffGuid(a, b,      "different numbers yield different guids");
+      nanGuid(a);
     });
 
     test("numbers", function() {
@@ -26909,11 +26909,11 @@ enifed("ember-metal/tests/utils/guidFor_test",
       var aprime = true;
       var b = false;
 
-      sameGuid( a, a,      "same booleans always yields same guid" );
-      sameGuid( a, aprime, "identical booleans always yield the same guid" );
-      diffGuid( a, b,      "different boolean yield different guids" );
-      nanGuid( a );
-      nanGuid( b );
+      sameGuid(a, a,      "same booleans always yields same guid");
+      sameGuid(a, aprime, "identical booleans always yield the same guid");
+      diffGuid(a, b,      "different boolean yield different guids");
+      nanGuid(a);
+      nanGuid(b);
     });
 
     test("null and undefined", function() {
@@ -26921,12 +26921,12 @@ enifed("ember-metal/tests/utils/guidFor_test",
       var aprime = null;
       var b;
 
-      sameGuid( a, a,      "null always returns the same guid" );
-      sameGuid( b, b,      "undefined always returns the same guid" );
-      sameGuid( a, aprime, "different nulls return the same guid" );
-      diffGuid( a, b,      "null and undefined return different guids" );
-      nanGuid( a );
-      nanGuid( b );
+      sameGuid(a, a,      "null always returns the same guid");
+      sameGuid(b, b,      "undefined always returns the same guid");
+      sameGuid(a, aprime, "different nulls return the same guid");
+      diffGuid(a, b,      "null and undefined return different guids");
+      nanGuid(a);
+      nanGuid(b);
     });
 
     test("arrays", function() {
@@ -26934,10 +26934,10 @@ enifed("ember-metal/tests/utils/guidFor_test",
       var aprime = ["a", "b", "c"];
       var b = ["1", "2", "3"];
 
-      sameGuid( a, a,      "same instance always yields same guid" );
-      diffGuid( a, aprime, "identical arrays always yield the same guid" );
-      diffGuid( a, b,      "different arrays yield different guids" );
-      nanGuid( a );
+      sameGuid(a, a,      "same instance always yields same guid");
+      diffGuid(a, aprime, "identical arrays always yield the same guid");
+      diffGuid(a, b,      "different arrays yield different guids");
+      nanGuid(a);
     });
   });
 enifed("ember-metal/tests/utils/guidFor_test.jscs-test",
@@ -26976,14 +26976,14 @@ enifed("ember-metal/tests/utils/is_array_test",
       var length        = { length: 12 };
       var fn            = function() {};
 
-      equal( isArray(numarray), true,  "[1,2,3]" );
-      equal( isArray(number),   false, "23" );
-      equal( isArray(strarray), true,  '["Hello", "Hi"]' );
-      equal( isArray(string),   false, '"Hello"' );
-      equal( isArray(object),   false, "{}" );
-      equal( isArray(length),   true,  "{ length: 12 }" );
-      equal( isArray(global),   false, "global" );
-      equal( isArray(fn),       false, "function() {}" );
+      equal(isArray(numarray), true,  "[1,2,3]");
+      equal(isArray(number),   false, "23");
+      equal(isArray(strarray), true,  '["Hello", "Hi"]');
+      equal(isArray(string),   false, '"Hello"');
+      equal(isArray(object),   false, "{}");
+      equal(isArray(length),   true,  "{ length: 12 }");
+      equal(isArray(global),   false, "global");
+      equal(isArray(fn),       false, "function() {}");
     });
   });
 enifed("ember-metal/tests/utils/is_array_test.jscs-test",
@@ -27485,24 +27485,24 @@ enifed("ember-metal/tests/utils/type_of_test",
       var error       = new Error('boum');
       var object      = { a: 'b' };
 
-      equal( typeOf(),            'undefined',  "undefined");
-      equal( typeOf(null),        'null',       "null");
-      equal( typeOf('Cyril'),     'string',     "Cyril");
-      equal( typeOf(101),         'number',     "101");
-      equal( typeOf(true),        'boolean',    "true");
-      equal( typeOf([1,2,90]),    'array',      "[1,2,90]");
-      equal( typeOf(/abc/),       'regexp',     "/abc/");
-      equal( typeOf(date),        'date',       "new Date()");
-      equal( typeOf(mockedDate),  'date',       "mocked date");
-      equal( typeOf(error),       'error',      "error");
-      equal( typeOf(object),      'object',     "object");
+      equal(typeOf(),            'undefined',  "undefined");
+      equal(typeOf(null),        'null',       "null");
+      equal(typeOf('Cyril'),     'string',     "Cyril");
+      equal(typeOf(101),         'number',     "101");
+      equal(typeOf(true),        'boolean',    "true");
+      equal(typeOf([1,2,90]),    'array',      "[1,2,90]");
+      equal(typeOf(/abc/),       'regexp',     "/abc/");
+      equal(typeOf(date),        'date',       "new Date()");
+      equal(typeOf(mockedDate),  'date',       "mocked date");
+      equal(typeOf(error),       'error',      "error");
+      equal(typeOf(object),      'object',     "object");
 
       if (Ember.Object) {
         var klass       = Ember.Object.extend();
         var instance    = Ember.Object.create();
 
-        equal( typeOf(klass),     'class',      "class");
-        equal( typeOf(instance),  'instance',   "instance");
+        equal(typeOf(klass),     'class',      "class");
+        equal(typeOf(instance),  'instance',   "instance");
       }
     });
   });
@@ -37023,31 +37023,31 @@ enifed("ember-runtime/tests/core/isEqual_test",
     QUnit.module("isEqual");
 
     test("undefined and null", function() {
-      ok(  isEqual(undefined, undefined), "undefined is equal to undefined" );
-      ok( !isEqual(undefined, null),      "undefined is not equal to null" );
-      ok(  isEqual(null, null),           "null is equal to null" );
-      ok( !isEqual(null, undefined),      "null is not equal to undefined" );
+      ok(isEqual(undefined, undefined), "undefined is equal to undefined");
+      ok(!isEqual(undefined, null),      "undefined is not equal to null");
+      ok(isEqual(null, null),           "null is equal to null");
+      ok(!isEqual(null, undefined),      "null is not equal to undefined");
     });
 
     test("strings should be equal", function() {
-      ok( !isEqual("Hello", "Hi"),    "different Strings are unequal" );
-      ok(  isEqual("Hello", "Hello"), "same Strings are equal" );
+      ok(!isEqual("Hello", "Hi"),    "different Strings are unequal");
+      ok(isEqual("Hello", "Hello"), "same Strings are equal");
     });
 
     test("numericals should be equal", function() {
-      ok(  isEqual(24, 24), "same numbers are equal" );
-      ok( !isEqual(24, 21), "different numbers are inequal" );
+      ok(isEqual(24, 24), "same numbers are equal");
+      ok(!isEqual(24, 21), "different numbers are inequal");
     });
 
     test("dates should be equal", function() {
-      ok(  isEqual(new Date(1985, 7, 22), new Date(1985, 7, 22)), "same dates are equal" );
-      ok( !isEqual(new Date(2014, 7, 22), new Date(1985, 7, 22)), "different dates are not equal" );
+      ok(isEqual(new Date(1985, 7, 22), new Date(1985, 7, 22)), "same dates are equal");
+      ok(!isEqual(new Date(2014, 7, 22), new Date(1985, 7, 22)), "different dates are not equal");
     });
 
     test("array should be equal", function() {
       // NOTE: We don't test for array contents -- that would be too expensive.
-      ok( !isEqual( [1,2], [1,2] ), 'two array instances with the same values should not be equal' );
-      ok( !isEqual( [1,2], [1] ),   'two array instances with different values should not be equal' );
+      ok(!isEqual([1,2], [1,2]), 'two array instances with the same values should not be equal');
+      ok(!isEqual([1,2], [1]),   'two array instances with different values should not be equal');
     });
 
     test("first object implements isEqual should use it", function() {
@@ -38868,7 +38868,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test",
       ObjectA.propertyWillChange('foo');
 
       //Value of the prop is unchanged yet as this will be changed when foo changes
-      equal(ObjectA.prop, 'propValue' );
+      equal(ObjectA.prop, 'propValue');
 
       //change the value of foo.
       ObjectA.set('foo', 'changeFooValue');
@@ -39344,13 +39344,12 @@ enifed("ember-runtime/tests/legacy_1x/system/object/base_test",
       equal(get(obj, 'foo'), 'bar');
       equal(get(obj, 'total'), 12345);
 
-      set(obj,  'foo', 'Chunky Bacon' );
-      set(obj,  'total', 12 );
+      set(obj,  'foo', 'Chunky Bacon');
+      set(obj,  'total', 12);
 
       equal(get(obj, 'foo'), 'Chunky Bacon');
       equal(get(obj, 'total'), 12);
     });
-
 
     QUnit.module("EmberObject observers", {
       setup: function() {
@@ -39406,8 +39405,6 @@ enifed("ember-runtime/tests/legacy_1x/system/object/base_test",
       set(obj, "prop1", false);
       equal(obj._both, true, "Both observer did change.");
     });
-
-
 
     QUnit.module("EmberObject superclass and subclasses", {
       setup: function() {
@@ -45795,7 +45792,7 @@ enifed("ember-runtime/tests/suites/mutable_array/pushObjects",
       var obj = this.newObject([]);
 
       raises(function() {
-        obj.pushObjects( "string" );
+        obj.pushObjects("string");
       });
     });
 
@@ -49060,25 +49057,25 @@ enifed("ember-runtime/tests/system/object/detectInstance_test",
       var b = B.create();
       var c = C.create();
 
-      ok( EmberObject.detectInstance(o), 'o is an instance of EmberObject' );
-      ok( EmberObject.detectInstance(a), 'a is an instance of EmberObject' );
-      ok( EmberObject.detectInstance(b), 'b is an instance of EmberObject' );
-      ok( EmberObject.detectInstance(c), 'c is an instance of EmberObject' );
+      ok(EmberObject.detectInstance(o), 'o is an instance of EmberObject');
+      ok(EmberObject.detectInstance(a), 'a is an instance of EmberObject');
+      ok(EmberObject.detectInstance(b), 'b is an instance of EmberObject');
+      ok(EmberObject.detectInstance(c), 'c is an instance of EmberObject');
 
-      ok( !A.detectInstance(o), 'o is not an instance of A');
-      ok( A.detectInstance(a), 'a is an instance of A' );
-      ok( A.detectInstance(b), 'b is an instance of A' );
-      ok( A.detectInstance(c), 'c is an instance of A' );
+      ok(!A.detectInstance(o), 'o is not an instance of A');
+      ok(A.detectInstance(a), 'a is an instance of A');
+      ok(A.detectInstance(b), 'b is an instance of A');
+      ok(A.detectInstance(c), 'c is an instance of A');
 
-      ok( !B.detectInstance(o), 'o is not an instance of B' );
-      ok( !B.detectInstance(a), 'a is not an instance of B' );
-      ok( B.detectInstance(b), 'b is an instance of B' );
-      ok( !B.detectInstance(c), 'c is not an instance of B' );
+      ok(!B.detectInstance(o), 'o is not an instance of B');
+      ok(!B.detectInstance(a), 'a is not an instance of B');
+      ok(B.detectInstance(b), 'b is an instance of B');
+      ok(!B.detectInstance(c), 'c is not an instance of B');
 
-      ok( !C.detectInstance(o), 'o is not an instance of C' );
-      ok( !C.detectInstance(a), 'a is not an instance of C' );
-      ok( !C.detectInstance(b), 'b is not an instance of C' );
-      ok( C.detectInstance(c), 'c is an instance of C' );
+      ok(!C.detectInstance(o), 'o is not an instance of C');
+      ok(!C.detectInstance(a), 'a is not an instance of C');
+      ok(!C.detectInstance(b), 'b is not an instance of C');
+      ok(C.detectInstance(c), 'c is an instance of C');
 
     });
   });
@@ -49114,25 +49111,25 @@ enifed("ember-runtime/tests/system/object/detect_test",
       var B = A.extend();
       var C = A.extend();
 
-      ok( EmberObject.detect(EmberObject), 'EmberObject is an EmberObject class' );
-      ok( EmberObject.detect(A), 'A is an EmberObject class' );
-      ok( EmberObject.detect(B), 'B is an EmberObject class' );
-      ok( EmberObject.detect(C), 'C is an EmberObject class' );
+      ok(EmberObject.detect(EmberObject), 'EmberObject is an EmberObject class');
+      ok(EmberObject.detect(A), 'A is an EmberObject class');
+      ok(EmberObject.detect(B), 'B is an EmberObject class');
+      ok(EmberObject.detect(C), 'C is an EmberObject class');
 
-      ok( !A.detect(EmberObject), 'EmberObject is not an A class' );
-      ok( A.detect(A), 'A is an A class' );
-      ok( A.detect(B), 'B is an A class' );
-      ok( A.detect(C), 'C is an A class' );
+      ok(!A.detect(EmberObject), 'EmberObject is not an A class');
+      ok(A.detect(A), 'A is an A class');
+      ok(A.detect(B), 'B is an A class');
+      ok(A.detect(C), 'C is an A class');
 
-      ok( !B.detect(EmberObject), 'EmberObject is not a B class' );
-      ok( !B.detect(A), 'A is not a B class' );
-      ok( B.detect(B), 'B is a B class' );
-      ok( !B.detect(C), 'C is not a B class' );
+      ok(!B.detect(EmberObject), 'EmberObject is not a B class');
+      ok(!B.detect(A), 'A is not a B class');
+      ok(B.detect(B), 'B is a B class');
+      ok(!B.detect(C), 'C is not a B class');
 
-      ok( !C.detect(EmberObject), 'EmberObject is not a C class' );
-      ok( !C.detect(A), 'A is not a C class' );
-      ok( !C.detect(B), 'B is not a C class' );
-      ok( C.detect(C), 'C is a C class' );
+      ok(!C.detect(EmberObject), 'EmberObject is not a C class');
+      ok(!C.detect(A), 'A is not a C class');
+      ok(!C.detect(B), 'B is not a C class');
+      ok(C.detect(C), 'C is a C class');
 
     });
   });
@@ -49760,7 +49757,7 @@ enifed("ember-runtime/tests/system/object/reopen_test",
         bar: 'BAR'
       });
 
-      equal( new Subclass().foo(), 'FOO', 'Adds method');
+      equal(new Subclass().foo(), 'FOO', 'Adds method');
       equal(get(new Subclass(), 'bar'), 'BAR', 'Adds property');
     });
 
@@ -49775,7 +49772,7 @@ enifed("ember-runtime/tests/system/object/reopen_test",
       });
 
 
-      equal( new SubSub().foo(), 'FOO', 'Adds method');
+      equal(new SubSub().foo(), 'FOO', 'Adds method');
       equal(get(new SubSub(), 'bar'), 'BAR', 'Adds property');
     });
 
@@ -54630,7 +54627,7 @@ enifed("ember-views/tests/system/event_dispatcher_test",
           myEvent: function() {
             ok(true, "custom event has been triggered");
           }
-        }).appendTo( dispatcher.get("rootElement") );
+        }).appendTo(dispatcher.get("rootElement"));
       });
 
       jQuery("#leView").trigger("myevent");
@@ -54649,7 +54646,7 @@ enifed("ember-views/tests/system/event_dispatcher_test",
           myEvent: function() {
             ok(true, "custom event has been triggered");
           }
-        }).appendTo( dispatcher.get("rootElement") );
+        }).appendTo(dispatcher.get("rootElement"));
       });
 
       ok(jQuery(".custom-root").hasClass("ember-application"), "the custom rootElement is used");
@@ -55750,7 +55747,7 @@ enifed("ember-views/tests/views/collection_test",
 
       run(function() {
         content.removeAt(1);
-        content.insertAt(1, "Kazuki" );
+        content.insertAt(1, "Kazuki");
       });
 
       forEach(content, function(item, idx) {
@@ -55779,9 +55776,9 @@ enifed("ember-views/tests/views/collection_test",
       });
 
       run(function() {
-        content.pushObject("Tom Dale" );
+        content.pushObject("Tom Dale");
         content.removeAt(0);
-        content.insertAt(0, "Kazuki" );
+        content.insertAt(0, "Kazuki");
       });
 
       forEach(content, function(item, idx) {
@@ -55811,9 +55808,9 @@ enifed("ember-views/tests/views/collection_test",
       });
 
       run(function() {
-        content.pushObject("Tom Dale" );
+        content.pushObject("Tom Dale");
         content.removeAt(1);
-        content.insertAt(1, "Kazuki" );
+        content.insertAt(1, "Kazuki");
       });
 
       forEach(content, function(item, idx) {
@@ -55842,11 +55839,11 @@ enifed("ember-views/tests/views/collection_test",
       });
 
       run(function() {
-        content.pushObject("Tom Dale" );
+        content.pushObject("Tom Dale");
         content.removeAt(1);
-        content.insertAt(1, "Kazuki" );
-        content.pushObject("Firestone" );
-        content.pushObject("McMunch" );
+        content.insertAt(1, "Kazuki");
+        content.pushObject("Firestone");
+        content.pushObject("McMunch");
       });
 
       forEach(content, function(item, idx) {
@@ -55875,11 +55872,11 @@ enifed("ember-views/tests/views/collection_test",
       });
 
       run(function() {
-        content.pushObject("Tom Dale" );
+        content.pushObject("Tom Dale");
         content.removeAt(1);
-        content.insertAt(1, "Kazuki" );
-        content.pushObject("Firestone" );
-        content.pushObject("McMunch" );
+        content.insertAt(1, "Kazuki");
+        content.pushObject("Firestone");
+        content.pushObject("McMunch");
         content.removeAt(2);
       });
 
@@ -60342,7 +60339,7 @@ enifed("ember-views/tests/views/view/class_name_bindings_test",
         set(view, 'canIgnore', true);
         set(view, 'isEnabled', false);
         set(view, 'messages.count', 'six-messages');
-        set(view, 'messages.resent', true );
+        set(view, 'messages.resent', true);
       });
 
       ok(view.$().hasClass('orange'), "updates string values");
@@ -61928,7 +61925,7 @@ enifed("ember-views/tests/views/view/nearest_of_type_test",
       var Mixin = EmberMixin.create({});
       var Parent = View.extend(Mixin, {
         render: function(buffer) {
-          this.appendChild( View.create() );
+          this.appendChild(View.create());
         }
       });
 
@@ -66729,7 +66726,7 @@ enifed("ember/tests/location_test",
             location: 'none',
             rootURL: '/rootdir/'
           });
-          App.__registry__.register('location:auto', AutoTestLocation );
+          App.__registry__.register('location:auto', AutoTestLocation);
           App.deferReadiness();
         });
       },
@@ -69057,7 +69054,7 @@ enifed("ember/tests/routing/basic_test",
     test("Nested index route is not overriden by parent's implicit index route", function() {
       Router.map(function() {
         this.resource('posts', function() {
-          this.route('index', { path: ':category' } );
+          this.route('index', { path: ':category' });
         });
       });
 

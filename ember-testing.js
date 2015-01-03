@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.5f2835f8
+ * @version   1.11.0-beta.1+canary.651e0d56
  */
 
 (function() {
@@ -1043,7 +1043,7 @@ enifed("ember-testing/support",
             $.event.special.click = {
               // For checkbox, fire native event so checked state will be right
               trigger: function() {
-                if ($.nodeName( this, "input" ) && this.type === "checkbox" && this.click) {
+                if ($.nodeName(this, "input") && this.type === "checkbox" && this.click) {
                   this.click();
                   return false;
                 }
