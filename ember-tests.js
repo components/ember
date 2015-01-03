@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.f1813512
+ * @version   1.11.0-beta.1+canary.3e98733d
  */
 
 (function() {
@@ -52078,6 +52078,74 @@ enifed("ember-template-compiler/tests/main_test.jshint",
     module('JSHint - ember-template-compiler/tests');
     test('ember-template-compiler/tests/main_test.js should pass jshint', function() { 
       ok(true, 'ember-template-compiler/tests/main_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-template-compiler/tests/plugins/transform-each-in-to-hash-test",
+  ["ember-template-compiler"],
+  function(__dependency1__) {
+    "use strict";
+    var compile = __dependency1__.compile;
+
+    QUnit.module('ember-template-compiler: transform-each-in-to-hash');
+
+    test('cannot use block params and keyword syntax together', function() {
+      expect(1);
+
+      throws(function() {
+        compile('{{#each thing in controller as |other-thing|}}{{thing}}-{{other-thing}}{{/each}}', true);
+      },/You cannot use keyword \(`{{each foo in bar}}`\) and block params \(`{{each bar as \|foo\|}}`\) at the same time\./);
+    });
+  });
+enifed("ember-template-compiler/tests/plugins/transform-each-in-to-hash-test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-template-compiler/tests/plugins');
+    test('ember-template-compiler/tests/plugins/transform-each-in-to-hash-test.js should pass jscs', function() {
+      ok(true, 'ember-template-compiler/tests/plugins/transform-each-in-to-hash-test.js should pass jscs.');
+    });
+  });
+enifed("ember-template-compiler/tests/plugins/transform-each-in-to-hash-test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-template-compiler/tests/plugins');
+    test('ember-template-compiler/tests/plugins/transform-each-in-to-hash-test.js should pass jshint', function() { 
+      ok(true, 'ember-template-compiler/tests/plugins/transform-each-in-to-hash-test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-template-compiler/tests/plugins/transform-with-as-to-hash-test",
+  ["ember-template-compiler"],
+  function(__dependency1__) {
+    "use strict";
+    var compile = __dependency1__.compile;
+
+    QUnit.module('ember-template-compiler: transform-with-as-to-hash');
+
+    test('cannot use block params and keyword syntax together', function() {
+      expect(1);
+
+      throws(function() {
+        compile('{{#with foo as thing as |other-thing|}}{{thing}}-{{other-thing}}{{/with}}');
+      }, /You cannot use keyword/);
+    });
+  });
+enifed("ember-template-compiler/tests/plugins/transform-with-as-to-hash-test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-template-compiler/tests/plugins');
+    test('ember-template-compiler/tests/plugins/transform-with-as-to-hash-test.js should pass jscs', function() {
+      ok(true, 'ember-template-compiler/tests/plugins/transform-with-as-to-hash-test.js should pass jscs.');
+    });
+  });
+enifed("ember-template-compiler/tests/plugins/transform-with-as-to-hash-test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-template-compiler/tests/plugins');
+    test('ember-template-compiler/tests/plugins/transform-with-as-to-hash-test.js should pass jshint', function() { 
+      ok(true, 'ember-template-compiler/tests/plugins/transform-with-as-to-hash-test.js should pass jshint.'); 
     });
   });
 enifed("ember-template-compiler/tests/plugins_test",

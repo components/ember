@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.f1813512
+ * @version   1.11.0-beta.1+canary.3e98733d
  */
 
 (function() {
@@ -119,7 +119,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.f1813512
+      @version 1.11.0-beta.1+canary.3e98733d
     */
 
     if ('undefined' === typeof Ember) {
@@ -146,10 +146,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.f1813512'
+      @default '1.11.0-beta.1+canary.3e98733d'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.f1813512';
+    Ember.VERSION = '1.11.0-beta.1+canary.3e98733d';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -407,6 +407,11 @@ enifed("ember-template-compiler/plugins/transform-each-in-to-hash",
 
       walker.visit(ast, function(node) {
         if (pluginContext.validate(node)) {
+
+          if (node.program && node.program.blockParams.length) {
+            throw new Error('You cannot use keyword (`{{each foo in bar}}`) and block params (`{{each bar as |foo|}}`) at the same time.');
+          }
+
           var removedParams = node.sexpr.params.splice(0, 2);
           var keyword = removedParams[0].original;
 
@@ -478,6 +483,11 @@ enifed("ember-template-compiler/plugins/transform-with-as-to-hash",
 
       walker.visit(ast, function(node) {
         if (pluginContext.validate(node)) {
+
+          if (node.program && node.program.blockParams.length) {
+            throw new Error('You cannot use keyword (`{{with foo as bar}}`) and block params (`{{with foo as |bar|}}`) at the same time.');
+          }
+
           var removedParams = node.sexpr.params.splice(1, 2);
           var keyword = removedParams[1].original;
           node.program.blockParams = [keyword];
