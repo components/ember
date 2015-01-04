@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.3aa89c18
+ * @version   1.11.0-beta.1+canary.5bb54de4
  */
 
 (function() {
@@ -11713,7 +11713,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.3aa89c18
+      @version 1.11.0-beta.1+canary.5bb54de4
     */
 
     if ('undefined' === typeof Ember) {
@@ -11740,10 +11740,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.3aa89c18'
+      @default '1.11.0-beta.1+canary.5bb54de4'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.3aa89c18';
+    Ember.VERSION = '1.11.0-beta.1+canary.5bb54de4';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -20528,6 +20528,8 @@ enifed("ember-routing-views/views/link",
           return get(route, 'activeClass');
         }
       }
+
+      return false;
     }
 
     function isActiveForRoute(route, routeName, isCurrentWhenSpecified, routerState) {
