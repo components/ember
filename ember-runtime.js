@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.92336418
+ * @version   1.11.0-beta.1+canary.f32b9be5
  */
 
 (function() {
@@ -5022,7 +5022,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.92336418
+      @version 1.11.0-beta.1+canary.f32b9be5
     */
 
     if ('undefined' === typeof Ember) {
@@ -5049,10 +5049,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.92336418'
+      @default '1.11.0-beta.1+canary.f32b9be5'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.92336418';
+    Ember.VERSION = '1.11.0-beta.1+canary.f32b9be5';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -7043,11 +7043,11 @@ enifed("ember-metal/map",
     }
 
     function copyMap(original, newObject) {
-      var keys = original.keys.copy();
-      var values = copyNull(original.values);
+      var keys = original._keys.copy();
+      var values = copyNull(original._values);
 
-      newObject.keys = keys;
-      newObject.values = values;
+      newObject._keys = keys;
+      newObject._values = values;
       newObject.size = original.size;
 
       return newObject;
@@ -7250,9 +7250,9 @@ enifed("ember-metal/map",
     */
     function Map() {
       if (this instanceof this.constructor) {
-        this.keys = OrderedSet.create();
-        this.keys._silenceRemoveDeprecation = true;
-        this.values = create(null);
+        this._keys = OrderedSet.create();
+        this._keys._silenceRemoveDeprecation = true;
+        this._values = create(null);
         this.size = 0;
       } else {
         missingNew("OrderedSet");
@@ -7292,7 +7292,7 @@ enifed("ember-metal/map",
       get: function(key) {
         if (this.size === 0) { return; }
 
-        var values = this.values;
+        var values = this._values;
         var guid = guidFor(key);
 
         return values[guid];
@@ -7308,8 +7308,8 @@ enifed("ember-metal/map",
         @return {Ember.Map}
       */
       set: function(key, value) {
-        var keys = this.keys;
-        var values = this.values;
+        var keys = this._keys;
+        var values = this._values;
         var guid = guidFor(key);
 
         // ensure we don't store -0
@@ -7349,8 +7349,8 @@ enifed("ember-metal/map",
         if (this.size === 0) { return false; }
         // don't use ES6 "delete" because it will be annoying
         // to use in browsers that are not ES6 friendly;
-        var keys = this.keys;
-        var values = this.values;
+        var keys = this._keys;
+        var values = this._values;
         var guid = guidFor(key);
 
         if (keys["delete"](key, guid)) {
@@ -7370,7 +7370,7 @@ enifed("ember-metal/map",
         @return {Boolean} true if the item was present, false otherwise
       */
       has: function(key) {
-        return this.keys.has(key);
+        return this._keys.has(key);
       },
 
       /**
@@ -7407,15 +7407,15 @@ enifed("ember-metal/map",
           };
         }
 
-        this.keys.forEach(cb);
+        this._keys.forEach(cb);
       },
 
       /**
         @method clear
       */
       clear: function() {
-        this.keys.clear();
-        this.values = create(null);
+        this._keys.clear();
+        this._values = create(null);
         this.size = 0;
       },
 
