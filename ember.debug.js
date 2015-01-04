@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.f32b9be5
+ * @version   1.11.0-beta.1+canary.8234cd2d
  */
 
 (function() {
@@ -12148,7 +12148,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.f32b9be5
+      @version 1.11.0-beta.1+canary.8234cd2d
     */
 
     if ('undefined' === typeof Ember) {
@@ -12175,10 +12175,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.f32b9be5'
+      @default '1.11.0-beta.1+canary.8234cd2d'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.f32b9be5';
+    Ember.VERSION = '1.11.0-beta.1+canary.8234cd2d';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -31373,7 +31373,7 @@ enifed("ember-runtime/mixins/enumerable",
         @method isAny
         @param {String} key the property to test
         @param {String} [value] optional value to test against.
-        @return {Boolean} `true` if the passed function returns `true` for any item
+        @return {Boolean}
         @since 1.3.0
       */
       isAny: function(key, value) {
@@ -31384,7 +31384,7 @@ enifed("ember-runtime/mixins/enumerable",
         @method anyBy
         @param {String} key the property to test
         @param {String} [value] optional value to test against.
-        @return {Boolean} `true` if the passed function returns `true` for any item
+        @return {Boolean}
         @deprecated Use `isAny` instead
       */
       anyBy: aliasMethod('isAny'),
@@ -31393,7 +31393,7 @@ enifed("ember-runtime/mixins/enumerable",
         @method someProperty
         @param {String} key the property to test
         @param {String} [value] optional value to test against.
-        @return {Boolean} `true` if the passed function returns `true` for any item
+        @return {Boolean}
         @deprecated Use `isAny` instead
       */
       someProperty: aliasMethod('isAny'),
