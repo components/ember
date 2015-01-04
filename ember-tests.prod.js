@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.57afe166
+ * @version   1.11.0-beta.1+canary.797ca17f
  */
 
 (function() {
@@ -4419,6 +4419,24 @@ enifed("ember-htmlbars/compat/register-bound-helper.jshint",
       ok(true, 'ember-htmlbars/compat/register-bound-helper.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/env.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars');
+    test('ember-htmlbars/env.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/env.js should pass jscs.');
+    });
+  });
+enifed("ember-htmlbars/env.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars');
+    test('ember-htmlbars/env.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/env.js should pass jshint.'); 
+    });
+  });
 enifed("ember-htmlbars/helpers.jscs-test",
   [],
   function() {
@@ -5031,6 +5049,24 @@ enifed("ember-htmlbars/system/merge-view-bindings.jshint",
       ok(true, 'ember-htmlbars/system/merge-view-bindings.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/system/render-view.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/system');
+    test('ember-htmlbars/system/render-view.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/system/render-view.js should pass jscs.');
+    });
+  });
+enifed("ember-htmlbars/system/render-view.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/system');
+    test('ember-htmlbars/system/render-view.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/system/render-view.js should pass jshint.'); 
+    });
+  });
 enifed("ember-htmlbars/tests/attr_nodes/boolean_test",
   ["ember-views/views/view","ember-metal/run_loop","ember-template-compiler/system/compile","htmlbars-test-helpers"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
@@ -5338,7 +5374,7 @@ enifed("ember-htmlbars/tests/attr_nodes/class_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/attr_nodes/data_test",
-  ["ember-views/views/view","ember-metal/run_loop","ember-runtime/system/object","ember-template-compiler/system/compile","htmlbars-test-helpers","ember-htmlbars","ember-runtime/tests/utils"],
+  ["ember-views/views/view","ember-metal/run_loop","ember-runtime/system/object","ember-template-compiler/system/compile","htmlbars-test-helpers","ember-htmlbars/env","ember-runtime/tests/utils"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
     "use strict";
     var EmberView = __dependency1__["default"];
@@ -5346,7 +5382,7 @@ enifed("ember-htmlbars/tests/attr_nodes/data_test",
     var EmberObject = __dependency3__["default"];
     var compile = __dependency4__["default"];
     var equalInnerHTML = __dependency5__.equalInnerHTML;
-    var defaultEnv = __dependency6__.defaultEnv;
+    var defaultEnv = __dependency6__["default"];
     var runAppend = __dependency7__.runAppend;
     var runDestroy = __dependency7__.runDestroy;
 
@@ -14572,11 +14608,11 @@ enifed("ember-htmlbars/tests/hooks/text_node_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/htmlbars_test",
-  ["ember-template-compiler/system/compile","ember-htmlbars","htmlbars-test-helpers"],
+  ["ember-template-compiler/system/compile","ember-htmlbars/env","htmlbars-test-helpers"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
     var compile = __dependency1__["default"];
-    var defaultEnv = __dependency2__.defaultEnv;
+    var defaultEnv = __dependency2__["default"];
     var equalHTML = __dependency3__.equalHTML;
 
     
