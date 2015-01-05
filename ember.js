@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.e53f5709
+ * @version   1.11.0-beta.1+canary.2c1f77ba
  */
 
 (function() {
@@ -2567,8 +2567,8 @@ enifed("ember-application/ext/controller",
     __exports__["default"] = ControllerMixin;
   });
 enifed("ember-application/system/application",
-  ["dag-map","container/registry","ember-metal","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/lazy_load","ember-runtime/system/namespace","ember-runtime/mixins/deferred","ember-application/system/resolver","ember-metal/platform","ember-metal/run_loop","ember-metal/utils","ember-runtime/controllers/controller","ember-metal/enumerable_utils","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-views/views/select","ember-views/system/event_dispatcher","ember-views/system/jquery","ember-routing/system/route","ember-routing/system/router","ember-routing/location/hash_location","ember-routing/location/history_location","ember-routing/location/auto_location","ember-routing/location/none_location","ember-routing/system/cache","ember-extension-support/container_debug_adapter","ember-metal/core","ember-metal/environment","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __exports__) {
+  ["dag-map","container/registry","ember-metal","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/lazy_load","ember-runtime/system/namespace","ember-runtime/mixins/deferred","ember-application/system/resolver","ember-metal/platform","ember-metal/run_loop","ember-metal/utils","ember-runtime/controllers/controller","ember-metal/enumerable_utils","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-views/system/renderer","ember-views/views/select","ember-views/system/event_dispatcher","ember-views/system/jquery","ember-routing/system/route","ember-routing/system/router","ember-routing/location/hash_location","ember-routing/location/history_location","ember-routing/location/auto_location","ember-routing/location/none_location","ember-routing/system/cache","ember-extension-support/container_debug_adapter","ember-metal/core","ember-metal/environment","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -2592,21 +2592,22 @@ enifed("ember-application/system/application",
     var EnumerableUtils = __dependency14__["default"];
     var ObjectController = __dependency15__["default"];
     var ArrayController = __dependency16__["default"];
-    var SelectView = __dependency17__["default"];
-    var EventDispatcher = __dependency18__["default"];
-    var jQuery = __dependency19__["default"];
-    var Route = __dependency20__["default"];
-    var Router = __dependency21__["default"];
-    var HashLocation = __dependency22__["default"];
-    var HistoryLocation = __dependency23__["default"];
-    var AutoLocation = __dependency24__["default"];
-    var NoneLocation = __dependency25__["default"];
-    var BucketCache = __dependency26__["default"];
+    var Renderer = __dependency17__["default"];
+    var SelectView = __dependency18__["default"];
+    var EventDispatcher = __dependency19__["default"];
+    var jQuery = __dependency20__["default"];
+    var Route = __dependency21__["default"];
+    var Router = __dependency22__["default"];
+    var HashLocation = __dependency23__["default"];
+    var HistoryLocation = __dependency24__["default"];
+    var AutoLocation = __dependency25__["default"];
+    var NoneLocation = __dependency26__["default"];
+    var BucketCache = __dependency27__["default"];
 
-    var ContainerDebugAdapter = __dependency27__["default"];
+    var ContainerDebugAdapter = __dependency28__["default"];
 
-    var K = __dependency28__.K;
-    var environment = __dependency29__["default"];
+    var K = __dependency29__.K;
+    var environment = __dependency30__["default"];
 
     function props(obj) {
       var properties = [];
@@ -3574,6 +3575,9 @@ enifed("ember-application/system/application",
         registry.register('controller:object', ObjectController, { instantiate: false });
         registry.register('controller:array', ArrayController, { instantiate: false });
 
+        registry.register('renderer:-dom', { create: function(opts) { return new Renderer(opts); } });
+
+        registry.injection('view', 'renderer', 'renderer:-dom');
         registry.register('view:select', SelectView);
 
         registry.register('route:basic', Route, { instantiate: false });
@@ -9256,7 +9260,7 @@ enifed("ember-metal-views/renderer",
     }
 
     Renderer.prototype.remove = Renderer_remove;
-    Renderer.prototype.destroy = function (view) {
+    Renderer.prototype.removeAndDestroy = function (view) {
       this.remove(view, true);
     };
 
@@ -12148,7 +12152,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.e53f5709
+      @version 1.11.0-beta.1+canary.2c1f77ba
     */
 
     if ('undefined' === typeof Ember) {
@@ -12175,10 +12179,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.e53f5709'
+      @default '1.11.0-beta.1+canary.2c1f77ba'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.e53f5709';
+    Ember.VERSION = '1.11.0-beta.1+canary.2c1f77ba';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -42719,7 +42723,7 @@ enifed("ember-views/views/core_view",
   ["ember-views/system/renderer","ember-views/views/states","ember-runtime/system/object","ember-runtime/mixins/evented","ember-runtime/mixins/action_handler","ember-metal/property_get","ember-metal/computed","ember-metal/utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
-    var Rerender = __dependency1__["default"];
+    var Renderer = __dependency1__["default"];
 
     var cloneStates = __dependency2__.cloneStates;
     var states = __dependency2__.states;
@@ -42733,6 +42737,13 @@ enifed("ember-views/views/core_view",
     var typeOf = __dependency8__.typeOf;
 
     function K() { return this; }
+
+    // Normally, the renderer is injected by the container when the view is looked
+    // up. However, if someone creates a view without looking it up via the
+    // container (e.g. `Ember.View.create().append()`) then we create a fallback
+    // DOM renderer that is shared. In general, this path should be avoided since
+    // views created this way cannot run in a node environment.
+    var renderer;
 
     /**
       `Ember.CoreView` is an abstract class that exists to give view-like behavior
@@ -42759,6 +42770,11 @@ enifed("ember-views/views/core_view",
         this._state = 'preRender';
         this.currentState = this._states.preRender;
         this._isVisible = get(this, 'isVisible');
+
+        if (!this.renderer) {
+          renderer = renderer || new Renderer();
+          this.renderer = renderer;
+        }
       },
 
       /**
@@ -42851,10 +42867,6 @@ enifed("ember-views/views/core_view",
       clearRenderedChildren: K,
       _transitionTo: K,
       destroyElement: K
-    });
-
-    CoreView.reopenClass({
-      renderer: new Rerender()
     });
 
     __exports__["default"] = CoreView;
@@ -45666,7 +45678,7 @@ enifed("ember-views/views/view",
         Ember.assert("You tried to append to (" + selector + ") but that isn't in the DOM", target.length > 0);
         Ember.assert("You cannot append to an existing Ember.View. Consider using Ember.ContainerView instead.", !target.is('.ember-view') && !target.parents().is('.ember-view'));
 
-        this.constructor.renderer.appendTo(this, target[0]);
+        this.renderer.appendTo(this, target[0]);
 
         return this;
       },
@@ -45690,7 +45702,7 @@ enifed("ember-views/views/view",
         Ember.assert("You tried to replace in (" + selector + ") but that isn't in the DOM", target.length > 0);
         Ember.assert("You cannot replace an existing Ember.View. Consider using Ember.ContainerView instead.", !target.is('.ember-view') && !target.parents().is('.ember-view'));
 
-        this.constructor.renderer.replaceIn(this, target[0]);
+        this.renderer.replaceIn(this, target[0]);
 
         return this;
       },
@@ -45778,7 +45790,7 @@ enifed("ember-views/views/view",
         if (this.element) { return this; }
 
         this._didCreateElementWithoutMorph = true;
-        this.constructor.renderer.renderTree(this);
+        this.renderer.renderTree(this);
 
         return this;
       },

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.e53f5709
+ * @version   1.11.0-beta.1+canary.2c1f77ba
  */
 
 (function() {
@@ -16746,7 +16746,7 @@ enifed("ember-metal-views/tests/attributes_test",
 
       equal(el.getAttribute('disabled'), 'disabled', "The attribute alias was set");
 
-      subject().destroy(view);
+      subject().removeAndDestroy(view);
     });
   });
 enifed("ember-metal-views/tests/attributes_test.jscs-test",
@@ -16809,7 +16809,7 @@ enifed("ember-metal-views/tests/children_test",
       appendTo(view);
       equalHTML('qunit-fixture', "<ul><li>ohai</li></ul>");
 
-      subject().destroy(view);
+      subject().removeAndDestroy(view);
     });
   });
 enifed("ember-metal-views/tests/children_test.jscs-test",
@@ -16843,7 +16843,7 @@ enifed("ember-metal-views/tests/main_test",
 
     testsFor("ember-metal-views", {
       teardown: function(renderer) {
-        if (view) { renderer.destroy(view); }
+        if (view) { renderer.removeAndDestroy(view); }
         view = null;
       }
     });
@@ -61904,6 +61904,36 @@ enifed("ember-views/tests/views/view/init_test",
           })["volatile"]()
         });
       }, /Only arrays are allowed/i);
+    });
+
+    test("creates a renderer if one is not provided", function() {
+      var childView;
+
+      view = EmberView.create({
+        render: function(buffer) {
+          buffer.push('Em');
+          this.appendChild(childView);
+        }
+      });
+
+      childView = EmberView.create({
+        template: function() { return 'ber'; }
+      });
+
+      run(function() {
+        view.append();
+      });
+
+      run(function() {
+        ok(get(view, 'renderer'), "view created without container receives a renderer");
+        strictEqual(get(view, 'renderer'), get(childView, 'renderer'), "parent and child share a renderer");
+      });
+
+
+      run(function() {
+        view.destroy();
+        childView.destroy();
+      });
     });
   });
 enifed("ember-views/tests/views/view/init_test.jscs-test",
