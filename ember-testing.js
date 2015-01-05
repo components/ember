@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.c409c45d
+ * @version   1.11.0-beta.1+canary.e6b0369a
  */
 
 (function() {
@@ -471,14 +471,15 @@ enifed("ember-testing/adapters/qunit",
     });
   });
 enifed("ember-testing/helpers",
-  ["ember-metal/property_get","ember-metal/error","ember-metal/run_loop","ember-views/system/jquery","ember-testing/test"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/error","ember-metal/run_loop","ember-views/system/jquery","ember-testing/test"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
-    var get = __dependency1__.get;
-    var EmberError = __dependency2__["default"];
-    var run = __dependency3__["default"];
-    var jQuery = __dependency4__["default"];
-    var Test = __dependency5__["default"];
+    var Ember = __dependency1__["default"];
+    var get = __dependency2__.get;
+    var EmberError = __dependency3__["default"];
+    var run = __dependency4__["default"];
+    var jQuery = __dependency5__["default"];
+    var Test = __dependency6__["default"];
 
     /**
     * @module ember
@@ -553,6 +554,34 @@ enifed("ember-testing/helpers",
 
       run($el, 'mouseup');
       run($el, 'click');
+
+      return app.testHelpers.wait();
+    }
+
+    function check(app, selector, context) {
+      var $el = app.testHelpers.findWithAssert(selector, context);
+      var type = $el.prop('type');
+
+      Ember.assert('To check \'' + selector +
+          '\', the input must be a checkbox', type === 'checkbox');
+
+      run(function() {
+        $el.prop('checked', true).change();
+      });
+
+      return app.testHelpers.wait();
+    }
+
+    function uncheck(app, selector, context) {
+      var $el = app.testHelpers.findWithAssert(selector, context);
+      var type = $el.prop('type');
+
+      Ember.assert('To uncheck \'' + selector +
+          '\', the input must be a checkbox', type === 'checkbox');
+
+      run(function() {
+        $el.prop('checked', false).change();
+      });
 
       return app.testHelpers.wait();
     }
@@ -723,6 +752,43 @@ enifed("ember-testing/helpers",
     */
     asyncHelper('click', click);
 
+    if (Ember.FEATURES.isEnabled('ember-testing-checkbox-helpers')) {
+      /**
+      * Checks a checkbox. Ensures the presence of the `checked` attribute
+      *
+      * Example:
+      *
+      * ```javascript
+      * check('#remember-me').then(function() {
+      *   // assert something
+      * });
+      * ```
+      *
+      * @method check
+      * @param {String} selector jQuery selector finding an `input[type="checkbox"]`
+      * element on the DOM to check
+      * @return {RSVP.Promise}
+      */
+      asyncHelper('check', check);
+
+      /**
+      * Unchecks a checkbox. Ensures the absence of the `checked` attribute
+      *
+      * Example:
+      *
+      * ```javascript
+      * uncheck('#remember-me').then(function() {
+      *   // assert something
+      * });
+      * ```
+      *
+      * @method check
+      * @param {String} selector jQuery selector finding an `input[type="checkbox"]`
+      * element on the DOM to uncheck
+      * @return {RSVP.Promise}
+      */
+      asyncHelper('uncheck', uncheck);
+    }
     /**
     * Simulates a key event, e.g. `keypress`, `keydown`, `keyup` with the desired keyCode
     *
