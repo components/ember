@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.5bb54de4
+ * @version   1.11.0-beta.1+canary.bacd2655
  */
 
 (function() {
@@ -12148,7 +12148,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.5bb54de4
+      @version 1.11.0-beta.1+canary.bacd2655
     */
 
     if ('undefined' === typeof Ember) {
@@ -12175,10 +12175,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.5bb54de4'
+      @default '1.11.0-beta.1+canary.bacd2655'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.5bb54de4';
+    Ember.VERSION = '1.11.0-beta.1+canary.bacd2655';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -37747,6 +37747,24 @@ enifed("ember-testing/helpers",
       return new Ember.RSVP.Promise(function() { }, 'TestAdapter paused promise');
     }
 
+    function focus(el) {
+      if (el && el.is(':input')) {
+        var type = el.prop('type');
+        if (type !== 'checkbox' && type !== 'radio' && type !== 'hidden') {
+          run(el, function() {
+            // Firefox does not trigger the `focusin` event if the window
+            // does not have focus. If the document doesn't have focus just
+            // use trigger('focusin') instead.
+            if (!document.hasFocus || document.hasFocus()) {
+              this.focus();
+            } else {
+              this.trigger('focusin');
+            }
+          });
+        }
+      }
+    }
+
     function visit(app, url) {
       var router = app.__container__.lookup('router:main');
       router.location.setURL(url);
@@ -37766,21 +37784,7 @@ enifed("ember-testing/helpers",
       var $el = app.testHelpers.findWithAssert(selector, context);
       run($el, 'mousedown');
 
-      if ($el.is(':input')) {
-        var type = $el.prop('type');
-        if (type !== 'checkbox' && type !== 'radio' && type !== 'hidden') {
-          run($el, function() {
-            // Firefox does not trigger the `focusin` event if the window
-            // does not have focus. If the document doesn't have focus just
-            // use trigger('focusin') instead.
-            if (!document.hasFocus || document.hasFocus()) {
-              this.focus();
-            } else {
-              this.trigger('focusin');
-            }
-          });
-        }
-      }
+      focus($el);
 
       run($el, 'mouseup');
       run($el, 'click');
@@ -37849,6 +37853,7 @@ enifed("ember-testing/helpers",
         context = contextOrText;
       }
       $el = app.testHelpers.findWithAssert(selector, context);
+      focus($el);
       run(function() {
         $el.val(text).change();
       });

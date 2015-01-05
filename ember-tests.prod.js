@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.5bb54de4
+ * @version   1.11.0-beta.1+canary.bacd2655
  */
 
 (function() {
@@ -53502,6 +53502,36 @@ enifed("ember-testing/tests/helpers_test",
       andThen(function() {
         equal(find('#first').val(), 'current value');
         equal(find('#second').val(), '');
+      });
+    });
+
+    test("`fillIn` focuses on the element", function() {
+      expect(2);
+      var fillIn, find, visit, andThen;
+
+      App.ApplicationRoute = Ember.Route.extend({
+        actions: {
+          wasFocused: function() {
+            ok(true, 'focusIn event was triggered');
+          }
+        }
+      });
+
+      App.IndexView = EmberView.extend({
+        template: compile('<div id="parent">{{input type="text" id="first" focus-in="wasFocused"}}</div>')
+      });
+
+      run(App, App.advanceReadiness);
+
+      fillIn = App.testHelpers.fillIn;
+      find = App.testHelpers.find;
+      visit = App.testHelpers.visit;
+      andThen = App.testHelpers.andThen;
+
+      visit('/');
+      fillIn('#first', 'current value');
+      andThen(function() {
+        equal(find('#first').val(), 'current value');
       });
     });
 
