@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.bacd2655
+ * @version   1.11.0-beta.1+canary.615c2ab2
  */
 
 (function() {
@@ -11713,7 +11713,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.bacd2655
+      @version 1.11.0-beta.1+canary.615c2ab2
     */
 
     if ('undefined' === typeof Ember) {
@@ -11740,10 +11740,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.bacd2655'
+      @default '1.11.0-beta.1+canary.615c2ab2'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.bacd2655';
+    Ember.VERSION = '1.11.0-beta.1+canary.615c2ab2';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -23925,8 +23925,12 @@ enifed("ember-routing/system/route",
         var name = params[0];
         var object = {};
 
-        if (/_id$/.test(name) && params.length === 1) {
-          object[name] = get(model, "id");
+        if (params.length === 1) {
+          if (name in model) {
+            object[name] = get(model, name);
+          } else if (/_id$/.test(name)) {
+            object[name] = get(model, "id");
+          }
         } else {
           object = getProperties(model, params);
         }

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.bacd2655
+ * @version   1.11.0-beta.1+canary.615c2ab2
  */
 
 (function() {
@@ -32572,6 +32572,12 @@ enifed("ember-routing/tests/system/route_test",
       var model = { id: 2 };
 
       deepEqual(route.serialize(model, ['post_id']), { post_id: 2 }, "serialized correctly");
+    });
+
+    test("returns checks for existence of model.post_id before trying model.id", function() {
+      var model = { post_id: 3 };
+
+      deepEqual(route.serialize(model, ['post_id']), { post_id: 3 }, "serialized correctly");
     });
 
     test("returns undefined if model is not set", function() {
