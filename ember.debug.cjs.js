@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.a586365d
+ * @version   1.11.0-beta.1+canary.111861f0
  */
 
 (function() {
@@ -12148,7 +12148,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.a586365d
+      @version 1.11.0-beta.1+canary.111861f0
     */
 
     if ('undefined' === typeof Ember) {
@@ -12175,10 +12175,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.a586365d'
+      @default '1.11.0-beta.1+canary.111861f0'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.a586365d';
+    Ember.VERSION = '1.11.0-beta.1+canary.111861f0';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -45978,7 +45978,7 @@ enifed("ember-views/views/view",
         Ember.assert("Only arrays are allowed for 'classNameBindings'", typeOf(this.classNameBindings) === 'array');
         this.classNameBindings = emberA(this.classNameBindings.slice());
 
-        Ember.assert("Only arrays are allowed for 'classNames'", typeOf(this.classNames) === 'array');
+        Ember.assert("Only arrays of static class strings are allowed for 'classNames'. For dynamic classes, use 'classNameBindings'.", typeOf(this.classNames) === 'array');
         this.classNames = emberA(this.classNames.slice());
       },
 

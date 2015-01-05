@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.a586365d
+ * @version   1.11.0-beta.1+canary.111861f0
  */
 
 (function() {
@@ -61818,7 +61818,7 @@ enifed("ember-views/tests/views/view/init_test",
 
     QUnit.module("EmberView.createWithMixins");
 
-    test("should warn if a non-array is used for classNames", function() {
+    test("should warn if a computed property is used for classNames", function() {
       expectAssertion(function() {
         EmberView.createWithMixins({
           elementId: 'test',
@@ -61826,10 +61826,10 @@ enifed("ember-views/tests/views/view/init_test",
             return ['className'];
           })["volatile"]()
         });
-      }, /Only arrays are allowed/i);
+      }, /Only arrays of static class strings.*For dynamic classes/i);
     });
 
-    test("should warn if a non-array is used for classNamesBindings", function() {
+    test("should warn if a non-array is used for classNameBindings", function() {
       expectAssertion(function() {
         EmberView.createWithMixins({
           elementId: 'test',
