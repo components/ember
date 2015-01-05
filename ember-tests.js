@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.f854485e
+ * @version   1.11.0-beta.1+canary.c409c45d
  */
 
 (function() {
@@ -62453,6 +62453,20 @@ enifed("ember-views/tests/views/view/nearest_of_type_test",
         childView = view.get('childViews')[0];
         equal(childView.nearestWithProperty('myProp'), view);
 
+      });
+
+      test("nearestChildOf should be deprecated", function() {
+        var child;
+
+        run(function() {
+          parentView = Parent.create();
+          parentView.appendTo('#qunit-fixture');
+        });
+
+        child = parentView.get('childViews')[0];
+        expectDeprecation(function() {
+          child.nearestChildOf(Parent);
+        }, 'nearestChildOf has been deprecated.');
       });
     }());
   });
