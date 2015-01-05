@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.e6b0369a
+ * @version   1.11.0-beta.1+canary.e53f5709
  */
 
 (function() {
@@ -29696,100 +29696,43 @@ enifed("ember-routing-htmlbars/tests/helpers/link-to_test.jshint",
     });
   });
 enifed("ember-routing-htmlbars/tests/helpers/outlet_test",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","container/registry","ember-runtime/system/namespace","ember-runtime/system/string","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-routing/system/router","ember-routing/location/hash_location","ember-views/views/metamorph_view","ember-routing/ext/view","ember-views/views/container_view","ember-views/system/jquery","ember-routing-htmlbars/helpers/outlet","ember-template-compiler/system/compile","ember-htmlbars/helpers","ember-runtime/tests/utils"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__) {
+  ["ember-metal/core","ember-metal/run_loop","ember-runtime/system/namespace","ember-views/views/metamorph_view","ember-routing/ext/view","ember-views/views/container_view","ember-views/system/jquery","ember-routing-htmlbars/helpers/outlet","ember-template-compiler/system/compile","ember-htmlbars/helpers","ember-runtime/tests/utils","ember-routing-htmlbars/tests/utils"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // TEMPLATES
-    var get = __dependency2__.get;
-    var set = __dependency3__.set;
-    var run = __dependency4__["default"];
+    var run = __dependency2__["default"];
 
-    var Registry = __dependency5__["default"];
-    var Namespace = __dependency6__["default"];
-    var decamelize = __dependency7__.decamelize;
-    var classify = __dependency7__.classify;
-    var Controller = __dependency8__["default"];
-    var ObjectController = __dependency9__["default"];
-    var ArrayController = __dependency10__["default"];
+    var Namespace = __dependency3__["default"];
 
-    var EmberRouter = __dependency11__["default"];
-    var HashLocation = __dependency12__["default"];
+    var _MetamorphView = __dependency4__["default"];
+    var EmberView = __dependency5__["default"];
+    var EmberContainerView = __dependency6__["default"];
+    var jQuery = __dependency7__["default"];
 
-    var _MetamorphView = __dependency13__["default"];
-    var EmberView = __dependency14__["default"];
-    var EmberContainerView = __dependency15__["default"];
-    var jQuery = __dependency16__["default"];
+    var outletHelper = __dependency8__.outletHelper;
 
-    var outletHelper = __dependency17__.outletHelper;
-
-    var compile = __dependency18__["default"];
-    var registerHelper = __dependency19__.registerHelper;
-    var helpers = __dependency19__["default"];
-    var runAppend = __dependency20__.runAppend;
-    var runDestroy = __dependency20__.runDestroy;
-
-    var buildRegistry = function(namespace) {
-      var registry = new Registry();
-
-      registry.set = set;
-      registry.resolver = resolverFor(namespace);
-      registry.optionsForType('view', { singleton: false });
-      registry.optionsForType('template', { instantiate: false });
-      registry.register('application:main', namespace, { instantiate: false });
-      registry.injection('router:main', 'namespace', 'application:main');
-
-      registry.register('location:hash', HashLocation);
-
-      registry.register('controller:basic', Controller, { instantiate: false });
-      registry.register('controller:object', ObjectController, { instantiate: false });
-      registry.register('controller:array', ArrayController, { instantiate: false });
-
-      registry.typeInjection('route', 'router', 'router:main');
-
-      return registry;
-    };
-
-    var buildContainer = function(registry) {
-      return registry.container();
-    };
-
-    function resolverFor(namespace) {
-      return function(fullName) {
-        var nameParts = fullName.split(":");
-        var type = nameParts[0];
-        var name = nameParts[1];
-
-        if (type === 'template') {
-          var templateName = decamelize(name);
-          if (Ember.TEMPLATES[templateName]) {
-            return Ember.TEMPLATES[templateName];
-          }
-        }
-
-        var className = classify(name) + classify(type);
-        var factory = get(namespace, className);
-
-        if (factory) { return factory; }
-      };
-    }
+    var compile = __dependency9__["default"];
+    var registerHelper = __dependency10__.registerHelper;
+    var helpers = __dependency10__["default"];
+    var runAppend = __dependency11__.runAppend;
+    var runDestroy = __dependency11__.runDestroy;
+    var buildRegistry = __dependency12__.buildRegistry;
 
     var trim = jQuery.trim;
 
     var view, registry, container, originalOutletHelper;
 
     QUnit.module("ember-routing-htmlbars: {{outlet}} helper", {
-
       setup: function() {
         originalOutletHelper = helpers['outlet'];
         registerHelper('outlet', outletHelper);
 
         var namespace = Namespace.create();
         registry = buildRegistry(namespace);
-        container = buildContainer(registry);
-        registry.register('view:default', _MetamorphView);
-        registry.register('router:main', EmberRouter.extend());
+        container = registry.container();
       },
+
       teardown: function() {
         delete helpers['outlet'];
         helpers['outlet'] = originalOutletHelper;
@@ -30109,88 +30052,41 @@ enifed("ember-routing-htmlbars/tests/helpers/outlet_test.jshint",
     });
   });
 enifed("ember-routing-htmlbars/tests/helpers/render_test",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-metal/platform","ember-metal/mixin","container/registry","ember-runtime/system/namespace","ember-runtime/system/string","ember-runtime/controllers/controller","ember-runtime/controllers/array_controller","ember-routing/system/router","ember-routing/location/hash_location","ember-htmlbars/helpers","ember-template-compiler/system/compile","ember-routing/ext/view","ember-views/views/metamorph_view","ember-views/system/jquery","ember-views/system/action_manager","ember-routing-htmlbars/helpers/render","ember-routing-htmlbars/helpers/action","ember-routing-htmlbars/helpers/outlet"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__) {
+  ["ember-metal/core","ember-metal/property_set","ember-metal/run_loop","ember-metal/platform","ember-metal/mixin","ember-runtime/system/namespace","ember-runtime/controllers/controller","ember-runtime/controllers/array_controller","ember-htmlbars/helpers","ember-template-compiler/system/compile","ember-routing/ext/view","ember-views/system/jquery","ember-views/system/action_manager","ember-routing-htmlbars/helpers/render","ember-routing-htmlbars/helpers/action","ember-routing-htmlbars/helpers/outlet","ember-routing-htmlbars/tests/utils","ember-runtime/tests/utils"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // TEMPLATES
-    var get = __dependency2__.get;
-    var emberSet = __dependency3__.set;
-    var run = __dependency4__["default"];
-    var canDefineNonEnumerableProperties = __dependency5__.canDefineNonEnumerableProperties;
-    var observer = __dependency6__.observer;
+    var set = __dependency2__.set;
+    var run = __dependency3__["default"];
+    var canDefineNonEnumerableProperties = __dependency4__.canDefineNonEnumerableProperties;
+    var observer = __dependency5__.observer;
 
-    var Registry = __dependency7__["default"];
-    var Namespace = __dependency8__["default"];
-    var classify = __dependency9__.classify;
-    var decamelize = __dependency9__.decamelize;
+    var Namespace = __dependency6__["default"];
 
-    var EmberController = __dependency10__["default"];
-    var EmberArrayController = __dependency11__["default"];
+    var EmberController = __dependency7__["default"];
+    var EmberArrayController = __dependency8__["default"];
 
-    var EmberRouter = __dependency12__["default"];
-    var HashLocation = __dependency13__["default"];
+    var registerHelper = __dependency9__.registerHelper;
+    var helpers = __dependency9__["default"];
+    var compile = __dependency10__["default"];
 
-    var registerHelper = __dependency14__.registerHelper;
-    var helpers = __dependency14__["default"];
-    var compile = __dependency15__["default"];
+    var EmberView = __dependency11__["default"];
+    var jQuery = __dependency12__["default"];
+    var ActionManager = __dependency13__["default"];
 
-    var EmberView = __dependency16__["default"];
-    var _MetamorphView = __dependency17__["default"];
-    var jQuery = __dependency18__["default"];
-    var ActionManager = __dependency19__["default"];
+    var renderHelper = __dependency14__.renderHelper;
+    var actionHelper = __dependency15__.actionHelper;
+    var outletHelper = __dependency16__.outletHelper;
 
-    var renderHelper = __dependency20__.renderHelper;
-    var actionHelper = __dependency21__.actionHelper;
-    var outletHelper = __dependency22__.outletHelper;
+    var buildRegistry = __dependency17__.buildRegistry;
+    var runAppend = __dependency18__.runAppend;
+    var runDestroy = __dependency18__.runDestroy;
 
-    function appendView(view) {
-      run(function() { view.appendTo('#qunit-fixture'); });
-    }
-
-    function set(object, key, value) {
-      run(function() { emberSet(object, key, value); });
-    }
-
-    function buildContainer(namespace) {
-      var registry = new Registry();
-      var container = registry.container();
-
-      registry.set = emberSet;
-      registry.resolver = resolverFor(namespace);
-      registry.optionsForType('view', { singleton: false });
-      registry.optionsForType('template', { instantiate: false });
-      registry.register('application:main', namespace, { instantiate: false });
-      registry.injection('router:main', 'namespace', 'application:main');
-
-      registry.register('location:hash', HashLocation);
-
-      registry.register('controller:basic', EmberController, { instantiate: false });
-      registry.register('controller:array', EmberArrayController, { instantiate: false });
-
-      registry.typeInjection('route', 'router', 'router:main');
-
-      return container;
-    }
-
-    function resolverFor(namespace) {
-      return function(fullName) {
-        var nameParts = fullName.split(":");
-        var type = nameParts[0];
-        var name = nameParts[1];
-
-        if (type === 'template') {
-          var templateName = decamelize(name);
-          if (Ember.TEMPLATES[templateName]) {
-            return Ember.TEMPLATES[templateName];
-          }
-        }
-
-        var className = classify(name) + classify(type);
-        var factory = get(namespace, className);
-
-        if (factory) { return factory; }
-      };
+    function runSet(object, key, value) {
+      run(function() {
+        set(object, key, value);
+      });
     }
 
     var view, container, originalRenderHelper, originalActionHelper, originalOutletHelper;
@@ -30208,10 +30104,10 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
 
 
         var namespace = Namespace.create();
-        container = buildContainer(namespace);
-        container._registry.register('view:default', _MetamorphView);
-        container._registry.register('router:main', EmberRouter.extend());
+        var registry = buildRegistry(namespace);
+        container = registry.container();
       },
+
       teardown: function() {
         delete helpers['render'];
         helpers['render'] = originalRenderHelper;
@@ -30222,15 +30118,8 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
         delete helpers['outlet'];
         helpers['outlet'] = originalOutletHelper;
 
-        run(function () {
-          if (container) {
-            container.destroy();
-          }
-          if (view) {
-            view.destroy();
-          }
-          container = view = null;
-        });
+        runDestroy(container);
+        runDestroy(view);
 
         Ember.TEMPLATES = {};
       }
@@ -30246,7 +30135,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
 
       Ember.TEMPLATES['home'] = compile("<p>BYE</p>");
 
-      appendView(view);
+      runAppend(view);
 
       equal(view.$().text(), 'HIBYE');
       ok(container.lookup('router:main')._lookupActiveView('home'), 'should register home as active view');
@@ -30261,7 +30150,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
       });
 
       expectAssertion(function() {
-        appendView(view);
+        runAppend(view);
       }, 'You used `{{render \'oops\'}}`, but \'oops\' can not be found as either a template or a view.');
     });
 
@@ -30274,7 +30163,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
         template: compile(template)
       });
 
-      appendView(view);
+      runAppend(view);
 
       equal(view.$().text(), 'HI Rob');
     });
@@ -30289,7 +30178,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
 
       container._registry.register('view:oops', EmberView.extend());
 
-      appendView(view);
+      runAppend(view);
 
       equal(view.$().text(), 'HI');
     });
@@ -30318,14 +30207,14 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
 
       Ember.TEMPLATES['post'] = compile("<p>{{model.title}}</p>");
 
-      appendView(view);
+      runAppend(view);
 
       var postController = view.get('_childViews')[0].get('controller');
 
       equal(view.$().text(), 'HIRails is omakase');
       equal(postController.get('model'), post);
 
-      set(controller, 'post', { title: "Rails is unagi" });
+      runSet(controller, 'post', { title: "Rails is unagi" });
 
       equal(view.$().text(), 'HIRails is unagi');
       if (canDefineNonEnumerableProperties) {
@@ -30360,7 +30249,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
       Ember.TEMPLATES['post'] = compile("<p>{{title}}</p>");
 
       var modelDidChange = 0;
-      appendView(view);
+      runAppend(view);
       equal(modelDidChange, 0, "model observer did not fire");
 
     });
@@ -30377,7 +30266,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
       Ember.TEMPLATES['home'] = compile("<p>BYE</p>");
 
       expectAssertion(function() {
-        appendView(view);
+        runAppend(view);
       }, 'The controller name you supplied \'postss\' did not resolve to a controller.');
     });
 
@@ -30392,7 +30281,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
 
       Ember.TEMPLATES['home'] = compile("<p>BYE</p>");
 
-      appendView(view);
+      runAppend(view);
 
       var renderedView = container.lookup('router:main')._lookupActiveView('home');
       equal(container.lookup('controller:posts'), renderedView.get('controller'), 'rendered with correct controller');
@@ -30409,7 +30298,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
       Ember.TEMPLATES['home'] = compile("<p>BYE</p>");
 
       expectAssertion(function() {
-        appendView(view);
+        runAppend(view);
       }, /\{\{render\}\} helper once/i);
     });
 
@@ -30440,7 +30329,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
 
       Ember.TEMPLATES['post'] = compile("<p>{{model.title}}</p>");
 
-      appendView(view);
+      runAppend(view);
 
       var postController1 = view.get('_childViews')[0].get('controller');
       var postController2 = view.get('_childViews')[1].get('controller');
@@ -30449,7 +30338,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
       equal(postController1.get('model'), post1);
       equal(postController2.get('model'), post2);
 
-      set(controller, 'post1', { title: "I am new" });
+      runSet(controller, 'post1', { title: "I am new" });
 
       ok(view.$().text().match(/^HI ?I am new ?Then me$/));
       if (canDefineNonEnumerableProperties) {
@@ -30482,11 +30371,11 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
 
       Ember.TEMPLATES['post'] = compile("<p>{{title}}</p>");
 
-      appendView(view);
+      runAppend(view);
 
       var postController1 = view.get('_childViews')[0].get('controller');
 
-      run(view, 'destroy');
+      runDestroy(view);
 
       ok(postController1.isDestroyed, 'expected postController to be destroyed');
     });
@@ -30507,7 +30396,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
 
       Ember.TEMPLATES['post'] = compile("<p>{{#unless model}}NOTHING{{/unless}}</p>");
 
-      appendView(view);
+      runAppend(view);
 
       var postController1 = view.get('_childViews')[0].get('controller');
       var postController2 = view.get('_childViews')[1].get('controller');
@@ -30540,7 +30429,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
 
       Ember.TEMPLATES['post'] = compile("<p>Title:{{model.title}}</p>");
 
-      appendView(view);
+      runAppend(view);
 
       var postController1 = view.get('_childViews')[0].get('controller');
       var postController2 = view.get('_childViews')[1].get('controller');
@@ -30549,7 +30438,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
       equal(postController1.get('model'), null);
       equal(postController2.get('model'), post);
 
-      set(controller, 'post', { title: "Rails is unagi" });
+      runSet(controller, 'post', { title: "Rails is unagi" });
 
       ok(view.$().text().match(/^HI ?Title: ?Title:Rails is unagi$/));
       if (canDefineNonEnumerableProperties) {
@@ -30582,7 +30471,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
 
       Ember.TEMPLATES['posts'] = compile('<button id="parent-action" {{action "parentPlease"}}>Go to {{parentController.role}}</button>');
 
-      appendView(view);
+      runAppend(view);
 
       var button = jQuery("#parent-action");
       var actionId = button.data('ember-action');
@@ -30605,7 +30494,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
 
       Ember.TEMPLATES['home'] = compile("<p>BYE</p>");
 
-      appendView(view);
+      runAppend(view);
 
       run(function() {
         view.connectOutlet('main', EmberView.create({
@@ -30639,7 +30528,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
 
       Ember.TEMPLATES['blog.post'] = compile("<p>POST</p>");
 
-      appendView(view);
+      runAppend(view);
 
       var renderedView = container.lookup('router:main')._lookupActiveView('blog.post');
       equal(renderedView.get('viewName'), 'blogPost', 'camelizes the view name');
@@ -30659,7 +30548,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
 
       Ember.TEMPLATES['blog.post'] = compile("<p>POST</p>");
 
-      appendView(view);
+      runAppend(view);
 
       var renderedView = container.lookup('router:main')._lookupActiveView('blog.post');
       equal(renderedView.get('viewName'), 'blogPost', 'camelizes the view name');
@@ -30680,7 +30569,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
       Ember.TEMPLATES['home'] = compile("<p>BYE</p>");
 
       expectAssertion(function() {
-        appendView(view);
+        runAppend(view);
       }, "The first argument of {{render}} must be quoted, e.g. {{render \"sidebar\"}}.");
     });
 
@@ -30695,7 +30584,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
       Ember.TEMPLATES['home'] = compile("<p>BYE</p>");
 
       expectAssertion(function() {
-        appendView(view);
+        runAppend(view);
       }, "The second argument of {{render}} must be a path, e.g. {{render \"post\" post}}.");
     });
 
@@ -30717,6 +30606,90 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test.jshint",
     module('JSHint - ember-routing-htmlbars/tests/helpers');
     test('ember-routing-htmlbars/tests/helpers/render_test.js should pass jshint', function() { 
       ok(true, 'ember-routing-htmlbars/tests/helpers/render_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-routing-htmlbars/tests/utils",
+  ["ember-metal/property_get","ember-metal/property_set","ember-runtime/system/string","container/registry","ember-runtime/controllers/controller","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-views/views/metamorph_view","ember-routing/system/router","ember-routing/location/hash_location","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __exports__) {
+    "use strict";
+    var get = __dependency1__.get;
+    var set = __dependency2__.set;
+    var classify = __dependency3__.classify;
+    var decamelize = __dependency3__.decamelize;
+
+    var Registry = __dependency4__["default"];
+    var Controller = __dependency5__["default"];
+    var ObjectController = __dependency6__["default"];
+    var ArrayController = __dependency7__["default"];
+
+    var _MetamorphView = __dependency8__["default"];
+    var EmberRouter = __dependency9__["default"];
+
+    var HashLocation = __dependency10__["default"];
+
+    function resolverFor(namespace) {
+      return function(fullName) {
+        var nameParts = fullName.split(":");
+        var type = nameParts[0];
+        var name = nameParts[1];
+
+        if (type === "template") {
+          var templateName = decamelize(name);
+          if (Ember.TEMPLATES[templateName]) {
+            return Ember.TEMPLATES[templateName];
+          }
+        }
+
+        var className = classify(name) + classify(type);
+        var factory = get(namespace, className);
+
+        if (factory) { return factory; }
+      };
+    }
+
+    function buildRegistry(namespace) {
+      var registry = new Registry();
+
+      registry.set = set;
+      registry.resolver = resolverFor(namespace);
+      registry.optionsForType("view", { singleton: false });
+      registry.optionsForType("template", { instantiate: false });
+      registry.register("application:main", namespace, { instantiate: false });
+      registry.injection("router:main", "namespace", "application:main");
+
+      registry.register("location:hash", HashLocation);
+
+      registry.register("controller:basic", Controller, { instantiate: false });
+      registry.register("controller:object", ObjectController, { instantiate: false });
+      registry.register("controller:array", ArrayController, { instantiate: false });
+
+      registry.register("view:default", _MetamorphView);
+      registry.register("router:main", EmberRouter.extend());
+
+      registry.typeInjection("route", "router", "router:main");
+
+      return registry;
+    }
+
+    __exports__.resolverFor = resolverFor;
+    __exports__.buildRegistry = buildRegistry;
+  });
+enifed("ember-routing-htmlbars/tests/utils.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-routing-htmlbars/tests');
+    test('ember-routing-htmlbars/tests/utils.js should pass jscs', function() {
+      ok(true, 'ember-routing-htmlbars/tests/utils.js should pass jscs.');
+    });
+  });
+enifed("ember-routing-htmlbars/tests/utils.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-routing-htmlbars/tests');
+    test('ember-routing-htmlbars/tests/utils.js should pass jshint', function() { 
+      ok(true, 'ember-routing-htmlbars/tests/utils.js should pass jshint.'); 
     });
   });
 enifed("ember-routing-views.jscs-test",
