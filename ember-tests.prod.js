@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.2c1f77ba
+ * @version   1.11.0-beta.1+canary.03f7556c
  */
 
 (function() {
@@ -32241,10 +32241,10 @@ enifed("ember-routing/tests/system/dsl_test.jshint",
     });
   });
 enifed("ember-routing/tests/system/route_test",
-  ["ember-metal/run_loop","container/registry","ember-runtime/system/service","ember-runtime/system/object","ember-routing/system/route","ember-runtime/inject"],
+  ["ember-runtime/tests/utils","container/registry","ember-runtime/system/service","ember-runtime/system/object","ember-routing/system/route","ember-runtime/inject"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
-    var run = __dependency1__["default"];
+    var runDestroy = __dependency1__.runDestroy;
     var Registry = __dependency2__["default"];
     var Service = __dependency3__["default"];
     var EmberObject = __dependency4__["default"];
@@ -32253,55 +32253,52 @@ enifed("ember-routing/tests/system/route_test",
 
     var route, routeOne, routeTwo, lookupHash;
 
-    function createRoute() {
+    function setup() {
       route = EmberRoute.create();
     }
 
-    function cleanupRoute() {
-      run(route, 'destroy');
+    function teardown() {
+      runDestroy(route);
     }
 
     QUnit.module("Ember.Route", {
-      setup: createRoute,
-      teardown: cleanupRoute
+      setup: setup,
+      teardown: teardown
     });
 
     test("default store utilizes the container to acquire the model factory", function() {
-      var Post, post;
-
       expect(4);
 
-      post = {};
+      var Post = EmberObject.extend();
+      var post = {};
 
-      Post = EmberObject.extend();
       Post.reopenClass({
         find: function(id) {
           return post;
         }
       });
 
-      var container = {
-        has: function() { return true; },
-        lookupFactory: lookupFactory
+      route.container = {
+        has: function() {
+          return true;
+        },
+
+        lookupFactory: function(fullName) {
+          equal(fullName, "model:post", "correct factory was looked up");
+
+          return Post;
+        }
       };
 
-      route.container = container;
       route.set('_qp', null);
 
       equal(route.model({ post_id: 1 }), post);
       equal(route.findModel('post', 1), post, '#findModel returns the correct post');
-
-      function lookupFactory(fullName) {
-        equal(fullName, "model:post", "correct factory was looked up");
-
-        return Post;
-      }
-
     });
 
     test("'store' can be injected by data persistence frameworks", function() {
       expect(8);
-      run(route, 'destroy');
+      runDestroy(route);
 
       var registry = new Registry();
       var container = registry.container();
@@ -32331,7 +32328,7 @@ enifed("ember-routing/tests/system/route_test",
 
     test("assert if 'store.find' method is not found", function() {
       expect(1);
-      run(route, 'destroy');
+      runDestroy(route);
 
       var registry = new Registry();
       var container = registry.container();
@@ -32349,7 +32346,7 @@ enifed("ember-routing/tests/system/route_test",
 
     test("asserts if model class is not found", function() {
       expect(1);
-      run(route, 'destroy');
+      runDestroy(route);
 
       var registry = new Registry();
       var container = registry.container();
@@ -32365,12 +32362,12 @@ enifed("ember-routing/tests/system/route_test",
     test("'store' does not need to be injected", function() {
       expect(1);
 
-      run(route, 'destroy');
+      runDestroy(route);
 
       var registry = new Registry();
       var container = registry.container();
 
-      registry.register('route:index',  EmberRoute);
+      registry.register('route:index', EmberRoute);
 
       route = container.lookup('route:index');
 
@@ -32401,7 +32398,7 @@ enifed("ember-routing/tests/system/route_test",
 
     test(".send just calls an action if the router is absent", function() {
       expect(7);
-      var route = Ember.Route.createWithMixins({
+      var route = EmberRoute.createWithMixins({
         actions: {
           returnsTrue: function(foo, bar) {
             equal(foo, 1);
@@ -32424,8 +32421,8 @@ enifed("ember-routing/tests/system/route_test",
 
 
     QUnit.module("Ember.Route serialize", {
-      setup: createRoute,
-      teardown: cleanupRoute
+      setup: setup,
+      teardown: teardown
     });
 
     test("returns the models properties if params does not include *_id", function() {
@@ -32468,10 +32465,8 @@ enifed("ember-routing/tests/system/route_test",
       },
 
       teardown: function() {
-        run(function() {
-          routeOne.destroy();
-          routeTwo.destroy();
-        });
+        runDestroy(routeOne);
+        runDestroy(routeTwo);
       }
     });
 
@@ -32523,24 +32518,25 @@ enifed("ember-routing/tests/system/route_test.jshint",
     });
   });
 enifed("ember-routing/tests/system/router_test",
-  ["ember-metal/run_loop","ember-runtime/copy","ember-metal/merge","ember-metal/enumerable_utils","container/registry","ember-routing/location/hash_location","ember-routing/location/auto_location","ember-routing/system/router","ember-runtime/tests/utils"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
+  ["ember-runtime/copy","ember-metal/merge","ember-metal/enumerable_utils","container/registry","ember-routing/location/hash_location","ember-routing/location/auto_location","ember-routing/system/router","ember-runtime/tests/utils"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
     "use strict";
-    var run = __dependency1__["default"];
-    var copy = __dependency2__["default"];
-    var merge = __dependency3__["default"];
-    var map = __dependency4__.map;
-    var Registry = __dependency5__["default"];
-    var HashLocation = __dependency6__["default"];
-    var AutoLocation = __dependency7__["default"];
-    var EmberRouter = __dependency8__["default"];
-    var runDestroy = __dependency9__.runDestroy;
+    var copy = __dependency1__["default"];
+    var merge = __dependency2__["default"];
+    var map = __dependency3__.map;
+    var Registry = __dependency4__["default"];
+    var HashLocation = __dependency5__["default"];
+    var AutoLocation = __dependency6__["default"];
+    var Router = __dependency7__["default"];
+    var runDestroy = __dependency8__.runDestroy;
 
-    var registry, container, Router, router;
+    var registry, container;
 
     function createRouter(overrides) {
       var opts = merge({ container: container }, overrides);
-      router = Router.create(opts);
+      var routerWithContainer = Router.extend();
+
+      return routerWithContainer.create(opts);
     }
 
     QUnit.module("Ember Router", {
@@ -32553,42 +32549,38 @@ enifed("ember-routing/tests/system/router_test",
 
         // ensure rootURL is injected into any locations
         registry.injection('location', 'rootURL', '-location-setting:root-url');
-
-        Router = EmberRouter.extend();
       },
       teardown: function() {
         runDestroy(container);
-        registry = container = Router = router = null;
+        registry = container = null;
       }
     });
 
     test("can create a router without a container", function() {
-      Router.create();
+      createRouter({ container: null });
 
       ok(true, 'no errors were thrown when creating without a container');
     });
 
     test("should not create a router.js instance upon init", function() {
-      createRouter();
+      var router = createRouter();
 
       ok(!router.router);
     });
 
     test("should destroy its location upon destroying the routers container.", function() {
-      createRouter();
-
+      var router = createRouter();
       var location = router.get('location');
 
-      run(container, 'destroy');
+      runDestroy(container);
 
       ok(location.isDestroyed, "location should be destroyed");
     });
 
     test("should instantiate its location with its `rootURL`", function() {
-      createRouter({
+      var router = createRouter({
         rootURL: '/rootdir/'
       });
-
       var location = router.get('location');
 
       equal(location.get('rootURL'), '/rootdir/');
@@ -32611,7 +32603,7 @@ enifed("ember-routing/tests/system/router_test",
       };
       AutoTestLocation._getSupportsHistory = function() { return false; };
 
-      container._registry.register('location:auto', AutoTestLocation);
+      registry.register('location:auto', AutoTestLocation);
 
       createRouter({
         location: 'auto',
@@ -32630,7 +32622,7 @@ enifed("ember-routing/tests/system/router_test",
         });
         handlerInfos.unshift({ name: 'ignored' });
 
-        return EmberRouter._routePath(handlerInfos);
+        return Router._routePath(handlerInfos);
       }
 
       equal(routePath('foo'), 'foo');
@@ -32649,14 +32641,15 @@ enifed("ember-routing/tests/system/router_test",
     test("Router should cancel routing setup when the Location class says so via cancelRouterSetup", function() {
       expect(0);
 
+      var router;
       var FakeLocation = {
         cancelRouterSetup: true,
         create: function () { return this; }
       };
 
-      container._registry.register('location:fake', FakeLocation);
+      registry.register('location:fake', FakeLocation);
 
-      router = Router.create({
+      router = createRouter({
         container: container,
         location: 'fake',
 
@@ -32686,7 +32679,7 @@ enifed("ember-routing/tests/system/router_test",
 
       AutoTestLocation._getSupportsHistory = function() { return false; };
 
-      container._registry.register('location:auto', AutoTestLocation);
+      registry.register('location:auto', AutoTestLocation);
 
       createRouter({
         location: 'auto',
@@ -32697,7 +32690,7 @@ enifed("ember-routing/tests/system/router_test",
     test("Router#handleURL should remove any #hashes before doing URL transition", function() {
       expect(2);
 
-      router = Router.create({
+      var router = createRouter({
         container: container,
 
         _doURLTransition: function (routerJsMethod, url) {
