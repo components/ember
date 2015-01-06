@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.4a1010a4
+ * @version   1.11.0-beta.1+canary.263dc91f
  */
 
 (function() {
@@ -6254,17 +6254,19 @@ enifed("ember-htmlbars/tests/compat/handlebars_get_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/compat/helper_test",
-  ["ember-htmlbars/compat/helper","ember-views/views/view","ember-htmlbars/helpers","ember-template-compiler/system/compile","ember-runtime/tests/utils"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
+  ["ember-htmlbars/compat/helper","ember-views/views/view","ember-views/views/component","ember-htmlbars/system/make-view-helper","ember-htmlbars/helpers","ember-template-compiler/system/compile","ember-runtime/tests/utils"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
     "use strict";
     var registerHandlebarsCompatibleHelper = __dependency1__.registerHandlebarsCompatibleHelper;
 
     var EmberView = __dependency2__["default"];
+    var Component = __dependency3__["default"];
 
-    var helpers = __dependency3__["default"];
-    var compile = __dependency4__["default"];
-    var runAppend = __dependency5__.runAppend;
-    var runDestroy = __dependency5__.runDestroy;
+    var makeViewHelper = __dependency4__["default"];
+    var helpers = __dependency5__["default"];
+    var compile = __dependency6__["default"];
+    var runAppend = __dependency7__.runAppend;
+    var runDestroy = __dependency7__.runDestroy;
 
     var view;
 
@@ -6276,6 +6278,7 @@ enifed("ember-htmlbars/tests/compat/helper_test",
         runDestroy(view);
 
         delete helpers.test;
+        delete helpers['view-helper'];
       }
     });
 
@@ -6375,6 +6378,25 @@ enifed("ember-htmlbars/tests/compat/helper_test",
       });
 
       runAppend(view);
+    });
+
+    test('registering a helper created from `Ember.Handlebars.makeViewHelper` does not double wrap the helper', function() {
+      expect(1);
+
+      var ViewHelperComponent = Component.extend({
+        layout: compile('woot!')
+      });
+
+      var helper = makeViewHelper(ViewHelperComponent);
+      registerHandlebarsCompatibleHelper('view-helper', helper);
+
+      view = EmberView.extend({
+        template: compile('{{view-helper}}')
+      }).create();
+
+      runAppend(view);
+
+      equal(view.$().text(), 'woot!');
     });
 
     // jscs:enable validateIndentation
