@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.50bd936d
+ * @version   1.11.0-beta.1+canary.4a1010a4
  */
 
 (function() {
@@ -9120,8 +9120,8 @@ enifed("ember-metal-views/renderer",
     __exports__["default"] = Renderer;
   });
 enifed("ember-metal",
-  ["ember-metal/core","ember-metal/merge","ember-metal/instrumentation","ember-metal/utils","ember-metal/error","ember-metal/enumerable_utils","ember-metal/cache","ember-metal/platform","ember-metal/array","ember-metal/logger","ember-metal/property_get","ember-metal/events","ember-metal/observer_set","ember-metal/property_events","ember-metal/properties","ember-metal/property_set","ember-metal/map","ember-metal/get_properties","ember-metal/set_properties","ember-metal/watch_key","ember-metal/chains","ember-metal/watch_path","ember-metal/watching","ember-metal/expand_properties","ember-metal/computed","ember-metal/computed_macros","ember-metal/observer","ember-metal/mixin","ember-metal/binding","ember-metal/run_loop","ember-metal/libraries","ember-metal/is_none","ember-metal/is_empty","ember-metal/is_blank","ember-metal/is_present","ember-metal/keys","backburner","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __dependency31__, __dependency32__, __dependency33__, __dependency34__, __dependency35__, __dependency36__, __dependency37__, __exports__) {
+  ["ember-metal/core","ember-metal/merge","ember-metal/instrumentation","ember-metal/utils","ember-metal/error","ember-metal/enumerable_utils","ember-metal/cache","ember-metal/platform","ember-metal/array","ember-metal/logger","ember-metal/property_get","ember-metal/events","ember-metal/observer_set","ember-metal/property_events","ember-metal/properties","ember-metal/property_set","ember-metal/map","ember-metal/get_properties","ember-metal/set_properties","ember-metal/watch_key","ember-metal/chains","ember-metal/watch_path","ember-metal/watching","ember-metal/expand_properties","ember-metal/computed","ember-metal/computed_macros","ember-metal/observer","ember-metal/mixin","ember-metal/binding","ember-metal/run_loop","ember-metal/libraries","ember-metal/is_none","ember-metal/is_empty","ember-metal/is_blank","ember-metal/is_present","ember-metal/keys","backburner","ember-metal/streams/utils","ember-metal/streams/stream","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __dependency31__, __dependency32__, __dependency33__, __dependency34__, __dependency35__, __dependency36__, __dependency37__, __dependency38__, __dependency39__, __exports__) {
     "use strict";
     /**
     Ember Metal
@@ -9254,6 +9254,18 @@ enifed("ember-metal",
     var isPresent = __dependency35__["default"];
     var keys = __dependency36__["default"];
     var Backburner = __dependency37__["default"];
+    var isStream = __dependency38__.isStream;
+    var subscribe = __dependency38__.subscribe;
+    var unsubscribe = __dependency38__.unsubscribe;
+    var read = __dependency38__.read;
+    var readHash = __dependency38__.readHash;
+    var readArray = __dependency38__.readArray;
+    var scanArray = __dependency38__.scanArray;
+    var scanHash = __dependency38__.scanHash;
+    var concat = __dependency38__.concat;
+    var chain = __dependency38__.chain;
+
+    var Stream = __dependency39__["default"];
 
     // END IMPORTS
 
@@ -9414,6 +9426,23 @@ enifed("ember-metal",
     Ember.isPresent = isPresent;
 
     Ember.merge = merge;
+
+    if (Ember.FEATURES.isEnabled('ember-metal-stream')) {
+      Ember.stream = {
+        Stream: Stream,
+
+        isStream: isStream,
+        subscribe: subscribe,
+        unsubscribe: unsubscribe,
+        read: read,
+        readHash: readHash,
+        readArray: readArray,
+        scanArray: scanArray,
+        scanHash: scanHash,
+        concat: concat,
+        chain: chain
+      };
+    }
 
     /**
       A function may be assigned to `Ember.onerror` to be called when Ember
@@ -11986,7 +12015,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.50bd936d
+      @version 1.11.0-beta.1+canary.4a1010a4
     */
 
     if ('undefined' === typeof Ember) {
@@ -12013,10 +12042,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.50bd936d'
+      @default '1.11.0-beta.1+canary.4a1010a4'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.50bd936d';
+    Ember.VERSION = '1.11.0-beta.1+canary.4a1010a4';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -17595,6 +17624,16 @@ enifed("ember-metal/streams/stream",
     var getFirstKey = __dependency2__.getFirstKey;
     var getTailPath = __dependency2__.getTailPath;
 
+    /**
+    @module ember-metal
+    */
+
+    /**
+      @public
+      @class Stream
+      @namespace Ember.stream
+      @constructor
+    */
     function Stream(fn) {
       this.init();
       this.valueFn = fn;
@@ -17824,7 +17863,8 @@ enifed("ember-metal/streams/utils",
     /**
      Check whether an object is a stream or not
 
-     @private
+     @public
+     @for Ember.stream
      @function isStream
      @param {Object|Stream} object object to check whether it is a stream
      @return {Boolean} `true` if the object is a stream, `false` otherwise
@@ -17837,7 +17877,8 @@ enifed("ember-metal/streams/utils",
      A method of subscribing to a stream which is safe for use with a non-stream
      object. If a non-stream object is passed, the function does nothing.
 
-     @private
+     @public
+     @for Ember.stream
      @function subscribe
      @param {Object|Stream} object object or stream to potentially subscribe to
      @param {Function} callback function to run when stream value changes
@@ -17854,7 +17895,8 @@ enifed("ember-metal/streams/utils",
      A method of unsubscribing from a stream which is safe for use with a non-stream
      object. If a non-stream object is passed, the function does nothing.
 
-     @private
+     @public
+     @for Ember.stream
      @function unsubscribe
      @param {Object|Stream} object object or stream to potentially unsubscribe from
      @param {Function} callback function originally passed to `subscribe()`
@@ -17870,7 +17912,8 @@ enifed("ember-metal/streams/utils",
      Retrieve the value of a stream, or in the case a non-stream object is passed,
      return the object itself.
 
-     @private
+     @public
+     @for Ember.stream
      @function read
      @param {Object|Stream} object object to return the value of
      @return the stream's current value, or the non-stream object itself
@@ -17886,7 +17929,8 @@ enifed("ember-metal/streams/utils",
     __exports__.read = read;/**
      Map an array, replacing any streams with their values.
 
-     @private
+     @public
+     @for Ember.stream
      @function readArray
      @param {Array} array The array to read values from
      @return {Array} a new array of the same length with the values of non-stream
@@ -17907,7 +17951,8 @@ enifed("ember-metal/streams/utils",
      Map a hash, replacing any stream property values with the current value of that
      stream.
 
-     @private
+     @public
+     @for Ember.stream
      @function readHash
      @param {Object} object The hash to read keys and values from
      @return {Object} a new object with the same keys as the passed object. The
@@ -17926,7 +17971,8 @@ enifed("ember-metal/streams/utils",
     __exports__.readHash = readHash;/**
      Check whether an array contains any stream values
 
-     @private
+     @public
+     @for Ember.stream
      @function scanArray
      @param {Array} array array given to a handlebars helper
      @return {Boolean} `true` if the array contains a stream/bound value, `false`
@@ -17949,7 +17995,8 @@ enifed("ember-metal/streams/utils",
     __exports__.scanArray = scanArray;/**
      Check whether a hash has any stream property values
 
-     @private
+     @public
+     @for Ember.stream
      @function scanHash
      @param {Object} hash "hash" argument given to a handlebars helper
      @return {Boolean} `true` if the object contains a stream/bound value, `false`
@@ -17971,7 +18018,8 @@ enifed("ember-metal/streams/utils",
     __exports__.scanHash = scanHash;/**
      Join an array, with any streams replaced by their current values
 
-     @private
+     @public
+     @for Ember.stream
      @function concat
      @param {Array} array An array containing zero or more stream objects and
                           zero or more non-stream objects
@@ -18020,7 +18068,8 @@ enifed("ember-metal/streams/utils",
      In the example, result is a stream if source is a stream, or a number of
      source was numeric.
 
-     @private
+     @public
+     @for Ember.stream
      @function chain
      @param {Object|Stream} value A stream or non-stream object
      @param {Function} fn function to be run when the stream value changes, or to
