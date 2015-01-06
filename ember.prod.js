@@ -4559,8 +4559,7 @@ enifed("ember-htmlbars",
     
       Ember.HTMLBars = {
         helpers: helpers,
-        helper: helper,
-        _registerHelper: registerHelper,
+        registerHelper: registerHelper,
         template: template,
         compile: compile,
         precompile: precompile,
@@ -5024,8 +5023,8 @@ enifed("ember-htmlbars/compat/register-bound-helper",
     }
   });
 enifed("ember-htmlbars/helpers",
-  ["ember-metal/platform","ember-views/views/view","ember-views/views/component","ember-htmlbars/system/make-view-helper","ember-htmlbars/system/helper","ember-htmlbars/system/make_bound_helper","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+  ["ember-metal/platform","ember-htmlbars/system/helper","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -5045,184 +5044,28 @@ enifed("ember-htmlbars/helpers",
     @submodule ember-htmlbars
     */
 
-    var View = __dependency2__["default"];
-    var Component = __dependency3__["default"];
-    var makeViewHelper = __dependency4__["default"];
-    var Helper = __dependency5__["default"];
-    var makeBoundHelper = __dependency6__["default"];
+    var Helper = __dependency2__["default"];
 
     /**
-      Register a bound helper or custom view helper.
-
-      ## Simple bound helper example
-
-      ```javascript
-      Ember.HTMLBars.helper('capitalize', function(value) {
-        return value.toUpperCase();
-      });
-      ```
-
-      The above bound helper can be used inside of templates as follows:
-
-      ```handlebars
-      {{capitalize name}}
-      ```
-
-      In this case, when the `name` property of the template's context changes,
-      the rendered value of the helper will update to reflect this change.
-
-      For more examples of bound helpers, see documentation for
-      `Ember.HTMLBars.registerBoundHelper`.
-
-      ## Custom view helper example
-
-      Assuming a view subclass named `App.CalendarView` were defined, a helper
-      for rendering instances of this view could be registered as follows:
-
-      ```javascript
-      Ember.HTMLBars.helper('calendar', App.CalendarView):
-      ```
-
-      The above bound helper can be used inside of templates as follows:
-
-      ```handlebars
-      {{calendar}}
-      ```
-
-      Which is functionally equivalent to:
-
-      ```handlebars
-      {{view 'calendar'}}
-      ```
-
-      Options in the helper will be passed to the view in exactly the same
-      manner as with the `view` helper.
-
-      @private
-      @method helper
-      @for Ember.HTMLBars
-      @param {String} name
-      @param {Function|Ember.View} function or view class constructor
-    */
-    function helper(name, value) {
-      
-      if (View.detect(value)) {
-        helpers[name] = makeViewHelper(value);
-      } else {
-        registerBoundHelper(name, value);
-      }
-    }
-
-    __exports__.helper = helper;/**
-      @private
+      @public
       @method registerHelper
       @for Ember.HTMLBars
       @param {String} name
-      @param {Function} helperFunc the helper function to add
+      @param {Object|Function} helperFunc the helper function to add
     */
-    function registerHelper(name, helperFunc, preprocessFunction) {
-      helpers[name] = new Helper(helperFunc, preprocessFunction);
+    function registerHelper(name, helperFunc) {
+      var helper;
+
+      if (helperFunc && helperFunc.isHelper) {
+        helper = helperFunc;
+      } else {
+        helper = new Helper(helperFunc);
+      }
+
+      helpers[name] = helper;
     }
 
-    __exports__.registerHelper = registerHelper;/**
-      Register a bound helper. Bound helpers behave similarly to regular
-      helpers, with the added ability to re-render when the underlying data
-      changes.
-
-      ## Simple example
-
-      ```javascript
-      Ember.HTMLBars.registerBoundHelper('capitalize', function(params, hash, options, env) {
-        return Ember.String.capitalize(params[0]);
-      });
-      ```
-
-      The above bound helper can be used inside of templates as follows:
-
-      ```handlebars
-      {{capitalize name}}
-      ```
-
-      In this case, when the `name` property of the template's context changes,
-      the rendered value of the helper will update to reflect this change.
-
-      ## Example with hash parameters
-
-      Like normal helpers, bound helpers have access to the hash parameters
-      passed into the helper call.
-
-      ```javascript
-      Ember.HTMLBars.registerBoundHelper('repeat', function(params, hash) {
-        var count = hash.count;
-        var value = params[0];
-
-        return new Array( count + 1).join( value );
-      });
-      ```
-
-      This helper could be used in a template as follows:
-
-      ```handlebars
-      {{repeat text count=3}}
-      ```
-
-      ## Example with bound hash parameters
-
-      Bound hash params are also supported. Example:
-
-      ```handlebars
-      {{repeat text count=numRepeats}}
-      ```
-
-      In this example, count will be bound to the value of
-      the `numRepeats` property on the context. If that property
-      changes, the helper will be re-rendered.
-
-      ## Example with multiple bound properties
-
-      `Ember.HTMLBars.registerBoundHelper` supports binding to
-      multiple properties, e.g.:
-
-      ```javascript
-      Ember.HTMLBars.registerBoundHelper('concatenate', function(params) {
-        return params.join('||');
-      });
-      ```
-
-      Which allows for template syntax such as `{{concatenate prop1 prop2}}` or
-      `{{concatenate prop1 prop2 prop3}}`. If any of the properties change,
-      the helper will re-render.
-
-      ## Use with unbound helper
-
-      The `{{unbound}}` helper can be used with bound helper invocations
-      to render them in their unbound form, e.g.
-
-      ```handlebars
-      {{unbound capitalize name}}
-      ```
-
-      In this example, if the name property changes, the helper
-      will not re-render.
-
-      ## Use with blocks not supported
-
-      Bound helpers do not support use with blocks or the addition of
-      child views of any kind.
-
-      @private
-      @method registerBoundHelper
-      @for Ember.HTMLBars
-      @param {String} name
-      @param {Function} function
-    */
-    function registerBoundHelper(name, fn) {
-      var boundFn = makeBoundHelper(fn);
-
-      helpers[name] = boundFn;
-    }
-
-    __exports__.registerBoundHelper = registerBoundHelper;__exports__["default"] = helpers;
+    __exports__.registerHelper = registerHelper;__exports__["default"] = helpers;
   });
 enifed("ember-htmlbars/helpers/bind-attr",
   ["ember-metal/core","ember-runtime/system/string","ember-views/attr_nodes/attr_node","ember-views/attr_nodes/legacy_bind","ember-metal/keys","ember-htmlbars/helpers","ember-metal/enumerable_utils","ember-metal/streams/utils","ember-views/streams/class_name_binding","exports"],
@@ -7842,19 +7685,12 @@ enifed("ember-htmlbars/system/helper",
       @class Helper
       @namespace Ember.HTMLBars
     */
-    function Helper(helper, preprocessArguments) {
+    function Helper(helper) {
       this.helperFunction = helper;
 
-      if (preprocessArguments) {
-        this.preprocessArguments = preprocessArguments;
-      }
-
+      this.isHelper = true;
       this.isHTMLBars = true;
     }
-
-    Helper.prototype = {
-      preprocessArguments: function() { }
-    };
 
     __exports__["default"] = Helper;
   });
@@ -23503,8 +23339,12 @@ enifed("ember-routing/system/route",
 
         var name = params[0], object = {};
 
-        if (/_id$/.test(name) && params.length === 1) {
-          object[name] = get(model, "id");
+        if (params.length === 1) {
+          if (name in model) {
+            object[name] = get(model, name);
+          } else if (/_id$/.test(name)) {
+            object[name] = get(model, "id");
+          }
         } else {
           object = getProperties(model, params);
         }
@@ -30170,7 +30010,7 @@ enifed("ember-runtime/mixins/enumerable",
         @method isAny
         @param {String} key the property to test
         @param {String} [value] optional value to test against.
-        @return {Boolean} `true` if the passed function returns `true` for any item
+        @return {Boolean}
         @since 1.3.0
       */
       isAny: function(key, value) {
@@ -30181,7 +30021,7 @@ enifed("ember-runtime/mixins/enumerable",
         @method anyBy
         @param {String} key the property to test
         @param {String} [value] optional value to test against.
-        @return {Boolean} `true` if the passed function returns `true` for any item
+        @return {Boolean}
         @deprecated Use `isAny` instead
       */
       anyBy: aliasMethod('isAny'),
@@ -30190,7 +30030,7 @@ enifed("ember-runtime/mixins/enumerable",
         @method someProperty
         @param {String} key the property to test
         @param {String} [value] optional value to test against.
-        @return {Boolean} `true` if the passed function returns `true` for any item
+        @return {Boolean}
         @deprecated Use `isAny` instead
       */
       someProperty: aliasMethod('isAny'),
@@ -33181,8 +33021,8 @@ enifed("ember-runtime/system/core_object",
         view.get('classNames'); // ['ember-view', 'bar', 'foo', 'baz']
         ```
 
-        Using the `concatenatedProperties` property, we can tell to Ember that mix
-        the content of the properties.
+        Using the `concatenatedProperties` property, we can tell Ember to mix the
+        content of the properties.
 
         In `Ember.View` the `classNameBindings` and `attributeBindings` properties
         are also concatenated, in addition to `classNames`.
@@ -36049,6 +35889,11 @@ enifed("ember-template-compiler/plugins/transform-each-in-to-hash",
 
       walker.visit(ast, function(node) {
         if (pluginContext.validate(node)) {
+
+          if (node.program && node.program.blockParams.length) {
+            throw new Error('You cannot use keyword (`{{each foo in bar}}`) and block params (`{{each bar as |foo|}}`) at the same time.');
+          }
+
           var removedParams = node.sexpr.params.splice(0, 2);
           var keyword = removedParams[0].original;
 
@@ -36120,6 +35965,11 @@ enifed("ember-template-compiler/plugins/transform-with-as-to-hash",
 
       walker.visit(ast, function(node) {
         if (pluginContext.validate(node)) {
+
+          if (node.program && node.program.blockParams.length) {
+            throw new Error('You cannot use keyword (`{{with foo as bar}}`) and block params (`{{with foo as |bar|}}`) at the same time.');
+          }
+
           var removedParams = node.sexpr.params.splice(1, 2);
           var keyword = removedParams[1].original;
           node.program.blockParams = [ keyword ];

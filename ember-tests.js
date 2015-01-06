@@ -4034,7 +4034,7 @@ enifed("ember-htmlbars.jshint",
     "use strict";
     module('JSHint - .');
     test('ember-htmlbars.js should pass jshint', function() { 
-      ok(true, 'ember-htmlbars.js should pass jshint.'); 
+      ok(false, 'ember-htmlbars.js should pass jshint.\nember-htmlbars.js: line 26, col 3, \'helper\' is defined but never used.\n\n1 error'); 
     });
   });
 enifed("ember-htmlbars/compat.jshint",
@@ -5560,116 +5560,6 @@ enifed("ember-htmlbars/tests/compat/precompile_test.jshint",
     module('JSHint - ember-htmlbars/tests/compat');
     test('ember-htmlbars/tests/compat/precompile_test.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/tests/compat/precompile_test.js should pass jshint.'); 
-    });
-  });
-enifed("ember-htmlbars/tests/helper_test",
-  ["ember-views/views/view","ember-metal/run_loop","ember-runtime/system/object","ember-metal/property_set","ember-runtime/tests/utils","ember-htmlbars/helpers","ember-template-compiler/system/compile"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
-    "use strict";
-    var EmberView = __dependency1__["default"];
-    var run = __dependency2__["default"];
-    var EmberObject = __dependency3__["default"];
-    var set = __dependency4__.set;
-    var runAppend = __dependency5__.runAppend;
-    var runDestroy = __dependency5__.runDestroy;
-
-    var helpers = __dependency6__["default"];
-    var helper = __dependency6__.helper;
-    var compile = __dependency7__["default"];
-
-    var view;
-
-    QUnit.module("ember-htmlbars: Ember.HTMLBars.helper", {
-      teardown: function() {
-        runDestroy(view);
-
-        delete helpers.oceanView;
-        delete helpers.something;
-      }
-    });
-
-    test("should render an instance of the specified view", function() {
-      var OceanView = EmberView.extend({
-        template: compile('zomg, nice view')
-      });
-
-      helper('oceanView', OceanView);
-
-      view = EmberView.create({
-        controller: EmberObject.create(),
-        template: compile('{{oceanView tagName="strong"}}')
-      });
-
-      runAppend(view);
-
-      var oceanViews = view.$().find("strong:contains('zomg, nice view')");
-
-      equal(oceanViews.length, 1, "helper rendered an instance of the view");
-    });
-
-    test("Should bind to this keyword", function() {
-      var OceanView = EmberView.extend({
-        model: null,
-        template: compile('{{view.model}}')
-      });
-
-      helper('oceanView', OceanView);
-
-      view = EmberView.create({
-        context: 'foo',
-        controller: EmberObject.create(),
-        template: compile('{{oceanView tagName="strong" viewName="ocean" model=this}}')
-      });
-
-      runAppend(view);
-
-      var oceanViews = view.$().find("strong:contains('foo')");
-
-      equal(oceanViews.length, 1, "helper rendered an instance of the view");
-
-      run(function() {
-        set(view, 'ocean.model', 'bar');
-      });
-
-      oceanViews = view.$().find("strong:contains('bar')");
-
-      equal(oceanViews.length, 1, "helper rendered an instance of the view");
-    });
-
-    test('should create a bound helper when provided a function', function() {
-      var boundFunc;
-      
-        boundFunc = function(params, hash) {
-          return params[0];
-        };
-      
-      helper('something', boundFunc);
-
-      view = EmberView.create({
-        controller: {
-          value: 'foo'
-        },
-        template: compile('{{something value}}')
-      });
-
-      runAppend(view);
-
-      equal(view.$().text(), 'foo', 'renders the bound value initially');
-
-      run(function() {
-        set(view, 'controller.value', 'bar');
-      });
-
-      equal(view.$().text(), 'bar', 're-renders the bound value');
-    });
-  });
-enifed("ember-htmlbars/tests/helper_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-htmlbars/tests');
-    test('ember-htmlbars/tests/helper_test.js should pass jshint', function() { 
-      ok(true, 'ember-htmlbars/tests/helper_test.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/tests/helpers/bind_attr_test",
@@ -12144,8 +12034,8 @@ enifed("ember-htmlbars/tests/helpers/with_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helpers/yield_test",
-  ["ember-metal/run_loop","ember-views/views/view","ember-metal/computed","ember-runtime/system/container","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/native_array","ember-views/views/component","ember-metal/error","ember-htmlbars/helpers","ember-template-compiler/system/compile","ember-runtime/tests/utils"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__) {
+  ["ember-metal/run_loop","ember-views/views/view","ember-metal/computed","ember-runtime/system/container","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/native_array","ember-views/views/component","ember-metal/error","ember-htmlbars/helpers","ember-htmlbars/system/make-view-helper","ember-template-compiler/system/compile","ember-runtime/tests/utils"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__) {
     "use strict";
     /*jshint newcap:false*/
     var run = __dependency1__["default"];
@@ -12157,12 +12047,13 @@ enifed("ember-htmlbars/tests/helpers/yield_test",
     var A = __dependency7__.A;
     var Component = __dependency8__["default"];
     var EmberError = __dependency9__["default"];
-    var helper = __dependency10__.helper;
+    var registerHelper = __dependency10__.registerHelper;
     var helpers = __dependency10__["default"];
+    var makeViewHelper = __dependency11__["default"];
 
-    var compile = __dependency11__["default"];
-    var runAppend = __dependency12__.runAppend;
-    var runDestroy = __dependency12__.runDestroy;
+    var compile = __dependency12__["default"];
+    var runAppend = __dependency13__.runAppend;
+    var runDestroy = __dependency13__.runDestroy;
 
     var view, container;
 
@@ -12471,13 +12362,13 @@ enifed("ember-htmlbars/tests/helpers/yield_test",
         }
       });
 
-      helper('inner-component', InnerComponent);
+      registerHelper('inner-component', makeViewHelper(InnerComponent));
 
       var OuterComponent = Component.extend({
         layout: compile("{{#inner-component}}<span>{{yield}}</span>{{/inner-component}}")
       });
 
-      helper('outer-component', OuterComponent);
+      registerHelper('outer-component', makeViewHelper(OuterComponent));
 
       view = EmberView.create({
         template: compile(
@@ -28629,7 +28520,13 @@ enifed("ember-routing/tests/system/route_test",
       deepEqual(route.serialize(model, ['post_id']), {post_id: 2}, "serialized correctly");
     });
 
-    test("returns undefined if model is not set", function(){
+    test("returns checks for existence of model.post_id before trying model.id", function() {
+      var model = { post_id: 3 };
+
+      deepEqual(route.serialize(model, ['post_id']), { post_id: 3 }, "serialized correctly");
+    });
+
+    test("returns undefined if model is not set", function() {
       equal(route.serialize(undefined, ['post_id']), undefined, "serialized correctly");
     });
 
@@ -46351,6 +46248,56 @@ enifed("ember-template-compiler/tests/main_test.jshint",
       ok(true, 'ember-template-compiler/tests/main_test.js should pass jshint.'); 
     });
   });
+enifed("ember-template-compiler/tests/plugins/transform-each-in-to-hash-test",
+  ["ember-template-compiler"],
+  function(__dependency1__) {
+    "use strict";
+    var compile = __dependency1__.compile;
+
+    QUnit.module('ember-template-compiler: transform-each-in-to-hash');
+
+    test('cannot use block params and keyword syntax together', function() {
+      expect(1);
+
+      throws(function() {
+        compile('{{#each thing in controller as |other-thing|}}{{thing}}-{{other-thing}}{{/each}}', true);
+      },/You cannot use keyword \(`{{each foo in bar}}`\) and block params \(`{{each bar as \|foo\|}}`\) at the same time\./);
+    });
+  });
+enifed("ember-template-compiler/tests/plugins/transform-each-in-to-hash-test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-template-compiler/tests/plugins');
+    test('ember-template-compiler/tests/plugins/transform-each-in-to-hash-test.js should pass jshint', function() { 
+      ok(true, 'ember-template-compiler/tests/plugins/transform-each-in-to-hash-test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-template-compiler/tests/plugins/transform-with-as-to-hash-test",
+  ["ember-template-compiler"],
+  function(__dependency1__) {
+    "use strict";
+    var compile = __dependency1__.compile;
+
+    QUnit.module('ember-template-compiler: transform-with-as-to-hash');
+
+    test('cannot use block params and keyword syntax together', function() {
+      expect(1);
+
+      throws(function() {
+        compile('{{#with foo as thing as |other-thing|}}{{thing}}-{{other-thing}}{{/with}}');
+      }, /You cannot use keyword/);
+    });
+  });
+enifed("ember-template-compiler/tests/plugins/transform-with-as-to-hash-test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-template-compiler/tests/plugins');
+    test('ember-template-compiler/tests/plugins/transform-with-as-to-hash-test.js should pass jshint', function() { 
+      ok(true, 'ember-template-compiler/tests/plugins/transform-with-as-to-hash-test.js should pass jshint.'); 
+    });
+  });
 enifed("ember-template-compiler/tests/plugins_test",
   ["ember-template-compiler/plugins","ember-template-compiler/system/compile"],
   function(__dependency1__, __dependency2__) {
@@ -55265,7 +55212,7 @@ enifed("ember-views/tests/views/view/init_test",
 
     QUnit.module("EmberView.createWithMixins");
 
-    test("should warn if a non-array is used for classNames", function() {
+    test("should warn if a computed property is used for classNames", function() {
       expectAssertion(function() {
         EmberView.createWithMixins({
           elementId: 'test',
@@ -55273,10 +55220,10 @@ enifed("ember-views/tests/views/view/init_test",
             return ['className'];
           })["volatile"]()
         });
-      }, /Only arrays are allowed/i);
+      }, /Only arrays of static class strings.*For dynamic classes/i);
     });
 
-    test("should warn if a non-array is used for classNamesBindings", function() {
+    test("should warn if a non-array is used for classNameBindings", function() {
       expectAssertion(function() {
         EmberView.createWithMixins({
           elementId: 'test',
