@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.263dc91f
+ * @version   1.11.0-beta.1+canary.658c04db
  */
 
 (function() {
@@ -12023,7 +12023,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.263dc91f
+      @version 1.11.0-beta.1+canary.658c04db
     */
 
     if ('undefined' === typeof Ember) {
@@ -12050,10 +12050,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.263dc91f'
+      @default '1.11.0-beta.1+canary.658c04db'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.263dc91f';
+    Ember.VERSION = '1.11.0-beta.1+canary.658c04db';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -12637,7 +12637,7 @@ enifed("ember-metal/environment",
     // defining a `disableBrowserEnvironment` ENV.
     var hasDOM = typeof window !== 'undefined' &&
                  typeof document !== 'undefined' &&
-                 typeof document.createElement === 'function' &&
+                 typeof document.createElement !== 'undefined' &&
                  !Ember.ENV.disableBrowserEnvironment;
 
     if (hasDOM) {
