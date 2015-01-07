@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.5f05ed39
+ * @version   1.11.0-beta.1+canary.dca9c74d
  */
 
 (function() {
@@ -6072,8 +6072,11 @@ enifed("ember-htmlbars/helpers/each",
       var path = params[0] || this.getStream('');
 
       
-      if (options.template && options.template.blockParams) {
+      var blockParams = options.template && options.template.blockParams;
+
+      if (blockParams) {
         hash.keyword = true;
+        hash.blockParams = blockParams;
       }
 
       
@@ -11591,7 +11594,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.5f05ed39
+      @version 1.11.0-beta.1+canary.dca9c74d
     */
 
     if ('undefined' === typeof Ember) {
@@ -11618,10 +11621,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.5f05ed39'
+      @default '1.11.0-beta.1+canary.dca9c74d'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.5f05ed39';
+    Ember.VERSION = '1.11.0-beta.1+canary.dca9c74d';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -39702,12 +39705,35 @@ enifed("ember-views/views/collection_view",
             item = content.objectAt(idx);
 
             itemViewProps.content = item;
-            itemViewProps._blockArguments = [item];
             itemViewProps.contentIndex = idx;
 
             view = this.createChildView(itemViewClass, itemViewProps);
 
+            if (Ember.FEATURES.isEnabled('ember-htmlbars-each-with-index')) {
+              if (this.blockParams > 1) {
+                view._blockArguments = [item, view.getStream('_view.contentIndex')];
+              } else if (this.blockParams === 1) {
+                view._blockArguments = [item];
+              }
+            } else {
+              if (this.blockParams > 0) {
+                view._blockArguments = [item];
+              }
+            }
+
             addedViews.push(view);
+          }
+
+          this.replace(start, 0, addedViews);
+
+          if (Ember.FEATURES.isEnabled('ember-htmlbars-each-with-index')) {
+            if (this.blockParams > 1) {
+              var childViews = this._childViews;
+              for (idx = start+added; idx < len; idx++) {
+                view = childViews[idx];
+                set(view, 'contentIndex', idx);
+              }
+            }
           }
         } else {
           emptyView = get(this, 'emptyView');
@@ -39726,9 +39752,9 @@ enifed("ember-views/views/collection_view",
           if (CoreView.detect(emptyView)) {
             this._createdEmptyView = emptyView;
           }
-        }
 
-        this.replace(start, 0, addedViews);
+          this.replace(start, 0, addedViews);
+        }
       },
 
       /**
