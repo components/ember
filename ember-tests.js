@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.658c04db
+ * @version   1.11.0-beta.1+canary.a32fc1c4
  */
 
 (function() {
@@ -17923,13 +17923,19 @@ enifed("ember-metal/streams/utils.jshint",
       ok(true, 'ember-metal/streams/utils.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/accessors/getPath_test",
+enifed("ember-metal/tests/accessors/get_path_test",
   ["ember-metal/property_get"],
   function(__dependency1__) {
     "use strict";
     /*globals Foo:true $foo:true */
 
     var get = __dependency1__.get;
+
+    function expectGlobalContextDeprecation(assertion) {
+      expectDeprecation(function() {
+        assertion();
+      }, "Ember.get fetched 'localPathGlobal' from the global context. This behavior will change in the future (issue #3852)");
+    }
 
     var obj;
     var moduleOpts = {
@@ -18010,15 +18016,15 @@ enifed("ember-metal/tests/accessors/getPath_test",
     //
 
     test('[null, length] returning data is deprecated', function() {
-      expectDeprecation(function() {
+      expectGlobalContextDeprecation(function() {
         equal(5, get(null, 'localPathGlobal'));
-      }, "Ember.get fetched 'localPathGlobal' from the global context. This behavior will change in the future (issue #3852)");
+      });
     });
 
     test('[length] returning data is deprecated', function() {
-      expectDeprecation(function() {
+      expectGlobalContextDeprecation(function() {
         equal(5, get('localPathGlobal'));
-      }, "Ember.get fetched 'localPathGlobal' from the global context. This behavior will change in the future (issue #3852)");
+      });
     });
 
     // ..........................................................
@@ -18033,25 +18039,25 @@ enifed("ember-metal/tests/accessors/getPath_test",
       deepEqual(get('Foo.bar'), Foo.bar);
     });
   });
-enifed("ember-metal/tests/accessors/getPath_test.jscs-test",
+enifed("ember-metal/tests/accessors/get_path_test.jscs-test",
   [],
   function() {
     "use strict";
     module('JSCS - ember-metal/tests/accessors');
-    test('ember-metal/tests/accessors/getPath_test.js should pass jscs', function() {
-      ok(true, 'ember-metal/tests/accessors/getPath_test.js should pass jscs.');
+    test('ember-metal/tests/accessors/get_path_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/accessors/get_path_test.js should pass jscs.');
     });
   });
-enifed("ember-metal/tests/accessors/getPath_test.jshint",
+enifed("ember-metal/tests/accessors/get_path_test.jshint",
   [],
   function() {
     "use strict";
     module('JSHint - ember-metal/tests/accessors');
-    test('ember-metal/tests/accessors/getPath_test.js should pass jshint', function() { 
-      ok(true, 'ember-metal/tests/accessors/getPath_test.js should pass jshint.'); 
+    test('ember-metal/tests/accessors/get_path_test.js should pass jshint', function() { 
+      ok(true, 'ember-metal/tests/accessors/get_path_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/accessors/getProperties_test",
+enifed("ember-metal/tests/accessors/get_properties_test",
   ["ember-metal/get_properties"],
   function(__dependency1__) {
     "use strict";
@@ -18075,22 +18081,22 @@ enifed("ember-metal/tests/accessors/getProperties_test",
       deepEqual(getProperties(obj, []), {});
     });
   });
-enifed("ember-metal/tests/accessors/getProperties_test.jscs-test",
+enifed("ember-metal/tests/accessors/get_properties_test.jscs-test",
   [],
   function() {
     "use strict";
     module('JSCS - ember-metal/tests/accessors');
-    test('ember-metal/tests/accessors/getProperties_test.js should pass jscs', function() {
-      ok(true, 'ember-metal/tests/accessors/getProperties_test.js should pass jscs.');
+    test('ember-metal/tests/accessors/get_properties_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/accessors/get_properties_test.js should pass jscs.');
     });
   });
-enifed("ember-metal/tests/accessors/getProperties_test.jshint",
+enifed("ember-metal/tests/accessors/get_properties_test.jshint",
   [],
   function() {
     "use strict";
     module('JSHint - ember-metal/tests/accessors');
-    test('ember-metal/tests/accessors/getProperties_test.js should pass jshint', function() { 
-      ok(true, 'ember-metal/tests/accessors/getProperties_test.js should pass jshint.'); 
+    test('ember-metal/tests/accessors/get_properties_test.js should pass jshint', function() { 
+      ok(true, 'ember-metal/tests/accessors/get_properties_test.js should pass jshint.'); 
     });
   });
 enifed("ember-metal/tests/accessors/get_test",
@@ -18289,7 +18295,7 @@ enifed("ember-metal/tests/accessors/get_test.jshint",
       ok(true, 'ember-metal/tests/accessors/get_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/accessors/isGlobalPath_test",
+enifed("ember-metal/tests/accessors/is_global_path_test",
   ["ember-metal/binding"],
   function(__dependency1__) {
     "use strict";
@@ -18312,22 +18318,22 @@ enifed("ember-metal/tests/accessors/isGlobalPath_test",
       ok(!isGlobalPath('myObj.SecondProperty'));
     });
   });
-enifed("ember-metal/tests/accessors/isGlobalPath_test.jscs-test",
+enifed("ember-metal/tests/accessors/is_global_path_test.jscs-test",
   [],
   function() {
     "use strict";
     module('JSCS - ember-metal/tests/accessors');
-    test('ember-metal/tests/accessors/isGlobalPath_test.js should pass jscs', function() {
-      ok(true, 'ember-metal/tests/accessors/isGlobalPath_test.js should pass jscs.');
+    test('ember-metal/tests/accessors/is_global_path_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/accessors/is_global_path_test.js should pass jscs.');
     });
   });
-enifed("ember-metal/tests/accessors/isGlobalPath_test.jshint",
+enifed("ember-metal/tests/accessors/is_global_path_test.jshint",
   [],
   function() {
     "use strict";
     module('JSHint - ember-metal/tests/accessors');
-    test('ember-metal/tests/accessors/isGlobalPath_test.js should pass jshint', function() { 
-      ok(true, 'ember-metal/tests/accessors/isGlobalPath_test.js should pass jshint.'); 
+    test('ember-metal/tests/accessors/is_global_path_test.js should pass jshint', function() { 
+      ok(true, 'ember-metal/tests/accessors/is_global_path_test.js should pass jshint.'); 
     });
   });
 enifed("ember-metal/tests/accessors/mandatory_setters_test",
@@ -18497,7 +18503,7 @@ enifed("ember-metal/tests/accessors/mandatory_setters_test.jshint",
       ok(true, 'ember-metal/tests/accessors/mandatory_setters_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/accessors/normalizeTuple_test",
+enifed("ember-metal/tests/accessors/normalize_tuple_test",
   ["ember-metal/property_get"],
   function(__dependency1__) {
     "use strict";
@@ -18605,25 +18611,25 @@ enifed("ember-metal/tests/accessors/normalizeTuple_test",
       deepEqual(normalizeTuple(null, 'Foo.bar'), [Foo, 'bar']);
     });
   });
-enifed("ember-metal/tests/accessors/normalizeTuple_test.jscs-test",
+enifed("ember-metal/tests/accessors/normalize_tuple_test.jscs-test",
   [],
   function() {
     "use strict";
     module('JSCS - ember-metal/tests/accessors');
-    test('ember-metal/tests/accessors/normalizeTuple_test.js should pass jscs', function() {
-      ok(true, 'ember-metal/tests/accessors/normalizeTuple_test.js should pass jscs.');
+    test('ember-metal/tests/accessors/normalize_tuple_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/accessors/normalize_tuple_test.js should pass jscs.');
     });
   });
-enifed("ember-metal/tests/accessors/normalizeTuple_test.jshint",
+enifed("ember-metal/tests/accessors/normalize_tuple_test.jshint",
   [],
   function() {
     "use strict";
     module('JSHint - ember-metal/tests/accessors');
-    test('ember-metal/tests/accessors/normalizeTuple_test.js should pass jshint', function() { 
-      ok(true, 'ember-metal/tests/accessors/normalizeTuple_test.js should pass jshint.'); 
+    test('ember-metal/tests/accessors/normalize_tuple_test.js should pass jshint', function() { 
+      ok(true, 'ember-metal/tests/accessors/normalize_tuple_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/accessors/setPath_test",
+enifed("ember-metal/tests/accessors/set_path_test",
   ["ember-metal/property_set","ember-metal/property_get"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -18749,22 +18755,22 @@ enifed("ember-metal/tests/accessors/setPath_test",
       ok(true, "does not raise");
     });
   });
-enifed("ember-metal/tests/accessors/setPath_test.jscs-test",
+enifed("ember-metal/tests/accessors/set_path_test.jscs-test",
   [],
   function() {
     "use strict";
     module('JSCS - ember-metal/tests/accessors');
-    test('ember-metal/tests/accessors/setPath_test.js should pass jscs', function() {
-      ok(true, 'ember-metal/tests/accessors/setPath_test.js should pass jscs.');
+    test('ember-metal/tests/accessors/set_path_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/accessors/set_path_test.js should pass jscs.');
     });
   });
-enifed("ember-metal/tests/accessors/setPath_test.jshint",
+enifed("ember-metal/tests/accessors/set_path_test.jshint",
   [],
   function() {
     "use strict";
     module('JSHint - ember-metal/tests/accessors');
-    test('ember-metal/tests/accessors/setPath_test.js should pass jshint', function() { 
-      ok(true, 'ember-metal/tests/accessors/setPath_test.js should pass jshint.'); 
+    test('ember-metal/tests/accessors/set_path_test.js should pass jshint', function() { 
+      ok(true, 'ember-metal/tests/accessors/set_path_test.js should pass jshint.'); 
     });
   });
 enifed("ember-metal/tests/accessors/set_test",
@@ -19068,7 +19074,7 @@ enifed("ember-metal/tests/binding/connect_test.jshint",
       ok(true, 'ember-metal/tests/binding/connect_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/binding/oneWay_test",
+enifed("ember-metal/tests/binding/one_way_test",
   ["ember-metal/property_set","ember-metal/property_get","ember-metal/run_loop","ember-metal/binding"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
@@ -19117,22 +19123,22 @@ enifed("ember-metal/tests/binding/oneWay_test",
 
     });
   });
-enifed("ember-metal/tests/binding/oneWay_test.jscs-test",
+enifed("ember-metal/tests/binding/one_way_test.jscs-test",
   [],
   function() {
     "use strict";
     module('JSCS - ember-metal/tests/binding');
-    test('ember-metal/tests/binding/oneWay_test.js should pass jscs', function() {
-      ok(true, 'ember-metal/tests/binding/oneWay_test.js should pass jscs.');
+    test('ember-metal/tests/binding/one_way_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/binding/one_way_test.js should pass jscs.');
     });
   });
-enifed("ember-metal/tests/binding/oneWay_test.jshint",
+enifed("ember-metal/tests/binding/one_way_test.jshint",
   [],
   function() {
     "use strict";
     module('JSHint - ember-metal/tests/binding');
-    test('ember-metal/tests/binding/oneWay_test.js should pass jshint', function() { 
-      ok(true, 'ember-metal/tests/binding/oneWay_test.js should pass jshint.'); 
+    test('ember-metal/tests/binding/one_way_test.js should pass jshint', function() { 
+      ok(true, 'ember-metal/tests/binding/one_way_test.js should pass jshint.'); 
     });
   });
 enifed("ember-metal/tests/binding/sync_test",
@@ -23022,7 +23028,7 @@ enifed("ember-metal/tests/mixin/computed_test.jshint",
       ok(true, 'ember-metal/tests/mixin/computed_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/mixin/concatenatedProperties_test",
+enifed("ember-metal/tests/mixin/concatenated_properties_test",
   ["ember-metal/property_get","ember-metal/mixin"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -23142,22 +23148,22 @@ enifed("ember-metal/tests/mixin/concatenatedProperties_test",
       equal(get(obj, 'foobar'), 'foobar');
     });
   });
-enifed("ember-metal/tests/mixin/concatenatedProperties_test.jscs-test",
+enifed("ember-metal/tests/mixin/concatenated_properties_test.jscs-test",
   [],
   function() {
     "use strict";
     module('JSCS - ember-metal/tests/mixin');
-    test('ember-metal/tests/mixin/concatenatedProperties_test.js should pass jscs', function() {
-      ok(true, 'ember-metal/tests/mixin/concatenatedProperties_test.js should pass jscs.');
+    test('ember-metal/tests/mixin/concatenated_properties_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/mixin/concatenated_properties_test.js should pass jscs.');
     });
   });
-enifed("ember-metal/tests/mixin/concatenatedProperties_test.jshint",
+enifed("ember-metal/tests/mixin/concatenated_properties_test.jshint",
   [],
   function() {
     "use strict";
     module('JSHint - ember-metal/tests/mixin');
-    test('ember-metal/tests/mixin/concatenatedProperties_test.js should pass jshint', function() { 
-      ok(true, 'ember-metal/tests/mixin/concatenatedProperties_test.js should pass jshint.'); 
+    test('ember-metal/tests/mixin/concatenated_properties_test.js should pass jshint', function() { 
+      ok(true, 'ember-metal/tests/mixin/concatenated_properties_test.js should pass jshint.'); 
     });
   });
 enifed("ember-metal/tests/mixin/detect_test",
@@ -23297,7 +23303,7 @@ enifed("ember-metal/tests/mixin/introspection_test.jshint",
       ok(true, 'ember-metal/tests/mixin/introspection_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/mixin/mergedProperties_test",
+enifed("ember-metal/tests/mixin/merged_properties_test",
   ["ember-metal/property_get","ember-metal/mixin"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -23446,22 +23452,22 @@ enifed("ember-metal/tests/mixin/mergedProperties_test",
       }, 'You passed in `["a"]` as the value for `foo` but `foo` cannot be an Array');
     });
   });
-enifed("ember-metal/tests/mixin/mergedProperties_test.jscs-test",
+enifed("ember-metal/tests/mixin/merged_properties_test.jscs-test",
   [],
   function() {
     "use strict";
     module('JSCS - ember-metal/tests/mixin');
-    test('ember-metal/tests/mixin/mergedProperties_test.js should pass jscs', function() {
-      ok(true, 'ember-metal/tests/mixin/mergedProperties_test.js should pass jscs.');
+    test('ember-metal/tests/mixin/merged_properties_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/mixin/merged_properties_test.js should pass jscs.');
     });
   });
-enifed("ember-metal/tests/mixin/mergedProperties_test.jshint",
+enifed("ember-metal/tests/mixin/merged_properties_test.jshint",
   [],
   function() {
     "use strict";
     module('JSHint - ember-metal/tests/mixin');
-    test('ember-metal/tests/mixin/mergedProperties_test.js should pass jshint', function() { 
-      ok(true, 'ember-metal/tests/mixin/mergedProperties_test.js should pass jshint.'); 
+    test('ember-metal/tests/mixin/merged_properties_test.js should pass jshint', function() { 
+      ok(true, 'ember-metal/tests/mixin/merged_properties_test.js should pass jshint.'); 
     });
   });
 enifed("ember-metal/tests/mixin/method_test",
@@ -25520,7 +25526,7 @@ enifed("ember-metal/tests/platform/create_test.jshint",
       ok(true, 'ember-metal/tests/platform/create_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/platform/defineProperty_test",
+enifed("ember-metal/tests/platform/define_property_test",
   ["ember-metal/platform","ember-metal/enumerable_utils"],
   function(__dependency1__, __dependency2__) {
     "use strict";
@@ -25651,22 +25657,22 @@ enifed("ember-metal/tests/platform/defineProperty_test",
       });
     }
   });
-enifed("ember-metal/tests/platform/defineProperty_test.jscs-test",
+enifed("ember-metal/tests/platform/define_property_test.jscs-test",
   [],
   function() {
     "use strict";
     module('JSCS - ember-metal/tests/platform');
-    test('ember-metal/tests/platform/defineProperty_test.js should pass jscs', function() {
-      ok(true, 'ember-metal/tests/platform/defineProperty_test.js should pass jscs.');
+    test('ember-metal/tests/platform/define_property_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/platform/define_property_test.js should pass jscs.');
     });
   });
-enifed("ember-metal/tests/platform/defineProperty_test.jshint",
+enifed("ember-metal/tests/platform/define_property_test.jshint",
   [],
   function() {
     "use strict";
     module('JSHint - ember-metal/tests/platform');
-    test('ember-metal/tests/platform/defineProperty_test.js should pass jshint', function() { 
-      ok(true, 'ember-metal/tests/platform/defineProperty_test.js should pass jshint.'); 
+    test('ember-metal/tests/platform/define_property_test.js should pass jshint', function() { 
+      ok(true, 'ember-metal/tests/platform/define_property_test.js should pass jshint.'); 
     });
   });
 enifed("ember-metal/tests/properties_test",
@@ -27108,7 +27114,7 @@ enifed("ember-metal/tests/utils/generate_guid_test.jshint",
       ok(true, 'ember-metal/tests/utils/generate_guid_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/utils/guidFor_test",
+enifed("ember-metal/tests/utils/guid_for_test",
   ["ember-metal/utils"],
   function(__dependency1__) {
     "use strict";
@@ -27196,22 +27202,22 @@ enifed("ember-metal/tests/utils/guidFor_test",
       nanGuid(a);
     });
   });
-enifed("ember-metal/tests/utils/guidFor_test.jscs-test",
+enifed("ember-metal/tests/utils/guid_for_test.jscs-test",
   [],
   function() {
     "use strict";
     module('JSCS - ember-metal/tests/utils');
-    test('ember-metal/tests/utils/guidFor_test.js should pass jscs', function() {
-      ok(true, 'ember-metal/tests/utils/guidFor_test.js should pass jscs.');
+    test('ember-metal/tests/utils/guid_for_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/utils/guid_for_test.js should pass jscs.');
     });
   });
-enifed("ember-metal/tests/utils/guidFor_test.jshint",
+enifed("ember-metal/tests/utils/guid_for_test.jshint",
   [],
   function() {
     "use strict";
     module('JSHint - ember-metal/tests/utils');
-    test('ember-metal/tests/utils/guidFor_test.js should pass jshint', function() { 
-      ok(true, 'ember-metal/tests/utils/guidFor_test.js should pass jshint.'); 
+    test('ember-metal/tests/utils/guid_for_test.js should pass jshint', function() { 
+      ok(true, 'ember-metal/tests/utils/guid_for_test.js should pass jshint.'); 
     });
   });
 enifed("ember-metal/tests/utils/is_array_test",
@@ -27780,7 +27786,7 @@ enifed("ember-metal/tests/utils/type_of_test.jshint",
       ok(true, 'ember-metal/tests/utils/type_of_test.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/tests/watching/isWatching_test",
+enifed("ember-metal/tests/watching/is_watching_test",
   ["ember-metal/computed","ember-metal/property_get","ember-metal/properties","ember-metal/mixin","ember-metal/observer","ember-metal/watching"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
@@ -27862,22 +27868,22 @@ enifed("ember-metal/tests/watching/isWatching_test",
       }, 'length');
     });
   });
-enifed("ember-metal/tests/watching/isWatching_test.jscs-test",
+enifed("ember-metal/tests/watching/is_watching_test.jscs-test",
   [],
   function() {
     "use strict";
     module('JSCS - ember-metal/tests/watching');
-    test('ember-metal/tests/watching/isWatching_test.js should pass jscs', function() {
-      ok(true, 'ember-metal/tests/watching/isWatching_test.js should pass jscs.');
+    test('ember-metal/tests/watching/is_watching_test.js should pass jscs', function() {
+      ok(true, 'ember-metal/tests/watching/is_watching_test.js should pass jscs.');
     });
   });
-enifed("ember-metal/tests/watching/isWatching_test.jshint",
+enifed("ember-metal/tests/watching/is_watching_test.jshint",
   [],
   function() {
     "use strict";
     module('JSHint - ember-metal/tests/watching');
-    test('ember-metal/tests/watching/isWatching_test.js should pass jshint', function() { 
-      ok(true, 'ember-metal/tests/watching/isWatching_test.js should pass jshint.'); 
+    test('ember-metal/tests/watching/is_watching_test.js should pass jshint', function() { 
+      ok(true, 'ember-metal/tests/watching/is_watching_test.js should pass jshint.'); 
     });
   });
 enifed("ember-metal/tests/watching/unwatch_test",
