@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.a32fc1c4
+ * @version   1.11.0-beta.1+canary.5f05ed39
  */
 
 (function() {
@@ -5374,20 +5374,20 @@ enifed("ember-htmlbars/tests/attr_nodes/class_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/attr_nodes/data_test",
-  ["ember-views/views/view","ember-metal/run_loop","ember-runtime/system/object","ember-template-compiler/system/compile","htmlbars-test-helpers","ember-htmlbars/env","ember-runtime/tests/utils"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
+  ["ember-views/views/view","ember-metal/run_loop","ember-runtime/system/object","ember-template-compiler/system/compile","ember-views/system/renderer","htmlbars-test-helpers","ember-htmlbars/env","ember-runtime/tests/utils"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
     "use strict";
     var EmberView = __dependency1__["default"];
     var run = __dependency2__["default"];
     var EmberObject = __dependency3__["default"];
     var compile = __dependency4__["default"];
-    var equalInnerHTML = __dependency5__.equalInnerHTML;
-    var defaultEnv = __dependency6__["default"];
-    var runAppend = __dependency7__.runAppend;
-    var runDestroy = __dependency7__.runDestroy;
+    var Renderer = __dependency5__["default"];
+    var equalInnerHTML = __dependency6__.equalInnerHTML;
+    var dom = __dependency7__.domHelper;
+    var runAppend = __dependency8__.runAppend;
+    var runDestroy = __dependency8__.runDestroy;
 
-    var view, originalSetAttribute, setAttributeCalls;
-    var dom = defaultEnv.dom;
+    var view, originalSetAttribute, setAttributeCalls, renderer;
 
     
 
@@ -5579,9 +5579,13 @@ enifed("ember-htmlbars/tests/attr_nodes/data_test",
 
       QUnit.module('ember-htmlbars: {{attribute}} helper -- setAttribute', {
         setup: function() {
+          renderer = new Renderer(dom);
+
           originalSetAttribute = dom.setAttribute;
           dom.setAttribute = function(element, name, value) {
-            setAttributeCalls.push([name, value]);
+            if (name.substr(0, 5) === 'data-') {
+              setAttributeCalls.push([name, value]);
+            }
 
             originalSetAttribute.call(dom, element, name, value);
           };
@@ -5599,6 +5603,7 @@ enifed("ember-htmlbars/tests/attr_nodes/data_test",
       test('calls setAttribute for new values', function() {
         var context = EmberObject.create({ name: 'erik' });
         view = EmberView.create({
+          renderer: renderer,
           context: context,
           template: compile("<div data-name={{name}}>Hi!</div>")
         });
@@ -5617,6 +5622,7 @@ enifed("ember-htmlbars/tests/attr_nodes/data_test",
       test('does not call setAttribute if the same value is set', function() {
         var context = EmberObject.create({ name: 'erik' });
         view = EmberView.create({
+          renderer: renderer,
           context: context,
           template: compile("<div data-name={{name}}>Hi!</div>")
         });
@@ -14512,12 +14518,14 @@ enifed("ember-htmlbars/tests/hooks/text_node_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/htmlbars_test",
-  ["ember-template-compiler/system/compile","ember-htmlbars/env","htmlbars-test-helpers"],
-  function(__dependency1__, __dependency2__, __dependency3__) {
+  ["ember-template-compiler/system/compile","ember-htmlbars/env","htmlbars-test-helpers","ember-metal/merge"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
     "use strict";
     var compile = __dependency1__["default"];
     var defaultEnv = __dependency2__["default"];
+    var domHelper = __dependency2__.domHelper;
     var equalHTML = __dependency3__.equalHTML;
+    var merge = __dependency4__["default"];
 
     
 
@@ -14525,7 +14533,10 @@ enifed("ember-htmlbars/tests/htmlbars_test",
 
       test("HTMLBars is present and can be executed", function() {
         var template = compile("ohai");
-        var output = template.render({}, defaultEnv, document.body);
+
+        var env = merge({ dom: domHelper }, defaultEnv);
+
+        var output = template.render({}, env, document.body);
         equalHTML(output, "ohai");
       });
     
@@ -55158,11 +55169,12 @@ enifed("ember-views/tests/system/jquery_ext_test.jshint",
     });
   });
 enifed("ember-views/tests/system/render_buffer_test",
-  ["ember-views/system/jquery","ember-views/system/render_buffer"],
-  function(__dependency1__, __dependency2__) {
+  ["ember-views/system/jquery","ember-views/system/render_buffer","morph"],
+  function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
     var jQuery = __dependency1__["default"];
     var RenderBuffer = __dependency2__["default"];
+    var DOMHelper = __dependency3__.DOMHelper;
 
     var svgNamespace = "http://www.w3.org/2000/svg";
     var xhtmlNamespace = "http://www.w3.org/1999/xhtml";
@@ -55173,8 +55185,17 @@ enifed("ember-views/tests/system/render_buffer_test",
     //
     QUnit.module("RenderBuffer");
 
+    var domHelper = new DOMHelper();
+
+    function createRenderBuffer(tagName, contextualElement) {
+      var buffer = new RenderBuffer(domHelper);
+      buffer.reset(tagName, contextualElement);
+
+      return buffer;
+    }
+
     test("RenderBuffers raise a deprecation warning without a contextualElement", function() {
-      var buffer = new RenderBuffer('div');
+      var buffer = createRenderBuffer('div');
       expectDeprecation(function() {
         buffer.generateElement();
         var el = buffer.element();
@@ -55183,7 +55204,7 @@ enifed("ember-views/tests/system/render_buffer_test",
     });
 
     test("reset RenderBuffers raise a deprecation warning without a contextualElement", function() {
-      var buffer = new RenderBuffer('div', document.body);
+      var buffer = createRenderBuffer('div', document.body);
       buffer.reset('span');
       expectDeprecation(function() {
         buffer.generateElement();
@@ -55193,7 +55214,7 @@ enifed("ember-views/tests/system/render_buffer_test",
     });
 
     test("RenderBuffers combine strings", function() {
-      var buffer = new RenderBuffer('div', document.body);
+      var buffer = createRenderBuffer('div', document.body);
       buffer.generateElement();
 
       buffer.push('a');
@@ -55205,7 +55226,7 @@ enifed("ember-views/tests/system/render_buffer_test",
     });
 
     test("RenderBuffers push fragments", function() {
-      var buffer = new RenderBuffer('div', document.body);
+      var buffer = createRenderBuffer('div', document.body);
       var fragment = document.createElement('span');
       buffer.generateElement();
 
@@ -55217,7 +55238,7 @@ enifed("ember-views/tests/system/render_buffer_test",
     });
 
     test("RenderBuffers cannot push fragments when something else is in the buffer", function() {
-      var buffer = new RenderBuffer('div', document.body);
+      var buffer = createRenderBuffer('div', document.body);
       var fragment = document.createElement('span');
       buffer.generateElement();
 
@@ -55228,7 +55249,7 @@ enifed("ember-views/tests/system/render_buffer_test",
     });
 
     test("RenderBuffers cannot push strings after fragments", function() {
-      var buffer = new RenderBuffer('div', document.body);
+      var buffer = createRenderBuffer('div', document.body);
       var fragment = document.createElement('span');
       buffer.generateElement();
 
@@ -55240,7 +55261,7 @@ enifed("ember-views/tests/system/render_buffer_test",
 
     test("value of 0 is included in output", function() {
       var buffer, el;
-      buffer = new RenderBuffer('input', document.body);
+      buffer = createRenderBuffer('input', document.body);
       buffer.prop('value', 0);
       buffer.generateElement();
       el = buffer.element();
@@ -55248,7 +55269,7 @@ enifed("ember-views/tests/system/render_buffer_test",
     });
 
     test("sets attributes with camelCase", function() {
-      var buffer = new RenderBuffer('div', document.body);
+      var buffer = createRenderBuffer('div', document.body);
       var content = "javascript:someCode()"; //jshint ignore:line
 
       buffer.attr('onClick', content);
@@ -55258,7 +55279,7 @@ enifed("ember-views/tests/system/render_buffer_test",
     });
 
     test("prevents XSS injection via `id`", function() {
-      var buffer = new RenderBuffer('div', document.body);
+      var buffer = createRenderBuffer('div', document.body);
 
       buffer.id('hacked" megahax="yes');
       buffer.generateElement();
@@ -55268,7 +55289,7 @@ enifed("ember-views/tests/system/render_buffer_test",
     });
 
     test("prevents XSS injection via `attr`", function() {
-      var buffer = new RenderBuffer('div', document.body);
+      var buffer = createRenderBuffer('div', document.body);
 
       buffer.attr('id', 'trololol" onmouseover="pwn()');
       buffer.attr('class', "hax><img src=\"trollface.png\"");
@@ -55282,7 +55303,7 @@ enifed("ember-views/tests/system/render_buffer_test",
     });
 
     test("prevents XSS injection via `addClass`", function() {
-      var buffer = new RenderBuffer('div', document.body);
+      var buffer = createRenderBuffer('div', document.body);
 
       buffer.addClass('megahax" xss="true');
       buffer.generateElement();
@@ -55292,7 +55313,7 @@ enifed("ember-views/tests/system/render_buffer_test",
     });
 
     test("prevents XSS injection via `style`", function() {
-      var buffer = new RenderBuffer('div', document.body);
+      var buffer = createRenderBuffer('div', document.body);
 
       buffer.style('color', 'blue;" xss="true" style="color:red');
       buffer.generateElement();
@@ -55311,7 +55332,7 @@ enifed("ember-views/tests/system/render_buffer_test",
     });
 
     test("prevents XSS injection via `tagName`", function() {
-      var buffer = new RenderBuffer('cool-div><div xss="true"', document.body);
+      var buffer = createRenderBuffer('cool-div><div xss="true"', document.body);
       try {
         buffer.generateElement();
         equal(buffer.element().childNodes.length, 0, 'no extra nodes created');
@@ -55321,7 +55342,7 @@ enifed("ember-views/tests/system/render_buffer_test",
     });
 
     test("handles null props - Issue #2019", function() {
-      var buffer = new RenderBuffer('div', document.body);
+      var buffer = createRenderBuffer('div', document.body);
 
       buffer.prop('value', null);
       buffer.generateElement();
@@ -55329,7 +55350,7 @@ enifed("ember-views/tests/system/render_buffer_test",
     });
 
     test("handles browsers like Firefox < 11 that don't support outerHTML Issue #1952", function() {
-      var buffer = new RenderBuffer('div', document.body);
+      var buffer = createRenderBuffer('div', document.body);
       buffer.generateElement();
       // Make sure element.outerHTML is falsy to trigger the fallback.
       var elementStub = '<div></div>';
@@ -55339,7 +55360,7 @@ enifed("ember-views/tests/system/render_buffer_test",
     });
 
     test("lets `setClasses` and `addClass` work together", function() {
-      var buffer = new RenderBuffer('div', document.body);
+      var buffer = createRenderBuffer('div', document.body);
       buffer.setClasses(['foo', 'bar']);
       buffer.addClass('baz');
       buffer.generateElement();
@@ -55351,7 +55372,7 @@ enifed("ember-views/tests/system/render_buffer_test",
 
     test("generates text and a div and text", function() {
       var div = document.createElement('div');
-      var buffer = new RenderBuffer(undefined, div);
+      var buffer = createRenderBuffer(undefined, div);
       buffer.buffer = 'Howdy<div>Nick</div>Cage';
 
       var el = buffer.element();
@@ -55364,7 +55385,7 @@ enifed("ember-views/tests/system/render_buffer_test",
 
     test("generates a tr from a tr innerString", function() {
       var table = document.createElement('table');
-      var buffer = new RenderBuffer(undefined, table);
+      var buffer = createRenderBuffer(undefined, table);
       buffer.buffer = '<tr></tr>';
 
       var el = buffer.element();
@@ -55373,7 +55394,7 @@ enifed("ember-views/tests/system/render_buffer_test",
 
     test("generates a tr from a tr innerString with leading <script", function() {
       var table = document.createElement('table');
-      var buffer = new RenderBuffer(undefined, table);
+      var buffer = createRenderBuffer(undefined, table);
       buffer.buffer = '<script></script><tr></tr>';
 
       var el = buffer.element();
@@ -55382,7 +55403,7 @@ enifed("ember-views/tests/system/render_buffer_test",
 
     test("generates a tr from a tr innerString with leading comment", function() {
       var table = document.createElement('table');
-      var buffer = new RenderBuffer(undefined, table);
+      var buffer = createRenderBuffer(undefined, table);
       buffer.buffer = '<!-- blargh! --><tr></tr>';
 
       var el = buffer.element();
@@ -55390,7 +55411,7 @@ enifed("ember-views/tests/system/render_buffer_test",
     });
 
     test("generates a tr from a tr innerString on rerender", function() {
-      var buffer = new RenderBuffer('table', document.body);
+      var buffer = createRenderBuffer('table', document.body);
       buffer.generateElement();
       buffer.buffer = '<tr></tr>';
 
@@ -55400,7 +55421,7 @@ enifed("ember-views/tests/system/render_buffer_test",
 
     test("generates a tbody from a tbody innerString", function() {
       var table = document.createElement('table');
-      var buffer = new RenderBuffer(undefined, table);
+      var buffer = createRenderBuffer(undefined, table);
       buffer.buffer = '<tbody><tr></tr></tbody>';
 
       var el = buffer.element();
@@ -55409,7 +55430,7 @@ enifed("ember-views/tests/system/render_buffer_test",
 
     test("generates a col from a col innerString", function() {
       var table = document.createElement('table');
-      var buffer = new RenderBuffer(undefined, table);
+      var buffer = createRenderBuffer(undefined, table);
       buffer.buffer = '<col></col>';
 
       var el = buffer.element();
@@ -55419,7 +55440,7 @@ enifed("ember-views/tests/system/render_buffer_test",
     QUnit.module("RenderBuffer - without tagName");
 
     test("It is possible to create a RenderBuffer without a tagName", function() {
-      var buffer = new RenderBuffer(undefined, document.body);
+      var buffer = createRenderBuffer(undefined, document.body);
       buffer.push('a');
       buffer.push('b');
       buffer.push('c');
@@ -55434,7 +55455,7 @@ enifed("ember-views/tests/system/render_buffer_test",
     QUnit.module("RenderBuffer#element");
 
     test("properly handles old IE's zero-scope bug", function() {
-      var buffer = new RenderBuffer('div', document.body);
+      var buffer = createRenderBuffer('div', document.body);
       buffer.generateElement();
       buffer.push('<script></script>foo');
 
@@ -55448,7 +55469,7 @@ enifed("ember-views/tests/system/render_buffer_test",
       QUnit.module("RenderBuffer namespaces");
 
       test("properly makes a content string SVG namespace inside an SVG tag", function() {
-        var buffer = new RenderBuffer('svg', document.body);
+        var buffer = createRenderBuffer('svg', document.body);
         buffer.generateElement();
         buffer.push('<path></path>foo');
 
@@ -55461,7 +55482,7 @@ enifed("ember-views/tests/system/render_buffer_test",
       });
 
       test("properly makes a path element svg namespace inside SVG context", function() {
-        var buffer = new RenderBuffer('path', document.createElementNS(svgNamespace, 'svg'));
+        var buffer = createRenderBuffer('path', document.createElementNS(svgNamespace, 'svg'));
         buffer.generateElement();
         buffer.push('<g></g>');
 
@@ -55474,7 +55495,7 @@ enifed("ember-views/tests/system/render_buffer_test",
       });
 
       test("properly makes a foreignObject svg namespace inside SVG context", function() {
-        var buffer = new RenderBuffer('foreignObject', document.createElementNS(svgNamespace, 'svg'));
+        var buffer = createRenderBuffer('foreignObject', document.createElementNS(svgNamespace, 'svg'));
         buffer.generateElement();
         buffer.push('<div></div>');
 
@@ -55487,7 +55508,7 @@ enifed("ember-views/tests/system/render_buffer_test",
       });
 
       test("properly makes a div xhtml namespace inside foreignObject context", function() {
-        var buffer = new RenderBuffer('div', document.createElementNS(svgNamespace, 'foreignObject'));
+        var buffer = createRenderBuffer('div', document.createElementNS(svgNamespace, 'foreignObject'));
         buffer.generateElement();
         buffer.push('<div></div>');
 

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.a32fc1c4
+ * @version   1.11.0-beta.1+canary.5f05ed39
  */
 
 (function() {
@@ -2567,8 +2567,8 @@ enifed("ember-application/ext/controller",
     __exports__["default"] = ControllerMixin;
   });
 enifed("ember-application/system/application",
-  ["dag-map","container/registry","ember-metal","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/lazy_load","ember-runtime/system/namespace","ember-runtime/mixins/deferred","ember-application/system/resolver","ember-metal/platform","ember-metal/run_loop","ember-metal/utils","ember-runtime/controllers/controller","ember-metal/enumerable_utils","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-views/system/renderer","ember-views/views/select","ember-views/system/event_dispatcher","ember-views/system/jquery","ember-routing/system/route","ember-routing/system/router","ember-routing/location/hash_location","ember-routing/location/history_location","ember-routing/location/auto_location","ember-routing/location/none_location","ember-routing/system/cache","ember-extension-support/container_debug_adapter","ember-metal/core","ember-metal/environment","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __exports__) {
+  ["dag-map","container/registry","ember-metal","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/lazy_load","ember-runtime/system/namespace","ember-runtime/mixins/deferred","ember-application/system/resolver","ember-metal/platform","ember-metal/run_loop","ember-metal/utils","ember-runtime/controllers/controller","ember-metal/enumerable_utils","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-views/system/renderer","morph","ember-views/views/select","ember-views/system/event_dispatcher","ember-views/system/jquery","ember-routing/system/route","ember-routing/system/router","ember-routing/location/hash_location","ember-routing/location/history_location","ember-routing/location/auto_location","ember-routing/location/none_location","ember-routing/system/cache","ember-extension-support/container_debug_adapter","ember-metal/core","ember-metal/environment","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __dependency31__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -2593,21 +2593,22 @@ enifed("ember-application/system/application",
     var ObjectController = __dependency15__["default"];
     var ArrayController = __dependency16__["default"];
     var Renderer = __dependency17__["default"];
-    var SelectView = __dependency18__["default"];
-    var EventDispatcher = __dependency19__["default"];
-    var jQuery = __dependency20__["default"];
-    var Route = __dependency21__["default"];
-    var Router = __dependency22__["default"];
-    var HashLocation = __dependency23__["default"];
-    var HistoryLocation = __dependency24__["default"];
-    var AutoLocation = __dependency25__["default"];
-    var NoneLocation = __dependency26__["default"];
-    var BucketCache = __dependency27__["default"];
+    var DOMHelper = __dependency18__.DOMHelper;
+    var SelectView = __dependency19__["default"];
+    var EventDispatcher = __dependency20__["default"];
+    var jQuery = __dependency21__["default"];
+    var Route = __dependency22__["default"];
+    var Router = __dependency23__["default"];
+    var HashLocation = __dependency24__["default"];
+    var HistoryLocation = __dependency25__["default"];
+    var AutoLocation = __dependency26__["default"];
+    var NoneLocation = __dependency27__["default"];
+    var BucketCache = __dependency28__["default"];
 
-    var ContainerDebugAdapter = __dependency28__["default"];
+    var ContainerDebugAdapter = __dependency29__["default"];
 
-    var K = __dependency29__.K;
-    var environment = __dependency30__["default"];
+    var K = __dependency30__.K;
+    var environment = __dependency31__["default"];
 
     function props(obj) {
       var properties = [];
@@ -3575,7 +3576,7 @@ enifed("ember-application/system/application",
         registry.register('controller:object', ObjectController, { instantiate: false });
         registry.register('controller:array', ArrayController, { instantiate: false });
 
-        registry.register('renderer:-dom', { create: function(opts) { return new Renderer(opts); } });
+        registry.register('renderer:-dom', { create: function() { return new Renderer(new DOMHelper()); } });
 
         registry.injection('view', 'renderer', 'renderer:-dom');
         registry.register('view:select', SelectView);
@@ -5500,11 +5501,7 @@ enifed("ember-htmlbars/env",
 
     var helpers = __dependency13__["default"];
 
-    var domHelper = environment.hasDOM ? new DOMHelper() : null;
-
     __exports__["default"] = {
-      dom: domHelper,
-
       hooks: {
         get: get,
         set: set,
@@ -5520,6 +5517,10 @@ enifed("ember-htmlbars/env",
 
       helpers: helpers
     };
+
+    var domHelper = environment.hasDOM ? new DOMHelper() : null;
+
+    __exports__.domHelper = domHelper;
   });
 enifed("ember-htmlbars/helpers",
   ["ember-metal/platform","ember-htmlbars/system/helper","exports"],
@@ -8424,7 +8425,7 @@ enifed("ember-htmlbars/system/render-view",
       var args = view._blockArguments;
       var env = {
         view: this,
-        dom: defaultEnv.dom,
+        dom: view.renderer._dom,
         hooks: defaultEnv.hooks,
         helpers: defaultEnv.helpers,
         data: {
@@ -8837,7 +8838,7 @@ enifed("ember-metal-views/renderer",
 
     var domHelper = environment.hasDOM ? new DOMHelper() : null;
 
-    function Renderer() {
+    function Renderer(_helper) {
       this._uuid = 0;
 
       // These sizes and values are somewhat arbitrary (but sensible)
@@ -8847,7 +8848,7 @@ enifed("ember-metal-views/renderer",
       this._parents = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
       this._elements = new Array(17);
       this._inserts = {};
-      this._dom = domHelper;
+      this._dom = _helper || domHelper;
     }
 
     function Renderer_renderTree(_view, _parentView, _insertAt) {
@@ -12023,7 +12024,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.a32fc1c4
+      @version 1.11.0-beta.1+canary.5f05ed39
     */
 
     if ('undefined' === typeof Ember) {
@@ -12050,10 +12051,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.a32fc1c4'
+      @default '1.11.0-beta.1+canary.5f05ed39'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.a32fc1c4';
+    Ember.VERSION = '1.11.0-beta.1+canary.5f05ed39';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -40354,8 +40355,8 @@ enifed("ember-views/system/lookup_partial",
     }
   });
 enifed("ember-views/system/render_buffer",
-  ["ember-views/system/jquery","morph","ember-metal/core","ember-metal/platform","ember-metal/environment","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
+  ["ember-views/system/jquery","ember-metal/core","ember-metal/platform","ember-metal/environment","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -40363,10 +40364,9 @@ enifed("ember-views/system/render_buffer",
     */
 
     var jQuery = __dependency1__["default"];
-    var DOMHelper = __dependency2__.DOMHelper;
-    var Ember = __dependency3__["default"];
-    var create = __dependency4__.create;
-    var environment = __dependency5__["default"];
+    var Ember = __dependency2__["default"];
+    var create = __dependency3__.create;
+    var environment = __dependency4__["default"];
 
     // The HTML spec allows for "omitted start tags". These tags are optional
     // when their intended child is the first thing in the parent tag. For
@@ -40398,10 +40398,10 @@ enifed("ember-views/system/render_buffer",
     var omittedStartTagChildren;
     var omittedStartTagChildTest = /(?:<script)*.*?<([\w:]+)/i;
 
-    function detectOmittedStartTag(string, contextualElement) {
+    function detectOmittedStartTag(dom, string, contextualElement) {
       omittedStartTagChildren = omittedStartTagChildren || {
-        tr: document.createElement('tbody'),
-        col: document.createElement('colgroup')
+        tr: dom.createElement('tbody'),
+        col: dom.createElement('colgroup')
       };
 
       // Omitted start tags are only inside table tags.
@@ -40484,31 +40484,29 @@ enifed("ember-views/system/render_buffer",
     })();
 
     /**
-      `Ember.renderBuffer` gathers information regarding the view and generates the
-      final representation. `Ember.renderBuffer` will generate HTML which can be pushed
+      `Ember.RenderBuffer` gathers information regarding the view and generates the
+      final representation. `Ember.RenderBuffer` will generate HTML which can be pushed
       to the DOM.
 
        ```javascript
-       var buffer = Ember.renderBuffer('div', contextualElement);
+       var buffer = new Ember.RenderBuffer('div', contextualElement);
       ```
 
       @method renderBuffer
       @namespace Ember
       @param {String} tagName tag name (such as 'div' or 'p') used for the buffer
     */
-    __exports__["default"] = function renderBuffer(tagName, contextualElement) {
-      return new _RenderBuffer(tagName, contextualElement); // jshint ignore:line
-    }
 
-    function _RenderBuffer(tagName, contextualElement) {
-      this.tagName = tagName;
-      this._outerContextualElement = contextualElement;
+    var RenderBuffer = function(domHelper) {
       this.buffer = null;
       this.childViews = [];
-      this.dom = environment.hasDOM ? new DOMHelper() : null;
-    }
 
-    _RenderBuffer.prototype = {
+      Ember.assert("RenderBuffer requires a DOM helper to be passed to its constructor.", !!domHelper);
+
+      this.dom = domHelper;
+    };
+
+    RenderBuffer.prototype = {
 
       reset: function(tagName, contextualElement) {
         this.tagName = tagName;
@@ -40939,7 +40937,7 @@ enifed("ember-views/system/render_buffer",
 
         var omittedStartTag;
         if (html) {
-          omittedStartTag = detectOmittedStartTag(html, innerContextualElement);
+          omittedStartTag = detectOmittedStartTag(this.dom, html, innerContextualElement);
         }
         return omittedStartTag || innerContextualElement;
       },
@@ -40955,6 +40953,8 @@ enifed("ember-views/system/render_buffer",
         return this.buffer;
       }
     };
+
+    __exports__["default"] = RenderBuffer;
   });
 enifed("ember-views/system/renderer",
   ["ember-metal/core","ember-metal-views/renderer","ember-metal/platform","ember-views/system/render_buffer","ember-metal/run_loop","ember-metal/property_set","ember-metal/property_get","ember-metal/instrumentation","exports"],
@@ -40963,16 +40963,16 @@ enifed("ember-views/system/renderer",
     var Ember = __dependency1__["default"];
     var Renderer = __dependency2__["default"];
     var create = __dependency3__.create;
-    var renderBuffer = __dependency4__["default"];
+    var RenderBuffer = __dependency4__["default"];
     var run = __dependency5__["default"];
     var set = __dependency6__.set;
     var get = __dependency7__.get;
     var _instrumentStart = __dependency8__._instrumentStart;
     var subscribers = __dependency8__.subscribers;
 
-    function EmberRenderer() {
-      this.buffer = renderBuffer();
-      this._super$constructor();
+    function EmberRenderer(domHelper) {
+      this._super$constructor(domHelper);
+      this.buffer = new RenderBuffer(domHelper);
     }
 
     EmberRenderer.prototype = create(Renderer.prototype);
@@ -42611,21 +42611,22 @@ enifed("ember-views/views/container_view",
     __exports__["default"] = ContainerView;
   });
 enifed("ember-views/views/core_view",
-  ["ember-views/system/renderer","ember-views/views/states","ember-runtime/system/object","ember-runtime/mixins/evented","ember-runtime/mixins/action_handler","ember-metal/property_get","ember-metal/computed","ember-metal/utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
+  ["ember-views/system/renderer","morph","ember-views/views/states","ember-runtime/system/object","ember-runtime/mixins/evented","ember-runtime/mixins/action_handler","ember-metal/property_get","ember-metal/computed","ember-metal/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __exports__) {
     "use strict";
     var Renderer = __dependency1__["default"];
+    var DOMHelper = __dependency2__.DOMHelper;
 
-    var cloneStates = __dependency2__.cloneStates;
-    var states = __dependency2__.states;
-    var EmberObject = __dependency3__["default"];
-    var Evented = __dependency4__["default"];
-    var ActionHandler = __dependency5__["default"];
+    var cloneStates = __dependency3__.cloneStates;
+    var states = __dependency3__.states;
+    var EmberObject = __dependency4__["default"];
+    var Evented = __dependency5__["default"];
+    var ActionHandler = __dependency6__["default"];
 
-    var get = __dependency6__.get;
-    var computed = __dependency7__.computed;
+    var get = __dependency7__.get;
+    var computed = __dependency8__.computed;
 
-    var typeOf = __dependency8__.typeOf;
+    var typeOf = __dependency9__.typeOf;
 
     function K() { return this; }
 
@@ -42662,8 +42663,10 @@ enifed("ember-views/views/core_view",
         this.currentState = this._states.preRender;
         this._isVisible = get(this, 'isVisible');
 
+        // Fallback for legacy cases where the view was created directly
+        // via `create()` instead of going through the container.
         if (!this.renderer) {
-          renderer = renderer || new Renderer();
+          renderer = renderer || new Renderer(new DOMHelper());
           this.renderer = renderer;
         }
       },
