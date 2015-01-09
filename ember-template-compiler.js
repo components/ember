@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.32a72c09
+ * @version   1.11.0-beta.1+canary.7a4a2817
  */
 
 (function() {
@@ -119,7 +119,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.32a72c09
+      @version 1.11.0-beta.1+canary.7a4a2817
     */
 
     if ('undefined' === typeof Ember) {
@@ -146,10 +146,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.32a72c09'
+      @default '1.11.0-beta.1+canary.7a4a2817'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.32a72c09';
+    Ember.VERSION = '1.11.0-beta.1+canary.7a4a2817';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -758,9 +758,13 @@ enifed("htmlbars-compiler/fragment-javascript-compiler",
       this.source.push(this.indent+'  return '+el+';\n');
     };
 
-    FragmentJavaScriptCompiler.prototype.setAttribute = function(name, value) {
+    FragmentJavaScriptCompiler.prototype.setAttribute = function(name, value, namespace) {
       var el = 'el'+this.depth;
-      this.source.push(this.indent+'  dom.setProperty('+el+','+string(name)+','+string(value)+');\n');
+      if (namespace) {
+        this.source.push(this.indent+'  dom.setAttributeNS('+el+','+string(namespace)+','+string(name)+','+string(value)+');\n');
+      } else {
+        this.source.push(this.indent+'  dom.setAttribute('+el+','+string(name)+','+string(value)+');\n');
+      }
     };
 
     FragmentJavaScriptCompiler.prototype.appendChild = function() {
@@ -798,6 +802,7 @@ enifed("htmlbars-compiler/fragment-opcode-compiler",
     "use strict";
     var TemplateVisitor = __dependency1__["default"];
     var processOpcodes = __dependency2__.processOpcodes;
+    var getNamespace = __dependency2__.getNamespace;
     var forEach = __dependency3__.forEach;
 
     function FragmentOpcodeCompiler() {
@@ -857,7 +862,10 @@ enifed("htmlbars-compiler/fragment-opcode-compiler",
 
     FragmentOpcodeCompiler.prototype.attribute = function(attr) {
       if (attr.value.type === 'TextNode') {
-        this.opcode('setAttribute', [attr.name, attr.value.chars]);
+
+        var namespace = getNamespace(attr.name) || null;
+
+        this.opcode('setAttribute', [attr.name, attr.value.chars, namespace]);
       }
     };
 
@@ -1077,18 +1085,18 @@ enifed("htmlbars-compiler/hydration-javascript-compiler",
       this.morphs.push(['morph' + morphNum, morph]);
     };
 
-    prototype.createAttrMorph = function(attrMorphNum, elementNum, name, escaped) {
+    prototype.createAttrMorph = function(attrMorphNum, elementNum, name, escaped, namespace) {
       var morphMethod = escaped ? 'createAttrMorph' : 'createUnsafeAttrMorph';
-      var morph = "dom."+morphMethod+"(element"+elementNum+", '"+name+"')";
+      var morph = "dom."+morphMethod+"(element"+elementNum+", '"+name+(namespace ? "', '"+namespace : '')+"')";
       this.morphs.push(['attrMorph' + attrMorphNum, morph]);
     };
 
     prototype.repairClonedNode = function(blankChildTextNodes, isElementChecked) {
       var parent = this.getParent(),
-          processing = 'dom.repairClonedNode('+parent+','+
+          processing = 'if (this.cachedFragment) { dom.repairClonedNode('+parent+','+
                        array(blankChildTextNodes)+
                        ( isElementChecked ? ',true' : '' )+
-                       ');';
+                       '); }';
       this.fragmentProcessing.push(
         processing
       );
@@ -1132,6 +1140,7 @@ enifed("htmlbars-compiler/hydration-opcode-compiler",
     "use strict";
     var TemplateVisitor = __dependency1__["default"];
     var processOpcodes = __dependency2__.processOpcodes;
+    var getNamespace = __dependency2__.getNamespace;
     var forEach = __dependency3__.forEach;
     var isHelper = __dependency4__.isHelper;
 
@@ -1305,6 +1314,7 @@ enifed("htmlbars-compiler/hydration-opcode-compiler",
     HydrationOpcodeCompiler.prototype.attribute = function(attr) {
       var value = attr.value;
       var escaped = true;
+      var namespace = getNamespace(attr.name) || null;
 
       // TODO: Introduce context specific AST nodes to avoid switching here.
       if (value.type === 'TextNode') {
@@ -1325,7 +1335,7 @@ enifed("htmlbars-compiler/hydration-opcode-compiler",
       }
 
       var attrMorphNum = this.attrMorphNum++;
-      this.opcode('createAttrMorph', attrMorphNum, this.elementNum, attr.name, escaped);
+      this.opcode('createAttrMorph', attrMorphNum, this.elementNum, attr.name, escaped, namespace);
       this.opcode('printAttributeHook', attrMorphNum, this.elementNum);
     };
 
@@ -1861,7 +1871,23 @@ enifed("htmlbars-compiler/utils",
       }
     }
 
-    __exports__.processOpcodes = processOpcodes;
+    __exports__.processOpcodes = processOpcodes;// ref http://dev.w3.org/html5/spec-LC/namespaces.html
+    var defaultNamespaces = {
+      html: 'http://www.w3.org/1999/xhtml',
+      mathml: 'http://www.w3.org/1998/Math/MathML',
+      svg: 'http://www.w3.org/2000/svg',
+      xlink: 'http://www.w3.org/1999/xlink',
+      xml: 'http://www.w3.org/XML/1998/namespace'
+    };
+
+    function getNamespace(attrName) {
+      var parts = attrName.split(':');
+      if (parts.length > 1) {
+        return defaultNamespaces[parts[0]];
+      }
+    }
+
+    __exports__.getNamespace = getNamespace;
   });
 enifed("htmlbars-syntax",
   ["./htmlbars-syntax/walker","./htmlbars-syntax/builders","./htmlbars-syntax/parser","exports"],
@@ -3689,12 +3715,13 @@ enifed("htmlbars-syntax/token-handlers",
     __exports__["default"] = tokenHandlers;
   });
 enifed("htmlbars-syntax/tokenizer",
-  ["../simple-html-tokenizer","./utils","./builders","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["../simple-html-tokenizer","./utils","../htmlbars-util/array-utils","./builders","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     var Tokenizer = __dependency1__.Tokenizer;
     var isHelper = __dependency2__.isHelper;
-    var builders = __dependency3__["default"];
+    var map = __dependency3__.map;
+    var builders = __dependency4__["default"];
 
     Tokenizer.prototype.createAttribute = function(char) {
       if (this.token.type === 'EndTag') {
@@ -3755,14 +3782,16 @@ enifed("htmlbars-syntax/tokenizer",
 
     function prepareAttributeValue(attr) {
       var parts = attr.value;
-      if (parts.length === 0) {
+      var length = parts.length;
+
+      if (length === 0) {
         return builders.text('');
-      } else if (parts.length === 1 && parts[0].type === "TextNode") {
+      } else if (length === 1 && parts[0].type === "TextNode") {
         return parts[0];
       } else if (!attr.quoted) {
         return parts[0];
       } else {
-        return builders.concat(parts.map(prepareConcatPart));
+        return builders.concat(map(parts, prepareConcatPart));
       }
     }
 
@@ -3984,6 +4013,16 @@ enifed("htmlbars-test-helpers",
     var ie8InnerHTMLTestElement = document.createElement('div');
     ie8InnerHTMLTestElement.setAttribute('id', 'womp');
     var ie8InnerHTML = (ie8InnerHTMLTestElement.outerHTML.indexOf('id=womp') > -1);
+
+    // detect side-effects of cloning svg elements in IE9-11
+    var ieSVGInnerHTML = (function () {
+      var div = document.createElement('div');
+      var node = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      div.appendChild(node);
+      var clone = div.cloneNode(true);
+      return clone.innerHTML === '<svg xmlns="http://www.w3.org/2000/svg" />';
+    })();
+
     function normalizeInnerHTML(actualHTML) {
       if (ie8InnerHTML) {
         // drop newlines in IE8
@@ -3997,6 +4036,16 @@ enifed("htmlbars-test-helpers",
           return 'id="'+id+'"';
         });
       }
+      if (ieSVGInnerHTML) {
+        // Replace `<svg xmlns="http://www.w3.org/2000/svg" height="50%" />` with `<svg height="50%"></svg>`, etc.
+        // drop namespace attribute
+        actualHTML = actualHTML.replace(/ xmlns="[^"]+"/, '');
+        // replace self-closing elements
+        actualHTML = actualHTML.replace(/<([A-Z]+) [^\/>]*\/>/gi, function(tag, tagName) {
+          return tag.slice(0, tag.length - 3) + '></' + tagName + '>';
+        });
+      }
+
       return actualHTML;
     }
 
@@ -4025,19 +4074,30 @@ enifed("htmlbars-util/array-utils",
   function(__exports__) {
     "use strict";
     function forEach(array, callback, binding) {
-      var i;
+      var i, l;
       if (binding === undefined) {
-        for (i = 0; i < array.length; i++) {
+        for (i = 0, l = array.length; i < l; i++) {
           callback(array[i], i, array);
         }
       } else {
-        for (i = 0; i < array.length; i++) {
+        for (i = 0, l = array.length; i < l; i++) {
           callback.call(binding, array[i], i, array);
         }
       }
     }
 
-    __exports__.forEach = forEach;
+    __exports__.forEach = forEach;function map(array, callback) {
+      var output = [];
+      var i, l;
+
+      for (i = 0, l = array.length; i < l; i++) {
+        output.push(callback(array[i], i, array));
+      }
+
+      return output;
+    }
+
+    __exports__.map = map;
   });
 enifed("htmlbars-util/handlebars/safe-string",
   ["exports"],
