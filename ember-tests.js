@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.0e6fd9a3
+ * @version   1.11.0-beta.1+canary.7a3d7211
  */
 
 (function() {
@@ -23433,6 +23433,28 @@ enifed("ember-metal/tests/mixin/merged_properties_test",
       deepEqual(get(obj, 'mergedProperties'), ['foo', 'bar'], 'get mergedProperties');
       deepEqual(get(obj, 'foo'), { a: true, b: true, c: true, d: true, e: true, f: true }, "get foo");
       deepEqual(get(obj, 'bar'), { a: true, l: true, e: true, x: true }, "get bar");
+    });
+
+    test("mergedProperties should exist even if not explicitly set on create", function() {
+
+      var AnObj = Ember.Object.extend({
+        mergedProperties: ['options'],
+        options: {
+          a: 'a',
+          b: {
+            c: 'ccc'
+          }
+        }
+      });
+
+      var obj = AnObj.create({
+        options: {
+          a: 'A'
+        }
+      });
+
+      equal(get(obj, "options").a, 'A');
+      equal(get(obj, "options").b.c, 'ccc');
     });
 
     test("mergedProperties' overwriting methods can call _super", function() {
