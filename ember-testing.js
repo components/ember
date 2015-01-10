@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.7a4a2817
+ * @version   1.11.0-beta.1+canary.0e6fd9a3
  */
 
 (function() {
@@ -190,8 +190,10 @@ enifed("ember-debug",
       @param {String} message A description of the deprecation.
       @param {Boolean} test An optional boolean. If falsy, the deprecation
         will be displayed.
+      @param {Object} options An optional object that can be used to pass
+        in a `url` to the transition guide on the emberjs.com website.
     */
-    Ember.deprecate = function(message, test) {
+    Ember.deprecate = function(message, test, options) {
       var noDeprecation;
 
       if (typeof test === 'function') {
@@ -208,6 +210,13 @@ enifed("ember-debug",
 
       // When using new Error, we can't do the arguments check for Chrome. Alternatives are welcome
       try { __fail__.fail(); } catch (e) { error = e; }
+
+      if (arguments.length === 3) {
+        Ember.assert('options argument to Ember.deprecate should be an object', options && typeof options === 'object');
+        if (options.url) {
+          message += ' See ' + options.url + ' for more details.';
+        }
+      }
 
       if (Ember.LOG_STACKTRACE_ON_DEPRECATION && error.stack) {
         var stack;

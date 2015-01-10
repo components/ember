@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.7a4a2817
+ * @version   1.11.0-beta.1+canary.0e6fd9a3
  */
 
 (function() {
@@ -5051,7 +5051,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.7a4a2817
+      @version 1.11.0-beta.1+canary.0e6fd9a3
     */
 
     if ('undefined' === typeof Ember) {
@@ -5078,10 +5078,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.7a4a2817'
+      @default '1.11.0-beta.1+canary.0e6fd9a3'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.7a4a2817';
+    Ember.VERSION = '1.11.0-beta.1+canary.0e6fd9a3';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -16749,7 +16749,7 @@ enifed("ember-runtime/mixins/deferred",
       },
 
       _deferred: computed(function() {
-        Ember.deprecate('Usage of Ember.DeferredMixin or Ember.Deferred is deprecated.', this._suppressDeferredDeprecation);
+        Ember.deprecate('Usage of Ember.DeferredMixin or Ember.Deferred is deprecated.', this._suppressDeferredDeprecation, { url: 'http://emberjs.com/guides/deprecations/#toc_deprecate-ember-deferredmixin-and-ember-deferred' });
 
         return RSVP.defer('Ember: DeferredMixin - ' + this);
       })
@@ -19021,7 +19021,7 @@ enifed("ember-runtime/mixins/observable",
       },
 
       addBeforeObserver: function(key, target, method) {
-        Ember.deprecate('Before observers are deprecated and will be removed in a future release. If you want to keep track of previous values you have to implement it yourself. See http://emberjs.com/guides/deprecations#toc_deprecate-beforeobservers');
+        Ember.deprecate('Before observers are deprecated and will be removed in a future release. If you want to keep track of previous values you have to implement it yourself.', false, { url: 'http://emberjs.com/guides/deprecations/#toc_deprecate-beforeobservers' });
         addBeforeObserver(this, key, target, method);
       },
 
@@ -21191,7 +21191,7 @@ enifed("ember-runtime/system/deferred",
 
     var Deferred = EmberObject.extend(DeferredMixin, {
       init: function() {
-        Ember.deprecate('Usage of Ember.Deferred is deprecated.');
+        Ember.deprecate('Usage of Ember.Deferred is deprecated.', false, { url: 'http://emberjs.com/guides/deprecations/#toc_deprecate-ember-deferredmixin-and-ember-deferred' });
         this._super();
       }
     });

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.7a4a2817
+ * @version   1.11.0-beta.1+canary.0e6fd9a3
  */
 
 (function() {
@@ -3381,7 +3381,7 @@ enifed("ember-application/system/application",
         @deprecated
       */
       then: function() {
-        Ember.deprecate('Do not use `.then` on an instance of Ember.Application.  Please use the `.ready` hook instead.');
+        Ember.deprecate('Do not use `.then` on an instance of Ember.Application.  Please use the `.ready` hook instead.', false, { url: 'http://emberjs.com/guides/deprecations/#toc_deprecate-code-then-code-on-ember-application' });
 
         this._super.apply(this, arguments);
       }
@@ -4164,8 +4164,10 @@ enifed("ember-debug",
       @param {String} message A description of the deprecation.
       @param {Boolean} test An optional boolean. If falsy, the deprecation
         will be displayed.
+      @param {Object} options An optional object that can be used to pass
+        in a `url` to the transition guide on the emberjs.com website.
     */
-    Ember.deprecate = function(message, test) {
+    Ember.deprecate = function(message, test, options) {
       var noDeprecation;
 
       if (typeof test === 'function') {
@@ -4182,6 +4184,13 @@ enifed("ember-debug",
 
       // When using new Error, we can't do the arguments check for Chrome. Alternatives are welcome
       try { __fail__.fail(); } catch (e) { error = e; }
+
+      if (arguments.length === 3) {
+        Ember.assert('options argument to Ember.deprecate should be an object', options && typeof options === 'object');
+        if (options.url) {
+          message += ' See ' + options.url + ' for more details.';
+        }
+      }
 
       if (Ember.LOG_STACKTRACE_ON_DEPRECATION && error.stack) {
         var stack;
@@ -6418,10 +6427,9 @@ enifed("ember-htmlbars/helpers/each",
 
       Ember.deprecate(
         "Using the context switching form of {{each}} is deprecated. " +
-        "Please use the keyword form (`{{#each foo in bar}}`) instead. " +
-        "See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope " +
-        "for more details.",
-        hash.keyword === true || typeof hash.keyword === 'string'
+        "Please use the keyword form (`{{#each foo in bar}}`) instead.",
+        hash.keyword === true || typeof hash.keyword === 'string',
+        { url: 'http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope' }
       );
 
       hash.dataSource = path;
@@ -7541,9 +7549,9 @@ enifed("ember-htmlbars/helpers/with",
       } else {
         Ember.deprecate(
           "Using the context switching form of `{{with}}` is deprecated. " +
-          "Please use the keyword form (`{{with foo as bar}}`) instead. " +
-          "See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope " +
-          "for more details."
+          "Please use the keyword form (`{{with foo as bar}}`) instead.",
+          false,
+          { url: 'http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope' }
         );
         preserveContext = false;
       }
@@ -12027,7 +12035,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.7a4a2817
+      @version 1.11.0-beta.1+canary.0e6fd9a3
     */
 
     if ('undefined' === typeof Ember) {
@@ -12054,10 +12062,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.7a4a2817'
+      @default '1.11.0-beta.1+canary.0e6fd9a3'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.7a4a2817';
+    Ember.VERSION = '1.11.0-beta.1+canary.0e6fd9a3';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -30510,7 +30518,7 @@ enifed("ember-runtime/mixins/deferred",
       },
 
       _deferred: computed(function() {
-        Ember.deprecate('Usage of Ember.DeferredMixin or Ember.Deferred is deprecated.', this._suppressDeferredDeprecation);
+        Ember.deprecate('Usage of Ember.DeferredMixin or Ember.Deferred is deprecated.', this._suppressDeferredDeprecation, { url: 'http://emberjs.com/guides/deprecations/#toc_deprecate-ember-deferredmixin-and-ember-deferred' });
 
         return RSVP.defer('Ember: DeferredMixin - ' + this);
       })
@@ -32782,7 +32790,7 @@ enifed("ember-runtime/mixins/observable",
       },
 
       addBeforeObserver: function(key, target, method) {
-        Ember.deprecate('Before observers are deprecated and will be removed in a future release. If you want to keep track of previous values you have to implement it yourself. See http://emberjs.com/guides/deprecations#toc_deprecate-beforeobservers');
+        Ember.deprecate('Before observers are deprecated and will be removed in a future release. If you want to keep track of previous values you have to implement it yourself.', false, { url: 'http://emberjs.com/guides/deprecations/#toc_deprecate-beforeobservers' });
         addBeforeObserver(this, key, target, method);
       },
 
@@ -34952,7 +34960,7 @@ enifed("ember-runtime/system/deferred",
 
     var Deferred = EmberObject.extend(DeferredMixin, {
       init: function() {
-        Ember.deprecate('Usage of Ember.Deferred is deprecated.');
+        Ember.deprecate('Usage of Ember.Deferred is deprecated.', false, { url: 'http://emberjs.com/guides/deprecations/#toc_deprecate-ember-deferredmixin-and-ember-deferred' });
         this._super();
       }
     });
@@ -39937,7 +39945,7 @@ enifed("ember-views/streams/utils",
       if (typeof value === 'string') {
         if (isGlobal(value)) {
           viewClass = get(null, value);
-          Ember.deprecate('Resolved the view "'+value+'" on the global context. Pass a view name to be looked up on the container instead, such as {{view "select"}}. http://emberjs.com/guides/deprecations#toc_global-lookup-of-views', !viewClass);
+          Ember.deprecate('Resolved the view "'+value+'" on the global context. Pass a view name to be looked up on the container instead, such as {{view "select"}}.', !viewClass, { url: 'http://emberjs.com/guides/deprecations/#toc_global-lookup-of-views' });
         } else {
           Ember.assert("View requires a container to resolve views not passed in through the context", !!container);
           viewClass = container.lookupFactory('view:'+value);
