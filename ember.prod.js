@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.7a3d7211
+ * @version   1.11.0-beta.1+canary.e96b4d75
  */
 
 (function() {
@@ -11594,7 +11594,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.7a3d7211
+      @version 1.11.0-beta.1+canary.e96b4d75
     */
 
     if ('undefined' === typeof Ember) {
@@ -11621,10 +11621,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.7a3d7211'
+      @default '1.11.0-beta.1+canary.e96b4d75'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.7a3d7211';
+    Ember.VERSION = '1.11.0-beta.1+canary.e96b4d75';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -22204,7 +22204,7 @@ enifed("ember-routing/system/dsl",
 
     function DSL(name, options) {
       this.parent = name;
-      this.enableLoadingSubtates = options && options.enableLoadingSubtates;
+      this.enableLoadingSubstates = options && options.enableLoadingSubstates;
       this.matches = [];
     }
     __exports__["default"] = DSL;
@@ -22223,7 +22223,7 @@ enifed("ember-routing/system/dsl",
         var type = options.resetNamespace === true ? 'resource' : 'route';
         
         
-          if (this.enableLoadingSubtates) {
+          if (this.enableLoadingSubstates) {
             createRoute(this, name + '_loading', { resetNamespace: options.resetNamespace });
             createRoute(this, name + '_error', { path: "/_unused_dummy_error_path_route_" + name + "/:error" });
           }
@@ -22232,7 +22232,7 @@ enifed("ember-routing/system/dsl",
         if (callback) {
           var fullName = getFullName(this, name, options.resetNamespace);
           var dsl = new DSL(fullName, {
-            enableLoadingSubtates: this.enableLoadingSubtates
+            enableLoadingSubstates: this.enableLoadingSubstates
           });
 
           createRoute(dsl, 'loading');
@@ -24551,7 +24551,7 @@ enifed("ember-routing/system/router",
 
         var dslCallbacks = this.constructor.dslCallbacks || [K];
         var dsl = new EmberRouterDSL(null, {
-          enableLoadingSubtates: !!moduleBasedResolver
+          enableLoadingSubstates: !!moduleBasedResolver
         });
 
         function generateDSL() {
