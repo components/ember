@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.e339b8f0
+ * @version   1.11.0-beta.1+canary.3e98f80b
  */
 
 (function() {
@@ -5012,9 +5012,9 @@ enifed("ember-htmlbars",
     // Ember.Handlebars global if htmlbars is enabled
 
     registerHelper('view', viewHelper);
-    if (Ember.FEATURES.isEnabled('ember-htmlbars-component-helper')) {
+    
       registerHelper('component', componentHelper);
-    }
+    
     registerHelper('yield', yieldHelper);
     registerHelper('with', withHelper);
     registerHelper('if', ifHelper);
@@ -12035,7 +12035,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.e339b8f0
+      @version 1.11.0-beta.1+canary.3e98f80b
     */
 
     if ('undefined' === typeof Ember) {
@@ -12062,10 +12062,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.e339b8f0'
+      @default '1.11.0-beta.1+canary.3e98f80b'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.e339b8f0';
+    Ember.VERSION = '1.11.0-beta.1+canary.3e98f80b';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -41810,24 +41810,19 @@ enifed("ember-views/views/collection_view",
 
             view = this.createChildView(itemViewClass, itemViewProps);
 
-            if (Ember.FEATURES.isEnabled('ember-htmlbars-each-with-index')) {
+            
               if (this.blockParams > 1) {
                 view._blockArguments = [item, view.getStream('_view.contentIndex')];
               } else if (this.blockParams === 1) {
                 view._blockArguments = [item];
               }
-            } else {
-              if (this.blockParams > 0) {
-                view._blockArguments = [item];
-              }
-            }
-
+            
             addedViews.push(view);
           }
 
           this.replace(start, 0, addedViews);
 
-          if (Ember.FEATURES.isEnabled('ember-htmlbars-each-with-index')) {
+          
             if (this.blockParams > 1) {
               var childViews = this._childViews;
               for (idx = start+added; idx < len; idx++) {
@@ -41835,7 +41830,7 @@ enifed("ember-views/views/collection_view",
                 set(view, 'contentIndex', idx);
               }
             }
-          }
+          
         } else {
           emptyView = get(this, 'emptyView');
 
