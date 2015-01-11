@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.43e5cba6
+ * @version   1.11.0-beta.1+canary.e339b8f0
  */
 
 (function() {
@@ -12035,7 +12035,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.43e5cba6
+      @version 1.11.0-beta.1+canary.e339b8f0
     */
 
     if ('undefined' === typeof Ember) {
@@ -12062,10 +12062,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.43e5cba6'
+      @default '1.11.0-beta.1+canary.e339b8f0'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.43e5cba6';
+    Ember.VERSION = '1.11.0-beta.1+canary.e339b8f0';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -50211,6 +50211,7 @@ enifed("morph/attr-morph",
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     var sanitizeAttributeValue = __dependency1__.sanitizeAttributeValue;
+    var isAttrRemovalValue = __dependency2__.isAttrRemovalValue;
     var normalizeProperty = __dependency2__.normalizeProperty;
     var svgNamespace = __dependency3__.svgNamespace;
 
@@ -50219,7 +50220,7 @@ enifed("morph/attr-morph",
     }
 
     function updateAttribute(value) {
-      if (value === null) {
+      if (isAttrRemovalValue(value)) {
         this.domHelper.removeAttribute(this.element, this.attrName);
       } else {
         this.domHelper.setAttribute(this.element, this.attrName, value);
@@ -50227,7 +50228,7 @@ enifed("morph/attr-morph",
     }
 
     function updateAttributeNS(value) {
-      if (value === null) {
+      if (isAttrRemovalValue(value)) {
         this.domHelper.removeAttribute(this.element, this.attrName);
       } else {
         this.domHelper.setAttributeNS(this.element, this.namespace, this.attrName, value);
@@ -50334,6 +50335,7 @@ enifed("morph/dom-helper",
     var addClasses = __dependency4__.addClasses;
     var removeClasses = __dependency4__.removeClasses;
     var normalizeProperty = __dependency5__.normalizeProperty;
+    var isAttrRemovalValue = __dependency5__.isAttrRemovalValue;
 
     var doc = typeof document === 'undefined' ? false : document;
 
@@ -50475,7 +50477,7 @@ enifed("morph/dom-helper",
     };
 
     prototype.setAttributeNS = function(element, namespace, name, value) {
-      element.setAttributeNS(namespace, name, value);
+      element.setAttributeNS(namespace, name, String(value));
     };
 
     prototype.removeAttribute = function(element, name) {
@@ -50489,7 +50491,7 @@ enifed("morph/dom-helper",
     prototype.setProperty = function(element, name, value, namespace) {
       var lowercaseName = name.toLowerCase();
       if (element.namespaceURI === svgNamespace || lowercaseName === 'style') {
-        if (value === null) {
+        if (isAttrRemovalValue(value)) {
           element.removeAttribute(name);
         } else {
           if (namespace) {
@@ -50503,7 +50505,7 @@ enifed("morph/dom-helper",
         if (normalized) {
           element[normalized] = value;
         } else {
-          if (value === null) {
+          if (isAttrRemovalValue(value)) {
             element.removeAttribute(name);
           } else {
             if (namespace) {
@@ -51077,7 +51079,11 @@ enifed("morph/dom-helper/prop",
   ["exports"],
   function(__exports__) {
     "use strict";
-    // TODO should this be an o_create kind of thing?
+    function isAttrRemovalValue(value) {
+      return value === null || value === undefined;
+    }
+
+    __exports__.isAttrRemovalValue = isAttrRemovalValue;// TODO should this be an o_create kind of thing?
     var propertyCaches = {};
     __exports__.propertyCaches = propertyCaches;
     function normalizeProperty(element, attrName) {
