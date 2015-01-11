@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.e339b8f0
+ * @version   1.11.0-beta.1+canary.3e98f80b
  */
 
 (function() {
@@ -8485,7 +8485,7 @@ enifed("ember-htmlbars/tests/helpers/component_test",
     var get = Ember.get;
     var view, registry, container;
 
-    if (Ember.FEATURES.isEnabled('ember-htmlbars-component-helper')) {
+    
       QUnit.module("ember-htmlbars: {{#component}} helper", {
         setup: function() {
           registry = new Registry();
@@ -8641,7 +8641,7 @@ enifed("ember-htmlbars/tests/helpers/component_test",
           runAppend(view);
         }, /HTMLBars error: Could not find component named "does-not-exist"./);
       });
-    }
+    
   });
 enifed("ember-htmlbars/tests/helpers/component_test.jscs-test",
   [],
@@ -9803,7 +9803,7 @@ enifed("ember-htmlbars/tests/helpers/each_test",
       }
 
       if (useBlockParams) {
-        if (Ember.FEATURES.isEnabled('ember-htmlbars-each-with-index')) {
+        
           test("the index is passed as the second parameter to #each blocks", function() {
             expect(3);
 
@@ -9825,7 +9825,7 @@ enifed("ember-htmlbars/tests/helpers/each_test",
             });
             equal(view.$().text(), "0. Bob1. Steve");
           });
-        }
+        
       }
     }
 
