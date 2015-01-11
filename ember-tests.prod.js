@@ -4999,8 +4999,8 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
     });
 
     test("primitives should work correctly [DEPRECATED]", function() {
-      expectDeprecation('Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
-      expectDeprecation('Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+      expectDeprecation('Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead.');
+      expectDeprecation('Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead.');
 
       view = EmberView.create({
         prims: Ember.A(["string", 12]),
@@ -5398,7 +5398,7 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
 
       expectDeprecation(function() {
         runAppend(view);
-      }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+      }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead.');
 
       equal(view.$().text(), '|NOPE 0|NOPE |NOPE false|NOPE OMG|GMO |NOPE 0|NOPE |NOPE false|NOPE OMG|GMO ', "helper output is correct");
 
@@ -5426,7 +5426,7 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
 
       expectDeprecation(function() {
         runAppend(view);
-      }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+      }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead.');
 
       equal(view.$().text(), '|NOPE 5|5 |NOPE 5|5 ', "helper output is correct");
 
@@ -6027,7 +6027,7 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test",
     });
 
     test("should be able to bind-attr to 'this' in an {{#each}} block [DEPRECATED]", function() {
-      expectDeprecation('Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+      expectDeprecation('Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead.');
 
       view = EmberView.create({
         template: compile('{{#each view.images}}<img {{bind-attr src=this}}>{{/each}}'),
@@ -6043,7 +6043,7 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test",
     });
 
     test("should be able to bind classes to 'this' in an {{#each}} block with {{bind-attr class}} [DEPRECATED]", function() {
-      expectDeprecation('Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+      expectDeprecation('Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead.');
 
       view = EmberView.create({
         template: compile('{{#each view.items}}<li {{bind-attr class="this"}}>Item</li>{{/each}}'),
@@ -6956,7 +6956,7 @@ enifed("ember-htmlbars/tests/helpers/collection_test",
 
       expectDeprecation(function() {
         runAppend(view);
-      }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+      }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead.');
 
       equal(view.$().text(), "Mac OS X 10.7: Lion Mac OS X 10.6: Snow Leopard Mac OS X 10.5: Leopard ", "prints each item in sequence");
     });
@@ -7375,7 +7375,7 @@ enifed("ember-htmlbars/tests/helpers/each_test",
 
         expectDeprecation(function() {
           runAppend(view);
-        },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+        },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead.');
       },
 
       teardown: function() {
@@ -8045,7 +8045,7 @@ enifed("ember-htmlbars/tests/helpers/each_test",
 
       expectDeprecation(function() {
         runAppend(view);
-      },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+      },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead.');
 
       equal(view.$().text(), "AdamSteve");
     });
@@ -8060,7 +8060,7 @@ enifed("ember-htmlbars/tests/helpers/each_test",
 
       expectDeprecation(function() {
         runAppend(view);
-      },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+      },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead.');
 
       equal(view.$().text(), "AdamSteve");
     });
@@ -8075,7 +8075,7 @@ enifed("ember-htmlbars/tests/helpers/each_test",
 
       expectDeprecation(function() {
         runAppend(view);
-      },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+      },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead.');
 
       equal(view.$().text(), "AdamSteve");
     });
@@ -8163,7 +8163,7 @@ enifed("ember-htmlbars/tests/helpers/each_test",
 
           expectDeprecation(function() {
             runAppend(view);
-          },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+          },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead.');
 
           equal(view.$().text(), "AdamSteve");
         });
@@ -8284,7 +8284,7 @@ enifed("ember-htmlbars/tests/helpers/each_test",
 
           expectDeprecation(function() {
             runAppend(view);
-          },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+          },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead.');
 
           equal(view.$().text(), "AdamSteve");
         });
@@ -8299,7 +8299,7 @@ enifed("ember-htmlbars/tests/helpers/each_test",
 
           expectDeprecation(function() {
             runAppend(view);
-          },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+          },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead.');
 
           equal(view.$().text(), "AdamSteve");
         });
@@ -8374,7 +8374,7 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
 
       expectDeprecation(function() {
         runAppend(view);
-      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead.');
 
       equal(view.$().text(), 'foo: 42');
     });
@@ -11784,7 +11784,7 @@ enifed("ember-htmlbars/tests/helpers/with_test",
 
       expectDeprecation(function(){
         runAppend(view);
-      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead.');
 
       equal(view.$().text(), "controller:Steve Holt and Bob Loblaw");
 
@@ -11925,7 +11925,7 @@ enifed("ember-htmlbars/tests/helpers/with_test",
 
       expectDeprecation(function(){
         runAppend(view);
-      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead.');
 
       runDestroy(view);
 
@@ -12213,7 +12213,7 @@ enifed("ember-htmlbars/tests/helpers/yield_test",
 
       expectDeprecation(function() {
         runAppend(view);
-      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead.');
 
       equal(view.$('div p:contains(inner) + p:contains(insideWith)').length, 1, "Yield points at the right context");
     });
@@ -12288,7 +12288,7 @@ enifed("ember-htmlbars/tests/helpers/yield_test",
 
       expectDeprecation(function() {
         runAppend(view);
-      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead.');
 
       equal('outerinner', view.$('p').text(), "Yield points at the right context");
     });
@@ -13610,7 +13610,7 @@ enifed("ember-htmlbars/tests/integration/with_view_test",
 
       expectDeprecation(function() {
         runAppend(view);
-      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead.');
 
       equal(view.$('#first').text(), 'bam', 'precond - view renders Handlebars template');
 
@@ -13641,7 +13641,7 @@ enifed("ember-htmlbars/tests/integration/with_view_test",
 
       expectDeprecation(function() {
         runAppend(view);
-      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead.');
 
       equal(view.$().text(), 'barbang', 'renders values from view and child view');
     });
@@ -13664,7 +13664,7 @@ enifed("ember-htmlbars/tests/integration/with_view_test",
 
       expectDeprecation(function() {
         runAppend(view);
-      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead.');
 
       equal(trim(view.$().text()), 'Name: SFMoMA Price: $20', 'should print baz twice');
     });
@@ -20224,6 +20224,28 @@ enifed("ember-metal/tests/mixin/mergedProperties_test",
       deepEqual(get(obj, 'bar'), { a: true, l: true, e: true, x: true }, "get bar");
     });
 
+    test("mergedProperties should exist even if not explicitly set on create", function() {
+
+      var AnObj = Ember.Object.extend({
+        mergedProperties: ['options'],
+        options: {
+          a: 'a',
+          b: {
+            c: 'ccc'
+          }
+        }
+      });
+
+      var obj = AnObj.create({
+        options: {
+          a: 'A'
+        }
+      });
+
+      equal(get(obj, "options").a, 'A');
+      equal(get(obj, "options").b.c, 'ccc');
+    });
+
     test("mergedProperties' overwriting methods can call _super", function() {
 
       expect(4);
@@ -24962,7 +24984,7 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test",
 
       expectDeprecation(function() {
         runAppend(view);
-      }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+      }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead.');
 
       equal(registeredTarget, itemController, "the item controller is the target of action");
     });
@@ -24992,14 +25014,14 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test",
 
       expectDeprecation(function() {
         runAppend(view);
-      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead.');
 
       ok(registeredTarget instanceof PersonController, "the with-controller is the target of action");
     });
 
     test("should target the with-controller inside an {{each}} in a {{#with controller='person'}} [DEPRECATED]", function() {
-      expectDeprecation('Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
-      expectDeprecation('Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+      expectDeprecation('Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead.');
+      expectDeprecation('Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead.');
 
       var eventsCalled = [];
 
@@ -25299,7 +25321,7 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test",
 
       expectDeprecation(function() {
         runAppend(view);
-      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead.');
 
       view.$('a').trigger('click');
 
@@ -25730,7 +25752,7 @@ enifed("ember-routing-htmlbars/tests/helpers/action_test",
           view.set('controller', controller);
           view.appendTo('#qunit-fixture');
         });
-      }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+      }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead.');
 
       var testBoundAction = function(propertyValue){
         run(function(){
@@ -26318,7 +26340,7 @@ enifed("ember-routing-htmlbars/tests/helpers/outlet_test",
 
       expectDeprecation(function() {
         runAppend(view);
-      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+      }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead.');
 
       run(function() {
         view.connectOutlet('main', bottomView);
@@ -59042,7 +59064,7 @@ enifed("ember/tests/helpers/link_to_test",
 
       expectDeprecation(function() {
         bootApplication();
-      }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead. See http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope for more details.');
+      }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead.');
 
       function linksEqual($links, expected) {
         equal($links.length, expected.length, "Has correct number of links");
