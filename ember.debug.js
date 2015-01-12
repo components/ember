@@ -1,11 +1,11 @@
 /*!
  * @overview  Ember - JavaScript Application Framework
- * @copyright Copyright 2011-2014 Tilde Inc. and contributors
+ * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  *            Portions Copyright 2006-2011 Strobe Inc.
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.3e98f80b
+ * @version   1.11.0-beta.1+canary.4df827e5
  */
 
 (function() {
@@ -12035,7 +12035,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.3e98f80b
+      @version 1.11.0-beta.1+canary.4df827e5
     */
 
     if ('undefined' === typeof Ember) {
@@ -12062,10 +12062,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.3e98f80b'
+      @default '1.11.0-beta.1+canary.4df827e5'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.3e98f80b';
+    Ember.VERSION = '1.11.0-beta.1+canary.4df827e5';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
