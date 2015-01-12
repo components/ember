@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.10.0-beta.3
+ * @version   1.10.0-beta.4
  */
 
 (function() {
@@ -4559,8 +4559,7 @@ enifed("ember-htmlbars",
     
       Ember.HTMLBars = {
         helpers: helpers,
-        helper: helper,
-        _registerHelper: registerHelper,
+        registerHelper: registerHelper,
         template: template,
         compile: compile,
         precompile: precompile,
@@ -4724,7 +4723,15 @@ enifed("ember-htmlbars/compat/helper",
     };
 
     function registerHandlebarsCompatibleHelper(name, value) {
-      helpers[name] = new HandlebarsCompatibleHelper(value);
+      var helper;
+
+      if (value && value.isHTMLBars) {
+        helper = value;
+      } else {
+        helper = new HandlebarsCompatibleHelper(value);
+      }
+
+      helpers[name] = helper;
     }
 
     __exports__.registerHandlebarsCompatibleHelper = registerHandlebarsCompatibleHelper;function handlebarsHelper(name, value) {
@@ -5024,8 +5031,8 @@ enifed("ember-htmlbars/compat/register-bound-helper",
     }
   });
 enifed("ember-htmlbars/helpers",
-  ["ember-metal/platform","ember-views/views/view","ember-views/views/component","ember-htmlbars/system/make-view-helper","ember-htmlbars/system/helper","ember-htmlbars/system/make_bound_helper","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+  ["ember-metal/platform","ember-htmlbars/system/helper","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -5045,184 +5052,28 @@ enifed("ember-htmlbars/helpers",
     @submodule ember-htmlbars
     */
 
-    var View = __dependency2__["default"];
-    var Component = __dependency3__["default"];
-    var makeViewHelper = __dependency4__["default"];
-    var Helper = __dependency5__["default"];
-    var makeBoundHelper = __dependency6__["default"];
+    var Helper = __dependency2__["default"];
 
     /**
-      Register a bound helper or custom view helper.
-
-      ## Simple bound helper example
-
-      ```javascript
-      Ember.HTMLBars.helper('capitalize', function(value) {
-        return value.toUpperCase();
-      });
-      ```
-
-      The above bound helper can be used inside of templates as follows:
-
-      ```handlebars
-      {{capitalize name}}
-      ```
-
-      In this case, when the `name` property of the template's context changes,
-      the rendered value of the helper will update to reflect this change.
-
-      For more examples of bound helpers, see documentation for
-      `Ember.HTMLBars.registerBoundHelper`.
-
-      ## Custom view helper example
-
-      Assuming a view subclass named `App.CalendarView` were defined, a helper
-      for rendering instances of this view could be registered as follows:
-
-      ```javascript
-      Ember.HTMLBars.helper('calendar', App.CalendarView):
-      ```
-
-      The above bound helper can be used inside of templates as follows:
-
-      ```handlebars
-      {{calendar}}
-      ```
-
-      Which is functionally equivalent to:
-
-      ```handlebars
-      {{view 'calendar'}}
-      ```
-
-      Options in the helper will be passed to the view in exactly the same
-      manner as with the `view` helper.
-
-      @private
-      @method helper
-      @for Ember.HTMLBars
-      @param {String} name
-      @param {Function|Ember.View} function or view class constructor
-    */
-    function helper(name, value) {
-      
-      if (View.detect(value)) {
-        helpers[name] = makeViewHelper(value);
-      } else {
-        registerBoundHelper(name, value);
-      }
-    }
-
-    __exports__.helper = helper;/**
-      @private
+      @public
       @method registerHelper
       @for Ember.HTMLBars
       @param {String} name
-      @param {Function} helperFunc the helper function to add
+      @param {Object|Function} helperFunc the helper function to add
     */
-    function registerHelper(name, helperFunc, preprocessFunction) {
-      helpers[name] = new Helper(helperFunc, preprocessFunction);
+    function registerHelper(name, helperFunc) {
+      var helper;
+
+      if (helperFunc && helperFunc.isHelper) {
+        helper = helperFunc;
+      } else {
+        helper = new Helper(helperFunc);
+      }
+
+      helpers[name] = helper;
     }
 
-    __exports__.registerHelper = registerHelper;/**
-      Register a bound helper. Bound helpers behave similarly to regular
-      helpers, with the added ability to re-render when the underlying data
-      changes.
-
-      ## Simple example
-
-      ```javascript
-      Ember.HTMLBars.registerBoundHelper('capitalize', function(params, hash, options, env) {
-        return Ember.String.capitalize(params[0]);
-      });
-      ```
-
-      The above bound helper can be used inside of templates as follows:
-
-      ```handlebars
-      {{capitalize name}}
-      ```
-
-      In this case, when the `name` property of the template's context changes,
-      the rendered value of the helper will update to reflect this change.
-
-      ## Example with hash parameters
-
-      Like normal helpers, bound helpers have access to the hash parameters
-      passed into the helper call.
-
-      ```javascript
-      Ember.HTMLBars.registerBoundHelper('repeat', function(params, hash) {
-        var count = hash.count;
-        var value = params[0];
-
-        return new Array( count + 1).join( value );
-      });
-      ```
-
-      This helper could be used in a template as follows:
-
-      ```handlebars
-      {{repeat text count=3}}
-      ```
-
-      ## Example with bound hash parameters
-
-      Bound hash params are also supported. Example:
-
-      ```handlebars
-      {{repeat text count=numRepeats}}
-      ```
-
-      In this example, count will be bound to the value of
-      the `numRepeats` property on the context. If that property
-      changes, the helper will be re-rendered.
-
-      ## Example with multiple bound properties
-
-      `Ember.HTMLBars.registerBoundHelper` supports binding to
-      multiple properties, e.g.:
-
-      ```javascript
-      Ember.HTMLBars.registerBoundHelper('concatenate', function(params) {
-        return params.join('||');
-      });
-      ```
-
-      Which allows for template syntax such as `{{concatenate prop1 prop2}}` or
-      `{{concatenate prop1 prop2 prop3}}`. If any of the properties change,
-      the helper will re-render.
-
-      ## Use with unbound helper
-
-      The `{{unbound}}` helper can be used with bound helper invocations
-      to render them in their unbound form, e.g.
-
-      ```handlebars
-      {{unbound capitalize name}}
-      ```
-
-      In this example, if the name property changes, the helper
-      will not re-render.
-
-      ## Use with blocks not supported
-
-      Bound helpers do not support use with blocks or the addition of
-      child views of any kind.
-
-      @private
-      @method registerBoundHelper
-      @for Ember.HTMLBars
-      @param {String} name
-      @param {Function} function
-    */
-    function registerBoundHelper(name, fn) {
-      var boundFn = makeBoundHelper(fn);
-
-      helpers[name] = boundFn;
-    }
-
-    __exports__.registerBoundHelper = registerBoundHelper;__exports__["default"] = helpers;
+    __exports__.registerHelper = registerHelper;__exports__["default"] = helpers;
   });
 enifed("ember-htmlbars/helpers/bind-attr",
   ["ember-metal/core","ember-runtime/system/string","ember-views/attr_nodes/attr_node","ember-views/attr_nodes/legacy_bind","ember-metal/keys","ember-htmlbars/helpers","ember-metal/enumerable_utils","ember-metal/streams/utils","ember-views/streams/class_name_binding","exports"],
@@ -5384,6 +5235,8 @@ enifed("ember-htmlbars/helpers/bind-attr",
 
         var classView = new AttrNode('class', classNameBindings);
         classView._morph = env.dom.createAttrMorph(element, 'class');
+
+        
         view.appendChild(classView);
       }
 
@@ -5404,6 +5257,8 @@ enifed("ember-htmlbars/helpers/bind-attr",
 
         attrView = new LegacyBindAttrNode(attr, lazyValue);
         attrView._morph = env.dom.createAttrMorph(element, attr);
+
+        
         view.appendChild(attrView);
       }
     }
@@ -5429,8 +5284,9 @@ enifed("ember-htmlbars/helpers/bind-attr",
     */
     function bindAttrHelperDeprecated() {
       
-      return helpers['bind-attr'].apply(this, arguments);
-    }
+      
+        return helpers['bind-attr'].helperFunction.apply(this, arguments);
+          }
 
     __exports__["default"] = bindAttrHelper;
 
@@ -6044,7 +5900,6 @@ enifed("ember-htmlbars/helpers/each",
       }
 
       
-      hash.emptyViewClass = Ember._MetamorphView;
       hash.dataSource = path;
       options.helperName = options.helperName || helperName;
 
@@ -6141,7 +5996,7 @@ enifed("ember-htmlbars/helpers/if_unless",
       }
 
       if (!shouldDisplayIfHelperContent(value)) {
-        template = options.inverse;
+        template = options.inverse || EMPTY_TEMPLATE;
       }
 
       return template.render(this, env, options.morph.contextualElement);
@@ -7838,19 +7693,12 @@ enifed("ember-htmlbars/system/helper",
       @class Helper
       @namespace Ember.HTMLBars
     */
-    function Helper(helper, preprocessArguments) {
+    function Helper(helper) {
       this.helperFunction = helper;
 
-      if (preprocessArguments) {
-        this.preprocessArguments = preprocessArguments;
-      }
-
+      this.isHelper = true;
       this.isHTMLBars = true;
     }
-
-    Helper.prototype = {
-      preprocessArguments: function() { }
-    };
 
     __exports__["default"] = Helper;
   });
@@ -8088,7 +7936,7 @@ enifed("ember-htmlbars/templates/component",
           if (this.cachedFragment) {
             fragment = dom.cloneNode(this.cachedFragment, true);
           }
-          dom.repairClonedNode(fragment,[0,1]);
+          if (this.cachedFragment) { dom.repairClonedNode(fragment,[0,1]); }
           var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
           content(env, morph0, context, "yield");
           return fragment;
@@ -8111,7 +7959,7 @@ enifed("ember-htmlbars/templates/select",
           hasRendered: false,
           build: function build(dom) {
             var el0 = dom.createElement("option");
-            dom.setProperty(el0,"value","");
+            dom.setAttribute(el0,"value","");
             return el0;
           },
           render: function render(context, env, contextualElement) {
@@ -8167,7 +8015,7 @@ enifed("ember-htmlbars/templates/select",
               if (this.cachedFragment) {
                 fragment = dom.cloneNode(this.cachedFragment, true);
               }
-              dom.repairClonedNode(fragment,[0,1]);
+              if (this.cachedFragment) { dom.repairClonedNode(fragment,[0,1]); }
               var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
               inline(env, morph0, context, "view", [get(env, context, "view.groupView")], {"content": get(env, context, "group.content"), "label": get(env, context, "group.label")});
               return fragment;
@@ -8203,7 +8051,7 @@ enifed("ember-htmlbars/templates/select",
             if (this.cachedFragment) {
               fragment = dom.cloneNode(this.cachedFragment, true);
             }
-            dom.repairClonedNode(fragment,[0,1]);
+            if (this.cachedFragment) { dom.repairClonedNode(fragment,[0,1]); }
             var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
             block(env, morph0, context, "each", [get(env, context, "view.groupedContent")], {"keyword": "group"}, child0, null);
             return fragment;
@@ -8241,7 +8089,7 @@ enifed("ember-htmlbars/templates/select",
               if (this.cachedFragment) {
                 fragment = dom.cloneNode(this.cachedFragment, true);
               }
-              dom.repairClonedNode(fragment,[0,1]);
+              if (this.cachedFragment) { dom.repairClonedNode(fragment,[0,1]); }
               var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
               inline(env, morph0, context, "view", [get(env, context, "view.optionView")], {"content": get(env, context, "item")});
               return fragment;
@@ -8277,7 +8125,7 @@ enifed("ember-htmlbars/templates/select",
             if (this.cachedFragment) {
               fragment = dom.cloneNode(this.cachedFragment, true);
             }
-            dom.repairClonedNode(fragment,[0,1]);
+            if (this.cachedFragment) { dom.repairClonedNode(fragment,[0,1]); }
             var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
             block(env, morph0, context, "each", [get(env, context, "view.content")], {"keyword": "item"}, child0, null);
             return fragment;
@@ -8315,7 +8163,7 @@ enifed("ember-htmlbars/templates/select",
           if (this.cachedFragment) {
             fragment = dom.cloneNode(this.cachedFragment, true);
           }
-          dom.repairClonedNode(fragment,[0,1]);
+          if (this.cachedFragment) { dom.repairClonedNode(fragment,[0,1]); }
           var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
           var morph1 = dom.createMorphAt(fragment,1,2,contextualElement);
           block(env, morph0, context, "if", [get(env, context, "view.prompt")], {}, child0, null);
@@ -11526,7 +11374,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.10.0-beta.3
+      @version 1.10.0-beta.4
     */
 
     if ('undefined' === typeof Ember) {
@@ -11553,10 +11401,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.10.0-beta.3'
+      @default '1.10.0-beta.4'
       @static
     */
-    Ember.VERSION = '1.10.0-beta.3';
+    Ember.VERSION = '1.10.0-beta.4';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -12684,9 +12532,10 @@ enifed("ember-metal/get_properties",
       ```
 
       @method getProperties
-      @param obj
+      @for Ember
+      @param {Object} obj
       @param {String...|Array} list of keys to get
-      @return {Hash}
+      @return {Object}
     */
     __exports__["default"] = function getProperties(obj) {
       var ret = {};
@@ -17158,23 +17007,61 @@ enifed("ember-metal/streams/utils",
     "use strict";
     var Stream = __dependency1__["default"];
 
+    /**
+     Check whether an object is a stream or not
+
+     @private
+     @function isStream
+     @param {Object|Stream} object object to check whether it is a stream
+     @return {Boolean} `true` if the object is a stream, `false` otherwise
+    */
     function isStream(object) {
       return object && object.isStream;
     }
 
-    __exports__.isStream = isStream;function subscribe(object, callback, context) {
+    __exports__.isStream = isStream;/**
+     A method of subscribing to a stream which is safe for use with a non-stream
+     object. If a non-stream object is passed, the function does nothing.
+
+     @private
+     @function subscribe
+     @param {Object|Stream} object object or stream to potentially subscribe to
+     @param {Function} callback function to run when stream value changes
+     @param {Object} [context] the callback will be executed with this context if it
+                               is provided
+     */
+    function subscribe(object, callback, context) {
       if (object && object.isStream) {
         object.subscribe(callback, context);
       }
     }
 
-    __exports__.subscribe = subscribe;function unsubscribe(object, callback, context) {
+    __exports__.subscribe = subscribe;/**
+     A method of unsubscribing from a stream which is safe for use with a non-stream
+     object. If a non-stream object is passed, the function does nothing.
+
+     @private
+     @function unsubscribe
+     @param {Object|Stream} object object or stream to potentially unsubscribe from
+     @param {Function} callback function originally passed to `subscribe()`
+     @param {Object} [context] object originally passed to `subscribe()`
+     */
+    function unsubscribe(object, callback, context) {
       if (object && object.isStream) {
         object.unsubscribe(callback, context);
       }
     }
 
-    __exports__.unsubscribe = unsubscribe;function read(object) {
+    __exports__.unsubscribe = unsubscribe;/**
+     Retrieve the value of a stream, or in the case a non-stream object is passed,
+     return the object itself.
+
+     @private
+     @function read
+     @param {Object|Stream} object object to return the value of
+     @return the stream's current value, or the non-stream object itself
+     */
+    function read(object) {
       if (object && object.isStream) {
         return object.value();
       } else {
@@ -17182,7 +17069,18 @@ enifed("ember-metal/streams/utils",
       }
     }
 
-    __exports__.read = read;function readArray(array) {
+    __exports__.read = read;/**
+     Map an array, replacing any streams with their values.
+
+     @private
+     @function readArray
+     @param {Array} array The array to read values from
+     @return {Array} a new array of the same length with the values of non-stream
+                     objects mapped from their original positions untouched, and
+                     the values of stream objects retaining their original position
+                     and replaced with the stream's current value.
+     */
+    function readArray(array) {
       var length = array.length;
       var ret = new Array(length);
       for (var i = 0; i < length; i++) {
@@ -17191,7 +17089,19 @@ enifed("ember-metal/streams/utils",
       return ret;
     }
 
-    __exports__.readArray = readArray;function readHash(object) {
+    __exports__.readArray = readArray;/**
+     Map a hash, replacing any stream property values with the current value of that
+     stream.
+
+     @private
+     @function readHash
+     @param {Object} object The hash to read keys and values from
+     @return {Object} a new object with the same keys as the passed object. The
+                      property values in the new object are the original values in
+                      the case of non-stream objects, and the streams' current
+                      values in the case of stream objects.
+     */
+    function readHash(object) {
       var ret = {};
       for (var key in object) {
         ret[key] = read(object[key]);
@@ -17200,9 +17110,13 @@ enifed("ember-metal/streams/utils",
     }
 
     __exports__.readHash = readHash;/**
-     * @function scanArray
-     * @param array Array array given to a handlebars helper
-     * @return Boolean whether the array contains a stream/bound value
+     Check whether an array contains any stream values
+
+     @private
+     @function scanArray
+     @param {Array} array array given to a handlebars helper
+     @return {Boolean} `true` if the array contains a stream/bound value, `false`
+                       otherwise
     */
     function scanArray(array) {
       var length = array.length;
@@ -17219,10 +17133,14 @@ enifed("ember-metal/streams/utils",
     }
 
     __exports__.scanArray = scanArray;/**
-     * @function scanHash
-     * @param Object hash "hash" argument given to a handlebars helper
-     * @return Boolean whether the object contains a stream/bound value
-    */
+     Check whether a hash has any stream property values
+
+     @private
+     @function scanHash
+     @param {Object} hash "hash" argument given to a handlebars helper
+     @return {Boolean} `true` if the object contains a stream/bound value, `false`
+                       otherwise
+     */
     function scanHash(hash) {
       var containsStream = false;
 
@@ -17236,14 +17154,26 @@ enifed("ember-metal/streams/utils",
       return containsStream;
     }
 
-    __exports__.scanHash = scanHash;// TODO: Create subclass ConcatStream < Stream. Defer
-    // subscribing to streams until the value() is called.
-    function concat(array, key) {
+    __exports__.scanHash = scanHash;/**
+     Join an array, with any streams replaced by their current values
+
+     @private
+     @function concat
+     @param {Array} array An array containing zero or more stream objects and
+                          zero or more non-stream objects
+     @param {String} separator string to be used to join array elements
+     @return {String} String with array elements concatenated and joined by the
+                      provided separator, and any stream array members having been
+                      replaced by the current value of the stream
+     */
+    function concat(array, separator) {
+      // TODO: Create subclass ConcatStream < Stream. Defer
+      // subscribing to streams until the value() is called.
       var hasStream = scanArray(array);
       if (hasStream) {
         var i, l;
         var stream = new Stream(function() {
-          return readArray(array).join(key);
+          return readArray(array).join(separator);
         });
 
         for (i = 0, l=array.length; i < l; i++) {
@@ -17252,11 +17182,42 @@ enifed("ember-metal/streams/utils",
 
         return stream;
       } else {
-        return array.join(key);
+        return array.join(separator);
       }
     }
 
-    __exports__.concat = concat;function chainStream(value, fn) {
+    __exports__.concat = concat;/**
+     Generate a new stream by providing a source stream and a function that can
+     be used to transform the stream's value. In the case of a non-stream object,
+     returns the result of the function.
+
+     The value to transform would typically be available to the function you pass
+     to `chain()` via scope. For example:
+
+     ```javascript
+         var source = ...;  // stream returning a number
+                                // or a numeric (non-stream) object
+         var result = chain(source, function(){
+           var currentValue = read(source);
+           return currentValue + 1;
+         });
+     ```
+
+     In the example, result is a stream if source is a stream, or a number of
+     source was numeric.
+
+     @private
+     @function chain
+     @param {Object|Stream} value A stream or non-stream object
+     @param {Function} fn function to be run when the stream value changes, or to
+                          be run once in the case of a non-stream object
+     @return {Object|Stream} In the case of a stream `value` parameter, a new
+                             stream that will be updated with the return value of
+                             the provided function `fn`. In the case of a
+                             non-stream object, the return value of the provided
+                             function `fn`.
+     */
+    function chain(value, fn) {
       if (isStream(value)) {
         var stream = new Stream(fn);
         subscribe(value, stream.notify, stream);
@@ -17266,7 +17227,7 @@ enifed("ember-metal/streams/utils",
       }
     }
 
-    __exports__.chainStream = chainStream;
+    __exports__.chain = chain;
   });
 enifed("ember-metal/utils",
   ["ember-metal/core","ember-metal/platform","ember-metal/array","exports"],
@@ -18740,6 +18701,16 @@ enifed("ember-routing-htmlbars/helpers/link-to",
         Great Hamster Photos
       {{/link-to}}
       ```
+
+      You can also use an inline form of `{{link-to}}` helper by
+      passing the link text as the first argument
+      to the helper:
+
+      ```handlebars
+      {{link-to 'Great Hamster Photos' 'photoGallery'}}
+      ```
+
+      Both will result in:
 
       ```html
       <a href="/hamster-photos">
@@ -23376,8 +23347,12 @@ enifed("ember-routing/system/route",
 
         var name = params[0], object = {};
 
-        if (/_id$/.test(name) && params.length === 1) {
-          object[name] = get(model, "id");
+        if (params.length === 1) {
+          if (name in model) {
+            object[name] = get(model, name);
+          } else if (/_id$/.test(name)) {
+            object[name] = get(model, "id");
+          }
         } else {
           object = getProperties(model, params);
         }
@@ -30043,7 +30018,7 @@ enifed("ember-runtime/mixins/enumerable",
         @method isAny
         @param {String} key the property to test
         @param {String} [value] optional value to test against.
-        @return {Boolean} `true` if the passed function returns `true` for any item
+        @return {Boolean}
         @since 1.3.0
       */
       isAny: function(key, value) {
@@ -30054,7 +30029,7 @@ enifed("ember-runtime/mixins/enumerable",
         @method anyBy
         @param {String} key the property to test
         @param {String} [value] optional value to test against.
-        @return {Boolean} `true` if the passed function returns `true` for any item
+        @return {Boolean}
         @deprecated Use `isAny` instead
       */
       anyBy: aliasMethod('isAny'),
@@ -30063,7 +30038,7 @@ enifed("ember-runtime/mixins/enumerable",
         @method someProperty
         @param {String} key the property to test
         @param {String} [value] optional value to test against.
-        @return {Boolean} `true` if the passed function returns `true` for any item
+        @return {Boolean}
         @deprecated Use `isAny` instead
       */
       someProperty: aliasMethod('isAny'),
@@ -32750,8 +32725,8 @@ enifed("ember-runtime/system/container",
     __exports__["default"] = Container;
   });
 enifed("ember-runtime/system/core_object",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/utils","ember-metal/platform","ember-metal/chains","ember-metal/events","ember-metal/mixin","ember-metal/enumerable_utils","ember-metal/error","ember-metal/keys","ember-runtime/mixins/action_handler","ember-metal/properties","ember-metal/binding","ember-metal/computed","ember-metal/injected_property","ember-metal/run_loop","ember-metal/watching","ember-runtime/inject","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __exports__) {
+  ["ember-metal/core","ember-metal/merge","ember-metal/property_get","ember-metal/utils","ember-metal/platform","ember-metal/chains","ember-metal/events","ember-metal/mixin","ember-metal/enumerable_utils","ember-metal/error","ember-metal/keys","ember-runtime/mixins/action_handler","ember-metal/properties","ember-metal/binding","ember-metal/computed","ember-metal/injected_property","ember-metal/run_loop","ember-metal/watching","ember-runtime/inject","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __exports__) {
         // Remove "use strict"; from transpiled module until
     // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
     //
@@ -32763,38 +32738,39 @@ enifed("ember-runtime/system/core_object",
     */
 
     var Ember = __dependency1__["default"];
+    var merge = __dependency2__["default"];
     // Ember.assert, Ember.config
 
     // NOTE: this object should never be included directly. Instead use `Ember.Object`.
     // We only define this separately so that `Ember.Set` can depend on it.
-    var get = __dependency2__.get;
-    var guidFor = __dependency3__.guidFor;
-    var apply = __dependency3__.apply;
-    var o_create = __dependency4__.create;
-    var generateGuid = __dependency3__.generateGuid;
-    var GUID_KEY = __dependency3__.GUID_KEY;
-    var meta = __dependency3__.meta;
-    var makeArray = __dependency3__.makeArray;
-    var finishChains = __dependency5__.finishChains;
-    var sendEvent = __dependency6__.sendEvent;
-    var IS_BINDING = __dependency7__.IS_BINDING;
-    var Mixin = __dependency7__.Mixin;
-    var required = __dependency7__.required;
-    var indexOf = __dependency8__.indexOf;
-    var EmberError = __dependency9__["default"];
-    var o_defineProperty = __dependency4__.defineProperty;
-    var keys = __dependency10__["default"];
-    var ActionHandler = __dependency11__["default"];
-    var defineProperty = __dependency12__.defineProperty;
-    var Binding = __dependency13__.Binding;
-    var ComputedProperty = __dependency14__.ComputedProperty;
-    var computed = __dependency14__.computed;
-    var InjectedProperty = __dependency15__["default"];
-    var run = __dependency16__["default"];
-    var destroy = __dependency17__.destroy;
+    var get = __dependency3__.get;
+    var guidFor = __dependency4__.guidFor;
+    var apply = __dependency4__.apply;
+    var o_create = __dependency5__.create;
+    var generateGuid = __dependency4__.generateGuid;
+    var GUID_KEY = __dependency4__.GUID_KEY;
+    var meta = __dependency4__.meta;
+    var makeArray = __dependency4__.makeArray;
+    var finishChains = __dependency6__.finishChains;
+    var sendEvent = __dependency7__.sendEvent;
+    var IS_BINDING = __dependency8__.IS_BINDING;
+    var Mixin = __dependency8__.Mixin;
+    var required = __dependency8__.required;
+    var indexOf = __dependency9__.indexOf;
+    var EmberError = __dependency10__["default"];
+    var o_defineProperty = __dependency5__.defineProperty;
+    var keys = __dependency11__["default"];
+    var ActionHandler = __dependency12__["default"];
+    var defineProperty = __dependency13__.defineProperty;
+    var Binding = __dependency14__.Binding;
+    var ComputedProperty = __dependency15__.ComputedProperty;
+    var computed = __dependency15__.computed;
+    var InjectedProperty = __dependency16__["default"];
+    var run = __dependency17__["default"];
+    var destroy = __dependency18__.destroy;
     var K = __dependency1__.K;
-    var hasPropertyAccessors = __dependency4__.hasPropertyAccessors;
-    var validatePropertyInjections = __dependency18__.validatePropertyInjections;
+    var hasPropertyAccessors = __dependency5__.hasPropertyAccessors;
+    var validatePropertyInjections = __dependency19__.validatePropertyInjections;
 
     var schedule = run.schedule;
     var applyMixin = Mixin._apply;
@@ -32846,6 +32822,7 @@ enifed("ember-runtime/system/core_object",
           initProperties = null;
 
           var concatenatedProperties = this.concatenatedProperties;
+          var mergedProperties = this.mergedProperties;
 
           for (var i = 0, l = props.length; i < l; i++) {
             var properties = props[i];
@@ -32890,6 +32867,14 @@ enifed("ember-runtime/system/core_object",
                 } else {
                   value = makeArray(value);
                 }
+              }
+
+              if (mergedProperties &&
+                  mergedProperties.length &&
+                  indexOf(mergedProperties, keyName) >= 0) {
+                var originalValue = this[keyName];
+
+                value = merge(originalValue, value);
               }
 
               if (desc) {
@@ -33054,8 +33039,8 @@ enifed("ember-runtime/system/core_object",
         view.get('classNames'); // ['ember-view', 'bar', 'foo', 'baz']
         ```
 
-        Using the `concatenatedProperties` property, we can tell to Ember that mix
-        the content of the properties.
+        Using the `concatenatedProperties` property, we can tell Ember to mix the
+        content of the properties.
 
         In `Ember.View` the `classNameBindings` and `attributeBindings` properties
         are also concatenated, in addition to `classNames`.
@@ -35922,6 +35907,11 @@ enifed("ember-template-compiler/plugins/transform-each-in-to-hash",
 
       walker.visit(ast, function(node) {
         if (pluginContext.validate(node)) {
+
+          if (node.program && node.program.blockParams.length) {
+            throw new Error('You cannot use keyword (`{{each foo in bar}}`) and block params (`{{each bar as |foo|}}`) at the same time.');
+          }
+
           var removedParams = node.sexpr.params.splice(0, 2);
           var keyword = removedParams[0].original;
 
@@ -35993,6 +35983,11 @@ enifed("ember-template-compiler/plugins/transform-with-as-to-hash",
 
       walker.visit(ast, function(node) {
         if (pluginContext.validate(node)) {
+
+          if (node.program && node.program.blockParams.length) {
+            throw new Error('You cannot use keyword (`{{with foo as bar}}`) and block params (`{{with foo as |bar|}}`) at the same time.');
+          }
+
           var removedParams = node.sexpr.params.splice(1, 2);
           var keyword = removedParams[1].original;
           node.program.blockParams = [ keyword ];
@@ -36819,7 +36814,7 @@ enifed("ember-views/streams/class_name_binding",
   ["ember-metal/streams/utils","ember-metal/property_get","ember-runtime/system/string","ember-metal/utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
-    var chainStream = __dependency1__.chainStream;
+    var chain = __dependency1__.chain;
     var read = __dependency1__.read;
     var get = __dependency2__.get;
     var dasherize = __dependency3__.dasherize;
@@ -36946,7 +36941,7 @@ enifed("ember-views/streams/class_name_binding",
         );
       } else {
         var pathValue = view.getStream(prefix+parsedPath.path);
-        return chainStream(pathValue, function(){
+        return chain(pathValue, function() {
           return classStringForValue(
             parsedPath.path,
             read(pathValue),
@@ -43822,9 +43817,13 @@ enifed("htmlbars-compiler/fragment-javascript-compiler",
       this.source.push(this.indent+'  return '+el+';\n');
     };
 
-    FragmentJavaScriptCompiler.prototype.setAttribute = function(name, value) {
+    FragmentJavaScriptCompiler.prototype.setAttribute = function(name, value, namespace) {
       var el = 'el'+this.depth;
-      this.source.push(this.indent+'  dom.setProperty('+el+','+string(name)+','+string(value)+');\n');
+      if (namespace) {
+        this.source.push(this.indent+'  dom.setAttributeNS('+el+','+string(namespace)+','+string(name)+','+string(value)+');\n');
+      } else {
+        this.source.push(this.indent+'  dom.setAttribute('+el+','+string(name)+','+string(value)+');\n');
+      }
     };
 
     FragmentJavaScriptCompiler.prototype.appendChild = function() {
@@ -43862,6 +43861,7 @@ enifed("htmlbars-compiler/fragment-opcode-compiler",
     "use strict";
     var TemplateVisitor = __dependency1__["default"];
     var processOpcodes = __dependency2__.processOpcodes;
+    var getNamespace = __dependency2__.getNamespace;
     var forEach = __dependency3__.forEach;
 
     function FragmentOpcodeCompiler() {
@@ -43921,7 +43921,10 @@ enifed("htmlbars-compiler/fragment-opcode-compiler",
 
     FragmentOpcodeCompiler.prototype.attribute = function(attr) {
       if (attr.value.type === 'TextNode') {
-        this.opcode('setAttribute', [attr.name, attr.value.chars]);
+
+        var namespace = getNamespace(attr.name) || null;
+
+        this.opcode('setAttribute', [attr.name, attr.value.chars, namespace]);
       }
     };
 
@@ -44141,18 +44144,18 @@ enifed("htmlbars-compiler/hydration-javascript-compiler",
       this.morphs.push(['morph' + morphNum, morph]);
     };
 
-    prototype.createAttrMorph = function(attrMorphNum, elementNum, name, escaped) {
+    prototype.createAttrMorph = function(attrMorphNum, elementNum, name, escaped, namespace) {
       var morphMethod = escaped ? 'createAttrMorph' : 'createUnsafeAttrMorph';
-      var morph = "dom."+morphMethod+"(element"+elementNum+", '"+name+"')";
+      var morph = "dom."+morphMethod+"(element"+elementNum+", '"+name+(namespace ? "', '"+namespace : '')+"')";
       this.morphs.push(['attrMorph' + attrMorphNum, morph]);
     };
 
     prototype.repairClonedNode = function(blankChildTextNodes, isElementChecked) {
       var parent = this.getParent(),
-          processing = 'dom.repairClonedNode('+parent+','+
+          processing = 'if (this.cachedFragment) { dom.repairClonedNode('+parent+','+
                        array(blankChildTextNodes)+
                        ( isElementChecked ? ',true' : '' )+
-                       ');';
+                       '); }';
       this.fragmentProcessing.push(
         processing
       );
@@ -44196,6 +44199,7 @@ enifed("htmlbars-compiler/hydration-opcode-compiler",
     "use strict";
     var TemplateVisitor = __dependency1__["default"];
     var processOpcodes = __dependency2__.processOpcodes;
+    var getNamespace = __dependency2__.getNamespace;
     var forEach = __dependency3__.forEach;
     var isHelper = __dependency4__.isHelper;
 
@@ -44369,6 +44373,7 @@ enifed("htmlbars-compiler/hydration-opcode-compiler",
     HydrationOpcodeCompiler.prototype.attribute = function(attr) {
       var value = attr.value;
       var escaped = true;
+      var namespace = getNamespace(attr.name) || null;
 
       // TODO: Introduce context specific AST nodes to avoid switching here.
       if (value.type === 'TextNode') {
@@ -44389,7 +44394,7 @@ enifed("htmlbars-compiler/hydration-opcode-compiler",
       }
 
       var attrMorphNum = this.attrMorphNum++;
-      this.opcode('createAttrMorph', attrMorphNum, this.elementNum, attr.name, escaped);
+      this.opcode('createAttrMorph', attrMorphNum, this.elementNum, attr.name, escaped, namespace);
       this.opcode('printAttributeHook', attrMorphNum, this.elementNum);
     };
 
@@ -44925,7 +44930,23 @@ enifed("htmlbars-compiler/utils",
       }
     }
 
-    __exports__.processOpcodes = processOpcodes;
+    __exports__.processOpcodes = processOpcodes;// ref http://dev.w3.org/html5/spec-LC/namespaces.html
+    var defaultNamespaces = {
+      html: 'http://www.w3.org/1999/xhtml',
+      mathml: 'http://www.w3.org/1998/Math/MathML',
+      svg: 'http://www.w3.org/2000/svg',
+      xlink: 'http://www.w3.org/1999/xlink',
+      xml: 'http://www.w3.org/XML/1998/namespace'
+    };
+
+    function getNamespace(attrName) {
+      var parts = attrName.split(':');
+      if (parts.length > 1) {
+        return defaultNamespaces[parts[0]];
+      }
+    }
+
+    __exports__.getNamespace = getNamespace;
   });
 enifed("htmlbars-syntax",
   ["./htmlbars-syntax/walker","./htmlbars-syntax/builders","./htmlbars-syntax/parser","exports"],
@@ -46753,14 +46774,18 @@ enifed("htmlbars-syntax/token-handlers",
     __exports__["default"] = tokenHandlers;
   });
 enifed("htmlbars-syntax/tokenizer",
-  ["../simple-html-tokenizer","./utils","./builders","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["../simple-html-tokenizer","./utils","../htmlbars-util/array-utils","./builders","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     var Tokenizer = __dependency1__.Tokenizer;
     var isHelper = __dependency2__.isHelper;
-    var builders = __dependency3__["default"];
+    var map = __dependency3__.map;
+    var builders = __dependency4__["default"];
 
     Tokenizer.prototype.createAttribute = function(char) {
+      if (this.token.type === 'EndTag') {
+        throw new Error('Invalid end tag: closing tag must not have attributes, in ' + formatTokenInfo(this) + '.');
+      }
       this.currentAttribute = builders.attr(char.toLowerCase(), [], null);
       this.token.attributes.push(this.currentAttribute);
       this.state = 'attributeName';
@@ -46777,12 +46802,13 @@ enifed("htmlbars-syntax/tokenizer",
     Tokenizer.prototype.addToAttributeValue = function(char) {
       var value = this.currentAttribute.value;
 
+      if (!this.currentAttribute.quoted && char === '/') {
+        throw new Error("A space is required between an unquoted attribute value and `/`, in " + formatTokenInfo(this) +
+                        '.');
+      }
       if (!this.currentAttribute.quoted && value.length > 0 &&
           (char.type === 'MustacheStatement' || value[0].type === 'MustacheStatement')) {
-        // Get the line number from a mustache, whether it's the one to add or the one already added
-        var mustache = char.type === 'MustacheStatement' ? char : value[0],
-            line = mustache.loc.start.line;
-        throw new Error("Unquoted attribute value must be a single string or mustache (line " + line + ")");
+        throw new Error("Unquoted attribute value must be a single string or mustache (on line " + this.line + ")");
       }
 
       if (typeof char === 'object') {
@@ -46815,14 +46841,16 @@ enifed("htmlbars-syntax/tokenizer",
 
     function prepareAttributeValue(attr) {
       var parts = attr.value;
-      if (parts.length === 0) {
+      var length = parts.length;
+
+      if (length === 0) {
         return builders.text('');
-      } else if (parts.length === 1 && parts[0].type === "TextNode") {
+      } else if (length === 1 && parts[0].type === "TextNode") {
         return parts[0];
       } else if (!attr.quoted) {
         return parts[0];
       } else {
-        return builders.concat(parts.map(prepareConcatPart));
+        return builders.concat(map(parts, prepareConcatPart));
       }
     }
 
@@ -46833,6 +46861,10 @@ enifed("htmlbars-syntax/tokenizer",
         default:
           throw new Error("Unsupported node in quoted attribute value: " + node.type);
       }
+    }
+
+    function formatTokenInfo(tokenizer) {
+      return '`' + tokenizer.token.tagName + '` (on line ' + tokenizer.line + ')';
     }
 
     function unwrapMustache(mustache) {
@@ -47040,6 +47072,16 @@ enifed("htmlbars-test-helpers",
     var ie8InnerHTMLTestElement = document.createElement('div');
     ie8InnerHTMLTestElement.setAttribute('id', 'womp');
     var ie8InnerHTML = (ie8InnerHTMLTestElement.outerHTML.indexOf('id=womp') > -1);
+
+    // detect side-effects of cloning svg elements in IE9-11
+    var ieSVGInnerHTML = (function () {
+      var div = document.createElement('div');
+      var node = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      div.appendChild(node);
+      var clone = div.cloneNode(true);
+      return clone.innerHTML === '<svg xmlns="http://www.w3.org/2000/svg" />';
+    })();
+
     function normalizeInnerHTML(actualHTML) {
       if (ie8InnerHTML) {
         // drop newlines in IE8
@@ -47053,6 +47095,16 @@ enifed("htmlbars-test-helpers",
           return 'id="'+id+'"';
         });
       }
+      if (ieSVGInnerHTML) {
+        // Replace `<svg xmlns="http://www.w3.org/2000/svg" height="50%" />` with `<svg height="50%"></svg>`, etc.
+        // drop namespace attribute
+        actualHTML = actualHTML.replace(/ xmlns="[^"]+"/, '');
+        // replace self-closing elements
+        actualHTML = actualHTML.replace(/<([A-Z]+) [^\/>]*\/>/gi, function(tag, tagName) {
+          return tag.slice(0, tag.length - 3) + '></' + tagName + '>';
+        });
+      }
+
       return actualHTML;
     }
 
@@ -47081,19 +47133,30 @@ enifed("htmlbars-util/array-utils",
   function(__exports__) {
     "use strict";
     function forEach(array, callback, binding) {
-      var i;
+      var i, l;
       if (binding === undefined) {
-        for (i = 0; i < array.length; i++) {
+        for (i = 0, l = array.length; i < l; i++) {
           callback(array[i], i, array);
         }
       } else {
-        for (i = 0; i < array.length; i++) {
+        for (i = 0, l = array.length; i < l; i++) {
           callback.call(binding, array[i], i, array);
         }
       }
     }
 
-    __exports__.forEach = forEach;
+    __exports__.forEach = forEach;function map(array, callback) {
+      var output = [];
+      var i, l;
+
+      for (i = 0, l = array.length; i < l; i++) {
+        output.push(callback(array[i], i, array));
+      }
+
+      return output;
+    }
+
+    __exports__.map = map;
   });
 enifed("htmlbars-util/handlebars/safe-string",
   ["exports"],
@@ -47280,6 +47343,7 @@ enifed("morph/attr-morph",
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     var sanitizeAttributeValue = __dependency1__.sanitizeAttributeValue;
+    var isAttrRemovalValue = __dependency2__.isAttrRemovalValue;
     var normalizeProperty = __dependency2__.normalizeProperty;
     var svgNamespace = __dependency3__.svgNamespace;
 
@@ -47288,34 +47352,48 @@ enifed("morph/attr-morph",
     }
 
     function updateAttribute(value) {
-      if (value === null) {
+      if (isAttrRemovalValue(value)) {
         this.domHelper.removeAttribute(this.element, this.attrName);
       } else {
         this.domHelper.setAttribute(this.element, this.attrName, value);
       }
     }
 
-    function AttrMorph(element, attrName, domHelper) {
+    function updateAttributeNS(value) {
+      if (isAttrRemovalValue(value)) {
+        this.domHelper.removeAttribute(this.element, this.attrName);
+      } else {
+        this.domHelper.setAttributeNS(this.element, this.namespace, this.attrName, value);
+      }
+    }
+
+    function AttrMorph(element, attrName, domHelper, namespace) {
       this.element = element;
       this.domHelper = domHelper;
+      this.namespace = namespace || null;
       this.escaped = true;
 
       var normalizedAttrName = normalizeProperty(this.element, attrName);
-      if (element.namespaceURI === svgNamespace || attrName === 'style' || !normalizedAttrName) {
+      if (this.namespace) {
+        this._update = updateAttributeNS;
         this.attrName = attrName;
-        this._update = updateAttribute;
       } else {
-        this.attrName = normalizedAttrName;
-        this._update = updateProperty;
+        if (element.namespaceURI === svgNamespace || attrName === 'style' || !normalizedAttrName) {
+          this.attrName = attrName;
+          this._update = updateAttribute;
+        } else {
+          this.attrName = normalizedAttrName;
+          this._update = updateProperty;
+        }
       }
     }
 
     AttrMorph.prototype.setContent = function (value) {
       if (this.escaped) {
         var sanitized = sanitizeAttributeValue(this.element, this.attrName, value);
-        this._update(sanitized);
+        this._update(sanitized, this.namespace);
       } else {
-        this._update(value);
+        this._update(value, this.namespace);
       }
     };
 
@@ -47389,6 +47467,7 @@ enifed("morph/dom-helper",
     var addClasses = __dependency4__.addClasses;
     var removeClasses = __dependency4__.removeClasses;
     var normalizeProperty = __dependency5__.normalizeProperty;
+    var isAttrRemovalValue = __dependency5__.isAttrRemovalValue;
 
     var doc = typeof document === 'undefined' ? false : document;
 
@@ -47405,10 +47484,6 @@ enifed("morph/dom-helper",
       var clonedElement = element.cloneNode(false);
       return !clonedElement.checked;
     })(doc);
-
-    function isSVG(ns){
-      return ns === svgNamespace;
-    }
 
     // This is not the namespace of the element, but of
     // the elements inside that elements.
@@ -47515,10 +47590,14 @@ enifed("morph/dom-helper",
       var child = element;
 
       for (var i = 0; i < indices.length; i++) {
-        child = child.childNodes[indices[i]];
+        child = child.childNodes.item(indices[i]);
       }
 
       return child;
+    };
+
+    prototype.childAtIndex = function(element, index) {
+      return element.childNodes.item(index);
     };
 
     prototype.appendText = function(element, text) {
@@ -47526,7 +47605,11 @@ enifed("morph/dom-helper",
     };
 
     prototype.setAttribute = function(element, name, value) {
-      element.setAttribute(name, value);
+      element.setAttribute(name, String(value));
+    };
+
+    prototype.setAttributeNS = function(element, namespace, name, value) {
+      element.setAttributeNS(namespace, name, String(value));
     };
 
     prototype.removeAttribute = function(element, name) {
@@ -47537,23 +47620,31 @@ enifed("morph/dom-helper",
       element[name] = value;
     };
 
-    prototype.setProperty = function(element, name, value) {
+    prototype.setProperty = function(element, name, value, namespace) {
       var lowercaseName = name.toLowerCase();
       if (element.namespaceURI === svgNamespace || lowercaseName === 'style') {
-        if (value === null) {
+        if (isAttrRemovalValue(value)) {
           element.removeAttribute(name);
         } else {
-          element.setAttribute(name, value);
+          if (namespace) {
+            element.setAttributeNS(namespace, name, value);
+          } else {
+            element.setAttribute(name, value);
+          }
         }
       } else {
         var normalized = normalizeProperty(element, name);
         if (normalized) {
           element[normalized] = value;
         } else {
-          if (value === null) {
+          if (isAttrRemovalValue(value)) {
             element.removeAttribute(name);
           } else {
-            element.setAttribute(name, value);
+            if (namespace) {
+              element.setAttributeNS(namespace, name, value);
+            } else {
+              element.setAttribute(name, value);
+            }
           }
         }
       }
@@ -47611,7 +47702,7 @@ enifed("morph/dom-helper",
         for (var i=0, len=blankChildTextNodes.length;i<len;i++){
           var textNode = this.document.createTextNode(''),
               offset = blankChildTextNodes[i],
-              before = element.childNodes[offset];
+              before = this.childAtIndex(element, offset);
           if (before) {
             element.insertBefore(textNode, before);
           } else {
@@ -47629,12 +47720,12 @@ enifed("morph/dom-helper",
       return clone;
     };
 
-    prototype.createAttrMorph = function(element, attrName){
-      return new AttrMorph(element, attrName, this);
+    prototype.createAttrMorph = function(element, attrName, namespace){
+      return new AttrMorph(element, attrName, this, namespace);
     };
 
-    prototype.createUnsafeAttrMorph = function(element, attrName){
-      var morph = this.createAttrMorph(element, attrName);
+    prototype.createUnsafeAttrMorph = function(element, attrName, namespace){
+      var morph = this.createAttrMorph(element, attrName, namespace);
       morph.escaped = false;
       return morph;
     };
@@ -47655,9 +47746,8 @@ enifed("morph/dom-helper",
     // This helper is just to keep the templates good looking,
     // passing integers instead of element references.
     prototype.createMorphAt = function(parent, startIndex, endIndex, contextualElement){
-      var childNodes = parent.childNodes,
-          start = startIndex === -1 ? null : childNodes[startIndex],
-          end = endIndex === -1 ? null : childNodes[endIndex];
+      var start = startIndex === -1 ? null : this.childAtIndex(parent, startIndex),
+          end = endIndex === -1 ? null : this.childAtIndex(parent, endIndex);
       return this.createMorph(parent, start, end, contextualElement);
     };
 
@@ -47684,12 +47774,7 @@ enifed("morph/dom-helper",
     };
 
     prototype.parseHTML = function(html, contextualElement) {
-      var isSVGContent = (
-        isSVG(this.namespace) &&
-        !svgHTMLIntegrationPoints[contextualElement.tagName]
-      );
-
-      if (isSVGContent) {
+      if (interiorNamespace(contextualElement) === svgNamespace) {
         return buildSVGDOM(html, this);
       } else {
         var nodes = buildHTMLDOM(html, contextualElement, this);
@@ -48126,7 +48211,11 @@ enifed("morph/dom-helper/prop",
   ["exports"],
   function(__exports__) {
     "use strict";
-    // TODO should this be an o_create kind of thing?
+    function isAttrRemovalValue(value) {
+      return value === null || value === undefined;
+    }
+
+    __exports__.isAttrRemovalValue = isAttrRemovalValue;// TODO should this be an o_create kind of thing?
     var propertyCaches = {};
     __exports__.propertyCaches = propertyCaches;
     function normalizeProperty(element, attrName) {
