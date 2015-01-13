@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.ebe88407
+ * @version   1.11.0-beta.1+canary.1d48dad9
  */
 
 (function() {
@@ -3268,13 +3268,19 @@ enifed("ember-application/system/application",
 
         for (var i = 0; i < initializers.length; i++) {
           initializer = initializersByName[initializers[i]];
-          graph.addEdges(initializer.name, initializer.initialize, initializer.before, initializer.after);
+          graph.addEdges(initializer.name, initializer, initializer.before, initializer.after);
         }
 
         graph.topsort(function (vertex) {
           var initializer = vertex.value;
           Ember.assert("No application initializer named '" + vertex.name + "'", !!initializer);
-          initializer(registry, namespace);
+
+          if (Ember.FEATURES.isEnabled("ember-application-initializer-context")) {
+            initializer.initialize(registry, namespace);
+          } else {
+            var ref = initializer.initialize;
+            ref(registry, namespace);
+          }
         });
       },
 
@@ -12034,7 +12040,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.ebe88407
+      @version 1.11.0-beta.1+canary.1d48dad9
     */
 
     if ('undefined' === typeof Ember) {
@@ -12061,10 +12067,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.ebe88407'
+      @default '1.11.0-beta.1+canary.1d48dad9'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.ebe88407';
+    Ember.VERSION = '1.11.0-beta.1+canary.1d48dad9';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`

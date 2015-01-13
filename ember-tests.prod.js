@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.ebe88407
+ * @version   1.11.0-beta.1+canary.1d48dad9
  */
 
 (function() {
@@ -2402,6 +2402,28 @@ enifed("ember-application/tests/system/initializers_test",
         initialize: function(registry) {}
       });
     });
+
+    if (Ember.FEATURES.isEnabled("ember-application-initializer-context")) {
+      test("initializers should be executed in their own context", function() {
+        expect(1);
+        var MyApplication = Application.extend();
+
+        MyApplication.initializer({
+          name: 'coolBabeInitializer',
+          myProperty: 'coolBabe',
+          initialize: function(registry, application) {
+            equal(this.myProperty, 'coolBabe', 'should have access to its own context');
+          }
+        });
+
+        run(function() {
+          app = MyApplication.create({
+            router: false,
+            rootElement: '#qunit-fixture'
+          });
+        });
+      });
+    }
   });
 enifed("ember-application/tests/system/initializers_test.jscs-test",
   [],
