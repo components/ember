@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.b30e309e
+ * @version   1.11.0-beta.1+canary.59757239
  */
 
 (function() {
@@ -12040,7 +12040,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.b30e309e
+      @version 1.11.0-beta.1+canary.59757239
     */
 
     if ('undefined' === typeof Ember) {
@@ -12067,10 +12067,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.b30e309e'
+      @default '1.11.0-beta.1+canary.59757239'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.b30e309e';
+    Ember.VERSION = '1.11.0-beta.1+canary.59757239';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -40380,8 +40380,8 @@ enifed("ember-views/system/lookup_partial",
     }
   });
 enifed("ember-views/system/render_buffer",
-  ["ember-views/system/jquery","ember-metal/core","ember-metal/platform","ember-metal/environment","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+  ["ember-views/system/jquery","ember-metal/core","ember-metal/platform","ember-metal/environment","morph/dom-helper/prop","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -40392,6 +40392,7 @@ enifed("ember-views/system/render_buffer",
     var Ember = __dependency2__["default"];
     var create = __dependency3__.create;
     var environment = __dependency4__["default"];
+    var normalizeProperty = __dependency5__.normalizeProperty;
 
     // The HTML spec allows for "omitted start tags". These tags are optional
     // when their intended child is the first thing in the parent tag. For
@@ -40876,7 +40877,9 @@ enifed("ember-views/system/render_buffer",
 
         if (props) {
           for (prop in props) {
-            this.dom.setPropertyStrict(element, prop, props[prop]);
+            var normalizedCase = normalizeProperty(element, prop) || prop;
+
+            this.dom.setPropertyStrict(element, normalizedCase, props[prop]);
           }
 
           this.elementProperties = null;

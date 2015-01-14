@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.b30e309e
+ * @version   1.11.0-beta.1+canary.59757239
  */
 
 (function() {
@@ -60275,6 +60275,21 @@ enifed("ember-views/tests/views/view/attribute_bindings_test",
       ok(!view.$().attr('nothing'), "removes nothing attribute when null");
       ok(!view.$().attr('notDefined'), "removes notDefined attribute when undefined");
       ok(!view.$().attr('notNumber'), "removes notNumber attribute when NaN");
+    });
+
+    test("should normalize case for attribute bindings", function() {
+      view = EmberView.create({
+        tagName: 'form',
+        attributeBindings: ['novalidate'],
+
+        novalidate: true // intentionally lowercase
+      });
+
+      run(function() {
+        view.createElement();
+      });
+
+      ok(view.$().prop('noValidate'), "sets property with correct case");
     });
 
     test("should update attribute bindings", function() {
