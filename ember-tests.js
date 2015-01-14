@@ -4034,7 +4034,7 @@ enifed("ember-htmlbars.jshint",
     "use strict";
     module('JSHint - .');
     test('ember-htmlbars.js should pass jshint', function() { 
-      ok(false, 'ember-htmlbars.js should pass jshint.\nember-htmlbars.js: line 26, col 3, \'helper\' is defined but never used.\n\n1 error'); 
+      ok(true, 'ember-htmlbars.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/compat.jshint",
@@ -53885,6 +53885,21 @@ enifed("ember-views/tests/views/view/attribute_bindings_test",
       ok(!view.$().attr('nothing'), "removes nothing attribute when null");
       ok(!view.$().attr('notDefined'), "removes notDefined attribute when undefined");
       ok(!view.$().attr('notNumber'), "removes notNumber attribute when NaN");
+    });
+
+    test("should normalize case for attribute bindings", function() {
+      view = EmberView.create({
+        tagName: 'form',
+        attributeBindings: ['novalidate'],
+
+        novalidate: true // intentionally lowercase
+      });
+
+      run(function() {
+        view.createElement();
+      });
+
+      ok(view.$().prop('noValidate'), "sets property with correct case");
     });
 
     test("should update attribute bindings", function() {

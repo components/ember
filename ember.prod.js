@@ -4504,7 +4504,6 @@ enifed("ember-htmlbars",
     var makeBoundHelper = __dependency15__["default"];
 
     var registerHelper = __dependency16__.registerHelper;
-    var helper = __dependency16__.helper;
     var helpers = __dependency16__["default"];
     var bindHelper = __dependency17__.bindHelper;
     var viewHelper = __dependency18__.viewHelper;
@@ -16185,8 +16184,7 @@ enifed("ember-metal/run_loop",
         May be a function or a string. If you pass a string
         then it will be looked up on the passed target.
       @param {Object} [args*] Any additional arguments you wish to pass to the method.
-      @return {Object} return value from invoking the passed function. Please note,
-      when called within an existing loop, no return value is possible.
+      @return {Function} returns a new function that will always have a particular context
       @since 1.4.0
     */
     run.bind = function(target, method /* args */) {
@@ -37546,8 +37544,8 @@ enifed("ember-views/system/jquery",
     __exports__["default"] = jQuery;
   });
 enifed("ember-views/system/render_buffer",
-  ["ember-views/system/jquery","morph","ember-metal/core","ember-metal/platform","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+  ["ember-views/system/jquery","morph","ember-metal/core","ember-metal/platform","morph/dom-helper/prop","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -37558,6 +37556,7 @@ enifed("ember-views/system/render_buffer",
     var DOMHelper = __dependency2__.DOMHelper;
     var Ember = __dependency3__["default"];
     var create = __dependency4__.create;
+    var normalizeProperty = __dependency5__.normalizeProperty;
 
     // The HTML spec allows for "omitted start tags". These tags are optional
     // when their intended child is the first thing in the parent tag. For
@@ -38033,7 +38032,9 @@ enifed("ember-views/system/render_buffer",
 
         if (props) {
           for (prop in props) {
-            this.dom.setPropertyStrict(element, prop, props[prop]);
+            var normalizedCase = normalizeProperty(element, prop) || prop;
+
+            this.dom.setPropertyStrict(element, normalizedCase, props[prop]);
           }
 
           this.elementProperties = null;
