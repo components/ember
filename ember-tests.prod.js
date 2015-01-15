@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.769ba48b
+ * @version   1.11.0-beta.1+canary.bd130ef7
  */
 
 (function() {
@@ -2705,10 +2705,9 @@ enifed("ember-application/tests/system/readiness_test",
   function(__dependency1__, __dependency2__) {
     "use strict";
     var run = __dependency1__["default"];
-    var Application = __dependency2__["default"];
-    var EmberApplication = Application;
+    var EmberApplication = __dependency2__["default"];
 
-    var jQuery, application;
+    var jQuery, application, Application;
     var readyWasCalled, domReady, readyCallbacks;
 
     // We are using a small mock of jQuery because jQuery is third-party code with
@@ -2862,7 +2861,7 @@ enifed("ember-application/tests/system/reset_test",
     var run = __dependency1__["default"];
     var get = __dependency2__.get;
     var set = __dependency3__.set;
-    var Application = __dependency4__["default"];
+    var EmberApplication = __dependency4__["default"];
     var EmberObject = __dependency5__["default"];
     var Router = __dependency6__["default"];
     var View = __dependency7__["default"];
@@ -2870,8 +2869,7 @@ enifed("ember-application/tests/system/reset_test",
     var jQuery = __dependency9__["default"];
     var Registry = __dependency10__["default"];
 
-    var application;
-    var EmberApplication = Application;
+    var application, Application;
 
     QUnit.module("Ember.Application - resetting", {
       setup: function() {
@@ -42232,8 +42230,9 @@ enifed("ember-runtime/tests/mixins/promise_proxy_test",
     var run = __dependency3__["default"];
     var ObjectProxy = __dependency4__["default"];
     var PromiseProxyMixin = __dependency5__["default"];
-    var EmberRSVP = __dependency6__["default"];
     var RSVP = requireModule("rsvp"); // jshint ignore:line
+    var EmberRSVP = __dependency6__["default"];
+    var onerrorDefault = __dependency6__.onerrorDefault;
 
     var ObjectPromiseProxy;
 
@@ -42378,7 +42377,7 @@ enifed("ember-runtime/tests/mixins/promise_proxy_test",
       expect(1);
 
       RSVP.on('error', onerror);
-      RSVP.off('error', RSVP.onerrorDefault);
+      RSVP.off('error', onerrorDefault);
 
       var expectedReason = new Error("failure");
       var deferred = RSVP.defer();
@@ -42394,16 +42393,16 @@ enifed("ember-runtime/tests/mixins/promise_proxy_test",
       }
 
       RSVP.on('error', onerror);
-      RSVP.off('error', RSVP.onerrorDefault);
+      RSVP.off('error', onerrorDefault);
 
       run(deferred, 'reject', expectedReason);
 
-      RSVP.on('error', RSVP.onerrorDefault);
+      RSVP.on('error', onerrorDefault);
       RSVP.off('error', onerror);
 
       run(deferred, 'reject', expectedReason);
 
-      RSVP.on('error', RSVP.onerrorDefault);
+      RSVP.on('error', onerrorDefault);
       RSVP.off('error', onerror);
     });
 
@@ -43121,15 +43120,12 @@ enifed("ember-runtime/tests/suites/array",
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     var EnumerableTests = __dependency1__.EnumerableTests;
-    var ObserverClass = __dependency1__.ObserverClass;
+    var EnumerableTestsObserverClass = __dependency1__.ObserverClass;
     var indexOfTests = __dependency2__["default"];
     var lastIndexOfTests = __dependency3__["default"];
     var objectAtTests = __dependency4__["default"];
 
-
-    var EnumerableTestsObserverClass = ObserverClass;
-
-    ObserverClass = EnumerableTestsObserverClass.extend({
+    var ObserverClass = EnumerableTestsObserverClass.extend({
 
        observeArray: function(obj) {
         obj.addArrayObserver(this);
