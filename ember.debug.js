@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.bd130ef7
+ * @version   1.11.0-beta.1+canary.879a65a2
  */
 
 (function() {
@@ -2394,9 +2394,9 @@ enifed("ember-application/ext/controller",
     var get = __dependency2__.get;
     var EmberError = __dependency3__["default"];
     var inspect = __dependency4__.inspect;
+    var meta = __dependency4__.meta;
     var computed = __dependency5__.computed;
     var ControllerMixin = __dependency6__["default"];
-    var meta = __dependency4__.meta;
     var controllerFor = __dependency7__["default"];
 
     function verifyNeedsDependencies(controller, container, needs) {
@@ -12016,7 +12016,7 @@ enifed("ember-metal/core",
   ["exports"],
   function(__exports__) {
     "use strict";
-    /*globals Ember:true,ENV,EmberENV,MetamorphENV:true */
+    /*globals Ember:true,ENV,EmberENV */
 
     /**
     @module ember
@@ -12040,7 +12040,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.bd130ef7
+      @version 1.11.0-beta.1+canary.879a65a2
     */
 
     if ('undefined' === typeof Ember) {
@@ -12050,9 +12050,10 @@ enifed("ember-metal/core",
     }
 
     // Default imports, exports and lookup to the global object;
-    Ember.imports = Ember.imports || this;
-    Ember.lookup  = Ember.lookup  || this;
-    var exports   = Ember.exports = Ember.exports || this;
+    var global = this || {}; // `this` may be undefined in strict mode
+    Ember.imports = Ember.imports || global;
+    Ember.lookup  = Ember.lookup  || global;
+    var exports   = Ember.exports = Ember.exports || global;
 
     // aliases needed to keep minifiers from removing the global context
     exports.Em = exports.Ember = Ember;
@@ -12067,10 +12068,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.bd130ef7'
+      @default '1.11.0-beta.1+canary.879a65a2'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.bd130ef7';
+    Ember.VERSION = '1.11.0-beta.1+canary.879a65a2';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -12100,12 +12101,6 @@ enifed("ember-metal/core",
     if ('undefined' === typeof Ember.ENV.DISABLE_RANGE_API) {
       Ember.ENV.DISABLE_RANGE_API = true;
     }
-
-    if ("undefined" === typeof MetamorphENV) {
-      exports.MetamorphENV = {};
-    }
-
-    MetamorphENV.DISABLE_RANGE_API = Ember.ENV.DISABLE_RANGE_API;
 
     /**
       Hash of enabled Canary features. Add to this before creating your application.
@@ -12636,9 +12631,10 @@ enifed("ember-metal/enumerable_utils",
     };
   });
 enifed("ember-metal/environment",
-  ["exports"],
-  function(__exports__) {
+  ["ember-metal/core","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
+    var Ember = __dependency1__["default"];
 
     /*
       Ember can run in many different environments, including environments like
@@ -26645,6 +26641,7 @@ enifed("ember-runtime/computed/reduce_computed",
     var e_get = __dependency2__.get;
     var guidFor = __dependency3__.guidFor;
     var metaFor = __dependency3__.meta;
+    var isArray = __dependency3__.isArray;
     var EmberError = __dependency4__["default"];
     var propertyWillChange = __dependency5__.propertyWillChange;
     var propertyDidChange = __dependency5__.propertyDidChange;
@@ -26660,7 +26657,6 @@ enifed("ember-runtime/computed/reduce_computed",
     var TrackedArray = __dependency11__["default"];
     var EmberArray = __dependency12__["default"];
     var run = __dependency13__["default"];
-    var isArray = __dependency3__.isArray;
 
     var cacheSet = cacheFor.set;
     var cacheGet = cacheFor.get;
@@ -30395,8 +30391,8 @@ enifed("ember-runtime/mixins/copyable",
 
     var get = __dependency1__.get;
     var required = __dependency2__.required;
-    var Freezable = __dependency3__.Freezable;
     var Mixin = __dependency2__.Mixin;
+    var Freezable = __dependency3__.Freezable;
     var fmt = __dependency4__.fmt;
     var EmberError = __dependency5__["default"];
 
@@ -33189,7 +33185,7 @@ enifed("ember-runtime/mixins/promise_proxy",
     }
   });
 enifed("ember-runtime/mixins/sortable",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/enumerable_utils","ember-metal/mixin","ember-runtime/mixins/mutable_enumerable","ember-runtime/compare","ember-metal/observer","ember-metal/computed","exports"],
+  ["ember-metal/core","ember-metal/property_get","ember-metal/enumerable_utils","ember-runtime/mixins/mutable_enumerable","ember-runtime/compare","ember-metal/observer","ember-metal/computed","ember-metal/mixin","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
     /**
@@ -33202,14 +33198,14 @@ enifed("ember-runtime/mixins/sortable",
 
     var get = __dependency2__.get;
     var forEach = __dependency3__.forEach;
-    var Mixin = __dependency4__.Mixin;
-    var MutableEnumerable = __dependency5__["default"];
-    var compare = __dependency6__["default"];
-    var addObserver = __dependency7__.addObserver;
-    var removeObserver = __dependency7__.removeObserver;
-    var computed = __dependency8__.computed;
-    var beforeObserver = __dependency4__.beforeObserver;
-    var observer = __dependency4__.observer;
+    var MutableEnumerable = __dependency4__["default"];
+    var compare = __dependency5__["default"];
+    var addObserver = __dependency6__.addObserver;
+    var removeObserver = __dependency6__.removeObserver;
+    var computed = __dependency7__.computed;
+    var Mixin = __dependency8__.Mixin;
+    var beforeObserver = __dependency8__.beforeObserver;
+    var observer = __dependency8__.observer;
     //ES6TODO: should we access these directly from their package or from how their exposed in ember-metal?
 
     /**
@@ -35006,6 +35002,7 @@ enifed("ember-runtime/system/each_proxy",
 
     var get = __dependency2__.get;
     var guidFor = __dependency3__.guidFor;
+    var typeOf = __dependency3__.typeOf;
     var forEach = __dependency4__.forEach;
     var indexOf = __dependency5__.indexOf;
     var EmberArray = __dependency6__["default"];
@@ -35016,7 +35013,6 @@ enifed("ember-runtime/system/each_proxy",
     var addBeforeObserver = __dependency9__.addBeforeObserver;
     var removeBeforeObserver = __dependency9__.removeBeforeObserver;
     var removeObserver = __dependency9__.removeObserver;
-    var typeOf = __dependency3__.typeOf;
     var watchedEvents = __dependency10__.watchedEvents;
     var defineProperty = __dependency11__.defineProperty;
     var beginPropertyChanges = __dependency12__.beginPropertyChanges;
@@ -41340,7 +41336,7 @@ enifed("ember-views/views/bound_if_view",
     });
   });
 enifed("ember-views/views/bound_partial_view",
-  ["ember-metal/run_loop","ember-views/views/metamorph_view","ember-views/mixins/normalized_rerender_if_needed","ember-views/system/lookup_partial","ember-htmlbars/system/render-view","ember-htmlbars/templates/empty","exports"],
+  ["ember-views/views/metamorph_view","ember-views/mixins/normalized_rerender_if_needed","ember-views/system/lookup_partial","ember-metal/run_loop","ember-htmlbars/system/render-view","ember-htmlbars/templates/empty","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     /**
@@ -41348,11 +41344,10 @@ enifed("ember-views/views/bound_partial_view",
     @submodule ember-views
     */
 
-    var run = __dependency1__["default"];
-    var _MetamorphView = __dependency2__["default"];
-    var NormalizedRerenderIfNeededSupport = __dependency3__["default"];
-    var lookupPartial = __dependency4__["default"];
-    var run = __dependency1__["default"];
+    var _MetamorphView = __dependency1__["default"];
+    var NormalizedRerenderIfNeededSupport = __dependency2__["default"];
+    var lookupPartial = __dependency3__["default"];
+    var run = __dependency4__["default"];
     var renderView = __dependency5__["default"];
     var emptyTemplate = __dependency6__["default"];
 
@@ -42992,6 +42987,7 @@ enifed("ember-views/views/select",
     var indexOf = __dependency1__.indexOf;
     var indexesOf = __dependency1__.indexesOf;
     var replace = __dependency1__.replace;
+    var map = __dependency1__.map;
 
     var get = __dependency2__.get;
     var set = __dependency3__.set;
@@ -43004,7 +43000,6 @@ enifed("ember-views/views/select",
     var observer = __dependency10__.observer;
     var defineProperty = __dependency11__.defineProperty;
     var run = __dependency12__["default"];
-    var map = __dependency1__.map;
 
     var htmlbarsTemplate = __dependency13__["default"];
 
@@ -44273,16 +44268,17 @@ enifed("ember-views/views/view",
     var removeObserver = __dependency10__.removeObserver;
     var defineProperty = __dependency11__.defineProperty;
     var guidFor = __dependency12__.guidFor;
+    var typeOf = __dependency12__.typeOf;
     var computed = __dependency13__.computed;
+    var Mixin = __dependency14__.Mixin;
     var observer = __dependency14__.observer;
+    var beforeObserver = __dependency14__.beforeObserver;
     var SimpleStream = __dependency15__["default"];
     var KeyStream = __dependency16__["default"];
     var StreamBinding = __dependency17__["default"];
     var ContextStream = __dependency18__["default"];
 
-    var typeOf = __dependency12__.typeOf;
     var isNone = __dependency19__["default"];
-    var Mixin = __dependency14__.Mixin;
     var deprecateProperty = __dependency20__.deprecateProperty;
     var emberA = __dependency21__.A;
 
@@ -44292,8 +44288,6 @@ enifed("ember-views/views/view",
     var forEach = __dependency23__.forEach;
     var addObject = __dependency23__.addObject;
     var removeObject = __dependency23__.removeObject;
-
-    var beforeObserver = __dependency14__.beforeObserver;
 
     var propertyWillChange = __dependency24__.propertyWillChange;
     var propertyDidChange = __dependency24__.propertyDidChange;
@@ -46455,7 +46449,7 @@ enifed("ember-views/views/view",
     __exports__["default"] = View;
   });
 enifed("ember-views/views/with_view",
-  ["ember-metal/property_set","ember-metal/run_loop","ember-views/views/metamorph_view","ember-views/mixins/normalized_rerender_if_needed","ember-htmlbars/system/render-view","exports"],
+  ["ember-metal/property_set","ember-views/views/metamorph_view","ember-views/mixins/normalized_rerender_if_needed","ember-metal/run_loop","ember-htmlbars/system/render-view","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     /**
@@ -46464,10 +46458,9 @@ enifed("ember-views/views/with_view",
     */
 
     var set = __dependency1__.set;
-    var run = __dependency2__["default"];
-    var _MetamorphView = __dependency3__["default"];
-    var NormalizedRerenderIfNeededSupport = __dependency4__["default"];
-    var run = __dependency2__["default"];
+    var _MetamorphView = __dependency2__["default"];
+    var NormalizedRerenderIfNeededSupport = __dependency3__["default"];
+    var run = __dependency4__["default"];
     var renderView = __dependency5__["default"];
 
     __exports__["default"] = _MetamorphView.extend(NormalizedRerenderIfNeededSupport, {

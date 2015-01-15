@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.bd130ef7
+ * @version   1.11.0-beta.1+canary.879a65a2
  */
 
 (function() {
@@ -5027,7 +5027,7 @@ enifed("ember-metal/core",
   ["exports"],
   function(__exports__) {
     "use strict";
-    /*globals Ember:true,ENV,EmberENV,MetamorphENV:true */
+    /*globals Ember:true,ENV,EmberENV */
 
     /**
     @module ember
@@ -5051,7 +5051,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.bd130ef7
+      @version 1.11.0-beta.1+canary.879a65a2
     */
 
     if ('undefined' === typeof Ember) {
@@ -5061,9 +5061,10 @@ enifed("ember-metal/core",
     }
 
     // Default imports, exports and lookup to the global object;
-    Ember.imports = Ember.imports || this;
-    Ember.lookup  = Ember.lookup  || this;
-    var exports   = Ember.exports = Ember.exports || this;
+    var global = this || {}; // `this` may be undefined in strict mode
+    Ember.imports = Ember.imports || global;
+    Ember.lookup  = Ember.lookup  || global;
+    var exports   = Ember.exports = Ember.exports || global;
 
     // aliases needed to keep minifiers from removing the global context
     exports.Em = exports.Ember = Ember;
@@ -5078,10 +5079,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.bd130ef7'
+      @default '1.11.0-beta.1+canary.879a65a2'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.bd130ef7';
+    Ember.VERSION = '1.11.0-beta.1+canary.879a65a2';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -5111,12 +5112,6 @@ enifed("ember-metal/core",
     if ('undefined' === typeof Ember.ENV.DISABLE_RANGE_API) {
       Ember.ENV.DISABLE_RANGE_API = true;
     }
-
-    if ("undefined" === typeof MetamorphENV) {
-      exports.MetamorphENV = {};
-    }
-
-    MetamorphENV.DISABLE_RANGE_API = Ember.ENV.DISABLE_RANGE_API;
 
     /**
       Hash of enabled Canary features. Add to this before creating your application.
@@ -5647,9 +5642,10 @@ enifed("ember-metal/enumerable_utils",
     };
   });
 enifed("ember-metal/environment",
-  ["exports"],
-  function(__exports__) {
+  ["ember-metal/core","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
+    var Ember = __dependency1__["default"];
 
     /*
       Ember can run in many different environments, including environments like
@@ -12871,6 +12867,7 @@ enifed("ember-runtime/computed/reduce_computed",
     var e_get = __dependency2__.get;
     var guidFor = __dependency3__.guidFor;
     var metaFor = __dependency3__.meta;
+    var isArray = __dependency3__.isArray;
     var EmberError = __dependency4__["default"];
     var propertyWillChange = __dependency5__.propertyWillChange;
     var propertyDidChange = __dependency5__.propertyDidChange;
@@ -12886,7 +12883,6 @@ enifed("ember-runtime/computed/reduce_computed",
     var TrackedArray = __dependency11__["default"];
     var EmberArray = __dependency12__["default"];
     var run = __dependency13__["default"];
-    var isArray = __dependency3__.isArray;
 
     var cacheSet = cacheFor.set;
     var cacheGet = cacheFor.get;
@@ -16621,8 +16617,8 @@ enifed("ember-runtime/mixins/copyable",
 
     var get = __dependency1__.get;
     var required = __dependency2__.required;
-    var Freezable = __dependency3__.Freezable;
     var Mixin = __dependency2__.Mixin;
+    var Freezable = __dependency3__.Freezable;
     var fmt = __dependency4__.fmt;
     var EmberError = __dependency5__["default"];
 
@@ -19415,7 +19411,7 @@ enifed("ember-runtime/mixins/promise_proxy",
     }
   });
 enifed("ember-runtime/mixins/sortable",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/enumerable_utils","ember-metal/mixin","ember-runtime/mixins/mutable_enumerable","ember-runtime/compare","ember-metal/observer","ember-metal/computed","exports"],
+  ["ember-metal/core","ember-metal/property_get","ember-metal/enumerable_utils","ember-runtime/mixins/mutable_enumerable","ember-runtime/compare","ember-metal/observer","ember-metal/computed","ember-metal/mixin","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
     /**
@@ -19428,14 +19424,14 @@ enifed("ember-runtime/mixins/sortable",
 
     var get = __dependency2__.get;
     var forEach = __dependency3__.forEach;
-    var Mixin = __dependency4__.Mixin;
-    var MutableEnumerable = __dependency5__["default"];
-    var compare = __dependency6__["default"];
-    var addObserver = __dependency7__.addObserver;
-    var removeObserver = __dependency7__.removeObserver;
-    var computed = __dependency8__.computed;
-    var beforeObserver = __dependency4__.beforeObserver;
-    var observer = __dependency4__.observer;
+    var MutableEnumerable = __dependency4__["default"];
+    var compare = __dependency5__["default"];
+    var addObserver = __dependency6__.addObserver;
+    var removeObserver = __dependency6__.removeObserver;
+    var computed = __dependency7__.computed;
+    var Mixin = __dependency8__.Mixin;
+    var beforeObserver = __dependency8__.beforeObserver;
+    var observer = __dependency8__.observer;
     //ES6TODO: should we access these directly from their package or from how their exposed in ember-metal?
 
     /**
@@ -21232,6 +21228,7 @@ enifed("ember-runtime/system/each_proxy",
 
     var get = __dependency2__.get;
     var guidFor = __dependency3__.guidFor;
+    var typeOf = __dependency3__.typeOf;
     var forEach = __dependency4__.forEach;
     var indexOf = __dependency5__.indexOf;
     var EmberArray = __dependency6__["default"];
@@ -21242,7 +21239,6 @@ enifed("ember-runtime/system/each_proxy",
     var addBeforeObserver = __dependency9__.addBeforeObserver;
     var removeBeforeObserver = __dependency9__.removeBeforeObserver;
     var removeObserver = __dependency9__.removeObserver;
-    var typeOf = __dependency3__.typeOf;
     var watchedEvents = __dependency10__.watchedEvents;
     var defineProperty = __dependency11__.defineProperty;
     var beginPropertyChanges = __dependency12__.beginPropertyChanges;

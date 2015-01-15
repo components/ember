@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.bd130ef7
+ * @version   1.11.0-beta.1+canary.879a65a2
  */
 
 (function() {
@@ -95,7 +95,7 @@ enifed("ember-metal/core",
   ["exports"],
   function(__exports__) {
     "use strict";
-    /*globals Ember:true,ENV,EmberENV,MetamorphENV:true */
+    /*globals Ember:true,ENV,EmberENV */
 
     /**
     @module ember
@@ -119,7 +119,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.bd130ef7
+      @version 1.11.0-beta.1+canary.879a65a2
     */
 
     if ('undefined' === typeof Ember) {
@@ -129,9 +129,10 @@ enifed("ember-metal/core",
     }
 
     // Default imports, exports and lookup to the global object;
-    Ember.imports = Ember.imports || this;
-    Ember.lookup  = Ember.lookup  || this;
-    var exports   = Ember.exports = Ember.exports || this;
+    var global = this || {}; // `this` may be undefined in strict mode
+    Ember.imports = Ember.imports || global;
+    Ember.lookup  = Ember.lookup  || global;
+    var exports   = Ember.exports = Ember.exports || global;
 
     // aliases needed to keep minifiers from removing the global context
     exports.Em = exports.Ember = Ember;
@@ -146,10 +147,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.bd130ef7'
+      @default '1.11.0-beta.1+canary.879a65a2'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.bd130ef7';
+    Ember.VERSION = '1.11.0-beta.1+canary.879a65a2';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -179,12 +180,6 @@ enifed("ember-metal/core",
     if ('undefined' === typeof Ember.ENV.DISABLE_RANGE_API) {
       Ember.ENV.DISABLE_RANGE_API = true;
     }
-
-    if ("undefined" === typeof MetamorphENV) {
-      exports.MetamorphENV = {};
-    }
-
-    MetamorphENV.DISABLE_RANGE_API = Ember.ENV.DISABLE_RANGE_API;
 
     /**
       Hash of enabled Canary features. Add to this before creating your application.
