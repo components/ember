@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.979d1fa1
+ * @version   1.11.0-beta.1+canary.f6f4e0ed
  */
 
 (function() {
@@ -5051,7 +5051,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.979d1fa1
+      @version 1.11.0-beta.1+canary.f6f4e0ed
     */
 
     if ('undefined' === typeof Ember) {
@@ -5078,10 +5078,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.979d1fa1'
+      @default '1.11.0-beta.1+canary.f6f4e0ed'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.979d1fa1';
+    Ember.VERSION = '1.11.0-beta.1+canary.f6f4e0ed';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -10467,7 +10467,7 @@ enifed("ember-metal/run_loop",
     function checkAutoRun() {
       if (!run.currentRunLoop) {
         Ember.assert("You have turned on testing mode, which disabled the run-loop's autorun." +
-                     " You will need to wrap any code with asynchronous side-effects in an run", !Ember.testing);
+                     " You will need to wrap any code with asynchronous side-effects in a run", !Ember.testing);
       }
     }
 

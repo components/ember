@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.979d1fa1
+ * @version   1.11.0-beta.1+canary.f6f4e0ed
  */
 
 (function() {
@@ -26572,12 +26572,12 @@ enifed("ember-metal/tests/run_loop/schedule_test",
     test('makes sure it does not trigger an autorun during testing', function() {
       expectAssertion(function() {
         run.schedule('actions', function() {});
-      }, /wrap any code with asynchronous side-effects in an run/);
+      }, /wrap any code with asynchronous side-effects in a run/);
 
       // make sure not just the first violation is asserted.
       expectAssertion(function() {
         run.schedule('actions', function() {});
-      }, /wrap any code with asynchronous side-effects in an run/);
+      }, /wrap any code with asynchronous side-effects in a run/);
     });
   });
 enifed("ember-metal/tests/run_loop/schedule_test.jscs-test",
