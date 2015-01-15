@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.c0f38aa5
+ * @version   1.11.0-beta.1+canary.7e16727c
  */
 
 (function() {
@@ -5051,7 +5051,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.c0f38aa5
+      @version 1.11.0-beta.1+canary.7e16727c
     */
 
     if ('undefined' === typeof Ember) {
@@ -5078,10 +5078,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.c0f38aa5'
+      @default '1.11.0-beta.1+canary.7e16727c'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.c0f38aa5';
+    Ember.VERSION = '1.11.0-beta.1+canary.7e16727c';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -14666,22 +14666,18 @@ enifed("ember-runtime/controllers/array_controller",
     __exports__["default"] = ArrayProxy.extend(ControllerMixin, SortableMixin, {
 
       /**
-        The controller used to wrap items, if any. If the value is a string, it will
-        be used to lookup the container for the controller. As an alternative, you
-        can also provide a controller class as the value.
+        A string containing the controller name used to wrap items.
 
         For example:
 
         ```javascript
         App.MyArrayController = Ember.ArrayController.extend({
-          itemController: Ember.ObjectController.extend({
-            //Item Controller Implementation
-          })
+          itemController: 'myItem' // use App.MyItemController
         });
         ```
 
         @property itemController
-        @type String | Ember.Controller
+        @type String
         @default null
       */
       itemController: null,

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.c0f38aa5
+ * @version   1.11.0-beta.1+canary.7e16727c
  */
 
 (function() {
@@ -11599,7 +11599,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.c0f38aa5
+      @version 1.11.0-beta.1+canary.7e16727c
     */
 
     if ('undefined' === typeof Ember) {
@@ -11626,10 +11626,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.c0f38aa5'
+      @default '1.11.0-beta.1+canary.7e16727c'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.c0f38aa5';
+    Ember.VERSION = '1.11.0-beta.1+canary.7e16727c';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -27772,22 +27772,18 @@ enifed("ember-runtime/controllers/array_controller",
     __exports__["default"] = ArrayProxy.extend(ControllerMixin, SortableMixin, {
 
       /**
-        The controller used to wrap items, if any. If the value is a string, it will
-        be used to lookup the container for the controller. As an alternative, you
-        can also provide a controller class as the value.
+        A string containing the controller name used to wrap items.
 
         For example:
 
         ```javascript
         App.MyArrayController = Ember.ArrayController.extend({
-          itemController: Ember.ObjectController.extend({
-            //Item Controller Implementation
-          })
+          itemController: 'myItem' // use App.MyItemController
         });
         ```
 
         @property itemController
-        @type String | Ember.Controller
+        @type String
         @default null
       */
       itemController: null,
@@ -36773,8 +36769,8 @@ enifed("ember-template-compiler/system/template",
     }
   });
 enifed("ember-views",
-  ["ember-runtime","ember-views/system/jquery","ember-views/system/utils","ember-views/system/render_buffer","ember-views/system/ext","ember-views/views/states","ember-views/views/core_view","ember-views/views/view","ember-views/views/container_view","ember-views/views/collection_view","ember-views/views/component","ember-views/system/event_dispatcher","ember-views/mixins/view_target_action_support","ember-views/component_lookup","ember-views/views/checkbox","ember-views/mixins/text_support","ember-views/views/text_field","ember-views/views/text_area","ember-views/views/simple_bound_view","ember-views/views/metamorph_view","ember-views/views/select","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __exports__) {
+  ["ember-runtime","ember-views/system/jquery","ember-views/system/utils","ember-views/system/render_buffer","ember-views/system/renderer","morph","ember-views/system/ext","ember-views/views/states","ember-views/views/core_view","ember-views/views/view","ember-views/views/container_view","ember-views/views/collection_view","ember-views/views/component","ember-views/system/event_dispatcher","ember-views/mixins/view_target_action_support","ember-views/component_lookup","ember-views/views/checkbox","ember-views/mixins/text_support","ember-views/views/text_field","ember-views/views/text_area","ember-views/views/simple_bound_view","ember-views/views/metamorph_view","ember-views/views/select","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __exports__) {
     "use strict";
     /**
     Ember Views
@@ -36792,30 +36788,32 @@ enifed("ember-views",
     var getViewClientRects = __dependency3__.getViewClientRects;
     var getViewBoundingClientRect = __dependency3__.getViewBoundingClientRect;
     var RenderBuffer = __dependency4__["default"];
+    var Renderer = __dependency5__["default"];
+    var DOMHelper = __dependency6__.DOMHelper;
      // for the side effect of extending Ember.run.queues
-    var cloneStates = __dependency6__.cloneStates;
-    var states = __dependency6__.states;
+    var cloneStates = __dependency8__.cloneStates;
+    var states = __dependency8__.states;
 
-    var CoreView = __dependency7__["default"];
-    var View = __dependency8__["default"];
-    var ContainerView = __dependency9__["default"];
-    var CollectionView = __dependency10__["default"];
-    var Component = __dependency11__["default"];
+    var CoreView = __dependency9__["default"];
+    var View = __dependency10__["default"];
+    var ContainerView = __dependency11__["default"];
+    var CollectionView = __dependency12__["default"];
+    var Component = __dependency13__["default"];
 
-    var EventDispatcher = __dependency12__["default"];
-    var ViewTargetActionSupport = __dependency13__["default"];
-    var ComponentLookup = __dependency14__["default"];
-    var Checkbox = __dependency15__["default"];
-    var TextSupport = __dependency16__["default"];
-    var TextField = __dependency17__["default"];
-    var TextArea = __dependency18__["default"];
+    var EventDispatcher = __dependency14__["default"];
+    var ViewTargetActionSupport = __dependency15__["default"];
+    var ComponentLookup = __dependency16__["default"];
+    var Checkbox = __dependency17__["default"];
+    var TextSupport = __dependency18__["default"];
+    var TextField = __dependency19__["default"];
+    var TextArea = __dependency20__["default"];
 
-    var SimpleBoundView = __dependency19__["default"];
-    var _MetamorphView = __dependency20__["default"];
-    var _Metamorph = __dependency20__._Metamorph;
-    var Select = __dependency21__.Select;
-    var SelectOption = __dependency21__.SelectOption;
-    var SelectOptgroup = __dependency21__.SelectOptgroup;
+    var SimpleBoundView = __dependency21__["default"];
+    var _MetamorphView = __dependency22__["default"];
+    var _Metamorph = __dependency22__._Metamorph;
+    var Select = __dependency23__.Select;
+    var SelectOption = __dependency23__.SelectOption;
+    var SelectOptgroup = __dependency23__.SelectOptgroup;
     // END IMPORTS
 
     /**
@@ -36840,6 +36838,8 @@ enifed("ember-views",
     Ember.View = View;
     Ember.View.states = states;
     Ember.View.cloneStates = cloneStates;
+    Ember.View.DOMHelper = DOMHelper;
+    Ember.View._Renderer = Renderer;
     Ember.Checkbox = Checkbox;
     Ember.TextField = TextField;
     Ember.TextArea = TextArea;
@@ -38823,7 +38823,7 @@ enifed("ember-views/system/render_buffer",
         this.dom.detectNamespace(contextualElement);
 
         if (!this._element) {
-          this._element = document.createDocumentFragment();
+          this._element = this.dom.createDocumentFragment();
         }
 
         if (content.nodeType) {
@@ -43983,9 +43983,11 @@ enifed("ember-views/views/view",
         var attrs = _attrs || {};
         var view;
         attrs._parentView = this;
+        attrs.renderer = this.renderer;
 
         if (CoreView.detect(maybeViewClass)) {
           attrs.container = this.container;
+
           view = maybeViewClass.create(attrs);
 
           // don't set the property on a virtual view, as they are invisible to
