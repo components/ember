@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.f6f4e0ed
+ * @version   1.11.0-beta.1+canary.769ba48b
  */
 
 (function() {
@@ -56771,7 +56771,7 @@ enifed("ember-views/tests/views/component_test",
       },
       teardown: function() {
         run(function() {
-          if (component)  { component.destroy(); }
+          if (component) { component.destroy(); }
           if (controller) { controller.destroy(); }
         });
       }
@@ -65267,7 +65267,7 @@ enifed("ember/tests/helpers/link_to_test",
 
     // IE includes the host name
     function normalizeUrl(url) {
-      return url.replace(/https?:\/\/[^\/]+/,'');
+      return url.replace(/https?:\/\/[^\/]+/, '');
     }
 
     function shouldNotBeActive(selector) {

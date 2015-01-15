@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.f6f4e0ed
+ * @version   1.11.0-beta.1+canary.769ba48b
  */
 
 (function() {
@@ -5051,7 +5051,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.f6f4e0ed
+      @version 1.11.0-beta.1+canary.769ba48b
     */
 
     if ('undefined' === typeof Ember) {
@@ -5078,10 +5078,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.f6f4e0ed'
+      @default '1.11.0-beta.1+canary.769ba48b'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.f6f4e0ed';
+    Ember.VERSION = '1.11.0-beta.1+canary.769ba48b';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -5963,7 +5963,7 @@ enifed("ember-metal/events",
         actions[actionIndex+2] |= SUSPENDED; // mark the action as suspended
       }
 
-      function tryable()   { return callback.call(target); }
+      function tryable() { return callback.call(target); }
       function finalizer() { if (actionIndex !== -1) { actions[actionIndex+2] &= ~SUSPENDED; } }
 
       return tryFinally(tryable, finalizer);
@@ -11395,7 +11395,7 @@ enifed("ember-metal/utils",
             return '(Object)';
           }
 
-          if (obj === Array)  {
+          if (obj === Array) {
             return '(Array)';
           }
 
@@ -11936,7 +11936,7 @@ enifed("ember-metal/utils",
     var TYPE_MAP = {};
     var t = "Boolean Number String Function Array Date RegExp Object".split(" ");
     forEach.call(t, function(name) {
-      TYPE_MAP[ "[object " + name + "]" ] = name.toLowerCase();
+      TYPE_MAP["[object " + name + "]"] = name.toLowerCase();
     });
 
     var toString = Object.prototype.toString;
@@ -13223,7 +13223,7 @@ enifed("ember-runtime/computed/reduce_computed",
         return Math.max(0, length + index);
       } else if (index < length) {
         return index;
-      } else /* index > length */ {
+      } else { // index > length
         return Math.min(length - newItemsOffset, index);
       }
     }
@@ -22554,7 +22554,7 @@ enifed("ember-runtime/system/set",
 
           this.enumerableContentWillChange(removed, null);
           if (isFirst) { propertyWillChange(this, 'firstObject'); }
-          if (isLast)  { propertyWillChange(this, 'lastObject'); }
+          if (isLast) { propertyWillChange(this, 'lastObject'); }
 
           // swap items - basically move the item to the end so it can be removed
           if (idx < len-1) {
@@ -22568,7 +22568,7 @@ enifed("ember-runtime/system/set",
           set(this, 'length', len-1);
 
           if (isFirst) { propertyDidChange(this, 'firstObject'); }
-          if (isLast)  { propertyDidChange(this, 'lastObject'); }
+          if (isLast) { propertyDidChange(this, 'lastObject'); }
           this.enumerableContentDidChange(removed, null);
         }
 
