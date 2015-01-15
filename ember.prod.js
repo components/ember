@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.7e16727c
+ * @version   1.11.0-beta.1+canary.a4369401
  */
 
 (function() {
@@ -11599,7 +11599,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.7e16727c
+      @version 1.11.0-beta.1+canary.a4369401
     */
 
     if ('undefined' === typeof Ember) {
@@ -11626,10 +11626,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.7e16727c'
+      @default '1.11.0-beta.1+canary.a4369401'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.7e16727c';
+    Ember.VERSION = '1.11.0-beta.1+canary.a4369401';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -34821,7 +34821,7 @@ enifed("ember-runtime/system/native_array",
     // because they are so common.
 
     /**
-      The NativeArray mixin contains the properties needed to to make the native
+      The NativeArray mixin contains the properties needed to make the native
       Array support Ember.MutableArray and all of its dependent APIs. Unless you
       have `Ember.EXTEND_PROTOTYPES` or `Ember.EXTEND_PROTOTYPES.Array` set to
       false, this will be applied automatically. Otherwise you can apply the mixin
