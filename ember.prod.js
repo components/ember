@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.879a65a2
+ * @version   1.11.0-beta.1+canary.f19e839c
  */
 
 (function() {
@@ -2527,7 +2527,7 @@ enifed("ember-application/ext/controller",
         ```javascript
         App.CommentsController = Ember.ArrayController.extend({
           needs: ['post'],
-          postTitle: function(){
+          postTitle: function() {
             var currentPost = this.get('controllers.post'); // instance of App.PostController
             return currentPost.get('title');
           }.property('controllers.post.title')
@@ -5531,7 +5531,7 @@ enifed("ember-htmlbars/helpers/collection",
       ```javascript
       App = Ember.Application.create();
       App.ApplicationRoute = Ember.Route.extend({
-        model: function(){
+        model: function() {
           return [{name: 'Yehuda'},{name: 'Tom'},{name: 'Peter'}];
         }
       });
@@ -5564,7 +5564,7 @@ enifed("ember-htmlbars/helpers/collection",
       ```javascript
       App = Ember.Application.create();
       App.ApplicationRoute = Ember.Route.extend({
-        model: function(){
+        model: function() {
           return [{name: 'Yehuda'},{name: 'Tom'},{name: 'Peter'}];
         }
       });
@@ -5778,7 +5778,7 @@ enifed("ember-htmlbars/helpers/component",
       ```javascript
       App = Ember.Application.create();
       App.ApplicationController = Ember.Controller.extend({
-        infographicComponentName: function(){
+        infographicComponentName: function() {
           if (this.get('isMarketOpen')) {
             return "live-updating-chart";
           } else {
@@ -11599,7 +11599,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.879a65a2
+      @version 1.11.0-beta.1+canary.f19e839c
     */
 
     if ('undefined' === typeof Ember) {
@@ -11627,10 +11627,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.879a65a2'
+      @default '1.11.0-beta.1+canary.f19e839c'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.879a65a2';
+    Ember.VERSION = '1.11.0-beta.1+canary.f19e839c';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -14626,7 +14626,7 @@ enifed("ember-metal/mixin",
 
       //filters will be a separate  array for every object implementing the mixin
       App.Filterable = Ember.Mixin.create({
-        filters: Ember.computed(function(){return Ember.A();})
+        filters: Ember.computed(function() {return Ember.A();})
       });
 
       //filters will be created as a separate array during the object's initialization
@@ -16460,7 +16460,7 @@ enifed("ember-metal/run_loop",
 
       ```javascript
       App.RichTextEditorComponent = Ember.Component.extend({
-        initializeTinyMCE: function(){
+        initializeTinyMCE: function() {
           tinymce.init({
             selector: '#' + this.$().prop('id'),
             setup: Ember.run.bind(this, this.setupEditor)
@@ -16469,7 +16469,7 @@ enifed("ember-metal/run_loop",
 
         setupEditor: function(editor) {
           this.set('editor', editor);
-          editor.on('change', function(){ console.log('content changed!')} );
+          editor.on('change', function() { console.log('content changed!')} );
         }
       });
       ```
@@ -17571,7 +17571,7 @@ enifed("ember-metal/streams/utils",
      ```javascript
          var source = ...;  // stream returning a number
                                 // or a numeric (non-stream) object
-         var result = chain(source, function(){
+         var result = chain(source, function() {
            var currentValue = read(source);
            return currentValue + 1;
          });
@@ -19071,7 +19071,7 @@ enifed("ember-routing-htmlbars/helpers/action",
       ```javascript
       App.ApplicationView = Ember.View.extend({
         actions: {
-          anActionName: function(){}
+          anActionName: function() {}
         }
       });
 
@@ -20718,7 +20718,7 @@ enifed("ember-routing/ext/controller",
 
         ```javascript
         App.Router.map(function() {
-          this.resource('blogPost', {path:':blogPostId'}, function(){
+          this.resource('blogPost', {path:':blogPostId'}, function() {
             this.resource('blogComment', {path: ':blogCommentId'});
           });
         });
@@ -20806,7 +20806,7 @@ enifed("ember-routing/ext/controller",
 
         ```javascript
         App.Router.map(function() {
-          this.resource('blogPost', {path:':blogPostId'}, function(){
+          this.resource('blogPost', {path:':blogPostId'}, function() {
             this.resource('blogComment', {path: ':blogCommentId'});
           });
         });
@@ -24094,7 +24094,7 @@ enifed("ember-routing/system/route",
         ```javascript
         // posts route
         Ember.Route.extend({
-          renderTemplate: function(){
+          renderTemplate: function() {
             this.render('photos', {
               into: 'application',
               outlet: 'anOutletName'
@@ -34032,7 +34032,7 @@ enifed("ember-runtime/system/core_object",
         ```javascript
         App.Person = Ember.Object.extend({
           name : "",
-          sayHello : function(){
+          sayHello : function() {
             alert("Hello. My name is " + this.get('name'));
           }
         });
@@ -40037,7 +40037,7 @@ enifed("ember-views/views/component",
 
         ```javascript
         App.PlayButtonComponent = Ember.Component.extend({
-          click: function(){
+          click: function() {
             if (this.get('isPlaying')) {
               this.sendAction('play');
             } else {
@@ -40064,11 +40064,11 @@ enifed("ember-views/views/component",
         ```javascript
         App.ApplicationController = Ember.Controller.extend({
           actions: {
-            musicStarted: function(){
+            musicStarted: function() {
               // called when the play button is clicked
               // and the music started playing
             },
-            musicStopped: function(){
+            musicStopped: function() {
               // called when the play button is clicked
               // and the music stopped playing
             }
@@ -40081,7 +40081,7 @@ enifed("ember-views/views/component",
 
         ```javascript
         App.NextButtonComponent = Ember.Component.extend({
-          click: function(){
+          click: function() {
             this.sendAction();
           }
         });
@@ -40095,7 +40095,7 @@ enifed("ember-views/views/component",
         ```javascript
         App.ApplicationController = Ember.Controller.extend({
           actions: {
-            playNextSongInAlbum: function(){
+            playNextSongInAlbum: function() {
               ...
             }
           }

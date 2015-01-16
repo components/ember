@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.879a65a2
+ * @version   1.11.0-beta.1+canary.f19e839c
  */
 
 (function() {
@@ -5051,7 +5051,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.879a65a2
+      @version 1.11.0-beta.1+canary.f19e839c
     */
 
     if ('undefined' === typeof Ember) {
@@ -5079,10 +5079,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.879a65a2'
+      @default '1.11.0-beta.1+canary.f19e839c'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.879a65a2';
+    Ember.VERSION = '1.11.0-beta.1+canary.f19e839c';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -8093,7 +8093,7 @@ enifed("ember-metal/mixin",
 
       //filters will be a separate  array for every object implementing the mixin
       App.Filterable = Ember.Mixin.create({
-        filters: Ember.computed(function(){return Ember.A();})
+        filters: Ember.computed(function() {return Ember.A();})
       });
 
       //filters will be created as a separate array during the object's initialization
@@ -9980,7 +9980,7 @@ enifed("ember-metal/run_loop",
 
       ```javascript
       App.RichTextEditorComponent = Ember.Component.extend({
-        initializeTinyMCE: function(){
+        initializeTinyMCE: function() {
           tinymce.init({
             selector: '#' + this.$().prop('id'),
             setup: Ember.run.bind(this, this.setupEditor)
@@ -9989,7 +9989,7 @@ enifed("ember-metal/run_loop",
 
         setupEditor: function(editor) {
           this.set('editor', editor);
-          editor.on('change', function(){ console.log('content changed!')} );
+          editor.on('change', function() { console.log('content changed!')} );
         }
       });
       ```
@@ -11094,7 +11094,7 @@ enifed("ember-metal/streams/utils",
      ```javascript
          var source = ...;  // stream returning a number
                                 // or a numeric (non-stream) object
-         var result = chain(source, function(){
+         var result = chain(source, function() {
            var currentValue = read(source);
            return currentValue + 1;
          });
@@ -20986,7 +20986,7 @@ enifed("ember-runtime/system/core_object",
         ```javascript
         App.Person = Ember.Object.extend({
           name : "",
-          sayHello : function(){
+          sayHello : function() {
             alert("Hello. My name is " + this.get('name'));
           }
         });
