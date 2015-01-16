@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.19133492
+ * @version   1.11.0-beta.1+canary.8519d4da
  */
 
 (function() {
@@ -9148,7 +9148,7 @@ enifed("ember-htmlbars/tests/helpers/each_test",
 
       assertText(view, "controller:Trek Glowackicontroller:Geoffrey Grosenbach");
 
-      strictEqual(view.get('_childViews')[0].get('_arrayController.target'), parentController, "the target property of the child controllers are set correctly");
+      strictEqual(view._childViews[0]._arrayController.get('target'), parentController, "the target property of the child controllers are set correctly");
     });
 
     test("itemController specified in template gets a parentController property", function() {
@@ -9755,7 +9755,7 @@ enifed("ember-htmlbars/tests/helpers/each_test",
 
         assertText(view, "controller:parentController - controller:Trek Glowacki - controller:parentController - controller:Geoffrey Grosenbach - ");
 
-        strictEqual(view.get('_childViews')[0].get('_arrayController.target'), parentController, "the target property of the child controllers are set correctly");
+        strictEqual(view._childViews[0]._arrayController.get('target'), parentController, "the target property of the child controllers are set correctly");
       });
 
       test("itemController specified in ArrayController with name binding does not change context", function() {
@@ -13738,7 +13738,7 @@ enifed("ember-htmlbars/tests/helpers/with_test",
 
       equal(view.$().text(), "controller:Gob and Carl Weathers");
 
-      strictEqual(view.get('_childViews')[0].get('controller.target'), parentController, "the target property of the child controllers are set correctly");
+      strictEqual(view._childViews[0].get('controller.target'), parentController, "the target property of the child controllers are set correctly");
 
       runDestroy(view);
     });
@@ -29817,7 +29817,7 @@ enifed("ember-routing-htmlbars/tests/helpers/outlet_test",
         view.connectOutlet('main', childView);
       });
 
-      ok(ContainerView.detectInstance(childView.get('_parentView')), "The custom view class should be used for the outlet");
+      ok(ContainerView.detectInstance(childView._parentView), "The custom view class should be used for the outlet");
 
       // Replace whitespace for older IE
       equal(trim(view.$().text()), 'HIBYE');
@@ -29877,7 +29877,7 @@ enifed("ember-routing-htmlbars/tests/helpers/outlet_test",
         view.connectOutlet('main', childView);
       });
 
-      ok(view.outletView.detectInstance(childView.get('_parentView')), "The custom view class should be used for the outlet");
+      ok(view.outletView.detectInstance(childView._parentView), "The custom view class should be used for the outlet");
 
       // Replace whitespace for older IE
       equal(trim(view.$().text()), 'HIBYE');
@@ -30198,7 +30198,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
 
       runAppend(view);
 
-      var postController = view.get('_childViews')[0].get('controller');
+      var postController = view._childViews[0].get('controller');
 
       equal(view.$().text(), 'HIRails is omakase');
       equal(postController.get('model'), post);
@@ -30320,8 +30320,8 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
 
       runAppend(view);
 
-      var postController1 = view.get('_childViews')[0].get('controller');
-      var postController2 = view.get('_childViews')[1].get('controller');
+      var postController1 = view._childViews[0].get('controller');
+      var postController2 = view._childViews[1].get('controller');
 
       ok(view.$().text().match(/^HI ?Me first ?Then me$/));
       equal(postController1.get('model'), post1);
@@ -30362,7 +30362,7 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
 
       runAppend(view);
 
-      var postController1 = view.get('_childViews')[0].get('controller');
+      var postController1 = view._childViews[0].get('controller');
 
       runDestroy(view);
 
@@ -30387,8 +30387,8 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
 
       runAppend(view);
 
-      var postController1 = view.get('_childViews')[0].get('controller');
-      var postController2 = view.get('_childViews')[1].get('controller');
+      var postController1 = view._childViews[0].get('controller');
+      var postController2 = view._childViews[1].get('controller');
 
       ok(view.$().text().match(/^HI ?NOTHING ?NOTHING$/));
       equal(postController1.get('model'), 0);
@@ -30420,8 +30420,8 @@ enifed("ember-routing-htmlbars/tests/helpers/render_test",
 
       runAppend(view);
 
-      var postController1 = view.get('_childViews')[0].get('controller');
-      var postController2 = view.get('_childViews')[1].get('controller');
+      var postController1 = view._childViews[0].get('controller');
+      var postController2 = view._childViews[1].get('controller');
 
       ok(view.$().text().match(/^HI ?Title: ?Title:Rails is omakase$/));
       equal(postController1.get('model'), null);
@@ -58140,8 +58140,8 @@ enifed("ember-views/tests/views/metamorph_view_test",
       equal(view.$().text(), 'truth');
 
       run(function() {
-        view.get('_childViews')[0].rerender();
-        view.get('_childViews')[0].rerender();
+        view._childViews[0].rerender();
+        view._childViews[0].rerender();
       });
 
       equal(view.$().text(), 'truth');

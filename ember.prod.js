@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.19133492
+ * @version   1.11.0-beta.1+canary.8519d4da
  */
 
 (function() {
@@ -7272,7 +7272,7 @@ enifed("ember-htmlbars/helpers/yield",
         if (view._contextView) {
           view = view._contextView;
         } else {
-          view = get(view, '_parentView');
+          view = view._parentView;
         }
       }
 
@@ -11598,7 +11598,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.19133492
+      @version 1.11.0-beta.1+canary.8519d4da
     */
 
     if ('undefined' === typeof Ember) {
@@ -11626,10 +11626,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.19133492'
+      @default '1.11.0-beta.1+canary.8519d4da'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.19133492';
+    Ember.VERSION = '1.11.0-beta.1+canary.8519d4da';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -19587,7 +19587,7 @@ enifed("ember-routing-htmlbars/helpers/outlet",
 
       outletSource = this;
       while (!outletSource.get('template.isTop')) {
-        outletSource = outletSource.get('_parentView');
+        outletSource = outletSource._parentView;
       }
       set(this, 'outletSource', outletSource);
 
@@ -40026,7 +40026,7 @@ enifed("ember-views/views/component",
         @default null
       */
       targetObject: computed(function(key) {
-        var parentView = get(this, '_parentView');
+        var parentView = this._parentView;
         return parentView ? get(parentView, 'controller') : null;
       }).property('_parentView'),
 
@@ -40753,7 +40753,7 @@ enifed("ember-views/views/each",
             binding.connect(controller);
           });
 
-          set(this, '_arrayController', controller);
+          this._arrayController = controller;
         } else {
           this.disableContentObservers(function() {
             binding = new Binding('content', 'dataSource').oneWay();
@@ -40802,10 +40802,8 @@ enifed("ember-views/views/each",
       destroy: function() {
         if (!this._super()) { return; }
 
-        var arrayController = get(this, '_arrayController');
-
-        if (arrayController) {
-          arrayController.destroy();
+        if (this._arrayController) {
+          this._arrayController.destroy();
         }
 
         return this;
@@ -42907,7 +42905,7 @@ enifed("ember-views/views/view",
           return this._controller;
         }
 
-        var parentView = get(this, '_parentView');
+        var parentView = this._parentView;
         return parentView ? get(parentView, 'controller') : null;
       }),
 
