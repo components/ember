@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.f19e839c
+ * @version   1.11.0-beta.1+canary.6c2edbc7
  */
 
 (function() {
@@ -12040,7 +12040,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.f19e839c
+      @version 1.11.0-beta.1+canary.6c2edbc7
     */
 
     if ('undefined' === typeof Ember) {
@@ -12068,10 +12068,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.f19e839c'
+      @default '1.11.0-beta.1+canary.6c2edbc7'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.f19e839c';
+    Ember.VERSION = '1.11.0-beta.1+canary.6c2edbc7';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -13711,7 +13711,7 @@ enifed("ember-metal/is_present",
       @for Ember
       @param {Object} obj Value to test
       @return {Boolean}
-      @since 1.7.0
+      @since 1.8.0
       */
     __exports__["default"] = function isPresent(obj) {
       return !isBlank(obj);
@@ -14147,6 +14147,7 @@ enifed("ember-metal/map",
       },
 
       /**
+        @since 1.8.0
         @method delete
         @param obj
         @param _guid (optional and for internal use only)
@@ -14294,6 +14295,7 @@ enifed("ember-metal/map",
       /**
         This property will change as the number of objects in the map changes.
 
+        @since 1.8.0
         @property size
         @type number
         @default 0
@@ -14359,6 +14361,7 @@ enifed("ember-metal/map",
       /**
         Removes a value from the map for an associated key.
 
+        @since 1.8.0
         @method delete
         @param {*} key
         @return {Boolean} true if an item was removed, false otherwise
@@ -15794,6 +15797,7 @@ enifed("ember-metal/platform/create",
     /**
       Identical to `Object.create()`. Implements if not available natively.
 
+      @since 1.8.0
       @method create
       @for Ember
     */
@@ -20554,6 +20558,7 @@ enifed("ember-routing-views/views/link",
       /**
         Sets the `target` attribute of the `LinkView`'s HTML element.
 
+        @since 1.8.0
         @property target
         @default null
       **/
@@ -38117,6 +38122,7 @@ enifed("ember-testing/helpers",
      click('.btn');
      ```
 
+     @since 1.9.0
      @method pauseTest
      @return {Object} A promise that will never resolve
      */
