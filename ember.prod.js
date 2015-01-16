@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.fba41b9e
+ * @version   1.11.0-beta.1+canary.19133492
  */
 
 (function() {
@@ -2734,7 +2734,6 @@ enifed("ember-application/system/application",
       If there is any setup required before routing begins, you can implement a
       `ready()` method on your app that will be invoked immediately before routing
       begins.
-      ```
 
       @class Application
       @namespace Ember
@@ -11599,7 +11598,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.fba41b9e
+      @version 1.11.0-beta.1+canary.19133492
     */
 
     if ('undefined' === typeof Ember) {
@@ -11627,10 +11626,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.fba41b9e'
+      @default '1.11.0-beta.1+canary.19133492'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.fba41b9e';
+    Ember.VERSION = '1.11.0-beta.1+canary.19133492';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
