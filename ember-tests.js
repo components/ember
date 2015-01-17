@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.22eb4439
+ * @version   1.11.0-beta.1+canary.f61ac693
  */
 
 (function() {
@@ -53419,7 +53419,7 @@ enifed("ember-testing/tests/helpers_test",
     });
 
     test("`click` triggers appropriate events in order", function() {
-      expect(4);
+      expect(5);
 
       var click, wait, events;
 
@@ -53443,7 +53443,7 @@ enifed("ember-testing/tests/helpers_test",
         })
       });
 
-      Ember.TEMPLATES.index = compile('{{input type="text"}} {{view view.Checkbox}} {{textarea}}');
+      Ember.TEMPLATES.index = compile('{{input type="text"}} {{view view.Checkbox}} {{textarea}} <div contenteditable="true"> </div>');
 
       run(App, App.advanceReadiness);
 
@@ -53471,6 +53471,13 @@ enifed("ember-testing/tests/helpers_test",
         deepEqual(events,
           ['mousedown', 'focusin', 'mouseup', 'click'],
           'fires focus events on textareas');
+      }).then(function() {
+        events = [];
+        return click('.index-view div');
+      }).then(function() {
+        deepEqual(events,
+          ['mousedown', 'focusin', 'mouseup', 'click'],
+          'fires focus events on contenteditable');
       }).then(function() {
         // In IE (< 8), the change event only fires when the value changes before element focused.
         jQuery('.index-view input[type=checkbox]').focus();
