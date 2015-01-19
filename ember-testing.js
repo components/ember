@@ -530,7 +530,7 @@ enifed("ember-testing/helpers",
       var $el = app.testHelpers.findWithAssert(selector, context);
       run($el, 'mousedown');
 
-      if ($el.is(':input')) {
+      if ($el.is(':input, [contenteditable=true]')) {
         var type = $el.prop('type');
         if (type !== 'checkbox' && type !== 'radio' && type !== 'hidden') {
           run($el, function(){
@@ -885,6 +885,7 @@ enifed("ember-testing/helpers",
        click('.btn');
        ```
 
+       @since 1.9.0
        @method pauseTest
        @return {Object} A promise that will never resolve
        */

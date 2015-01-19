@@ -23235,12 +23235,12 @@ enifed("ember-metal/tests/run_loop/schedule_test",
     test('makes sure it does not trigger an autorun during testing', function() {
       expectAssertion(function() {
         run.schedule('actions', function() {});
-      }, /wrap any code with asynchronous side-effects in an run/);
+      }, /wrap any code with asynchronous side-effects in a run/);
 
       // make sure not just the first violation is asserted.
       expectAssertion(function() {
         run.schedule('actions', function() {});
-      }, /wrap any code with asynchronous side-effects in an run/);
+      }, /wrap any code with asynchronous side-effects in a run/);
     });
   });
 enifed("ember-metal/tests/run_loop/schedule_test.jshint",
@@ -47330,7 +47330,7 @@ enifed("ember-testing/tests/helpers_test",
     });
 
     test("`click` triggers appropriate events in order", function() {
-      expect(4);
+      expect(5);
 
       var click, wait, events;
 
@@ -47354,7 +47354,7 @@ enifed("ember-testing/tests/helpers_test",
         })
       });
 
-      Ember.TEMPLATES.index = compile('{{input type="text"}} {{view view.Checkbox}} {{textarea}}');
+      Ember.TEMPLATES.index = compile('{{input type="text"}} {{view view.Checkbox}} {{textarea}} <div contenteditable="true"> </div>');
 
       run(App, App.advanceReadiness);
 
@@ -47382,6 +47382,13 @@ enifed("ember-testing/tests/helpers_test",
         deepEqual(events,
           ['mousedown', 'focusin', 'mouseup', 'click'],
           'fires focus events on textareas');
+      }).then(function() {
+        events = [];
+        return click('.index-view div');
+      }).then(function() {
+        deepEqual(events,
+          ['mousedown', 'focusin', 'mouseup', 'click'],
+          'fires focus events on contenteditable');
       }).then(function() {
         // In IE (< 8), the change event only fires when the value changes before element focused.
         jQuery('.index-view input[type=checkbox]').focus();

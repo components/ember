@@ -2611,7 +2611,6 @@ enifed("ember-application/system/application",
       If there is any setup required before routing begins, you can implement a
       `ready()` method on your app that will be invoked immediately before routing
       begins.
-      ```
 
       @class Application
       @namespace Ember
@@ -13411,7 +13410,7 @@ enifed("ember-metal/is_present",
         @for Ember
         @param {Object} obj Value to test
         @return {Boolean}
-        @since 1.7.0
+        @since 1.8.0
         */
       isPresent = function isPresent(obj) {
         return !isBlank(obj);
@@ -13852,6 +13851,7 @@ enifed("ember-metal/map",
       },
 
       /**
+        @since 1.8.0
         @method delete
         @param obj
         @param _guid (optional and for internal use only)
@@ -13999,6 +13999,7 @@ enifed("ember-metal/map",
       /**
         This property will change as the number of objects in the map changes.
 
+        @since 1.8.0
         @property size
         @type number
         @default 0
@@ -14064,6 +14065,7 @@ enifed("ember-metal/map",
       /**
         Removes a value from the map for an associated key.
 
+        @since 1.8.0
         @method delete
         @param {*} key
         @return {Boolean} true if an item was removed, false otherwise
@@ -15491,6 +15493,7 @@ enifed("ember-metal/platform/create",
     /**
       Identical to `Object.create()`. Implements if not available natively.
 
+      @since 1.8.0
       @method create
       @for Ember
     */
@@ -17123,7 +17126,7 @@ enifed("ember-metal/run_loop",
     function checkAutoRun() {
       if (!run.currentRunLoop) {
         Ember.assert("You have turned on testing mode, which disabled the run-loop's autorun." +
-                     " You will need to wrap any code with asynchronous side-effects in an run", !Ember.testing);
+                     " You will need to wrap any code with asynchronous side-effects in a run", !Ember.testing);
       }
     }
 
@@ -20036,6 +20039,7 @@ enifed("ember-routing-views/views/link",
       /**
         Sets the `target` attribute of the `LinkView`'s HTML element.
 
+        @since 1.8.0
         @property target
         @default null
       **/
@@ -27838,22 +27842,18 @@ enifed("ember-runtime/controllers/array_controller",
     __exports__["default"] = ArrayProxy.extend(ControllerMixin, SortableMixin, {
 
       /**
-        The controller used to wrap items, if any. If the value is a string, it will
-        be used to lookup the container for the controller. As an alternative, you
-        can also provide a controller class as the value.
+        A string containing the controller name used to wrap items.
 
         For example:
 
         ```javascript
         App.MyArrayController = Ember.ArrayController.extend({
-          itemController: Ember.ObjectController.extend({
-            //Item Controller Implementation
-          })
+          itemController: 'myItem' // use App.MyItemController
         });
         ```
 
         @property itemController
-        @type String | Ember.Controller
+        @type String
         @default null
       */
       itemController: null,
@@ -36987,7 +36987,7 @@ enifed("ember-testing/helpers",
       var $el = app.testHelpers.findWithAssert(selector, context);
       run($el, 'mousedown');
 
-      if ($el.is(':input')) {
+      if ($el.is(':input, [contenteditable=true]')) {
         var type = $el.prop('type');
         if (type !== 'checkbox' && type !== 'radio' && type !== 'hidden') {
           run($el, function(){
@@ -37342,6 +37342,7 @@ enifed("ember-testing/helpers",
        click('.btn');
        ```
 
+       @since 1.9.0
        @method pauseTest
        @return {Object} A promise that will never resolve
        */
