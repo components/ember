@@ -302,8 +302,8 @@ define("ember-metal/core",
     __exports__["default"] = Ember;
   });
 define("ember-template-compiler",
-  ["ember-metal/core","ember-template-compiler/system/precompile","ember-template-compiler/system/compile","ember-template-compiler/system/template","ember-template-compiler/plugins","ember-template-compiler/plugins/transform-each-in-to-hash","ember-template-compiler/plugins/transform-with-as-to-hash","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
+  ["ember-metal/core","ember-template-compiler/system/precompile","ember-template-compiler/system/compile","ember-template-compiler/system/template","ember-template-compiler/plugins","ember-template-compiler/plugins/transform-each-in-to-hash","ember-template-compiler/plugins/transform-with-as-to-hash","ember-template-compiler/compat","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
     "use strict";
     var _Ember = __dependency1__["default"];
     var precompile = __dependency2__["default"];
@@ -314,6 +314,8 @@ define("ember-template-compiler",
     var TransformEachInToHash = __dependency6__["default"];
     var TransformWithAsToHash = __dependency7__["default"];
 
+    // used for adding Ember.Handlebars.compile for backwards compat
+
     registerPlugin('ast', TransformWithAsToHash);
     registerPlugin('ast', TransformEachInToHash);
 
@@ -322,6 +324,50 @@ define("ember-template-compiler",
     __exports__.compile = compile;
     __exports__.template = template;
     __exports__.registerPlugin = registerPlugin;
+  });
+define("ember-template-compiler/compat",
+  ["ember-metal/core","ember-template-compiler/compat/precompile","ember-template-compiler/system/compile","ember-template-compiler/system/template"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+    "use strict";
+    var Ember = __dependency1__["default"];
+    var precompile = __dependency2__["default"];
+    var compile = __dependency3__["default"];
+    var template = __dependency4__["default"];
+
+    var EmberHandlebars = Ember.Handlebars = Ember.Handlebars || {};
+
+    EmberHandlebars.precompile = precompile;
+    EmberHandlebars.compile = compile;
+    EmberHandlebars.template = template;
+  });
+define("ember-template-compiler/compat/precompile",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-template-compiler
+    */
+
+    var compile, compileSpec;
+
+    __exports__["default"] = function(string) {
+      if ((!compile || !compileSpec) && Ember.__loader.registry['htmlbars-compiler/compiler']) {
+        var Compiler = requireModule('htmlbars-compiler/compiler');
+
+        compile = Compiler.compile;
+        compileSpec = Compiler.compileSpec;
+      }
+
+      if (!compile || !compileSpec) {
+        throw new Error('Cannot call `precompile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `precompile`.');
+      }
+
+      var asObject = arguments[1] === undefined ? true : arguments[1];
+      var compileFunc = asObject ? compile : compileSpec;
+
+      return compileFunc(string);
+    }
   });
 define("ember-template-compiler/plugins",
   ["exports"],
@@ -501,34 +547,6 @@ define("ember-template-compiler/plugins/transform-with-as-to-hash",
 
     __exports__["default"] = TransformWithAsToHash;
   });
-define("ember-template-compiler/system/compile",
-  ["htmlbars-compiler/compiler","ember-template-compiler/system/compile_options","ember-template-compiler/system/template","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-template-compiler
-    */
-
-    var compile = __dependency1__.compile;
-    var compileOptions = __dependency2__["default"];
-    var template = __dependency3__["default"];
-
-    /**
-      Uses HTMLBars `compile` function to process a string into a compiled template.
-
-      This is not present in production builds.
-
-      @private
-      @method compile
-      @param {String} templateString This is the string to be compiled by HTMLBars.
-    */
-    __exports__["default"] = function(templateString) {
-      var templateSpec = compile(templateString, compileOptions());
-
-      return template(templateSpec);
-    }
-  });
 define("ember-template-compiler/system/compile_options",
   ["ember-metal/core","ember-template-compiler/plugins","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
@@ -555,8 +573,8 @@ define("ember-template-compiler/system/compile_options",
       };
     }
   });
-define("ember-template-compiler/system/precompile",
-  ["htmlbars-compiler/compiler","ember-template-compiler/system/compile_options","exports"],
+define("ember-template-compiler/system/compile",
+  ["ember-template-compiler/system/compile_options","ember-template-compiler/system/template","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     /**
@@ -564,8 +582,44 @@ define("ember-template-compiler/system/precompile",
     @submodule ember-template-compiler
     */
 
-    var compileSpec = __dependency1__.compileSpec;
-    var compileOptions = __dependency2__["default"];
+    var compile;
+    var compileOptions = __dependency1__["default"];
+    var template = __dependency2__["default"];
+
+    /**
+      Uses HTMLBars `compile` function to process a string into a compiled template.
+
+      This is not present in production builds.
+
+      @private
+      @method compile
+      @param {String} templateString This is the string to be compiled by HTMLBars.
+    */
+    __exports__["default"] = function(templateString) {
+      if (!compile && Ember.__loader.registry['htmlbars-compiler/compiler']) {
+        compile = requireModule('htmlbars-compiler/compiler').compile;
+      }
+
+      if (!compile) {
+        throw new Error('Cannot call `compile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compile`.');
+      }
+
+      var templateSpec = compile(templateString, compileOptions());
+
+      return template(templateSpec);
+    }
+  });
+define("ember-template-compiler/system/precompile",
+  ["ember-template-compiler/system/compile_options","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-template-compiler
+    */
+
+    var compileOptions = __dependency1__["default"];
+    var compileSpec;
 
     /**
       Uses HTMLBars `compile` function to process a string into a compiled template string.
@@ -578,6 +632,14 @@ define("ember-template-compiler/system/precompile",
       @param {String} templateString This is the string to be compiled by HTMLBars.
     */
     __exports__["default"] = function(templateString) {
+      if (!compileSpec && Ember.__loader.registry['htmlbars-compiler/compiler']) {
+        compileSpec = requireModule('htmlbars-compiler/compiler').compileSpec;
+      }
+
+      if (!compileSpec) {
+        throw new Error('Cannot call `compileSpec` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compileSpec`.');
+      }
+
       return compileSpec(templateString, compileOptions());
     }
   });

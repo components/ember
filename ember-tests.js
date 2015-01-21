@@ -1549,6 +1549,95 @@ enifed("ember-application/tests/system/controller_test.jshint",
       ok(true, 'ember-application/tests/system/controller_test.js should pass jshint.'); 
     });
   });
+enifed("ember-application/tests/system/dependency_injection_test",
+  ["ember-metal/run_loop","ember-runtime/system/object","ember-application/system/application"],
+  function(__dependency1__, __dependency2__, __dependency3__) {
+    "use strict";
+    var run = __dependency1__["default"];
+    var EmberObject = __dependency2__["default"];
+    var Application = __dependency3__["default"];
+
+    var EmberApplication = Application;
+
+    var originalLookup = Ember.lookup;
+    var locator, lookup, application, originalModelInjections;
+
+    QUnit.module("Ember.Application Dependency Injection", {
+      setup: function() {
+        originalModelInjections = Ember.MODEL_FACTORY_INJECTIONS;
+        Ember.MODEL_FACTORY_INJECTIONS = true;
+
+        application = run(EmberApplication, 'create');
+
+        application.Person              = EmberObject.extend({});
+        application.Orange              = EmberObject.extend({});
+        application.Email               = EmberObject.extend({});
+        application.User                = EmberObject.extend({});
+        application.PostIndexController = EmberObject.extend({});
+
+        application.register('model:person', application.Person, {singleton: false });
+        application.register('model:user', application.User, {singleton: false });
+        application.register('fruit:favorite', application.Orange);
+        application.register('communication:main', application.Email, {singleton: false});
+        application.register('controller:postIndex', application.PostIndexController, {singleton: true});
+
+        locator = application.__container__;
+
+        lookup = Ember.lookup = {};
+      },
+      teardown: function() {
+        run(application, 'destroy');
+        application = locator = null;
+        Ember.lookup = originalLookup;
+        Ember.MODEL_FACTORY_INJECTIONS = originalModelInjections;
+      }
+    });
+
+    test('container lookup is normalized', function() {
+      var dotNotationController = locator.lookup('controller:post.index');
+      var camelCaseController = locator.lookup('controller:postIndex');
+
+      ok(dotNotationController instanceof application.PostIndexController);
+      ok(camelCaseController instanceof application.PostIndexController);
+
+      equal(dotNotationController, camelCaseController);
+    });
+
+    test('registered entities can be looked up later', function() {
+      equal(locator.resolve('model:person'), application.Person);
+      equal(locator.resolve('model:user'), application.User);
+      equal(locator.resolve('fruit:favorite'), application.Orange);
+      equal(locator.resolve('communication:main'), application.Email);
+      equal(locator.resolve('controller:postIndex'), application.PostIndexController);
+
+      equal(locator.lookup('fruit:favorite'), locator.lookup('fruit:favorite'), 'singleton lookup worked');
+      ok(locator.lookup('model:user') !== locator.lookup('model:user'), 'non-singleton lookup worked');
+    });
+
+
+    test('injections', function() {
+      application.inject('model', 'fruit', 'fruit:favorite');
+      application.inject('model:user', 'communication', 'communication:main');
+
+      var user = locator.lookup('model:user');
+      var person = locator.lookup('model:person');
+      var fruit = locator.lookup('fruit:favorite');
+
+      equal(user.get('fruit'), fruit);
+      equal(person.get('fruit'), fruit);
+
+      ok(application.Email.detectInstance(user.get('communication')));
+    });
+  });
+enifed("ember-application/tests/system/dependency_injection_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-application/tests/system');
+    test('ember-application/tests/system/dependency_injection_test.js should pass jshint', function() { 
+      ok(true, 'ember-application/tests/system/dependency_injection_test.js should pass jshint.'); 
+    });
+  });
 enifed("ember-application/tests/system/dependency_injection/custom_resolver_test",
   ["ember-views/system/jquery","ember-metal/run_loop","ember-application/system/application","ember-application/system/resolver"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
@@ -1910,95 +1999,6 @@ enifed("ember-application/tests/system/dependency_injection/to_string_test.jshin
     module('JSHint - ember-application/tests/system/dependency_injection');
     test('ember-application/tests/system/dependency_injection/to_string_test.js should pass jshint', function() { 
       ok(true, 'ember-application/tests/system/dependency_injection/to_string_test.js should pass jshint.'); 
-    });
-  });
-enifed("ember-application/tests/system/dependency_injection_test",
-  ["ember-metal/run_loop","ember-runtime/system/object","ember-application/system/application"],
-  function(__dependency1__, __dependency2__, __dependency3__) {
-    "use strict";
-    var run = __dependency1__["default"];
-    var EmberObject = __dependency2__["default"];
-    var Application = __dependency3__["default"];
-
-    var EmberApplication = Application;
-
-    var originalLookup = Ember.lookup;
-    var locator, lookup, application, originalModelInjections;
-
-    QUnit.module("Ember.Application Dependency Injection", {
-      setup: function() {
-        originalModelInjections = Ember.MODEL_FACTORY_INJECTIONS;
-        Ember.MODEL_FACTORY_INJECTIONS = true;
-
-        application = run(EmberApplication, 'create');
-
-        application.Person              = EmberObject.extend({});
-        application.Orange              = EmberObject.extend({});
-        application.Email               = EmberObject.extend({});
-        application.User                = EmberObject.extend({});
-        application.PostIndexController = EmberObject.extend({});
-
-        application.register('model:person', application.Person, {singleton: false });
-        application.register('model:user', application.User, {singleton: false });
-        application.register('fruit:favorite', application.Orange);
-        application.register('communication:main', application.Email, {singleton: false});
-        application.register('controller:postIndex', application.PostIndexController, {singleton: true});
-
-        locator = application.__container__;
-
-        lookup = Ember.lookup = {};
-      },
-      teardown: function() {
-        run(application, 'destroy');
-        application = locator = null;
-        Ember.lookup = originalLookup;
-        Ember.MODEL_FACTORY_INJECTIONS = originalModelInjections;
-      }
-    });
-
-    test('container lookup is normalized', function() {
-      var dotNotationController = locator.lookup('controller:post.index');
-      var camelCaseController = locator.lookup('controller:postIndex');
-
-      ok(dotNotationController instanceof application.PostIndexController);
-      ok(camelCaseController instanceof application.PostIndexController);
-
-      equal(dotNotationController, camelCaseController);
-    });
-
-    test('registered entities can be looked up later', function() {
-      equal(locator.resolve('model:person'), application.Person);
-      equal(locator.resolve('model:user'), application.User);
-      equal(locator.resolve('fruit:favorite'), application.Orange);
-      equal(locator.resolve('communication:main'), application.Email);
-      equal(locator.resolve('controller:postIndex'), application.PostIndexController);
-
-      equal(locator.lookup('fruit:favorite'), locator.lookup('fruit:favorite'), 'singleton lookup worked');
-      ok(locator.lookup('model:user') !== locator.lookup('model:user'), 'non-singleton lookup worked');
-    });
-
-
-    test('injections', function() {
-      application.inject('model', 'fruit', 'fruit:favorite');
-      application.inject('model:user', 'communication', 'communication:main');
-
-      var user = locator.lookup('model:user');
-      var person = locator.lookup('model:person');
-      var fruit = locator.lookup('fruit:favorite');
-
-      equal(user.get('fruit'), fruit);
-      equal(person.get('fruit'), fruit);
-
-      ok(application.Email.detectInstance(user.get('communication')));
-    });
-  });
-enifed("ember-application/tests/system/dependency_injection_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-application/tests/system');
-    test('ember-application/tests/system/dependency_injection_test.js should pass jshint', function() { 
-      ok(true, 'ember-application/tests/system/dependency_injection_test.js should pass jshint.'); 
     });
   });
 enifed("ember-application/tests/system/initializers_test",
@@ -4073,15 +4073,6 @@ enifed("ember-htmlbars/compat/make-bound-helper.jshint",
       ok(true, 'ember-htmlbars/compat/make-bound-helper.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/compat/precompile.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-htmlbars/compat');
-    test('ember-htmlbars/compat/precompile.js should pass jshint', function() { 
-      ok(true, 'ember-htmlbars/compat/precompile.js should pass jshint.'); 
-    });
-  });
 enifed("ember-htmlbars/compat/register-bound-helper.jshint",
   [],
   function() {
@@ -4361,15 +4352,6 @@ enifed("ember-htmlbars/system/lookup-helper.jshint",
       ok(true, 'ember-htmlbars/system/lookup-helper.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/system/make-view-helper.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-htmlbars/system');
-    test('ember-htmlbars/system/make-view-helper.js should pass jshint', function() { 
-      ok(true, 'ember-htmlbars/system/make-view-helper.js should pass jshint.'); 
-    });
-  });
 enifed("ember-htmlbars/system/make_bound_helper.jshint",
   [],
   function() {
@@ -4377,6 +4359,15 @@ enifed("ember-htmlbars/system/make_bound_helper.jshint",
     module('JSHint - ember-htmlbars/system');
     test('ember-htmlbars/system/make_bound_helper.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/system/make_bound_helper.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/system/make-view-helper.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/system');
+    test('ember-htmlbars/system/make-view-helper.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/system/make-view-helper.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/tests/attr_nodes/boolean_test",
@@ -4885,60 +4876,6 @@ enifed("ember-htmlbars/tests/compat/helper_test.jshint",
     module('JSHint - ember-htmlbars/tests/compat');
     test('ember-htmlbars/tests/compat/helper_test.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/tests/compat/helper_test.js should pass jshint.'); 
-    });
-  });
-enifed("ember-htmlbars/tests/compat/make-view-helper_test",
-  ["ember-views/views/view","container/container","ember-template-compiler/system/compile","ember-htmlbars/system/make-view-helper","ember-views/views/component","ember-runtime/tests/utils"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
-    "use strict";
-    var EmberView = __dependency1__["default"];
-    var Container = __dependency2__["default"];
-    var compile = __dependency3__["default"];
-    var makeViewHelper = __dependency4__["default"];
-    var Component = __dependency5__["default"];
-    var runAppend = __dependency6__.runAppend;
-    var runDestroy = __dependency6__.runDestroy;
-
-    var container, view;
-
-    QUnit.module('ember-htmlbars: makeViewHelper compat', {
-      setup: function() {
-        container = new Container();
-        container.optionsForType('helper', { instantiate: false });
-      },
-
-      teardown: function() {
-        runDestroy(container);
-        runDestroy(view);
-      }
-    });
-
-    test('makeViewHelper', function() {
-      expect(1);
-
-      var ViewHelperComponent = Component.extend({
-        layout: compile('woot!')
-      });
-      var helper = makeViewHelper(ViewHelperComponent);
-      container.register('helper:view-helper', helper);
-
-      view = EmberView.extend({
-        template: compile('{{view-helper}}'),
-        container: container
-      }).create();
-
-      runAppend(view);
-
-      equal(view.$().text(), 'woot!');
-    });
-  });
-enifed("ember-htmlbars/tests/compat/make-view-helper_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-htmlbars/tests/compat');
-    test('ember-htmlbars/tests/compat/make-view-helper_test.js should pass jshint', function() { 
-      ok(true, 'ember-htmlbars/tests/compat/make-view-helper_test.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/tests/compat/make_bound_helper_test",
@@ -5535,6 +5472,60 @@ enifed("ember-htmlbars/tests/compat/make_bound_helper_test.jshint",
     module('JSHint - ember-htmlbars/tests/compat');
     test('ember-htmlbars/tests/compat/make_bound_helper_test.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/tests/compat/make_bound_helper_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/tests/compat/make-view-helper_test",
+  ["ember-views/views/view","container/container","ember-template-compiler/system/compile","ember-htmlbars/system/make-view-helper","ember-views/views/component","ember-runtime/tests/utils"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
+    "use strict";
+    var EmberView = __dependency1__["default"];
+    var Container = __dependency2__["default"];
+    var compile = __dependency3__["default"];
+    var makeViewHelper = __dependency4__["default"];
+    var Component = __dependency5__["default"];
+    var runAppend = __dependency6__.runAppend;
+    var runDestroy = __dependency6__.runDestroy;
+
+    var container, view;
+
+    QUnit.module('ember-htmlbars: makeViewHelper compat', {
+      setup: function() {
+        container = new Container();
+        container.optionsForType('helper', { instantiate: false });
+      },
+
+      teardown: function() {
+        runDestroy(container);
+        runDestroy(view);
+      }
+    });
+
+    test('makeViewHelper', function() {
+      expect(1);
+
+      var ViewHelperComponent = Component.extend({
+        layout: compile('woot!')
+      });
+      var helper = makeViewHelper(ViewHelperComponent);
+      container.register('helper:view-helper', helper);
+
+      view = EmberView.extend({
+        template: compile('{{view-helper}}'),
+        container: container
+      }).create();
+
+      runAppend(view);
+
+      equal(view.$().text(), 'woot!');
+    });
+  });
+enifed("ember-htmlbars/tests/compat/make-view-helper_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/tests/compat');
+    test('ember-htmlbars/tests/compat/make-view-helper_test.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/tests/compat/make-view-helper_test.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/tests/compat/precompile_test",
@@ -10230,7 +10221,7 @@ enifed("ember-htmlbars/tests/helpers/unbound_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helpers/view_test",
-  ["ember-metal/property_set","ember-views/views/view","container/container","ember-metal/run_loop","ember-views/system/jquery","ember-views/views/text_field","ember-runtime/system/namespace","ember-runtime/system/object","ember-views/views/container_view","ember-views/views/metamorph_view","htmlbars-util/safe-string","ember-htmlbars/compat/precompile","ember-template-compiler/system/compile","ember-template-compiler/system/template","ember-metal/observer","ember-runtime/controllers/object_controller","ember-runtime/tests/utils","ember-metal/property_get","ember-metal/computed"],
+  ["ember-metal/property_set","ember-views/views/view","container/container","ember-metal/run_loop","ember-views/system/jquery","ember-views/views/text_field","ember-runtime/system/namespace","ember-runtime/system/object","ember-views/views/container_view","ember-views/views/metamorph_view","htmlbars-util/safe-string","ember-template-compiler/compat/precompile","ember-template-compiler/system/compile","ember-template-compiler/system/template","ember-metal/observer","ember-runtime/controllers/object_controller","ember-runtime/tests/utils","ember-metal/property_get","ember-metal/computed"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__) {
     "use strict";
     /*globals EmberDev */
@@ -14898,15 +14889,6 @@ enifed("ember-metal/chains.jshint",
       ok(true, 'ember-metal/chains.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/computed.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-metal');
-    test('ember-metal/computed.js should pass jshint', function() { 
-      ok(true, 'ember-metal/computed.js should pass jshint.'); 
-    });
-  });
 enifed("ember-metal/computed_macros.jshint",
   [],
   function() {
@@ -14914,6 +14896,15 @@ enifed("ember-metal/computed_macros.jshint",
     module('JSHint - ember-metal');
     test('ember-metal/computed_macros.js should pass jshint', function() { 
       ok(true, 'ember-metal/computed_macros.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal/computed.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal');
+    test('ember-metal/computed.js should pass jshint', function() { 
+      ok(true, 'ember-metal/computed.js should pass jshint.'); 
     });
   });
 enifed("ember-metal/core.jshint",
@@ -15105,15 +15096,6 @@ enifed("ember-metal/mixin.jshint",
       ok(true, 'ember-metal/mixin.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/observer.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-metal');
-    test('ember-metal/observer.js should pass jshint', function() { 
-      ok(true, 'ember-metal/observer.js should pass jshint.'); 
-    });
-  });
 enifed("ember-metal/observer_set.jshint",
   [],
   function() {
@@ -15121,6 +15103,15 @@ enifed("ember-metal/observer_set.jshint",
     module('JSHint - ember-metal');
     test('ember-metal/observer_set.js should pass jshint', function() { 
       ok(true, 'ember-metal/observer_set.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal/observer.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal');
+    test('ember-metal/observer.js should pass jshint', function() { 
+      ok(true, 'ember-metal/observer.js should pass jshint.'); 
     });
   });
 enifed("ember-metal/path_cache.jshint",
@@ -15231,15 +15222,6 @@ enifed("ember-metal/streams/simple.jshint",
       ok(true, 'ember-metal/streams/simple.js should pass jshint.'); 
     });
   });
-enifed("ember-metal/streams/stream.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-metal/streams');
-    test('ember-metal/streams/stream.js should pass jshint', function() { 
-      ok(true, 'ember-metal/streams/stream.js should pass jshint.'); 
-    });
-  });
 enifed("ember-metal/streams/stream_binding.jshint",
   [],
   function() {
@@ -15249,6 +15231,15 @@ enifed("ember-metal/streams/stream_binding.jshint",
       ok(true, 'ember-metal/streams/stream_binding.js should pass jshint.'); 
     });
   });
+enifed("ember-metal/streams/stream.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal/streams');
+    test('ember-metal/streams/stream.js should pass jshint', function() { 
+      ok(true, 'ember-metal/streams/stream.js should pass jshint.'); 
+    });
+  });
 enifed("ember-metal/streams/utils.jshint",
   [],
   function() {
@@ -15256,158 +15247,6 @@ enifed("ember-metal/streams/utils.jshint",
     module('JSHint - ember-metal/streams');
     test('ember-metal/streams/utils.js should pass jshint', function() { 
       ok(true, 'ember-metal/streams/utils.js should pass jshint.'); 
-    });
-  });
-enifed("ember-metal/tests/accessors/getPath_test",
-  ["ember-metal/property_get"],
-  function(__dependency1__) {
-    "use strict";
-    /*globals Foo:true $foo:true */
-
-    var get = __dependency1__.get;
-
-    var obj;
-    var moduleOpts = {
-      setup: function() {
-        obj = {
-          foo: {
-            bar: {
-              baz: { biff: 'BIFF' }
-            }
-          },
-          foothis: {
-            bar: {
-              baz: { biff: 'BIFF' }
-            }
-          },
-          falseValue: false
-        };
-
-        window.Foo = {
-          bar: {
-            baz: { biff: 'FooBiff' }
-          }
-        };
-
-        window.$foo = {
-          bar: {
-            baz: { biff: '$FOOBIFF' }
-          }
-        };
-
-        window.localPathGlobal = 5;
-      },
-
-      teardown: function() {
-        obj = undefined;
-        window.Foo = undefined;
-        window.$foo = undefined;
-        window.localPathGlobal = undefined;
-      }
-    };
-
-    QUnit.module('Ember.get with path', moduleOpts);
-
-    // ..........................................................
-    // LOCAL PATHS
-    //
-
-    test('[obj, foo] -> obj.foo', function() {
-      deepEqual(get(obj, 'foo'), obj.foo);
-    });
-
-    test('[obj, foo.bar] -> obj.foo.bar', function() {
-      deepEqual(get(obj, 'foo.bar'), obj.foo.bar);
-    });
-
-    test('[obj, foothis.bar] -> obj.foothis.bar', function() {
-      deepEqual(get(obj, 'foothis.bar'), obj.foothis.bar);
-    });
-
-    test('[obj, this.foo] -> obj.foo', function() {
-      deepEqual(get(obj, 'this.foo'), obj.foo);
-    });
-
-    test('[obj, this.foo.bar] -> obj.foo.bar', function() {
-      deepEqual(get(obj, 'this.foo.bar'), obj.foo.bar);
-    });
-
-    test('[obj, this.Foo.bar] -> (null)', function() {
-      deepEqual(get(obj, 'this.Foo.bar'), undefined);
-    });
-
-    test('[obj, falseValue.notDefined] -> (null)', function() {
-      deepEqual(get(obj, 'falseValue.notDefined'), undefined);
-    });
-
-    // ..........................................................
-    // LOCAL PATHS WITH NO TARGET DEPRECATION
-    //
-
-    test('[null, length] returning data is deprecated', function() {
-      expectDeprecation(function(){
-        equal(5, get(null, 'localPathGlobal'));
-      }, "Ember.get fetched 'localPathGlobal' from the global context. This behavior will change in the future (issue #3852)");
-    });
-
-    test('[length] returning data is deprecated', function() {
-      expectDeprecation(function(){
-        equal(5, get('localPathGlobal'));
-      }, "Ember.get fetched 'localPathGlobal' from the global context. This behavior will change in the future (issue #3852)");
-    });
-
-    // ..........................................................
-    // NO TARGET
-    //
-
-    test('[null, Foo] -> Foo', function() {
-      deepEqual(get('Foo'), Foo);
-    });
-
-    test('[null, Foo.bar] -> Foo.bar', function() {
-      deepEqual(get('Foo.bar'), Foo.bar);
-    });
-  });
-enifed("ember-metal/tests/accessors/getPath_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-metal/tests/accessors');
-    test('ember-metal/tests/accessors/getPath_test.js should pass jshint', function() { 
-      ok(true, 'ember-metal/tests/accessors/getPath_test.js should pass jshint.'); 
-    });
-  });
-enifed("ember-metal/tests/accessors/getProperties_test",
-  ["ember-metal/get_properties"],
-  function(__dependency1__) {
-    "use strict";
-    var getProperties = __dependency1__["default"];
-
-    QUnit.module('Ember.getProperties');
-
-    test('can retrieve a hash of properties from an object via an argument list or array of property names', function() {
-      var obj = {
-        firstName: "Steve",
-        lastName: "Jobs",
-        companyName: "Apple, Inc."
-      };
-
-      deepEqual(getProperties(obj, "firstName", "lastName"), { firstName: 'Steve', lastName: 'Jobs' });
-      deepEqual(getProperties(obj, "firstName", "lastName"), { firstName: 'Steve', lastName: 'Jobs' });
-      deepEqual(getProperties(obj, "lastName"), { lastName: 'Jobs' });
-      deepEqual(getProperties(obj), {});
-      deepEqual(getProperties(obj, ["firstName", "lastName"]), { firstName: 'Steve', lastName: 'Jobs' });
-      deepEqual(getProperties(obj, ["firstName"]), { firstName: 'Steve' });
-      deepEqual(getProperties(obj, []), {});
-    });
-  });
-enifed("ember-metal/tests/accessors/getProperties_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-metal/tests/accessors');
-    test('ember-metal/tests/accessors/getProperties_test.js should pass jshint', function() { 
-      ok(true, 'ember-metal/tests/accessors/getProperties_test.js should pass jshint.'); 
     });
   });
 enifed("ember-metal/tests/accessors/get_test",
@@ -15591,6 +15430,158 @@ enifed("ember-metal/tests/accessors/get_test.jshint",
     module('JSHint - ember-metal/tests/accessors');
     test('ember-metal/tests/accessors/get_test.js should pass jshint', function() { 
       ok(true, 'ember-metal/tests/accessors/get_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal/tests/accessors/getPath_test",
+  ["ember-metal/property_get"],
+  function(__dependency1__) {
+    "use strict";
+    /*globals Foo:true $foo:true */
+
+    var get = __dependency1__.get;
+
+    var obj;
+    var moduleOpts = {
+      setup: function() {
+        obj = {
+          foo: {
+            bar: {
+              baz: { biff: 'BIFF' }
+            }
+          },
+          foothis: {
+            bar: {
+              baz: { biff: 'BIFF' }
+            }
+          },
+          falseValue: false
+        };
+
+        window.Foo = {
+          bar: {
+            baz: { biff: 'FooBiff' }
+          }
+        };
+
+        window.$foo = {
+          bar: {
+            baz: { biff: '$FOOBIFF' }
+          }
+        };
+
+        window.localPathGlobal = 5;
+      },
+
+      teardown: function() {
+        obj = undefined;
+        window.Foo = undefined;
+        window.$foo = undefined;
+        window.localPathGlobal = undefined;
+      }
+    };
+
+    QUnit.module('Ember.get with path', moduleOpts);
+
+    // ..........................................................
+    // LOCAL PATHS
+    //
+
+    test('[obj, foo] -> obj.foo', function() {
+      deepEqual(get(obj, 'foo'), obj.foo);
+    });
+
+    test('[obj, foo.bar] -> obj.foo.bar', function() {
+      deepEqual(get(obj, 'foo.bar'), obj.foo.bar);
+    });
+
+    test('[obj, foothis.bar] -> obj.foothis.bar', function() {
+      deepEqual(get(obj, 'foothis.bar'), obj.foothis.bar);
+    });
+
+    test('[obj, this.foo] -> obj.foo', function() {
+      deepEqual(get(obj, 'this.foo'), obj.foo);
+    });
+
+    test('[obj, this.foo.bar] -> obj.foo.bar', function() {
+      deepEqual(get(obj, 'this.foo.bar'), obj.foo.bar);
+    });
+
+    test('[obj, this.Foo.bar] -> (null)', function() {
+      deepEqual(get(obj, 'this.Foo.bar'), undefined);
+    });
+
+    test('[obj, falseValue.notDefined] -> (null)', function() {
+      deepEqual(get(obj, 'falseValue.notDefined'), undefined);
+    });
+
+    // ..........................................................
+    // LOCAL PATHS WITH NO TARGET DEPRECATION
+    //
+
+    test('[null, length] returning data is deprecated', function() {
+      expectDeprecation(function(){
+        equal(5, get(null, 'localPathGlobal'));
+      }, "Ember.get fetched 'localPathGlobal' from the global context. This behavior will change in the future (issue #3852)");
+    });
+
+    test('[length] returning data is deprecated', function() {
+      expectDeprecation(function(){
+        equal(5, get('localPathGlobal'));
+      }, "Ember.get fetched 'localPathGlobal' from the global context. This behavior will change in the future (issue #3852)");
+    });
+
+    // ..........................................................
+    // NO TARGET
+    //
+
+    test('[null, Foo] -> Foo', function() {
+      deepEqual(get('Foo'), Foo);
+    });
+
+    test('[null, Foo.bar] -> Foo.bar', function() {
+      deepEqual(get('Foo.bar'), Foo.bar);
+    });
+  });
+enifed("ember-metal/tests/accessors/getPath_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal/tests/accessors');
+    test('ember-metal/tests/accessors/getPath_test.js should pass jshint', function() { 
+      ok(true, 'ember-metal/tests/accessors/getPath_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-metal/tests/accessors/getProperties_test",
+  ["ember-metal/get_properties"],
+  function(__dependency1__) {
+    "use strict";
+    var getProperties = __dependency1__["default"];
+
+    QUnit.module('Ember.getProperties');
+
+    test('can retrieve a hash of properties from an object via an argument list or array of property names', function() {
+      var obj = {
+        firstName: "Steve",
+        lastName: "Jobs",
+        companyName: "Apple, Inc."
+      };
+
+      deepEqual(getProperties(obj, "firstName", "lastName"), { firstName: 'Steve', lastName: 'Jobs' });
+      deepEqual(getProperties(obj, "firstName", "lastName"), { firstName: 'Steve', lastName: 'Jobs' });
+      deepEqual(getProperties(obj, "lastName"), { lastName: 'Jobs' });
+      deepEqual(getProperties(obj), {});
+      deepEqual(getProperties(obj, ["firstName", "lastName"]), { firstName: 'Steve', lastName: 'Jobs' });
+      deepEqual(getProperties(obj, ["firstName"]), { firstName: 'Steve' });
+      deepEqual(getProperties(obj, []), {});
+    });
+  });
+enifed("ember-metal/tests/accessors/getProperties_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal/tests/accessors');
+    test('ember-metal/tests/accessors/getProperties_test.js should pass jshint', function() { 
+      ok(true, 'ember-metal/tests/accessors/getProperties_test.js should pass jshint.'); 
     });
   });
 enifed("ember-metal/tests/accessors/isGlobalPath_test",
@@ -15900,6 +15891,66 @@ enifed("ember-metal/tests/accessors/normalizeTuple_test.jshint",
       ok(true, 'ember-metal/tests/accessors/normalizeTuple_test.js should pass jshint.'); 
     });
   });
+enifed("ember-metal/tests/accessors/set_test",
+  ["ember-metal/property_get","ember-metal/property_set"],
+  function(__dependency1__, __dependency2__) {
+    "use strict";
+    var get = __dependency1__.get;
+    var set = __dependency2__.set;
+
+    QUnit.module('set');
+
+    test('should set arbitrary properties on an object', function() {
+      var obj = {
+        string: 'string',
+        number: 23,
+        boolTrue: true,
+        boolFalse: false,
+        nullValue: null,
+        undefinedValue: undefined
+      };
+
+      var newObj = {
+        undefinedValue: 'emberjs'
+      };
+
+      for(var key in obj) {
+        if (!obj.hasOwnProperty(key)) continue;
+        equal(set(newObj, key, obj[key]), obj[key], 'should return value');
+        equal(get(newObj, key), obj[key], 'should set value');
+      }
+    });
+
+    test('should call setUnknownProperty if defined and value is undefined', function() {
+
+      var obj = {
+        count: 0,
+
+        unknownProperty: function(key, value) {
+          ok(false, 'should not invoke unknownProperty if setUnknownProperty is defined');
+        },
+
+        setUnknownProperty: function(key, value) {
+          equal(key, 'foo', 'should pass key');
+          equal(value, 'BAR', 'should pass key');
+          this.count++;
+          return 'FOO';
+        }
+      };
+
+      equal(set(obj, 'foo', "BAR"), 'BAR', 'should return set value');
+      equal(obj.count, 1, 'should have invoked');
+    });
+  });
+enifed("ember-metal/tests/accessors/set_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-metal/tests/accessors');
+    test('ember-metal/tests/accessors/set_test.js should pass jshint', function() { 
+      ok(true, 'ember-metal/tests/accessors/set_test.js should pass jshint.'); 
+    });
+  });
 enifed("ember-metal/tests/accessors/setPath_test",
   ["ember-metal/property_set","ember-metal/property_get"],
   function(__dependency1__, __dependency2__) {
@@ -16033,66 +16084,6 @@ enifed("ember-metal/tests/accessors/setPath_test.jshint",
     module('JSHint - ember-metal/tests/accessors');
     test('ember-metal/tests/accessors/setPath_test.js should pass jshint', function() { 
       ok(true, 'ember-metal/tests/accessors/setPath_test.js should pass jshint.'); 
-    });
-  });
-enifed("ember-metal/tests/accessors/set_test",
-  ["ember-metal/property_get","ember-metal/property_set"],
-  function(__dependency1__, __dependency2__) {
-    "use strict";
-    var get = __dependency1__.get;
-    var set = __dependency2__.set;
-
-    QUnit.module('set');
-
-    test('should set arbitrary properties on an object', function() {
-      var obj = {
-        string: 'string',
-        number: 23,
-        boolTrue: true,
-        boolFalse: false,
-        nullValue: null,
-        undefinedValue: undefined
-      };
-
-      var newObj = {
-        undefinedValue: 'emberjs'
-      };
-
-      for(var key in obj) {
-        if (!obj.hasOwnProperty(key)) continue;
-        equal(set(newObj, key, obj[key]), obj[key], 'should return value');
-        equal(get(newObj, key), obj[key], 'should set value');
-      }
-    });
-
-    test('should call setUnknownProperty if defined and value is undefined', function() {
-
-      var obj = {
-        count: 0,
-
-        unknownProperty: function(key, value) {
-          ok(false, 'should not invoke unknownProperty if setUnknownProperty is defined');
-        },
-
-        setUnknownProperty: function(key, value) {
-          equal(key, 'foo', 'should pass key');
-          equal(value, 'BAR', 'should pass key');
-          this.count++;
-          return 'FOO';
-        }
-      };
-
-      equal(set(obj, 'foo', "BAR"), 'BAR', 'should return set value');
-      equal(obj.count, 1, 'should have invoked');
-    });
-  });
-enifed("ember-metal/tests/accessors/set_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-metal/tests/accessors');
-    test('ember-metal/tests/accessors/set_test.js should pass jshint', function() { 
-      ok(true, 'ember-metal/tests/accessors/set_test.js should pass jshint.'); 
     });
   });
 enifed("ember-metal/tests/alias_test",
@@ -28865,15 +28856,6 @@ enifed("ember-runtime/computed/array_computed.jshint",
       ok(true, 'ember-runtime/computed/array_computed.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/computed/reduce_computed.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-runtime/computed');
-    test('ember-runtime/computed/reduce_computed.js should pass jshint', function() { 
-      ok(true, 'ember-runtime/computed/reduce_computed.js should pass jshint.'); 
-    });
-  });
 enifed("ember-runtime/computed/reduce_computed_macros.jshint",
   [],
   function() {
@@ -28881,6 +28863,15 @@ enifed("ember-runtime/computed/reduce_computed_macros.jshint",
     module('JSHint - ember-runtime/computed');
     test('ember-runtime/computed/reduce_computed_macros.js should pass jshint', function() { 
       ok(true, 'ember-runtime/computed/reduce_computed_macros.js should pass jshint.'); 
+    });
+  });
+enifed("ember-runtime/computed/reduce_computed.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-runtime/computed');
+    test('ember-runtime/computed/reduce_computed.js should pass jshint', function() { 
+      ok(true, 'ember-runtime/computed/reduce_computed.js should pass jshint.'); 
     });
   });
 enifed("ember-runtime/controllers/array_controller.jshint",
@@ -29000,15 +28991,6 @@ enifed("ember-runtime/mixins/comparable.jshint",
       ok(true, 'ember-runtime/mixins/comparable.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/mixins/controller.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-runtime/mixins');
-    test('ember-runtime/mixins/controller.js should pass jshint', function() { 
-      ok(true, 'ember-runtime/mixins/controller.js should pass jshint.'); 
-    });
-  });
 enifed("ember-runtime/mixins/controller_content_model_alias_deprecation.jshint",
   [],
   function() {
@@ -29016,6 +28998,15 @@ enifed("ember-runtime/mixins/controller_content_model_alias_deprecation.jshint",
     module('JSHint - ember-runtime/mixins');
     test('ember-runtime/mixins/controller_content_model_alias_deprecation.js should pass jshint', function() { 
       ok(true, 'ember-runtime/mixins/controller_content_model_alias_deprecation.js should pass jshint.'); 
+    });
+  });
+enifed("ember-runtime/mixins/controller.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-runtime/mixins');
+    test('ember-runtime/mixins/controller.js should pass jshint', function() { 
+      ok(true, 'ember-runtime/mixins/controller.js should pass jshint.'); 
     });
   });
 enifed("ember-runtime/mixins/copyable.jshint",
@@ -29198,15 +29189,6 @@ enifed("ember-runtime/system/native_array.jshint",
       ok(true, 'ember-runtime/system/native_array.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/system/object.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-runtime/system');
-    test('ember-runtime/system/object.js should pass jshint', function() { 
-      ok(true, 'ember-runtime/system/object.js should pass jshint.'); 
-    });
-  });
 enifed("ember-runtime/system/object_proxy.jshint",
   [],
   function() {
@@ -29214,6 +29196,15 @@ enifed("ember-runtime/system/object_proxy.jshint",
     module('JSHint - ember-runtime/system');
     test('ember-runtime/system/object_proxy.js should pass jshint', function() { 
       ok(true, 'ember-runtime/system/object_proxy.js should pass jshint.'); 
+    });
+  });
+enifed("ember-runtime/system/object.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-runtime/system');
+    test('ember-runtime/system/object.js should pass jshint', function() { 
+      ok(true, 'ember-runtime/system/object.js should pass jshint.'); 
     });
   });
 enifed("ember-runtime/system/service.jshint",
@@ -32779,6 +32770,56 @@ enifed("ember-runtime/tests/core/copy_test.jshint",
       ok(true, 'ember-runtime/tests/core/copy_test.js should pass jshint.'); 
     });
   });
+enifed("ember-runtime/tests/core/is_array_test",
+  ["ember-metal/core","ember-metal/utils","ember-runtime/system/array_proxy"],
+  function(__dependency1__, __dependency2__, __dependency3__) {
+    "use strict";
+    var Ember = __dependency1__["default"];
+    var isArray = __dependency2__.isArray;
+    var ArrayProxy = __dependency3__["default"];
+
+    QUnit.module("Ember Type Checking");
+
+    test("Ember.isArray" ,function() {
+      var arrayProxy = ArrayProxy.create({ content: Ember.A() });
+
+      equal(isArray(arrayProxy), true, "[]");
+    });
+  });
+enifed("ember-runtime/tests/core/is_array_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-runtime/tests/core');
+    test('ember-runtime/tests/core/is_array_test.js should pass jshint', function() { 
+      ok(true, 'ember-runtime/tests/core/is_array_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-runtime/tests/core/is_empty_test",
+  ["ember-metal/core","ember-metal/is_empty","ember-runtime/system/array_proxy"],
+  function(__dependency1__, __dependency2__, __dependency3__) {
+    "use strict";
+    var Ember = __dependency1__["default"];
+    var isEmpty = __dependency2__["default"];
+    var ArrayProxy = __dependency3__["default"];
+
+    QUnit.module("Ember.isEmpty");
+
+    test("Ember.isEmpty", function() {
+      var arrayProxy = ArrayProxy.create({ content: Ember.A() });
+
+      equal(true,  isEmpty(arrayProxy), "for an ArrayProxy that has empty content");
+    });
+  });
+enifed("ember-runtime/tests/core/is_empty_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-runtime/tests/core');
+    test('ember-runtime/tests/core/is_empty_test.js should pass jshint', function() { 
+      ok(true, 'ember-runtime/tests/core/is_empty_test.js should pass jshint.'); 
+    });
+  });
 enifed("ember-runtime/tests/core/isEqual_test",
   ["ember-runtime/core"],
   function(__dependency1__) {
@@ -32829,56 +32870,6 @@ enifed("ember-runtime/tests/core/isEqual_test.jshint",
     module('JSHint - ember-runtime/tests/core');
     test('ember-runtime/tests/core/isEqual_test.js should pass jshint', function() { 
       ok(true, 'ember-runtime/tests/core/isEqual_test.js should pass jshint.'); 
-    });
-  });
-enifed("ember-runtime/tests/core/is_array_test",
-  ["ember-metal/core","ember-metal/utils","ember-runtime/system/array_proxy"],
-  function(__dependency1__, __dependency2__, __dependency3__) {
-    "use strict";
-    var Ember = __dependency1__["default"];
-    var isArray = __dependency2__.isArray;
-    var ArrayProxy = __dependency3__["default"];
-
-    QUnit.module("Ember Type Checking");
-
-    test("Ember.isArray" ,function() {
-      var arrayProxy = ArrayProxy.create({ content: Ember.A() });
-
-      equal(isArray(arrayProxy), true, "[]");
-    });
-  });
-enifed("ember-runtime/tests/core/is_array_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-runtime/tests/core');
-    test('ember-runtime/tests/core/is_array_test.js should pass jshint', function() { 
-      ok(true, 'ember-runtime/tests/core/is_array_test.js should pass jshint.'); 
-    });
-  });
-enifed("ember-runtime/tests/core/is_empty_test",
-  ["ember-metal/core","ember-metal/is_empty","ember-runtime/system/array_proxy"],
-  function(__dependency1__, __dependency2__, __dependency3__) {
-    "use strict";
-    var Ember = __dependency1__["default"];
-    var isEmpty = __dependency2__["default"];
-    var ArrayProxy = __dependency3__["default"];
-
-    QUnit.module("Ember.isEmpty");
-
-    test("Ember.isEmpty", function() {
-      var arrayProxy = ArrayProxy.create({ content: Ember.A() });
-
-      equal(true,  isEmpty(arrayProxy), "for an ArrayProxy that has empty content");
-    });
-  });
-enifed("ember-runtime/tests/core/is_empty_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-runtime/tests/core');
-    test('ember-runtime/tests/core/is_empty_test.js should pass jshint', function() { 
-      ok(true, 'ember-runtime/tests/core/is_empty_test.js should pass jshint.'); 
     });
   });
 enifed("ember-runtime/tests/core/type_test",
@@ -43140,6 +43131,215 @@ enifed("ember-runtime/tests/system/native_array/suite_test.jshint",
       ok(true, 'ember-runtime/tests/system/native_array/suite_test.js should pass jshint.'); 
     });
   });
+enifed("ember-runtime/tests/system/object_proxy_test",
+  ["ember-metal/observer","ember-metal/computed","ember-metal/watching","ember-metal/tests/props_helper","ember-runtime/system/object_proxy"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
+    "use strict";
+    var addObserver = __dependency1__.addObserver;
+    var removeObserver = __dependency1__.removeObserver;
+    var computed = __dependency2__.computed;
+    var isWatching = __dependency3__.isWatching;
+    var testBoth = __dependency4__.testBoth;
+    var ObjectProxy = __dependency5__["default"];
+
+    QUnit.module("ObjectProxy");
+
+    testBoth("should not proxy properties passed to create", function (get, set) {
+      var Proxy = ObjectProxy.extend({
+        cp: computed(function (key, value) {
+          if (value) {
+            this._cp = value;
+          }
+          return this._cp;
+        })
+      });
+      var proxy = Proxy.create({
+        prop: 'Foo',
+        cp: 'Bar'
+      });
+
+      equal(get(proxy, 'prop'), 'Foo', 'should not have tried to proxy set');
+      equal(proxy._cp, 'Bar', 'should use CP setter');
+    });
+
+    testBoth("should proxy properties to content", function(get, set) {
+      var content = {
+            firstName: 'Tom',
+            lastName: 'Dale',
+            unknownProperty: function (key) { return key + ' unknown';}
+          };
+      var proxy = ObjectProxy.create();
+
+      equal(get(proxy, 'firstName'), undefined, 'get on proxy without content should return undefined');
+      expectAssertion(function () {
+        set(proxy, 'firstName', 'Foo');
+      }, /Cannot delegate set\('firstName', Foo\) to the 'content'/i);
+
+      set(proxy, 'content', content);
+
+      equal(get(proxy, 'firstName'), 'Tom', 'get on proxy with content should forward to content');
+      equal(get(proxy, 'lastName'), 'Dale', 'get on proxy with content should forward to content');
+      equal(get(proxy, 'foo'), 'foo unknown', 'get on proxy with content should forward to content');
+
+      set(proxy, 'lastName', 'Huda');
+
+      equal(get(content, 'lastName'), 'Huda', 'content should have new value from set on proxy');
+      equal(get(proxy, 'lastName'), 'Huda', 'proxy should have new value from set on proxy');
+
+      set(proxy, 'content', {firstName: 'Yehuda', lastName: 'Katz'});
+
+      equal(get(proxy, 'firstName'), 'Yehuda', 'proxy should reflect updated content');
+      equal(get(proxy, 'lastName'), 'Katz', 'proxy should reflect updated content');
+    });
+
+    testBoth("should work with watched properties", function(get, set) {
+      var content1 = {firstName: 'Tom', lastName: 'Dale'};
+      var content2 = {firstName: 'Yehuda', lastName: 'Katz'};
+      var count = 0;
+      var Proxy, proxy, last;
+
+      Proxy = ObjectProxy.extend({
+        fullName: computed(function () {
+          var firstName = this.get('firstName');
+          var lastName = this.get('lastName');
+
+          if (firstName && lastName) {
+            return firstName + ' ' + lastName;
+          }
+          return firstName || lastName;
+        }).property('firstName', 'lastName')
+      });
+
+      proxy = Proxy.create();
+
+      addObserver(proxy, 'fullName', function () {
+        last = get(proxy, 'fullName');
+        count++;
+      });
+
+      // proxy without content returns undefined
+      equal(get(proxy, 'fullName'), undefined);
+
+      // setting content causes all watched properties to change
+      set(proxy, 'content', content1);
+      // both dependent keys changed
+      equal(count, 2);
+      equal(last, 'Tom Dale');
+
+      // setting property in content causes proxy property to change
+      set(content1, 'lastName', 'Huda');
+      equal(count, 3);
+      equal(last, 'Tom Huda');
+
+      // replacing content causes all watched properties to change
+      set(proxy, 'content', content2);
+      // both dependent keys changed
+      equal(count, 5);
+      equal(last, 'Yehuda Katz');
+      // content1 is no longer watched
+      ok(!isWatching(content1, 'firstName'), 'not watching firstName');
+      ok(!isWatching(content1, 'lastName'), 'not watching lastName');
+
+      // setting property in new content
+      set(content2, 'firstName', 'Tomhuda');
+      equal(last, 'Tomhuda Katz');
+      equal(count, 6);
+
+      // setting property in proxy syncs with new content
+      set(proxy, 'lastName', 'Katzdale');
+      equal(count, 7);
+      equal(last, 'Tomhuda Katzdale');
+      equal(get(content2, 'firstName'), 'Tomhuda');
+      equal(get(content2, 'lastName'), 'Katzdale');
+    });
+
+    test("set and get should work with paths", function () {
+      var content = {foo: {bar: 'baz'}};
+      var proxy = ObjectProxy.create({content: content});
+      var count = 0;
+
+      proxy.set('foo.bar', 'hello');
+      equal(proxy.get('foo.bar'), 'hello');
+      equal(proxy.get('content.foo.bar'), 'hello');
+
+      proxy.addObserver('foo.bar', function () {
+        count++;
+      });
+
+      proxy.set('foo.bar', 'bye');
+
+      equal(count, 1);
+      equal(proxy.get('foo.bar'), 'bye');
+      equal(proxy.get('content.foo.bar'), 'bye');
+    });
+
+    testBoth("should transition between watched and unwatched strategies", function(get, set) {
+      var content = {foo: 'foo'};
+      var proxy = ObjectProxy.create({content: content});
+      var count = 0;
+
+      function observer() {
+        count++;
+      }
+
+      equal(get(proxy, 'foo'), 'foo');
+
+      set(content, 'foo', 'bar');
+
+      equal(get(proxy, 'foo'), 'bar');
+
+      set(proxy, 'foo', 'foo');
+
+      equal(get(content, 'foo'), 'foo');
+      equal(get(proxy, 'foo'), 'foo');
+
+      addObserver(proxy, 'foo', observer);
+
+      equal(count, 0);
+      equal(get(proxy, 'foo'), 'foo');
+
+      set(content, 'foo', 'bar');
+
+      equal(count, 1);
+      equal(get(proxy, 'foo'), 'bar');
+
+      set(proxy, 'foo', 'foo');
+
+      equal(count, 2);
+      equal(get(content, 'foo'), 'foo');
+      equal(get(proxy, 'foo'), 'foo');
+
+      removeObserver(proxy, 'foo', observer);
+
+      set(content, 'foo', 'bar');
+
+      equal(get(proxy, 'foo'), 'bar');
+
+      set(proxy, 'foo', 'foo');
+
+      equal(get(content, 'foo'), 'foo');
+      equal(get(proxy, 'foo'), 'foo');
+    });
+
+    testBoth('setting `undefined` to a proxied content property should override its existing value', function(get, set) {
+      var proxyObject = ObjectProxy.create({
+        content: {
+          prop: 'emberjs'
+        }
+      });
+      set(proxyObject, 'prop', undefined);
+      equal(get(proxyObject, 'prop'), undefined, 'sets the `undefined` value to the proxied content');
+    });
+  });
+enifed("ember-runtime/tests/system/object_proxy_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-runtime/tests/system');
+    test('ember-runtime/tests/system/object_proxy_test.js should pass jshint', function() { 
+      ok(true, 'ember-runtime/tests/system/object_proxy_test.js should pass jshint.'); 
+    });
+  });
 enifed("ember-runtime/tests/system/object/computed_test",
   ["ember-metal/computed","ember-metal/property_get","ember-metal/mixin","ember-metal/tests/props_helper","ember-runtime/system/object"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
@@ -43949,6 +44149,51 @@ enifed("ember-runtime/tests/system/object/destroy_test.jshint",
       ok(true, 'ember-runtime/tests/system/object/destroy_test.js should pass jshint.'); 
     });
   });
+enifed("ember-runtime/tests/system/object/detect_test",
+  ["ember-runtime/system/object"],
+  function(__dependency1__) {
+    "use strict";
+    var EmberObject = __dependency1__["default"];
+
+    QUnit.module('system/object/detect');
+
+    test('detect detects classes correctly', function() {
+
+      var A = EmberObject.extend();
+      var B = A.extend();
+      var C = A.extend();
+
+      ok( EmberObject.detect(EmberObject), 'EmberObject is an EmberObject class' );
+      ok( EmberObject.detect(A), 'A is an EmberObject class' );
+      ok( EmberObject.detect(B), 'B is an EmberObject class' );
+      ok( EmberObject.detect(C), 'C is an EmberObject class' );
+
+      ok( !A.detect(EmberObject), 'EmberObject is not an A class' );
+      ok( A.detect(A), 'A is an A class' );
+      ok( A.detect(B), 'B is an A class' );
+      ok( A.detect(C), 'C is an A class' );
+
+      ok( !B.detect(EmberObject), 'EmberObject is not a B class' );
+      ok( !B.detect(A), 'A is not a B class' );
+      ok( B.detect(B), 'B is a B class' );
+      ok( !B.detect(C), 'C is not a B class' );
+
+      ok( !C.detect(EmberObject), 'EmberObject is not a C class' );
+      ok( !C.detect(A), 'A is not a C class' );
+      ok( !C.detect(B), 'B is not a C class' );
+      ok( C.detect(C), 'C is a C class' );
+
+    });
+  });
+enifed("ember-runtime/tests/system/object/detect_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-runtime/tests/system/object');
+    test('ember-runtime/tests/system/object/detect_test.js should pass jshint', function() { 
+      ok(true, 'ember-runtime/tests/system/object/detect_test.js should pass jshint.'); 
+    });
+  });
 enifed("ember-runtime/tests/system/object/detectInstance_test",
   ["ember-runtime/system/object"],
   function(__dependency1__) {
@@ -43997,51 +44242,6 @@ enifed("ember-runtime/tests/system/object/detectInstance_test.jshint",
     module('JSHint - ember-runtime/tests/system/object');
     test('ember-runtime/tests/system/object/detectInstance_test.js should pass jshint', function() { 
       ok(true, 'ember-runtime/tests/system/object/detectInstance_test.js should pass jshint.'); 
-    });
-  });
-enifed("ember-runtime/tests/system/object/detect_test",
-  ["ember-runtime/system/object"],
-  function(__dependency1__) {
-    "use strict";
-    var EmberObject = __dependency1__["default"];
-
-    QUnit.module('system/object/detect');
-
-    test('detect detects classes correctly', function() {
-
-      var A = EmberObject.extend();
-      var B = A.extend();
-      var C = A.extend();
-
-      ok( EmberObject.detect(EmberObject), 'EmberObject is an EmberObject class' );
-      ok( EmberObject.detect(A), 'A is an EmberObject class' );
-      ok( EmberObject.detect(B), 'B is an EmberObject class' );
-      ok( EmberObject.detect(C), 'C is an EmberObject class' );
-
-      ok( !A.detect(EmberObject), 'EmberObject is not an A class' );
-      ok( A.detect(A), 'A is an A class' );
-      ok( A.detect(B), 'B is an A class' );
-      ok( A.detect(C), 'C is an A class' );
-
-      ok( !B.detect(EmberObject), 'EmberObject is not a B class' );
-      ok( !B.detect(A), 'A is not a B class' );
-      ok( B.detect(B), 'B is a B class' );
-      ok( !B.detect(C), 'C is not a B class' );
-
-      ok( !C.detect(EmberObject), 'EmberObject is not a C class' );
-      ok( !C.detect(A), 'A is not a C class' );
-      ok( !C.detect(B), 'B is not a C class' );
-      ok( C.detect(C), 'C is a C class' );
-
-    });
-  });
-enifed("ember-runtime/tests/system/object/detect_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-runtime/tests/system/object');
-    test('ember-runtime/tests/system/object/detect_test.js should pass jshint', function() { 
-      ok(true, 'ember-runtime/tests/system/object/detect_test.js should pass jshint.'); 
     });
   });
 enifed("ember-runtime/tests/system/object/events_test",
@@ -44544,50 +44744,6 @@ enifed("ember-runtime/tests/system/object/observer_test.jshint",
       ok(true, 'ember-runtime/tests/system/object/observer_test.js should pass jshint.'); 
     });
   });
-enifed("ember-runtime/tests/system/object/reopenClass_test",
-  ["ember-metal/property_get","ember-runtime/system/object"],
-  function(__dependency1__, __dependency2__) {
-    "use strict";
-    var get = __dependency1__.get;
-    var EmberObject = __dependency2__["default"];
-
-    QUnit.module('system/object/reopenClass');
-
-    test('adds new properties to subclass', function() {
-
-      var Subclass = EmberObject.extend();
-      Subclass.reopenClass({
-        foo: function() { return 'FOO'; },
-        bar: 'BAR'
-      });
-
-      equal(Subclass.foo(), 'FOO', 'Adds method');
-      equal(get(Subclass, 'bar'), 'BAR', 'Adds property');
-    });
-
-    test('class properties inherited by subclasses', function() {
-
-      var Subclass = EmberObject.extend();
-      Subclass.reopenClass({
-        foo: function() { return 'FOO'; },
-        bar: 'BAR'
-      });
-
-      var SubSub = Subclass.extend();
-
-      equal(SubSub.foo(), 'FOO', 'Adds method');
-      equal(get(SubSub, 'bar'), 'BAR', 'Adds property');
-    });
-  });
-enifed("ember-runtime/tests/system/object/reopenClass_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-runtime/tests/system/object');
-    test('ember-runtime/tests/system/object/reopenClass_test.js should pass jshint', function() { 
-      ok(true, 'ember-runtime/tests/system/object/reopenClass_test.js should pass jshint.'); 
-    });
-  });
 enifed("ember-runtime/tests/system/object/reopen_test",
   ["ember-metal/property_get","ember-runtime/system/object"],
   function(__dependency1__, __dependency2__) {
@@ -44643,6 +44799,50 @@ enifed("ember-runtime/tests/system/object/reopen_test.jshint",
     module('JSHint - ember-runtime/tests/system/object');
     test('ember-runtime/tests/system/object/reopen_test.js should pass jshint', function() { 
       ok(true, 'ember-runtime/tests/system/object/reopen_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-runtime/tests/system/object/reopenClass_test",
+  ["ember-metal/property_get","ember-runtime/system/object"],
+  function(__dependency1__, __dependency2__) {
+    "use strict";
+    var get = __dependency1__.get;
+    var EmberObject = __dependency2__["default"];
+
+    QUnit.module('system/object/reopenClass');
+
+    test('adds new properties to subclass', function() {
+
+      var Subclass = EmberObject.extend();
+      Subclass.reopenClass({
+        foo: function() { return 'FOO'; },
+        bar: 'BAR'
+      });
+
+      equal(Subclass.foo(), 'FOO', 'Adds method');
+      equal(get(Subclass, 'bar'), 'BAR', 'Adds property');
+    });
+
+    test('class properties inherited by subclasses', function() {
+
+      var Subclass = EmberObject.extend();
+      Subclass.reopenClass({
+        foo: function() { return 'FOO'; },
+        bar: 'BAR'
+      });
+
+      var SubSub = Subclass.extend();
+
+      equal(SubSub.foo(), 'FOO', 'Adds method');
+      equal(get(SubSub, 'bar'), 'BAR', 'Adds property');
+    });
+  });
+enifed("ember-runtime/tests/system/object/reopenClass_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-runtime/tests/system/object');
+    test('ember-runtime/tests/system/object/reopenClass_test.js should pass jshint', function() { 
+      ok(true, 'ember-runtime/tests/system/object/reopenClass_test.js should pass jshint.'); 
     });
   });
 enifed("ember-runtime/tests/system/object/strict-mode-test",
@@ -44846,215 +45046,6 @@ enifed("ember-runtime/tests/system/object/toString_test.jshint",
     module('JSHint - ember-runtime/tests/system/object');
     test('ember-runtime/tests/system/object/toString_test.js should pass jshint', function() { 
       ok(true, 'ember-runtime/tests/system/object/toString_test.js should pass jshint.'); 
-    });
-  });
-enifed("ember-runtime/tests/system/object_proxy_test",
-  ["ember-metal/observer","ember-metal/computed","ember-metal/watching","ember-metal/tests/props_helper","ember-runtime/system/object_proxy"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
-    "use strict";
-    var addObserver = __dependency1__.addObserver;
-    var removeObserver = __dependency1__.removeObserver;
-    var computed = __dependency2__.computed;
-    var isWatching = __dependency3__.isWatching;
-    var testBoth = __dependency4__.testBoth;
-    var ObjectProxy = __dependency5__["default"];
-
-    QUnit.module("ObjectProxy");
-
-    testBoth("should not proxy properties passed to create", function (get, set) {
-      var Proxy = ObjectProxy.extend({
-        cp: computed(function (key, value) {
-          if (value) {
-            this._cp = value;
-          }
-          return this._cp;
-        })
-      });
-      var proxy = Proxy.create({
-        prop: 'Foo',
-        cp: 'Bar'
-      });
-
-      equal(get(proxy, 'prop'), 'Foo', 'should not have tried to proxy set');
-      equal(proxy._cp, 'Bar', 'should use CP setter');
-    });
-
-    testBoth("should proxy properties to content", function(get, set) {
-      var content = {
-            firstName: 'Tom',
-            lastName: 'Dale',
-            unknownProperty: function (key) { return key + ' unknown';}
-          };
-      var proxy = ObjectProxy.create();
-
-      equal(get(proxy, 'firstName'), undefined, 'get on proxy without content should return undefined');
-      expectAssertion(function () {
-        set(proxy, 'firstName', 'Foo');
-      }, /Cannot delegate set\('firstName', Foo\) to the 'content'/i);
-
-      set(proxy, 'content', content);
-
-      equal(get(proxy, 'firstName'), 'Tom', 'get on proxy with content should forward to content');
-      equal(get(proxy, 'lastName'), 'Dale', 'get on proxy with content should forward to content');
-      equal(get(proxy, 'foo'), 'foo unknown', 'get on proxy with content should forward to content');
-
-      set(proxy, 'lastName', 'Huda');
-
-      equal(get(content, 'lastName'), 'Huda', 'content should have new value from set on proxy');
-      equal(get(proxy, 'lastName'), 'Huda', 'proxy should have new value from set on proxy');
-
-      set(proxy, 'content', {firstName: 'Yehuda', lastName: 'Katz'});
-
-      equal(get(proxy, 'firstName'), 'Yehuda', 'proxy should reflect updated content');
-      equal(get(proxy, 'lastName'), 'Katz', 'proxy should reflect updated content');
-    });
-
-    testBoth("should work with watched properties", function(get, set) {
-      var content1 = {firstName: 'Tom', lastName: 'Dale'};
-      var content2 = {firstName: 'Yehuda', lastName: 'Katz'};
-      var count = 0;
-      var Proxy, proxy, last;
-
-      Proxy = ObjectProxy.extend({
-        fullName: computed(function () {
-          var firstName = this.get('firstName');
-          var lastName = this.get('lastName');
-
-          if (firstName && lastName) {
-            return firstName + ' ' + lastName;
-          }
-          return firstName || lastName;
-        }).property('firstName', 'lastName')
-      });
-
-      proxy = Proxy.create();
-
-      addObserver(proxy, 'fullName', function () {
-        last = get(proxy, 'fullName');
-        count++;
-      });
-
-      // proxy without content returns undefined
-      equal(get(proxy, 'fullName'), undefined);
-
-      // setting content causes all watched properties to change
-      set(proxy, 'content', content1);
-      // both dependent keys changed
-      equal(count, 2);
-      equal(last, 'Tom Dale');
-
-      // setting property in content causes proxy property to change
-      set(content1, 'lastName', 'Huda');
-      equal(count, 3);
-      equal(last, 'Tom Huda');
-
-      // replacing content causes all watched properties to change
-      set(proxy, 'content', content2);
-      // both dependent keys changed
-      equal(count, 5);
-      equal(last, 'Yehuda Katz');
-      // content1 is no longer watched
-      ok(!isWatching(content1, 'firstName'), 'not watching firstName');
-      ok(!isWatching(content1, 'lastName'), 'not watching lastName');
-
-      // setting property in new content
-      set(content2, 'firstName', 'Tomhuda');
-      equal(last, 'Tomhuda Katz');
-      equal(count, 6);
-
-      // setting property in proxy syncs with new content
-      set(proxy, 'lastName', 'Katzdale');
-      equal(count, 7);
-      equal(last, 'Tomhuda Katzdale');
-      equal(get(content2, 'firstName'), 'Tomhuda');
-      equal(get(content2, 'lastName'), 'Katzdale');
-    });
-
-    test("set and get should work with paths", function () {
-      var content = {foo: {bar: 'baz'}};
-      var proxy = ObjectProxy.create({content: content});
-      var count = 0;
-
-      proxy.set('foo.bar', 'hello');
-      equal(proxy.get('foo.bar'), 'hello');
-      equal(proxy.get('content.foo.bar'), 'hello');
-
-      proxy.addObserver('foo.bar', function () {
-        count++;
-      });
-
-      proxy.set('foo.bar', 'bye');
-
-      equal(count, 1);
-      equal(proxy.get('foo.bar'), 'bye');
-      equal(proxy.get('content.foo.bar'), 'bye');
-    });
-
-    testBoth("should transition between watched and unwatched strategies", function(get, set) {
-      var content = {foo: 'foo'};
-      var proxy = ObjectProxy.create({content: content});
-      var count = 0;
-
-      function observer() {
-        count++;
-      }
-
-      equal(get(proxy, 'foo'), 'foo');
-
-      set(content, 'foo', 'bar');
-
-      equal(get(proxy, 'foo'), 'bar');
-
-      set(proxy, 'foo', 'foo');
-
-      equal(get(content, 'foo'), 'foo');
-      equal(get(proxy, 'foo'), 'foo');
-
-      addObserver(proxy, 'foo', observer);
-
-      equal(count, 0);
-      equal(get(proxy, 'foo'), 'foo');
-
-      set(content, 'foo', 'bar');
-
-      equal(count, 1);
-      equal(get(proxy, 'foo'), 'bar');
-
-      set(proxy, 'foo', 'foo');
-
-      equal(count, 2);
-      equal(get(content, 'foo'), 'foo');
-      equal(get(proxy, 'foo'), 'foo');
-
-      removeObserver(proxy, 'foo', observer);
-
-      set(content, 'foo', 'bar');
-
-      equal(get(proxy, 'foo'), 'bar');
-
-      set(proxy, 'foo', 'foo');
-
-      equal(get(content, 'foo'), 'foo');
-      equal(get(proxy, 'foo'), 'foo');
-    });
-
-    testBoth('setting `undefined` to a proxied content property should override its existing value', function(get, set) {
-      var proxyObject = ObjectProxy.create({
-        content: {
-          prop: 'emberjs'
-        }
-      });
-      set(proxyObject, 'prop', undefined);
-      equal(get(proxyObject, 'prop'), undefined, 'sets the `undefined` value to the proxied content');
-    });
-  });
-enifed("ember-runtime/tests/system/object_proxy_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-runtime/tests/system');
-    test('ember-runtime/tests/system/object_proxy_test.js should pass jshint', function() { 
-      ok(true, 'ember-runtime/tests/system/object_proxy_test.js should pass jshint.'); 
     });
   });
 enifed("ember-runtime/tests/system/set/copyable_suite_test",
@@ -46241,6 +46232,24 @@ enifed("ember-template-compiler.jshint",
       ok(true, 'ember-template-compiler.js should pass jshint.'); 
     });
   });
+enifed("ember-template-compiler/compat.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-template-compiler');
+    test('ember-template-compiler/compat.js should pass jshint', function() { 
+      ok(true, 'ember-template-compiler/compat.js should pass jshint.'); 
+    });
+  });
+enifed("ember-template-compiler/compat/precompile.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-template-compiler/compat');
+    test('ember-template-compiler/compat/precompile.js should pass jshint', function() { 
+      ok(true, 'ember-template-compiler/compat/precompile.js should pass jshint.'); 
+    });
+  });
 enifed("ember-template-compiler/plugins.jshint",
   [],
   function() {
@@ -46268,15 +46277,6 @@ enifed("ember-template-compiler/plugins/transform-with-as-to-hash.jshint",
       ok(true, 'ember-template-compiler/plugins/transform-with-as-to-hash.js should pass jshint.'); 
     });
   });
-enifed("ember-template-compiler/system/compile.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-template-compiler/system');
-    test('ember-template-compiler/system/compile.js should pass jshint', function() { 
-      ok(true, 'ember-template-compiler/system/compile.js should pass jshint.'); 
-    });
-  });
 enifed("ember-template-compiler/system/compile_options.jshint",
   [],
   function() {
@@ -46284,6 +46284,15 @@ enifed("ember-template-compiler/system/compile_options.jshint",
     module('JSHint - ember-template-compiler/system');
     test('ember-template-compiler/system/compile_options.js should pass jshint', function() { 
       ok(true, 'ember-template-compiler/system/compile_options.js should pass jshint.'); 
+    });
+  });
+enifed("ember-template-compiler/system/compile.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-template-compiler/system');
+    test('ember-template-compiler/system/compile.js should pass jshint', function() { 
+      ok(true, 'ember-template-compiler/system/compile.js should pass jshint.'); 
     });
   });
 enifed("ember-template-compiler/system/precompile.jshint",
@@ -46317,56 +46326,6 @@ enifed("ember-template-compiler/tests/main_test.jshint",
     module('JSHint - ember-template-compiler/tests');
     test('ember-template-compiler/tests/main_test.js should pass jshint', function() { 
       ok(true, 'ember-template-compiler/tests/main_test.js should pass jshint.'); 
-    });
-  });
-enifed("ember-template-compiler/tests/plugins/transform-each-in-to-hash-test",
-  ["ember-template-compiler"],
-  function(__dependency1__) {
-    "use strict";
-    var compile = __dependency1__.compile;
-
-    QUnit.module('ember-template-compiler: transform-each-in-to-hash');
-
-    test('cannot use block params and keyword syntax together', function() {
-      expect(1);
-
-      throws(function() {
-        compile('{{#each thing in controller as |other-thing|}}{{thing}}-{{other-thing}}{{/each}}', true);
-      },/You cannot use keyword \(`{{each foo in bar}}`\) and block params \(`{{each bar as \|foo\|}}`\) at the same time\./);
-    });
-  });
-enifed("ember-template-compiler/tests/plugins/transform-each-in-to-hash-test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-template-compiler/tests/plugins');
-    test('ember-template-compiler/tests/plugins/transform-each-in-to-hash-test.js should pass jshint', function() { 
-      ok(true, 'ember-template-compiler/tests/plugins/transform-each-in-to-hash-test.js should pass jshint.'); 
-    });
-  });
-enifed("ember-template-compiler/tests/plugins/transform-with-as-to-hash-test",
-  ["ember-template-compiler"],
-  function(__dependency1__) {
-    "use strict";
-    var compile = __dependency1__.compile;
-
-    QUnit.module('ember-template-compiler: transform-with-as-to-hash');
-
-    test('cannot use block params and keyword syntax together', function() {
-      expect(1);
-
-      throws(function() {
-        compile('{{#with foo as thing as |other-thing|}}{{thing}}-{{other-thing}}{{/with}}');
-      }, /You cannot use keyword/);
-    });
-  });
-enifed("ember-template-compiler/tests/plugins/transform-with-as-to-hash-test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-template-compiler/tests/plugins');
-    test('ember-template-compiler/tests/plugins/transform-with-as-to-hash-test.js should pass jshint', function() { 
-      ok(true, 'ember-template-compiler/tests/plugins/transform-with-as-to-hash-test.js should pass jshint.'); 
     });
   });
 enifed("ember-template-compiler/tests/plugins_test",
@@ -46420,6 +46379,56 @@ enifed("ember-template-compiler/tests/plugins_test.jshint",
     module('JSHint - ember-template-compiler/tests');
     test('ember-template-compiler/tests/plugins_test.js should pass jshint', function() { 
       ok(true, 'ember-template-compiler/tests/plugins_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-template-compiler/tests/plugins/transform-each-in-to-hash-test",
+  ["ember-template-compiler"],
+  function(__dependency1__) {
+    "use strict";
+    var compile = __dependency1__.compile;
+
+    QUnit.module('ember-template-compiler: transform-each-in-to-hash');
+
+    test('cannot use block params and keyword syntax together', function() {
+      expect(1);
+
+      throws(function() {
+        compile('{{#each thing in controller as |other-thing|}}{{thing}}-{{other-thing}}{{/each}}', true);
+      },/You cannot use keyword \(`{{each foo in bar}}`\) and block params \(`{{each bar as \|foo\|}}`\) at the same time\./);
+    });
+  });
+enifed("ember-template-compiler/tests/plugins/transform-each-in-to-hash-test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-template-compiler/tests/plugins');
+    test('ember-template-compiler/tests/plugins/transform-each-in-to-hash-test.js should pass jshint', function() { 
+      ok(true, 'ember-template-compiler/tests/plugins/transform-each-in-to-hash-test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-template-compiler/tests/plugins/transform-with-as-to-hash-test",
+  ["ember-template-compiler"],
+  function(__dependency1__) {
+    "use strict";
+    var compile = __dependency1__.compile;
+
+    QUnit.module('ember-template-compiler: transform-with-as-to-hash');
+
+    test('cannot use block params and keyword syntax together', function() {
+      expect(1);
+
+      throws(function() {
+        compile('{{#with foo as thing as |other-thing|}}{{thing}}-{{other-thing}}{{/with}}');
+      }, /You cannot use keyword/);
+    });
+  });
+enifed("ember-template-compiler/tests/plugins/transform-with-as-to-hash-test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-template-compiler/tests/plugins');
+    test('ember-template-compiler/tests/plugins/transform-with-as-to-hash-test.js should pass jshint', function() { 
+      ok(true, 'ember-template-compiler/tests/plugins/transform-with-as-to-hash-test.js should pass jshint.'); 
     });
   });
 enifed("ember-template-compiler/tests/system/compile_test",
@@ -46882,6 +46891,72 @@ enifed("ember-testing/tests/acceptance_test.jshint",
       ok(true, 'ember-testing/tests/acceptance_test.js should pass jshint.'); 
     });
   });
+enifed("ember-testing/tests/adapters_test",
+  ["ember-metal/run_loop","ember-testing/test","ember-testing/adapters/adapter","ember-testing/adapters/qunit","ember-application/system/application"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
+    "use strict";
+    var run = __dependency1__["default"];
+    var Test = __dependency2__["default"];
+    var Adapter = __dependency3__["default"];
+    var QUnitAdapter = __dependency4__["default"];
+    var EmberApplication = __dependency5__["default"];
+
+    var App, originalAdapter;
+
+    QUnit.module("ember-testing Adapters", {
+      setup: function() {
+        originalAdapter = Test.adapter;
+      },
+      teardown: function() {
+        run(App, App.destroy);
+        App.removeTestHelpers();
+        App = null;
+
+        Test.adapter = originalAdapter;
+      }
+    });
+
+    test("Setting a test adapter manually", function() {
+      expect(1);
+      var CustomAdapter;
+
+      CustomAdapter = Adapter.extend({
+        asyncStart: function() {
+          ok(true, "Correct adapter was used");
+        }
+      });
+
+      run(function() {
+        App = EmberApplication.create();
+        Test.adapter = CustomAdapter.create();
+        App.setupForTesting();
+      });
+
+      Test.adapter.asyncStart();
+    });
+
+    test("QUnitAdapter is used by default", function() {
+      expect(1);
+
+      Test.adapter = null;
+
+      run(function() {
+        App = EmberApplication.create();
+        App.setupForTesting();
+      });
+
+      ok(Test.adapter instanceof QUnitAdapter);
+    });
+  });
+enifed("ember-testing/tests/adapters_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-testing/tests');
+    test('ember-testing/tests/adapters_test.js should pass jshint', function() { 
+      ok(true, 'ember-testing/tests/adapters_test.js should pass jshint.'); 
+    });
+  });
 enifed("ember-testing/tests/adapters/adapter_test",
   ["ember-metal/run_loop","ember-testing/adapters/adapter"],
   function(__dependency1__, __dependency2__) {
@@ -46992,72 +47067,6 @@ enifed("ember-testing/tests/adapters/qunit_test.jshint",
     module('JSHint - ember-testing/tests/adapters');
     test('ember-testing/tests/adapters/qunit_test.js should pass jshint', function() { 
       ok(true, 'ember-testing/tests/adapters/qunit_test.js should pass jshint.'); 
-    });
-  });
-enifed("ember-testing/tests/adapters_test",
-  ["ember-metal/run_loop","ember-testing/test","ember-testing/adapters/adapter","ember-testing/adapters/qunit","ember-application/system/application"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
-    "use strict";
-    var run = __dependency1__["default"];
-    var Test = __dependency2__["default"];
-    var Adapter = __dependency3__["default"];
-    var QUnitAdapter = __dependency4__["default"];
-    var EmberApplication = __dependency5__["default"];
-
-    var App, originalAdapter;
-
-    QUnit.module("ember-testing Adapters", {
-      setup: function() {
-        originalAdapter = Test.adapter;
-      },
-      teardown: function() {
-        run(App, App.destroy);
-        App.removeTestHelpers();
-        App = null;
-
-        Test.adapter = originalAdapter;
-      }
-    });
-
-    test("Setting a test adapter manually", function() {
-      expect(1);
-      var CustomAdapter;
-
-      CustomAdapter = Adapter.extend({
-        asyncStart: function() {
-          ok(true, "Correct adapter was used");
-        }
-      });
-
-      run(function() {
-        App = EmberApplication.create();
-        Test.adapter = CustomAdapter.create();
-        App.setupForTesting();
-      });
-
-      Test.adapter.asyncStart();
-    });
-
-    test("QUnitAdapter is used by default", function() {
-      expect(1);
-
-      Test.adapter = null;
-
-      run(function() {
-        App = EmberApplication.create();
-        App.setupForTesting();
-      });
-
-      ok(Test.adapter instanceof QUnitAdapter);
-    });
-  });
-enifed("ember-testing/tests/adapters_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember-testing/tests');
-    test('ember-testing/tests/adapters_test.js should pass jshint', function() { 
-      ok(true, 'ember-testing/tests/adapters_test.js should pass jshint.'); 
     });
   });
 enifed("ember-testing/tests/helper_registration_test",
@@ -65687,5 +65696,81 @@ enifed("ember/tests/routing/substates_test.jshint",
     test('ember/tests/routing/substates_test.js should pass jshint', function() { 
       ok(true, 'ember/tests/routing/substates_test.js should pass jshint.'); 
     });
+  });
+enifed("htmlbars-test-helpers",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    function equalInnerHTML(fragment, html) {
+      var actualHTML = normalizeInnerHTML(fragment.innerHTML);
+      QUnit.push(actualHTML === html, actualHTML, html);
+    }
+
+    __exports__.equalInnerHTML = equalInnerHTML;function equalHTML(node, html) {
+      var fragment;
+      if (!node.nodeType && node.length) {
+        fragment = document.createDocumentFragment();
+        while (node[0]) {
+          fragment.appendChild(node[0]);
+        }
+      } else {
+        fragment = node;
+      }
+
+      var div = document.createElement("div");
+      div.appendChild(fragment.cloneNode(true));
+
+      equalInnerHTML(div, html);
+    }
+
+    __exports__.equalHTML = equalHTML;// detect weird IE8 html strings
+    var ie8InnerHTMLTestElement = document.createElement('div');
+    ie8InnerHTMLTestElement.setAttribute('id', 'womp');
+    var ie8InnerHTML = (ie8InnerHTMLTestElement.outerHTML.indexOf('id=womp') > -1);
+
+    // detect side-effects of cloning svg elements in IE9-11
+    var ieSVGInnerHTML = (function () {
+      var div = document.createElement('div');
+      var node = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      div.appendChild(node);
+      var clone = div.cloneNode(true);
+      return clone.innerHTML === '<svg xmlns="http://www.w3.org/2000/svg" />';
+    })();
+
+    function normalizeInnerHTML(actualHTML) {
+      if (ie8InnerHTML) {
+        // drop newlines in IE8
+        actualHTML = actualHTML.replace(/\r\n/gm, '');
+        // downcase ALLCAPS tags in IE8
+        actualHTML = actualHTML.replace(/<\/?[A-Z]+/gi, function(tag){
+          return tag.toLowerCase();
+        });
+        // quote ids in IE8
+        actualHTML = actualHTML.replace(/id=([^ >]+)/gi, function(match, id){
+          return 'id="'+id+'"';
+        });
+      }
+      if (ieSVGInnerHTML) {
+        // Replace `<svg xmlns="http://www.w3.org/2000/svg" height="50%" />` with `<svg height="50%"></svg>`, etc.
+        // drop namespace attribute
+        actualHTML = actualHTML.replace(/ xmlns="[^"]+"/, '');
+        // replace self-closing elements
+        actualHTML = actualHTML.replace(/<([A-Z]+) [^\/>]*\/>/gi, function(tag, tagName) {
+          return tag.slice(0, tag.length - 3) + '></' + tagName + '>';
+        });
+      }
+
+      return actualHTML;
+    }
+
+    __exports__.normalizeInnerHTML = normalizeInnerHTML;// detect weird IE8 checked element string
+    var checkedInput = document.createElement('input');
+    checkedInput.setAttribute('checked', 'checked');
+    var checkedInputString = checkedInput.outerHTML;
+    function isCheckedInputHTML(element) {
+      equal(element.outerHTML, checkedInputString);
+    }
+
+    __exports__.isCheckedInputHTML = isCheckedInputHTML;
   });
 })();
