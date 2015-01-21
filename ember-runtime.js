@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.20042e1a
+ * @version   1.11.0-beta.1+canary.8ca36b56
  */
 
 (function() {
@@ -3686,6 +3686,638 @@ enifed("ember-metal/chains",
     __exports__.finishChains = finishChains;__exports__.removeChainWatcher = removeChainWatcher;
     __exports__.ChainNode = ChainNode;
   });
+enifed("ember-metal/computed",
+  ["ember-metal/property_set","ember-metal/utils","ember-metal/expand_properties","ember-metal/error","ember-metal/properties","ember-metal/property_events","ember-metal/dependent_keys","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
+    "use strict";
+    var set = __dependency1__.set;
+    var meta = __dependency2__.meta;
+    var inspect = __dependency2__.inspect;
+    var expandProperties = __dependency3__["default"];
+    var EmberError = __dependency4__["default"];
+    var Descriptor = __dependency5__.Descriptor;
+    var defineProperty = __dependency5__.defineProperty;
+    var propertyWillChange = __dependency6__.propertyWillChange;
+    var propertyDidChange = __dependency6__.propertyDidChange;
+    var addDependentKeys = __dependency7__.addDependentKeys;
+    var removeDependentKeys = __dependency7__.removeDependentKeys;
+
+    /**
+    @module ember-metal
+    */
+
+    var metaFor = meta;
+    var a_slice = [].slice;
+
+    function UNDEFINED() { }
+
+    // ..........................................................
+    // COMPUTED PROPERTY
+    //
+
+    /**
+      A computed property transforms an object's function into a property.
+
+      By default the function backing the computed property will only be called
+      once and the result will be cached. You can specify various properties
+      that your computed property depends on. This will force the cached
+      result to be recomputed if the dependencies are modified.
+
+      In the following example we declare a computed property (by calling
+      `.property()` on the fullName function) and setup the property
+      dependencies (depending on firstName and lastName). The fullName function
+      will be called once (regardless of how many times it is accessed) as long
+      as its dependencies have not changed. Once firstName or lastName are updated
+      any future calls (or anything bound) to fullName will incorporate the new
+      values.
+
+      ```javascript
+      var Person = Ember.Object.extend({
+        // these will be supplied by `create`
+        firstName: null,
+        lastName: null,
+
+        fullName: function() {
+          var firstName = this.get('firstName');
+          var lastName = this.get('lastName');
+
+         return firstName + ' ' + lastName;
+        }.property('firstName', 'lastName')
+      });
+
+      var tom = Person.create({
+        firstName: 'Tom',
+        lastName: 'Dale'
+      });
+
+      tom.get('fullName') // 'Tom Dale'
+      ```
+
+      You can also define what Ember should do when setting a computed property.
+      If you try to set a computed property, it will be invoked with the key and
+      value you want to set it to. You can also accept the previous value as the
+      third parameter.
+
+      ```javascript
+      var Person = Ember.Object.extend({
+        // these will be supplied by `create`
+        firstName: null,
+        lastName: null,
+
+        fullName: function(key, value, oldValue) {
+          // getter
+          if (arguments.length === 1) {
+            var firstName = this.get('firstName');
+            var lastName = this.get('lastName');
+
+            return firstName + ' ' + lastName;
+
+          // setter
+          } else {
+            var name = value.split(' ');
+
+            this.set('firstName', name[0]);
+            this.set('lastName', name[1]);
+
+            return value;
+          }
+        }.property('firstName', 'lastName')
+      });
+
+      var person = Person.create();
+
+      person.set('fullName', 'Peter Wagenet');
+      person.get('firstName'); // 'Peter'
+      person.get('lastName');  // 'Wagenet'
+      ```
+
+      @class ComputedProperty
+      @namespace Ember
+      @extends Ember.Descriptor
+      @constructor
+    */
+    function ComputedProperty(config, opts) {
+      if (Ember.FEATURES.isEnabled("new-computed-syntax")) {
+        if (typeof config === "function") {
+          config.__ember_arity = config.length;
+          this._getter = config;
+          if (config.__ember_arity > 1) {
+            this._setter = config;
+          }
+        } else {
+          this._getter = config.get;
+          this._setter = config.set;
+          if (this._setter && this._setter.__ember_arity === undefined) {
+            this._setter.__ember_arity = this._setter.length;
+          }
+        }
+      } else {
+        config.__ember_arity = config.length;
+        this._getter = config;
+        if (config.__ember_arity > 1) {
+          this._setter = config;
+        }
+      }
+
+      this._dependentKeys = undefined;
+      this._suspended = undefined;
+      this._meta = undefined;
+
+      Ember.deprecate("Passing opts.cacheable to the CP constructor is deprecated. Invoke `volatile()` on the CP instead.", !opts || !opts.hasOwnProperty('cacheable'));
+      this._cacheable = (opts && opts.cacheable !== undefined) ? opts.cacheable : true;   // TODO: Set always to `true` once this deprecation is gone.
+      this._dependentKeys = opts && opts.dependentKeys;
+      Ember.deprecate("Passing opts.readOnly to the CP constructor is deprecated. All CPs are writable by default. Yo can invoke `readOnly()` on the CP to change this.", !opts || !opts.hasOwnProperty('readOnly'));
+      this._readOnly = opts && (opts.readOnly !== undefined || !!opts.readOnly) || false; // TODO: Set always to `false` once this deprecation is gone.
+    }
+
+    ComputedProperty.prototype = new Descriptor();
+
+    var ComputedPropertyPrototype = ComputedProperty.prototype;
+
+    /**
+      Properties are cacheable by default. Computed property will automatically
+      cache the return value of your function until one of the dependent keys changes.
+
+      Call `volatile()` to set it into non-cached mode. When in this mode
+      the computed property will not automatically cache the return value.
+
+      However, if a property is properly observable, there is no reason to disable
+      caching.
+
+      @method cacheable
+      @param {Boolean} aFlag optional set to `false` to disable caching
+      @return {Ember.ComputedProperty} this
+      @chainable
+      @deprecated All computed properties are cacheble by default. Use `volatile()` instead to opt-out to caching.
+    */
+    ComputedPropertyPrototype.cacheable = function(aFlag) {
+      Ember.deprecate('ComputedProperty.cacheable() is deprecated. All computed properties are cacheable by default.');
+      this._cacheable = aFlag !== false;
+      return this;
+    };
+
+    /**
+      Call on a computed property to set it into non-cached mode. When in this
+      mode the computed property will not automatically cache the return value.
+
+      ```javascript
+      var outsideService = Ember.Object.extend({
+        value: function() {
+          return OutsideService.getValue();
+        }.property().volatile()
+      }).create();
+      ```
+
+      @method volatile
+      @return {Ember.ComputedProperty} this
+      @chainable
+    */
+    ComputedPropertyPrototype["volatile"] = function() {
+      this._cacheable = false;
+      return this;
+    };
+
+    /**
+      Call on a computed property to set it into read-only mode. When in this
+      mode the computed property will throw an error when set.
+
+      ```javascript
+      var Person = Ember.Object.extend({
+        guid: function() {
+          return 'guid-guid-guid';
+        }.property().readOnly()
+      });
+
+      var person = Person.create();
+
+      person.set('guid', 'new-guid'); // will throw an exception
+      ```
+
+      @method readOnly
+      @return {Ember.ComputedProperty} this
+      @chainable
+    */
+    ComputedPropertyPrototype.readOnly = function(readOnly) {
+      Ember.deprecate('Passing arguments to ComputedProperty.readOnly() is deprecated.', arguments.length === 0);
+      this._readOnly = readOnly === undefined || !!readOnly; // Force to true once this deprecation is gone
+      return this;
+    };
+
+    /**
+      Sets the dependent keys on this computed property. Pass any number of
+      arguments containing key paths that this computed property depends on.
+
+      ```javascript
+      var President = Ember.Object.extend({
+        fullName: computed(function() {
+          return this.get('firstName') + ' ' + this.get('lastName');
+
+          // Tell Ember that this computed property depends on firstName
+          // and lastName
+        }).property('firstName', 'lastName')
+      });
+
+      var president = President.create({
+        firstName: 'Barack',
+        lastName: 'Obama'
+      });
+
+      president.get('fullName'); // 'Barack Obama'
+      ```
+
+      @method property
+      @param {String} path* zero or more property paths
+      @return {Ember.ComputedProperty} this
+      @chainable
+    */
+    ComputedPropertyPrototype.property = function() {
+      var args;
+
+      var addArg = function (property) {
+        args.push(property);
+      };
+
+      args = [];
+      for (var i = 0, l = arguments.length; i < l; i++) {
+        expandProperties(arguments[i], addArg);
+      }
+
+      this._dependentKeys = args;
+      return this;
+    };
+
+    /**
+      In some cases, you may want to annotate computed properties with additional
+      metadata about how they function or what values they operate on. For example,
+      computed property functions may close over variables that are then no longer
+      available for introspection.
+
+      You can pass a hash of these values to a computed property like this:
+
+      ```
+      person: function() {
+        var personId = this.get('personId');
+        return App.Person.create({ id: personId });
+      }.property().meta({ type: App.Person })
+      ```
+
+      The hash that you pass to the `meta()` function will be saved on the
+      computed property descriptor under the `_meta` key. Ember runtime
+      exposes a public API for retrieving these values from classes,
+      via the `metaForProperty()` function.
+
+      @method meta
+      @param {Hash} meta
+      @chainable
+    */
+
+    ComputedPropertyPrototype.meta = function(meta) {
+      if (arguments.length === 0) {
+        return this._meta || {};
+      } else {
+        this._meta = meta;
+        return this;
+      }
+    };
+
+    /* impl descriptor API */
+    ComputedPropertyPrototype.didChange = function(obj, keyName) {
+      // _suspended is set via a CP.set to ensure we don't clear
+      // the cached value set by the setter
+      if (this._cacheable && this._suspended !== obj) {
+        var meta = metaFor(obj);
+        if (meta.cache[keyName] !== undefined) {
+          meta.cache[keyName] = undefined;
+          removeDependentKeys(this, obj, keyName, meta);
+        }
+      }
+    };
+
+    function finishChains(chainNodes) {
+      for (var i=0, l=chainNodes.length; i<l; i++) {
+        chainNodes[i].didChange(null);
+      }
+    }
+
+    /**
+      Access the value of the function backing the computed property.
+      If this property has already been cached, return the cached result.
+      Otherwise, call the function passing the property name as an argument.
+
+      ```javascript
+      var Person = Ember.Object.extend({
+        fullName: function(keyName) {
+          // the keyName parameter is 'fullName' in this case.
+          return this.get('firstName') + ' ' + this.get('lastName');
+        }.property('firstName', 'lastName')
+      });
+
+
+      var tom = Person.create({
+        firstName: 'Tom',
+        lastName: 'Dale'
+      });
+
+      tom.get('fullName') // 'Tom Dale'
+      ```
+
+      @method get
+      @param {String} keyName The key being accessed.
+      @return {Object} The return value of the function backing the CP.
+    */
+    ComputedPropertyPrototype.get = function(obj, keyName) {
+      var ret, cache, meta, chainNodes;
+      if (this._cacheable) {
+        meta = metaFor(obj);
+        cache = meta.cache;
+
+        var result = cache[keyName];
+
+        if (result === UNDEFINED) {
+          return undefined;
+        } else if (result !== undefined) {
+          return result;
+        }
+
+        ret = this._getter.call(obj, keyName);
+        if (ret === undefined) {
+          cache[keyName] = UNDEFINED;
+        } else {
+          cache[keyName] = ret;
+        }
+
+        chainNodes = meta.chainWatchers && meta.chainWatchers[keyName];
+        if (chainNodes) {
+          finishChains(chainNodes);
+        }
+        addDependentKeys(this, obj, keyName, meta);
+      } else {
+        ret = this._getter.call(obj, keyName);
+      }
+      return ret;
+    };
+
+    /**
+      Set the value of a computed property. If the function that backs your
+      computed property does not accept arguments then the default action for
+      setting would be to define the property on the current object, and set
+      the value of the property to the value being set.
+
+      Generally speaking if you intend for your computed property to be set
+      your backing function should accept either two or three arguments.
+
+      ```javascript
+      var Person = Ember.Object.extend({
+        // these will be supplied by `create`
+        firstName: null,
+        lastName: null,
+
+        fullName: function(key, value, oldValue) {
+          // getter
+          if (arguments.length === 1) {
+            var firstName = this.get('firstName');
+            var lastName = this.get('lastName');
+
+            return firstName + ' ' + lastName;
+
+          // setter
+          } else {
+            var name = value.split(' ');
+
+            this.set('firstName', name[0]);
+            this.set('lastName', name[1]);
+
+            return value;
+          }
+        }.property('firstName', 'lastName')
+      });
+
+      var person = Person.create();
+
+      person.set('fullName', 'Peter Wagenet');
+      person.get('firstName'); // 'Peter'
+      person.get('lastName');  // 'Wagenet'
+      ```
+
+      @method set
+      @param {String} keyName The key being accessed.
+      @param {Object} newValue The new value being assigned.
+      @param {String} oldValue The old value being replaced.
+      @return {Object} The return value of the function backing the CP.
+    */
+    ComputedPropertyPrototype.set = function computedPropertySetWithSuspend(obj, keyName, value) {
+      var oldSuspended = this._suspended;
+
+      this._suspended = obj;
+
+      try {
+        this._set(obj, keyName, value);
+      } finally {
+        this._suspended = oldSuspended;
+      }
+    };
+
+    ComputedPropertyPrototype._set = function computedPropertySet(obj, keyName, value) {
+      var cacheable      = this._cacheable;
+      var setter         = this._setter;
+      var meta           = metaFor(obj, cacheable);
+      var cache          = meta.cache;
+      var hadCachedValue = false;
+
+      var cachedValue, ret;
+
+      if (this._readOnly) {
+        throw new EmberError('Cannot set read-only property "' + keyName + '" on object: ' + inspect(obj));
+      }
+
+      if (cacheable && cache[keyName] !== undefined) {
+        if (cache[keyName] !== UNDEFINED) {
+          cachedValue = cache[keyName];
+        }
+
+        hadCachedValue = true;
+      }
+
+      if (!setter) {
+        defineProperty(obj, keyName, null, cachedValue);
+        set(obj, keyName, value);
+        return;
+      } else if (setter.__ember_arity === 2) {
+        // Is there any way of deprecate this in a sensitive way?
+        // Maybe now that getters and setters are the prefered options we can....
+        ret = setter.call(obj, keyName, value);
+      } else {
+        ret = setter.call(obj, keyName, value, cachedValue);
+      }
+
+      if (hadCachedValue && cachedValue === ret) { return; }
+
+      var watched = meta.watching[keyName];
+      if (watched) {
+        propertyWillChange(obj, keyName);
+      }
+
+      if (hadCachedValue) {
+        cache[keyName] = undefined;
+      }
+
+      if (cacheable) {
+        if (!hadCachedValue) {
+          addDependentKeys(this, obj, keyName, meta);
+        }
+        if (ret === undefined) {
+          cache[keyName] = UNDEFINED;
+        } else {
+          cache[keyName] = ret;
+        }
+      }
+
+      if (watched) {
+        propertyDidChange(obj, keyName);
+      }
+
+      return ret;
+    };
+
+    /* called before property is overridden */
+    ComputedPropertyPrototype.teardown = function(obj, keyName) {
+      var meta = metaFor(obj);
+
+      if (keyName in meta.cache) {
+        removeDependentKeys(this, obj, keyName, meta);
+      }
+
+      if (this._cacheable) { delete meta.cache[keyName]; }
+
+      return null; // no value to restore
+    };
+
+
+    /**
+      This helper returns a new property descriptor that wraps the passed
+      computed property function. You can use this helper to define properties
+      with mixins or via `Ember.defineProperty()`.
+
+      The function you pass will be used to both get and set property values.
+      The function should accept two parameters, key and value. If value is not
+      undefined you should set the value first. In either case return the
+      current value of the property.
+
+      A computed property defined in this way might look like this:
+
+      ```js
+      var Person = Ember.Object.extend({
+        firstName: 'Betty',
+        lastName: 'Jones',
+
+        fullName: Ember.computed('firstName', 'lastName', function(key, value) {
+          return this.get('firstName') + ' ' + this.get('lastName');
+        })
+      });
+
+      var client = Person.create();
+
+      client.get('fullName'); // 'Betty Jones'
+
+      client.set('lastName', 'Fuller');
+      client.get('fullName'); // 'Betty Fuller'
+      ```
+
+      _Note: This is the preferred way to define computed properties when writing third-party
+      libraries that depend on or use Ember, since there is no guarantee that the user
+      will have prototype extensions enabled._
+
+      You might use this method if you disabled
+      [Prototype Extensions](http://emberjs.com/guides/configuring-ember/disabling-prototype-extensions/).
+      The alternative syntax might look like this
+      (if prototype extensions are enabled, which is the default behavior):
+
+      ```js
+      fullName: function () {
+        return this.get('firstName') + ' ' + this.get('lastName');
+      }.property('firstName', 'lastName')
+      ```
+
+      @method computed
+      @for Ember
+      @param {String} [dependentKeys*] Optional dependent keys that trigger this computed property.
+      @param {Function} func The computed property function.
+      @return {Ember.ComputedProperty} property descriptor instance
+    */
+    function computed(func) {
+      var args;
+
+      if (arguments.length > 1) {
+        args = a_slice.call(arguments);
+        func = args.pop();
+      }
+
+      var cp = new ComputedProperty(func);
+      // jscs:disable
+      if (Ember.FEATURES.isEnabled("new-computed-syntax")) {
+        // Empty block on purpose
+      } else {
+        // jscs:enable
+        if (typeof func !== "function") {
+          throw new EmberError("Computed Property declared without a property function");
+        }
+      }
+
+      if (args) {
+        cp.property.apply(cp, args);
+      }
+
+      return cp;
+    }
+
+    /**
+      Returns the cached value for a property, if one exists.
+      This can be useful for peeking at the value of a computed
+      property that is generated lazily, without accidentally causing
+      it to be created.
+
+      @method cacheFor
+      @for Ember
+      @param {Object} obj the object whose property you want to check
+      @param {String} key the name of the property whose cached value you want
+        to return
+      @return {Object} the cached value
+    */
+    function cacheFor(obj, key) {
+      var meta = obj['__ember_meta__'];
+      var cache = meta && meta.cache;
+      var ret = cache && cache[key];
+
+      if (ret === UNDEFINED) {
+        return undefined;
+      }
+      return ret;
+    }
+
+    cacheFor.set = function(cache, key, value) {
+      if (value === undefined) {
+        cache[key] = UNDEFINED;
+      } else {
+        cache[key] = value;
+      }
+    };
+
+    cacheFor.get = function(cache, key) {
+      var ret = cache[key];
+      if (ret === UNDEFINED) {
+        return undefined;
+      }
+      return ret;
+    };
+
+    cacheFor.remove = function(cache, key) {
+      cache[key] = undefined;
+    };
+
+    __exports__.ComputedProperty = ComputedProperty;
+    __exports__.computed = computed;
+    __exports__.cacheFor = cacheFor;
+  });
 enifed("ember-metal/computed_macros",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/computed","ember-metal/is_empty","ember-metal/is_none","ember-metal/alias"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
@@ -4398,638 +5030,6 @@ enifed("ember-metal/computed_macros",
       });
     };
   });
-enifed("ember-metal/computed",
-  ["ember-metal/property_set","ember-metal/utils","ember-metal/expand_properties","ember-metal/error","ember-metal/properties","ember-metal/property_events","ember-metal/dependent_keys","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
-    "use strict";
-    var set = __dependency1__.set;
-    var meta = __dependency2__.meta;
-    var inspect = __dependency2__.inspect;
-    var expandProperties = __dependency3__["default"];
-    var EmberError = __dependency4__["default"];
-    var Descriptor = __dependency5__.Descriptor;
-    var defineProperty = __dependency5__.defineProperty;
-    var propertyWillChange = __dependency6__.propertyWillChange;
-    var propertyDidChange = __dependency6__.propertyDidChange;
-    var addDependentKeys = __dependency7__.addDependentKeys;
-    var removeDependentKeys = __dependency7__.removeDependentKeys;
-
-    /**
-    @module ember-metal
-    */
-
-    var metaFor = meta;
-    var a_slice = [].slice;
-
-    function UNDEFINED() { }
-
-    // ..........................................................
-    // COMPUTED PROPERTY
-    //
-
-    /**
-      A computed property transforms an object's function into a property.
-
-      By default the function backing the computed property will only be called
-      once and the result will be cached. You can specify various properties
-      that your computed property depends on. This will force the cached
-      result to be recomputed if the dependencies are modified.
-
-      In the following example we declare a computed property (by calling
-      `.property()` on the fullName function) and setup the property
-      dependencies (depending on firstName and lastName). The fullName function
-      will be called once (regardless of how many times it is accessed) as long
-      as its dependencies have not changed. Once firstName or lastName are updated
-      any future calls (or anything bound) to fullName will incorporate the new
-      values.
-
-      ```javascript
-      var Person = Ember.Object.extend({
-        // these will be supplied by `create`
-        firstName: null,
-        lastName: null,
-
-        fullName: function() {
-          var firstName = this.get('firstName');
-          var lastName = this.get('lastName');
-
-         return firstName + ' ' + lastName;
-        }.property('firstName', 'lastName')
-      });
-
-      var tom = Person.create({
-        firstName: 'Tom',
-        lastName: 'Dale'
-      });
-
-      tom.get('fullName') // 'Tom Dale'
-      ```
-
-      You can also define what Ember should do when setting a computed property.
-      If you try to set a computed property, it will be invoked with the key and
-      value you want to set it to. You can also accept the previous value as the
-      third parameter.
-
-      ```javascript
-      var Person = Ember.Object.extend({
-        // these will be supplied by `create`
-        firstName: null,
-        lastName: null,
-
-        fullName: function(key, value, oldValue) {
-          // getter
-          if (arguments.length === 1) {
-            var firstName = this.get('firstName');
-            var lastName = this.get('lastName');
-
-            return firstName + ' ' + lastName;
-
-          // setter
-          } else {
-            var name = value.split(' ');
-
-            this.set('firstName', name[0]);
-            this.set('lastName', name[1]);
-
-            return value;
-          }
-        }.property('firstName', 'lastName')
-      });
-
-      var person = Person.create();
-
-      person.set('fullName', 'Peter Wagenet');
-      person.get('firstName'); // 'Peter'
-      person.get('lastName');  // 'Wagenet'
-      ```
-
-      @class ComputedProperty
-      @namespace Ember
-      @extends Ember.Descriptor
-      @constructor
-    */
-    function ComputedProperty(config, opts) {
-      if (Ember.FEATURES.isEnabled("new-computed-syntax")) {
-        if (typeof config === "function") {
-          config.__ember_arity = config.length;
-          this._getter = config;
-          if (config.__ember_arity > 1) {
-            this._setter = config;
-          }
-        } else {
-          this._getter = config.get;
-          this._setter = config.set;
-          if (this._setter && this._setter.__ember_arity === undefined) {
-            this._setter.__ember_arity = this._setter.length;
-          }
-        }
-      } else {
-        config.__ember_arity = config.length;
-        this._getter = config;
-        if (config.__ember_arity > 1) {
-          this._setter = config;
-        }
-      }
-
-      this._dependentKeys = undefined;
-      this._suspended = undefined;
-      this._meta = undefined;
-
-      Ember.deprecate("Passing opts.cacheable to the CP constructor is deprecated. Invoke `volatile()` on the CP instead.", !opts || !opts.hasOwnProperty('cacheable'));
-      this._cacheable = (opts && opts.cacheable !== undefined) ? opts.cacheable : true;   // TODO: Set always to `true` once this deprecation is gone.
-      this._dependentKeys = opts && opts.dependentKeys;
-      Ember.deprecate("Passing opts.readOnly to the CP constructor is deprecated. All CPs are writable by default. Yo can invoke `readOnly()` on the CP to change this.", !opts || !opts.hasOwnProperty('readOnly'));
-      this._readOnly = opts && (opts.readOnly !== undefined || !!opts.readOnly) || false; // TODO: Set always to `false` once this deprecation is gone.
-    }
-
-    ComputedProperty.prototype = new Descriptor();
-
-    var ComputedPropertyPrototype = ComputedProperty.prototype;
-
-    /**
-      Properties are cacheable by default. Computed property will automatically
-      cache the return value of your function until one of the dependent keys changes.
-
-      Call `volatile()` to set it into non-cached mode. When in this mode
-      the computed property will not automatically cache the return value.
-
-      However, if a property is properly observable, there is no reason to disable
-      caching.
-
-      @method cacheable
-      @param {Boolean} aFlag optional set to `false` to disable caching
-      @return {Ember.ComputedProperty} this
-      @chainable
-      @deprecated All computed properties are cacheble by default. Use `volatile()` instead to opt-out to caching.
-    */
-    ComputedPropertyPrototype.cacheable = function(aFlag) {
-      Ember.deprecate('ComputedProperty.cacheable() is deprecated. All computed properties are cacheable by default.');
-      this._cacheable = aFlag !== false;
-      return this;
-    };
-
-    /**
-      Call on a computed property to set it into non-cached mode. When in this
-      mode the computed property will not automatically cache the return value.
-
-      ```javascript
-      var outsideService = Ember.Object.extend({
-        value: function() {
-          return OutsideService.getValue();
-        }.property().volatile()
-      }).create();
-      ```
-
-      @method volatile
-      @return {Ember.ComputedProperty} this
-      @chainable
-    */
-    ComputedPropertyPrototype["volatile"] = function() {
-      this._cacheable = false;
-      return this;
-    };
-
-    /**
-      Call on a computed property to set it into read-only mode. When in this
-      mode the computed property will throw an error when set.
-
-      ```javascript
-      var Person = Ember.Object.extend({
-        guid: function() {
-          return 'guid-guid-guid';
-        }.property().readOnly()
-      });
-
-      var person = Person.create();
-
-      person.set('guid', 'new-guid'); // will throw an exception
-      ```
-
-      @method readOnly
-      @return {Ember.ComputedProperty} this
-      @chainable
-    */
-    ComputedPropertyPrototype.readOnly = function(readOnly) {
-      Ember.deprecate('Passing arguments to ComputedProperty.readOnly() is deprecated.', arguments.length === 0);
-      this._readOnly = readOnly === undefined || !!readOnly; // Force to true once this deprecation is gone
-      return this;
-    };
-
-    /**
-      Sets the dependent keys on this computed property. Pass any number of
-      arguments containing key paths that this computed property depends on.
-
-      ```javascript
-      var President = Ember.Object.extend({
-        fullName: computed(function() {
-          return this.get('firstName') + ' ' + this.get('lastName');
-
-          // Tell Ember that this computed property depends on firstName
-          // and lastName
-        }).property('firstName', 'lastName')
-      });
-
-      var president = President.create({
-        firstName: 'Barack',
-        lastName: 'Obama'
-      });
-
-      president.get('fullName'); // 'Barack Obama'
-      ```
-
-      @method property
-      @param {String} path* zero or more property paths
-      @return {Ember.ComputedProperty} this
-      @chainable
-    */
-    ComputedPropertyPrototype.property = function() {
-      var args;
-
-      var addArg = function (property) {
-        args.push(property);
-      };
-
-      args = [];
-      for (var i = 0, l = arguments.length; i < l; i++) {
-        expandProperties(arguments[i], addArg);
-      }
-
-      this._dependentKeys = args;
-      return this;
-    };
-
-    /**
-      In some cases, you may want to annotate computed properties with additional
-      metadata about how they function or what values they operate on. For example,
-      computed property functions may close over variables that are then no longer
-      available for introspection.
-
-      You can pass a hash of these values to a computed property like this:
-
-      ```
-      person: function() {
-        var personId = this.get('personId');
-        return App.Person.create({ id: personId });
-      }.property().meta({ type: App.Person })
-      ```
-
-      The hash that you pass to the `meta()` function will be saved on the
-      computed property descriptor under the `_meta` key. Ember runtime
-      exposes a public API for retrieving these values from classes,
-      via the `metaForProperty()` function.
-
-      @method meta
-      @param {Hash} meta
-      @chainable
-    */
-
-    ComputedPropertyPrototype.meta = function(meta) {
-      if (arguments.length === 0) {
-        return this._meta || {};
-      } else {
-        this._meta = meta;
-        return this;
-      }
-    };
-
-    /* impl descriptor API */
-    ComputedPropertyPrototype.didChange = function(obj, keyName) {
-      // _suspended is set via a CP.set to ensure we don't clear
-      // the cached value set by the setter
-      if (this._cacheable && this._suspended !== obj) {
-        var meta = metaFor(obj);
-        if (meta.cache[keyName] !== undefined) {
-          meta.cache[keyName] = undefined;
-          removeDependentKeys(this, obj, keyName, meta);
-        }
-      }
-    };
-
-    function finishChains(chainNodes) {
-      for (var i=0, l=chainNodes.length; i<l; i++) {
-        chainNodes[i].didChange(null);
-      }
-    }
-
-    /**
-      Access the value of the function backing the computed property.
-      If this property has already been cached, return the cached result.
-      Otherwise, call the function passing the property name as an argument.
-
-      ```javascript
-      var Person = Ember.Object.extend({
-        fullName: function(keyName) {
-          // the keyName parameter is 'fullName' in this case.
-          return this.get('firstName') + ' ' + this.get('lastName');
-        }.property('firstName', 'lastName')
-      });
-
-
-      var tom = Person.create({
-        firstName: 'Tom',
-        lastName: 'Dale'
-      });
-
-      tom.get('fullName') // 'Tom Dale'
-      ```
-
-      @method get
-      @param {String} keyName The key being accessed.
-      @return {Object} The return value of the function backing the CP.
-    */
-    ComputedPropertyPrototype.get = function(obj, keyName) {
-      var ret, cache, meta, chainNodes;
-      if (this._cacheable) {
-        meta = metaFor(obj);
-        cache = meta.cache;
-
-        var result = cache[keyName];
-
-        if (result === UNDEFINED) {
-          return undefined;
-        } else if (result !== undefined) {
-          return result;
-        }
-
-        ret = this._getter.call(obj, keyName);
-        if (ret === undefined) {
-          cache[keyName] = UNDEFINED;
-        } else {
-          cache[keyName] = ret;
-        }
-
-        chainNodes = meta.chainWatchers && meta.chainWatchers[keyName];
-        if (chainNodes) {
-          finishChains(chainNodes);
-        }
-        addDependentKeys(this, obj, keyName, meta);
-      } else {
-        ret = this._getter.call(obj, keyName);
-      }
-      return ret;
-    };
-
-    /**
-      Set the value of a computed property. If the function that backs your
-      computed property does not accept arguments then the default action for
-      setting would be to define the property on the current object, and set
-      the value of the property to the value being set.
-
-      Generally speaking if you intend for your computed property to be set
-      your backing function should accept either two or three arguments.
-
-      ```javascript
-      var Person = Ember.Object.extend({
-        // these will be supplied by `create`
-        firstName: null,
-        lastName: null,
-
-        fullName: function(key, value, oldValue) {
-          // getter
-          if (arguments.length === 1) {
-            var firstName = this.get('firstName');
-            var lastName = this.get('lastName');
-
-            return firstName + ' ' + lastName;
-
-          // setter
-          } else {
-            var name = value.split(' ');
-
-            this.set('firstName', name[0]);
-            this.set('lastName', name[1]);
-
-            return value;
-          }
-        }.property('firstName', 'lastName')
-      });
-
-      var person = Person.create();
-
-      person.set('fullName', 'Peter Wagenet');
-      person.get('firstName'); // 'Peter'
-      person.get('lastName');  // 'Wagenet'
-      ```
-
-      @method set
-      @param {String} keyName The key being accessed.
-      @param {Object} newValue The new value being assigned.
-      @param {String} oldValue The old value being replaced.
-      @return {Object} The return value of the function backing the CP.
-    */
-    ComputedPropertyPrototype.set = function computedPropertySetWithSuspend(obj, keyName, value) {
-      var oldSuspended = this._suspended;
-
-      this._suspended = obj;
-
-      try {
-        this._set(obj, keyName, value);
-      } finally {
-        this._suspended = oldSuspended;
-      }
-    };
-
-    ComputedPropertyPrototype._set = function computedPropertySet(obj, keyName, value) {
-      var cacheable      = this._cacheable;
-      var setter         = this._setter;
-      var meta           = metaFor(obj, cacheable);
-      var cache          = meta.cache;
-      var hadCachedValue = false;
-
-      var cachedValue, ret;
-
-      if (this._readOnly) {
-        throw new EmberError('Cannot set read-only property "' + keyName + '" on object: ' + inspect(obj));
-      }
-
-      if (cacheable && cache[keyName] !== undefined) {
-        if (cache[keyName] !== UNDEFINED) {
-          cachedValue = cache[keyName];
-        }
-
-        hadCachedValue = true;
-      }
-
-      if (!setter) {
-        defineProperty(obj, keyName, null, cachedValue);
-        set(obj, keyName, value);
-        return;
-      } else if (setter.__ember_arity === 2) {
-        // Is there any way of deprecate this in a sensitive way?
-        // Maybe now that getters and setters are the prefered options we can....
-        ret = setter.call(obj, keyName, value);
-      } else {
-        ret = setter.call(obj, keyName, value, cachedValue);
-      }
-
-      if (hadCachedValue && cachedValue === ret) { return; }
-
-      var watched = meta.watching[keyName];
-      if (watched) {
-        propertyWillChange(obj, keyName);
-      }
-
-      if (hadCachedValue) {
-        cache[keyName] = undefined;
-      }
-
-      if (cacheable) {
-        if (!hadCachedValue) {
-          addDependentKeys(this, obj, keyName, meta);
-        }
-        if (ret === undefined) {
-          cache[keyName] = UNDEFINED;
-        } else {
-          cache[keyName] = ret;
-        }
-      }
-
-      if (watched) {
-        propertyDidChange(obj, keyName);
-      }
-
-      return ret;
-    };
-
-    /* called before property is overridden */
-    ComputedPropertyPrototype.teardown = function(obj, keyName) {
-      var meta = metaFor(obj);
-
-      if (keyName in meta.cache) {
-        removeDependentKeys(this, obj, keyName, meta);
-      }
-
-      if (this._cacheable) { delete meta.cache[keyName]; }
-
-      return null; // no value to restore
-    };
-
-
-    /**
-      This helper returns a new property descriptor that wraps the passed
-      computed property function. You can use this helper to define properties
-      with mixins or via `Ember.defineProperty()`.
-
-      The function you pass will be used to both get and set property values.
-      The function should accept two parameters, key and value. If value is not
-      undefined you should set the value first. In either case return the
-      current value of the property.
-
-      A computed property defined in this way might look like this:
-
-      ```js
-      var Person = Ember.Object.extend({
-        firstName: 'Betty',
-        lastName: 'Jones',
-
-        fullName: Ember.computed('firstName', 'lastName', function(key, value) {
-          return this.get('firstName') + ' ' + this.get('lastName');
-        })
-      });
-
-      var client = Person.create();
-
-      client.get('fullName'); // 'Betty Jones'
-
-      client.set('lastName', 'Fuller');
-      client.get('fullName'); // 'Betty Fuller'
-      ```
-
-      _Note: This is the preferred way to define computed properties when writing third-party
-      libraries that depend on or use Ember, since there is no guarantee that the user
-      will have prototype extensions enabled._
-
-      You might use this method if you disabled
-      [Prototype Extensions](http://emberjs.com/guides/configuring-ember/disabling-prototype-extensions/).
-      The alternative syntax might look like this
-      (if prototype extensions are enabled, which is the default behavior):
-
-      ```js
-      fullName: function () {
-        return this.get('firstName') + ' ' + this.get('lastName');
-      }.property('firstName', 'lastName')
-      ```
-
-      @method computed
-      @for Ember
-      @param {String} [dependentKeys*] Optional dependent keys that trigger this computed property.
-      @param {Function} func The computed property function.
-      @return {Ember.ComputedProperty} property descriptor instance
-    */
-    function computed(func) {
-      var args;
-
-      if (arguments.length > 1) {
-        args = a_slice.call(arguments);
-        func = args.pop();
-      }
-
-      var cp = new ComputedProperty(func);
-      // jscs:disable
-      if (Ember.FEATURES.isEnabled("new-computed-syntax")) {
-        // Empty block on purpose
-      } else {
-        // jscs:enable
-        if (typeof func !== "function") {
-          throw new EmberError("Computed Property declared without a property function");
-        }
-      }
-
-      if (args) {
-        cp.property.apply(cp, args);
-      }
-
-      return cp;
-    }
-
-    /**
-      Returns the cached value for a property, if one exists.
-      This can be useful for peeking at the value of a computed
-      property that is generated lazily, without accidentally causing
-      it to be created.
-
-      @method cacheFor
-      @for Ember
-      @param {Object} obj the object whose property you want to check
-      @param {String} key the name of the property whose cached value you want
-        to return
-      @return {Object} the cached value
-    */
-    function cacheFor(obj, key) {
-      var meta = obj['__ember_meta__'];
-      var cache = meta && meta.cache;
-      var ret = cache && cache[key];
-
-      if (ret === UNDEFINED) {
-        return undefined;
-      }
-      return ret;
-    }
-
-    cacheFor.set = function(cache, key, value) {
-      if (value === undefined) {
-        cache[key] = UNDEFINED;
-      } else {
-        cache[key] = value;
-      }
-    };
-
-    cacheFor.get = function(cache, key) {
-      var ret = cache[key];
-      if (ret === UNDEFINED) {
-        return undefined;
-      }
-      return ret;
-    };
-
-    cacheFor.remove = function(cache, key) {
-      cache[key] = undefined;
-    };
-
-    __exports__.ComputedProperty = ComputedProperty;
-    __exports__.computed = computed;
-    __exports__.cacheFor = cacheFor;
-  });
 enifed("ember-metal/core",
   ["exports"],
   function(__exports__) {
@@ -5058,7 +5058,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.20042e1a
+      @version 1.11.0-beta.1+canary.8ca36b56
     */
 
     if ('undefined' === typeof Ember) {
@@ -5086,10 +5086,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.20042e1a'
+      @default '1.11.0-beta.1+canary.8ca36b56'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.20042e1a';
+    Ember.VERSION = '1.11.0-beta.1+canary.8ca36b56';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -8512,77 +8512,6 @@ enifed("ember-metal/mixin",
     __exports__.beforeObserver = beforeObserver;__exports__.IS_BINDING = IS_BINDING;
     __exports__.Mixin = Mixin;
   });
-enifed("ember-metal/observer_set",
-  ["ember-metal/utils","ember-metal/events","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
-    "use strict";
-    var guidFor = __dependency1__.guidFor;
-    var sendEvent = __dependency2__.sendEvent;
-
-    /*
-      this.observerSet = {
-        [senderGuid]: { // variable name: `keySet`
-          [keyName]: listIndex
-        }
-      },
-      this.observers = [
-        {
-          sender: obj,
-          keyName: keyName,
-          eventName: eventName,
-          listeners: [
-            [target, method, flags]
-          ]
-        },
-        ...
-      ]
-    */
-    __exports__["default"] = ObserverSet;
-    function ObserverSet() {
-      this.clear();
-    }
-
-
-    ObserverSet.prototype.add = function(sender, keyName, eventName) {
-      var observerSet = this.observerSet;
-      var observers = this.observers;
-      var senderGuid = guidFor(sender);
-      var keySet = observerSet[senderGuid];
-      var index;
-
-      if (!keySet) {
-        observerSet[senderGuid] = keySet = {};
-      }
-      index = keySet[keyName];
-      if (index === undefined) {
-        index = observers.push({
-          sender: sender,
-          keyName: keyName,
-          eventName: eventName,
-          listeners: []
-        }) - 1;
-        keySet[keyName] = index;
-      }
-      return observers[index].listeners;
-    };
-
-    ObserverSet.prototype.flush = function() {
-      var observers = this.observers;
-      var i, len, observer, sender;
-      this.clear();
-      for (i=0, len=observers.length; i < len; ++i) {
-        observer = observers[i];
-        sender = observer.sender;
-        if (sender.isDestroying || sender.isDestroyed) { continue; }
-        sendEvent(sender, observer.eventName, [sender, observer.keyName], observer.listeners);
-      }
-    };
-
-    ObserverSet.prototype.clear = function() {
-      this.observerSet = {};
-      this.observers = [];
-    };
-  });
 enifed("ember-metal/observer",
   ["ember-metal/watching","ember-metal/array","ember-metal/events","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
@@ -8701,6 +8630,77 @@ enifed("ember-metal/observer",
     }
 
     __exports__.removeBeforeObserver = removeBeforeObserver;
+  });
+enifed("ember-metal/observer_set",
+  ["ember-metal/utils","ember-metal/events","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
+    "use strict";
+    var guidFor = __dependency1__.guidFor;
+    var sendEvent = __dependency2__.sendEvent;
+
+    /*
+      this.observerSet = {
+        [senderGuid]: { // variable name: `keySet`
+          [keyName]: listIndex
+        }
+      },
+      this.observers = [
+        {
+          sender: obj,
+          keyName: keyName,
+          eventName: eventName,
+          listeners: [
+            [target, method, flags]
+          ]
+        },
+        ...
+      ]
+    */
+    __exports__["default"] = ObserverSet;
+    function ObserverSet() {
+      this.clear();
+    }
+
+
+    ObserverSet.prototype.add = function(sender, keyName, eventName) {
+      var observerSet = this.observerSet;
+      var observers = this.observers;
+      var senderGuid = guidFor(sender);
+      var keySet = observerSet[senderGuid];
+      var index;
+
+      if (!keySet) {
+        observerSet[senderGuid] = keySet = {};
+      }
+      index = keySet[keyName];
+      if (index === undefined) {
+        index = observers.push({
+          sender: sender,
+          keyName: keyName,
+          eventName: eventName,
+          listeners: []
+        }) - 1;
+        keySet[keyName] = index;
+      }
+      return observers[index].listeners;
+    };
+
+    ObserverSet.prototype.flush = function() {
+      var observers = this.observers;
+      var i, len, observer, sender;
+      this.clear();
+      for (i=0, len=observers.length; i < len; ++i) {
+        observer = observers[i];
+        sender = observer.sender;
+        if (sender.isDestroying || sender.isDestroyed) { continue; }
+        sendEvent(sender, observer.eventName, [sender, observer.keyName], observer.listeners);
+      }
+    };
+
+    ObserverSet.prototype.clear = function() {
+      this.observerSet = {};
+      this.observers = [];
+    };
   });
 enifed("ember-metal/path_cache",
   ["ember-metal/cache","exports"],
@@ -10662,88 +10662,6 @@ enifed("ember-metal/streams/simple",
 
     __exports__["default"] = SimpleStream;
   });
-enifed("ember-metal/streams/stream_binding",
-  ["ember-metal/platform","ember-metal/merge","ember-metal/run_loop","ember-metal/streams/stream","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
-    "use strict";
-    var create = __dependency1__.create;
-    var merge = __dependency2__["default"];
-    var run = __dependency3__["default"];
-    var Stream = __dependency4__["default"];
-
-    function StreamBinding(stream) {
-      Ember.assert("StreamBinding error: tried to bind to object that is not a stream", stream && stream.isStream);
-
-      this.init();
-      this.stream = stream;
-      this.senderCallback = undefined;
-      this.senderContext = undefined;
-      this.senderValue = undefined;
-
-      stream.subscribe(this._onNotify, this);
-    }
-
-    StreamBinding.prototype = create(Stream.prototype);
-
-    merge(StreamBinding.prototype, {
-      valueFn: function() {
-        return this.stream.value();
-      },
-
-      _onNotify: function() {
-        this._scheduleSync(undefined, undefined, this);
-      },
-
-      setValue: function(value, callback, context) {
-        this._scheduleSync(value, callback, context);
-      },
-
-      _scheduleSync: function(value, callback, context) {
-        if (this.senderCallback === undefined && this.senderContext === undefined) {
-          this.senderCallback = callback;
-          this.senderContext = context;
-          this.senderValue = value;
-          run.schedule('sync', this, this._sync);
-        } else if (this.senderContext !== this) {
-          this.senderCallback = callback;
-          this.senderContext = context;
-          this.senderValue = value;
-        }
-      },
-
-      _sync: function() {
-        if (this.state === 'destroyed') {
-          return;
-        }
-
-        if (this.senderContext !== this) {
-          this.stream.setValue(this.senderValue);
-        }
-
-        var senderCallback = this.senderCallback;
-        var senderContext = this.senderContext;
-        this.senderCallback = undefined;
-        this.senderContext = undefined;
-        this.senderValue = undefined;
-
-        // Force StreamBindings to always notify
-        this.state = 'clean';
-
-        this.notifyExcept(senderCallback, senderContext);
-      },
-
-      _super$destroy: Stream.prototype.destroy,
-
-      destroy: function() {
-        if (this._super$destroy()) {
-          this.stream.unsubscribe(this._onNotify, this);
-          return true;
-        }
-      }
-    });
-
-    __exports__["default"] = StreamBinding;
-  });
 enifed("ember-metal/streams/stream",
   ["ember-metal/platform","ember-metal/path_cache","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
@@ -10899,6 +10817,88 @@ enifed("ember-metal/streams/stream",
     };
 
     __exports__["default"] = Stream;
+  });
+enifed("ember-metal/streams/stream_binding",
+  ["ember-metal/platform","ember-metal/merge","ember-metal/run_loop","ember-metal/streams/stream","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+    "use strict";
+    var create = __dependency1__.create;
+    var merge = __dependency2__["default"];
+    var run = __dependency3__["default"];
+    var Stream = __dependency4__["default"];
+
+    function StreamBinding(stream) {
+      Ember.assert("StreamBinding error: tried to bind to object that is not a stream", stream && stream.isStream);
+
+      this.init();
+      this.stream = stream;
+      this.senderCallback = undefined;
+      this.senderContext = undefined;
+      this.senderValue = undefined;
+
+      stream.subscribe(this._onNotify, this);
+    }
+
+    StreamBinding.prototype = create(Stream.prototype);
+
+    merge(StreamBinding.prototype, {
+      valueFn: function() {
+        return this.stream.value();
+      },
+
+      _onNotify: function() {
+        this._scheduleSync(undefined, undefined, this);
+      },
+
+      setValue: function(value, callback, context) {
+        this._scheduleSync(value, callback, context);
+      },
+
+      _scheduleSync: function(value, callback, context) {
+        if (this.senderCallback === undefined && this.senderContext === undefined) {
+          this.senderCallback = callback;
+          this.senderContext = context;
+          this.senderValue = value;
+          run.schedule('sync', this, this._sync);
+        } else if (this.senderContext !== this) {
+          this.senderCallback = callback;
+          this.senderContext = context;
+          this.senderValue = value;
+        }
+      },
+
+      _sync: function() {
+        if (this.state === 'destroyed') {
+          return;
+        }
+
+        if (this.senderContext !== this) {
+          this.stream.setValue(this.senderValue);
+        }
+
+        var senderCallback = this.senderCallback;
+        var senderContext = this.senderContext;
+        this.senderCallback = undefined;
+        this.senderContext = undefined;
+        this.senderValue = undefined;
+
+        // Force StreamBindings to always notify
+        this.state = 'clean';
+
+        this.notifyExcept(senderCallback, senderContext);
+      },
+
+      _super$destroy: Stream.prototype.destroy,
+
+      destroy: function() {
+        if (this._super$destroy()) {
+          this.stream.unsubscribe(this._onNotify, this);
+          return true;
+        }
+      }
+    });
+
+    __exports__["default"] = StreamBinding;
   });
 enifed("ember-metal/streams/utils",
   ["./stream","exports"],
@@ -12869,848 +12869,6 @@ enifed("ember-runtime/computed/array_computed",
     __exports__.arrayComputed = arrayComputed;
     __exports__.ArrayComputedProperty = ArrayComputedProperty;
   });
-enifed("ember-runtime/computed/reduce_computed_macros",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/utils","ember-metal/error","ember-metal/enumerable_utils","ember-metal/run_loop","ember-metal/observer","ember-runtime/computed/array_computed","ember-runtime/computed/reduce_computed","ember-runtime/system/subarray","ember-metal/keys","ember-runtime/compare","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-runtime
-    */
-
-    var Ember = __dependency1__["default"];
-    // Ember.assert
-    var get = __dependency2__.get;
-    var isArray = __dependency3__.isArray;
-    var guidFor = __dependency3__.guidFor;
-    var EmberError = __dependency4__["default"];
-    var forEach = __dependency5__.forEach;
-    var run = __dependency6__["default"];
-    var addObserver = __dependency7__.addObserver;
-    var arrayComputed = __dependency8__.arrayComputed;
-    var reduceComputed = __dependency9__.reduceComputed;
-    var SubArray = __dependency10__["default"];
-    var keys = __dependency11__["default"];
-    var compare = __dependency12__["default"];
-
-    var a_slice = [].slice;
-
-    /**
-     A computed property that returns the sum of the value
-     in the dependent array.
-
-     @method computed.sum
-     @for Ember
-     @param {String} dependentKey
-     @return {Ember.ComputedProperty} computes the sum of all values in the dependentKey's array
-     @since 1.4.0
-    */
-
-    function sum(dependentKey) {
-      return reduceComputed(dependentKey, {
-        initialValue: 0,
-
-        addedItem: function(accumulatedValue, item, changeMeta, instanceMeta) {
-          return accumulatedValue + item;
-        },
-
-        removedItem: function(accumulatedValue, item, changeMeta, instanceMeta) {
-          return accumulatedValue - item;
-        }
-      });
-    }
-
-    __exports__.sum = sum;/**
-      A computed property that calculates the maximum value in the
-      dependent array. This will return `-Infinity` when the dependent
-      array is empty.
-
-      ```javascript
-      var Person = Ember.Object.extend({
-        childAges: Ember.computed.mapBy('children', 'age'),
-        maxChildAge: Ember.computed.max('childAges')
-      });
-
-      var lordByron = Person.create({ children: [] });
-
-      lordByron.get('maxChildAge'); // -Infinity
-      lordByron.get('children').pushObject({
-        name: 'Augusta Ada Byron', age: 7
-      });
-      lordByron.get('maxChildAge'); // 7
-      lordByron.get('children').pushObjects([{
-        name: 'Allegra Byron',
-        age: 5
-      }, {
-        name: 'Elizabeth Medora Leigh',
-        age: 8
-      }]);
-      lordByron.get('maxChildAge'); // 8
-      ```
-
-      @method computed.max
-      @for Ember
-      @param {String} dependentKey
-      @return {Ember.ComputedProperty} computes the largest value in the dependentKey's array
-    */
-    function max(dependentKey) {
-      return reduceComputed(dependentKey, {
-        initialValue: -Infinity,
-
-        addedItem: function (accumulatedValue, item, changeMeta, instanceMeta) {
-          return Math.max(accumulatedValue, item);
-        },
-
-        removedItem: function (accumulatedValue, item, changeMeta, instanceMeta) {
-          if (item < accumulatedValue) {
-            return accumulatedValue;
-          }
-        }
-      });
-    }
-
-    __exports__.max = max;/**
-      A computed property that calculates the minimum value in the
-      dependent array. This will return `Infinity` when the dependent
-      array is empty.
-
-      ```javascript
-      var Person = Ember.Object.extend({
-        childAges: Ember.computed.mapBy('children', 'age'),
-        minChildAge: Ember.computed.min('childAges')
-      });
-
-      var lordByron = Person.create({ children: [] });
-
-      lordByron.get('minChildAge'); // Infinity
-      lordByron.get('children').pushObject({
-        name: 'Augusta Ada Byron', age: 7
-      });
-      lordByron.get('minChildAge'); // 7
-      lordByron.get('children').pushObjects([{
-        name: 'Allegra Byron',
-        age: 5
-      }, {
-        name: 'Elizabeth Medora Leigh',
-        age: 8
-      }]);
-      lordByron.get('minChildAge'); // 5
-      ```
-
-      @method computed.min
-      @for Ember
-      @param {String} dependentKey
-      @return {Ember.ComputedProperty} computes the smallest value in the dependentKey's array
-    */
-    function min(dependentKey) {
-      return reduceComputed(dependentKey, {
-        initialValue: Infinity,
-
-        addedItem: function (accumulatedValue, item, changeMeta, instanceMeta) {
-          return Math.min(accumulatedValue, item);
-        },
-
-        removedItem: function (accumulatedValue, item, changeMeta, instanceMeta) {
-          if (item > accumulatedValue) {
-            return accumulatedValue;
-          }
-        }
-      });
-    }
-
-    __exports__.min = min;/**
-      Returns an array mapped via the callback
-
-      The callback method you provide should have the following signature.
-      `item` is the current item in the iteration.
-      `index` is the integer index of the current item in the iteration.
-
-      ```javascript
-      function(item, index);
-      ```
-
-      Example
-
-      ```javascript
-      var Hamster = Ember.Object.extend({
-        excitingChores: Ember.computed.map('chores', function(chore, index) {
-          return chore.toUpperCase() + '!';
-        })
-      });
-
-      var hamster = Hamster.create({
-        chores: ['clean', 'write more unit tests']
-      });
-
-      hamster.get('excitingChores'); // ['CLEAN!', 'WRITE MORE UNIT TESTS!']
-      ```
-
-      @method computed.map
-      @for Ember
-      @param {String} dependentKey
-      @param {Function} callback
-      @return {Ember.ComputedProperty} an array mapped via the callback
-    */
-    function map(dependentKey, callback) {
-      var options = {
-        addedItem: function(array, item, changeMeta, instanceMeta) {
-          var mapped = callback.call(this, item, changeMeta.index);
-          array.insertAt(changeMeta.index, mapped);
-          return array;
-        },
-        removedItem: function(array, item, changeMeta, instanceMeta) {
-          array.removeAt(changeMeta.index, 1);
-          return array;
-        }
-      };
-
-      return arrayComputed(dependentKey, options);
-    }
-
-    __exports__.map = map;/**
-      Returns an array mapped to the specified key.
-
-      ```javascript
-      var Person = Ember.Object.extend({
-        childAges: Ember.computed.mapBy('children', 'age')
-      });
-
-      var lordByron = Person.create({ children: [] });
-
-      lordByron.get('childAges'); // []
-      lordByron.get('children').pushObject({ name: 'Augusta Ada Byron', age: 7 });
-      lordByron.get('childAges'); // [7]
-      lordByron.get('children').pushObjects([{
-        name: 'Allegra Byron',
-        age: 5
-      }, {
-        name: 'Elizabeth Medora Leigh',
-        age: 8
-      }]);
-      lordByron.get('childAges'); // [7, 5, 8]
-      ```
-
-      @method computed.mapBy
-      @for Ember
-      @param {String} dependentKey
-      @param {String} propertyKey
-      @return {Ember.ComputedProperty} an array mapped to the specified key
-    */
-    function mapBy(dependentKey, propertyKey) {
-      var callback = function(item) { return get(item, propertyKey); };
-      return map(dependentKey + '.@each.' + propertyKey, callback);
-    }
-
-    __exports__.mapBy = mapBy;/**
-      @method computed.mapProperty
-      @for Ember
-      @deprecated Use `Ember.computed.mapBy` instead
-      @param dependentKey
-      @param propertyKey
-    */
-    var mapProperty = mapBy;
-    __exports__.mapProperty = mapProperty;
-    /**
-      Filters the array by the callback.
-
-      The callback method you provide should have the following signature.
-      `item` is the current item in the iteration.
-      `index` is the integer index of the current item in the iteration.
-      `array` is the dependant array itself.
-
-      ```javascript
-      function(item, index, array);
-      ```
-
-      ```javascript
-      var Hamster = Ember.Object.extend({
-        remainingChores: Ember.computed.filter('chores', function(chore, index, array) {
-          return !chore.done;
-        })
-      });
-
-      var hamster = Hamster.create({
-        chores: [
-          { name: 'cook', done: true },
-          { name: 'clean', done: true },
-          { name: 'write more unit tests', done: false }
-        ]
-      });
-
-      hamster.get('remainingChores'); // [{name: 'write more unit tests', done: false}]
-      ```
-
-      @method computed.filter
-      @for Ember
-      @param {String} dependentKey
-      @param {Function} callback
-      @return {Ember.ComputedProperty} the filtered array
-    */
-    function filter(dependentKey, callback) {
-      var options = {
-        initialize: function (array, changeMeta, instanceMeta) {
-          instanceMeta.filteredArrayIndexes = new SubArray();
-        },
-
-        addedItem: function (array, item, changeMeta, instanceMeta) {
-          var match = !!callback.call(this, item, changeMeta.index, changeMeta.arrayChanged);
-          var filterIndex = instanceMeta.filteredArrayIndexes.addItem(changeMeta.index, match);
-
-          if (match) {
-            array.insertAt(filterIndex, item);
-          }
-
-          return array;
-        },
-
-        removedItem: function(array, item, changeMeta, instanceMeta) {
-          var filterIndex = instanceMeta.filteredArrayIndexes.removeItem(changeMeta.index);
-
-          if (filterIndex > -1) {
-            array.removeAt(filterIndex);
-          }
-
-          return array;
-        }
-      };
-
-      return arrayComputed(dependentKey, options);
-    }
-
-    __exports__.filter = filter;/**
-      Filters the array by the property and value
-
-      ```javascript
-      var Hamster = Ember.Object.extend({
-        remainingChores: Ember.computed.filterBy('chores', 'done', false)
-      });
-
-      var hamster = Hamster.create({
-        chores: [
-          { name: 'cook', done: true },
-          { name: 'clean', done: true },
-          { name: 'write more unit tests', done: false }
-        ]
-      });
-
-      hamster.get('remainingChores'); // [{ name: 'write more unit tests', done: false }]
-      ```
-
-      @method computed.filterBy
-      @for Ember
-      @param {String} dependentKey
-      @param {String} propertyKey
-      @param {*} value
-      @return {Ember.ComputedProperty} the filtered array
-    */
-    function filterBy(dependentKey, propertyKey, value) {
-      var callback;
-
-      if (arguments.length === 2) {
-        callback = function(item) {
-          return get(item, propertyKey);
-        };
-      } else {
-        callback = function(item) {
-          return get(item, propertyKey) === value;
-        };
-      }
-
-      return filter(dependentKey + '.@each.' + propertyKey, callback);
-    }
-
-    __exports__.filterBy = filterBy;/**
-      @method computed.filterProperty
-      @for Ember
-      @param dependentKey
-      @param propertyKey
-      @param value
-      @deprecated Use `Ember.computed.filterBy` instead
-    */
-    var filterProperty = filterBy;
-    __exports__.filterProperty = filterProperty;
-    /**
-      A computed property which returns a new array with all the unique
-      elements from one or more dependent arrays.
-
-      Example
-
-      ```javascript
-      var Hamster = Ember.Object.extend({
-        uniqueFruits: Ember.computed.uniq('fruits')
-      });
-
-      var hamster = Hamster.create({
-        fruits: [
-          'banana',
-          'grape',
-          'kale',
-          'banana'
-        ]
-      });
-
-      hamster.get('uniqueFruits'); // ['banana', 'grape', 'kale']
-      ```
-
-      @method computed.uniq
-      @for Ember
-      @param {String} propertyKey*
-      @return {Ember.ComputedProperty} computes a new array with all the
-      unique elements from the dependent array
-    */
-    function uniq() {
-      var args = a_slice.call(arguments);
-
-      args.push({
-        initialize: function(array, changeMeta, instanceMeta) {
-          instanceMeta.itemCounts = {};
-        },
-
-        addedItem: function(array, item, changeMeta, instanceMeta) {
-          var guid = guidFor(item);
-
-          if (!instanceMeta.itemCounts[guid]) {
-            instanceMeta.itemCounts[guid] = 1;
-            array.pushObject(item);
-          } else {
-            ++instanceMeta.itemCounts[guid];
-          }
-          return array;
-        },
-
-        removedItem: function(array, item, _, instanceMeta) {
-          var guid = guidFor(item);
-          var itemCounts = instanceMeta.itemCounts;
-
-          if (--itemCounts[guid] === 0) {
-            array.removeObject(item);
-          }
-
-          return array;
-        }
-      });
-
-      return arrayComputed.apply(null, args);
-    }
-
-    __exports__.uniq = uniq;/**
-      Alias for [Ember.computed.uniq](/api/#method_computed_uniq).
-
-      @method computed.union
-      @for Ember
-      @param {String} propertyKey*
-      @return {Ember.ComputedProperty} computes a new array with all the
-      unique elements from the dependent array
-    */
-    var union = uniq;
-    __exports__.union = union;
-    /**
-      A computed property which returns a new array with all the duplicated
-      elements from two or more dependent arrays.
-
-      Example
-
-      ```javascript
-      var obj = Ember.Object.createWithMixins({
-        adaFriends: ['Charles Babbage', 'John Hobhouse', 'William King', 'Mary Somerville'],
-        charlesFriends: ['William King', 'Mary Somerville', 'Ada Lovelace', 'George Peacock'],
-        friendsInCommon: Ember.computed.intersect('adaFriends', 'charlesFriends')
-      });
-
-      obj.get('friendsInCommon'); // ['William King', 'Mary Somerville']
-      ```
-
-      @method computed.intersect
-      @for Ember
-      @param {String} propertyKey*
-      @return {Ember.ComputedProperty} computes a new array with all the
-      duplicated elements from the dependent arrays
-    */
-    function intersect() {
-      var args = a_slice.call(arguments);
-
-      args.push({
-        initialize: function (array, changeMeta, instanceMeta) {
-          instanceMeta.itemCounts = {};
-        },
-
-        addedItem: function(array, item, changeMeta, instanceMeta) {
-          var itemGuid = guidFor(item);
-          var dependentGuid = guidFor(changeMeta.arrayChanged);
-          var numberOfDependentArrays = changeMeta.property._dependentKeys.length;
-          var itemCounts = instanceMeta.itemCounts;
-
-          if (!itemCounts[itemGuid]) {
-            itemCounts[itemGuid] = {};
-          }
-
-          if (itemCounts[itemGuid][dependentGuid] === undefined) {
-            itemCounts[itemGuid][dependentGuid] = 0;
-          }
-
-          if (++itemCounts[itemGuid][dependentGuid] === 1 &&
-              numberOfDependentArrays === keys(itemCounts[itemGuid]).length) {
-            array.addObject(item);
-          }
-
-          return array;
-        },
-
-        removedItem: function(array, item, changeMeta, instanceMeta) {
-          var itemGuid = guidFor(item);
-          var dependentGuid = guidFor(changeMeta.arrayChanged);
-          var numberOfArraysItemAppearsIn;
-          var itemCounts = instanceMeta.itemCounts;
-
-          if (itemCounts[itemGuid][dependentGuid] === undefined) {
-            itemCounts[itemGuid][dependentGuid] = 0;
-          }
-
-          if (--itemCounts[itemGuid][dependentGuid] === 0) {
-            delete itemCounts[itemGuid][dependentGuid];
-            numberOfArraysItemAppearsIn = keys(itemCounts[itemGuid]).length;
-
-            if (numberOfArraysItemAppearsIn === 0) {
-              delete itemCounts[itemGuid];
-            }
-
-            array.removeObject(item);
-          }
-
-          return array;
-        }
-      });
-
-      return arrayComputed.apply(null, args);
-    }
-
-    __exports__.intersect = intersect;/**
-      A computed property which returns a new array with all the
-      properties from the first dependent array that are not in the second
-      dependent array.
-
-      Example
-
-      ```javascript
-      var Hamster = Ember.Object.extend({
-        likes: ['banana', 'grape', 'kale'],
-        wants: Ember.computed.setDiff('likes', 'fruits')
-      });
-
-      var hamster = Hamster.create({
-        fruits: [
-          'grape',
-          'kale',
-        ]
-      });
-
-      hamster.get('wants'); // ['banana']
-      ```
-
-      @method computed.setDiff
-      @for Ember
-      @param {String} setAProperty
-      @param {String} setBProperty
-      @return {Ember.ComputedProperty} computes a new array with all the
-      items from the first dependent array that are not in the second
-      dependent array
-    */
-    function setDiff(setAProperty, setBProperty) {
-      if (arguments.length !== 2) {
-        throw new EmberError('setDiff requires exactly two dependent arrays.');
-      }
-
-      return arrayComputed(setAProperty, setBProperty, {
-        addedItem: function (array, item, changeMeta, instanceMeta) {
-          var setA = get(this, setAProperty);
-          var setB = get(this, setBProperty);
-
-          if (changeMeta.arrayChanged === setA) {
-            if (!setB.contains(item)) {
-              array.addObject(item);
-            }
-          } else {
-            array.removeObject(item);
-          }
-
-          return array;
-        },
-
-        removedItem: function (array, item, changeMeta, instanceMeta) {
-          var setA = get(this, setAProperty);
-          var setB = get(this, setBProperty);
-
-          if (changeMeta.arrayChanged === setB) {
-            if (setA.contains(item)) {
-              array.addObject(item);
-            }
-          } else {
-            array.removeObject(item);
-          }
-
-          return array;
-        }
-      });
-    }
-
-    __exports__.setDiff = setDiff;function binarySearch(array, item, low, high) {
-      var mid, midItem, res, guidMid, guidItem;
-
-      if (arguments.length < 4) {
-        high = get(array, 'length');
-      }
-
-      if (arguments.length < 3) {
-        low = 0;
-      }
-
-      if (low === high) {
-        return low;
-      }
-
-      mid = low + Math.floor((high - low) / 2);
-      midItem = array.objectAt(mid);
-
-      guidMid = guidFor(midItem);
-      guidItem = guidFor(item);
-
-      if (guidMid === guidItem) {
-        return mid;
-      }
-
-      res = this.order(midItem, item);
-
-      if (res === 0) {
-        res = guidMid < guidItem ? -1 : 1;
-      }
-
-
-      if (res < 0) {
-        return this.binarySearch(array, item, mid+1, high);
-      } else if (res > 0) {
-        return this.binarySearch(array, item, low, mid);
-      }
-
-      return mid;
-    }
-
-
-    /**
-      A computed property which returns a new array with all the
-      properties from the first dependent array sorted based on a property
-      or sort function.
-
-      The callback method you provide should have the following signature:
-
-      ```javascript
-      function(itemA, itemB);
-      ```
-
-      - `itemA` the first item to compare.
-      - `itemB` the second item to compare.
-
-      This function should return negative number (e.g. `-1`) when `itemA` should come before
-      `itemB`. It should return positive number (e.g. `1`) when `itemA` should come after
-      `itemB`. If the `itemA` and `itemB` are equal this function should return `0`.
-
-      Therefore, if this function is comparing some numeric values, simple `itemA - itemB` or
-      `itemA.get( 'foo' ) - itemB.get( 'foo' )` can be used instead of series of `if`.
-
-      Example
-
-      ```javascript
-      var ToDoList = Ember.Object.extend({
-        // using standard ascending sort
-        todosSorting: ['name'],
-        sortedTodos: Ember.computed.sort('todos', 'todosSorting'),
-
-        // using descending sort
-        todosSortingDesc: ['name:desc'],
-        sortedTodosDesc: Ember.computed.sort('todos', 'todosSortingDesc'),
-
-        // using a custom sort function
-        priorityTodos: Ember.computed.sort('todos', function(a, b){
-          if (a.priority > b.priority) {
-            return 1;
-          } else if (a.priority < b.priority) {
-            return -1;
-          }
-
-          return 0;
-        })
-      });
-
-      var todoList = ToDoList.create({todos: [
-        { name: 'Unit Test', priority: 2 },
-        { name: 'Documentation', priority: 3 },
-        { name: 'Release', priority: 1 }
-      ]});
-
-      todoList.get('sortedTodos');      // [{ name:'Documentation', priority:3 }, { name:'Release', priority:1 }, { name:'Unit Test', priority:2 }]
-      todoList.get('sortedTodosDesc');  // [{ name:'Unit Test', priority:2 }, { name:'Release', priority:1 }, { name:'Documentation', priority:3 }]
-      todoList.get('priorityTodos');    // [{ name:'Release', priority:1 }, { name:'Unit Test', priority:2 }, { name:'Documentation', priority:3 }]
-      ```
-
-      @method computed.sort
-      @for Ember
-      @param {String} dependentKey
-      @param {String or Function} sortDefinition a dependent key to an
-      array of sort properties (add `:desc` to the arrays sort properties to sort descending) or a function to use when sorting
-      @return {Ember.ComputedProperty} computes a new sorted array based
-      on the sort property array or callback function
-    */
-    function sort(itemsKey, sortDefinition) {
-      Ember.assert('Ember.computed.sort requires two arguments: an array key to sort and ' +
-        'either a sort properties key or sort function', arguments.length === 2);
-
-      if (typeof sortDefinition === 'function') {
-        return customSort(itemsKey, sortDefinition);
-      } else {
-        return propertySort(itemsKey, sortDefinition);
-      }
-    }
-
-    __exports__.sort = sort;function customSort(itemsKey, comparator) {
-      return arrayComputed(itemsKey, {
-        initialize: function (array, changeMeta, instanceMeta) {
-          instanceMeta.order = comparator;
-          instanceMeta.binarySearch = binarySearch;
-          instanceMeta.waitingInsertions = [];
-          instanceMeta.insertWaiting = function() {
-            var index, item;
-            var waiting = instanceMeta.waitingInsertions;
-            instanceMeta.waitingInsertions = [];
-            for (var i=0; i<waiting.length; i++) {
-              item = waiting[i];
-              index = instanceMeta.binarySearch(array, item);
-              array.insertAt(index, item);
-            }
-          };
-          instanceMeta.insertLater = function(item) {
-            this.waitingInsertions.push(item);
-          };
-        },
-
-        addedItem: function (array, item, changeMeta, instanceMeta) {
-          instanceMeta.insertLater(item);
-          return array;
-        },
-
-        removedItem: function (array, item, changeMeta, instanceMeta) {
-          array.removeObject(item);
-          return array;
-        },
-
-        flushedChanges: function(array, instanceMeta) {
-          instanceMeta.insertWaiting();
-        }
-      });
-    }
-
-    function propertySort(itemsKey, sortPropertiesKey) {
-      return arrayComputed(itemsKey, {
-        initialize: function (array, changeMeta, instanceMeta) {
-          function setupSortProperties() {
-            var sortPropertyDefinitions = get(this, sortPropertiesKey);
-            var sortProperties = instanceMeta.sortProperties = [];
-            var sortPropertyAscending = instanceMeta.sortPropertyAscending = {};
-            var sortProperty, idx, asc;
-
-            Ember.assert('Cannot sort: \'' + sortPropertiesKey + '\' is not an array.',
-                         isArray(sortPropertyDefinitions));
-
-            changeMeta.property.clearItemPropertyKeys(itemsKey);
-
-            forEach(sortPropertyDefinitions, function (sortPropertyDefinition) {
-              if ((idx = sortPropertyDefinition.indexOf(':')) !== -1) {
-                sortProperty = sortPropertyDefinition.substring(0, idx);
-                asc = sortPropertyDefinition.substring(idx+1).toLowerCase() !== 'desc';
-              } else {
-                sortProperty = sortPropertyDefinition;
-                asc = true;
-              }
-
-              sortProperties.push(sortProperty);
-              sortPropertyAscending[sortProperty] = asc;
-              changeMeta.property.itemPropertyKey(itemsKey, sortProperty);
-            });
-
-            sortPropertyDefinitions.addObserver('@each', this, updateSortPropertiesOnce);
-          }
-
-          function updateSortPropertiesOnce() {
-            run.once(this, updateSortProperties, changeMeta.propertyName);
-          }
-
-          function updateSortProperties(propertyName) {
-            setupSortProperties.call(this);
-            changeMeta.property.recomputeOnce.call(this, propertyName);
-          }
-
-          addObserver(this, sortPropertiesKey, updateSortPropertiesOnce);
-          setupSortProperties.call(this);
-
-          instanceMeta.order = function (itemA, itemB) {
-            var sortProperty, result, asc;
-            var keyA = this.keyFor(itemA);
-            var keyB = this.keyFor(itemB);
-
-            for (var i = 0; i < this.sortProperties.length; ++i) {
-              sortProperty = this.sortProperties[i];
-
-              result = compare(keyA[sortProperty], keyB[sortProperty]);
-
-              if (result !== 0) {
-                asc = this.sortPropertyAscending[sortProperty];
-                return asc ? result : (-1 * result);
-              }
-            }
-
-            return 0;
-          };
-
-          instanceMeta.binarySearch = binarySearch;
-          setupKeyCache(instanceMeta);
-        },
-
-        addedItem: function (array, item, changeMeta, instanceMeta) {
-          var index = instanceMeta.binarySearch(array, item);
-          array.insertAt(index, item);
-          return array;
-        },
-
-        removedItem: function (array, item, changeMeta, instanceMeta) {
-          var index = instanceMeta.binarySearch(array, item);
-          array.removeAt(index);
-          instanceMeta.dropKeyFor(item);
-          return array;
-        }
-      });
-    }
-
-    function setupKeyCache(instanceMeta) {
-      instanceMeta.keyFor = function(item) {
-        var guid = guidFor(item);
-        if (this.keyCache[guid]) {
-          return this.keyCache[guid];
-        }
-        var sortProperty;
-        var key = {};
-        for (var i = 0; i < this.sortProperties.length; ++i) {
-          sortProperty = this.sortProperties[i];
-          key[sortProperty] = get(item, sortProperty);
-        }
-        return this.keyCache[guid] = key;
-      };
-
-      instanceMeta.dropKeyFor = function(item) {
-        var guid = guidFor(item);
-        this.keyCache[guid] = null;
-      };
-
-      instanceMeta.keyCache = {};
-    }
-  });
 enifed("ember-runtime/computed/reduce_computed",
   ["ember-metal/core","ember-metal/property_get","ember-metal/utils","ember-metal/error","ember-metal/property_events","ember-metal/expand_properties","ember-metal/observer","ember-metal/computed","ember-metal/platform","ember-metal/enumerable_utils","ember-runtime/system/tracked_array","ember-runtime/mixins/array","ember-metal/run_loop","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __exports__) {
@@ -14567,6 +13725,848 @@ enifed("ember-runtime/computed/reduce_computed",
     }
 
     __exports__.reduceComputed = reduceComputed;
+  });
+enifed("ember-runtime/computed/reduce_computed_macros",
+  ["ember-metal/core","ember-metal/property_get","ember-metal/utils","ember-metal/error","ember-metal/enumerable_utils","ember-metal/run_loop","ember-metal/observer","ember-runtime/computed/array_computed","ember-runtime/computed/reduce_computed","ember-runtime/system/subarray","ember-metal/keys","ember-runtime/compare","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-runtime
+    */
+
+    var Ember = __dependency1__["default"];
+    // Ember.assert
+    var get = __dependency2__.get;
+    var isArray = __dependency3__.isArray;
+    var guidFor = __dependency3__.guidFor;
+    var EmberError = __dependency4__["default"];
+    var forEach = __dependency5__.forEach;
+    var run = __dependency6__["default"];
+    var addObserver = __dependency7__.addObserver;
+    var arrayComputed = __dependency8__.arrayComputed;
+    var reduceComputed = __dependency9__.reduceComputed;
+    var SubArray = __dependency10__["default"];
+    var keys = __dependency11__["default"];
+    var compare = __dependency12__["default"];
+
+    var a_slice = [].slice;
+
+    /**
+     A computed property that returns the sum of the value
+     in the dependent array.
+
+     @method computed.sum
+     @for Ember
+     @param {String} dependentKey
+     @return {Ember.ComputedProperty} computes the sum of all values in the dependentKey's array
+     @since 1.4.0
+    */
+
+    function sum(dependentKey) {
+      return reduceComputed(dependentKey, {
+        initialValue: 0,
+
+        addedItem: function(accumulatedValue, item, changeMeta, instanceMeta) {
+          return accumulatedValue + item;
+        },
+
+        removedItem: function(accumulatedValue, item, changeMeta, instanceMeta) {
+          return accumulatedValue - item;
+        }
+      });
+    }
+
+    __exports__.sum = sum;/**
+      A computed property that calculates the maximum value in the
+      dependent array. This will return `-Infinity` when the dependent
+      array is empty.
+
+      ```javascript
+      var Person = Ember.Object.extend({
+        childAges: Ember.computed.mapBy('children', 'age'),
+        maxChildAge: Ember.computed.max('childAges')
+      });
+
+      var lordByron = Person.create({ children: [] });
+
+      lordByron.get('maxChildAge'); // -Infinity
+      lordByron.get('children').pushObject({
+        name: 'Augusta Ada Byron', age: 7
+      });
+      lordByron.get('maxChildAge'); // 7
+      lordByron.get('children').pushObjects([{
+        name: 'Allegra Byron',
+        age: 5
+      }, {
+        name: 'Elizabeth Medora Leigh',
+        age: 8
+      }]);
+      lordByron.get('maxChildAge'); // 8
+      ```
+
+      @method computed.max
+      @for Ember
+      @param {String} dependentKey
+      @return {Ember.ComputedProperty} computes the largest value in the dependentKey's array
+    */
+    function max(dependentKey) {
+      return reduceComputed(dependentKey, {
+        initialValue: -Infinity,
+
+        addedItem: function (accumulatedValue, item, changeMeta, instanceMeta) {
+          return Math.max(accumulatedValue, item);
+        },
+
+        removedItem: function (accumulatedValue, item, changeMeta, instanceMeta) {
+          if (item < accumulatedValue) {
+            return accumulatedValue;
+          }
+        }
+      });
+    }
+
+    __exports__.max = max;/**
+      A computed property that calculates the minimum value in the
+      dependent array. This will return `Infinity` when the dependent
+      array is empty.
+
+      ```javascript
+      var Person = Ember.Object.extend({
+        childAges: Ember.computed.mapBy('children', 'age'),
+        minChildAge: Ember.computed.min('childAges')
+      });
+
+      var lordByron = Person.create({ children: [] });
+
+      lordByron.get('minChildAge'); // Infinity
+      lordByron.get('children').pushObject({
+        name: 'Augusta Ada Byron', age: 7
+      });
+      lordByron.get('minChildAge'); // 7
+      lordByron.get('children').pushObjects([{
+        name: 'Allegra Byron',
+        age: 5
+      }, {
+        name: 'Elizabeth Medora Leigh',
+        age: 8
+      }]);
+      lordByron.get('minChildAge'); // 5
+      ```
+
+      @method computed.min
+      @for Ember
+      @param {String} dependentKey
+      @return {Ember.ComputedProperty} computes the smallest value in the dependentKey's array
+    */
+    function min(dependentKey) {
+      return reduceComputed(dependentKey, {
+        initialValue: Infinity,
+
+        addedItem: function (accumulatedValue, item, changeMeta, instanceMeta) {
+          return Math.min(accumulatedValue, item);
+        },
+
+        removedItem: function (accumulatedValue, item, changeMeta, instanceMeta) {
+          if (item > accumulatedValue) {
+            return accumulatedValue;
+          }
+        }
+      });
+    }
+
+    __exports__.min = min;/**
+      Returns an array mapped via the callback
+
+      The callback method you provide should have the following signature.
+      `item` is the current item in the iteration.
+      `index` is the integer index of the current item in the iteration.
+
+      ```javascript
+      function(item, index);
+      ```
+
+      Example
+
+      ```javascript
+      var Hamster = Ember.Object.extend({
+        excitingChores: Ember.computed.map('chores', function(chore, index) {
+          return chore.toUpperCase() + '!';
+        })
+      });
+
+      var hamster = Hamster.create({
+        chores: ['clean', 'write more unit tests']
+      });
+
+      hamster.get('excitingChores'); // ['CLEAN!', 'WRITE MORE UNIT TESTS!']
+      ```
+
+      @method computed.map
+      @for Ember
+      @param {String} dependentKey
+      @param {Function} callback
+      @return {Ember.ComputedProperty} an array mapped via the callback
+    */
+    function map(dependentKey, callback) {
+      var options = {
+        addedItem: function(array, item, changeMeta, instanceMeta) {
+          var mapped = callback.call(this, item, changeMeta.index);
+          array.insertAt(changeMeta.index, mapped);
+          return array;
+        },
+        removedItem: function(array, item, changeMeta, instanceMeta) {
+          array.removeAt(changeMeta.index, 1);
+          return array;
+        }
+      };
+
+      return arrayComputed(dependentKey, options);
+    }
+
+    __exports__.map = map;/**
+      Returns an array mapped to the specified key.
+
+      ```javascript
+      var Person = Ember.Object.extend({
+        childAges: Ember.computed.mapBy('children', 'age')
+      });
+
+      var lordByron = Person.create({ children: [] });
+
+      lordByron.get('childAges'); // []
+      lordByron.get('children').pushObject({ name: 'Augusta Ada Byron', age: 7 });
+      lordByron.get('childAges'); // [7]
+      lordByron.get('children').pushObjects([{
+        name: 'Allegra Byron',
+        age: 5
+      }, {
+        name: 'Elizabeth Medora Leigh',
+        age: 8
+      }]);
+      lordByron.get('childAges'); // [7, 5, 8]
+      ```
+
+      @method computed.mapBy
+      @for Ember
+      @param {String} dependentKey
+      @param {String} propertyKey
+      @return {Ember.ComputedProperty} an array mapped to the specified key
+    */
+    function mapBy(dependentKey, propertyKey) {
+      var callback = function(item) { return get(item, propertyKey); };
+      return map(dependentKey + '.@each.' + propertyKey, callback);
+    }
+
+    __exports__.mapBy = mapBy;/**
+      @method computed.mapProperty
+      @for Ember
+      @deprecated Use `Ember.computed.mapBy` instead
+      @param dependentKey
+      @param propertyKey
+    */
+    var mapProperty = mapBy;
+    __exports__.mapProperty = mapProperty;
+    /**
+      Filters the array by the callback.
+
+      The callback method you provide should have the following signature.
+      `item` is the current item in the iteration.
+      `index` is the integer index of the current item in the iteration.
+      `array` is the dependant array itself.
+
+      ```javascript
+      function(item, index, array);
+      ```
+
+      ```javascript
+      var Hamster = Ember.Object.extend({
+        remainingChores: Ember.computed.filter('chores', function(chore, index, array) {
+          return !chore.done;
+        })
+      });
+
+      var hamster = Hamster.create({
+        chores: [
+          { name: 'cook', done: true },
+          { name: 'clean', done: true },
+          { name: 'write more unit tests', done: false }
+        ]
+      });
+
+      hamster.get('remainingChores'); // [{name: 'write more unit tests', done: false}]
+      ```
+
+      @method computed.filter
+      @for Ember
+      @param {String} dependentKey
+      @param {Function} callback
+      @return {Ember.ComputedProperty} the filtered array
+    */
+    function filter(dependentKey, callback) {
+      var options = {
+        initialize: function (array, changeMeta, instanceMeta) {
+          instanceMeta.filteredArrayIndexes = new SubArray();
+        },
+
+        addedItem: function (array, item, changeMeta, instanceMeta) {
+          var match = !!callback.call(this, item, changeMeta.index, changeMeta.arrayChanged);
+          var filterIndex = instanceMeta.filteredArrayIndexes.addItem(changeMeta.index, match);
+
+          if (match) {
+            array.insertAt(filterIndex, item);
+          }
+
+          return array;
+        },
+
+        removedItem: function(array, item, changeMeta, instanceMeta) {
+          var filterIndex = instanceMeta.filteredArrayIndexes.removeItem(changeMeta.index);
+
+          if (filterIndex > -1) {
+            array.removeAt(filterIndex);
+          }
+
+          return array;
+        }
+      };
+
+      return arrayComputed(dependentKey, options);
+    }
+
+    __exports__.filter = filter;/**
+      Filters the array by the property and value
+
+      ```javascript
+      var Hamster = Ember.Object.extend({
+        remainingChores: Ember.computed.filterBy('chores', 'done', false)
+      });
+
+      var hamster = Hamster.create({
+        chores: [
+          { name: 'cook', done: true },
+          { name: 'clean', done: true },
+          { name: 'write more unit tests', done: false }
+        ]
+      });
+
+      hamster.get('remainingChores'); // [{ name: 'write more unit tests', done: false }]
+      ```
+
+      @method computed.filterBy
+      @for Ember
+      @param {String} dependentKey
+      @param {String} propertyKey
+      @param {*} value
+      @return {Ember.ComputedProperty} the filtered array
+    */
+    function filterBy(dependentKey, propertyKey, value) {
+      var callback;
+
+      if (arguments.length === 2) {
+        callback = function(item) {
+          return get(item, propertyKey);
+        };
+      } else {
+        callback = function(item) {
+          return get(item, propertyKey) === value;
+        };
+      }
+
+      return filter(dependentKey + '.@each.' + propertyKey, callback);
+    }
+
+    __exports__.filterBy = filterBy;/**
+      @method computed.filterProperty
+      @for Ember
+      @param dependentKey
+      @param propertyKey
+      @param value
+      @deprecated Use `Ember.computed.filterBy` instead
+    */
+    var filterProperty = filterBy;
+    __exports__.filterProperty = filterProperty;
+    /**
+      A computed property which returns a new array with all the unique
+      elements from one or more dependent arrays.
+
+      Example
+
+      ```javascript
+      var Hamster = Ember.Object.extend({
+        uniqueFruits: Ember.computed.uniq('fruits')
+      });
+
+      var hamster = Hamster.create({
+        fruits: [
+          'banana',
+          'grape',
+          'kale',
+          'banana'
+        ]
+      });
+
+      hamster.get('uniqueFruits'); // ['banana', 'grape', 'kale']
+      ```
+
+      @method computed.uniq
+      @for Ember
+      @param {String} propertyKey*
+      @return {Ember.ComputedProperty} computes a new array with all the
+      unique elements from the dependent array
+    */
+    function uniq() {
+      var args = a_slice.call(arguments);
+
+      args.push({
+        initialize: function(array, changeMeta, instanceMeta) {
+          instanceMeta.itemCounts = {};
+        },
+
+        addedItem: function(array, item, changeMeta, instanceMeta) {
+          var guid = guidFor(item);
+
+          if (!instanceMeta.itemCounts[guid]) {
+            instanceMeta.itemCounts[guid] = 1;
+            array.pushObject(item);
+          } else {
+            ++instanceMeta.itemCounts[guid];
+          }
+          return array;
+        },
+
+        removedItem: function(array, item, _, instanceMeta) {
+          var guid = guidFor(item);
+          var itemCounts = instanceMeta.itemCounts;
+
+          if (--itemCounts[guid] === 0) {
+            array.removeObject(item);
+          }
+
+          return array;
+        }
+      });
+
+      return arrayComputed.apply(null, args);
+    }
+
+    __exports__.uniq = uniq;/**
+      Alias for [Ember.computed.uniq](/api/#method_computed_uniq).
+
+      @method computed.union
+      @for Ember
+      @param {String} propertyKey*
+      @return {Ember.ComputedProperty} computes a new array with all the
+      unique elements from the dependent array
+    */
+    var union = uniq;
+    __exports__.union = union;
+    /**
+      A computed property which returns a new array with all the duplicated
+      elements from two or more dependent arrays.
+
+      Example
+
+      ```javascript
+      var obj = Ember.Object.createWithMixins({
+        adaFriends: ['Charles Babbage', 'John Hobhouse', 'William King', 'Mary Somerville'],
+        charlesFriends: ['William King', 'Mary Somerville', 'Ada Lovelace', 'George Peacock'],
+        friendsInCommon: Ember.computed.intersect('adaFriends', 'charlesFriends')
+      });
+
+      obj.get('friendsInCommon'); // ['William King', 'Mary Somerville']
+      ```
+
+      @method computed.intersect
+      @for Ember
+      @param {String} propertyKey*
+      @return {Ember.ComputedProperty} computes a new array with all the
+      duplicated elements from the dependent arrays
+    */
+    function intersect() {
+      var args = a_slice.call(arguments);
+
+      args.push({
+        initialize: function (array, changeMeta, instanceMeta) {
+          instanceMeta.itemCounts = {};
+        },
+
+        addedItem: function(array, item, changeMeta, instanceMeta) {
+          var itemGuid = guidFor(item);
+          var dependentGuid = guidFor(changeMeta.arrayChanged);
+          var numberOfDependentArrays = changeMeta.property._dependentKeys.length;
+          var itemCounts = instanceMeta.itemCounts;
+
+          if (!itemCounts[itemGuid]) {
+            itemCounts[itemGuid] = {};
+          }
+
+          if (itemCounts[itemGuid][dependentGuid] === undefined) {
+            itemCounts[itemGuid][dependentGuid] = 0;
+          }
+
+          if (++itemCounts[itemGuid][dependentGuid] === 1 &&
+              numberOfDependentArrays === keys(itemCounts[itemGuid]).length) {
+            array.addObject(item);
+          }
+
+          return array;
+        },
+
+        removedItem: function(array, item, changeMeta, instanceMeta) {
+          var itemGuid = guidFor(item);
+          var dependentGuid = guidFor(changeMeta.arrayChanged);
+          var numberOfArraysItemAppearsIn;
+          var itemCounts = instanceMeta.itemCounts;
+
+          if (itemCounts[itemGuid][dependentGuid] === undefined) {
+            itemCounts[itemGuid][dependentGuid] = 0;
+          }
+
+          if (--itemCounts[itemGuid][dependentGuid] === 0) {
+            delete itemCounts[itemGuid][dependentGuid];
+            numberOfArraysItemAppearsIn = keys(itemCounts[itemGuid]).length;
+
+            if (numberOfArraysItemAppearsIn === 0) {
+              delete itemCounts[itemGuid];
+            }
+
+            array.removeObject(item);
+          }
+
+          return array;
+        }
+      });
+
+      return arrayComputed.apply(null, args);
+    }
+
+    __exports__.intersect = intersect;/**
+      A computed property which returns a new array with all the
+      properties from the first dependent array that are not in the second
+      dependent array.
+
+      Example
+
+      ```javascript
+      var Hamster = Ember.Object.extend({
+        likes: ['banana', 'grape', 'kale'],
+        wants: Ember.computed.setDiff('likes', 'fruits')
+      });
+
+      var hamster = Hamster.create({
+        fruits: [
+          'grape',
+          'kale',
+        ]
+      });
+
+      hamster.get('wants'); // ['banana']
+      ```
+
+      @method computed.setDiff
+      @for Ember
+      @param {String} setAProperty
+      @param {String} setBProperty
+      @return {Ember.ComputedProperty} computes a new array with all the
+      items from the first dependent array that are not in the second
+      dependent array
+    */
+    function setDiff(setAProperty, setBProperty) {
+      if (arguments.length !== 2) {
+        throw new EmberError('setDiff requires exactly two dependent arrays.');
+      }
+
+      return arrayComputed(setAProperty, setBProperty, {
+        addedItem: function (array, item, changeMeta, instanceMeta) {
+          var setA = get(this, setAProperty);
+          var setB = get(this, setBProperty);
+
+          if (changeMeta.arrayChanged === setA) {
+            if (!setB.contains(item)) {
+              array.addObject(item);
+            }
+          } else {
+            array.removeObject(item);
+          }
+
+          return array;
+        },
+
+        removedItem: function (array, item, changeMeta, instanceMeta) {
+          var setA = get(this, setAProperty);
+          var setB = get(this, setBProperty);
+
+          if (changeMeta.arrayChanged === setB) {
+            if (setA.contains(item)) {
+              array.addObject(item);
+            }
+          } else {
+            array.removeObject(item);
+          }
+
+          return array;
+        }
+      });
+    }
+
+    __exports__.setDiff = setDiff;function binarySearch(array, item, low, high) {
+      var mid, midItem, res, guidMid, guidItem;
+
+      if (arguments.length < 4) {
+        high = get(array, 'length');
+      }
+
+      if (arguments.length < 3) {
+        low = 0;
+      }
+
+      if (low === high) {
+        return low;
+      }
+
+      mid = low + Math.floor((high - low) / 2);
+      midItem = array.objectAt(mid);
+
+      guidMid = guidFor(midItem);
+      guidItem = guidFor(item);
+
+      if (guidMid === guidItem) {
+        return mid;
+      }
+
+      res = this.order(midItem, item);
+
+      if (res === 0) {
+        res = guidMid < guidItem ? -1 : 1;
+      }
+
+
+      if (res < 0) {
+        return this.binarySearch(array, item, mid+1, high);
+      } else if (res > 0) {
+        return this.binarySearch(array, item, low, mid);
+      }
+
+      return mid;
+    }
+
+
+    /**
+      A computed property which returns a new array with all the
+      properties from the first dependent array sorted based on a property
+      or sort function.
+
+      The callback method you provide should have the following signature:
+
+      ```javascript
+      function(itemA, itemB);
+      ```
+
+      - `itemA` the first item to compare.
+      - `itemB` the second item to compare.
+
+      This function should return negative number (e.g. `-1`) when `itemA` should come before
+      `itemB`. It should return positive number (e.g. `1`) when `itemA` should come after
+      `itemB`. If the `itemA` and `itemB` are equal this function should return `0`.
+
+      Therefore, if this function is comparing some numeric values, simple `itemA - itemB` or
+      `itemA.get( 'foo' ) - itemB.get( 'foo' )` can be used instead of series of `if`.
+
+      Example
+
+      ```javascript
+      var ToDoList = Ember.Object.extend({
+        // using standard ascending sort
+        todosSorting: ['name'],
+        sortedTodos: Ember.computed.sort('todos', 'todosSorting'),
+
+        // using descending sort
+        todosSortingDesc: ['name:desc'],
+        sortedTodosDesc: Ember.computed.sort('todos', 'todosSortingDesc'),
+
+        // using a custom sort function
+        priorityTodos: Ember.computed.sort('todos', function(a, b){
+          if (a.priority > b.priority) {
+            return 1;
+          } else if (a.priority < b.priority) {
+            return -1;
+          }
+
+          return 0;
+        })
+      });
+
+      var todoList = ToDoList.create({todos: [
+        { name: 'Unit Test', priority: 2 },
+        { name: 'Documentation', priority: 3 },
+        { name: 'Release', priority: 1 }
+      ]});
+
+      todoList.get('sortedTodos');      // [{ name:'Documentation', priority:3 }, { name:'Release', priority:1 }, { name:'Unit Test', priority:2 }]
+      todoList.get('sortedTodosDesc');  // [{ name:'Unit Test', priority:2 }, { name:'Release', priority:1 }, { name:'Documentation', priority:3 }]
+      todoList.get('priorityTodos');    // [{ name:'Release', priority:1 }, { name:'Unit Test', priority:2 }, { name:'Documentation', priority:3 }]
+      ```
+
+      @method computed.sort
+      @for Ember
+      @param {String} dependentKey
+      @param {String or Function} sortDefinition a dependent key to an
+      array of sort properties (add `:desc` to the arrays sort properties to sort descending) or a function to use when sorting
+      @return {Ember.ComputedProperty} computes a new sorted array based
+      on the sort property array or callback function
+    */
+    function sort(itemsKey, sortDefinition) {
+      Ember.assert('Ember.computed.sort requires two arguments: an array key to sort and ' +
+        'either a sort properties key or sort function', arguments.length === 2);
+
+      if (typeof sortDefinition === 'function') {
+        return customSort(itemsKey, sortDefinition);
+      } else {
+        return propertySort(itemsKey, sortDefinition);
+      }
+    }
+
+    __exports__.sort = sort;function customSort(itemsKey, comparator) {
+      return arrayComputed(itemsKey, {
+        initialize: function (array, changeMeta, instanceMeta) {
+          instanceMeta.order = comparator;
+          instanceMeta.binarySearch = binarySearch;
+          instanceMeta.waitingInsertions = [];
+          instanceMeta.insertWaiting = function() {
+            var index, item;
+            var waiting = instanceMeta.waitingInsertions;
+            instanceMeta.waitingInsertions = [];
+            for (var i=0; i<waiting.length; i++) {
+              item = waiting[i];
+              index = instanceMeta.binarySearch(array, item);
+              array.insertAt(index, item);
+            }
+          };
+          instanceMeta.insertLater = function(item) {
+            this.waitingInsertions.push(item);
+          };
+        },
+
+        addedItem: function (array, item, changeMeta, instanceMeta) {
+          instanceMeta.insertLater(item);
+          return array;
+        },
+
+        removedItem: function (array, item, changeMeta, instanceMeta) {
+          array.removeObject(item);
+          return array;
+        },
+
+        flushedChanges: function(array, instanceMeta) {
+          instanceMeta.insertWaiting();
+        }
+      });
+    }
+
+    function propertySort(itemsKey, sortPropertiesKey) {
+      return arrayComputed(itemsKey, {
+        initialize: function (array, changeMeta, instanceMeta) {
+          function setupSortProperties() {
+            var sortPropertyDefinitions = get(this, sortPropertiesKey);
+            var sortProperties = instanceMeta.sortProperties = [];
+            var sortPropertyAscending = instanceMeta.sortPropertyAscending = {};
+            var sortProperty, idx, asc;
+
+            Ember.assert('Cannot sort: \'' + sortPropertiesKey + '\' is not an array.',
+                         isArray(sortPropertyDefinitions));
+
+            changeMeta.property.clearItemPropertyKeys(itemsKey);
+
+            forEach(sortPropertyDefinitions, function (sortPropertyDefinition) {
+              if ((idx = sortPropertyDefinition.indexOf(':')) !== -1) {
+                sortProperty = sortPropertyDefinition.substring(0, idx);
+                asc = sortPropertyDefinition.substring(idx+1).toLowerCase() !== 'desc';
+              } else {
+                sortProperty = sortPropertyDefinition;
+                asc = true;
+              }
+
+              sortProperties.push(sortProperty);
+              sortPropertyAscending[sortProperty] = asc;
+              changeMeta.property.itemPropertyKey(itemsKey, sortProperty);
+            });
+
+            sortPropertyDefinitions.addObserver('@each', this, updateSortPropertiesOnce);
+          }
+
+          function updateSortPropertiesOnce() {
+            run.once(this, updateSortProperties, changeMeta.propertyName);
+          }
+
+          function updateSortProperties(propertyName) {
+            setupSortProperties.call(this);
+            changeMeta.property.recomputeOnce.call(this, propertyName);
+          }
+
+          addObserver(this, sortPropertiesKey, updateSortPropertiesOnce);
+          setupSortProperties.call(this);
+
+          instanceMeta.order = function (itemA, itemB) {
+            var sortProperty, result, asc;
+            var keyA = this.keyFor(itemA);
+            var keyB = this.keyFor(itemB);
+
+            for (var i = 0; i < this.sortProperties.length; ++i) {
+              sortProperty = this.sortProperties[i];
+
+              result = compare(keyA[sortProperty], keyB[sortProperty]);
+
+              if (result !== 0) {
+                asc = this.sortPropertyAscending[sortProperty];
+                return asc ? result : (-1 * result);
+              }
+            }
+
+            return 0;
+          };
+
+          instanceMeta.binarySearch = binarySearch;
+          setupKeyCache(instanceMeta);
+        },
+
+        addedItem: function (array, item, changeMeta, instanceMeta) {
+          var index = instanceMeta.binarySearch(array, item);
+          array.insertAt(index, item);
+          return array;
+        },
+
+        removedItem: function (array, item, changeMeta, instanceMeta) {
+          var index = instanceMeta.binarySearch(array, item);
+          array.removeAt(index);
+          instanceMeta.dropKeyFor(item);
+          return array;
+        }
+      });
+    }
+
+    function setupKeyCache(instanceMeta) {
+      instanceMeta.keyFor = function(item) {
+        var guid = guidFor(item);
+        if (this.keyCache[guid]) {
+          return this.keyCache[guid];
+        }
+        var sortProperty;
+        var key = {};
+        for (var i = 0; i < this.sortProperties.length; ++i) {
+          sortProperty = this.sortProperties[i];
+          key[sortProperty] = get(item, sortProperty);
+        }
+        return this.keyCache[guid] = key;
+      };
+
+      instanceMeta.dropKeyFor = function(item) {
+        var guid = guidFor(item);
+        this.keyCache[guid] = null;
+      };
+
+      instanceMeta.keyCache = {};
+    }
   });
 enifed("ember-runtime/controllers/array_controller",
   ["ember-metal/core","ember-metal/property_get","ember-metal/enumerable_utils","ember-runtime/system/array_proxy","ember-runtime/mixins/sortable","ember-runtime/mixins/controller","ember-metal/computed","ember-metal/error","exports"],
@@ -16494,64 +16494,6 @@ enifed("ember-runtime/mixins/comparable",
       compare: required(Function)
     });
   });
-enifed("ember-runtime/mixins/controller_content_model_alias_deprecation",
-  ["ember-metal/core","ember-metal/mixin","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
-    "use strict";
-    var Ember = __dependency1__["default"];
-    // Ember.deprecate
-    var Mixin = __dependency2__.Mixin;
-
-    /**
-      The ControllerContentModelAliasDeprecation mixin is used to provide a useful
-      deprecation warning when specifying `content` directly on a `Ember.Controller`
-      (without also specifying `model`).
-
-      Ember versions prior to 1.7 used `model` as an alias of `content`, but due to
-      much confusion this alias was reversed (so `content` is now an alias of `model).
-
-      This change reduces many caveats with model/content, and also sets a
-      simple ground rule: Never set a controllers content, rather always set
-      its model and ember will do the right thing.
-
-
-      `Ember.ControllerContentModelAliasDeprecation` is used internally by Ember in
-      `Ember.Controller`.
-
-      @class ControllerContentModelAliasDeprecation
-      @namespace Ember
-      @private
-      @since 1.7.0
-    */
-    __exports__["default"] = Mixin.create({
-      /**
-        @private
-
-        Moves `content` to `model`  at extend time if a `model` is not also specified.
-
-        Note that this currently modifies the mixin themselves, which is technically
-        dubious but is practically of little consequence. This may change in the
-        future.
-
-        @method willMergeMixin
-        @since 1.4.0
-      */
-      willMergeMixin: function(props) {
-        // Calling super is only OK here since we KNOW that
-        // there is another Mixin loaded first.
-        this._super.apply(this, arguments);
-
-        var modelSpecified = !!props.model;
-
-        if (props.content && !modelSpecified) {
-          props.model = props.content;
-          delete props['content'];
-
-          Ember.deprecate('Do not specify `content` on a Controller, use `model` instead.', false);
-        }
-      }
-    });
-  });
 enifed("ember-runtime/mixins/controller",
   ["ember-metal/mixin","ember-metal/computed","ember-runtime/mixins/action_handler","ember-runtime/mixins/controller_content_model_alias_deprecation","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
@@ -16614,6 +16556,64 @@ enifed("ember-runtime/mixins/controller",
        */
       content: computed.alias('model')
 
+    });
+  });
+enifed("ember-runtime/mixins/controller_content_model_alias_deprecation",
+  ["ember-metal/core","ember-metal/mixin","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
+    "use strict";
+    var Ember = __dependency1__["default"];
+    // Ember.deprecate
+    var Mixin = __dependency2__.Mixin;
+
+    /**
+      The ControllerContentModelAliasDeprecation mixin is used to provide a useful
+      deprecation warning when specifying `content` directly on a `Ember.Controller`
+      (without also specifying `model`).
+
+      Ember versions prior to 1.7 used `model` as an alias of `content`, but due to
+      much confusion this alias was reversed (so `content` is now an alias of `model).
+
+      This change reduces many caveats with model/content, and also sets a
+      simple ground rule: Never set a controllers content, rather always set
+      its model and ember will do the right thing.
+
+
+      `Ember.ControllerContentModelAliasDeprecation` is used internally by Ember in
+      `Ember.Controller`.
+
+      @class ControllerContentModelAliasDeprecation
+      @namespace Ember
+      @private
+      @since 1.7.0
+    */
+    __exports__["default"] = Mixin.create({
+      /**
+        @private
+
+        Moves `content` to `model`  at extend time if a `model` is not also specified.
+
+        Note that this currently modifies the mixin themselves, which is technically
+        dubious but is practically of little consequence. This may change in the
+        future.
+
+        @method willMergeMixin
+        @since 1.4.0
+      */
+      willMergeMixin: function(props) {
+        // Calling super is only OK here since we KNOW that
+        // there is another Mixin loaded first.
+        this._super.apply(this, arguments);
+
+        var modelSpecified = !!props.model;
+
+        if (props.content && !modelSpecified) {
+          props.model = props.content;
+          delete props['content'];
+
+          Ember.deprecate('Do not specify `content` on a Controller, use `model` instead.', false);
+        }
+      }
     });
   });
 enifed("ember-runtime/mixins/copyable",
@@ -21954,6 +21954,35 @@ enifed("ember-runtime/system/native_array",
     __exports__.NativeArray = NativeArray;
     __exports__["default"] = NativeArray;
   });
+enifed("ember-runtime/system/object",
+  ["ember-runtime/system/core_object","ember-runtime/mixins/observable","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
+    "use strict";
+    /**
+    @module ember
+    @submodule ember-runtime
+    */
+
+    var CoreObject = __dependency1__["default"];
+    var Observable = __dependency2__["default"];
+
+    /**
+      `Ember.Object` is the main base class for all Ember objects. It is a subclass
+      of `Ember.CoreObject` with the `Ember.Observable` mixin applied. For details,
+      see the documentation for each of these.
+
+      @class Object
+      @namespace Ember
+      @extends Ember.CoreObject
+      @uses Ember.Observable
+    */
+    var EmberObject = CoreObject.extend(Observable);
+    EmberObject.toString = function() {
+      return "Ember.Object";
+    };
+
+    __exports__["default"] = EmberObject;
+  });
 enifed("ember-runtime/system/object_proxy",
   ["ember-runtime/system/object","ember-runtime/mixins/-proxy","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
@@ -22031,35 +22060,6 @@ enifed("ember-runtime/system/object_proxy",
     */
 
     __exports__["default"] = EmberObject.extend(_ProxyMixin);
-  });
-enifed("ember-runtime/system/object",
-  ["ember-runtime/system/core_object","ember-runtime/mixins/observable","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-runtime
-    */
-
-    var CoreObject = __dependency1__["default"];
-    var Observable = __dependency2__["default"];
-
-    /**
-      `Ember.Object` is the main base class for all Ember objects. It is a subclass
-      of `Ember.CoreObject` with the `Ember.Observable` mixin applied. For details,
-      see the documentation for each of these.
-
-      @class Object
-      @namespace Ember
-      @extends Ember.CoreObject
-      @uses Ember.Observable
-    */
-    var EmberObject = CoreObject.extend(Observable);
-    EmberObject.toString = function() {
-      return "Ember.Object";
-    };
-
-    __exports__["default"] = EmberObject;
   });
 enifed("ember-runtime/system/service",
   ["ember-runtime/system/object","ember-runtime/inject","exports"],
