@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.7fdb96e2
+ * @version   1.11.0-beta.1+canary.20042e1a
  */
 
 (function() {
@@ -10644,6 +10644,8 @@ enifed("ember-metal/computed_macros",
       hamster.get('readyForCamp'); // false
       hamster.set('hasBackpack', true);
       hamster.get('readyForCamp'); // true
+      hamster.set('hasBackpack', 'Yes');
+      hamster.get('readyForCamp'); // 'Yes'
       ```
 
       @method computed.and
@@ -10653,12 +10655,14 @@ enifed("ember-metal/computed_macros",
       a logical `and` on the values of all the original values for properties.
     */
     registerComputedWithProperties('and', function(properties) {
+      var value;
       for (var key in properties) {
-        if (properties.hasOwnProperty(key) && !properties[key]) {
+        value = properties[key];
+        if (properties.hasOwnProperty(key) && !value) {
           return false;
         }
       }
-      return true;
+      return value;
     });
 
     /**
@@ -10675,8 +10679,10 @@ enifed("ember-metal/computed_macros",
       var hamster = Hamster.create();
 
       hamster.get('readyForRain'); // false
-      hamster.set('hasJacket', true);
+      hamster.set('hasUmbrella', true);
       hamster.get('readyForRain'); // true
+      hamster.set('hasJacket', 'Yes');
+      hamster.get('readyForRain'); // 'Yes'
       ```
 
       @method computed.or
@@ -10688,7 +10694,7 @@ enifed("ember-metal/computed_macros",
     registerComputedWithProperties('or', function(properties) {
       for (var key in properties) {
         if (properties.hasOwnProperty(key) && properties[key]) {
-          return true;
+          return properties[key];
         }
       }
       return false;
@@ -10717,6 +10723,7 @@ enifed("ember-metal/computed_macros",
       @param {String} dependentKey*
       @return {Ember.ComputedProperty} computed property which returns
       the first truthy value of given list of properties.
+      @deprecated Use `Ember.computed.or` instead.
     */
     registerComputedWithProperties('any', function(properties) {
       for (var key in properties) {
@@ -11598,7 +11605,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.7fdb96e2
+      @version 1.11.0-beta.1+canary.20042e1a
     */
 
     if ('undefined' === typeof Ember) {
@@ -11626,10 +11633,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.7fdb96e2'
+      @default '1.11.0-beta.1+canary.20042e1a'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.7fdb96e2';
+    Ember.VERSION = '1.11.0-beta.1+canary.20042e1a';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`

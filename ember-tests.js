@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.7fdb96e2
+ * @version   1.11.0-beta.1+canary.20042e1a
  */
 
 (function() {
@@ -20559,6 +20559,11 @@ enifed("ember-metal/tests/computed_test",
       set(obj, 'one', false);
 
       equal(get(obj, 'oneAndTwo'), false, 'one and not two');
+
+      set(obj, 'one', true);
+      set(obj, 'two', 2);
+
+      equal(get(obj, 'oneAndTwo'), 2, 'returns truthy value as in &&');
     });
 
     testBoth('computed.or', function(get, set) {
@@ -20575,9 +20580,13 @@ enifed("ember-metal/tests/computed_test",
 
       equal(get(obj, 'oneOrTwo'), false, 'nore one nore two');
 
-      set(obj, 'one', true);
+      set(obj, 'two', true);
 
       equal(get(obj, 'oneOrTwo'), true, 'one or two');
+
+      set(obj, 'one', 1);
+
+      equal(get(obj, 'oneOrTwo'), 1, 'returns truthy value as in ||');
     });
 
     testBoth('computed.any', function(get, set) {
