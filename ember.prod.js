@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.6baf4938
+ * @version   1.11.0-beta.1+canary.872c1f9e
  */
 
 (function() {
@@ -11691,7 +11691,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.6baf4938
+      @version 1.11.0-beta.1+canary.872c1f9e
     */
 
     if ('undefined' === typeof Ember) {
@@ -11719,10 +11719,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.6baf4938'
+      @default '1.11.0-beta.1+canary.872c1f9e'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.6baf4938';
+    Ember.VERSION = '1.11.0-beta.1+canary.872c1f9e';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -46105,7 +46105,7 @@ enifed("morph/morph",
     __exports__["default"] = Morph;
   });
 enifed("route-recognizer",
-  ["route-recognizer/dsl","exports"],
+  ["./route-recognizer/dsl","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
     var map = __dependency1__["default"];
@@ -46421,6 +46421,12 @@ enifed("route-recognizer",
       return currentState;
     }
 
+    function decodeQueryParamPart(part) {
+      // http://www.w3.org/TR/html401/interact/forms.html#h-17.13.4.1
+      part = part.replace(/\+/gm, '%20');
+      return decodeURIComponent(part);
+    }
+
     // The main interface
 
     var RouteRecognizer = function() {
@@ -46556,7 +46562,7 @@ enifed("route-recognizer",
         var pairs = queryString.split("&"), queryParams = {};
         for(var i=0; i < pairs.length; i++) {
           var pair      = pairs[i].split('='),
-              key       = decodeURIComponent(pair[0]),
+              key       = decodeQueryParamPart(pair[0]),
               keyLength = key.length,
               isArray = false,
               value;
@@ -46571,7 +46577,7 @@ enifed("route-recognizer",
                 queryParams[key] = [];
               }
             }
-            value = pair[1] ? decodeURIComponent(pair[1]) : '';
+            value = pair[1] ? decodeQueryParamPart(pair[1]) : '';
           }
           if (isArray) {
             queryParams[key].push(value);
@@ -46635,7 +46641,24 @@ enifed("route-recognizer",
 
     RouteRecognizer.prototype.map = map;
 
+    RouteRecognizer.VERSION = '1.11.0-beta.1+canary.872c1f9e';
+
     __exports__["default"] = RouteRecognizer;
+  });
+enifed("route-recognizer.umd",
+  ["./route-recognizer"],
+  function(__dependency1__) {
+    "use strict";
+    var RouteRecognizer = __dependency1__["default"];
+
+    /* global define:true module:true window: true */
+    if (typeof enifed === 'function' && enifed['amd']) {
+      enifed(function() { return RouteRecognizer; });
+    } else if (typeof module !== 'undefined' && module['exports']) {
+      module['exports'] = RouteRecognizer;
+    } else if (typeof this !== 'undefined') {
+      this['RouteRecognizer'] = RouteRecognizer;
+    }
   });
 enifed("route-recognizer/dsl",
   ["exports"],
