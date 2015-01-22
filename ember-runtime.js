@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.8ca36b56
+ * @version   1.11.0-beta.1+canary.6baf4938
  */
 
 (function() {
@@ -1627,13 +1627,21 @@ enifed("container/registry",
 
       lookup: function(fullName, options) {
         Ember.assert('Create a container on the registry (with `registry.container()`) before calling `lookup`.', this._defaultContainer);
-        Ember.deprecate('`lookup` should not be called on a Registry. Call `lookup` directly on an associated Container instead.');
+
+        if (Ember.FEATURES.isEnabled('ember-application-instance-initializers')) {
+          Ember.deprecate('`lookup` was called on a Registry. The `initializer` API no longer receives a container, and you should use an `instanceInitializer` to look up objects from the container.', { url: "http://emberjs.com/guides/deprecations#toc_deprecate-access-to-instances-in-initializers" });
+        }
+
         return this._defaultContainer.lookup(fullName, options);
       },
 
       lookupFactory: function(fullName) {
         Ember.assert('Create a container on the registry (with `registry.container()`) before calling `lookupFactory`.', this._defaultContainer);
-        Ember.deprecate('`lookupFactory` should not be called on a Registry. Call `lookupFactory` directly on an associated Container instead.');
+
+        if (Ember.FEATURES.isEnabled('ember-application-instance-initializers')) {
+          Ember.deprecate('`lookupFactory` was called on a Registry. The `initializer` API no longer receives a container, and you should use an `instanceInitializer` to look up objects from the container.', { url: "http://emberjs.com/guides/deprecations#toc_deprecate-access-to-instances-in-initializers" });
+        }
+
         return this._defaultContainer.lookupFactory(fullName);
       },
 
@@ -5058,7 +5066,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.8ca36b56
+      @version 1.11.0-beta.1+canary.6baf4938
     */
 
     if ('undefined' === typeof Ember) {
@@ -5086,10 +5094,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.8ca36b56'
+      @default '1.11.0-beta.1+canary.6baf4938'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.8ca36b56';
+    Ember.VERSION = '1.11.0-beta.1+canary.6baf4938';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
