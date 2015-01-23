@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.872c1f9e
+ * @version   1.11.0-beta.1+canary.8127715c
  */
 
 (function() {
@@ -53914,6 +53914,14 @@ enifed("ember-testing/tests/helpers_test",
         equal(obj.ready(), true, 'should not resolve until our waiter is ready');
         Test.unregisterWaiter(obj, obj.ready);
         equal(Test.waiters.length, 0, 'should not leave a waiter registered');
+      });
+    });
+
+    test("`wait` does not error if routing has not begun", function() {
+      expect(1);
+
+      App.testHelpers.wait().then(function() {
+        ok(true, 'should not error without `visit`');
       });
     });
 

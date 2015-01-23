@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.872c1f9e
+ * @version   1.11.0-beta.1+canary.8127715c
  */
 
 (function() {
@@ -12133,7 +12133,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.872c1f9e
+      @version 1.11.0-beta.1+canary.8127715c
     */
 
     if ('undefined' === typeof Ember) {
@@ -12161,10 +12161,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.872c1f9e'
+      @default '1.11.0-beta.1+canary.8127715c'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.872c1f9e';
+    Ember.VERSION = '1.11.0-beta.1+canary.8127715c';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -38007,8 +38007,10 @@ enifed("ember-testing/helpers",
 
         // Every 10ms, poll for the async thing to have finished
         var watcher = setInterval(function() {
+          var router = app.__container__.lookup('router:main');
+
           // 1. If the router is loading, keep polling
-          var routerIsLoading = !!app.__container__.lookup('router:main').router.activeTransition;
+          var routerIsLoading = router.router && !!router.router.activeTransition;
           if (routerIsLoading) { return; }
 
           // 2. If there are pending Ajax requests, keep polling
@@ -48788,7 +48790,7 @@ enifed("route-recognizer",
 
     RouteRecognizer.prototype.map = map;
 
-    RouteRecognizer.VERSION = '1.11.0-beta.1+canary.872c1f9e';
+    RouteRecognizer.VERSION = '1.11.0-beta.1+canary.8127715c';
 
     __exports__["default"] = RouteRecognizer;
   });
