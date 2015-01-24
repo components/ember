@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.006d3c9f
+ * @version   1.11.0-beta.1+canary.d2d1490d
  */
 
 (function() {
@@ -12133,7 +12133,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.006d3c9f
+      @version 1.11.0-beta.1+canary.d2d1490d
     */
 
     if ('undefined' === typeof Ember) {
@@ -12161,10 +12161,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.006d3c9f'
+      @default '1.11.0-beta.1+canary.d2d1490d'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.006d3c9f';
+    Ember.VERSION = '1.11.0-beta.1+canary.d2d1490d';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -38458,16 +38458,15 @@ enifed("ember-testing/support",
     }
   });
 enifed("ember-testing/test",
-  ["ember-metal/core","ember-metal/run_loop","ember-metal/platform","ember-runtime/compare","ember-runtime/ext/rsvp","ember-testing/setup_for_testing","ember-application/system/application","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
+  ["ember-metal/core","ember-metal/run_loop","ember-metal/platform","ember-runtime/ext/rsvp","ember-testing/setup_for_testing","ember-application/system/application","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var emberRun = __dependency2__["default"];
     var create = __dependency3__.create;
-    var compare = __dependency4__["default"];
-    var RSVP = __dependency5__["default"];
-    var setupForTesting = __dependency6__["default"];
-    var EmberApplication = __dependency7__["default"];
+    var RSVP = __dependency4__["default"];
+    var setupForTesting = __dependency5__["default"];
+    var EmberApplication = __dependency6__["default"];
 
     /**
       @module ember
@@ -38728,15 +38727,13 @@ enifed("ember-testing/test",
          @since 1.2.0
       */
       unregisterWaiter: function(context, callback) {
-        var pair;
         if (!this.waiters) { return; }
         if (arguments.length === 1) {
           callback = context;
           context = null;
         }
-        pair = [context, callback];
         this.waiters = Ember.A(this.waiters.filter(function(elt) {
-          return compare(elt, pair)!==0;
+          return !(elt[0] === context && elt[1] === callback);
         }));
       }
     };
@@ -48790,7 +48787,7 @@ enifed("route-recognizer",
 
     RouteRecognizer.prototype.map = map;
 
-    RouteRecognizer.VERSION = '1.11.0-beta.1+canary.006d3c9f';
+    RouteRecognizer.VERSION = '1.11.0-beta.1+canary.d2d1490d';
 
     __exports__["default"] = RouteRecognizer;
   });

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.006d3c9f
+ * @version   1.11.0-beta.1+canary.d2d1490d
  */
 
 (function() {
@@ -53660,6 +53660,7 @@ enifed("ember-testing/tests/helpers_test",
         jQuery(document).off('ajaxComplete');
       });
       Test.pendingAjaxRequests = null;
+      Test.waiters = null;
 
       // Other cleanup
 
@@ -53884,23 +53885,32 @@ enifed("ember-testing/tests/helpers_test",
     });
 
     test("`wait` respects registerWaiters", function() {
-      expect(2);
+      expect(3);
 
       var counter=0;
       function waiter() {
         return ++counter > 2;
       }
 
+      var other=0;
+      function otherWaiter() {
+        return ++other > 2;
+      }
+
       run(App, App.advanceReadiness);
       Test.registerWaiter(waiter);
+      Test.registerWaiter(otherWaiter);
 
       App.testHelpers.wait().then(function() {
         equal(waiter(), true, 'should not resolve until our waiter is ready');
         Test.unregisterWaiter(waiter);
-        equal(Test.waiters.length, 0, 'should not leave a waiter registered');
+        equal(Test.waiters.length, 1, 'should not leave the waiter registered');
+        other = 0;
+        return App.testHelpers.wait();
+      }).then(function() {
+        equal(otherWaiter(), true, 'other waiter is still registered');
       });
     });
-
 
     test("`visit` advances readiness.", function() {
       expect(2);
@@ -54031,7 +54041,7 @@ enifed("ember-testing/tests/helpers_test",
 
 
     test("`wait` respects registerWaiters with optional context", function() {
-      expect(2);
+      expect(3);
 
       var obj = {
         counter: 0,
@@ -54040,13 +54050,22 @@ enifed("ember-testing/tests/helpers_test",
         }
       };
 
+      var other=0;
+      function otherWaiter() {
+        return ++other > 2;
+      }
+
       run(App, App.advanceReadiness);
       Test.registerWaiter(obj, obj.ready);
+      Test.registerWaiter(otherWaiter);
 
       App.testHelpers.wait().then(function() {
         equal(obj.ready(), true, 'should not resolve until our waiter is ready');
         Test.unregisterWaiter(obj, obj.ready);
-        equal(Test.waiters.length, 0, 'should not leave a waiter registered');
+        equal(Test.waiters.length, 1, 'should not leave the waiter registered');
+        return App.testHelpers.wait();
+      }).then(function() {
+        equal(otherWaiter(), true, 'other waiter should still be registered');
       });
     });
 
