@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.2477a7b0
+ * @version   1.11.0-beta.1+canary.d54ae93c
  */
 
 (function() {
@@ -6863,6 +6863,32 @@ enifed("ember-htmlbars/tests/compat/helper_test",
       });
 
       runAppend(view);
+    });
+
+    test('allows unbound usage within an element', function() {
+      expect(4);
+
+      function someHelper(param1, param2, options) {
+        equal(param1, 'blammo');
+        equal(param2, 'blazzico');
+
+        return "class='foo'";
+      }
+
+      registerHandlebarsCompatibleHelper('test', someHelper);
+
+      view = EmberView.create({
+        controller: {
+          value: 'foo'
+        },
+        template: compile('<div {{test "blammo" "blazzico"}}>Bar</div>')
+      });
+
+      expectDeprecation(function() {
+        runAppend(view);
+      }, 'Returning a string of attributes from a helper inside an element is deprecated.');
+
+      equal(view.$('.foo').length, 1, 'class attribute was added by helper');
     });
 
     test('registering a helper created from `Ember.Handlebars.makeViewHelper` does not double wrap the helper', function() {
@@ -15006,6 +15032,104 @@ enifed("ember-htmlbars/tests/hooks/component_test.jshint",
     module('JSHint - ember-htmlbars/tests/hooks');
     test('ember-htmlbars/tests/hooks/component_test.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/tests/hooks/component_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/tests/hooks/element_test",
+  ["ember-views/views/view","ember-htmlbars/helpers","ember-runtime/tests/utils","ember-template-compiler/system/compile"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+    "use strict";
+    var EmberView = __dependency1__["default"];
+    var helpers = __dependency2__["default"];
+    var registerHelper = __dependency2__.registerHelper;
+    var runAppend = __dependency3__.runAppend;
+    var runDestroy = __dependency3__.runDestroy;
+    var compile = __dependency4__["default"];
+
+    var view;
+
+    QUnit.module('ember-htmlbars: element hook', {
+      teardown: function() {
+        runDestroy(view);
+        delete helpers.test;
+      }
+    });
+
+    test('allows unbound usage within an element', function() {
+      expect(4);
+
+      function someHelper(params, hash, options, env) {
+        equal(params[0], 'blammo');
+        equal(params[1], 'blazzico');
+
+        return "class='foo'";
+      }
+
+      registerHelper('test', someHelper);
+
+      view = EmberView.create({
+        controller: {
+          value: 'foo'
+        },
+        template: compile('<div {{test "blammo" "blazzico"}}>Bar</div>')
+      });
+
+      expectDeprecation(function() {
+        runAppend(view);
+      }, 'Returning a string of attributes from a helper inside an element is deprecated.');
+
+      equal(view.$('.foo').length, 1, 'class attribute was added by helper');
+    });
+
+    test('allows unbound usage within an element from property', function() {
+      expect(2);
+
+      view = EmberView.create({
+        controller: {
+          someProp: 'class="foo"'
+        },
+        template: compile('<div {{someProp}}>Bar</div>')
+      });
+
+      expectDeprecation(function() {
+        runAppend(view);
+      }, 'Returning a string of attributes from a helper inside an element is deprecated.');
+
+      equal(view.$('.foo').length, 1, 'class attribute was added by helper');
+    });
+
+    test('allows unbound usage within an element creating multiple attributes', function() {
+      expect(2);
+
+      view = EmberView.create({
+        controller: {
+          someProp: 'class="foo" data-foo="bar"'
+        },
+        template: compile('<div {{someProp}}>Bar</div>')
+      });
+
+      expectDeprecation(function() {
+        runAppend(view);
+      }, 'Returning a string of attributes from a helper inside an element is deprecated.');
+
+      equal(view.$('.foo[data-foo="bar"]').length, 1, 'attributes added by helper');
+    });
+  });
+enifed("ember-htmlbars/tests/hooks/element_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-htmlbars/tests/hooks');
+    test('ember-htmlbars/tests/hooks/element_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/hooks/element_test.js should pass jscs.');
+    });
+  });
+enifed("ember-htmlbars/tests/hooks/element_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/tests/hooks');
+    test('ember-htmlbars/tests/hooks/element_test.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/tests/hooks/element_test.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/tests/hooks/text_node_test",
