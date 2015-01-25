@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.d2d1490d
+ * @version   1.11.0-beta.1+canary.968b6bc8
  */
 
 (function() {
@@ -11691,7 +11691,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.d2d1490d
+      @version 1.11.0-beta.1+canary.968b6bc8
     */
 
     if ('undefined' === typeof Ember) {
@@ -11719,10 +11719,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.d2d1490d'
+      @default '1.11.0-beta.1+canary.968b6bc8'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.d2d1490d';
+    Ember.VERSION = '1.11.0-beta.1+canary.968b6bc8';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -46641,24 +46641,9 @@ enifed("route-recognizer",
 
     RouteRecognizer.prototype.map = map;
 
-    RouteRecognizer.VERSION = '1.11.0-beta.1+canary.d2d1490d';
+    RouteRecognizer.VERSION = '0.1.5';
 
     __exports__["default"] = RouteRecognizer;
-  });
-enifed("route-recognizer.umd",
-  ["./route-recognizer"],
-  function(__dependency1__) {
-    "use strict";
-    var RouteRecognizer = __dependency1__["default"];
-
-    /* global define:true module:true window: true */
-    if (typeof enifed === 'function' && enifed['amd']) {
-      enifed(function() { return RouteRecognizer; });
-    } else if (typeof module !== 'undefined' && module['exports']) {
-      module['exports'] = RouteRecognizer;
-    } else if (typeof this !== 'undefined') {
-      this['RouteRecognizer'] = RouteRecognizer;
-    }
   });
 enifed("route-recognizer/dsl",
   ["exports"],
