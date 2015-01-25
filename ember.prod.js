@@ -4676,12 +4676,21 @@ enifed("ember-htmlbars/compat/helper",
     */
     function HandlebarsCompatibleHelper(fn) {
       this.helperFunction = function helperFunc(params, hash, options, env) {
-        var param;
+        var param, blockResult, fnResult;
+        var context = this;
         var handlebarsOptions = {};
+
         merge(handlebarsOptions, options);
         merge(handlebarsOptions, env);
 
         handlebarsOptions.hash = {};
+
+        if (options.isBlock) {
+          handlebarsOptions.fn = function() {
+            blockResult = options.template.render(context, env, options.morph.contextualElement);
+          };
+        }
+
         for (var prop in hash) {
           param = hash[prop];
 
@@ -4704,7 +4713,9 @@ enifed("ember-htmlbars/compat/helper",
         }
         args.push(handlebarsOptions);
 
-        return fn.apply(this, args);
+        fnResult = fn.apply(this, args);
+
+        return options.isBlock ? blockResult : fnResult;
       };
 
       this.isHTMLBars = true;
@@ -7446,26 +7457,44 @@ enifed("ember-htmlbars/hooks/content",
     }
   });
 enifed("ember-htmlbars/hooks/element",
-  ["ember-htmlbars/system/lookup-helper","exports"],
-  function(__dependency1__, __exports__) {
+  ["ember-metal/core","ember-metal/streams/utils","ember-htmlbars/system/lookup-helper","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     /**
     @module ember
     @submodule ember-htmlbars
     */
 
-    var lookupHelper = __dependency1__["default"];
+    var Ember = __dependency1__["default"];
+    var read = __dependency2__.read;
+    var lookupHelper = __dependency3__["default"];
 
     __exports__["default"] = function element(env, domElement, view, path, params, hash) { //jshint ignore:line
       var helper = lookupHelper(path, view, env);
+      var valueOrLazyValue;
 
       if (helper) {
         var options = {
           element: domElement
         };
-        return helper.helperFunction.call(view, params, hash, options, env);
+        valueOrLazyValue = helper.helperFunction.call(view, params, hash, options, env);
       } else {
-        return view.getStream(path);
+        valueOrLazyValue = view.getStream(path);
+      }
+
+      var value = read(valueOrLazyValue);
+      if (value) {
+        
+        var parts = value.toString().split(/\s+/);
+        for (var i = 0, l = parts.length; i < l; i++) {
+          var attrParts = parts[i].split('=');
+          var attrName = attrParts[0];
+          var attrValue = attrParts[1];
+
+          attrValue = attrValue.replace(/^['"]/, '').replace(/['"]$/, '');
+
+          env.dom.setAttribute(domElement, attrName, attrValue);
+        }
       }
     }
   });
@@ -39171,7 +39200,7 @@ enifed("ember-views/views/component",
 
     /**
       An `Ember.Component` is a view that is completely
-      isolated. Property access in its templates go
+      isolated. Properties accessed in its templates go
       to the view object and actions are targeted at
       the view object. There is no access to the
       surrounding context or outer controller; all
@@ -43720,14 +43749,16 @@ enifed("ember",
 
       });
 enifed("htmlbars-util",
-  ["./htmlbars-util/safe-string","./htmlbars-util/handlebars/utils","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["./htmlbars-util/safe-string","./htmlbars-util/handlebars/utils","./htmlbars-util/namespaces","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     var SafeString = __dependency1__["default"];
     var escapeExpression = __dependency2__.escapeExpression;
+    var getAttrNamespace = __dependency3__.getAttrNamespace;
 
     __exports__.SafeString = SafeString;
     __exports__.escapeExpression = escapeExpression;
+    __exports__.getAttrNamespace = getAttrNamespace;
   });
 enifed("htmlbars-util/array-utils",
   ["exports"],
@@ -43757,7 +43788,29 @@ enifed("htmlbars-util/array-utils",
       return output;
     }
 
-    __exports__.map = map;
+    __exports__.map = map;var getIdx;
+    if (Array.prototype.indexOf) {
+      getIdx = function(array, obj, from){
+        return array.indexOf(obj, from);
+      };
+    } else {
+      getIdx = function(array, obj, from) {
+        if (from === undefined || from === null) {
+          from = 0;
+        } else if (from < 0) {
+          from = Math.max(0, array.length + from);
+        }
+        for (var i = from, l= array.length; i < l; i++) {
+          if (array[i] === obj) {
+            return i;
+          }
+        }
+        return -1;
+      };
+    }
+
+    var indexOfArray = getIdx;
+    __exports__.indexOfArray = indexOfArray;
   });
 enifed("htmlbars-util/handlebars/safe-string",
   ["exports"],
@@ -43866,6 +43919,33 @@ enifed("htmlbars-util/handlebars/utils",
 
     __exports__.appendContextPath = appendContextPath;
   });
+enifed("htmlbars-util/namespaces",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    // ref http://dev.w3.org/html5/spec-LC/namespaces.html
+    var defaultNamespaces = {
+      html: 'http://www.w3.org/1999/xhtml',
+      mathml: 'http://www.w3.org/1998/Math/MathML',
+      svg: 'http://www.w3.org/2000/svg',
+      xlink: 'http://www.w3.org/1999/xlink',
+      xml: 'http://www.w3.org/XML/1998/namespace'
+    };
+
+    function getAttrNamespace(attrName) {
+      var namespace;
+
+      var colonIndex = attrName.indexOf(':');
+      if (colonIndex !== -1) {
+        var prefix = attrName.slice(0, colonIndex);
+        namespace = defaultNamespaces[prefix];
+      }
+
+      return namespace || null;
+    }
+
+    __exports__.getAttrNamespace = getAttrNamespace;
+  });
 enifed("htmlbars-util/object-utils",
   ["exports"],
   function(__exports__) {
@@ -43940,13 +44020,14 @@ enifed("morph",
     __exports__.DOMHelper = DOMHelper;
   });
 enifed("morph/attr-morph",
-  ["./attr-morph/sanitize-attribute-value","./dom-helper/prop","./dom-helper/build-html-dom","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["./attr-morph/sanitize-attribute-value","./dom-helper/prop","./dom-helper/build-html-dom","../htmlbars-util","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     var sanitizeAttributeValue = __dependency1__.sanitizeAttributeValue;
     var isAttrRemovalValue = __dependency2__.isAttrRemovalValue;
     var normalizeProperty = __dependency2__.normalizeProperty;
     var svgNamespace = __dependency3__.svgNamespace;
+    var getAttrNamespace = __dependency4__.getAttrNamespace;
 
     function updateProperty(value) {
       this.domHelper.setPropertyStrict(this.element, this.attrName, value);
@@ -43971,7 +44052,7 @@ enifed("morph/attr-morph",
     function AttrMorph(element, attrName, domHelper, namespace) {
       this.element = element;
       this.domHelper = domHelper;
-      this.namespace = namespace || null;
+      this.namespace = namespace !== undefined ? namespace : getAttrNamespace(attrName);
       this.escaped = true;
 
       var normalizedAttrName = normalizeProperty(this.element, attrName);
@@ -44086,6 +44167,13 @@ enifed("morph/dom-helper",
       return !clonedElement.checked;
     })(doc);
 
+    var canRemoveSvgViewBoxAttribute = doc && (doc.createElementNS ? (function(document){
+      var element = document.createElementNS(svgNamespace, 'svg');
+      element.setAttribute('viewBox', '0 0 100 100');
+      element.removeAttribute('viewBox');
+      return !element.getAttribute('viewBox');
+    })(doc) : true);
+
     // This is not the namespace of the element, but of
     // the elements inside that elements.
     function interiorNamespace(element){
@@ -44197,8 +44285,53 @@ enifed("morph/dom-helper",
       return child;
     };
 
+    // Note to a Fellow Implementor:
+    // Ahh, accessing a child node at an index. Seems like it should be so simple,
+    // doesn't it? Unfortunately, this particular method has caused us a surprising
+    // amount of pain. As you'll note below, this method has been modified to walk
+    // the linked list of child nodes rather than access the child by index
+    // directly, even though there are two (2) APIs in the DOM that do this for us.
+    // If you're thinking to yourself, "What an oversight! What an opportunity to
+    // optimize this code!" then to you I say: stop! For I have a tale to tell.
+    //
+    // First, this code must be compatible with simple-dom for rendering on the
+    // server where there is no real DOM. Previously, we accessed a child node
+    // directly via `element.childNodes[index]`. While we *could* in theory do a
+    // full-fidelity simulation of a live `childNodes` array, this is slow,
+    // complicated and error-prone.
+    //
+    // "No problem," we thought, "we'll just use the similar
+    // `childNodes.item(index)` API." Then, we could just implement our own `item`
+    // method in simple-dom and walk the child node linked list there, allowing
+    // us to retain the performance advantages of the (surely optimized) `item()`
+    // API in the browser.
+    //
+    // Unfortunately, an enterprising soul named Samy Alzahrani discovered that in
+    // IE8, accessing an item out-of-bounds via `item()` causes an exception where
+    // other browsers return null. This necessitated a... check of
+    // `childNodes.length`, bringing us back around to having to support a
+    // full-fidelity `childNodes` array!
+    //
+    // Worst of all, Kris Selden investigated how browsers are actualy implemented
+    // and discovered that they're all linked lists under the hood anyway. Accessing
+    // `childNodes` requires them to allocate a new live collection backed by that
+    // linked list, which is itself a rather expensive operation. Our assumed
+    // optimization had backfired! That is the danger of magical thinking about
+    // the performance of native implementations.
+    //
+    // And this, my friends, is why the following implementation just walks the
+    // linked list, as surprised as that may make you. Please ensure you understand
+    // the above before changing this and submitting a PR.
+    //
+    // Tom Dale, January 18th, 2015, Portland OR
     prototype.childAtIndex = function(element, index) {
-      return element.childNodes.item(index);
+      var node = element.firstChild;
+
+      for (var idx = 0; node && idx < index; idx++) {
+        node = node.nextSibling;
+      }
+
+      return node;
     };
 
     prototype.appendText = function(element, text) {
@@ -44213,9 +44346,19 @@ enifed("morph/dom-helper",
       element.setAttributeNS(namespace, name, String(value));
     };
 
-    prototype.removeAttribute = function(element, name) {
-      element.removeAttribute(name);
-    };
+    if (canRemoveSvgViewBoxAttribute){
+      prototype.removeAttribute = function(element, name) {
+        element.removeAttribute(name);
+      };
+    } else {
+      prototype.removeAttribute = function(element, name) {
+        if (element.tagName === 'svg' && name === 'viewBox') {
+          element.setAttribute(name, null);
+        } else {
+          element.removeAttribute(name);
+        }
+      };
+    }
 
     prototype.setPropertyStrict = function(element, name, value) {
       element[name] = value;
@@ -44241,7 +44384,7 @@ enifed("morph/dom-helper",
           if (isAttrRemovalValue(value)) {
             element.removeAttribute(name);
           } else {
-            if (namespace) {
+            if (namespace && element.setAttributeNS) {
               element.setAttributeNS(namespace, name, value);
             } else {
               element.setAttribute(name, value);
@@ -44269,9 +44412,15 @@ enifed("morph/dom-helper",
           return this.document.createElement(tagName);
         }
       };
+      prototype.setAttributeNS = function(element, namespace, name, value) {
+        element.setAttributeNS(namespace, name, String(value));
+      };
     } else {
       prototype.createElement = function(tagName) {
         return this.document.createElement(tagName);
+      };
+      prototype.setAttributeNS = function(element, namespace, name, value) {
+        element.setAttribute(name, String(value));
       };
     }
 
@@ -44586,15 +44735,17 @@ enifed("morph/dom-helper/build-html-dom",
         // script tags without any whitespace for easier processing later.
         var spacesBefore = [];
         var spacesAfter = [];
-        html = html.replace(/(\s*)(<script)/g, function(match, spaces, tag) {
-          spacesBefore.push(spaces);
-          return tag;
-        });
+        if (typeof html === 'string') {
+          html = html.replace(/(\s*)(<script)/g, function(match, spaces, tag) {
+            spacesBefore.push(spaces);
+            return tag;
+          });
 
-        html = html.replace(/(<\/script>)(\s*)/g, function(match, tag, spaces) {
-          spacesAfter.push(spaces);
-          return tag;
-        });
+          html = html.replace(/(<\/script>)(\s*)/g, function(match, tag, spaces) {
+            spacesAfter.push(spaces);
+            return tag;
+          });
+        }
 
         // Fetch nodes
         var nodes;
@@ -45133,7 +45284,7 @@ enifed("morph/morph",
     __exports__["default"] = Morph;
   });
 enifed("route-recognizer",
-  ["route-recognizer/dsl","exports"],
+  ["./route-recognizer/dsl","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
     var map = __dependency1__["default"];
@@ -45449,6 +45600,12 @@ enifed("route-recognizer",
       return currentState;
     }
 
+    function decodeQueryParamPart(part) {
+      // http://www.w3.org/TR/html401/interact/forms.html#h-17.13.4.1
+      part = part.replace(/\+/gm, '%20');
+      return decodeURIComponent(part);
+    }
+
     // The main interface
 
     var RouteRecognizer = function() {
@@ -45584,7 +45741,7 @@ enifed("route-recognizer",
         var pairs = queryString.split("&"), queryParams = {};
         for(var i=0; i < pairs.length; i++) {
           var pair      = pairs[i].split('='),
-              key       = decodeURIComponent(pair[0]),
+              key       = decodeQueryParamPart(pair[0]),
               keyLength = key.length,
               isArray = false,
               value;
@@ -45599,7 +45756,7 @@ enifed("route-recognizer",
                 queryParams[key] = [];
               }
             }
-            value = pair[1] ? decodeURIComponent(pair[1]) : '';
+            value = pair[1] ? decodeQueryParamPart(pair[1]) : '';
           }
           if (isArray) {
             queryParams[key].push(value);
@@ -45663,7 +45820,24 @@ enifed("route-recognizer",
 
     RouteRecognizer.prototype.map = map;
 
+    RouteRecognizer.VERSION = '1.10.0-beta.4';
+
     __exports__["default"] = RouteRecognizer;
+  });
+enifed("route-recognizer.umd",
+  ["./route-recognizer"],
+  function(__dependency1__) {
+    "use strict";
+    var RouteRecognizer = __dependency1__["default"];
+
+    /* global define:true module:true window: true */
+    if (typeof enifed === 'function' && enifed['amd']) {
+      enifed(function() { return RouteRecognizer; });
+    } else if (typeof module !== 'undefined' && module['exports']) {
+      module['exports'] = RouteRecognizer;
+    } else if (typeof this !== 'undefined') {
+      this['RouteRecognizer'] = RouteRecognizer;
+    }
   });
 enifed("route-recognizer/dsl",
   ["exports"],

@@ -850,13 +850,13 @@ define("htmlbars-compiler/fragment-javascript-compiler",
     };
   });
 define("htmlbars-compiler/fragment-opcode-compiler",
-  ["./template-visitor","./utils","../htmlbars-util/array-utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["./template-visitor","./utils","../htmlbars-util","../htmlbars-util/array-utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     var TemplateVisitor = __dependency1__["default"];
     var processOpcodes = __dependency2__.processOpcodes;
-    var getNamespace = __dependency2__.getNamespace;
-    var forEach = __dependency3__.forEach;
+    var getAttrNamespace = __dependency3__.getAttrNamespace;
+    var forEach = __dependency4__.forEach;
 
     function FragmentOpcodeCompiler() {
       this.opcodes = [];
@@ -916,7 +916,7 @@ define("htmlbars-compiler/fragment-opcode-compiler",
     FragmentOpcodeCompiler.prototype.attribute = function(attr) {
       if (attr.value.type === 'TextNode') {
 
-        var namespace = getNamespace(attr.name) || null;
+        var namespace = getAttrNamespace(attr.name);
 
         this.opcode('setAttribute', [attr.name, attr.value.chars, namespace]);
       }
@@ -1188,14 +1188,14 @@ define("htmlbars-compiler/hydration-javascript-compiler",
     };
   });
 define("htmlbars-compiler/hydration-opcode-compiler",
-  ["./template-visitor","./utils","../htmlbars-util/array-utils","../htmlbars-syntax/utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+  ["./template-visitor","./utils","../htmlbars-util","../htmlbars-util/array-utils","../htmlbars-syntax/utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     var TemplateVisitor = __dependency1__["default"];
     var processOpcodes = __dependency2__.processOpcodes;
-    var getNamespace = __dependency2__.getNamespace;
-    var forEach = __dependency3__.forEach;
-    var isHelper = __dependency4__.isHelper;
+    var getAttrNamespace = __dependency3__.getAttrNamespace;
+    var forEach = __dependency4__.forEach;
+    var isHelper = __dependency5__.isHelper;
 
     function unwrapMustache(mustache) {
       if (isHelper(mustache.sexpr)) {
@@ -1367,7 +1367,7 @@ define("htmlbars-compiler/hydration-opcode-compiler",
     HydrationOpcodeCompiler.prototype.attribute = function(attr) {
       var value = attr.value;
       var escaped = true;
-      var namespace = getNamespace(attr.name) || null;
+      var namespace = getAttrNamespace(attr.name);
 
       // TODO: Introduce context specific AST nodes to avoid switching here.
       if (value.type === 'TextNode') {
@@ -1924,23 +1924,7 @@ define("htmlbars-compiler/utils",
       }
     }
 
-    __exports__.processOpcodes = processOpcodes;// ref http://dev.w3.org/html5/spec-LC/namespaces.html
-    var defaultNamespaces = {
-      html: 'http://www.w3.org/1999/xhtml',
-      mathml: 'http://www.w3.org/1998/Math/MathML',
-      svg: 'http://www.w3.org/2000/svg',
-      xlink: 'http://www.w3.org/1999/xlink',
-      xml: 'http://www.w3.org/XML/1998/namespace'
-    };
-
-    function getNamespace(attrName) {
-      var parts = attrName.split(':');
-      if (parts.length > 1) {
-        return defaultNamespaces[parts[0]];
-      }
-    }
-
-    __exports__.getNamespace = getNamespace;
+    __exports__.processOpcodes = processOpcodes;
   });
 define("htmlbars-syntax",
   ["./htmlbars-syntax/walker","./htmlbars-syntax/builders","./htmlbars-syntax/parser","exports"],
@@ -3394,7 +3378,7 @@ define("htmlbars-syntax/node-handlers",
         // Ensure that that the element stack is balanced properly.
         var poppedNode = this.elementStack.pop();
         if (poppedNode !== node) {
-          throw new Error("Unclosed element: " + poppedNode.tag);
+          throw new Error("Unclosed element `" + poppedNode.tag + "` (on line " + poppedNode.loc.start.line + ").");
         }
 
         return node;
@@ -3544,6 +3528,20 @@ define("htmlbars-syntax/parser",
     // But this version of the transpiler does not support it properly
     var syntax = __dependency7__;
 
+    var splitLines;
+    // IE8 throws away blank pieces when splitting strings with a regex
+    // So we split using a string instead as appropriate
+    if ("foo\n\nbar".split(/\n/).length === 2) {
+      splitLines = function(str) {
+         var clean = str.replace(/\r\n?/g, '\n');
+         return clean.split('\n');
+      };
+    } else {
+      splitLines = function(str) {
+        return str.split(/(?:\r\n?|\n)/g);
+      };
+    }
+
     function preprocess(html, options) {
       var ast = (typeof html === 'object') ? html : parse(html);
       var combined = new HTMLProcessor(html, options).acceptNode(ast);
@@ -3569,7 +3567,7 @@ define("htmlbars-syntax/parser",
       this.tokenHandlers = tokenHandlers;
 
       if (typeof source === 'string') {
-        this.source = source.split(/(?:\r\n?|\n)/g);
+        this.source = splitLines(source);
       }
     }
 
@@ -3872,11 +3870,11 @@ define("htmlbars-syntax/tokenizer",
     __exports__.unwrapMustache = unwrapMustache;__exports__.Tokenizer = Tokenizer;
   });
 define("htmlbars-syntax/utils",
-  ["./builders","exports"],
-  function(__dependency1__, __exports__) {
+  ["./builders","../htmlbars-util/array-utils","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     var buildText = __dependency1__.buildText;
-
+    var indexOfArray = __dependency2__.indexOfArray;
     // Regex to validate the identifier for block parameters. 
     // Based on the ID validation regex in Handlebars.
 
@@ -3894,7 +3892,7 @@ define("htmlbars-syntax/utils",
         attrNames.push(element.attributes[i].name);
       }
 
-      var asIndex = attrNames.indexOf('as');
+      var asIndex = indexOfArray(attrNames, 'as');
 
       if (asIndex !== -1 && l > asIndex && attrNames[asIndex + 1].charAt(0) === '|') {
         // Some basic validation, since we're doing the parsing ourselves
@@ -4069,6 +4067,9 @@ define("htmlbars-test-helpers",
 
     // detect side-effects of cloning svg elements in IE9-11
     var ieSVGInnerHTML = (function () {
+      if (!document.createElementNS) {
+        return false;
+      }
       var div = document.createElement('div');
       var node = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
       div.appendChild(node);
@@ -4081,20 +4082,31 @@ define("htmlbars-test-helpers",
         // drop newlines in IE8
         actualHTML = actualHTML.replace(/\r\n/gm, '');
         // downcase ALLCAPS tags in IE8
-        actualHTML = actualHTML.replace(/<\/?[A-Z]+/gi, function(tag){
+        actualHTML = actualHTML.replace(/<\/?[A-Z\-]+/gi, function(tag){
           return tag.toLowerCase();
         });
         // quote ids in IE8
         actualHTML = actualHTML.replace(/id=([^ >]+)/gi, function(match, id){
           return 'id="'+id+'"';
         });
+        // IE8 adds ':' to some tags
+        // <keygen> becomes <:keygen>
+        actualHTML = actualHTML.replace(/<(\/?):([^ >]+)/gi, function(match, slash, tag){
+          return '<'+slash+tag;
+        });
+
+        // Normalize the style attribute
+        actualHTML = actualHTML.replace(/style="(.+?)"/gi, function(match, val){
+          return 'style="'+val.toLowerCase()+';"';
+        });
+
       }
       if (ieSVGInnerHTML) {
         // Replace `<svg xmlns="http://www.w3.org/2000/svg" height="50%" />` with `<svg height="50%"></svg>`, etc.
         // drop namespace attribute
         actualHTML = actualHTML.replace(/ xmlns="[^"]+"/, '');
         // replace self-closing elements
-        actualHTML = actualHTML.replace(/<([A-Z]+) [^\/>]*\/>/gi, function(tag, tagName) {
+        actualHTML = actualHTML.replace(/<([^ >]+) [^\/>]*\/>/gi, function(tag, tagName) {
           return tag.slice(0, tag.length - 3) + '></' + tagName + '>';
         });
       }
@@ -4110,17 +4122,41 @@ define("htmlbars-test-helpers",
       equal(element.outerHTML, checkedInputString);
     }
 
-    __exports__.isCheckedInputHTML = isCheckedInputHTML;
+    __exports__.isCheckedInputHTML = isCheckedInputHTML;// check which property has the node's text content
+    var textProperty = document.createElement('div').textContent === undefined ? 'innerText' : 'textContent';
+    function getTextContent(el) {
+      // textNode
+      if (el.nodeType === 3) {
+        return el.nodeValue;
+      } else {
+        return el[textProperty];
+      }
+    }
+
+    __exports__.getTextContent = getTextContent;// IE8 does not have Object.create, so use a polyfill if needed.
+    // Polyfill based on Mozilla's (MDN)
+    function createObject(obj) {
+      if (typeof Object.create === 'function') {
+        return Object.create(obj);
+      } else {
+        var Temp = function() {};
+        Temp.prototype = obj;
+        return new Temp();
+      }
+    }
+    __exports__.createObject = createObject;
   });
 define("htmlbars-util",
-  ["./htmlbars-util/safe-string","./htmlbars-util/handlebars/utils","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["./htmlbars-util/safe-string","./htmlbars-util/handlebars/utils","./htmlbars-util/namespaces","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     var SafeString = __dependency1__["default"];
     var escapeExpression = __dependency2__.escapeExpression;
+    var getAttrNamespace = __dependency3__.getAttrNamespace;
 
     __exports__.SafeString = SafeString;
     __exports__.escapeExpression = escapeExpression;
+    __exports__.getAttrNamespace = getAttrNamespace;
   });
 define("htmlbars-util/array-utils",
   ["exports"],
@@ -4150,7 +4186,29 @@ define("htmlbars-util/array-utils",
       return output;
     }
 
-    __exports__.map = map;
+    __exports__.map = map;var getIdx;
+    if (Array.prototype.indexOf) {
+      getIdx = function(array, obj, from){
+        return array.indexOf(obj, from);
+      };
+    } else {
+      getIdx = function(array, obj, from) {
+        if (from === undefined || from === null) {
+          from = 0;
+        } else if (from < 0) {
+          from = Math.max(0, array.length + from);
+        }
+        for (var i = from, l= array.length; i < l; i++) {
+          if (array[i] === obj) {
+            return i;
+          }
+        }
+        return -1;
+      };
+    }
+
+    var indexOfArray = getIdx;
+    __exports__.indexOfArray = indexOfArray;
   });
 define("htmlbars-util/handlebars/safe-string",
   ["exports"],
@@ -4258,6 +4316,33 @@ define("htmlbars-util/handlebars/utils",
     }
 
     __exports__.appendContextPath = appendContextPath;
+  });
+define("htmlbars-util/namespaces",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    // ref http://dev.w3.org/html5/spec-LC/namespaces.html
+    var defaultNamespaces = {
+      html: 'http://www.w3.org/1999/xhtml',
+      mathml: 'http://www.w3.org/1998/Math/MathML',
+      svg: 'http://www.w3.org/2000/svg',
+      xlink: 'http://www.w3.org/1999/xlink',
+      xml: 'http://www.w3.org/XML/1998/namespace'
+    };
+
+    function getAttrNamespace(attrName) {
+      var namespace;
+
+      var colonIndex = attrName.indexOf(':');
+      if (colonIndex !== -1) {
+        var prefix = attrName.slice(0, colonIndex);
+        namespace = defaultNamespaces[prefix];
+      }
+
+      return namespace || null;
+    }
+
+    __exports__.getAttrNamespace = getAttrNamespace;
   });
 define("htmlbars-util/object-utils",
   ["exports"],

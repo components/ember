@@ -4848,6 +4848,32 @@ enifed("ember-htmlbars/tests/compat/helper_test",
       runAppend(view);
     });
 
+    test('allows unbound usage within an element', function() {
+      expect(4);
+
+      function someHelper(param1, param2, options) {
+        equal(param1, 'blammo');
+        equal(param2, 'blazzico');
+
+        return "class='foo'";
+      }
+
+      registerHandlebarsCompatibleHelper('test', someHelper);
+
+      view = EmberView.create({
+        controller: {
+          value: 'foo'
+        },
+        template: compile('<div {{test "blammo" "blazzico"}}>Bar</div>')
+      });
+
+      expectDeprecation(function() {
+        runAppend(view);
+      }, 'Returning a string of attributes from a helper inside an element is deprecated.');
+
+      equal(view.$('.foo').length, 1, 'class attribute was added by helper');
+    });
+
     test('registering a helper created from `Ember.Handlebars.makeViewHelper` does not double wrap the helper', function() {
       expect(1);
 
@@ -4867,6 +4893,68 @@ enifed("ember-htmlbars/tests/compat/helper_test",
       equal(view.$().text(), 'woot!');
     });
 
+    test('does not add `options.fn` if no block was specified', function() {
+      expect(1);
+
+      function someHelper(options) {
+        ok(!options.fn, '`options.fn` is not present when block is not specified');
+      }
+
+      registerHandlebarsCompatibleHelper('test', someHelper);
+
+      view = EmberView.create({
+        controller: {
+          value: 'foo'
+        },
+        template: compile('{{test}}')
+      });
+
+      runAppend(view);
+    });
+
+    test('does not return helper result if block was specified', function() {
+      expect(1);
+
+      function someHelper(options) {
+        return 'asdf';
+      }
+
+      registerHandlebarsCompatibleHelper('test', someHelper);
+
+      view = EmberView.create({
+        controller: {
+          value: 'foo'
+        },
+        template: compile('{{#test}}lkj;{{/test}}')
+      });
+
+      runAppend(view);
+
+      equal(view.$().text(), '');
+    });
+
+    test('allows usage of the template fn', function() {
+      expect(1);
+
+      function someHelper(options) {
+        options.fn();
+      }
+
+      registerHandlebarsCompatibleHelper('test', someHelper);
+
+      view = EmberView.create({
+        controller: {
+          value: 'foo'
+        },
+        template: compile('{{#test}}foo{{/test}}')
+      });
+
+      runAppend(view);
+
+      equal(view.$().text(), 'foo');
+    });
+
+    // jscs:enable validateIndentation
     
   });
 enifed("ember-htmlbars/tests/compat/helper_test.jshint",
@@ -12506,6 +12594,95 @@ enifed("ember-htmlbars/tests/hooks/component_test.jshint",
     module('JSHint - ember-htmlbars/tests/hooks');
     test('ember-htmlbars/tests/hooks/component_test.js should pass jshint', function() { 
       ok(true, 'ember-htmlbars/tests/hooks/component_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-htmlbars/tests/hooks/element_test",
+  ["ember-views/views/view","ember-htmlbars/helpers","ember-runtime/tests/utils","ember-template-compiler/system/compile"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+    "use strict";
+    var EmberView = __dependency1__["default"];
+    var helpers = __dependency2__["default"];
+    var registerHelper = __dependency2__.registerHelper;
+    var runAppend = __dependency3__.runAppend;
+    var runDestroy = __dependency3__.runDestroy;
+    var compile = __dependency4__["default"];
+
+    var view;
+
+    QUnit.module('ember-htmlbars: element hook', {
+      teardown: function() {
+        runDestroy(view);
+        delete helpers.test;
+      }
+    });
+
+    test('allows unbound usage within an element', function() {
+      expect(4);
+
+      function someHelper(params, hash, options, env) {
+        equal(params[0], 'blammo');
+        equal(params[1], 'blazzico');
+
+        return "class='foo'";
+      }
+
+      registerHelper('test', someHelper);
+
+      view = EmberView.create({
+        controller: {
+          value: 'foo'
+        },
+        template: compile('<div {{test "blammo" "blazzico"}}>Bar</div>')
+      });
+
+      expectDeprecation(function() {
+        runAppend(view);
+      }, 'Returning a string of attributes from a helper inside an element is deprecated.');
+
+      equal(view.$('.foo').length, 1, 'class attribute was added by helper');
+    });
+
+    test('allows unbound usage within an element from property', function() {
+      expect(2);
+
+      view = EmberView.create({
+        controller: {
+          someProp: 'class="foo"'
+        },
+        template: compile('<div {{someProp}}>Bar</div>')
+      });
+
+      expectDeprecation(function() {
+        runAppend(view);
+      }, 'Returning a string of attributes from a helper inside an element is deprecated.');
+
+      equal(view.$('.foo').length, 1, 'class attribute was added by helper');
+    });
+
+    test('allows unbound usage within an element creating multiple attributes', function() {
+      expect(2);
+
+      view = EmberView.create({
+        controller: {
+          someProp: 'class="foo" data-foo="bar"'
+        },
+        template: compile('<div {{someProp}}>Bar</div>')
+      });
+
+      expectDeprecation(function() {
+        runAppend(view);
+      }, 'Returning a string of attributes from a helper inside an element is deprecated.');
+
+      equal(view.$('.foo[data-foo="bar"]').length, 1, 'attributes added by helper');
+    });
+  });
+enifed("ember-htmlbars/tests/hooks/element_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/tests/hooks');
+    test('ember-htmlbars/tests/hooks/element_test.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/tests/hooks/element_test.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/tests/hooks/text_node_test",
@@ -47063,6 +47240,7 @@ enifed("ember-testing/tests/helpers_test",
         jQuery(document).off('ajaxComplete');
       });
       Test.pendingAjaxRequests = null;
+      Test.waiters = null;
 
       // Other cleanup
 
@@ -47282,25 +47460,34 @@ enifed("ember-testing/tests/helpers_test",
     });
 
     test("`wait` respects registerWaiters", function() {
-      expect(2);
+      expect(3);
 
       var counter=0;
       function waiter() {
         return ++counter > 2;
       }
 
+      var other=0;
+      function otherWaiter() {
+        return ++other > 2;
+      }
+
       run(App, App.advanceReadiness);
       Test.registerWaiter(waiter);
+      Test.registerWaiter(otherWaiter);
 
       App.testHelpers.wait().then(function() {
         equal(waiter(), true, 'should not resolve until our waiter is ready');
         Test.unregisterWaiter(waiter);
-        equal(Test.waiters.length, 0, 'should not leave a waiter registered');
+        equal(Test.waiters.length, 1, 'should not leave the waiter registered');
+        other = 0;
+        return App.testHelpers.wait();
+      }).then(function() {
+        equal(otherWaiter(), true, 'other waiter is still registered');
       });
     });
 
-
-    test("`visit` advances readiness.", function(){
+    test("`visit` advances readiness.", function() {
       expect(2);
 
       equal(App._readinessDeferrals, 1, "App is in deferred state after setupForTesting.");
@@ -47429,7 +47616,7 @@ enifed("ember-testing/tests/helpers_test",
 
 
     test("`wait` respects registerWaiters with optional context", function() {
-      expect(2);
+      expect(3);
 
       var obj = {
         counter: 0,
@@ -47438,17 +47625,34 @@ enifed("ember-testing/tests/helpers_test",
         }
       };
 
+      var other=0;
+      function otherWaiter() {
+        return ++other > 2;
+      }
+
       run(App, App.advanceReadiness);
       Test.registerWaiter(obj, obj.ready);
+      Test.registerWaiter(otherWaiter);
 
       App.testHelpers.wait().then(function() {
         equal(obj.ready(), true, 'should not resolve until our waiter is ready');
         Test.unregisterWaiter(obj, obj.ready);
-        equal(Test.waiters.length, 0, 'should not leave a waiter registered');
+        equal(Test.waiters.length, 1, 'should not leave the waiter registered');
+        return App.testHelpers.wait();
+      }).then(function() {
+        equal(otherWaiter(), true, 'other waiter should still be registered');
       });
     });
 
-    test("`triggerEvent accepts an optional options hash without context", function(){
+    test("`wait` does not error if routing has not begun", function() {
+      expect(1);
+
+      App.testHelpers.wait().then(function() {
+        ok(true, 'should not error without `visit`');
+      });
+    });
+
+    test("`triggerEvent accepts an optional options hash without context", function() {
       expect(3);
 
       var triggerEvent, wait, event;

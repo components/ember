@@ -648,8 +648,10 @@ enifed("ember-testing/helpers",
 
         // Every 10ms, poll for the async thing to have finished
         var watcher = setInterval(function() {
+          var router = app.__container__.lookup('router:main');
+
           // 1. If the router is loading, keep polling
-          var routerIsLoading = !!app.__container__.lookup('router:main').router.activeTransition;
+          var routerIsLoading = router.router && !!router.router.activeTransition;
           if (routerIsLoading) { return; }
 
           // 2. If there are pending Ajax requests, keep polling
@@ -1056,16 +1058,15 @@ enifed("ember-testing/support",
     });
   });
 enifed("ember-testing/test",
-  ["ember-metal/core","ember-metal/run_loop","ember-metal/platform","ember-runtime/compare","ember-runtime/ext/rsvp","ember-testing/setup_for_testing","ember-application/system/application","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
+  ["ember-metal/core","ember-metal/run_loop","ember-metal/platform","ember-runtime/ext/rsvp","ember-testing/setup_for_testing","ember-application/system/application","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var emberRun = __dependency2__["default"];
     var create = __dependency3__.create;
-    var compare = __dependency4__["default"];
-    var RSVP = __dependency5__["default"];
-    var setupForTesting = __dependency6__["default"];
-    var EmberApplication = __dependency7__["default"];
+    var RSVP = __dependency4__["default"];
+    var setupForTesting = __dependency5__["default"];
+    var EmberApplication = __dependency6__["default"];
 
     /**
       @module ember
@@ -1326,15 +1327,13 @@ enifed("ember-testing/test",
          @since 1.2.0
       */
       unregisterWaiter: function(context, callback) {
-        var pair;
         if (!this.waiters) { return; }
         if (arguments.length === 1) {
           callback = context;
           context = null;
         }
-        pair = [context, callback];
         this.waiters = Ember.A(this.waiters.filter(function(elt) {
-          return compare(elt, pair)!==0;
+          return !(elt[0] === context && elt[1] === callback);
         }));
       }
     };
