@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.2477a7b0
+ * @version   1.11.0-beta.1+canary.22d2afab
  */
 
 (function() {
@@ -2164,8 +2164,8 @@ enifed("container/registry",
     __exports__["default"] = Registry;
   });
 enifed("ember-metal",
-  ["ember-metal/core","ember-metal/merge","ember-metal/instrumentation","ember-metal/utils","ember-metal/error","ember-metal/enumerable_utils","ember-metal/cache","ember-metal/platform","ember-metal/array","ember-metal/logger","ember-metal/property_get","ember-metal/events","ember-metal/observer_set","ember-metal/property_events","ember-metal/properties","ember-metal/property_set","ember-metal/map","ember-metal/get_properties","ember-metal/set_properties","ember-metal/watch_key","ember-metal/chains","ember-metal/watch_path","ember-metal/watching","ember-metal/expand_properties","ember-metal/computed","ember-metal/computed_macros","ember-metal/observer","ember-metal/mixin","ember-metal/binding","ember-metal/run_loop","ember-metal/libraries","ember-metal/is_none","ember-metal/is_empty","ember-metal/is_blank","ember-metal/is_present","ember-metal/keys","backburner","ember-metal/streams/utils","ember-metal/streams/stream","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __dependency31__, __dependency32__, __dependency33__, __dependency34__, __dependency35__, __dependency36__, __dependency37__, __dependency38__, __dependency39__, __exports__) {
+  ["ember-metal/core","ember-metal/merge","ember-metal/instrumentation","ember-metal/utils","ember-metal/error","ember-metal/enumerable_utils","ember-metal/cache","ember-metal/platform","ember-metal/array","ember-metal/logger","ember-metal/property_get","ember-metal/events","ember-metal/observer_set","ember-metal/property_events","ember-metal/properties","ember-metal/property_set","ember-metal/map","ember-metal/get_properties","ember-metal/set_properties","ember-metal/watch_key","ember-metal/chains","ember-metal/watch_path","ember-metal/watching","ember-metal/expand_properties","ember-metal/computed","ember-metal/alias","ember-metal/computed_macros","ember-metal/observer","ember-metal/mixin","ember-metal/binding","ember-metal/run_loop","ember-metal/libraries","ember-metal/is_none","ember-metal/is_empty","ember-metal/is_blank","ember-metal/is_present","ember-metal/keys","backburner","ember-metal/streams/utils","ember-metal/streams/stream","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __dependency31__, __dependency32__, __dependency33__, __dependency34__, __dependency35__, __dependency36__, __dependency37__, __dependency38__, __dependency39__, __dependency40__, __exports__) {
     "use strict";
     /**
     Ember Metal
@@ -2266,50 +2266,91 @@ enifed("ember-metal",
     var computed = __dependency25__.computed;
     var cacheFor = __dependency25__.cacheFor;
 
-    // side effect of defining the computed.* macros
+    var alias = __dependency26__["default"];
+    var empty = __dependency27__.empty;
+    var notEmpty = __dependency27__.notEmpty;
+    var none = __dependency27__.none;
+    var not = __dependency27__.not;
+    var bool = __dependency27__.bool;
+    var match = __dependency27__.match;
+    var equal = __dependency27__.equal;
+    var gt = __dependency27__.gt;
+    var gte = __dependency27__.gte;
+    var lt = __dependency27__.lt;
+    var lte = __dependency27__.lte;
+    var oneWay = __dependency27__.oneWay;
+    var readOnly = __dependency27__.readOnly;
+    var defaultTo = __dependency27__.defaultTo;
+    var deprecatingAlias = __dependency27__.deprecatingAlias;
+    var and = __dependency27__.and;
+    var or = __dependency27__.or;
+    var any = __dependency27__.any;
+    var collect = __dependency27__.collect;
 
-    var _suspendBeforeObserver = __dependency27__._suspendBeforeObserver;
-    var _suspendBeforeObservers = __dependency27__._suspendBeforeObservers;
-    var _suspendObserver = __dependency27__._suspendObserver;
-    var _suspendObservers = __dependency27__._suspendObservers;
-    var addBeforeObserver = __dependency27__.addBeforeObserver;
-    var addObserver = __dependency27__.addObserver;
-    var beforeObserversFor = __dependency27__.beforeObserversFor;
-    var observersFor = __dependency27__.observersFor;
-    var removeBeforeObserver = __dependency27__.removeBeforeObserver;
-    var removeObserver = __dependency27__.removeObserver;
-    var IS_BINDING = __dependency28__.IS_BINDING;
-    var Mixin = __dependency28__.Mixin;
-    var aliasMethod = __dependency28__.aliasMethod;
-    var beforeObserver = __dependency28__.beforeObserver;
-    var immediateObserver = __dependency28__.immediateObserver;
-    var mixin = __dependency28__.mixin;
-    var observer = __dependency28__.observer;
-    var required = __dependency28__.required;
-    var Binding = __dependency29__.Binding;
-    var bind = __dependency29__.bind;
-    var isGlobalPath = __dependency29__.isGlobalPath;
-    var oneWay = __dependency29__.oneWay;
-    var run = __dependency30__["default"];
-    var Libraries = __dependency31__["default"];
-    var isNone = __dependency32__["default"];
-    var isEmpty = __dependency33__["default"];
-    var isBlank = __dependency34__["default"];
-    var isPresent = __dependency35__["default"];
-    var keys = __dependency36__["default"];
-    var Backburner = __dependency37__["default"];
-    var isStream = __dependency38__.isStream;
-    var subscribe = __dependency38__.subscribe;
-    var unsubscribe = __dependency38__.unsubscribe;
-    var read = __dependency38__.read;
-    var readHash = __dependency38__.readHash;
-    var readArray = __dependency38__.readArray;
-    var scanArray = __dependency38__.scanArray;
-    var scanHash = __dependency38__.scanHash;
-    var concat = __dependency38__.concat;
-    var chain = __dependency38__.chain;
+    computed.empty = empty;
+    computed.notEmpty = notEmpty;
+    computed.none = none;
+    computed.not = not;
+    computed.bool = bool;
+    computed.match = match;
+    computed.equal = equal;
+    computed.gt = gt;
+    computed.gte = gte;
+    computed.lt = lt;
+    computed.lte = lte;
+    computed.alias = alias;
+    computed.oneWay = oneWay;
+    computed.reads = oneWay;
+    computed.readOnly = readOnly;
+    computed.defaultTo = defaultTo;
+    computed.deprecatingAlias = deprecatingAlias;
+    computed.and = and;
+    computed.or = or;
+    computed.any = any;
+    computed.collect = collect;
 
-    var Stream = __dependency39__["default"];
+    var _suspendBeforeObserver = __dependency28__._suspendBeforeObserver;
+    var _suspendBeforeObservers = __dependency28__._suspendBeforeObservers;
+    var _suspendObserver = __dependency28__._suspendObserver;
+    var _suspendObservers = __dependency28__._suspendObservers;
+    var addBeforeObserver = __dependency28__.addBeforeObserver;
+    var addObserver = __dependency28__.addObserver;
+    var beforeObserversFor = __dependency28__.beforeObserversFor;
+    var observersFor = __dependency28__.observersFor;
+    var removeBeforeObserver = __dependency28__.removeBeforeObserver;
+    var removeObserver = __dependency28__.removeObserver;
+    var IS_BINDING = __dependency29__.IS_BINDING;
+    var Mixin = __dependency29__.Mixin;
+    var aliasMethod = __dependency29__.aliasMethod;
+    var beforeObserver = __dependency29__.beforeObserver;
+    var immediateObserver = __dependency29__.immediateObserver;
+    var mixin = __dependency29__.mixin;
+    var observer = __dependency29__.observer;
+    var required = __dependency29__.required;
+    var Binding = __dependency30__.Binding;
+    var bind = __dependency30__.bind;
+    var isGlobalPath = __dependency30__.isGlobalPath;
+    var oneWay = __dependency30__.oneWay;
+    var run = __dependency31__["default"];
+    var Libraries = __dependency32__["default"];
+    var isNone = __dependency33__["default"];
+    var isEmpty = __dependency34__["default"];
+    var isBlank = __dependency35__["default"];
+    var isPresent = __dependency36__["default"];
+    var keys = __dependency37__["default"];
+    var Backburner = __dependency38__["default"];
+    var isStream = __dependency39__.isStream;
+    var subscribe = __dependency39__.subscribe;
+    var unsubscribe = __dependency39__.unsubscribe;
+    var read = __dependency39__.read;
+    var readHash = __dependency39__.readHash;
+    var readArray = __dependency39__.readArray;
+    var scanArray = __dependency39__.scanArray;
+    var scanHash = __dependency39__.scanHash;
+    var concat = __dependency39__.concat;
+    var chain = __dependency39__.chain;
+
+    var Stream = __dependency40__["default"];
 
     // END IMPORTS
 
@@ -4327,8 +4368,8 @@ enifed("ember-metal/computed",
     __exports__.cacheFor = cacheFor;
   });
 enifed("ember-metal/computed_macros",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/computed","ember-metal/is_empty","ember-metal/is_none","ember-metal/alias"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_set","ember-metal/computed","ember-metal/is_empty","ember-metal/is_none","ember-metal/alias","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var get = __dependency2__.get;
@@ -4352,17 +4393,8 @@ enifed("ember-metal/computed_macros",
       return ret;
     }
 
-    function registerComputed(name, macro) {
-      computed[name] = function(dependentKey) {
-        var args = a_slice.call(arguments);
-        return computed(dependentKey, function() {
-          return macro.apply(this, args);
-        });
-      };
-    }
-
-    function registerComputedWithProperties(name, macro) {
-      computed[name] = function() {
+    function generateComputedWithProperties(macro) {
+      return function() {
         var properties = a_slice.call(arguments);
 
         var computedFunc = computed(function() {
@@ -4400,13 +4432,13 @@ enifed("ember-metal/computed_macros",
       @return {Ember.ComputedProperty} computed property which negate
       the original value for property
     */
-    computed.empty = function (dependentKey) {
+    function empty(dependentKey) {
       return computed(dependentKey + '.length', function () {
         return isEmpty(get(this, dependentKey));
       });
-    };
+    }
 
-    /**
+    __exports__.empty = empty;/**
       A computed property that returns true if the value of the dependent
       property is NOT null, an empty string, empty array, or empty function.
 
@@ -4430,13 +4462,13 @@ enifed("ember-metal/computed_macros",
       @return {Ember.ComputedProperty} computed property which returns true if
       original value for property is not empty.
     */
-    computed.notEmpty = function(dependentKey) {
+    function notEmpty(dependentKey) {
       return computed(dependentKey + '.length', function () {
         return !isEmpty(get(this, dependentKey));
       });
-    };
+    }
 
-    /**
+    __exports__.notEmpty = notEmpty;/**
       A computed property that returns true if the value of the dependent
       property is null or undefined. This avoids errors from JSLint complaining
       about use of ==, which can be technically confusing.
@@ -4463,11 +4495,13 @@ enifed("ember-metal/computed_macros",
       @return {Ember.ComputedProperty} computed property which
       returns true if original value for property is null or undefined.
     */
-    registerComputed('none', function(dependentKey) {
-      return isNone(get(this, dependentKey));
-    });
+    function none(dependentKey) {
+      return computed(dependentKey, function () {
+        return isNone(get(this, dependentKey));
+      });
+    }
 
-    /**
+    __exports__.none = none;/**
       A computed property that returns the inverse boolean value
       of the original value for the dependent property.
 
@@ -4491,11 +4525,13 @@ enifed("ember-metal/computed_macros",
       @return {Ember.ComputedProperty} computed property which returns
       inverse of the original value for property
     */
-    registerComputed('not', function(dependentKey) {
-      return !get(this, dependentKey);
-    });
+    function not(dependentKey) {
+      return computed(dependentKey, function () {
+        return !get(this, dependentKey);
+      });
+    }
 
-    /**
+    __exports__.not = not;/**
       A computed property that converts the provided dependent property
       into a boolean value.
 
@@ -4521,11 +4557,13 @@ enifed("ember-metal/computed_macros",
       @return {Ember.ComputedProperty} computed property which converts
       to boolean the original value for property
     */
-    registerComputed('bool', function(dependentKey) {
-      return !!get(this, dependentKey);
-    });
+    function bool(dependentKey) {
+      return computed(dependentKey, function () {
+        return !!get(this, dependentKey);
+      });
+    }
 
-    /**
+    __exports__.bool = bool;/**
       A computed property which matches the original value for the
       dependent property against a given RegExp, returning `true`
       if they values matches the RegExp and `false` if it does not.
@@ -4553,12 +4591,15 @@ enifed("ember-metal/computed_macros",
       @return {Ember.ComputedProperty} computed property which match
       the original value for property against a given RegExp
     */
-    registerComputed('match', function(dependentKey, regexp) {
-      var value = get(this, dependentKey);
-      return typeof value === 'string' ? regexp.test(value) : false;
-    });
+    function match(dependentKey, regexp) {
+      return computed(dependentKey, function () {
+        var value = get(this, dependentKey);
 
-    /**
+        return typeof value === 'string' ? regexp.test(value) : false;
+      });
+    }
+
+    __exports__.match = match;/**
       A computed property that returns true if the provided dependent property
       is equal to the given value.
 
@@ -4585,11 +4626,13 @@ enifed("ember-metal/computed_macros",
       @return {Ember.ComputedProperty} computed property which returns true if
       the original value for property is equal to the given value.
     */
-    registerComputed('equal', function(dependentKey, value) {
-      return get(this, dependentKey) === value;
-    });
+    function equal(dependentKey, value) {
+      return computed(dependentKey, function () {
+        return get(this, dependentKey) === value;
+      });
+    }
 
-    /**
+    __exports__.equal = equal;/**
       A computed property that returns true if the provided dependent property
       is greater than the provided value.
 
@@ -4616,11 +4659,13 @@ enifed("ember-metal/computed_macros",
       @return {Ember.ComputedProperty} computed property which returns true if
       the original value for property is greater than given value.
     */
-    registerComputed('gt', function(dependentKey, value) {
-      return get(this, dependentKey) > value;
-    });
+    function gt(dependentKey, value) {
+      return computed(dependentKey, function () {
+        return get(this, dependentKey) > value;
+      });
+    }
 
-    /**
+    __exports__.gt = gt;/**
       A computed property that returns true if the provided dependent property
       is greater than or equal to the provided value.
 
@@ -4647,11 +4692,13 @@ enifed("ember-metal/computed_macros",
       @return {Ember.ComputedProperty} computed property which returns true if
       the original value for property is greater or equal then given value.
     */
-    registerComputed('gte', function(dependentKey, value) {
-      return get(this, dependentKey) >= value;
-    });
+    function gte(dependentKey, value) {
+      return computed(dependentKey, function () {
+        return get(this, dependentKey) >= value;
+      });
+    }
 
-    /**
+    __exports__.gte = gte;/**
       A computed property that returns true if the provided dependent property
       is less than the provided value.
 
@@ -4678,11 +4725,13 @@ enifed("ember-metal/computed_macros",
       @return {Ember.ComputedProperty} computed property which returns true if
       the original value for property is less then given value.
     */
-    registerComputed('lt', function(dependentKey, value) {
-      return get(this, dependentKey) < value;
-    });
+    function lt(dependentKey, value) {
+      return computed(dependentKey, function () {
+        return get(this, dependentKey) < value;
+      });
+    }
 
-    /**
+    __exports__.lt = lt;/**
       A computed property that returns true if the provided dependent property
       is less than or equal to the provided value.
 
@@ -4709,11 +4758,13 @@ enifed("ember-metal/computed_macros",
       @return {Ember.ComputedProperty} computed property which returns true if
       the original value for property is less or equal than given value.
     */
-    registerComputed('lte', function(dependentKey, value) {
-      return get(this, dependentKey) <= value;
-    });
+    function lte(dependentKey, value) {
+      return computed(dependentKey, function () {
+        return get(this, dependentKey) <= value;
+      });
+    }
 
-    /**
+    __exports__.lte = lte;/**
       A computed property that performs a logical `and` on the
       original values for the provided dependent properties.
 
@@ -4741,7 +4792,7 @@ enifed("ember-metal/computed_macros",
       @return {Ember.ComputedProperty} computed property which performs
       a logical `and` on the values of all the original values for properties.
     */
-    registerComputedWithProperties('and', function(properties) {
+    var and = generateComputedWithProperties(function(properties) {
       var value;
       for (var key in properties) {
         value = properties[key];
@@ -4751,7 +4802,7 @@ enifed("ember-metal/computed_macros",
       }
       return value;
     });
-
+    __exports__.and = and;
     /**
       A computed property which performs a logical `or` on the
       original values for the provided dependent properties.
@@ -4778,7 +4829,7 @@ enifed("ember-metal/computed_macros",
       @return {Ember.ComputedProperty} computed property which performs
       a logical `or` on the values of all the original values for properties.
     */
-    registerComputedWithProperties('or', function(properties) {
+    var or = generateComputedWithProperties(function(properties) {
       for (var key in properties) {
         if (properties.hasOwnProperty(key) && properties[key]) {
           return properties[key];
@@ -4786,7 +4837,7 @@ enifed("ember-metal/computed_macros",
       }
       return false;
     });
-
+    __exports__.or = or;
     /**
       A computed property that returns the first truthy value
       from a list of dependent properties.
@@ -4812,7 +4863,7 @@ enifed("ember-metal/computed_macros",
       the first truthy value of given list of properties.
       @deprecated Use `Ember.computed.or` instead.
     */
-    registerComputedWithProperties('any', function(properties) {
+    var any = generateComputedWithProperties(function(properties) {
       for (var key in properties) {
         if (properties.hasOwnProperty(key) && properties[key]) {
           return properties[key];
@@ -4820,7 +4871,7 @@ enifed("ember-metal/computed_macros",
       }
       return null;
     });
-
+    __exports__.any = any;
     /**
       A computed property that returns the array of values
       for the provided dependent properties.
@@ -4846,7 +4897,7 @@ enifed("ember-metal/computed_macros",
       @return {Ember.ComputedProperty} computed property which maps
       values of all passed in properties to an array.
     */
-    registerComputedWithProperties('collect', function(properties) {
+    var collect = generateComputedWithProperties(function(properties) {
       var res = Ember.A();
       for (var key in properties) {
         if (properties.hasOwnProperty(key)) {
@@ -4859,7 +4910,7 @@ enifed("ember-metal/computed_macros",
       }
       return res;
     });
-
+    __exports__.collect = collect;
     /**
       Creates a new property that is an alias for another property
       on an object. Calls to `get` or `set` this property behave as
@@ -4886,7 +4937,6 @@ enifed("ember-metal/computed_macros",
       @return {Ember.ComputedProperty} computed property which creates an
       alias to the original value for property.
     */
-    computed.alias = alias;
 
     /**
       Where `computed.alias` aliases `get` and `set`, and allows for bidirectional
@@ -4920,11 +4970,11 @@ enifed("ember-metal/computed_macros",
       @return {Ember.ComputedProperty} computed property which creates a
       one way computed property to the original value for property.
     */
-    computed.oneWay = function(dependentKey) {
+    function oneWay(dependentKey) {
       return alias(dependentKey).oneWay();
-    };
+    }
 
-    /**
+    __exports__.oneWay = oneWay;/**
       This is a more semantically meaningful alias of `computed.oneWay`,
       whose name is somewhat ambiguous as to which direction the data flows.
 
@@ -4934,7 +4984,6 @@ enifed("ember-metal/computed_macros",
       @return {Ember.ComputedProperty} computed property which creates a
         one way computed property to the original value for property.
      */
-    computed.reads = computed.oneWay;
 
     /**
       Where `computed.oneWay` provides oneWay bindings, `computed.readOnly` provides
@@ -4970,10 +5019,11 @@ enifed("ember-metal/computed_macros",
       one way computed property to the original value for property.
       @since 1.5.0
     */
-    computed.readOnly = function(dependentKey) {
+    function readOnly(dependentKey) {
       return alias(dependentKey).readOnly();
-    };
-    /**
+    }
+
+    __exports__.readOnly = readOnly;/**
       A computed property that acts like a standard getter and setter,
       but returns the value at the provided `defaultPath` if the
       property itself has not been set to a value
@@ -5000,8 +5050,7 @@ enifed("ember-metal/computed_macros",
       a standard getter and setter, but defaults to the value from `defaultPath`.
       @deprecated Use `Ember.computed.oneWay` or custom CP with default instead.
     */
-    // ES6TODO: computed should have its own export path so you can do import {defaultTo} from computed
-    computed.defaultTo = function(defaultPath) {
+    function defaultTo(defaultPath) {
       return computed(function(key, newValue, cachedValue) {
         Ember.deprecate('Usage of Ember.computed.defaultTo is deprecated, use `Ember.computed.oneWay` instead.');
 
@@ -5010,9 +5059,9 @@ enifed("ember-metal/computed_macros",
         }
         return newValue != null ? newValue : get(this, defaultPath);
       });
-    };
+    }
 
-    /**
+    __exports__.defaultTo = defaultTo;/**
       Creates a new property that is an alias for another property
       on an object. Calls to `get` or `set` this property behave as
       though they were called on the original property, but also
@@ -5025,7 +5074,7 @@ enifed("ember-metal/computed_macros",
       alias with a deprecation to the original value for property.
       @since 1.7.0
     */
-    computed.deprecatingAlias = function(dependentKey) {
+    function deprecatingAlias(dependentKey) {
       return computed(dependentKey, function(key, value) {
         Ember.deprecate('Usage of `' + key + '` is deprecated, use `' + dependentKey + '` instead.');
 
@@ -5036,7 +5085,9 @@ enifed("ember-metal/computed_macros",
           return get(this, dependentKey);
         }
       });
-    };
+    }
+
+    __exports__.deprecatingAlias = deprecatingAlias;
   });
 enifed("ember-metal/core",
   ["exports"],
@@ -5066,7 +5117,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.2477a7b0
+      @version 1.11.0-beta.1+canary.22d2afab
     */
 
     if ('undefined' === typeof Ember) {
@@ -5094,10 +5145,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.2477a7b0'
+      @default '1.11.0-beta.1+canary.22d2afab'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.2477a7b0';
+    Ember.VERSION = '1.11.0-beta.1+canary.22d2afab';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
