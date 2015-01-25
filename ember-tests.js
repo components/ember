@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.968b6bc8
+ * @version   1.11.0-beta.1+canary.2477a7b0
  */
 
 (function() {
@@ -6882,6 +6882,67 @@ enifed("ember-htmlbars/tests/compat/helper_test",
       runAppend(view);
 
       equal(view.$().text(), 'woot!');
+    });
+
+    test('does not add `options.fn` if no block was specified', function() {
+      expect(1);
+
+      function someHelper(options) {
+        ok(!options.fn, '`options.fn` is not present when block is not specified');
+      }
+
+      registerHandlebarsCompatibleHelper('test', someHelper);
+
+      view = EmberView.create({
+        controller: {
+          value: 'foo'
+        },
+        template: compile('{{test}}')
+      });
+
+      runAppend(view);
+    });
+
+    test('does not return helper result if block was specified', function() {
+      expect(1);
+
+      function someHelper(options) {
+        return 'asdf';
+      }
+
+      registerHandlebarsCompatibleHelper('test', someHelper);
+
+      view = EmberView.create({
+        controller: {
+          value: 'foo'
+        },
+        template: compile('{{#test}}lkj;{{/test}}')
+      });
+
+      runAppend(view);
+
+      equal(view.$().text(), '');
+    });
+
+    test('allows usage of the template fn', function() {
+      expect(1);
+
+      function someHelper(options) {
+        options.fn();
+      }
+
+      registerHandlebarsCompatibleHelper('test', someHelper);
+
+      view = EmberView.create({
+        controller: {
+          value: 'foo'
+        },
+        template: compile('{{#test}}foo{{/test}}')
+      });
+
+      runAppend(view);
+
+      equal(view.$().text(), 'foo');
     });
 
     // jscs:enable validateIndentation

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.968b6bc8
+ * @version   1.11.0-beta.1+canary.2477a7b0
  */
 
 (function() {
@@ -4937,12 +4937,21 @@ enifed("ember-htmlbars/compat/helper",
     */
     function HandlebarsCompatibleHelper(fn) {
       this.helperFunction = function helperFunc(params, hash, options, env) {
-        var param;
+        var param, blockResult, fnResult;
+        var context = this;
         var handlebarsOptions = {};
+
         merge(handlebarsOptions, options);
         merge(handlebarsOptions, env);
 
         handlebarsOptions.hash = {};
+
+        if (options.isBlock) {
+          handlebarsOptions.fn = function() {
+            blockResult = options.template.render(context, env, options.morph.contextualElement);
+          };
+        }
+
         for (var prop in hash) {
           param = hash[prop];
 
@@ -4965,7 +4974,9 @@ enifed("ember-htmlbars/compat/helper",
         }
         args.push(handlebarsOptions);
 
-        return fn.apply(this, args);
+        fnResult = fn.apply(this, args);
+
+        return options.isBlock ? blockResult : fnResult;
       };
 
       this.isHTMLBars = true;
@@ -11691,7 +11702,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.968b6bc8
+      @version 1.11.0-beta.1+canary.2477a7b0
     */
 
     if ('undefined' === typeof Ember) {
@@ -11719,10 +11730,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.968b6bc8'
+      @default '1.11.0-beta.1+canary.2477a7b0'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.968b6bc8';
+    Ember.VERSION = '1.11.0-beta.1+canary.2477a7b0';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
