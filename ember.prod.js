@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.d54ae93c
+ * @version   1.11.0-beta.1+canary.2477a7b0
  */
 
 (function() {
@@ -7514,44 +7514,26 @@ enifed("ember-htmlbars/hooks/content",
     }
   });
 enifed("ember-htmlbars/hooks/element",
-  ["ember-metal/core","ember-metal/streams/utils","ember-htmlbars/system/lookup-helper","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["ember-htmlbars/system/lookup-helper","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
     /**
     @module ember
     @submodule ember-htmlbars
     */
 
-    var Ember = __dependency1__["default"];
-    var read = __dependency2__.read;
-    var lookupHelper = __dependency3__["default"];
+    var lookupHelper = __dependency1__["default"];
 
     __exports__["default"] = function element(env, domElement, view, path, params, hash) { //jshint ignore:line
       var helper = lookupHelper(path, view, env);
-      var valueOrLazyValue;
 
       if (helper) {
         var options = {
           element: domElement
         };
-        valueOrLazyValue = helper.helperFunction.call(view, params, hash, options, env);
+        return helper.helperFunction.call(view, params, hash, options, env);
       } else {
-        valueOrLazyValue = view.getStream(path);
-      }
-
-      var value = read(valueOrLazyValue);
-      if (value) {
-        
-        var parts = value.toString().split(/\s+/);
-        for (var i = 0, l = parts.length; i < l; i++) {
-          var attrParts = parts[i].split('=');
-          var attrName = attrParts[0];
-          var attrValue = attrParts[1];
-
-          attrValue = attrValue.replace(/^['"]/, '').replace(/['"]$/, '');
-
-          env.dom.setAttribute(domElement, attrName, attrValue);
-        }
+        return view.getStream(path);
       }
     }
   });
@@ -11720,7 +11702,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.d54ae93c
+      @version 1.11.0-beta.1+canary.2477a7b0
     */
 
     if ('undefined' === typeof Ember) {
@@ -11748,10 +11730,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.d54ae93c'
+      @default '1.11.0-beta.1+canary.2477a7b0'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.d54ae93c';
+    Ember.VERSION = '1.11.0-beta.1+canary.2477a7b0';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
