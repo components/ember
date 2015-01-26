@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.f87c158f
+ * @version   1.11.0-beta.1+canary.d3ff3aff
  */
 
 (function() {
@@ -11771,7 +11771,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.f87c158f
+      @version 1.11.0-beta.1+canary.d3ff3aff
     */
 
     if ('undefined' === typeof Ember) {
@@ -11799,10 +11799,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.f87c158f'
+      @default '1.11.0-beta.1+canary.d3ff3aff'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.f87c158f';
+    Ember.VERSION = '1.11.0-beta.1+canary.d3ff3aff';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -34297,6 +34297,7 @@ enifed("ember-runtime/system/core_object",
 
         This will return the original hash that was passed to `meta()`.
 
+        @static
         @method metaForProperty
         @param key {String} property name
       */
@@ -34331,6 +34332,7 @@ enifed("ember-runtime/system/core_object",
         Iterate over each computed property for the class, passing its name
         and any associated metadata (see `metaForProperty`) to the callback.
 
+        @static
         @method eachComputedProperty
         @param {Function} callback
         @param {Object} binding
