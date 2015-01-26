@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.22d2afab
+ * @version   1.11.0-beta.1+canary.f87c158f
  */
 
 (function() {
@@ -11776,7 +11776,7 @@ enifed("ember-htmlbars/tests/helpers/log_test",
     var runAppend = __dependency4__.runAppend;
     var runDestroy = __dependency4__.runDestroy;
 
-    var originalLookup, originalLog, logCalls, lookup, view, compile;
+    var originalLookup, originalLog, logCalls, lookup, view;
 
     QUnit.module('ember-htmlbars: {{#log}} helper', {
       setup: function() {
@@ -15267,7 +15267,7 @@ enifed("ember-htmlbars/tests/integration/binding_integration_test",
 
     var set = __dependency11__.set;
 
-    var compile, view, MyApp, originalLookup, lookup;
+    var view, MyApp, originalLookup, lookup;
 
     var trim = jQuery.trim;
 
@@ -15729,7 +15729,7 @@ enifed("ember-htmlbars/tests/integration/escape_integration_test",
     var runAppend = __dependency6__.runAppend;
     var runDestroy = __dependency6__.runDestroy;
 
-    var compile, view;
+    var view;
 
     QUnit.module('ember-htmlbars: Integration with Globals', {
       teardown: function() {
@@ -15868,7 +15868,7 @@ enifed("ember-htmlbars/tests/integration/globals_integration_test",
     var runAppend = __dependency4__.runAppend;
     var runDestroy = __dependency4__.runDestroy;
 
-    var compile, view, originalLookup, lookup;
+    var view, originalLookup, lookup;
 
     var originalLookup = Ember.lookup;
 
@@ -20012,8 +20012,8 @@ enifed("ember-metal/tests/chains_test.jshint",
     });
   });
 enifed("ember-metal/tests/computed_test",
-  ["ember-metal/core","ember-metal/tests/props_helper","ember-metal/platform","ember-metal/computed","ember-metal/properties","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/watching","ember-metal/observer","ember-metal/enumerable_utils"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__) {
+  ["ember-metal/core","ember-metal/tests/props_helper","ember-metal/platform","ember-metal/computed","ember-metal/computed_macros","ember-metal/alias","ember-metal/properties","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/watching","ember-metal/observer","ember-metal/enumerable_utils"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var testBoth = __dependency2__.testBoth;
@@ -20021,15 +20021,36 @@ enifed("ember-metal/tests/computed_test",
     var ComputedProperty = __dependency4__.ComputedProperty;
     var computed = __dependency4__.computed;
     var cacheFor = __dependency4__.cacheFor;
-    var Descriptor = __dependency5__.Descriptor;
-    var defineProperty = __dependency5__.defineProperty;
-    var get = __dependency6__.get;
-    var set = __dependency7__.set;
-    var meta = __dependency8__.meta;
-    var isWatching = __dependency9__.isWatching;
-    var addObserver = __dependency10__.addObserver;
-    var addBeforeObserver = __dependency10__.addBeforeObserver;
-    var indexOf = __dependency11__.indexOf;
+
+    var empty = __dependency5__.empty;
+    var notEmpty = __dependency5__.notEmpty;
+    var not = __dependency5__.not;
+    var bool = __dependency5__.bool;
+    var match = __dependency5__.match;
+    var computedEqual = __dependency5__.equal;
+    var gt = __dependency5__.gt;
+    var gte = __dependency5__.gte;
+    var lt = __dependency5__.lt;
+    var lte = __dependency5__.lte;
+    var oneWay = __dependency5__.oneWay;
+    var readOnly = __dependency5__.readOnly;
+    var defaultTo = __dependency5__.defaultTo;
+    var deprecatingAlias = __dependency5__.deprecatingAlias;
+    var and = __dependency5__.and;
+    var or = __dependency5__.or;
+    var any = __dependency5__.any;
+    var collect = __dependency5__.collect;
+    var alias = __dependency6__["default"];
+
+    var Descriptor = __dependency7__.Descriptor;
+    var defineProperty = __dependency7__.defineProperty;
+    var get = __dependency8__.get;
+    var set = __dependency9__.set;
+    var meta = __dependency10__.meta;
+    var isWatching = __dependency11__.isWatching;
+    var addObserver = __dependency12__.addObserver;
+    var addBeforeObserver = __dependency12__.addBeforeObserver;
+    var indexOf = __dependency13__.indexOf;
 
     var originalLookup = Ember.lookup;
     var obj, count, Global, lookup;
@@ -20882,20 +20903,20 @@ enifed("ember-metal/tests/computed_test",
 
     testBoth('computed.not', function(get, set) {
       var obj = { foo: true };
-      defineProperty(obj, 'notFoo', computed.not('foo'));
+      defineProperty(obj, 'notFoo', not('foo'));
       equal(get(obj, 'notFoo'), false);
 
       obj = { foo: { bar: true } };
-      defineProperty(obj, 'notFoo', computed.not('foo.bar'));
+      defineProperty(obj, 'notFoo', not('foo.bar'));
       equal(get(obj, 'notFoo'), false);
     });
 
     testBoth('computed.empty', function(get, set) {
       var obj = { foo: [], bar: undefined, baz: null, quz: '' };
-      defineProperty(obj, 'fooEmpty', computed.empty('foo'));
-      defineProperty(obj, 'barEmpty', computed.empty('bar'));
-      defineProperty(obj, 'bazEmpty', computed.empty('baz'));
-      defineProperty(obj, 'quzEmpty', computed.empty('quz'));
+      defineProperty(obj, 'fooEmpty', empty('foo'));
+      defineProperty(obj, 'barEmpty', empty('bar'));
+      defineProperty(obj, 'bazEmpty', empty('baz'));
+      defineProperty(obj, 'quzEmpty', empty('quz'));
 
       equal(get(obj, 'fooEmpty'), true);
       set(obj, 'foo', [1]);
@@ -20909,10 +20930,10 @@ enifed("ember-metal/tests/computed_test",
 
     testBoth('computed.bool', function(get, set) {
       var obj = { foo: function() {}, bar: 'asdf', baz: null, quz: false };
-      defineProperty(obj, 'fooBool', computed.bool('foo'));
-      defineProperty(obj, 'barBool', computed.bool('bar'));
-      defineProperty(obj, 'bazBool', computed.bool('baz'));
-      defineProperty(obj, 'quzBool', computed.bool('quz'));
+      defineProperty(obj, 'fooBool', bool('foo'));
+      defineProperty(obj, 'barBool', bool('bar'));
+      defineProperty(obj, 'bazBool', bool('baz'));
+      defineProperty(obj, 'quzBool', bool('quz'));
       equal(get(obj, 'fooBool'), true);
       equal(get(obj, 'barBool'), true);
       equal(get(obj, 'bazBool'), false);
@@ -20925,10 +20946,10 @@ enifed("ember-metal/tests/computed_test",
         return 'apple';
       }));
 
-      defineProperty(obj, 'barAlias', computed.alias('bar'));
-      defineProperty(obj, 'bazAlias', computed.alias('baz'));
-      defineProperty(obj, 'quzAlias', computed.alias('quz'));
-      defineProperty(obj, 'bayAlias', computed.alias('bay'));
+      defineProperty(obj, 'barAlias', alias('bar'));
+      defineProperty(obj, 'bazAlias', alias('baz'));
+      defineProperty(obj, 'quzAlias', alias('quz'));
+      defineProperty(obj, 'bayAlias', alias('bay'));
 
       equal(get(obj, 'barAlias'), 'asdf');
       equal(get(obj, 'bazAlias'), null);
@@ -20955,7 +20976,7 @@ enifed("ember-metal/tests/computed_test",
       defineProperty(obj, 'original', computed(function(key, value) {
         return constantValue;
       }));
-      defineProperty(obj, 'aliased', computed.alias('original'));
+      defineProperty(obj, 'aliased', alias('original'));
 
       equal(get(obj, 'original'), constantValue);
       equal(get(obj, 'aliased'), constantValue);
@@ -20970,7 +20991,7 @@ enifed("ember-metal/tests/computed_test",
       expect(6);
 
       var obj = { source: 'original source value' };
-      defineProperty(obj, 'copy', computed.defaultTo('source'));
+      defineProperty(obj, 'copy', defaultTo('source'));
 
       ignoreDeprecation(function() {
         equal(get(obj, 'copy'), 'original source value');
@@ -20988,7 +21009,7 @@ enifed("ember-metal/tests/computed_test",
 
       expectDeprecation(function() {
         var obj = { source: 'original source value' };
-        defineProperty(obj, 'copy', computed.defaultTo('source'));
+        defineProperty(obj, 'copy', defaultTo('source'));
 
         get(obj, 'copy');
       }, 'Usage of Ember.computed.defaultTo is deprecated, use `Ember.computed.oneWay` instead.');
@@ -20996,7 +21017,7 @@ enifed("ember-metal/tests/computed_test",
 
     testBoth('computed.match', function(get, set) {
       var obj = { name: 'Paul' };
-      defineProperty(obj, 'isPaul', computed.match('name', /Paul/));
+      defineProperty(obj, 'isPaul', match('name', /Paul/));
 
       equal(get(obj, 'isPaul'), true, 'is Paul');
 
@@ -21007,7 +21028,7 @@ enifed("ember-metal/tests/computed_test",
 
     testBoth('computed.notEmpty', function(get, set) {
       var obj = { items: [1] };
-      defineProperty(obj, 'hasItems', computed.notEmpty('items'));
+      defineProperty(obj, 'hasItems', notEmpty('items'));
 
       equal(get(obj, 'hasItems'), true, 'is not empty');
 
@@ -21018,7 +21039,7 @@ enifed("ember-metal/tests/computed_test",
 
     testBoth('computed.equal', function(get, set) {
       var obj = { name: 'Paul' };
-      defineProperty(obj, 'isPaul', computed.equal('name', 'Paul'));
+      defineProperty(obj, 'isPaul', computedEqual('name', 'Paul'));
 
       equal(get(obj, 'isPaul'), true, 'is Paul');
 
@@ -21029,7 +21050,7 @@ enifed("ember-metal/tests/computed_test",
 
     testBoth('computed.gt', function(get, set) {
       var obj = { number: 2 };
-      defineProperty(obj, 'isGreaterThenOne', computed.gt('number', 1));
+      defineProperty(obj, 'isGreaterThenOne', gt('number', 1));
 
       equal(get(obj, 'isGreaterThenOne'), true, 'is gt');
 
@@ -21044,7 +21065,7 @@ enifed("ember-metal/tests/computed_test",
 
     testBoth('computed.gte', function(get, set) {
       var obj = { number: 2 };
-      defineProperty(obj, 'isGreaterOrEqualThenOne', computed.gte('number', 1));
+      defineProperty(obj, 'isGreaterOrEqualThenOne', gte('number', 1));
 
       equal(get(obj, 'isGreaterOrEqualThenOne'), true, 'is gte');
 
@@ -21059,7 +21080,7 @@ enifed("ember-metal/tests/computed_test",
 
     testBoth('computed.lt', function(get, set) {
       var obj = { number: 0 };
-      defineProperty(obj, 'isLesserThenOne', computed.lt('number', 1));
+      defineProperty(obj, 'isLesserThenOne', lt('number', 1));
 
       equal(get(obj, 'isLesserThenOne'), true, 'is lt');
 
@@ -21074,7 +21095,7 @@ enifed("ember-metal/tests/computed_test",
 
     testBoth('computed.lte', function(get, set) {
       var obj = { number: 0 };
-      defineProperty(obj, 'isLesserOrEqualThenOne', computed.lte('number', 1));
+      defineProperty(obj, 'isLesserOrEqualThenOne', lte('number', 1));
 
       equal(get(obj, 'isLesserOrEqualThenOne'), true, 'is lte');
 
@@ -21089,7 +21110,7 @@ enifed("ember-metal/tests/computed_test",
 
     testBoth('computed.and', function(get, set) {
       var obj = { one: true, two: true };
-      defineProperty(obj, 'oneAndTwo', computed.and('one', 'two'));
+      defineProperty(obj, 'oneAndTwo', and('one', 'two'));
 
       equal(get(obj, 'oneAndTwo'), true, 'one and two');
 
@@ -21105,7 +21126,7 @@ enifed("ember-metal/tests/computed_test",
 
     testBoth('computed.or', function(get, set) {
       var obj = { one: true, two: true };
-      defineProperty(obj, 'oneOrTwo', computed.or('one', 'two'));
+      defineProperty(obj, 'oneOrTwo', or('one', 'two'));
 
       equal(get(obj, 'oneOrTwo'), true, 'one or two');
 
@@ -21128,7 +21149,7 @@ enifed("ember-metal/tests/computed_test",
 
     testBoth('computed.any', function(get, set) {
       var obj = { one: 'foo', two: 'bar' };
-      defineProperty(obj, 'anyOf', computed.any('one', 'two'));
+      defineProperty(obj, 'anyOf', any('one', 'two'));
 
       equal(get(obj, 'anyOf'), 'foo', 'is foo');
 
@@ -21139,7 +21160,7 @@ enifed("ember-metal/tests/computed_test",
 
     testBoth('computed.collect', function(get, set) {
       var obj = { one: 'foo', two: 'bar', three: null };
-      defineProperty(obj, 'all', computed.collect('one', 'two', 'three', 'four'));
+      defineProperty(obj, 'all', collect('one', 'two', 'three', 'four'));
 
       deepEqual(get(obj, 'all'), ['foo', 'bar', null, null], 'have all of them');
 
@@ -21154,34 +21175,29 @@ enifed("ember-metal/tests/computed_test",
       deepEqual(get(obj, 'all'), [0, 'bar', a, true], 'have all of them');
     });
 
-    function oneWayTest(methodName) {
-      return function(get, set) {
-        var obj = {
-          firstName: 'Teddy',
-          lastName: 'Zeenny'
-        };
-
-        defineProperty(obj, 'nickName', computed[methodName]('firstName'));
-
-        equal(get(obj, 'firstName'), 'Teddy');
-        equal(get(obj, 'lastName'), 'Zeenny');
-        equal(get(obj, 'nickName'), 'Teddy');
-
-        set(obj, 'nickName', 'TeddyBear');
-
-        equal(get(obj, 'firstName'), 'Teddy');
-        equal(get(obj, 'lastName'), 'Zeenny');
-
-        equal(get(obj, 'nickName'), 'TeddyBear');
-
-        set(obj, 'firstName', 'TEDDDDDDDDYYY');
-
-        equal(get(obj, 'nickName'), 'TeddyBear');
+    testBoth('computed.oneWay', function(get, set) {
+      var obj = {
+        firstName: 'Teddy',
+        lastName: 'Zeenny'
       };
-    }
 
-    testBoth('computed.oneWay', oneWayTest('oneWay'));
-    testBoth('computed.reads', oneWayTest('reads'));
+      defineProperty(obj, 'nickName', oneWay('firstName'));
+
+      equal(get(obj, 'firstName'), 'Teddy');
+      equal(get(obj, 'lastName'), 'Zeenny');
+      equal(get(obj, 'nickName'), 'Teddy');
+
+      set(obj, 'nickName', 'TeddyBear');
+
+      equal(get(obj, 'firstName'), 'Teddy');
+      equal(get(obj, 'lastName'), 'Zeenny');
+
+      equal(get(obj, 'nickName'), 'TeddyBear');
+
+      set(obj, 'firstName', 'TEDDDDDDDDYYY');
+
+      equal(get(obj, 'nickName'), 'TeddyBear');
+    });
 
     testBoth('computed.readOnly', function(get, set) {
       var obj = {
@@ -21189,7 +21205,7 @@ enifed("ember-metal/tests/computed_test",
         lastName: 'Zeenny'
       };
 
-      defineProperty(obj, 'nickName', computed.readOnly('firstName'));
+      defineProperty(obj, 'nickName', readOnly('firstName'));
 
       equal(get(obj, 'firstName'), 'Teddy');
       equal(get(obj, 'lastName'), 'Zeenny');
@@ -21215,10 +21231,10 @@ enifed("ember-metal/tests/computed_test",
         return 'apple';
       }));
 
-      defineProperty(obj, 'barAlias', computed.deprecatingAlias('bar'));
-      defineProperty(obj, 'bazAlias', computed.deprecatingAlias('baz'));
-      defineProperty(obj, 'quzAlias', computed.deprecatingAlias('quz'));
-      defineProperty(obj, 'bayAlias', computed.deprecatingAlias('bay'));
+      defineProperty(obj, 'barAlias', deprecatingAlias('bar'));
+      defineProperty(obj, 'bazAlias', deprecatingAlias('baz'));
+      defineProperty(obj, 'quzAlias', deprecatingAlias('quz'));
+      defineProperty(obj, 'bayAlias', deprecatingAlias('bay'));
 
       expectDeprecation(function() {
         equal(get(obj, 'barAlias'), 'asdf');
@@ -34242,10 +34258,11 @@ enifed("ember-runtime/system/tracked_array.jshint",
     });
   });
 enifed("ember-runtime/tests/computed/computed_macros_test",
-  ["ember-metal/computed","ember-runtime/system/object","ember-metal/tests/props_helper"],
+  ["ember-metal/computed_macros","ember-runtime/system/object","ember-metal/tests/props_helper"],
   function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
-    var computed = __dependency1__.computed;
+    var empty = __dependency1__.empty;
+    var notEmpty = __dependency1__.notEmpty;
     var EmberObject = __dependency2__["default"];
     var testBoth = __dependency3__.testBoth;
 
@@ -34256,8 +34273,8 @@ enifed("ember-runtime/tests/computed/computed_macros_test",
         bestLannister: null,
         lannisters: null,
 
-        bestLannisterUnspecified: computed.empty('bestLannister'),
-        noLannistersKnown: computed.empty('lannisters')
+        bestLannisterUnspecified: empty('bestLannister'),
+        noLannistersKnown: empty('lannisters')
       }).create({
         lannisters: Ember.A([])
       });
@@ -34277,8 +34294,8 @@ enifed("ember-runtime/tests/computed/computed_macros_test",
         bestLannister: null,
         lannisters: null,
 
-        bestLannisterSpecified: computed.notEmpty('bestLannister'),
-        LannistersKnown: computed.notEmpty('lannisters')
+        bestLannisterSpecified: notEmpty('bestLannister'),
+        LannistersKnown: notEmpty('lannisters')
       }).create({
         lannisters: Ember.A([])
       });

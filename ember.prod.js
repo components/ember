@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.22d2afab
+ * @version   1.11.0-beta.1+canary.f87c158f
  */
 
 (function() {
@@ -11771,7 +11771,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.22d2afab
+      @version 1.11.0-beta.1+canary.f87c158f
     */
 
     if ('undefined' === typeof Ember) {
@@ -11799,10 +11799,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.22d2afab'
+      @default '1.11.0-beta.1+canary.f87c158f'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.22d2afab';
+    Ember.VERSION = '1.11.0-beta.1+canary.f87c158f';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -14554,7 +14554,7 @@ enifed("ember-metal/mixin",
     }
 
     function mergeMixins(mixins, m, descs, values, base, keys) {
-      var mixin, props, key, concats, mergings, meta;
+      var currentMixin, props, key, concats, mergings, meta;
 
       function removeKeys(keyName) {
         delete descs[keyName];
@@ -14562,9 +14562,9 @@ enifed("ember-metal/mixin",
       }
 
       for (var i=0, l=mixins.length; i<l; i++) {
-        mixin = mixins[i];
+        currentMixin = mixins[i];
         
-        props = mixinProperties(m, mixin);
+        props = mixinProperties(m, currentMixin);
         if (props === CONTINUE) { continue; }
 
         if (props) {
@@ -14581,9 +14581,9 @@ enifed("ember-metal/mixin",
 
           // manually copy toString() because some JS engines do not enumerate it
           if (props.hasOwnProperty('toString')) { base.toString = props.toString; }
-        } else if (mixin.mixins) {
-          mergeMixins(mixin.mixins, m, descs, values, base, keys);
-          if (mixin._without) { a_forEach.call(mixin._without, removeKeys); }
+        } else if (currentMixin.mixins) {
+          mergeMixins(currentMixin.mixins, m, descs, values, base, keys);
+          if (currentMixin._without) { a_forEach.call(currentMixin._without, removeKeys); }
         }
       }
     }
@@ -14877,12 +14877,12 @@ enifed("ember-metal/mixin",
       @param arguments*
     */
     MixinPrototype.reopen = function() {
-      var mixin;
+      var currentMixin;
 
       if (this.properties) {
-        mixin = new Mixin(undefined, this.properties);
+        currentMixin = new Mixin(undefined, this.properties);
         this.properties = undefined;
-        this.mixins = [mixin];
+        this.mixins = [currentMixin];
       } else if (!this.mixins) {
         this.mixins = [];
       }
@@ -14892,12 +14892,12 @@ enifed("ember-metal/mixin",
       var idx;
 
       for (idx=0; idx < len; idx++) {
-        mixin = arguments[idx];
+        currentMixin = arguments[idx];
         
-        if (mixin instanceof Mixin) {
-          mixins.push(mixin);
+        if (currentMixin instanceof Mixin) {
+          mixins.push(currentMixin);
         } else {
-          mixins.push(new Mixin(undefined, mixin));
+          mixins.push(new Mixin(undefined, currentMixin));
         }
       }
 
@@ -14991,10 +14991,10 @@ enifed("ember-metal/mixin",
       if (!mixins) { return ret; }
 
       for (var key in mixins) {
-        var mixin = mixins[key];
+        var currentMixin = mixins[key];
 
         // skip primitive mixins since these are always anonymous
-        if (!mixin.properties) { ret.push(mixin); }
+        if (!currentMixin.properties) { ret.push(currentMixin); }
       }
 
       return ret;
@@ -16249,7 +16249,7 @@ enifed("ember-metal/property_get",
       @param {String} keyName The property key to retrieve
       @return {Object} the property value or `null`.
     */
-    var get = function get(obj, keyName) {
+    function get(obj, keyName) {
       // Helpers that operate with 'this' within an #each
       if (keyName === '') {
         return obj;
@@ -16288,9 +16288,9 @@ enifed("ember-metal/property_get",
 
         return ret;
       }
-    };
+    }
 
-    /**
+    __exports__.get = get;/**
       Normalizes a target/path pair to reflect that actual target/path that should
       be observed, etc. This takes into account passing in global property
       paths (i.e. a path beginning with a capital letter not defined on the
@@ -16331,7 +16331,7 @@ enifed("ember-metal/property_get",
       return [target, path];
     }
 
-    function _getPath(root, path) {
+    __exports__.normalizeTuple = normalizeTuple;function _getPath(root, path) {
       var hasThis, parts, tuple, idx, len;
 
       // If there is no root and path is a key name, return that
@@ -16360,7 +16360,7 @@ enifed("ember-metal/property_get",
       return root;
     }
 
-    function getWithDefault(root, key, defaultValue) {
+    __exports__._getPath = _getPath;function getWithDefault(root, key, defaultValue) {
       var value = get(root, key);
 
       if (value === undefined) { return defaultValue; }
@@ -16368,9 +16368,6 @@ enifed("ember-metal/property_get",
     }
 
     __exports__.getWithDefault = getWithDefault;__exports__["default"] = get;
-    __exports__.get = get;
-    __exports__.normalizeTuple = normalizeTuple;
-    __exports__._getPath = _getPath;
   });
 enifed("ember-metal/property_set",
   ["ember-metal/core","ember-metal/property_get","ember-metal/property_events","ember-metal/properties","ember-metal/error","ember-metal/path_cache","ember-metal/platform","exports"],
@@ -16400,7 +16397,7 @@ enifed("ember-metal/property_set",
       @param {Object} value The value to set
       @return {Object} the passed value.
     */
-    var set = function set(obj, keyName, value, tolerant) {
+    function set(obj, keyName, value, tolerant) {
       if (typeof obj === 'string') {
                 value = keyName;
         keyName = obj;
@@ -16455,9 +16452,9 @@ enifed("ember-metal/property_set",
         }
       }
       return value;
-    };
+    }
 
-    function setPath(root, path, value, tolerant) {
+    __exports__.set = set;function setPath(root, path, value, tolerant) {
       var keyName;
 
       // get the last part of the path
@@ -16504,7 +16501,7 @@ enifed("ember-metal/property_set",
       return set(root, path, value, true);
     }
 
-    __exports__.trySet = trySet;__exports__.set = set;
+    __exports__.trySet = trySet;
   });
 enifed("ember-metal/run_loop",
   ["ember-metal/core","ember-metal/utils","ember-metal/array","ember-metal/property_events","backburner","exports"],
@@ -28344,7 +28341,7 @@ enifed("ember-runtime/core",
       @param {Object} b second object to compare
       @return {Boolean}
     */
-    var isEqual = function isEqual(a, b) {
+    function isEqual(a, b) {
       if (a && typeof a.isEqual === 'function') {
         return a.isEqual(b);
       }
@@ -28354,7 +28351,8 @@ enifed("ember-runtime/core",
       }
 
       return a === b;
-    };
+    }
+
     __exports__.isEqual = isEqual;
   });
 enifed("ember-runtime/ext/function",
@@ -32659,8 +32657,8 @@ enifed("ember-runtime/mixins/promise_proxy",
     }
   });
 enifed("ember-runtime/mixins/sortable",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/enumerable_utils","ember-runtime/mixins/mutable_enumerable","ember-runtime/compare","ember-metal/observer","ember-metal/computed","ember-metal/mixin","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
+  ["ember-metal/core","ember-metal/property_get","ember-metal/enumerable_utils","ember-runtime/mixins/mutable_enumerable","ember-runtime/compare","ember-metal/observer","ember-metal/computed","ember-metal/computed_macros","ember-metal/mixin","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -32677,9 +32675,10 @@ enifed("ember-runtime/mixins/sortable",
     var addObserver = __dependency6__.addObserver;
     var removeObserver = __dependency6__.removeObserver;
     var computed = __dependency7__.computed;
-    var Mixin = __dependency8__.Mixin;
-    var beforeObserver = __dependency8__.beforeObserver;
-    var observer = __dependency8__.observer;
+    var notEmpty = __dependency8__.notEmpty;
+    var Mixin = __dependency9__.Mixin;
+    var beforeObserver = __dependency9__.beforeObserver;
+    var observer = __dependency9__.observer;
     //ES6TODO: should we access these directly from their package or from how their exposed in ember-metal?
 
     /**
@@ -32813,7 +32812,7 @@ enifed("ember-runtime/mixins/sortable",
         return this._super();
       },
 
-      isSorted: computed.notEmpty('sortProperties'),
+      isSorted: notEmpty('sortProperties'),
 
       /**
         Overrides the default `arrangedContent` from `ArrayProxy` in order to sort by `sortFunction`.
