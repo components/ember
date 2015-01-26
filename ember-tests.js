@@ -50937,17 +50937,18 @@ enifed("ember-views/tests/views/component_test.jshint",
     });
   });
 enifed("ember-views/tests/views/container_view_test",
-  ["ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-metal/computed","ember-runtime/controllers/controller","ember-views/system/jquery","ember-views/views/view","ember-views/views/container_view"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
+  ["ember-metal/property_get","ember-metal/property_set","ember-metal/run_loop","ember-metal/computed","ember-metal/streams/utils","ember-runtime/controllers/controller","ember-views/system/jquery","ember-views/views/view","ember-views/views/container_view"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
     "use strict";
     var get = __dependency1__.get;
     var set = __dependency2__.set;
     var run = __dependency3__["default"];
     var computed = __dependency4__.computed;
-    var Controller = __dependency5__["default"];
-    var jQuery = __dependency6__["default"];
-    var View = __dependency7__["default"];
-    var ContainerView = __dependency8__["default"];
+    var read = __dependency5__.read;
+    var Controller = __dependency6__["default"];
+    var jQuery = __dependency7__["default"];
+    var View = __dependency8__["default"];
+    var ContainerView = __dependency9__["default"];
 
     var trim = jQuery.trim;
     var container, view, otherContainer;
@@ -51242,8 +51243,8 @@ enifed("ember-views/tests/views/container_view_test",
       equal(container.objectAt(0), mainView, "should have the currentView as the only child view");
       equal(mainView.get('parentView'), container, "parentView is setup");
       equal(context, container.get('context'), 'context preserved');
-      equal(mainView._keywords.controller.value(), controller, 'controller keyword is setup');
-      equal(mainView._keywords.view.value(), mainView, 'view keyword is setup');
+      equal(read(mainView._keywords.controller), controller, 'controller keyword is setup');
+      equal(read(mainView._keywords.view), mainView, 'view keyword is setup');
     });
 
     test("if a ContainerView is created with a currentView, it is rendered as a child view", function() {
@@ -51271,8 +51272,8 @@ enifed("ember-views/tests/views/container_view_test",
       equal(container.objectAt(0), mainView, "should have the currentView as the only child view");
       equal(mainView.get('parentView'), container, "parentView is setup");
       equal(context, container.get('context'), 'context preserved');
-      equal(mainView._keywords.controller.value(), controller, 'controller keyword is setup');
-      equal(mainView._keywords.view.value(), mainView, 'view keyword is setup');
+      equal(read(mainView._keywords.controller), controller, 'controller keyword is setup');
+      equal(read(mainView._keywords.view), mainView, 'view keyword is setup');
     });
 
     test("if a ContainerView starts with no currentView and then one is set, the ContainerView is updated", function() {
@@ -51306,8 +51307,8 @@ enifed("ember-views/tests/views/container_view_test",
       equal(container.objectAt(0), mainView, "should have the currentView as the only child view");
       equal(mainView.get('parentView'), container, "parentView is setup");
       equal(context, container.get('context'), 'context preserved');
-      equal(mainView._keywords.controller.value(), controller, 'controller keyword is setup');
-      equal(mainView._keywords.view.value(), mainView, 'view keyword is setup');
+      equal(read(mainView._keywords.controller), controller, 'controller keyword is setup');
+      equal(read(mainView._keywords.view), mainView, 'view keyword is setup');
     });
 
     test("if a ContainerView starts with a currentView and then is set to null, the ContainerView is updated", function() {
@@ -51336,8 +51337,8 @@ enifed("ember-views/tests/views/container_view_test",
       equal(container.objectAt(0), mainView, "should have the currentView as the only child view");
       equal(mainView.get('parentView'), container, "parentView is setup");
       equal(context, container.get('context'), 'context preserved');
-      equal(mainView._keywords.controller.value(), controller, 'controller keyword is setup');
-      equal(mainView._keywords.view.value(), mainView, 'view keyword is setup');
+      equal(read(mainView._keywords.controller), controller, 'controller keyword is setup');
+      equal(read(mainView._keywords.view), mainView, 'view keyword is setup');
 
       run(function() {
         set(container, 'currentView', null);
@@ -51373,8 +51374,8 @@ enifed("ember-views/tests/views/container_view_test",
       equal(container.objectAt(0), mainView, "should have the currentView as the only child view");
       equal(mainView.get('parentView'), container, "parentView is setup");
       equal(context, container.get('context'), 'context preserved');
-      equal(mainView._keywords.controller.value(), controller, 'controller keyword is setup');
-      equal(mainView._keywords.view.value(), mainView, 'view keyword is setup');
+      equal(read(mainView._keywords.controller), controller, 'controller keyword is setup');
+      equal(read(mainView._keywords.view), mainView, 'view keyword is setup');
 
       run(function() {
         set(container, 'currentView', null);
@@ -57862,7 +57863,7 @@ enifed("ember-views/views/view.jshint",
     "use strict";
     module('JSHint - ember-views/views');
     test('ember-views/views/view.js should pass jshint', function() { 
-      ok(true, 'ember-views/views/view.js should pass jshint.'); 
+      ok(false, 'ember-views/views/view.js should pass jshint.\nember-views/views/view.js: line 20, col 8, \'SimpleStream\' is defined but never used.\n\n1 error'); 
     });
   });
 enifed("ember-views/views/with_view.jshint",

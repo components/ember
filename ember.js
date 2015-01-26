@@ -7120,7 +7120,6 @@ enifed("ember-htmlbars/helpers/view",
 
     var Ember = __dependency1__["default"];
     // Ember.warn, Ember.assert
-
     var EmberObject = __dependency2__["default"];
     var get = __dependency3__.get;
     var SimpleStream = __dependency4__["default"];
@@ -7489,11 +7488,9 @@ enifed("ember-htmlbars/helpers/view",
     function viewHelper(params, hash, options, env) {
       Ember.assert("The view helper only takes a single argument", params.length <= 2);
 
-      var container = this.container || this._keywords.view.value().container;
+      var container = this.container || read(this._keywords.view).container;
       var viewClass;
 
-      // If no path is provided, treat path param as options
-      // and get an instance of the registered `view:toplevel`
       if (params.length === 0) {
         if (container) {
           viewClass = container.lookupFactory('view:toplevel');
@@ -41249,6 +41246,7 @@ enifed("ember-views/views/component",
 
       init: function() {
         this._super();
+        this._keywords.view = this;
         set(this, 'context', this);
         set(this, 'controller', this);
       },
@@ -41294,9 +41292,7 @@ enifed("ember-views/views/component",
       */
       templateName: null,
 
-      _setupKeywords: function() {
-        this._keywords.view.setSource(this);
-      },
+      _setupKeywords: function() {},
 
       _yield: function(context, options, morph, blockArguments) {
         var view = options.data.view;
@@ -44514,14 +44510,14 @@ enifed("ember-views/views/view",
         if (contextView) {
           var parentKeywords = contextView._keywords;
 
-          keywords.view.setSource(this.isVirtual ? parentKeywords.view : this);
+          keywords.view = this.isVirtual ? parentKeywords.view : this;
 
           for (var name in parentKeywords) {
             if (keywords[name]) continue;
             keywords[name] = parentKeywords[name];
           }
         } else {
-          keywords.view.setSource(this.isVirtual ? null : this);
+          keywords.view = this.isVirtual ? null : this;
         }
       },
 
@@ -45230,8 +45226,8 @@ enifed("ember-views/views/view",
         if (!this._keywords) {
           this._keywords = create(null);
         }
-        this._keywords.view = new SimpleStream();
         this._keywords._view = this;
+        this._keywords.view = undefined;
         this._keywords.controller = new KeyStream(this, 'controller');
         this._setupKeywords();
 
