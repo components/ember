@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.9.2+pre.7666db94
+ * @version   1.9.2+pre.9ef5d7f1
  */
 
 (function() {
@@ -8494,8 +8494,8 @@ enifed("ember-handlebars/helpers/unbound",
     }
   });
 enifed("ember-handlebars/helpers/view",
-  ["ember-metal/core","ember-runtime/system/object","ember-metal/property_get","ember-metal/keys","ember-metal/mixin","ember-views/streams/read","ember-views/views/view","ember-metal/streams/simple","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
+  ["ember-metal/core","ember-runtime/system/object","ember-metal/property_get","ember-metal/keys","ember-metal/mixin","ember-views/streams/read","ember-views/views/view","ember-metal/streams/simple","ember-metal/streams/read","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -8513,6 +8513,7 @@ enifed("ember-handlebars/helpers/view",
     var readViewFactory = __dependency6__.readViewFactory;
     var View = __dependency7__["default"];
     var SimpleStream = __dependency8__["default"];
+    var read = __dependency9__.read;
 
     function makeBindings(options) {
       var hash = options.hash;
@@ -8863,7 +8864,7 @@ enifed("ember-handlebars/helpers/view",
       var options = arguments[arguments.length - 1];
       var types = options.types;
       var view = options.data.view;
-      var container = view.container || view._keywords.view.value().container;
+      var container = view.container || read(view._keywords.view).container;
       var viewClass;
 
       // If no path is provided, treat path param as options
@@ -12779,7 +12780,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.9.2+pre.7666db94
+      @version 1.9.2+pre.9ef5d7f1
     */
 
     if ('undefined' === typeof Ember) {
@@ -12806,10 +12807,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.9.2+pre.7666db94'
+      @default '1.9.2+pre.9ef5d7f1'
       @static
     */
-    Ember.VERSION = '1.9.2+pre.7666db94';
+    Ember.VERSION = '1.9.2+pre.9ef5d7f1';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -38875,6 +38876,7 @@ enifed("ember-views/views/component",
 
       init: function() {
         this._super();
+        this._keywords.view = this;
         set(this, 'context', this);
         set(this, 'controller', this);
       },
@@ -38921,9 +38923,7 @@ enifed("ember-views/views/component",
       */
       templateName: null,
 
-      _setupKeywords: function() {
-        this._keywords.view.setSource(this);
-      },
+      _setupKeywords: function() {},
 
       _yield: function(context, options) {
         var view = options.data.view;
@@ -40950,14 +40950,14 @@ enifed("ember-views/views/view",
         if (contextView) {
           var parentKeywords = contextView._keywords;
 
-          keywords.view.setSource(this.isVirtual ? parentKeywords.view : this);
+          keywords.view = this.isVirtual ? parentKeywords.view : this;
 
           for (var name in parentKeywords) {
             if (keywords[name]) continue;
             keywords[name] = parentKeywords[name];
           }
         } else {
-          keywords.view.setSource(this.isVirtual ? null : this);
+          keywords.view = this.isVirtual ? null : this;
         }
       },
 
@@ -41653,8 +41653,8 @@ enifed("ember-views/views/view",
         if (!this._keywords) {
           this._keywords = create(null);
         }
-        this._keywords.view = new SimpleStream();
         this._keywords._view = this;
+        this._keywords.view = undefined;
         this._keywords.controller = new KeyStream(this, 'controller');
         this._setupKeywords();
 
