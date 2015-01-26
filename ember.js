@@ -43448,8 +43448,8 @@ enifed("ember-views/views/text_field",
     });
   });
 enifed("ember-views/views/view",
-  ["ember-metal/core","ember-metal/platform","ember-runtime/mixins/evented","ember-runtime/system/object","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/set_properties","ember-metal/run_loop","ember-metal/observer","ember-metal/properties","ember-metal/utils","ember-metal/computed","ember-metal/mixin","ember-metal/streams/simple","ember-views/streams/key_stream","ember-metal/streams/stream_binding","ember-views/streams/context_stream","ember-metal/is_none","ember-metal/deprecate_property","ember-runtime/system/native_array","ember-views/streams/class_name_binding","ember-metal/enumerable_utils","ember-metal/property_events","ember-views/system/jquery","ember-views/system/ext","ember-views/views/core_view","ember-metal/streams/utils","ember-views/system/sanitize_attribute_value","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __exports__) {
+  ["ember-metal/core","ember-metal/platform","ember-runtime/mixins/evented","ember-runtime/system/object","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/set_properties","ember-metal/run_loop","ember-metal/observer","ember-metal/properties","ember-metal/utils","ember-metal/computed","ember-metal/mixin","ember-views/streams/key_stream","ember-metal/streams/stream_binding","ember-views/streams/context_stream","ember-metal/is_none","ember-metal/deprecate_property","ember-runtime/system/native_array","ember-views/streams/class_name_binding","ember-metal/enumerable_utils","ember-metal/property_events","ember-views/system/jquery","ember-views/system/ext","ember-views/views/core_view","ember-metal/streams/utils","ember-views/system/sanitize_attribute_value","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __exports__) {
     "use strict";
     // Ember.assert, Ember.deprecate, Ember.warn, Ember.TEMPLATES,
     // jQuery, Ember.lookup,
@@ -43471,37 +43471,36 @@ enifed("ember-views/views/view",
     var guidFor = __dependency12__.guidFor;
     var computed = __dependency13__.computed;
     var observer = __dependency14__.observer;
-    var SimpleStream = __dependency15__["default"];
-    var KeyStream = __dependency16__["default"];
-    var StreamBinding = __dependency17__["default"];
-    var ContextStream = __dependency18__["default"];
+    var KeyStream = __dependency15__["default"];
+    var StreamBinding = __dependency16__["default"];
+    var ContextStream = __dependency17__["default"];
 
     var typeOf = __dependency12__.typeOf;
-    var isNone = __dependency19__["default"];
+    var isNone = __dependency18__["default"];
     var Mixin = __dependency14__.Mixin;
-    var deprecateProperty = __dependency20__.deprecateProperty;
-    var emberA = __dependency21__.A;
+    var deprecateProperty = __dependency19__.deprecateProperty;
+    var emberA = __dependency20__.A;
 
-    var streamifyClassNameBinding = __dependency22__.streamifyClassNameBinding;
+    var streamifyClassNameBinding = __dependency21__.streamifyClassNameBinding;
 
     // ES6TODO: functions on EnumerableUtils should get their own export
-    var forEach = __dependency23__.forEach;
-    var addObject = __dependency23__.addObject;
-    var removeObject = __dependency23__.removeObject;
+    var forEach = __dependency22__.forEach;
+    var addObject = __dependency22__.addObject;
+    var removeObject = __dependency22__.removeObject;
 
     var beforeObserver = __dependency14__.beforeObserver;
 
-    var propertyWillChange = __dependency24__.propertyWillChange;
-    var propertyDidChange = __dependency24__.propertyDidChange;
+    var propertyWillChange = __dependency23__.propertyWillChange;
+    var propertyDidChange = __dependency23__.propertyDidChange;
 
-    var jQuery = __dependency25__["default"];
+    var jQuery = __dependency24__["default"];
      // for the side effect of extending Ember.run.queues
 
-    var CoreView = __dependency27__["default"];
-    var subscribe = __dependency28__.subscribe;
-    var read = __dependency28__.read;
-    var isStream = __dependency28__.isStream;
-    var sanitizeAttributeValue = __dependency29__["default"];
+    var CoreView = __dependency26__["default"];
+    var subscribe = __dependency27__.subscribe;
+    var read = __dependency27__.read;
+    var isStream = __dependency27__.isStream;
+    var sanitizeAttributeValue = __dependency28__["default"];
 
     function K() { return this; }
 

@@ -57730,7 +57730,7 @@ enifed("ember-views/views/view.jshint",
     "use strict";
     module('JSHint - ember-views/views');
     test('ember-views/views/view.js should pass jshint', function() { 
-      ok(false, 'ember-views/views/view.js should pass jshint.\nember-views/views/view.js: line 20, col 8, \'SimpleStream\' is defined but never used.\n\n1 error'); 
+      ok(true, 'ember-views/views/view.js should pass jshint.'); 
     });
   });
 enifed("ember-views/views/with_view.jshint",
