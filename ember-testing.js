@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.22b68904
+ * @version   1.11.0-beta.1+canary.3d652e9d
  */
 
 (function() {
@@ -574,9 +574,9 @@ enifed("ember-testing/helpers",
       Ember.assert('To check \'' + selector +
           '\', the input must be a checkbox', type === 'checkbox');
 
-      run(function() {
-        $el.prop('checked', true).change();
-      });
+      if (!$el.prop('checked')) {
+        app.testHelpers.click(selector, context);
+      }
 
       return app.testHelpers.wait();
     }
@@ -588,9 +588,9 @@ enifed("ember-testing/helpers",
       Ember.assert('To uncheck \'' + selector +
           '\', the input must be a checkbox', type === 'checkbox');
 
-      run(function() {
-        $el.prop('checked', false).change();
-      });
+      if ($el.prop('checked')) {
+        app.testHelpers.click(selector, context);
+      }
 
       return app.testHelpers.wait();
     }
