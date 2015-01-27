@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.20be695a
+ * @version   1.11.0-beta.1+canary.48e11592
  */
 
 (function() {
@@ -131,7 +131,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.20be695a
+      @version 1.11.0-beta.1+canary.48e11592
     */
 
     if ('undefined' === typeof Ember) {
@@ -159,10 +159,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.20be695a'
+      @default '1.11.0-beta.1+canary.48e11592'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.20be695a';
+    Ember.VERSION = '1.11.0-beta.1+canary.48e11592';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -207,7 +207,7 @@ enifed("ember-metal/core",
     Ember.FEATURES = Ember.ENV.FEATURES;
 
     if (!Ember.FEATURES) {
-      Ember.FEATURES = {"features-stripped-test":null,"ember-routing-named-substates":true,"ember-metal-injected-properties":true,"mandatory-setter":true,"ember-htmlbars":true,"ember-htmlbars-block-params":true,"ember-htmlbars-component-generation":null,"ember-htmlbars-component-helper":true,"ember-htmlbars-inline-if-helper":true,"ember-htmlbars-attribute-syntax":true,"ember-routing-transitioning-classes":true,"new-computed-syntax":null,"ember-testing-checkbox-helpers":null,"ember-metal-stream":null,"ember-htmlbars-each-with-index":true,"ember-application-instance-initializers":null,"ember-application-initializer-context":null}; //jshint ignore:line
+      Ember.FEATURES = {"features-stripped-test":null,"ember-routing-named-substates":true,"ember-metal-injected-properties":true,"mandatory-setter":true,"ember-htmlbars":true,"ember-htmlbars-block-params":true,"ember-htmlbars-component-generation":null,"ember-htmlbars-component-helper":true,"ember-htmlbars-inline-if-helper":true,"ember-htmlbars-attribute-syntax":true,"ember-routing-transitioning-classes":true,"new-computed-syntax":null,"ember-testing-checkbox-helpers":null,"ember-metal-stream":null,"ember-htmlbars-each-with-index":true,"ember-application-instance-initializers":null,"ember-application-initializer-context":null,"ember-router-willtransition":true}; //jshint ignore:line
     }
 
     /**

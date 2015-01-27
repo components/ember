@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.20be695a
+ * @version   1.11.0-beta.1+canary.48e11592
  */
 
 (function() {
@@ -70904,6 +70904,54 @@ enifed("ember/tests/routing/basic_test",
       Ember.run(function() { router.send('hideSelf'); });
       Ember.run(function() { router.send('hideModal'); });
     });
+
+    
+      test("Router `willTransition` hook passes in cancellable transition", function() {
+        // Should hit willTransition 3 times, once for the initial route, and then 2 more times
+        // for the two handleURL calls below
+        expect(3);
+
+        Router.map(function() {
+          this.route("nork");
+          this.route("about");
+        });
+
+        Router.reopen({
+          init: function() {
+            this._super();
+            this.on('willTransition', this.testWillTransitionHook);
+          },
+          testWillTransitionHook: function(transition, url) {
+            ok(true, "willTransition was called " + url);
+            transition.abort();
+          }
+        });
+
+        App.LoadingRoute = Ember.Route.extend({
+          activate: function() {
+            ok(false, "LoadingRoute was not entered");
+          }
+        });
+
+        App.NorkRoute = Ember.Route.extend({
+          activate: function() {
+            ok(false, "NorkRoute was not entered");
+          }
+        });
+
+        App.AboutRoute = Ember.Route.extend({
+          activate: function() {
+            ok(false, "AboutRoute was not entered");
+          }
+        });
+
+        bootApplication();
+
+        // Attempted transitions out of index should abort.
+        Ember.run(router, 'handleURL', '/nork');
+        Ember.run(router, 'handleURL', '/about');
+      });
+    
 
     test("Aborting/redirecting the transition in `willTransition` prevents LoadingRoute from being entered", function() {
       expect(8);
