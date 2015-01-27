@@ -5,13 +5,15 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.3d652e9d
+ * @version   1.11.0-beta.1+canary.ad972802
  */
 
 (function() {
 var enifed, requireModule, eriuqer, requirejs, Ember;
+var mainContext = this;
 
 (function() {
+
   Ember = this.Ember = this.Ember || {};
   if (typeof Ember === 'undefined') { Ember = {}; };
   function UNDEFINED() { }
@@ -21,7 +23,17 @@ var enifed, requireModule, eriuqer, requirejs, Ember;
     var seen = {};
 
     enifed = function(name, deps, callback) {
-      registry[name] = { deps: deps, callback: callback };
+      var value = { };
+
+      if (!callback) {
+        value.deps = [];
+        value.callback = deps;
+      } else {
+        value.deps = deps;
+        value.callback = callback;
+      }
+
+        registry[name] = value;
     };
 
     requirejs = eriuqer = requireModule = function(name) {
@@ -2164,8 +2176,8 @@ enifed("container/registry",
     __exports__["default"] = Registry;
   });
 enifed("ember-metal",
-  ["ember-metal/core","ember-metal/merge","ember-metal/instrumentation","ember-metal/utils","ember-metal/error","ember-metal/enumerable_utils","ember-metal/cache","ember-metal/platform","ember-metal/array","ember-metal/logger","ember-metal/property_get","ember-metal/events","ember-metal/observer_set","ember-metal/property_events","ember-metal/properties","ember-metal/property_set","ember-metal/map","ember-metal/get_properties","ember-metal/set_properties","ember-metal/watch_key","ember-metal/chains","ember-metal/watch_path","ember-metal/watching","ember-metal/expand_properties","ember-metal/computed","ember-metal/alias","ember-metal/computed_macros","ember-metal/observer","ember-metal/mixin","ember-metal/binding","ember-metal/run_loop","ember-metal/libraries","ember-metal/is_none","ember-metal/is_empty","ember-metal/is_blank","ember-metal/is_present","ember-metal/keys","backburner","ember-metal/streams/utils","ember-metal/streams/stream","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __dependency31__, __dependency32__, __dependency33__, __dependency34__, __dependency35__, __dependency36__, __dependency37__, __dependency38__, __dependency39__, __dependency40__, __exports__) {
+  ["ember-metal/core","ember-metal/merge","ember-metal/instrumentation","ember-metal/utils","ember-metal/error","ember-metal/enumerable_utils","ember-metal/cache","ember-metal/platform/define_property","ember-metal/platform/create","ember-metal/array","ember-metal/logger","ember-metal/property_get","ember-metal/events","ember-metal/observer_set","ember-metal/property_events","ember-metal/properties","ember-metal/property_set","ember-metal/map","ember-metal/get_properties","ember-metal/set_properties","ember-metal/watch_key","ember-metal/chains","ember-metal/watch_path","ember-metal/watching","ember-metal/expand_properties","ember-metal/computed","ember-metal/alias","ember-metal/computed_macros","ember-metal/observer","ember-metal/mixin","ember-metal/binding","ember-metal/run_loop","ember-metal/libraries","ember-metal/is_none","ember-metal/is_empty","ember-metal/is_blank","ember-metal/is_present","ember-metal/keys","backburner","ember-metal/streams/utils","ember-metal/streams/stream","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __dependency31__, __dependency32__, __dependency33__, __dependency34__, __dependency35__, __dependency36__, __dependency37__, __dependency38__, __dependency39__, __dependency40__, __dependency41__, __exports__) {
     "use strict";
     /**
     Ember Metal
@@ -2205,87 +2217,87 @@ enifed("ember-metal",
     var EmberError = __dependency5__["default"];
     var EnumerableUtils = __dependency6__["default"];
     var Cache = __dependency7__["default"];
-    var create = __dependency8__.create;
     var hasPropertyAccessors = __dependency8__.hasPropertyAccessors;
-    var filter = __dependency9__.filter;
-    var forEach = __dependency9__.forEach;
-    var indexOf = __dependency9__.indexOf;
-    var map = __dependency9__.map;
-    var Logger = __dependency10__["default"];
+    var create = __dependency9__["default"];
+    var filter = __dependency10__.filter;
+    var forEach = __dependency10__.forEach;
+    var indexOf = __dependency10__.indexOf;
+    var map = __dependency10__.map;
+    var Logger = __dependency11__["default"];
 
-    var _getPath = __dependency11__._getPath;
-    var get = __dependency11__.get;
-    var getWithDefault = __dependency11__.getWithDefault;
-    var normalizeTuple = __dependency11__.normalizeTuple;
+    var _getPath = __dependency12__._getPath;
+    var get = __dependency12__.get;
+    var getWithDefault = __dependency12__.getWithDefault;
+    var normalizeTuple = __dependency12__.normalizeTuple;
 
-    var accumulateListeners = __dependency12__.accumulateListeners;
-    var addListener = __dependency12__.addListener;
-    var hasListeners = __dependency12__.hasListeners;
-    var listenersFor = __dependency12__.listenersFor;
-    var on = __dependency12__.on;
-    var removeListener = __dependency12__.removeListener;
-    var sendEvent = __dependency12__.sendEvent;
-    var suspendListener = __dependency12__.suspendListener;
-    var suspendListeners = __dependency12__.suspendListeners;
-    var watchedEvents = __dependency12__.watchedEvents;
+    var accumulateListeners = __dependency13__.accumulateListeners;
+    var addListener = __dependency13__.addListener;
+    var hasListeners = __dependency13__.hasListeners;
+    var listenersFor = __dependency13__.listenersFor;
+    var on = __dependency13__.on;
+    var removeListener = __dependency13__.removeListener;
+    var sendEvent = __dependency13__.sendEvent;
+    var suspendListener = __dependency13__.suspendListener;
+    var suspendListeners = __dependency13__.suspendListeners;
+    var watchedEvents = __dependency13__.watchedEvents;
 
-    var ObserverSet = __dependency13__["default"];
+    var ObserverSet = __dependency14__["default"];
 
-    var beginPropertyChanges = __dependency14__.beginPropertyChanges;
-    var changeProperties = __dependency14__.changeProperties;
-    var endPropertyChanges = __dependency14__.endPropertyChanges;
-    var overrideChains = __dependency14__.overrideChains;
-    var propertyDidChange = __dependency14__.propertyDidChange;
-    var propertyWillChange = __dependency14__.propertyWillChange;
+    var beginPropertyChanges = __dependency15__.beginPropertyChanges;
+    var changeProperties = __dependency15__.changeProperties;
+    var endPropertyChanges = __dependency15__.endPropertyChanges;
+    var overrideChains = __dependency15__.overrideChains;
+    var propertyDidChange = __dependency15__.propertyDidChange;
+    var propertyWillChange = __dependency15__.propertyWillChange;
 
-    var Descriptor = __dependency15__.Descriptor;
-    var defineProperty = __dependency15__.defineProperty;
-    var set = __dependency16__.set;
-    var trySet = __dependency16__.trySet;
+    var Descriptor = __dependency16__.Descriptor;
+    var defineProperty = __dependency16__.defineProperty;
+    var set = __dependency17__.set;
+    var trySet = __dependency17__.trySet;
 
-    var Map = __dependency17__.Map;
-    var MapWithDefault = __dependency17__.MapWithDefault;
-    var OrderedSet = __dependency17__.OrderedSet;
-    var getProperties = __dependency18__["default"];
-    var setProperties = __dependency19__["default"];
-    var watchKey = __dependency20__.watchKey;
-    var unwatchKey = __dependency20__.unwatchKey;
-    var ChainNode = __dependency21__.ChainNode;
-    var finishChains = __dependency21__.finishChains;
-    var flushPendingChains = __dependency21__.flushPendingChains;
-    var removeChainWatcher = __dependency21__.removeChainWatcher;
-    var watchPath = __dependency22__.watchPath;
-    var unwatchPath = __dependency22__.unwatchPath;
-    var destroy = __dependency23__.destroy;
-    var isWatching = __dependency23__.isWatching;
-    var rewatch = __dependency23__.rewatch;
-    var unwatch = __dependency23__.unwatch;
-    var watch = __dependency23__.watch;
-    var expandProperties = __dependency24__["default"];
-    var ComputedProperty = __dependency25__.ComputedProperty;
-    var computed = __dependency25__.computed;
-    var cacheFor = __dependency25__.cacheFor;
+    var Map = __dependency18__.Map;
+    var MapWithDefault = __dependency18__.MapWithDefault;
+    var OrderedSet = __dependency18__.OrderedSet;
+    var getProperties = __dependency19__["default"];
+    var setProperties = __dependency20__["default"];
+    var watchKey = __dependency21__.watchKey;
+    var unwatchKey = __dependency21__.unwatchKey;
+    var ChainNode = __dependency22__.ChainNode;
+    var finishChains = __dependency22__.finishChains;
+    var flushPendingChains = __dependency22__.flushPendingChains;
+    var removeChainWatcher = __dependency22__.removeChainWatcher;
+    var watchPath = __dependency23__.watchPath;
+    var unwatchPath = __dependency23__.unwatchPath;
+    var destroy = __dependency24__.destroy;
+    var isWatching = __dependency24__.isWatching;
+    var rewatch = __dependency24__.rewatch;
+    var unwatch = __dependency24__.unwatch;
+    var watch = __dependency24__.watch;
+    var expandProperties = __dependency25__["default"];
+    var ComputedProperty = __dependency26__.ComputedProperty;
+    var computed = __dependency26__.computed;
+    var cacheFor = __dependency26__.cacheFor;
 
-    var alias = __dependency26__["default"];
-    var empty = __dependency27__.empty;
-    var notEmpty = __dependency27__.notEmpty;
-    var none = __dependency27__.none;
-    var not = __dependency27__.not;
-    var bool = __dependency27__.bool;
-    var match = __dependency27__.match;
-    var equal = __dependency27__.equal;
-    var gt = __dependency27__.gt;
-    var gte = __dependency27__.gte;
-    var lt = __dependency27__.lt;
-    var lte = __dependency27__.lte;
-    var oneWay = __dependency27__.oneWay;
-    var readOnly = __dependency27__.readOnly;
-    var defaultTo = __dependency27__.defaultTo;
-    var deprecatingAlias = __dependency27__.deprecatingAlias;
-    var and = __dependency27__.and;
-    var or = __dependency27__.or;
-    var any = __dependency27__.any;
-    var collect = __dependency27__.collect;
+    var alias = __dependency27__["default"];
+    var empty = __dependency28__.empty;
+    var notEmpty = __dependency28__.notEmpty;
+    var none = __dependency28__.none;
+    var not = __dependency28__.not;
+    var bool = __dependency28__.bool;
+    var match = __dependency28__.match;
+    var equal = __dependency28__.equal;
+    var gt = __dependency28__.gt;
+    var gte = __dependency28__.gte;
+    var lt = __dependency28__.lt;
+    var lte = __dependency28__.lte;
+    var oneWay = __dependency28__.oneWay;
+    var readOnly = __dependency28__.readOnly;
+    var defaultTo = __dependency28__.defaultTo;
+    var deprecatingAlias = __dependency28__.deprecatingAlias;
+    var and = __dependency28__.and;
+    var or = __dependency28__.or;
+    var any = __dependency28__.any;
+    var collect = __dependency28__.collect;
 
     computed.empty = empty;
     computed.notEmpty = notEmpty;
@@ -2309,48 +2321,48 @@ enifed("ember-metal",
     computed.any = any;
     computed.collect = collect;
 
-    var _suspendBeforeObserver = __dependency28__._suspendBeforeObserver;
-    var _suspendBeforeObservers = __dependency28__._suspendBeforeObservers;
-    var _suspendObserver = __dependency28__._suspendObserver;
-    var _suspendObservers = __dependency28__._suspendObservers;
-    var addBeforeObserver = __dependency28__.addBeforeObserver;
-    var addObserver = __dependency28__.addObserver;
-    var beforeObserversFor = __dependency28__.beforeObserversFor;
-    var observersFor = __dependency28__.observersFor;
-    var removeBeforeObserver = __dependency28__.removeBeforeObserver;
-    var removeObserver = __dependency28__.removeObserver;
-    var IS_BINDING = __dependency29__.IS_BINDING;
-    var Mixin = __dependency29__.Mixin;
-    var aliasMethod = __dependency29__.aliasMethod;
-    var beforeObserver = __dependency29__.beforeObserver;
-    var immediateObserver = __dependency29__.immediateObserver;
-    var mixin = __dependency29__.mixin;
-    var observer = __dependency29__.observer;
-    var required = __dependency29__.required;
-    var Binding = __dependency30__.Binding;
-    var bind = __dependency30__.bind;
-    var isGlobalPath = __dependency30__.isGlobalPath;
-    var oneWay = __dependency30__.oneWay;
-    var run = __dependency31__["default"];
-    var Libraries = __dependency32__["default"];
-    var isNone = __dependency33__["default"];
-    var isEmpty = __dependency34__["default"];
-    var isBlank = __dependency35__["default"];
-    var isPresent = __dependency36__["default"];
-    var keys = __dependency37__["default"];
-    var Backburner = __dependency38__["default"];
-    var isStream = __dependency39__.isStream;
-    var subscribe = __dependency39__.subscribe;
-    var unsubscribe = __dependency39__.unsubscribe;
-    var read = __dependency39__.read;
-    var readHash = __dependency39__.readHash;
-    var readArray = __dependency39__.readArray;
-    var scanArray = __dependency39__.scanArray;
-    var scanHash = __dependency39__.scanHash;
-    var concat = __dependency39__.concat;
-    var chain = __dependency39__.chain;
+    var _suspendBeforeObserver = __dependency29__._suspendBeforeObserver;
+    var _suspendBeforeObservers = __dependency29__._suspendBeforeObservers;
+    var _suspendObserver = __dependency29__._suspendObserver;
+    var _suspendObservers = __dependency29__._suspendObservers;
+    var addBeforeObserver = __dependency29__.addBeforeObserver;
+    var addObserver = __dependency29__.addObserver;
+    var beforeObserversFor = __dependency29__.beforeObserversFor;
+    var observersFor = __dependency29__.observersFor;
+    var removeBeforeObserver = __dependency29__.removeBeforeObserver;
+    var removeObserver = __dependency29__.removeObserver;
+    var IS_BINDING = __dependency30__.IS_BINDING;
+    var Mixin = __dependency30__.Mixin;
+    var aliasMethod = __dependency30__.aliasMethod;
+    var beforeObserver = __dependency30__.beforeObserver;
+    var immediateObserver = __dependency30__.immediateObserver;
+    var mixin = __dependency30__.mixin;
+    var observer = __dependency30__.observer;
+    var required = __dependency30__.required;
+    var Binding = __dependency31__.Binding;
+    var bind = __dependency31__.bind;
+    var isGlobalPath = __dependency31__.isGlobalPath;
+    var oneWay = __dependency31__.oneWay;
+    var run = __dependency32__["default"];
+    var Libraries = __dependency33__["default"];
+    var isNone = __dependency34__["default"];
+    var isEmpty = __dependency35__["default"];
+    var isBlank = __dependency36__["default"];
+    var isPresent = __dependency37__["default"];
+    var keys = __dependency38__["default"];
+    var Backburner = __dependency39__["default"];
+    var isStream = __dependency40__.isStream;
+    var subscribe = __dependency40__.subscribe;
+    var unsubscribe = __dependency40__.unsubscribe;
+    var read = __dependency40__.read;
+    var readHash = __dependency40__.readHash;
+    var readArray = __dependency40__.readArray;
+    var scanArray = __dependency40__.scanArray;
+    var scanHash = __dependency40__.scanHash;
+    var concat = __dependency40__.concat;
+    var chain = __dependency40__.chain;
 
-    var Stream = __dependency40__["default"];
+    var Stream = __dependency41__["default"];
 
     // END IMPORTS
 
@@ -2561,7 +2573,7 @@ enifed("ember-metal",
     __exports__["default"] = Ember;
   });
 enifed("ember-metal/alias",
-  ["ember-metal/property_get","ember-metal/property_set","ember-metal/core","ember-metal/error","ember-metal/properties","ember-metal/computed","ember-metal/platform","ember-metal/utils","ember-metal/dependent_keys","exports"],
+  ["ember-metal/property_get","ember-metal/property_set","ember-metal/core","ember-metal/error","ember-metal/properties","ember-metal/computed","ember-metal/platform/create","ember-metal/utils","ember-metal/dependent_keys","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __exports__) {
     "use strict";
     var get = __dependency1__.get;
@@ -2572,7 +2584,7 @@ enifed("ember-metal/alias",
     var Descriptor = __dependency5__.Descriptor;
     var defineProperty = __dependency5__.defineProperty;
     var ComputedProperty = __dependency6__.ComputedProperty;
-    var create = __dependency7__.create;
+    var create = __dependency7__["default"];
     var meta = __dependency8__.meta;
     var inspect = __dependency8__.inspect;
     var addDependentKeys = __dependency9__.addDependentKeys;
@@ -5117,7 +5129,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.3d652e9d
+      @version 1.11.0-beta.1+canary.ad972802
     */
 
     if ('undefined' === typeof Ember) {
@@ -5127,13 +5139,13 @@ enifed("ember-metal/core",
     }
 
     // Default imports, exports and lookup to the global object;
-    var global = this || {}; // `this` may be undefined in strict mode
+    var global = mainContext || {}; // jshint ignore:line
     Ember.imports = Ember.imports || global;
     Ember.lookup  = Ember.lookup  || global;
-    var exports   = Ember.exports = Ember.exports || global;
+    var emExports   = Ember.exports = Ember.exports || global;
 
     // aliases needed to keep minifiers from removing the global context
-    exports.Em = exports.Ember = Ember;
+    emExports.Em = emExports.Ember = Ember;
 
     // Make sure these are set whether Ember was already defined or not
 
@@ -5145,10 +5157,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.3d652e9d'
+      @default '1.11.0-beta.1+canary.ad972802'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.3d652e9d';
+    Ember.VERSION = '1.11.0-beta.1+canary.ad972802';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -5305,14 +5317,14 @@ enifed("ember-metal/core",
     __exports__["default"] = Ember;
   });
 enifed("ember-metal/dependent_keys",
-  ["ember-metal/platform","ember-metal/watching","exports"],
+  ["ember-metal/platform/create","ember-metal/watching","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
         // Remove "use strict"; from transpiled module until
     // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
     //
     // REMOVE_USE_STRICT: true
 
-    var o_create = __dependency1__.create;
+    var o_create = __dependency1__["default"];
     var watch = __dependency2__.watch;
     var unwatch = __dependency2__.unwatch;
 
@@ -5400,7 +5412,7 @@ enifed("ember-metal/dependent_keys",
     __exports__.removeDependentKeys = removeDependentKeys;
   });
 enifed("ember-metal/deprecate_property",
-  ["ember-metal/core","ember-metal/platform","ember-metal/properties","ember-metal/property_get","ember-metal/property_set","exports"],
+  ["ember-metal/core","ember-metal/platform/define_property","ember-metal/properties","ember-metal/property_get","ember-metal/property_set","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     /**
@@ -5450,10 +5462,10 @@ enifed("ember-metal/deprecate_property",
     __exports__.deprecateProperty = deprecateProperty;
   });
 enifed("ember-metal/dictionary",
-  ["ember-metal/platform","exports"],
+  ["ember-metal/platform/create","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
-    var create = __dependency1__.create;
+    var create = __dependency1__["default"];
 
     // the delete is meant to hint at runtimes that this object should remain in
     // dictionary mode. This is clearly a runtime specific hack, but currently it
@@ -5755,10 +5767,10 @@ enifed("ember-metal/environment",
     __exports__["default"] = environment;
   });
 enifed("ember-metal/error",
-  ["ember-metal/platform","exports"],
+  ["ember-metal/platform/create","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
-    var create = __dependency1__.create;
+    var create = __dependency1__["default"];
 
     var errorProps = [
       'description',
@@ -5802,7 +5814,7 @@ enifed("ember-metal/error",
     __exports__["default"] = EmberError;
   });
 enifed("ember-metal/events",
-  ["ember-metal/core","ember-metal/utils","ember-metal/platform","exports"],
+  ["ember-metal/core","ember-metal/utils","ember-metal/platform/create","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
         // Remove "use strict"; from transpiled module until
     // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
@@ -5817,7 +5829,7 @@ enifed("ember-metal/events",
     var tryFinally = __dependency2__.tryFinally;
     var apply = __dependency2__.apply;
     var applyStr = __dependency2__.applyStr;
-    var create = __dependency3__.create;
+    var create = __dependency3__["default"];
 
     var a_slice = [].slice;
 
@@ -6224,12 +6236,12 @@ enifed("ember-metal/events",
     __exports__.on = on;__exports__.removeListener = removeListener;
   });
 enifed("ember-metal/expand_properties",
-  ["ember-metal/core","ember-metal/error","ember-metal/enumerable_utils","exports"],
+  ["ember-metal/error","ember-metal/enumerable_utils","ember-metal/utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
-    var Ember = __dependency1__["default"];
-    var EmberError = __dependency2__["default"];
-    var forEach = __dependency3__.forEach;
+    var EmberError = __dependency1__["default"];
+    var forEach = __dependency2__.forEach;
+    var typeOf = __dependency3__.typeOf;
 
     /**
       @module ember-metal
@@ -6269,7 +6281,7 @@ enifed("ember-metal/expand_properties",
           'e.g. `user.{firstName, lastName}` should be `user.{firstName,lastName}`');
       }
 
-      if ('string' === Ember.typeOf(pattern)) {
+      if ('string' === typeOf(pattern)) {
         var parts = pattern.split(SPLIT_REGEX);
         var properties = [parts];
 
@@ -6346,7 +6358,7 @@ enifed("ember-metal/get_properties",
     }
   });
 enifed("ember-metal/injected_property",
-  ["ember-metal/core","ember-metal/computed","ember-metal/alias","ember-metal/properties","ember-metal/platform","ember-metal/utils","exports"],
+  ["ember-metal/core","ember-metal/computed","ember-metal/alias","ember-metal/properties","ember-metal/platform/create","ember-metal/utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
@@ -6354,7 +6366,7 @@ enifed("ember-metal/injected_property",
     var ComputedProperty = __dependency2__.ComputedProperty;
     var AliasedProperty = __dependency3__.AliasedProperty;
     var Descriptor = __dependency4__.Descriptor;
-    var create = __dependency5__.create;
+    var create = __dependency5__["default"];
     var meta = __dependency6__.meta;
 
     /**
@@ -6795,7 +6807,7 @@ enifed("ember-metal/is_present",
     }
   });
 enifed("ember-metal/keys",
-  ["ember-metal/platform","exports"],
+  ["ember-metal/platform/define_property","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
     var canDefineNonEnumerableProperties = __dependency1__.canDefineNonEnumerableProperties;
@@ -7088,7 +7100,7 @@ enifed("ember-metal/logger",
     };
   });
 enifed("ember-metal/map",
-  ["ember-metal/utils","ember-metal/array","ember-metal/platform","ember-metal/deprecate_property","exports"],
+  ["ember-metal/utils","ember-metal/array","ember-metal/platform/create","ember-metal/deprecate_property","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     /**
@@ -7115,7 +7127,7 @@ enifed("ember-metal/map",
 
     var guidFor = __dependency1__.guidFor;
     var indexOf = __dependency2__.indexOf;
-    var create = __dependency3__.create;
+    var create = __dependency3__["default"];
     var deprecateProperty = __dependency4__.deprecateProperty;
 
     function missingFunction(fn) {
@@ -7639,7 +7651,7 @@ enifed("ember-metal/merge",
     }
   });
 enifed("ember-metal/mixin",
-  ["ember-metal/core","ember-metal/merge","ember-metal/array","ember-metal/platform","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/expand_properties","ember-metal/properties","ember-metal/computed","ember-metal/binding","ember-metal/observer","ember-metal/events","ember-metal/streams/utils","exports"],
+  ["ember-metal/core","ember-metal/merge","ember-metal/array","ember-metal/platform/create","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/expand_properties","ember-metal/properties","ember-metal/computed","ember-metal/binding","ember-metal/observer","ember-metal/events","ember-metal/streams/utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __exports__) {
         // Remove "use strict"; from transpiled module until
     // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
@@ -7656,7 +7668,7 @@ enifed("ember-metal/mixin",
     var merge = __dependency2__["default"];
     var a_indexOf = __dependency3__.indexOf;
     var a_forEach = __dependency3__.forEach;
-    var o_create = __dependency4__.create;
+    var o_create = __dependency4__["default"];
     var get = __dependency5__.get;
     var set = __dependency6__.set;
     var trySet = __dependency6__.trySet;
@@ -8827,36 +8839,6 @@ enifed("ember-metal/path_cache",
 
     __exports__.getTailPath = getTailPath;
   });
-enifed("ember-metal/platform",
-  ["ember-metal/platform/define_property","ember-metal/platform/define_properties","ember-metal/platform/create","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
-    "use strict";
-    var hasES5CompliantDefineProperty = __dependency1__.hasES5CompliantDefineProperty;
-    var defineProperty = __dependency1__.defineProperty;
-    var defineProperties = __dependency2__["default"];
-    var create = __dependency3__["default"];
-
-    /**
-    @module ember-metal
-    */
-
-    var hasPropertyAccessors = hasES5CompliantDefineProperty;
-    var canDefineNonEnumerableProperties = hasES5CompliantDefineProperty;
-
-    /**
-      Platform specific methods and feature detectors needed by the framework.
-
-      @class platform
-      @namespace Ember
-      @static
-    */
-
-    __exports__.create = create;
-    __exports__.defineProperty = defineProperty;
-    __exports__.defineProperties = defineProperties;
-    __exports__.hasPropertyAccessors = hasPropertyAccessors;
-    __exports__.canDefineNonEnumerableProperties = canDefineNonEnumerableProperties;
-  });
 enifed("ember-metal/platform/create",
   ["exports"],
   function(__exports__) {
@@ -9112,16 +9094,21 @@ enifed("ember-metal/platform/define_property",
     }
 
     if (!hasES5CompliantDefineProperty) {
-      defineProperty = function defineProperty(obj, keyName, desc) {
+      defineProperty = function definePropertyPolyfill(obj, keyName, desc) {
         if (!desc.get) { obj[keyName] = desc.value; }
       };
     }
 
+    var hasPropertyAccessors = hasES5CompliantDefineProperty;
+    var canDefineNonEnumerableProperties = hasES5CompliantDefineProperty;
+
     __exports__.hasES5CompliantDefineProperty = hasES5CompliantDefineProperty;
     __exports__.defineProperty = defineProperty;
+    __exports__.hasPropertyAccessors = hasPropertyAccessors;
+    __exports__.canDefineNonEnumerableProperties = canDefineNonEnumerableProperties;
   });
 enifed("ember-metal/properties",
-  ["ember-metal/core","ember-metal/utils","ember-metal/platform","ember-metal/property_events","exports"],
+  ["ember-metal/core","ember-metal/utils","ember-metal/platform/define_property","ember-metal/property_events","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     /**
@@ -9586,7 +9573,7 @@ enifed("ember-metal/property_events",
     __exports__.changeProperties = changeProperties;
   });
 enifed("ember-metal/property_get",
-  ["ember-metal/core","ember-metal/error","ember-metal/path_cache","ember-metal/platform","exports"],
+  ["ember-metal/core","ember-metal/error","ember-metal/path_cache","ember-metal/platform/define_property","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     /**
@@ -9767,7 +9754,7 @@ enifed("ember-metal/property_get",
     __exports__.getWithDefault = getWithDefault;__exports__["default"] = get;
   });
 enifed("ember-metal/property_set",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/property_events","ember-metal/properties","ember-metal/error","ember-metal/path_cache","ember-metal/platform","exports"],
+  ["ember-metal/core","ember-metal/property_get","ember-metal/property_events","ember-metal/properties","ember-metal/error","ember-metal/path_cache","ember-metal/platform/define_property","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
@@ -10594,7 +10581,7 @@ enifed("ember-metal/set_properties",
     }
   });
 enifed("ember-metal/streams/conditional",
-  ["ember-metal/streams/stream","ember-metal/streams/utils","ember-metal/platform","exports"],
+  ["ember-metal/streams/stream","ember-metal/streams/utils","ember-metal/platform/create","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
     var Stream = __dependency1__["default"];
@@ -10602,7 +10589,7 @@ enifed("ember-metal/streams/conditional",
     var subscribe = __dependency2__.subscribe;
     var unsubscribe = __dependency2__.unsubscribe;
     var isStream = __dependency2__.isStream;
-    var create = __dependency3__.create;
+    var create = __dependency3__["default"];
 
     __exports__["default"] = function conditional(test, consequent, alternate) {
       if (isStream(test)) {
@@ -10650,12 +10637,12 @@ enifed("ember-metal/streams/conditional",
     };
   });
 enifed("ember-metal/streams/simple",
-  ["ember-metal/merge","ember-metal/streams/stream","ember-metal/platform","ember-metal/streams/utils","exports"],
+  ["ember-metal/merge","ember-metal/streams/stream","ember-metal/platform/create","ember-metal/streams/utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     var merge = __dependency1__["default"];
     var Stream = __dependency2__["default"];
-    var create = __dependency3__.create;
+    var create = __dependency3__["default"];
     var read = __dependency4__.read;
     var isStream = __dependency4__.isStream;
 
@@ -10719,10 +10706,10 @@ enifed("ember-metal/streams/simple",
     __exports__["default"] = SimpleStream;
   });
 enifed("ember-metal/streams/stream",
-  ["ember-metal/platform","ember-metal/path_cache","exports"],
+  ["ember-metal/platform/create","ember-metal/path_cache","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
-    var create = __dependency1__.create;
+    var create = __dependency1__["default"];
     var getFirstKey = __dependency2__.getFirstKey;
     var getTailPath = __dependency2__.getTailPath;
 
@@ -10875,10 +10862,10 @@ enifed("ember-metal/streams/stream",
     __exports__["default"] = Stream;
   });
 enifed("ember-metal/streams/stream_binding",
-  ["ember-metal/platform","ember-metal/merge","ember-metal/run_loop","ember-metal/streams/stream","exports"],
+  ["ember-metal/platform/create","ember-metal/merge","ember-metal/run_loop","ember-metal/streams/stream","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
-    var create = __dependency1__.create;
+    var create = __dependency1__["default"];
     var merge = __dependency2__["default"];
     var run = __dependency3__["default"];
     var Stream = __dependency4__["default"];
@@ -11195,20 +11182,20 @@ enifed("ember-metal/streams/utils",
     __exports__.chain = chain;
   });
 enifed("ember-metal/utils",
-  ["ember-metal/core","ember-metal/platform","ember-metal/array","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
+  ["ember-metal/core","ember-metal/platform/create","ember-metal/platform/define_property","ember-metal/array","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
         // Remove "use strict"; from transpiled module until
     // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
     //
     // REMOVE_USE_STRICT: true
 
     var Ember = __dependency1__["default"];
-    var o_defineProperty = __dependency2__.defineProperty;
-    var canDefineNonEnumerableProperties = __dependency2__.canDefineNonEnumerableProperties;
-    var hasPropertyAccessors = __dependency2__.hasPropertyAccessors;
-    var o_create = __dependency2__.create;
+    var o_create = __dependency2__["default"];
+    var hasPropertyAccessors = __dependency3__.hasPropertyAccessors;
+    var o_defineProperty = __dependency3__.defineProperty;
+    var canDefineNonEnumerableProperties = __dependency3__.canDefineNonEnumerableProperties;
 
-    var forEach = __dependency3__.forEach;
+    var forEach = __dependency4__.forEach;
 
     /**
     @module ember-metal
@@ -12177,7 +12164,7 @@ enifed("ember-metal/utils",
     __exports__.tryFinally = tryFinally;
   });
 enifed("ember-metal/watch_key",
-  ["ember-metal/core","ember-metal/utils","ember-metal/platform","ember-metal/properties","exports"],
+  ["ember-metal/core","ember-metal/utils","ember-metal/platform/define_property","ember-metal/properties","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
@@ -12734,13 +12721,13 @@ enifed("ember-runtime/compare",
     }
   });
 enifed("ember-runtime/computed/array_computed",
-  ["ember-metal/core","ember-runtime/computed/reduce_computed","ember-metal/enumerable_utils","ember-metal/platform","ember-metal/observer","ember-metal/error","exports"],
+  ["ember-metal/core","ember-runtime/computed/reduce_computed","ember-metal/enumerable_utils","ember-metal/platform/create","ember-metal/observer","ember-metal/error","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var ReduceComputedProperty = __dependency2__.ReduceComputedProperty;
     var forEach = __dependency3__.forEach;
-    var o_create = __dependency4__.create;
+    var o_create = __dependency4__["default"];
     var addObserver = __dependency5__.addObserver;
     var EmberError = __dependency6__["default"];
 
@@ -12926,7 +12913,7 @@ enifed("ember-runtime/computed/array_computed",
     __exports__.ArrayComputedProperty = ArrayComputedProperty;
   });
 enifed("ember-runtime/computed/reduce_computed",
-  ["ember-metal/core","ember-metal/property_get","ember-metal/utils","ember-metal/error","ember-metal/property_events","ember-metal/expand_properties","ember-metal/observer","ember-metal/computed","ember-metal/platform","ember-metal/enumerable_utils","ember-runtime/system/tracked_array","ember-runtime/mixins/array","ember-metal/run_loop","exports"],
+  ["ember-metal/core","ember-metal/property_get","ember-metal/utils","ember-metal/error","ember-metal/property_events","ember-metal/expand_properties","ember-metal/observer","ember-metal/computed","ember-metal/platform/create","ember-metal/enumerable_utils","ember-runtime/system/tracked_array","ember-runtime/mixins/array","ember-metal/run_loop","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
@@ -12945,7 +12932,7 @@ enifed("ember-runtime/computed/reduce_computed",
     var removeBeforeObserver = __dependency7__.removeBeforeObserver;
     var ComputedProperty = __dependency8__.ComputedProperty;
     var cacheFor = __dependency8__.cacheFor;
-    var o_create = __dependency9__.create;
+    var o_create = __dependency9__["default"];
     var forEach = __dependency10__.forEach;
     var TrackedArray = __dependency11__["default"];
     var EmberArray = __dependency12__["default"];
@@ -16552,11 +16539,11 @@ enifed("ember-runtime/mixins/comparable",
     });
   });
 enifed("ember-runtime/mixins/controller",
-  ["ember-metal/mixin","ember-metal/computed","ember-runtime/mixins/action_handler","ember-runtime/mixins/controller_content_model_alias_deprecation","exports"],
+  ["ember-metal/mixin","ember-metal/alias","ember-runtime/mixins/action_handler","ember-runtime/mixins/controller_content_model_alias_deprecation","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     var Mixin = __dependency1__.Mixin;
-    var computed = __dependency2__.computed;
+    var alias = __dependency2__["default"];
     var ActionHandler = __dependency3__["default"];
     var ControllerContentModelAliasDeprecation = __dependency4__["default"];
 
@@ -16611,7 +16598,7 @@ enifed("ember-runtime/mixins/controller",
       /**
         @private
        */
-      content: computed.alias('model')
+      content: alias('model')
 
     });
   });
@@ -20349,8 +20336,8 @@ enifed("ember-runtime/system/container",
     __exports__.Container = Container;
   });
 enifed("ember-runtime/system/core_object",
-  ["ember-metal/core","ember-metal/merge","ember-metal/property_get","ember-metal/utils","ember-metal/platform","ember-metal/chains","ember-metal/events","ember-metal/mixin","ember-metal/enumerable_utils","ember-metal/error","ember-metal/keys","ember-runtime/mixins/action_handler","ember-metal/properties","ember-metal/binding","ember-metal/computed","ember-metal/injected_property","ember-metal/run_loop","ember-metal/watching","ember-runtime/inject","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __exports__) {
+  ["ember-metal","ember-metal/merge","ember-metal/property_get","ember-metal/utils","ember-metal/platform/create","ember-metal/chains","ember-metal/events","ember-metal/mixin","ember-metal/enumerable_utils","ember-metal/error","ember-metal/platform/define_property","ember-metal/keys","ember-runtime/mixins/action_handler","ember-metal/properties","ember-metal/binding","ember-metal/computed","ember-metal/injected_property","ember-metal/run_loop","ember-metal/watching","ember-metal/core","ember-runtime/inject","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __exports__) {
         // Remove "use strict"; from transpiled module until
     // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
     //
@@ -20361,6 +20348,8 @@ enifed("ember-runtime/system/core_object",
       @submodule ember-runtime
     */
 
+    // using ember-metal/lib/main here to ensure that ember-debug is setup
+    // if present
     var Ember = __dependency1__["default"];
     var merge = __dependency2__["default"];
     // Ember.assert, Ember.config
@@ -20370,7 +20359,7 @@ enifed("ember-runtime/system/core_object",
     var get = __dependency3__.get;
     var guidFor = __dependency4__.guidFor;
     var apply = __dependency4__.apply;
-    var o_create = __dependency5__.create;
+    var o_create = __dependency5__["default"];
     var generateGuid = __dependency4__.generateGuid;
     var GUID_KEY_PROPERTY = __dependency4__.GUID_KEY_PROPERTY;
     var NEXT_SUPER_PROPERTY = __dependency4__.NEXT_SUPER_PROPERTY;
@@ -20383,19 +20372,19 @@ enifed("ember-runtime/system/core_object",
     var required = __dependency8__.required;
     var indexOf = __dependency9__.indexOf;
     var EmberError = __dependency10__["default"];
-    var o_defineProperty = __dependency5__.defineProperty;
-    var keys = __dependency11__["default"];
-    var ActionHandler = __dependency12__["default"];
-    var defineProperty = __dependency13__.defineProperty;
-    var Binding = __dependency14__.Binding;
-    var ComputedProperty = __dependency15__.ComputedProperty;
-    var computed = __dependency15__.computed;
-    var InjectedProperty = __dependency16__["default"];
-    var run = __dependency17__["default"];
-    var destroy = __dependency18__.destroy;
-    var K = __dependency1__.K;
-    var hasPropertyAccessors = __dependency5__.hasPropertyAccessors;
-    var validatePropertyInjections = __dependency19__.validatePropertyInjections;
+    var o_defineProperty = __dependency11__.defineProperty;
+    var keys = __dependency12__["default"];
+    var ActionHandler = __dependency13__["default"];
+    var defineProperty = __dependency14__.defineProperty;
+    var Binding = __dependency15__.Binding;
+    var ComputedProperty = __dependency16__.ComputedProperty;
+    var computed = __dependency16__.computed;
+    var InjectedProperty = __dependency17__["default"];
+    var run = __dependency18__["default"];
+    var destroy = __dependency19__.destroy;
+    var K = __dependency20__.K;
+    var hasPropertyAccessors = __dependency11__.hasPropertyAccessors;
+    var validatePropertyInjections = __dependency21__.validatePropertyInjections;
 
     var schedule = run.schedule;
     var applyMixin = Mixin._apply;

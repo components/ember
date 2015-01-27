@@ -5,13 +5,15 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.3d652e9d
+ * @version   1.11.0-beta.1+canary.ad972802
  */
 
 (function() {
 var enifed, requireModule, eriuqer, requirejs, Ember;
+var mainContext = this;
 
 (function() {
+
   Ember = this.Ember = this.Ember || {};
   if (typeof Ember === 'undefined') { Ember = {}; };
   function UNDEFINED() { }
@@ -21,7 +23,17 @@ var enifed, requireModule, eriuqer, requirejs, Ember;
     var seen = {};
 
     enifed = function(name, deps, callback) {
-      registry[name] = { deps: deps, callback: callback };
+      var value = { };
+
+      if (!callback) {
+        value.deps = [];
+        value.callback = deps;
+      } else {
+        value.deps = deps;
+        value.callback = callback;
+      }
+
+        registry[name] = value;
     };
 
     requirejs = eriuqer = requireModule = function(name) {
@@ -1143,12 +1155,12 @@ enifed("ember-testing/support",
     }
   });
 enifed("ember-testing/test",
-  ["ember-metal/core","ember-metal/run_loop","ember-metal/platform","ember-runtime/ext/rsvp","ember-testing/setup_for_testing","ember-application/system/application","exports"],
+  ["ember-metal/core","ember-metal/run_loop","ember-metal/platform/create","ember-runtime/ext/rsvp","ember-testing/setup_for_testing","ember-application/system/application","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var emberRun = __dependency2__["default"];
-    var create = __dependency3__.create;
+    var create = __dependency3__["default"];
     var RSVP = __dependency4__["default"];
     var setupForTesting = __dependency5__["default"];
     var EmberApplication = __dependency6__["default"];

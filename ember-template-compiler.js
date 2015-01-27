@@ -5,13 +5,15 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.3d652e9d
+ * @version   1.11.0-beta.1+canary.ad972802
  */
 
 (function() {
 var enifed, requireModule, eriuqer, requirejs, Ember;
+var mainContext = this;
 
 (function() {
+
   Ember = this.Ember = this.Ember || {};
   if (typeof Ember === 'undefined') { Ember = {}; };
   function UNDEFINED() { }
@@ -21,7 +23,17 @@ var enifed, requireModule, eriuqer, requirejs, Ember;
     var seen = {};
 
     enifed = function(name, deps, callback) {
-      registry[name] = { deps: deps, callback: callback };
+      var value = { };
+
+      if (!callback) {
+        value.deps = [];
+        value.callback = deps;
+      } else {
+        value.deps = deps;
+        value.callback = callback;
+      }
+
+        registry[name] = value;
     };
 
     requirejs = eriuqer = requireModule = function(name) {
@@ -119,7 +131,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.3d652e9d
+      @version 1.11.0-beta.1+canary.ad972802
     */
 
     if ('undefined' === typeof Ember) {
@@ -129,13 +141,13 @@ enifed("ember-metal/core",
     }
 
     // Default imports, exports and lookup to the global object;
-    var global = this || {}; // `this` may be undefined in strict mode
+    var global = mainContext || {}; // jshint ignore:line
     Ember.imports = Ember.imports || global;
     Ember.lookup  = Ember.lookup  || global;
-    var exports   = Ember.exports = Ember.exports || global;
+    var emExports   = Ember.exports = Ember.exports || global;
 
     // aliases needed to keep minifiers from removing the global context
-    exports.Em = exports.Ember = Ember;
+    emExports.Em = emExports.Ember = Ember;
 
     // Make sure these are set whether Ember was already defined or not
 
@@ -147,10 +159,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.3d652e9d'
+      @default '1.11.0-beta.1+canary.ad972802'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.3d652e9d';
+    Ember.VERSION = '1.11.0-beta.1+canary.ad972802';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
