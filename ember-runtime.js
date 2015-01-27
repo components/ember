@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.11f7b5f2
+ * @version   1.11.0-beta.1+canary.20be695a
  */
 
 (function() {
@@ -5129,7 +5129,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.11f7b5f2
+      @version 1.11.0-beta.1+canary.20be695a
     */
 
     if ('undefined' === typeof Ember) {
@@ -5157,10 +5157,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.11f7b5f2'
+      @default '1.11.0-beta.1+canary.20be695a'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.11f7b5f2';
+    Ember.VERSION = '1.11.0-beta.1+canary.20be695a';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -8180,7 +8180,7 @@ enifed("ember-metal/mixin",
       //filters will be created as a separate array during the object's initialization
       App.Filterable = Ember.Mixin.create({
         init: function() {
-          this._super();
+          this._super.apply(this, arguments);
           this.set("filters", Ember.A());
         }
       });
@@ -14788,7 +14788,7 @@ enifed("ember-runtime/controllers/array_controller",
       },
 
       arrangedContentDidChange: function() {
-        this._super();
+        this._super.apply(this, arguments);
         this._resetSubControllers();
       },
 
@@ -14814,7 +14814,7 @@ enifed("ember-runtime/controllers/array_controller",
       },
 
       init: function() {
-        this._super();
+        this._super.apply(this, arguments);
         this._subControllers = [];
       },
 
@@ -14889,7 +14889,7 @@ enifed("ember-runtime/controllers/array_controller",
 
       willDestroy: function() {
         this._resetSubControllers();
-        this._super();
+        this._super.apply(this, arguments);
       }
     });
   });
@@ -15831,7 +15831,7 @@ enifed("ember-runtime/mixins/action_handler",
         });
         ```
 
-        It is also possible to call `this._super()` from within an
+        It is also possible to call `this._super.apply(this, arguments)` from within an
         action handler if it overrides a handler defined on a parent
         class or mixin:
 
@@ -15850,7 +15850,7 @@ enifed("ember-runtime/mixins/action_handler",
           actions: {
             debugRouteInformation: function() {
               // also call the debugRouteInformation of mixed in App.DebugRoute
-              this._super();
+              this._super.apply(this, arguments);
 
               // show additional annoyance
               window.alert(...);
@@ -19619,7 +19619,7 @@ enifed("ember-runtime/mixins/sortable",
           }, this);
         }
 
-        return this._super();
+        return this._super.apply(this, arguments);
       },
 
       isSorted: notEmpty('sortProperties'),
@@ -19664,7 +19664,7 @@ enifed("ember-runtime/mixins/sortable",
           }, this);
         }
 
-        this._super();
+        this._super.apply(this, arguments);
       }),
 
       sortPropertiesWillChange: beforeObserver('sortProperties', function() {
@@ -20308,7 +20308,7 @@ enifed("ember-runtime/system/array_proxy",
       },
 
       init: function() {
-        this._super();
+        this._super.apply(this, arguments);
         this._setupContent();
         this._setupArrangedContent();
       },
@@ -20589,7 +20589,7 @@ enifed("ember-runtime/system/core_object",
         ```
 
         NOTE: If you do override `init` for a framework class like `Ember.View` or
-        `Ember.ArrayController`, be sure to call `this._super()` in your
+        `Ember.ArrayController`, be sure to call `this._super.apply(this, arguments)` in your
         `init` declaration! If you don't, Ember may not have an opportunity to
         do important setup work, and you'll see strange behavior in your
         application.
@@ -21260,7 +21260,7 @@ enifed("ember-runtime/system/deferred",
     var Deferred = EmberObject.extend(DeferredMixin, {
       init: function() {
         Ember.deprecate('Usage of Ember.Deferred is deprecated.', false, { url: 'http://emberjs.com/guides/deprecations/#toc_deprecate-ember-deferredmixin-and-ember-deferred' });
-        this._super();
+        this._super.apply(this, arguments);
       }
     });
 
@@ -21310,7 +21310,7 @@ enifed("ember-runtime/system/each_proxy",
     var EachArray = EmberObject.extend(EmberArray, {
 
       init: function(content, keyName, owner) {
-        this._super();
+        this._super.apply(this, arguments);
         this._keyName = keyName;
         this._owner   = owner;
         this._content = content;
@@ -21390,7 +21390,7 @@ enifed("ember-runtime/system/each_proxy",
     var EachProxy = EmberObject.extend({
 
       init: function(content) {
-        this._super();
+        this._super.apply(this, arguments);
         this._content = content;
         content.addArrayObserver(this);
 
@@ -21656,7 +21656,7 @@ enifed("ember-runtime/system/namespace",
           delete Namespace.NAMESPACES_BY_ID[toString];
         }
         namespaces.splice(indexOf.call(namespaces, this), 1);
-        this._super();
+        this._super.apply(this, arguments);
       }
     });
 
@@ -21952,7 +21952,7 @@ enifed("ember-runtime/system/native_array",
         classNames: ['pagination'],
 
         init: function() {
-          this._super();
+          this._super.apply(this, arguments);
           if (!this.get('content')) {
             this.set('content', Ember.A());
           }
@@ -22530,7 +22530,7 @@ enifed("ember-runtime/system/set",
 
       init: function(items) {
         Ember.deprecate('Ember.Set is deprecated and will be removed in a future release.');
-        this._super();
+        this._super.apply(this, arguments);
 
         if (items) {
           this.addObjects(items);

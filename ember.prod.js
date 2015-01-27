@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.11f7b5f2
+ * @version   1.11.0-beta.1+canary.20be695a
  */
 
 (function() {
@@ -2942,7 +2942,7 @@ enifed("ember-application/system/application",
       customEvents: null,
 
       init: function() {
-        this._super();
+        this._super.apply(this, arguments);
 
         // Start off the number of deferrals at 1. This will be
         // decremented by the Application's own `initialize` method.
@@ -4346,7 +4346,7 @@ enifed("ember-extension-support/data_adapter",
     */
     __exports__["default"] = EmberObject.extend({
       init: function() {
-        this._super();
+        this._super.apply(this, arguments);
         this.releaseMethods = emberA();
       },
 
@@ -4524,7 +4524,7 @@ enifed("ember-extension-support/data_adapter",
         @method willDestroy
       */
       willDestroy: function() {
-        this._super();
+        this._super.apply(this, arguments);
         this.releaseMethods.forEach(function(fn) {
           fn();
         });
@@ -11784,7 +11784,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.11f7b5f2
+      @version 1.11.0-beta.1+canary.20be695a
     */
 
     if ('undefined' === typeof Ember) {
@@ -11812,10 +11812,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.11f7b5f2'
+      @default '1.11.0-beta.1+canary.20be695a'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.11f7b5f2';
+    Ember.VERSION = '1.11.0-beta.1+canary.20be695a';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -14820,7 +14820,7 @@ enifed("ember-metal/mixin",
       //filters will be created as a separate array during the object's initialization
       App.Filterable = Ember.Mixin.create({
         init: function() {
-          this._super();
+          this._super.apply(this, arguments);
           this.set("filters", Ember.A());
         }
       });
@@ -20202,14 +20202,14 @@ enifed("ember-routing-views/views/link",
         ```javascript
         App.MyLinkView = Ember.LinkView.extend({
           init: function() {
-            this._super();
+            this._super.apply(this, arguments);
             Ember.Logger.log('Event is ' + this.get('eventName'));
           }
         });
         ```
 
         NOTE: If you do override `init` for a framework class like `Ember.View` or
-        `Ember.ArrayController`, be sure to call `this._super()` in your
+        `Ember.ArrayController`, be sure to call `this._super.apply(this, arguments)` in your
         `init` declaration! If you don't, Ember may not have an opportunity to
         do important setup work, and you'll see strange behavior in your
         application.
@@ -21086,7 +21086,7 @@ enifed("ember-routing/ext/view",
        */
       init: function() {
         this._outlets = {};
-        this._super();
+        this._super.apply(this, arguments);
       },
 
       /**
@@ -28007,7 +28007,7 @@ enifed("ember-runtime/controllers/array_controller",
       },
 
       arrangedContentDidChange: function() {
-        this._super();
+        this._super.apply(this, arguments);
         this._resetSubControllers();
       },
 
@@ -28033,7 +28033,7 @@ enifed("ember-runtime/controllers/array_controller",
       },
 
       init: function() {
-        this._super();
+        this._super.apply(this, arguments);
         this._subControllers = [];
       },
 
@@ -28108,7 +28108,7 @@ enifed("ember-runtime/controllers/array_controller",
 
       willDestroy: function() {
         this._resetSubControllers();
-        this._super();
+        this._super.apply(this, arguments);
       }
     });
   });
@@ -29020,7 +29020,7 @@ enifed("ember-runtime/mixins/action_handler",
         });
         ```
 
-        It is also possible to call `this._super()` from within an
+        It is also possible to call `this._super.apply(this, arguments)` from within an
         action handler if it overrides a handler defined on a parent
         class or mixin:
 
@@ -29039,7 +29039,7 @@ enifed("ember-runtime/mixins/action_handler",
           actions: {
             debugRouteInformation: function() {
               // also call the debugRouteInformation of mixed in App.DebugRoute
-              this._super();
+              this._super.apply(this, arguments);
 
               // show additional annoyance
               window.alert(...);
@@ -32797,7 +32797,7 @@ enifed("ember-runtime/mixins/sortable",
           }, this);
         }
 
-        return this._super();
+        return this._super.apply(this, arguments);
       },
 
       isSorted: notEmpty('sortProperties'),
@@ -32842,7 +32842,7 @@ enifed("ember-runtime/mixins/sortable",
           }, this);
         }
 
-        this._super();
+        this._super.apply(this, arguments);
       }),
 
       sortPropertiesWillChange: beforeObserver('sortProperties', function() {
@@ -33476,7 +33476,7 @@ enifed("ember-runtime/system/array_proxy",
       },
 
       init: function() {
-        this._super();
+        this._super.apply(this, arguments);
         this._setupContent();
         this._setupArrangedContent();
       },
@@ -33748,7 +33748,7 @@ enifed("ember-runtime/system/core_object",
         ```
 
         NOTE: If you do override `init` for a framework class like `Ember.View` or
-        `Ember.ArrayController`, be sure to call `this._super()` in your
+        `Ember.ArrayController`, be sure to call `this._super.apply(this, arguments)` in your
         `init` declaration! If you don't, Ember may not have an opportunity to
         do important setup work, and you'll see strange behavior in your
         application.
@@ -34407,7 +34407,7 @@ enifed("ember-runtime/system/deferred",
 
     var Deferred = EmberObject.extend(DeferredMixin, {
       init: function() {
-                this._super();
+                this._super.apply(this, arguments);
       }
     });
 
@@ -34457,7 +34457,7 @@ enifed("ember-runtime/system/each_proxy",
     var EachArray = EmberObject.extend(EmberArray, {
 
       init: function(content, keyName, owner) {
-        this._super();
+        this._super.apply(this, arguments);
         this._keyName = keyName;
         this._owner   = owner;
         this._content = content;
@@ -34536,7 +34536,7 @@ enifed("ember-runtime/system/each_proxy",
     var EachProxy = EmberObject.extend({
 
       init: function(content) {
-        this._super();
+        this._super.apply(this, arguments);
         this._content = content;
         content.addArrayObserver(this);
 
@@ -34802,7 +34802,7 @@ enifed("ember-runtime/system/namespace",
           delete Namespace.NAMESPACES_BY_ID[toString];
         }
         namespaces.splice(indexOf.call(namespaces, this), 1);
-        this._super();
+        this._super.apply(this, arguments);
       }
     });
 
@@ -35098,7 +35098,7 @@ enifed("ember-runtime/system/native_array",
         classNames: ['pagination'],
 
         init: function() {
-          this._super();
+          this._super.apply(this, arguments);
           if (!this.get('content')) {
             this.set('content', Ember.A());
           }
@@ -35675,7 +35675,7 @@ enifed("ember-runtime/system/set",
       //
 
       init: function(items) {
-                this._super();
+                this._super.apply(this, arguments);
 
         if (items) {
           this.addObjects(items);
@@ -37469,7 +37469,7 @@ enifed("ember-views/mixins/text_support",
       maxlength: null,
 
       init: function() {
-        this._super();
+        this._super.apply(this, arguments);
         this.on("paste", this, this._elementValueDidChange);
         this.on("cut", this, this._elementValueDidChange);
         this.on("input", this, this._elementValueDidChange);
@@ -38436,7 +38436,7 @@ enifed("ember-views/system/event_dispatcher",
       destroy: function() {
         var rootElement = get(this, 'rootElement');
         jQuery(rootElement).off('.ember', '**').removeClass('ember-application');
-        return this._super();
+        return this._super.apply(this, arguments);
       },
 
       toString: function() {
@@ -39411,7 +39411,7 @@ enifed("ember-views/views/bound_component_view",
 
     __exports__["default"] = ContainerView.extend(_Metamorph, {
       init: function() {
-        this._super();
+        this._super.apply(this, arguments);
         var componentNameStream = this._boundComponentOptions.componentNameStream;
         var container = this.container;
         this.componentClassStream = chain(componentNameStream, function() {
@@ -39423,7 +39423,7 @@ enifed("ember-views/views/bound_component_view",
       },
       willDestroy: function() {
         unsubscribe(this.componentClassStream, this._updateBoundChildComponent, this);
-        this._super();
+        this._super.apply(this, arguments);
       },
       _updateBoundChildComponent: function() {
         this.replace(0, 1, [this._createNewComponent()]);
@@ -39460,7 +39460,7 @@ enifed("ember-views/views/bound_if_view",
 
     __exports__["default"] = _MetamorphView.extend(NormalizedRerenderIfNeededSupport, {
       init: function() {
-        this._super();
+        this._super.apply(this, arguments);
 
         var self = this;
 
@@ -39500,7 +39500,7 @@ enifed("ember-views/views/bound_partial_view",
 
     __exports__["default"] = _MetamorphView.extend(NormalizedRerenderIfNeededSupport, {
       init: function() {
-        this._super();
+        this._super.apply(this, arguments);
 
         var self = this;
 
@@ -39588,12 +39588,12 @@ enifed("ember-views/views/checkbox",
       indeterminate: false,
 
       init: function() {
-        this._super();
+        this._super.apply(this, arguments);
         this.on('change', this, this._updateElementValue);
       },
 
       didInsertElement: function() {
-        this._super();
+        this._super.apply(this, arguments);
         get(this, 'element').indeterminate = !!get(this, 'indeterminate');
       },
 
@@ -39832,7 +39832,7 @@ enifed("ember-views/views/collection_view",
         @method init
       */
       init: function() {
-        var ret = this._super();
+        var ret = this._super.apply(this, arguments);
         this._contentDidChange();
         return ret;
       },
@@ -39888,7 +39888,7 @@ enifed("ember-views/views/collection_view",
         @method destroy
       */
       destroy: function() {
-        if (!this._super()) { return; }
+        if (!this._super.apply(this, arguments)) { return; }
 
         var content = get(this, 'content');
         if (content) { content.removeArrayObserver(this); }
@@ -40181,7 +40181,7 @@ enifed("ember-views/views/component",
       }),
 
       init: function() {
-        this._super();
+        this._super.apply(this, arguments);
         this._keywords.view = this;
         set(this, 'context', this);
         set(this, 'controller', this);
@@ -40578,7 +40578,7 @@ enifed("ember-views/views/container_view",
               },
 
       init: function() {
-        this._super();
+        this._super.apply(this, arguments);
 
         var childViews = get(this, 'childViews');
         
@@ -40835,7 +40835,7 @@ enifed("ember-views/views/core_view",
       _states: cloneStates(states),
 
       init: function() {
-        this._super();
+        this._super.apply(this, arguments);
         this._state = 'preRender';
         this.currentState = this._states.preRender;
         this._isVisible = get(this, 'isVisible');
@@ -40916,7 +40916,7 @@ enifed("ember-views/views/core_view",
       destroy: function() {
         var parent = this._parentView;
 
-        if (!this._super()) { return; }
+        if (!this._super.apply(this, arguments)) { return; }
 
 
         // destroy the element -- this will avoid each child view destroying
@@ -40993,7 +40993,7 @@ enifed("ember-views/views/each",
           });
         }
 
-        return this._super();
+        return this._super.apply(this, arguments);
       },
 
       _assertArrayLike: function(content) {
@@ -41032,7 +41032,7 @@ enifed("ember-views/views/each",
       },
 
       destroy: function() {
-        if (!this._super()) { return; }
+        if (!this._super.apply(this, arguments)) { return; }
 
         if (this._arrayController) {
           this._arrayController.destroy();
@@ -41073,7 +41073,7 @@ enifed("ember-views/views/metamorph_view",
       instrumentName: 'metamorph',
 
       init: function() {
-        this._super();
+        this._super.apply(this, arguments);
               }
     });
     __exports__._Metamorph = _Metamorph;
@@ -41142,7 +41142,7 @@ enifed("ember-views/views/select",
         this.labelPathDidChange();
         this.valuePathDidChange();
 
-        this._super();
+        this._super.apply(this, arguments);
       },
 
       selected: computed(function() {
@@ -41739,7 +41739,7 @@ enifed("ember-views/views/select",
       },
 
       init: function() {
-        this._super();
+        this._super.apply(this, arguments);
         this.on("didInsertElement", this, this._setDefaults);
         this.on("change", this, this._change);
       }
@@ -42229,7 +42229,7 @@ enifed("ember-views/views/text_area",
       }),
 
       init: function() {
-        this._super();
+        this._super.apply(this, arguments);
         this.on("didInsertElement", this, this._updateElementValue);
       }
     });
@@ -44077,7 +44077,7 @@ enifed("ember-views/views/view",
           this.elementId = guidFor(this);
         }
 
-        this._super();
+        this._super.apply(this, arguments);
 
         // setup child views. be sure to clone the child views array first
         this._childViews = this._childViews.slice();
@@ -44180,7 +44180,7 @@ enifed("ember-views/views/view",
         var nonVirtualParentView = get(this, 'parentView');
         var viewName = this.viewName;
 
-        if (!this._super()) { return; }
+        if (!this._super.apply(this, arguments)) { return; }
 
         // remove from non-virtual parent view if viewName was specified
         if (viewName && nonVirtualParentView) {
@@ -44554,7 +44554,7 @@ enifed("ember-views/views/with_view",
 
     __exports__["default"] = _MetamorphView.extend(NormalizedRerenderIfNeededSupport, {
       init: function() {
-        this._super();
+        this._super.apply(this, arguments);
 
         var self = this;
 
@@ -44606,7 +44606,7 @@ enifed("ember-views/views/with_view",
       },
 
       willDestroy: function() {
-        this._super();
+        this._super.apply(this, arguments);
 
         if (this._generatedController) {
           this._generatedController.destroy();

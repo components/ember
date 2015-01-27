@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.11f7b5f2
+ * @version   1.11.0-beta.1+canary.20be695a
  */
 
 (function() {
@@ -3580,7 +3580,7 @@ enifed("ember-application/tests/system/reset_test",
               set(DS, 'defaultStore', this);
             }
 
-            this._super();
+            this._super.apply(this, arguments);
           },
           willDestroy: function() {
             if (get(DS, 'defaultStore') === this) {
@@ -11009,7 +11009,7 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test",
         cond2: false,
         viewClass: EmberView.extend({
           init: function() {
-            this._super();
+            this._super.apply(this, arguments);
             childCreated = true;
             child = this;
           }
@@ -12993,7 +12993,7 @@ enifed("ember-htmlbars/tests/helpers/view_test",
       var Subview = EmberView.extend({
         init: function() {
           subview = this;
-          return this._super();
+          return this._super.apply(this, arguments);
         },
         template: compile('<div class="color">{{view.color}}</div>')
       });
@@ -13034,7 +13034,7 @@ enifed("ember-htmlbars/tests/helpers/view_test",
       var Subview = EmberView.extend({
         init: function() {
           subview = this;
-          return this._super();
+          return this._super.apply(this, arguments);
         },
         template: compile('<div class="color">{{view.color}}</div>')
       });
@@ -14393,7 +14393,7 @@ enifed("ember-htmlbars/tests/helpers/with_test",
       var destroyed = false;
       var Controller = EmberController.extend({
         willDestroy: function() {
-          this._super();
+          this._super.apply(this, arguments);
           destroyed = true;
         }
       });
@@ -14429,7 +14429,7 @@ enifed("ember-htmlbars/tests/helpers/with_test",
       var destroyed = false;
       var Controller = EmberController.extend({
         willDestroy: function() {
-          this._super();
+          this._super.apply(this, arguments);
           destroyed = true;
         }
       });
@@ -23521,19 +23521,19 @@ enifed("ember-metal/tests/mixin/computed_test",
 
       MixinB = Mixin.create(MixinA, {
         aProp: computed(function() {
-          return this._super()+'B';
+          return this._super.apply(this, arguments)+'B';
         })
       });
 
       MixinC = Mixin.create(MixinA, {
         aProp: computed(function() {
-          return this._super()+'C';
+          return this._super.apply(this, arguments)+'C';
         })
       });
 
       MixinD = Mixin.create({
         aProp: computed(function() {
-          return this._super()+'D';
+          return this._super.apply(this, arguments)+'D';
         })
       });
 
@@ -24160,15 +24160,15 @@ enifed("ember-metal/tests/mixin/method_test",
       });
 
       MixinB = Mixin.create(MixinA, {
-        publicMethod: function() { return this._super()+'B'; }
+        publicMethod: function() { return this._super.apply(this, arguments)+'B'; }
       });
 
       MixinD = Mixin.create(MixinA, {
-        publicMethod: function() { return this._super()+'D'; }
+        publicMethod: function() { return this._super.apply(this, arguments)+'D'; }
       });
 
       MixinF = Mixin.create({
-        publicMethod: function() { return this._super()+'F'; }
+        publicMethod: function() { return this._super.apply(this, arguments)+'F'; }
       });
 
       obj = {};
@@ -24199,7 +24199,7 @@ enifed("ember-metal/tests/mixin/method_test",
 
       var MixinB = Mixin.create({
         foo: function() {
-          this._super();
+          this._super.apply(this, arguments);
           cnt++;
         }
       });
@@ -24226,15 +24226,15 @@ enifed("ember-metal/tests/mixin/method_test",
       });
 
       var MixinB = Mixin.create(MixinA, {
-        foo: function() { this._super(); }
+        foo: function() { this._super.apply(this, arguments); }
       });
 
       var MixinC = Mixin.create(MixinA, {
-        foo: function() { this._super(); }
+        foo: function() { this._super.apply(this, arguments); }
       });
 
       var MixinD = Mixin.create(MixinB, MixinC, MixinA, {
-        foo: function() { this._super(); }
+        foo: function() { this._super.apply(this, arguments); }
       });
 
       var obj = {};
@@ -24250,7 +24250,7 @@ enifed("ember-metal/tests/mixin/method_test",
     test('_super from a single mixin with no superclass does not error', function() {
       var MixinA = Mixin.create({
         foo: function() {
-          this._super();
+          this._super.apply(this, arguments);
         }
       });
 
@@ -24268,13 +24268,13 @@ enifed("ember-metal/tests/mixin/method_test",
       var MixinA = Mixin.create({
         foo: function() {
           if (remaining-- > 0) {
-            this._super();
+            this._super.apply(this, arguments);
           }
         }
       });
 
       var MixinB = Mixin.create({
-        foo: function() { this._super(); }
+        foo: function() { this._super.apply(this, arguments); }
       });
 
       var obj = {};
@@ -24321,14 +24321,14 @@ enifed("ember-metal/tests/mixin/method_test",
 
       var MixinB = Mixin.create({
         foo: function() {
-          this._super();
+          this._super.apply(this, arguments);
           cnt++;
         }
       });
 
       var MixinC = Mixin.create({
         foo: function() {
-          this._super();
+          this._super.apply(this, arguments);
           cnt++;
         }
       });
@@ -32442,7 +32442,7 @@ enifed("ember-routing/tests/location/history_location_test",
       HistoryTestLocation.reopen({
         init: function() {
           ok(true, 'init was called');
-          this._super();
+          this._super.apply(this, arguments);
         },
         initState: function() {
           ok(false, 'initState() should not be called automatically');
@@ -32457,7 +32457,7 @@ enifed("ember-routing/tests/location/history_location_test",
 
       HistoryTestLocation.reopen({
         initState: function() {
-          this._super();
+          this._super.apply(this, arguments);
           // these two should be equal to be able
           // to successfully detect webkit initial popstate
           equal(this._previousURL, this.getURL());
@@ -32473,14 +32473,14 @@ enifed("ember-routing/tests/location/history_location_test",
 
       HistoryTestLocation.reopen({
         init: function() {
-          this._super();
+          this._super.apply(this, arguments);
 
           set(this, 'location', mockBrowserLocation('/base/foo/bar'));
           set(this, 'baseURL', '/base/');
         },
 
         initState: function() {
-          this._super();
+          this._super.apply(this, arguments);
 
           equal(this.getURL(), '/foo/bar');
         }
@@ -32495,7 +32495,7 @@ enifed("ember-routing/tests/location/history_location_test",
 
       HistoryTestLocation.reopen({
         init: function() {
-          this._super();
+          this._super.apply(this, arguments);
 
           set(this, 'location', mockBrowserLocation('/base/foo/bar'));
           set(this, 'baseURL', '/base/');
@@ -32538,7 +32538,7 @@ enifed("ember-routing/tests/location/history_location_test",
 
       HistoryTestLocation.reopen({
         init: function() {
-          this._super();
+          this._super.apply(this, arguments);
 
           set(this, 'location', mockBrowserLocation('/base/foo/bar'));
           set(this, 'rootURL', '/app/');
@@ -32556,7 +32556,7 @@ enifed("ember-routing/tests/location/history_location_test",
 
       HistoryTestLocation.reopen({
         init: function() {
-          this._super();
+          this._super.apply(this, arguments);
           set(this, 'location', mockBrowserLocation('/foo/bar?time=morphin'));
         }
       });
@@ -32571,7 +32571,7 @@ enifed("ember-routing/tests/location/history_location_test",
 
       HistoryTestLocation.reopen({
         init: function() {
-          this._super();
+          this._super.apply(this, arguments);
           set(this, 'location', mockBrowserLocation('/foo/bar#pink-power-ranger'));
         }
       });
@@ -32586,7 +32586,7 @@ enifed("ember-routing/tests/location/history_location_test",
 
       HistoryTestLocation.reopen({
         init: function() {
-          this._super();
+          this._super.apply(this, arguments);
           set(this, 'location', mockBrowserLocation('/foo/bar?time=morphin#pink-power-ranger'));
         }
       });
@@ -37297,7 +37297,7 @@ enifed("ember-runtime/tests/controllers/item_controller_class_test",
         controllerClass = Controller.extend({
           init: function() {
             ++itemControllerCount;
-            this._super();
+            this._super.apply(this, arguments);
           },
 
           toString: function() {
@@ -38663,7 +38663,7 @@ enifed("ember-runtime/tests/legacy_1x/mixins/observable/observable_test",
 
       * Added ObservableObject which applies the Ember.Observable mixin.
       * Changed reference to Ember.T_FUNCTION to 'function'
-      * Changed all references to sc_super to this._super()
+      * Changed all references to sc_super to this._super.apply(this, arguments)
       * Changed Ember.objectForPropertyPath() to Ember.getPath()
       * Removed allPropertiesDidChange test - no longer supported
       * Changed test that uses 'ObjectE' as path to 'objectE' to reflect new
@@ -39885,7 +39885,7 @@ enifed("ember-runtime/tests/legacy_1x/system/binding_test",
 
       * Changed call calls for obj.bind(...) to bind(obj, ...);
 
-      * Changed all calls to sc_super() to this._super()
+      * Changed all calls to sc_super() to this._super.apply(this, arguments)
 
       * Changed all calls to disconnect() to pass the root object.
 
@@ -40110,7 +40110,7 @@ enifed("ember-runtime/tests/legacy_1x/system/binding_test",
         }),
 
         init: function() {
-          this._super();
+          this._super.apply(this, arguments);
           set(this, 'c', this.C.create({ owner: this }));
         }
 
@@ -41783,7 +41783,7 @@ enifed("ember-runtime/tests/mixins/copyable_test",
       id: null,
 
       init: function() {
-        this._super();
+        this._super.apply(this, arguments);
         set(this, 'id', generateGuid());
       },
 
@@ -44239,7 +44239,7 @@ enifed("ember-runtime/tests/suites/enumerable",
       isEnabled: true,
 
       init: function() {
-        this._super();
+        this._super.apply(this, arguments);
         this.reset();
       },
 
@@ -48075,7 +48075,7 @@ enifed("ember-runtime/tests/suites/suite",
         var teardown = opts.teardown;
         this.reopen({
           run: function() {
-            this._super();
+            this._super.apply(this, arguments);
             var title = get(this, 'name')+': '+desc;
             var ctx = this;
             QUnit.module(title, {
@@ -48098,7 +48098,7 @@ enifed("ember-runtime/tests/suites/suite",
       test: function(name, func) {
         this.reopen({
           run: function() {
-            this._super();
+            this._super.apply(this, arguments);
             var ctx = this;
 
             if (!func) {
@@ -49195,7 +49195,7 @@ enifed("ember-runtime/tests/system/object/computed_test",
       var MyClass = EmberObject.extend({
 
         init: function() {
-          this._super();
+          this._super.apply(this, arguments);
           set(this, 'bar', { baz: 'BIFF' });
         },
 
@@ -49234,7 +49234,7 @@ enifed("ember-runtime/tests/system/object/computed_test",
       var MyClass = EmberObject.extend({
 
         init: function() {
-          this._super();
+          this._super.apply(this, arguments);
           set(this, 'bar', { baz: 'BIFF' });
         },
 
@@ -49250,7 +49250,7 @@ enifed("ember-runtime/tests/system/object/computed_test",
       var Subclass = MyClass.extend({
 
         init: function() {
-          this._super();
+          this._super.apply(this, arguments);
           set(this, 'bar2', { baz: 'BIFF2' });
         },
 
@@ -49485,7 +49485,7 @@ enifed("ember-runtime/tests/system/object/create_test",
       expectAssertion(function() {
         EmberObject.create({
           foo: function() {
-            this._super();
+            this._super.apply(this, arguments);
           }
         });
       }, 'Ember.Object.create no longer supports defining methods that call _super.');
@@ -49574,7 +49574,7 @@ enifed("ember-runtime/tests/system/object/create_test",
       var MixinA = Mixin.create({ method: function() {} });
       var obj = EmberObject.createWithMixins(MixinA, {
         method: function() {
-          this._super();
+          this._super.apply(this, arguments);
           completed = true;
         }
       });
@@ -49587,7 +49587,7 @@ enifed("ember-runtime/tests/system/object/create_test",
       var completed = false;
       EmberObject.createWithMixins({
         init: function() {
-          this._super();
+          this._super.apply(this, arguments);
           completed = true;
         }
       });
@@ -49599,14 +49599,14 @@ enifed("ember-runtime/tests/system/object/create_test",
       var completed = 0;
       var Mixin1 = Mixin.create({
         init: function() {
-          this._super();
+          this._super.apply(this, arguments);
           completed++;
         }
       });
 
       var Mixin2 = Mixin.create({
         init: function() {
-          this._super();
+          this._super.apply(this, arguments);
           completed++;
         }
       });
@@ -50267,7 +50267,7 @@ enifed("ember-runtime/tests/system/object/extend_test",
         barCnt: 0,
         bar: function() {
           this.barCnt++;
-          this._super();
+          this._super.apply(this, arguments);
         }
       });
 
@@ -50275,7 +50275,7 @@ enifed("ember-runtime/tests/system/object/extend_test",
         fooCnt: 0,
         foo: function() {
           this.fooCnt++;
-          this._super();
+          this._super.apply(this, arguments);
         }
       });
 
@@ -50289,7 +50289,7 @@ enifed("ember-runtime/tests/system/object/extend_test",
       obj = FinalClass.createWithMixins({
         foo: function() {
           this.fooCnt++;
-          this._super();
+          this._super.apply(this, arguments);
         }
       });
 
@@ -53107,7 +53107,7 @@ enifed("ember-testing/tests/acceptance_test",
           App.PostsRoute = EmberRoute.extend({
             renderTemplate: function() {
               currentRoute = 'posts';
-              this._super();
+              this._super.apply(this, arguments);
             }
           });
 
@@ -53119,7 +53119,7 @@ enifed("ember-testing/tests/acceptance_test",
           App.CommentsRoute = EmberRoute.extend({
             renderTemplate: function() {
               currentRoute = 'comments';
-              this._super();
+              this._super.apply(this, arguments);
             }
           });
 
@@ -57108,11 +57108,11 @@ enifed("ember-views/tests/views/collection_test",
             },
             willDestroy: function () {
               willDestroy++;
-              this._super();
+              this._super.apply(this, arguments);
             },
             destroy: function() {
               destroy++;
-              this._super();
+              this._super.apply(this, arguments);
             }
           })
         });
@@ -57296,7 +57296,7 @@ enifed("ember-views/tests/views/collection_test",
           if (this._state === 'inDOM') {
             ok(this.get('element'), this + ' still exists in DOM');
           }
-          return this._super();
+          return this._super.apply(this, arguments);
         }
       });
 
@@ -57960,7 +57960,7 @@ enifed("ember-views/tests/views/container_view_test",
     test("should be able to push initial views onto the ContainerView and have it behave", function() {
       var Container = ContainerView.extend({
         init: function () {
-          this._super();
+          this._super.apply(this, arguments);
           this.pushObject(View.create({
             name: 'A',
             template: function () {
@@ -58018,7 +58018,7 @@ enifed("ember-views/tests/views/container_view_test",
       container = ContainerView.create();
       view = View.createWithMixins({
         remove: function() {
-          this._super();
+          this._super.apply(this, arguments);
         },
         template: function(context, options) {
           options.data.view.appendChild(View);
@@ -58834,7 +58834,7 @@ enifed("ember-views/tests/views/metamorph_view_test",
 
         CustomView: EmberView.extend({
           init: function() {
-            this._super();
+            this._super.apply(this, arguments);
             // This will be called in preRender
             // We want it to cache a null value
             // Hopefully it will be invalidated when `show` is toggled
@@ -70891,7 +70891,7 @@ enifed("ember/tests/routing/basic_test",
 
       App.NorkRoute = Ember.Route.extend({
         init: function() {
-          this._super();
+          this._super.apply(this, arguments);
 
           this.on("activate", function() {
             equal(++eventFired, 1, "activate event is fired once");
@@ -70920,7 +70920,7 @@ enifed("ember/tests/routing/basic_test",
 
       App.NorkRoute = Ember.Route.extend({
         init: function() {
-          this._super();
+          this._super.apply(this, arguments);
 
           this.on("deactivate", function() {
             equal(++eventFired, 1, "deactivate event is fired once");
@@ -71710,7 +71710,7 @@ enifed("ember/tests/routing/query_params_test",
         queryParams: ['foo'],
         foo: "123",
         init: function() {
-          this._super();
+          this._super.apply(this, arguments);
           ok(homeShouldBeCreated, "HomeController should be created at this time");
         }
       });
@@ -71726,7 +71726,7 @@ enifed("ember/tests/routing/query_params_test",
         queryParams: ['lol'],
         lol: "haha",
         init: function() {
-          this._super();
+          this._super.apply(this, arguments);
           ok(aboutShouldBeCreated, "AboutController should be created at this time");
         }
       });
@@ -71749,7 +71749,7 @@ enifed("ember/tests/routing/query_params_test",
         breed: 'Golden',
         name: null,
         init: function() {
-          this._super();
+          this._super.apply(this, arguments);
           ok(catsIndexShouldBeCreated, "CatsIndexController should be created at this time");
         }
       });
