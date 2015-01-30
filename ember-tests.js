@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.48e11592
+ * @version   1.11.0-beta.1+canary.c84b77d5
  */
 
 (function() {
@@ -867,7 +867,7 @@ enifed("container/tests/registry_test",
       strictEqual(registry.resolve('controller:post'), PostController, "The correct factory was provided");
     });
 
-    test("The registry respect the resolver hook for `has`", function() {
+    test("The registry respects the resolver hook for `has`", function() {
       var registry = new Registry();
       var PostController = factory();
 
@@ -1069,6 +1069,76 @@ enifed("container/tests/registry_test",
 
       ok(postController instanceof PostController, "The lookup is an instance of the registered factory");
       strictEqual(registry._defaultContainer, container, "_defaultContainer is set to the first created container and used for Ember 1.x Container compatibility");
+    });
+
+    test("`resolve` can be handled by a fallback registry", function() {
+      var fallback = new Registry();
+
+      var registry = new Registry({ fallback: fallback });
+      var PostController = factory();
+
+      fallback.register('controller:post', PostController);
+
+      var PostControllerFactory = registry.resolve('controller:post');
+
+      ok(PostControllerFactory, 'factory is returned');
+      ok(PostControllerFactory.create() instanceof  PostController, "The return of factory.create is an instance of PostController");
+    });
+
+    test("`has` can be handled by a fallback registry", function() {
+      var fallback = new Registry();
+
+      var registry = new Registry({ fallback: fallback });
+      var PostController = factory();
+
+      fallback.register('controller:post', PostController);
+
+      equal(registry.has('controller:post'), true, "Fallback registry is checked for registration");
+    });
+
+    test("`getInjections` includes injections from a fallback registry", function() {
+      var fallback = new Registry();
+      var registry = new Registry({ fallback: fallback });
+
+      equal(registry.getInjections('model:user').length, 0, "No injections in the primary registry");
+
+      fallback.injection('model:user', 'post', 'model:post');
+
+      equal(registry.getInjections('model:user').length, 1, "Injections from the fallback registry are merged");
+    });
+
+    test("`getTypeInjections` includes type injections from a fallback registry", function() {
+      var fallback = new Registry();
+      var registry = new Registry({ fallback: fallback });
+
+      equal(registry.getTypeInjections('model').length, 0, "No injections in the primary registry");
+
+      fallback.injection('model', 'source', 'source:main');
+
+      equal(registry.getTypeInjections('model').length, 1, "Injections from the fallback registry are merged");
+    });
+
+    test("`getFactoryInjections` includes factory injections from a fallback registry", function() {
+      var fallback = new Registry();
+      var registry = new Registry({ fallback: fallback });
+
+      equal(registry.getFactoryInjections('model:user').length, 0, "No factory injections in the primary registry");
+
+      fallback.factoryInjection('model:user', 'store', 'store:main');
+
+      equal(registry.getFactoryInjections('model:user').length, 1, "Factory injections from the fallback registry are merged");
+    });
+
+
+    test("`getFactoryTypeInjections` includes factory type injections from a fallback registry", function() {
+      var fallback = new Registry();
+      var registry = new Registry({ fallback: fallback });
+
+      equal(registry.getFactoryTypeInjections('model').length, 0, "No factory type injections in the primary registry");
+
+      fallback.factoryInjection('model', 'store', 'store:main');
+
+      equal(registry.getFactoryTypeInjections('model').length, 1, "Factory type injections from the fallback registry are merged");
     });
   });
 enifed("container/tests/registry_test.jscs-test",
@@ -1762,12 +1832,12 @@ enifed("ember-application/tests/system/dependency_injection/default_resolver_tes
 
     var registry, locator, application, originalLookup, originalLoggerInfo;
 
-    QUnit.module("Ember.Application Depedency Injection", {
+    QUnit.module("Ember.Application Dependency Injection - default resolver", {
       setup: function() {
         originalLookup = Ember.lookup;
         application = run(Application, 'create');
 
-        registry = application.__registry__;
+        registry = application.registry;
         locator = application.__container__;
         originalLoggerInfo = Logger.info;
       },
@@ -1950,7 +2020,7 @@ enifed("ember-application/tests/system/dependency_injection/normalization_test",
     QUnit.module("Ember.Application Dependency Injection – normalization", {
       setup: function() {
         application = run(Application, 'create');
-        registry = application.__registry__;
+        registry = application.registry;
       },
 
       teardown: function() {
@@ -2068,7 +2138,7 @@ enifed("ember-application/tests/system/dependency_injection/to_string_test",
         });
       });
 
-      App.__registry__.register('model:peter', EmberObject.extend());
+      App.registry.register('model:peter', EmberObject.extend());
 
       var peter = App.__container__.lookup('model:peter');
       var guid = guidFor(peter);
@@ -2126,7 +2196,7 @@ enifed("ember-application/tests/system/dependency_injection_test",
         application.register('communication:main', application.Email, { singleton: false });
         application.register('controller:postIndex', application.PostIndexController, { singleton: true });
 
-        registry = application.__registry__;
+        registry = application.registry;
         locator = application.__container__;
 
         lookup = Ember.lookup = {};
@@ -2894,6 +2964,7 @@ enifed("ember-application/tests/system/instance_initializers_test",
       if (Ember.FEATURES.isEnabled("ember-application-initializer-context")) {
         test("initializers should be executed in their own context", function() {
           expect(1);
+
           var MyApplication = Application.extend();
 
           MyApplication.instanceInitializer({
@@ -3647,6 +3718,114 @@ enifed("ember-application/tests/system/reset_test.jshint",
     module('JSHint - ember-application/tests/system');
     test('ember-application/tests/system/reset_test.js should pass jshint', function() { 
       ok(true, 'ember-application/tests/system/reset_test.js should pass jshint.'); 
+    });
+  });
+enifed("ember-application/tests/system/visit_test",
+  ["ember-metal/run_loop","ember-application/system/application","ember-application/system/application-instance","ember-routing/system/router","ember-template-compiler/system/compile"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
+    "use strict";
+    var run = __dependency1__["default"];
+    var Application = __dependency2__["default"];
+    var ApplicationInstance = __dependency3__["default"];
+    var Router = __dependency4__["default"];
+    var compile = __dependency5__["default"];
+
+    function createApplication() {
+      var App = Application.extend().create({
+        autoboot: false,
+        LOG_TRANSITIONS: true,
+        LOG_TRANSITIONS_INTERNAL: true,
+        LOG_ACTIVE_GENERATION: true
+      });
+
+      App.Router = Router.extend();
+
+      return App;
+    }
+
+    if (Ember.FEATURES.isEnabled('ember-application-visit')) {
+      QUnit.module("Ember.Application - visit()");
+
+      // This tests whether the application is "autobooted" by registering an
+      // instance initializer and asserting it never gets run. Since this is
+      // inherently testing that async behavior *doesn't* happen, we set a
+      // 500ms timeout to verify that when autoboot is set to false, the
+      // instance initializer that would normally get called on DOM ready
+      // does not fire.
+      QUnit.test("Applications with autoboot set to false do not autoboot", function(assert) {
+        QUnit.expect(1);
+        QUnit.stop();
+
+        run(function() {
+          var app = createApplication();
+
+          // Start the timeout
+          var timeout = setTimeout(function() {
+            ok(true, "500ms elapsed without initializers being called");
+            QUnit.start();
+          }, 500);
+
+          // Create an instance initializer that should *not* get run.
+          app.instanceInitializer({
+            name: "assert-no-autoboot",
+            initialize: function() {
+              clearTimeout(timeout);
+              QUnit.start();
+              assert.ok(false, "instance should not have been created");
+            }
+          });
+        });
+      });
+
+      QUnit.test("visit() returns a promise that resolves when the view has rendered", function(assert) {
+        QUnit.expect(3);
+        QUnit.stop();
+
+        var app;
+
+        run(function() {
+          app = createApplication();
+          app.instanceInitializer({
+            name: 'register-application-template',
+            initialize: function(app) {
+              app.registry.register('template:application', compile('<h1>Hello world</h1>'));
+            }
+          });
+        });
+
+        assert.equal(Ember.$('#qunit-fixture').children().length, 0, "there are no elements in the fixture element");
+
+        app.visit('/').then(function(instance) {
+          QUnit.start();
+          assert.ok(instance instanceof ApplicationInstance, "promise is resolved with an ApplicationInstance");
+
+          run(instance.view, 'appendTo', '#qunit-fixture');
+          assert.equal(Ember.$("#qunit-fixture > .ember-view h1").text(), "Hello world", "the application was rendered once the promise resolves");
+
+          instance.destroy();
+        }, function(error) {
+          QUnit.start();
+          assert.ok(false, "The visit() promise was rejected: " + error);
+        });
+      });
+    }
+  });
+enifed("ember-application/tests/system/visit_test.jscs-test",
+  [],
+  function() {
+    "use strict";
+    module('JSCS - ember-application/tests/system');
+    test('ember-application/tests/system/visit_test.js should pass jscs', function() {
+      ok(true, 'ember-application/tests/system/visit_test.js should pass jscs.');
+    });
+  });
+enifed("ember-application/tests/system/visit_test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-application/tests/system');
+    test('ember-application/tests/system/visit_test.js should pass jshint', function() { 
+      ok(true, 'ember-application/tests/system/visit_test.js should pass jshint.'); 
     });
   });
 enifed("ember-debug.jscs-test",
@@ -4597,7 +4776,7 @@ enifed("ember-extension-support/tests/data_adapter_test",
           App = EmberApplication.create();
           App.toString = function() { return 'App'; };
           App.deferReadiness();
-          App.__registry__.register('data-adapter:main', DataAdapter);
+          App.registry.register('data-adapter:main', DataAdapter);
         });
       },
       teardown: function() {
@@ -4646,7 +4825,7 @@ enifed("ember-extension-support/tests/data_adapter_test",
           return [PostClass];
         }
       });
-      App.__registry__.register('container-debug-adapter:main', StubContainerDebugAdapter);
+      App.registry.register('container-debug-adapter:main', StubContainerDebugAdapter);
 
       adapter = App.__container__.lookup('data-adapter:main');
       adapter.reopen({
@@ -65659,7 +65838,7 @@ enifed("ember/tests/component_registration_test",
           location: 'none'
         });
 
-        registry = App.__registry__;
+        registry = App.registry;
         container = App.__container__;
 
         if (callback) { callback(); }
@@ -66034,7 +66213,7 @@ enifed("ember/tests/helpers/helper_registration_test",
           location: 'none'
         });
 
-        registry = App.__registry__;
+        registry = App.registry;
         container = App.__container__;
 
         if (callback) { callback(); }
@@ -66192,7 +66371,7 @@ enifed("ember/tests/helpers/link_to_test",
       });
 
       Router = App.Router;
-      registry = App.__registry__;
+      registry = App.registry;
       container = App.__container__;
     }
 
@@ -68087,81 +68266,6 @@ enifed("ember/tests/homepage_example_test.jshint",
       ok(true, 'ember/tests/homepage_example_test.js should pass jshint.'); 
     });
   });
-enifed("ember/tests/location_test",
-  ["ember","ember-runtime/copy"],
-  function(__dependency1__, __dependency2__) {
-    "use strict";
-    var copy = __dependency2__["default"];
-
-    var App, AutoTestLocation;
-
-    QUnit.module('AutoLocation', {
-      setup: function() {
-        AutoTestLocation = copy(Ember.AutoLocation);
-
-        AutoTestLocation._getSupportsHistory = function () {
-          return true;
-        };
-
-        AutoTestLocation._location = {
-          href: 'http://test.com/',
-          pathname: '/rootdir/subdir',
-          hash: '',
-          search: '',
-          replace: function () {
-            ok(false, 'location.replace should not be called');
-          }
-        };
-
-        Ember.run(function() {
-          App = Ember.Application.create({
-            name: 'App',
-            rootElement: '#qunit-fixture'
-          });
-          App.Router.reopen({
-            location: 'none',
-            rootURL: '/rootdir/'
-          });
-          App.__registry__.register('location:auto', AutoTestLocation);
-          App.deferReadiness();
-        });
-      },
-
-      teardown: function() {
-        Ember.run(function() {
-          App.destroy();
-          App = null;
-
-          Ember.TEMPLATES = {};
-        });
-      }
-    });
-
-    test('has the rootURL from the main router', function() {
-      Ember.run(App, 'advanceReadiness');
-
-      var location = App.__container__.lookup('location:auto');
-      equal(Ember.get(location, 'rootURL'), '/rootdir/');
-    });
-  });
-enifed("ember/tests/location_test.jscs-test",
-  [],
-  function() {
-    "use strict";
-    module('JSCS - ember/tests');
-    test('ember/tests/location_test.js should pass jscs', function() {
-      ok(true, 'ember/tests/location_test.js should pass jscs.');
-    });
-  });
-enifed("ember/tests/location_test.jshint",
-  [],
-  function() {
-    "use strict";
-    module('JSHint - ember/tests');
-    test('ember/tests/location_test.js should pass jshint', function() { 
-      ok(true, 'ember/tests/location_test.js should pass jshint.'); 
-    });
-  });
 enifed("ember/tests/routing/basic_test",
   ["ember","ember-metal/enumerable_utils","ember-metal/property_get","ember-metal/property_set","ember-views/system/action_manager","ember-htmlbars/compat"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
@@ -68233,7 +68337,7 @@ enifed("ember/tests/routing/basic_test",
           App.LoadingRoute = Ember.Route.extend({
           });
 
-          registry = App.__registry__;
+          registry = App.registry;
           container = App.__container__;
 
           Ember.TEMPLATES.application = compile("{{outlet}}");
@@ -71705,7 +71809,7 @@ enifed("ember/tests/routing/query_params_test",
 
         App.deferReadiness();
 
-        registry = App.__registry__;
+        registry = App.registry;
         container = App.__container__;
 
         registry.register('location:test', TestLocation);
@@ -73804,7 +73908,7 @@ enifed("ember/tests/routing/substates_test",
         expect(2);
 
         // fake a modules resolver
-        App.Resolver = { moduleBasedResolver: true };
+        App.registry.resolver.moduleBasedResolver = true;
 
         var appDeferred = Ember.RSVP.defer();
 
@@ -73834,7 +73938,7 @@ enifed("ember/tests/routing/substates_test",
         expect(3);
 
         // fake a modules resolver
-        App.Resolver = { moduleBasedResolver: true };
+        App.registry.resolver.moduleBasedResolver = true;
 
         templates['application_loading'] = 'TOPLEVEL LOADING';
 
@@ -73871,7 +73975,7 @@ enifed("ember/tests/routing/substates_test",
         expect(5);
 
         // fake a modules resolver
-        App.Resolver = { moduleBasedResolver: true };
+        App.registry.resolver.moduleBasedResolver = true;
 
 
         templates['grandma'] = "GRANDMA {{outlet}}";
@@ -73919,7 +74023,7 @@ enifed("ember/tests/routing/substates_test",
         expect(2);
 
         // fake a modules resolver
-        App.Resolver = { moduleBasedResolver: true };
+        App.registry.resolver.moduleBasedResolver = true;
 
         templates['foo/bar_loading'] = "FOOBAR LOADING";
         templates['foo/bar/index'] = "YAY";
@@ -73954,7 +74058,7 @@ enifed("ember/tests/routing/substates_test",
         expect(2);
 
         // fake a modules resolver
-        App.Resolver = { moduleBasedResolver: true };
+        App.registry.resolver.moduleBasedResolver = true;
 
         templates['foo/bar_loading'] = "FOOBAR LOADING";
         templates['foo/bar'] = "YAY";
@@ -73988,7 +74092,7 @@ enifed("ember/tests/routing/substates_test",
         expect(1);
 
         // fake a modules resolver
-        App.Resolver = { moduleBasedResolver: true };
+        App.registry.resolver.moduleBasedResolver = true;
 
         templates['foo/bar_error'] = "FOOBAR ERROR: {{model.msg}}";
         templates['foo/bar'] = "YAY";
@@ -74019,7 +74123,7 @@ enifed("ember/tests/routing/substates_test",
         expect(2);
 
         // fake a modules resolver
-        App.Resolver = { moduleBasedResolver: true };
+        App.registry.resolver.moduleBasedResolver = true;
 
         templates['foo/index_loading'] = "FOO LOADING";
         templates['foo/index'] = "YAY";
@@ -74059,7 +74163,7 @@ enifed("ember/tests/routing/substates_test",
         expect(1);
 
         // fake a modules resolver
-        App.Resolver = { moduleBasedResolver: true };
+        App.registry.resolver.moduleBasedResolver = true;
 
         templates['foo/index_error'] = "FOO ERROR: {{model.msg}}";
         templates['foo/index'] = "YAY";
@@ -74096,7 +74200,7 @@ enifed("ember/tests/routing/substates_test",
         expect(2);
 
         // fake a modules resolver
-        App.Resolver = { moduleBasedResolver: true };
+        App.registry.resolver.moduleBasedResolver = true;
 
         templates['application_error'] = '<p id="toplevel-error">TOPLEVEL ERROR: {{model.msg}}</p>';
 

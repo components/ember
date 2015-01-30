@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.48e11592
+ * @version   1.11.0-beta.1+canary.c84b77d5
  */
 
 (function() {
@@ -1394,8 +1394,8 @@ enifed("container/container",
       var type = splitName[0];
 
       var injections = buildInjections(container,
-                                       registry.typeInjections[type],
-                                       registry.injections[fullName]);
+                                       registry.getTypeInjections(type),
+                                       registry.getInjections(fullName));
       injections._debugContainerKey = fullName;
       injections.container = container;
 
@@ -1408,8 +1408,8 @@ enifed("container/container",
       var type = splitName[0];
 
       var factoryInjections = buildInjections(container,
-                                              registry.factoryTypeInjections[type],
-                                              registry.factoryInjections[fullName]);
+                                              registry.getFactoryTypeInjections(type),
+                                              registry.getFactoryInjections(fullName));
       factoryInjections._debugContainerKey = fullName;
 
       return factoryInjections;
@@ -1521,22 +1521,33 @@ enifed("container/registry",
      @class Registry
     */
     function Registry(options) {
+      this.fallback = options && options.fallback ? options.fallback : null;
+
       this.resolver = options && options.resolver ? options.resolver : function() {};
 
       this.registrations  = dictionary(options && options.registrations ? options.registrations : null);
-      this.typeInjections = dictionary(options && options.typeInjections ? options.typeInjections : null);
-      this.injections     = dictionary(null);
-      this.factoryTypeInjections = dictionary(null);
-      this.factoryInjections     = dictionary(null);
 
-      this._normalizeCache = dictionary(null);
-      this._resolveCache   = dictionary(null);
+      this._typeInjections        = dictionary(null);
+      this._injections            = dictionary(null);
+      this._factoryTypeInjections = dictionary(null);
+      this._factoryInjections     = dictionary(null);
 
-      this._options     = dictionary(options && options.options ? options.options : null);
-      this._typeOptions = dictionary(options && options.typeOptions ? options.typeOptions : null);
+      this._normalizeCache        = dictionary(null);
+      this._resolveCache          = dictionary(null);
+
+      this._options               = dictionary(null);
+      this._typeOptions           = dictionary(null);
     }
 
     Registry.prototype = {
+      /**
+       A backup registry for resolving registrations when no matches can be found.
+
+       @property fallback
+       @type Registry
+       */
+      fallback: null,
+
       /**
        @property resolver
        @type function
@@ -1550,28 +1561,36 @@ enifed("container/registry",
       registrations: null,
 
       /**
-       @property typeInjections
+       @private
+
+       @property _typeInjections
        @type InheritingDict
        */
-      typeInjections: null,
+      _typeInjections: null,
 
       /**
-       @property injections
+       @private
+
+       @property _injections
        @type InheritingDict
        */
-      injections: null,
+      _injections: null,
 
       /**
-       @property factoryTypeInjections
+       @private
+
+       @property _factoryTypeInjections
        @type InheritingDict
        */
-      factoryTypeInjections: null,
+      _factoryTypeInjections: null,
 
       /**
-       @property factoryInjections
+       @private
+
+       @property _factoryInjections
        @type InheritingDict
        */
-      factoryInjections: null,
+      _factoryInjections: null,
 
       /**
        @private
@@ -1752,7 +1771,11 @@ enifed("container/registry",
        */
       resolve: function(fullName) {
         Ember.assert('fullName must be a proper full name', this.validateFullName(fullName));
-        return resolve(this, this.normalize(fullName));
+        var factory = resolve(this, this.normalize(fullName));
+        if (factory === undefined && this.fallback) {
+          factory = this.fallback.resolve(fullName);
+        }
+        return factory;
       },
 
       /**
@@ -1852,7 +1875,11 @@ enifed("container/registry",
       },
 
       getOptionsForType: function(type) {
-        return this._typeOptions[type];
+        var optionsForType = this._typeOptions[type];
+        if (optionsForType === undefined && this.fallback) {
+          optionsForType = this.fallback.getOptionsForType(type);
+        }
+        return optionsForType;
       },
 
       /**
@@ -1868,7 +1895,11 @@ enifed("container/registry",
 
       getOptions: function(fullName) {
         var normalizedName = this.normalize(fullName);
-        return this._options[normalizedName];
+        var options = this._options[normalizedName];
+        if (options === undefined && this.fallback) {
+          options = this.fallback.getOptions(fullName);
+        }
+        return options;
       },
 
       getOption: function(fullName, optionName) {
@@ -1881,8 +1912,11 @@ enifed("container/registry",
         var type = fullName.split(':')[0];
         options = this._typeOptions[type];
 
-        if (options) {
+        if (options && options[optionName] !== undefined) {
           return options[optionName];
+
+        } else if (this.fallback) {
+          return this.fallback.getOption(fullName, optionName);
         }
       },
 
@@ -1938,8 +1972,8 @@ enifed("container/registry",
           '` as a different type and perform the typeInjection.');
         }
 
-        var injections = this.typeInjections[type] ||
-                         (this.typeInjections[type] = []);
+        var injections = this._typeInjections[type] ||
+                         (this._typeInjections[type] = []);
 
         injections.push({
           property: property,
@@ -2003,8 +2037,8 @@ enifed("container/registry",
         Ember.assert('fullName must be a proper full name', this.validateFullName(fullName));
         var normalizedName = this.normalize(fullName);
 
-        var injections = this.injections[normalizedName] ||
-                         (this.injections[normalizedName] = []);
+        var injections = this._injections[normalizedName] ||
+                         (this._injections[normalizedName] = []);
 
         injections.push({
           property: property,
@@ -2043,8 +2077,8 @@ enifed("container/registry",
        @param {String} fullName
        */
       factoryTypeInjection: function(type, property, fullName) {
-        var injections = this.factoryTypeInjections[type] ||
-                         (this.factoryTypeInjections[type] = []);
+        var injections = this._factoryTypeInjections[type] ||
+                         (this._factoryTypeInjections[type] = []);
 
         injections.push({
           property: property,
@@ -2112,7 +2146,7 @@ enifed("container/registry",
           return this.factoryTypeInjection(normalizedName, property, normalizedInjectionName);
         }
 
-        var injections = this.factoryInjections[normalizedName] || (this.factoryInjections[normalizedName] = []);
+        var injections = this._factoryInjections[normalizedName] || (this._factoryInjections[normalizedName] = []);
 
         injections.push({
           property: property,
@@ -2155,6 +2189,38 @@ enifed("container/registry",
           }
         }
 
+        return injections;
+      },
+
+      getInjections: function(fullName) {
+        var injections = this._injections[fullName] || [];
+        if (this.fallback) {
+          injections = injections.concat(this.fallback.getInjections(fullName));
+        }
+        return injections;
+      },
+
+      getTypeInjections: function(type) {
+        var injections = this._typeInjections[type] || [];
+        if (this.fallback) {
+          injections = injections.concat(this.fallback.getTypeInjections(type));
+        }
+        return injections;
+      },
+
+      getFactoryInjections: function(fullName) {
+        var injections = this._factoryInjections[fullName] || [];
+        if (this.fallback) {
+          injections = injections.concat(this.fallback.getFactoryInjections(fullName));
+        }
+        return injections;
+      },
+
+      getFactoryTypeInjections: function(type) {
+        var injections = this._factoryTypeInjections[type] || [];
+        if (this.fallback) {
+          injections = injections.concat(this.fallback.getFactoryTypeInjections(type));
+        }
         return injections;
       }
     };
@@ -2587,8 +2653,8 @@ enifed("ember-application/ext/controller",
     __exports__["default"] = ControllerMixin;
   });
 enifed("ember-application/system/application-instance",
-  ["ember-runtime/system/object","ember-metal/run_loop","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
+  ["ember-metal/property_set","ember-runtime/system/object","ember-metal/run_loop","container/registry","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -2596,8 +2662,10 @@ enifed("ember-application/system/application-instance",
     @private
     */
 
-    var EmberObject = __dependency1__["default"];
-    var run = __dependency2__["default"];
+    var set = __dependency1__.set;
+    var EmberObject = __dependency2__["default"];
+    var run = __dependency3__["default"];
+    var Registry = __dependency4__["default"];
 
     /**
       The `ApplicationInstance` encapsulates all of the stateful aspects of a
@@ -2635,6 +2703,14 @@ enifed("ember-application/system/application-instance",
 
         @property {Ember.Registry} registry
       */
+      applicationRegistry: null,
+
+      /**
+        The registry for this application instance. It should use the
+        `applicationRegistry` as a fallback.
+
+        @property {Ember.Registry} registry
+      */
       registry: null,
 
       /**
@@ -2662,20 +2738,88 @@ enifed("ember-application/system/application-instance",
 
       init: function() {
         this._super.apply(this, arguments);
+
+        // Create a per-instance registry that will use the application's registry
+        // as a fallback for resolving registrations.
+        this.registry = new Registry({
+          fallback: this.applicationRegistry,
+          resolver: this.applicationRegistry.resolver
+        });
+        this.registry.normalizeFullName = this.applicationRegistry.normalizeFullName;
+        this.registry.makeToString = this.applicationRegistry.makeToString;
+
+        // Create a per-instance container from the instance's registry
         this.container = this.registry.container();
+
+        // Register this instance in the per-instance registry.
+        //
+        // Why do we need to register the instance in the first place?
+        // Because we need a good way for the root route (a.k.a ApplicationRoute)
+        // to notify us when it has created the root-most view. That view is then
+        // appended to the rootElement, in the case of apps, to the fixture harness
+        // in tests, or rendered to a string in the case of FastBoot.
+        this.registry.register('-application-instance:main', this, { instantiate: false });
       },
 
       /**
+        Instantiates and sets up the router, optionally overriding the default
+        location. This is useful for manually starting the app in FastBoot or
+        testing environments, where trying to modify the URL would be
+        inappropriate.
+
+        @param options
         @private
       */
-      startRouting: function(isModuleBasedResolver) {
+      setupRouter: function(options) {
+        var router = this.container.lookup('router:main');
+
+        var location = options.location;
+        if (location) { set(router, 'location', location); }
+
+        router._setupLocation();
+        router.setupRouter(true);
+      },
+
+      /**
+        This hook is called by the root-most Route (a.k.a. the ApplicationRoute)
+        when it has finished creating the root View. By default, we simply take the
+        view and append it to the `rootElement` specified on the Application.
+
+        In cases like FastBoot and testing, we can override this hook and implement
+        custom behavior, such as serializing to a string and sending over an HTTP
+        socket rather than appending to DOM.
+
+        @param view {Ember.View} the root-most view
+        @private
+      */
+      didCreateRootView: function(view) {
+        view.appendTo(this.rootElement);
+      },
+
+      /**
+        Tells the router to start routing. The router will ask the location for the
+        current URL of the page to determine the initial URL to start routing to.
+        To start the app at a specific URL, call `handleURL` instead.
+
+        Ensure that you have called `setupRouter()` on the instance before using
+        this method.
+
+        @private
+      */
+      startRouting: function() {
         var router = this.container.lookup('router:main');
         if (!router) { return; }
 
+        var isModuleBasedResolver = !!this.registry.resolver.moduleBasedResolver;
         router.startRouting(isModuleBasedResolver);
       },
 
       /**
+        Directs the router to route to a particular URL. This is useful in tests,
+        for example, to tell the app to start at a particular URL. Ensure that you
+        have called `setupRouter()` before calling this method.
+
+        @param url {String} the URL the router should route to
         @private
       */
       handleURL: function(url) {
@@ -2705,8 +2849,8 @@ enifed("ember-application/system/application-instance",
     });
   });
 enifed("ember-application/system/application",
-  ["dag-map","container/registry","ember-metal","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/lazy_load","ember-runtime/system/namespace","ember-runtime/mixins/deferred","ember-application/system/resolver","ember-metal/platform/create","ember-metal/run_loop","ember-metal/utils","ember-runtime/controllers/controller","ember-metal/enumerable_utils","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-views/system/renderer","morph","ember-views/views/select","ember-views/system/event_dispatcher","ember-views/system/jquery","ember-routing/system/route","ember-routing/system/router","ember-routing/location/hash_location","ember-routing/location/history_location","ember-routing/location/auto_location","ember-routing/location/none_location","ember-routing/system/cache","ember-application/system/application-instance","ember-extension-support/container_debug_adapter","ember-metal/core","ember-metal/environment","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __dependency31__, __dependency32__, __exports__) {
+  ["dag-map","container/registry","ember-metal","ember-metal/property_get","ember-metal/property_set","ember-runtime/system/lazy_load","ember-runtime/system/namespace","ember-runtime/mixins/deferred","ember-application/system/resolver","ember-metal/platform/create","ember-metal/run_loop","ember-metal/utils","ember-runtime/controllers/controller","ember-metal/enumerable_utils","ember-runtime/controllers/object_controller","ember-runtime/controllers/array_controller","ember-views/system/renderer","morph","ember-views/views/select","ember-views/views/view","ember-views/views/metamorph_view","ember-views/system/event_dispatcher","ember-views/system/jquery","ember-routing/system/route","ember-routing/system/router","ember-routing/location/hash_location","ember-routing/location/history_location","ember-routing/location/auto_location","ember-routing/location/none_location","ember-routing/system/cache","ember-application/system/application-instance","ember-extension-support/container_debug_adapter","ember-metal/environment","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __dependency30__, __dependency31__, __dependency32__, __dependency33__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -2733,21 +2877,22 @@ enifed("ember-application/system/application",
     var Renderer = __dependency17__["default"];
     var DOMHelper = __dependency18__.DOMHelper;
     var SelectView = __dependency19__["default"];
-    var EventDispatcher = __dependency20__["default"];
-    var jQuery = __dependency21__["default"];
-    var Route = __dependency22__["default"];
-    var Router = __dependency23__["default"];
-    var HashLocation = __dependency24__["default"];
-    var HistoryLocation = __dependency25__["default"];
-    var AutoLocation = __dependency26__["default"];
-    var NoneLocation = __dependency27__["default"];
-    var BucketCache = __dependency28__["default"];
-    var ApplicationInstance = __dependency29__["default"];
+    var EmberView = __dependency20__["default"];
+    var _MetamorphView = __dependency21__["default"];
+    var EventDispatcher = __dependency22__["default"];
+    var jQuery = __dependency23__["default"];
+    var Route = __dependency24__["default"];
+    var Router = __dependency25__["default"];
+    var HashLocation = __dependency26__["default"];
+    var HistoryLocation = __dependency27__["default"];
+    var AutoLocation = __dependency28__["default"];
+    var NoneLocation = __dependency29__["default"];
+    var BucketCache = __dependency30__["default"];
+    var ApplicationInstance = __dependency31__["default"];
 
-    var ContainerDebugAdapter = __dependency30__["default"];
+    var ContainerDebugAdapter = __dependency32__["default"];
 
-    var K = __dependency31__.K;
-    var environment = __dependency32__["default"];
+    var environment = __dependency33__["default"];
 
     function props(obj) {
       var properties = [];
@@ -2964,31 +3109,49 @@ enifed("ember-application/system/application",
       */
       customEvents: null,
 
+      /**
+        Whether the application should automatically start routing and render
+        templates to the `rootElement` on DOM ready. While default by true,
+        other environments such as FastBoot or a testing harness can set this
+        property to `false` and control the precise timing and behavior of the boot
+        process.
+
+        @property autoboot
+        @type Boolean
+        @default true
+        @private
+      */
+      autoboot: true,
+
       init: function() {
         this._super.apply(this, arguments);
-
-        // Start off the number of deferrals at 1. This will be
-        // decremented by the Application's own `initialize` method.
-        this._readinessDeferrals = 1;
 
         if (!this.$) {
           this.$ = jQuery;
         }
 
-        // Create subclass of Ember.Router for this Application instance.
-        // This is to ensure that someone reopening `App.Router` does not
-        // tamper with the default `Ember.Router`.
-        // 2.0TODO: Can we move this into a globals-mode-only library?
-        this.Router = Router.extend();
         this.buildRegistry();
-
-        // TODO:(tomdale+wycats) Move to session creation phase
-        this.buildInstance();
 
         registerLibraries();
         logLibraryVersions();
 
-        this.scheduleInitialize();
+        // Start off the number of deferrals at 1. This will be
+        // decremented by the Application's own `initialize` method.
+        this._readinessDeferrals = 1;
+
+        if (Ember.FEATURES.isEnabled('ember-application-visit')) {
+          if (this.autoboot) {
+            // Create subclass of Ember.Router for this Application instance.
+            // This is to ensure that someone reopening `App.Router` does not
+            // tamper with the default `Ember.Router`.
+            // 2.0TODO: Can we move this into a globals-mode-only library?
+            this.Router = Router.extend();
+            this.waitForDOMReady(this.buildDefaultInstance());
+          }
+        } else {
+          this.Router = Router.extend();
+          this.waitForDOMReady(this.buildDefaultInstance());
+        }
       },
 
       /**
@@ -2999,7 +3162,7 @@ enifed("ember-application/system/application",
         @return {Ember.Registry} the configured registry
       */
       buildRegistry: function() {
-        var registry = this.__registry__ = Application.buildRegistry(this);
+        var registry = this.registry = Application.buildRegistry(this);
 
         return registry;
       },
@@ -3012,13 +3175,20 @@ enifed("ember-application/system/application",
         @return {Ember.Container} the configured container
       */
       buildInstance: function() {
-        var instance = this.__instance__ = ApplicationInstance.create({
+        return ApplicationInstance.create({
           customEvents: get(this, 'customEvents'),
           rootElement: get(this, 'rootElement'),
-          registry: this.__registry__
+          applicationRegistry: this.registry
         });
+      },
+
+      buildDefaultInstance: function() {
+        var instance = this.buildInstance();
 
         // TODO2.0: Legacy support for App.__container__
+        // and global methods on App that rely on a single,
+        // default instance.
+        this.__deprecatedInstance__ = instance;
         this.__container__ = instance.container;
 
         return instance;
@@ -3040,11 +3210,11 @@ enifed("ember-application/system/application",
         @private
         @method scheduleInitialize
       */
-      scheduleInitialize: function() {
+      waitForDOMReady: function(_instance) {
         if (!this.$ || this.$.isReady) {
-          run.schedule('actions', this, '_initialize');
+          run.schedule('actions', this, 'domReady', _instance);
         } else {
-          this.$().ready(Ember.run.bind(this, '_initialize'));
+          this.$().ready(run.bind(this, 'domReady', _instance));
         }
       },
 
@@ -3154,8 +3324,7 @@ enifed("ember-application/system/application",
         @param  options {Object} (optional) disable instantiation or singleton usage
       **/
       register: function() {
-        var registry = this.__registry__;
-        registry.register.apply(registry, arguments);
+        this.registry.register.apply(this.registry, arguments);
       },
 
       /**
@@ -3208,8 +3377,7 @@ enifed("ember-application/system/application",
         @param  injectionName {String}
       **/
       inject: function() {
-        var registry = this.__registry__;
-        registry.injection.apply(registry, arguments);
+        this.registry.injection.apply(this.registry, arguments);
       },
 
       /**
@@ -3236,20 +3404,31 @@ enifed("ember-application/system/application",
         @private
         @method _initialize
       */
-      _initialize: function() {
+      domReady: function(_instance) {
         if (this.isDestroyed) { return; }
 
-        this.runInitializers(this.__registry__);
-        this.runInstanceInitializers(this.__instance__);
+        var app = this;
 
-        runLoadHooks('application', this);
-
-        // At this point, any initializers or load hooks that would have wanted
-        // to defer readiness have fired. In general, advancing readiness here
-        // will proceed to didBecomeReady.
-        this.advanceReadiness();
+        this.boot().then(function() {
+          app.runInstanceInitializers(_instance);
+        });
 
         return this;
+      },
+
+      boot: function() {
+        if (this._bootPromise) { return this._bootPromise; }
+
+        var defer = new Ember.RSVP.defer();
+        this._bootPromise = defer.promise;
+        this._bootResolver = defer;
+
+        this.runInitializers(this.registry);
+        runLoadHooks('application', this);
+
+        this.advanceReadiness();
+
+        return this._bootPromise;
       },
 
       /**
@@ -3321,16 +3500,18 @@ enifed("ember-application/system/application",
         @method reset
       **/
       reset: function() {
-        var instance = this.__instance__;
+        var instance = this.__deprecatedInstance__;
 
         this._readinessDeferrals = 1;
+        this._bootPromise = null;
+        this._bootResolver = null;
 
         function handleReset() {
           run(instance, 'destroy');
 
-          this.buildInstance();
+          this.buildDefaultInstance();
 
-          run.schedule('actions', this, '_initialize');
+          run.schedule('actions', this, 'domReady');
         }
 
         run.join(this, handleReset);
@@ -3382,37 +3563,24 @@ enifed("ember-application/system/application",
         @method didBecomeReady
       */
       didBecomeReady: function() {
-        if (environment.hasDOM) {
-          this.__instance__.setupEventDispatcher();
+        if (this.autoboot) {
+          if (environment.hasDOM) {
+            this.__deprecatedInstance__.setupEventDispatcher();
+          }
+
+          this.ready(); // user hook
+          this.__deprecatedInstance__.startRouting();
+
+          if (!Ember.testing) {
+            // Eagerly name all classes that are already loaded
+            Ember.Namespace.processAll();
+            Ember.BOOTED = true;
+          }
+
+          this.resolve(this);
         }
 
-        this.ready(); // user hook
-        this.startRouting();
-
-        if (!Ember.testing) {
-          // Eagerly name all classes that are already loaded
-          Ember.Namespace.processAll();
-          Ember.BOOTED = true;
-        }
-
-        this.resolve(this);
-      },
-
-      /**
-        If the application has a router, use it to route to the current URL, and
-        trigger a new call to `route` whenever the URL changes.
-
-        @private
-        @method startRouting
-        @property router {Ember.Router}
-      */
-      startRouting: function() {
-        var isModuleBasedResolver = this.Resolver && this.Resolver.moduleBasedResolver;
-        this.__instance__.startRouting(isModuleBasedResolver);
-      },
-
-      handleURL: function(url) {
-        return this.__instance__.handleURL(url);
+        this._bootResolver.resolve();
       },
 
       /**
@@ -3421,7 +3589,7 @@ enifed("ember-application/system/application",
 
         @event ready
       */
-      ready: K,
+      ready: function() { return this; },
 
       /**
         @deprecated Use 'Resolver' instead
@@ -3442,7 +3610,9 @@ enifed("ember-application/system/application",
       // This method must be moved to the application instance object
       willDestroy: function() {
         Ember.BOOTED = false;
-        this.__instance__.destroy();
+        this._bootPromise = null;
+        this._bootResolver = null;
+        this.__deprecatedInstance__.destroy();
       },
 
       initializer: function(options) {
@@ -3470,6 +3640,43 @@ enifed("ember-application/system/application",
 
       Application.reopenClass({
         instanceInitializer: buildInitializerMethod('instanceInitializers', 'instance initializer')
+      });
+    }
+
+    if (Ember.FEATURES.isEnabled('ember-application-visit')) {
+      Application.reopen({
+        /**
+          Creates a new instance of the application and instructs it to route to the
+          specified initial URL. This method returns a promise that will be resolved
+          once rendering is complete. That promise is resolved with the instance.
+
+          ```js
+          App.visit('/users').then(function(instance) {
+            var view = instance.view;
+            view.appendTo('#qunit-test-fixtures');
+          });
+         ```
+
+          @method visit
+          @private
+        */
+        visit: function(url) {
+          var instance = this.buildInstance();
+          this.runInstanceInitializers(instance);
+
+          var renderPromise = new Ember.RSVP.Promise(function(res, rej) {
+            instance.didCreateRootView = function(view) {
+              instance.view = view;
+              res(instance);
+            };
+          });
+
+          instance.setupRouter({ location: 'none' });
+
+          return instance.handleURL(url).then(function() {
+            return renderPromise;
+          });
+        }
       });
     }
 
@@ -3651,6 +3858,9 @@ enifed("ember-application/system/application",
 
         registry.injection('view', 'renderer', 'renderer:-dom');
         registry.register('view:select', SelectView);
+
+        registry.register('view:default', _MetamorphView);
+        registry.register('view:toplevel', EmberView.extend());
 
         registry.register('route:basic', Route, { instantiate: false });
         registry.register('event_dispatcher:main', EventDispatcher);
@@ -3955,10 +4165,6 @@ enifed("ember-application/system/resolver",
         var resolveMethodName = parsedName.resolveMethodName;
         var resolved;
 
-        if (!(parsedName.name && parsedName.type)) {
-          throw new TypeError('Invalid fullName: `' + fullName + '`, must be of the form `type:name` ');
-        }
-
         if (this[resolveMethodName]) {
           resolved = this[resolveMethodName](parsedName);
         }
@@ -4008,6 +4214,10 @@ enifed("ember-application/system/resolver",
         }
 
         var resolveMethodName = fullNameWithoutType === 'main' ? 'Main' : classify(type);
+
+        if (!(name && type)) {
+          throw new TypeError('Invalid fullName: `' + fullName + '`, must be of the form `type:name` ');
+        }
 
         return {
           fullName: fullName,
@@ -12227,7 +12437,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.48e11592
+      @version 1.11.0-beta.1+canary.c84b77d5
     */
 
     if ('undefined' === typeof Ember) {
@@ -12255,10 +12465,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.48e11592'
+      @default '1.11.0-beta.1+canary.c84b77d5'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.48e11592';
+    Ember.VERSION = '1.11.0-beta.1+canary.c84b77d5';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -12303,7 +12513,7 @@ enifed("ember-metal/core",
     Ember.FEATURES = Ember.ENV.FEATURES;
 
     if (!Ember.FEATURES) {
-      Ember.FEATURES = {"features-stripped-test":null,"ember-routing-named-substates":true,"ember-metal-injected-properties":true,"mandatory-setter":true,"ember-htmlbars":true,"ember-htmlbars-block-params":true,"ember-htmlbars-component-generation":null,"ember-htmlbars-component-helper":true,"ember-htmlbars-inline-if-helper":true,"ember-htmlbars-attribute-syntax":true,"ember-routing-transitioning-classes":true,"new-computed-syntax":null,"ember-testing-checkbox-helpers":null,"ember-metal-stream":null,"ember-htmlbars-each-with-index":true,"ember-application-instance-initializers":null,"ember-application-initializer-context":null,"ember-router-willtransition":true}; //jshint ignore:line
+      Ember.FEATURES = {"features-stripped-test":null,"ember-routing-named-substates":true,"ember-metal-injected-properties":true,"mandatory-setter":true,"ember-htmlbars":true,"ember-htmlbars-block-params":true,"ember-htmlbars-component-generation":null,"ember-htmlbars-component-helper":true,"ember-htmlbars-inline-if-helper":true,"ember-htmlbars-attribute-syntax":true,"ember-routing-transitioning-classes":true,"new-computed-syntax":null,"ember-testing-checkbox-helpers":null,"ember-metal-stream":null,"ember-htmlbars-each-with-index":true,"ember-application-instance-initializers":null,"ember-application-initializer-context":null,"ember-router-willtransition":true,"ember-application-visit":null}; //jshint ignore:line
     }
 
     /**
@@ -25216,21 +25426,21 @@ enifed("ember-routing/system/route",
         replace(route.teardownOutletViews, 0, 0, [teardownOutletView]);
         parentView.connectOutlet(options.outlet, view);
       } else {
-        var rootElement = get(route.router, 'namespace.rootElement');
         // tear down view if one is already rendered
         if (route.teardownTopLevelView) {
           route.teardownTopLevelView();
         }
-        route.router._connectActiveView(options.name, view);
-        route.teardownTopLevelView = generateTopLevelTeardown(view);
-        view.appendTo(rootElement);
-      }
-    }
 
-    function generateTopLevelTeardown(view) {
-      return function() {
-        view.destroy();
-      };
+        route.router._connectActiveView(options.name, view);
+        route.teardownTopLevelView = function() { view.destroy(); };
+
+        // Notify the application instance that we have created the root-most
+        // view. It is the responsibility of the instance to tell the root view
+        // how to render, typically by appending it to the application's
+        // `rootElement`.
+        var instance = route.container.lookup('-application-instance:main');
+        instance.didCreateRootView(view);
+      }
     }
 
     function generateOutletTeardown(parentView, outlet) {
@@ -25286,8 +25496,8 @@ enifed("ember-routing/system/route",
     __exports__["default"] = Route;
   });
 enifed("ember-routing/system/router",
-  ["ember-metal/core","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/properties","ember-metal/computed","ember-metal/merge","ember-metal/run_loop","ember-runtime/system/string","ember-runtime/system/object","ember-runtime/mixins/evented","ember-routing/system/dsl","ember-views/views/view","ember-routing/location/api","ember-views/views/metamorph_view","ember-routing/utils","ember-metal/platform/create","./router_state","router","router/transition","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __exports__) {
+  ["ember-metal/core","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/properties","ember-metal/computed","ember-metal/merge","ember-metal/run_loop","ember-runtime/system/string","ember-runtime/system/object","ember-runtime/mixins/evented","ember-routing/system/dsl","ember-routing/location/api","ember-routing/utils","ember-metal/platform/create","./router_state","router","router/transition","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // FEATURES, Logger, assert
@@ -25303,22 +25513,20 @@ enifed("ember-routing/system/router",
     var EmberObject = __dependency10__["default"];
     var Evented = __dependency11__["default"];
     var EmberRouterDSL = __dependency12__["default"];
-    var EmberView = __dependency13__["default"];
-    var EmberLocation = __dependency14__["default"];
-    var _MetamorphView = __dependency15__["default"];
-    var routeArgs = __dependency16__.routeArgs;
-    var getActiveTargetName = __dependency16__.getActiveTargetName;
-    var stashParamNames = __dependency16__.stashParamNames;
-    var create = __dependency17__["default"];
+    var EmberLocation = __dependency13__["default"];
+    var routeArgs = __dependency14__.routeArgs;
+    var getActiveTargetName = __dependency14__.getActiveTargetName;
+    var stashParamNames = __dependency14__.stashParamNames;
+    var create = __dependency15__["default"];
 
-    var RouterState = __dependency18__["default"];
+    var RouterState = __dependency16__["default"];
 
     /**
     @module ember
     @submodule ember-routing
     */
 
-    var Router = __dependency19__["default"];
+    var Router = __dependency17__["default"];
 
     function K() { return this; }
 
@@ -25416,38 +25624,40 @@ enifed("ember-routing/system/router",
         @private
       */
       startRouting: function(moduleBasedResolver) {
+        var initialURL = get(this, 'initialURL');
+        var location = get(this, 'location');
 
+        if (this.setupRouter(moduleBasedResolver, location)) {
+          if (typeof initialURL === "undefined") {
+            initialURL = get(this, 'location').getURL();
+          }
+          var initialTransition = this.handleURL(initialURL);
+          if (initialTransition && initialTransition.error) {
+            throw initialTransition.error;
+          }
+        }
+      },
+
+      setupRouter: function(moduleBasedResolver) {
         this._initRouterJs(moduleBasedResolver);
 
         var router = this.router;
         var location = get(this, 'location');
-        var container = this.container;
         var self = this;
-        var initialURL = get(this, 'initialURL');
-        var initialTransition;
 
         // Allow the Location class to cancel the router setup while it refreshes
         // the page
         if (get(location, 'cancelRouterSetup')) {
-          return;
+          return false;
         }
 
         this._setupRouter(router, location);
-
-        container._registry.register('view:default', _MetamorphView);
-        container._registry.register('view:toplevel', EmberView.extend());
 
         location.onUpdateURL(function(url) {
           self.handleURL(url);
         });
 
-        if (typeof initialURL === "undefined") {
-          initialURL = location.getURL();
-        }
-        initialTransition = this.handleURL(initialURL);
-        if (initialTransition && initialTransition.error) {
-          throw initialTransition.error;
-        }
+        return true;
       },
 
       /**
@@ -37960,7 +38170,7 @@ enifed("ember-testing/helpers",
         run(app, 'advanceReadiness');
         delete router['initialURL'];
       } else {
-        run(app, app.handleURL, url);
+        run(app.__deprecatedInstance__, 'handleURL', url);
       }
 
       return app.testHelpers.wait();
