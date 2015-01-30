@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.c84b77d5
+ * @version   1.11.0-beta.1+canary.e0f340fd
  */
 
 (function() {
@@ -1642,14 +1642,29 @@ enifed("container/registry",
       container: function(options) {
         var container = new Container(this, options);
 
-        // Allow deprecated access to the first child container's `lookup` and
-        // `lookupFactory` methods to avoid breaking compatibility for Ember 1.x
-        // initializers.
+        // 2.0TODO - remove `registerContainer`
+        this.registerContainer(container);
+
+        return container;
+      },
+
+      /**
+       Register the first container created for a registery to allow deprecated
+       access to its `lookup` and `lookupFactory` methods to avoid breaking
+       compatibility for Ember 1.x initializers.
+
+       2.0TODO: Remove this method. The bookkeeping is only needed to support
+                deprecated behavior.
+
+       @param {Container} newly created container
+       */
+      registerContainer: function(container) {
         if (!this._defaultContainer) {
           this._defaultContainer = container;
         }
-
-        return container;
+        if (this.fallback) {
+          this.fallback.registerContainer(container);
+        }
       },
 
       lookup: function(fullName, options) {
@@ -11994,7 +12009,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.c84b77d5
+      @version 1.11.0-beta.1+canary.e0f340fd
     */
 
     if ('undefined' === typeof Ember) {
@@ -12022,10 +12037,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.c84b77d5'
+      @default '1.11.0-beta.1+canary.e0f340fd'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.c84b77d5';
+    Ember.VERSION = '1.11.0-beta.1+canary.e0f340fd';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
