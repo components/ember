@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.e0f340fd
+ * @version   1.11.0-beta.1+canary.04463cf3
  */
 
 (function() {
@@ -8053,7 +8053,7 @@ enifed("ember-htmlbars/hooks/attribute",
         if (isStream(attrValue)) {
           throw new EmberError('Bound attributes are not yet supported in Ember.js');
         } else {
-          var sanitizedValue = sanitizeAttributeValue(element, attrName, attrValue);
+          var sanitizedValue = sanitizeAttributeValue(env.dom, element, attrName, attrValue);
           env.dom.setProperty(element, attrName, sanitizedValue);
         }
       }
@@ -9208,7 +9208,7 @@ enifed("ember-metal-views/renderer",
 
     var domHelper = environment.hasDOM ? new DOMHelper() : null;
 
-    function Renderer(_helper) {
+    function Renderer(_helper, _destinedForDOM) {
       this._uuid = 0;
 
       // These sizes and values are somewhat arbitrary (but sensible)
@@ -9219,6 +9219,7 @@ enifed("ember-metal-views/renderer",
       this._elements = new Array(17);
       this._inserts = {};
       this._dom = _helper || domHelper;
+      this._destinedForDOM = _destinedForDOM === undefined ? true : _destinedForDOM;
     }
 
     function Renderer_renderTree(_view, _parentView, _insertAt) {
@@ -9268,9 +9269,17 @@ enifed("ember-metal-views/renderer",
           contextualElement = parent._childViewsMorph.contextualElement;
         }
         if (!contextualElement && view._didCreateElementWithoutMorph) {
-          // This code path is only used by createElement and rerender when createElement
-          // was previously called on a view.
-          contextualElement = document.body;
+          // This code path is used by view.createElement(), which has two purposes:
+          //
+          // 1. Legacy usage of `createElement()`. Nobody really knows what the point
+          //    of that is. This usage may be removed in Ember 2.0.
+          // 2. FastBoot, which creates an element and has no DOM to insert it into.
+          //
+          // For FastBoot purposes, rendering the DOM without a contextual element
+          // should work fine, because it essentially re-emits the original markup
+          // as a String, which will then be parsed again by the browser, which will
+          // apply the appropriate parsing rules.
+          contextualElement = typeof document !== 'undefined' ? document.body : null;
         }
         element = this.createElement(view, contextualElement);
 
@@ -12452,7 +12461,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.e0f340fd
+      @version 1.11.0-beta.1+canary.04463cf3
     */
 
     if ('undefined' === typeof Ember) {
@@ -12480,10 +12489,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.e0f340fd'
+      @default '1.11.0-beta.1+canary.04463cf3'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.e0f340fd';
+    Ember.VERSION = '1.11.0-beta.1+canary.04463cf3';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -41436,7 +41445,7 @@ enifed("ember-views/system/render_buffer",
       },
 
       outerContextualElement: function() {
-        if (!this._outerContextualElement) {
+        if (this._outerContextualElement === undefined) {
           Ember.deprecate("The render buffer expects an outer contextualElement to exist." +
                           " This ensures DOM that requires context is correctly generated (tr, SVG tags)." +
                           " Defaulting to document.body, but this will be removed in the future");
@@ -41488,8 +41497,8 @@ enifed("ember-views/system/renderer",
     var _instrumentStart = __dependency8__._instrumentStart;
     var subscribers = __dependency8__.subscribers;
 
-    function EmberRenderer(domHelper) {
-      this._super$constructor(domHelper);
+    function EmberRenderer(domHelper, _destinedForDOM) {
+      this._super$constructor(domHelper, _destinedForDOM);
       this.buffer = new RenderBuffer(domHelper);
     }
 
@@ -41588,21 +41597,28 @@ enifed("ember-views/system/renderer",
       }
     }; // hasElement
     Renderer.prototype.willInsertElement = function (view) {
-      if (view.trigger) { view.trigger('willInsertElement'); }
+      if (this._destinedForDOM) {
+        if (view.trigger) { view.trigger('willInsertElement'); }
+      }
     }; // will place into DOM
     Renderer.prototype.didInsertElement = function (view) {
       if (view._transitionTo) {
         view._transitionTo('inDOM');
       }
-      if (view.trigger) { view.trigger('didInsertElement'); }
+
+      if (this._destinedForDOM) {
+        if (view.trigger) { view.trigger('didInsertElement'); }
+      }
     }; // inDOM // placed into DOM
 
     Renderer.prototype.willRemoveElement = function (view) {};
 
     Renderer.prototype.willDestroyElement = function (view) {
-      if (view.trigger) {
-        view.trigger('willDestroyElement');
-        view.trigger('willClearRender');
+      if (this._destinedForDOM) {
+        if (view.trigger) {
+          view.trigger('willDestroyElement');
+          view.trigger('willClearRender');
+        }
       }
     };
 
@@ -41621,7 +41637,6 @@ enifed("ember-views/system/sanitize_attribute_value",
     "use strict";
     /* jshint scripturl:true */
 
-    var parsingNode;
     var badProtocols = {
       'javascript:': true,
       'vbscript:': true
@@ -41641,12 +41656,8 @@ enifed("ember-views/system/sanitize_attribute_value",
       'background': true
     };
     __exports__.badAttributes = badAttributes;
-    __exports__["default"] = function sanitizeAttributeValue(element, attribute, value) {
+    __exports__["default"] = function sanitizeAttributeValue(dom, element, attribute, value) {
       var tagName;
-
-      if (!parsingNode) {
-        parsingNode = document.createElement('a');
-      }
 
       if (!element) {
         tagName = null;
@@ -41659,9 +41670,20 @@ enifed("ember-views/system/sanitize_attribute_value",
       }
 
       if ((tagName === null || badTags[tagName]) && badAttributes[attribute]) {
-        parsingNode.href = value;
-
-        if (badProtocols[parsingNode.protocol] === true) {
+        // Previously, we relied on creating a new `<a>` element and setting
+        // its `href` in order to get the DOM to parse and extract its protocol.
+        // Naive approaches to URL parsing are susceptible to all sorts of XSS
+        // attacks.
+        //
+        // However, this approach does not work in environments without a DOM,
+        // such as Node & FastBoot. We have extracted the logic for parsing to
+        // the DOM helper, so that in locations without DOM, we can substitute
+        // our own robust URL parsing.
+        //
+        // This will also allow us to use the new `URL` API in browsers that
+        // support it, and skip the process of creating an element entirely.
+        var protocol = dom.protocolForURL(value);
+        if (badProtocols[protocol] === true) {
           return 'unsafe:' + value;
         }
       }
@@ -45958,7 +45980,7 @@ enifed("ember-views/views/view",
             // Determine the current value and add it to the render buffer
             // if necessary.
             attributeValue = get(this, property);
-            View.applyAttributeBindings(buffer, attributeName, attributeValue);
+            View.applyAttributeBindings(this.renderer._dom, buffer, attributeName, attributeValue);
           } else {
             unspecifiedAttributeBindings[property] = attributeName;
           }
@@ -45978,7 +46000,7 @@ enifed("ember-views/views/view",
 
           attributeValue = get(this, property);
 
-          View.applyAttributeBindings(elem, attributeName, attributeValue);
+          View.applyAttributeBindings(this.renderer._dom, elem, attributeName, attributeValue);
         };
 
         this.registerObserver(this, property, observer);
@@ -46902,8 +46924,8 @@ enifed("ember-views/views/view",
     View.childViewsProperty = childViewsProperty;
 
     // Used by Handlebars helpers, view element attributes
-    View.applyAttributeBindings = function(elem, name, initialValue) {
-      var value = sanitizeAttributeValue(elem[0], name, initialValue);
+    View.applyAttributeBindings = function(dom, elem, name, initialValue) {
+      var value = sanitizeAttributeValue(dom, elem[0], name, initialValue);
       var type = typeOf(value);
 
       // if this changes, also change the logic in ember-handlebars/lib/helpers/binding.js
@@ -47826,6 +47848,18 @@ enifed("morph/dom-helper",
           return nodes;
         }
       }
+    };
+
+    var parsingNode;
+
+    // Used to determine whether a URL needs to be sanitized.
+    prototype.protocolForURL = function(url) {
+      if (!parsingNode) {
+        parsingNode = this.document.createElement('a');
+      }
+
+      parsingNode.href = url;
+      return parsingNode.protocol;
     };
 
     __exports__["default"] = DOMHelper;

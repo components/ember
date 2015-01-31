@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.e0f340fd
+ * @version   1.11.0-beta.1+canary.04463cf3
  */
 
 (function() {
@@ -56566,15 +56566,17 @@ enifed("ember-views/tests/system/render_buffer_test.jshint",
     });
   });
 enifed("ember-views/tests/system/sanitize_attribute_value_test",
-  ["ember-views/system/sanitize_attribute_value","ember-htmlbars/utils/string"],
-  function(__dependency1__, __dependency2__) {
+  ["ember-views/system/sanitize_attribute_value","ember-htmlbars/utils/string","morph"],
+  function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
     var sanitizeAttributeValue = __dependency1__["default"];
     var SafeString = __dependency2__.SafeString;
+    var DOMHelper = __dependency3__.DOMHelper;
 
     QUnit.module('ember-views: sanitizeAttributeValue(null, "href")');
 
     var goodProtocols = ['https', 'http', 'ftp', 'tel', 'file'];
+    var dom = new DOMHelper();
 
     for (var i = 0, l = goodProtocols.length; i < l; i++) {
       buildProtocolTest(goodProtocols[i]);
@@ -56585,7 +56587,7 @@ enifed("ember-views/tests/system/sanitize_attribute_value_test",
         expect(1);
 
         var expected = protocol + '://foo.com';
-        var actual = sanitizeAttributeValue(null, 'href', expected);
+        var actual = sanitizeAttributeValue(dom, null, 'href', expected);
 
         equal(actual, expected, 'protocol not escaped');
       });
@@ -56597,7 +56599,7 @@ enifed("ember-views/tests/system/sanitize_attribute_value_test",
       expect(1);
 
       var expected = 'javascript:alert("foo")';
-      var actual = sanitizeAttributeValue(null, 'href', expected);
+      var actual = sanitizeAttributeValue(dom, null, 'href', expected);
 
       equal(actual, 'unsafe:' + expected, 'protocol escaped');
     });
@@ -56608,7 +56610,7 @@ enifed("ember-views/tests/system/sanitize_attribute_value_test",
       expect(1);
 
       var expected = 'javascript:alert("foo")';
-      var actual = sanitizeAttributeValue(null, 'href', expected);
+      var actual = sanitizeAttributeValue(dom, null, 'href', expected);
 
       equal(actual, 'unsafe:' + expected, 'protocol escaped');
     });
@@ -56619,7 +56621,7 @@ enifed("ember-views/tests/system/sanitize_attribute_value_test",
       expect(1);
 
       var expected = 'javascript:alert("foo")';
-      var actual = sanitizeAttributeValue(null, 'href', new SafeString(expected));
+      var actual = sanitizeAttributeValue(dom, null, 'href', new SafeString(expected));
 
       equal(actual, expected, 'protocol unescaped');
     });
