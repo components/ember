@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.7b6f1e9d
+ * @version   1.11.0-beta.1+canary.ac07b276
  */
 
 (function() {
@@ -50111,25 +50111,27 @@ enifed("ember-runtime/tests/system/object/destroy_test",
       ok(get(obj, 'isDestroyed'), "object is destroyed after run loop finishes");
     });
 
-    if (hasPropertyAccessors) {
-      // MANDATORY_SETTER moves value to meta.values
-      // a destroyed object removes meta but leaves the accessor
-      // that looks it up
-      test("should raise an exception when modifying watched properties on a destroyed object", function() {
-        var obj = EmberObject.createWithMixins({
-          foo: "bar",
-          fooDidChange: observer('foo', function() { })
-        });
+    
+      if (hasPropertyAccessors) {
+        // MANDATORY_SETTER moves value to meta.values
+        // a destroyed object removes meta but leaves the accessor
+        // that looks it up
+        test("should raise an exception when modifying watched properties on a destroyed object", function() {
+          var obj = EmberObject.createWithMixins({
+            foo: "bar",
+            fooDidChange: observer('foo', function() { })
+          });
 
-        run(function() {
-          obj.destroy();
-        });
+          run(function() {
+            obj.destroy();
+          });
 
-        raises(function() {
-          set(obj, 'foo', 'baz');
-        }, Error, "raises an exception");
-      });
-    }
+          raises(function() {
+            set(obj, 'foo', 'baz');
+          }, Error, "raises an exception");
+        });
+      }
+    
 
     test("observers should not fire after an object has been destroyed", function() {
       var count = 0;
