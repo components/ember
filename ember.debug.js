@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.422c6269
+ * @version   1.11.0-beta.1+canary.c017fe53
  */
 
 (function() {
@@ -12461,7 +12461,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.422c6269
+      @version 1.11.0-beta.1+canary.c017fe53
     */
 
     if ('undefined' === typeof Ember) {
@@ -12489,10 +12489,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.422c6269'
+      @default '1.11.0-beta.1+canary.c017fe53'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.422c6269';
+    Ember.VERSION = '1.11.0-beta.1+canary.c017fe53';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -41487,18 +41487,17 @@ enifed("ember-views/system/render_buffer",
     __exports__["default"] = RenderBuffer;
   });
 enifed("ember-views/system/renderer",
-  ["ember-metal/core","ember-metal-views/renderer","ember-metal/platform/create","ember-views/system/render_buffer","ember-metal/run_loop","ember-metal/property_set","ember-metal/property_get","ember-metal/instrumentation","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
+  ["ember-metal/core","ember-metal-views/renderer","ember-metal/platform/create","ember-views/system/render_buffer","ember-metal/run_loop","ember-metal/property_get","ember-metal/instrumentation","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var Renderer = __dependency2__["default"];
     var create = __dependency3__["default"];
     var RenderBuffer = __dependency4__["default"];
     var run = __dependency5__["default"];
-    var set = __dependency6__.set;
-    var get = __dependency7__.get;
-    var _instrumentStart = __dependency8__._instrumentStart;
-    var subscribers = __dependency8__.subscribers;
+    var get = __dependency6__.get;
+    var _instrumentStart = __dependency7__._instrumentStart;
+    var subscribers = __dependency7__.subscribers;
 
     function EmberRenderer(domHelper, _destinedForDOM) {
       this._super$constructor(domHelper, _destinedForDOM);
@@ -41626,7 +41625,7 @@ enifed("ember-views/system/renderer",
     };
 
     Renderer.prototype.didDestroyElement = function (view) {
-      set(view, 'element', null);
+      view.element = null;
       if (view._transitionTo) {
         view._transitionTo('preRender');
       }
