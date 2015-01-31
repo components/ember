@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.04463cf3
+ * @version   1.11.0-beta.1+canary.4c547e32
  */
 
 (function() {
@@ -6175,7 +6175,7 @@ enifed("ember-htmlbars/tests/attr_nodes/data_test",
         });
         runAppend(view);
 
-        equalInnerHTML(view.element, '<div data-name="&quot;&quot; data-foo=&quot;blah&quot;">Hi!</div>', "attribute is output");
+        equal(view.element.firstChild.getAttribute('data-name'), '"" data-foo="blah"', "attribute is output");
       });
 
       test("path is output", function() {
@@ -6387,14 +6387,13 @@ enifed("ember-htmlbars/tests/attr_nodes/href_test.jshint",
       ok(true, 'ember-htmlbars/tests/attr_nodes/href_test.js should pass jshint.'); 
     });
   });
-enifed("ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test",
-  ["ember-views/views/view","ember-metal/run_loop","ember-template-compiler/system/compile","htmlbars-test-helpers"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+enifed("ember-htmlbars/tests/attr_nodes/property_test",
+  ["ember-views/views/view","ember-metal/run_loop","ember-template-compiler/system/compile"],
+  function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
     var EmberView = __dependency1__["default"];
     var run = __dependency2__["default"];
     var compile = __dependency3__["default"];
-    var equalInnerHTML = __dependency4__.equalInnerHTML;
 
     var view;
 
@@ -6412,7 +6411,7 @@ enifed("ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test",
     
     // jscs:disable validateIndentation
 
-    QUnit.module("ember-htmlbars: nonmatching reflection", {
+    QUnit.module("ember-htmlbars: property", {
       teardown: function() {
         if (view) {
           run(view, view.destroy);
@@ -6425,13 +6424,11 @@ enifed("ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test",
         context: { length: 5 },
         template: compile("<input maxlength={{length}}>")
       });
-      appendView(view);
 
-      equalInnerHTML(view.element, '<input maxlength="5">', "attribute is output");
+      appendView(view);
       equal(view.element.firstChild.maxLength, 5);
 
       Ember.run(view, view.set, 'context.length', 1);
-      equalInnerHTML(view.element, '<input maxlength="1">', "attribute is modified by property setting");
       equal(view.element.firstChild.maxLength, 1);
     });
 
@@ -6440,20 +6437,15 @@ enifed("ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test",
         context: { length: 5 },
         template: compile("<input maxlength='{{length}}'>")
       });
-      appendView(view);
 
-      equalInnerHTML(view.element, '<input maxlength="5">', "attribute is output");
+      appendView(view);
       equal(view.element.firstChild.maxLength, '5');
 
       if (canSetFalsyMaxLength()) {
         Ember.run(view, view.set, 'context.length', null);
-
-        equalInnerHTML(view.element, '<input maxlength="0">', "attribute is output");
         equal(view.element.firstChild.maxLength, 0);
       } else {
         Ember.run(view, view.set, 'context.length', 1);
-
-        equalInnerHTML(view.element, '<input maxlength="1">', "attribute is output");
         equal(view.element.firstChild.maxLength, 1);
       }
     });
@@ -6461,27 +6453,27 @@ enifed("ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test",
     // jscs:enable validateIndentation
     
   });
-enifed("ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test.jscs-test",
+enifed("ember-htmlbars/tests/attr_nodes/property_test.jscs-test",
   [],
   function() {
     "use strict";
     module('JSCS - ember-htmlbars/tests/attr_nodes');
-    test('ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test.js should pass jscs', function() {
-      ok(true, 'ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test.js should pass jscs.');
+    test('ember-htmlbars/tests/attr_nodes/property_test.js should pass jscs', function() {
+      ok(true, 'ember-htmlbars/tests/attr_nodes/property_test.js should pass jscs.');
     });
   });
-enifed("ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test.jshint",
+enifed("ember-htmlbars/tests/attr_nodes/property_test.jshint",
   [],
   function() {
     "use strict";
     module('JSHint - ember-htmlbars/tests/attr_nodes');
-    test('ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test.js should pass jshint', function() { 
-      ok(true, 'ember-htmlbars/tests/attr_nodes/nonmatching_reflection_test.js should pass jshint.'); 
+    test('ember-htmlbars/tests/attr_nodes/property_test.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/tests/attr_nodes/property_test.js should pass jshint.'); 
     });
   });
 enifed("ember-htmlbars/tests/attr_nodes/sanitized_test",
-  ["ember-views/views/view","ember-template-compiler/system/compile","ember-htmlbars/utils/string","ember-runtime/tests/utils"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+  ["ember-views/views/view","ember-template-compiler/system/compile","ember-htmlbars/utils/string","ember-runtime/tests/utils","ember-metal/environment"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
     "use strict";
     /* jshint scripturl:true */
 
@@ -6490,6 +6482,7 @@ enifed("ember-htmlbars/tests/attr_nodes/sanitized_test",
     var SafeString = __dependency3__.SafeString;
     var runAppend = __dependency4__.runAppend;
     var runDestroy = __dependency4__.runDestroy;
+    var environment = __dependency5__["default"];
 
     var view;
 
@@ -6520,6 +6513,9 @@ enifed("ember-htmlbars/tests/attr_nodes/sanitized_test",
         quotedTemplate: compile("<img src='{{url}}'>"),
         multipartTemplate: compile("<img src='{{protocol}}{{path}}'>") },
       { tag: 'iframe', attr: 'src',
+        // Setting an iframe with a bad protocol results in the browser
+        // being redirected. in IE8. Skip the iframe tests on that platform.
+        skip: (environment.hasDOM && document.documentMode && document.documentMode <= 8),
         unquotedTemplate: compile("<iframe src={{url}}></iframe>"),
         quotedTemplate: compile("<iframe src='{{url}}'></iframe>"),
         multipartTemplate: compile("<iframe src='{{protocol}}{{path}}'></iframe>") }
@@ -6528,6 +6524,10 @@ enifed("ember-htmlbars/tests/attr_nodes/sanitized_test",
     for (var i=0, l=badTags.length; i<l; i++) {
       (function() {
         var subject = badTags[i];
+
+        if (subject.skip) {
+          return;
+        }
 
         test(subject.tag +" "+subject.attr+" is sanitized when using blacklisted protocol", function() {
           view = EmberView.create({
@@ -6644,7 +6644,7 @@ enifed("ember-htmlbars/tests/attr_nodes/svg_test",
       equalInnerHTML(view.element, '<svg viewBox="'+viewBoxString+'"></svg>', "attribute is output");
 
       Ember.run(view, view.set, 'context.viewBoxString', null);
-      equalInnerHTML(view.element, '<svg></svg>', "attribute is removed");
+      equal(view.element.getAttribute('svg'), null, "attribute is removed");
     });
 
     test("quoted viewBox property is output", function() {
@@ -8245,7 +8245,7 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test",
         set(view, 'isNumber', 0);
       });
 
-      equalInnerHTML(view.element.firstChild.className, undefined, 'removes class');
+      ok(view.element.firstChild.className !== 'is-truthy', 'removes class');
     });
 
     test("should be able to bind class to view attribute with {{bind-attr}}", function() {
@@ -12168,8 +12168,8 @@ enifed("ember-htmlbars/tests/helpers/partial_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helpers/sanitized_bind_attr_test",
-  ["ember-views/views/view","ember-template-compiler/system/compile","ember-metal/run_loop","ember-htmlbars/utils/string","ember-runtime/tests/utils"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
+  ["ember-views/views/view","ember-template-compiler/system/compile","ember-metal/run_loop","ember-htmlbars/utils/string","ember-runtime/tests/utils","ember-metal/environment"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
     "use strict";
     /* jshint scripturl:true */
 
@@ -12179,6 +12179,7 @@ enifed("ember-htmlbars/tests/helpers/sanitized_bind_attr_test",
     var SafeString = __dependency4__.SafeString;
     var runAppend = __dependency5__.runAppend;
     var runDestroy = __dependency5__.runDestroy;
+    var environment = __dependency6__["default"];
 
     var view;
 
@@ -12192,6 +12193,9 @@ enifed("ember-htmlbars/tests/helpers/sanitized_bind_attr_test",
       { tag: 'a', attr: 'href',
         template: compile('<a {{bind-attr href=view.badValue}}></a>') },
       { tag: 'body', attr: 'background',
+        // IE8 crashes when setting background with
+        // a javascript: protocol
+        skip: (environment.hasDOM && document.documentMode && document.documentMode <= 8),
         template: compile('<body {{bind-attr background=view.badValue}}></body>') },
       { tag: 'link', attr: 'href',
         template: compile('<link {{bind-attr href=view.badValue}}>') },
@@ -12204,6 +12208,10 @@ enifed("ember-htmlbars/tests/helpers/sanitized_bind_attr_test",
         var tagName = badTags[i].tag;
         var attr = badTags[i].attr;
         var template = badTags[i].template;
+
+        if (badTags[i].skip) {
+          return;
+        }
 
         test("XSS - should not bind unsafe "+tagName+" "+attr+" values", function() {
           view = EmberView.create({
@@ -38617,7 +38625,6 @@ enifed("ember-runtime/tests/ext/rsvp_test",
       try {
         Ember.testing = false;
         Ember.onerror = function(error) {
-          console.log('error', error);
           equal(error.message, actualError, 'expected the real error on the jqXHR');
           equal(error.__reason_with_error_thrown__, jqXHR, 'also retains a helpful reference to the rejection reason');
         };
@@ -59161,23 +59168,26 @@ enifed("ember-views/tests/views/select_test",
       ok(select.$().is(":disabled"));
     });
 
-    test("should begin required if the required attribute is true", function() {
-      select.set('required', true);
-      append();
+    // Browsers before IE10 do not support the required property.
+    if (document && ('required' in document.createElement('input'))) {
+      test("should begin required if the required attribute is true", function() {
+        select.set('required', true);
+        append();
 
-      ok(select.element.required, 'required property is truthy');
-    });
+        ok(select.element.required, 'required property is truthy');
+      });
 
-    test("should become required if the required attribute is changed", function() {
-      append();
-      ok(!select.element.required, 'required property is falsy');
+      test("should become required if the required attribute is changed", function() {
+        append();
+        ok(!select.element.required, 'required property is falsy');
 
-      run(function() { select.set('required', true); });
-      ok(select.element.required, 'required property is truthy');
+        run(function() { select.set('required', true); });
+        ok(select.element.required, 'required property is truthy');
 
-      run(function() { select.set('required', false); });
-      ok(!select.element.required, 'required property is falsy');
-    });
+        run(function() { select.set('required', false); });
+        ok(!select.element.required, 'required property is falsy');
+      });
+    }
 
     test("should become disabled if the disabled attribute is changed", function() {
       append();
@@ -60243,7 +60253,7 @@ enifed("ember-views/tests/views/text_field_test",
       }
     });
 
-    test("should become disabled if the disabled attribute is true", function() {
+    test("should become disabled if the disabled attribute is true before append", function() {
       textField.set('disabled', true);
       append();
 
@@ -61237,17 +61247,17 @@ enifed("ember-views/tests/views/view/attribute_bindings_test",
 
     test("should normalize case for attribute bindings", function() {
       view = EmberView.create({
-        tagName: 'form',
-        attributeBindings: ['novalidate'],
+        tagName: 'input',
+        attributeBindings: ['disAbled'],
 
-        novalidate: true // intentionally lowercase
+        disAbled: true
       });
 
       run(function() {
         view.createElement();
       });
 
-      ok(view.$().prop('noValidate'), "sets property with correct case");
+      ok(view.$().prop('disabled'), "sets property with correct case");
     });
 
     test("should update attribute bindings", function() {

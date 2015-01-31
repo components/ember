@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.04463cf3
+ * @version   1.11.0-beta.1+canary.4c547e32
  */
 
 (function() {
@@ -5210,7 +5210,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.04463cf3
+      @version 1.11.0-beta.1+canary.4c547e32
     */
 
     if ('undefined' === typeof Ember) {
@@ -5238,10 +5238,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.04463cf3'
+      @default '1.11.0-beta.1+canary.4c547e32'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.04463cf3';
+    Ember.VERSION = '1.11.0-beta.1+canary.4c547e32';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -8921,12 +8921,15 @@ enifed("ember-metal/path_cache",
     __exports__.getTailPath = getTailPath;
   });
 enifed("ember-metal/platform/create",
-  ["exports"],
-  function(__exports__) {
+  ["ember-metal/platform/define_properties","exports"],
+  function(__dependency1__, __exports__) {
         // Remove "use strict"; from transpiled module until
     // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
     //
     // REMOVE_USE_STRICT: true
+    //
+
+    var defineProperties = __dependency1__["default"];
 
     /**
     @class platform
@@ -9012,7 +9015,7 @@ enifed("ember-metal/platform/create",
         }
 
         if (properties !== undefined) {
-          Object.defineProperties(object, properties);
+          defineProperties(object, properties);
         }
 
         return object;
