@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.7ce0db7f
+ * @version   1.11.0-beta.1+canary.4b633e23
  */
 
 (function() {
@@ -12018,7 +12018,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.7ce0db7f
+      @version 1.11.0-beta.1+canary.4b633e23
     */
 
     if ('undefined' === typeof Ember) {
@@ -12046,10 +12046,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.7ce0db7f'
+      @default '1.11.0-beta.1+canary.4b633e23'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.7ce0db7f';
+    Ember.VERSION = '1.11.0-beta.1+canary.4b633e23';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -41212,6 +41212,10 @@ enifed("ember-views/views/core_view",
       destroyElement: K
     });
 
+    CoreView.reopenClass({
+      isViewClass: true
+    });
+
     __exports__["default"] = CoreView;
   });
 enifed("ember-views/views/each",
@@ -42038,15 +42042,16 @@ enifed("ember-views/views/simple_bound_view",
 
     function K() { return this; }
 
-    function SimpleBoundView(stream) {
+    function SimpleBoundView(parentView, renderer, morph, stream) {
       this.stream = stream;
       this[GUID_KEY] = uuid();
       this._lastNormalizedValue = undefined;
       this.state = 'preRender';
       this.updateId = null;
-      this._parentView = null;
+      this._parentView = parentView;
       this.buffer = null;
-      this._morph = null;
+      this._morph = morph;
+      this.renderer = renderer;
     }
 
     SimpleBoundView.prototype = {
@@ -42116,15 +42121,18 @@ enifed("ember-views/views/simple_bound_view",
       }
     };
 
+    SimpleBoundView.create = function(attrs) {
+      return new SimpleBoundView(attrs._parentView, attrs.renderer, attrs._morph, attrs.stream);
+    };
+
+    SimpleBoundView.isViewClass = true;
+
     function appendSimpleBoundView(parentView, morph, stream) {
-      var view = new SimpleBoundView(stream);
-      view._morph = morph;
+      var view = parentView.appendChild(SimpleBoundView, { _morph: morph, stream: stream });
 
       stream.subscribe(parentView._wrapAsScheduled(function() {
         run.scheduleOnce('render', view, 'rerender');
       }));
-
-      parentView.appendChild(view);
     }
 
     __exports__.appendSimpleBoundView = appendSimpleBoundView;__exports__["default"] = SimpleBoundView;
@@ -43007,7 +43015,7 @@ enifed("ember-views/views/view",
         attrs._parentView = this;
         attrs.renderer = this.renderer;
 
-        if (CoreView.detect(maybeViewClass)) {
+        if (maybeViewClass.isViewClass) {
           attrs.container = this.container;
 
           view = maybeViewClass.create(attrs);

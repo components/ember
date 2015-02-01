@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.7ce0db7f
+ * @version   1.11.0-beta.1+canary.4b633e23
  */
 
 (function() {
@@ -60009,12 +60009,12 @@ enifed("ember-views/tests/views/simple_bound_view_test",
       var lazyValue = new Stream(function() {
         return obj.foo;
       });
-      var view = new SimpleBoundView(lazyValue);
-      view._morph = {
+      var morph = {
         setContent: function(newValue) {
           value = newValue;
         }
       };
+      var view = new SimpleBoundView(null, null, morph, lazyValue);
 
       equal(value, null);
 
