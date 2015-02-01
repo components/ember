@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.bef704e5
+ * @version   1.11.0-beta.1+canary.f07bbc80
  */
 
 (function() {
@@ -55760,7 +55760,7 @@ enifed('ember-views/tests/system/jquery_ext_test.jshint', function () {
   });
 
 });
-enifed('ember-views/tests/system/render_buffer_test', ['ember-views/system/jquery', 'ember-views/system/render_buffer', 'morph'], function (jQuery, RenderBuffer, morph) {
+enifed('ember-views/tests/system/render_buffer_test', ['ember-views/system/jquery', 'ember-views/system/render_buffer', 'dom-helper'], function (jQuery, RenderBuffer, DOMHelper) {
 
   'use strict';
 
@@ -55773,7 +55773,7 @@ enifed('ember-views/tests/system/render_buffer_test', ['ember-views/system/jquer
   //
   QUnit.module("RenderBuffer");
 
-  var domHelper = new morph.DOMHelper();
+  var domHelper = new DOMHelper['default']();
 
   function createRenderBuffer(tagName, contextualElement) {
     var buffer = new RenderBuffer['default'](domHelper);
@@ -56131,14 +56131,14 @@ enifed('ember-views/tests/system/render_buffer_test.jshint', function () {
   });
 
 });
-enifed('ember-views/tests/system/sanitize_attribute_value_test', ['ember-views/system/sanitize_attribute_value', 'ember-htmlbars/utils/string', 'morph'], function (sanitizeAttributeValue, string, morph) {
+enifed('ember-views/tests/system/sanitize_attribute_value_test', ['ember-views/system/sanitize_attribute_value', 'ember-htmlbars/utils/string', 'dom-helper'], function (sanitizeAttributeValue, string, DOMHelper) {
 
   'use strict';
 
   QUnit.module('ember-views: sanitizeAttributeValue(null, "href")');
 
   var goodProtocols = ['https', 'http', 'ftp', 'tel', 'file'];
-  var dom = new morph.DOMHelper();
+  var dom = new DOMHelper['default']();
 
   for (var i = 0, l = goodProtocols.length; i < l; i++) {
     buildProtocolTest(goodProtocols[i]);
