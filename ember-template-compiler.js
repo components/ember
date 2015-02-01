@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.d5030431
+ * @version   1.11.0-beta.1+canary.1905161a
  */
 
 (function() {
@@ -103,591 +103,569 @@ var mainContext = this;
   }
 })();
 
-enifed("ember-metal/core",
-  ["exports"],
-  function(__exports__) {
-    "use strict";
-    /*globals Ember:true,ENV,EmberENV */
+enifed('ember-metal/core', ['exports'], function (exports) {
 
-    /**
-    @module ember
-    @submodule ember-metal
-    */
+  'use strict';
 
-    /**
-      All Ember methods and functions are defined inside of this namespace. You
-      generally should not add new properties to this namespace as it may be
-      overwritten by future versions of Ember.
+  exports.K = K;
 
-      You can also use the shorthand `Em` instead of `Ember`.
+  /*globals Ember:true,ENV,EmberENV */
 
-      Ember-Runtime is a framework that provides core functions for Ember including
-      cross-platform functions, support for property observing and objects. Its
-      focus is on small size and performance. You can use this in place of or
-      along-side other cross-platform libraries such as jQuery.
+  /**
+  @module ember
+  @submodule ember-metal
+  */
 
-      The core Runtime framework is based on the jQuery API with a number of
-      performance optimizations.
+  /**
+    All Ember methods and functions are defined inside of this namespace. You
+    generally should not add new properties to this namespace as it may be
+    overwritten by future versions of Ember.
 
-      @class Ember
-      @static
-      @version 1.11.0-beta.1+canary.d5030431
-    */
+    You can also use the shorthand `Em` instead of `Ember`.
 
-    if ('undefined' === typeof Ember) {
-      // Create core object. Make it act like an instance of Ember.Namespace so that
-      // objects assigned to it are given a sane string representation.
-      Ember = {};
-    }
+    Ember-Runtime is a framework that provides core functions for Ember including
+    cross-platform functions, support for property observing and objects. Its
+    focus is on small size and performance. You can use this in place of or
+    along-side other cross-platform libraries such as jQuery.
 
-    // Default imports, exports and lookup to the global object;
-    var global = mainContext || {}; // jshint ignore:line
-    Ember.imports = Ember.imports || global;
-    Ember.lookup  = Ember.lookup  || global;
-    var emExports   = Ember.exports = Ember.exports || global;
+    The core Runtime framework is based on the jQuery API with a number of
+    performance optimizations.
 
-    // aliases needed to keep minifiers from removing the global context
-    emExports.Em = emExports.Ember = Ember;
+    @class Ember
+    @static
+    @version 1.11.0-beta.1+canary.1905161a
+  */
 
-    // Make sure these are set whether Ember was already defined or not
+  if ('undefined' === typeof Ember) {
+    // Create core object. Make it act like an instance of Ember.Namespace so that
+    // objects assigned to it are given a sane string representation.
+    Ember = {};
+  }
 
-    Ember.isNamespace = true;
+  // Default imports, exports and lookup to the global object;
+  var global = mainContext || {}; // jshint ignore:line
+  Ember.imports = Ember.imports || global;
+  Ember.lookup  = Ember.lookup  || global;
+  var emExports   = Ember.exports = Ember.exports || global;
 
-    Ember.toString = function() { return "Ember"; };
+  // aliases needed to keep minifiers from removing the global context
+  emExports.Em = emExports.Ember = Ember;
+
+  // Make sure these are set whether Ember was already defined or not
+
+  Ember.isNamespace = true;
+
+  Ember.toString = function() { return "Ember"; };
 
 
-    /**
-      @property VERSION
-      @type String
-      @default '1.11.0-beta.1+canary.d5030431'
-      @static
-    */
-    Ember.VERSION = '1.11.0-beta.1+canary.d5030431';
+  /**
+    @property VERSION
+    @type String
+    @default '1.11.0-beta.1+canary.1905161a'
+    @static
+  */
+  Ember.VERSION = '1.11.0-beta.1+canary.1905161a';
 
-    /**
-      Standard environmental variables. You can define these in a global `EmberENV`
-      variable before loading Ember to control various configuration settings.
+  /**
+    Standard environmental variables. You can define these in a global `EmberENV`
+    variable before loading Ember to control various configuration settings.
 
-      For backwards compatibility with earlier versions of Ember the global `ENV`
-      variable will be used if `EmberENV` is not defined.
+    For backwards compatibility with earlier versions of Ember the global `ENV`
+    variable will be used if `EmberENV` is not defined.
 
-      @property ENV
-      @type Hash
-    */
+    @property ENV
+    @type Hash
+  */
 
-    if (Ember.ENV) {
-      // do nothing if Ember.ENV is already setup
-      Ember.assert('Ember.ENV should be an object.', 'object' !== typeof Ember.ENV);
-    } else if ('undefined' !== typeof EmberENV) {
-      Ember.ENV = EmberENV;
-    } else if ('undefined' !== typeof ENV) {
-      Ember.ENV = ENV;
+  if (Ember.ENV) {
+    // do nothing if Ember.ENV is already setup
+    Ember.assert('Ember.ENV should be an object.', 'object' !== typeof Ember.ENV);
+  } else if ('undefined' !== typeof EmberENV) {
+    Ember.ENV = EmberENV;
+  } else if ('undefined' !== typeof ENV) {
+    Ember.ENV = ENV;
+  } else {
+    Ember.ENV = {};
+  }
+
+  Ember.config = Ember.config || {};
+
+  // We disable the RANGE API by default for performance reasons
+  if ('undefined' === typeof Ember.ENV.DISABLE_RANGE_API) {
+    Ember.ENV.DISABLE_RANGE_API = true;
+  }
+
+  /**
+    Hash of enabled Canary features. Add to this before creating your application.
+
+    You can also define `ENV.FEATURES` if you need to enable features flagged at runtime.
+
+    @class FEATURES
+    @namespace Ember
+    @static
+    @since 1.1.0
+  */
+
+  Ember.FEATURES = Ember.ENV.FEATURES;
+
+  if (!Ember.FEATURES) {
+    Ember.FEATURES = {"features-stripped-test":null,"ember-routing-named-substates":true,"ember-metal-injected-properties":true,"mandatory-setter":true,"ember-htmlbars":true,"ember-htmlbars-block-params":true,"ember-htmlbars-component-generation":null,"ember-htmlbars-component-helper":true,"ember-htmlbars-inline-if-helper":true,"ember-htmlbars-attribute-syntax":true,"ember-routing-transitioning-classes":true,"new-computed-syntax":null,"ember-testing-checkbox-helpers":null,"ember-metal-stream":null,"ember-htmlbars-each-with-index":true,"ember-application-instance-initializers":null,"ember-application-initializer-context":null,"ember-router-willtransition":true,"ember-application-visit":null}; //jshint ignore:line
+  }
+
+  /**
+    Test that a feature is enabled. Parsed by Ember's build tools to leave
+    experimental features out of beta/stable builds.
+
+    You can define the following configuration options:
+
+    * `ENV.ENABLE_ALL_FEATURES` - force all features to be enabled.
+    * `ENV.ENABLE_OPTIONAL_FEATURES` - enable any features that have not been explicitly
+      enabled/disabled.
+
+    @method isEnabled
+    @param {String} feature
+    @return {Boolean}
+    @for Ember.FEATURES
+    @since 1.1.0
+  */
+
+  Ember.FEATURES.isEnabled = function(feature) {
+    var featureValue = Ember.FEATURES[feature];
+
+    if (Ember.ENV.ENABLE_ALL_FEATURES) {
+      return true;
+    } else if (featureValue === true || featureValue === false || featureValue === undefined) {
+      return featureValue;
+    } else if (Ember.ENV.ENABLE_OPTIONAL_FEATURES) {
+      return true;
     } else {
-      Ember.ENV = {};
+      return false;
+    }
+  };
+
+  // ..........................................................
+  // BOOTSTRAP
+  //
+
+  /**
+    Determines whether Ember should enhance some built-in object prototypes to
+    provide a more friendly API. If enabled, a few methods will be added to
+    `Function`, `String`, and `Array`. `Object.prototype` will not be enhanced,
+    which is the one that causes most trouble for people.
+
+    In general we recommend leaving this option set to true since it rarely
+    conflicts with other code. If you need to turn it off however, you can
+    define an `ENV.EXTEND_PROTOTYPES` config to disable it.
+
+    @property EXTEND_PROTOTYPES
+    @type Boolean
+    @default true
+    @for Ember
+  */
+  Ember.EXTEND_PROTOTYPES = Ember.ENV.EXTEND_PROTOTYPES;
+
+  if (typeof Ember.EXTEND_PROTOTYPES === 'undefined') {
+    Ember.EXTEND_PROTOTYPES = true;
+  }
+
+  /**
+    Determines whether Ember logs a full stack trace during deprecation warnings
+
+    @property LOG_STACKTRACE_ON_DEPRECATION
+    @type Boolean
+    @default true
+  */
+  Ember.LOG_STACKTRACE_ON_DEPRECATION = (Ember.ENV.LOG_STACKTRACE_ON_DEPRECATION !== false);
+
+  /**
+    Determines whether Ember should add ECMAScript 5 Array shims to older browsers.
+
+    @property SHIM_ES5
+    @type Boolean
+    @default Ember.EXTEND_PROTOTYPES
+  */
+  Ember.SHIM_ES5 = (Ember.ENV.SHIM_ES5 === false) ? false : Ember.EXTEND_PROTOTYPES;
+
+  /**
+    Determines whether Ember logs info about version of used libraries
+
+    @property LOG_VERSION
+    @type Boolean
+    @default true
+  */
+  Ember.LOG_VERSION = (Ember.ENV.LOG_VERSION === false) ? false : true;
+
+  /**
+    Empty function. Useful for some operations. Always returns `this`.
+
+    @method K
+    @private
+    @return {Object}
+  */
+  function K() { return this; }
+  Ember.K = K;
+  //TODO: ES6 GLOBAL TODO
+
+  // Stub out the methods defined by the ember-debug package in case it's not loaded
+
+  if ('undefined' === typeof Ember.assert) { Ember.assert = K; }
+  if ('undefined' === typeof Ember.warn) { Ember.warn = K; }
+  if ('undefined' === typeof Ember.debug) { Ember.debug = K; }
+  if ('undefined' === typeof Ember.runInDebug) { Ember.runInDebug = K; }
+  if ('undefined' === typeof Ember.deprecate) { Ember.deprecate = K; }
+  if ('undefined' === typeof Ember.deprecateFunc) {
+    Ember.deprecateFunc = function(_, func) { return func; };
+  }
+
+  exports['default'] = Ember;
+
+});
+enifed('ember-template-compiler', ['exports', 'ember-metal/core', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-template-compiler/plugins', 'ember-template-compiler/plugins/transform-each-in-to-hash', 'ember-template-compiler/plugins/transform-with-as-to-hash', 'ember-template-compiler/compat'], function (exports, _Ember, precompile, compile, template, plugins, TransformEachInToHash, TransformWithAsToHash) {
+
+  'use strict';
+
+  plugins.registerPlugin('ast', TransformWithAsToHash['default']);
+  plugins.registerPlugin('ast', TransformEachInToHash['default']);
+
+  exports._Ember = _Ember['default'];
+  exports.precompile = precompile['default'];
+  exports.compile = compile['default'];
+  exports.template = template['default'];
+  exports.registerPlugin = plugins.registerPlugin;
+
+});
+enifed('ember-template-compiler/compat', ['ember-metal/core', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template'], function (Ember, precompile, compile, template) {
+
+	'use strict';
+
+	var EmberHandlebars = Ember['default'].Handlebars = Ember['default'].Handlebars || {};
+
+	EmberHandlebars.precompile = precompile['default'];
+	EmberHandlebars.compile = compile['default'];
+	EmberHandlebars.template = template['default'];
+
+});
+enifed('ember-template-compiler/compat/precompile', ['exports'], function (exports) {
+
+  'use strict';
+
+  /**
+  @module ember
+  @submodule ember-template-compiler
+  */
+
+  var compile, compileSpec;
+
+  exports['default'] = function(string) {
+    if ((!compile || !compileSpec) && Ember.__loader.registry['htmlbars-compiler/compiler']) {
+      var Compiler = requireModule('htmlbars-compiler/compiler');
+
+      compile = Compiler.compile;
+      compileSpec = Compiler.compileSpec;
     }
 
-    Ember.config = Ember.config || {};
-
-    // We disable the RANGE API by default for performance reasons
-    if ('undefined' === typeof Ember.ENV.DISABLE_RANGE_API) {
-      Ember.ENV.DISABLE_RANGE_API = true;
+    if (!compile || !compileSpec) {
+      throw new Error('Cannot call `precompile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `precompile`.');
     }
 
-    /**
-      Hash of enabled Canary features. Add to this before creating your application.
+    var asObject = arguments[1] === undefined ? true : arguments[1];
+    var compileFunc = asObject ? compile : compileSpec;
 
-      You can also define `ENV.FEATURES` if you need to enable features flagged at runtime.
+    return compileFunc(string);
+  }
 
-      @class FEATURES
-      @namespace Ember
-      @static
-      @since 1.1.0
-    */
+});
+enifed('ember-template-compiler/plugins', ['exports'], function (exports) {
 
-    Ember.FEATURES = Ember.ENV.FEATURES;
+  'use strict';
 
-    if (!Ember.FEATURES) {
-      Ember.FEATURES = {"features-stripped-test":null,"ember-routing-named-substates":true,"ember-metal-injected-properties":true,"mandatory-setter":true,"ember-htmlbars":true,"ember-htmlbars-block-params":true,"ember-htmlbars-component-generation":null,"ember-htmlbars-component-helper":true,"ember-htmlbars-inline-if-helper":true,"ember-htmlbars-attribute-syntax":true,"ember-routing-transitioning-classes":true,"new-computed-syntax":null,"ember-testing-checkbox-helpers":null,"ember-metal-stream":null,"ember-htmlbars-each-with-index":true,"ember-application-instance-initializers":null,"ember-application-initializer-context":null,"ember-router-willtransition":true,"ember-application-visit":null}; //jshint ignore:line
+  exports.registerPlugin = registerPlugin;
+
+  /**
+  @module ember
+  @submodule ember-template-compiler
+  */
+
+  /**
+   @private
+   @property helpers
+  */
+  var plugins = {
+    ast: []
+  };
+
+  /**
+    Adds an AST plugin to be used by Ember.HTMLBars.compile.
+
+    @private
+    @method registerASTPlugin
+  */
+  function registerPlugin(type, Plugin) {
+    if (!plugins[type]) {
+      throw new Error('Attempting to register "' + Plugin + '" as "' + type + '" which is not a valid HTMLBars plugin type.');
     }
 
-    /**
-      Test that a feature is enabled. Parsed by Ember's build tools to leave
-      experimental features out of beta/stable builds.
+    plugins[type].push(Plugin);
+  }
 
-      You can define the following configuration options:
+  exports['default'] = plugins;
 
-      * `ENV.ENABLE_ALL_FEATURES` - force all features to be enabled.
-      * `ENV.ENABLE_OPTIONAL_FEATURES` - enable any features that have not been explicitly
-        enabled/disabled.
+});
+enifed('ember-template-compiler/plugins/transform-each-in-to-hash', ['exports'], function (exports) {
 
-      @method isEnabled
-      @param {String} feature
-      @return {Boolean}
-      @for Ember.FEATURES
-      @since 1.1.0
-    */
+  'use strict';
 
-    Ember.FEATURES.isEnabled = function(feature) {
-      var featureValue = Ember.FEATURES[feature];
-
-      if (Ember.ENV.ENABLE_ALL_FEATURES) {
-        return true;
-      } else if (featureValue === true || featureValue === false || featureValue === undefined) {
-        return featureValue;
-      } else if (Ember.ENV.ENABLE_OPTIONAL_FEATURES) {
-        return true;
-      } else {
-        return false;
-      }
-    };
-
-    // ..........................................................
-    // BOOTSTRAP
-    //
-
-    /**
-      Determines whether Ember should enhance some built-in object prototypes to
-      provide a more friendly API. If enabled, a few methods will be added to
-      `Function`, `String`, and `Array`. `Object.prototype` will not be enhanced,
-      which is the one that causes most trouble for people.
-
-      In general we recommend leaving this option set to true since it rarely
-      conflicts with other code. If you need to turn it off however, you can
-      define an `ENV.EXTEND_PROTOTYPES` config to disable it.
-
-      @property EXTEND_PROTOTYPES
-      @type Boolean
-      @default true
-      @for Ember
-    */
-    Ember.EXTEND_PROTOTYPES = Ember.ENV.EXTEND_PROTOTYPES;
-
-    if (typeof Ember.EXTEND_PROTOTYPES === 'undefined') {
-      Ember.EXTEND_PROTOTYPES = true;
-    }
-
-    /**
-      Determines whether Ember logs a full stack trace during deprecation warnings
-
-      @property LOG_STACKTRACE_ON_DEPRECATION
-      @type Boolean
-      @default true
-    */
-    Ember.LOG_STACKTRACE_ON_DEPRECATION = (Ember.ENV.LOG_STACKTRACE_ON_DEPRECATION !== false);
-
-    /**
-      Determines whether Ember should add ECMAScript 5 Array shims to older browsers.
-
-      @property SHIM_ES5
-      @type Boolean
-      @default Ember.EXTEND_PROTOTYPES
-    */
-    Ember.SHIM_ES5 = (Ember.ENV.SHIM_ES5 === false) ? false : Ember.EXTEND_PROTOTYPES;
-
-    /**
-      Determines whether Ember logs info about version of used libraries
-
-      @property LOG_VERSION
-      @type Boolean
-      @default true
-    */
-    Ember.LOG_VERSION = (Ember.ENV.LOG_VERSION === false) ? false : true;
-
-    /**
-      Empty function. Useful for some operations. Always returns `this`.
-
-      @method K
-      @private
-      @return {Object}
-    */
-    function K() { return this; }
-    __exports__.K = K;
-    Ember.K = K;
-    //TODO: ES6 GLOBAL TODO
-
-    // Stub out the methods defined by the ember-debug package in case it's not loaded
-
-    if ('undefined' === typeof Ember.assert) { Ember.assert = K; }
-    if ('undefined' === typeof Ember.warn) { Ember.warn = K; }
-    if ('undefined' === typeof Ember.debug) { Ember.debug = K; }
-    if ('undefined' === typeof Ember.runInDebug) { Ember.runInDebug = K; }
-    if ('undefined' === typeof Ember.deprecate) { Ember.deprecate = K; }
-    if ('undefined' === typeof Ember.deprecateFunc) {
-      Ember.deprecateFunc = function(_, func) { return func; };
-    }
-
-    __exports__["default"] = Ember;
-  });
-enifed("ember-template-compiler",
-  ["ember-metal/core","ember-template-compiler/system/precompile","ember-template-compiler/system/compile","ember-template-compiler/system/template","ember-template-compiler/plugins","ember-template-compiler/plugins/transform-each-in-to-hash","ember-template-compiler/plugins/transform-with-as-to-hash","ember-template-compiler/compat","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
-    "use strict";
-    var _Ember = __dependency1__["default"];
-    var precompile = __dependency2__["default"];
-    var compile = __dependency3__["default"];
-    var template = __dependency4__["default"];
-    var registerPlugin = __dependency5__.registerPlugin;
-
-    var TransformEachInToHash = __dependency6__["default"];
-    var TransformWithAsToHash = __dependency7__["default"];
-
-    // used for adding Ember.Handlebars.compile for backwards compat
-
-    registerPlugin('ast', TransformWithAsToHash);
-    registerPlugin('ast', TransformEachInToHash);
-
-    __exports__._Ember = _Ember;
-    __exports__.precompile = precompile;
-    __exports__.compile = compile;
-    __exports__.template = template;
-    __exports__.registerPlugin = registerPlugin;
-  });
-enifed("ember-template-compiler/compat",
-  ["ember-metal/core","ember-template-compiler/compat/precompile","ember-template-compiler/system/compile","ember-template-compiler/system/template"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
-    "use strict";
-    var Ember = __dependency1__["default"];
-    var precompile = __dependency2__["default"];
-    var compile = __dependency3__["default"];
-    var template = __dependency4__["default"];
-
-    var EmberHandlebars = Ember.Handlebars = Ember.Handlebars || {};
-
-    EmberHandlebars.precompile = precompile;
-    EmberHandlebars.compile = compile;
-    EmberHandlebars.template = template;
-  });
-enifed("ember-template-compiler/compat/precompile",
-  ["exports"],
-  function(__exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-template-compiler
-    */
-
-    var compile, compileSpec;
-
-    __exports__["default"] = function(string) {
-      if ((!compile || !compileSpec) && Ember.__loader.registry['htmlbars-compiler/compiler']) {
-        var Compiler = requireModule('htmlbars-compiler/compiler');
-
-        compile = Compiler.compile;
-        compileSpec = Compiler.compileSpec;
-      }
-
-      if (!compile || !compileSpec) {
-        throw new Error('Cannot call `precompile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `precompile`.');
-      }
-
-      var asObject = arguments[1] === undefined ? true : arguments[1];
-      var compileFunc = asObject ? compile : compileSpec;
-
-      return compileFunc(string);
-    }
-  });
-enifed("ember-template-compiler/plugins",
-  ["exports"],
-  function(__exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-template-compiler
-    */
-
-    /**
-     @private
-     @property helpers
-    */
-    var plugins = {
-      ast: []
-    };
-
-    /**
-      Adds an AST plugin to be used by Ember.HTMLBars.compile.
-
-      @private
-      @method registerASTPlugin
-    */
-    function registerPlugin(type, Plugin) {
-      if (!plugins[type]) {
-        throw new Error('Attempting to register "' + Plugin + '" as "' + type + '" which is not a valid HTMLBars plugin type.');
-      }
-
-      plugins[type].push(Plugin);
-    }
-
-    __exports__.registerPlugin = registerPlugin;__exports__["default"] = plugins;
-  });
-enifed("ember-template-compiler/plugins/transform-each-in-to-hash",
-  ["exports"],
-  function(__exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-htmlbars
-    */
+  /**
+  @module ember
+  @submodule ember-htmlbars
+  */
 
 
-    /**
-      An HTMLBars AST transformation that replaces all instances of
+  /**
+    An HTMLBars AST transformation that replaces all instances of
 
-      ```handlebars
-      {{#each item in items}}
-      {{/each}}
-      ```
+    ```handlebars
+    {{#each item in items}}
+    {{/each}}
+    ```
 
-      with
+    with
 
-      ```handlebars
-      {{#each items keyword="item"}}
-      {{/each}}
-      ```
+    ```handlebars
+    {{#each items keyword="item"}}
+    {{/each}}
+    ```
 
-      @class TransformEachInToHash
-      @private
-    */
-    function TransformEachInToHash() {
-      // set later within HTMLBars to the syntax package
-      this.syntax = null;
-    }
+    @class TransformEachInToHash
+    @private
+  */
+  function TransformEachInToHash() {
+    // set later within HTMLBars to the syntax package
+    this.syntax = null;
+  }
 
-    /**
-      @private
-      @method transform
-      @param {AST} The AST to be transformed.
-    */
-    TransformEachInToHash.prototype.transform = function TransformEachInToHash_transform(ast) {
-      var pluginContext = this;
-      var walker = new pluginContext.syntax.Walker();
-      var b = pluginContext.syntax.builders;
+  /**
+    @private
+    @method transform
+    @param {AST} The AST to be transformed.
+  */
+  TransformEachInToHash.prototype.transform = function TransformEachInToHash_transform(ast) {
+    var pluginContext = this;
+    var walker = new pluginContext.syntax.Walker();
+    var b = pluginContext.syntax.builders;
 
-      walker.visit(ast, function(node) {
-        if (pluginContext.validate(node)) {
+    walker.visit(ast, function(node) {
+      if (pluginContext.validate(node)) {
 
-          if (node.program && node.program.blockParams.length) {
-            throw new Error('You cannot use keyword (`{{each foo in bar}}`) and block params (`{{each bar as |foo|}}`) at the same time.');
-          }
-
-          var removedParams = node.sexpr.params.splice(0, 2);
-          var keyword = removedParams[0].original;
-
-          // TODO: This may not be necessary.
-          if (!node.sexpr.hash) {
-            node.sexpr.hash = b.hash();
-          }
-
-          node.sexpr.hash.pairs.push(b.pair(
-            'keyword',
-            b.string(keyword)
-          ));
+        if (node.program && node.program.blockParams.length) {
+          throw new Error('You cannot use keyword (`{{each foo in bar}}`) and block params (`{{each bar as |foo|}}`) at the same time.');
         }
-      });
 
-      return ast;
-    };
+        var removedParams = node.sexpr.params.splice(0, 2);
+        var keyword = removedParams[0].original;
 
-    TransformEachInToHash.prototype.validate = function TransformEachInToHash_validate(node) {
-      return (node.type === 'BlockStatement' || node.type === 'MustacheStatement') &&
-        node.sexpr.path.original === 'each' &&
-        node.sexpr.params.length === 3 &&
-        node.sexpr.params[1].type === 'PathExpression' &&
-        node.sexpr.params[1].original === 'in';
-    };
-
-    __exports__["default"] = TransformEachInToHash;
-  });
-enifed("ember-template-compiler/plugins/transform-with-as-to-hash",
-  ["exports"],
-  function(__exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-htmlbars
-    */
-
-    /**
-      An HTMLBars AST transformation that replaces all instances of
-
-      ```handlebars
-      {{#with foo.bar as bar}}
-      {{/with}}
-      ```
-
-      with
-
-      ```handlebars
-      {{#with foo.bar as |bar|}}
-      {{/with}}
-      ```
-
-      @private
-      @class TransformWithAsToHash
-    */
-    function TransformWithAsToHash() {
-      // set later within HTMLBars to the syntax package
-      this.syntax = null;
-    }
-
-    /**
-      @private
-      @method transform
-      @param {AST} The AST to be transformed.
-    */
-    TransformWithAsToHash.prototype.transform = function TransformWithAsToHash_transform(ast) {
-      var pluginContext = this;
-      var walker = new pluginContext.syntax.Walker();
-
-      walker.visit(ast, function(node) {
-        if (pluginContext.validate(node)) {
-
-          if (node.program && node.program.blockParams.length) {
-            throw new Error('You cannot use keyword (`{{with foo as bar}}`) and block params (`{{with foo as |bar|}}`) at the same time.');
-          }
-
-          var removedParams = node.sexpr.params.splice(1, 2);
-          var keyword = removedParams[1].original;
-          node.program.blockParams = [keyword];
+        // TODO: This may not be necessary.
+        if (!node.sexpr.hash) {
+          node.sexpr.hash = b.hash();
         }
-      });
 
-      return ast;
+        node.sexpr.hash.pairs.push(b.pair(
+          'keyword',
+          b.string(keyword)
+        ));
+      }
+    });
+
+    return ast;
+  };
+
+  TransformEachInToHash.prototype.validate = function TransformEachInToHash_validate(node) {
+    return (node.type === 'BlockStatement' || node.type === 'MustacheStatement') &&
+      node.sexpr.path.original === 'each' &&
+      node.sexpr.params.length === 3 &&
+      node.sexpr.params[1].type === 'PathExpression' &&
+      node.sexpr.params[1].original === 'in';
+  };
+
+  exports['default'] = TransformEachInToHash;
+
+});
+enifed('ember-template-compiler/plugins/transform-with-as-to-hash', ['exports'], function (exports) {
+
+  'use strict';
+
+  /**
+  @module ember
+  @submodule ember-htmlbars
+  */
+
+  /**
+    An HTMLBars AST transformation that replaces all instances of
+
+    ```handlebars
+    {{#with foo.bar as bar}}
+    {{/with}}
+    ```
+
+    with
+
+    ```handlebars
+    {{#with foo.bar as |bar|}}
+    {{/with}}
+    ```
+
+    @private
+    @class TransformWithAsToHash
+  */
+  function TransformWithAsToHash() {
+    // set later within HTMLBars to the syntax package
+    this.syntax = null;
+  }
+
+  /**
+    @private
+    @method transform
+    @param {AST} The AST to be transformed.
+  */
+  TransformWithAsToHash.prototype.transform = function TransformWithAsToHash_transform(ast) {
+    var pluginContext = this;
+    var walker = new pluginContext.syntax.Walker();
+
+    walker.visit(ast, function(node) {
+      if (pluginContext.validate(node)) {
+
+        if (node.program && node.program.blockParams.length) {
+          throw new Error('You cannot use keyword (`{{with foo as bar}}`) and block params (`{{with foo as |bar|}}`) at the same time.');
+        }
+
+        var removedParams = node.sexpr.params.splice(1, 2);
+        var keyword = removedParams[1].original;
+        node.program.blockParams = [keyword];
+      }
+    });
+
+    return ast;
+  };
+
+  TransformWithAsToHash.prototype.validate = function TransformWithAsToHash_validate(node) {
+    return node.type === 'BlockStatement' &&
+      node.sexpr.path.original === 'with' &&
+      node.sexpr.params.length === 3 &&
+      node.sexpr.params[1].type === 'PathExpression' &&
+      node.sexpr.params[1].original === 'as';
+  };
+
+  exports['default'] = TransformWithAsToHash;
+
+});
+enifed('ember-template-compiler/system/compile', ['exports', 'ember-template-compiler/system/compile_options', 'ember-template-compiler/system/template'], function (exports, compileOptions, template) {
+
+  'use strict';
+
+  /**
+  @module ember
+  @submodule ember-template-compiler
+  */
+
+  var compile;
+  exports['default'] = function(templateString) {
+    if (!compile && Ember.__loader.registry['htmlbars-compiler/compiler']) {
+      compile = requireModule('htmlbars-compiler/compiler').compile;
+    }
+
+    if (!compile) {
+      throw new Error('Cannot call `compile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compile`.');
+    }
+
+    var templateSpec = compile(templateString, compileOptions['default']());
+
+    return template['default'](templateSpec);
+  }
+
+});
+enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-metal/core', 'ember-template-compiler/plugins'], function (exports, Ember, plugins) {
+
+  'use strict';
+
+  /**
+  @module ember
+  @submodule ember-template-compiler
+  */
+
+  exports['default'] = function() {
+    var disableComponentGeneration = true;
+    if (Ember['default'].FEATURES.isEnabled('ember-htmlbars-component-generation')) {
+      disableComponentGeneration = false;
+    }
+
+    return {
+      disableComponentGeneration: disableComponentGeneration,
+
+      plugins: plugins['default']
     };
+  }
 
-    TransformWithAsToHash.prototype.validate = function TransformWithAsToHash_validate(node) {
-      return node.type === 'BlockStatement' &&
-        node.sexpr.path.original === 'with' &&
-        node.sexpr.params.length === 3 &&
-        node.sexpr.params[1].type === 'PathExpression' &&
-        node.sexpr.params[1].original === 'as';
-    };
+});
+enifed('ember-template-compiler/system/precompile', ['exports', 'ember-template-compiler/system/compile_options'], function (exports, compileOptions) {
 
-    __exports__["default"] = TransformWithAsToHash;
-  });
-enifed("ember-template-compiler/system/compile",
-  ["ember-template-compiler/system/compile_options","ember-template-compiler/system/template","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-template-compiler
-    */
+  'use strict';
 
-    var compile;
-    var compileOptions = __dependency1__["default"];
-    var template = __dependency2__["default"];
+  /**
+  @module ember
+  @submodule ember-template-compiler
+  */
 
-    /**
-      Uses HTMLBars `compile` function to process a string into a compiled template.
+  var compileSpec;
 
-      This is not present in production builds.
+  /**
+    Uses HTMLBars `compile` function to process a string into a compiled template string.
+    The returned string must be passed through `Ember.HTMLBars.template`.
 
-      @private
-      @method compile
-      @param {String} templateString This is the string to be compiled by HTMLBars.
-    */
-    __exports__["default"] = function(templateString) {
-      if (!compile && Ember.__loader.registry['htmlbars-compiler/compiler']) {
-        compile = requireModule('htmlbars-compiler/compiler').compile;
-      }
+    This is not present in production builds.
 
-      if (!compile) {
-        throw new Error('Cannot call `compile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compile`.');
-      }
-
-      var templateSpec = compile(templateString, compileOptions());
-
-      return template(templateSpec);
+    @private
+    @method precompile
+    @param {String} templateString This is the string to be compiled by HTMLBars.
+  */
+  exports['default'] = function(templateString) {
+    if (!compileSpec && Ember.__loader.registry['htmlbars-compiler/compiler']) {
+      compileSpec = requireModule('htmlbars-compiler/compiler').compileSpec;
     }
-  });
-enifed("ember-template-compiler/system/compile_options",
-  ["ember-metal/core","ember-template-compiler/plugins","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-template-compiler
-    */
 
-    var Ember = __dependency1__["default"];
-    var plugins = __dependency2__["default"];
-
-    /**
-      @private
-      @property compileOptions
-    */
-    __exports__["default"] = function() {
-      var disableComponentGeneration = true;
-      if (Ember.FEATURES.isEnabled('ember-htmlbars-component-generation')) {
-        disableComponentGeneration = false;
-      }
-
-      return {
-        disableComponentGeneration: disableComponentGeneration,
-
-        plugins: plugins
-      };
+    if (!compileSpec) {
+      throw new Error('Cannot call `compileSpec` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compileSpec`.');
     }
-  });
-enifed("ember-template-compiler/system/precompile",
-  ["ember-template-compiler/system/compile_options","exports"],
-  function(__dependency1__, __exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-template-compiler
-    */
 
-    var compileOptions = __dependency1__["default"];
-    var compileSpec;
+    return compileSpec(templateString, compileOptions['default']());
+  }
 
-    /**
-      Uses HTMLBars `compile` function to process a string into a compiled template string.
-      The returned string must be passed through `Ember.HTMLBars.template`.
+});
+enifed('ember-template-compiler/system/template', ['exports'], function (exports) {
 
-      This is not present in production builds.
+  'use strict';
 
-      @private
-      @method precompile
-      @param {String} templateString This is the string to be compiled by HTMLBars.
-    */
-    __exports__["default"] = function(templateString) {
-      if (!compileSpec && Ember.__loader.registry['htmlbars-compiler/compiler']) {
-        compileSpec = requireModule('htmlbars-compiler/compiler').compileSpec;
-      }
+  /**
+  @module ember
+  @submodule ember-template-compiler
+  */
 
-      if (!compileSpec) {
-        throw new Error('Cannot call `compileSpec` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compileSpec`.');
-      }
+  /**
+    Augments the default precompiled output of an HTMLBars template with
+    additional information needed by Ember.
 
-      return compileSpec(templateString, compileOptions());
-    }
-  });
-enifed("ember-template-compiler/system/template",
-  ["exports"],
-  function(__exports__) {
-    "use strict";
-    /**
-    @module ember
-    @submodule ember-template-compiler
-    */
+    @private
+    @method template
+    @param {Function} templateSpec This is the compiled HTMLBars template spec.
+  */
 
-    /**
-      Augments the default precompiled output of an HTMLBars template with
-      additional information needed by Ember.
+  exports['default'] = function(templateSpec) {
+    templateSpec.isTop = true;
+    templateSpec.isMethod = false;
 
-      @private
-      @method template
-      @param {Function} templateSpec This is the compiled HTMLBars template spec.
-    */
+    return templateSpec;
+  }
 
-    __exports__["default"] = function(templateSpec) {
-      templateSpec.isTop = true;
-      templateSpec.isMethod = false;
-
-      return templateSpec;
-    }
-  });
+});
 enifed("htmlbars-compiler",
   ["./htmlbars-compiler/compiler","exports"],
   function(__dependency1__, __exports__) {
