@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.1905161a
+ * @version   1.11.0-beta.1+canary.02a26d3a
  */
 
 (function() {
@@ -10421,7 +10421,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.11.0-beta.1+canary.1905161a
+    @version 1.11.0-beta.1+canary.02a26d3a
   */
 
   if ('undefined' === typeof Ember) {
@@ -10449,10 +10449,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.11.0-beta.1+canary.1905161a'
+    @default '1.11.0-beta.1+canary.02a26d3a'
     @static
   */
-  Ember.VERSION = '1.11.0-beta.1+canary.1905161a';
+  Ember.VERSION = '1.11.0-beta.1+canary.02a26d3a';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -10486,7 +10486,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     Hash of enabled Canary features. Add to this before creating your application.
 
-    You can also define `ENV.FEATURES` if you need to enable features flagged at runtime.
+    You can also define `EmberENV.FEATURES` if you need to enable features flagged at runtime.
 
     @class FEATURES
     @namespace Ember
@@ -10506,8 +10506,8 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     You can define the following configuration options:
 
-    * `ENV.ENABLE_ALL_FEATURES` - force all features to be enabled.
-    * `ENV.ENABLE_OPTIONAL_FEATURES` - enable any features that have not been explicitly
+    * `EmberENV.ENABLE_ALL_FEATURES` - force all features to be enabled.
+    * `EmberENV.ENABLE_OPTIONAL_FEATURES` - enable any features that have not been explicitly
       enabled/disabled.
 
     @method isEnabled
@@ -10543,7 +10543,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     In general we recommend leaving this option set to true since it rarely
     conflicts with other code. If you need to turn it off however, you can
-    define an `ENV.EXTEND_PROTOTYPES` config to disable it.
+    define an `EmberENV.EXTEND_PROTOTYPES` config to disable it.
 
     @property EXTEND_PROTOTYPES
     @type Boolean
