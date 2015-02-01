@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.cc5b1651
+ * @version   1.11.0-beta.1+canary.d5030431
  */
 
 (function() {
@@ -1987,6 +1987,15 @@ enifed("ember-application/tests/system/dependency_injection/default_resolver_tes
       registry.resolve('doo:scooby');
       registry.resolve('doo:scrappy');
       equal(infoCount, 0, 'Logger.info should not be called if LOG_RESOLVER is not set');
+    });
+
+    test("lookup description", function() {
+      application.toString = function() { return 'App'; };
+
+      equal(registry.describe('controller:foo'), 'App.FooController', 'Type gets appended at the end');
+      equal(registry.describe('controller:foo.bar'), 'App.FooBarController', 'dots are removed');
+      equal(registry.describe('model:foo'), 'App.Foo', "models don't get appended at the end");
+
     });
   });
 enifed("ember-application/tests/system/dependency_injection/default_resolver_test.jscs-test",
