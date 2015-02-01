@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.4b633e23
+ * @version   1.11.0-beta.1+canary.677cfac3
  */
 
 (function() {
@@ -2479,7 +2479,6 @@ enifed("ember-application/ext/controller",
     var get = __dependency2__.get;
     var EmberError = __dependency3__["default"];
     var inspect = __dependency4__.inspect;
-    var meta = __dependency4__.meta;
     var computed = __dependency5__.computed;
     var ControllerMixin = __dependency6__["default"];
     var controllerFor = __dependency7__["default"];
@@ -7895,7 +7894,10 @@ enifed("ember-htmlbars/system/append-templated-view",
       
       // We only want to override the `_context` computed property if there is
       // no specified controller. See View#_context for more information.
-      if (!viewProto.controller &&
+
+      var noControllerInProto = !viewProto.controller;
+      if (viewProto.controller.isDescriptor) { noControllerInProto = true; }
+      if (noControllerInProto &&
           !viewProto.controllerBinding &&
           !props.controller &&
           !props.controllerBinding) {
@@ -9493,6 +9495,7 @@ enifed("ember-metal/alias",
     }
 
     function AliasedProperty(altKey) {
+      this.isDescriptor = true;
       this.altKey = altKey;
       this._dependentKeys = [altKey];
     }
@@ -10369,7 +10372,8 @@ enifed("ember-metal/chains",
       }
 
       // if a CP only return cached value
-      var desc = meta && meta.descs[key];
+      var possibleDesc = obj[key];
+      var desc = (possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor) ? possibleDesc : undefined;
       if (desc && desc._cacheable) {
         if (key in meta.cache) {
           return meta.cache[key];
@@ -10753,6 +10757,7 @@ enifed("ember-metal/computed",
       @constructor
     */
     function ComputedProperty(config, opts) {
+      this.isDescriptor = true;
       if (Ember.FEATURES.isEnabled("new-computed-syntax")) {
         if (typeof config === "function") {
           config.__ember_arity = config.length;
@@ -12018,7 +12023,7 @@ enifed("ember-metal/core",
 
       @class Ember
       @static
-      @version 1.11.0-beta.1+canary.4b633e23
+      @version 1.11.0-beta.1+canary.677cfac3
     */
 
     if ('undefined' === typeof Ember) {
@@ -12046,10 +12051,10 @@ enifed("ember-metal/core",
     /**
       @property VERSION
       @type String
-      @default '1.11.0-beta.1+canary.4b633e23'
+      @default '1.11.0-beta.1+canary.677cfac3'
       @static
     */
-    Ember.VERSION = '1.11.0-beta.1+canary.4b633e23';
+    Ember.VERSION = '1.11.0-beta.1+canary.677cfac3';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -13243,8 +13248,8 @@ enifed("ember-metal/get_properties",
     }
   });
 enifed("ember-metal/injected_property",
-  ["ember-metal/core","ember-metal/computed","ember-metal/alias","ember-metal/properties","ember-metal/platform/create","ember-metal/utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+  ["ember-metal/core","ember-metal/computed","ember-metal/alias","ember-metal/properties","ember-metal/platform/create","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.assert
@@ -13252,7 +13257,6 @@ enifed("ember-metal/injected_property",
     var AliasedProperty = __dependency3__.AliasedProperty;
     var Descriptor = __dependency4__.Descriptor;
     var create = __dependency5__["default"];
-    var meta = __dependency6__.meta;
 
     /**
       Read-only property that returns the result of a container lookup.
@@ -13274,7 +13278,8 @@ enifed("ember-metal/injected_property",
     }
 
     function injectedPropertyGet(keyName) {
-      var desc = meta(this).descs[keyName];
+      var possibleDesc = this[keyName];
+      var desc = (possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor) ? possibleDesc : undefined;
 
       
       return this.container.lookup(desc.type + ':' + (desc.name || keyName));
@@ -14653,7 +14658,7 @@ enifed("ember-metal/mixin",
       return concats;
     }
 
-    function giveDescriptorSuper(meta, key, property, values, descs) {
+    function giveDescriptorSuper(meta, key, property, values, descs, base) {
       var superProperty;
 
       // Computed properties override methods, and do not call super to them
@@ -14664,7 +14669,12 @@ enifed("ember-metal/mixin",
 
       // If we didn't find the original descriptor in a parent mixin, find
       // it on the original object.
-      superProperty = superProperty || meta.descs[key];
+      if (!superProperty) {
+        var possibleDesc = base[key];
+        var superDesc = (possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor) ? possibleDesc : undefined;
+
+        superProperty = superDesc;
+      }
 
       if (superProperty === undefined || !(superProperty instanceof ComputedProperty)) {
         return property;
@@ -14779,7 +14789,7 @@ enifed("ember-metal/mixin",
         // Wrap descriptor function to implement
         // __nextSuper() if needed
         if (value._getter) {
-          value = giveDescriptorSuper(meta, key, value, values, descs);
+          value = giveDescriptorSuper(meta, key, value, values, descs, base);
         }
 
         descs[key]  = value;
@@ -14909,11 +14919,12 @@ enifed("ember-metal/mixin",
     function followAlias(obj, desc, m, descs, values) {
       var altKey = desc.methodName;
       var value;
+      var possibleDesc;
       if (descs[altKey] || values[altKey]) {
         value = values[altKey];
         desc  = descs[altKey];
-      } else if (m.descs[altKey]) {
-        desc  = m.descs[altKey];
+      } else if ((possibleDesc = obj[altKey]) && possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor) {
+        desc  = possibleDesc;
         value = undefined;
       } else {
         desc = undefined;
@@ -15261,6 +15272,7 @@ enifed("ember-metal/mixin",
     }
 
     __exports__.required = required;function Alias(methodName) {
+      this.isDescriptor = true;
       this.methodName = methodName;
     }
 
@@ -16007,7 +16019,9 @@ enifed("ember-metal/properties",
       @private
       @constructor
     */
-    function Descriptor() {}
+    function Descriptor() {
+      this.isDescriptor = true;
+    }
 
     __exports__.Descriptor = Descriptor;// ..........................................................
     // DEFINING PROPERTIES API
@@ -16071,31 +16085,29 @@ enifed("ember-metal/properties",
         become the explicit value of this property.
     */
     function defineProperty(obj, keyName, desc, data, meta) {
-      var descs, existingDesc, watching, value;
+      var possibleDesc, existingDesc, watching, value;
 
       if (!meta) {
         meta = metaFor(obj);
       }
-      descs = meta.descs;
-      existingDesc = meta.descs[keyName];
       var watchEntry = meta.watching[keyName];
+      possibleDesc = obj[keyName];
+      existingDesc = (possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor) ? possibleDesc : undefined;
 
       watching = watchEntry !== undefined && watchEntry > 0;
 
-      if (existingDesc instanceof Descriptor) {
+      if (existingDesc) {
         existingDesc.teardown(obj, keyName);
       }
 
       if (desc instanceof Descriptor) {
         value = desc;
 
-        descs[keyName] = desc;
         
-          obj[keyName] = undefined; // make enumerable
+          obj[keyName] = value;
         
         if (desc.setup) { desc.setup(obj, keyName); }
       } else {
-        descs[keyName] = undefined; // shadow descriptor in proto
         if (desc == null) {
           value = data;
 
@@ -16160,7 +16172,8 @@ enifed("ember-metal/property_events",
       var m = obj['__ember_meta__'];
       var watching = (m && m.watching[keyName] > 0) || keyName === 'length';
       var proto = m && m.proto;
-      var desc = m && m.descs[keyName];
+      var possibleDesc = obj[keyName];
+      var desc = (possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor) ? possibleDesc : undefined;
 
       if (!watching) {
         return;
@@ -16198,7 +16211,8 @@ enifed("ember-metal/property_events",
       var m = obj['__ember_meta__'];
       var watching = (m && m.watching[keyName] > 0) || keyName === 'length';
       var proto = m && m.proto;
-      var desc = m && m.descs[keyName];
+      var possibleDesc = obj[keyName];
+      var desc = (possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor) ? possibleDesc : undefined;
 
       if (proto === obj) {
         return;
@@ -16275,7 +16289,7 @@ enifed("ember-metal/property_events",
     }
 
     function iterDeps(method, obj, deps, depKey, seen, meta) {
-      var keys, key, i, desc;
+      var keys, key, i, possibleDesc, desc;
       var guid = guidFor(obj);
       var current = seen[guid];
 
@@ -16291,10 +16305,10 @@ enifed("ember-metal/property_events",
 
       if (deps) {
         keys = keysOf(deps);
-        var descs = meta.descs;
         for (i=0; i<keys.length; i++) {
           key = keys[i];
-          desc = descs[key];
+          possibleDesc = obj[key];
+          desc = (possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor) ? possibleDesc : undefined;
 
           if (desc && desc._suspended === obj) {
             continue;
@@ -16492,7 +16506,8 @@ enifed("ember-metal/property_get",
       }
 
       var meta = obj['__ember_meta__'];
-      var desc = meta && meta.descs[keyName];
+      var possibleDesc = obj[keyName];
+      var desc = (possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor) ? possibleDesc : undefined;
       var ret;
 
       if (desc === undefined && isPath(keyName)) {
@@ -16635,7 +16650,9 @@ enifed("ember-metal/property_set",
       }
 
       var meta = obj['__ember_meta__'];
-      var desc = meta && meta.descs[keyName];
+      var possibleDesc = obj[keyName];
+      var desc = (possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor) ? possibleDesc : undefined;
+
       var isUnknown, currentValue;
 
       if (desc === undefined && isPath(keyName)) {
@@ -16643,7 +16660,7 @@ enifed("ember-metal/property_set",
       }
 
             
-      if (desc !== undefined) {
+      if (desc) {
         desc.set(obj, keyName, value);
       } else {
 
@@ -18291,7 +18308,6 @@ enifed("ember-metal/utils",
     // META
     //
     function Meta(obj) {
-      this.descs = {};
       this.watching = {};
       this.cache = {};
       this.cacheMeta = {};
@@ -18306,7 +18322,7 @@ enifed("ember-metal/utils",
     }
 
     Meta.prototype = {
-      chainWatchers: null
+      chainWatchers: null // FIXME
     };
 
     if (!canDefineNonEnumerableProperties) {
@@ -18344,7 +18360,7 @@ enifed("ember-metal/utils",
       @return {Object} the meta hash for an object
     */
     function meta(obj, writable) {
-      var ret = obj['__ember_meta__'];
+      var ret = obj.__ember_meta__;
       if (writable===false) {
         return ret || EMPTY_META;
       }
@@ -18361,11 +18377,7 @@ enifed("ember-metal/utils",
         ret = new Meta(obj);
 
         
-        obj['__ember_meta__'] = ret;
-
-        // make sure we don't accidentally try to create constructor like desc
-        ret.descs.constructor = null;
-
+        obj.__ember_meta__ = ret;
       } else if (ret.source !== obj) {
         if (obj.__defineNonEnumerable) {
           obj.__defineNonEnumerable(EMBER_META_PROPERTY);
@@ -18374,7 +18386,6 @@ enifed("ember-metal/utils",
         }
 
         ret = o_create(ret);
-        ret.descs     = o_create(ret.descs);
         ret.watching  = o_create(ret.watching);
         ret.cache     = {};
         ret.cacheMeta = {};
@@ -18991,7 +19002,8 @@ enifed("ember-metal/watch_key",
       if (!watching[keyName]) {
         watching[keyName] = 1;
 
-        var desc = m.descs[keyName];
+        var possibleDesc = obj[keyName];
+        var desc = (possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor) ? possibleDesc : undefined;
         if (desc && desc.willWatch) { desc.willWatch(obj, keyName); }
 
         if ('function' === typeof obj.willWatchProperty) {
@@ -19012,7 +19024,8 @@ enifed("ember-metal/watch_key",
       if (watching[keyName] === 1) {
         watching[keyName] = 0;
 
-        var desc = m.descs[keyName];
+        var possibleDesc = obj[keyName];
+        var desc = (possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor) ? possibleDesc : undefined;
         if (desc && desc.didUnwatch) { desc.didUnwatch(obj, keyName); }
 
         if ('function' === typeof obj.didUnwatchProperty) {
@@ -29022,15 +29035,14 @@ enifed("ember-runtime/ext/string",
     }
   });
 enifed("ember-runtime/inject",
-  ["ember-metal/core","ember-metal/enumerable_utils","ember-metal/utils","ember-metal/injected_property","ember-metal/keys","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
+  ["ember-metal/core","ember-metal/enumerable_utils","ember-metal/injected_property","ember-metal/keys","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     var Ember = __dependency1__["default"];
     // Ember.assert
     var indexOf = __dependency2__.indexOf;
-    var meta = __dependency3__.meta;
-    var InjectedProperty = __dependency4__["default"];
-    var keys = __dependency5__["default"];
+    var InjectedProperty = __dependency3__["default"];
+    var keys = __dependency4__["default"];
 
     /**
       Namespace for injection helper methods.
@@ -29074,12 +29086,11 @@ enifed("ember-runtime/inject",
     */
     function validatePropertyInjections(factory) {
       var proto = factory.proto();
-      var descs = meta(proto).descs;
       var types = [];
       var key, desc, validator, i, l;
 
-      for (key in descs) {
-        desc = descs[key];
+      for (key in proto) {
+        desc = proto[key];
         if (desc instanceof InjectedProperty && indexOf(types, desc.type) === -1) {
           types.push(desc.type);
         }
@@ -33879,7 +33890,8 @@ enifed("ember-runtime/system/core_object",
                 bindings[keyName] = value;
               }
 
-              var desc = m.descs[keyName];
+              var possibleDesc = this[keyName];
+              var desc = (possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor) ? possibleDesc : undefined;
 
                                           
               if (concatenatedProperties &&
@@ -34553,8 +34565,9 @@ enifed("ember-runtime/system/core_object",
         @param key {String} property name
       */
       metaForProperty: function(key) {
-        var meta = this.proto()['__ember_meta__'];
-        var desc = meta && meta.descs[key];
+        var proto = this.proto();
+        var possibleDesc = proto[key];
+        var desc = (possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor) ? possibleDesc : undefined;
 
                 return desc._meta || {};
       },
@@ -34562,12 +34575,11 @@ enifed("ember-runtime/system/core_object",
       _computedProperties: computed(function() {
         hasCachedComputedProperties = true;
         var proto = this.proto();
-        var descs = meta(proto).descs;
         var property;
         var properties = [];
 
-        for (var name in descs) {
-          property = descs[name];
+        for (var name in proto) {
+          property = proto[name];
 
           if (property instanceof ComputedProperty) {
             properties.push({
@@ -34621,11 +34633,10 @@ enifed("ember-runtime/system/core_object",
       ClassMixinProps._lazyInjections = function() {
         var injections = {};
         var proto = this.proto();
-        var descs = meta(proto).descs;
         var key, desc;
 
-        for (key in descs) {
-          desc = descs[key];
+        for (key in proto) {
+          desc = proto[key];
           if (desc instanceof InjectedProperty) {
             injections[key] = desc.type + ':' + (desc.name || key);
           }
@@ -39435,7 +39446,7 @@ enifed("ember-views/system/renderer",
         // provided buffer operation (for example, `insertAfter` will
         // insert a new buffer after the "parent buffer").
         var tagName = view.tagName;
-        if (tagName === undefined) {
+        if (tagName !== null && typeof tagName === 'object' && tagName.isDescriptor) {
           tagName = get(view, 'tagName');
                   }
         var classNameBindings = view.classNameBindings;

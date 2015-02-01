@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.4b633e23
+ * @version   1.11.0-beta.1+canary.677cfac3
  */
 
 (function() {
@@ -20301,8 +20301,8 @@ enifed("ember-metal/tests/chains_test.jshint",
     });
   });
 enifed("ember-metal/tests/computed_test",
-  ["ember-metal/core","ember-metal/tests/props_helper","ember-metal/platform/create","ember-metal/computed","ember-metal/computed_macros","ember-metal/alias","ember-metal/properties","ember-metal/property_get","ember-metal/property_set","ember-metal/utils","ember-metal/watching","ember-metal/observer","ember-metal/enumerable_utils"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__) {
+  ["ember-metal/core","ember-metal/tests/props_helper","ember-metal/platform/create","ember-metal/computed","ember-metal/computed_macros","ember-metal/alias","ember-metal/properties","ember-metal/property_get","ember-metal/property_set","ember-metal/watching","ember-metal/observer","ember-metal/enumerable_utils"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__) {
     "use strict";
     var Ember = __dependency1__["default"];
     var testBoth = __dependency2__.testBoth;
@@ -20335,11 +20335,10 @@ enifed("ember-metal/tests/computed_test",
     var defineProperty = __dependency7__.defineProperty;
     var get = __dependency8__.get;
     var set = __dependency9__.set;
-    var meta = __dependency10__.meta;
-    var isWatching = __dependency11__.isWatching;
-    var addObserver = __dependency12__.addObserver;
-    var addBeforeObserver = __dependency12__.addBeforeObserver;
-    var indexOf = __dependency13__.indexOf;
+    var isWatching = __dependency10__.isWatching;
+    var addObserver = __dependency11__.addObserver;
+    var addBeforeObserver = __dependency11__.addBeforeObserver;
+    var indexOf = __dependency12__.indexOf;
 
     var originalLookup = Ember.lookup;
     var obj, count, Global, lookup;
@@ -21159,7 +21158,7 @@ enifed("ember-metal/tests/computed_test",
       set(obj, 'foo', 'bar');
 
       equal(get(obj, 'foo'), 'bar', 'The set value is properly returned');
-      ok(!meta(obj).descs.foo, 'The computed property was removed');
+      ok(typeof obj.foo === 'string', 'The computed property was removed');
       ok(observerFired, 'The observer was still notified');
     });
 
