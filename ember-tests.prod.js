@@ -3957,14 +3957,10 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
 
     var retrievedFooResolverTestHelper, retrievedBarBazResolverTestHelper;
 
-    if (Ember['default'].FEATURES.isEnabled('ember-htmlbars')) {
+    
       retrievedFooResolverTestHelper = locator.lookup('helper:fooresolvertest').helperFunction;
       retrievedBarBazResolverTestHelper = locator.lookup('helper:bar-baz-resolver-test').helperFunction;
-    } else {
-      retrievedFooResolverTestHelper = locator.lookup('helper:fooresolvertest');
-      retrievedBarBazResolverTestHelper = locator.lookup('helper:bar-baz-resolver-test');
-    }
-
+    
     fooresolvertestHelper();
     barBazResolverTestHelper();
   });
@@ -10162,7 +10158,7 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
     var originalBindAttr = helpers['default']['bind-attr'];
 
     try {
-      if (Ember['default'].FEATURES.isEnabled('ember-htmlbars')) {
+      
         helpers['default']['bind-attr'] = {
           helperFunction: function() {
             equal(arguments[0], 'foo', 'First arg match');
@@ -10171,24 +10167,13 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
             return 'result';
           }
         };
-      } else {
-        helpers['default']['bind-attr'] = function() {
-          equal(arguments[0], 'foo', 'First arg match');
-          equal(arguments[1], 'bar', 'Second arg match');
-
-          return 'result';
-        };
-      }
-
+      
       expectDeprecation(function() {
         var result;
 
-        if (Ember['default'].FEATURES.isEnabled('ember-htmlbars')) {
+        
           result = helpers['default'].bindAttr.helperFunction('foo', 'bar');
-        } else {
-          result = helpers['default'].bindAttr('foo', 'bar');
-        }
-        equal(result, 'result', 'Result match');
+                equal(result, 'result', 'Result match');
       }, "The 'bindAttr' view helper is deprecated in favor of 'bind-attr'");
     } finally {
       helpers['default']['bind-attr'] = originalBindAttr;
@@ -12068,9 +12053,9 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
     });
 
     var deprecation = /Resolved the view "MyView" on the global context/;
-    if (Ember['default'].FEATURES.isEnabled('ember-htmlbars')) {
+    
       deprecation = /Global lookup of MyView from a Handlebars template is deprecated/;
-    }
+    
 
     expectDeprecation(function() {
       utils.runAppend(view);
@@ -12188,9 +12173,9 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
 
     var deprecation = /Resolved the view "MyEmptyView" on the global context/;
 
-    if (Ember['default'].FEATURES.isEnabled('ember-htmlbars')) {
+    
       deprecation = /Global lookup of MyEmptyView from a Handlebars template is deprecated/;
-    }
+    
 
     expectDeprecation(function() {
       utils.runAppend(view);
@@ -12568,7 +12553,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
     }
 
     if (useBlockParams) {
-      if (Ember['default'].FEATURES.isEnabled('ember-htmlbars-each-with-index')) {
+      
         test("the index is passed as the second parameter to #each blocks", function() {
           expect(3);
 
@@ -12590,15 +12575,15 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
           });
           equal(view.$().text(), "0. Bob1. Steve");
         });
-      }
+      
     }
   }
 
   testEachWithItem("{{#each foo in bar}}", false);
 
-  if (Ember['default'].FEATURES.isEnabled('ember-htmlbars-block-params')) {
+  
     testEachWithItem("{{#each bar as |foo|}}", true);
-  }
+  
 
 });
 enifed('ember-htmlbars/tests/helpers/each_test.jscs-test', function () {
@@ -32640,7 +32625,7 @@ enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['ember-metal/core', 
     utils.runAppend(view);
   });
 
-  if (Ember['default'].FEATURES.isEnabled('ember-htmlbars')) {
+  
     test("should throw an assertion if {{outlet}} used with unquoted name", function() {
       view = EmberView['default'].create({
         template: compile['default']("{{outlet foo}}")
@@ -32649,17 +32634,7 @@ enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['ember-metal/core', 
         utils.runAppend(view);
       }, "Using {{outlet}} with an unquoted name is not supported.");
     });
-  } else {
-    test("should throw a deprecation if {{outlet}} is used with an unquoted name", function() {
-      view = EmberView['default'].create({
-        template: compile['default']("{{outlet foo}}")
-      });
-      expectDeprecation(function() {
-        utils.runAppend(view);
-      }, 'Using {{outlet}} with an unquoted name is not supported. Please update to quoted usage \'{{outlet "foo"}}\'.');
-    });
-  }
-
+  
 });
 enifed('ember-routing-htmlbars/tests/helpers/outlet_test.jscs-test', function () {
 
@@ -33157,7 +33132,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 
     equal(container.lookup('controller:blog.post'), renderedView.get('controller'), 'rendered with correct controller');
   });
 
-  if (Ember['default'].FEATURES.isEnabled('ember-htmlbars')) {
+  
   // jscs:disable validateIndentation
 
   test("throws an assertion if {{render}} is called with an unquoted template name", function() {
@@ -33191,28 +33166,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 
   });
 
   // jscs:enable validateIndentation
-  } else {
-  // jscs:disable validateIndentation
-
-  test("Using quoteless templateName works properly (DEPRECATED)", function() {
-    var template = '<h1>HI</h1>{{render home}}';
-    var controller = controllers__controller["default"].extend({ container: container });
-    view = EmberView['default'].create({
-      controller: controller.create(),
-      template: compile['default'](template)
-    });
-
-    Ember['default'].TEMPLATES['home'] = compile['default']("<p>BYE</p>");
-
-    expectDeprecation("Using a quoteless parameter with {{render}} is deprecated. Please update to quoted usage '{{render \"home\"}}.");
-    tests__utils.runAppend(view);
-
-    equal(view.$('p:contains(BYE)').length, 1, "template was rendered");
-  });
-
-  // jscs:enable validateIndentation
-  }
-
+  
 });
 enifed('ember-routing-htmlbars/tests/helpers/render_test.jscs-test', function () {
 
@@ -51087,33 +51041,7 @@ enifed('ember-runtime/tests/system/object/create_test', ['ember-metal/core', 'em
     equal(o.get('foo'), 'bar');
   });
 
-  if (Ember['default'].FEATURES.isEnabled('mandatory-setter')) {
-    test("sets up mandatory setters for watched simple properties", function() {
-
-      var MyClass = EmberObject['default'].extend({
-        foo: null,
-        bar: null,
-        fooDidChange: mixin.observer('foo', function() {})
-      });
-
-      var o = MyClass.create({ foo: 'bar', bar: 'baz' });
-      equal(o.get('foo'), 'bar');
-
-      // Catch IE8 where Object.getOwnPropertyDescriptor exists but only works on DOM elements
-      try {
-        Object.getOwnPropertyDescriptor({}, 'foo');
-      } catch(e) {
-        return;
-      }
-
-      var descriptor = Object.getOwnPropertyDescriptor(o, 'foo');
-      ok(descriptor.set, 'Mandatory setter was setup');
-
-      descriptor = Object.getOwnPropertyDescriptor(o, 'bar');
-      ok(!descriptor.set, 'Mandatory setter was not setup');
-    });
-  }
-
+  
   test("allows bindings to be defined", function() {
     var obj = EmberObject['default'].create({
       foo: 'foo',

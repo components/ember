@@ -1147,9 +1147,9 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/keys'
     this.cache        = dictionary['default'](options && options.cache ? options.cache : null);
     this.factoryCache = dictionary['default'](options && options.factoryCache ? options.factoryCache : null);
 
-    if (Ember['default'].FEATURES.isEnabled('ember-metal-injected-properties')) {
+    
       this.validationCache = dictionary['default'](options && options.validationCache ? options.validationCache : null);
-    }
+    
   }
 
   Container.prototype = {
@@ -1420,7 +1420,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/keys'
         'Most likely an improperly defined class or an invalid module export.');
       }
 
-      if (Ember['default'].FEATURES.isEnabled('ember-metal-injected-properties')) {
+      
         validationCache = container.validationCache;
 
         // Ensure that all lazy injections are valid at instantiation time
@@ -1432,7 +1432,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/keys'
         }
 
         validationCache[fullName] = true;
-      }
+      
 
       if (typeof factory.extend === 'function') {
         // assume the factory was extendable and is already injected
@@ -5714,9 +5714,9 @@ enifed('ember-htmlbars', ['ember-metal/core', 'ember-template-compiler', 'ember-
   'use strict';
 
   helpers.registerHelper('view', view.viewHelper);
-  if (Ember['default'].FEATURES.isEnabled('ember-htmlbars-component-helper')) {
+  
     helpers.registerHelper('component', component.componentHelper);
-  }
+  
   helpers.registerHelper('yield', _yield.yieldHelper);
   helpers.registerHelper('with', _with.withHelper);
   helpers.registerHelper('if', if_unless.ifHelper);
@@ -5734,7 +5734,7 @@ enifed('ember-htmlbars', ['ember-metal/core', 'ember-template-compiler', 'ember-
   helpers.registerHelper('each', each.eachHelper);
   helpers.registerHelper('unbound', unbound.unboundHelper);
 
-  if (Ember['default'].FEATURES.isEnabled('ember-htmlbars')) {
+  
     Ember['default'].HTMLBars = {
       helpers: helpers["default"],
       registerHelper: helpers.registerHelper,
@@ -5746,7 +5746,7 @@ enifed('ember-htmlbars', ['ember-metal/core', 'ember-template-compiler', 'ember-
       registerPlugin: ember_template_compiler.registerPlugin
     };
 
-  }
+  
 
 });
 enifed('ember-htmlbars/compat', ['exports', 'ember-metal/core', 'ember-htmlbars/helpers', 'ember-htmlbars/compat/helper', 'ember-htmlbars/compat/handlebars-get', 'ember-htmlbars/compat/make-bound-helper', 'ember-htmlbars/compat/register-bound-helper', 'ember-htmlbars/system/make-view-helper', 'ember-htmlbars/utils/string'], function (exports, Ember, helpers, helper, compatHandlebarsGet, compatMakeBoundHelper, compatRegisterBoundHelper, makeViewHelper, string) {
@@ -5754,7 +5754,7 @@ enifed('ember-htmlbars/compat', ['exports', 'ember-metal/core', 'ember-htmlbars/
   'use strict';
 
   var EmberHandlebars;
-  if (Ember['default'].FEATURES.isEnabled('ember-htmlbars')) {
+  
     EmberHandlebars = Ember['default'].Handlebars = Ember['default'].Handlebars || {};
     EmberHandlebars.helpers = helpers['default'];
     EmberHandlebars.helper = helper.handlebarsHelper;
@@ -5768,7 +5768,7 @@ enifed('ember-htmlbars/compat', ['exports', 'ember-metal/core', 'ember-htmlbars/
     EmberHandlebars.Utils =  {
       escapeExpression: string.escapeExpression
     };
-  }
+  
 
   exports['default'] = EmberHandlebars;
 
@@ -6277,12 +6277,9 @@ enifed('ember-htmlbars/helpers/bind-attr', ['exports', 'ember-metal/core', 'embe
   function bindAttrHelperDeprecated() {
     Ember['default'].deprecate("The 'bindAttr' view helper is deprecated in favor of 'bind-attr'");
 
-    if (Ember['default'].FEATURES.isEnabled('ember-htmlbars')) {
+    
       return helpers['default']['bind-attr'].helperFunction.apply(this, arguments);
-    } else {
-      return helpers['default']['bind-attr'].apply(this, arguments);
-    }
-  }
+      }
 
   exports['default'] = bindAttrHelper;
 
@@ -6567,12 +6564,9 @@ enifed('ember-htmlbars/helpers/if_unless', ['exports', 'ember-metal/core', 'embe
     if (options.isBlock) {
       return appendBlockConditional(view, inverted, helperName, params, hash, options, env);
     } else {
-      if (Ember['default'].FEATURES.isEnabled('ember-htmlbars-inline-if-helper')) {
+      
         return appendInlineConditional(view, inverted, helperName, params, hash, options, env);
-      } else {
-        assertInlineIfNotEnabled();
-      }
-    }
+          }
   }
 
   function appendBlockConditional(view, inverted, helperName, params, hash, options, env) {
@@ -7141,15 +7135,9 @@ enifed('ember-htmlbars/hooks/set', ['exports', 'ember-metal/core', 'ember-metal/
   */
 
   function set(env, view, name, value) {
-    if (Ember['default'].FEATURES.isEnabled('ember-htmlbars-block-params')) {
+    
       view._keywords[name] = value;
-    } else {
-      throw new EmberError['default'](
-        "You must enable the ember-htmlbars-block-params feature " +
-        "flag to use the block params feature in Ember."
-      );
-    }
-  }
+      }
   exports['default'] = set;
 
 });
@@ -7276,7 +7264,7 @@ enifed('ember-htmlbars/system/bootstrap', ['exports', 'ember-metal/core', 'ember
   */
 
   lazy_load.onLoad('Ember.Application', function(Application) {
-    if (Ember['default'].FEATURES.isEnabled('ember-htmlbars')) {
+    
       // jscs:disable validateIndentation
 
     Application.initializer({
@@ -7291,7 +7279,7 @@ enifed('ember-htmlbars/system/bootstrap', ['exports', 'ember-metal/core', 'ember
     });
 
       // jscs:enable validateIndentation
-    }
+    
   });
 
   exports['default'] = bootstrap;
@@ -14815,40 +14803,17 @@ enifed('ember-metal/properties', ['exports', 'ember-metal/core', 'ember-metal/ut
     if (desc instanceof Descriptor) {
       value = desc;
 
-      if (Ember['default'].FEATURES.isEnabled('mandatory-setter')) {
-        if (watching && define_property.hasPropertyAccessors) {
-          define_property.defineProperty(obj, keyName, {
-            configurable: true,
-            enumerable: true,
-            writable: true,
-            value: value
-          });
-        } else {
-          obj[keyName] = value;
-        }
-      } else {
+      
         obj[keyName] = value;
-      }
+      
       if (desc.setup) { desc.setup(obj, keyName); }
     } else {
       if (desc == null) {
         value = data;
 
-        if (Ember['default'].FEATURES.isEnabled('mandatory-setter')) {
-          if (watching && define_property.hasPropertyAccessors) {
-            meta.values[keyName] = data;
-            define_property.defineProperty(obj, keyName, {
-              configurable: true,
-              enumerable: true,
-              set: MANDATORY_SETTER_FUNCTION(keyName),
-              get: DEFAULT_GETTER_FUNCTION(keyName)
-            });
-          } else {
-            obj[keyName] = data;
-          }
-        } else {
+        
           obj[keyName] = data;
-        }
+        
       } else {
         value = desc;
 
@@ -15250,15 +15215,9 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/core', 'ember-metal/
     if (desc) {
       return desc.get(obj, keyName);
     } else {
-      if (Ember['default'].FEATURES.isEnabled('mandatory-setter')) {
-        if (define_property.hasPropertyAccessors && meta && meta.watching[keyName] > 0) {
-          ret = meta.values[keyName];
-        } else {
-          ret = obj[keyName];
-        }
-      } else {
+      
         ret = obj[keyName];
-      }
+      
 
       if (ret === undefined &&
           'object' === typeof obj && !(keyName in obj) && 'function' === typeof obj.unknownProperty) {
@@ -15419,35 +15378,16 @@ enifed('ember-metal/property_set', ['exports', 'ember-metal/core', 'ember-metal/
         obj.setUnknownProperty(keyName, value);
       } else if (meta && meta.watching[keyName] > 0) {
         if (meta.proto !== obj) {
-          if (Ember['default'].FEATURES.isEnabled('mandatory-setter')) {
-            if (define_property.hasPropertyAccessors) {
-              currentValue = meta.values[keyName];
-            } else {
-              currentValue = obj[keyName];
-            }
-          } else {
+          
             currentValue = obj[keyName];
-          }
+          
         }
         // only trigger a change if the value has changed
         if (value !== currentValue) {
           property_events.propertyWillChange(obj, keyName);
-          if (Ember['default'].FEATURES.isEnabled('mandatory-setter')) {
-            if (define_property.hasPropertyAccessors) {
-              if (
-                (currentValue === undefined && !(keyName in obj)) ||
-                !Object.prototype.propertyIsEnumerable.call(obj, keyName)
-              ) {
-                properties.defineProperty(obj, keyName, null, value); // setup mandatory setter
-              } else {
-                meta.values[keyName] = value;
-              }
-            } else {
-              obj[keyName] = value;
-            }
-          } else {
+          
             obj[keyName] = value;
-          }
+          
           property_events.propertyDidChange(obj, keyName);
         }
       } else {
@@ -17043,12 +16983,7 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
   // Placeholder for non-writable metas.
   var EMPTY_META = new Meta(null);
 
-  if (Ember['default'].FEATURES.isEnabled('mandatory-setter')) {
-    if (define_property.hasPropertyAccessors) {
-      EMPTY_META.values = {};
-    }
-  }
-
+  
   /**
     Retrieves the meta hash for an object. If `writable` is true ensures the
     hash is writable for this object as well.
@@ -17084,12 +17019,7 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
 
       ret = new Meta(obj);
 
-      if (Ember['default'].FEATURES.isEnabled('mandatory-setter')) {
-        if (define_property.hasPropertyAccessors) {
-          ret.values = {};
-        }
-      }
-
+      
       obj.__ember_meta__ = ret;
     } else if (ret.source !== obj) {
       if (obj.__defineNonEnumerable) {
@@ -17104,12 +17034,7 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
       ret.cacheMeta = {};
       ret.source    = obj;
 
-      if (Ember['default'].FEATURES.isEnabled('mandatory-setter')) {
-        if (define_property.hasPropertyAccessors) {
-          ret.values = o_create['default'](ret.values);
-        }
-      }
-
+      
       obj['__ember_meta__'] = ret;
     }
     return ret;
@@ -17725,41 +17650,13 @@ enifed('ember-metal/watch_key', ['exports', 'ember-metal/core', 'ember-metal/uti
         obj.willWatchProperty(keyName);
       }
 
-      if (Ember['default'].FEATURES.isEnabled('mandatory-setter')) {
-        if (define_property.hasPropertyAccessors) {
-          handleMandatorySetter(m, obj, keyName);
-        }
-      }
-    } else {
+          } else {
       watching[keyName] = (watching[keyName] || 0) + 1;
     }
   }
 
 
-  if (Ember['default'].FEATURES.isEnabled('mandatory-setter')) {
-    var handleMandatorySetter = function handleMandatorySetter(m, obj, keyName) {
-      var descriptor = Object.getOwnPropertyDescriptor && Object.getOwnPropertyDescriptor(obj, keyName);
-      var configurable = descriptor ? descriptor.configurable : true;
-      var isWritable = descriptor ? descriptor.writable : true;
-      var hasValue = descriptor ? 'value' in descriptor : true;
-      var possibleDesc = descriptor && descriptor.value;
-      var isDescriptor = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
-
-      if (isDescriptor) { return; }
-
-      // this x in Y deopts, so keeping it in this function is better;
-      if (configurable && isWritable && hasValue && keyName in obj) {
-        m.values[keyName] = obj[keyName];
-        define_property.defineProperty(obj, keyName, {
-          configurable: true,
-          enumerable: Object.prototype.propertyIsEnumerable.call(obj, keyName),
-          set: properties.MANDATORY_SETTER_FUNCTION(keyName),
-          get: properties.DEFAULT_GETTER_FUNCTION(keyName)
-        });
-      }
-    };
-  }
-
+  
   function unwatchKey(obj, keyName, meta) {
     var m = meta || utils.meta(obj);
     var watching = m.watching;
@@ -17775,26 +17672,7 @@ enifed('ember-metal/watch_key', ['exports', 'ember-metal/core', 'ember-metal/uti
         obj.didUnwatchProperty(keyName);
       }
 
-      if (Ember['default'].FEATURES.isEnabled('mandatory-setter')) {
-        if (!desc && define_property.hasPropertyAccessors && keyName in obj) {
-          define_property.defineProperty(obj, keyName, {
-            configurable: true,
-            enumerable: Object.prototype.propertyIsEnumerable.call(obj, keyName),
-            set: function(val) {
-              // redefine to set as enumerable
-              define_property.defineProperty(obj, keyName, {
-                configurable: true,
-                writable: true,
-                enumerable: true,
-                value: val
-              });
-              delete m.values[keyName];
-            },
-            get: properties.DEFAULT_GETTER_FUNCTION(keyName)
-          });
-        }
-      }
-    } else if (watching[keyName] > 1) {
+          } else if (watching[keyName] > 1) {
       watching[keyName]--;
     }
   }
@@ -18588,9 +18466,9 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   };
 
   var linkViewClassNameBindings = ['active', 'loading', 'disabled'];
-  if (Ember['default'].FEATURES.isEnabled('ember-routing-transitioning-classes')) {
+  
     linkViewClassNameBindings = ['active', 'loading', 'disabled', 'transitioningIn', 'transitioningOut'];
-  }
+  
 
   /**
     `Ember.LinkView` renders an element whose `click` event triggers a
@@ -18950,9 +18828,9 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
         transition.method('replace');
       }
 
-      if (Ember['default'].FEATURES.isEnabled('ember-routing-transitioning-classes')) {
+      
         return;
-      }
+      
 
       // Schedule eager URL update, but after we've given the transition
       // a chance to synchronously redirect.
@@ -20694,12 +20572,12 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-metal/core'], function (ex
       var type = options.resetNamespace === true ? 'resource' : 'route';
       Ember['default'].assert("'" + name + "' cannot be used as a " + type + " name.", name !== 'array' && name !== 'basic' && name !== 'object');
 
-      if (Ember['default'].FEATURES.isEnabled("ember-routing-named-substates")) {
+      
         if (this.enableLoadingSubstates) {
           createRoute(this, name + '_loading', { resetNamespace: options.resetNamespace });
           createRoute(this, name + '_error', { path: "/_unused_dummy_error_path_route_" + name + "/:error" });
         }
-      }
+      
 
       if (callback) {
         var fullName = getFullName(this, name, options.resetNamespace);
@@ -23328,11 +23206,11 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
         emberRouter.didTransition(infos);
       };
 
-      if (Ember['default'].FEATURES.isEnabled('ember-router-willtransition')) {
+      
         router.willTransition = function(oldInfos, newInfos, transition) {
           emberRouter.willTransition(oldInfos, newInfos, transition);
         };
-      }
+      
     },
 
     _serializeQueryParams: function(targetRouteName, queryParams) {
@@ -23634,13 +23512,13 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
     var targetChildRouteName = originatingChildRoute.routeName.split('.').pop();
     var namespace = parentRoute.routeName === 'application' ? '' : parentRoute.routeName + '.';
 
-    if (Ember['default'].FEATURES.isEnabled("ember-routing-named-substates")) {
+    
       // First, try a named loading state, e.g. 'foo_loading'
       childName = namespace + targetChildRouteName + '_' + name;
       if (routeHasBeenDefined(router, childName)) {
         return childName;
       }
-    }
+    
 
     // Second, try general loading state, e.g. 'loading'
     childName = namespace + name;
@@ -23954,9 +23832,9 @@ enifed('ember-runtime', ['exports', 'ember-metal', 'ember-runtime/core', 'ember-
   Ember['default'].copy = copy['default'];
   Ember['default'].isEqual = core.isEqual;
 
-  if (Ember['default'].FEATURES.isEnabled('ember-metal-injected-properties')) {
+  
     Ember['default'].inject = inject['default'];
-  }
+  
 
   Ember['default'].Array = EmberArray['default'];
 
@@ -24030,9 +23908,9 @@ enifed('ember-runtime', ['exports', 'ember-metal', 'ember-runtime/core', 'ember-
   Ember['default'].Controller = Controller['default'];
   Ember['default'].ControllerMixin = ControllerMixin['default'];
 
-  if (Ember['default'].FEATURES.isEnabled('ember-metal-injected-properties')) {
+  
     Ember['default'].Service = Service['default'];
-  }
+  
 
   Ember['default']._ProxyMixin = _ProxyMixin['default'];
 
@@ -26217,7 +26095,7 @@ enifed('ember-runtime/controllers/controller', ['exports', 'ember-metal/core', '
                  "non-controller is not allowed.", Controller.detect(factory));
   }
 
-  if (Ember['default'].FEATURES.isEnabled('ember-metal-injected-properties')) {
+  
     /**
       Creates a property that lazily looks up another controller in the container.
       Can only be used when defining another controller.
@@ -26248,7 +26126,7 @@ enifed('ember-runtime/controllers/controller', ['exports', 'ember-metal/core', '
       @return {Ember.InjectedProperty} injection descriptor instance
       */
     inject.createInjectionHelper('controller', controllerInjectionHelper);
-  }
+  
 
   exports['default'] = Controller;
 
@@ -31228,15 +31106,9 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
               if (typeof this.setUnknownProperty === 'function' && !(keyName in this)) {
                 this.setUnknownProperty(keyName, value);
               } else {
-                if (Ember['default'].FEATURES.isEnabled('mandatory-setter')) {
-                  if (define_property.hasPropertyAccessors) {
-                    ember_metal__properties.defineProperty(this, keyName, null, value); // setup mandatory setter
-                  } else {
-                    this[keyName] = value;
-                  }
-                } else {
+                
                   this[keyName] = value;
-                }
+                
               }
             }
           }
@@ -31941,7 +31813,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
     });
   }
 
-  if (Ember['default'].FEATURES.isEnabled('ember-metal-injected-properties')) {
+  
     addOnLookupHandler();
 
     /**
@@ -31965,7 +31837,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
 
       return injections;
     };
-  }
+  
 
   var ClassMixin = mixin.Mixin.create(ClassMixinProps);
 
@@ -36712,24 +36584,19 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 
           view = this.createChildView(itemViewClass, itemViewProps);
 
-          if (Ember['default'].FEATURES.isEnabled('ember-htmlbars-each-with-index')) {
+          
             if (this.blockParams > 1) {
               view._blockArguments = [item, view.getStream('_view.contentIndex')];
             } else if (this.blockParams === 1) {
               view._blockArguments = [item];
             }
-          } else {
-            if (this.blockParams > 0) {
-              view._blockArguments = [item];
-            }
-          }
-
+          
           addedViews.push(view);
         }
 
         this.replace(start, 0, addedViews);
 
-        if (Ember['default'].FEATURES.isEnabled('ember-htmlbars-each-with-index')) {
+        
           if (this.blockParams > 1) {
             var childViews = this._childViews;
             for (idx = start+added; idx < len; idx++) {
@@ -36737,7 +36604,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
               property_set.set(view, 'contentIndex', idx);
             }
           }
-        }
+        
       } else {
         emptyView = property_get.get(this, 'emptyView');
 
@@ -40041,9 +39908,9 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/pl
 
       if (template) {
         var useHTMLBars = false;
-        if (Ember['default'].FEATURES.isEnabled('ember-htmlbars')) {
+        
           useHTMLBars = template.isHTMLBars;
-        }
+        
 
         if (useHTMLBars) {
           return template.render(this, options, morph.contextualElement);

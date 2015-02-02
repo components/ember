@@ -1147,9 +1147,9 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/keys'
     this.cache        = dictionary['default'](options && options.cache ? options.cache : null);
     this.factoryCache = dictionary['default'](options && options.factoryCache ? options.factoryCache : null);
 
-    if (Ember['default'].FEATURES.isEnabled('ember-metal-injected-properties')) {
+    
       this.validationCache = dictionary['default'](options && options.validationCache ? options.validationCache : null);
-    }
+    
   }
 
   Container.prototype = {
@@ -1420,7 +1420,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/keys'
         'Most likely an improperly defined class or an invalid module export.');
       }
 
-      if (Ember['default'].FEATURES.isEnabled('ember-metal-injected-properties')) {
+      
         validationCache = container.validationCache;
 
         // Ensure that all lazy injections are valid at instantiation time
@@ -1432,7 +1432,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/keys'
         }
 
         validationCache[fullName] = true;
-      }
+      
 
       if (typeof factory.extend === 'function') {
         // assume the factory was extendable and is already injected
@@ -8777,40 +8777,17 @@ enifed('ember-metal/properties', ['exports', 'ember-metal/core', 'ember-metal/ut
     if (desc instanceof Descriptor) {
       value = desc;
 
-      if (Ember['default'].FEATURES.isEnabled('mandatory-setter')) {
-        if (watching && define_property.hasPropertyAccessors) {
-          define_property.defineProperty(obj, keyName, {
-            configurable: true,
-            enumerable: true,
-            writable: true,
-            value: value
-          });
-        } else {
-          obj[keyName] = value;
-        }
-      } else {
+      
         obj[keyName] = value;
-      }
+      
       if (desc.setup) { desc.setup(obj, keyName); }
     } else {
       if (desc == null) {
         value = data;
 
-        if (Ember['default'].FEATURES.isEnabled('mandatory-setter')) {
-          if (watching && define_property.hasPropertyAccessors) {
-            meta.values[keyName] = data;
-            define_property.defineProperty(obj, keyName, {
-              configurable: true,
-              enumerable: true,
-              set: MANDATORY_SETTER_FUNCTION(keyName),
-              get: DEFAULT_GETTER_FUNCTION(keyName)
-            });
-          } else {
-            obj[keyName] = data;
-          }
-        } else {
+        
           obj[keyName] = data;
-        }
+        
       } else {
         value = desc;
 
@@ -9212,15 +9189,9 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/core', 'ember-metal/
     if (desc) {
       return desc.get(obj, keyName);
     } else {
-      if (Ember['default'].FEATURES.isEnabled('mandatory-setter')) {
-        if (define_property.hasPropertyAccessors && meta && meta.watching[keyName] > 0) {
-          ret = meta.values[keyName];
-        } else {
-          ret = obj[keyName];
-        }
-      } else {
+      
         ret = obj[keyName];
-      }
+      
 
       if (ret === undefined &&
           'object' === typeof obj && !(keyName in obj) && 'function' === typeof obj.unknownProperty) {
@@ -9381,35 +9352,16 @@ enifed('ember-metal/property_set', ['exports', 'ember-metal/core', 'ember-metal/
         obj.setUnknownProperty(keyName, value);
       } else if (meta && meta.watching[keyName] > 0) {
         if (meta.proto !== obj) {
-          if (Ember['default'].FEATURES.isEnabled('mandatory-setter')) {
-            if (define_property.hasPropertyAccessors) {
-              currentValue = meta.values[keyName];
-            } else {
-              currentValue = obj[keyName];
-            }
-          } else {
+          
             currentValue = obj[keyName];
-          }
+          
         }
         // only trigger a change if the value has changed
         if (value !== currentValue) {
           property_events.propertyWillChange(obj, keyName);
-          if (Ember['default'].FEATURES.isEnabled('mandatory-setter')) {
-            if (define_property.hasPropertyAccessors) {
-              if (
-                (currentValue === undefined && !(keyName in obj)) ||
-                !Object.prototype.propertyIsEnumerable.call(obj, keyName)
-              ) {
-                properties.defineProperty(obj, keyName, null, value); // setup mandatory setter
-              } else {
-                meta.values[keyName] = value;
-              }
-            } else {
-              obj[keyName] = value;
-            }
-          } else {
+          
             obj[keyName] = value;
-          }
+          
           property_events.propertyDidChange(obj, keyName);
         }
       } else {
@@ -11005,12 +10957,7 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
   // Placeholder for non-writable metas.
   var EMPTY_META = new Meta(null);
 
-  if (Ember['default'].FEATURES.isEnabled('mandatory-setter')) {
-    if (define_property.hasPropertyAccessors) {
-      EMPTY_META.values = {};
-    }
-  }
-
+  
   /**
     Retrieves the meta hash for an object. If `writable` is true ensures the
     hash is writable for this object as well.
@@ -11046,12 +10993,7 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
 
       ret = new Meta(obj);
 
-      if (Ember['default'].FEATURES.isEnabled('mandatory-setter')) {
-        if (define_property.hasPropertyAccessors) {
-          ret.values = {};
-        }
-      }
-
+      
       obj.__ember_meta__ = ret;
     } else if (ret.source !== obj) {
       if (obj.__defineNonEnumerable) {
@@ -11066,12 +11008,7 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
       ret.cacheMeta = {};
       ret.source    = obj;
 
-      if (Ember['default'].FEATURES.isEnabled('mandatory-setter')) {
-        if (define_property.hasPropertyAccessors) {
-          ret.values = o_create['default'](ret.values);
-        }
-      }
-
+      
       obj['__ember_meta__'] = ret;
     }
     return ret;
@@ -11687,41 +11624,13 @@ enifed('ember-metal/watch_key', ['exports', 'ember-metal/core', 'ember-metal/uti
         obj.willWatchProperty(keyName);
       }
 
-      if (Ember['default'].FEATURES.isEnabled('mandatory-setter')) {
-        if (define_property.hasPropertyAccessors) {
-          handleMandatorySetter(m, obj, keyName);
-        }
-      }
-    } else {
+          } else {
       watching[keyName] = (watching[keyName] || 0) + 1;
     }
   }
 
 
-  if (Ember['default'].FEATURES.isEnabled('mandatory-setter')) {
-    var handleMandatorySetter = function handleMandatorySetter(m, obj, keyName) {
-      var descriptor = Object.getOwnPropertyDescriptor && Object.getOwnPropertyDescriptor(obj, keyName);
-      var configurable = descriptor ? descriptor.configurable : true;
-      var isWritable = descriptor ? descriptor.writable : true;
-      var hasValue = descriptor ? 'value' in descriptor : true;
-      var possibleDesc = descriptor && descriptor.value;
-      var isDescriptor = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
-
-      if (isDescriptor) { return; }
-
-      // this x in Y deopts, so keeping it in this function is better;
-      if (configurable && isWritable && hasValue && keyName in obj) {
-        m.values[keyName] = obj[keyName];
-        define_property.defineProperty(obj, keyName, {
-          configurable: true,
-          enumerable: Object.prototype.propertyIsEnumerable.call(obj, keyName),
-          set: properties.MANDATORY_SETTER_FUNCTION(keyName),
-          get: properties.DEFAULT_GETTER_FUNCTION(keyName)
-        });
-      }
-    };
-  }
-
+  
   function unwatchKey(obj, keyName, meta) {
     var m = meta || utils.meta(obj);
     var watching = m.watching;
@@ -11737,26 +11646,7 @@ enifed('ember-metal/watch_key', ['exports', 'ember-metal/core', 'ember-metal/uti
         obj.didUnwatchProperty(keyName);
       }
 
-      if (Ember['default'].FEATURES.isEnabled('mandatory-setter')) {
-        if (!desc && define_property.hasPropertyAccessors && keyName in obj) {
-          define_property.defineProperty(obj, keyName, {
-            configurable: true,
-            enumerable: Object.prototype.propertyIsEnumerable.call(obj, keyName),
-            set: function(val) {
-              // redefine to set as enumerable
-              define_property.defineProperty(obj, keyName, {
-                configurable: true,
-                writable: true,
-                enumerable: true,
-                value: val
-              });
-              delete m.values[keyName];
-            },
-            get: properties.DEFAULT_GETTER_FUNCTION(keyName)
-          });
-        }
-      }
-    } else if (watching[keyName] > 1) {
+          } else if (watching[keyName] > 1) {
       watching[keyName]--;
     }
   }
@@ -11913,9 +11803,9 @@ enifed('ember-runtime', ['exports', 'ember-metal', 'ember-runtime/core', 'ember-
   Ember['default'].copy = copy['default'];
   Ember['default'].isEqual = core.isEqual;
 
-  if (Ember['default'].FEATURES.isEnabled('ember-metal-injected-properties')) {
+  
     Ember['default'].inject = inject['default'];
-  }
+  
 
   Ember['default'].Array = EmberArray['default'];
 
@@ -11989,9 +11879,9 @@ enifed('ember-runtime', ['exports', 'ember-metal', 'ember-runtime/core', 'ember-
   Ember['default'].Controller = Controller['default'];
   Ember['default'].ControllerMixin = ControllerMixin['default'];
 
-  if (Ember['default'].FEATURES.isEnabled('ember-metal-injected-properties')) {
+  
     Ember['default'].Service = Service['default'];
-  }
+  
 
   Ember['default']._ProxyMixin = _ProxyMixin['default'];
 
@@ -14176,7 +14066,7 @@ enifed('ember-runtime/controllers/controller', ['exports', 'ember-metal/core', '
                  "non-controller is not allowed.", Controller.detect(factory));
   }
 
-  if (Ember['default'].FEATURES.isEnabled('ember-metal-injected-properties')) {
+  
     /**
       Creates a property that lazily looks up another controller in the container.
       Can only be used when defining another controller.
@@ -14207,7 +14097,7 @@ enifed('ember-runtime/controllers/controller', ['exports', 'ember-metal/core', '
       @return {Ember.InjectedProperty} injection descriptor instance
       */
     inject.createInjectionHelper('controller', controllerInjectionHelper);
-  }
+  
 
   exports['default'] = Controller;
 
@@ -19187,15 +19077,9 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
               if (typeof this.setUnknownProperty === 'function' && !(keyName in this)) {
                 this.setUnknownProperty(keyName, value);
               } else {
-                if (Ember['default'].FEATURES.isEnabled('mandatory-setter')) {
-                  if (define_property.hasPropertyAccessors) {
-                    ember_metal__properties.defineProperty(this, keyName, null, value); // setup mandatory setter
-                  } else {
-                    this[keyName] = value;
-                  }
-                } else {
+                
                   this[keyName] = value;
-                }
+                
               }
             }
           }
@@ -19900,7 +19784,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
     });
   }
 
-  if (Ember['default'].FEATURES.isEnabled('ember-metal-injected-properties')) {
+  
     addOnLookupHandler();
 
     /**
@@ -19924,7 +19808,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
 
       return injections;
     };
-  }
+  
 
   var ClassMixin = mixin.Mixin.create(ClassMixinProps);
 
