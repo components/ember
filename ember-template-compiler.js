@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.f07bbc80
+ * @version   1.11.0-beta.1+canary.e4a43182
  */
 
 (function() {
@@ -133,7 +133,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.11.0-beta.1+canary.f07bbc80
+    @version 1.11.0-beta.1+canary.e4a43182
   */
 
   if ('undefined' === typeof Ember) {
@@ -161,10 +161,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.11.0-beta.1+canary.f07bbc80'
+    @default '1.11.0-beta.1+canary.e4a43182'
     @static
   */
-  Ember.VERSION = '1.11.0-beta.1+canary.f07bbc80';
+  Ember.VERSION = '1.11.0-beta.1+canary.e4a43182';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -1605,16 +1605,20 @@ enifed("htmlbars-compiler/template-compiler",
         this.getHydrationHooks(indent + '      ', this.hydrationCompiler.hooks) +
         indent+'      dom.detectNamespace(contextualElement);\n' +
         indent+'      var fragment;\n' +
-        indent+'      if (this.cachedFragment === null) {\n' +
-        indent+'        fragment = this.build(dom);\n' +
-        indent+'        if (this.hasRendered) {\n' +
-        indent+'          this.cachedFragment = fragment;\n' +
-        indent+'        } else {\n' +
-        indent+'          this.hasRendered = true;\n' +
+        indent+'      if (env.useFragmentCache && dom.canClone) {\n' +
+        indent+'        if (this.cachedFragment === null) {\n' +
+        indent+'          fragment = this.build(dom);\n' +
+        indent+'          if (this.hasRendered) {\n' +
+        indent+'            this.cachedFragment = fragment;\n' +
+        indent+'          } else {\n' +
+        indent+'            this.hasRendered = true;\n' +
+        indent+'          }\n' +
         indent+'        }\n' +
-        indent+'      }\n' +
-        indent+'      if (this.cachedFragment) {\n' +
-        indent+'        fragment = dom.cloneNode(this.cachedFragment, true);\n' +
+        indent+'        if (this.cachedFragment) {\n' +
+        indent+'          fragment = dom.cloneNode(this.cachedFragment, true);\n' +
+        indent+'        }\n' +
+        indent+'      } else {\n' +
+        indent+'        fragment = this.build(dom);\n' +
         indent+'      }\n' +
         hydrationProgram +
         indent+'      return fragment;\n' +

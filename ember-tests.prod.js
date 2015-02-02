@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.f07bbc80
+ * @version   1.11.0-beta.1+canary.e4a43182
  */
 
 (function() {
@@ -2388,6 +2388,14 @@ enifed("dom-helper",
       return !element.getAttribute('viewBox');
     })(doc) : true);
 
+    var canClone = doc && (function(document){
+      var element = document.createElement('div');
+      element.appendChild( document.createTextNode(' '));
+      element.appendChild( document.createTextNode(' '));
+      var clonedElement = element.cloneNode(true);
+      return clonedElement.childNodes[0].nodeValue === ' ';
+    })(doc);
+
     // This is not the namespace of the element, but of
     // the elements inside that elements.
     function interiorNamespace(element){
@@ -2470,6 +2478,7 @@ enifed("dom-helper",
       if (!this.document) {
         throw new Error("A document object must be passed to the DOMHelper, or available on the global scope");
       }
+      this.canClone = canClone;
       this.namespace = null;
     }
 
