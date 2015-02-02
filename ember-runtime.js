@@ -8543,12 +8543,15 @@ define("ember-metal/platform",
     __exports__.canDefineNonEnumerableProperties = canDefineNonEnumerableProperties;
   });
 define("ember-metal/platform/create",
-  ["exports"],
-  function(__exports__) {
+  ["ember-metal/platform/define_properties","exports"],
+  function(__dependency1__, __exports__) {
         // Remove "use strict"; from transpiled module until
     // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
     //
     // REMOVE_USE_STRICT: true
+    //
+
+    var defineProperties = __dependency1__["default"];
 
     /**
     @class platform
@@ -8634,7 +8637,7 @@ define("ember-metal/platform/create",
         }
 
         if (properties !== undefined) {
-          Object.defineProperties(object, properties);
+          defineProperties(object, properties);
         }
 
         return object;
@@ -20575,7 +20578,8 @@ define("ember-runtime/system/core_object",
         ```
 
         This will return the original hash that was passed to `meta()`.
-
+        
+        @static
         @method metaForProperty
         @param key {String} property name
       */
@@ -20610,7 +20614,8 @@ define("ember-runtime/system/core_object",
       /**
         Iterate over each computed property for the class, passing its name
         and any associated metadata (see `metaForProperty`) to the callback.
-
+        
+        @static
         @method eachComputedProperty
         @param {Function} callback
         @param {Object} binding

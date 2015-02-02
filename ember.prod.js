@@ -15045,12 +15045,15 @@ enifed("ember-metal/platform",
     __exports__.canDefineNonEnumerableProperties = canDefineNonEnumerableProperties;
   });
 enifed("ember-metal/platform/create",
-  ["exports"],
-  function(__exports__) {
+  ["ember-metal/platform/define_properties","exports"],
+  function(__dependency1__, __exports__) {
         // Remove "use strict"; from transpiled module until
     // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
     //
     // REMOVE_USE_STRICT: true
+    //
+
+    var defineProperties = __dependency1__["default"];
 
     /**
     @class platform
@@ -15136,7 +15139,7 @@ enifed("ember-metal/platform/create",
         }
 
         if (properties !== undefined) {
-          Object.defineProperties(object, properties);
+          defineProperties(object, properties);
         }
 
         return object;
@@ -33516,7 +33519,8 @@ enifed("ember-runtime/system/core_object",
         ```
 
         This will return the original hash that was passed to `meta()`.
-
+        
+        @static
         @method metaForProperty
         @param key {String} property name
       */
@@ -33550,7 +33554,8 @@ enifed("ember-runtime/system/core_object",
       /**
         Iterate over each computed property for the class, passing its name
         and any associated metadata (see `metaForProperty`) to the callback.
-
+        
+        @static
         @method eachComputedProperty
         @param {Function} callback
         @param {Object} binding
@@ -38098,7 +38103,7 @@ enifed("ember-views/system/render_buffer",
 
         if (props) {
           for (prop in props) {
-            var normalizedCase = normalizeProperty(element, prop) || prop;
+            var normalizedCase = normalizeProperty(element, prop.toLowerCase()) || prop;
 
             this.dom.setPropertyStrict(element, normalizedCase, props[prop]);
           }
@@ -41396,6 +41401,8 @@ enifed("ember-views/views/text_field",
         'width'
       ],
 
+      defaultLayout: null,
+
       /**
         The `value` attribute of the input element. As the user inputs text, this
         property is updated live.
@@ -41455,8 +41462,8 @@ enifed("ember-views/views/text_field",
     });
   });
 enifed("ember-views/views/view",
-  ["ember-metal/core","ember-metal/platform","ember-runtime/mixins/evented","ember-runtime/system/object","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/set_properties","ember-metal/run_loop","ember-metal/observer","ember-metal/properties","ember-metal/utils","ember-metal/computed","ember-metal/mixin","ember-views/streams/key_stream","ember-metal/streams/stream_binding","ember-views/streams/context_stream","ember-metal/is_none","ember-metal/deprecate_property","ember-runtime/system/native_array","ember-views/streams/class_name_binding","ember-metal/enumerable_utils","ember-metal/property_events","ember-views/system/jquery","ember-views/system/ext","ember-views/views/core_view","ember-metal/streams/utils","ember-views/system/sanitize_attribute_value","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __exports__) {
+  ["ember-metal/core","ember-metal/platform","ember-runtime/mixins/evented","ember-runtime/system/object","ember-metal/error","ember-metal/property_get","ember-metal/property_set","ember-metal/set_properties","ember-metal/run_loop","ember-metal/observer","ember-metal/properties","ember-metal/utils","ember-metal/computed","ember-metal/mixin","ember-views/streams/key_stream","ember-metal/streams/stream_binding","ember-views/streams/context_stream","ember-metal/is_none","ember-metal/deprecate_property","ember-runtime/system/native_array","ember-views/streams/class_name_binding","ember-metal/enumerable_utils","ember-metal/property_events","ember-views/system/jquery","ember-views/system/ext","ember-views/views/core_view","ember-metal/streams/utils","ember-views/system/sanitize_attribute_value","morph/dom-helper/prop","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__, __dependency16__, __dependency17__, __dependency18__, __dependency19__, __dependency20__, __dependency21__, __dependency22__, __dependency23__, __dependency24__, __dependency25__, __dependency26__, __dependency27__, __dependency28__, __dependency29__, __exports__) {
     "use strict";
     // Ember.assert, Ember.deprecate, Ember.warn, Ember.TEMPLATES,
     // jQuery, Ember.lookup,
@@ -41508,6 +41515,7 @@ enifed("ember-views/views/view",
     var read = __dependency27__.read;
     var isStream = __dependency27__.isStream;
     var sanitizeAttributeValue = __dependency28__["default"];
+    var normalizeProperty = __dependency29__.normalizeProperty;
 
     function K() { return this; }
 
@@ -42724,7 +42732,8 @@ enifed("ember-views/views/view",
 
           attributeValue = get(this, property);
 
-          View.applyAttributeBindings(elem, attributeName, attributeValue);
+          var normalizedName = normalizeProperty(elem, attributeName.toLowerCase()) || attributeName;
+          View.applyAttributeBindings(elem, normalizedName, attributeValue);
         };
 
         this.registerObserver(this, property, observer);
