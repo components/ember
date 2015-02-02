@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.29562664
+ * @version   1.11.0-beta.1+canary.4e7c648a
  */
 
 (function() {
@@ -8320,8 +8320,8 @@ enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/merge', 'embe
   computed.computed.lt = computed_macros.lt;
   computed.computed.lte = computed_macros.lte;
   computed.computed.alias = alias['default'];
-  computed.computed.oneWay = binding.oneWay;
-  computed.computed.reads = binding.oneWay;
+  computed.computed.oneWay = computed_macros.oneWay;
+  computed.computed.reads = computed_macros.oneWay;
   computed.computed.readOnly = computed_macros.readOnly;
   computed.computed.defaultTo = computed_macros.defaultTo;
   computed.computed.deprecatingAlias = computed_macros.deprecatingAlias;
@@ -11046,7 +11046,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.11.0-beta.1+canary.29562664
+    @version 1.11.0-beta.1+canary.4e7c648a
   */
 
   if ('undefined' === typeof Ember) {
@@ -11074,10 +11074,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.11.0-beta.1+canary.29562664'
+    @default '1.11.0-beta.1+canary.4e7c648a'
     @static
   */
-  Ember.VERSION = '1.11.0-beta.1+canary.29562664';
+  Ember.VERSION = '1.11.0-beta.1+canary.4e7c648a';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
