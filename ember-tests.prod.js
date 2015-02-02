@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.e4a43182
+ * @version   1.11.0-beta.1+canary.995e32d4
  */
 
 (function() {
@@ -19251,6 +19251,58 @@ enifed('ember-htmlbars/tests/system/make_view_helper_test.jshint', function () {
   module('JSHint - ember-htmlbars/tests/system');
   test('ember-htmlbars/tests/system/make_view_helper_test.js should pass jshint', function() { 
     ok(true, 'ember-htmlbars/tests/system/make_view_helper_test.js should pass jshint.'); 
+  });
+
+});
+enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/utils', 'ember-views/views/view', 'ember-htmlbars/env', 'ember-metal/keys'], function (utils, EmberView, defaultEnv, keys) {
+
+  'use strict';
+
+  var view;
+  QUnit.module('ember-htmlbars: renderView', {
+    teardown: function() {
+      utils.runDestroy(view);
+    }
+  });
+
+  test('default environment values are passed through', function() {
+    var keyNames = keys['default'](defaultEnv['default']);
+    expect(keyNames.length);
+
+    view = EmberView['default'].create({
+      template: {
+        isHTMLBars: true,
+        render: function(view, env, contextualElement, blockArguments) {
+          for (var i = 0, l = keyNames.length; i < l; i++) {
+            var keyName = keyNames[i];
+
+            deepEqual(env[keyName], defaultEnv['default'][keyName], 'passes ' + keyName + ' from the default env');
+          }
+        }
+      }
+    });
+
+    utils.runAppend(view);
+  });
+
+});
+enifed('ember-htmlbars/tests/system/render_view_test.jscs-test', function () {
+
+  'use strict';
+
+  module('JSCS - ember-htmlbars/tests/system');
+  test('ember-htmlbars/tests/system/render_view_test.js should pass jscs', function() {
+    ok(true, 'ember-htmlbars/tests/system/render_view_test.js should pass jscs.');
+  });
+
+});
+enifed('ember-htmlbars/tests/system/render_view_test.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - ember-htmlbars/tests/system');
+  test('ember-htmlbars/tests/system/render_view_test.js should pass jshint', function() { 
+    ok(true, 'ember-htmlbars/tests/system/render_view_test.js should pass jshint.'); 
   });
 
 });
