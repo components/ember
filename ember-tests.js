@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.a16fe8e2
+ * @version   1.11.0-beta.1+canary.785d0904
  */
 
 (function() {
@@ -6490,6 +6490,18 @@ enifed('ember-htmlbars/tests/attr_nodes/property_test', ['ember-views/views/view
       Ember.run(view, view.set, 'context.length', 1);
       equal(view.element.firstChild.maxLength, 1);
     }
+  });
+
+  test("array value can be set as property", function() {
+    view = EmberView['default'].create({
+      context: {},
+      template: compile['default']("<input value={{items}}>")
+    });
+
+    appendView(view);
+
+    Ember.run(view, view.set, 'context.items', [4,5]);
+    ok(true, "no legacy assertion prohibited setting an array");
   });
 
   // jscs:enable validateIndentation
