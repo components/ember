@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.49661101
+ * @version   1.11.0-beta.1+canary.038f6402
  */
 
 (function() {
@@ -11326,7 +11326,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.11.0-beta.1+canary.49661101
+    @version 1.11.0-beta.1+canary.038f6402
   */
 
   if ('undefined' === typeof Ember) {
@@ -11354,10 +11354,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.11.0-beta.1+canary.49661101'
+    @default '1.11.0-beta.1+canary.038f6402'
     @static
   */
-  Ember.VERSION = '1.11.0-beta.1+canary.49661101';
+  Ember.VERSION = '1.11.0-beta.1+canary.038f6402';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -37760,6 +37760,9 @@ enifed('ember-views/system/renderer', ['exports', 'ember-metal/core', 'ember-met
 
   Renderer['default'].prototype.willDestroyElement = function (view) {
     if (this._destinedForDOM) {
+      if (view._willDestroyElement) {
+        view._willDestroyElement();
+      }
       if (view.trigger) {
         view.trigger('willDestroyElement');
         view.trigger('willClearRender');
@@ -40564,10 +40567,18 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/pl
       return stream;
     },
 
+    _willDestroyElement: function() {
+      if (this._streamBindings) {
+        this._destroyStreamBindings();
+      }
+      if (this._contextStream) {
+        this._destroyContextStream();
+      }
+    },
+
     _getBindingForStream: function(pathOrStream) {
       if (this._streamBindings === undefined) {
         this._streamBindings = create['default'](null);
-        this.one('willDestroyElement', this, this._destroyStreamBindings);
       }
 
       var path = pathOrStream;
@@ -40606,7 +40617,6 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/pl
       if (this._contextStream === undefined) {
         this._baseContext = new KeyStream['default'](this, 'context');
         this._contextStream = new ContextStream['default'](this);
-        this.one('willDestroyElement', this, this._destroyContextStream);
       }
 
       return this._contextStream;
