@@ -5890,25 +5890,19 @@ enifed('ember-debug/tests/main_test', ['ember-metal/core'], function (Ember) {
     expect(3);
 
     throws(function() {
-      Ember['default'].deprecate('Deprecation is thrown', false);
-    });
+          });
 
     throws(function() {
-      Ember['default'].deprecate('Deprecation is thrown', '');
-    });
+          });
 
     throws(function() {
-      Ember['default'].deprecate('Deprecation is thrown', 0);
-    });
+          });
   });
 
   QUnit.test('Ember.deprecate does not throw deprecation if second argument is a function and it returns true', function() {
     expect(1);
 
-    Ember['default'].deprecate('Deprecation is thrown', function() {
-      return true;
-    });
-
+    
     ok(true, 'deprecation was not thrown');
   });
 
@@ -5916,19 +5910,13 @@ enifed('ember-debug/tests/main_test', ['ember-metal/core'], function (Ember) {
     expect(1);
 
     throws(function() {
-      Ember['default'].deprecate('Deprecation is thrown', function() {
-        return false;
-      });
-    });
+          });
   });
 
   QUnit.test('Ember.deprecate does not throw deprecations if second argument is truthy', function() {
     expect(1);
 
-    Ember['default'].deprecate('Deprecation is thrown', true);
-    Ember['default'].deprecate('Deprecation is thrown', '1');
-    Ember['default'].deprecate('Deprecation is thrown', 1);
-
+            
     ok(true, 'deprecations were not thrown');
   });
 
@@ -5936,25 +5924,19 @@ enifed('ember-debug/tests/main_test', ['ember-metal/core'], function (Ember) {
     expect(3);
 
     throws(function() {
-      Ember['default'].assert('Assertion is thrown', false);
-    });
+          });
 
     throws(function() {
-      Ember['default'].assert('Assertion is thrown', '');
-    });
+          });
 
     throws(function() {
-      Ember['default'].assert('Assertion is thrown', 0);
-    });
+          });
   });
 
   QUnit.test('Ember.assert does not throw if second argument is a function and it returns true', function() {
     expect(1);
 
-    Ember['default'].assert('Assertion is thrown', function() {
-      return true;
-    });
-
+    
     ok(true, 'assertion was not thrown');
   });
 
@@ -5962,19 +5944,13 @@ enifed('ember-debug/tests/main_test', ['ember-metal/core'], function (Ember) {
     expect(1);
 
     throws(function() {
-      Ember['default'].assert('Assertion is thrown', function() {
-        return false;
-      });
-    });
+          });
   });
 
   QUnit.test('Ember.assert does not throw if second argument is truthy', function() {
     expect(1);
 
-    Ember['default'].assert('Assertion is thrown', true);
-    Ember['default'].assert('Assertion is thrown', '1');
-    Ember['default'].assert('Assertion is thrown', 1);
-
+            
     ok(true, 'assertions were not thrown');
   });
 
@@ -5982,9 +5958,7 @@ enifed('ember-debug/tests/main_test', ['ember-metal/core'], function (Ember) {
     expect(1);
     var Igor = Ember['default'].Object.extend();
 
-    Ember['default'].assert('is truthy', Igor);
-    Ember['default'].assert('is truthy', Igor.create());
-
+        
     ok(true, 'assertions were not thrown');
   });
 
