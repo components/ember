@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.038f6402
+ * @version   1.11.0-beta.1+canary.399e8fb9
  */
 
 (function() {
@@ -6536,7 +6536,7 @@ enifed('ember-htmlbars/helpers/bind-attr', ['exports', 'ember-metal/core', 'embe
   exports['default'] = bindAttrHelper;
 
 });
-enifed('ember-htmlbars/helpers/collection', ['exports', 'ember-metal/core', 'ember-metal/mixin', 'ember-runtime/system/string', 'ember-metal/property_get', 'ember-views/views/collection_view', 'ember-views/streams/utils', 'ember-metal/enumerable_utils', 'ember-views/streams/class_name_binding', 'ember-metal/binding', 'ember-htmlbars/system/merge-view-bindings'], function (exports, Ember, mixin, string, property_get, CollectionView, utils, enumerable_utils, class_name_binding, binding, mergeViewBindings) {
+enifed('ember-htmlbars/helpers/collection', ['exports', 'ember-metal/core', 'ember-metal/mixin', 'ember-runtime/system/string', 'ember-metal/property_get', 'ember-views/views/collection_view', 'ember-views/streams/utils', 'ember-metal/enumerable_utils', 'ember-views/streams/class_name_binding', 'ember-htmlbars/system/merge-view-bindings'], function (exports, Ember, mixin, string, property_get, CollectionView, utils, enumerable_utils, class_name_binding, mergeViewBindings) {
 
   'use strict';
 
@@ -6636,12 +6636,6 @@ enifed('ember-htmlbars/helpers/collection', ['exports', 'ember-metal/core', 'emb
       emptyViewClass = utils.readViewFactory(hash.emptyViewClass, container);
     }
     if (emptyViewClass) { hash.emptyView = emptyViewClass; }
-
-    if (hash.keyword) {
-      itemHash._contextBinding = binding.Binding.oneWay('_parentView.context');
-    } else {
-      itemHash._contextBinding = binding.Binding.oneWay('content');
-    }
 
     var viewOptions = mergeViewBindings['default'](this, {}, itemHash);
 
@@ -11326,7 +11320,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.11.0-beta.1+canary.038f6402
+    @version 1.11.0-beta.1+canary.399e8fb9
   */
 
   if ('undefined' === typeof Ember) {
@@ -11354,10 +11348,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.11.0-beta.1+canary.038f6402'
+    @default '1.11.0-beta.1+canary.399e8fb9'
     @static
   */
-  Ember.VERSION = '1.11.0-beta.1+canary.038f6402';
+  Ember.VERSION = '1.11.0-beta.1+canary.399e8fb9';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -38252,7 +38246,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 
         for (idx = start; idx < start+added; idx++) {
           item = content.objectAt(idx);
-
+          itemViewProps._context = this.keyword ? this.get('context') : item;
           itemViewProps.content = item;
           itemViewProps.contentIndex = idx;
 
