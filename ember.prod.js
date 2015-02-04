@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.b2f6ba65
+ * @version   1.11.0-beta.1+canary.49661101
  */
 
 (function() {
@@ -9335,7 +9335,7 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
     var m = utils.meta(obj);
     var nodes = m.chainWatchers;
 
-    if (!m.hasOwnProperty('chainWatchers')) {
+    if (!m.hasOwnProperty('chainWatchers')) { // FIXME?!
       nodes = m.chainWatchers = {};
     }
 
@@ -9421,7 +9421,7 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
     var possibleDesc = obj[key];
     var desc = (possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor) ? possibleDesc : undefined;
     if (desc && desc._cacheable) {
-      if (key in meta.cache) {
+      if (meta.cache && key in meta.cache) {
         return meta.cache[key];
       } else {
         return undefined;
@@ -9975,7 +9975,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-me
     // the cached value set by the setter
     if (this._cacheable && this._suspended !== obj) {
       var meta = metaFor(obj);
-      if (meta.cache[keyName] !== undefined) {
+      if (meta.cache && meta.cache[keyName] !== undefined) {
         meta.cache[keyName] = undefined;
         dependent_keys.removeDependentKeys(this, obj, keyName, meta);
       }
@@ -10020,7 +10020,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-me
       meta = metaFor(obj);
       cache = meta.cache;
 
-      var result = cache[keyName];
+      var result = cache && cache[keyName];
 
       if (result === UNDEFINED) {
         return undefined;
@@ -10029,6 +10029,10 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-me
       }
 
       ret = this._getter.call(obj, keyName);
+      cache = meta.cache;
+      if (!cache) {
+        cache = meta.cache = {};
+      }
       if (ret === undefined) {
         cache[keyName] = UNDEFINED;
       } else {
@@ -10119,7 +10123,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-me
       throw new EmberError['default']('Cannot set read-only property "' + keyName + '" on object: ' + utils.inspect(obj));
     }
 
-    if (cacheable && cache[keyName] !== undefined) {
+    if (cacheable && cache && cache[keyName] !== undefined) {
       if (cache[keyName] !== UNDEFINED) {
         cachedValue = cache[keyName];
       }
@@ -10154,6 +10158,9 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-me
       if (!hadCachedValue) {
         dependent_keys.addDependentKeys(this, obj, keyName, meta);
       }
+      if (!cache) {
+        cache = meta.cache = {};
+      }
       if (ret === undefined) {
         cache[keyName] = UNDEFINED;
       } else {
@@ -10172,11 +10179,13 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-me
   ComputedPropertyPrototype.teardown = function(obj, keyName) {
     var meta = metaFor(obj);
 
-    if (keyName in meta.cache) {
-      dependent_keys.removeDependentKeys(this, obj, keyName, meta);
-    }
+    if (meta.cache) {
+      if (keyName in meta.cache) {
+        dependent_keys.removeDependentKeys(this, obj, keyName, meta);
+      }
 
-    if (this._cacheable) { delete meta.cache[keyName]; }
+      if (this._cacheable) { delete meta.cache[keyName]; }
+    }
 
     return null; // no value to restore
   };
@@ -11064,7 +11073,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.11.0-beta.1+canary.b2f6ba65
+    @version 1.11.0-beta.1+canary.49661101
   */
 
   if ('undefined' === typeof Ember) {
@@ -11092,10 +11101,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.11.0-beta.1+canary.b2f6ba65'
+    @default '1.11.0-beta.1+canary.49661101'
     @static
   */
-  Ember.VERSION = '1.11.0-beta.1+canary.b2f6ba65';
+  Ember.VERSION = '1.11.0-beta.1+canary.49661101';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -16996,8 +17005,8 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
   //
   function Meta(obj) {
     this.watching = {};
-    this.cache = {};
-    this.cacheMeta = {};
+    this.cache = undefined;
+    this.cacheMeta = undefined;
     this.source = obj;
     this.deps = undefined;
     this.listeners = undefined;
@@ -17074,8 +17083,8 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
 
       ret = o_create['default'](ret);
       ret.watching  = o_create['default'](ret.watching);
-      ret.cache     = {};
-      ret.cacheMeta = {};
+      ret.cache     = undefined;
+      ret.cacheMeta = undefined;
       ret.source    = obj;
 
       
@@ -24663,7 +24672,10 @@ enifed('ember-runtime/computed/reduce_computed', ['exports', 'ember-metal/core',
   function ReduceComputedPropertyInstanceMeta(context, propertyName, initialValue) {
     this.context = context;
     this.propertyName = propertyName;
-    this.cache = utils.meta(context).cache;
+    var contextMeta = utils.meta(context);
+    var contextCache = contextMeta.cache;
+    if (!contextCache) { contextCache = contextMeta.cache = {}; }
+    this.cache = contextCache;
     this.dependentArrays = {};
     this.sugarMeta = {};
     this.initialValue = initialValue;
@@ -24816,13 +24828,19 @@ enifed('ember-runtime/computed/reduce_computed', ['exports', 'ember-metal/core',
   };
 
   ReduceComputedProperty.prototype._hasInstanceMeta = function (context, propertyName) {
-    return !!utils.meta(context).cacheMeta[propertyName];
+    var contextMeta = context.__ember_meta__;
+    var cacheMeta = contextMeta && contextMeta.cacheMeta;
+    return !!(cacheMeta && cacheMeta[propertyName]);
   };
 
   ReduceComputedProperty.prototype._instanceMeta = function (context, propertyName) {
-    var cacheMeta = utils.meta(context).cacheMeta;
-    var meta = cacheMeta[propertyName];
+    var contextMeta = context.__ember_meta__;
+    var cacheMeta = contextMeta.cacheMeta;
+    var meta = cacheMeta && cacheMeta[propertyName];
 
+    if (!cacheMeta) {
+      cacheMeta = contextMeta.cacheMeta = {};
+    }
     if (!meta) {
       meta = cacheMeta[propertyName] = new ReduceComputedPropertyInstanceMeta(context, propertyName, this.initialValue());
       meta.dependentArraysObserver = new DependentArraysObserver(this._callbacks(), this, meta, context, propertyName, meta.sugarMeta);
@@ -31897,7 +31915,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
       if (value instanceof Ember['default'].ComputedProperty) {
         var cache = Ember['default'].meta(this.constructor).cache;
 
-        if (cache._computedProperties !== undefined) {
+        if (cache && cache._computedProperties !== undefined) {
           cache._computedProperties = undefined;
         }
       }
