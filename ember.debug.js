@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.88e6a95f
+ * @version   1.11.0-beta.1+canary.68b63738
  */
 
 (function() {
@@ -7213,6 +7213,8 @@ enifed('ember-htmlbars/hooks/block', ['exports', 'ember-views/views/simple_bound
   function block(env, morph, view, path, params, hash, template, inverse) {
     var helper = lookupHelper['default'](path, view, env);
 
+    Ember.assert("A helper named `"+path+"` could not be found", helper);
+
     var options = {
       morph: morph,
       template: template,
@@ -11320,7 +11322,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.11.0-beta.1+canary.88e6a95f
+    @version 1.11.0-beta.1+canary.68b63738
   */
 
   if ('undefined' === typeof Ember) {
@@ -11348,10 +11350,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.11.0-beta.1+canary.88e6a95f'
+    @default '1.11.0-beta.1+canary.68b63738'
     @static
   */
-  Ember.VERSION = '1.11.0-beta.1+canary.88e6a95f';
+  Ember.VERSION = '1.11.0-beta.1+canary.68b63738';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`

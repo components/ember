@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.88e6a95f
+ * @version   1.11.0-beta.1+canary.68b63738
  */
 
 (function() {
@@ -17552,6 +17552,17 @@ enifed('ember-htmlbars/tests/integration/block_params_test', ['container/registr
 
       registry = container = view = null;
     }
+  });
+
+  QUnit.test("should raise error if helper not available", function() {
+    view = View['default'].create({
+      template: compile['default']('{{#shouldfail}}{{/shouldfail}}')
+    });
+
+    expectAssertion(function() {
+      utils.runAppend(view);
+    }, 'A helper named `shouldfail` could not be found');
+
   });
 
   QUnit.test("basic block params usage", function() {
