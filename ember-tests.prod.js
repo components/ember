@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.68b63738
+ * @version   1.11.0-beta.1+canary.0e0046a8
  */
 
 (function() {
@@ -56845,6 +56845,26 @@ enifed('ember-views/system/lookup_partial.jshint', function () {
   });
 
 });
+enifed('ember-views/system/platform.jscs-test', function () {
+
+  'use strict';
+
+  module('JSCS - ember-views/system');
+  test('ember-views/system/platform.js should pass jscs', function() {
+    ok(true, 'ember-views/system/platform.js should pass jscs.');
+  });
+
+});
+enifed('ember-views/system/platform.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - ember-views/system');
+  test('ember-views/system/platform.js should pass jshint', function() { 
+    ok(true, 'ember-views/system/platform.js should pass jshint.'); 
+  });
+
+});
 enifed('ember-views/system/render_buffer.jscs-test', function () {
 
   'use strict';
@@ -62136,7 +62156,6 @@ enifed('ember-views/tests/views/text_field_test', ['ember-metal/run_loop', 'embe
 
     appendView(view);
 
-    view.$().val('Brosiedoon, King of the Brocean');
     setCaretPosition(view.$(), 5);
 
     run['default'](function() {
@@ -62615,17 +62634,12 @@ enifed('ember-views/tests/views/view/attribute_bindings_test', ['ember-metal/cor
 
   QUnit.test("should render attribute bindings", function() {
     view = EmberView['default'].create({
-      classNameBindings: ['priority', 'isUrgent', 'isClassified:classified', 'canIgnore'],
-      attributeBindings: ['type', 'isDisabled:disabled', 'exploded', 'destroyed', 'exists', 'nothing', 'notDefined', 'notNumber', 'explosions'],
+      attributeBindings: ['type', 'destroyed', 'exists', 'nothing', 'notDefined', 'notNumber', 'explosions'],
 
       type: 'submit',
-      isDisabled: true,
-      exploded: false,
-      destroyed: false,
       exists: true,
       nothing: null,
-      notDefined: undefined,
-      notNumber: NaN
+      notDefined: undefined
     });
 
     run['default'](function() {
@@ -62633,20 +62647,15 @@ enifed('ember-views/tests/views/view/attribute_bindings_test', ['ember-metal/cor
     });
 
     equal(view.$().attr('type'), 'submit', "updates type attribute");
-    ok(view.$().prop('disabled'), "supports customizing attribute name for Boolean values");
-    ok(!view.$().prop('exploded'), "removes exploded attribute when false");
-    ok(!view.$().prop('destroyed'), "removes destroyed attribute when false");
-    ok(view.$().prop('exists'), "adds exists attribute when true");
+    ok(view.$().attr('exists'), "adds exists attribute when true");
     ok(!view.$().attr('nothing'), "removes nothing attribute when null");
-    ok(!view.$().attr('notDefined'), "removes notDefined attribute when undefined");
-    ok(!view.$().attr('notNumber'), "removes notNumber attribute when NaN");
+    equal(view.$().attr('notDefined'), undefined, "removes notDefined attribute when undefined");
   });
 
   QUnit.test("should normalize case for attribute bindings", function() {
     view = EmberView['default'].create({
       tagName: 'input',
       attributeBindings: ['disAbled'],
-
       disAbled: true
     });
 
@@ -62657,20 +62666,31 @@ enifed('ember-views/tests/views/view/attribute_bindings_test', ['ember-metal/cor
     ok(view.$().prop('disabled'), "sets property with correct case");
   });
 
+  QUnit.test("should render attribute bindings on input", function() {
+    view = EmberView['default'].create({
+      tagName: 'input',
+      attributeBindings: ['type', 'isDisabled:disabled'],
+
+      type: 'submit',
+      isDisabled: true
+    });
+
+    run['default'](function() {
+      view.createElement();
+    });
+
+    equal(view.$().attr('type'), 'submit', "updates type attribute");
+    ok(view.$().prop('disabled'), "supports customizing attribute name for Boolean values");
+  });
+
   QUnit.test("should update attribute bindings", function() {
     view = EmberView['default'].create({
-      classNameBindings: ['priority', 'isUrgent', 'isClassified:classified', 'canIgnore'],
-      attributeBindings: ['type', 'isDisabled:disabled', 'exploded', 'destroyed', 'exists', 'nothing', 'notDefined', 'notNumber', 'explosions'],
-
+      attributeBindings: ['type', 'color:data-color', 'exploded', 'collapsed', 'times'],
       type: 'reset',
-      isDisabled: true,
-      exploded: true,
-      destroyed: true,
-      exists: false,
-      nothing: true,
-      notDefined: true,
-      notNumber: true,
-      explosions: 15
+      color: 'red',
+      exploded: 'bang',
+      collapsed: null,
+      times: 15
     });
 
     run['default'](function() {
@@ -62678,35 +62698,105 @@ enifed('ember-views/tests/views/view/attribute_bindings_test', ['ember-metal/cor
     });
 
     equal(view.$().attr('type'), 'reset', "adds type attribute");
-    ok(view.$().prop('disabled'), "adds disabled attribute when true");
-    ok(view.$().prop('exploded'), "adds exploded attribute when true");
-    ok(view.$().prop('destroyed'), "adds destroyed attribute when true");
-    ok(!view.$().prop('exists'), "does not add exists attribute when false");
-    ok(view.$().prop('nothing'), "adds nothing attribute when true");
-    ok(view.$().prop('notDefined'), "adds notDefined attribute when true");
-    ok(view.$().prop('notNumber'), "adds notNumber attribute when true");
-    equal(view.$().attr('explosions'), "15", "adds integer attributes");
+    equal(view.$().attr('data-color'), 'red', "attr value set with ternary");
+    equal(view.$().attr('exploded'), 'bang', "adds exploded attribute when it has a value");
+    ok(!view.$().attr('collapsed'), "does not add null attribute");
+    equal(view.$().attr('times'), '15', 'sets an integer to an attribute');
 
     run['default'](function() {
       view.set('type', 'submit');
-      view.set('isDisabled', false);
-      view.set('exploded', false);
-      view.set('destroyed', false);
-      view.set('exists', true);
-      view.set('nothing', null);
-      view.set('notDefined', undefined);
-      view.set('notNumber', NaN);
+      view.set('color', 'blue');
+      view.set('exploded', null);
+      view.set('collapsed', 'swish');
+      view.set('times', 16);
     });
 
-    equal(view.$().attr('type'), 'submit', "updates type attribute");
-    ok(!view.$().prop('disabled'), "removes disabled attribute when false");
-    ok(!view.$().prop('exploded'), "removes exploded attribute when false");
-    ok(!view.$().prop('destroyed'), "removes destroyed attribute when false");
-    ok(view.$().prop('exists'), "adds exists attribute when true");
-    ok(!view.$().attr('nothing'), "removes nothing attribute when null");
-    ok(!view.$().attr('notDefined'), "removes notDefined attribute when undefined");
-    ok(!view.$().attr('notNumber'), "removes notNumber attribute when NaN");
+    equal(view.$().attr('type'), 'submit', "adds type attribute");
+    equal(view.$().attr('data-color'), 'blue', "attr value set with ternary");
+    ok(!view.$().attr('exploded'), "removed exploded attribute when it is null");
+    ok(view.$().attr('collapsed'), "swish", "adds an attribute when it has a value");
+    equal(view.$().attr('times'), '16', 'updates an integer attribute');
   });
+
+  QUnit.test("should update attribute bindings on input (boolean)", function() {
+    view = EmberView['default'].create({
+      tagName: 'input',
+      attributeBindings: ['disabled'],
+      disabled: true
+    });
+
+    run['default'](function() {
+      view.createElement();
+    });
+
+    ok(view.$().prop('disabled'), "adds disabled property when true");
+
+    run['default'](function() {
+      view.set('disabled', false);
+    });
+
+    ok(!view.$().prop('disabled'), "updates disabled property when false");
+  });
+
+  QUnit.test("should update attribute bindings on input (raw number prop)", function() {
+    view = EmberView['default'].create({
+      tagName: 'input',
+      attributeBindings: ['size'],
+      size: 20
+    });
+
+    run['default'](function() {
+      view.createElement();
+    });
+
+    equal(view.$().prop('size'), 20, "adds size property");
+
+    run['default'](function() {
+      view.set('size', 10);
+    });
+
+    equal(view.$().prop('size'), 10, "updates size property");
+  });
+
+  QUnit.test("should update attribute bindings on input (name)", function() {
+    view = EmberView['default'].create({
+      tagName: 'input',
+      attributeBindings: ['name'],
+      name: 'bloody-awful'
+    });
+
+    run['default'](function() {
+      view.createElement();
+    });
+
+    equal(view.$().prop('name'), 'bloody-awful', "adds name property");
+
+    run['default'](function() {
+      view.set('name', 'simply-grand');
+    });
+
+    equal(view.$().prop('name'), 'simply-grand', "updates name property");
+  });
+
+  QUnit.test("should update attribute bindings with micro syntax", function() {
+    view = EmberView['default'].create({
+      tagName: 'input',
+      attributeBindings: ['isDisabled:disabled'],
+      type: 'reset',
+      isDisabled: true
+    });
+
+    run['default'](function() {
+      view.createElement();
+    });
+    ok(view.$().prop('disabled'), "adds disabled property when true");
+
+    run['default'](function() {
+      view.set('isDisabled', false);
+    });
+    ok(!view.$().prop('disabled'), "updates disabled property when false");
+  });
+
 
   QUnit.test("should update attribute bindings on svg", function() {
     view = EmberView['default'].create({
@@ -62745,10 +62835,10 @@ enifed('ember-views/tests/views/view/attribute_bindings_test', ['ember-metal/cor
     equal(view.$().attr('foo'), 'bar', "should convert String object to bare string");
 
     run['default'](function() {
-      view.set('foo', false);
+      view.set('foo', null);
     });
 
-    ok(!view.$().attr('foo'), "removes foo attribute when false");
+    ok(!view.$().attr('foo'), "removes foo attribute when null");
   });
 
   QUnit.test("should teardown observers on rerender", function() {
@@ -62760,17 +62850,18 @@ enifed('ember-views/tests/views/view/attribute_bindings_test', ['ember-metal/cor
 
     appendView();
 
-    equal(observer.observersFor(view, 'foo').length, 2);
+    equal(observer.observersFor(view, 'foo').length, 2, 'observer count after render is two');
 
     run['default'](function() {
       view.rerender();
     });
 
-    equal(observer.observersFor(view, 'foo').length, 2);
+    equal(observer.observersFor(view, 'foo').length, 2, 'observer count after rerender remains two');
   });
 
   QUnit.test("handles attribute bindings for properties", function() {
     view = EmberView['default'].create({
+      tagName: 'input',
       attributeBindings: ['checked'],
       checked: null
     });
@@ -62794,6 +62885,7 @@ enifed('ember-views/tests/views/view/attribute_bindings_test', ['ember-metal/cor
 
   QUnit.test("handles `undefined` value for properties", function() {
     view = EmberView['default'].create({
+      tagName: 'input',
       attributeBindings: ['value'],
       value: "test"
     });
@@ -62806,7 +62898,7 @@ enifed('ember-views/tests/views/view/attribute_bindings_test', ['ember-metal/cor
       view.set('value', undefined);
     });
 
-    equal(!!view.$().prop('value'), false, "value is not defined");
+    equal(view.$().prop('value'), '', "value is blank");
   });
 
   QUnit.test("handles null value for attributes on text fields", function() {
@@ -62907,6 +62999,7 @@ enifed('ember-views/tests/views/view/attribute_bindings_test', ['ember-metal/cor
     /* jshint scripturl:true */
 
     view = EmberView['default'].create({
+      tagName: 'a',
       attributeBindings: ['href'],
       href: "javascript:alert('foo')"
     });

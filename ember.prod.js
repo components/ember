@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.68b63738
+ * @version   1.11.0-beta.1+canary.0e0046a8
  */
 
 (function() {
@@ -8015,6 +8015,12 @@ enifed('ember-metal-views/renderer', ['exports', 'dom-helper', 'ember-metal/envi
       this.scheduleInsert(view, morph);
     };
 
+  Renderer.prototype.appendAttrTo =
+    function Renderer_appendAttrTo(view, target, attrName) {
+      var morph = this._dom.createAttrMorph(target, attrName);
+      this.scheduleInsert(view, morph);
+    };
+
   Renderer.prototype.replaceIn =
     function Renderer_replaceIn(view, target) {
       var morph = this._dom.createMorph(target, null, null);
@@ -10909,7 +10915,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.11.0-beta.1+canary.68b63738
+    @version 1.11.0-beta.1+canary.0e0046a8
   */
 
   if ('undefined' === typeof Ember) {
@@ -10937,10 +10943,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.11.0-beta.1+canary.68b63738'
+    @default '1.11.0-beta.1+canary.0e0046a8'
     @static
   */
-  Ember.VERSION = '1.11.0-beta.1+canary.68b63738';
+  Ember.VERSION = '1.11.0-beta.1+canary.0e0046a8';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -33914,20 +33920,20 @@ enifed('ember-views/attr_nodes/attr_node', ['exports', 'ember-metal/streams/util
   AttrNode.prototype.init = function init(attrName, simpleAttrValue) {
     this.isView = true;
 
-    // That these semantics are used is very unfortunate.
     this.tagName = '';
-    this.classNameBindings = [];
+    this.isVirtual = true;
 
     this.attrName = attrName;
     this.attrValue = simpleAttrValue;
     this.isDirty = true;
+    this.isDestroying = false;
     this.lastValue = null;
 
     utils.subscribe(this.attrValue, this.rerender, this);
   };
 
   AttrNode.prototype.renderIfDirty = function renderIfDirty() {
-    if (this.isDirty) {
+    if (this.isDirty && !this.isDestroying) {
       var value = utils.read(this.attrValue);
       if (value !== this.lastValue) {
         this._renderer.renderTree(this, this._parentView);
@@ -33939,11 +33945,19 @@ enifed('ember-views/attr_nodes/attr_node', ['exports', 'ember-metal/streams/util
 
   AttrNode.prototype.render = function render(buffer) {
     this.isDirty = false;
+    if (this.isDestroying) {
+      return;
+    }
     var value = utils.read(this.attrValue);
 
-    this._morph.setContent(value);
+    if (this.attrName === 'value' && (value === null || value === undefined)) {
+      value = '';
+    }
 
-    this.lastValue = value;
+    if (this.lastValue !== null || value !== null) {
+      this._morph.setContent(value);
+      this.lastValue = value;
+    }
   };
 
   AttrNode.prototype.rerender = function render() {
@@ -33952,17 +33966,20 @@ enifed('ember-views/attr_nodes/attr_node', ['exports', 'ember-metal/streams/util
   };
 
   AttrNode.prototype.destroy = function render() {
+    this.isDestroying = true;
     this.isDirty = false;
+
     utils.unsubscribe(this.attrValue, this.rerender, this);
 
-    var parent = this._parentView;
-    if (parent) { parent.removeChild(this); }
+    if (!this.removedFromDOM && this._renderer) {
+      this._renderer.remove(this, true);
+    }
   };
 
   exports['default'] = AttrNode;
 
 });
-enifed('ember-views/attr_nodes/legacy_bind', ['exports', './attr_node', 'ember-runtime/system/string', 'ember-metal/utils', 'ember-metal/streams/utils', 'ember-metal/platform/create'], function (exports, AttrNode, string, utils, streams__utils, create) {
+enifed('ember-views/attr_nodes/legacy_bind', ['exports', './attr_node', 'ember-runtime/system/string', 'ember-metal/utils', 'ember-metal/streams/utils', 'ember-metal/platform/create'], function (exports, AttrNode, string, utils, streams__utils, o_create) {
 
   'use strict';
 
@@ -33975,17 +33992,24 @@ enifed('ember-views/attr_nodes/legacy_bind', ['exports', './attr_node', 'ember-r
     this.init(attrName, attrValue);
   }
 
-  LegacyBindAttrNode.prototype = create['default'](AttrNode['default'].prototype);
+  LegacyBindAttrNode.prototype = o_create['default'](AttrNode['default'].prototype);
 
   LegacyBindAttrNode.prototype.render = function render(buffer) {
     this.isDirty = false;
+    if (this.isDestroying) {
+      return;
+    }
     var value = streams__utils.read(this.attrValue);
-    var type = utils.typeOf(value);
+
+    if (this.attrName === 'value' && (value === null || value === undefined)) {
+      value = '';
+    }
 
     
-    this._morph.setContent(value);
-
-    this.lastValue = value;
+    if (this.lastValue !== null || value !== null) {
+      this._morph.setContent(value);
+      this.lastValue = value;
+    }
   };
 
   exports['default'] = LegacyBindAttrNode;
@@ -35072,7 +35096,24 @@ enifed('ember-views/system/lookup_partial', ['exports', 'ember-metal/core'], fun
   exports['default'] = lookupPartial;
 
 });
-enifed('ember-views/system/render_buffer', ['exports', 'ember-views/system/jquery', 'ember-metal/core', 'ember-metal/platform/create', 'ember-metal/environment', 'dom-helper/prop'], function (exports, jQuery, Ember, create, environment, dom_helper__prop) {
+enifed('ember-views/system/platform', ['exports', 'ember-metal/environment'], function (exports, environment) {
+
+  'use strict';
+
+  var canSetNameOnInputs = environment['default'].hasDOM && (function() {
+    var div = document.createElement('div');
+    var el = document.createElement('input');
+
+    el.setAttribute('name', 'foo');
+    div.appendChild(el);
+
+    return !!div.innerHTML.match('foo');
+  })();
+
+  exports.canSetNameOnInputs = canSetNameOnInputs;
+
+});
+enifed('ember-views/system/render_buffer', ['exports', 'ember-views/system/jquery', 'ember-metal/core', 'ember-metal/platform/create', 'dom-helper/prop', 'ember-views/system/platform'], function (exports, jQuery, Ember, o_create, dom_helper__prop, platform) {
 
   'use strict';
 
@@ -35102,7 +35143,7 @@ enifed('ember-views/system/render_buffer', ['exports', 'ember-views/system/jquer
   }
 
   function ClassSet() {
-    this.seen = create['default'](null);
+    this.seen = o_create['default'](null);
     this.list = [];
   }
 
@@ -35154,21 +35195,6 @@ enifed('ember-views/system/render_buffer', ['exports', 'ember-views/system/jquer
     return string.replace(BAD_CHARS_REGEXP, escapeChar);
   }
 
-  // IE 6/7 have bugs around setting names on inputs during creation.
-  // From http://msdn.microsoft.com/en-us/library/ie/ms536389(v=vs.85).aspx:
-  // "To include the NAME attribute at run time on objects created with the createElement method, use the eTag."
-  var canSetNameOnInputs = (function() {
-    if (!environment['default'].hasDOM) { return false; }
-
-    var div = document.createElement('div');
-    var el = document.createElement('input');
-
-    el.setAttribute('name', 'foo');
-    div.appendChild(el);
-
-    return !!div.innerHTML.match('foo');
-  })();
-
   /**
     `Ember.RenderBuffer` gathers information regarding the view and generates the
     final representation. `Ember.RenderBuffer` will generate HTML which can be pushed
@@ -35186,6 +35212,7 @@ enifed('ember-views/system/render_buffer', ['exports', 'ember-views/system/jquer
   var RenderBuffer = function(domHelper) {
     this.buffer = null;
     this.childViews = [];
+    this.attrNodes = [];
 
     
     this.dom = domHelper;
@@ -35205,6 +35232,7 @@ enifed('ember-views/system/render_buffer', ['exports', 'ember-views/system/jquer
       this.elementTag = null;
       this.elementStyle = null;
       this.childViews.length = 0;
+      this.attrNodes.length = 0;
     },
 
     // The root view's element
@@ -35314,6 +35342,11 @@ enifed('ember-views/system/render_buffer', ['exports', 'ember-views/system/jquer
       var index = this.childViews.length;
       this.childViews[index] = view;
       this.push("<script id='morph-"+index+"' type='text/x-placeholder'>\x3C/script>");
+    },
+
+    pushAttrNode: function (node) {
+      var index = this.attrNodes.length;
+      this.attrNodes[index] = node;
     },
 
     hydrateMorphs: function (contextualElement) {
@@ -35489,7 +35522,7 @@ enifed('ember-views/system/render_buffer', ['exports', 'ember-views/system/jquer
       var styleBuffer = '';
       var attr, prop, tagString;
 
-      if (attrs && attrs.name && !canSetNameOnInputs) {
+      if (!platform.canSetNameOnInputs && attrs && attrs.name) {
         // IE allows passing a tag to createElement. See note on `canSetNameOnInputs` above as well.
         tagString = '<'+stripTagName(tagName)+' name="'+escapeAttribute(attrs.name)+'">';
       } else {
@@ -35545,6 +35578,16 @@ enifed('ember-views/system/render_buffer', ['exports', 'ember-views/system/jquer
         of this buffer
     */
     element: function() {
+
+      if (this._element && this.attrNodes.length > 0) {
+        var i, l, attrMorph, attrNode;
+        for (i=0, l=this.attrNodes.length; i<l; i++) {
+          attrNode = this.attrNodes[i];
+          attrMorph = this.dom.createAttrMorph(this._element, attrNode.attrName);
+          attrNode._morph = attrMorph;
+        }
+      }
+
       var content = this.innerContent();
       // No content means a text node buffer, with the content
       // in _element. Ember._BoundView is an example.
@@ -35568,6 +35611,7 @@ enifed('ember-views/system/render_buffer', ['exports', 'ember-views/system/jquer
           this._element.appendChild(nodes[0]);
         }
       }
+
       // This should only happen with legacy string buffers
       if (this.childViews.length > 0) {
         this.hydrateMorphs(contextualElement);
@@ -38253,6 +38297,22 @@ enifed('ember-views/views/states/in_buffer', ['exports', 'ember-views/views/stat
       return childView;
     },
 
+    appendAttr: function(view, attrNode) {
+      var buffer = view.buffer;
+      var _childViews = view._childViews;
+
+      if (!_childViews.length) { _childViews = view._childViews = _childViews.slice(); }
+      _childViews.push(attrNode);
+
+      if (!attrNode._morph) {
+                buffer.pushAttrNode(attrNode);
+      }
+
+      view.propertyDidChange('childViews');
+
+      return attrNode;
+    },
+
     invokeObserver: function(target, observer) {
       observer.call(target);
     }
@@ -38287,7 +38347,22 @@ enifed('ember-views/views/states/in_dom', ['exports', 'ember-metal/core', 'ember
       if (!this.isVirtual) {
         delete View.views[view.elementId];
       }
+    },
+
+    appendAttr: function(view, attrNode) {
+      var _childViews = view._childViews;
+
+      if (!_childViews.length) { _childViews = view._childViews = _childViews.slice(); }
+      _childViews.push(attrNode);
+
+      attrNode._parentView = view;
+      view.renderer.appendAttrTo(attrNode, view.element, attrNode.attrName);
+
+      view.propertyDidChange('childViews');
+
+      return attrNode;
     }
+
   });
 
   exports['default'] = inDOM;
@@ -38446,7 +38521,7 @@ enifed('ember-views/views/text_field', ['exports', 'ember-views/views/component'
   });
 
 });
-enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/platform/create', 'ember-runtime/mixins/evented', 'ember-runtime/system/object', 'ember-metal/error', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-metal/run_loop', 'ember-metal/observer', 'ember-metal/properties', 'ember-metal/utils', 'ember-metal/computed', 'ember-metal/mixin', 'ember-views/streams/key_stream', 'ember-metal/streams/stream_binding', 'ember-views/streams/context_stream', 'ember-metal/is_none', 'ember-metal/deprecate_property', 'ember-runtime/system/native_array', 'ember-views/streams/class_name_binding', 'ember-metal/enumerable_utils', 'ember-metal/property_events', 'ember-views/system/jquery', 'ember-views/views/core_view', 'ember-metal/streams/utils', 'ember-views/system/sanitize_attribute_value', 'dom-helper/prop', 'ember-views/system/ext'], function (exports, Ember, create, Evented, EmberObject, EmberError, property_get, property_set, setProperties, run, ember_metal__observer, properties, utils, computed, mixin, KeyStream, StreamBinding, ContextStream, isNone, deprecate_property, native_array, class_name_binding, enumerable_utils, property_events, jQuery, CoreView, streams__utils, sanitizeAttributeValue, prop) {
+enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/platform/create', 'ember-runtime/mixins/evented', 'ember-runtime/system/object', 'ember-metal/error', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-metal/run_loop', 'ember-metal/observer', 'ember-metal/properties', 'ember-metal/utils', 'ember-metal/computed', 'ember-metal/mixin', 'ember-views/streams/key_stream', 'ember-metal/streams/stream_binding', 'ember-views/streams/context_stream', 'ember-metal/streams/utils', 'ember-views/attr_nodes/attr_node', 'ember-metal/deprecate_property', 'ember-runtime/system/native_array', 'ember-views/streams/class_name_binding', 'ember-metal/enumerable_utils', 'ember-metal/property_events', 'ember-views/system/jquery', 'ember-views/views/core_view', 'ember-views/system/platform', 'ember-views/system/ext'], function (exports, Ember, create, Evented, EmberObject, EmberError, property_get, property_set, setProperties, run, ember_metal__observer, properties, utils, computed, mixin, KeyStream, StreamBinding, ContextStream, streams__utils, AttrNode, deprecate_property, native_array, class_name_binding, enumerable_utils, property_events, jQuery, CoreView, platform) {
 
   'use strict';
 
@@ -39817,46 +39892,31 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/pl
       @private
     */
     _applyAttributeBindings: function(buffer, attributeBindings) {
-      var attributeValue;
       var unspecifiedAttributeBindings = this._unspecifiedAttributeBindings = this._unspecifiedAttributeBindings || {};
 
-      enumerable_utils.forEach(attributeBindings, function(binding) {
-        var split = binding.split(':');
-        var property = split[0];
-        var attributeName = split[1] || property;
+      var binding, split, property, attrName, attrNode, attrValue;
+      var i, l;
+      for (i=0, l=attributeBindings.length; i<l; i++) {
+        binding = attributeBindings[i];
+        split = binding.split(':');
+        property = split[0];
+        attrName = split[1] || property;
 
         
         if (property in this) {
-          this._setupAttributeBindingObservation(property, attributeName);
-
-          // Determine the current value and add it to the render buffer
-          // if necessary.
-          attributeValue = property_get.get(this, property);
-          View.applyAttributeBindings(this.renderer._dom, buffer, attributeName, attributeValue);
+          attrValue = this.getStream('view.'+property);
+          attrNode = new AttrNode['default'](attrName, attrValue);
+          this.appendAttr(attrNode);
+          if (!platform.canSetNameOnInputs && attrName === 'name') {
+            buffer.attr('name', streams__utils.read(attrValue));
+          }
         } else {
-          unspecifiedAttributeBindings[property] = attributeName;
+          unspecifiedAttributeBindings[property] = attrName;
         }
-      }, this);
+      }
 
       // Lazily setup setUnknownProperty after attributeBindings are initially applied
       this.setUnknownProperty = this._setUnknownProperty;
-    },
-
-    _setupAttributeBindingObservation: function(property, attributeName) {
-      var attributeValue, elem;
-
-      // Create an observer to add/remove/change the attribute if the
-      // JavaScript property changes.
-      var observer = function() {
-        elem = this.$();
-
-        attributeValue = property_get.get(this, property);
-
-        var normalizedName = prop.normalizeProperty(elem, attributeName.toLowerCase()) || attributeName;
-        View.applyAttributeBindings(this.renderer._dom, elem, normalizedName, attributeValue);
-      };
-
-      this.registerObserver(this, property, observer);
     },
 
     /**
@@ -39873,12 +39933,15 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/pl
     setUnknownProperty: null, // Gets defined after initialization by _applyAttributeBindings
 
     _setUnknownProperty: function(key, value) {
-      var attributeName = this._unspecifiedAttributeBindings && this._unspecifiedAttributeBindings[key];
-      if (attributeName) {
-        this._setupAttributeBindingObservation(key, attributeName);
-      }
+      var attrName = this._unspecifiedAttributeBindings && this._unspecifiedAttributeBindings[key];
 
       properties.defineProperty(this, key);
+
+      if (attrName) {
+        var attrValue = this.getStream('view.'+key);
+        var attrNode = new AttrNode['default'](attrName, attrValue);
+        this.appendAttr(attrNode);
+      }
       return property_set.set(this, key, value);
     },
 
@@ -40349,6 +40412,10 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/pl
       this[property.name] = property.descriptor.value;
     },
 
+    appendAttr: function(node) {
+      return this.currentState.appendAttr(this, node);
+    },
+
     /**
       Removes all children from the `parentView`.
 
@@ -40586,35 +40653,6 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/pl
   // at view initialization time. This happens in Ember.ContainerView's init
   // method.
   View.childViewsProperty = childViewsProperty;
-
-  // Used by Handlebars helpers, view element attributes
-  View.applyAttributeBindings = function(dom, elem, name, initialValue) {
-    var value = sanitizeAttributeValue['default'](dom, elem[0], name, initialValue);
-    var type = utils.typeOf(value);
-
-    // if this changes, also change the logic in ember-handlebars/lib/helpers/binding.js
-    if (name !== 'value' && (type === 'string' || (type === 'number' && !isNaN(value)))) {
-      if (value !== elem.attr(name)) {
-        elem.attr(name, value);
-      }
-    } else if (name === 'value' || type === 'boolean') {
-      if (isNone['default'](value) || value === false) {
-        // `null`, `undefined` or `false` should remove attribute
-        elem.removeAttr(name);
-        // In IE8 `prop` couldn't remove attribute when name is `required`.
-        if (name === 'required') {
-          elem.removeProp(name);
-        } else {
-          elem.prop(name, '');
-        }
-      } else if (value !== elem.prop(name)) {
-        // value should always be properties
-        elem.prop(name, value);
-      }
-    } else if (!value) {
-      elem.removeAttr(name);
-    }
-  };
 
   exports['default'] = View;
 
