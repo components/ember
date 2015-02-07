@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.10397828
+ * @version   1.11.0-beta.1+canary.38f2b8e2
  */
 
 (function() {
@@ -11328,7 +11328,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.11.0-beta.1+canary.10397828
+    @version 1.11.0-beta.1+canary.38f2b8e2
   */
 
   if ('undefined' === typeof Ember) {
@@ -11356,10 +11356,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.11.0-beta.1+canary.10397828'
+    @default '1.11.0-beta.1+canary.38f2b8e2'
     @static
   */
-  Ember.VERSION = '1.11.0-beta.1+canary.10397828';
+  Ember.VERSION = '1.11.0-beta.1+canary.38f2b8e2';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -41196,6 +41196,22 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/pl
     <a id="ember1" class="ember-view" href="http://google.com"></a>
     ```
 
+    Namespaced attributes (e.g. `xlink:href`) are supported, but have to be
+    mapped, since `:` is not a valid character for properties in Javascript:
+
+    ```javascript
+    UseView = Ember.View.extend({
+      tagName: 'use',
+      attributeBindings: ['xlinkHref:xlink:href'],
+      xlinkHref: '#triangle'
+    });
+    ```
+    Will result in view instances with an HTML representation of:
+
+    ```html
+    <use xlink:href="#triangle"></use>
+    ```
+
     If the return value of an `attributeBindings` monitored property is a boolean
     the property will follow HTML's pattern of repeating the attribute's name as
     its value:
@@ -41940,18 +41956,24 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/pl
 
       @method _applyAttributeBindings
       @param {Ember.RenderBuffer} buffer
+      @param {Array} attributeBindings
       @private
     */
     _applyAttributeBindings: function(buffer, attributeBindings) {
       var unspecifiedAttributeBindings = this._unspecifiedAttributeBindings = this._unspecifiedAttributeBindings || {};
 
-      var binding, split, property, attrName, attrNode, attrValue;
+      var binding, colonIndex, property, attrName, attrNode, attrValue;
       var i, l;
       for (i=0, l=attributeBindings.length; i<l; i++) {
         binding = attributeBindings[i];
-        split = binding.split(':');
-        property = split[0];
-        attrName = split[1] || property;
+        colonIndex = binding.indexOf(':');
+        if (colonIndex === -1) {
+          property = binding;
+          attrName = binding;
+        } else {
+          property = binding.substring(0, colonIndex);
+          attrName = binding.substring(colonIndex + 1);
+        }
 
         Ember['default'].assert('You cannot use class as an attributeBinding, use classNameBindings instead.', attrName !== 'class');
 

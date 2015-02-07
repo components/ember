@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.10397828
+ * @version   1.11.0-beta.1+canary.38f2b8e2
  */
 
 (function() {
@@ -62797,6 +62797,22 @@ enifed('ember-views/tests/views/view/attribute_bindings_test', ['ember-metal/cor
     ok(!view.$().prop('disabled'), "updates disabled property when false");
   });
 
+  QUnit.test("should allow namespaced attributes in micro syntax", function () {
+    view = EmberView['default'].create({
+      attributeBindings: ['xlinkHref:xlink:href'],
+      xlinkHref: '/foo.png'
+    });
+
+    run['default'](function() {
+      view.createElement();
+    });
+    equal(view.$().attr('xlink:href'), '/foo.png', "namespaced attribute is set");
+
+    run['default'](function () {
+      view.set('xlinkHref', '/bar.png');
+    });
+    equal(view.$().attr('xlink:href'), '/bar.png', "namespaced attribute is updated");
+  });
 
   QUnit.test("should update attribute bindings on svg", function() {
     view = EmberView['default'].create({
