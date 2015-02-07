@@ -45771,12 +45771,14 @@ enifed("ember-views/views/with_view",
     });
   });
 enifed("ember",
-  ["ember-metal","ember-runtime","ember-views","ember-routing","ember-application","ember-extension-support","ember-htmlbars","ember-routing-htmlbars"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__) {
+  ["ember-metal","ember-runtime","ember-views","ember-routing","ember-application","ember-extension-support","ember-htmlbars","ember-routing-htmlbars","ember-runtime/system/lazy_load"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__) {
     "use strict";
     /* global navigator */
     // require the main entry points for each of these packages
     // this is so that the global exports occur properly
+
+    var runLoadHooks = __dependency9__.runLoadHooks;
 
     if (Ember.__loader.registry['ember-template-compiler']) {
       requireModule('ember-template-compiler');
@@ -45787,6 +45789,8 @@ enifed("ember",
     if (Ember.__loader.registry['ember-testing']) {
       requireModule('ember-testing');
     }
+
+    runLoadHooks('Ember');
 
     /**
     Ember
