@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.3347c3ac
+ * @version   1.11.0-beta.1+canary.20a72a7d
  */
 
 (function() {
@@ -5772,6 +5772,16 @@ enifed('ember-htmlbars/compat/helper', ['exports', 'ember-metal/merge', 'ember-h
 
   var slice = [].slice;
 
+  function calculateCompatType(item) {
+    if (utils.isStream(item)) {
+      return 'ID';
+    } else {
+      var itemType = typeof item;
+
+      return itemType.toUpperCase();
+    }
+  }
+
   /**
     Wraps an Handlebars helper with an HTMLBars helper for backwards compatibility.
 
@@ -5783,7 +5793,11 @@ enifed('ember-htmlbars/compat/helper', ['exports', 'ember-metal/merge', 'ember-h
     this.helperFunction = function helperFunc(params, hash, options, env) {
       var param, blockResult, fnResult;
       var context = this;
-      var handlebarsOptions = {};
+      var handlebarsOptions = {
+        hash: { },
+        types: new Array(params.length),
+        hashTypes: { }
+      };
 
       merge['default'](handlebarsOptions, options);
       merge['default'](handlebarsOptions, env);
@@ -5799,6 +5813,8 @@ enifed('ember-htmlbars/compat/helper', ['exports', 'ember-metal/merge', 'ember-h
       for (var prop in hash) {
         param = hash[prop];
 
+        handlebarsOptions.hashTypes[prop] = calculateCompatType(param);
+
         if (utils.isStream(param)) {
           handlebarsOptions.hash[prop] = param._label;
         } else {
@@ -5809,6 +5825,8 @@ enifed('ember-htmlbars/compat/helper', ['exports', 'ember-metal/merge', 'ember-h
       var args = new Array(params.length);
       for (var i = 0, l = params.length; i < l; i++) {
         param = params[i];
+
+        handlebarsOptions.types[i] = calculateCompatType(param);
 
         if (utils.isStream(param)) {
           args[i] = param._label;
@@ -10907,7 +10925,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.11.0-beta.1+canary.3347c3ac
+    @version 1.11.0-beta.1+canary.20a72a7d
   */
 
   if ('undefined' === typeof Ember) {
@@ -10935,10 +10953,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.11.0-beta.1+canary.3347c3ac'
+    @default '1.11.0-beta.1+canary.20a72a7d'
     @static
   */
-  Ember.VERSION = '1.11.0-beta.1+canary.3347c3ac';
+  Ember.VERSION = '1.11.0-beta.1+canary.20a72a7d';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`

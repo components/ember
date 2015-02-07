@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.3347c3ac
+ * @version   1.11.0-beta.1+canary.20a72a7d
  */
 
 (function() {
@@ -9218,6 +9218,49 @@ enifed('ember-htmlbars/tests/compat/helper_test', ['ember-htmlbars/compat/helper
     utils.runAppend(view);
 
     equal(view.$().text(), 'foo');
+  });
+
+  QUnit.test('ordered param types are added to options.types', function() {
+    expect(3);
+
+    function someHelper(param1, param2, param3, options) {
+      equal(options.types[0], 'NUMBER');
+      equal(options.types[1], 'ID');
+      equal(options.types[2], 'STRING');
+    }
+
+    compat__helper.registerHandlebarsCompatibleHelper('test', someHelper);
+
+    view = EmberView['default'].create({
+      controller: {
+        first: 'blammo',
+        second: 'blazzico'
+      },
+      template: compile['default']('{{test 1 two "3"}}')
+    });
+
+    utils.runAppend(view);
+  });
+
+  QUnit.test('`hash` params are to options.hashTypes', function() {
+    expect(3);
+
+    function someHelper(options) {
+      equal(options.hashTypes.string, 'STRING');
+      equal(options.hashTypes.number, 'NUMBER');
+      equal(options.hashTypes.id, 'ID');
+    }
+
+    compat__helper.registerHandlebarsCompatibleHelper('test', someHelper);
+
+    view = EmberView['default'].create({
+      controller: {
+        value: 'Jacquie'
+      },
+      template: compile['default']('{{test string="foo" number=42 id=someBoundThing}}')
+    });
+
+    utils.runAppend(view);
   });
 
   // jscs:enable validateIndentation
