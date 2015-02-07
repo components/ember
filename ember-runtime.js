@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.15977e7f
+ * @version   1.11.0-beta.1+canary.2affdd88
  */
 
 (function() {
@@ -4975,7 +4975,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.11.0-beta.1+canary.15977e7f
+    @version 1.11.0-beta.1+canary.2affdd88
   */
 
   if ('undefined' === typeof Ember) {
@@ -5003,10 +5003,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.11.0-beta.1+canary.15977e7f'
+    @default '1.11.0-beta.1+canary.2affdd88'
     @static
   */
-  Ember.VERSION = '1.11.0-beta.1+canary.15977e7f';
+  Ember.VERSION = '1.11.0-beta.1+canary.2affdd88';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -9499,7 +9499,10 @@ enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/util
 
       setupEditor: function(editor) {
         this.set('editor', editor);
-        editor.on('change', function() { console.log('content changed!')} );
+
+        editor.on('change', function() {
+          console.log('content changed!');
+        });
       }
     });
     ```
@@ -9589,12 +9592,12 @@ enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/util
     ```javascript
     run.schedule('sync', this, function() {
       // this will be executed in the first RunLoop queue, when bindings are synced
-      console.log("scheduled on sync queue");
+      console.log('scheduled on sync queue');
     });
 
     run.schedule('actions', this, function() {
       // this will be executed in the 'actions' queue, after bindings have synced.
-      console.log("scheduled on actions queue");
+      console.log('scheduled on actions queue');
     });
 
     // Note the functions will be run in order based on the run queues order.
@@ -9712,8 +9715,11 @@ enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/util
     calls.
 
     ```javascript
+    function sayHi() {
+      console.log('hi');
+    }
+
     run(function() {
-      var sayHi = function() { console.log('hi'); }
       run.scheduleOnce('afterRender', myContext, sayHi);
       run.scheduleOnce('afterRender', myContext, sayHi);
       // sayHi will only be executed once, in the afterRender queue of the RunLoop
@@ -9726,10 +9732,14 @@ enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/util
 
     ```javascript
     function scheduleIt() {
-      run.scheduleOnce('actions', myContext, function() { console.log("Closure"); });
+      run.scheduleOnce('actions', myContext, function() {
+        console.log('Closure');
+      });
     }
+
     scheduleIt();
     scheduleIt();
+
     // "Closure" will print twice, even though we're using `run.scheduleOnce`,
     // because the function we pass to it is anonymous and won't match the
     // previously scheduled operation.
@@ -9824,31 +9834,37 @@ enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/util
     var runNext = run.next(myContext, function() {
       // will not be executed
     });
+
     run.cancel(runNext);
 
     var runLater = run.later(myContext, function() {
       // will not be executed
     }, 500);
+
     run.cancel(runLater);
 
     var runOnce = run.once(myContext, function() {
       // will not be executed
     });
+
     run.cancel(runOnce);
 
     var throttle = run.throttle(myContext, function() {
       // will not be executed
     }, 1, false);
+
     run.cancel(throttle);
 
     var debounce = run.debounce(myContext, function() {
       // will not be executed
     }, 1);
+
     run.cancel(debounce);
 
     var debounceImmediate = run.debounce(myContext, function() {
       // will be executed since we passed in true (immediate)
     }, 100, true);
+
     // the 100ms delay until this method can be called again will be cancelled
     run.cancel(debounceImmediate);
     ```
@@ -9873,18 +9889,20 @@ enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/util
     happen once scrolling has ceased.
 
     ```javascript
-      var myFunc = function() { console.log(this.name + ' ran.'); };
-      var myContext = {name: 'debounce'};
+    function whoRan() {
+      console.log(this.name + ' ran.');
+    }
 
-      run.debounce(myContext, myFunc, 150);
+    var myContext = { name: 'debounce' };
 
-      // less than 150ms passes
+    run.debounce(myContext, whoRan, 150);
 
-      run.debounce(myContext, myFunc, 150);
+    // less than 150ms passes
+    run.debounce(myContext, whoRan, 150);
 
-      // 150ms passes
-      // myFunc is invoked with context myContext
-      // console logs 'debounce ran.' one time.
+    // 150ms passes
+    // whoRan is invoked with context myContext
+    // console logs 'debounce ran.' one time.
     ```
 
     Immediate allows you to run the function immediately, but debounce
@@ -9894,24 +9912,25 @@ enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/util
     the method can be called again.
 
     ```javascript
-      var myFunc = function() { console.log(this.name + ' ran.'); };
-      var myContext = {name: 'debounce'};
+    function whoRan() {
+      console.log(this.name + ' ran.');
+    }
 
-      run.debounce(myContext, myFunc, 150, true);
+    var myContext = { name: 'debounce' };
 
-      // console logs 'debounce ran.' one time immediately.
-      // 100ms passes
+    run.debounce(myContext, whoRan, 150, true);
 
-      run.debounce(myContext, myFunc, 150, true);
+    // console logs 'debounce ran.' one time immediately.
+    // 100ms passes
+    run.debounce(myContext, whoRan, 150, true);
 
-      // 150ms passes and nothing else is logged to the console and
-      // the debouncee is no longer being watched
+    // 150ms passes and nothing else is logged to the console and
+    // the debouncee is no longer being watched
+    run.debounce(myContext, whoRan, 150, true);
 
-      run.debounce(myContext, myFunc, 150, true);
-
-      // console logs 'debounce ran.' one time immediately.
-      // 150ms passes and nothing else is logged to the console and
-      // the debouncee is no longer being watched
+    // console logs 'debounce ran.' one time immediately.
+    // 150ms passes and nothing else is logged to the console and
+    // the debouncee is no longer being watched
 
     ```
 
@@ -9935,23 +9954,26 @@ enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/util
     the specified spacing period. The target method is called immediately.
 
     ```javascript
-      var myFunc = function() { console.log(this.name + ' ran.'); };
-      var myContext = {name: 'throttle'};
+    function whoRan() {
+      console.log(this.name + ' ran.');
+    }
 
-      run.throttle(myContext, myFunc, 150);
-      // myFunc is invoked with context myContext
-      // console logs 'throttle ran.'
+    var myContext = { name: 'throttle' };
 
-      // 50ms passes
-      run.throttle(myContext, myFunc, 150);
+    run.throttle(myContext, whoRan, 150);
+    // whoRan is invoked with context myContext
+    // console logs 'throttle ran.'
 
-      // 50ms passes
-      run.throttle(myContext, myFunc, 150);
+    // 50ms passes
+    run.throttle(myContext, whoRan, 150);
 
-      // 150ms passes
-      run.throttle(myContext, myFunc, 150);
-      // myFunc is invoked with context myContext
-      // console logs 'throttle ran.'
+    // 50ms passes
+    run.throttle(myContext, whoRan, 150);
+
+    // 150ms passes
+    run.throttle(myContext, whoRan, 150);
+    // whoRan is invoked with context myContext
+    // console logs 'throttle ran.'
     ```
 
     @method throttle
