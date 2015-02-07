@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.2affdd88
+ * @version   1.11.0-beta.1+canary.e85e0e01
  */
 
 (function() {
@@ -10908,7 +10908,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.11.0-beta.1+canary.2affdd88
+    @version 1.11.0-beta.1+canary.e85e0e01
   */
 
   if ('undefined' === typeof Ember) {
@@ -10936,10 +10936,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.11.0-beta.1+canary.2affdd88'
+    @default '1.11.0-beta.1+canary.e85e0e01'
     @static
   */
-  Ember.VERSION = '1.11.0-beta.1+canary.2affdd88';
+  Ember.VERSION = '1.11.0-beta.1+canary.e85e0e01';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -40729,7 +40729,7 @@ enifed('ember-views/views/with_view', ['exports', 'ember-metal/property_set', 'e
   });
 
 });
-enifed('ember', ['ember-metal/environment', 'ember-routing-htmlbars', 'ember-htmlbars', 'ember-extension-support', 'ember-application', 'ember-routing', 'ember-views', 'ember-runtime', 'ember-metal'], function (environment) {
+enifed('ember', ['ember-metal/environment', 'ember-runtime/system/lazy_load', 'ember-routing-htmlbars', 'ember-htmlbars', 'ember-extension-support', 'ember-application', 'ember-routing', 'ember-views', 'ember-runtime', 'ember-metal'], function (environment, lazy_load) {
 
   'use strict';
 
@@ -40744,6 +40744,8 @@ enifed('ember', ['ember-metal/environment', 'ember-routing-htmlbars', 'ember-htm
   if (Ember.__loader.registry['ember-testing']) {
     requireModule('ember-testing');
   }
+
+  lazy_load.runLoadHooks('Ember');
 
   /**
   Ember
