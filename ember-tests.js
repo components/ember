@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.c9af0952
+ * @version   1.11.0-beta.1+canary.15977e7f
  */
 
 (function() {
@@ -853,7 +853,7 @@ enifed('container/tests/registry_test', ['container/tests/container_helper', 'co
 
     throws(function() {
       registry.typeInjection('controller', 'injected', 'controller:post');
-    }, 'Cannot inject a `controller:post` on other controller(s). Register the `controller:post` as a different type and perform the typeInjection.');
+    }, 'Cannot inject a `controller:post` on other controller(s).');
   });
 
   QUnit.test("The registry can take a hook to resolve factories lazily", function() {

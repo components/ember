@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.c9af0952
+ * @version   1.11.0-beta.1+canary.15977e7f
  */
 
 (function() {
@@ -1950,9 +1950,7 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
       var fullNameType = fullName.split(':')[0];
       if (fullNameType === type) {
         throw new Error('Cannot inject a `' + fullName +
-        '` on other ' + type +
-        '(s). Register the `' + fullName +
-        '` as a different type and perform the typeInjection.');
+        '` on other ' + type + '(s).');
       }
 
       var injections = this._typeInjections[type] ||
@@ -4977,7 +4975,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.11.0-beta.1+canary.c9af0952
+    @version 1.11.0-beta.1+canary.15977e7f
   */
 
   if ('undefined' === typeof Ember) {
@@ -5005,10 +5003,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.11.0-beta.1+canary.c9af0952'
+    @default '1.11.0-beta.1+canary.15977e7f'
     @static
   */
-  Ember.VERSION = '1.11.0-beta.1+canary.c9af0952';
+  Ember.VERSION = '1.11.0-beta.1+canary.15977e7f';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
