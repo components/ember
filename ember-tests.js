@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.e85e0e01
+ * @version   1.11.0-beta.1+canary.995ed0ae
  */
 
 (function() {
@@ -4976,7 +4976,7 @@ enifed('ember-htmlbars.jshint', function () {
 
   module('JSHint - .');
   test('ember-htmlbars.js should pass jshint', function() { 
-    ok(true, 'ember-htmlbars.js should pass jshint.'); 
+    ok(false, 'ember-htmlbars.js should pass jshint.\nember-htmlbars.js: line 15, col 14, \'helpers\' is defined but never used.\n\n1 error'); 
   });
 
 });
