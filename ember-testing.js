@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.995ed0ae
+ * @version   1.11.0-beta.1+canary.3347c3ac
  */
 
 (function() {
@@ -341,7 +341,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/error', 'embe
   exports.runningNonEmberDebugJS = runningNonEmberDebugJS;
 
 });
-enifed('ember-testing', ['ember-metal/core', 'ember-testing/setup_for_testing', 'ember-testing/test', 'ember-testing/adapters/adapter', 'ember-testing/adapters/qunit', 'ember-testing/helpers', 'ember-testing/support', 'ember-testing/initializers'], function (Ember, setupForTesting, Test, Adapter, QUnitAdapter) {
+enifed('ember-testing', ['ember-metal/core', 'ember-testing/initializers', 'ember-testing/support', 'ember-testing/setup_for_testing', 'ember-testing/test', 'ember-testing/adapters/adapter', 'ember-testing/adapters/qunit', 'ember-testing/helpers'], function (Ember, __dep1__, __dep2__, setupForTesting, Test, Adapter, QUnitAdapter) {
 
   'use strict';
 

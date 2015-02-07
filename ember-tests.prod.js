@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1+canary.995ed0ae
+ * @version   1.11.0-beta.1+canary.3347c3ac
  */
 
 (function() {
@@ -3640,7 +3640,7 @@ enifed('ember-application/tests/system/application_test.jshint', function () {
   });
 
 });
-enifed('ember-application/tests/system/controller_test', ['ember-runtime/controllers/controller', 'ember-runtime/system/container', 'ember-runtime/system/native_array', 'ember-runtime/controllers/array_controller', 'ember-metal/computed', 'ember-application/ext/controller'], function (Controller, system__container, native_array, ArrayController, computed) {
+enifed('ember-application/tests/system/controller_test', ['ember-runtime/controllers/controller', 'ember-application/ext/controller', 'ember-runtime/system/container', 'ember-runtime/system/native_array', 'ember-runtime/controllers/array_controller', 'ember-metal/computed'], function (Controller, __dep1__, system__container, native_array, ArrayController, computed) {
 
   'use strict';
 
@@ -6692,7 +6692,7 @@ enifed('ember-extension-support/data_adapter.jshint', function () {
   });
 
 });
-enifed('ember-extension-support/tests/container_debug_adapter_test', ['ember-metal/run_loop', 'ember-runtime/controllers/controller', 'ember-application/system/application', 'ember-extension-support'], function (run, controller, Application) {
+enifed('ember-extension-support/tests/container_debug_adapter_test', ['ember-metal/run_loop', 'ember-runtime/controllers/controller', 'ember-extension-support', 'ember-application/system/application'], function (run, controller, __dep2__, Application) {
 
   'use strict';
 
@@ -11611,7 +11611,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
 
       expectDeprecation(function() {
         utils.runAppend(view);
-      },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead.');
+      }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead.');
     },
 
     teardown: function() {
@@ -12281,7 +12281,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
 
     expectDeprecation(function() {
       utils.runAppend(view);
-    },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead.');
+    }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead.');
 
     equal(view.$().text(), "AdamSteve");
   });
@@ -12296,7 +12296,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
 
     expectDeprecation(function() {
       utils.runAppend(view);
-    },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead.');
+    }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead.');
 
     equal(view.$().text(), "AdamSteve");
   });
@@ -12311,7 +12311,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
 
     expectDeprecation(function() {
       utils.runAppend(view);
-    },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead.');
+    }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead.');
 
     equal(view.$().text(), "AdamSteve");
   });
@@ -12401,7 +12401,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
 
         expectDeprecation(function() {
           utils.runAppend(view);
-        },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead.');
+        }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead.');
 
         equal(view.$().text(), "AdamSteve");
       });
@@ -12524,7 +12524,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
 
         expectDeprecation(function() {
           utils.runAppend(view);
-        },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead.');
+        }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead.');
 
         equal(view.$().text(), "AdamSteve");
       });
@@ -12539,7 +12539,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
 
         expectDeprecation(function() {
           utils.runAppend(view);
-        },'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead.');
+        }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each foo in bar}}`) instead.');
 
         equal(view.$().text(), "AdamSteve");
       });
@@ -15428,9 +15428,9 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-metal/property_set', 'e
     });
 
     registry.register('controller:label', Controller['default'], { instantiate: true });
-    registry.register('view:label',       LabelView);
-    registry.register('template:label',   compile['default']('<div id="child-view"></div>'));
-    registry.register('template:nester',  compile['default']('{{render "label"}}'));
+    registry.register('view:label', LabelView);
+    registry.register('template:label', compile['default']('<div id="child-view"></div>'));
+    registry.register('template:nester', compile['default']('{{render "label"}}'));
 
     view = EmberView['default'].create({
       container:    container,
@@ -15497,7 +15497,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-metal/property_set', 'e
 
   QUnit.test('Template views add an elementId to child views created using the view helper', function() {
     registry.register('template:parent', compile['default']('<div>{{view view.childView}}</div>'));
-    registry.register('template:child',  compile['default']('I can\'t believe it\'s not butter.'));
+    registry.register('template:child', compile['default']('I can\'t believe it\'s not butter.'));
 
     var ChildView = EmberView['default'].extend({
       container: container,
@@ -15658,21 +15658,21 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-metal/property_set', 'e
       utils.runAppend(view);
     });
 
-    ok(view.$('input').hasClass('unbound'),     'sets unbound classes directly');
-    ok(view.$('input').hasClass('great'),       'evaluates classes bound to global paths');
-    ok(view.$('input').hasClass('app-direct'),  'evaluates classes bound directly to global paths');
-    ok(view.$('input').hasClass('is-app'),      'evaluates classes bound directly to booleans in global paths - dasherizes and sets class when true');
-    ok(view.$('input').hasClass('enabled'),     'evaluates ternary operator in classBindings');
-    ok(!view.$('input').hasClass('disabled'),   'evaluates ternary operator in classBindings');
+    ok(view.$('input').hasClass('unbound'), 'sets unbound classes directly');
+    ok(view.$('input').hasClass('great'), 'evaluates classes bound to global paths');
+    ok(view.$('input').hasClass('app-direct'), 'evaluates classes bound directly to global paths');
+    ok(view.$('input').hasClass('is-app'), 'evaluates classes bound directly to booleans in global paths - dasherizes and sets class when true');
+    ok(view.$('input').hasClass('enabled'), 'evaluates ternary operator in classBindings');
+    ok(!view.$('input').hasClass('disabled'), 'evaluates ternary operator in classBindings');
 
     run['default'](function() {
       App.set('isApp', false);
       App.set('isEnabled', false);
     });
 
-    ok(!view.$('input').hasClass('is-app'),     'evaluates classes bound directly to booleans in global paths - removes class when false');
-    ok(!view.$('input').hasClass('enabled'),    'evaluates ternary operator in classBindings');
-    ok(view.$('input').hasClass('disabled'),    'evaluates ternary operator in classBindings');
+    ok(!view.$('input').hasClass('is-app'), 'evaluates classes bound directly to booleans in global paths - removes class when false');
+    ok(!view.$('input').hasClass('enabled'), 'evaluates ternary operator in classBindings');
+    ok(view.$('input').hasClass('disabled'), 'evaluates ternary operator in classBindings');
 
     utils.runDestroy(lookup.App);
   });
@@ -15689,21 +15689,21 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-metal/property_set', 'e
 
     utils.runAppend(view);
 
-    ok(view.$('input').hasClass('unbound'),     'sets unbound classes directly');
-    ok(view.$('input').hasClass('editable'),    'evaluates classes bound in the current context');
+    ok(view.$('input').hasClass('unbound'), 'sets unbound classes directly');
+    ok(view.$('input').hasClass('editable'), 'evaluates classes bound in the current context');
     ok(view.$('input').hasClass('view-direct'), 'evaluates classes bound directly in the current context');
-    ok(view.$('input').hasClass('is-view'),     'evaluates classes bound directly to booleans in the current context - dasherizes and sets class when true');
-    ok(view.$('input').hasClass('enabled'),     'evaluates ternary operator in classBindings');
-    ok(!view.$('input').hasClass('disabled'),   'evaluates ternary operator in classBindings');
+    ok(view.$('input').hasClass('is-view'), 'evaluates classes bound directly to booleans in the current context - dasherizes and sets class when true');
+    ok(view.$('input').hasClass('enabled'), 'evaluates ternary operator in classBindings');
+    ok(!view.$('input').hasClass('disabled'), 'evaluates ternary operator in classBindings');
 
     run['default'](function() {
       view.set('isView', false);
       view.set('isEnabled', false);
     });
 
-    ok(!view.$('input').hasClass('is-view'),    'evaluates classes bound directly to booleans in the current context - removes class when false');
-    ok(!view.$('input').hasClass('enabled'),    'evaluates ternary operator in classBindings');
-    ok(view.$('input').hasClass('disabled'),    'evaluates ternary operator in classBindings');
+    ok(!view.$('input').hasClass('is-view'), 'evaluates classes bound directly to booleans in the current context - removes class when false');
+    ok(!view.$('input').hasClass('enabled'), 'evaluates ternary operator in classBindings');
+    ok(view.$('input').hasClass('disabled'), 'evaluates ternary operator in classBindings');
   });
 
   QUnit.test('{{view}} should evaluate class bindings set with either classBinding or classNameBindings from globals DEPRECATED', function() {
@@ -15725,21 +15725,21 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-metal/property_set', 'e
       utils.runAppend(view);
     });
 
-    ok(view.$('input').hasClass('unbound'),          'sets unbound classes directly');
-    ok(view.$('input').hasClass('great'),            'evaluates classBinding');
-    ok(view.$('input').hasClass('really-great'),     'evaluates classNameBinding');
-    ok(view.$('input').hasClass('enabled'),          'evaluates ternary operator in classBindings');
-    ok(view.$('input').hasClass('really-enabled'),   'evaluates ternary operator in classBindings');
-    ok(!view.$('input').hasClass('disabled'),        'evaluates ternary operator in classBindings');
+    ok(view.$('input').hasClass('unbound'), 'sets unbound classes directly');
+    ok(view.$('input').hasClass('great'), 'evaluates classBinding');
+    ok(view.$('input').hasClass('really-great'), 'evaluates classNameBinding');
+    ok(view.$('input').hasClass('enabled'), 'evaluates ternary operator in classBindings');
+    ok(view.$('input').hasClass('really-enabled'), 'evaluates ternary operator in classBindings');
+    ok(!view.$('input').hasClass('disabled'), 'evaluates ternary operator in classBindings');
     ok(!view.$('input').hasClass('really-disabled'), 'evaluates ternary operator in classBindings');
 
     run['default'](function() {
       App.set('isEnabled', false);
     });
 
-    ok(!view.$('input').hasClass('enabled'),        'evaluates ternary operator in classBindings');
+    ok(!view.$('input').hasClass('enabled'), 'evaluates ternary operator in classBindings');
     ok(!view.$('input').hasClass('really-enabled'), 'evaluates ternary operator in classBindings');
-    ok(view.$('input').hasClass('disabled'),        'evaluates ternary operator in classBindings');
+    ok(view.$('input').hasClass('disabled'), 'evaluates ternary operator in classBindings');
     ok(view.$('input').hasClass('really-disabled'), 'evaluates ternary operator in classBindings');
 
     utils.runDestroy(lookup.App);
@@ -18489,7 +18489,7 @@ enifed('ember-htmlbars/tests/integration/with_view_test', ['ember-metal/run_loop
   QUnit.test('child views can be inserted inside a bind block', function() {
     registry.register('template:nester', compile['default']('<h1 id="hello-world">Hello {{world}}</h1>{{view view.bqView}}'));
     registry.register('template:nested', compile['default']('<div id="child-view">Goodbye {{#with content as thing}}{{thing.blah}} {{view view.otherView}}{{/with}} {{world}}</div>'));
-    registry.register('template:other',  compile['default']('cruel'));
+    registry.register('template:other', compile['default']('cruel'));
 
     var context = {
       world: 'world!'
@@ -22641,7 +22641,7 @@ enifed('ember-metal/tests/computed_test', ['ember-metal/core', 'ember-metal/test
     equal(get(obj, 'prop'), 'BUZZ 2');
     equal(get(obj, 'prop'), 'BUZZ 2');
 
-    set(get(obj, 'foo.bar'),  'baz', { biff: 'BLOB' });
+    set(get(obj, 'foo.bar'), 'baz', { biff: 'BLOB' });
     equal(get(obj, 'prop'), 'BLOB 3');
     equal(get(obj, 'prop'), 'BLOB 3');
 
@@ -23955,7 +23955,7 @@ enifed('ember-metal/tests/features_test', ['ember-metal/core'], function (Ember)
     Ember['default'].FEATURES['fred'] = false;
     Ember['default'].FEATURES['wilma'] = null;
 
-    equal(isEnabled('fred'),  true, "overrides features set to false");
+    equal(isEnabled('fred'), true, "overrides features set to false");
     equal(isEnabled('wilma'), true, "enables optional features");
     equal(isEnabled('betty'), true, "enables non-specified features");
   });
@@ -23966,10 +23966,10 @@ enifed('ember-metal/tests/features_test', ['ember-metal/core'], function (Ember)
     Ember['default'].FEATURES['barney'] = true;
     Ember['default'].FEATURES['wilma'] = null;
 
-    equal(isEnabled('fred'),   false, "returns flag value if false");
-    equal(isEnabled('barney'), true,  "returns flag value if true");
-    equal(isEnabled('wilma'),  true,  "returns true if flag is not true|false|undefined");
-    equal(isEnabled('betty'),  undefined, "returns flag value if undefined");
+    equal(isEnabled('fred'), false, "returns flag value if false");
+    equal(isEnabled('barney'), true, "returns flag value if true");
+    equal(isEnabled('wilma'), true, "returns true if flag is not true|false|undefined");
+    equal(isEnabled('betty'), undefined, "returns flag value if undefined");
   });
 
   QUnit.test("isEnabled without ENV options", function() {
@@ -23980,10 +23980,10 @@ enifed('ember-metal/tests/features_test', ['ember-metal/core'], function (Ember)
     Ember['default'].FEATURES['barney'] = true;
     Ember['default'].FEATURES['wilma'] = null;
 
-    equal(isEnabled('fred'),   false, "returns flag value if false");
-    equal(isEnabled('barney'), true,  "returns flag value if true");
-    equal(isEnabled('wilma'),  false, "returns false if flag is not set");
-    equal(isEnabled('betty'),  undefined, "returns flag value if undefined");
+    equal(isEnabled('fred'), false, "returns flag value if false");
+    equal(isEnabled('barney'), true, "returns flag value if true");
+    equal(isEnabled('wilma'), false, "returns false if flag is not set");
+    equal(isEnabled('betty'), undefined, "returns flag value if undefined");
   });
 
 });
@@ -24330,21 +24330,21 @@ enifed('ember-metal/tests/is_blank_test', ['ember-metal/is_blank'], function (is
     var fn = function() {};
     var object = { length: 0 };
 
-    equal(true,  isBlank['default'](null),      "for null");
-    equal(true,  isBlank['default'](undefined), "for undefined");
-    equal(true,  isBlank['default'](""),        "for an empty String");
-    equal(true,  isBlank['default']("  "),      "for a whitespace String");
-    equal(true,  isBlank['default']("\n\t"),    "for another whitespace String");
+    equal(true, isBlank['default'](null), "for null");
+    equal(true, isBlank['default'](undefined), "for undefined");
+    equal(true, isBlank['default'](""), "for an empty String");
+    equal(true, isBlank['default']("  "), "for a whitespace String");
+    equal(true, isBlank['default']("\n\t"), "for another whitespace String");
     equal(false, isBlank['default']("\n\t Hi"), "for a String with whitespaces");
-    equal(false, isBlank['default'](true),      "for true");
-    equal(false, isBlank['default'](false),     "for false");
-    equal(false, isBlank['default'](string),    "for a String");
-    equal(false, isBlank['default'](fn),        "for a Function");
-    equal(false, isBlank['default'](0),         "for 0");
-    equal(true,  isBlank['default']([]),        "for an empty Array");
-    equal(false, isBlank['default']({}),        "for an empty Object");
-    equal(true,  isBlank['default'](object),    "for an Object that has zero 'length'");
-    equal(false, isBlank['default']([1,2,3]),   "for a non-empty array");
+    equal(false, isBlank['default'](true), "for true");
+    equal(false, isBlank['default'](false), "for false");
+    equal(false, isBlank['default'](string), "for a String");
+    equal(false, isBlank['default'](fn), "for a Function");
+    equal(false, isBlank['default'](0), "for 0");
+    equal(true, isBlank['default']([]), "for an empty Array");
+    equal(false, isBlank['default']({}), "for an empty Object");
+    equal(true, isBlank['default'](object), "for an Object that has zero 'length'");
+    equal(false, isBlank['default']([1, 2, 3]), "for a non-empty array");
   });
 
 });
@@ -24379,17 +24379,17 @@ enifed('ember-metal/tests/is_empty_test', ['ember-metal/is_empty', 'ember-metal/
     var fn = function() {};
     var object = { length: 0 };
 
-    equal(true,  isEmpty['default'](null),      "for null");
-    equal(true,  isEmpty['default'](undefined), "for undefined");
-    equal(true,  isEmpty['default'](""),        "for an empty String");
-    equal(false, isEmpty['default'](true),      "for true");
-    equal(false, isEmpty['default'](false),     "for false");
-    equal(false, isEmpty['default'](string),    "for a String");
-    equal(false, isEmpty['default'](fn),        "for a Function");
-    equal(false, isEmpty['default'](0),         "for 0");
-    equal(true,  isEmpty['default']([]),        "for an empty Array");
-    equal(false, isEmpty['default']({}),        "for an empty Object");
-    equal(true,  isEmpty['default'](object),    "for an Object that has zero 'length'");
+    equal(true, isEmpty['default'](null), "for null");
+    equal(true, isEmpty['default'](undefined), "for undefined");
+    equal(true, isEmpty['default'](""), "for an empty String");
+    equal(false, isEmpty['default'](true), "for true");
+    equal(false, isEmpty['default'](false), "for false");
+    equal(false, isEmpty['default'](string), "for a String");
+    equal(false, isEmpty['default'](fn), "for a Function");
+    equal(false, isEmpty['default'](0), "for 0");
+    equal(true, isEmpty['default']([]), "for an empty Array");
+    equal(false, isEmpty['default']({}), "for an empty Object");
+    equal(true, isEmpty['default'](object), "for an Object that has zero 'length'");
   });
 
   QUnit.test("Ember.isEmpty Ember.Map", function() {
@@ -24437,16 +24437,16 @@ enifed('ember-metal/tests/is_none_test', ['ember-metal/is_none'], function (isNo
     var string = "string";
     var fn = function() {};
 
-    equal(true,  isNone['default'](null),      "for null");
-    equal(true,  isNone['default'](undefined), "for undefined");
-    equal(false, isNone['default'](""),        "for an empty String");
-    equal(false, isNone['default'](true),      "for true");
-    equal(false, isNone['default'](false),     "for false");
-    equal(false, isNone['default'](string),    "for a String");
-    equal(false, isNone['default'](fn),        "for a Function");
-    equal(false, isNone['default'](0),         "for 0");
-    equal(false, isNone['default']([]),        "for an empty Array");
-    equal(false, isNone['default']({}),        "for an empty Object");
+    equal(true, isNone['default'](null), "for null");
+    equal(true, isNone['default'](undefined), "for undefined");
+    equal(false, isNone['default'](""), "for an empty String");
+    equal(false, isNone['default'](true), "for true");
+    equal(false, isNone['default'](false), "for false");
+    equal(false, isNone['default'](string), "for a String");
+    equal(false, isNone['default'](fn), "for a Function");
+    equal(false, isNone['default'](0), "for 0");
+    equal(false, isNone['default']([]), "for an empty Array");
+    equal(false, isNone['default']({}), "for an empty Object");
   });
 
 });
@@ -24481,22 +24481,22 @@ enifed('ember-metal/tests/is_present_test', ['ember-metal/is_present'], function
     var fn = function() {};
     var object = { length: 0 };
 
-    equal(false, isPresent['default'](),          "for no params");
-    equal(false, isPresent['default'](null),      "for null");
+    equal(false, isPresent['default'](), "for no params");
+    equal(false, isPresent['default'](null), "for null");
     equal(false, isPresent['default'](undefined), "for undefined");
-    equal(false, isPresent['default'](""),        "for an empty String");
-    equal(false, isPresent['default']("  "),      "for a whitespace String");
-    equal(false, isPresent['default']("\n\t"),    "for another whitespace String");
-    equal(true,  isPresent['default']("\n\t Hi"), "for a String with whitespaces");
-    equal(true,  isPresent['default'](true),      "for true");
-    equal(true,  isPresent['default'](false),     "for false");
-    equal(true,  isPresent['default'](string),    "for a String");
-    equal(true,  isPresent['default'](fn),        "for a Function");
-    equal(true,  isPresent['default'](0),         "for 0");
-    equal(false, isPresent['default']([]),        "for an empty Array");
-    equal(true,  isPresent['default']({}),        "for an empty Object");
-    equal(false, isPresent['default'](object),    "for an Object that has zero 'length'");
-    equal(true,  isPresent['default']([1,2,3]),   "for a non-empty array");
+    equal(false, isPresent['default'](""), "for an empty String");
+    equal(false, isPresent['default']("  "), "for a whitespace String");
+    equal(false, isPresent['default']("\n\t"), "for another whitespace String");
+    equal(true, isPresent['default']("\n\t Hi"), "for a String with whitespaces");
+    equal(true, isPresent['default'](true), "for true");
+    equal(true, isPresent['default'](false), "for false");
+    equal(true, isPresent['default'](string), "for a String");
+    equal(true, isPresent['default'](fn), "for a Function");
+    equal(true, isPresent['default'](0), "for 0");
+    equal(false, isPresent['default']([]), "for an empty Array");
+    equal(true, isPresent['default']({}), "for an empty Object");
+    equal(false, isPresent['default'](object), "for an Object that has zero 'length'");
+    equal(true, isPresent['default']([1,2,3]), "for a non-empty array");
   });
 
 });
@@ -27781,15 +27781,15 @@ enifed('ember-metal/tests/observer_test', ['ember-metal/core', 'ember-metal/test
       count++;
     });
 
-    set(get(Global, 'foo.bar.baz'),  'biff', 'BUZZ');
+    set(get(Global, 'foo.bar.baz'), 'biff', 'BUZZ');
     equal(val, 'BUZZ');
     equal(count, 1);
 
-    set(get(Global, 'foo.bar'),  'baz', { biff: 'BLARG' });
+    set(get(Global, 'foo.bar'), 'baz', { biff: 'BLARG' });
     equal(val, 'BLARG');
     equal(count, 2);
 
-    set(get(Global, 'foo'),  'bar', { baz: { biff: 'BOOM' } });
+    set(get(Global, 'foo'), 'bar', { baz: { biff: 'BOOM' } });
     equal(val, 'BOOM');
     equal(count, 3);
 
@@ -27797,7 +27797,7 @@ enifed('ember-metal/tests/observer_test', ['ember-metal/core', 'ember-metal/test
     equal(val, 'BLARG');
     equal(count, 4);
 
-    set(get(Global, 'foo.bar.baz'),  'biff', 'BUZZ');
+    set(get(Global, 'foo.bar.baz'), 'biff', 'BUZZ');
     equal(val, 'BUZZ');
     equal(count, 5);
 
@@ -28032,17 +28032,17 @@ enifed('ember-metal/tests/observer_test', ['ember-metal/core', 'ember-metal/test
     });
 
     equal(removedBeforeFirstChangeObserver.willChangeCount, 0, 'removeBeforeObserver called before the first change sees none');
-    equal(removedBeforeFirstChangeObserver.didChangeCount,  0, 'removeObserver called before the first change sees none');
-    equal(addedBeforeFirstChangeObserver.willChangeCount,   1, 'addBeforeObserver called before the first change sees only 1');
-    equal(addedBeforeFirstChangeObserver.didChangeCount,    1, 'addObserver called before the first change sees only 1');
-    equal(addedAfterFirstChangeObserver.willChangeCount,    1, 'addBeforeObserver called after the first change sees 1');
-    equal(addedAfterFirstChangeObserver.didChangeCount,     1, 'addObserver called after the first change sees 1');
-    equal(addedAfterLastChangeObserver.willChangeCount,     0, 'addBeforeObserver called after the last change sees none');
-    equal(addedAfterLastChangeObserver.didChangeCount,      0, 'addObserver called after the last change sees none');
-    equal(removedBeforeLastChangeObserver.willChangeCount,  1, 'removeBeforeObserver called before the last change still sees 1');
-    equal(removedBeforeLastChangeObserver.didChangeCount,   1, 'removeObserver called before the last change still sees 1');
-    equal(removedAfterLastChangeObserver.willChangeCount,   1, 'removeBeforeObserver called after the last change still sees 1');
-    equal(removedAfterLastChangeObserver.didChangeCount,    1, 'removeObserver called after the last change still sees 1');
+    equal(removedBeforeFirstChangeObserver.didChangeCount, 0, 'removeObserver called before the first change sees none');
+    equal(addedBeforeFirstChangeObserver.willChangeCount, 1, 'addBeforeObserver called before the first change sees only 1');
+    equal(addedBeforeFirstChangeObserver.didChangeCount, 1, 'addObserver called before the first change sees only 1');
+    equal(addedAfterFirstChangeObserver.willChangeCount, 1, 'addBeforeObserver called after the first change sees 1');
+    equal(addedAfterFirstChangeObserver.didChangeCount, 1, 'addObserver called after the first change sees 1');
+    equal(addedAfterLastChangeObserver.willChangeCount, 0, 'addBeforeObserver called after the last change sees none');
+    equal(addedAfterLastChangeObserver.didChangeCount, 0, 'addObserver called after the last change sees none');
+    equal(removedBeforeLastChangeObserver.willChangeCount, 1, 'removeBeforeObserver called before the last change still sees 1');
+    equal(removedBeforeLastChangeObserver.didChangeCount, 1, 'removeObserver called before the last change still sees 1');
+    equal(removedAfterLastChangeObserver.willChangeCount, 1, 'removeBeforeObserver called after the last change still sees 1');
+    equal(removedAfterLastChangeObserver.didChangeCount, 1, 'removeObserver called after the last change still sees 1');
   });
 
 });
@@ -29431,16 +29431,16 @@ enifed('ember-metal/tests/set_properties_test', ['ember-metal/set_properties'], 
   QUnit.module('Ember.setProperties');
 
   QUnit.test("supports setting multiple attributes at once", function() {
-    deepEqual(setProperties['default'](null, null),    null, 'noop for null properties and null object');
-    deepEqual(setProperties['default'](undefined, undefined),    undefined, 'noop for undefined properties and undefined object');
+    deepEqual(setProperties['default'](null, null), null, 'noop for null properties and null object');
+    deepEqual(setProperties['default'](undefined, undefined), undefined, 'noop for undefined properties and undefined object');
 
-    deepEqual(setProperties['default']({}),            {}, 'noop for no properties');
+    deepEqual(setProperties['default']({}), {}, 'noop for no properties');
     deepEqual(setProperties['default']({}, undefined), {}, 'noop for undefined');
-    deepEqual(setProperties['default']({}, null),      {}, 'noop for null');
-    deepEqual(setProperties['default']({}, NaN),       {}, 'noop for NaN');
-    deepEqual(setProperties['default']({}, {}),        {}, 'meh');
+    deepEqual(setProperties['default']({}, null), {}, 'noop for null');
+    deepEqual(setProperties['default']({}, NaN), {}, 'noop for NaN');
+    deepEqual(setProperties['default']({}, {}), {}, 'meh');
 
-    deepEqual(setProperties['default']({}, { foo: 1 }),  { foo: 1 }, 'Set a single property');
+    deepEqual(setProperties['default']({}, { foo: 1 }), { foo: 1 }, 'Set a single property');
 
     deepEqual(setProperties['default']({}, { foo: 1, bar: 1 }), { foo: 1, bar: 1 }, 'Set multiple properties');
 
@@ -29825,9 +29825,9 @@ enifed('ember-metal/tests/utils/guid_for_test', ['ember-metal/utils'], function 
     var aprime = "string A";
     var b = "String B";
 
-    sameGuid(a, a,      "same string always yields same guid");
+    sameGuid(a, a, "same string always yields same guid");
     sameGuid(a, aprime, "identical strings always yield the same guid");
-    diffGuid(a, b,      "different strings yield different guids");
+    diffGuid(a, b, "different strings yield different guids");
     nanGuid(a);
   });
 
@@ -29836,9 +29836,9 @@ enifed('ember-metal/tests/utils/guid_for_test', ['ember-metal/utils'], function 
     var aprime = 23;
     var b = 34;
 
-    sameGuid(a, a,      "same numbers always yields same guid");
+    sameGuid(a, a, "same numbers always yields same guid");
     sameGuid(a, aprime, "identical numbers always yield the same guid");
-    diffGuid(a, b,      "different numbers yield different guids");
+    diffGuid(a, b, "different numbers yield different guids");
     nanGuid(a);
   });
 
@@ -29847,9 +29847,9 @@ enifed('ember-metal/tests/utils/guid_for_test', ['ember-metal/utils'], function 
     var aprime = true;
     var b = false;
 
-    sameGuid(a, a,      "same booleans always yields same guid");
+    sameGuid(a, a, "same booleans always yields same guid");
     sameGuid(a, aprime, "identical booleans always yield the same guid");
-    diffGuid(a, b,      "different boolean yield different guids");
+    diffGuid(a, b, "different boolean yield different guids");
     nanGuid(a);
     nanGuid(b);
   });
@@ -29859,10 +29859,10 @@ enifed('ember-metal/tests/utils/guid_for_test', ['ember-metal/utils'], function 
     var aprime = null;
     var b;
 
-    sameGuid(a, a,      "null always returns the same guid");
-    sameGuid(b, b,      "undefined always returns the same guid");
+    sameGuid(a, a, "null always returns the same guid");
+    sameGuid(b, b, "undefined always returns the same guid");
     sameGuid(a, aprime, "different nulls return the same guid");
-    diffGuid(a, b,      "null and undefined return different guids");
+    diffGuid(a, b, "null and undefined return different guids");
     nanGuid(a);
     nanGuid(b);
   });
@@ -29872,9 +29872,9 @@ enifed('ember-metal/tests/utils/guid_for_test', ['ember-metal/utils'], function 
     var aprime = ["a", "b", "c"];
     var b = ["1", "2", "3"];
 
-    sameGuid(a, a,      "same instance always yields same guid");
+    sameGuid(a, a, "same instance always yields same guid");
     diffGuid(a, aprime, "identical arrays always yield the same guid");
-    diffGuid(a, b,      "different arrays yield different guids");
+    diffGuid(a, b, "different arrays yield different guids");
     nanGuid(a);
   });
 
@@ -29916,14 +29916,14 @@ enifed('ember-metal/tests/utils/is_array_test', ['ember-metal/utils'], function 
     var length        = { length: 12 };
     var fn            = function() {};
 
-    equal(utils.isArray(numarray), true,  "[1,2,3]");
-    equal(utils.isArray(number),   false, "23");
-    equal(utils.isArray(strarray), true,  '["Hello", "Hi"]');
-    equal(utils.isArray(string),   false, '"Hello"');
-    equal(utils.isArray(object),   false, "{}");
-    equal(utils.isArray(length),   true,  "{ length: 12 }");
-    equal(utils.isArray(global),   false, "global");
-    equal(utils.isArray(fn),       false, "function() {}");
+    equal(utils.isArray(numarray), true, "[1,2,3]");
+    equal(utils.isArray(number), false, "23");
+    equal(utils.isArray(strarray), true, '["Hello", "Hi"]');
+    equal(utils.isArray(string), false, '"Hello"');
+    equal(utils.isArray(object), false, "{}");
+    equal(utils.isArray(length), true, "{ length: 12 }");
+    equal(utils.isArray(global), false, "global");
+    equal(utils.isArray(fn), false, "function() {}");
   });
 
 });
@@ -30097,14 +30097,14 @@ enifed('ember-metal/tests/utils/try_catch_finally_test', ['ember-metal/utils'], 
       equal(e, error, 'correct error was thrown');
     }
 
-    equal(errorWasThrown, true,  'error was thrown');
+    equal(errorWasThrown, true, 'error was thrown');
   }
 
   QUnit.test("no failure", function() {
     equal(utils.tryCatchFinally(tryable, catchable, finalizer), tryableResult, 'correct return value');
 
-    equal(tryCount,      1, 'tryable was called once');
-    equal(catchCount,    0, 'catchable was never called');
+    equal(tryCount, 1, 'tryable was called once');
+    equal(catchCount, 0, 'catchable was never called');
     equal(finalizeCount, 1, 'finalize was called once');
   });
 
@@ -30113,8 +30113,8 @@ enifed('ember-metal/tests/utils/try_catch_finally_test', ['ember-metal/utils'], 
 
     equal(utils.tryCatchFinally(tryable, catchable, finalizer), finalizerResult, 'correct return value');
 
-    equal(tryCount,      1, 'tryable was called once');
-    equal(catchCount,    0, 'catchable was never called');
+    equal(tryCount, 1, 'tryable was called once');
+    equal(catchCount, 0, 'catchable was never called');
     equal(finalizeCount, 1, 'finalize was called once');
   });
 
@@ -30128,8 +30128,8 @@ enifed('ember-metal/tests/utils/try_catch_finally_test', ['ember-metal/utils'], 
 
     equal(result, catchableResult, 'correct return value');
 
-    equal(tryCount,      1, 'tryable was called once');
-    equal(catchCount,    1, 'catchable was called once');
+    equal(tryCount, 1, 'tryable was called once');
+    equal(catchCount, 1, 'catchable was called once');
     equal(finalizeCount, 1, 'finalize was called once');
   });
 
@@ -30141,8 +30141,8 @@ enifed('ember-metal/tests/utils/try_catch_finally_test', ['ember-metal/utils'], 
 
     utils.tryCatchFinally(tryable, catchable, finalizer);
 
-    equal(tryCount,      1, 'tryable was called once');
-    equal(catchCount,    0, 'catchable was called once');
+    equal(tryCount, 1, 'tryable was called once');
+    equal(catchCount, 0, 'catchable was called once');
     equal(finalizeCount, 1, 'finalize was called once');
   });
 
@@ -30158,8 +30158,8 @@ enifed('ember-metal/tests/utils/try_catch_finally_test', ['ember-metal/utils'], 
 
     callTryCatchFinallyWithError();
 
-    equal(tryCount,      1, 'tryable was called once');
-    equal(catchCount,    1, 'catchable was called once');
+    equal(tryCount, 1, 'tryable was called once');
+    equal(catchCount, 1, 'catchable was called once');
     equal(finalizeCount, 1, 'finalize was called once');
   });
 
@@ -30171,8 +30171,8 @@ enifed('ember-metal/tests/utils/try_catch_finally_test', ['ember-metal/utils'], 
 
     callTryCatchFinallyWithError();
 
-    equal(tryCount,      1, 'tryable was called once');
-    equal(catchCount,    0, 'catchable was never called');
+    equal(tryCount, 1, 'tryable was called once');
+    equal(catchCount, 0, 'catchable was never called');
     equal(finalizeCount, 1, 'finalize was called once');
   });
 
@@ -30188,8 +30188,8 @@ enifed('ember-metal/tests/utils/try_catch_finally_test', ['ember-metal/utils'], 
 
     callTryCatchFinallyWithError();
 
-    equal(tryCount,      1, 'tryable was called once');
-    equal(catchCount,    1, 'catchable was called once');
+    equal(tryCount, 1, 'tryable was called once');
+    equal(catchCount, 1, 'catchable was called once');
     equal(finalizeCount, 1, 'finalize was called once');
   });
 
@@ -30209,8 +30209,8 @@ enifed('ember-metal/tests/utils/try_catch_finally_test', ['ember-metal/utils'], 
 
     callTryCatchFinallyWithError();
 
-    equal(tryCount,      1, 'tryable was called once');
-    equal(catchCount,    1, 'catchable was called once');
+    equal(tryCount, 1, 'tryable was called once');
+    equal(catchCount, 1, 'catchable was called once');
     equal(finalizeCount, 1, 'finalize was called once');
   });
 
@@ -30273,13 +30273,13 @@ enifed('ember-metal/tests/utils/try_finally_test', ['ember-metal/utils'], functi
       equal(e, error, 'correct error was thrown');
     }
 
-    equal(errorWasThrown, true,  'error was thrown');
+    equal(errorWasThrown, true, 'error was thrown');
   }
 
   QUnit.test("no failure", function() {
     equal(utils.tryFinally(tryable, finalizer), tryableResult, 'correct return value');
 
-    equal(tryCount,      1, 'tryable was called once');
+    equal(tryCount, 1, 'tryable was called once');
     equal(finalizeCount, 1, 'finalize was called once');
   });
 
@@ -30288,7 +30288,7 @@ enifed('ember-metal/tests/utils/try_finally_test', ['ember-metal/utils'], functi
 
     equal(utils.tryFinally(tryable, finalizer), finalizerResult, 'crrect return value');
 
-    equal(tryCount,      1, 'tryable was called once');
+    equal(tryCount, 1, 'tryable was called once');
     equal(finalizeCount, 1, 'finalize was called once');
   });
 
@@ -30300,7 +30300,7 @@ enifed('ember-metal/tests/utils/try_finally_test', ['ember-metal/utils'], functi
 
     callTryFinallyWithError();
 
-    equal(tryCount,      1, 'tryable was called once');
+    equal(tryCount, 1, 'tryable was called once');
     equal(finalizeCount, 1, 'finalize was called once');
   });
 
@@ -30312,7 +30312,7 @@ enifed('ember-metal/tests/utils/try_finally_test', ['ember-metal/utils'], functi
 
     callTryFinallyWithError();
 
-    equal(tryCount,      1, 'tryable was called once');
+    equal(tryCount, 1, 'tryable was called once');
     equal(finalizeCount, 1, 'finalize was called once');
   });
 
@@ -30328,7 +30328,7 @@ enifed('ember-metal/tests/utils/try_finally_test', ['ember-metal/utils'], functi
 
     callTryFinallyWithError();
 
-    equal(tryCount,      1, 'tryable was called once');
+    equal(tryCount, 1, 'tryable was called once');
     equal(finalizeCount, 1, 'finalize was called once');
   });
 
@@ -30424,24 +30424,24 @@ enifed('ember-metal/tests/utils/type_of_test', ['ember-metal/utils'], function (
     var error       = new Error('boum');
     var object      = { a: 'b' };
 
-    equal(utils.typeOf(),            'undefined',  "undefined");
-    equal(utils.typeOf(null),        'null',       "null");
-    equal(utils.typeOf('Cyril'),     'string',     "Cyril");
-    equal(utils.typeOf(101),         'number',     "101");
-    equal(utils.typeOf(true),        'boolean',    "true");
-    equal(utils.typeOf([1,2,90]),    'array',      "[1,2,90]");
-    equal(utils.typeOf(/abc/),       'regexp',     "/abc/");
-    equal(utils.typeOf(date),        'date',       "new Date()");
-    equal(utils.typeOf(mockedDate),  'date',       "mocked date");
-    equal(utils.typeOf(error),       'error',      "error");
-    equal(utils.typeOf(object),      'object',     "object");
+    equal(utils.typeOf(), 'undefined', "undefined");
+    equal(utils.typeOf(null), 'null', "null");
+    equal(utils.typeOf('Cyril'), 'string', "Cyril");
+    equal(utils.typeOf(101), 'number', "101");
+    equal(utils.typeOf(true), 'boolean', "true");
+    equal(utils.typeOf([1,2,90]), 'array', "[1,2,90]");
+    equal(utils.typeOf(/abc/), 'regexp', "/abc/");
+    equal(utils.typeOf(date), 'date', "new Date()");
+    equal(utils.typeOf(mockedDate), 'date', "mocked date");
+    equal(utils.typeOf(error), 'error', "error");
+    equal(utils.typeOf(object), 'object', "object");
 
     if (Ember.Object) {
       var klass       = Ember.Object.extend();
       var instance    = Ember.Object.create();
 
-      equal(utils.typeOf(klass),     'class',      "class");
-      equal(utils.typeOf(instance),  'instance',   "instance");
+      equal(utils.typeOf(klass), 'class', "class");
+      equal(utils.typeOf(instance), 'instance', "instance");
     }
   });
 
@@ -32249,7 +32249,7 @@ enifed('ember-routing-htmlbars/tests/helpers/action_test.jshint', function () {
   });
 
 });
-enifed('ember-routing-htmlbars/tests/helpers/link-to_test', ['ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-metal/property_set', 'ember-runtime/controllers/controller', 'ember-runtime/tests/utils', 'ember-routing-htmlbars'], function (run, EmberView, compile, property_set, Controller, utils) {
+enifed('ember-routing-htmlbars/tests/helpers/link-to_test', ['ember-routing-htmlbars', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-metal/property_set', 'ember-runtime/controllers/controller', 'ember-runtime/tests/utils'], function (__dep0__, run, EmberView, compile, property_set, Controller, utils) {
 
   'use strict';
 
@@ -33331,7 +33331,7 @@ enifed('ember-routing-views.jshint', function () {
   });
 
 });
-enifed('ember-routing-views/tests/main_test', ['ember-metal/core', 'ember-routing-views'], function (Ember) {
+enifed('ember-routing-views/tests/main_test', ['ember-routing-views', 'ember-metal/core'], function (__dep0__, Ember) {
 
   'use strict';
 
@@ -34945,7 +34945,7 @@ enifed('ember-routing/tests/system/route_test', ['ember-runtime/tests/utils', 'c
       }
     });
 
-    registry.register('route:index',  EmberRoute['default']);
+    registry.register('route:index', EmberRoute['default']);
     registry.register('store:main', Store);
 
     registry.injection('route', 'store', 'store:main');
@@ -34965,7 +34965,7 @@ enifed('ember-routing/tests/system/route_test', ['ember-runtime/tests/utils', 'c
     var Post = EmberObject['default'].extend();
 
     registry.register('route:index', EmberRoute['default']);
-    registry.register('model:post',  Post);
+    registry.register('model:post', Post);
 
     route = container.lookup('route:index');
 
@@ -37994,7 +37994,7 @@ enifed('ember-runtime/tests/computed/reduce_computed_test', ['ember-metal/core',
     });
 
     deepEqual(property_get.get(obj, 'doubledNumbers'), [], "When the dependent array is null, the initial value is returned");
-    equal(addCalls, 0,  "`addedItem` is not called when the dependent array is null");
+    equal(addCalls, 0, "`addedItem` is not called when the dependent array is null");
 
     run['default'](function() {
       property_set.set(obj, 'numbers', Ember['default'].A([1,2]));
@@ -39813,12 +39813,12 @@ enifed('ember-runtime/tests/core/compare_test', ['ember-metal/utils', 'ember-run
     });
 
     equal(compare['default'](negOne, 'a'), -1, 'First item comparable - returns -1 (not negated)');
-    equal(compare['default'](zero, 'b'),    0, 'First item comparable - returns  0 (not negated)');
-    equal(compare['default'](one, 'c'),     1, 'First item comparable - returns  1 (not negated)');
+    equal(compare['default'](zero, 'b'), 0, 'First item comparable - returns  0 (not negated)');
+    equal(compare['default'](one, 'c'), 1, 'First item comparable - returns  1 (not negated)');
 
-    equal(compare['default']('a', negOne),  1, 'Second item comparable - returns -1 (negated)');
-    equal(compare['default']('b', zero),    0, 'Second item comparable - returns  0 (negated)');
-    equal(compare['default']('c', one),    -1, 'Second item comparable - returns  1 (negated)');
+    equal(compare['default']('a', negOne), 1, 'Second item comparable - returns -1 (negated)');
+    equal(compare['default']('b', zero), 0, 'Second item comparable - returns  0 (negated)');
+    equal(compare['default']('c', one), -1, 'Second item comparable - returns  1 (negated)');
   });
 
 });
@@ -39898,13 +39898,13 @@ enifed('ember-runtime/tests/core/isEqual_test', ['ember-runtime/core'], function
 
   QUnit.test("undefined and null", function() {
     ok(core.isEqual(undefined, undefined), "undefined is equal to undefined");
-    ok(!core.isEqual(undefined, null),      "undefined is not equal to null");
-    ok(core.isEqual(null, null),           "null is equal to null");
-    ok(!core.isEqual(null, undefined),      "null is not equal to undefined");
+    ok(!core.isEqual(undefined, null), "undefined is not equal to null");
+    ok(core.isEqual(null, null), "null is equal to null");
+    ok(!core.isEqual(null, undefined), "null is not equal to undefined");
   });
 
   QUnit.test("strings should be equal", function() {
-    ok(!core.isEqual("Hello", "Hi"),    "different Strings are unequal");
+    ok(!core.isEqual("Hello", "Hi"), "different Strings are unequal");
     ok(core.isEqual("Hello", "Hello"), "same Strings are equal");
   });
 
@@ -39921,7 +39921,7 @@ enifed('ember-runtime/tests/core/isEqual_test', ['ember-runtime/core'], function
   QUnit.test("array should be equal", function() {
     // NOTE: We don't test for array contents -- that would be too expensive.
     ok(!core.isEqual([1,2], [1,2]), 'two array instances with the same values should not be equal');
-    ok(!core.isEqual([1,2], [1]),   'two array instances with different values should not be equal');
+    ok(!core.isEqual([1,2], [1]), 'two array instances with different values should not be equal');
   });
 
   QUnit.test("first object implements isEqual should use it", function() {
@@ -39994,7 +39994,7 @@ enifed('ember-runtime/tests/core/is_empty_test', ['ember-metal/core', 'ember-met
   QUnit.test("Ember.isEmpty", function() {
     var arrayProxy = ArrayProxy['default'].create({ content: Ember['default'].A() });
 
-    equal(true,  isEmpty['default'](arrayProxy), "for an ArrayProxy that has empty content");
+    equal(true, isEmpty['default'](arrayProxy), "for an ArrayProxy that has empty content");
   });
 
 });
@@ -40030,14 +40030,14 @@ enifed('ember-runtime/tests/core/type_test', ['ember-metal/utils', 'ember-runtim
     var obj = {};
     var object = EmberObject['default'].create({ method: function() {} });
 
-    equal(utils.typeOf(undefined),     'undefined', "item of type undefined");
-    equal(utils.typeOf(a),             'null',      "item of type null");
-    equal(utils.typeOf(arr),           'array',     "item of type array");
-    equal(utils.typeOf(obj),           'object',    "item of type object");
-    equal(utils.typeOf(object),        'instance',  "item of type instance");
-    equal(utils.typeOf(object.method), 'function',  "item of type function");
-    equal(utils.typeOf(EmberObject['default']),   'class',     "item of type class");
-    equal(utils.typeOf(new Error()),   'error',     "item of type error");
+    equal(utils.typeOf(undefined), 'undefined', "item of type undefined");
+    equal(utils.typeOf(a), 'null', "item of type null");
+    equal(utils.typeOf(arr), 'array', "item of type array");
+    equal(utils.typeOf(obj), 'object', "item of type object");
+    equal(utils.typeOf(object), 'instance', "item of type instance");
+    equal(utils.typeOf(object.method), 'function', "item of type function");
+    equal(utils.typeOf(EmberObject['default']), 'class', "item of type class");
+    equal(utils.typeOf(new Error()), 'error', "item of type error");
   });
 
 });
@@ -42112,8 +42112,8 @@ enifed('ember-runtime/tests/legacy_1x/system/object/base_test', ['ember-metal/co
     equal(property_get.get(obj, 'foo'), 'bar');
     equal(property_get.get(obj, 'total'), 12345);
 
-    property_set.set(obj,  'foo', 'Chunky Bacon');
-    property_set.set(obj,  'total', 12);
+    property_set.set(obj, 'foo', 'Chunky Bacon');
+    property_set.set(obj, 'total', 12);
 
     equal(property_get.get(obj, 'foo'), 'Chunky Bacon');
     equal(property_get.get(obj, 'total'), 12);
@@ -43082,18 +43082,18 @@ enifed('ember-runtime/tests/mixins/array_test', ['ember-metal/core', 'ember-meta
   QUnit.test("slice supports negative index arguments", function() {
     var testArray = new TestArray([1,2,3,4]);
 
-    deepEqual(testArray.slice(-2),      [3, 4],     'slice(-2)');
-    deepEqual(testArray.slice(-2, -1),  [3],        'slice(-2, -1');
-    deepEqual(testArray.slice(-2, -2),  [],         'slice(-2, -2)');
-    deepEqual(testArray.slice(-1, -2),  [],         'slice(-1, -2)');
+    deepEqual(testArray.slice(-2), [3, 4], 'slice(-2)');
+    deepEqual(testArray.slice(-2, -1), [3], 'slice(-2, -1');
+    deepEqual(testArray.slice(-2, -2), [], 'slice(-2, -2)');
+    deepEqual(testArray.slice(-1, -2), [], 'slice(-1, -2)');
 
-    deepEqual(testArray.slice(-4, 1),   [1],        'slice(-4, 1)');
-    deepEqual(testArray.slice(-4, 5),   [1,2,3,4],  'slice(-4, 5)');
-    deepEqual(testArray.slice(-4),      [1,2,3,4],  'slice(-4)');
+    deepEqual(testArray.slice(-4, 1), [1], 'slice(-4, 1)');
+    deepEqual(testArray.slice(-4, 5), [1,2,3,4], 'slice(-4, 5)');
+    deepEqual(testArray.slice(-4), [1,2,3,4], 'slice(-4)');
 
-    deepEqual(testArray.slice(0, -1),   [1,2,3],    'slice(0, -1)');
-    deepEqual(testArray.slice(0, -4),   [],         'slice(0, -4)');
-    deepEqual(testArray.slice(0, -3),   [1],        'slice(0, -3)');
+    deepEqual(testArray.slice(0, -1), [1,2,3], 'slice(0, -1)');
+    deepEqual(testArray.slice(0, -4), [], 'slice(0, -4)');
+    deepEqual(testArray.slice(0, -3), [1], 'slice(0, -3)');
 
   });
 
@@ -43321,9 +43321,9 @@ enifed('ember-runtime/tests/mixins/array_test', ['ember-metal/core', 'ember-meta
   QUnit.module('EmberArray.@each support', {
     setup: function() {
       ary = new TestArray([
-        { isDone: true,  desc: 'Todo 1' },
+        { isDone: true, desc: 'Todo 1' },
         { isDone: false, desc: 'Todo 2' },
-        { isDone: true,  desc: 'Todo 3' },
+        { isDone: true, desc: 'Todo 3' },
         { isDone: false, desc: 'Todo 4' }
       ]);
     },
@@ -43840,7 +43840,7 @@ enifed('ember-runtime/tests/mixins/deferred_test', ['ember-metal/core', 'ember-m
 
     deferred.then(function() {
       ok(false, 'should not fulfill');
-    },function(value) {
+    }, function(value) {
       equal(value, deferred, "successfully rejected to itself");
     });
 
@@ -44694,11 +44694,11 @@ enifed('ember-runtime/tests/mixins/promise_proxy_test', ['ember-metal/platform/c
       didRejectCount++;
     });
 
-    equal(property_get.get(proxy, 'content'),     undefined, 'expects the proxy to have no content');
-    equal(property_get.get(proxy, 'reason'),      undefined, 'expects the proxy to have no reason');
-    equal(property_get.get(proxy, 'isPending'),   true,  'expects the proxy to indicate that it is loading');
-    equal(property_get.get(proxy, 'isSettled'),   false, 'expects the proxy to indicate that it is not settled');
-    equal(property_get.get(proxy, 'isRejected'),  false, 'expects the proxy to indicate that it is not rejected');
+    equal(property_get.get(proxy, 'content'), undefined, 'expects the proxy to have no content');
+    equal(property_get.get(proxy, 'reason'), undefined, 'expects the proxy to have no reason');
+    equal(property_get.get(proxy, 'isPending'), true, 'expects the proxy to indicate that it is loading');
+    equal(property_get.get(proxy, 'isSettled'), false, 'expects the proxy to indicate that it is not settled');
+    equal(property_get.get(proxy, 'isRejected'), false, 'expects the proxy to indicate that it is not rejected');
     equal(property_get.get(proxy, 'isFulfilled'), false, 'expects the proxy to indicate that it is not fulfilled');
 
     equal(didFulfillCount, 0, 'should not yet have been fulfilled');
@@ -44709,29 +44709,29 @@ enifed('ember-runtime/tests/mixins/promise_proxy_test', ['ember-metal/platform/c
     equal(didFulfillCount, 1, 'should have been fulfilled');
     equal(didRejectCount, 0, 'should not have been rejected');
 
-    equal(property_get.get(proxy, 'content'),     value, 'expects the proxy to have content');
-    equal(property_get.get(proxy, 'reason'),      undefined, 'expects the proxy to still have no reason');
-    equal(property_get.get(proxy, 'isPending'),   false, 'expects the proxy to indicate that it is no longer loading');
-    equal(property_get.get(proxy, 'isSettled'),   true,  'expects the proxy to indicate that it is settled');
-    equal(property_get.get(proxy, 'isRejected'),  false, 'expects the proxy to indicate that it is not rejected');
-    equal(property_get.get(proxy, 'isFulfilled'), true,  'expects the proxy to indicate that it is fulfilled');
+    equal(property_get.get(proxy, 'content'), value, 'expects the proxy to have content');
+    equal(property_get.get(proxy, 'reason'), undefined, 'expects the proxy to still have no reason');
+    equal(property_get.get(proxy, 'isPending'), false, 'expects the proxy to indicate that it is no longer loading');
+    equal(property_get.get(proxy, 'isSettled'), true, 'expects the proxy to indicate that it is settled');
+    equal(property_get.get(proxy, 'isRejected'), false, 'expects the proxy to indicate that it is not rejected');
+    equal(property_get.get(proxy, 'isFulfilled'), true, 'expects the proxy to indicate that it is fulfilled');
 
     run['default'](deferred, 'resolve', value);
 
     equal(didFulfillCount, 1, 'should still have been only fulfilled once');
-    equal(didRejectCount,  0, 'should still not have been rejected');
+    equal(didRejectCount, 0, 'should still not have been rejected');
 
     run['default'](deferred, 'reject', value);
 
     equal(didFulfillCount, 1, 'should still have been only fulfilled once');
-    equal(didRejectCount,  0, 'should still not have been rejected');
+    equal(didRejectCount, 0, 'should still not have been rejected');
 
-    equal(property_get.get(proxy, 'content'),     value, 'expects the proxy to have still have same content');
-    equal(property_get.get(proxy, 'reason'),      undefined, 'expects the proxy still to have no reason');
-    equal(property_get.get(proxy, 'isPending'),   false, 'expects the proxy to indicate that it is no longer loading');
-    equal(property_get.get(proxy, 'isSettled'),   true,  'expects the proxy to indicate that it is settled');
-    equal(property_get.get(proxy, 'isRejected'),  false, 'expects the proxy to indicate that it is not rejected');
-    equal(property_get.get(proxy, 'isFulfilled'), true,  'expects the proxy to indicate that it is fulfilled');
+    equal(property_get.get(proxy, 'content'), value, 'expects the proxy to have still have same content');
+    equal(property_get.get(proxy, 'reason'), undefined, 'expects the proxy still to have no reason');
+    equal(property_get.get(proxy, 'isPending'), false, 'expects the proxy to indicate that it is no longer loading');
+    equal(property_get.get(proxy, 'isSettled'), true, 'expects the proxy to indicate that it is settled');
+    equal(property_get.get(proxy, 'isRejected'), false, 'expects the proxy to indicate that it is not rejected');
+    equal(property_get.get(proxy, 'isFulfilled'), true, 'expects the proxy to indicate that it is fulfilled');
 
     // rest of the promise semantics are tested in directly in RSVP
   });
@@ -44752,11 +44752,11 @@ enifed('ember-runtime/tests/mixins/promise_proxy_test', ['ember-metal/platform/c
       didRejectCount++;
     });
 
-    equal(property_get.get(proxy, 'content'),     undefined, 'expects the proxy to have no content');
-    equal(property_get.get(proxy, 'reason'),      undefined, 'expects the proxy to have no reason');
-    equal(property_get.get(proxy, 'isPending'),   true,  'expects the proxy to indicate that it is loading');
-    equal(property_get.get(proxy, 'isSettled'),   false, 'expects the proxy to indicate that it is not settled');
-    equal(property_get.get(proxy, 'isRejected'),  false, 'expects the proxy to indicate that it is not rejected');
+    equal(property_get.get(proxy, 'content'), undefined, 'expects the proxy to have no content');
+    equal(property_get.get(proxy, 'reason'), undefined, 'expects the proxy to have no reason');
+    equal(property_get.get(proxy, 'isPending'), true, 'expects the proxy to indicate that it is loading');
+    equal(property_get.get(proxy, 'isSettled'), false, 'expects the proxy to indicate that it is not settled');
+    equal(property_get.get(proxy, 'isRejected'), false, 'expects the proxy to indicate that it is not rejected');
     equal(property_get.get(proxy, 'isFulfilled'), false, 'expects the proxy to indicate that it is not fulfilled');
 
     equal(didFulfillCount, 0, 'should not yet have been fulfilled');
@@ -44767,12 +44767,12 @@ enifed('ember-runtime/tests/mixins/promise_proxy_test', ['ember-metal/platform/c
     equal(didFulfillCount, 0, 'should not yet have been fulfilled');
     equal(didRejectCount, 1, 'should have been rejected');
 
-    equal(property_get.get(proxy, 'content'),     undefined, 'expects the proxy to have no content');
-    equal(property_get.get(proxy, 'reason'),      reason, 'expects the proxy to have a reason');
-    equal(property_get.get(proxy, 'isPending'),   false, 'expects the proxy to indicate that it is not longer loading');
-    equal(property_get.get(proxy, 'isSettled'),   true,  'expects the proxy to indicate that it is settled');
-    equal(property_get.get(proxy, 'isRejected'),  true, 'expects the proxy to indicate that it is  rejected');
-    equal(property_get.get(proxy, 'isFulfilled'), false,  'expects the proxy to indicate that it is not fulfilled');
+    equal(property_get.get(proxy, 'content'), undefined, 'expects the proxy to have no content');
+    equal(property_get.get(proxy, 'reason'), reason, 'expects the proxy to have a reason');
+    equal(property_get.get(proxy, 'isPending'), false, 'expects the proxy to indicate that it is not longer loading');
+    equal(property_get.get(proxy, 'isSettled'), true, 'expects the proxy to indicate that it is settled');
+    equal(property_get.get(proxy, 'isRejected'), true, 'expects the proxy to indicate that it is  rejected');
+    equal(property_get.get(proxy, 'isFulfilled'), false, 'expects the proxy to indicate that it is not fulfilled');
 
     run['default'](deferred, 'reject', reason);
 
@@ -44784,12 +44784,12 @@ enifed('ember-runtime/tests/mixins/promise_proxy_test', ['ember-metal/platform/c
     equal(didFulfillCount, 0, 'should stll not yet have been fulfilled');
     equal(didRejectCount, 1, 'should still remain rejected');
 
-    equal(property_get.get(proxy, 'content'),     undefined, 'expects the proxy to have no content');
-    equal(property_get.get(proxy, 'reason'),      reason, 'expects the proxy to have a reason');
-    equal(property_get.get(proxy, 'isPending'),   false, 'expects the proxy to indicate that it is not longer loading');
-    equal(property_get.get(proxy, 'isSettled'),   true,  'expects the proxy to indicate that it is settled');
-    equal(property_get.get(proxy, 'isRejected'),  true, 'expects the proxy to indicate that it is  rejected');
-    equal(property_get.get(proxy, 'isFulfilled'), false,  'expects the proxy to indicate that it is not fulfilled');
+    equal(property_get.get(proxy, 'content'), undefined, 'expects the proxy to have no content');
+    equal(property_get.get(proxy, 'reason'), reason, 'expects the proxy to have a reason');
+    equal(property_get.get(proxy, 'isPending'), false, 'expects the proxy to indicate that it is not longer loading');
+    equal(property_get.get(proxy, 'isSettled'), true, 'expects the proxy to indicate that it is settled');
+    equal(property_get.get(proxy, 'isRejected'), true, 'expects the proxy to indicate that it is  rejected');
+    equal(property_get.get(proxy, 'isFulfilled'), false, 'expects the proxy to indicate that it is not fulfilled');
   });
 
   QUnit.test("unhandled rejects still propagate to RSVP.on('error', ...) ", function() {
@@ -44848,31 +44848,31 @@ enifed('ember-runtime/tests/mixins/promise_proxy_test', ['ember-metal/platform/c
       promise: deferred.promise
     });
 
-    equal(property_get.get(proxy, 'isPending'),   true,  'expects the proxy to indicate that it is loading');
-    equal(property_get.get(proxy, 'isSettled'),   false, 'expects the proxy to indicate that it is not settled');
-    equal(property_get.get(proxy, 'isRejected'),  false, 'expects the proxy to indicate that it is not rejected');
+    equal(property_get.get(proxy, 'isPending'), true, 'expects the proxy to indicate that it is loading');
+    equal(property_get.get(proxy, 'isSettled'), false, 'expects the proxy to indicate that it is not settled');
+    equal(property_get.get(proxy, 'isRejected'), false, 'expects the proxy to indicate that it is not rejected');
     equal(property_get.get(proxy, 'isFulfilled'), false, 'expects the proxy to indicate that it is not fulfilled');
 
     run['default'](deferred, 'resolve');
 
-    equal(property_get.get(proxy, 'isPending'),   false, 'expects the proxy to indicate that it is no longer loading');
-    equal(property_get.get(proxy, 'isSettled'),   true,  'expects the proxy to indicate that it is settled');
-    equal(property_get.get(proxy, 'isRejected'),  false, 'expects the proxy to indicate that it is not rejected');
-    equal(property_get.get(proxy, 'isFulfilled'), true,  'expects the proxy to indicate that it is fulfilled');
+    equal(property_get.get(proxy, 'isPending'), false, 'expects the proxy to indicate that it is no longer loading');
+    equal(property_get.get(proxy, 'isSettled'), true, 'expects the proxy to indicate that it is settled');
+    equal(property_get.get(proxy, 'isRejected'), false, 'expects the proxy to indicate that it is not rejected');
+    equal(property_get.get(proxy, 'isFulfilled'), true, 'expects the proxy to indicate that it is fulfilled');
 
     var anotherDeferred = rsvp["default"].defer();
     proxy.set('promise', anotherDeferred.promise);
 
-    equal(property_get.get(proxy, 'isPending'),   true,  'expects the proxy to indicate that it is loading');
-    equal(property_get.get(proxy, 'isSettled'),   false, 'expects the proxy to indicate that it is not settled');
-    equal(property_get.get(proxy, 'isRejected'),  false, 'expects the proxy to indicate that it is not rejected');
+    equal(property_get.get(proxy, 'isPending'), true, 'expects the proxy to indicate that it is loading');
+    equal(property_get.get(proxy, 'isSettled'), false, 'expects the proxy to indicate that it is not settled');
+    equal(property_get.get(proxy, 'isRejected'), false, 'expects the proxy to indicate that it is not rejected');
     equal(property_get.get(proxy, 'isFulfilled'), false, 'expects the proxy to indicate that it is not fulfilled');
 
     run['default'](anotherDeferred, 'reject');
 
-    equal(property_get.get(proxy, 'isPending'),   false, 'expects the proxy to indicate that it is not longer loading');
-    equal(property_get.get(proxy, 'isSettled'),   true,  'expects the proxy to indicate that it is settled');
-    equal(property_get.get(proxy, 'isRejected'),  true,  'expects the proxy to indicate that it is  rejected');
+    equal(property_get.get(proxy, 'isPending'), false, 'expects the proxy to indicate that it is not longer loading');
+    equal(property_get.get(proxy, 'isSettled'), true, 'expects the proxy to indicate that it is settled');
+    equal(property_get.get(proxy, 'isRejected'), true, 'expects the proxy to indicate that it is  rejected');
     equal(property_get.get(proxy, 'isFulfilled'), false, 'expects the proxy to indicate that it is not fulfilled');
   });
 
@@ -54321,7 +54321,7 @@ enifed('ember-template-compiler/tests/plugins/transform-each-in-to-hash-test', [
 
     throws(function() {
       ember_template_compiler.compile('{{#each thing in controller as |other-thing|}}{{thing}}-{{other-thing}}{{/each}}', true);
-    },/You cannot use keyword \(`{{each foo in bar}}`\) and block params \(`{{each bar as \|foo\|}}`\) at the same time\./);
+    }, /You cannot use keyword \(`{{each foo in bar}}`\) and block params \(`{{each bar as \|foo\|}}`\) at the same time\./);
   });
 
 });
@@ -54701,7 +54701,7 @@ enifed('ember-testing/test.jshint', function () {
   });
 
 });
-enifed('ember-testing/tests/acceptance_test', ['ember-metal/run_loop', 'ember-views/system/jquery', 'ember-testing/test', 'ember-testing/adapters/qunit', 'ember-views/views/view', 'ember-application/system/application', 'ember-routing/system/route', 'ember-template-compiler/system/compile', 'ember-routing', 'ember-testing/initializers'], function (run, jQuery, Test, QUnitAdapter, EmberView, EmberApplication, EmberRoute, compile) {
+enifed('ember-testing/tests/acceptance_test', ['ember-metal/run_loop', 'ember-views/system/jquery', 'ember-testing/test', 'ember-testing/adapters/qunit', 'ember-views/views/view', 'ember-testing/initializers', 'ember-application/system/application', 'ember-routing/system/route', 'ember-template-compiler/system/compile', 'ember-routing'], function (run, jQuery, Test, QUnitAdapter, EmberView, __dep5__, EmberApplication, EmberRoute, compile) {
 
   'use strict';
 
@@ -55318,7 +55318,7 @@ enifed('ember-testing/tests/helper_registration_test.jshint', function () {
   });
 
 });
-enifed('ember-testing/tests/helpers_test', ['ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/ext/rsvp', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-testing/test', 'ember-testing/setup_for_testing', 'ember-routing/system/router', 'ember-routing/system/route', 'ember-application/system/application', 'ember-template-compiler/system/compile', 'ember-testing/initializers', 'ember-testing/helpers'], function (Ember, run, EmberObject, RSVP, EmberView, jQuery, Test, setupForTesting, EmberRouter, EmberRoute, EmberApplication, compile) {
+enifed('ember-testing/tests/helpers_test', ['ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/ext/rsvp', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-testing/test', 'ember-testing/helpers', 'ember-testing/initializers', 'ember-testing/setup_for_testing', 'ember-routing/system/router', 'ember-routing/system/route', 'ember-application/system/application', 'ember-template-compiler/system/compile'], function (Ember, run, EmberObject, RSVP, EmberView, jQuery, Test, __dep7__, __dep8__, setupForTesting, EmberRouter, EmberRoute, EmberApplication, compile) {
 
   'use strict';
 
@@ -59660,7 +59660,7 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
       container.removeObject(view);
     });
     equal(property_get.get(view, 'childViews.length'), 0, "child views are cleared when removed from container view");
-    equal(container.$().html(),'', "the child view is removed from the DOM");
+    equal(container.$().html(), '', "the child view is removed from the DOM");
   });
 
   QUnit.test("if a ContainerView starts with an empty currentView, nothing is displayed", function() {
@@ -63649,7 +63649,7 @@ enifed('ember-views/tests/views/view/create_child_view_test', ['ember-metal/prop
     var myView = myViewClass.create();
     newView = view.createChildView(myView, attrs);
 
-    equal(newView.container,  container, 'expects to share container with parent');
+    equal(newView.container, container, 'expects to share container with parent');
     equal(newView._parentView, view, 'expects to have the correct parent');
     equal(property_get.get(newView, 'foo'), 'baz', 'view did get custom attributes');
 
@@ -63670,7 +63670,7 @@ enifed('ember-views/tests/views/view/create_child_view_test', ['ember-metal/prop
 
     newView = view.createChildView('bro');
 
-    equal(newView.container,  container, 'expects to share container with parent');
+    equal(newView.container, container, 'expects to share container with parent');
     equal(newView._parentView, view, 'expects to have the correct parent');
   });
 
@@ -67145,7 +67145,7 @@ enifed('ember/tests/application_lifecycle.jshint', function () {
   });
 
 });
-enifed('ember/tests/component_registration_test', ['ember-template-compiler/system/compile', 'ember-htmlbars/helpers', 'ember'], function (compile, helpers) {
+enifed('ember/tests/component_registration_test', ['ember', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers'], function (__dep0__, compile, helpers) {
 
   'use strict';
 
@@ -67535,7 +67535,7 @@ enifed('ember/tests/global-api-test.jshint', function () {
   });
 
 });
-enifed('ember/tests/helpers/helper_registration_test', ['ember-htmlbars/compat', 'ember'], function (EmberHandlebars) {
+enifed('ember/tests/helpers/helper_registration_test', ['ember', 'ember-htmlbars/compat'], function (__dep0__, EmberHandlebars) {
 
   'use strict';
 
@@ -67673,7 +67673,7 @@ enifed('ember/tests/helpers/helper_registration_test.jshint', function () {
   });
 
 });
-enifed('ember/tests/helpers/link_to_test', ['ember-runtime/controllers/object_controller', 'ember-htmlbars/compat', 'ember'], function (object_controller, EmberHandlebars) {
+enifed('ember/tests/helpers/link_to_test', ['ember', 'ember-runtime/controllers/object_controller', 'ember-htmlbars/compat'], function (__dep0__, object_controller, EmberHandlebars) {
 
   'use strict';
 
@@ -68249,8 +68249,8 @@ enifed('ember/tests/helpers/link_to_test', ['ember-runtime/controllers/object_co
   QUnit.test("The {{link-to}} helper accepts string/numeric arguments", function() {
     Router.map(function() {
       this.route('filter', { path: '/filters/:filter' });
-      this.route('post',   { path: '/post/:post_id' });
-      this.route('repo',   { path: '/repo/:owner/:name' });
+      this.route('post', { path: '/post/:post_id' });
+      this.route('repo', { path: '/repo/:owner/:name' });
     });
 
     App.FilterController = Ember.Controller.extend({
@@ -69495,13 +69495,13 @@ enifed('ember/tests/helpers/link_to_test', ['ember-runtime/controllers/object_co
       Ember.run($about, 'click');
 
       assertHasClass('active', $index, true, $about, false, $other, false);
-      assertHasClass('ember-transitioning-in',  $index, false, $about, true, $other, false);
+      assertHasClass('ember-transitioning-in', $index, false, $about, true, $other, false);
       assertHasClass('ember-transitioning-out', $index, true, $about, false, $other, false);
 
       Ember.run(aboutDefer, 'resolve');
 
       assertHasClass('active', $index, false, $about, true, $other, false);
-      assertHasClass('ember-transitioning-in',  $index, false, $about, false, $other, false);
+      assertHasClass('ember-transitioning-in', $index, false, $about, false, $other, false);
       assertHasClass('ember-transitioning-out', $index, false, $about, false, $other, false);
     });
   
@@ -69527,7 +69527,7 @@ enifed('ember/tests/helpers/link_to_test.jshint', function () {
   });
 
 });
-enifed('ember/tests/homepage_example_test', ['ember-htmlbars/compat', 'ember'], function (EmberHandlebars) {
+enifed('ember/tests/homepage_example_test', ['ember', 'ember-htmlbars/compat'], function (__dep0__, EmberHandlebars) {
 
   'use strict';
 
@@ -69629,7 +69629,7 @@ enifed('ember/tests/homepage_example_test.jshint', function () {
   });
 
 });
-enifed('ember/tests/routing/basic_test', ['ember-metal/enumerable_utils', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-views/system/action_manager', 'ember-htmlbars/compat', 'ember'], function (enumerable_utils, property_get, property_set, ActionManager, EmberHandlebars) {
+enifed('ember/tests/routing/basic_test', ['ember', 'ember-metal/enumerable_utils', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-views/system/action_manager', 'ember-htmlbars/compat'], function (__dep0__, enumerable_utils, property_get, property_set, ActionManager, EmberHandlebars) {
 
   'use strict';
 
@@ -69659,7 +69659,7 @@ enifed('ember/tests/routing/basic_test', ['ember-metal/enumerable_utils', 'ember
       router.handleURL(path).then(function(value) {
         ok(false, 'url: `' + path + '` was NOT to be handled');
       }, function(reason) {
-        ok(reason && reason.message === "TransitionAborted",  'url: `' + path + '` was to be aborted');
+        ok(reason && reason.message === "TransitionAborted", 'url: `' + path + '` was to be aborted');
       });
     });
   }
@@ -71494,7 +71494,7 @@ enifed('ember/tests/routing/basic_test', ['ember-metal/enumerable_utils', 'ember
         if (count++ > 10) {
           ok(false, 'infinite loop');
         } else {
-          this.transitionTo("bar.baz",  model);
+          this.transitionTo("bar.baz", model);
         }
       },
 
@@ -73083,7 +73083,7 @@ enifed('ember/tests/routing/basic_test.jshint', function () {
   });
 
 });
-enifed('ember/tests/routing/query_params_test', ['ember-metal/computed', 'ember-metal/platform/define_property', 'ember-runtime/system/string', 'ember-htmlbars/compat', 'ember'], function (computed, define_property, string, EmberHandlebars) {
+enifed('ember/tests/routing/query_params_test', ['ember', 'ember-metal/computed', 'ember-metal/platform/define_property', 'ember-runtime/system/string', 'ember-htmlbars/compat'], function (__dep0__, computed, define_property, string, EmberHandlebars) {
 
   'use strict';
 
@@ -74727,7 +74727,7 @@ enifed('ember/tests/routing/query_params_test.jshint', function () {
   });
 
 });
-enifed('ember/tests/routing/router_map_test', ['ember-template-compiler/system/compile', 'ember'], function (compile) {
+enifed('ember/tests/routing/router_map_test', ['ember', 'ember-template-compiler/system/compile'], function (__dep0__, compile) {
 
   'use strict';
 
@@ -74837,7 +74837,7 @@ enifed('ember/tests/routing/router_map_test.jshint', function () {
   });
 
 });
-enifed('ember/tests/routing/substates_test', ['ember-htmlbars/compat', 'ember'], function (EmberHandlebars) {
+enifed('ember/tests/routing/substates_test', ['ember', 'ember-htmlbars/compat'], function (__dep0__, EmberHandlebars) {
 
   'use strict';
 
