@@ -4858,8 +4858,7 @@ enifed("ember-htmlbars",
 
     
       Ember.HTMLBars = {
-        helpers: helpers,
-        registerHelper: registerHelper,
+        _registerHelper: registerHelper,
         template: template,
         compile: compile,
         precompile: precompile,
@@ -5346,8 +5345,8 @@ enifed("ember-htmlbars/helpers",
     var Helper = __dependency2__["default"];
 
     /**
-      @public
-      @method registerHelper
+      @private
+      @method _registerHelper
       @for Ember.HTMLBars
       @param {String} name
       @param {Object|Function} helperFunc the helper function to add
