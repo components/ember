@@ -3732,12 +3732,13 @@ enifed("ember-application/system/resolver",
       */
       lookupDescription: function(fullName) {
         var parsedName = this.parseName(fullName);
+        var description;
 
         if (parsedName.type === 'template') {
           return 'template at ' + parsedName.fullNameWithoutType.replace(/\./g, '/');
         }
 
-        var description = parsedName.root + '.' + classify(parsedName.name);
+        description = parsedName.root + '.' + classify(parsedName.name).replace(/\./g, '');
 
         if (parsedName.type !== 'model') {
           description += classify(parsedName.type);
@@ -4885,7 +4886,8 @@ enifed("ember-htmlbars",
         concat: concat
       },
 
-      helpers: helpers
+      helpers: helpers,
+      useFragmentCache: true
     };
     __exports__.defaultEnv = defaultEnv;
   });
@@ -7765,6 +7767,8 @@ enifed("ember-htmlbars/hooks/block",
 
     __exports__["default"] = function block(env, morph, view, path, params, hash, template, inverse) {
       var helper = lookupHelper(path, view, env);
+
+      Ember.assert("A helper named `"+path+"` could not be found", helper);
 
       var options = {
         morph: morph,
@@ -11885,7 +11889,7 @@ enifed("ember-metal/core",
     /**
       Hash of enabled Canary features. Add to this before creating your application.
 
-      You can also define `ENV.FEATURES` if you need to enable features flagged at runtime.
+      You can also define `EmberENV.FEATURES` if you need to enable features flagged at runtime.
 
       @class FEATURES
       @namespace Ember
@@ -11901,8 +11905,8 @@ enifed("ember-metal/core",
 
       You can define the following configuration options:
 
-      * `ENV.ENABLE_ALL_FEATURES` - force all features to be enabled.
-      * `ENV.ENABLE_OPTIONAL_FEATURES` - enable any features that have not been explicitly
+      * `EmberENV.ENABLE_ALL_FEATURES` - force all features to be enabled.
+      * `EmberENV.ENABLE_OPTIONAL_FEATURES` - enable any features that have not been explicitly
         enabled/disabled.
 
       @method isEnabled
@@ -11938,7 +11942,7 @@ enifed("ember-metal/core",
 
       In general we recommend leaving this option set to true since it rarely
       conflicts with other code. If you need to turn it off however, you can
-      define an `ENV.EXTEND_PROTOTYPES` config to disable it.
+      define an `EmberENV.EXTEND_PROTOTYPES` config to disable it.
 
       @property EXTEND_PROTOTYPES
       @type Boolean
@@ -38294,8 +38298,8 @@ enifed("ember-views/attr_nodes/attr_node",
     __exports__["default"] = AttrNode;
   });
 enifed("ember-views/attr_nodes/legacy_bind",
-  ["./attr_node","ember-runtime/system/string","ember-metal/utils","ember-metal/streams/utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
+  ["./attr_node","ember-runtime/system/string","ember-metal/utils","ember-metal/streams/utils","ember-metal/platform/create","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -38306,12 +38310,13 @@ enifed("ember-views/attr_nodes/legacy_bind",
     var fmt = __dependency2__.fmt;
     var typeOf = __dependency3__.typeOf;
     var read = __dependency4__.read;
+    var create = __dependency5__["default"];
 
     function LegacyBindAttrNode(attrName, attrValue) {
       this.init(attrName, attrValue);
     }
 
-    LegacyBindAttrNode.prototype = AttrNode.prototype;
+    LegacyBindAttrNode.prototype = create(AttrNode.prototype);
 
     LegacyBindAttrNode.prototype.render = function render(buffer) {
       this.isDirty = false;

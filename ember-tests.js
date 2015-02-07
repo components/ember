@@ -4560,13 +4560,12 @@ enifed("ember-htmlbars/tests/attr_nodes/svg_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/attr_nodes/value_test",
-  ["ember-views/views/view","ember-metal/run_loop","ember-template-compiler/system/compile","htmlbars-test-helpers"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+  ["ember-views/views/view","ember-metal/run_loop","ember-template-compiler/system/compile"],
+  function(__dependency1__, __dependency2__, __dependency3__) {
     "use strict";
     var EmberView = __dependency1__["default"];
     var run = __dependency2__["default"];
     var compile = __dependency3__["default"];
-    var equalInnerHTML = __dependency4__.equalInnerHTML;
 
     var view;
 
@@ -5663,8 +5662,8 @@ enifed("ember-htmlbars/tests/compat/precompile_test.jshint",
     });
   });
 enifed("ember-htmlbars/tests/helpers/bind_attr_test",
-  ["ember-metal/core","ember-metal/run_loop","ember-runtime/system/namespace","ember-views/views/view","ember-views/views/metamorph_view","ember-runtime/system/object","ember-runtime/system/native_array","ember-metal/computed","ember-metal/observer","ember-runtime/system/container","ember-metal/property_set","ember-runtime/tests/utils","htmlbars-test-helpers","ember-htmlbars/helpers","ember-template-compiler/system/compile"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__, __dependency15__) {
+  ["ember-metal/core","ember-metal/run_loop","ember-runtime/system/namespace","ember-views/views/view","ember-views/views/metamorph_view","ember-runtime/system/object","ember-runtime/system/native_array","ember-metal/computed","ember-metal/observer","ember-runtime/system/container","ember-metal/property_set","ember-runtime/tests/utils","ember-htmlbars/helpers","ember-template-compiler/system/compile"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __dependency14__) {
     "use strict";
     /*jshint newcap:false*/
     var Ember = __dependency1__["default"];
@@ -5681,10 +5680,9 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test",
     var set = __dependency11__.set;
     var runAppend = __dependency12__.runAppend;
     var runDestroy = __dependency12__.runDestroy;
-    var equalInnerHTML = __dependency13__.equalInnerHTML;
 
-    var helpers = __dependency14__["default"];
-    var compile = __dependency15__["default"];
+    var helpers = __dependency13__["default"];
+    var compile = __dependency14__["default"];
     var view;
 
     var originalLookup = Ember.lookup;
@@ -5950,13 +5948,13 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test",
 
       runAppend(view);
 
-      equalInnerHTML(view.element, '<img class="bar">', 'renders class');
+      equal(view.element.firstChild.className, 'bar', 'renders class');
 
       run(function() {
         set(view, 'foo', 'baz');
       });
 
-      equalInnerHTML(view.element, '<img class="baz">', 'updates rendered class');
+      equal(view.element.firstChild.className, 'baz', 'updates rendered class');
     });
 
     test("should be able to bind unquoted class attribute with {{bind-attr}}", function() {
@@ -5988,7 +5986,7 @@ enifed("ember-htmlbars/tests/helpers/bind_attr_test",
 
       runAppend(view);
 
-      equalInnerHTML(view.element, '<img class="is-truthy">', 'renders class');
+      equal(view.element.firstChild.className, 'is-truthy', 'renders class');
 
       run(function() {
         set(view, 'isNumber', 0);
@@ -13028,7 +13026,18 @@ enifed("ember-htmlbars/tests/integration/block_params_test",
       }
     });
 
-    test("basic block params usage", function() {
+    QUnit.test("should raise error if helper not available", function() {
+      view = View.create({
+        template: compile('{{#shouldfail}}{{/shouldfail}}')
+      });
+
+      expectAssertion(function() {
+        runAppend(view);
+      }, 'A helper named `shouldfail` could not be found');
+
+    });
+
+    QUnit.test("basic block params usage", function() {
       view = View.create({
         committer: { name: "rwjblue" },
         template: compile('{{#alias view.committer.name as |name|}}name: {{name}}, length: {{name.length}}{{/alias}}')
