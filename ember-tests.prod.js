@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.d23f4844
+ * @version   1.12.0-beta.1+canary.b186e6e3
  */
 
 (function() {
@@ -5054,7 +5054,7 @@ enifed('ember-application/tests/system/instance_initializers_test.jshint', funct
   });
 
 });
-enifed('ember-application/tests/system/logging_test', ['ember-metal/run_loop', 'ember-application/system/application', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-runtime/ext/rsvp', 'ember-metal/keys', 'ember-routing'], function (run, Application, View, Controller, Route, RSVP, keys) {
+enifed('ember-application/tests/system/logging_test', ['ember-metal/run_loop', 'ember-application/system/application', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-runtime/ext/rsvp', 'ember-metal/keys', 'ember-template-compiler/system/compile', 'ember-routing'], function (run, Application, View, Controller, Route, RSVP, keys, compile) {
 
   'use strict';
 
@@ -5232,7 +5232,7 @@ enifed('ember-application/tests/system/logging_test', ['ember-metal/run_loop', '
       return;
     }
 
-    App.register('template:application', function() { return ''; });
+    App.register('template:application', compile['default']("{{outlet}}"));
     run['default'](App, 'advanceReadiness');
 
     visit('/posts').then(function() {
@@ -5260,7 +5260,7 @@ enifed('ember-application/tests/system/logging_test', ['ember-metal/run_loop', '
       return;
     }
 
-    App.register('template:application', function() { return 'Template with default view'; });
+    App.register('template:application', compile['default']('{{outlet}}'));
     App.register('template:foo', function() { return 'Template with custom view'; });
     App.register('view:posts', View['default'].extend({ templateName: 'foo' }));
     run['default'](App, 'advanceReadiness');
@@ -32415,13 +32415,13 @@ enifed('ember-routing-htmlbars/tests/helpers/link-to_test.jshint', function () {
   });
 
 });
-enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-views/views/metamorph_view', 'ember-routing/ext/view', 'ember-views/views/container_view', 'ember-views/system/jquery', 'ember-routing-htmlbars/helpers/outlet', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers', 'ember-runtime/tests/utils', 'ember-routing-htmlbars/tests/utils'], function (Ember, run, Namespace, _MetamorphView, EmberView, EmberContainerView, jQuery, outlet, compile, helpers, utils, tests__utils) {
+enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-routing-htmlbars/helpers/outlet', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers', 'ember-runtime/tests/utils', 'ember-routing-htmlbars/tests/utils'], function (Ember, run, Namespace, EmberView, jQuery, outlet, compile, helpers, utils, tests__utils) {
 
   'use strict';
 
   var trim = jQuery['default'].trim;
 
-  var view, registry, container, originalOutletHelper;
+  var registry, container, originalOutletHelper, top;
 
   QUnit.module("ember-routing-htmlbars: {{outlet}} helper", {
     setup: function() {
@@ -32431,6 +32431,9 @@ enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['ember-metal/core', 
       var namespace = Namespace['default'].create();
       registry = tests__utils.buildRegistry(namespace);
       container = registry.container();
+
+      var CoreOutlet = container.lookupFactory('view:core-outlet');
+      top = CoreOutlet.create();
     },
 
     teardown: function() {
@@ -32438,219 +32441,146 @@ enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['ember-metal/core', 
       helpers['default']['outlet'] = originalOutletHelper;
 
       utils.runDestroy(container);
-      utils.runDestroy(view);
-      registry = container = view = null;
+      utils.runDestroy(top);
+      registry = container = top = null;
     }
   });
 
-  QUnit.test("view should support connectOutlet for the main outlet", function() {
-    var template = "<h1>HI</h1>{{outlet}}";
-    view = EmberView['default'].create({
-      template: compile['default'](template)
-    });
+  QUnit.test("view should render the outlet when set after dom insertion", function() {
+    var routerState = withTemplate("<h1>HI</h1>{{outlet}}");
+    top.setOutletState(routerState);
+    utils.runAppend(top);
 
-    utils.runAppend(view);
+    equal(top.$().text(), 'HI');
 
-    equal(view.$().text(), 'HI');
+    routerState.outlets.main = withTemplate("<p>BYE</p>");
 
     run['default'](function() {
-      view.connectOutlet('main', EmberView['default'].create({
-        template: compile['default']("<p>BYE</p>")
-      }));
+      top.setOutletState(routerState);
     });
 
     // Replace whitespace for older IE
-    equal(trim(view.$().text()), 'HIBYE');
+    equal(trim(top.$().text()), 'HIBYE');
   });
 
-  QUnit.test("outlet should support connectOutlet in slots in prerender state", function() {
-    var template = "<h1>HI</h1>{{outlet}}";
-    view = EmberView['default'].create({
-      template: compile['default'](template)
-    });
+  QUnit.test("view should render the outlet when set before dom insertion", function() {
+    var routerState = withTemplate("<h1>HI</h1>{{outlet}}");
+    routerState.outlets.main = withTemplate("<p>BYE</p>");
+    top.setOutletState(routerState);
+    utils.runAppend(top);
 
-    view.connectOutlet('main', EmberView['default'].create({
-      template: compile['default']("<p>BYE</p>")
-    }));
-
-    utils.runAppend(view);
-
-    equal(view.$().text(), 'HIBYE');
+    // Replace whitespace for older IE
+    equal(trim(top.$().text()), 'HIBYE');
   });
+
 
   QUnit.test("outlet should support an optional name", function() {
-    var template = "<h1>HI</h1>{{outlet 'mainView'}}";
-    view = EmberView['default'].create({
-      template: compile['default'](template)
-    });
+    var routerState = withTemplate("<h1>HI</h1>{{outlet 'mainView'}}");
+    top.setOutletState(routerState);
+    utils.runAppend(top);
 
-    utils.runAppend(view);
+    equal(top.$().text(), 'HI');
 
-    equal(view.$().text(), 'HI');
+    routerState.outlets.mainView = withTemplate("<p>BYE</p>");
 
     run['default'](function() {
-      view.connectOutlet('mainView', EmberView['default'].create({
-        template: compile['default']("<p>BYE</p>")
-      }));
+      top.setOutletState(routerState);
     });
 
     // Replace whitespace for older IE
-    equal(trim(view.$().text()), 'HIBYE');
+    equal(trim(top.$().text()), 'HIBYE');
   });
 
 
   QUnit.test("outlet should correctly lookup a view", function() {
-
-    var template,
-        ContainerView,
-        childView;
-
-    ContainerView = EmberContainerView['default'].extend();
-
-    registry.register("view:containerView", ContainerView);
-
-    template = "<h1>HI</h1>{{outlet view='containerView'}}";
-
-    view = EmberView['default'].create({
-      template: compile['default'](template),
-      container : container
+    var CoreOutlet = container.lookupFactory('view:core-outlet');
+    var SpecialOutlet = CoreOutlet.extend({
+      classNames: ['special']
     });
 
-    childView = EmberView['default'].create({
-      template: compile['default']("<p>BYE</p>")
-    });
+    registry.register("view:special-outlet", SpecialOutlet);
 
-    utils.runAppend(view);
+    var routerState = withTemplate("<h1>HI</h1>{{outlet view='special-outlet'}}");
+    top.setOutletState(routerState);
+    utils.runAppend(top);
 
-    equal(view.$().text(), 'HI');
+    equal(top.$().text(), 'HI');
 
+    routerState.outlets.main = withTemplate("<p>BYE</p>");
     run['default'](function() {
-      view.connectOutlet('main', childView);
+      top.setOutletState(routerState);
     });
-
-    ok(ContainerView.detectInstance(childView._parentView), "The custom view class should be used for the outlet");
 
     // Replace whitespace for older IE
-    equal(trim(view.$().text()), 'HIBYE');
-
+    equal(trim(top.$().text()), 'HIBYE');
+    equal(top.$().find('.special').length, 1, "expected to find .special element");
   });
 
   QUnit.test("outlet should assert view is specified as a string", function() {
-
-    var template = "<h1>HI</h1>{{outlet view=containerView}}";
+    top.setOutletState(withTemplate("<h1>HI</h1>{{outlet view=containerView}}"));
 
     expectAssertion(function () {
-
-      view = EmberView['default'].create({
-        template: compile['default'](template),
-        container : container
-      });
-
-      utils.runAppend(view);
-
-    });
+      utils.runAppend(top);
+    }, /Using a quoteless view parameter with {{outlet}} is not supported/);
 
   });
 
   QUnit.test("outlet should assert view path is successfully resolved", function() {
-
-    var template = "<h1>HI</h1>{{outlet view='someViewNameHere'}}";
+    top.setOutletState(withTemplate("<h1>HI</h1>{{outlet view='someViewNameHere'}}"));
 
     expectAssertion(function () {
-
-      view = EmberView['default'].create({
-        template: compile['default'](template),
-        container : container
-      });
-
-      utils.runAppend(view);
-
-    });
+      utils.runAppend(top);
+    }, "The view name you supplied 'someViewNameHere' did not resolve to a view.");
 
   });
 
   QUnit.test("outlet should support an optional view class", function() {
-    var template = "<h1>HI</h1>{{outlet viewClass=view.outletView}}";
-    view = EmberView['default'].create({
-      template: compile['default'](template),
-      outletView: EmberContainerView['default'].extend()
+    var CoreOutlet = container.lookupFactory('view:core-outlet');
+    var SpecialOutlet = CoreOutlet.extend({
+      classNames: ['very-special']
     });
+    var routerState = {
+      render: {
+        ViewClass: EmberView['default'].extend({
+          template: compile['default']("<h1>HI</h1>{{outlet viewClass=view.outletView}}"),
+          outletView: SpecialOutlet
+        })
+      },
+      outlets: {}
+    };
+    top.setOutletState(routerState);
 
-    utils.runAppend(view);
+    utils.runAppend(top);
 
-    equal(view.$().text(), 'HI');
+    equal(top.$().text(), 'HI');
+    equal(top.$().find('.very-special').length, 1, "Should find .very-special");
 
-    var childView = EmberView['default'].create({
-      template: compile['default']("<p>BYE</p>")
-    });
+    routerState.outlets.main = withTemplate("<p>BYE</p>");
 
     run['default'](function() {
-      view.connectOutlet('main', childView);
+      top.setOutletState(routerState);
     });
 
-    ok(view.outletView.detectInstance(childView._parentView), "The custom view class should be used for the outlet");
-
     // Replace whitespace for older IE
-    equal(trim(view.$().text()), 'HIBYE');
+    equal(trim(top.$().text()), 'HIBYE');
   });
 
 
   QUnit.test("Outlets bind to the current view, not the current concrete view", function() {
-    var parentTemplate = "<h1>HI</h1>{{outlet}}";
-    var middleTemplate = "<h2>MIDDLE</h2>{{outlet}}";
-    var bottomTemplate = "<h3>BOTTOM</h3>";
-
-    view = EmberView['default'].create({
-      template: compile['default'](parentTemplate)
-    });
-
-    var middleView = _MetamorphView['default'].create({
-      template: compile['default'](middleTemplate)
-    });
-
-    var bottomView = _MetamorphView['default'].create({
-      template: compile['default'](bottomTemplate)
-    });
-
-    utils.runAppend(view);
-
+    var routerState = withTemplate("<h1>HI</h1>{{outlet}}");
+    top.setOutletState(routerState);
+    utils.runAppend(top);
+    routerState.outlets.main = withTemplate("<h2>MIDDLE</h2>{{outlet}}");
     run['default'](function() {
-      view.connectOutlet('main', middleView);
+      top.setOutletState(routerState);
     });
-
+    routerState.outlets.main.outlets.main = withTemplate("<h3>BOTTOM</h3>");
     run['default'](function() {
-      middleView.connectOutlet('main', bottomView);
+      top.setOutletState(routerState);
     });
 
     var output = jQuery['default']('#qunit-fixture h1 ~ h2 ~ h3').text();
     equal(output, "BOTTOM", "all templates were rendered");
-  });
-
-  QUnit.test("view should support disconnectOutlet for the main outlet", function() {
-    var template = "<h1>HI</h1>{{outlet}}";
-    view = EmberView['default'].create({
-      template: compile['default'](template)
-    });
-
-    utils.runAppend(view);
-
-    equal(view.$().text(), 'HI');
-
-    run['default'](function() {
-      view.connectOutlet('main', EmberView['default'].create({
-        template: compile['default']("<p>BYE</p>")
-      }));
-    });
-
-    // Replace whitespace for older IE
-    equal(trim(view.$().text()), 'HIBYE');
-
-    run['default'](function() {
-      view.disconnectOutlet('main');
-    });
-
-    // Replace whitespace for older IE
-    equal(trim(view.$().text()), 'HI');
   });
 
   // TODO: Remove flag when {{with}} is fixed.
@@ -32661,21 +32591,26 @@ enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['ember-metal/core', 
     var parentTemplate = "<h1>HI</h1>{{#if view.alwaysTrue}}{{#with this}}{{outlet}}{{/with}}{{/if}}";
     var bottomTemplate = "<h3>BOTTOM</h3>";
 
-    view = EmberView['default'].create({
-      alwaysTrue: true,
-      template: compile['default'](parentTemplate)
-    });
+    var routerState = {
+      render: {
+        ViewClass: EmberView['default'].extend({
+          alwaysTrue: true,
+          template: compile['default'](parentTemplate)
+        })
+      },
+      outlets: {}
+    };
 
-    var bottomView = _MetamorphView['default'].create({
-      template: compile['default'](bottomTemplate)
-    });
+    top.setOutletState(routerState);
 
     expectDeprecation(function() {
-      utils.runAppend(view);
+      utils.runAppend(top);
     }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead.');
 
+    routerState.outlets.main = withTemplate(bottomTemplate);
+
     run['default'](function() {
-      view.connectOutlet('main', bottomView);
+      top.setOutletState(routerState);
     });
 
     var output = jQuery['default']('#qunit-fixture h1 ~ h3').text();
@@ -32688,51 +32623,59 @@ enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['ember-metal/core', 
   QUnit.test("should support layouts", function() {
     var template = "{{outlet}}";
     var layout = "<h1>HI</h1>{{yield}}";
+    var routerState = {
+      render: {
+        ViewClass: EmberView['default'].extend({
+          template: compile['default'](template),
+          layout: compile['default'](layout)
+        })
+      },
+      outlets: {}
+    };
+    top.setOutletState(routerState);
+    utils.runAppend(top);
 
-    view = EmberView['default'].create({
-      template: compile['default'](template),
-      layout: compile['default'](layout)
-    });
+    equal(top.$().text(), 'HI');
 
-    utils.runAppend(view);
-
-    equal(view.$().text(), 'HI');
+    routerState.outlets.main = withTemplate("<p>BYE</p>");
 
     run['default'](function() {
-      view.connectOutlet('main', EmberView['default'].create({
-        template: compile['default']("<p>BYE</p>")
-      }));
+      top.setOutletState(routerState);
     });
+
     // Replace whitespace for older IE
-    equal(trim(view.$().text()), 'HIBYE');
+    equal(trim(top.$().text()), 'HIBYE');
   });
 
   QUnit.test("should not throw deprecations if {{outlet}} is used without a name", function() {
     expectNoDeprecation();
-    view = EmberView['default'].create({
-      template: compile['default']("{{outlet}}")
-    });
-    utils.runAppend(view);
+    top.setOutletState(withTemplate("{{outlet}}"));
+    utils.runAppend(top);
   });
 
   QUnit.test("should not throw deprecations if {{outlet}} is used with a quoted name", function() {
     expectNoDeprecation();
-    view = EmberView['default'].create({
-      template: compile['default']("{{outlet \"foo\"}}")
-    });
-    utils.runAppend(view);
+    top.setOutletState(withTemplate("{{outlet \"foo\"}}"));
+    utils.runAppend(top);
   });
 
   
     QUnit.test("should throw an assertion if {{outlet}} used with unquoted name", function() {
-      view = EmberView['default'].create({
-        template: compile['default']("{{outlet foo}}")
-      });
+      top.setOutletState(withTemplate("{{outlet foo}}"));
       expectAssertion(function() {
-        utils.runAppend(view);
+        utils.runAppend(top);
       }, "Using {{outlet}} with an unquoted name is not supported.");
     });
   
+  function withTemplate(string) {
+    return {
+      render: {
+        template: compile['default'](string)
+      },
+      outlets: {}
+    };
+  }
+
 });
 enifed('ember-routing-htmlbars/tests/helpers/outlet_test.jscs-test', function () {
 
@@ -32754,7 +32697,7 @@ enifed('ember-routing-htmlbars/tests/helpers/outlet_test.jshint', function () {
   });
 
 });
-enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/platform/define_property', 'ember-metal/mixin', 'ember-runtime/system/namespace', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/array_controller', 'ember-htmlbars/helpers', 'ember-template-compiler/system/compile', 'ember-routing/ext/view', 'ember-views/system/jquery', 'ember-views/system/action_manager', 'ember-routing-htmlbars/helpers/render', 'ember-routing-htmlbars/helpers/action', 'ember-routing-htmlbars/helpers/outlet', 'ember-routing-htmlbars/tests/utils', 'ember-runtime/tests/utils'], function (Ember, property_set, run, define_property, mixin, Namespace, controllers__controller, EmberArrayController, helpers, compile, EmberView, jQuery, ActionManager, render, helpers__action, outlet, utils, tests__utils) {
+enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/platform/define_property', 'ember-metal/mixin', 'ember-runtime/system/namespace', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/array_controller', 'ember-htmlbars/helpers', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-views/system/action_manager', 'ember-routing-htmlbars/helpers/render', 'ember-routing-htmlbars/helpers/action', 'ember-routing-htmlbars/helpers/outlet', 'ember-routing-htmlbars/tests/utils', 'ember-runtime/tests/utils'], function (Ember, property_set, run, define_property, mixin, Namespace, controllers__controller, EmberArrayController, helpers, compile, EmberView, jQuery, ActionManager, render, helpers__action, outlet, utils, tests__utils) {
 
   'use strict';
 
@@ -33161,30 +33104,40 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 
   });
 
   QUnit.test("{{render}} helper should be able to render a template again when it was removed", function() {
-    var template = "<h1>HI</h1>{{outlet}}";
     var controller = controllers__controller["default"].extend({ container: container });
-    view = EmberView['default'].create({
-      template: compile['default'](template)
-    });
+    var CoreOutlet = container.lookupFactory('view:core-outlet');
+    view = CoreOutlet.create();
+    tests__utils.runAppend(view);
 
     Ember['default'].TEMPLATES['home'] = compile['default']("<p>BYE</p>");
 
-    tests__utils.runAppend(view);
+    var liveRoutes = {
+      render: {
+        template: compile['default']("<h1>HI</h1>{{outlet}}")
+      },
+      outlets: {}
+    };
 
     run['default'](function() {
-      view.connectOutlet('main', EmberView['default'].create({
-        controller: controller.create(),
-        template: compile['default']("<div>1{{render 'home'}}</div>")
-      }));
+      liveRoutes.outlets.main = {
+        render: {
+          controller: controller.create(),
+          template: compile['default']("<div>1{{render 'home'}}</div>")
+        }
+      };
+      view.setOutletState(liveRoutes);
     });
 
     equal(view.$().text(), 'HI1BYE');
 
     run['default'](function() {
-      view.connectOutlet('main', EmberView['default'].create({
-        controller: controller.create(),
-        template: compile['default']("<div>2{{render 'home'}}</div>")
-      }));
+      liveRoutes.outlets.main = {
+        render: {
+          controller: controller.create(),
+          template: compile['default']("<div>2{{render 'home'}}</div>")
+        }
+      };
+      view.setOutletState(liveRoutes);
     });
 
     equal(view.$().text(), 'HI2BYE');
@@ -33286,7 +33239,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test.jshint', function () {
   });
 
 });
-enifed('ember-routing-htmlbars/tests/utils', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/string', 'container/registry', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/object_controller', 'ember-runtime/controllers/array_controller', 'ember-views/views/metamorph_view', 'ember-routing/system/router', 'ember-routing/location/hash_location'], function (exports, property_get, property_set, string, Registry, Controller, ObjectController, ArrayController, _MetamorphView, EmberRouter, HashLocation) {
+enifed('ember-routing-htmlbars/tests/utils', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/string', 'container/registry', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/object_controller', 'ember-runtime/controllers/array_controller', 'ember-views/views/metamorph_view', 'ember-views/views/view', 'ember-routing/system/router', 'ember-routing-views/views/outlet', 'ember-routing/location/hash_location'], function (exports, property_get, property_set, string, Registry, Controller, ObjectController, ArrayController, _MetamorphView, EmberView, EmberRouter, outlet, HashLocation) {
 
   'use strict';
 
@@ -33330,6 +33283,9 @@ enifed('ember-routing-htmlbars/tests/utils', ['exports', 'ember-metal/property_g
     registry.register("controller:array", ArrayController['default'], { instantiate: false });
 
     registry.register("view:default", _MetamorphView['default']);
+    registry.register("view:toplevel", EmberView['default'].extend());
+    registry.register("view:-outlet", outlet.OutletView);
+    registry.register("view:core-outlet", outlet.CoreOutletView);
     registry.register("router:main", EmberRouter['default'].extend());
 
     registry.typeInjection("route", "router", "router:main");
@@ -33507,26 +33463,6 @@ enifed('ember-routing/ext/run_loop.jshint', function () {
   module('JSHint - ember-routing/ext');
   test('ember-routing/ext/run_loop.js should pass jshint', function() { 
     ok(true, 'ember-routing/ext/run_loop.js should pass jshint.'); 
-  });
-
-});
-enifed('ember-routing/ext/view.jscs-test', function () {
-
-  'use strict';
-
-  module('JSCS - ember-routing/ext');
-  test('ember-routing/ext/view.js should pass jscs', function() {
-    ok(true, 'ember-routing/ext/view.js should pass jscs.');
-  });
-
-});
-enifed('ember-routing/ext/view.jshint', function () {
-
-  'use strict';
-
-  module('JSHint - ember-routing/ext');
-  test('ember-routing/ext/view.js should pass jshint', function() { 
-    ok(true, 'ember-routing/ext/view.js should pass jshint.'); 
   });
 
 });
@@ -69883,28 +69819,6 @@ enifed('ember/tests/routing/basic_test', ['ember', 'ember-metal/enumerable_utils
     equal(Ember.$('h3:contains(Hours)', '#qunit-fixture').length, 1, "The home template was rendered");
   });
 
-  QUnit.test("The Homepage register as activeView", function() {
-    Router.map(function() {
-      this.route("home", { path: "/" });
-      this.route("homepage");
-    });
-
-    App.HomeRoute = Ember.Route.extend({
-    });
-
-    App.HomepageRoute = Ember.Route.extend({
-    });
-
-    bootApplication();
-
-    ok(router._lookupActiveView('home'), '`home` active view is connected');
-
-    handleURL('/homepage');
-
-    ok(router._lookupActiveView('homepage'), '`homepage` active view is connected');
-    equal(router._lookupActiveView('home'), undefined, '`home` active view is disconnected');
-  });
-
   QUnit.test("The Homepage with explicit template name in renderTemplate", function() {
     Router.map(function() {
       this.route("home", { path: "/" });
@@ -72281,6 +72195,22 @@ enifed('ember/tests/routing/basic_test', ['ember', 'ember-metal/enumerable_utils
   });
 
 
+  QUnit.test("Route will assert if you try to explicitly render {into: ...} a missing template", function () {
+    Router.map(function() {
+      this.route("home", { path: "/" });
+    });
+
+    App.HomeRoute = Ember.Route.extend({
+      renderTemplate: function() {
+        this.render({ into: 'nonexistent' });
+      }
+    });
+
+    expectAssertion(function() {
+      bootApplication();
+    }, "You attempted to render into 'nonexistent' but it was not found");
+  });
+
   QUnit.test("Route supports clearing outlet explicitly", function() {
     Ember.TEMPLATES.application = compile("{{outlet}}{{outlet 'modal'}}");
     Ember.TEMPLATES.posts = compile("{{outlet}}");
@@ -73148,6 +73078,57 @@ enifed('ember/tests/routing/basic_test', ['ember', 'ember-metal/enumerable_utils
     throws(function() {
       bootApplication();
     }, /\bboom\b/);
+  });
+
+  QUnit.test("{{outlet}} works when created after initial render", function() {
+    Ember.TEMPLATES.sample = compile("Hi{{#if showTheThing}}{{outlet}}{{/if}}Bye");
+    Ember.TEMPLATES['sample/inner'] = compile("Yay");
+    Ember.TEMPLATES['sample/inner2'] = compile("Boo");
+    Router.map(function() {
+      this.route('sample', { path: '/' }, function() {
+        this.route('inner', { path: '/' });
+        this.route('inner2', { path: '/2' });
+      });
+    });
+
+    bootApplication();
+
+    equal(Ember.$('#qunit-fixture').text(), "HiBye", "initial render");
+
+    Ember.run(function() {
+      container.lookup('controller:sample').set('showTheThing', true);
+    });
+
+    equal(Ember.$('#qunit-fixture').text(), "HiYayBye", "second render");
+
+    handleURL('/2');
+
+    equal(Ember.$('#qunit-fixture').text(), "HiBooBye", "third render");
+  });
+
+  QUnit.test("Can rerender application view multiple times when it contains an outlet", function() {
+    Ember.TEMPLATES.application = compile("App{{outlet}}");
+    Ember.TEMPLATES.index = compile("Hello world");
+
+    registry.register('view:application', Ember.View.extend({
+      elementId: 'im-special'
+    }));
+
+    bootApplication();
+
+    equal(Ember.$('#qunit-fixture').text(), "AppHello world", "initial render");
+
+    Ember.run(function() {
+      Ember.View.views['im-special'].rerender();
+    });
+
+    equal(Ember.$('#qunit-fixture').text(), "AppHello world", "second render");
+
+    Ember.run(function() {
+      Ember.View.views['im-special'].rerender();
+    });
+
+    equal(Ember.$('#qunit-fixture').text(), "AppHello world", "third render");
   });
 
 });
