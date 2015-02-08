@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1.63c16a12
+ * @version   1.11.0-beta.1.d17db980
  */
 
 (function() {
@@ -52974,6 +52974,12 @@ enifed('ember-testing/tests/acceptance_test', ['ember-metal/run_loop', 'ember-vi
         App.setupForTesting();
       });
 
+      Test['default'].registerAsyncHelper('slowHelper', function() {
+        return Test['default'].promise(function(resolve) {
+          setTimeout(resolve, 10);
+        });
+      });
+
       App.injectTestHelpers();
 
       find = window.find;
@@ -52987,6 +52993,7 @@ enifed('ember-testing/tests/acceptance_test', ['ember-metal/run_loop', 'ember-vi
 
     teardown: function() {
       App.removeTestHelpers();
+      Test['default'].unregisterHelper('slowHelper');
       jQuery['default']('#ember-testing-container, #ember-testing').remove();
       run['default'](App, App.destroy);
       App = null;
@@ -53199,6 +53206,40 @@ enifed('ember-testing/tests/acceptance_test', ['ember-metal/run_loop', 'ember-vi
     andThen(function() {
       equal(indexHitCount, 1, 'should hit index once when visiting /');
     });
+  });
+
+  QUnit.test("test must not finish while asyncHelpers are pending", function () {
+    var async = 0;
+    var innerRan = false;
+
+    Test['default'].adapter = QUnitAdapter['default'].extend({
+      asyncStart: function() {
+        async++;
+        this._super();
+      },
+      asyncEnd: function() {
+        async--;
+        this._super();
+      }
+    }).create();
+
+    App.testHelpers.slowHelper();
+    andThen(function() {
+      innerRan = true;
+    });
+
+
+    equal(innerRan, false, 'should not have run yet');
+    ok(async > 0, 'should have told the adapter to pause');
+
+    if (async === 0) {
+      // If we failed the test, prevent zalgo from escaping and breaking
+      // our other tests.
+      Test['default'].adapter.asyncStart();
+      Test['default'].resolve().then(function() {
+        Test['default'].adapter.asyncEnd();
+      });
+    }
   });
 
 });

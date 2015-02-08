@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1.63c16a12
+ * @version   1.11.0-beta.1.d17db980
  */
 
 (function() {
@@ -1361,11 +1361,18 @@ enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_lo
         // It's the first async helper in current context
         lastPromise = fn.apply(app, args);
       } else {
-        // wait for last helper's promise to resolve
-        // and then execute
+        // wait for last helper's promise to resolve and then
+        // execute. To be safe, we need to tell the adapter we're going
+        // asynchronous here, because fn may not be invoked before we
+        // return.
+        Test.adapter.asyncStart();
         run(function() {
           lastPromise = Test.resolve(lastPromise).then(function() {
-            return fn.apply(app, args);
+            try {
+              return fn.apply(app, args);
+            } finally {
+              Test.adapter.asyncEnd();
+            }
           });
         });
       }
