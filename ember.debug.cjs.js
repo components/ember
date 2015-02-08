@@ -49031,3 +49031,4 @@ enifed("rsvp/utils",
 requireModule("ember");
 
 })();
+;module.exports = Ember;
