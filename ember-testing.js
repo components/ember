@@ -5,11 +5,11 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1.d17db980
+ * @version   1.11.0-beta.1
  */
 
 (function() {
-var enifed, requireModule, eriuqer, requirejs, Ember;
+var define, requireModule, require, requirejs, Ember;
 var mainContext = this;
 
 (function() {
@@ -22,7 +22,7 @@ var mainContext = this;
     var registry = {};
     var seen = {};
 
-    enifed = function(name, deps, callback) {
+    define = function(name, deps, callback) {
       var value = { };
 
       if (!callback) {
@@ -36,7 +36,7 @@ var mainContext = this;
         registry[name] = value;
     };
 
-    requirejs = eriuqer = requireModule = function(name) {
+    requirejs = require = requireModule = function(name) {
       var s = seen[name];
 
       if (s !== undefined) { return seen[name]; }
@@ -93,17 +93,17 @@ var mainContext = this;
     requirejs._eak_seen = registry;
 
     Ember.__loader = {
-      define: enifed,
-      require: eriuqer,
+      define: define,
+      require: require,
       registry: registry
     };
   } else {
-    enifed = Ember.__loader.define;
-    requirejs = eriuqer = requireModule = Ember.__loader.require;
+    define = Ember.__loader.define;
+    requirejs = require = requireModule = Ember.__loader.require;
   }
 })();
 
-enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/error', 'ember-metal/logger', 'ember-metal/environment'], function (exports, Ember, EmberError, Logger, environment) {
+define('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/error', 'ember-metal/logger', 'ember-metal/environment'], function (exports, Ember, EmberError, Logger, environment) {
 
   'use strict';
 
@@ -341,7 +341,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/error', 'embe
   exports.runningNonEmberDebugJS = runningNonEmberDebugJS;
 
 });
-enifed('ember-testing', ['ember-metal/core', 'ember-testing/initializers', 'ember-testing/support', 'ember-testing/setup_for_testing', 'ember-testing/test', 'ember-testing/adapters/adapter', 'ember-testing/adapters/qunit', 'ember-testing/helpers'], function (Ember, __dep1__, __dep2__, setupForTesting, Test, Adapter, QUnitAdapter) {
+define('ember-testing', ['ember-metal/core', 'ember-testing/initializers', 'ember-testing/support', 'ember-testing/setup_for_testing', 'ember-testing/test', 'ember-testing/adapters/adapter', 'ember-testing/adapters/qunit', 'ember-testing/helpers'], function (Ember, __dep1__, __dep2__, setupForTesting, Test, Adapter, QUnitAdapter) {
 
   'use strict';
 
@@ -351,7 +351,7 @@ enifed('ember-testing', ['ember-metal/core', 'ember-testing/initializers', 'embe
   Ember['default'].setupForTesting = setupForTesting['default'];
 
 });
-enifed('ember-testing/adapters/adapter', ['exports', 'ember-runtime/system/object'], function (exports, EmberObject) {
+define('ember-testing/adapters/adapter', ['exports', 'ember-runtime/system/object'], function (exports, EmberObject) {
 
   'use strict';
 
@@ -414,7 +414,7 @@ enifed('ember-testing/adapters/adapter', ['exports', 'ember-runtime/system/objec
   exports['default'] = Adapter;
 
 });
-enifed('ember-testing/adapters/qunit', ['exports', 'ember-testing/adapters/adapter', 'ember-metal/utils'], function (exports, Adapter, utils) {
+define('ember-testing/adapters/qunit', ['exports', 'ember-testing/adapters/adapter', 'ember-metal/utils'], function (exports, Adapter, utils) {
 
   'use strict';
 
@@ -431,7 +431,7 @@ enifed('ember-testing/adapters/qunit', ['exports', 'ember-testing/adapters/adapt
   });
 
 });
-enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get', 'ember-metal/error', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-testing/test'], function (Ember, property_get, EmberError, run, jQuery, Test) {
+define('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get', 'ember-metal/error', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-testing/test'], function (Ember, property_get, EmberError, run, jQuery, Test) {
 
   'use strict';
 
@@ -942,7 +942,7 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
   asyncHelper('triggerEvent', triggerEvent);
 
 });
-enifed('ember-testing/initializers', ['ember-runtime/system/lazy_load'], function (lazy_load) {
+define('ember-testing/initializers', ['ember-runtime/system/lazy_load'], function (lazy_load) {
 
   'use strict';
 
@@ -963,7 +963,7 @@ enifed('ember-testing/initializers', ['ember-runtime/system/lazy_load'], functio
   });
 
 });
-enifed('ember-testing/setup_for_testing', ['exports', 'ember-metal/core', 'ember-testing/adapters/qunit', 'ember-views/system/jquery'], function (exports, Ember, QUnitAdapter, jQuery) {
+define('ember-testing/setup_for_testing', ['exports', 'ember-metal/core', 'ember-testing/adapters/qunit', 'ember-views/system/jquery'], function (exports, Ember, QUnitAdapter, jQuery) {
 
   'use strict';
 
@@ -1015,7 +1015,7 @@ enifed('ember-testing/setup_for_testing', ['exports', 'ember-metal/core', 'ember
   exports['default'] = setupForTesting;
 
 });
-enifed('ember-testing/support', ['ember-metal/core', 'ember-views/system/jquery', 'ember-metal/environment'], function (Ember, jQuery, environment) {
+define('ember-testing/support', ['ember-metal/core', 'ember-views/system/jquery', 'ember-metal/environment'], function (Ember, jQuery, environment) {
 
   'use strict';
 
@@ -1070,7 +1070,7 @@ enifed('ember-testing/support', ['ember-metal/core', 'ember-views/system/jquery'
   }
 
 });
-enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-metal/platform/create', 'ember-runtime/ext/rsvp', 'ember-testing/setup_for_testing', 'ember-application/system/application'], function (exports, Ember, emberRun, create, RSVP, setupForTesting, EmberApplication) {
+define('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-metal/platform/create', 'ember-runtime/ext/rsvp', 'ember-testing/setup_for_testing', 'ember-application/system/application'], function (exports, Ember, emberRun, create, RSVP, setupForTesting, EmberApplication) {
 
   'use strict';
 
@@ -1594,7 +1594,7 @@ enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_lo
   exports['default'] = Test;
 
 });
-enifed("htmlbars-test-helpers",
+define("htmlbars-test-helpers",
   ["exports"],
   function(__exports__) {
     "use strict";
