@@ -5,11 +5,11 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1
+ * @version   1.11.0-beta.1.b44618cb
  */
 
 (function() {
-var define, requireModule, require, requirejs, Ember;
+var enifed, requireModule, eriuqer, requirejs, Ember;
 var mainContext = this;
 
 (function() {
@@ -22,7 +22,7 @@ var mainContext = this;
     var registry = {};
     var seen = {};
 
-    define = function(name, deps, callback) {
+    enifed = function(name, deps, callback) {
       var value = { };
 
       if (!callback) {
@@ -36,7 +36,7 @@ var mainContext = this;
         registry[name] = value;
     };
 
-    requirejs = require = requireModule = function(name) {
+    requirejs = eriuqer = requireModule = function(name) {
       var s = seen[name];
 
       if (s !== undefined) { return seen[name]; }
@@ -93,17 +93,17 @@ var mainContext = this;
     requirejs._eak_seen = registry;
 
     Ember.__loader = {
-      define: define,
-      require: require,
+      define: enifed,
+      require: eriuqer,
       registry: registry
     };
   } else {
-    define = Ember.__loader.define;
-    requirejs = require = requireModule = Ember.__loader.require;
+    enifed = Ember.__loader.define;
+    requirejs = eriuqer = requireModule = Ember.__loader.require;
   }
 })();
 
-define('ember-metal/core', ['exports'], function (exports) {
+enifed('ember-metal/core', ['exports'], function (exports) {
 
   'use strict';
 
@@ -133,7 +133,7 @@ define('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.11.0-beta.1
+    @version 1.11.0-beta.1.b44618cb
   */
 
   if ('undefined' === typeof Ember) {
@@ -161,10 +161,10 @@ define('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.11.0-beta.1'
+    @default '1.11.0-beta.1.b44618cb'
     @static
   */
-  Ember.VERSION = '1.11.0-beta.1';
+  Ember.VERSION = '1.11.0-beta.1.b44618cb';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -320,7 +320,7 @@ define('ember-metal/core', ['exports'], function (exports) {
   exports['default'] = Ember;
 
 });
-define('ember-template-compiler', ['exports', 'ember-metal/core', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-template-compiler/plugins', 'ember-template-compiler/plugins/transform-each-in-to-hash', 'ember-template-compiler/plugins/transform-with-as-to-hash', 'ember-template-compiler/compat'], function (exports, _Ember, precompile, compile, template, plugins, TransformEachInToHash, TransformWithAsToHash) {
+enifed('ember-template-compiler', ['exports', 'ember-metal/core', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-template-compiler/plugins', 'ember-template-compiler/plugins/transform-each-in-to-hash', 'ember-template-compiler/plugins/transform-with-as-to-hash', 'ember-template-compiler/compat'], function (exports, _Ember, precompile, compile, template, plugins, TransformEachInToHash, TransformWithAsToHash) {
 
   'use strict';
 
@@ -334,7 +334,7 @@ define('ember-template-compiler', ['exports', 'ember-metal/core', 'ember-templat
   exports.registerPlugin = plugins.registerPlugin;
 
 });
-define('ember-template-compiler/compat', ['ember-metal/core', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template'], function (Ember, precompile, compile, template) {
+enifed('ember-template-compiler/compat', ['ember-metal/core', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template'], function (Ember, precompile, compile, template) {
 
 	'use strict';
 
@@ -345,7 +345,7 @@ define('ember-template-compiler/compat', ['ember-metal/core', 'ember-template-co
 	EmberHandlebars.template = template['default'];
 
 });
-define('ember-template-compiler/compat/precompile', ['exports'], function (exports) {
+enifed('ember-template-compiler/compat/precompile', ['exports'], function (exports) {
 
   'use strict';
 
@@ -375,7 +375,7 @@ define('ember-template-compiler/compat/precompile', ['exports'], function (expor
   }
 
 });
-define('ember-template-compiler/plugins', ['exports'], function (exports) {
+enifed('ember-template-compiler/plugins', ['exports'], function (exports) {
 
   'use strict';
 
@@ -411,7 +411,7 @@ define('ember-template-compiler/plugins', ['exports'], function (exports) {
   exports['default'] = plugins;
 
 });
-define('ember-template-compiler/plugins/transform-each-in-to-hash', ['exports'], function (exports) {
+enifed('ember-template-compiler/plugins/transform-each-in-to-hash', ['exports'], function (exports) {
 
   'use strict';
 
@@ -490,7 +490,7 @@ define('ember-template-compiler/plugins/transform-each-in-to-hash', ['exports'],
   exports['default'] = TransformEachInToHash;
 
 });
-define('ember-template-compiler/plugins/transform-with-as-to-hash', ['exports'], function (exports) {
+enifed('ember-template-compiler/plugins/transform-with-as-to-hash', ['exports'], function (exports) {
 
   'use strict';
 
@@ -558,7 +558,7 @@ define('ember-template-compiler/plugins/transform-with-as-to-hash', ['exports'],
   exports['default'] = TransformWithAsToHash;
 
 });
-define('ember-template-compiler/system/compile', ['exports', 'ember-template-compiler/system/compile_options', 'ember-template-compiler/system/template'], function (exports, compileOptions, template) {
+enifed('ember-template-compiler/system/compile', ['exports', 'ember-template-compiler/system/compile_options', 'ember-template-compiler/system/template'], function (exports, compileOptions, template) {
 
   'use strict';
 
@@ -583,7 +583,7 @@ define('ember-template-compiler/system/compile', ['exports', 'ember-template-com
   }
 
 });
-define('ember-template-compiler/system/compile_options', ['exports', 'ember-metal/core', 'ember-template-compiler/plugins'], function (exports, Ember, plugins) {
+enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-metal/core', 'ember-template-compiler/plugins'], function (exports, Ember, plugins) {
 
   'use strict';
 
@@ -606,7 +606,7 @@ define('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
   }
 
 });
-define('ember-template-compiler/system/precompile', ['exports', 'ember-template-compiler/system/compile_options'], function (exports, compileOptions) {
+enifed('ember-template-compiler/system/precompile', ['exports', 'ember-template-compiler/system/compile_options'], function (exports, compileOptions) {
 
   'use strict';
 
@@ -640,7 +640,7 @@ define('ember-template-compiler/system/precompile', ['exports', 'ember-template-
   }
 
 });
-define('ember-template-compiler/system/template', ['exports'], function (exports) {
+enifed('ember-template-compiler/system/template', ['exports'], function (exports) {
 
   'use strict';
 
@@ -666,7 +666,7 @@ define('ember-template-compiler/system/template', ['exports'], function (exports
   }
 
 });
-define("htmlbars-compiler",
+enifed("htmlbars-compiler",
   ["./htmlbars-compiler/compiler","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -676,7 +676,7 @@ define("htmlbars-compiler",
     __exports__.compile = compile;
     __exports__.compilerSpec = compilerSpec;
   });
-define("htmlbars-compiler/compiler",
+enifed("htmlbars-compiler/compiler",
   ["../htmlbars-syntax/parser","./template-compiler","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -744,7 +744,7 @@ define("htmlbars-compiler/compiler",
 
     __exports__.compileSpec = compileSpec;
   });
-define("htmlbars-compiler/fragment-javascript-compiler",
+enifed("htmlbars-compiler/fragment-javascript-compiler",
   ["./utils","../htmlbars-util/quoting","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -847,7 +847,7 @@ define("htmlbars-compiler/fragment-javascript-compiler",
       }
     };
   });
-define("htmlbars-compiler/fragment-opcode-compiler",
+enifed("htmlbars-compiler/fragment-opcode-compiler",
   ["./template-visitor","./utils","../htmlbars-util","../htmlbars-util/array-utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
@@ -924,7 +924,7 @@ define("htmlbars-compiler/fragment-opcode-compiler",
       this.opcode('setNamespace', [namespace]);
     };
   });
-define("htmlbars-compiler/hydration-javascript-compiler",
+enifed("htmlbars-compiler/hydration-javascript-compiler",
   ["./utils","../htmlbars-util/quoting","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -1185,7 +1185,7 @@ define("htmlbars-compiler/hydration-javascript-compiler",
       return this.parents[this.parents.length-1];
     };
   });
-define("htmlbars-compiler/hydration-opcode-compiler",
+enifed("htmlbars-compiler/hydration-opcode-compiler",
   ["./template-visitor","./utils","../htmlbars-util","../htmlbars-util/array-utils","../htmlbars-syntax/utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
@@ -1497,7 +1497,7 @@ define("htmlbars-compiler/hydration-opcode-compiler",
       morphs.length = 0;
     }
   });
-define("htmlbars-compiler/template-compiler",
+enifed("htmlbars-compiler/template-compiler",
   ["./fragment-opcode-compiler","./fragment-javascript-compiler","./hydration-opcode-compiler","./hydration-javascript-compiler","./template-visitor","./utils","../htmlbars-util/quoting","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
@@ -1668,7 +1668,7 @@ define("htmlbars-compiler/template-compiler",
       this.fragmentOpcodeCompiler.setNamespace(namespace);
     };
   });
-define("htmlbars-compiler/template-visitor",
+enifed("htmlbars-compiler/template-visitor",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -1910,7 +1910,7 @@ define("htmlbars-compiler/template-visitor",
       return -1;
     }
   });
-define("htmlbars-compiler/utils",
+enifed("htmlbars-compiler/utils",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -1928,7 +1928,7 @@ define("htmlbars-compiler/utils",
 
     __exports__.processOpcodes = processOpcodes;
   });
-define("htmlbars-syntax",
+enifed("htmlbars-syntax",
   ["./htmlbars-syntax/walker","./htmlbars-syntax/builders","./htmlbars-syntax/parser","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -1940,7 +1940,7 @@ define("htmlbars-syntax",
     __exports__.builders = builders;
     __exports__.parse = parse;
   });
-define("htmlbars-syntax/builders",
+enifed("htmlbars-syntax/builders",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -2102,7 +2102,7 @@ define("htmlbars-syntax/builders",
       sexpr: buildSexpr,
       path: buildPath,
       string: buildString,
-      boolean: buildBoolean,
+      "boolean": buildBoolean,
       number: buildNumber,
       concat: buildConcat,
       hash: buildHash,
@@ -2110,7 +2110,7 @@ define("htmlbars-syntax/builders",
       program: buildProgram
     };
   });
-define("htmlbars-syntax/handlebars/compiler/ast",
+enifed("htmlbars-syntax/handlebars/compiler/ast",
   ["../exception","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -2230,7 +2230,7 @@ define("htmlbars-syntax/handlebars/compiler/ast",
     // most modify the object to operate properly.
     __exports__["default"] = AST;
   });
-define("htmlbars-syntax/handlebars/compiler/base",
+enifed("htmlbars-syntax/handlebars/compiler/base",
   ["./parser","./ast","./whitespace-control","./helpers","../utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
@@ -2262,7 +2262,7 @@ define("htmlbars-syntax/handlebars/compiler/base",
 
     __exports__.parse = parse;
   });
-define("htmlbars-syntax/handlebars/compiler/helpers",
+enifed("htmlbars-syntax/handlebars/compiler/helpers",
   ["../exception","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -2383,7 +2383,7 @@ define("htmlbars-syntax/handlebars/compiler/helpers",
 
     __exports__.prepareBlock = prepareBlock;
   });
-define("htmlbars-syntax/handlebars/compiler/parser",
+enifed("htmlbars-syntax/handlebars/compiler/parser",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -2919,7 +2919,7 @@ define("htmlbars-syntax/handlebars/compiler/parser",
     })();__exports__["default"] = handlebars;
     /* jshint ignore:end */
   });
-define("htmlbars-syntax/handlebars/compiler/visitor",
+enifed("htmlbars-syntax/handlebars/compiler/visitor",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -2990,7 +2990,7 @@ define("htmlbars-syntax/handlebars/compiler/visitor",
 
     __exports__["default"] = Visitor;
   });
-define("htmlbars-syntax/handlebars/compiler/whitespace-control",
+enifed("htmlbars-syntax/handlebars/compiler/whitespace-control",
   ["./visitor","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -3205,7 +3205,7 @@ define("htmlbars-syntax/handlebars/compiler/whitespace-control",
 
     __exports__["default"] = WhitespaceControl;
   });
-define("htmlbars-syntax/handlebars/exception",
+enifed("htmlbars-syntax/handlebars/exception",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -3240,7 +3240,7 @@ define("htmlbars-syntax/handlebars/exception",
 
     __exports__["default"] = Exception;
   });
-define("htmlbars-syntax/handlebars/safe-string",
+enifed("htmlbars-syntax/handlebars/safe-string",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -3255,7 +3255,7 @@ define("htmlbars-syntax/handlebars/safe-string",
 
     __exports__["default"] = SafeString;
   });
-define("htmlbars-syntax/handlebars/utils",
+enifed("htmlbars-syntax/handlebars/utils",
   ["./safe-string","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -3347,7 +3347,7 @@ define("htmlbars-syntax/handlebars/utils",
 
     __exports__.appendContextPath = appendContextPath;
   });
-define("htmlbars-syntax/node-handlers",
+enifed("htmlbars-syntax/node-handlers",
   ["./builders","../htmlbars-util/array-utils","./utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -3513,7 +3513,7 @@ define("htmlbars-syntax/node-handlers",
 
     __exports__["default"] = nodeHandlers;
   });
-define("htmlbars-syntax/parser",
+enifed("htmlbars-syntax/parser",
   ["./handlebars/compiler/base","./tokenizer","../simple-html-tokenizer/entity-parser","../simple-html-tokenizer/char-refs/full","./node-handlers","./token-handlers","../htmlbars-syntax","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
@@ -3620,7 +3620,7 @@ define("htmlbars-syntax/parser",
       return string.join('\n');
     };
   });
-define("htmlbars-syntax/token-handlers",
+enifed("htmlbars-syntax/token-handlers",
   ["../htmlbars-util/array-utils","./builders","./utils","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -3767,7 +3767,7 @@ define("htmlbars-syntax/token-handlers",
 
     __exports__["default"] = tokenHandlers;
   });
-define("htmlbars-syntax/tokenizer",
+enifed("htmlbars-syntax/tokenizer",
   ["../simple-html-tokenizer","./utils","../htmlbars-util/array-utils","./builders","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
@@ -3871,7 +3871,7 @@ define("htmlbars-syntax/tokenizer",
 
     __exports__.unwrapMustache = unwrapMustache;__exports__.Tokenizer = Tokenizer;
   });
-define("htmlbars-syntax/utils",
+enifed("htmlbars-syntax/utils",
   ["./builders","../htmlbars-util/array-utils","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -3977,7 +3977,7 @@ define("htmlbars-syntax/utils",
 
     __exports__.isHelper = isHelper;
   });
-define("htmlbars-syntax/walker",
+enifed("htmlbars-syntax/walker",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -4036,7 +4036,7 @@ define("htmlbars-syntax/walker",
       }
     };
   });
-define("htmlbars-test-helpers",
+enifed("htmlbars-test-helpers",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -4148,7 +4148,7 @@ define("htmlbars-test-helpers",
     }
     __exports__.createObject = createObject;
   });
-define("htmlbars-util",
+enifed("htmlbars-util",
   ["./htmlbars-util/safe-string","./htmlbars-util/handlebars/utils","./htmlbars-util/namespaces","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -4160,7 +4160,7 @@ define("htmlbars-util",
     __exports__.escapeExpression = escapeExpression;
     __exports__.getAttrNamespace = getAttrNamespace;
   });
-define("htmlbars-util/array-utils",
+enifed("htmlbars-util/array-utils",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -4212,7 +4212,7 @@ define("htmlbars-util/array-utils",
     var indexOfArray = getIdx;
     __exports__.indexOfArray = indexOfArray;
   });
-define("htmlbars-util/handlebars/safe-string",
+enifed("htmlbars-util/handlebars/safe-string",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -4227,7 +4227,7 @@ define("htmlbars-util/handlebars/safe-string",
 
     __exports__["default"] = SafeString;
   });
-define("htmlbars-util/handlebars/utils",
+enifed("htmlbars-util/handlebars/utils",
   ["./safe-string","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -4319,7 +4319,7 @@ define("htmlbars-util/handlebars/utils",
 
     __exports__.appendContextPath = appendContextPath;
   });
-define("htmlbars-util/namespaces",
+enifed("htmlbars-util/namespaces",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -4346,7 +4346,7 @@ define("htmlbars-util/namespaces",
 
     __exports__.getAttrNamespace = getAttrNamespace;
   });
-define("htmlbars-util/object-utils",
+enifed("htmlbars-util/object-utils",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -4360,7 +4360,7 @@ define("htmlbars-util/object-utils",
 
     __exports__.merge = merge;
   });
-define("htmlbars-util/quoting",
+enifed("htmlbars-util/quoting",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -4399,7 +4399,7 @@ define("htmlbars-util/quoting",
 
     __exports__.repeat = repeat;
   });
-define("htmlbars-util/safe-string",
+enifed("htmlbars-util/safe-string",
   ["./handlebars/safe-string","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -4407,7 +4407,7 @@ define("htmlbars-util/safe-string",
 
     __exports__["default"] = SafeString;
   });
-define("simple-html-tokenizer",
+enifed("simple-html-tokenizer",
   ["./simple-html-tokenizer/tokenizer","./simple-html-tokenizer/tokenize","./simple-html-tokenizer/generator","./simple-html-tokenizer/generate","./simple-html-tokenizer/tokens","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
     "use strict";
@@ -4430,7 +4430,7 @@ define("simple-html-tokenizer",
     __exports__.Chars = Chars;
     __exports__.Comment = Comment;
   });
-define("simple-html-tokenizer/char-refs/full",
+enifed("simple-html-tokenizer/char-refs/full",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -6562,7 +6562,7 @@ define("simple-html-tokenizer/char-refs/full",
       zwnj: [8204]
     };
   });
-define("simple-html-tokenizer/char-refs/min",
+enifed("simple-html-tokenizer/char-refs/min",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -6574,7 +6574,7 @@ define("simple-html-tokenizer/char-refs/min",
       gt: [62]
     };
   });
-define("simple-html-tokenizer/entity-parser",
+enifed("simple-html-tokenizer/entity-parser",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -6583,22 +6583,22 @@ define("simple-html-tokenizer/entity-parser",
     }
 
     EntityParser.prototype.parse = function (tokenizer) {
-      var input = tokenizer.input.slice(tokenizer.char);
+      var input = tokenizer.input.slice(tokenizer["char"]);
       var matches = input.match(/^#(?:x|X)([0-9A-Fa-f]+);/);
       if (matches) {
-        tokenizer.char += matches[0].length;
+        tokenizer["char"] += matches[0].length;
         return String.fromCharCode(parseInt(matches[1], 16));
       }
       matches = input.match(/^#([0-9]+);/);
       if (matches) {
-        tokenizer.char += matches[0].length;
+        tokenizer["char"] += matches[0].length;
         return String.fromCharCode(parseInt(matches[1], 10));
       }
       matches = input.match(/^([A-Za-z]+);/);
       if (matches) {
         var codepoints = this.namedCodepoints[matches[1]];
         if (codepoints) {
-          tokenizer.char += matches[0].length;
+          tokenizer["char"] += matches[0].length;
           for (var i = 0, buffer = ''; i < codepoints.length; i++) {
             buffer += String.fromCharCode(codepoints[i]);
           }
@@ -6609,7 +6609,7 @@ define("simple-html-tokenizer/entity-parser",
 
     __exports__["default"] = EntityParser;
   });
-define("simple-html-tokenizer/generate",
+enifed("simple-html-tokenizer/generate",
   ["./generator","exports"],
   function(__dependency1__, __exports__) {
     "use strict";
@@ -6620,7 +6620,7 @@ define("simple-html-tokenizer/generate",
       return generator.generate(tokens);
     }
   });
-define("simple-html-tokenizer/generator",
+enifed("simple-html-tokenizer/generator",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -6636,7 +6636,7 @@ define("simple-html-tokenizer/generator",
         "`": "&#x60;"
       };
       function escapeChar(char) {
-        return map[char];
+        return map["char"];
       }
       return function escape(string) {
         if(!test.test(string)) {
@@ -6664,7 +6664,7 @@ define("simple-html-tokenizer/generator",
       escape: function (text) {
         var unsafeCharsMap = this.unsafeCharsMap;
         return text.replace(this.unsafeChars, function (char) {
-          return unsafeCharsMap[char] || char;
+          return unsafeCharsMap["char"] || char;
         });
       },
 
@@ -6719,7 +6719,7 @@ define("simple-html-tokenizer/generator",
 
     __exports__["default"] = Generator;
   });
-define("simple-html-tokenizer/tokenize",
+enifed("simple-html-tokenizer/tokenize",
   ["./tokenizer","./entity-parser","./char-refs/full","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
     "use strict";
@@ -6732,7 +6732,7 @@ define("simple-html-tokenizer/tokenize",
       return tokenizer.tokenize();
     }
   });
-define("simple-html-tokenizer/tokenizer",
+enifed("simple-html-tokenizer/tokenizer",
   ["./utils","./tokens","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
@@ -6747,7 +6747,7 @@ define("simple-html-tokenizer/tokenizer",
     function Tokenizer(input, entityParser) {
       this.input = preprocessInput(input);
       this.entityParser = entityParser;
-      this.char = 0;
+      this["char"] = 0;
       this.line = 1;
       this.column = 0;
 
@@ -6776,7 +6776,7 @@ define("simple-html-tokenizer/tokenizer",
         this.input += preprocessInput(string);
         var tokens = [], token;
 
-        while (this.char < this.input.length) {
+        while (this["char"] < this.input.length) {
           token = this.lex();
           if (token) { tokens.push(token); }
         }
@@ -6903,7 +6903,7 @@ define("simple-html-tokenizer/tokenizer",
       },
 
       lex: function() {
-        var char = this.input.charAt(this.char++);
+        var char = this.input.charAt(this["char"]++);
 
         if (char) {
           if (char === "\n") {
@@ -6943,8 +6943,8 @@ define("simple-html-tokenizer/tokenizer",
         },
 
         markupDeclaration: function(char) {
-          if (char === "-" && this.input.charAt(this.char) === "-") {
-            this.char++;
+          if (char === "-" && this.input.charAt(this["char"]) === "-") {
+            this["char"]++;
             this.createComment();
           }
         },
@@ -7111,7 +7111,7 @@ define("simple-html-tokenizer/tokenizer",
           } else if (char === ">") {
             return this.emitToken();
           } else {
-            this.char--;
+            this["char"]--;
             this.state = 'beforeAttributeName';
           }
         },
@@ -7121,7 +7121,7 @@ define("simple-html-tokenizer/tokenizer",
             this.selfClosing();
             return this.emitToken();
           } else {
-            this.char--;
+            this["char"]--;
             this.state = 'beforeAttributeName';
           }
         },
@@ -7136,7 +7136,7 @@ define("simple-html-tokenizer/tokenizer",
 
     __exports__["default"] = Tokenizer;
   });
-define("simple-html-tokenizer/tokens",
+enifed("simple-html-tokenizer/tokens",
   ["exports"],
   function(__exports__) {
     "use strict";
@@ -7164,7 +7164,7 @@ define("simple-html-tokenizer/tokens",
 
     __exports__.Comment = Comment;
   });
-define("simple-html-tokenizer/utils",
+enifed("simple-html-tokenizer/utils",
   ["exports"],
   function(__exports__) {
     "use strict";
