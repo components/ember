@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1.b44618cb
+ * @version   1.11.0-beta.1.e047a912
  */
 
 (function() {
@@ -3673,7 +3673,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
   });
 
 });
-enifed('ember-application/system/application', ['exports', 'dag-map', 'container/registry', 'ember-metal', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/lazy_load', 'ember-runtime/system/namespace', 'ember-runtime/mixins/deferred', 'ember-application/system/resolver', 'ember-metal/platform/create', 'ember-metal/run_loop', 'ember-metal/utils', 'ember-runtime/controllers/controller', 'ember-metal/enumerable_utils', 'ember-runtime/controllers/object_controller', 'ember-runtime/controllers/array_controller', 'ember-views/system/renderer', 'dom-helper', 'ember-views/views/select', 'ember-views/views/view', 'ember-views/views/metamorph_view', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/cache', 'ember-application/system/application-instance', 'ember-extension-support/container_debug_adapter', 'ember-metal/environment'], function (exports, DAG, Registry, Ember, property_get, property_set, lazy_load, Namespace, DeferredMixin, DefaultResolver, create, run, utils, Controller, EnumerableUtils, ObjectController, ArrayController, Renderer, DOMHelper, SelectView, EmberView, _MetamorphView, EventDispatcher, jQuery, Route, Router, HashLocation, HistoryLocation, AutoLocation, NoneLocation, BucketCache, ApplicationInstance, ContainerDebugAdapter, environment) {
+enifed('ember-application/system/application', ['exports', 'dag-map', 'container/registry', 'ember-metal', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/lazy_load', 'ember-runtime/system/namespace', 'ember-runtime/mixins/deferred', 'ember-application/system/resolver', 'ember-metal/platform/create', 'ember-metal/run_loop', 'ember-metal/utils', 'ember-runtime/controllers/controller', 'ember-metal/enumerable_utils', 'ember-runtime/controllers/object_controller', 'ember-runtime/controllers/array_controller', 'ember-views/system/renderer', 'dom-helper', 'ember-views/views/select', 'ember-routing-views/views/outlet', 'ember-views/views/view', 'ember-views/views/metamorph_view', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/cache', 'ember-application/system/application-instance', 'ember-extension-support/container_debug_adapter', 'ember-metal/environment'], function (exports, DAG, Registry, Ember, property_get, property_set, lazy_load, Namespace, DeferredMixin, DefaultResolver, create, run, utils, Controller, EnumerableUtils, ObjectController, ArrayController, Renderer, DOMHelper, SelectView, outlet, EmberView, _MetamorphView, EventDispatcher, jQuery, Route, Router, HashLocation, HistoryLocation, AutoLocation, NoneLocation, BucketCache, ApplicationInstance, ContainerDebugAdapter, environment) {
 
   'use strict';
 
@@ -4645,6 +4645,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
 
       registry.injection('view', 'renderer', 'renderer:-dom');
       registry.register('view:select', SelectView['default']);
+      registry.register('view:-outlet', outlet.OutletView);
 
       registry.register('view:default', _MetamorphView['default']);
       registry.register('view:toplevel', EmberView['default'].extend());
@@ -4653,6 +4654,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       registry.register('event_dispatcher:main', EventDispatcher['default']);
 
       registry.injection('router:main', 'namespace', 'application:main');
+      registry.injection('view:-outlet', 'namespace', 'application:main');
 
       registry.register('location:auto', AutoLocation['default']);
       registry.register('location:hash', HashLocation['default']);
@@ -11339,7 +11341,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.11.0-beta.1.b44618cb
+    @version 1.11.0-beta.1.e047a912
   */
 
   if ('undefined' === typeof Ember) {
@@ -11367,10 +11369,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.11.0-beta.1.b44618cb'
+    @default '1.11.0-beta.1.e047a912'
     @static
   */
-  Ember.VERSION = '1.11.0-beta.1.b44618cb';
+  Ember.VERSION = '1.11.0-beta.1.e047a912';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -18683,7 +18685,7 @@ enifed('ember-routing-htmlbars/helpers/link-to', ['exports', 'ember-metal/core',
   }
 
 });
-enifed('ember-routing-htmlbars/helpers/outlet', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-routing-views/views/outlet'], function (exports, Ember, property_set, outlet) {
+enifed('ember-routing-htmlbars/helpers/outlet', ['exports', 'ember-metal/core'], function (exports, Ember) {
 
   'use strict';
 
@@ -18695,7 +18697,6 @@ enifed('ember-routing-htmlbars/helpers/outlet', ['exports', 'ember-metal/core', 
   */
 
   function outletHelper(params, hash, options, env) {
-    var outletSource;
     var viewName;
     var viewClass;
     var viewFullName;
@@ -18707,11 +18708,6 @@ enifed('ember-routing-htmlbars/helpers/outlet', ['exports', 'ember-metal/core', 
 
     var property = params[0] || 'main';
 
-    outletSource = this;
-    while (!outletSource.get('template.isTop')) {
-      outletSource = outletSource._parentView;
-    }
-    property_set.set(this, 'outletSource', outletSource);
 
     // provide controller override
     viewName = hash.view;
@@ -18729,12 +18725,9 @@ enifed('ember-routing-htmlbars/helpers/outlet', ['exports', 'ember-metal/core', 
       );
     }
 
-    viewClass = viewName ? this.container.lookupFactory(viewFullName) : hash.viewClass || outlet.OutletView;
-
-    hash.currentViewBinding = '_view.outletSource._outlets.' + property;
-
+    viewClass = viewName ? this.container.lookupFactory(viewFullName) : hash.viewClass || this.container.lookupFactory('view:-outlet');
+    hash._outletName = property;
     options.helperName = options.helperName || 'outlet';
-
     return env.helpers.view.helperFunction.call(this, [viewClass], hash, options, env);
   }
 
@@ -19515,21 +19508,143 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   exports.LinkView = LinkView;
 
 });
-enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/container_view', 'ember-views/views/metamorph_view'], function (exports, ContainerView, metamorph_view) {
+enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/container_view', 'ember-views/views/metamorph_view', 'ember-metal/property_get'], function (exports, ContainerView, metamorph_view, property_get) {
 
-	'use strict';
+  'use strict';
 
-	/**
-	@module ember
-	@submodule ember-routing-views
-	*/
+  /**
+  @module ember
+  @submodule ember-routing-views
+  */
 
-	var OutletView = ContainerView['default'].extend(metamorph_view._Metamorph);
+  var CoreOutletView = ContainerView['default'].extend({
+    init: function() {
+      this._super();
+      this._childOutlets = [];
+      this._outletState = null;
+    },
 
-	exports.OutletView = OutletView;
+    _isOutlet: true,
+
+    _parentOutlet: function() {
+      var parent = this._parentView;
+      while (parent && !parent._isOutlet) {
+        parent = parent._parentView;
+      }
+      return parent;
+    },
+
+    _linkParent: Ember.on('didInsertElement', function() {
+      var parent = this._parentOutlet();
+      if (parent) {
+        parent._childOutlets.push(this);
+        if (parent._outletState) {
+          this.setOutletState(parent._outletState.outlets[this._outletName]);
+        }
+      }
+    }),
+
+    willDestroy: function() {
+      var parent = this._parentOutlet();
+      if (parent) {
+        parent._childOutlets.removeObject(this);
+      }
+      this._super();
+    },
+
+
+    _diffState: function(state) {
+      while (state && emptyRouteState(state)) {
+        state = state.outlets.main;
+      }
+      var different = !sameRouteState(this._outletState, state);
+      this._outletState = state;
+      return different;
+    },
+
+    setOutletState: function(state) {
+      if (!this._diffState(state)) {
+        var children = this._childOutlets;
+        for (var i = 0 ; i < children.length; i++) {
+          var child = children[i];
+          child.setOutletState(this._outletState && this._outletState.outlets[child._outletName]);
+        }
+      } else {
+        var view = this._buildView(this._outletState);
+        var length = property_get.get(this, 'length');
+        if (view) {
+          this.replace(0, length, [view]);
+        } else {
+          this.replace(0, length , []);
+        }
+      }
+    },
+
+    _buildView: function(state) {
+      if (!state) { return; }
+
+      var LOG_VIEW_LOOKUPS = property_get.get(this, 'namespace.LOG_VIEW_LOOKUPS');
+      var view;
+      var render = state.render;
+      var ViewClass = render.ViewClass;
+      var isDefaultView = false;
+
+      if (!ViewClass) {
+        isDefaultView = true;
+        ViewClass = this.container.lookupFactory(this._isTopLevel ? 'view:toplevel' : 'view:default');
+      }
+
+      view = ViewClass.create({
+        _debugTemplateName: render.name,
+        renderedName: render.name,
+        controller: render.controller
+      });
+
+      if (!property_get.get(view, 'template')) {
+        view.set('template', render.template);
+      }
+
+      if (LOG_VIEW_LOOKUPS) {
+        Ember.Logger.info("Rendering " + render.name + " with " + (render.isDefaultView ? "default view " : "") + view, { fullName: 'view:' + render.name });
+      }
+
+      return view;
+    }
+  });
+
+  function emptyRouteState(state) {
+    return !state.render.ViewClass && !state.render.template;
+  }
+
+  function sameRouteState(a, b) {
+    if (!a && !b) {
+      return true;
+    }
+    if (!a || !b) {
+      return false;
+    }
+    a = a.render;
+    b = b.render;
+    for (var key in a) {
+      if (a.hasOwnProperty(key)) {
+        // name is only here for logging & debugging. If two different
+        // names result in otherwise identical states, they're still
+        // identical.
+        if (a[key] !== b[key] && key !== 'name') {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  var OutletView = CoreOutletView.extend(metamorph_view._Metamorph);
+
+  exports.CoreOutletView = CoreOutletView;
+  exports.OutletView = OutletView;
 
 });
-enifed('ember-routing', ['exports', 'ember-metal/core', 'ember-routing/ext/run_loop', 'ember-routing/ext/controller', 'ember-routing/ext/view', 'ember-routing/location/api', 'ember-routing/location/none_location', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/system/generate_controller', 'ember-routing/system/controller_for', 'ember-routing/system/dsl', 'ember-routing/system/router', 'ember-routing/system/route'], function (exports, Ember, __dep1__, __dep2__, __dep3__, EmberLocation, NoneLocation, HashLocation, HistoryLocation, AutoLocation, generate_controller, controllerFor, RouterDSL, Router, Route) {
+enifed('ember-routing', ['exports', 'ember-metal/core', 'ember-routing/ext/run_loop', 'ember-routing/ext/controller', 'ember-routing/location/api', 'ember-routing/location/none_location', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/system/generate_controller', 'ember-routing/system/controller_for', 'ember-routing/system/dsl', 'ember-routing/system/router', 'ember-routing/system/route'], function (exports, Ember, __dep1__, __dep2__, EmberLocation, NoneLocation, HashLocation, HistoryLocation, AutoLocation, generate_controller, controllerFor, RouterDSL, Router, Route) {
 
   'use strict';
 
@@ -19909,157 +20024,6 @@ enifed('ember-routing/ext/run_loop', ['ember-metal/run_loop'], function (run) {
 	'use strict';
 
 	run['default']._addQueue('routerTransitions', 'actions');
-
-});
-enifed('ember-routing/ext/view', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/views/view'], function (exports, property_get, property_set, run, EmberView) {
-
-  'use strict';
-
-  EmberView['default'].reopen({
-
-    /**
-      Sets the private `_outlets` object on the view.
-
-      @method init
-     */
-    init: function() {
-      this._outlets = {};
-      this._super.apply(this, arguments);
-    },
-
-    /**
-      Manually fill any of a view's `{{outlet}}` areas with the
-      supplied view.
-
-      Example
-
-      ```javascript
-      var MyView = Ember.View.extend({
-        template: Ember.Handlebars.compile('Child view: {{outlet "main"}} ')
-      });
-      var myView = MyView.create();
-      myView.appendTo('body');
-      // The html for myView now looks like:
-      // <div id="ember228" class="ember-view">Child view: </div>
-
-      var FooView = Ember.View.extend({
-        template: Ember.Handlebars.compile('<h1>Foo</h1> ')
-      });
-      var fooView = FooView.create();
-      myView.connectOutlet('main', fooView);
-      // The html for myView now looks like:
-      // <div id="ember228" class="ember-view">Child view:
-      //   <div id="ember234" class="ember-view"><h1>Foo</h1> </div>
-      // </div>
-      ```
-      @method connectOutlet
-      @param  {String} outletName A unique name for the outlet
-      @param  {Object} view       An Ember.View
-     */
-    connectOutlet: function(outletName, view) {
-      if (this._pendingDisconnections) {
-        delete this._pendingDisconnections[outletName];
-      }
-
-      if (this._hasEquivalentView(outletName, view)) {
-        view.destroy();
-        return;
-      }
-
-      var outlets = property_get.get(this, '_outlets');
-      var container = property_get.get(this, 'container');
-      var router = container && container.lookup('router:main');
-      var renderedName = property_get.get(view, 'renderedName');
-
-      property_set.set(outlets, outletName, view);
-
-      if (router && renderedName) {
-        router._connectActiveView(renderedName, view);
-      }
-    },
-
-    /**
-      Determines if the view has already been created by checking if
-      the view has the same constructor, template, and context as the
-      view in the `_outlets` object.
-
-      @private
-      @method _hasEquivalentView
-      @param  {String} outletName The name of the outlet we are checking
-      @param  {Object} view       An Ember.View
-      @return {Boolean}
-     */
-    _hasEquivalentView: function(outletName, view) {
-      var existingView = property_get.get(this, '_outlets.'+outletName);
-      return existingView &&
-        existingView.constructor === view.constructor &&
-        existingView.get('template') === view.get('template') &&
-        existingView.get('context') === view.get('context');
-    },
-
-    /**
-      Removes an outlet from the view.
-
-      Example
-
-      ```javascript
-      var MyView = Ember.View.extend({
-        template: Ember.Handlebars.compile('Child view: {{outlet "main"}} ')
-      });
-      var myView = MyView.create();
-      myView.appendTo('body');
-      // myView's html:
-      // <div id="ember228" class="ember-view">Child view: </div>
-
-      var FooView = Ember.View.extend({
-        template: Ember.Handlebars.compile('<h1>Foo</h1> ')
-      });
-      var fooView = FooView.create();
-      myView.connectOutlet('main', fooView);
-      // myView's html:
-      // <div id="ember228" class="ember-view">Child view:
-      //   <div id="ember234" class="ember-view"><h1>Foo</h1> </div>
-      // </div>
-
-      myView.disconnectOutlet('main');
-      // myView's html:
-      // <div id="ember228" class="ember-view">Child view: </div>
-      ```
-
-      @method disconnectOutlet
-      @param  {String} outletName The name of the outlet to be removed
-     */
-    disconnectOutlet: function(outletName) {
-      if (!this._pendingDisconnections) {
-        this._pendingDisconnections = {};
-      }
-      this._pendingDisconnections[outletName] = true;
-      run['default'].once(this, '_finishDisconnections');
-    },
-
-    /**
-      Gets an outlet that is pending disconnection and then
-      nullifies the object on the `_outlet` object.
-
-      @private
-      @method _finishDisconnections
-     */
-    _finishDisconnections: function() {
-      if (this.isDestroyed) {
-        return; // _outlets will be gone anyway
-      }
-
-      var outlets = property_get.get(this, '_outlets');
-      var pendingDisconnections = this._pendingDisconnections;
-      this._pendingDisconnections = null;
-
-      for (var outletName in pendingDisconnections) {
-        property_set.set(outlets, outletName, null);
-      }
-    }
-  });
-
-  exports['default'] = EmberView['default'];
 
 });
 enifed('ember-routing/location/api', ['exports', 'ember-metal/core', 'ember-metal/environment'], function (exports, Ember, environment) {
@@ -21548,6 +21512,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       @method enter
     */
     enter: function() {
+      this.connections = [];
       this.activate();
       this.trigger('activate');
     },
@@ -22953,6 +22918,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       Ember['default'].assert("The name in the given arguments is undefined", arguments.length > 0 ? !isNone['default'](arguments[0]) : true);
 
       var namePassed = typeof _name === 'string' && !!_name;
+      var isDefaultRender = arguments.length === 0 || Ember['default'].isEmpty(arguments[0]);
       var name;
 
       if (typeof _name === 'object' && !options) {
@@ -22962,53 +22928,9 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
         name = _name;
       }
 
-      var templateName;
-
-      if (name) {
-        name = name.replace(/\//g, '.');
-        templateName = name;
-      } else {
-        name = this.routeName;
-        templateName = this.templateName || name;
-      }
-
-      var renderOptions = buildRenderOptions(this, namePassed, name, options);
-
-      var LOG_VIEW_LOOKUPS = property_get.get(this.router, 'namespace.LOG_VIEW_LOOKUPS');
-      var viewName = options && options.view || namePassed && name || this.viewName || name;
-      var view, template;
-
-      var ViewClass = this.container.lookupFactory('view:' + viewName);
-      if (ViewClass) {
-        view = setupView(ViewClass, renderOptions);
-        if (!property_get.get(view, 'template')) {
-          view.set('template', this.container.lookup('template:' + templateName));
-        }
-        if (LOG_VIEW_LOOKUPS) {
-          Ember['default'].Logger.info("Rendering " + renderOptions.name + " with " + view, { fullName: 'view:' + renderOptions.name });
-        }
-      } else {
-        template = this.container.lookup('template:' + templateName);
-        if (!template) {
-          Ember['default'].assert("Could not find \"" + name + "\" template or view.", arguments.length === 0 || Ember['default'].isEmpty(arguments[0]));
-          if (LOG_VIEW_LOOKUPS) {
-            Ember['default'].Logger.info("Could not find \"" + name + "\" template or view. Nothing will be rendered", { fullName: 'template:' + name });
-          }
-          return;
-        }
-        var defaultView = renderOptions.into ? 'view:default' : 'view:toplevel';
-        ViewClass = this.container.lookupFactory(defaultView);
-        view = setupView(ViewClass, renderOptions);
-        if (!property_get.get(view, 'template')) {
-          view.set('template', template);
-        }
-        if (LOG_VIEW_LOOKUPS) {
-          Ember['default'].Logger.info("Rendering " + renderOptions.name + " with default view " + view, { fullName: 'view:' + renderOptions.name });
-        }
-      }
-
-      if (renderOptions.outlet === 'main') { this.lastRenderedTemplate = name; }
-      appendView(this, view, renderOptions);
+      var renderOptions = buildRenderOptions(this, namePassed, isDefaultRender, name, options);
+      this.connections.push(renderOptions);
+      run['default'].once(this.router, '_setOutlets');
     },
 
     /**
@@ -23055,16 +22977,29 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       @param {Object|String} options the options hash or outlet name
     */
     disconnectOutlet: function(options) {
+      var outletName;
+      var parentView;
       if (!options || typeof options === "string") {
-        var outletName = options;
-        options = {};
-        options.outlet = outletName;
+        outletName = options;
+      } else {
+        outletName = options.outlet;
+        parentView = options.parentView;
       }
-      options.parentView = options.parentView ? options.parentView.replace(/\//g, '.') : parentTemplate(this);
-      options.outlet = options.outlet || 'main';
 
-      var parentView = this.router._lookupActiveView(options.parentView);
-      if (parentView) { parentView.disconnectOutlet(options.outlet); }
+      parentView = parentView && parentView.replace(/\//g, '.');
+      if (parentView === parentRoute(this).routeName) {
+        parentView = undefined;
+      }
+      outletName = outletName || 'main';
+
+      for (var i = 0; i < this.connections.length; i++) {
+        var connection = this.connections[i];
+        if (connection.outlet === outletName && connection.into === parentView) {
+          this.connections.splice(i, 1);
+          run['default'].once(this.router, '_setOutlets');
+          return;
+        }
+      }
     },
 
     willDestroy: function() {
@@ -23077,18 +23012,10 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       @method teardownViews
     */
     teardownViews: function() {
-      // Tear down the top level view
-      if (this.teardownTopLevelView) { this.teardownTopLevelView(); }
-
-      // Tear down any outlets rendered with 'into'
-      var teardownOutletViews = this.teardownOutletViews || [];
-      enumerable_utils.forEach(teardownOutletViews, function(teardownOutletView) {
-        teardownOutletView();
-      });
-
-      delete this.teardownTopLevelView;
-      delete this.teardownOutletViews;
-      delete this.lastRenderedTemplate;
+      if (this.connections && this.connections.length > 0) {
+        this.connections = [];
+        run['default'].once(this.router, '_setOutlets');
+      }
     }
   });
 
@@ -23114,21 +23041,23 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
     }
   }
 
-  function parentTemplate(route) {
-    var parent = parentRoute(route);
-    var template;
-
-    if (!parent) { return; }
-
-    if (template = parent.lastRenderedTemplate) {
-      return template;
-    } else {
-      return parentTemplate(parent);
-    }
-  }
-
-  function buildRenderOptions(route, namePassed, name, options) {
+  function buildRenderOptions(route, namePassed, isDefaultRender, name, options) {
     var controller = options && options.controller;
+    var templateName;
+    var viewName;
+    var ViewClass;
+    var template;
+    var LOG_VIEW_LOOKUPS = property_get.get(route.router, 'namespace.LOG_VIEW_LOOKUPS');
+    var into = options && options.into && options.into.replace(/\//g, '.');
+    var outlet = (options && options.outlet) || 'main';
+
+    if (name) {
+      name = name.replace(/\//g, '.');
+      templateName = name;
+    } else {
+      name = route.routeName;
+      templateName = route.templateName || name;
+    }
 
     if (!controller) {
       if (namePassed) {
@@ -23150,55 +23079,41 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       controller.set('model', options.model);
     }
 
-    var renderOptions = {
-      into: options && options.into ? options.into.replace(/\//g, '.') : parentTemplate(route),
-      outlet: (options && options.outlet) || 'main',
-      name: name,
-      controller: controller
-    };
+    viewName = options && options.view || namePassed && name || route.viewName || name;
+    ViewClass = route.container.lookupFactory('view:' + viewName);
+    template = route.container.lookup('template:' + templateName);
+    if (!ViewClass && !template) {
+      Ember['default'].assert("Could not find \"" + name + "\" template or view.", isDefaultRender);
+      if (LOG_VIEW_LOOKUPS) {
+        Ember['default'].Logger.info("Could not find \"" + name + "\" template or view. Nothing will be rendered", { fullName: 'template:' + name });
+      }
+    }
 
-    Ember['default'].assert("An outlet ("+renderOptions.outlet+") was specified but was not found.", renderOptions.outlet === 'main' || renderOptions.into);
+    Ember['default'].assert("An outlet ("+outlet+") was specified but was not found.", outlet === 'main' || into);
+
+    Ember['default'].assert(
+      "You attempted to render into '" + into + "' but it was not found",
+      !into || Ember['default'].A(route.router.router.state.handlerInfos).any(function(info) {
+        return Ember['default'].A(info.handler.connections || []).any(function(conn) {
+          return conn.name === into;
+        });
+      })
+    );
+
+    if (into && into === parentRoute(route).routeName) {
+      into = undefined;
+    }
+
+    var renderOptions = {
+      into: into,
+      outlet: outlet,
+      name: name,
+      controller: controller,
+      ViewClass: ViewClass,
+      template: template
+    };
 
     return renderOptions;
-  }
-
-  function setupView(ViewClass, options) {
-    return ViewClass.create({
-      _debugTemplateName: options.name,
-      renderedName: options.name,
-      controller: options.controller
-    });
-  }
-
-  function appendView(route, view, options) {
-    if (options.into) {
-      var parentView = route.router._lookupActiveView(options.into);
-      var teardownOutletView = generateOutletTeardown(parentView, options.outlet);
-      if (!route.teardownOutletViews) { route.teardownOutletViews = []; }
-      enumerable_utils.replace(route.teardownOutletViews, 0, 0, [teardownOutletView]);
-      parentView.connectOutlet(options.outlet, view);
-    } else {
-      // tear down view if one is already rendered
-      if (route.teardownTopLevelView) {
-        route.teardownTopLevelView();
-      }
-
-      route.router._connectActiveView(options.name, view);
-      route.teardownTopLevelView = function() { view.destroy(); };
-
-      // Notify the application instance that we have created the root-most
-      // view. It is the responsibility of the instance to tell the root view
-      // how to render, typically by appending it to the application's
-      // `rootElement`.
-      var instance = route.container.lookup('-application-instance:main');
-      instance.didCreateRootView(view);
-    }
-  }
-
-  function generateOutletTeardown(parentView, outlet) {
-    return function() {
-      parentView.disconnectOutlet(outlet);
-    };
   }
 
   function getFullQueryParams(router, state) {
@@ -23411,6 +23326,45 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
       }
     },
 
+    _setOutlets: function() {
+      var handlerInfos = this.router.currentHandlerInfos;
+      var route;
+      var parentRoute;
+      var defaultParentState;
+      var liveRoutes = null;
+
+      if (!handlerInfos) {
+        return;
+      }
+
+      for (var i = 0; i < handlerInfos.length; i++) {
+        route = handlerInfos[i].handler;
+
+        var connections = (route.connections.length > 0) ? route.connections : [{
+            name: route.routeName,
+            outlet: 'main'
+        }];
+
+        var ownState;
+        for (var j = 0; j < connections.length; j++) {
+          var appended = appendLiveRoute(liveRoutes, route, parentRoute, defaultParentState, connections[j]);
+          liveRoutes = appended.liveRoutes;
+          if (appended.ownState.render.name === route.routeName) {
+            ownState = appended.ownState;
+          }
+        }
+        parentRoute = route;
+        defaultParentState = ownState;
+      }
+      if (!this._toplevelView) {
+        var OutletView = this.container.lookupFactory('view:-outlet');
+        this._toplevelView = OutletView.create({ _isTopLevel: true });
+        var instance = this.container.lookup('-application-instance:main');
+        instance.didCreateRootView(this._toplevelView);
+      }
+      this._toplevelView.setOutletState(liveRoutes);
+    },
+
     /**
       Handles notifying any listeners of an impending URL
       change.
@@ -23539,6 +23493,10 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
     },
 
     willDestroy: function() {
+      if (this._toplevelView) {
+        this._toplevelView.destroy();
+        this._toplevelView = null;
+      }
       this._super.apply(this, arguments);
       this.reset();
     },
@@ -24171,6 +24129,47 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
       }
     }
   }
+
+  function findLiveRoute(liveRoutes, name) {
+    var stack = [liveRoutes];
+    while (stack.length > 0) {
+      var test = stack.shift();
+      if (test.render.name === name) {
+        return test;
+      }
+      var outlets = test.outlets;
+      for (var outletName in outlets) {
+        stack.push(outlets[outletName]);
+      }
+    }
+  }
+
+  function appendLiveRoute(liveRoutes, route, parentRoute, defaultParentState, renderOptions) {
+    var targetName;
+    var target;
+    var myState = {
+      render: renderOptions,
+      outlets: Object.create(null)
+    };
+    if (!parentRoute) {
+      liveRoutes = myState;
+    }
+    targetName = renderOptions.into || (parentRoute && parentRoute.routeName);
+    if (renderOptions.into) {
+      target = findLiveRoute(liveRoutes, renderOptions.into);
+    } else {
+      target = defaultParentState;
+    }
+    if (target) {
+      property_set.set(target.outlets, renderOptions.outlet, myState);
+    }
+    return {
+      liveRoutes: liveRoutes,
+      ownState: myState
+    };
+  }
+
+
 
   exports['default'] = EmberRouter;
 
