@@ -297,10 +297,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/error', 'embe
     Ember['default'].FEATURES['features-stripped-test'] = true;
     var featuresWereStripped = true;
 
-    if (Ember['default'].FEATURES.isEnabled('features-stripped-test')) {
-      featuresWereStripped = false;
-    }
-
+    
     delete Ember['default'].FEATURES['features-stripped-test'];
     _warnIfUsingStrippedFeatureFlags(Ember['default'].ENV.FEATURES, featuresWereStripped);
 
@@ -703,44 +700,7 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
   */
   asyncHelper('click', click);
 
-  if (Ember['default'].FEATURES.isEnabled('ember-testing-checkbox-helpers')) {
     /**
-    * Checks a checkbox. Ensures the presence of the `checked` attribute
-    *
-    * Example:
-    *
-    * ```javascript
-    * check('#remember-me').then(function() {
-    *   // assert something
-    * });
-    * ```
-    *
-    * @method check
-    * @param {String} selector jQuery selector finding an `input[type="checkbox"]`
-    * element on the DOM to check
-    * @return {RSVP.Promise}
-    */
-    asyncHelper('check', check);
-
-    /**
-    * Unchecks a checkbox. Ensures the absence of the `checked` attribute
-    *
-    * Example:
-    *
-    * ```javascript
-    * uncheck('#remember-me').then(function() {
-    *   // assert something
-    * });
-    * ```
-    *
-    * @method check
-    * @param {String} selector jQuery selector finding an `input[type="checkbox"]`
-    * element on the DOM to uncheck
-    * @return {RSVP.Promise}
-    */
-    asyncHelper('uncheck', uncheck);
-  }
-  /**
   * Simulates a key event, e.g. `keypress`, `keydown`, `keyup` with the desired keyCode
   *
   * Example:

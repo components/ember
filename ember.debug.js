@@ -1489,6 +1489,8 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
 
   var VALID_FULL_NAME_REGEXP = /^[^:]+.+:[^:]+$/;
 
+  var instanceInitializersFeatureEnabled;
+  
   /**
    A lightweight registry used to store factory and option information keyed
    by type.
@@ -1656,7 +1658,7 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
     lookup: function(fullName, options) {
       Ember['default'].assert('Create a container on the registry (with `registry.container()`) before calling `lookup`.', this._defaultContainer);
 
-      if (Ember['default'].FEATURES.isEnabled('ember-application-instance-initializers')) {
+      if (instanceInitializersFeatureEnabled) {
         Ember['default'].deprecate('`lookup` was called on a Registry. The `initializer` API no longer receives a container, and you should use an `instanceInitializer` to look up objects from the container.', { url: "http://emberjs.com/guides/deprecations#toc_deprecate-access-to-instances-in-initializers" });
       }
 
@@ -1666,7 +1668,7 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
     lookupFactory: function(fullName) {
       Ember['default'].assert('Create a container on the registry (with `registry.container()`) before calling `lookupFactory`.', this._defaultContainer);
 
-      if (Ember['default'].FEATURES.isEnabled('ember-application-instance-initializers')) {
+      if (instanceInitializersFeatureEnabled) {
         Ember['default'].deprecate('`lookupFactory` was called on a Registry. The `initializer` API no longer receives a container, and you should use an `instanceInitializer` to look up objects from the container.', { url: "http://emberjs.com/guides/deprecations#toc_deprecate-access-to-instances-in-initializers" });
       }
 
@@ -3921,19 +3923,10 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       // decremented by the Application's own `initialize` method.
       this._readinessDeferrals = 1;
 
-      if (Ember['default'].FEATURES.isEnabled('ember-application-visit')) {
-        if (this.autoboot) {
-          // Create subclass of Ember.Router for this Application instance.
-          // This is to ensure that someone reopening `App.Router` does not
-          // tamper with the default `Ember.Router`.
-          // 2.0TODO: Can we move this into a globals-mode-only library?
-          this.Router = Router['default'].extend();
-          this.waitForDOMReady(this.buildDefaultInstance());
-        }
-      } else {
+      
         this.Router = Router['default'].extend();
         this.waitForDOMReady(this.buildDefaultInstance());
-      }
+      
     },
 
     /**
@@ -4308,12 +4301,10 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       this._runInitializer('initializers', function(name, initializer) {
         Ember['default'].assert("No application initializer named '" + name + "'", !!initializer);
 
-        if (Ember['default'].FEATURES.isEnabled("ember-application-initializer-context")) {
-          initializer.initialize(registry, App);
-        } else {
+        
           var ref = initializer.initialize;
           ref(registry, App);
-        }
+        
       });
     },
 
@@ -4413,55 +4404,8 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
     }
   });
 
-  if (Ember['default'].FEATURES.isEnabled('ember-application-instance-initializers')) {
-    Application.reopen({
-      instanceInitializer: function(options) {
-        this.constructor.instanceInitializer(options);
-      }
-    });
-
-    Application.reopenClass({
-      instanceInitializer: buildInitializerMethod('instanceInitializers', 'instance initializer')
-    });
-  }
-
-  if (Ember['default'].FEATURES.isEnabled('ember-application-visit')) {
-    Application.reopen({
-      /**
-        Creates a new instance of the application and instructs it to route to the
-        specified initial URL. This method returns a promise that will be resolved
-        once rendering is complete. That promise is resolved with the instance.
-
-        ```js
-        App.visit('/users').then(function(instance) {
-          var view = instance.view;
-          view.appendTo('#qunit-test-fixtures');
-        });
-       ```
-
-        @method visit
-        @private
-      */
-      visit: function(url) {
-        var instance = this.buildInstance();
-        this.runInstanceInitializers(instance);
-
-        var renderPromise = new Ember['default'].RSVP.Promise(function(res, rej) {
-          instance.didCreateRootView = function(view) {
-            instance.view = view;
-            res(instance);
-          };
-        });
-
-        instance.setupRouter({ location: 'none' });
-
-        return instance.handleURL(url).then(function() {
-          return renderPromise;
-        });
-      }
-    });
-  }
-
+  
+  
   Application.reopenClass({
     initializers: create['default'](null),
     instanceInitializers: create['default'](null),
@@ -5372,10 +5316,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/error', 'embe
     Ember['default'].FEATURES['features-stripped-test'] = true;
     var featuresWereStripped = true;
 
-    if (Ember['default'].FEATURES.isEnabled('features-stripped-test')) {
-      featuresWereStripped = false;
-    }
-
+    
     delete Ember['default'].FEATURES['features-stripped-test'];
     _warnIfUsingStrippedFeatureFlags(Ember['default'].ENV.FEATURES, featuresWereStripped);
 
@@ -8766,23 +8707,7 @@ enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/merge', 'embe
 
   Ember['default'].merge = merge['default'];
 
-  if (Ember['default'].FEATURES.isEnabled('ember-metal-stream')) {
-    Ember['default'].stream = {
-      Stream: Stream['default'],
-
-      isStream: streams__utils.isStream,
-      subscribe: streams__utils.subscribe,
-      unsubscribe: streams__utils.unsubscribe,
-      read: streams__utils.read,
-      readHash: streams__utils.readHash,
-      readArray: streams__utils.readArray,
-      scanArray: streams__utils.scanArray,
-      scanHash: streams__utils.scanHash,
-      concat: streams__utils.concat,
-      chain: streams__utils.chain
-    };
-  }
-
+  
   /**
     A function may be assigned to `Ember.onerror` to be called when Ember
     internals encounter an error. This is useful for specialized error handling
@@ -10051,27 +9976,13 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-me
   */
   function ComputedProperty(config, opts) {
     this.isDescriptor = true;
-    if (Ember.FEATURES.isEnabled("new-computed-syntax")) {
-      if (typeof config === "function") {
-        config.__ember_arity = config.length;
-        this._getter = config;
-        if (config.__ember_arity > 1) {
-          this._setter = config;
-        }
-      } else {
-        this._getter = config.get;
-        this._setter = config.set;
-        if (this._setter && this._setter.__ember_arity === undefined) {
-          this._setter.__ember_arity = this._setter.length;
-        }
-      }
-    } else {
+    
       config.__ember_arity = config.length;
       this._getter = config;
       if (config.__ember_arity > 1) {
         this._setter = config;
       }
-    }
+    
 
     this._dependentKeys = undefined;
     this._suspended = undefined;
@@ -10517,14 +10428,12 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-me
 
     var cp = new ComputedProperty(func);
     // jscs:disable
-    if (Ember.FEATURES.isEnabled("new-computed-syntax")) {
-      // Empty block on purpose
-    } else {
+    
       // jscs:enable
       if (typeof func !== "function") {
         throw new EmberError['default']("Computed Property declared without a property function");
       }
-    }
+    
 
     if (args) {
       cp.property.apply(cp, args);
@@ -11414,7 +11323,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   Ember.FEATURES = Ember.ENV.FEATURES;
 
   if (!Ember.FEATURES) {
-    Ember.FEATURES = {"features-stripped-test":null,"ember-routing-named-substates":true,"ember-metal-injected-properties":true,"mandatory-setter":true,"ember-htmlbars":true,"ember-htmlbars-block-params":true,"ember-htmlbars-component-generation":null,"ember-htmlbars-component-helper":true,"ember-htmlbars-inline-if-helper":true,"ember-htmlbars-attribute-syntax":true,"ember-routing-transitioning-classes":true,"new-computed-syntax":null,"ember-testing-checkbox-helpers":null,"ember-metal-stream":null,"ember-htmlbars-each-with-index":true,"ember-application-instance-initializers":null,"ember-application-initializer-context":null,"ember-router-willtransition":true,"ember-application-visit":null}; //jshint ignore:line
+    Ember.FEATURES = {"features-stripped-test":false,"ember-routing-named-substates":true,"ember-metal-injected-properties":true,"mandatory-setter":true,"ember-htmlbars":true,"ember-htmlbars-block-params":true,"ember-htmlbars-component-generation":false,"ember-htmlbars-component-helper":true,"ember-htmlbars-inline-if-helper":true,"ember-htmlbars-attribute-syntax":true,"ember-routing-transitioning-classes":true,"new-computed-syntax":false,"ember-testing-checkbox-helpers":false,"ember-metal-stream":false,"ember-htmlbars-each-with-index":true,"ember-application-instance-initializers":false,"ember-application-initializer-context":false,"ember-router-willtransition":true,"ember-application-visit":false}; //jshint ignore:line
   }
 
   /**
@@ -34486,10 +34395,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
   exports['default'] = function() {
     var disableComponentGeneration = true;
-    if (Ember['default'].FEATURES.isEnabled('ember-htmlbars-component-generation')) {
-      disableComponentGeneration = false;
-    }
-
+    
     return {
       disableComponentGeneration: disableComponentGeneration,
 
@@ -34920,44 +34826,7 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
   */
   asyncHelper('click', click);
 
-  if (Ember['default'].FEATURES.isEnabled('ember-testing-checkbox-helpers')) {
     /**
-    * Checks a checkbox. Ensures the presence of the `checked` attribute
-    *
-    * Example:
-    *
-    * ```javascript
-    * check('#remember-me').then(function() {
-    *   // assert something
-    * });
-    * ```
-    *
-    * @method check
-    * @param {String} selector jQuery selector finding an `input[type="checkbox"]`
-    * element on the DOM to check
-    * @return {RSVP.Promise}
-    */
-    asyncHelper('check', check);
-
-    /**
-    * Unchecks a checkbox. Ensures the absence of the `checked` attribute
-    *
-    * Example:
-    *
-    * ```javascript
-    * uncheck('#remember-me').then(function() {
-    *   // assert something
-    * });
-    * ```
-    *
-    * @method check
-    * @param {String} selector jQuery selector finding an `input[type="checkbox"]`
-    * element on the DOM to uncheck
-    * @return {RSVP.Promise}
-    */
-    asyncHelper('uncheck', uncheck);
-  }
-  /**
   * Simulates a key event, e.g. `keypress`, `keydown`, `keyup` with the desired keyCode
   *
   * Example:
