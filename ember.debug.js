@@ -4146,7 +4146,7 @@ enifed("ember-debug",
       so that if `ember.js` (which must be output for backwards compat reasons) is
       used a nice helpful warning message will be printed out.
     */
-    var runningNonEmberDebugJS = true;
+    var runningNonEmberDebugJS = false;
     __exports__.runningNonEmberDebugJS = runningNonEmberDebugJS;if (runningNonEmberDebugJS) {
       Ember.warn('Please use `ember.debug.js` instead of `ember.js` for development and debugging.');
     }
