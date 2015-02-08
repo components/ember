@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.fd6530b4
+ * @version   1.12.0-beta.1+canary.4d418874
  */
 
 (function() {
@@ -2628,7 +2628,11 @@ enifed('ember-application/tests/system/instance_initializers_test', ['ember-meta
 
   'use strict';
 
-  var app;
+  var app, initializeContextFeatureEnabled;
+
+  if (Ember.FEATURES.isEnabled("ember-application-initializer-context")) {
+    initializeContextFeatureEnabled = true;
+  }
 
   if (Ember.FEATURES.isEnabled('ember-application-instance-initializers')) {
     QUnit.module("Ember.Application instance initializers", {
@@ -2947,7 +2951,7 @@ enifed('ember-application/tests/system/instance_initializers_test', ['ember-meta
       });
     });
 
-    if (Ember.FEATURES.isEnabled("ember-application-initializer-context")) {
+    if (initializeContextFeatureEnabled) {
       QUnit.test("initializers should be executed in their own context", function() {
         expect(1);
 

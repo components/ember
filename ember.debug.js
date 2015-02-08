@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.fd6530b4
+ * @version   1.12.0-beta.1+canary.4d418874
  */
 
 (function() {
@@ -1489,6 +1489,11 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
 
   var VALID_FULL_NAME_REGEXP = /^[^:]+.+:[^:]+$/;
 
+  var instanceInitializersFeatureEnabled;
+  if (Ember['default'].FEATURES.isEnabled('ember-application-instance-initializers')) {
+    instanceInitializersFeatureEnabled = true;
+  }
+
   /**
    A lightweight registry used to store factory and option information keyed
    by type.
@@ -1656,7 +1661,7 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
     lookup: function(fullName, options) {
       Ember['default'].assert('Create a container on the registry (with `registry.container()`) before calling `lookup`.', this._defaultContainer);
 
-      if (Ember['default'].FEATURES.isEnabled('ember-application-instance-initializers')) {
+      if (instanceInitializersFeatureEnabled) {
         Ember['default'].deprecate('`lookup` was called on a Registry. The `initializer` API no longer receives a container, and you should use an `instanceInitializer` to look up objects from the container.', { url: "http://emberjs.com/guides/deprecations#toc_deprecate-access-to-instances-in-initializers" });
       }
 
@@ -1666,7 +1671,7 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
     lookupFactory: function(fullName) {
       Ember['default'].assert('Create a container on the registry (with `registry.container()`) before calling `lookupFactory`.', this._defaultContainer);
 
-      if (Ember['default'].FEATURES.isEnabled('ember-application-instance-initializers')) {
+      if (instanceInitializersFeatureEnabled) {
         Ember['default'].deprecate('`lookupFactory` was called on a Registry. The `initializer` API no longer receives a container, and you should use an `instanceInitializer` to look up objects from the container.', { url: "http://emberjs.com/guides/deprecations#toc_deprecate-access-to-instances-in-initializers" });
       }
 
@@ -11338,7 +11343,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.fd6530b4
+    @version 1.12.0-beta.1+canary.4d418874
   */
 
   if ('undefined' === typeof Ember) {
@@ -11366,10 +11371,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.fd6530b4'
+    @default '1.12.0-beta.1+canary.4d418874'
     @static
   */
-  Ember.VERSION = '1.12.0-beta.1+canary.fd6530b4';
+  Ember.VERSION = '1.12.0-beta.1+canary.4d418874';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
