@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.caa7874b
+ * @version   1.12.0-beta.1+canary.e88c68ef
  */
 
 (function() {
@@ -33506,26 +33506,6 @@ enifed('ember-routing/location/auto_location.jshint', function () {
   });
 
 });
-enifed('ember-routing/location/feature_detect.jscs-test', function () {
-
-  'use strict';
-
-  module('JSCS - ember-routing/location');
-  test('ember-routing/location/feature_detect.js should pass jscs', function() {
-    ok(true, 'ember-routing/location/feature_detect.js should pass jscs.');
-  });
-
-});
-enifed('ember-routing/location/feature_detect.jshint', function () {
-
-  'use strict';
-
-  module('JSHint - ember-routing/location');
-  test('ember-routing/location/feature_detect.js should pass jshint', function() { 
-    ok(true, 'ember-routing/location/feature_detect.js should pass jshint.'); 
-  });
-
-});
 enifed('ember-routing/location/hash_location.jscs-test', function () {
 
   'use strict';
@@ -33583,6 +33563,26 @@ enifed('ember-routing/location/none_location.jshint', function () {
   module('JSHint - ember-routing/location');
   test('ember-routing/location/none_location.js should pass jshint', function() { 
     ok(true, 'ember-routing/location/none_location.js should pass jshint.'); 
+  });
+
+});
+enifed('ember-routing/location/util.jscs-test', function () {
+
+  'use strict';
+
+  module('JSCS - ember-routing/location');
+  test('ember-routing/location/util.js should pass jscs', function() {
+    ok(true, 'ember-routing/location/util.js should pass jscs.');
+  });
+
+});
+enifed('ember-routing/location/util.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - ember-routing/location');
+  test('ember-routing/location/util.js should pass jshint', function() { 
+    ok(true, 'ember-routing/location/util.js should pass jshint.'); 
   });
 
 });
@@ -33746,44 +33746,12 @@ enifed('ember-routing/system/router_state.jshint', function () {
   });
 
 });
-enifed('ember-routing/tests/location/auto_location_test', ['ember-metal/property_get', 'ember-metal/run_loop', 'ember-metal/environment', 'ember-metal/merge', 'ember-runtime/copy', 'ember-runtime/system/object', 'ember-routing/location/auto_location', 'ember-routing/location/api', 'ember-routing/location/feature_detect'], function (property_get, run, environment, merge, copy, EmberObject, AutoLocation, EmberLocation, feature_detect) {
+enifed('ember-routing/tests/location/auto_location_test', ['ember-metal/property_get', 'ember-metal/run_loop', 'ember-metal/merge', 'ember-routing/location/auto_location', 'ember-routing/location/history_location', 'ember-routing/location/hash_location', 'ember-routing/location/none_location', 'container/registry'], function (property_get, run, merge, AutoLocation, HistoryLocation, HashLocation, NoneLocation, Registry) {
 
   'use strict';
 
-  var AutoTestLocation, location;
-
-  var FakeHistoryLocation = EmberObject['default'].extend({
-    implementation: 'history'
-  });
-
-  var FakeHashLocation = EmberObject['default'].extend({
-    implementation: 'hash'
-  });
-
-  var FakeNoneLocation = EmberObject['default'].extend({
-    implementation: 'none'
-  });
-
-  function createLocation(options) {
-    if (!options) { options = {}; }
-
-    if ('history' in options) {
-      AutoTestLocation._getSupportsHistory = function() {
-        return options.history;
-      };
-    }
-
-    if ('hashChange' in options) {
-      AutoTestLocation._getSupportsHashChange = function() {
-        return options.hashChange;
-      };
-    }
-
-    location = AutoTestLocation.create(options);
-  }
-
   function mockBrowserLocation(overrides) {
-    AutoTestLocation._location = merge['default']({
+    return merge['default']({
       href: 'http://test.com/',
       pathname: '/',
       hash: '',
@@ -33795,7 +33763,7 @@ enifed('ember-routing/tests/location/auto_location_test', ['ember-metal/property
   }
 
   function mockBrowserHistory(overrides) {
-    AutoTestLocation._history = merge['default']({
+    return merge['default']({
       pushState: function () {
         ok(false, 'history.pushState should not be called during testing');
       },
@@ -33805,92 +33773,72 @@ enifed('ember-routing/tests/location/auto_location_test', ['ember-metal/property
     }, overrides);
   }
 
+  function createLocation(location, history) {
+    var registry = new Registry['default']();
+
+    registry.register('location:history', HistoryLocation['default']);
+    registry.register('location:hash', HashLocation['default']);
+    registry.register('location:none', NoneLocation['default']);
+
+    return AutoLocation['default'].create({
+      container: registry.container(),
+      location: location,
+      history: history,
+      global: {}
+    });
+  }
+
+  var location;
+
   QUnit.module("Ember.AutoLocation", {
-    setup: function() {
-      AutoTestLocation = copy['default'](AutoLocation['default']);
-
-      AutoTestLocation._HistoryLocation = FakeHistoryLocation;
-      AutoTestLocation._HashLocation = FakeHashLocation;
-      AutoTestLocation._NoneLocation = FakeNoneLocation;
-    },
-
     teardown: function() {
-      run['default'](function() {
-        if (location && location.destroy) { location.destroy(); }
-        location = AutoTestLocation = null;
-      });
+      if (location) {
+        run['default'](location, 'destroy');
+      }
     }
   });
 
-  QUnit.test("_replacePath cannot be used to redirect to a different origin (website)", function() {
+  QUnit.test("AutoLocation should use a HistoryLocation instance when pushStates is supported", function() {
     expect(1);
 
-    var expectedURL;
+    var browserLocation = mockBrowserLocation();
+    var browserHistory = mockBrowserHistory();
 
-    mockBrowserLocation({
-      protocol: 'http:',
-      hostname: 'emberjs.com',
-      port: '1337',
+    location = createLocation(browserLocation, browserHistory);
+    location.detect();
 
-      replace: function (url) {
-        equal(url, expectedURL);
-      }
-    });
-
-    expectedURL = 'http://emberjs.com:1337//google.com';
-    AutoTestLocation._replacePath('//google.com');
+    ok(property_get.get(location, 'concreteImplementation') instanceof HistoryLocation['default']);
   });
 
-  QUnit.test("AutoLocation.create() should return a HistoryLocation instance when pushStates are supported", function() {
-    expect(2);
+  QUnit.test("AutoLocation should use a HashLocation instance when pushStates are not supported, but hashchange events are and the URL is already in the HashLocation format", function() {
+    expect(1);
 
-    mockBrowserLocation();
-
-    createLocation({
-      history: true,
-      hashChange: true
-    });
-
-    equal(property_get.get(location, 'implementation'), 'history');
-    equal(location instanceof FakeHistoryLocation, true);
-  });
-
-  QUnit.test("AutoLocation.create() should return a HashLocation instance when pushStates are not supported, but hashchange events are and the URL is already in the HashLocation format", function() {
-    expect(2);
-
-    mockBrowserLocation({
+    var browserLocation = mockBrowserLocation({
       hash: '#/testd'
     });
 
-    createLocation({
-      history: false,
-      hashChange: true
-    });
+    location = createLocation(browserLocation);
+    location.global = {
+      onhashchange: function() { }
+    };
 
-    equal(property_get.get(location, 'implementation'), 'hash');
-    equal(location instanceof FakeHashLocation, true);
+    location.detect();
+    ok(property_get.get(location, 'concreteImplementation') instanceof HashLocation['default']);
   });
 
-  QUnit.test("AutoLocation.create() should return a NoneLocation instance when neither history nor hashchange is supported.", function() {
-    expect(2);
+  QUnit.test("AutoLocation should use a NoneLocation instance when neither history nor hashchange are supported.", function() {
+    expect(1);
 
-    mockBrowserLocation({
-      hash: '#/testd'
-    });
+    location = createLocation(mockBrowserLocation());
+    location.detect();
 
-    createLocation({
-      history: false,
-      hashChange: false
-    });
-
-    equal(property_get.get(location, 'implementation'), 'none');
-    equal(location instanceof FakeNoneLocation, true);
+    ok(property_get.get(location, 'concreteImplementation') instanceof NoneLocation['default']);
   });
 
-  QUnit.test("AutoLocation.create() should consider an index path (i.e. '/\') without any location.hash as OK for HashLocation", function() {
-    expect(2);
+  QUnit.test("AutoLocation should use an index path (i.e. '/') without any location.hash as OK for HashLocation", function() {
+    expect(1);
 
-    mockBrowserLocation({
+    var browserLocation = mockBrowserLocation({
       href: 'http://test.com/',
       pathname: '/',
       hash: '',
@@ -33900,27 +33848,20 @@ enifed('ember-routing/tests/location/auto_location_test', ['ember-metal/property
       }
     });
 
-    createLocation({
-      history: false,
-      hashChange: true
-    });
+    location = createLocation(browserLocation);
+    location.global = {
+      onhashchange: function() { }
+    };
 
-    equal(property_get.get(location, 'implementation'), 'hash');
-    equal(location instanceof FakeHashLocation, true);
+    location.detect();
+
+    ok(property_get.get(location, 'concreteImplementation') instanceof HashLocation['default'], "uses a HashLocation");
   });
 
-  QUnit.test("Feature-detecting the history API", function() {
-    equal(feature_detect.supportsHistory("", { pushState: true }), true, "returns true if not Android Gingerbread and history.pushState exists");
-    equal(feature_detect.supportsHistory("", {}), false, "returns false if history.pushState doesn't exist");
-    equal(feature_detect.supportsHistory("", undefined), false, "returns false if history doesn't exist");
-    equal(feature_detect.supportsHistory("Mozilla/5.0 (Linux; U; Android 2.3.5; en-us; HTC Vision Build/GRI40) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1", { pushState: true }),
-                          false, "returns false if Android Gingerbread stock browser claiming to support pushState");
-  });
+  QUnit.test("AutoLocation should transform the URL for hashchange-only browsers viewing a HistoryLocation-formatted path", function() {
+    expect(3);
 
-  QUnit.test("AutoLocation.create() should transform the URL for hashchange-only browsers viewing a HistoryLocation-formatted path", function() {
-    expect(4);
-
-    mockBrowserLocation({
+    var browserLocation = mockBrowserLocation({
       hash: '',
       hostname: 'test.com',
       href: 'http://test.com/test',
@@ -33934,20 +33875,21 @@ enifed('ember-routing/tests/location/auto_location_test', ['ember-metal/property
       }
     });
 
-    createLocation({
-      history: false,
-      hashChange: true
-    });
+    var location = createLocation(browserLocation);
+    location.global = {
+      onhashchange: function() { }
+    };
 
-    equal(property_get.get(location, 'implementation'), 'none', 'NoneLocation should be returned while we attempt to location.replace()');
-    equal(location instanceof FakeNoneLocation, true, 'NoneLocation should be returned while we attempt to location.replace()');
+    location.detect();
+
+    ok(property_get.get(location, 'concreteImplementation') instanceof NoneLocation['default'], 'NoneLocation should be used while we attempt to location.replace()');
     equal(property_get.get(location, 'cancelRouterSetup'), true, 'cancelRouterSetup should be set so the router knows.');
   });
 
-  QUnit.test("AutoLocation.create() should replace the URL for pushState-supported browsers viewing a HashLocation-formatted url", function() {
+  QUnit.test("AutoLocation should replace the URL for pushState-supported browsers viewing a HashLocation-formatted url", function() {
     expect(2);
 
-    mockBrowserLocation({
+    var browserLocation = mockBrowserLocation({
       hash: '#/test',
       hostname: 'test.com',
       href: 'http://test.com/#/test',
@@ -33957,156 +33899,98 @@ enifed('ember-routing/tests/location/auto_location_test', ['ember-metal/property
       search: ''
     });
 
-    mockBrowserHistory({
+    var browserHistory = mockBrowserHistory({
       replaceState: function (state, title, path) {
         equal(path, '/test', 'history.replaceState should be called with normalized HistoryLocation url');
       }
     });
 
-    createLocation({
-      history: true,
-      hashChange: true
-    });
+    var location = createLocation(browserLocation, browserHistory);
+    location.detect();
 
-    equal(property_get.get(location, 'implementation'), 'history');
+    ok(property_get.get(location, 'concreteImplementation'), HistoryLocation['default']);
   });
 
-  QUnit.test("Feature-Detecting onhashchange", function() {
-    mockBrowserLocation();
-
-    equal(feature_detect.supportsHashChange(undefined, { onhashchange: function() {} }), true, "When not in IE, use onhashchange existence as evidence of the feature");
-    equal(feature_detect.supportsHashChange(undefined, { }), false, "When not in IE, use onhashchange absence as evidence of the feature absence");
-    equal(feature_detect.supportsHashChange(7, { onhashchange: function() {} }), false, "When in IE7 compatibility mode, never report existence of the feature");
-    equal(feature_detect.supportsHashChange(8, { onhashchange: function() {} }), true, "When in IE8+, use onhashchange existence as evidence of the feature");
-  });
-
-  QUnit.test("AutoLocation._getPath() should normalize location.pathname, making sure it always returns a leading slash", function() {
-    expect(2);
-
-    mockBrowserLocation({ pathname: 'test' });
-    equal(AutoTestLocation._getPath(), '/test', 'When there is no leading slash, one is added.');
-
-    mockBrowserLocation({ pathname: '/test' });
-    equal(AutoTestLocation._getPath(), '/test', 'When a leading slash is already there, it isn\'t added again');
-  });
-
-  QUnit.test("AutoLocation._getHash() should be an alias to Ember.Location._getHash, otherwise it needs its own test!", function() {
-    expect(1);
-
-    equal(AutoTestLocation._getHash, EmberLocation['default']._getHash);
-  });
-
-  QUnit.test("AutoLocation._getQuery() should return location.search as-is", function() {
-    expect(1);
-
-    mockBrowserLocation({ search: '?foo=bar' });
-    equal(AutoTestLocation._getQuery(), '?foo=bar');
-  });
-
-  QUnit.test("AutoLocation._getFullPath() should return full pathname including query and hash", function() {
-    expect(1);
-
-    mockBrowserLocation({
-      href: 'http://test.com/about?foo=bar#foo',
-      pathname: '/about',
-      search: '?foo=bar',
-      hash: '#foo'
-    });
-
-    equal(AutoTestLocation._getFullPath(), '/about?foo=bar#foo');
-  });
-
-  QUnit.test("AutoLocation._getHistoryPath() should return a normalized, HistoryLocation-supported path", function() {
+  QUnit.test("AutoLocation requires any rootURL given to end in a trailing forward slash", function() {
     expect(3);
-
-    AutoTestLocation.rootURL = '/app/';
-
-    mockBrowserLocation({
-      href: 'http://test.com/app/about?foo=bar#foo',
-      pathname: '/app/about',
-      search: '?foo=bar',
-      hash: '#foo'
-    });
-    equal(AutoTestLocation._getHistoryPath(), '/app/about?foo=bar#foo', 'URLs already in HistoryLocation form should come out the same');
-
-    mockBrowserLocation({
-      href: 'http://test.com/app/#/about?foo=bar#foo',
-      pathname: '/app/',
-      search: '',
-      hash: '#/about?foo=bar#foo'
-    });
-    equal(AutoTestLocation._getHistoryPath(), '/app/about?foo=bar#foo', 'HashLocation formed URLs should be normalized');
-
-    mockBrowserLocation({
-      href: 'http://test.com/app/#about?foo=bar#foo',
-      pathname: '/app/',
-      search: '',
-      hash: '#about?foo=bar#foo'
-    });
-    equal(AutoTestLocation._getHistoryPath(), '/app/#about?foo=bar#foo', 'URLs with a hash not following #/ convention shouldn\'t be normalized as a route');
-  });
-
-  QUnit.test("AutoLocation._getHashPath() should return a normalized, HashLocation-supported path", function() {
-    expect(3);
-
-    AutoTestLocation.rootURL = '/app/';
-
-    mockBrowserLocation({
-      href: 'http://test.com/app/#/about?foo=bar#foo',
-      pathname: '/app/',
-      search: '',
-      hash: '#/about?foo=bar#foo'
-    });
-    equal(AutoTestLocation._getHashPath(), '/app/#/about?foo=bar#foo', 'URLs already in HistoryLocation form should come out the same');
-
-    mockBrowserLocation({
-      href: 'http://test.com/app/about?foo=bar#foo',
-      pathname: '/app/about',
-      search: '?foo=bar',
-      hash: '#foo'
-    });
-    equal(AutoTestLocation._getHashPath(), '/app/#/about?foo=bar#foo', 'HistoryLocation formed URLs should be normalized');
-
-    mockBrowserLocation({
-      href: 'http://test.com/app/#about?foo=bar#foo',
-      pathname: '/app/',
-      search: '',
-      hash: '#about?foo=bar#foo'
-    });
-
-    equal(AutoTestLocation._getHashPath(), '/app/#/#about?foo=bar#foo', 'URLs with a hash not following #/ convention shouldn\'t be normalized as a route');
-  });
-
-  QUnit.test("AutoLocation.create requires any rootURL given to end in a trailing forward slash", function() {
-    expect(3);
-    mockBrowserLocation();
-
+    var browserLocation = mockBrowserLocation();
     var expectedMsg = /rootURL must end with a trailing forward slash e.g. "\/app\/"/;
 
-    expectAssertion(function() {
-      createLocation({ rootURL: 'app' });
-    }, expectedMsg);
+    location = createLocation(browserLocation);
+    location.rootURL = 'app';
 
     expectAssertion(function() {
-      createLocation({ rootURL: '/app' });
+      location.detect();
     }, expectedMsg);
 
+    location.rootURL = '/app';
     expectAssertion(function() {
-      // Note the trailing whitespace
-      createLocation({ rootURL: '/app/ ' });
+      location.detect();
+    }, expectedMsg);
+
+    // Note the trailing whitespace
+    location.rootURL = '/app/ ';
+    expectAssertion(function() {
+      location.detect();
     }, expectedMsg);
   });
 
-  /*
-   These next two reference check tests are needed to ensure window.location/history
-   are always kept, since we can't actually test them directly and we mock them
-   both in all the tests above. Without these two, #9958 could happen again.
-   */
-  QUnit.test("AutoLocation has valid references to window.location and window.history via environment", function() {
-    expect(2);
+  QUnit.test("getHistoryPath() should return a normalized, HistoryLocation-supported path", function() {
+    expect(3);
 
-    equal(AutoTestLocation._location, environment['default'].location, 'AutoLocation._location === environment.location');
-    equal(AutoTestLocation._history, environment['default'].history, 'AutoLocation._history === environment.history');
+    var browserLocation = mockBrowserLocation({
+      href: 'http://test.com/app/about?foo=bar#foo',
+      pathname: '/app/about',
+      search: '?foo=bar',
+      hash: '#foo'
+    });
+
+    equal(AutoLocation.getHistoryPath('/app/', browserLocation), '/app/about?foo=bar#foo', 'URLs already in HistoryLocation form should come out the same');
+
+    browserLocation = mockBrowserLocation({
+      href: 'http://test.com/app/#/about?foo=bar#foo',
+      pathname: '/app/',
+      search: '',
+      hash: '#/about?foo=bar#foo'
+    });
+    equal(AutoLocation.getHistoryPath('/app/', browserLocation), '/app/about?foo=bar#foo', 'HashLocation formed URLs should be normalized');
+
+    browserLocation = mockBrowserLocation({
+      href: 'http://test.com/app/#about?foo=bar#foo',
+      pathname: '/app/',
+      search: '',
+      hash: '#about?foo=bar#foo'
+    });
+    equal(AutoLocation.getHistoryPath('/app', browserLocation), '/app/#about?foo=bar#foo', 'URLs with a hash not following #/ convention shouldn\'t be normalized as a route');
+  });
+
+  QUnit.test("getHashPath() should return a normalized, HashLocation-supported path", function() {
+    expect(3);
+
+    var browserLocation = mockBrowserLocation({
+      href: 'http://test.com/app/#/about?foo=bar#foo',
+      pathname: '/app/',
+      search: '',
+      hash: '#/about?foo=bar#foo'
+    });
+    equal(AutoLocation.getHashPath('/app/', browserLocation), '/app/#/about?foo=bar#foo', 'URLs already in HistoryLocation form should come out the same');
+
+    browserLocation = mockBrowserLocation({
+      href: 'http://test.com/app/about?foo=bar#foo',
+      pathname: '/app/about',
+      search: '?foo=bar',
+      hash: '#foo'
+    });
+    equal(AutoLocation.getHashPath('/app/', browserLocation), '/app/#/about?foo=bar#foo', 'HistoryLocation formed URLs should be normalized');
+
+    browserLocation = mockBrowserLocation({
+      href: 'http://test.com/app/#about?foo=bar#foo',
+      pathname: '/app/',
+      search: '',
+      hash: '#about?foo=bar#foo'
+    });
+
+    equal(AutoLocation.getHashPath('/app/', browserLocation), '/app/#/#about?foo=bar#foo', 'URLs with a hash not following #/ convention shouldn\'t be normalized as a route');
   });
 
 });
@@ -34573,6 +34457,109 @@ enifed('ember-routing/tests/location/history_location_test.jshint', function () 
   module('JSHint - ember-routing/tests/location');
   test('ember-routing/tests/location/history_location_test.js should pass jshint', function() { 
     ok(true, 'ember-routing/tests/location/history_location_test.js should pass jshint.'); 
+  });
+
+});
+enifed('ember-routing/tests/location/util_test', ['ember-metal/merge', 'ember-routing/location/util'], function (merge, util) {
+
+  'use strict';
+
+  function mockBrowserLocation(overrides) {
+    return merge['default']({
+      href: 'http://test.com/',
+      pathname: '/',
+      hash: '',
+      search: '',
+      replace: function () {
+        ok(false, 'location.replace should not be called during testing');
+      }
+    }, overrides);
+  }
+
+  QUnit.module("Location Utilities");
+
+  QUnit.test("replacePath cannot be used to redirect to a different origin", function() {
+    expect(1);
+
+    var expectedURL;
+
+    var location = {
+      protocol: 'http:',
+      hostname: 'emberjs.com',
+      port: '1337',
+
+      replace: function (url) {
+        equal(url, expectedURL);
+      }
+    };
+
+    expectedURL = 'http://emberjs.com:1337//google.com';
+    util.replacePath(location, '//google.com');
+  });
+
+  QUnit.test("getPath() should normalize location.pathname, making sure it always returns a leading slash", function() {
+    expect(2);
+
+    var location = mockBrowserLocation({ pathname: 'test' });
+    equal(util.getPath(location), '/test', 'When there is no leading slash, one is added.');
+
+    location = mockBrowserLocation({ pathname: '/test' });
+    equal(util.getPath(location), '/test', 'When a leading slash is already there, it isn\'t added again');
+  });
+
+  QUnit.test("getQuery() should return location.search as-is", function() {
+    expect(1);
+
+    var location = mockBrowserLocation({ search: '?foo=bar' });
+    equal(util.getQuery(location), '?foo=bar');
+  });
+
+  QUnit.test("getFullPath() should return full pathname including query and hash", function() {
+    expect(1);
+
+    var location = mockBrowserLocation({
+      href: 'http://test.com/about?foo=bar#foo',
+      pathname: '/about',
+      search: '?foo=bar',
+      hash: '#foo'
+    });
+
+    equal(util.getFullPath(location), '/about?foo=bar#foo');
+  });
+
+  QUnit.test("Feature-Detecting onhashchange", function() {
+    equal(util.supportsHashChange(undefined, { onhashchange: function() {} }), true, "When not in IE, use onhashchange existence as evidence of the feature");
+    equal(util.supportsHashChange(undefined, { }), false, "When not in IE, use onhashchange absence as evidence of the feature absence");
+    equal(util.supportsHashChange(7, { onhashchange: function() {} }), false, "When in IE7 compatibility mode, never report existence of the feature");
+    equal(util.supportsHashChange(8, { onhashchange: function() {} }), true, "When in IE8+, use onhashchange existence as evidence of the feature");
+  });
+
+  QUnit.test("Feature-detecting the history API", function() {
+    equal(util.supportsHistory("", { pushState: true }), true, "returns true if not Android Gingerbread and history.pushState exists");
+    equal(util.supportsHistory("", {}), false, "returns false if history.pushState doesn't exist");
+    equal(util.supportsHistory("", undefined), false, "returns false if history doesn't exist");
+    equal(util.supportsHistory("Mozilla/5.0 (Linux; U; Android 2.3.5; en-us; HTC Vision Build/GRI40) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1", { pushState: true }),
+                          false, "returns false if Android Gingerbread stock browser claiming to support pushState");
+  });
+
+});
+enifed('ember-routing/tests/location/util_test.jscs-test', function () {
+
+  'use strict';
+
+  module('JSCS - ember-routing/tests/location');
+  test('ember-routing/tests/location/util_test.js should pass jscs', function() {
+    ok(true, 'ember-routing/tests/location/util_test.js should pass jscs.');
+  });
+
+});
+enifed('ember-routing/tests/location/util_test.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - ember-routing/tests/location');
+  test('ember-routing/tests/location/util_test.js should pass jshint', function() { 
+    ok(true, 'ember-routing/tests/location/util_test.js should pass jshint.'); 
   });
 
 });
@@ -35131,7 +35118,7 @@ enifed('ember-routing/tests/system/route_test.jshint', function () {
   });
 
 });
-enifed('ember-routing/tests/system/router_test', ['ember-runtime/copy', 'ember-metal/merge', 'ember-metal/enumerable_utils', 'container/registry', 'ember-routing/location/hash_location', 'ember-routing/location/auto_location', 'ember-routing/system/router', 'ember-runtime/tests/utils'], function (copy, merge, enumerable_utils, Registry, HashLocation, AutoLocation, Router, utils) {
+enifed('ember-routing/tests/system/router_test', ['ember-metal/merge', 'ember-metal/enumerable_utils', 'container/registry', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/router', 'ember-runtime/tests/utils'], function (merge, enumerable_utils, Registry, HashLocation, HistoryLocation, AutoLocation, NoneLocation, Router, utils) {
 
   'use strict';
 
@@ -35151,9 +35138,9 @@ enifed('ember-routing/tests/system/router_test', ['ember-runtime/copy', 'ember-m
 
       //register the HashLocation (the default)
       registry.register('location:hash', HashLocation['default']);
-
-      // ensure rootURL is injected into any locations
-      registry.injection('location', 'rootURL', '-location-setting:root-url');
+      registry.register('location:history', HistoryLocation['default']);
+      registry.register('location:auto', AutoLocation['default']);
+      registry.register('location:none', NoneLocation['default']);
     },
     teardown: function() {
       utils.runDestroy(container);
@@ -35191,12 +35178,12 @@ enifed('ember-routing/tests/system/router_test', ['ember-runtime/copy', 'ember-m
     equal(location.get('rootURL'), '/rootdir/');
   });
 
-  QUnit.test("Ember.AutoLocation._replacePath should be called with the right path", function() {
+  QUnit.test("replacePath should be called with the right path", function() {
     expect(1);
 
-    var AutoTestLocation = copy['default'](AutoLocation['default']);
+    var location = container.lookup('location:auto');
 
-    AutoTestLocation._location = {
+    var browserLocation = {
       href: 'http://test.com/rootdir/welcome',
       origin: 'http://test.com',
       pathname: '/rootdir/welcome',
@@ -35206,9 +35193,10 @@ enifed('ember-routing/tests/system/router_test', ['ember-runtime/copy', 'ember-m
         equal(url, 'http://test.com/rootdir/#/welcome');
       }
     };
-    AutoTestLocation._getSupportsHistory = function() { return false; };
 
-    registry.register('location:auto', AutoTestLocation);
+    location.location = browserLocation;
+    location.global = { onhashchange: function() { } };
+    location.history = null;
 
     createRouter({
       location: 'auto',
@@ -35269,9 +35257,9 @@ enifed('ember-routing/tests/system/router_test', ['ember-runtime/copy', 'ember-m
   QUnit.test("AutoLocation should replace the url when it's not in the preferred format", function() {
     expect(1);
 
-    var AutoTestLocation = copy['default'](AutoLocation['default']);
+    var location = container.lookup('location:auto');
 
-    AutoTestLocation._location = {
+    location.location = {
       href: 'http://test.com/rootdir/welcome',
       origin: 'http://test.com',
       pathname: '/rootdir/welcome',
@@ -35281,10 +35269,10 @@ enifed('ember-routing/tests/system/router_test', ['ember-runtime/copy', 'ember-m
         equal(url, 'http://test.com/rootdir/#/welcome');
       }
     };
-
-    AutoTestLocation._getSupportsHistory = function() { return false; };
-
-    registry.register('location:auto', AutoTestLocation);
+    location.history = null;
+    location.global = {
+      onhashchange: function() { }
+    };
 
     createRouter({
       location: 'auto',

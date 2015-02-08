@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.caa7874b
+ * @version   1.12.0-beta.1+canary.e88c68ef
  */
 
 (function() {
@@ -4670,7 +4670,6 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       registry.injection('controller', '_bucketCache', '-bucket-cache:main');
 
       registry.injection('route', 'router', 'router:main');
-      registry.injection('location', 'rootURL', '-location-setting:root-url');
 
       // DEBUGGING
       registry.register('resolver-for-debugging:main', registry.resolver.__resolver__, { instantiate: false });
@@ -11345,7 +11344,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.caa7874b
+    @version 1.12.0-beta.1+canary.e88c68ef
   */
 
   if ('undefined' === typeof Ember) {
@@ -11373,10 +11372,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.caa7874b'
+    @default '1.12.0-beta.1+canary.e88c68ef'
     @static
   */
-  Ember.VERSION = '1.12.0-beta.1+canary.caa7874b';
+  Ember.VERSION = '1.12.0-beta.1+canary.e88c68ef';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -11919,7 +11918,8 @@ enifed('ember-metal/environment', ['exports', 'ember-metal/core'], function (exp
       isChrome: !!window.chrome && !window.opera,
       location: window.location,
       history: window.history,
-      userAgent: window.navigator.userAgent
+      userAgent: window.navigator.userAgent,
+      global: window
     };
   } else {
     environment = {
@@ -11927,7 +11927,8 @@ enifed('ember-metal/environment', ['exports', 'ember-metal/core'], function (exp
       isChrome: false,
       location: null,
       history: null,
-      userAgent: "Lynx (textmode)"
+      userAgent: "Lynx (textmode)",
+      global: null
     };
   }
 
@@ -20015,7 +20016,7 @@ enifed('ember-routing/ext/run_loop', ['ember-metal/run_loop'], function (run) {
 	run['default']._addQueue('routerTransitions', 'actions');
 
 });
-enifed('ember-routing/location/api', ['exports', 'ember-metal/core', 'ember-metal/environment'], function (exports, Ember, environment) {
+enifed('ember-routing/location/api', ['exports', 'ember-metal/core', 'ember-metal/environment', 'ember-routing/location/util'], function (exports, Ember, environment, util) {
 
   'use strict';
 
@@ -20093,50 +20094,69 @@ enifed('ember-routing/location/api', ['exports', 'ember-metal/core', 'ember-meta
       @since 1.4.0
     */
     _getHash: function () {
-      // AutoLocation has it at _location, HashLocation at .location.
-      // Being nice and not changing
-      var href = (this._location || this.location).href;
-      var hashIndex = href.indexOf('#');
-
-      if (hashIndex === -1) {
-        return '';
-      } else {
-        return href.substr(hashIndex);
-      }
+      return util.getHash(this.location);
     }
   };
 
 });
-enifed('ember-routing/location/auto_location', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-routing/location/api', 'ember-routing/location/history_location', 'ember-routing/location/hash_location', 'ember-routing/location/none_location', 'ember-metal/environment', 'ember-routing/location/feature_detect'], function (exports, Ember, property_set, EmberLocation, HistoryLocation, HashLocation, NoneLocation, environment, feature_detect) {
+enifed('ember-routing/location/auto_location', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/utils', 'ember-runtime/system/object', 'ember-metal/environment', 'ember-routing/location/util'], function (exports, Ember, property_get, property_set, utils, EmberObject, environment, util) {
 
   'use strict';
 
-  exports['default'] = {
+  exports.getHistoryPath = getHistoryPath;
+  exports.getHashPath = getHashPath;
+
+  exports['default'] = EmberObject['default'].extend({
     /**
       @private
 
-      Attached for mocking in tests
+      The browser's `location` object. This is typically equivalent to
+      `window.location`, but may be overridden for testing.
 
       @property location
       @default environment.location
     */
-    _location: environment['default'].location,
+    location: environment['default'].location,
 
     /**
       @private
 
-      Attached for mocking in tests
+      The browser's `history` object. This is typically equivalent to
+      `window.history`, but may be overridden for testing.
 
       @since 1.5.1
-      @property _history
+      @property history
       @default environment.history
     */
-    _history: environment['default'].history,
+    history: environment['default'].history,
+
+    /**
+     @private
+
+     The user agent's global variable. In browsers, this will be `window`.
+
+     @since 1.11
+     @property global
+     @default environment.global
+    */
+    global: environment['default'].global,
 
     /**
       @private
 
-      This property is used by router:main to know whether to cancel the routing
+      The browser's `userAgent`. This is typically equivalent to
+      `navigator.userAgent`, but may be overridden for testing.
+
+      @since 1.5.1
+      @property userAgent
+      @default environment.history
+    */
+    userAgent: environment['default'].userAgent,
+
+    /**
+      @private
+
+      This property is used by the router to know whether to cancel the routing
       setup process, which is needed while we redirect the browser.
 
       @since 1.5.1
@@ -20157,334 +20177,191 @@ enifed('ember-routing/location/auto_location', ['exports', 'ember-metal/core', '
     rootURL: '/',
 
     /**
-      @private
-
-      Attached for mocking in tests
-
-      @since 1.5.1
-      @property _HistoryLocation
-      @default Ember.HistoryLocation
+     Called by the router to instruct the location to do any feature detection
+     necessary. In the case of AutoLocation, we detect whether to use history
+     or hash concrete implementations.
     */
-    _HistoryLocation: HistoryLocation['default'],
+    detect: function() {
+      var rootURL = this.rootURL;
 
-    /**
-      @private
+      Ember['default'].assert('rootURL must end with a trailing forward slash e.g. "/app/"',
+                   rootURL.charAt(rootURL.length-1) === '/');
 
-      Attached for mocking in tests
+      var implementation = detectImplementation({
+        location: this.location,
+        history: this.history,
+        userAgent: this.userAgent,
+        rootURL: rootURL,
+        documentMode: this.documentMode,
+        global: this.global
+      });
 
-      @since 1.5.1
-      @property _HashLocation
-      @default Ember.HashLocation
-    */
-    _HashLocation: HashLocation['default'],
-
-    /**
-      @private
-
-      Attached for mocking in tests
-
-      @since 1.5.1
-      @property _NoneLocation
-      @default Ember.NoneLocation
-    */
-    _NoneLocation: NoneLocation['default'],
-
-    /**
-      @private
-
-      Returns location.origin or builds it if device doesn't support it.
-
-      @method _getOrigin
-    */
-    _getOrigin: function () {
-      var location = this._location;
-      var origin = location.origin;
-
-      // Older browsers, especially IE, don't have origin
-      if (!origin) {
-        origin = location.protocol + '//' + location.hostname;
-
-        if (location.port) {
-          origin += ':' + location.port;
-        }
+      if (implementation === false) {
+        property_set.set(this, 'cancelRouterSetup', true);
+        implementation = 'none';
       }
 
-      return origin;
+      var concrete = this.container.lookup('location:' + implementation);
+      Ember['default'].assert("Could not find location '" + implementation + "'.", !!concrete);
+
+      property_set.set(this, 'concreteImplementation', concrete);
     },
 
-    _userAgent: environment['default'].userAgent,
+    initState: delegateToConcreteImplementation('initState'),
+    getURL: delegateToConcreteImplementation('getURL'),
+    setURL: delegateToConcreteImplementation('setURL'),
+    replaceURL: delegateToConcreteImplementation('replaceURL'),
+    onUpdateURL: delegateToConcreteImplementation('onUpdateURL'),
+    formatURL: delegateToConcreteImplementation('formatURL'),
 
-    /**
-      @private
+    willDestroy: function() {
+      var concreteImplementation = property_get.get(this, 'concreteImplementation');
 
-      @method _getSupportsHistory
-    */
-    _getSupportsHistory: function () {
-      return feature_detect.supportsHistory(environment['default'].userAgent, environment['default'].history);
-    },
-
-    /**
-      @private
-
-      @method _getSupportsHashChange
-    */
-    _getSupportsHashChange: function () {
-      return feature_detect.supportsHashChange(document.documentMode, window);
-    },
-
-    /**
-      @private
-
-      Redirects the browser using location.replace, prepending the location.origin
-      to prevent phishing attempts
-
-      @method _replacePath
-    */
-    _replacePath: function (path) {
-      this._location.replace(this._getOrigin() + path);
-    },
-
-    /**
-      @since 1.5.1
-      @private
-      @method _getRootURL
-    */
-    _getRootURL: function () {
-      return this.rootURL;
-    },
-
-    /**
-      @private
-
-      Returns the current `location.pathname`, normalized for IE inconsistencies.
-
-      @method _getPath
-    */
-    _getPath: function () {
-      var pathname = this._location.pathname;
-      // Various versions of IE/Opera don't always return a leading slash
-      if (pathname.charAt(0) !== '/') {
-        pathname = '/' + pathname;
+      if (concreteImplementation) {
+        concreteImplementation.destroy();
       }
-
-      return pathname;
-    },
-
-    /**
-      @private
-
-      Returns normalized location.hash as an alias to Ember.Location._getHash
-
-      @since 1.5.1
-      @method _getHash
-    */
-    _getHash: EmberLocation['default']._getHash,
-
-    /**
-      @private
-
-      Returns location.search
-
-      @since 1.5.1
-      @method _getQuery
-    */
-    _getQuery: function () {
-      return this._location.search;
-    },
-
-    /**
-      @private
-
-      Returns the full pathname including query and hash
-
-      @method _getFullPath
-    */
-    _getFullPath: function () {
-      return this._getPath() + this._getQuery() + this._getHash();
-    },
-
-    /**
-      @private
-
-      Returns the current path as it should appear for HistoryLocation supported
-      browsers. This may very well differ from the real current path (e.g. if it
-      starts off as a hashed URL)
-
-      @method _getHistoryPath
-    */
-    _getHistoryPath: function () {
-      var rootURL = this._getRootURL();
-      var path = this._getPath();
-      var hash = this._getHash();
-      var query = this._getQuery();
-      var rootURLIndex = path.indexOf(rootURL);
-      var routeHash, hashParts;
-
-      Ember['default'].assert('Path ' + path + ' does not start with the provided rootURL ' + rootURL, rootURLIndex === 0);
-
-      // By convention, Ember.js routes using HashLocation are required to start
-      // with `#/`. Anything else should NOT be considered a route and should
-      // be passed straight through, without transformation.
-      if (hash.substr(0, 2) === '#/') {
-        // There could be extra hash segments after the route
-        hashParts = hash.substr(1).split('#');
-        // The first one is always the route url
-        routeHash = hashParts.shift();
-
-        // If the path already has a trailing slash, remove the one
-        // from the hashed route so we don't double up.
-        if (path.slice(-1) === '/') {
-          routeHash = routeHash.substr(1);
-        }
-
-        // This is the "expected" final order
-        path += routeHash;
-        path += query;
-
-        if (hashParts.length) {
-          path += '#' + hashParts.join('#');
-        }
-      } else {
-        path += query;
-        path += hash;
-      }
-
-      return path;
-    },
-
-    /**
-      @private
-
-      Returns the current path as it should appear for HashLocation supported
-      browsers. This may very well differ from the real current path.
-
-      @method _getHashPath
-    */
-    _getHashPath: function () {
-      var rootURL = this._getRootURL();
-      var path = rootURL;
-      var historyPath = this._getHistoryPath();
-      var routePath = historyPath.substr(rootURL.length);
-
-      if (routePath !== '') {
-        if (routePath.charAt(0) !== '/') {
-          routePath = '/' + routePath;
-        }
-
-        path += '#' + routePath;
-      }
-
-      return path;
-    },
-
-    /**
-      Selects the best location option based off browser support and returns an
-      instance of that Location class.
-
-      @see Ember.AutoLocation
-      @method create
-    */
-    create: function (options) {
-      if (options && options.rootURL) {
-        Ember['default'].assert('rootURL must end with a trailing forward slash e.g. "/app/"',
-                     options.rootURL.charAt(options.rootURL.length-1) === '/');
-        this.rootURL = options.rootURL;
-      }
-
-      var historyPath, hashPath;
-      var cancelRouterSetup = false;
-      var implementationClass = this._NoneLocation;
-      var currentPath = this._getFullPath();
-
-      if (this._getSupportsHistory()) {
-        historyPath = this._getHistoryPath();
-
-        // Since we support history paths, let's be sure we're using them else
-        // switch the location over to it.
-        if (currentPath === historyPath) {
-          implementationClass = this._HistoryLocation;
-        } else {
-          if (currentPath.substr(0, 2) === '/#') {
-            this._history.replaceState({ path: historyPath }, null, historyPath);
-            implementationClass = this._HistoryLocation;
-          } else {
-            cancelRouterSetup = true;
-            this._replacePath(historyPath);
-          }
-        }
-
-      } else if (this._getSupportsHashChange()) {
-        hashPath = this._getHashPath();
-
-        // Be sure we're using a hashed path, otherwise let's switch over it to so
-        // we start off clean and consistent. We'll count an index path with no
-        // hash as "good enough" as well.
-        if (currentPath === hashPath || (currentPath === '/' && hashPath === '/#/')) {
-          implementationClass = this._HashLocation;
-        } else {
-          // Our URL isn't in the expected hash-supported format, so we want to
-          // cancel the router setup and replace the URL to start off clean
-          cancelRouterSetup = true;
-          this._replacePath(hashPath);
-        }
-      }
-
-      var implementation = implementationClass.create.apply(implementationClass, arguments);
-
-      if (cancelRouterSetup) {
-        property_set.set(implementation, 'cancelRouterSetup', true);
-      }
-
-      return implementation;
     }
-  };
+  });
 
-});
-enifed('ember-routing/location/feature_detect', ['exports'], function (exports) {
-
-  'use strict';
-
-  exports.supportsHashChange = supportsHashChange;
-  exports.supportsHistory = supportsHistory;
-
-  /*
-    `documentMode` only exist in Internet Explorer, and it's tested because IE8 running in
-    IE7 compatibility mode claims to support `onhashchange` but actually does not.
-
-    `global` is an object that may have an `onhashchange` property.
-
-    @private
-    @function supportsHashChange
-  */
-  function supportsHashChange(documentMode, global) {
-    return ('onhashchange' in global) && (documentMode === undefined || documentMode > 7);
+  function delegateToConcreteImplementation(methodName) {
+    return function() {
+      var concreteImplementation = property_get.get(this, 'concreteImplementation');
+      Ember['default'].assert("AutoLocation's detect() method should be called before calling any other hooks.", !!concreteImplementation);
+      utils.tryInvoke(concreteImplementation, methodName, arguments);
+    };
   }
 
-  /*
-    `userAgent` is a user agent string. We use user agent testing here, because
-    the stock Android browser in Gingerbread has a buggy versions of this API,
-    Before feature detecting, we blacklist a browser identifying as both Android 2
-    and Mobile Safari, but not Chrome.
+  /**
+    Given the browser's `location`, `history` and `userAgent`, and a configured
+    root URL, this function detects whether the browser supports the [History
+    API](https://developer.mozilla.org/en-US/docs/Web/API/History) and returns a
+    string representing the Location object to use based on its determination.
 
-    @private
-    @function supportsHistory
+    For example, if the page loads in an evergreen browser, this function would
+    return the string "history", meaning the history API and thus HistoryLocation
+    should be used. If the page is loaded in IE8, it will return the string
+    "hash," indicating that the History API should be simulated by manipulating the
+    hash portion of the location.
+
   */
 
-  function supportsHistory(userAgent, history) {
-    // Boosted from Modernizr: https://github.com/Modernizr/Modernizr/blob/master/feature-detects/history.js
-    // The stock browser on Android 2.2 & 2.3 returns positive on history support
-    // Unfortunately support is really buggy and there is no clean way to detect
-    // these bugs, so we fall back to a user agent sniff :(
+  function detectImplementation(options) {
+    var location = options.location;
+    var userAgent = options.userAgent;
+    var history = options.history;
+    var documentMode = options.documentMode;
+    var global = options.global;
+    var rootURL = options.rootURL;
 
-    // We only want Android 2, stock browser, and not Chrome which identifies
-    // itself as 'Mobile Safari' as well
-    if (userAgent.indexOf('Android 2') !== -1 &&
-        userAgent.indexOf('Mobile Safari') !== -1 &&
-        userAgent.indexOf('Chrome') === -1) {
+    var implementation = 'none';
+    var cancelRouterSetup = false;
+    var currentPath = util.getFullPath(location);
+
+    if (util.supportsHistory(userAgent, history)) {
+      var historyPath = getHistoryPath(rootURL, location);
+
+      // If the browser supports history and we have a history path, we can use
+      // the history location with no redirects.
+      if (currentPath === historyPath) {
+        return 'history';
+      } else {
+        if (currentPath.substr(0, 2) === '/#') {
+          history.replaceState({ path: historyPath }, null, historyPath);
+          implementation = 'history';
+        } else {
+          cancelRouterSetup = true;
+          util.replacePath(location, historyPath);
+        }
+      }
+    } else if (util.supportsHashChange(documentMode, global)) {
+      var hashPath = getHashPath(rootURL, location);
+
+      // Be sure we're using a hashed path, otherwise let's switch over it to so
+      // we start off clean and consistent. We'll count an index path with no
+      // hash as "good enough" as well.
+      if (currentPath === hashPath || (currentPath === '/' && hashPath === '/#/')) {
+        implementation = 'hash';
+      } else {
+        // Our URL isn't in the expected hash-supported format, so we want to
+        // cancel the router setup and replace the URL to start off clean
+        cancelRouterSetup = true;
+        util.replacePath(location, hashPath);
+      }
+    }
+
+    if (cancelRouterSetup) {
       return false;
     }
 
-    return !!(history && 'pushState' in history);
+    return implementation;
+  }
+
+  /**
+    @private
+
+    Returns the current path as it should appear for HistoryLocation supported
+    browsers. This may very well differ from the real current path (e.g. if it
+    starts off as a hashed URL)
+  */
+  function getHistoryPath(rootURL, location) {
+    var path = util.getPath(location);
+    var hash = util.getHash(location);
+    var query = util.getQuery(location);
+    var rootURLIndex = path.indexOf(rootURL);
+    var routeHash, hashParts;
+
+    Ember['default'].assert('Path ' + path + ' does not start with the provided rootURL ' + rootURL, rootURLIndex === 0);
+
+    // By convention, Ember.js routes using HashLocation are required to start
+    // with `#/`. Anything else should NOT be considered a route and should
+    // be passed straight through, without transformation.
+    if (hash.substr(0, 2) === '#/') {
+      // There could be extra hash segments after the route
+      hashParts = hash.substr(1).split('#');
+      // The first one is always the route url
+      routeHash = hashParts.shift();
+
+      // If the path already has a trailing slash, remove the one
+      // from the hashed route so we don't double up.
+      if (path.slice(-1) === '/') {
+        routeHash = routeHash.substr(1);
+      }
+
+      // This is the "expected" final order
+      path = path + routeHash + query;
+
+      if (hashParts.length) {
+        path += '#' + hashParts.join('#');
+      }
+    } else {
+      path = path + query + hash;
+    }
+
+    return path;
+  }
+
+  /**
+    @private
+
+    Returns the current path as it should appear for HashLocation supported
+    browsers. This may very well differ from the real current path.
+
+    @method _getHashPath
+  */
+  function getHashPath(rootURL, location) {
+    var path = rootURL;
+    var historyPath = getHistoryPath(rootURL, location);
+    var routePath = historyPath.substr(rootURL.length);
+
+    if (routePath !== '') {
+      if (routePath.charAt(0) !== '/') {
+        routePath = '/' + routePath;
+      }
+
+      path += '#' + routePath;
+    }
+
+    return path;
   }
 
 });
@@ -20896,6 +20773,133 @@ enifed('ember-routing/location/none_location', ['exports', 'ember-metal/property
       return url;
     }
   });
+
+});
+enifed('ember-routing/location/util', ['exports'], function (exports) {
+
+  'use strict';
+
+  exports.getPath = getPath;
+  exports.getQuery = getQuery;
+  exports.getHash = getHash;
+  exports.getFullPath = getFullPath;
+  exports.getOrigin = getOrigin;
+  exports.supportsHashChange = supportsHashChange;
+  exports.supportsHistory = supportsHistory;
+  exports.replacePath = replacePath;
+
+  /**
+    @private
+
+    Returns the current `location.pathname`, normalized for IE inconsistencies.
+  */
+  function getPath(location) {
+    var pathname = location.pathname;
+    // Various versions of IE/Opera don't always return a leading slash
+    if (pathname.charAt(0) !== '/') {
+      pathname = '/' + pathname;
+    }
+
+    return pathname;
+  }
+
+  /**
+    @private
+
+    Returns the current `location.search`.
+  */
+  function getQuery(location) {
+    return location.search;
+  }
+
+  /**
+    @private
+
+    Returns the current `location.hash` by parsing location.href since browsers
+    inconsistently URL-decode `location.hash`.
+
+    Should be passed the browser's `location` object as the first argument.
+
+    https://bugzilla.mozilla.org/show_bug.cgi?id=483304
+  */
+  function getHash(location) {
+    var href = location.href;
+    var hashIndex = href.indexOf('#');
+
+    if (hashIndex === -1) {
+      return '';
+    } else {
+      return href.substr(hashIndex);
+    }
+  }
+
+  function getFullPath(location) {
+    return getPath(location) + getQuery(location) + getHash(location);
+  }
+
+  function getOrigin(location) {
+    var origin = location.origin;
+
+    // Older browsers, especially IE, don't have origin
+    if (!origin) {
+      origin = location.protocol + '//' + location.hostname;
+
+      if (location.port) {
+        origin += ':' + location.port;
+      }
+    }
+
+    return origin;
+  }
+
+  /*
+    `documentMode` only exist in Internet Explorer, and it's tested because IE8 running in
+    IE7 compatibility mode claims to support `onhashchange` but actually does not.
+
+    `global` is an object that may have an `onhashchange` property.
+
+    @private
+    @function supportsHashChange
+  */
+  function supportsHashChange(documentMode, global) {
+    return ('onhashchange' in global) && (documentMode === undefined || documentMode > 7);
+  }
+
+  /*
+    `userAgent` is a user agent string. We use user agent testing here, because
+    the stock Android browser in Gingerbread has a buggy versions of this API,
+    Before feature detecting, we blacklist a browser identifying as both Android 2
+    and Mobile Safari, but not Chrome.
+
+    @private
+    @function supportsHistory
+  */
+  function supportsHistory(userAgent, history) {
+    // Boosted from Modernizr: https://github.com/Modernizr/Modernizr/blob/master/feature-detects/history.js
+    // The stock browser on Android 2.2 & 2.3 returns positive on history support
+    // Unfortunately support is really buggy and there is no clean way to detect
+    // these bugs, so we fall back to a user agent sniff :(
+
+    // We only want Android 2, stock browser, and not Chrome which identifies
+    // itself as 'Mobile Safari' as well
+    if (userAgent.indexOf('Android 2') !== -1 &&
+        userAgent.indexOf('Mobile Safari') !== -1 &&
+        userAgent.indexOf('Chrome') === -1) {
+      return false;
+    }
+
+    return !!(history && 'pushState' in history);
+  }
+
+  /**
+    Replaces the current location, making sure we explicitly include the origin
+    to prevent redirecting to a different origin.
+
+    @private
+  */
+  function replacePath(location, path) {
+    location.replace(getOrigin(location) + path);
+  }
 
 });
 enifed('ember-routing/system/cache', ['exports', 'ember-runtime/system/object'], function (exports, EmberObject) {
@@ -23514,12 +23518,6 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
       var location = property_get.get(this, 'location');
       var rootURL = property_get.get(this, 'rootURL');
 
-      if (rootURL && this.container && !this.container._registry.has('-location-setting:root-url')) {
-        this.container._registry.register('-location-setting:root-url', rootURL, {
-          instantiate: false
-        });
-      }
-
       if ('string' === typeof location && this.container) {
         var resolvedLocation = this.container.lookup('location:' + location);
 
@@ -23536,8 +23534,15 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
       }
 
       if (location !== null && typeof location === 'object') {
-        if (rootURL && typeof rootURL === 'string') {
-          location.rootURL = rootURL;
+        if (rootURL) {
+          property_set.set(location, 'rootURL', rootURL);
+        }
+
+        // Allow the location to do any feature detection, such as AutoLocation
+        // detecting history support. This gives it a chance to set its
+        // `cancelRouterSetup` property which aborts routing.
+        if (typeof location.detect === 'function') {
+          location.detect();
         }
 
         // ensure that initState is called AFTER the rootURL is set on
