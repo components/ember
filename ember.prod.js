@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.2a7de7a9
+ * @version   1.12.0-beta.1+canary.f3c73c7a
  */
 
 (function() {
@@ -10931,7 +10931,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.2a7de7a9
+    @version 1.12.0-beta.1+canary.f3c73c7a
   */
 
   if ('undefined' === typeof Ember) {
@@ -10959,10 +10959,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.2a7de7a9'
+    @default '1.12.0-beta.1+canary.f3c73c7a'
     @static
   */
-  Ember.VERSION = '1.12.0-beta.1+canary.2a7de7a9';
+  Ember.VERSION = '1.12.0-beta.1+canary.f3c73c7a';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -19620,7 +19620,7 @@ enifed('ember-routing/location/auto_location', ['exports', 'ember-metal/core', '
   function delegateToConcreteImplementation(methodName) {
     return function() {
       var concreteImplementation = property_get.get(this, 'concreteImplementation');
-            utils.tryInvoke(concreteImplementation, methodName, arguments);
+            return utils.tryInvoke(concreteImplementation, methodName, arguments);
     };
   }
 

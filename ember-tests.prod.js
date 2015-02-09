@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.2a7de7a9
+ * @version   1.12.0-beta.1+canary.f3c73c7a
  */
 
 (function() {
@@ -33822,6 +33822,24 @@ enifed('ember-routing/tests/location/auto_location_test', ['ember-metal/property
         run['default'](location, 'destroy');
       }
     }
+  });
+
+  QUnit.test("AutoLocation should return concrete implementation's value for `getURL`", function() {
+    expect(1);
+
+    var browserLocation = mockBrowserLocation();
+    var browserHistory = mockBrowserHistory();
+
+    location = createLocation(browserLocation, browserHistory);
+    location.detect();
+
+    var concreteImplementation = property_get.get(location, 'concreteImplementation');
+
+    concreteImplementation.getURL = function() {
+      return '/lincoln/park';
+    };
+
+    equal(location.getURL(), '/lincoln/park');
   });
 
   QUnit.test("AutoLocation should use a HistoryLocation instance when pushStates is supported", function() {
