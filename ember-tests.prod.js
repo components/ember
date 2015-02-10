@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.e4f6c2f9
+ * @version   1.12.0-beta.1+canary.16ddb0fc
  */
 
 (function() {
@@ -56611,6 +56611,46 @@ enifed('ember-views/component_lookup.jshint', function () {
   });
 
 });
+enifed('ember-views/mixins/attribute_bindings_support.jscs-test', function () {
+
+  'use strict';
+
+  module('JSCS - ember-views/mixins');
+  test('ember-views/mixins/attribute_bindings_support.js should pass jscs', function() {
+    ok(true, 'ember-views/mixins/attribute_bindings_support.js should pass jscs.');
+  });
+
+});
+enifed('ember-views/mixins/attribute_bindings_support.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - ember-views/mixins');
+  test('ember-views/mixins/attribute_bindings_support.js should pass jshint', function() { 
+    ok(true, 'ember-views/mixins/attribute_bindings_support.js should pass jshint.'); 
+  });
+
+});
+enifed('ember-views/mixins/class_names_support.jscs-test', function () {
+
+  'use strict';
+
+  module('JSCS - ember-views/mixins');
+  test('ember-views/mixins/class_names_support.js should pass jscs', function() {
+    ok(true, 'ember-views/mixins/class_names_support.js should pass jscs.');
+  });
+
+});
+enifed('ember-views/mixins/class_names_support.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - ember-views/mixins');
+  test('ember-views/mixins/class_names_support.js should pass jshint', function() { 
+    ok(true, 'ember-views/mixins/class_names_support.js should pass jshint.'); 
+  });
+
+});
 enifed('ember-views/mixins/component_template_deprecation.jscs-test', function () {
 
   'use strict';
@@ -56651,6 +56691,26 @@ enifed('ember-views/mixins/normalized_rerender_if_needed.jshint', function () {
   });
 
 });
+enifed('ember-views/mixins/template_rendering_support.jscs-test', function () {
+
+  'use strict';
+
+  module('JSCS - ember-views/mixins');
+  test('ember-views/mixins/template_rendering_support.js should pass jscs', function() {
+    ok(true, 'ember-views/mixins/template_rendering_support.js should pass jscs.');
+  });
+
+});
+enifed('ember-views/mixins/template_rendering_support.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - ember-views/mixins');
+  test('ember-views/mixins/template_rendering_support.js should pass jshint', function() { 
+    ok(true, 'ember-views/mixins/template_rendering_support.js should pass jshint.'); 
+  });
+
+});
 enifed('ember-views/mixins/text_support.jscs-test', function () {
 
   'use strict';
@@ -56668,6 +56728,106 @@ enifed('ember-views/mixins/text_support.jshint', function () {
   module('JSHint - ember-views/mixins');
   test('ember-views/mixins/text_support.js should pass jshint', function() { 
     ok(true, 'ember-views/mixins/text_support.js should pass jshint.'); 
+  });
+
+});
+enifed('ember-views/mixins/view_child_views_support.jscs-test', function () {
+
+  'use strict';
+
+  module('JSCS - ember-views/mixins');
+  test('ember-views/mixins/view_child_views_support.js should pass jscs', function() {
+    ok(true, 'ember-views/mixins/view_child_views_support.js should pass jscs.');
+  });
+
+});
+enifed('ember-views/mixins/view_child_views_support.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - ember-views/mixins');
+  test('ember-views/mixins/view_child_views_support.js should pass jshint', function() { 
+    ok(true, 'ember-views/mixins/view_child_views_support.js should pass jshint.'); 
+  });
+
+});
+enifed('ember-views/mixins/view_context_support.jscs-test', function () {
+
+  'use strict';
+
+  module('JSCS - ember-views/mixins');
+  test('ember-views/mixins/view_context_support.js should pass jscs', function() {
+    ok(true, 'ember-views/mixins/view_context_support.js should pass jscs.');
+  });
+
+});
+enifed('ember-views/mixins/view_context_support.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - ember-views/mixins');
+  test('ember-views/mixins/view_context_support.js should pass jshint', function() { 
+    ok(true, 'ember-views/mixins/view_context_support.js should pass jshint.'); 
+  });
+
+});
+enifed('ember-views/mixins/view_keyword_support.jscs-test', function () {
+
+  'use strict';
+
+  module('JSCS - ember-views/mixins');
+  test('ember-views/mixins/view_keyword_support.js should pass jscs', function() {
+    ok(true, 'ember-views/mixins/view_keyword_support.js should pass jscs.');
+  });
+
+});
+enifed('ember-views/mixins/view_keyword_support.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - ember-views/mixins');
+  test('ember-views/mixins/view_keyword_support.js should pass jshint', function() { 
+    ok(true, 'ember-views/mixins/view_keyword_support.js should pass jshint.'); 
+  });
+
+});
+enifed('ember-views/mixins/view_state_support.jscs-test', function () {
+
+  'use strict';
+
+  module('JSCS - ember-views/mixins');
+  test('ember-views/mixins/view_state_support.js should pass jscs', function() {
+    ok(true, 'ember-views/mixins/view_state_support.js should pass jscs.');
+  });
+
+});
+enifed('ember-views/mixins/view_state_support.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - ember-views/mixins');
+  test('ember-views/mixins/view_state_support.js should pass jshint', function() { 
+    ok(true, 'ember-views/mixins/view_state_support.js should pass jshint.'); 
+  });
+
+});
+enifed('ember-views/mixins/view_stream_support.jscs-test', function () {
+
+  'use strict';
+
+  module('JSCS - ember-views/mixins');
+  test('ember-views/mixins/view_stream_support.js should pass jscs', function() {
+    ok(true, 'ember-views/mixins/view_stream_support.js should pass jscs.');
+  });
+
+});
+enifed('ember-views/mixins/view_stream_support.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - ember-views/mixins');
+  test('ember-views/mixins/view_stream_support.js should pass jshint', function() { 
+    ok(true, 'ember-views/mixins/view_stream_support.js should pass jshint.'); 
   });
 
 });
