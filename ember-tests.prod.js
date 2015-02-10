@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.16ddb0fc
+ * @version   1.12.0-beta.1+canary.50206d0f
  */
 
 (function() {
@@ -56671,6 +56671,46 @@ enifed('ember-views/mixins/component_template_deprecation.jshint', function () {
   });
 
 });
+enifed('ember-views/mixins/instrumentation_support.jscs-test', function () {
+
+  'use strict';
+
+  module('JSCS - ember-views/mixins');
+  test('ember-views/mixins/instrumentation_support.js should pass jscs', function() {
+    ok(true, 'ember-views/mixins/instrumentation_support.js should pass jscs.');
+  });
+
+});
+enifed('ember-views/mixins/instrumentation_support.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - ember-views/mixins');
+  test('ember-views/mixins/instrumentation_support.js should pass jshint', function() { 
+    ok(true, 'ember-views/mixins/instrumentation_support.js should pass jshint.'); 
+  });
+
+});
+enifed('ember-views/mixins/legacy_view_support.jscs-test', function () {
+
+  'use strict';
+
+  module('JSCS - ember-views/mixins');
+  test('ember-views/mixins/legacy_view_support.js should pass jscs', function() {
+    ok(true, 'ember-views/mixins/legacy_view_support.js should pass jscs.');
+  });
+
+});
+enifed('ember-views/mixins/legacy_view_support.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - ember-views/mixins');
+  test('ember-views/mixins/legacy_view_support.js should pass jshint', function() { 
+    ok(true, 'ember-views/mixins/legacy_view_support.js should pass jshint.'); 
+  });
+
+});
 enifed('ember-views/mixins/normalized_rerender_if_needed.jscs-test', function () {
 
   'use strict';
@@ -56848,6 +56888,26 @@ enifed('ember-views/mixins/view_target_action_support.jshint', function () {
   module('JSHint - ember-views/mixins');
   test('ember-views/mixins/view_target_action_support.js should pass jshint', function() { 
     ok(true, 'ember-views/mixins/view_target_action_support.js should pass jshint.'); 
+  });
+
+});
+enifed('ember-views/mixins/visibility_support.jscs-test', function () {
+
+  'use strict';
+
+  module('JSCS - ember-views/mixins');
+  test('ember-views/mixins/visibility_support.js should pass jscs', function() {
+    ok(true, 'ember-views/mixins/visibility_support.js should pass jscs.');
+  });
+
+});
+enifed('ember-views/mixins/visibility_support.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - ember-views/mixins');
+  test('ember-views/mixins/visibility_support.js should pass jshint', function() { 
+    ok(true, 'ember-views/mixins/visibility_support.js should pass jshint.'); 
   });
 
 });

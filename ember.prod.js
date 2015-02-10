@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.16ddb0fc
+ * @version   1.12.0-beta.1+canary.50206d0f
  */
 
 (function() {
@@ -10931,7 +10931,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.16ddb0fc
+    @version 1.12.0-beta.1+canary.50206d0f
   */
 
   if ('undefined' === typeof Ember) {
@@ -10959,10 +10959,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.16ddb0fc'
+    @default '1.12.0-beta.1+canary.50206d0f'
     @static
   */
-  Ember.VERSION = '1.12.0-beta.1+canary.16ddb0fc';
+  Ember.VERSION = '1.12.0-beta.1+canary.50206d0f';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -34364,6 +34364,111 @@ enifed('ember-views/mixins/component_template_deprecation', ['exports', 'ember-m
   });
 
 });
+enifed('ember-views/mixins/instrumentation_support', ['exports', 'ember-metal/mixin', 'ember-metal/computed', 'ember-metal/property_get'], function (exports, mixin, computed, property_get) {
+
+  'use strict';
+
+  var InstrumentationSupport = mixin.Mixin.create({
+    /**
+      Used to identify this view during debugging
+
+      @property instrumentDisplay
+      @type String
+    */
+    instrumentDisplay: computed.computed(function() {
+      if (this.helperName) {
+        return '{{' + this.helperName + '}}';
+      }
+    }),
+
+    instrumentName: 'view',
+
+    instrumentDetails: function(hash) {
+      hash.template = property_get.get(this, 'templateName');
+      this._super(hash);
+    }
+  });
+
+  exports['default'] = InstrumentationSupport;
+
+});
+enifed('ember-views/mixins/legacy_view_support', ['exports', 'ember-metal/core', 'ember-metal/mixin', 'ember-metal/property_get'], function (exports, Ember, mixin, property_get) {
+
+  'use strict';
+
+  var LegacyViewSupport = mixin.Mixin.create({
+    mutateChildViews: function(callback) {
+      var childViews = this._childViews;
+      var idx = childViews.length;
+      var view;
+
+      while (--idx >= 0) {
+        view = childViews[idx];
+        callback(this, view, idx);
+      }
+
+      return this;
+    },
+
+    /**
+      Removes all children from the `parentView`.
+
+      @method removeAllChildren
+      @return {Ember.View} receiver
+    */
+    removeAllChildren: function() {
+      return this.mutateChildViews(function(parentView, view) {
+        parentView.removeChild(view);
+      });
+    },
+
+    destroyAllChildren: function() {
+      return this.mutateChildViews(function(parentView, view) {
+        view.destroy();
+      });
+    },
+
+    /**
+      Return the nearest ancestor whose parent is an instance of
+      `klass`.
+
+      @method nearestChildOf
+      @param {Class} klass Subclass of Ember.View (or Ember.View itself)
+      @return Ember.View
+      @deprecated
+    */
+    nearestChildOf: function(klass) {
+      
+      var view = property_get.get(this, 'parentView');
+
+      while (view) {
+        if (property_get.get(view, 'parentView') instanceof klass) { return view; }
+        view = property_get.get(view, 'parentView');
+      }
+    },
+
+    /**
+      Return the nearest ancestor that is an instance of the provided
+      class.
+
+      @method nearestInstanceOf
+      @param {Class} klass Subclass of Ember.View (or Ember.View itself)
+      @return Ember.View
+      @deprecated
+    */
+    nearestInstanceOf: function(klass) {
+            var view = property_get.get(this, 'parentView');
+
+      while (view) {
+        if (view instanceof klass) { return view; }
+        view = property_get.get(view, 'parentView');
+      }
+    }
+  });
+
+  exports['default'] = LegacyViewSupport;
+
+});
 enifed('ember-views/mixins/normalized_rerender_if_needed', ['exports', 'ember-metal/property_get', 'ember-metal/mixin', 'ember-metal/merge', 'ember-views/views/states'], function (exports, property_get, mixin, merge, views__states) {
 
   'use strict';
@@ -35086,6 +35191,99 @@ enifed('ember-views/mixins/view_target_action_support', ['exports', 'ember-metal
     */
     actionContext: alias['default']('context')
   });
+
+});
+enifed('ember-views/mixins/visibility_support', ['exports', 'ember-metal/mixin', 'ember-metal/property_get', 'ember-metal/run_loop'], function (exports, mixin, property_get, run) {
+
+  'use strict';
+
+  function K() { return this; }
+
+  var VisibilitySupport = mixin.Mixin.create({
+    /**
+      If `false`, the view will appear hidden in DOM.
+
+      @property isVisible
+      @type Boolean
+      @default null
+    */
+    isVisible: true,
+
+    becameVisible: K,
+    becameHidden: K,
+
+    /**
+      When the view's `isVisible` property changes, toggle the visibility
+      element of the actual DOM element.
+
+      @method _isVisibleDidChange
+      @private
+    */
+    _isVisibleDidChange: mixin.observer('isVisible', function() {
+      if (this._isVisible === property_get.get(this, 'isVisible')) { return ; }
+      run['default'].scheduleOnce('render', this, this._toggleVisibility);
+    }),
+
+    _toggleVisibility: function() {
+      var $el = this.$();
+      var isVisible = property_get.get(this, 'isVisible');
+
+      if (this._isVisible === isVisible) { return ; }
+
+      // It's important to keep these in sync, even if we don't yet have
+      // an element in the DOM to manipulate:
+      this._isVisible = isVisible;
+
+      if (!$el) { return; }
+
+      $el.toggle(isVisible);
+
+      if (this._isAncestorHidden()) { return; }
+
+      if (isVisible) {
+        this._notifyBecameVisible();
+      } else {
+        this._notifyBecameHidden();
+      }
+    },
+
+    _notifyBecameVisible: function() {
+      this.trigger('becameVisible');
+
+      this.forEachChildView(function(view) {
+        var isVisible = property_get.get(view, 'isVisible');
+
+        if (isVisible || isVisible === null) {
+          view._notifyBecameVisible();
+        }
+      });
+    },
+
+    _notifyBecameHidden: function() {
+      this.trigger('becameHidden');
+      this.forEachChildView(function(view) {
+        var isVisible = property_get.get(view, 'isVisible');
+
+        if (isVisible || isVisible === null) {
+          view._notifyBecameHidden();
+        }
+      });
+    },
+
+    _isAncestorHidden: function() {
+      var parent = property_get.get(this, 'parentView');
+
+      while (parent) {
+        if (property_get.get(parent, 'isVisible') === false) { return true; }
+
+        parent = property_get.get(parent, 'parentView');
+      }
+
+      return false;
+    }
+  });
+
+  exports['default'] = VisibilitySupport;
 
 });
 enifed('ember-views/streams/class_name_binding', ['exports', 'ember-metal/streams/utils', 'ember-metal/property_get', 'ember-runtime/system/string', 'ember-metal/utils'], function (exports, utils, property_get, string, ember_metal__utils) {
@@ -39211,7 +39409,7 @@ enifed('ember-views/views/text_field', ['exports', 'ember-views/views/component'
   });
 
 });
-enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/evented', 'ember-runtime/system/object', 'ember-metal/error', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-metal/observer', 'ember-metal/utils', 'ember-metal/computed', 'ember-metal/mixin', 'ember-metal/deprecate_property', 'ember-metal/property_events', 'ember-views/system/jquery', 'ember-views/system/ext', 'ember-views/views/core_view', 'ember-views/mixins/view_stream_support', 'ember-views/mixins/view_keyword_support', 'ember-views/mixins/view_context_support', 'ember-views/mixins/view_child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/template_rendering_support', 'ember-views/mixins/class_names_support', 'ember-views/mixins/attribute_bindings_support'], function (exports, Ember, Evented, EmberObject, EmberError, property_get, run, observer, utils, computed, mixin, deprecate_property, property_events, jQuery, __dep13__, CoreView, ViewStreamSupport, ViewKeywordSupport, ViewContextSupport, view_child_views_support, ViewStateSupport, TemplateRenderingSupport, ClassNamesSupport, AttributeBindingsSupport) {
+enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/evented', 'ember-runtime/system/object', 'ember-metal/error', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-metal/observer', 'ember-metal/utils', 'ember-metal/computed', 'ember-metal/mixin', 'ember-metal/deprecate_property', 'ember-metal/property_events', 'ember-views/system/jquery', 'ember-views/system/ext', 'ember-views/views/core_view', 'ember-views/mixins/view_stream_support', 'ember-views/mixins/view_keyword_support', 'ember-views/mixins/view_context_support', 'ember-views/mixins/view_child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/template_rendering_support', 'ember-views/mixins/class_names_support', 'ember-views/mixins/attribute_bindings_support', 'ember-views/mixins/legacy_view_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/visibility_support'], function (exports, Ember, Evented, EmberObject, EmberError, property_get, run, observer, utils, computed, mixin, deprecate_property, property_events, jQuery, __dep13__, CoreView, ViewStreamSupport, ViewKeywordSupport, ViewContextSupport, view_child_views_support, ViewStateSupport, TemplateRenderingSupport, ClassNamesSupport, AttributeBindingsSupport, LegacyViewSupport, InstrumentationSupport, VisibilitySupport) {
 
   'use strict';
 
@@ -39843,7 +40041,18 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-runtime/
     @namespace Ember
     @extends Ember.CoreView
   */
-  var View = CoreView['default'].extend(ViewStreamSupport['default'], ViewKeywordSupport['default'], ViewContextSupport['default'], view_child_views_support["default"], ViewStateSupport['default'], TemplateRenderingSupport['default'], ClassNamesSupport['default'], AttributeBindingsSupport['default'], {
+  var View = CoreView['default'].extend(
+    ViewStreamSupport['default'],
+    ViewKeywordSupport['default'],
+    ViewContextSupport['default'],
+    view_child_views_support["default"],
+    ViewStateSupport['default'],
+    TemplateRenderingSupport['default'],
+    ClassNamesSupport['default'],
+    AttributeBindingsSupport['default'],
+    LegacyViewSupport['default'],
+    InstrumentationSupport['default'],
+    VisibilitySupport['default'], {
 
     /**
       @property isView
@@ -39880,18 +40089,6 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-runtime/
       @default null
     */
     layoutName: null,
-
-    /**
-      Used to identify this view during debugging
-
-      @property instrumentDisplay
-      @type String
-    */
-    instrumentDisplay: computed.computed(function() {
-      if (this.helperName) {
-        return '{{' + this.helperName + '}}';
-      }
-    }),
 
     /**
       The template used to render the view. This should be a function that
@@ -39978,15 +40175,6 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-runtime/
       this.rerender();
     }),
 
-    /**
-      If `false`, the view will appear hidden in DOM.
-
-      @property isVisible
-      @type Boolean
-      @default null
-    */
-    isVisible: true,
-
     // When it's a virtual view, we need to notify the parent that their
     // childViews will change.
     _childViewsWillChange: mixin.beforeObserver('childViews', function() {
@@ -40004,24 +40192,6 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-runtime/
         if (parentView) { property_events.propertyDidChange(parentView, 'childViews'); }
       }
     }),
-
-    /**
-      Return the nearest ancestor that is an instance of the provided
-      class.
-
-      @method nearestInstanceOf
-      @param {Class} klass Subclass of Ember.View (or Ember.View itself)
-      @return Ember.View
-      @deprecated
-    */
-    nearestInstanceOf: function(klass) {
-            var view = property_get.get(this, 'parentView');
-
-      while (view) {
-        if (view instanceof klass) { return view; }
-        view = property_get.get(view, 'parentView');
-      }
-    },
 
     /**
       Return the nearest ancestor that is an instance of the provided
@@ -40056,25 +40226,6 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-runtime/
 
       while (view) {
         if (property in view) { return view; }
-        view = property_get.get(view, 'parentView');
-      }
-    },
-
-    /**
-      Return the nearest ancestor whose parent is an instance of
-      `klass`.
-
-      @method nearestChildOf
-      @param {Class} klass Subclass of Ember.View (or Ember.View itself)
-      @return Ember.View
-      @deprecated
-    */
-    nearestChildOf: function(klass) {
-      
-      var view = property_get.get(this, 'parentView');
-
-      while (view) {
-        if (property_get.get(view, 'parentView') instanceof klass) { return view; }
         view = property_get.get(view, 'parentView');
       }
     },
@@ -40167,19 +40318,6 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-runtime/
     */
     $: function(sel) {
       return this.currentState.$(this, sel);
-    },
-
-    mutateChildViews: function(callback) {
-      var childViews = this._childViews;
-      var idx = childViews.length;
-      var view;
-
-      while (--idx >= 0) {
-        view = childViews[idx];
-        callback(this, view, idx);
-      }
-
-      return this;
     },
 
     forEachChildView: function(callback) {
@@ -40406,13 +40544,6 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-runtime/
     */
     parentViewDidChange: K,
 
-    instrumentName: 'view',
-
-    instrumentDetails: function(hash) {
-      hash.template = property_get.get(this, 'templateName');
-      this._super(hash);
-    },
-
     beforeRender: function(buffer) {},
 
     afterRender: function(buffer) {},
@@ -40507,24 +40638,6 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-runtime/
     },
 
     /**
-      Removes all children from the `parentView`.
-
-      @method removeAllChildren
-      @return {Ember.View} receiver
-    */
-    removeAllChildren: function() {
-      return this.mutateChildViews(function(parentView, view) {
-        parentView.removeChild(view);
-      });
-    },
-
-    destroyAllChildren: function() {
-      return this.mutateChildViews(function(parentView, view) {
-        view.destroy();
-      });
-    },
-
-    /**
       Removes the view from its `parentView`, if one is found. Otherwise
       does nothing.
 
@@ -40562,79 +40675,6 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-runtime/
       }
 
       return this;
-    },
-
-    becameVisible: K,
-    becameHidden: K,
-
-    /**
-      When the view's `isVisible` property changes, toggle the visibility
-      element of the actual DOM element.
-
-      @method _isVisibleDidChange
-      @private
-    */
-    _isVisibleDidChange: mixin.observer('isVisible', function() {
-      if (this._isVisible === property_get.get(this, 'isVisible')) { return ; }
-      run['default'].scheduleOnce('render', this, this._toggleVisibility);
-    }),
-
-    _toggleVisibility: function() {
-      var $el = this.$();
-      var isVisible = property_get.get(this, 'isVisible');
-
-      if (this._isVisible === isVisible) { return ; }
-
-      // It's important to keep these in sync, even if we don't yet have
-      // an element in the DOM to manipulate:
-      this._isVisible = isVisible;
-
-      if (!$el) { return; }
-
-      $el.toggle(isVisible);
-
-      if (this._isAncestorHidden()) { return; }
-
-      if (isVisible) {
-        this._notifyBecameVisible();
-      } else {
-        this._notifyBecameHidden();
-      }
-    },
-
-    _notifyBecameVisible: function() {
-      this.trigger('becameVisible');
-
-      this.forEachChildView(function(view) {
-        var isVisible = property_get.get(view, 'isVisible');
-
-        if (isVisible || isVisible === null) {
-          view._notifyBecameVisible();
-        }
-      });
-    },
-
-    _notifyBecameHidden: function() {
-      this.trigger('becameHidden');
-      this.forEachChildView(function(view) {
-        var isVisible = property_get.get(view, 'isVisible');
-
-        if (isVisible || isVisible === null) {
-          view._notifyBecameHidden();
-        }
-      });
-    },
-
-    _isAncestorHidden: function() {
-      var parent = property_get.get(this, 'parentView');
-
-      while (parent) {
-        if (property_get.get(parent, 'isVisible') === false) { return true; }
-
-        parent = property_get.get(parent, 'parentView');
-      }
-
-      return false;
     },
 
     // .......................................................
