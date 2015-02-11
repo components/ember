@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.f8321643
+ * @version   1.12.0-beta.1+canary.61ef0d2b
  */
 
 (function() {
@@ -10931,7 +10931,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.f8321643
+    @version 1.12.0-beta.1+canary.61ef0d2b
   */
 
   if ('undefined' === typeof Ember) {
@@ -10959,10 +10959,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.f8321643'
+    @default '1.12.0-beta.1+canary.61ef0d2b'
     @static
   */
-  Ember.VERSION = '1.12.0-beta.1+canary.f8321643';
+  Ember.VERSION = '1.12.0-beta.1+canary.61ef0d2b';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -27951,7 +27951,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
 
     /**
       Returns an array with all of the items in the enumeration where the passed
-      function returns false for. This method is the inverse of filter().
+      function returns true. This method is the inverse of filter().
 
       The callback method you provide should have the following signature (all
       parameters are optional):
