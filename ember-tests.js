@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.61ef0d2b
+ * @version   1.12.0-beta.1+canary.9745ea59
  */
 
 (function() {
@@ -17761,15 +17761,13 @@ enifed('ember-metal-views/tests/test_helpers', ['exports', 'ember-metal/platform
       }
     }
     if (view.childViews) {
-      view._childViewsMorph = this._dom.createMorph(el, null, null);
+      view._childViewsMorph = this._dom.appendMorph(el);
     } else if (view.textContent) {
       setElementText(el, view.textContent);
     } else if (view.innerHTML) {
       this._dom.detectNamespace(el);
-      var nodes = this._dom.parseHTML(view.innerHTML, el);
-      while (nodes[0]) {
-        el.appendChild(nodes[0]);
-      }
+      var frag = this._dom.parseHTML(view.innerHTML, el);
+      el.appendChild(frag);
     }
     return el;
   };
@@ -58058,7 +58056,7 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
       container.removeObject(view);
     });
     equal(property_get.get(view, 'childViews.length'), 0, "child views are cleared when removed from container view");
-    equal(container.$().html(), '', "the child view is removed from the DOM");
+    equal(container.$().text(), '', "the child view is removed from the DOM");
   });
 
   QUnit.test("if a ContainerView starts with an empty currentView, nothing is displayed", function() {

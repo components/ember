@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.61ef0d2b
+ * @version   1.12.0-beta.1+canary.9745ea59
  */
 
 (function() {
@@ -2702,51 +2702,65 @@ enifed("dom-helper",
     };
 
     prototype.createMorph = function(parent, start, end, contextualElement){
+      if (contextualElement && contextualElement.nodeType === 11) {
+        throw new Error("Cannot pass a fragment as the contextual element to createMorph");
+      }
+
       if (!contextualElement && parent.nodeType === 1) {
         contextualElement = parent;
       }
-      return new Morph(parent, start, end, this, contextualElement);
+      var morph = new Morph(this, contextualElement);
+      morph.firstNode = start;
+      morph.lastNode = end;
+      morph.state = {};
+      morph.isDirty = true;
+      return morph;
     };
 
     prototype.createUnsafeMorph = function(parent, start, end, contextualElement){
       var morph = this.createMorph(parent, start, end, contextualElement);
-      morph.escaped = false;
+      morph.parseTextAsHTML = true;
       return morph;
     };
 
     // This helper is just to keep the templates good looking,
     // passing integers instead of element references.
     prototype.createMorphAt = function(parent, startIndex, endIndex, contextualElement){
-      var start = startIndex === -1 ? null : this.childAtIndex(parent, startIndex),
-          end = endIndex === -1 ? null : this.childAtIndex(parent, endIndex);
+      var single = startIndex === endIndex;
+      var start = this.childAtIndex(parent, startIndex);
+      var end = single ? start : this.childAtIndex(parent, endIndex);
       return this.createMorph(parent, start, end, contextualElement);
     };
 
     prototype.createUnsafeMorphAt = function(parent, startIndex, endIndex, contextualElement) {
       var morph = this.createMorphAt(parent, startIndex, endIndex, contextualElement);
-      morph.escaped = false;
+      morph.parseTextAsHTML = true;
       return morph;
     };
 
     prototype.insertMorphBefore = function(element, referenceChild, contextualElement) {
-      var start = this.document.createTextNode('');
-      var end = this.document.createTextNode('');
-      element.insertBefore(start, referenceChild);
-      element.insertBefore(end, referenceChild);
-      return this.createMorph(element, start, end, contextualElement);
+      var insertion = this.document.createComment('');
+      element.insertBefore(insertion, referenceChild);
+      return this.createMorph(element, insertion, insertion, contextualElement);
     };
 
     prototype.appendMorph = function(element, contextualElement) {
-      var start = this.document.createTextNode('');
-      var end = this.document.createTextNode('');
-      element.appendChild(start);
-      element.appendChild(end);
-      return this.createMorph(element, start, end, contextualElement);
+      var insertion = this.document.createComment('');
+      element.appendChild(insertion);
+      return this.createMorph(element, insertion, insertion, contextualElement);
+    };
+
+    prototype.insertBoundary = function(fragment, index) {
+      // this will always be null or firstChild
+      var child = index === null ? null : this.childAtIndex(fragment, index);
+      this.insertBefore(fragment, this.createTextNode(''), child);
     };
 
     prototype.parseHTML = function(html, contextualElement) {
+      var childNodes;
+
       if (interiorNamespace(contextualElement) === svgNamespace) {
-        return buildSVGDOM(html, this);
+        childNodes = buildSVGDOM(html, this);
       } else {
         var nodes = buildHTMLDOM(html, contextualElement, this);
         if (detectOmittedStartTag(html, contextualElement)) {
@@ -2754,11 +2768,33 @@ enifed("dom-helper",
           while (node && node.nodeType !== 1) {
             node = node.nextSibling;
           }
-          return node.childNodes;
+          childNodes = node.childNodes;
         } else {
-          return nodes;
+          childNodes = nodes;
         }
       }
+
+      // Copy node list to a fragment.
+      var fragment = this.document.createDocumentFragment();
+
+      if (childNodes && childNodes.length > 0) {
+        var currentNode = childNodes[0];
+
+        // We prepend an <option> to <select> boxes to absorb any browser bugs
+        // related to auto-select behavior. Skip past it.
+        if (contextualElement.tagName === 'SELECT') {
+          currentNode = currentNode.nextSibling;
+        }
+
+        while (currentNode) {
+          var tempNode = currentNode;
+          currentNode = currentNode.nextSibling;
+
+          fragment.appendChild(tempNode);
+        }
+      }
+
+      return fragment;
     };
 
     var parsingNode;
@@ -2816,33 +2852,6 @@ enifed("dom-helper/build-html-dom",
       return testEl.childNodes[0].nodeValue === 'Test:' &&
               testEl.childNodes[2].nodeValue === ' Value';
     })(doc);
-
-    // IE8 create a selected attribute where they should only
-    // create a property
-    var createsSelectedAttribute = doc && (function(document) {
-      var testEl = document.createElement('div');
-      testEl.innerHTML = "<select><option></option></select>";
-      return testEl.childNodes[0].childNodes[0].getAttribute('selected') === 'selected';
-    })(doc);
-
-    var detectAutoSelectedOption;
-    if (createsSelectedAttribute) {
-      detectAutoSelectedOption = (function(){
-        var detectAutoSelectedOptionRegex = /<option[^>]*selected/;
-        return function detectAutoSelectedOption(select, option, html) { //jshint ignore:line
-          return select.selectedIndex === 0 &&
-                 !detectAutoSelectedOptionRegex.test(html);
-        };
-      })();
-    } else {
-      detectAutoSelectedOption = function detectAutoSelectedOption(select, option, html) { //jshint ignore:line
-        var selectedAttribute = option.getAttribute('selected');
-        return select.selectedIndex === 0 && (
-                 selectedAttribute === null ||
-                 ( selectedAttribute !== '' && selectedAttribute.toLowerCase() !== 'selected' )
-                );
-      };
-    }
 
     var tagNamesRequiringInnerHTMLFix = doc && (function(document) {
       var tagNamesRequiringInnerHTMLFix;
@@ -2918,7 +2927,10 @@ enifed("dom-helper/build-html-dom",
         throw "Can't set innerHTML on "+tagName+" in this browser";
       }
 
+      html = fixSelect(html, contextualElement);
+
       var wrappingTags = tagNamesRequiringInnerHTMLFix[tagName.toLowerCase()];
+
       var startTag = outerHTML.match(new RegExp("<"+tagName+"([^>]*)>", 'i'))[0];
       var endTag = '</'+tagName+'>';
 
@@ -2949,16 +2961,28 @@ enifed("dom-helper/build-html-dom",
     var buildDOM;
     if (needsShy) {
       buildDOM = function buildDOM(html, contextualElement, dom){
+        html = fixSelect(html, contextualElement);
+
         contextualElement = dom.cloneNode(contextualElement, false);
         scriptSafeInnerHTML(contextualElement, html);
         return contextualElement.childNodes;
       };
     } else {
       buildDOM = function buildDOM(html, contextualElement, dom){
+        html = fixSelect(html, contextualElement);
+
         contextualElement = dom.cloneNode(contextualElement, false);
         contextualElement.innerHTML = html;
         return contextualElement.childNodes;
       };
+    }
+
+    function fixSelect(html, contextualElement) {
+      if (contextualElement.tagName === 'SELECT') {
+        html = "<option></option>" + html;
+      }
+
+      return html;
     }
 
     var buildIESafeDOM;
@@ -3031,45 +3055,17 @@ enifed("dom-helper/build-html-dom",
       buildIESafeDOM = buildDOM;
     }
 
-    // When parsing innerHTML, the browser may set up DOM with some things
-    // not desired. For example, with a select element context and option
-    // innerHTML the first option will be marked selected.
-    //
-    // This method cleans up some of that, resetting those values back to
-    // their defaults.
-    //
-    function buildSafeDOM(html, contextualElement, dom) {
-      var childNodes = buildIESafeDOM(html, contextualElement, dom);
-
-      if (contextualElement.tagName === 'SELECT') {
-        // Walk child nodes
-        for (var i = 0; childNodes[i]; i++) {
-          // Find and process the first option child node
-          if (childNodes[i].tagName === 'OPTION') {
-            if (detectAutoSelectedOption(childNodes[i].parentNode, childNodes[i], html)) {
-              // If the first node is selected but does not have an attribute,
-              // presume it is not really selected.
-              childNodes[i].parentNode.selectedIndex = -1;
-            }
-            break;
-          }
-        }
-      }
-
-      return childNodes;
-    }
-
     var buildHTMLDOM;
     if (needsIntegrationPointFix) {
       buildHTMLDOM = function buildHTMLDOM(html, contextualElement, dom){
         if (svgHTMLIntegrationPoints[contextualElement.tagName]) {
-          return buildSafeDOM(html, document.createElement('div'), dom);
+          return buildIESafeDOM(html, document.createElement('div'), dom);
         } else {
-          return buildSafeDOM(html, contextualElement, dom);
+          return buildIESafeDOM(html, contextualElement, dom);
         }
       };
     } else {
-      buildHTMLDOM = buildSafeDOM;
+      buildHTMLDOM = buildIESafeDOM;
     }
 
     __exports__.buildHTMLDOM = buildHTMLDOM;
@@ -19793,15 +19789,13 @@ enifed('ember-metal-views/tests/test_helpers', ['exports', 'ember-metal/platform
       }
     }
     if (view.childViews) {
-      view._childViewsMorph = this._dom.createMorph(el, null, null);
+      view._childViewsMorph = this._dom.appendMorph(el);
     } else if (view.textContent) {
       setElementText(el, view.textContent);
     } else if (view.innerHTML) {
       this._dom.detectNamespace(el);
-      var nodes = this._dom.parseHTML(view.innerHTML, el);
-      while (nodes[0]) {
-        el.appendChild(nodes[0]);
-      }
+      var frag = this._dom.parseHTML(view.innerHTML, el);
+      el.appendChild(frag);
     }
     return el;
   };
@@ -59936,7 +59930,7 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
       container.removeObject(view);
     });
     equal(property_get.get(view, 'childViews.length'), 0, "child views are cleared when removed from container view");
-    equal(container.$().html(), '', "the child view is removed from the DOM");
+    equal(container.$().text(), '', "the child view is removed from the DOM");
   });
 
   QUnit.test("if a ContainerView starts with an empty currentView, nothing is displayed", function() {
@@ -76296,298 +76290,310 @@ enifed("morph-attr/sanitize-attribute-value",
     __exports__.sanitizeAttributeValue = sanitizeAttributeValue;
   });
 enifed("morph-range",
-  ["exports"],
-  function(__exports__) {
+  ["./morph-range/utils","exports"],
+  function(__dependency1__, __exports__) {
     "use strict";
-    var splice = Array.prototype.splice;
+    var clear = __dependency1__.clear;
+    var insertBefore = __dependency1__.insertBefore;
 
-    function ensureStartEnd(start, end) {
-      if (start === null || end === null) {
-        throw new Error('a fragment parent must have boundary nodes in order to detect insertion');
-      }
-    }
-
-    function ensureContext(contextualElement) {
-      if (!contextualElement || contextualElement.nodeType !== 1) {
-        throw new Error('An element node must be provided for a contextualElement, you provided ' +
-                        (contextualElement ? 'nodeType ' + contextualElement.nodeType : 'nothing'));
-      }
-    }
-
-    // TODO: this is an internal API, this should be an assert
-    function Morph(parent, start, end, domHelper, contextualElement) {
-      if (parent.nodeType === 11) {
-        ensureStartEnd(start, end);
-        this.element = null;
-      } else {
-        this.element = parent;
-      }
-      this._parent = parent;
-      this.start = start;
-      this.end = end;
+    function Morph(domHelper, contextualElement) {
       this.domHelper = domHelper;
-      ensureContext(contextualElement);
+      // context if content if current content is detached
       this.contextualElement = contextualElement;
-      this.escaped = true;
-      this.reset();
+
+      // flag to force text to setContent to be treated as html
+      this.parseTextAsHTML = false;
+
+      this.firstNode = null;
+      this.lastNode  = null;
+
+      // morph graph
+      this.parentMorph     = null;
+      this.firstChildMorph = null;
+      this.lastChildMorph  = null;
+
+      this.previousMorph = null;
+      this.nextMorph = null;
     }
 
-    Morph.prototype.reset = function() {
-      this.text = null;
-      this.owner = null;
-      this.morphs = null;
-      this.before = null;
-      this.after = null;
-    };
-
-    Morph.prototype.parent = function () {
-      if (!this.element) {
-        var parent = this.start.parentNode;
-        if (this._parent !== parent) {
-          this._parent = parent;
-        }
-        if (parent.nodeType === 1) {
-          this.element = parent;
-        }
+    Morph.prototype.setContent = function Morph$setContent(content) {
+      if (content === null || content === undefined) {
+        return this.clear();
       }
-      return this._parent;
-    };
 
-    Morph.prototype.destroy = function () {
-      if (this.owner) {
-        this.owner.removeMorph(this);
-      } else {
-        clear(this.element || this.parent(), this.start, this.end);
+      var type = typeof content;
+      switch (type) {
+        case 'string':
+          if (this.parseTextAsHTML) {
+            return this.setHTML(content);
+          }
+          return this.setText(content);
+        case 'object':
+          if (typeof content.nodeType === 'number') {
+            return this.setNode(content);
+          }
+          /* Handlebars.SafeString */
+          if (typeof content.string === 'string') {
+            return this.setHTML(content.string);
+          }
+          if (this.parseTextAsHTML) {
+            return this.setHTML(content.toString());
+          }
+          /* falls through */
+        case 'boolean':
+        case 'number':
+          return this.setText(content.toString());
+        default:
+          throw new TypeError('unsupported content');
       }
     };
 
-    Morph.prototype.removeMorph = function (morph) {
-      var morphs = this.morphs;
-      for (var i=0, l=morphs.length; i<l; i++) {
-        if (morphs[i] === morph) {
-          this.replace(i, 1);
+    Morph.prototype.clear = function Morph$clear() {
+      return this.setNode(this.domHelper.createComment(''));
+    };
+
+    Morph.prototype.setText = function Morph$setText(text) {
+      var firstNode = this.firstNode;
+      var lastNode = this.lastNode;
+
+      if (firstNode &&
+          lastNode === firstNode &&
+          firstNode.nodeType === 3) {
+        firstNode.nodeValue = text;
+        return firstNode;
+      }
+
+      return this.setNode(
+        text ? this.domHelper.createTextNode(text) : this.domHelper.createComment('')
+      );
+    };
+
+    Morph.prototype.setNode = function Morph$setNode(newNode) {
+      var firstNode, lastNode;
+      switch (newNode.nodeType) {
+        case 3:
+          firstNode = newNode;
+          lastNode = newNode;
+          break;
+        case 11:
+          firstNode = newNode.firstChild;
+          lastNode = newNode.lastChild;
+          if (firstNode === null) {
+            firstNode = this.domHelper.createComment('');
+            newNode.appendChild(firstNode);
+            lastNode = firstNode;
+          }
+          break;
+        default:
+          firstNode = newNode;
+          lastNode = newNode;
+          break;
+      }
+
+      var previousFirstNode = this.firstNode;
+      if (previousFirstNode !== null) {
+
+        var parentNode = previousFirstNode.parentNode;
+        insertBefore(parentNode, firstNode, lastNode, previousFirstNode);
+        clear(parentNode, previousFirstNode, this.lastNode);
+      }
+
+      this.firstNode = firstNode;
+      this.lastNode  = lastNode;
+
+      if (this.parentMorph) {
+        syncFirstNode(this);
+        syncLastNode(this);
+      }
+
+      return newNode;
+    };
+
+    function syncFirstNode(_morph) {
+      var morph = _morph;
+      var parentMorph;
+      while (parentMorph = morph.parentMorph) {
+        if (morph !== parentMorph.firstChildMorph) {
           break;
         }
-      }
-    };
-
-    Morph.prototype.setContent = function (nodeOrString) {
-      this._update(this.element || this.parent(), nodeOrString);
-    };
-
-    Morph.prototype.updateNode = function (node) {
-      var parent = this.element || this.parent();
-      if (!node) {
-        return this._updateText(parent, '');
-      }
-      this._updateNode(parent, node);
-    };
-
-    Morph.prototype.updateText = function (text) {
-      this._updateText(this.element || this.parent(), text);
-    };
-
-    Morph.prototype.updateHTML = function (html) {
-      var parent = this.element || this.parent();
-      if (!html) {
-        return this._updateText(parent, '');
-      }
-      this._updateHTML(parent, html);
-    };
-
-    Morph.prototype._update = function (parent, nodeOrString) {
-      if (nodeOrString === null || nodeOrString === undefined) {
-        this._updateText(parent, '');
-      } else if (typeof nodeOrString === 'string') {
-        if (this.escaped) {
-          this._updateText(parent, nodeOrString);
-        } else {
-          this._updateHTML(parent, nodeOrString);
+        if (morph.firstNode === parentMorph.firstNode) {
+          break;
         }
-      } else if (nodeOrString.nodeType) {
-        this._updateNode(parent, nodeOrString);
-      } else if (nodeOrString.string) { // duck typed SafeString
-        this._updateHTML(parent, nodeOrString.string);
-      } else {
-        this._updateText(parent, nodeOrString.toString());
+
+        parentMorph.firstNode = morph.firstNode;
+
+        morph = parentMorph;
       }
+    }
+
+    function syncLastNode(_morph) {
+      var morph = _morph;
+      var parentMorph;
+      while (parentMorph = morph.parentMorph) {
+        if (morph !== parentMorph.lastChildMorph) {
+          break;
+        }
+        if (morph.lastNode === parentMorph.lastNode) {
+          break;
+        }
+
+        parentMorph.lastNode = morph.lastNode;
+
+        morph = parentMorph;
+      }
+    }
+
+    // return morph content to an undifferentiated state
+    // drops knowledge that the node has content.
+    // this is for rerender, I need to test, but basically
+    // the idea is to leave the content, but allow render again
+    // without appending, so n
+    Morph.prototype.reset = function Morph$reset() {
+      this.firstChildMorph = null;
+      this.lastChildMorph = null;
     };
 
-    Morph.prototype._updateNode = function (parent, node) {
-      if (this.text) {
-        if (node.nodeType === 3) {
-          this.text.nodeValue = node.nodeValue;
+    Morph.prototype.destroy = function Morph$destroy() {
+      var parentMorph = this.parentMorph;
+      var previousMorph = this.previousMorph;
+      var nextMorph = this.nextMorph;
+      var firstNode = this.firstNode;
+      var lastNode = this.lastNode;
+      var parentNode = firstNode && firstNode.parentNode;
+
+      if (previousMorph) {
+        if (nextMorph) {
+          previousMorph.nextMorph = nextMorph;
+          nextMorph.previousMorph = previousMorph;
+        } else {
+          previousMorph.nextMorph = null;
+          if (parentMorph) { parentMorph.lastChildMorph = previousMorph; }
+        }
+      } else {
+        if (nextMorph) {
+          nextMorph.previousMorph = null;
+          if (parentMorph) { parentMorph.firstChildMorph = nextMorph; }
+        } else if (parentMorph) {
+          parentMorph.lastChildMorph = parentMorph.firstChildMorph = null;
+        }
+      }
+
+      this.parentMorph = null;
+      this.firstNode = null;
+      this.lastNode = null;
+
+      if (parentMorph) {
+        if (!parentMorph.firstChildMorph) {
+          // list is empty
+          parentMorph.clear();
           return;
         } else {
-          this.text = null;
+          syncFirstNode(parentMorph.firstChildMorph);
+          syncLastNode(parentMorph.lastChildMorph);
         }
       }
-      var start = this.start, end = this.end;
-      clear(parent, start, end);
-      parent.insertBefore(node, end);
-      if (this.before !== null) {
-        this.before.end = start.nextSibling;
-      }
-      if (this.after !== null) {
-        this.after.start = end.previousSibling;
-      }
+
+      clear(parentNode, firstNode, lastNode);
     };
 
-    Morph.prototype._updateText = function (parent, text) {
-      if (this.text) {
-        this.text.nodeValue = text;
-        return;
-      }
-      var node = this.domHelper.createTextNode(text);
-      this.text = node;
-      clear(parent, this.start, this.end);
-      parent.insertBefore(node, this.end);
-      if (this.before !== null) {
-        this.before.end = node;
-      }
-      if (this.after !== null) {
-        this.after.start = node;
-      }
+    Morph.prototype.setHTML = function(text) {
+      var fragment = this.domHelper.parseHTML(text, this.contextualElement);
+      return this.setNode(fragment);
     };
 
-    Morph.prototype._updateHTML = function (parent, html) {
-      var start = this.start, end = this.end;
-      clear(parent, start, end);
-      this.text = null;
-      var childNodes = this.domHelper.parseHTML(html, this.contextualElement);
-      appendChildren(parent, end, childNodes);
-      if (this.before !== null) {
-        this.before.end = start.nextSibling;
-      }
-      if (this.after !== null) {
-        this.after.start = end.previousSibling;
-      }
+    Morph.prototype.appendContent = function(content) {
+      return this.insertContentBeforeMorph(content, null);
     };
 
-    Morph.prototype.append = function (node) {
-      if (this.morphs === null) {
-        this.morphs = [];
-      }
-      var index = this.morphs.length;
-      return this.insert(index, node);
-    };
-
-    Morph.prototype.insert = function (index, node) {
-      if (this.morphs === null) {
-        this.morphs = [];
-      }
-      var parent = this.element || this.parent();
-      var morphs = this.morphs;
-      var before = index > 0 ? morphs[index-1] : null;
-      var after  = index < morphs.length ? morphs[index] : null;
-      var start  = before === null ? this.start : (before.end === null ? parent.lastChild : before.end.previousSibling);
-      var end    = after === null ? this.end : (after.start === null ? parent.firstChild : after.start.nextSibling);
-      var morph  = new Morph(parent, start, end, this.domHelper, this.contextualElement);
-
-      morph.owner = this;
-      morph._update(parent, node);
-
-      if (before !== null) {
-        morph.before = before;
-        before.end = start.nextSibling;
-        before.after = morph;
-      }
-
-      if (after !== null) {
-        morph.after = after;
-        after.before = morph;
-        after.start = end.previousSibling;
-      }
-
-      this.morphs.splice(index, 0, morph);
+    Morph.prototype.insertContentBeforeMorph = function (content, referenceMorph) {
+      var morph = new Morph(this.domHelper, this.contextualElement);
+      morph.setContent(content);
+      this.insertBeforeMorph(morph, referenceMorph);
       return morph;
     };
 
-    Morph.prototype.replace = function (index, removedLength, addedNodes) {
-      if (this.morphs === null) {
-        this.morphs = [];
-      }
-      var parent = this.element || this.parent();
-      var morphs = this.morphs;
-      var before = index > 0 ? morphs[index-1] : null;
-      var after = index+removedLength < morphs.length ? morphs[index+removedLength] : null;
-      var start = before === null ? this.start : (before.end === null ? parent.lastChild : before.end.previousSibling);
-      var end   = after === null ? this.end : (after.start === null ? parent.firstChild : after.start.nextSibling);
-      var addedLength = addedNodes === undefined ? 0 : addedNodes.length;
-      var args, i, current;
-
-      if (removedLength > 0) {
-        clear(parent, start, end);
-      }
-
-      if (addedLength === 0) {
-        if (before !== null) {
-          before.after = after;
-          before.end = end;
-        }
-        if (after !== null) {
-          after.before = before;
-          after.start = start;
-        }
-        morphs.splice(index, removedLength);
-        return;
-      }
-
-      args = new Array(addedLength+2);
-      if (addedLength > 0) {
-        for (i=0; i<addedLength; i++) {
-          args[i+2] = current = new Morph(parent, start, end, this.domHelper, this.contextualElement);
-          current._update(parent, addedNodes[i]);
-          current.owner = this;
-          if (before !== null) {
-            current.before = before;
-            before.end = start.nextSibling;
-            before.after = current;
-          }
-          before = current;
-          start = end === null ? parent.lastChild : end.previousSibling;
-        }
-        if (after !== null) {
-          current.after = after;
-          after.before = current;
-          after.start = end.previousSibling;
-        }
-      }
-
-      args[0] = index;
-      args[1] = removedLength;
-
-      splice.apply(morphs, args);
+    Morph.prototype.appendMorph = function(morph) {
+      this.insertBeforeMorph(morph, null);
     };
 
-    function appendChildren(parent, end, nodeList) {
-      var ref = end;
-      var i = nodeList.length;
-      var node;
-
-      while (i--) {
-        node = nodeList[i];
-        parent.insertBefore(node, ref);
-        ref = node;
+    Morph.prototype.insertBeforeMorph = function(morph, referenceMorph) {
+      if (referenceMorph && referenceMorph.parentMorph !== this) {
+        throw new Error('The morph before which the new morph is to be inserted is not a child of this morph.');
       }
-    }
 
-    function clear(parent, start, end) {
-      var current, previous;
-      if (end === null) {
-        current = parent.lastChild;
+      morph.parentMorph = this;
+
+      var parentNode = this.firstNode.parentNode;
+
+      insertBefore(
+        parentNode,
+        morph.firstNode,
+        morph.lastNode,
+        referenceMorph ? referenceMorph.firstNode : this.lastNode.nextSibling
+      );
+
+      // was not in list mode replace current content
+      if (!this.firstChildMorph) {
+        clear(parentNode, this.firstNode, this.lastNode);
+      }
+
+      var previousMorph = referenceMorph ? referenceMorph.previousMorph : this.lastChildMorph;
+      if (previousMorph) {
+        previousMorph.nextMorph = morph;
+        morph.previousMorph = previousMorph;
       } else {
-        current = end.previousSibling;
+        this.firstChildMorph = morph;
       }
 
-      while (current !== null && current !== start) {
-        previous = current.previousSibling;
-        parent.removeChild(current);
-        current = previous;
+      if (referenceMorph) {
+        referenceMorph.previousMorph = morph;
+        morph.nextMorph = referenceMorph;
+      } else {
+        this.lastChildMorph = morph;
       }
-    }
+
+      syncFirstNode(this.firstChildMorph);
+      syncLastNode(this.lastChildMorph);
+    };
 
     __exports__["default"] = Morph;
+  });
+enifed("morph-range/utils",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    // inclusive of both nodes
+    function clear(parentNode, firstNode, lastNode) {
+      if (!parentNode) { return; }
+
+      var node = firstNode;
+      var nextNode;
+      do {
+        nextNode = node.nextSibling;
+        parentNode.removeChild(node);
+        if (node === lastNode) {
+          break;
+        }
+        node = nextNode;
+      } while (node);
+    }
+
+    __exports__.clear = clear;function insertBefore(parentNode, firstNode, lastNode, _refNode) {
+      var node = lastNode;
+      var refNode = _refNode;
+      var prevNode;
+      do {
+        prevNode = node.previousSibling;
+        parentNode.insertBefore(node, refNode);
+        if (node === firstNode) {
+          break;
+        }
+        refNode = node;
+        node = prevNode;
+      } while (node);
+    }
+
+    __exports__.insertBefore = insertBefore;
   });
 enifed("route-recognizer",
   ["./route-recognizer/dsl","exports"],
