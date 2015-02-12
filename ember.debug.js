@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.d1b277a6
+ * @version   1.12.0-beta.1+canary.f90ae24e
  */
 
 (function() {
@@ -11339,7 +11339,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.d1b277a6
+    @version 1.12.0-beta.1+canary.f90ae24e
   */
 
   if ('undefined' === typeof Ember) {
@@ -11367,10 +11367,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.d1b277a6'
+    @default '1.12.0-beta.1+canary.f90ae24e'
     @static
   */
-  Ember.VERSION = '1.12.0-beta.1+canary.d1b277a6';
+  Ember.VERSION = '1.12.0-beta.1+canary.f90ae24e';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -22967,6 +22967,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
     disconnectOutlet: function(options) {
       var outletName;
       var parentView;
+      var parent;
       if (!options || typeof options === "string") {
         outletName = options;
       } else {
@@ -22975,7 +22976,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       }
 
       parentView = parentView && parentView.replace(/\//g, '.');
-      if (parentView === parentRoute(this).routeName) {
+      parent = parentRoute(this);
+      if (parent && parentView === parent.routeName) {
         parentView = undefined;
       }
       outletName = outletName || 'main';

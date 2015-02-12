@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.d1b277a6
+ * @version   1.12.0-beta.1+canary.f90ae24e
  */
 
 (function() {
@@ -71538,6 +71538,38 @@ enifed('ember/tests/routing/basic_test', ['ember', 'ember-metal/enumerable_utils
     bootApplication();
 
     equal(Ember.$('#qunit-fixture').text(), "A-The index-B-Hello world-C", "initial render");
+  });
+
+  QUnit.test("Can disconnect a named outlet at the top level", function() {
+    Ember.TEMPLATES.application = compile("A-{{outlet}}-B-{{outlet \"other\"}}-C");
+    Ember.TEMPLATES.modal = compile("Hello world");
+    Ember.TEMPLATES.index = compile("The index");
+
+    registry.register('route:application', Ember.Route.extend({
+      renderTemplate: function() {
+        this.render();
+        this.render('modal', {
+          into: 'application',
+          outlet: 'other'
+        });
+      },
+      actions: {
+        banish: function() {
+          this.disconnectOutlet({
+            parentView: 'application',
+            outlet: 'other'
+          });
+        }
+      }
+    }));
+
+    bootApplication();
+
+    equal(Ember.$('#qunit-fixture').text(), "A-The index-B-Hello world-C", "initial render");
+
+    Ember.run(router, 'send', 'banish');
+
+    equal(Ember.$('#qunit-fixture').text(), "A-The index-B--C", "second render");
   });
 
   QUnit.test("Can render into a named outlet at the top level, with empty main outlet", function() {
