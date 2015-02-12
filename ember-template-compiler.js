@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.82845b72
+ * @version   1.12.0-beta.1+canary.dd3d0ab2
  */
 
 (function() {
@@ -133,7 +133,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.82845b72
+    @version 1.12.0-beta.1+canary.dd3d0ab2
   */
 
   if ('undefined' === typeof Ember) {
@@ -161,10 +161,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.82845b72'
+    @default '1.12.0-beta.1+canary.dd3d0ab2'
     @static
   */
-  Ember.VERSION = '1.12.0-beta.1+canary.82845b72';
+  Ember.VERSION = '1.12.0-beta.1+canary.dd3d0ab2';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -1994,6 +1994,159 @@ enifed("htmlbars-compiler/utils",
     }
 
     __exports__.processOpcodes = processOpcodes;
+  });
+enifed("htmlbars-runtime",
+  ["htmlbars-runtime/hooks","htmlbars-runtime/helpers","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
+    "use strict";
+    var hooks = __dependency1__["default"];
+    var helpers = __dependency2__["default"];
+
+    __exports__.hooks = hooks;
+    __exports__.helpers = helpers;
+  });
+enifed("htmlbars-runtime/helpers",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    function partial(params, hash, options, env) {
+      var template = env.partials[params[0]];
+      return template.render(this, env, options.morph.contextualElement);
+    }
+
+    __exports__.partial = partial;__exports__["default"] = {
+      partial: partial
+    };
+  });
+enifed("htmlbars-runtime/hooks",
+  ["exports"],
+  function(__exports__) {
+    "use strict";
+    function block(env, morph, context, path, params, hash, template, inverse) {
+      var options = {
+        morph: morph,
+        template: template,
+        inverse: inverse
+      };
+
+      var helper = lookupHelper(env, context, path);
+      var value = helper.call(context, params, hash, options, env);
+
+      morph.setContent(value);
+    }
+
+    __exports__.block = block;function inline(env, morph, context, path, params, hash) {
+      var helper = lookupHelper(env, context, path);
+      var value = helper.call(context, params, hash, { morph: morph }, env);
+
+      morph.setContent(value);
+    }
+
+    __exports__.inline = inline;function content(env, morph, context, path) {
+      var helper = lookupHelper(env, context, path);
+
+      var value;
+      if (helper) {
+        value = helper.call(context, [], {}, { morph: morph }, env);
+      } else {
+        value = get(env, context, path);
+      }
+
+      morph.setContent(value);
+    }
+
+    __exports__.content = content;function element(env, domElement, context, path, params, hash) {
+      var helper = lookupHelper(env, context, path);
+      if (helper) {
+        helper.call(context, params, hash, { element: domElement }, env);
+      }
+    }
+
+    __exports__.element = element;function attribute(env, attrMorph, domElement, name, value) {
+      attrMorph.setContent(value);
+    }
+
+    __exports__.attribute = attribute;function subexpr(env, context, helperName, params, hash) {
+      var helper = lookupHelper(env, context, helperName);
+      if (helper) {
+        return helper.call(context, params, hash, {}, env);
+      } else {
+        return get(env, context, helperName);
+      }
+    }
+
+    __exports__.subexpr = subexpr;function get(env, context, path) {
+      if (path === '') {
+        return context;
+      }
+
+      var keys = path.split('.');
+      var value = context;
+      for (var i = 0; i < keys.length; i++) {
+        if (value) {
+          value = value[keys[i]];
+        } else {
+          break;
+        }
+      }
+      return value;
+    }
+
+    __exports__.get = get;function set(env, context, name, value) {
+      context[name] = value;
+    }
+
+    __exports__.set = set;function component(env, morph, context, tagName, attrs, template) {
+      var helper = lookupHelper(env, context, tagName);
+
+      var value;
+      if (helper) {
+        var options = {
+          morph: morph,
+          template: template
+        };
+
+        value = helper.call(context, [], attrs, options, env);
+      } else {
+        value = componentFallback(env, morph, context, tagName, attrs, template);
+      }
+
+      morph.setContent(value);
+    }
+
+    __exports__.component = component;function concat(env, params) {
+      var value = "";
+      for (var i = 0, l = params.length; i < l; i++) {
+        value += params[i];
+      }
+      return value;
+    }
+
+    __exports__.concat = concat;function componentFallback(env, morph, context, tagName, attrs, template) {
+      var element = env.dom.createElement(tagName);
+      for (var name in attrs) {
+        element.setAttribute(name, attrs[name]);
+      }
+      element.appendChild(template.render(context, env, morph.contextualElement));
+      return element;
+    }
+
+    function lookupHelper(env, context, helperName) {
+      return env.helpers[helperName];
+    }
+
+    __exports__["default"] = {
+      content: content,
+      block: block,
+      inline: inline,
+      component: component,
+      element: element,
+      attribute: attribute,
+      subexpr: subexpr,
+      concat: concat,
+      get: get,
+      set: set
+    };
   });
 enifed("htmlbars-syntax",
   ["./htmlbars-syntax/walker","./htmlbars-syntax/builders","./htmlbars-syntax/parser","exports"],
