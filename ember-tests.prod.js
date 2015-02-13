@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1.e047a912
+ * @version   1.11.0-beta.1.8a719753
  */
 
 (function() {
@@ -3964,14 +3964,10 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
 
     var retrievedFooResolverTestHelper, retrievedBarBazResolverTestHelper;
 
-    if (Ember['default'].FEATURES.isEnabled('ember-htmlbars')) {
+    
       retrievedFooResolverTestHelper = locator.lookup('helper:fooresolvertest').helperFunction;
       retrievedBarBazResolverTestHelper = locator.lookup('helper:bar-baz-resolver-test').helperFunction;
-    } else {
-      retrievedFooResolverTestHelper = locator.lookup('helper:fooresolvertest');
-      retrievedBarBazResolverTestHelper = locator.lookup('helper:bar-baz-resolver-test');
-    }
-
+    
     fooresolvertestHelper();
     barBazResolverTestHelper();
   });
@@ -5466,25 +5462,19 @@ enifed('ember-debug/tests/main_test', ['ember-metal/core'], function (Ember) {
     expect(3);
 
     throws(function() {
-      Ember['default'].deprecate('Deprecation is thrown', false);
-    });
+          });
 
     throws(function() {
-      Ember['default'].deprecate('Deprecation is thrown', '');
-    });
+          });
 
     throws(function() {
-      Ember['default'].deprecate('Deprecation is thrown', 0);
-    });
+          });
   });
 
   QUnit.test('Ember.deprecate does not throw deprecation if second argument is a function and it returns true', function() {
     expect(1);
 
-    Ember['default'].deprecate('Deprecation is thrown', function() {
-      return true;
-    });
-
+    
     ok(true, 'deprecation was not thrown');
   });
 
@@ -5492,19 +5482,13 @@ enifed('ember-debug/tests/main_test', ['ember-metal/core'], function (Ember) {
     expect(1);
 
     throws(function() {
-      Ember['default'].deprecate('Deprecation is thrown', function() {
-        return false;
-      });
-    });
+          });
   });
 
   QUnit.test('Ember.deprecate does not throw deprecations if second argument is truthy', function() {
     expect(1);
 
-    Ember['default'].deprecate('Deprecation is thrown', true);
-    Ember['default'].deprecate('Deprecation is thrown', '1');
-    Ember['default'].deprecate('Deprecation is thrown', 1);
-
+            
     ok(true, 'deprecations were not thrown');
   });
 
@@ -5512,25 +5496,19 @@ enifed('ember-debug/tests/main_test', ['ember-metal/core'], function (Ember) {
     expect(3);
 
     throws(function() {
-      Ember['default'].assert('Assertion is thrown', false);
-    });
+          });
 
     throws(function() {
-      Ember['default'].assert('Assertion is thrown', '');
-    });
+          });
 
     throws(function() {
-      Ember['default'].assert('Assertion is thrown', 0);
-    });
+          });
   });
 
   QUnit.test('Ember.assert does not throw if second argument is a function and it returns true', function() {
     expect(1);
 
-    Ember['default'].assert('Assertion is thrown', function() {
-      return true;
-    });
-
+    
     ok(true, 'assertion was not thrown');
   });
 
@@ -5538,19 +5516,13 @@ enifed('ember-debug/tests/main_test', ['ember-metal/core'], function (Ember) {
     expect(1);
 
     throws(function() {
-      Ember['default'].assert('Assertion is thrown', function() {
-        return false;
-      });
-    });
+          });
   });
 
   QUnit.test('Ember.assert does not throw if second argument is truthy', function() {
     expect(1);
 
-    Ember['default'].assert('Assertion is thrown', true);
-    Ember['default'].assert('Assertion is thrown', '1');
-    Ember['default'].assert('Assertion is thrown', 1);
-
+            
     ok(true, 'assertions were not thrown');
   });
 
@@ -5558,9 +5530,7 @@ enifed('ember-debug/tests/main_test', ['ember-metal/core'], function (Ember) {
     expect(1);
     var Igor = Ember['default'].Object.extend();
 
-    Ember['default'].assert('is truthy', Igor);
-    Ember['default'].assert('is truthy', Igor.create());
-
+        
     ok(true, 'assertions were not thrown');
   });
 
@@ -9798,7 +9768,7 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
     var originalBindAttr = helpers['default']['bind-attr'];
 
     try {
-      if (Ember['default'].FEATURES.isEnabled('ember-htmlbars')) {
+      
         helpers['default']['bind-attr'] = {
           helperFunction: function() {
             equal(arguments[0], 'foo', 'First arg match');
@@ -9807,24 +9777,13 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
             return 'result';
           }
         };
-      } else {
-        helpers['default']['bind-attr'] = function() {
-          equal(arguments[0], 'foo', 'First arg match');
-          equal(arguments[1], 'bar', 'Second arg match');
-
-          return 'result';
-        };
-      }
-
+      
       expectDeprecation(function() {
         var result;
 
-        if (Ember['default'].FEATURES.isEnabled('ember-htmlbars')) {
+        
           result = helpers['default'].bindAttr.helperFunction('foo', 'bar');
-        } else {
-          result = helpers['default'].bindAttr('foo', 'bar');
-        }
-        equal(result, 'result', 'Result match');
+                equal(result, 'result', 'Result match');
       }, "The 'bindAttr' view helper is deprecated in favor of 'bind-attr'");
     } finally {
       helpers['default']['bind-attr'] = originalBindAttr;
@@ -11704,9 +11663,9 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
     });
 
     var deprecation = /Resolved the view "MyView" on the global context/;
-    if (Ember['default'].FEATURES.isEnabled('ember-htmlbars')) {
+    
       deprecation = /Global lookup of MyView from a Handlebars template is deprecated/;
-    }
+    
 
     expectDeprecation(function() {
       utils.runAppend(view);
@@ -11824,9 +11783,9 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
 
     var deprecation = /Resolved the view "MyEmptyView" on the global context/;
 
-    if (Ember['default'].FEATURES.isEnabled('ember-htmlbars')) {
+    
       deprecation = /Global lookup of MyEmptyView from a Handlebars template is deprecated/;
-    }
+    
 
     expectDeprecation(function() {
       utils.runAppend(view);
@@ -12204,7 +12163,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
     }
 
     if (useBlockParams) {
-      if (Ember['default'].FEATURES.isEnabled('ember-htmlbars-each-with-index')) {
+      
         QUnit.test("the index is passed as the second parameter to #each blocks", function() {
           expect(3);
 
@@ -12226,15 +12185,15 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
           });
           equal(view.$().text(), "0. Bob1. Steve");
         });
-      }
+      
     }
   }
 
   testEachWithItem("{{#each foo in bar}}", false);
 
-  if (Ember['default'].FEATURES.isEnabled('ember-htmlbars-block-params')) {
+  
     testEachWithItem("{{#each bar as |foo|}}", true);
-  }
+  
 
 });
 enifed('ember-htmlbars/tests/helpers/each_test.jscs-test', function () {
@@ -22388,71 +22347,7 @@ enifed('ember-metal/tests/computed_test', ['ember-metal/core', 'ember-metal/test
   // improved-cp-syntax
   //
 
-  if (Ember['default'].FEATURES.isEnabled("new-computed-syntax")) {
-    QUnit.module('computed - improved cp syntax');
-
-    QUnit.test('setter and getters are passed using an object', function() {
-      var testObj = Ember['default'].Object.extend({
-        a: '1',
-        b: '2',
-        aInt: computed.computed('a', {
-          get: function(keyName) {
-            equal(keyName, 'aInt', 'getter receives the keyName');
-            return parseInt(this.get('a'));
-          },
-          set: function(keyName, value, oldValue) {
-            equal(keyName, 'aInt', 'setter receives the keyName');
-            equal(value, 123, 'setter receives the new value');
-            equal(oldValue, 1, 'setter receives the old value');
-            this.set('a', ""+value); // side effect
-            return parseInt(this.get('a'));
-          }
-        })
-      }).create();
-
-      ok(testObj.get('aInt') === 1, 'getter works');
-      testObj.set('aInt', 123);
-      ok(testObj.get('a') === '123', 'setter works');
-      ok(testObj.get('aInt') === 123, 'cp has been updated too');
-    });
-
-    QUnit.test('setter can be omited', function() {
-      var testObj = Ember['default'].Object.extend({
-        a: '1',
-        b: '2',
-        aInt: computed.computed('a', {
-          get: function(keyName) {
-            equal(keyName, 'aInt', 'getter receives the keyName');
-            return parseInt(this.get('a'));
-          }
-        })
-      }).create();
-
-      ok(testObj.get('aInt') === 1, 'getter works');
-      ok(testObj.get('a') === '1');
-      testObj.set('aInt', '123');
-      ok(testObj.get('aInt') === '123', 'cp has been updated too');
-    });
-
-    QUnit.test('the return value of the setter gets cached', function() {
-      var testObj = Ember['default'].Object.extend({
-        a: '1',
-        sampleCP: computed.computed('a', {
-          get: function(keyName) {
-            ok(false, "The getter should not be invoked");
-            return 'get-value';
-          },
-          set: function(keyName, value, oldValue) {
-            return 'set-value';
-          }
-        })
-      }).create();
-
-      testObj.set('sampleCP', 'abcd');
-      ok(testObj.get('sampleCP') === 'set-value', 'The return value of the CP was cached');
-    });
-  }
-
+  
   // ..........................................................
   // BUGS
   //
@@ -32267,22 +32162,14 @@ enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['ember-metal/core', 
     utils.runAppend(top);
   });
 
-  if (Ember['default'].FEATURES.isEnabled('ember-htmlbars')) {
+  
     QUnit.test("should throw an assertion if {{outlet}} used with unquoted name", function() {
       top.setOutletState(withTemplate("{{outlet foo}}"));
       expectAssertion(function() {
         utils.runAppend(top);
       }, "Using {{outlet}} with an unquoted name is not supported.");
     });
-  } else {
-    QUnit.test("should throw a deprecation if {{outlet}} is used with an unquoted name", function() {
-      top.setOutletState(withTemplate("{{outlet foo}}"));
-      expectDeprecation(function() {
-        utils.runAppend(top);
-      }, 'Using {{outlet}} with an unquoted name is not supported. Please update to quoted usage \'{{outlet "foo"}}\'.');
-    });
-  }
-
+  
   function withTemplate(string) {
     return {
       render: {
@@ -32799,7 +32686,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 
     equal(container.lookup('controller:blog.post'), renderedView.get('controller'), 'rendered with correct controller');
   });
 
-  if (Ember['default'].FEATURES.isEnabled('ember-htmlbars')) {
+  
   // jscs:disable validateIndentation
 
   QUnit.test("throws an assertion if {{render}} is called with an unquoted template name", function() {
@@ -32833,28 +32720,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 
   });
 
   // jscs:enable validateIndentation
-  } else {
-  // jscs:disable validateIndentation
-
-  QUnit.test("Using quoteless templateName works properly (DEPRECATED)", function() {
-    var template = '<h1>HI</h1>{{render home}}';
-    var controller = controllers__controller["default"].extend({ container: container });
-    view = EmberView['default'].create({
-      controller: controller.create(),
-      template: compile['default'](template)
-    });
-
-    Ember['default'].TEMPLATES['home'] = compile['default']("<p>BYE</p>");
-
-    expectDeprecation("Using a quoteless parameter with {{render}} is deprecated. Please update to quoted usage '{{render \"home\"}}.");
-    tests__utils.runAppend(view);
-
-    equal(view.$('p:contains(BYE)').length, 1, "template was rendered");
-  });
-
-  // jscs:enable validateIndentation
-  }
-
+  
 });
 enifed('ember-routing-htmlbars/tests/helpers/render_test.jscs-test', function () {
 
@@ -50706,33 +50572,7 @@ enifed('ember-runtime/tests/system/object/create_test', ['ember-metal/core', 'em
     equal(o.get('foo'), 'bar');
   });
 
-  if (Ember['default'].FEATURES.isEnabled('mandatory-setter')) {
-    QUnit.test("sets up mandatory setters for watched simple properties", function() {
-
-      var MyClass = EmberObject['default'].extend({
-        foo: null,
-        bar: null,
-        fooDidChange: mixin.observer('foo', function() {})
-      });
-
-      var o = MyClass.create({ foo: 'bar', bar: 'baz' });
-      equal(o.get('foo'), 'bar');
-
-      // Catch IE8 where Object.getOwnPropertyDescriptor exists but only works on DOM elements
-      try {
-        Object.getOwnPropertyDescriptor({}, 'foo');
-      } catch(e) {
-        return;
-      }
-
-      var descriptor = Object.getOwnPropertyDescriptor(o, 'foo');
-      ok(descriptor.set, 'Mandatory setter was setup');
-
-      descriptor = Object.getOwnPropertyDescriptor(o, 'bar');
-      ok(!descriptor.set, 'Mandatory setter was not setup');
-    });
-  }
-
+  
   QUnit.test("allows bindings to be defined", function() {
     var obj = EmberObject['default'].create({
       foo: 'foo',
@@ -55053,11 +54893,7 @@ enifed('ember-testing/tests/helpers_test', ['ember-metal/core', 'ember-metal/run
     checkHelperPresent('wait', expected);
     checkHelperPresent('triggerEvent', expected);
 
-    if (Ember['default'].FEATURES.isEnabled('ember-testing-checkbox-helpers')) {
-      checkHelperPresent('check', expected);
-      checkHelperPresent('uncheck', expected);
-    }
-  }
+      }
 
   function assertNoHelpers(application, helperContainer) {
     assertHelpers(application, helperContainer, false);
@@ -55576,94 +55412,7 @@ enifed('ember-testing/tests/helpers_test', ['ember-metal/core', 'ember-metal/run
     });
   });
 
-  if (Ember['default'].FEATURES.isEnabled('ember-testing-checkbox-helpers')) {
-    QUnit.test("`check` ensures checkboxes are `checked` state for checkboxes", function() {
-      expect(2);
-      var check, find, visit, andThen;
-
-      App.IndexView = EmberView['default'].extend({
-        template: compile['default']('<input type="checkbox" id="unchecked"><input type="checkbox" id="checked" checked>')
-      });
-
-      run['default'](App, App.advanceReadiness);
-
-      check = App.testHelpers.check;
-      find = App.testHelpers.find;
-      visit = App.testHelpers.visit;
-      andThen = App.testHelpers.andThen;
-
-      visit('/');
-      check('#unchecked');
-      check('#checked');
-      andThen(function() {
-        equal(find('#unchecked').is(":checked"), true, "can check an unchecked checkbox");
-        equal(find('#checked').is(":checked"), true, "can check a checked checkbox");
-      });
-    });
-
-    QUnit.test("`uncheck` ensures checkboxes are not `checked`", function() {
-      expect(2);
-      var uncheck, find, visit, andThen;
-
-      App.IndexView = EmberView['default'].extend({
-        template: compile['default']('<input type="checkbox" id="unchecked"><input type="checkbox" id="checked" checked>')
-      });
-
-      run['default'](App, App.advanceReadiness);
-
-      uncheck = App.testHelpers.uncheck;
-      find = App.testHelpers.find;
-      visit = App.testHelpers.visit;
-      andThen = App.testHelpers.andThen;
-
-      visit('/');
-      uncheck('#unchecked');
-      uncheck('#checked');
-      andThen(function() {
-        equal(find('#unchecked').is(":checked"), false, "can uncheck an unchecked checkbox");
-        equal(find('#checked').is(":checked"), false, "can uncheck a checked checkbox");
-      });
-    });
-
-    QUnit.test("`check` asserts the selected inputs are checkboxes", function() {
-      var check, visit;
-
-      App.IndexView = EmberView['default'].extend({
-        template: compile['default']('<input type="text" id="text">')
-      });
-
-      run['default'](App, App.advanceReadiness);
-
-      check = App.testHelpers.check;
-      visit = App.testHelpers.visit;
-
-      visit('/').then(function() {
-        expectAssertion(function() {
-          check('#text');
-        }, /must be a checkbox/);
-      });
-    });
-
-    QUnit.test("`uncheck` asserts the selected inputs are checkboxes", function() {
-      var visit, uncheck;
-
-      App.IndexView = EmberView['default'].extend({
-        template: compile['default']('<input type="text" id="text">')
-      });
-
-      run['default'](App, App.advanceReadiness);
-
-      visit = App.testHelpers.visit;
-      uncheck = App.testHelpers.uncheck;
-
-      visit('/').then(function() {
-        expectAssertion(function() {
-          uncheck('#text');
-        }, /must be a checkbox/);
-      });
-    });
-  }
-
+  
   QUnit.test("`triggerEvent accepts an optional options hash and context", function() {
     expect(3);
 
@@ -56242,6 +55991,46 @@ enifed('ember-views/component_lookup.jshint', function () {
   });
 
 });
+enifed('ember-views/mixins/attribute_bindings_support.jscs-test', function () {
+
+  'use strict';
+
+  module('JSCS - ember-views/mixins');
+  test('ember-views/mixins/attribute_bindings_support.js should pass jscs', function() {
+    ok(true, 'ember-views/mixins/attribute_bindings_support.js should pass jscs.');
+  });
+
+});
+enifed('ember-views/mixins/attribute_bindings_support.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - ember-views/mixins');
+  test('ember-views/mixins/attribute_bindings_support.js should pass jshint', function() { 
+    ok(true, 'ember-views/mixins/attribute_bindings_support.js should pass jshint.'); 
+  });
+
+});
+enifed('ember-views/mixins/class_names_support.jscs-test', function () {
+
+  'use strict';
+
+  module('JSCS - ember-views/mixins');
+  test('ember-views/mixins/class_names_support.js should pass jscs', function() {
+    ok(true, 'ember-views/mixins/class_names_support.js should pass jscs.');
+  });
+
+});
+enifed('ember-views/mixins/class_names_support.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - ember-views/mixins');
+  test('ember-views/mixins/class_names_support.js should pass jshint', function() { 
+    ok(true, 'ember-views/mixins/class_names_support.js should pass jshint.'); 
+  });
+
+});
 enifed('ember-views/mixins/component_template_deprecation.jscs-test', function () {
 
   'use strict';
@@ -56259,6 +56048,46 @@ enifed('ember-views/mixins/component_template_deprecation.jshint', function () {
   module('JSHint - ember-views/mixins');
   test('ember-views/mixins/component_template_deprecation.js should pass jshint', function() { 
     ok(true, 'ember-views/mixins/component_template_deprecation.js should pass jshint.'); 
+  });
+
+});
+enifed('ember-views/mixins/instrumentation_support.jscs-test', function () {
+
+  'use strict';
+
+  module('JSCS - ember-views/mixins');
+  test('ember-views/mixins/instrumentation_support.js should pass jscs', function() {
+    ok(true, 'ember-views/mixins/instrumentation_support.js should pass jscs.');
+  });
+
+});
+enifed('ember-views/mixins/instrumentation_support.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - ember-views/mixins');
+  test('ember-views/mixins/instrumentation_support.js should pass jshint', function() { 
+    ok(true, 'ember-views/mixins/instrumentation_support.js should pass jshint.'); 
+  });
+
+});
+enifed('ember-views/mixins/legacy_view_support.jscs-test', function () {
+
+  'use strict';
+
+  module('JSCS - ember-views/mixins');
+  test('ember-views/mixins/legacy_view_support.js should pass jscs', function() {
+    ok(true, 'ember-views/mixins/legacy_view_support.js should pass jscs.');
+  });
+
+});
+enifed('ember-views/mixins/legacy_view_support.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - ember-views/mixins');
+  test('ember-views/mixins/legacy_view_support.js should pass jshint', function() { 
+    ok(true, 'ember-views/mixins/legacy_view_support.js should pass jshint.'); 
   });
 
 });
@@ -56282,6 +56111,26 @@ enifed('ember-views/mixins/normalized_rerender_if_needed.jshint', function () {
   });
 
 });
+enifed('ember-views/mixins/template_rendering_support.jscs-test', function () {
+
+  'use strict';
+
+  module('JSCS - ember-views/mixins');
+  test('ember-views/mixins/template_rendering_support.js should pass jscs', function() {
+    ok(true, 'ember-views/mixins/template_rendering_support.js should pass jscs.');
+  });
+
+});
+enifed('ember-views/mixins/template_rendering_support.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - ember-views/mixins');
+  test('ember-views/mixins/template_rendering_support.js should pass jshint', function() { 
+    ok(true, 'ember-views/mixins/template_rendering_support.js should pass jshint.'); 
+  });
+
+});
 enifed('ember-views/mixins/text_support.jscs-test', function () {
 
   'use strict';
@@ -56302,6 +56151,106 @@ enifed('ember-views/mixins/text_support.jshint', function () {
   });
 
 });
+enifed('ember-views/mixins/view_child_views_support.jscs-test', function () {
+
+  'use strict';
+
+  module('JSCS - ember-views/mixins');
+  test('ember-views/mixins/view_child_views_support.js should pass jscs', function() {
+    ok(true, 'ember-views/mixins/view_child_views_support.js should pass jscs.');
+  });
+
+});
+enifed('ember-views/mixins/view_child_views_support.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - ember-views/mixins');
+  test('ember-views/mixins/view_child_views_support.js should pass jshint', function() { 
+    ok(true, 'ember-views/mixins/view_child_views_support.js should pass jshint.'); 
+  });
+
+});
+enifed('ember-views/mixins/view_context_support.jscs-test', function () {
+
+  'use strict';
+
+  module('JSCS - ember-views/mixins');
+  test('ember-views/mixins/view_context_support.js should pass jscs', function() {
+    ok(true, 'ember-views/mixins/view_context_support.js should pass jscs.');
+  });
+
+});
+enifed('ember-views/mixins/view_context_support.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - ember-views/mixins');
+  test('ember-views/mixins/view_context_support.js should pass jshint', function() { 
+    ok(true, 'ember-views/mixins/view_context_support.js should pass jshint.'); 
+  });
+
+});
+enifed('ember-views/mixins/view_keyword_support.jscs-test', function () {
+
+  'use strict';
+
+  module('JSCS - ember-views/mixins');
+  test('ember-views/mixins/view_keyword_support.js should pass jscs', function() {
+    ok(true, 'ember-views/mixins/view_keyword_support.js should pass jscs.');
+  });
+
+});
+enifed('ember-views/mixins/view_keyword_support.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - ember-views/mixins');
+  test('ember-views/mixins/view_keyword_support.js should pass jshint', function() { 
+    ok(true, 'ember-views/mixins/view_keyword_support.js should pass jshint.'); 
+  });
+
+});
+enifed('ember-views/mixins/view_state_support.jscs-test', function () {
+
+  'use strict';
+
+  module('JSCS - ember-views/mixins');
+  test('ember-views/mixins/view_state_support.js should pass jscs', function() {
+    ok(true, 'ember-views/mixins/view_state_support.js should pass jscs.');
+  });
+
+});
+enifed('ember-views/mixins/view_state_support.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - ember-views/mixins');
+  test('ember-views/mixins/view_state_support.js should pass jshint', function() { 
+    ok(true, 'ember-views/mixins/view_state_support.js should pass jshint.'); 
+  });
+
+});
+enifed('ember-views/mixins/view_stream_support.jscs-test', function () {
+
+  'use strict';
+
+  module('JSCS - ember-views/mixins');
+  test('ember-views/mixins/view_stream_support.js should pass jscs', function() {
+    ok(true, 'ember-views/mixins/view_stream_support.js should pass jscs.');
+  });
+
+});
+enifed('ember-views/mixins/view_stream_support.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - ember-views/mixins');
+  test('ember-views/mixins/view_stream_support.js should pass jshint', function() { 
+    ok(true, 'ember-views/mixins/view_stream_support.js should pass jshint.'); 
+  });
+
+});
 enifed('ember-views/mixins/view_target_action_support.jscs-test', function () {
 
   'use strict';
@@ -56319,6 +56268,26 @@ enifed('ember-views/mixins/view_target_action_support.jshint', function () {
   module('JSHint - ember-views/mixins');
   test('ember-views/mixins/view_target_action_support.js should pass jshint', function() { 
     ok(true, 'ember-views/mixins/view_target_action_support.js should pass jshint.'); 
+  });
+
+});
+enifed('ember-views/mixins/visibility_support.jscs-test', function () {
+
+  'use strict';
+
+  module('JSCS - ember-views/mixins');
+  test('ember-views/mixins/visibility_support.js should pass jscs', function() {
+    ok(true, 'ember-views/mixins/visibility_support.js should pass jscs.');
+  });
+
+});
+enifed('ember-views/mixins/visibility_support.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - ember-views/mixins');
+  test('ember-views/mixins/visibility_support.js should pass jshint', function() { 
+    ok(true, 'ember-views/mixins/visibility_support.js should pass jshint.'); 
   });
 
 });
