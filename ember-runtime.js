@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1.8a719753
+ * @version   1.11.0-beta.1.f91933f5
  */
 
 (function() {
@@ -2259,12 +2259,12 @@ enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/merge', 'embe
 
   var EmberInstrumentation = Ember['default'].Instrumentation = {};
   EmberInstrumentation.instrument = instrumentation.instrument;
-  EmberInstrumentation.subscribe = streams__utils.subscribe;
-  EmberInstrumentation.unsubscribe = streams__utils.unsubscribe;
+  EmberInstrumentation.subscribe = instrumentation.subscribe;
+  EmberInstrumentation.unsubscribe = instrumentation.unsubscribe;
   EmberInstrumentation.reset  = instrumentation.reset;
 
   Ember['default'].instrument = instrumentation.instrument;
-  Ember['default'].subscribe = streams__utils.subscribe;
+  Ember['default'].subscribe = instrumentation.subscribe;
 
   Ember['default']._Cache = Cache['default'];
 
@@ -4945,7 +4945,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.11.0-beta.1.8a719753
+    @version 1.11.0-beta.1.f91933f5
   */
 
   if ('undefined' === typeof Ember) {
@@ -4973,10 +4973,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.11.0-beta.1.8a719753'
+    @default '1.11.0-beta.1.f91933f5'
     @static
   */
-  Ember.VERSION = '1.11.0-beta.1.8a719753';
+  Ember.VERSION = '1.11.0-beta.1.f91933f5';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -16055,7 +16055,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
 
     /**
       Returns an array with all of the items in the enumeration where the passed
-      function returns false for. This method is the inverse of filter().
+      function returns true. This method is the inverse of filter().
 
       The callback method you provide should have the following signature (all
       parameters are optional):

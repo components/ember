@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1.8a719753
+ * @version   1.11.0-beta.1.f91933f5
  */
 
 (function() {
@@ -8153,12 +8153,12 @@ enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/merge', 'embe
 
   var EmberInstrumentation = Ember['default'].Instrumentation = {};
   EmberInstrumentation.instrument = instrumentation.instrument;
-  EmberInstrumentation.subscribe = streams__utils.subscribe;
-  EmberInstrumentation.unsubscribe = streams__utils.unsubscribe;
+  EmberInstrumentation.subscribe = instrumentation.subscribe;
+  EmberInstrumentation.unsubscribe = instrumentation.unsubscribe;
   EmberInstrumentation.reset  = instrumentation.reset;
 
   Ember['default'].instrument = instrumentation.instrument;
-  Ember['default'].subscribe = streams__utils.subscribe;
+  Ember['default'].subscribe = instrumentation.subscribe;
 
   Ember['default']._Cache = Cache['default'];
 
@@ -10839,7 +10839,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.11.0-beta.1.8a719753
+    @version 1.11.0-beta.1.f91933f5
   */
 
   if ('undefined' === typeof Ember) {
@@ -10867,10 +10867,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.11.0-beta.1.8a719753'
+    @default '1.11.0-beta.1.f91933f5'
     @static
   */
-  Ember.VERSION = '1.11.0-beta.1.8a719753';
+  Ember.VERSION = '1.11.0-beta.1.f91933f5';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -18834,7 +18834,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/contai
       return parent;
     },
 
-    _linkParent: Ember.on('didInsertElement', function() {
+    _linkParent: Ember.on('init', 'parentViewDidChange', function() {
       var parent = this._parentOutlet();
       if (parent) {
         parent._childOutlets.push(this);
@@ -22254,6 +22254,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
     disconnectOutlet: function(options) {
       var outletName;
       var parentView;
+      var parent;
       if (!options || typeof options === "string") {
         outletName = options;
       } else {
@@ -22262,7 +22263,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       }
 
       parentView = parentView && parentView.replace(/\//g, '.');
-      if (parentView === parentRoute(this).routeName) {
+      parent = parentRoute(this);
+      if (parent && parentView === parent.routeName) {
         parentView = undefined;
       }
       outletName = outletName || 'main';
@@ -22363,8 +22365,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
     }
 
     
-    
-    if (into && into === parentRoute(route).routeName) {
+    var parent;
+    if (into && (parent = parentRoute(route)) && into === parentRoute(route).routeName) {
       into = undefined;
     }
 
@@ -22593,7 +22595,6 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
     _setOutlets: function() {
       var handlerInfos = this.router.currentHandlerInfos;
       var route;
-      var parentRoute;
       var defaultParentState;
       var liveRoutes = null;
 
@@ -22603,21 +22604,15 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
 
       for (var i = 0; i < handlerInfos.length; i++) {
         route = handlerInfos[i].handler;
-
-        var connections = (route.connections.length > 0) ? route.connections : [{
-            name: route.routeName,
-            outlet: 'main'
-        }];
-
+        var connections = normalizedConnections(route);
         var ownState;
         for (var j = 0; j < connections.length; j++) {
-          var appended = appendLiveRoute(liveRoutes, route, parentRoute, defaultParentState, connections[j]);
+          var appended = appendLiveRoute(liveRoutes, defaultParentState, connections[j]);
           liveRoutes = appended.liveRoutes;
           if (appended.ownState.render.name === route.routeName) {
             ownState = appended.ownState;
           }
         }
-        parentRoute = route;
         defaultParentState = ownState;
       }
       if (!this._toplevelView) {
@@ -23386,6 +23381,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
   }
 
   function findLiveRoute(liveRoutes, name) {
+    if (!liveRoutes) { return; }
     var stack = [liveRoutes];
     while (stack.length > 0) {
       var test = stack.shift();
@@ -23399,17 +23395,12 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
     }
   }
 
-  function appendLiveRoute(liveRoutes, route, parentRoute, defaultParentState, renderOptions) {
-    var targetName;
+  function appendLiveRoute(liveRoutes, defaultParentState, renderOptions) {
     var target;
     var myState = {
       render: renderOptions,
       outlets: Object.create(null)
     };
-    if (!parentRoute) {
-      liveRoutes = myState;
-    }
-    targetName = renderOptions.into || (parentRoute && parentRoute.routeName);
     if (renderOptions.into) {
       target = findLiveRoute(liveRoutes, renderOptions.into);
     } else {
@@ -23417,6 +23408,8 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
     }
     if (target) {
       property_set.set(target.outlets, renderOptions.outlet, myState);
+    } else {
+            liveRoutes = myState;
     }
     return {
       liveRoutes: liveRoutes,
@@ -23424,6 +23417,34 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
     };
   }
 
+  function normalizedConnections(route) {
+    var connections = route.connections;
+    var mainConnections = [];
+    var otherConnections = [];
+
+    for (var i = 0; i < connections.length; i++) {
+      var connection = connections[i];
+      if (connection.outlet === 'main') {
+        mainConnections.push(connection);
+      } else {
+        otherConnections.push(connection);
+      }
+    }
+
+    if (mainConnections.length === 0) {
+      // There's always an entry to represent the route, even if it
+      // doesn't actually render anything into its own
+      // template. This gives other routes a place to target.
+      mainConnections.push({
+        name: route.routeName,
+        outlet: 'main'
+      });
+    }
+
+    // We process main connections first, because a main connection may
+    // be targeted by other connections.
+    return mainConnections.concat(otherConnections);
+  }
 
 
   exports['default'] = EmberRouter;
@@ -27855,7 +27876,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
 
     /**
       Returns an array with all of the items in the enumeration where the passed
-      function returns false for. This method is the inverse of filter().
+      function returns true. This method is the inverse of filter().
 
       The callback method you provide should have the following signature (all
       parameters are optional):
