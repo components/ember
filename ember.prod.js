@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.ea759a2e
+ * @version   1.12.0-beta.1+canary.88e24ff2
  */
 
 (function() {
@@ -10926,7 +10926,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.ea759a2e
+    @version 1.12.0-beta.1+canary.88e24ff2
   */
 
   if ('undefined' === typeof Ember) {
@@ -10954,10 +10954,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.ea759a2e'
+    @default '1.12.0-beta.1+canary.88e24ff2'
     @static
   */
-  Ember.VERSION = '1.12.0-beta.1+canary.ea759a2e';
+  Ember.VERSION = '1.12.0-beta.1+canary.88e24ff2';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -18923,7 +18923,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/contai
       return parent;
     },
 
-    _linkParent: Ember.on('didInsertElement', function() {
+    _linkParent: Ember.on('init', 'parentViewDidChange', function() {
       var parent = this._parentOutlet();
       if (parent) {
         parent._childOutlets.push(this);
