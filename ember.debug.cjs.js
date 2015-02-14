@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.3f3b9522
+ * @version   1.12.0-beta.1+canary.081aa43d
  */
 
 (function() {
@@ -11339,7 +11339,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.3f3b9522
+    @version 1.12.0-beta.1+canary.081aa43d
   */
 
   if ('undefined' === typeof Ember) {
@@ -11367,10 +11367,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.3f3b9522'
+    @default '1.12.0-beta.1+canary.081aa43d'
     @static
   */
-  Ember.VERSION = '1.12.0-beta.1+canary.3f3b9522';
+  Ember.VERSION = '1.12.0-beta.1+canary.081aa43d';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -18917,7 +18917,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
     @extends Ember.View
     @see {Handlebars.helpers.link-to}
   **/
-  var LinkView = Ember['default'].LinkView = EmberComponent['default'].extend({
+  var LinkView = EmberComponent['default'].extend({
     tagName: 'a',
 
     /**
@@ -42949,7 +42949,7 @@ enifed('ember-views/views/with_view', ['exports', 'ember-metal/property_set', 'e
   });
 
 });
-enifed('ember', ['ember-metal', 'ember-runtime', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support', 'ember-htmlbars', 'ember-routing-htmlbars', 'ember-metal/environment', 'ember-runtime/system/lazy_load'], function (__dep0__, __dep1__, __dep2__, __dep3__, __dep4__, __dep5__, __dep6__, __dep7__, environment, lazy_load) {
+enifed('ember', ['ember-metal', 'ember-runtime', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support', 'ember-htmlbars', 'ember-routing-htmlbars', 'ember-routing-views', 'ember-metal/environment', 'ember-runtime/system/lazy_load'], function (__dep0__, __dep1__, __dep2__, __dep3__, __dep4__, __dep5__, __dep6__, __dep7__, __dep8__, environment, lazy_load) {
 
   'use strict';
 
