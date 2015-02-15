@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.ee29534b
+ * @version   1.12.0-beta.1+canary.41835940
  */
 
 (function() {
@@ -7472,7 +7472,7 @@ enifed('ember-htmlbars/templates/component', ['exports', 'ember-template-compile
   exports['default'] = template['default']((function() {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.ee29534b",
+      revision: "Ember@1.12.0-beta.1+canary.41835940",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -7519,7 +7519,7 @@ enifed('ember-htmlbars/templates/empty', ['exports', 'ember-template-compiler/sy
   exports['default'] = template['default']((function() {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.ee29534b",
+      revision: "Ember@1.12.0-beta.1+canary.41835940",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -7560,7 +7560,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     var child0 = (function() {
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.ee29534b",
+        revision: "Ember@1.12.0-beta.1+canary.41835940",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -7603,7 +7603,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function() {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1+canary.ee29534b",
+          revision: "Ember@1.12.0-beta.1+canary.41835940",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -7643,7 +7643,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       }());
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.ee29534b",
+        revision: "Ember@1.12.0-beta.1+canary.41835940",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -7685,7 +7685,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function() {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1+canary.ee29534b",
+          revision: "Ember@1.12.0-beta.1+canary.41835940",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -7725,7 +7725,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       }());
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.ee29534b",
+        revision: "Ember@1.12.0-beta.1+canary.41835940",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -7765,7 +7765,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     }());
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.ee29534b",
+      revision: "Ember@1.12.0-beta.1+canary.41835940",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -10932,7 +10932,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.ee29534b
+    @version 1.12.0-beta.1+canary.41835940
   */
 
   if ('undefined' === typeof Ember) {
@@ -10960,10 +10960,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.ee29534b'
+    @default '1.12.0-beta.1+canary.41835940'
     @static
   */
-  Ember.VERSION = '1.12.0-beta.1+canary.ee29534b';
+  Ember.VERSION = '1.12.0-beta.1+canary.41835940';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -11007,7 +11007,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   Ember.FEATURES = Ember.ENV.FEATURES;
 
   if (!Ember.FEATURES) {
-    Ember.FEATURES = {"features-stripped-test":null,"ember-routing-named-substates":true,"ember-metal-injected-properties":true,"mandatory-setter":false,"ember-htmlbars":true,"ember-htmlbars-block-params":true,"ember-htmlbars-component-generation":null,"ember-htmlbars-component-helper":true,"ember-htmlbars-inline-if-helper":true,"ember-htmlbars-attribute-syntax":true,"ember-routing-transitioning-classes":true,"new-computed-syntax":null,"ember-testing-checkbox-helpers":null,"ember-metal-stream":null,"ember-htmlbars-each-with-index":true,"ember-application-instance-initializers":null,"ember-application-initializer-context":null,"ember-router-willtransition":true,"ember-application-visit":null}; //jshint ignore:line
+    Ember.FEATURES = {"features-stripped-test":null,"ember-routing-named-substates":true,"ember-metal-injected-properties":true,"mandatory-setter":false,"ember-htmlbars":true,"ember-htmlbars-block-params":true,"ember-htmlbars-component-generation":null,"ember-htmlbars-component-helper":true,"ember-htmlbars-inline-if-helper":true,"ember-htmlbars-attribute-syntax":true,"ember-routing-transitioning-classes":true,"new-computed-syntax":null,"ember-testing-checkbox-helpers":null,"ember-metal-stream":null,"ember-htmlbars-each-with-index":true,"ember-application-instance-initializers":null,"ember-application-initializer-context":null,"ember-router-willtransition":true,"ember-application-visit":null,"ember-views-component-block-info":null}; //jshint ignore:line
   }
 
   /**
@@ -18074,7 +18074,7 @@ enifed('ember-routing-htmlbars/helpers/link-to', ['exports', 'ember-metal/core',
 
       options.template = {
         isHTMLBars: true,
-        revision: 'Ember@1.12.0-beta.1+canary.ee29534b',
+        revision: 'Ember@1.12.0-beta.1+canary.41835940',
         render: function(view, env) {
           var value = utils.read(linkTitle) || "";
           if (parseTextAsHTML) {
@@ -33795,7 +33795,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     }
 
     return {
-      revision: 'Ember@1.12.0-beta.1+canary.ee29534b',
+      revision: 'Ember@1.12.0-beta.1+canary.41835940',
 
       disableComponentGeneration: disableComponentGeneration,
 
@@ -37303,7 +37303,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
   exports['default'] = CollectionView;
 
 });
-enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-views/mixins/component_template_deprecation', 'ember-runtime/mixins/target_action_support', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/is_none', 'ember-metal/computed', 'ember-htmlbars/templates/component'], function (exports, Ember, ComponentTemplateDeprecation, TargetActionSupport, View, property_get, property_set, isNone, computed, defaultComponentLayout) {
+enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-views/mixins/component_template_deprecation', 'ember-runtime/mixins/target_action_support', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/is_none', 'ember-metal/computed', 'ember-metal/computed_macros', 'ember-htmlbars/templates/component'], function (exports, Ember, ComponentTemplateDeprecation, TargetActionSupport, View, property_get, property_set, isNone, computed, computed_macros, defaultComponentLayout) {
 
   'use strict';
 
@@ -37608,6 +37608,88 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
       }
     }
   });
+
+  if (Ember['default'].FEATURES.isEnabled('ember-views-component-block-info')) {
+    Component.reopen({
+      /**
+        Returns true when the component was invoked with a block template.
+
+       Example (`hasBlock` will be `false`):
+
+        ```hbs
+        {{! templates/application.hbs }}
+
+        {{foo-bar}}
+
+        {{! templates/components/foo-bar.js }}
+        {{#if hasBlock}}
+          This will not be printed, because no block was provided
+        {{/if}}
+        ```
+
+       Example (`hasBlock` will be `true`):
+
+        ```hbs
+        {{! templates/application.hbs }}
+
+        {{#foo-bar}}
+          Hi!
+        {{/foo-bar}}
+
+        {{! templates/components/foo-bar.js }}
+        {{#if hasBlock}}
+          This will be printed because a block was provided
+          {{yield}}
+        {{/if}}
+        ```
+        @public
+        @property hasBlock
+        @returns Boolean
+      */
+      hasBlock: computed_macros.bool('template'),
+
+      /**
+        Returns true when the component was invoked with a block parameter
+        supplied.
+
+        Example (`hasBlockParams` will be `false`):
+
+        ```hbs
+        {{! templates/application.hbs }}
+
+        {{#foo-bar}}
+          No block parameter.
+        {{/foo-bar}}
+
+        {{! templates/components/foo-bar.js }}
+        {{#if hasBlockParams}}
+          This will not be printed, because no block was provided
+          {{yield this}}
+        {{/if}}
+        ```
+
+        Example (`hasBlockParams` will be `true`):
+
+        ```hbs
+        {{! templates/application.hbs }}
+
+        {{#foo-bar as |foo|}}
+          Hi!
+        {{/foo-bar}}
+
+        {{! templates/components/foo-bar.js }}
+        {{#if hasBlockParams}}
+          This will be printed because a block was provided
+          {{yield this}}
+        {{/if}}
+        ```
+        @public
+        @property hasBlockParams
+        @returns Boolean
+      */
+      hasBlockParams: computed_macros.bool('template.blockParams')
+    });
+  }
 
   exports['default'] = Component;
 
@@ -38263,7 +38345,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
 
   var selectOptionDefaultTemplate = {
     isHTMLBars: true,
-    revision: 'Ember@1.12.0-beta.1+canary.ee29534b',
+    revision: 'Ember@1.12.0-beta.1+canary.41835940',
     render: function(context, env, contextualElement) {
       var lazyValue = context.getStream('view.label');
 

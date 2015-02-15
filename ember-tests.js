@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.ee29534b
+ * @version   1.12.0-beta.1+canary.41835940
  */
 
 (function() {
@@ -15794,6 +15794,68 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
     equal(jQuery['default']('#qunit-fixture').text(), 'In layout - someProp: something here - In template');
   });
 
+  if (Ember.FEATURES.isEnabled('ember-views-component-block-info')) {
+    QUnit.test('`Component.prototype.hasBlock` when block supplied', function() {
+      expect(1);
+
+      registry.register('template:components/with-block', compile['default']('{{#if hasBlock}}{{yield}}{{else}}No Block!{{/if}}'));
+
+      view = EmberView['default'].extend({
+        template: compile['default']('{{#with-block}}In template{{/with-block}}'),
+        container: container
+      }).create();
+
+      utils.runAppend(view);
+
+      equal(jQuery['default']('#qunit-fixture').text(), 'In template');
+    });
+
+    QUnit.test('`Component.prototype.hasBlock` when no block supplied', function() {
+      expect(1);
+
+      registry.register('template:components/with-block', compile['default']('{{#if hasBlock}}{{yield}}{{else}}No Block!{{/if}}'));
+
+      view = EmberView['default'].extend({
+        template: compile['default']('{{with-block}}'),
+        container: container
+      }).create();
+
+      utils.runAppend(view);
+
+      equal(jQuery['default']('#qunit-fixture').text(), 'No Block!');
+    });
+
+    QUnit.test('`Component.prototype.hasBlockParams` when block param supplied', function() {
+      expect(1);
+
+      registry.register('template:components/with-block', compile['default']('{{#if hasBlockParams}}{{yield this}} - In Component{{else}}{{yield}} No Block!{{/if}}'));
+
+      view = EmberView['default'].extend({
+        template: compile['default']('{{#with-block as |something|}}In template{{/with-block}}'),
+        container: container
+      }).create();
+
+      utils.runAppend(view);
+
+      equal(jQuery['default']('#qunit-fixture').text(), 'In template - In Component');
+    });
+
+    QUnit.test('`Component.prototype.hasBlockParams` when no block param supplied', function() {
+      expect(1);
+
+      registry.register('template:components/with-block', compile['default']('{{#if hasBlockParams}}{{yield this}}{{else}}{{yield}} No Block Param!{{/if}}'));
+
+      view = EmberView['default'].extend({
+        template: compile['default']('{{#with-block}}In block{{/with-block}}'),
+        container: container
+      }).create();
+
+      utils.runAppend(view);
+
+      equal(jQuery['default']('#qunit-fixture').text(), 'In block No Block Param!');
+    });
+  }
+
 });
 enifed('ember-htmlbars/tests/integration/component_invocation_test.jscs-test', function () {
 
@@ -17308,7 +17370,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: 'Ember@1.12.0-beta.1+canary.ee29534b',
+        revision: 'Ember@1.12.0-beta.1+canary.41835940',
         render: function(view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -52624,7 +52686,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, 'Ember@1.12.0-beta.1+canary.ee29534b', 'revision is included in generated template');
+    equal(actual.revision, 'Ember@1.12.0-beta.1+canary.41835940', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function() {
@@ -57809,6 +57871,7 @@ enifed('ember-views/tests/views/component_test', ['ember-metal/property_set', 'e
     appComponent.send('foo', 'baz');
   });
 
+  
 });
 enifed('ember-views/tests/views/component_test.jscs-test', function () {
 
