@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1.a2d8cac2
+ * @version   1.11.0-beta.1.82ef1d80
  */
 
 (function() {
@@ -8106,6 +8106,32 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
     expectAssertion(function() {
       utils.runAppend(view);
     }, /You cannot set `data-bar` manually and via `{{bind-attr}}` helper on the same element/);
+  });
+
+  QUnit.test("src attribute bound to undefined is not present", function() {
+    var template = compile['default']("<img {{bind-attr src=view.undefinedValue}}>");
+
+    view = EmberView['default'].create({
+      template: template,
+      undefinedValue: undefined
+    });
+
+    utils.runAppend(view);
+
+    ok(!view.element.hasAttribute('src'), "src attribute not present");
+  });
+
+  QUnit.test("src attribute bound to null is not present", function() {
+    var template = compile['default']("<img {{bind-attr src=view.nullValue}}>");
+
+    view = EmberView['default'].create({
+      template: template,
+      nullValue: null
+    });
+
+    utils.runAppend(view);
+
+    ok(!view.element.hasAttribute('src'), "src attribute not present");
   });
 
 });

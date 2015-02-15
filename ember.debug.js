@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1.a2d8cac2
+ * @version   1.11.0-beta.1.82ef1d80
  */
 
 (function() {
@@ -11249,7 +11249,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.11.0-beta.1.a2d8cac2
+    @version 1.11.0-beta.1.82ef1d80
   */
 
   if ('undefined' === typeof Ember) {
@@ -11277,10 +11277,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.11.0-beta.1.a2d8cac2'
+    @default '1.11.0-beta.1.82ef1d80'
     @static
   */
-  Ember.VERSION = '1.11.0-beta.1.a2d8cac2';
+  Ember.VERSION = '1.11.0-beta.1.82ef1d80';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -24029,7 +24029,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
     var target;
     var myState = {
       render: renderOptions,
-      outlets: Object.create(null)
+      outlets: create['default'](null)
     };
     if (renderOptions.into) {
       target = findLiveRoute(liveRoutes, renderOptions.into);
@@ -35842,7 +35842,11 @@ enifed('ember-views/attr_nodes/legacy_bind', ['exports', './attr_node', 'ember-r
     }
     var value = streams__utils.read(this.attrValue);
 
-    if (this.attrName === 'value' && (value === null || value === undefined)) {
+    if (value === undefined) {
+      value = null;
+    }
+
+    if (this.attrName === 'value' && value === null) {
       value = '';
     }
 
@@ -40748,7 +40752,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
       var content = property_get.get(this, 'contentValues');
       if (!el) { return; }
 
-      var selectionIndex = content.indexOf(selectionValue);
+      var selectionIndex = enumerable_utils.indexOf(content, selectionValue);
       var prompt = property_get.get(this, 'prompt');
 
       if (prompt) { selectionIndex += 1; }
