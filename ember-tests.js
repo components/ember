@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1.82ef1d80
+ * @version   1.11.0-beta.1.5882b5be
  */
 
 (function() {
@@ -16875,6 +16875,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
+        revision: 'Ember@1.11.0-beta.1.5882b5be',
         render: function(view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -16886,6 +16887,21 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     });
 
     utils.runAppend(view);
+  });
+
+  QUnit.test('Provides a helpful assertion if revisions do not match.', function() {
+    view = EmberView['default'].create({
+      template: {
+        isHTMLBars: true,
+        revision: 'Foo-Bar-Baz',
+        render: function() { }
+      }
+    });
+
+    expectAssertion(function() {
+      utils.runAppend(view);
+    },
+    /was compiled with `Foo-Bar-Baz`/);
   });
 
 });
@@ -17328,15 +17344,13 @@ enifed('ember-metal-views/tests/test_helpers', ['exports', 'ember-metal/platform
       }
     }
     if (view.childViews) {
-      view._childViewsMorph = this._dom.createMorph(el, null, null);
+      view._childViewsMorph = this._dom.appendMorph(el);
     } else if (view.textContent) {
       setElementText(el, view.textContent);
     } else if (view.innerHTML) {
       this._dom.detectNamespace(el);
-      var nodes = this._dom.parseHTML(view.innerHTML, el);
-      while (nodes[0]) {
-        el.appendChild(nodes[0]);
-      }
+      var frag = this._dom.parseHTML(view.innerHTML, el);
+      el.appendChild(frag);
     }
     return el;
   };
@@ -52102,6 +52116,23 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
     ok(actual.isMethod === false, 'sets isMethod via template function');
   });
 
+  QUnit.test('includes the current revision in the compiled template', function() {
+    var templateString = "{{foo}} -- {{some-bar blah='foo'}}";
+
+    var actual = compile['default'](templateString);
+
+    equal(actual.revision, 'Ember@1.11.0-beta.1.5882b5be', 'revision is included in generated template');
+  });
+
+  QUnit.test('the template revision is different than the HTMLBars default revision', function() {
+    var templateString = "{{foo}} -- {{some-bar blah='foo'}}";
+
+    var actual = compile['default'](templateString);
+    var expected = compiler.compile(templateString);
+
+    ok(actual.revision !== expected.revision, 'revision differs from default');
+  });
+
   // jscs:enable validateIndentation
   
 
@@ -57464,7 +57495,7 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
       container.removeObject(view);
     });
     equal(property_get.get(view, 'childViews.length'), 0, "child views are cleared when removed from container view");
-    equal(container.$().html(), '', "the child view is removed from the DOM");
+    equal(container.$().text(), '', "the child view is removed from the DOM");
   });
 
   QUnit.test("if a ContainerView starts with an empty currentView, nothing is displayed", function() {
