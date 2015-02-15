@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1.0422adf2
+ * @version   1.11.0-beta.1.d94446ee
  */
 
 (function() {
@@ -133,7 +133,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.11.0-beta.1.0422adf2
+    @version 1.11.0-beta.1.d94446ee
   */
 
   if ('undefined' === typeof Ember) {
@@ -161,10 +161,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.11.0-beta.1.0422adf2'
+    @default '1.11.0-beta.1.d94446ee'
     @static
   */
-  Ember.VERSION = '1.11.0-beta.1.0422adf2';
+  Ember.VERSION = '1.11.0-beta.1.d94446ee';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -209,7 +209,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   Ember.FEATURES = Ember.ENV.FEATURES;
 
   if (!Ember.FEATURES) {
-    Ember.FEATURES = {"features-stripped-test":false,"ember-routing-named-substates":true,"ember-metal-injected-properties":true,"mandatory-setter":true,"ember-htmlbars":true,"ember-htmlbars-block-params":true,"ember-htmlbars-component-generation":false,"ember-htmlbars-component-helper":true,"ember-htmlbars-inline-if-helper":true,"ember-htmlbars-attribute-syntax":true,"ember-routing-transitioning-classes":true,"new-computed-syntax":false,"ember-testing-checkbox-helpers":false,"ember-metal-stream":false,"ember-htmlbars-each-with-index":true,"ember-application-instance-initializers":false,"ember-application-initializer-context":false,"ember-router-willtransition":true,"ember-application-visit":false}; //jshint ignore:line
+    Ember.FEATURES = {"features-stripped-test":false,"ember-routing-named-substates":true,"mandatory-setter":true,"ember-htmlbars-component-generation":false,"ember-htmlbars-component-helper":true,"ember-htmlbars-inline-if-helper":true,"ember-htmlbars-attribute-syntax":true,"ember-routing-transitioning-classes":true,"new-computed-syntax":false,"ember-testing-checkbox-helpers":false,"ember-metal-stream":false,"ember-htmlbars-each-with-index":true,"ember-application-instance-initializers":false,"ember-application-initializer-context":false,"ember-router-willtransition":true,"ember-application-visit":false}; //jshint ignore:line
   }
 
   /**
@@ -595,7 +595,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     var disableComponentGeneration = true;
     
     return {
-      revision: 'Ember@1.11.0-beta.1.0422adf2',
+      revision: 'Ember@1.11.0-beta.1.d94446ee',
 
       disableComponentGeneration: disableComponentGeneration,
 
