@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1.0b2bb54e
+ * @version   1.11.0-beta.1.a2d8cac2
  */
 
 (function() {
@@ -11249,7 +11249,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.11.0-beta.1.0b2bb54e
+    @version 1.11.0-beta.1.a2d8cac2
   */
 
   if ('undefined' === typeof Ember) {
@@ -11277,10 +11277,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.11.0-beta.1.0b2bb54e'
+    @default '1.11.0-beta.1.a2d8cac2'
     @static
   */
-  Ember.VERSION = '1.11.0-beta.1.0b2bb54e';
+  Ember.VERSION = '1.11.0-beta.1.a2d8cac2';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -18825,7 +18825,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
     @extends Ember.View
     @see {Handlebars.helpers.link-to}
   **/
-  var LinkView = Ember['default'].LinkView = EmberComponent['default'].extend({
+  var LinkView = EmberComponent['default'].extend({
     tagName: 'a',
 
     /**
@@ -41348,7 +41348,7 @@ enifed('ember-views/views/text_field', ['exports', 'ember-views/views/component'
   });
 
 });
-enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/error', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-metal/observer', 'ember-metal/utils', 'ember-metal/computed', 'ember-metal/mixin', 'ember-metal/deprecate_property', 'ember-metal/property_events', 'ember-views/system/jquery', 'ember-views/system/ext', 'ember-views/views/core_view', 'ember-views/mixins/view_stream_support', 'ember-views/mixins/view_keyword_support', 'ember-views/mixins/view_context_support', 'ember-views/mixins/view_child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/template_rendering_support', 'ember-views/mixins/class_names_support', 'ember-views/mixins/attribute_bindings_support', 'ember-views/mixins/legacy_view_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/visibility_support'], function (exports, Ember, EmberError, property_get, run, observer, utils, computed, mixin, deprecate_property, property_events, jQuery, __dep11__, CoreView, ViewStreamSupport, ViewKeywordSupport, ViewContextSupport, view_child_views_support, ViewStateSupport, TemplateRenderingSupport, ClassNamesSupport, AttributeBindingsSupport, LegacyViewSupport, InstrumentationSupport, VisibilitySupport) {
+enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/evented', 'ember-runtime/system/object', 'ember-metal/error', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-metal/observer', 'ember-metal/utils', 'ember-metal/computed', 'ember-metal/mixin', 'ember-metal/deprecate_property', 'ember-metal/property_events', 'ember-views/system/jquery', 'ember-views/system/ext', 'ember-views/views/core_view', 'ember-views/mixins/view_stream_support', 'ember-views/mixins/view_keyword_support', 'ember-views/mixins/view_context_support', 'ember-views/mixins/view_child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/template_rendering_support', 'ember-views/mixins/class_names_support', 'ember-views/mixins/attribute_bindings_support', 'ember-views/mixins/legacy_view_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/visibility_support'], function (exports, Ember, Evented, EmberObject, EmberError, property_get, run, observer, utils, computed, mixin, deprecate_property, property_events, jQuery, __dep13__, CoreView, ViewStreamSupport, ViewKeywordSupport, ViewContextSupport, view_child_views_support, ViewStateSupport, TemplateRenderingSupport, ClassNamesSupport, AttributeBindingsSupport, LegacyViewSupport, InstrumentationSupport, VisibilitySupport) {
 
   'use strict';
 
@@ -42220,6 +42220,21 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/er
       return this.currentState.rerender(this);
     },
 
+    /**
+      Given a property name, returns a dasherized version of that
+      property name if the property evaluates to a non-falsy value.
+
+      For example, if the view has property `isUrgent` that evaluates to true,
+      passing `isUrgent` to this method will return `"is-urgent"`.
+
+      @method _classStringForProperty
+      @param property
+      @private
+    */
+    _classStringForProperty: function(parsedPath) {
+      return View._classStringForValue(parsedPath.path, parsedPath.stream.value(), parsedPath.className, parsedPath.falsyClassName);
+    },
+
     // ..........................................................
     // ELEMENT SUPPORT
     //
@@ -42682,6 +42697,20 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/er
     // once the view has been inserted into the DOM, legal manipulations
     // are done on the DOM element.
 
+  var mutation = EmberObject['default'].extend(Evented['default']).create();
+  // TODO MOVE TO RENDERER HOOKS
+  View.addMutationListener = function(callback) {
+    mutation.on('change', callback);
+  };
+
+  View.removeMutationListener = function(callback) {
+    mutation.off('change', callback);
+  };
+
+  View.notifyMutationListeners = function() {
+    mutation.trigger('change');
+  };
+
   /**
     Global views hash
 
@@ -42782,7 +42811,7 @@ enifed('ember-views/views/with_view', ['exports', 'ember-metal/property_set', 'e
   });
 
 });
-enifed('ember', ['ember-metal', 'ember-runtime', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support', 'ember-htmlbars', 'ember-routing-htmlbars', 'ember-metal/environment', 'ember-runtime/system/lazy_load'], function (__dep0__, __dep1__, __dep2__, __dep3__, __dep4__, __dep5__, __dep6__, __dep7__, environment, lazy_load) {
+enifed('ember', ['ember-metal', 'ember-runtime', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support', 'ember-htmlbars', 'ember-routing-htmlbars', 'ember-routing-views', 'ember-metal/environment', 'ember-runtime/system/lazy_load'], function (__dep0__, __dep1__, __dep2__, __dep3__, __dep4__, __dep5__, __dep6__, __dep7__, __dep8__, environment, lazy_load) {
 
   'use strict';
 

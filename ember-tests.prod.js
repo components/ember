@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.1.0b2bb54e
+ * @version   1.11.0-beta.1.a2d8cac2
  */
 
 (function() {
@@ -32837,7 +32837,7 @@ enifed('ember-routing-views.jshint', function () {
   });
 
 });
-enifed('ember-routing-views/tests/main_test', ['ember-routing-views', 'ember-metal/core'], function (__dep0__, Ember) {
+enifed('ember-routing-views/tests/main_test', ['ember-metal/core'], function (Ember) {
 
   'use strict';
 
