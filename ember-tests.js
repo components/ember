@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.081aa43d
+ * @version   1.12.0-beta.1+canary.52f5a1a9
  */
 
 (function() {
@@ -17308,6 +17308,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
+        revision: 'Ember@1.12.0-beta.1+canary.52f5a1a9',
         render: function(view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -17319,6 +17320,21 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     });
 
     utils.runAppend(view);
+  });
+
+  QUnit.test('Provides a helpful assertion if revisions do not match.', function() {
+    view = EmberView['default'].create({
+      template: {
+        isHTMLBars: true,
+        revision: 'Foo-Bar-Baz',
+        render: function() { }
+      }
+    });
+
+    expectAssertion(function() {
+      utils.runAppend(view);
+    },
+    /was compiled with `Foo-Bar-Baz`/);
   });
 
 });
@@ -52601,6 +52617,23 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     ok(actual.isTop, 'sets isTop via template function');
     ok(actual.isMethod === false, 'sets isMethod via template function');
+  });
+
+  QUnit.test('includes the current revision in the compiled template', function() {
+    var templateString = "{{foo}} -- {{some-bar blah='foo'}}";
+
+    var actual = compile['default'](templateString);
+
+    equal(actual.revision, 'Ember@1.12.0-beta.1+canary.52f5a1a9', 'revision is included in generated template');
+  });
+
+  QUnit.test('the template revision is different than the HTMLBars default revision', function() {
+    var templateString = "{{foo}} -- {{some-bar blah='foo'}}";
+
+    var actual = compile['default'](templateString);
+    var expected = compiler.compile(templateString);
+
+    ok(actual.revision !== expected.revision, 'revision differs from default');
   });
 
   // jscs:enable validateIndentation

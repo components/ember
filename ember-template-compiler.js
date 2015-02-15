@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.081aa43d
+ * @version   1.12.0-beta.1+canary.52f5a1a9
  */
 
 (function() {
@@ -133,7 +133,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.081aa43d
+    @version 1.12.0-beta.1+canary.52f5a1a9
   */
 
   if ('undefined' === typeof Ember) {
@@ -161,10 +161,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.081aa43d'
+    @default '1.12.0-beta.1+canary.52f5a1a9'
     @static
   */
-  Ember.VERSION = '1.12.0-beta.1+canary.081aa43d';
+  Ember.VERSION = '1.12.0-beta.1+canary.52f5a1a9';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -345,7 +345,7 @@ enifed('ember-template-compiler/compat', ['ember-metal/core', 'ember-template-co
 	EmberHandlebars.template = template['default'];
 
 });
-enifed('ember-template-compiler/compat/precompile', ['exports'], function (exports) {
+enifed('ember-template-compiler/compat/precompile', ['exports', 'ember-template-compiler/system/compile_options'], function (exports, compileOptions) {
 
   'use strict';
 
@@ -353,7 +353,6 @@ enifed('ember-template-compiler/compat/precompile', ['exports'], function (expor
   @module ember
   @submodule ember-template-compiler
   */
-
   var compile, compileSpec;
 
   exports['default'] = function(string) {
@@ -371,7 +370,7 @@ enifed('ember-template-compiler/compat/precompile', ['exports'], function (expor
     var asObject = arguments[1] === undefined ? true : arguments[1];
     var compileFunc = asObject ? compile : compileSpec;
 
-    return compileFunc(string);
+    return compileFunc(string, compileOptions['default']());
   }
 
 });
@@ -599,6 +598,8 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     }
 
     return {
+      revision: 'Ember@1.12.0-beta.1+canary.52f5a1a9',
+
       disableComponentGeneration: disableComponentGeneration,
 
       plugins: plugins['default']
@@ -1583,6 +1584,7 @@ enifed("htmlbars-compiler/template-compiler",
 
     function TemplateCompiler(options) {
       this.options = options || {};
+      this.revision = this.options.revision || "HTMLBars@v0.11.1";
       this.fragmentOpcodeCompiler = new FragmentOpcodeCompiler();
       this.fragmentCompiler = new FragmentJavaScriptCompiler();
       this.hydrationOpcodeCompiler = new HydrationOpcodeCompiler();
@@ -1668,6 +1670,7 @@ enifed("htmlbars-compiler/template-compiler",
         this.getChildTemplateVars(indent + '  ') +
         indent+'  return {\n' +
         indent+'    isHTMLBars: true,\n' +
+        indent+'    revision: "' + this.revision + '",\n' +
         indent+'    blockParams: ' + blockParams.length + ',\n' +
         indent+'    cachedFragment: null,\n' +
         indent+'    hasRendered: false,\n' +
