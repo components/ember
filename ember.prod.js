@@ -36416,6 +36416,14 @@ enifed("ember-views/attr_nodes/legacy_bind",
       var value = read(this.attrValue);
       var type = typeOf(value);
 
+      if (value === undefined) {
+        value = null;
+      }
+
+      if (this.attrName === 'value' && value === null) {
+        value = '';
+      }
+
       
       this._morph.setContent(value);
 
