@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.50ae982d
+ * @version   1.12.0-beta.1+canary.4c5b20e8
  */
 
 (function() {
@@ -1904,12 +1904,6 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
     helpers.registerHelper('fooresolvertest', fooresolvertestHelper);
     helpers.registerHelper('bar-baz-resolver-test', barBazResolverTestHelper);
 
-    var retrievedFooResolverTestHelper, retrievedBarBazResolverTestHelper;
-
-    
-      retrievedFooResolverTestHelper = locator.lookup('helper:fooresolvertest').helperFunction;
-      retrievedBarBazResolverTestHelper = locator.lookup('helper:bar-baz-resolver-test').helperFunction;
-    
     fooresolvertestHelper();
     barBazResolverTestHelper();
   });
@@ -6976,9 +6970,6 @@ enifed('ember-htmlbars/tests/compat/helper_test', ['ember-htmlbars/compat/helper
 
   var view;
 
-  
-  // jscs:disable validateIndentation
-
   QUnit.module('ember-htmlbars: Handlebars compatible helpers', {
     teardown: function() {
       utils.runDestroy(view);
@@ -7234,9 +7225,6 @@ enifed('ember-htmlbars/tests/compat/helper_test', ['ember-htmlbars/compat/helper
 
     utils.runAppend(view);
   });
-
-  // jscs:enable validateIndentation
-  
 
 });
 enifed('ember-htmlbars/tests/compat/helper_test.jscs-test', function () {
@@ -7917,7 +7905,6 @@ enifed('ember-htmlbars/tests/compat/precompile_test', ['ember-htmlbars/compat'],
   'use strict';
 
   var precompile = EmberHandlebars['default'].precompile;
-  var parse = EmberHandlebars['default'].parse;
   var template = 'Hello World';
   var result;
 
@@ -7937,18 +7924,6 @@ enifed('ember-htmlbars/tests/compat/precompile_test', ['ember-htmlbars/compat'],
     result = precompile(template, false);
     equal(typeof(result), "string");
   });
-
-  if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
-  // jscs:disable validateIndentation
-
-  QUnit.test("precompile creates an object when passed an AST", function() {
-    var ast = parse(template);
-    result = precompile(ast);
-    equal(typeof(result), "object");
-  });
-
-  // jscs:enable validateIndentation
-  }
 
 });
 enifed('ember-htmlbars/tests/compat/precompile_test.jscs-test', function () {
@@ -8166,22 +8141,20 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
     var originalBindAttr = helpers['default']['bind-attr'];
 
     try {
-      
-        helpers['default']['bind-attr'] = {
-          helperFunction: function() {
-            equal(arguments[0], 'foo', 'First arg match');
-            equal(arguments[1], 'bar', 'Second arg match');
+      helpers['default']['bind-attr'] = {
+        helperFunction: function() {
+          equal(arguments[0], 'foo', 'First arg match');
+          equal(arguments[1], 'bar', 'Second arg match');
 
-            return 'result';
-          }
-        };
-      
+          return 'result';
+        }
+      };
+
       expectDeprecation(function() {
         var result;
 
-        
-          result = helpers['default'].bindAttr.helperFunction('foo', 'bar');
-                equal(result, 'result', 'Result match');
+        result = helpers['default'].bindAttr.helperFunction('foo', 'bar');
+        equal(result, 'result', 'Result match');
       }, "The 'bindAttr' view helper is deprecated in favor of 'bind-attr'");
     } finally {
       helpers['default']['bind-attr'] = originalBindAttr;
@@ -8662,10 +8635,7 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['ember-views/views/colle
       template: compile['default']('{{#collection content=view.exampleController itemViewClass=TemplateTests.ExampleItemView}}beta{{/collection}}')
     });
 
-    var deprecation = /Resolved the view "TemplateTests.ExampleItemView" on the global context/;
-    
-      deprecation = /Global lookup of TemplateTests.ExampleItemView from a Handlebars template is deprecated/;
-    
+    var deprecation = /Global lookup of TemplateTests.ExampleItemView from a Handlebars template is deprecated/;
     expectDeprecation(function() {
       utils.runAppend(view);
     }, deprecation);
@@ -10086,10 +10056,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
       people: people
     });
 
-    var deprecation = /Resolved the view "MyView" on the global context/;
-    
-      deprecation = /Global lookup of MyView from a Handlebars template is deprecated/;
-    
+    var deprecation = /Global lookup of MyView from a Handlebars template is deprecated/;
 
     expectDeprecation(function() {
       utils.runAppend(view);
@@ -10205,11 +10172,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
       people: native_array.A()
     });
 
-    var deprecation = /Resolved the view "MyEmptyView" on the global context/;
-
-    
-      deprecation = /Global lookup of MyEmptyView from a Handlebars template is deprecated/;
-    
+    var deprecation = /Global lookup of MyEmptyView from a Handlebars template is deprecated/;
 
     expectDeprecation(function() {
       utils.runAppend(view);
@@ -10614,10 +10577,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
   }
 
   testEachWithItem("{{#each foo in bar}}", false);
-
-  
-    testEachWithItem("{{#each bar as |foo|}}", true);
-  
+  testEachWithItem("{{#each bar as |foo|}}", true);
 
 });
 enifed('ember-htmlbars/tests/helpers/each_test.jscs-test', function () {
@@ -11919,8 +11879,6 @@ enifed('ember-htmlbars/tests/helpers/loc_test', ['ember-views/views/view', 'embe
     utils.runDestroy(view);
   });
 
-  
-  // jscs:disable validateIndentation
   QUnit.test('localize throws an assertion if the second parameter is a binding', function() {
     var view = buildView('{{loc "Hello %@" name}}', {
       name: 'Bob Foster'
@@ -11944,8 +11902,6 @@ enifed('ember-htmlbars/tests/helpers/loc_test', ['ember-views/views/view', 'embe
 
     utils.runDestroy(view);
   });
-  // jscs:enable validateIndentation
-  
 
 });
 enifed('ember-htmlbars/tests/helpers/loc_test.jscs-test', function () {
@@ -14610,61 +14566,57 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['ember-views/views/view', 'emb
     equal(view.$().text(), "We have: this is from the view and this is from the context", "should render");
   });
 
-  
-    testWithAs("ember-htmlbars: {{#with x as |y|}}", "{{#with person as |tom|}}{{title}}: {{tom.name}}{{/with}}");
-  
+  testWithAs("ember-htmlbars: {{#with x as |y|}}", "{{#with person as |tom|}}{{title}}: {{tom.name}}{{/with}}");
 
-  
-    QUnit.module("Multiple Handlebars {{with foo as |bar|}} helpers", {
-      setup: function() {
-        Ember.lookup = lookup = { Ember: Ember };
+  QUnit.module("Multiple Handlebars {{with foo as |bar|}} helpers", {
+    setup: function() {
+      Ember.lookup = lookup = { Ember: Ember };
 
-        view = EmberView['default'].create({
-          template: compile['default']("Admin: {{#with admin as |person|}}{{person.name}}{{/with}} User: {{#with user as |person|}}{{person.name}}{{/with}}"),
-          context: {
-            admin: { name: "Tom Dale" },
-            user: { name: "Yehuda Katz" }
-          }
-        });
-
-        utils.runAppend(view);
-      },
-
-      teardown: function() {
-        utils.runDestroy(view);
-        Ember.lookup = originalLookup;
-      }
-    });
-
-    QUnit.test("re-using the same variable with different #with blocks does not override each other", function() {
-      equal(view.$().text(), "Admin: Tom Dale User: Yehuda Katz", "should be properly scoped");
-    });
-
-    QUnit.test("the scoped variable is not available outside the {{with}} block.", function() {
-      run['default'](function() {
-        view.set('template', compile['default']("{{name}}-{{#with other as |name|}}{{name}}{{/with}}-{{name}}"));
-        view.set('context', {
-          name: 'Stef',
-          other: 'Yehuda'
-        });
+      view = EmberView['default'].create({
+        template: compile['default']("Admin: {{#with admin as |person|}}{{person.name}}{{/with}} User: {{#with user as |person|}}{{person.name}}{{/with}}"),
+        context: {
+          admin: { name: "Tom Dale" },
+          user: { name: "Yehuda Katz" }
+        }
       });
 
-      equal(view.$().text(), "Stef-Yehuda-Stef", "should be properly scoped after updating");
-    });
+      utils.runAppend(view);
+    },
 
-    QUnit.test("nested {{with}} blocks shadow the outer scoped variable properly.", function() {
-      run['default'](function() {
-        view.set('template', compile['default']("{{#with first as |ring|}}{{ring}}-{{#with fifth as |ring|}}{{ring}}-{{#with ninth as |ring|}}{{ring}}-{{/with}}{{ring}}-{{/with}}{{ring}}{{/with}}"));
-        view.set('context', {
-          first: 'Limbo',
-          fifth: 'Wrath',
-          ninth: 'Treachery'
-        });
+    teardown: function() {
+      utils.runDestroy(view);
+      Ember.lookup = originalLookup;
+    }
+  });
+
+  QUnit.test("re-using the same variable with different #with blocks does not override each other", function() {
+    equal(view.$().text(), "Admin: Tom Dale User: Yehuda Katz", "should be properly scoped");
+  });
+
+  QUnit.test("the scoped variable is not available outside the {{with}} block.", function() {
+    run['default'](function() {
+      view.set('template', compile['default']("{{name}}-{{#with other as |name|}}{{name}}{{/with}}-{{name}}"));
+      view.set('context', {
+        name: 'Stef',
+        other: 'Yehuda'
       });
-
-      equal(view.$().text(), "Limbo-Wrath-Treachery-Wrath-Limbo", "should be properly scoped after updating");
     });
-  
+
+    equal(view.$().text(), "Stef-Yehuda-Stef", "should be properly scoped after updating");
+  });
+
+  QUnit.test("nested {{with}} blocks shadow the outer scoped variable properly.", function() {
+    run['default'](function() {
+      view.set('template', compile['default']("{{#with first as |ring|}}{{ring}}-{{#with fifth as |ring|}}{{ring}}-{{#with ninth as |ring|}}{{ring}}-{{/with}}{{ring}}-{{/with}}{{ring}}{{/with}}"));
+      view.set('context', {
+        first: 'Limbo',
+        fifth: 'Wrath',
+        ninth: 'Treachery'
+      });
+    });
+
+    equal(view.$().text(), "Limbo-Wrath-Treachery-Wrath-Limbo", "should be properly scoped after updating");
+  });
 
 });
 enifed('ember-htmlbars/tests/helpers/with_test.jscs-test', function () {
@@ -14890,31 +14842,6 @@ enifed('ember-htmlbars/tests/helpers/yield_test', ['ember-metal/run_loop', 'embe
     equal(view.$('div p:contains(update) + p:contains(update)').length, 1, "keyword has correctly propagated update");
   });
 
-  if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
-  // jscs:disable validateIndentation
-
-  QUnit.test("yield uses the layout context for non component [DEPRECATED]", function() {
-    view = EmberView['default'].create({
-      controller: {
-        boundText: "outer",
-        inner: {
-          boundText: "inner"
-        }
-      },
-      layout: compile['default']("<p>{{boundText}}</p>{{#with inner}}<p>{{yield}}</p>{{/with}}"),
-      template: compile['default']('{{boundText}}')
-    });
-
-    expectDeprecation(function() {
-      utils.runAppend(view);
-    }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead.');
-
-    equal('outerinner', view.$('p').text(), "Yield points at the right context");
-  });
-
-  // jscs:enable validateIndentation
-  }
-
   QUnit.test("yield view should be a virtual view", function() {
     var component = Component['default'].extend({
       isParentComponent: true,
@@ -15085,56 +15012,47 @@ enifed('ember-htmlbars/tests/hooks/component_test', ['ember-views/component_look
 
   var view, registry, container;
 
-  // this is working around a bug in defeatureify that prevents nested flags
-  // from being stripped
-  var componentGenerationEnabled = false;
   if (Ember.FEATURES.isEnabled('ember-htmlbars-component-generation')) {
-    componentGenerationEnabled = true;
-  }
+    QUnit.module("ember-htmlbars: component hook", {
+      setup: function() {
+        registry = new Registry['default']();
+        container = registry.container();
 
-  
-    if (componentGenerationEnabled) {
-      QUnit.module("ember-htmlbars: component hook", {
-        setup: function() {
-          registry = new Registry['default']();
-          container = registry.container();
+        registry.optionsForType('template', { instantiate: false });
+        registry.register('component-lookup:main', ComponentLookup['default']);
+      },
 
-          registry.optionsForType('template', { instantiate: false });
-          registry.register('component-lookup:main', ComponentLookup['default']);
-        },
+      teardown: function() {
+        utils.runDestroy(view);
+        utils.runDestroy(container);
+        registry = container = view = null;
+      }
+    });
 
-        teardown: function() {
-          utils.runDestroy(view);
-          utils.runDestroy(container);
-          registry = container = view = null;
-        }
+    QUnit.test("component is looked up from the container", function() {
+      registry.register('template:components/foo-bar', compile['default']('yippie!'));
+
+      view = EmberView['default'].create({
+        container: container,
+        template: compile['default']("<foo-bar />")
       });
 
-      QUnit.test("component is looked up from the container", function() {
-        registry.register('template:components/foo-bar', compile['default']('yippie!'));
+      utils.runAppend(view);
 
-        view = EmberView['default'].create({
-          container: container,
-          template: compile['default']("<foo-bar />")
-        });
+      equal(view.$().text(), 'yippie!', 'component was looked up and rendered');
+    });
 
+    QUnit.test("asserts if component is not found", function() {
+      view = EmberView['default'].create({
+        container: container,
+        template: compile['default']("<foo-bar />")
+      });
+
+      expectAssertion(function() {
         utils.runAppend(view);
-
-        equal(view.$().text(), 'yippie!', 'component was looked up and rendered');
-      });
-
-      QUnit.test("asserts if component is not found", function() {
-        view = EmberView['default'].create({
-          container: container,
-          template: compile['default']("<foo-bar />")
-        });
-
-        expectAssertion(function() {
-          utils.runAppend(view);
-        }, 'You specified `foo-bar` in your template, but a component for `foo-bar` could not be found.');
-      });
-    }
-  
+      }, 'You specified `foo-bar` in your template, but a component for `foo-bar` could not be found.');
+    });
+  }
 
 });
 enifed('ember-htmlbars/tests/hooks/component_test.jscs-test', function () {
@@ -15257,48 +15175,46 @@ enifed('ember-htmlbars/tests/hooks/text_node_test', ['ember-views/views/view', '
 
   var view;
 
-  
-    QUnit.module("ember-htmlbars: hooks/text_node_test", {
-      teardown: function() {
-        utils.runDestroy(view);
-      }
+  QUnit.module("ember-htmlbars: hooks/text_node_test", {
+    teardown: function() {
+      utils.runDestroy(view);
+    }
+  });
+
+  QUnit.test("property is output", function() {
+    view = EmberView['default'].create({
+      context: { name: 'erik' },
+      template: compile['default']("ohai {{name}}")
     });
+    utils.runAppend(view);
 
-    QUnit.test("property is output", function() {
-      view = EmberView['default'].create({
-        context: { name: 'erik' },
-        template: compile['default']("ohai {{name}}")
-      });
-      utils.runAppend(view);
+    htmlbars_test_helpers.equalInnerHTML(view.element, 'ohai erik', "property is output");
+  });
 
-      htmlbars_test_helpers.equalInnerHTML(view.element, 'ohai erik', "property is output");
+  QUnit.test("path is output", function() {
+    view = EmberView['default'].create({
+      context: { name: { firstName: 'erik' } },
+      template: compile['default']("ohai {{name.firstName}}")
     });
+    utils.runAppend(view);
 
-    QUnit.test("path is output", function() {
-      view = EmberView['default'].create({
-        context: { name: { firstName: 'erik' } },
-        template: compile['default']("ohai {{name.firstName}}")
-      });
-      utils.runAppend(view);
+    htmlbars_test_helpers.equalInnerHTML(view.element, 'ohai erik', "path is output");
+  });
 
-      htmlbars_test_helpers.equalInnerHTML(view.element, 'ohai erik', "path is output");
+  QUnit.test("changed property updates", function() {
+    var context = EmberObject['default'].create({ name: 'erik' });
+    view = EmberView['default'].create({
+      context: context,
+      template: compile['default']("ohai {{name}}")
     });
+    utils.runAppend(view);
 
-    QUnit.test("changed property updates", function() {
-      var context = EmberObject['default'].create({ name: 'erik' });
-      view = EmberView['default'].create({
-        context: context,
-        template: compile['default']("ohai {{name}}")
-      });
-      utils.runAppend(view);
+    htmlbars_test_helpers.equalInnerHTML(view.element, 'ohai erik', "precond - original property is output");
 
-      htmlbars_test_helpers.equalInnerHTML(view.element, 'ohai erik', "precond - original property is output");
+    run['default'](context, context.set, 'name', 'mmun');
 
-      run['default'](context, context.set, 'name', 'mmun');
-
-      htmlbars_test_helpers.equalInnerHTML(view.element, 'ohai mmun', "new property is output");
-    });
-  
+    htmlbars_test_helpers.equalInnerHTML(view.element, 'ohai mmun', "new property is output");
+  });
 
 });
 enifed('ember-htmlbars/tests/hooks/text_node_test.jscs-test', function () {
@@ -15325,19 +15241,16 @@ enifed('ember-htmlbars/tests/htmlbars_test', ['ember-template-compiler/system/co
 
   'use strict';
 
-  
+  QUnit.module("ember-htmlbars: main");
 
-    QUnit.module("ember-htmlbars: main");
+  QUnit.test("HTMLBars is present and can be executed", function() {
+    var template = compile['default']("ohai");
 
-    QUnit.test("HTMLBars is present and can be executed", function() {
-      var template = compile['default']("ohai");
+    var env = merge['default']({ dom: defaultEnv.domHelper }, defaultEnv['default']);
 
-      var env = merge['default']({ dom: defaultEnv.domHelper }, defaultEnv['default']);
-
-      var output = template.render({}, env, document.body);
-      htmlbars_test_helpers.equalHTML(output, "ohai");
-    });
-  
+    var output = template.render({}, env, document.body);
+    htmlbars_test_helpers.equalHTML(output, "ohai");
+  });
 
 });
 enifed('ember-htmlbars/tests/htmlbars_test.jscs-test', function () {
@@ -15567,9 +15480,6 @@ enifed('ember-htmlbars/tests/integration/block_params_test', ['container/registr
     });
   }
 
-  
-  // jscs:disable validateIndentation
-
   QUnit.module("ember-htmlbars: block params", {
     setup: function() {
       helpers.registerHelper('alias', aliasHelper);
@@ -15685,9 +15595,6 @@ enifed('ember-htmlbars/tests/integration/block_params_test', ['container/registr
 
     equal(view.$().text(), "ebryn[trek[machty]trek]ebryn[machty[trek]machty]ebryn");
   });
-
-  // jscs:enable validateIndentation
-  
 
 });
 enifed('ember-htmlbars/tests/integration/block_params_test.jscs-test', function () {
@@ -17033,9 +16940,6 @@ enifed('ember-htmlbars/tests/system/make_bound_helper_test', ['ember-views/views
     }));
   }
 
-  
-  // jscs:disable validateIndentation
-
   QUnit.module("ember-htmlbars: makeBoundHelper", {
     setup: function() {
       registry = new Registry['default']();
@@ -17291,9 +17195,6 @@ enifed('ember-htmlbars/tests/system/make_bound_helper_test', ['ember-views/views
     equal(view.$().text(), 'aaa');
   });
 
-  // jscs:enable validateIndentation
-  
-
 });
 enifed('ember-htmlbars/tests/system/make_bound_helper_test.jscs-test', function () {
 
@@ -17370,7 +17271,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: 'Ember@1.12.0-beta.1+canary.50ae982d',
+        revision: 'Ember@1.12.0-beta.1+canary.4c5b20e8',
         render: function(view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -29517,8 +29418,6 @@ enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 
     equal(watted, true, "The action was called on the right context");
   });
 
-  if (!Ember['default'].FEATURES.isEnabled('ember-htmlbars')) {
-  // jscs:disable validateIndentation
   QUnit.test("should target the current controller inside an {{each}} loop [DEPRECATED]", function() {
     var registeredTarget;
 
@@ -29541,7 +29440,7 @@ enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 
 
     view = EmberView['default'].create({
       controller: controller,
-      template: compile['default']('{{#each controller}}{{action "editTodo"}}{{/each}}')
+      template: compile['default']('{{#each controller}}<button {{action "editTodo"}}>Edit</button>{{/each}}')
     });
 
     expectDeprecation(function() {
@@ -29550,8 +29449,6 @@ enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 
 
     equal(registeredTarget, itemController, "the item controller is the target of action");
   });
-  // jscs:enable validateIndentation
-  }
 
   QUnit.test("should target the with-controller inside an {{#with controller='person'}} [DEPRECATED]", function() {
     var registeredTarget;
@@ -30592,7 +30489,7 @@ enifed('ember-routing-htmlbars/tests/helpers/link-to_test.jshint', function () {
   });
 
 });
-enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-routing-htmlbars/helpers/outlet', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers', 'ember-runtime/tests/utils', 'ember-routing-htmlbars/tests/utils'], function (Ember, run, Namespace, EmberView, jQuery, outlet, compile, helpers, utils, tests__utils) {
+enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-routing-htmlbars/helpers/outlet', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers', 'ember-runtime/tests/utils', 'ember-routing-htmlbars/tests/utils'], function (run, Namespace, EmberView, jQuery, outlet, compile, helpers, utils, tests__utils) {
 
   'use strict';
 
@@ -30760,12 +30657,8 @@ enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['ember-metal/core', 
     equal(output, "BOTTOM", "all templates were rendered");
   });
 
-  // TODO: Remove flag when {{with}} is fixed.
-  if (!Ember['default'].FEATURES.isEnabled('ember-htmlbars')) {
-  // jscs:disable validateIndentation
-
   QUnit.test("Outlets bind to the current template's view, not inner contexts [DEPRECATED]", function() {
-    var parentTemplate = "<h1>HI</h1>{{#if view.alwaysTrue}}{{#with this}}{{outlet}}{{/with}}{{/if}}";
+    var parentTemplate = "<h1>HI</h1>{{#if view.alwaysTrue}}{{outlet}}{{/if}}";
     var bottomTemplate = "<h3>BOTTOM</h3>";
 
     var routerState = {
@@ -30780,9 +30673,7 @@ enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['ember-metal/core', 
 
     top.setOutletState(routerState);
 
-    expectDeprecation(function() {
-      utils.runAppend(top);
-    }, 'Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead.');
+    utils.runAppend(top);
 
     routerState.outlets.main = withTemplate(bottomTemplate);
 
@@ -30793,9 +30684,6 @@ enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['ember-metal/core', 
     var output = jQuery['default']('#qunit-fixture h1 ~ h3').text();
     equal(output, "BOTTOM", "all templates were rendered");
   });
-
-  // jscs:enable validateIndentation
-  }
 
   QUnit.test("should support layouts", function() {
     var template = "{{outlet}}";
@@ -30836,14 +30724,13 @@ enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['ember-metal/core', 
     utils.runAppend(top);
   });
 
-  
-    QUnit.test("should throw an assertion if {{outlet}} used with unquoted name", function() {
-      top.setOutletState(withTemplate("{{outlet foo}}"));
-      expectAssertion(function() {
-        utils.runAppend(top);
-      }, "Using {{outlet}} with an unquoted name is not supported.");
-    });
-  
+  QUnit.test("should throw an assertion if {{outlet}} used with unquoted name", function() {
+    top.setOutletState(withTemplate("{{outlet foo}}"));
+    expectAssertion(function() {
+      utils.runAppend(top);
+    }, "Using {{outlet}} with an unquoted name is not supported.");
+  });
+
   function withTemplate(string) {
     return {
       render: {
@@ -31360,9 +31247,6 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 
     equal(container.lookup('controller:blog.post'), renderedView.get('controller'), 'rendered with correct controller');
   });
 
-  
-  // jscs:disable validateIndentation
-
   QUnit.test("throws an assertion if {{render}} is called with an unquoted template name", function() {
     var template = '<h1>HI</h1>{{render home}}';
     var controller = controllers__controller["default"].extend({ container: container });
@@ -31393,8 +31277,6 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 
     }, "The second argument of {{render}} must be a path, e.g. {{render \"post\" post}}.");
   });
 
-  // jscs:enable validateIndentation
-  
 });
 enifed('ember-routing-htmlbars/tests/helpers/render_test.jscs-test', function () {
 
@@ -52658,9 +52540,6 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
   'use strict';
 
-  
-  // jscs:disable validateIndentation
-
   QUnit.module('ember-htmlbars: compile');
 
   QUnit.test('compiles the provided template with htmlbars', function() {
@@ -52686,7 +52565,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, 'Ember@1.12.0-beta.1+canary.50ae982d', 'revision is included in generated template');
+    equal(actual.revision, 'Ember@1.12.0-beta.1+canary.4c5b20e8', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function() {
@@ -52697,9 +52576,6 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     ok(actual.revision !== expected.revision, 'revision differs from default');
   });
-
-  // jscs:enable validateIndentation
-  
 
 });
 enifed('ember-template-compiler/tests/system/compile_test.jscs-test', function () {
@@ -52726,9 +52602,6 @@ enifed('ember-template-compiler/tests/system/template_test', ['ember-template-co
 
   'use strict';
 
-  
-  // jscs:disable validateIndentation
-
   QUnit.module('ember-htmlbars: template');
 
   QUnit.test('sets `isTop` on the provided function', function() {
@@ -52746,9 +52619,6 @@ enifed('ember-template-compiler/tests/system/template_test', ['ember-template-co
 
     equal(test.isMethod, false, 'sets isMethod on the provided function');
   });
-
-  // jscs:enable validateIndentation
-  
 
 });
 enifed('ember-template-compiler/tests/system/template_test.jscs-test', function () {
@@ -65670,7 +65540,9 @@ enifed('ember/tests/component_registration_test', ['ember', 'ember-template-comp
 
   function cleanup() {
     Ember.run(function() {
-      App.destroy();
+      if (App) {
+        App.destroy();
+      }
       App = null;
       Ember.TEMPLATES = {};
 
@@ -65835,20 +65707,13 @@ enifed('ember/tests/component_registration_test', ['ember', 'ember-template-comp
     equal(Ember.$('#wrapper').text(), "inner-outer", "The component is composed correctly");
   });
 
-  if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
-  // jscs:disable validateIndentation
-    // ember-htmlbars doesn't throw an exception when a helper is not found
-
   QUnit.test('Using name of component that does not exist', function () {
     Ember.TEMPLATES.application = compile['default']("<div id='wrapper'>{{#no-good}} {{/no-good}}</div>");
 
-    throws(function () {
+    expectAssertion(function () {
       boot();
-    }, /Could not find component or helper named 'no-good'/);
+    }, /A helper named `no-good` could not be found/);
   });
-
-  // jscs:enable validateIndentation
-  }
 
   QUnit.module("Application Lifecycle - Component Context", {
     setup: prepare,
@@ -66063,7 +65928,10 @@ enifed('ember/tests/helpers/helper_registration_test', ['ember', 'ember-htmlbars
   QUnit.module("Application Lifecycle - Helper Registration", {
     teardown: function() {
       Ember.run(function() {
-        App.destroy();
+        if (App) {
+          App.destroy();
+        }
+
         App = null;
         Ember.TEMPLATES = {};
       });
@@ -66126,17 +65994,9 @@ enifed('ember/tests/helpers/helper_registration_test', ['ember', 'ember-htmlbars
     ok(!helpers['x-reverse'], "Container-registered helper doesn't wind up on global helpers hash");
   });
 
-  if (!Ember.FEATURES.isEnabled('ember-htmlbars')) {
-  // jscs:disable validateIndentation
-
     // we have unit tests for this in ember-htmlbars/tests/system/lookup-helper
     // and we are not going to recreate the handlebars helperMissing concept
   QUnit.test("Undashed helpers registered on the container can not (presently) be invoked", function() {
-
-    var realHelperMissing = helpers.helperMissing;
-    helpers.helperMissing = function() {
-      return "NOHALPER";
-    };
 
     // Note: the reason we're not allowing undashed helpers is to avoid
     // a possible perf hit in hot code paths, i.e. _triageMustache.
@@ -66144,22 +66004,17 @@ enifed('ember/tests/helpers/helper_registration_test', ['ember', 'ember-htmlbars
 
     Ember.TEMPLATES.application = compile("<div id='wrapper'>{{omg}}|{{omg 'GRRR'}}|{{yorp}}|{{yorp 'ahh'}}</div>");
 
-    boot(function() {
-      registry.register('helper:omg', function() {
-        return "OMG";
+    expectAssertion(function() {
+      boot(function() {
+        registry.register('helper:omg', function() {
+          return "OMG";
+        });
+        registry.register('helper:yorp', makeBoundHelper(function() {
+          return "YORP";
+        }));
       });
-      registry.register('helper:yorp', makeBoundHelper(function() {
-        return "YORP";
-      }));
-    });
-
-    equal(Ember.$('#wrapper').text(), "|NOHALPER||NOHALPER", "The undashed helper was invoked from the container");
-
-    helpers.helperMissing = realHelperMissing;
+    }, /A helper named 'omg' could not be found/);
   });
-
-  // jscs:enable validateIndentation
-  }
 
 });
 enifed('ember/tests/helpers/helper_registration_test.jscs-test', function () {

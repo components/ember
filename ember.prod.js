@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.50ae982d
+ * @version   1.12.0-beta.1+canary.4c5b20e8
  */
 
 (function() {
@@ -5694,40 +5694,34 @@ enifed('ember-htmlbars', ['ember-metal/core', 'ember-template-compiler', 'ember-
   helpers.registerHelper('each', each.eachHelper);
   helpers.registerHelper('unbound', unbound.unboundHelper);
 
-  
-    Ember['default'].HTMLBars = {
-      _registerHelper: helpers.registerHelper,
-      template: ember_template_compiler.template,
-      compile: ember_template_compiler.compile,
-      precompile: ember_template_compiler.precompile,
-      makeViewHelper: makeViewHelper['default'],
-      makeBoundHelper: makeBoundHelper['default'],
-      registerPlugin: ember_template_compiler.registerPlugin
-    };
-
-  
+  Ember['default'].HTMLBars = {
+    _registerHelper: helpers.registerHelper,
+    template: ember_template_compiler.template,
+    compile: ember_template_compiler.compile,
+    precompile: ember_template_compiler.precompile,
+    makeViewHelper: makeViewHelper['default'],
+    makeBoundHelper: makeBoundHelper['default'],
+    registerPlugin: ember_template_compiler.registerPlugin
+  };
 
 });
 enifed('ember-htmlbars/compat', ['exports', 'ember-metal/core', 'ember-htmlbars/helpers', 'ember-htmlbars/compat/helper', 'ember-htmlbars/compat/handlebars-get', 'ember-htmlbars/compat/make-bound-helper', 'ember-htmlbars/compat/register-bound-helper', 'ember-htmlbars/system/make-view-helper', 'ember-htmlbars/utils/string'], function (exports, Ember, helpers, helper, compatHandlebarsGet, compatMakeBoundHelper, compatRegisterBoundHelper, makeViewHelper, string) {
 
   'use strict';
 
-  var EmberHandlebars;
-  
-    EmberHandlebars = Ember['default'].Handlebars = Ember['default'].Handlebars || {};
-    EmberHandlebars.helpers = helpers['default'];
-    EmberHandlebars.helper = helper.handlebarsHelper;
-    EmberHandlebars.registerHelper = helper.registerHandlebarsCompatibleHelper;
-    EmberHandlebars.registerBoundHelper = compatRegisterBoundHelper['default'];
-    EmberHandlebars.makeBoundHelper = compatMakeBoundHelper['default'];
-    EmberHandlebars.get = compatHandlebarsGet['default'];
-    EmberHandlebars.makeViewHelper = makeViewHelper['default'];
+  var EmberHandlebars = Ember['default'].Handlebars = Ember['default'].Handlebars || {};
+  EmberHandlebars.helpers = helpers['default'];
+  EmberHandlebars.helper = helper.handlebarsHelper;
+  EmberHandlebars.registerHelper = helper.registerHandlebarsCompatibleHelper;
+  EmberHandlebars.registerBoundHelper = compatRegisterBoundHelper['default'];
+  EmberHandlebars.makeBoundHelper = compatMakeBoundHelper['default'];
+  EmberHandlebars.get = compatHandlebarsGet['default'];
+  EmberHandlebars.makeViewHelper = makeViewHelper['default'];
 
-    EmberHandlebars.SafeString = string.SafeString;
-    EmberHandlebars.Utils =  {
-      escapeExpression: string.escapeExpression
-    };
-  
+  EmberHandlebars.SafeString = string.SafeString;
+  EmberHandlebars.Utils =  {
+    escapeExpression: string.escapeExpression
+  };
 
   exports['default'] = EmberHandlebars;
 
@@ -6239,9 +6233,8 @@ enifed('ember-htmlbars/helpers/bind-attr', ['exports', 'ember-metal/core', 'embe
   */
   function bindAttrHelperDeprecated() {
     
-    
-      return helpers['default']['bind-attr'].helperFunction.apply(this, arguments);
-      }
+    return helpers['default']['bind-attr'].helperFunction.apply(this, arguments);
+  }
 
   exports['default'] = bindAttrHelper;
 
@@ -7011,7 +7004,7 @@ enifed('ember-htmlbars/hooks/inline', ['exports', 'ember-views/views/simple_boun
   exports['default'] = inline;
 
 });
-enifed('ember-htmlbars/hooks/set', ['exports', 'ember-metal/core', 'ember-metal/error'], function (exports, Ember, EmberError) {
+enifed('ember-htmlbars/hooks/set', ['exports'], function (exports) {
 
   'use strict';
 
@@ -7021,9 +7014,8 @@ enifed('ember-htmlbars/hooks/set', ['exports', 'ember-metal/core', 'ember-metal/
   */
 
   function set(env, view, name, value) {
-    
-      view._keywords[name] = value;
-      }
+    view._keywords[name] = value;
+  }
   exports['default'] = set;
 
 });
@@ -7146,9 +7138,6 @@ enifed('ember-htmlbars/system/bootstrap', ['exports', 'ember-metal/core', 'ember
   */
 
   lazy_load.onLoad('Ember.Application', function(Application) {
-    
-      // jscs:disable validateIndentation
-
     Application.initializer({
       name: 'domTemplates',
       initialize: environment['default'].hasDOM ? _bootstrap : function() { }
@@ -7159,9 +7148,6 @@ enifed('ember-htmlbars/system/bootstrap', ['exports', 'ember-metal/core', 'ember
       after: 'domTemplates',
       initialize: registerComponentLookup
     });
-
-      // jscs:enable validateIndentation
-    
   });
 
   exports['default'] = bootstrap;
@@ -7472,7 +7458,7 @@ enifed('ember-htmlbars/templates/component', ['exports', 'ember-template-compile
   exports['default'] = template['default']((function() {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.50ae982d",
+      revision: "Ember@1.12.0-beta.1+canary.4c5b20e8",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -7519,7 +7505,7 @@ enifed('ember-htmlbars/templates/empty', ['exports', 'ember-template-compiler/sy
   exports['default'] = template['default']((function() {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.50ae982d",
+      revision: "Ember@1.12.0-beta.1+canary.4c5b20e8",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -7560,7 +7546,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     var child0 = (function() {
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.50ae982d",
+        revision: "Ember@1.12.0-beta.1+canary.4c5b20e8",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -7603,7 +7589,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function() {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1+canary.50ae982d",
+          revision: "Ember@1.12.0-beta.1+canary.4c5b20e8",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -7643,7 +7629,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       }());
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.50ae982d",
+        revision: "Ember@1.12.0-beta.1+canary.4c5b20e8",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -7685,7 +7671,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function() {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1+canary.50ae982d",
+          revision: "Ember@1.12.0-beta.1+canary.4c5b20e8",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -7725,7 +7711,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       }());
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.50ae982d",
+        revision: "Ember@1.12.0-beta.1+canary.4c5b20e8",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -7765,7 +7751,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     }());
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.50ae982d",
+      revision: "Ember@1.12.0-beta.1+canary.4c5b20e8",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -10932,7 +10918,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.50ae982d
+    @version 1.12.0-beta.1+canary.4c5b20e8
   */
 
   if ('undefined' === typeof Ember) {
@@ -10960,10 +10946,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.50ae982d'
+    @default '1.12.0-beta.1+canary.4c5b20e8'
     @static
   */
-  Ember.VERSION = '1.12.0-beta.1+canary.50ae982d';
+  Ember.VERSION = '1.12.0-beta.1+canary.4c5b20e8';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -11007,7 +10993,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   Ember.FEATURES = Ember.ENV.FEATURES;
 
   if (!Ember.FEATURES) {
-    Ember.FEATURES = {"features-stripped-test":null,"ember-routing-named-substates":true,"ember-metal-injected-properties":true,"mandatory-setter":false,"ember-htmlbars":true,"ember-htmlbars-block-params":true,"ember-htmlbars-component-generation":null,"ember-htmlbars-component-helper":true,"ember-htmlbars-inline-if-helper":true,"ember-htmlbars-attribute-syntax":true,"ember-routing-transitioning-classes":true,"new-computed-syntax":null,"ember-testing-checkbox-helpers":null,"ember-metal-stream":null,"ember-htmlbars-each-with-index":true,"ember-application-instance-initializers":null,"ember-application-initializer-context":null,"ember-router-willtransition":true,"ember-application-visit":null,"ember-views-component-block-info":null}; //jshint ignore:line
+    Ember.FEATURES = {"features-stripped-test":null,"ember-routing-named-substates":true,"mandatory-setter":false,"ember-htmlbars-component-generation":null,"ember-htmlbars-component-helper":true,"ember-htmlbars-inline-if-helper":true,"ember-htmlbars-attribute-syntax":true,"ember-routing-transitioning-classes":true,"new-computed-syntax":null,"ember-testing-checkbox-helpers":null,"ember-metal-stream":null,"ember-htmlbars-each-with-index":true,"ember-application-instance-initializers":null,"ember-application-initializer-context":null,"ember-router-willtransition":true,"ember-application-visit":null,"ember-views-component-block-info":null}; //jshint ignore:line
   }
 
   /**
@@ -18074,7 +18060,7 @@ enifed('ember-routing-htmlbars/helpers/link-to', ['exports', 'ember-metal/core',
 
       options.template = {
         isHTMLBars: true,
-        revision: 'Ember@1.12.0-beta.1+canary.50ae982d',
+        revision: 'Ember@1.12.0-beta.1+canary.4c5b20e8',
         render: function(view, env) {
           var value = utils.read(linkTitle) || "";
           if (parseTextAsHTML) {
@@ -33795,7 +33781,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     }
 
     return {
-      revision: 'Ember@1.12.0-beta.1+canary.50ae982d',
+      revision: 'Ember@1.12.0-beta.1+canary.4c5b20e8',
 
       disableComponentGeneration: disableComponentGeneration,
 
@@ -38345,7 +38331,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
 
   var selectOptionDefaultTemplate = {
     isHTMLBars: true,
-    revision: 'Ember@1.12.0-beta.1+canary.50ae982d',
+    revision: 'Ember@1.12.0-beta.1+canary.4c5b20e8',
     render: function(context, env, contextualElement) {
       var lazyValue = context.getStream('view.label');
 
@@ -40246,12 +40232,7 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-runtime/
       var template = property_get.get(this, 'template');
 
       if (template) {
-        var useHTMLBars = false;
-        
-          useHTMLBars = template.isHTMLBars;
-        
-
-        if (useHTMLBars) {
+        if (template.isHTMLBars) {
           return template.render(this, options, morph.contextualElement);
         } else {
           return template(context, options);
