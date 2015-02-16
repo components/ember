@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.2
+ * @version   1.11.0-beta.2.59c52580
  */
 
 (function() {
@@ -18766,7 +18766,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: 'Ember@1.11.0-beta.2',
+        revision: 'Ember@1.11.0-beta.2.59c52580',
         render: function(view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -53836,7 +53836,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, 'Ember@1.11.0-beta.2', 'revision is included in generated template');
+    equal(actual.revision, 'Ember@1.11.0-beta.2.59c52580', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function() {
@@ -72343,6 +72343,31 @@ enifed('ember/tests/routing/basic_test', ['ember', 'ember-metal/enumerable_utils
     App.YippieRoute = Ember.Route.extend({
       model: function() {
         return Ember.RSVP.reject({ message: rejectedMessage, stack: rejectedStack });
+      }
+    });
+
+    bootApplication();
+  });
+
+  QUnit.test("rejecting the model hooks promise with an error with `errorThrown` property prints `errorThrown.message` property", function() {
+    var rejectedMessage = 'OMG!! SOOOOOO BAD!!!!';
+    var rejectedStack   = 'Yeah, buddy: stack gets printed too.';
+
+    Router.map(function() {
+      this.route("yippie", { path: "/" });
+    });
+
+    Ember.Logger.error = function(initialMessage, errorMessage, errorStack) {
+      equal(initialMessage, 'Error while processing route: yippie', 'a message with the current route name is printed');
+      equal(errorMessage, rejectedMessage, "the rejected reason's message property is logged");
+      equal(errorStack, rejectedStack, "the rejected reason's stack property is logged");
+    };
+
+    App.YippieRoute = Ember.Route.extend({
+      model: function() {
+        return Ember.RSVP.reject({
+          errorThrown: { message: rejectedMessage, stack: rejectedStack }
+        });
       }
     });
 
