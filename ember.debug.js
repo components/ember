@@ -7865,7 +7865,7 @@ enifed("ember-htmlbars/hooks/content",
       }
 
       if (isStream(result)) {
-        appendSimpleBoundView(view, morph, result);
+        appendSimpleBoundView(env.data.view, morph, result);
       } else {
         morph.setContent(result);
       }
