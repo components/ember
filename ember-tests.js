@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.baa2c227
+ * @version   1.12.0-beta.1+canary.8714abad
  */
 
 (function() {
@@ -8969,14 +8969,26 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['ember-views/views/colle
 
     var barStreamBinding = view._streamBindings['view.baz'];
 
-    equal(barStreamBinding.subscribers.length, 3*2, "adds 3 subscribers");
+    equal(countSubscribers(barStreamBinding), 3, "adds 3 subscribers");
 
     run['default'](function() {
       view.get('content').popObject();
     });
 
-    equal(barStreamBinding.subscribers.length, 2*2, "removes 1 subscriber");
+    equal(countSubscribers(barStreamBinding), 2, "removes 1 subscriber");
   });
+
+  function countSubscribers(stream) {
+    var count = 0;
+    var subscriber = stream.subscriberHead;
+
+    while (subscriber) {
+      count++;
+      subscriber = subscriber.next;
+    }
+
+    return count;
+  }
 
   QUnit.test("should work inside a bound {{#if}}", function() {
     var testData = native_array.A([EmberObject['default'].create({ isBaz: false }), EmberObject['default'].create({ isBaz: true }), EmberObject['default'].create({ isBaz: true })]);
@@ -17299,7 +17311,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: 'Ember@1.12.0-beta.1+canary.baa2c227',
+        revision: 'Ember@1.12.0-beta.1+canary.8714abad',
         render: function(view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -52593,7 +52605,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, 'Ember@1.12.0-beta.1+canary.baa2c227', 'revision is included in generated template');
+    equal(actual.revision, 'Ember@1.12.0-beta.1+canary.8714abad', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function() {
