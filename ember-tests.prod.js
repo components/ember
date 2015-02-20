@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.2ad96990
+ * @version   1.12.0-beta.1+canary.baa2c227
  */
 
 (function() {
@@ -16953,6 +16953,19 @@ enifed('ember-htmlbars/tests/helpers/yield_test', ['ember-metal/run_loop', 'embe
     equal(view.$().text(), "ohai");
   });
 
+  QUnit.test("nested simple bindings inside of a yielded template should work properly when the yield is nested inside of another view", function() {
+    view = EmberView['default'].create({
+      layout:   compile['default']('{{#if view.falsy}}{{else}}{{yield}}{{/if}}'),
+      template: compile['default']("{{#if view.falsy}}{{else}}{{view.text}}{{/if}}"),
+      text: "ohai"
+    });
+
+    run['default'](function() {
+      view.createElement();
+    });
+
+    equal(view.$().text(), "ohai");
+  });
 
   QUnit.module("ember-htmlbars: Component {{yield}}", {
     setup: function() {},
@@ -19314,7 +19327,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: 'Ember@1.12.0-beta.1+canary.2ad96990',
+        revision: 'Ember@1.12.0-beta.1+canary.baa2c227',
         render: function(view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -54454,7 +54467,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, 'Ember@1.12.0-beta.1+canary.2ad96990', 'revision is included in generated template');
+    equal(actual.revision, 'Ember@1.12.0-beta.1+canary.baa2c227', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function() {
