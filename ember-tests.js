@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.9c15957d
+ * @version   1.12.0-beta.1+canary.d246e754
  */
 
 (function() {
@@ -17311,7 +17311,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: 'Ember@1.12.0-beta.1+canary.9c15957d',
+        revision: 'Ember@1.12.0-beta.1+canary.d246e754',
         render: function(view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -22863,6 +22863,20 @@ enifed('ember-metal/tests/libraries_test', ['ember-metal/libraries'], function (
     equal(registry[0].version, 1.23);
     equal(registry.length, 1);
   });
+
+  if (Ember.FEATURES.isEnabled('ember-libraries-isregistered')) {
+    QUnit.test('isRegistered returns correct value', function() {
+      expect(3);
+
+      equal(libs.isRegistered('magic'), false);
+
+      libs.register('magic', 1.23);
+      equal(libs.isRegistered('magic'), true);
+
+      libs.deRegister('magic');
+      equal(libs.isRegistered('magic'), false);
+    });
+  }
 
   QUnit.test('attempting to register a library that is already registered warns you', function() {
     if (EmberDev && EmberDev.runningProdBuild) {
@@ -52605,7 +52619,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, 'Ember@1.12.0-beta.1+canary.9c15957d', 'revision is included in generated template');
+    equal(actual.revision, 'Ember@1.12.0-beta.1+canary.d246e754', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function() {

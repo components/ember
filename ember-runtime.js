@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.9c15957d
+ * @version   1.12.0-beta.1+canary.d246e754
  */
 
 (function() {
@@ -4980,7 +4980,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.9c15957d
+    @version 1.12.0-beta.1+canary.d246e754
   */
 
   if ('undefined' === typeof Ember) {
@@ -5008,10 +5008,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.9c15957d'
+    @default '1.12.0-beta.1+canary.d246e754'
     @static
   */
-  Ember.VERSION = '1.12.0-beta.1+canary.9c15957d';
+  Ember.VERSION = '1.12.0-beta.1+canary.d246e754';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -6557,6 +6557,12 @@ enifed('ember-metal/libraries', ['exports', 'ember-metal/core', 'ember-metal/enu
       });
     }
   };
+
+  if (Ember['default'].FEATURES.isEnabled("ember-libraries-isregistered")) {
+    Libraries.prototype.isRegistered = function(name) {
+      return !!this._getLibraryByName(name);
+    };
+  }
 
   exports['default'] = Libraries;
 
