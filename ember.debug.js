@@ -7732,7 +7732,7 @@ enifed("ember-htmlbars/helpers/yield",
 
       Ember.assert("You called yield in a template that was not a layout", !!view);
 
-      return view._yield(null, env, options.morph, params);
+      return view._yield(this, env, options.morph, params);
     }
 
     __exports__.yieldHelper = yieldHelper;
@@ -7865,7 +7865,7 @@ enifed("ember-htmlbars/hooks/content",
       }
 
       if (isStream(result)) {
-        appendSimpleBoundView(env.data.view, morph, result);
+        appendSimpleBoundView(view, morph, result);
       } else {
         morph.setContent(result);
       }
@@ -44337,7 +44337,7 @@ enifed("ember-views/views/view",
           
 
           if (useHTMLBars) {
-            return template.render(this, options, morph.contextualElement);
+            return template.render(context, options, morph.contextualElement);
           } else {
             return template(context, options);
           }
