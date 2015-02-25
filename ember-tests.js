@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.877dc975
+ * @version   1.12.0-beta.1+canary.5d853cef
  */
 
 (function() {
@@ -17472,7 +17472,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: 'Ember@1.12.0-beta.1+canary.877dc975',
+        revision: 'Ember@1.12.0-beta.1+canary.5d853cef',
         render: function(view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -33021,7 +33021,7 @@ enifed('ember-routing/tests/system/dsl_test', ['ember-routing/system/router', 'e
   });
 
   QUnit.test("should fail when using a reserved route name", function() {
-    var reservedNames = ['array', 'basic', 'object'];
+    var reservedNames = ['array', 'basic', 'object', 'application'];
 
     expect(reservedNames.length * 2);
 
@@ -52780,7 +52780,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, 'Ember@1.12.0-beta.1+canary.877dc975', 'revision is included in generated template');
+    equal(actual.revision, 'Ember@1.12.0-beta.1+canary.5d853cef', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function() {
