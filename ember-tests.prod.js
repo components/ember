@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.922ab71d
+ * @version   1.12.0-beta.1+canary.0eac6b4b
  */
 
 (function() {
@@ -18687,6 +18687,133 @@ enifed('ember-htmlbars/tests/integration/with_view_test.jshint', function () {
   });
 
 });
+enifed('ember-htmlbars/tests/system/append-templated-view-test', ['ember-runtime/tests/utils', 'ember-views/views/view', 'ember-views/views/component', 'ember-template-compiler/system/compile'], function (utils, EmberView, EmberComponent, compile) {
+
+  'use strict';
+
+  var view;
+  QUnit.module('ember-htmlbars: appendTemplatedView', {
+    teardown: function() {
+      utils.runDestroy(view);
+    }
+  });
+
+  QUnit.test('can accept a view instance', function() {
+    var controller = {
+      someProp: 'controller context',
+      someView: EmberView['default'].create({
+        template: compile['default']('{{someProp}}')
+      })
+    };
+
+    view = EmberView['default'].create({
+      controller: controller,
+      template: compile['default']('{{someProp}} - {{view someView}}')
+    });
+
+    utils.runAppend(view);
+
+    equal(view.$().text(), 'controller context - controller context');
+  });
+
+  QUnit.test('can accept a view factory', function() {
+    var controller = {
+      someProp: 'controller context',
+      someView: EmberView['default'].extend({
+        template: compile['default']('{{someProp}}')
+      })
+    };
+
+    view = EmberView['default'].create({
+      controller: controller,
+      template: compile['default']('{{someProp}} - {{view someView}}')
+    });
+
+    utils.runAppend(view);
+
+    equal(view.$().text(), 'controller context - controller context');
+  });
+
+  QUnit.test('does change the context if the view factory has a controller specified', function() {
+    var controller = {
+      someProp: 'controller context',
+      someView: EmberView['default'].extend({
+        controller: {
+          someProp: 'view local controller context'
+        },
+        template: compile['default']('{{someProp}}')
+      })
+    };
+
+    view = EmberView['default'].create({
+      controller: controller,
+      template: compile['default']('{{someProp}} - {{view someView}}')
+    });
+
+    utils.runAppend(view);
+
+    equal(view.$().text(), 'controller context - view local controller context');
+  });
+
+  QUnit.test('does change the context if a component factory is used', function() {
+    var controller = {
+      someProp: 'controller context',
+      someView: EmberComponent['default'].extend({
+        someProp: 'view local controller context',
+        layout: compile['default']('{{someProp}}')
+      })
+    };
+
+    view = EmberView['default'].create({
+      controller: controller,
+      template: compile['default']('{{someProp}} - {{view someView}}')
+    });
+
+    utils.runAppend(view);
+
+    equal(view.$().text(), 'controller context - view local controller context');
+  });
+
+  QUnit.test('does change the context if a component instanced is used', function() {
+    var controller = {
+      someProp: 'controller context',
+      someView: EmberComponent['default'].create({
+        someProp: 'view local controller context',
+        layout: compile['default']('{{someProp}}')
+      })
+    };
+
+    view = EmberView['default'].create({
+      controller: controller,
+      template: compile['default']('{{someProp}} - {{view someView}}')
+    });
+
+    utils.runAppend(view);
+
+    equal(view.$().text(), 'controller context - view local controller context');
+  });
+
+});
+enifed('ember-htmlbars/tests/system/append-templated-view-test.jscs-test', function () {
+
+  'use strict';
+
+  module('JSCS - ember-htmlbars/tests/system');
+  test('ember-htmlbars/tests/system/append-templated-view-test.js should pass jscs', function() {
+    ok(true, 'ember-htmlbars/tests/system/append-templated-view-test.js should pass jscs.');
+  });
+
+});
+enifed('ember-htmlbars/tests/system/append-templated-view-test.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - ember-htmlbars/tests/system');
+  test('ember-htmlbars/tests/system/append-templated-view-test.js should pass jshint', function() { 
+    ok(true, 'ember-htmlbars/tests/system/append-templated-view-test.js should pass jshint.'); 
+  });
+
+});
 enifed('ember-htmlbars/tests/system/bootstrap_test', ['ember-views/system/jquery', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-htmlbars/system/bootstrap'], function (jQuery, run, EmberView, utils, bootstrap) {
 
   'use strict';
@@ -19361,7 +19488,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: 'Ember@1.12.0-beta.1+canary.922ab71d',
+        revision: 'Ember@1.12.0-beta.1+canary.0eac6b4b',
         render: function(view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -54515,7 +54642,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, 'Ember@1.12.0-beta.1+canary.922ab71d', 'revision is included in generated template');
+    equal(actual.revision, 'Ember@1.12.0-beta.1+canary.0eac6b4b', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function() {
