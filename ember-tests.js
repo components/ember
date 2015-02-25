@@ -14038,6 +14038,127 @@ enifed("ember-htmlbars/tests/integration/with_view_test.jshint",
       ok(true, 'ember-htmlbars/tests/integration/with_view_test.js should pass jshint.'); 
     });
   });
+enifed("ember-htmlbars/tests/system/append-templated-view-test",
+  ["ember-runtime/tests/utils","ember-views/views/view","ember-views/views/component","ember-template-compiler/system/compile"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__) {
+    "use strict";
+    var runAppend = __dependency1__.runAppend;
+    var runDestroy = __dependency1__.runDestroy;
+    var EmberView = __dependency2__["default"];
+    var EmberComponent = __dependency3__["default"];
+    var compile = __dependency4__["default"];
+
+    var view;
+    QUnit.module('ember-htmlbars: appendTemplatedView', {
+      teardown: function() {
+        runDestroy(view);
+      }
+    });
+
+    QUnit.test('can accept a view instance', function() {
+      var controller = {
+        someProp: 'controller context',
+        someView: EmberView.create({
+          template: compile('{{someProp}}')
+        })
+      };
+
+      view = EmberView.create({
+        controller: controller,
+        template: compile('{{someProp}} - {{view someView}}')
+      });
+
+      runAppend(view);
+
+      equal(view.$().text(), 'controller context - controller context');
+    });
+
+    QUnit.test('can accept a view factory', function() {
+      var controller = {
+        someProp: 'controller context',
+        someView: EmberView.extend({
+          template: compile('{{someProp}}')
+        })
+      };
+
+      view = EmberView.create({
+        controller: controller,
+        template: compile('{{someProp}} - {{view someView}}')
+      });
+
+      runAppend(view);
+
+      equal(view.$().text(), 'controller context - controller context');
+    });
+
+    QUnit.test('does change the context if the view factory has a controller specified', function() {
+      var controller = {
+        someProp: 'controller context',
+        someView: EmberView.extend({
+          controller: {
+            someProp: 'view local controller context'
+          },
+          template: compile('{{someProp}}')
+        })
+      };
+
+      view = EmberView.create({
+        controller: controller,
+        template: compile('{{someProp}} - {{view someView}}')
+      });
+
+      runAppend(view);
+
+      equal(view.$().text(), 'controller context - view local controller context');
+    });
+
+    QUnit.test('does change the context if a component factory is used', function() {
+      var controller = {
+        someProp: 'controller context',
+        someView: EmberComponent.extend({
+          someProp: 'view local controller context',
+          layout: compile('{{someProp}}')
+        })
+      };
+
+      view = EmberView.create({
+        controller: controller,
+        template: compile('{{someProp}} - {{view someView}}')
+      });
+
+      runAppend(view);
+
+      equal(view.$().text(), 'controller context - view local controller context');
+    });
+
+    QUnit.test('does change the context if a component instanced is used', function() {
+      var controller = {
+        someProp: 'controller context',
+        someView: EmberComponent.create({
+          someProp: 'view local controller context',
+          layout: compile('{{someProp}}')
+        })
+      };
+
+      view = EmberView.create({
+        controller: controller,
+        template: compile('{{someProp}} - {{view someView}}')
+      });
+
+      runAppend(view);
+
+      equal(view.$().text(), 'controller context - view local controller context');
+    });
+  });
+enifed("ember-htmlbars/tests/system/append-templated-view-test.jshint",
+  [],
+  function() {
+    "use strict";
+    module('JSHint - ember-htmlbars/tests/system');
+    test('ember-htmlbars/tests/system/append-templated-view-test.js should pass jshint', function() { 
+      ok(true, 'ember-htmlbars/tests/system/append-templated-view-test.js should pass jshint.'); 
+    });
+  });
 enifed("ember-htmlbars/tests/system/bootstrap_test",
   ["ember-views/system/jquery","ember-metal/run_loop","ember-views/views/view","ember-runtime/tests/utils","ember-htmlbars/system/bootstrap"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
