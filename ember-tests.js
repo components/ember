@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.bb4ddeca
+ * @version   1.12.0-beta.1+canary.922ab71d
  */
 
 (function() {
@@ -11589,6 +11589,28 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
     equal(view.$('input').attr('tabindex'), "3", "updates text field after tabindex changes");
   });
 
+  QUnit.test("cursor position is not lost when updating content", function() {
+    equal(view.$('input').val(), "hello", "precondition - renders text field with value");
+
+    var $input = view.$('input');
+    var input = $input[0];
+
+    // set the cursor position to 3 (no selection)
+    run['default'](function() {
+      input.value = 'derp';
+      input.selectionStart = 3;
+      input.selectionEnd = 3;
+    });
+
+    run['default'](null, property_set.set, controller, 'val', 'derp');
+
+    equal(view.$('input').val(), "derp", "updates text field after value changes");
+
+    equal(input.selectionStart, 3, 'cursor position was not lost');
+    equal(input.selectionEnd, 3, 'cursor position was not lost');
+  });
+
+
   QUnit.module("{{input type='text'}} - static values", {
     setup: function() {
       controller = {};
@@ -17311,7 +17333,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: 'Ember@1.12.0-beta.1+canary.bb4ddeca',
+        revision: 'Ember@1.12.0-beta.1+canary.922ab71d',
         render: function(view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -52619,7 +52641,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, 'Ember@1.12.0-beta.1+canary.bb4ddeca', 'revision is included in generated template');
+    equal(actual.revision, 'Ember@1.12.0-beta.1+canary.922ab71d', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function() {
