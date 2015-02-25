@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.25e679b2
+ * @version   1.12.0-beta.1+canary.877dc975
  */
 
 (function() {
@@ -19500,7 +19500,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: 'Ember@1.12.0-beta.1+canary.25e679b2',
+        revision: 'Ember@1.12.0-beta.1+canary.877dc975',
         render: function(view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -54654,7 +54654,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, 'Ember@1.12.0-beta.1+canary.25e679b2', 'revision is included in generated template');
+    equal(actual.revision, 'Ember@1.12.0-beta.1+canary.877dc975', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function() {
@@ -65007,7 +65007,7 @@ enifed('ember-views/tests/views/view/is_visible_test.jshint', function () {
   });
 
 });
-enifed('ember-views/tests/views/view/jquery_test', ['ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view'], function (property_get, run, EmberView) {
+enifed('ember-views/tests/views/view/jquery_test', ['ember-metal/property_get', 'ember-views/views/view', 'ember-runtime/tests/utils'], function (property_get, EmberView, utils) {
 
   'use strict';
 
@@ -65020,15 +65020,11 @@ enifed('ember-views/tests/views/view/jquery_test', ['ember-metal/property_get', 
         }
       }).create();
 
-      run['default'](function() {
-        view.append();
-      });
+      utils.runAppend(view);
     },
 
     teardown: function() {
-      run['default'](function() {
-        view.destroy();
-      });
+      utils.runDestroy(view);
     }
   });
 
@@ -65038,9 +65034,7 @@ enifed('ember-views/tests/views/view/jquery_test', ['ember-metal/property_get', 
     equal(view.$(), undefined, 'should return undefined');
     equal(view.$('span'), undefined, 'should undefined if filter passed');
 
-    run['default'](function() {
-      view.destroy();
-    });
+    utils.runDestroy(view);
   });
 
   QUnit.test("returns jQuery object selecting element if provided", function() {
@@ -65064,6 +65058,20 @@ enifed('ember-views/tests/views/view/jquery_test', ['ember-metal/property_get', 
 
     var jquery = view.$('body'); // would normally work if not scoped to view
     equal(jquery.length, 0, 'view.$(body) should have no elements');
+  });
+
+  QUnit.test("asserts for tagless views", function() {
+    var view = EmberView['default'].create({
+      tagName: ''
+    });
+
+    utils.runAppend(view);
+
+    expectAssertion(function() {
+      view.$();
+    }, /You cannot access this.\$\(\) on a component with `tagName: \'\'` specified/);
+
+    utils.runDestroy(view);
   });
 
 });
