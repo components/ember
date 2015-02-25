@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.2.a75004d7
+ * @version   1.11.0-beta.2.d357cff2
  */
 
 (function() {
@@ -4112,8 +4112,10 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-me
     }.property('firstName', 'lastName')
     ```
 
-    @method computed
-    @for Ember
+    @class computed
+    @namespace Ember
+    @constructor
+    @static
     @param {String} [dependentKeys*] Optional dependent keys that trigger this computed property.
     @param {Function} func The computed property function.
     @return {Ember.ComputedProperty} property descriptor instance
@@ -4250,8 +4252,8 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     ```
 
     @since 1.6.0
-    @method computed.empty
-    @for Ember
+    @method empty
+    @for Ember.computed
     @param {String} dependentKey
     @return {Ember.ComputedProperty} computed property which negate
     the original value for property
@@ -4280,8 +4282,8 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     hamster.get('hasStuff');         // false
     ```
 
-    @method computed.notEmpty
-    @for Ember
+    @method notEmpty
+    @for Ember.computed
     @param {String} dependentKey
     @return {Ember.ComputedProperty} computed property which returns true if
     original value for property is not empty.
@@ -4313,8 +4315,8 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     hamster.get('isHungry'); // true
     ```
 
-    @method computed.none
-    @for Ember
+    @method none
+    @for Ember.computed
     @param {String} dependentKey
     @return {Ember.ComputedProperty} computed property which
     returns true if original value for property is null or undefined.
@@ -4343,8 +4345,8 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     user.get('isAnonymous'); // false
     ```
 
-    @method computed.not
-    @for Ember
+    @method not
+    @for Ember.computed
     @param {String} dependentKey
     @return {Ember.ComputedProperty} computed property which returns
     inverse of the original value for property
@@ -4375,8 +4377,8 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     hamster.get('hasBananas'); // false
     ```
 
-    @method computed.bool
-    @for Ember
+    @method bool
+    @for Ember.computed
     @param {String} dependentKey
     @return {Ember.ComputedProperty} computed property which converts
     to boolean the original value for property
@@ -4408,8 +4410,8 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     user.get('hasValidEmail'); // true
     ```
 
-    @method computed.match
-    @for Ember
+    @method match
+    @for Ember.computed
     @param {String} dependentKey
     @param {RegExp} regexp
     @return {Ember.ComputedProperty} computed property which match
@@ -4443,8 +4445,8 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     hamster.get('napTime'); // false
     ```
 
-    @method computed.equal
-    @for Ember
+    @method equal
+    @for Ember.computed
     @param {String} dependentKey
     @param {String|Number|Object} value
     @return {Ember.ComputedProperty} computed property which returns true if
@@ -4476,8 +4478,8 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     hamster.get('hasTooManyBananas'); // true
     ```
 
-    @method computed.gt
-    @for Ember
+    @method gt
+    @for Ember.computed
     @param {String} dependentKey
     @param {Number} value
     @return {Ember.ComputedProperty} computed property which returns true if
@@ -4509,8 +4511,8 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     hamster.get('hasTooManyBananas'); // true
     ```
 
-    @method computed.gte
-    @for Ember
+    @method gte
+    @for Ember.computed
     @param {String} dependentKey
     @param {Number} value
     @return {Ember.ComputedProperty} computed property which returns true if
@@ -4542,8 +4544,8 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     hamster.get('needsMoreBananas'); // true
     ```
 
-    @method computed.lt
-    @for Ember
+    @method lt
+    @for Ember.computed
     @param {String} dependentKey
     @param {Number} value
     @return {Ember.ComputedProperty} computed property which returns true if
@@ -4575,8 +4577,8 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     hamster.get('needsMoreBananas'); // true
     ```
 
-    @method computed.lte
-    @for Ember
+    @method lte
+    @for Ember.computed
     @param {String} dependentKey
     @param {Number} value
     @return {Ember.ComputedProperty} computed property which returns true if
@@ -4610,8 +4612,8 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     hamster.get('readyForCamp'); // 'Yes'
     ```
 
-    @method computed.and
-    @for Ember
+    @method and
+    @for Ember.computed
     @param {String} dependentKey*
     @return {Ember.ComputedProperty} computed property which performs
     a logical `and` on the values of all the original values for properties.
@@ -4647,8 +4649,8 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     hamster.get('readyForRain'); // 'Yes'
     ```
 
-    @method computed.or
-    @for Ember
+    @method or
+    @for Ember.computed
     @param {String} dependentKey*
     @return {Ember.ComputedProperty} computed property which performs
     a logical `or` on the values of all the original values for properties.
@@ -4680,8 +4682,8 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     hamster.get('hasClothes'); // 'Hawaiian Shirt'
     ```
 
-    @method computed.any
-    @for Ember
+    @method any
+    @for Ember.computed
     @param {String} dependentKey*
     @return {Ember.ComputedProperty} computed property which returns
     the first truthy value of given list of properties.
@@ -4715,8 +4717,8 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     hamster.get('clothes'); // ['Camp Hat', 'Camp Shirt']
     ```
 
-    @method computed.collect
-    @for Ember
+    @method collect
+    @for Ember.computed
     @param {String} dependentKey*
     @return {Ember.ComputedProperty} computed property which maps
     values of all passed in properties to an array.
@@ -4755,8 +4757,8 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     alex.get('name');  // '@machty'
     ```
 
-    @method computed.alias
-    @for Ember
+    @method alias
+    @for Ember.computed
     @param {String} dependentKey
     @return {Ember.ComputedProperty} computed property which creates an
     alias to the original value for property.
@@ -4788,8 +4790,8 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     teddy.get('firstName');             // 'Teddy'
     ```
 
-    @method computed.oneWay
-    @for Ember
+    @method oneWay
+    @for Ember.computed
     @param {String} dependentKey
     @return {Ember.ComputedProperty} computed property which creates a
     one way computed property to the original value for property.
@@ -4836,8 +4838,8 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     teddy.get('firstName');             // 'Teddy'
     ```
 
-    @method computed.readOnly
-    @for Ember
+    @method readOnly
+    @for Ember.computed
     @param {String} dependentKey
     @return {Ember.ComputedProperty} computed property which creates a
     one way computed property to the original value for property.
@@ -4867,8 +4869,8 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     hamster.get('favoriteFood');                 // 'Banana'
     ```
 
-    @method computed.defaultTo
-    @for Ember
+    @method defaultTo
+    @for Ember.computed
     @param {String} defaultPath
     @return {Ember.ComputedProperty} computed property which acts like
     a standard getter and setter, but defaults to the value from `defaultPath`.
@@ -4890,8 +4892,8 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     though they were called on the original property, but also
     print a deprecation warning.
 
-    @method computed.deprecatingAlias
-    @for Ember
+    @method deprecatingAlias
+    @for Ember.computed
     @param {String} dependentKey
     @return {Ember.ComputedProperty} computed property which creates an
     alias with a deprecation to the original value for property.
@@ -4945,7 +4947,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.11.0-beta.2.a75004d7
+    @version 1.11.0-beta.2.d357cff2
   */
 
   if ('undefined' === typeof Ember) {
@@ -4973,10 +4975,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.11.0-beta.2.a75004d7'
+    @default '1.11.0-beta.2.d357cff2'
     @static
   */
-  Ember.VERSION = '1.11.0-beta.2.a75004d7';
+  Ember.VERSION = '1.11.0-beta.2.d357cff2';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -12989,8 +12991,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
    A computed property that returns the sum of the value
    in the dependent array.
 
-   @method computed.sum
-   @for Ember
+   @method sum
+   @for Ember.computed
    @param {String} dependentKey
    @return {Ember.ComputedProperty} computes the sum of all values in the dependentKey's array
    @since 1.4.0
@@ -13038,8 +13040,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     lordByron.get('maxChildAge'); // 8
     ```
 
-    @method computed.max
-    @for Ember
+    @method max
+    @for Ember.computed
     @param {String} dependentKey
     @return {Ember.ComputedProperty} computes the largest value in the dependentKey's array
   */
@@ -13087,8 +13089,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     lordByron.get('minChildAge'); // 5
     ```
 
-    @method computed.min
-    @for Ember
+    @method min
+    @for Ember.computed
     @param {String} dependentKey
     @return {Ember.ComputedProperty} computes the smallest value in the dependentKey's array
   */
@@ -13135,8 +13137,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     hamster.get('excitingChores'); // ['CLEAN!', 'WRITE MORE UNIT TESTS!']
     ```
 
-    @method computed.map
-    @for Ember
+    @method map
+    @for Ember.computed
     @param {String} dependentKey
     @param {Function} callback
     @return {Ember.ComputedProperty} an array mapped via the callback
@@ -13180,8 +13182,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     lordByron.get('childAges'); // [7, 5, 8]
     ```
 
-    @method computed.mapBy
-    @for Ember
+    @method mapBy
+    @for Ember.computed
     @param {String} dependentKey
     @param {String} propertyKey
     @return {Ember.ComputedProperty} an array mapped to the specified key
@@ -13192,8 +13194,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
   }
 
   /**
-    @method computed.mapProperty
-    @for Ember
+    @method mapProperty
+    @for Ember.computed
     @deprecated Use `Ember.computed.mapBy` instead
     @param dependentKey
     @param propertyKey
@@ -13230,8 +13232,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     hamster.get('remainingChores'); // [{name: 'write more unit tests', done: false}]
     ```
 
-    @method computed.filter
-    @for Ember
+    @method filter
+    @for Ember.computed
     @param {String} dependentKey
     @param {Function} callback
     @return {Ember.ComputedProperty} the filtered array
@@ -13286,8 +13288,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     hamster.get('remainingChores'); // [{ name: 'write more unit tests', done: false }]
     ```
 
-    @method computed.filterBy
-    @for Ember
+    @method filterBy
+    @for Ember.computed
     @param {String} dependentKey
     @param {String} propertyKey
     @param {*} value
@@ -13310,8 +13312,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
   }
 
   /**
-    @method computed.filterProperty
-    @for Ember
+    @method filterProperty
+    @for Ember.computed
     @param dependentKey
     @param propertyKey
     @param value
@@ -13342,8 +13344,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     hamster.get('uniqueFruits'); // ['banana', 'grape', 'kale']
     ```
 
-    @method computed.uniq
-    @for Ember
+    @method uniq
+    @for Ember.computed
     @param {String} propertyKey*
     @return {Ember.ComputedProperty} computes a new array with all the
     unique elements from the dependent array
@@ -13386,8 +13388,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
   /**
     Alias for [Ember.computed.uniq](/api/#method_computed_uniq).
 
-    @method computed.union
-    @for Ember
+    @method union
+    @for Ember.computed
     @param {String} propertyKey*
     @return {Ember.ComputedProperty} computes a new array with all the
     unique elements from the dependent array
@@ -13410,8 +13412,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     obj.get('friendsInCommon'); // ['William King', 'Mary Somerville']
     ```
 
-    @method computed.intersect
-    @for Ember
+    @method intersect
+    @for Ember.computed
     @param {String} propertyKey*
     @return {Ember.ComputedProperty} computes a new array with all the
     duplicated elements from the dependent arrays
@@ -13497,8 +13499,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     hamster.get('wants'); // ['banana']
     ```
 
-    @method computed.setDiff
-    @for Ember
+    @method setDiff
+    @for Ember.computed
     @param {String} setAProperty
     @param {String} setBProperty
     @return {Ember.ComputedProperty} computes a new array with all the
@@ -13641,8 +13643,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     todoList.get('priorityTodos');    // [{ name:'Release', priority:1 }, { name:'Unit Test', priority:2 }, { name:'Documentation', priority:3 }]
     ```
 
-    @method computed.sort
-    @for Ember
+    @method sort
+    @for Ember.computed
     @param {String} dependentKey
     @param {String or Function} sortDefinition a dependent key to an
     array of sort properties (add `:desc` to the arrays sort properties to sort descending) or a function to use when sorting
