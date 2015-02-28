@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.ce37dbe7
+ * @version   1.12.0-beta.1+canary.d7087011
  */
 
 (function() {
@@ -8514,7 +8514,7 @@ enifed('ember-htmlbars/system/render-view', ['exports', 'ember-metal/core', 'emb
       buffer.push(output);
     }
   }function renderHTMLBarsTemplate(view, buffer, template) {
-    Ember['default'].assert("The template being rendered by `" + view + "` was compiled with `" + template.revision + "` which does not match `Ember@1.12.0-beta.1+canary.ce37dbe7` (this revision).", template.revision === "Ember@1.12.0-beta.1+canary.ce37dbe7");
+    Ember['default'].assert("The template being rendered by `" + view + "` was compiled with `" + template.revision + "` which does not match `Ember@1.12.0-beta.1+canary.d7087011` (this revision).", template.revision === "Ember@1.12.0-beta.1+canary.d7087011");
 
     var contextualElement = buffer.innerContextualElement();
     var args = view._blockArguments;
@@ -8553,7 +8553,7 @@ enifed('ember-htmlbars/templates/component', ['exports', 'ember-template-compile
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.ce37dbe7",
+      revision: "Ember@1.12.0-beta.1+canary.d7087011",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8601,7 +8601,7 @@ enifed('ember-htmlbars/templates/empty', ['exports', 'ember-template-compiler/sy
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.ce37dbe7",
+      revision: "Ember@1.12.0-beta.1+canary.d7087011",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8642,7 +8642,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     var child0 = (function () {
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.ce37dbe7",
+        revision: "Ember@1.12.0-beta.1+canary.d7087011",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8686,7 +8686,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1+canary.ce37dbe7",
+          revision: "Ember@1.12.0-beta.1+canary.d7087011",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8728,7 +8728,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.ce37dbe7",
+        revision: "Ember@1.12.0-beta.1+canary.d7087011",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8772,7 +8772,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1+canary.ce37dbe7",
+          revision: "Ember@1.12.0-beta.1+canary.d7087011",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8814,7 +8814,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.ce37dbe7",
+        revision: "Ember@1.12.0-beta.1+canary.d7087011",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8856,7 +8856,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     })();
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.ce37dbe7",
+      revision: "Ember@1.12.0-beta.1+canary.d7087011",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -11569,7 +11569,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.ce37dbe7
+    @version 1.12.0-beta.1+canary.d7087011
   */
 
   if ("undefined" === typeof Ember) {
@@ -11598,10 +11598,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.ce37dbe7'
+    @default '1.12.0-beta.1+canary.d7087011'
     @static
   */
-  Ember.VERSION = "1.12.0-beta.1+canary.ce37dbe7";
+  Ember.VERSION = "1.12.0-beta.1+canary.d7087011";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -18320,7 +18320,7 @@ enifed('ember-routing-htmlbars/helpers/link-to', ['exports', 'ember-metal/core',
 
       options.template = {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.ce37dbe7",
+        revision: "Ember@1.12.0-beta.1+canary.d7087011",
         render: function (view, env) {
           var value = utils.read(linkTitle) || "";
           if (parseTextAsHTML) {
@@ -33112,7 +33112,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     }
 
     return {
-      revision: "Ember@1.12.0-beta.1+canary.ce37dbe7",
+      revision: "Ember@1.12.0-beta.1+canary.d7087011",
 
       disableComponentGeneration: disableComponentGeneration,
 
@@ -38747,7 +38747,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
 
   var selectOptionDefaultTemplate = {
     isHTMLBars: true,
-    revision: "Ember@1.12.0-beta.1+canary.ce37dbe7",
+    revision: "Ember@1.12.0-beta.1+canary.d7087011",
     render: function (context, env, contextualElement) {
       var lazyValue = context.getStream("view.label");
 
@@ -39057,7 +39057,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
     tagName: "select",
     classNames: ["ember-select"],
     defaultTemplate: defaultTemplate,
-    attributeBindings: ["multiple", "disabled", "tabindex", "name", "required", "autofocus", "form", "size"],
+    attributeBindings: ["autofocus", "autocomplete", "disabled", "form", "multiple", "name", "required", "size", "tabindex"],
 
     /**
       The `multiple` attribute of the select element. Indicates whether multiple
