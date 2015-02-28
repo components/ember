@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.dbe009fd
+ * @version   1.12.0-beta.1+canary.f3a6b402
  */
 
 (function() {
@@ -4550,6 +4550,7 @@ enifed('ember-dev/test-helper/setup-qunit', ['exports'], function (exports) {
   /* globals QUnit */
 
   exports['default'] = setupQUnit;
+
   function setupQUnit(assertion, _qunitGlobal) {
     var qunitGlobal = QUnit;
 
@@ -4595,7 +4596,8 @@ enifed('ember-dev/test-helper/utils', ['exports'], function (exports) {
         this[prop][i][func]();
       }
     };
-  }function buildCompositeAssert(klasses) {
+  }
+  function buildCompositeAssert(klasses) {
     var Composite = function (emberKlass, runningProdBuild) {
       this.asserts = [];
       for (var i = 0, l = klasses.length; i < l; i++) {
@@ -4614,7 +4616,9 @@ enifed('ember-dev/test-helper/utils', ['exports'], function (exports) {
     };
 
     return Composite;
-  }var o_create = Object.create || (function () {
+  }
+
+  var o_create = Object.create || (function () {
     function F() {}
 
     return function (o) {
@@ -12829,7 +12833,7 @@ enifed('ember-htmlbars/tests/helpers/unbound_test.jshint', function () {
   });
 
 });
-enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'container/registry', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/text_field', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-views/views/container_view', 'ember-views/views/metamorph_view', 'htmlbars-util/safe-string', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-metal/observer', 'ember-runtime/controllers/controller', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed'], function (EmberView, Registry, run, jQuery, TextField, Namespace, EmberObject, ContainerView, _MetamorphView, SafeString, precompile, compile, template, observer, Controller, utils, property_set, property_get, computed) {
+enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'container/registry', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/text_field', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-views/views/container_view', 'ember-views/views/metamorph_view', 'htmlbars-util/safe-string', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-metal/observer', 'ember-runtime/controllers/controller', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed'], function (EmberView, Registry, run, jQuery, TextField, Namespace, EmberObject, ContainerView, _MetamorphView, SafeString, precompile, compile, system__template, observer, Controller, utils, property_set, property_get, computed) {
 
   'use strict';
 
@@ -13947,7 +13951,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
 
   QUnit.test("should work with precompiled templates", function () {
     var templateString = precompile['default']("{{view.value}}");
-    var compiledTemplate = template['default'](eval(templateString));
+    var compiledTemplate = system__template['default'](eval(templateString));
 
     view = EmberView['default'].create({
       value: "rendered",
@@ -17325,7 +17329,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.dbe009fd",
+        revision: "Ember@1.12.0-beta.1+canary.f3a6b402",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -17815,7 +17819,8 @@ enifed('ember-metal-views/tests/test_helpers', ['exports', 'ember-metal/platform
 
   MetalRenderer.prototype.scheduleRender = function (renderer, render) {
     render.call(renderer);
-  };function testsFor(name, options) {
+  };
+  function testsFor(name, options) {
     QUnit.module(name, {
       setup: function () {
         renderer = new MetalRenderer();
@@ -17830,9 +17835,13 @@ enifed('ember-metal-views/tests/test_helpers', ['exports', 'ember-metal/platform
         renderer = undefined;
       }
     });
-  }function subject() {
+  }
+
+  function subject() {
     return renderer;
-  }var supportsTextContent = ("textContent" in document.createElement("div"));
+  }
+
+  var supportsTextContent = ("textContent" in document.createElement("div"));
   var setElementText;
   if (supportsTextContent) {
     exports.setElementText = setElementText = function setElementText(element, text) {
@@ -17866,7 +17875,9 @@ enifed('ember-metal-views/tests/test_helpers', ['exports', 'ember-metal/platform
     actualHTML = actualHTML.replace(/\r\n/gm, "");
     actualHTML = actualHTML.replace(/ $/, "");
     equal(actualHTML, expectedHTML, message || "HTML matches");
-  }function appendTo(view) {
+  }
+
+  function appendTo(view) {
     renderer.appendTo(view, document.getElementById("qunit-fixture"));
     return view.element;
   }
@@ -52666,7 +52677,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.12.0-beta.1+canary.dbe009fd", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.12.0-beta.1+canary.f3a6b402", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {

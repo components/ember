@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.dbe009fd
+ * @version   1.12.0-beta.1+canary.f3a6b402
  */
 
 (function() {
@@ -276,7 +276,8 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/error', 'embe
   */
   Ember['default'].runInDebug = function (func) {
     func();
-  };function _warnIfUsingStrippedFeatureFlags(FEATURES, featuresWereStripped) {
+  };
+  function _warnIfUsingStrippedFeatureFlags(FEATURES, featuresWereStripped) {
     if (featuresWereStripped) {
       Ember['default'].warn("Ember.ENV.ENABLE_ALL_FEATURES is only available in canary builds.", !Ember['default'].ENV.ENABLE_ALL_FEATURES);
       Ember['default'].warn("Ember.ENV.ENABLE_OPTIONAL_FEATURES is only available in canary builds.", !Ember['default'].ENV.ENABLE_OPTIONAL_FEATURES);
@@ -287,7 +288,9 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/error', 'embe
         }
       }
     }
-  }if (!Ember['default'].testing) {
+  }
+
+  if (!Ember['default'].testing) {
     // Complain if they're using FEATURE flags in builds other than canary
     Ember['default'].FEATURES["features-stripped-test"] = true;
     var featuresWereStripped = true;
@@ -989,7 +992,8 @@ enifed('ember-testing/setup_for_testing', ['exports', 'ember-metal/core', 'ember
       }
     }
     Test.pendingAjaxRequests = requests.length;
-  }function setupForTesting() {
+  }
+  function setupForTesting() {
     if (!Test) {
       Test = requireModule("ember-testing/test")["default"];
     }

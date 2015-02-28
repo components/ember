@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.dbe009fd
+ * @version   1.12.0-beta.1+canary.f3a6b402
  */
 
 (function() {
@@ -133,7 +133,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.dbe009fd
+    @version 1.12.0-beta.1+canary.f3a6b402
   */
 
   if ("undefined" === typeof Ember) {
@@ -162,10 +162,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.dbe009fd'
+    @default '1.12.0-beta.1+canary.f3a6b402'
     @static
   */
-  Ember.VERSION = "1.12.0-beta.1+canary.dbe009fd";
+  Ember.VERSION = "1.12.0-beta.1+canary.f3a6b402";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -403,13 +403,16 @@ enifed('ember-template-compiler/plugins', ['exports'], function (exports) {
   */
   var plugins = {
     ast: []
-  };function registerPlugin(type, Plugin) {
+  };
+  function registerPlugin(type, Plugin) {
     if (!plugins[type]) {
       throw new Error("Attempting to register \"" + Plugin + "\" as \"" + type + "\" which is not a valid HTMLBars plugin type.");
     }
 
     plugins[type].push(Plugin);
-  }exports['default'] = plugins;
+  }
+
+  exports['default'] = plugins;
 
 });
 enifed('ember-template-compiler/plugins/transform-each-in-to-hash', ['exports'], function (exports) {
@@ -588,7 +591,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     }
 
     return {
-      revision: "Ember@1.12.0-beta.1+canary.dbe009fd",
+      revision: "Ember@1.12.0-beta.1+canary.f3a6b402",
 
       disableComponentGeneration: disableComponentGeneration,
 
@@ -7361,4 +7364,4 @@ requireModule("ember-template-compiler");
 ;
 if (typeof exports === "object") {
   module.exports = Ember.__loader.require("ember-template-compiler");
- }
+ }//# sourceMappingURL=ember-template-compiler.map
