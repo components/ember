@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.3
+ * @version   1.11.0-beta.3.6f4cddc3
  */
 
 (function() {
@@ -1533,6 +1533,18 @@ enifed('ember-application/tests/system/application_test', ['ember-metal/core', '
     app = run['default'](function() {
       return Application['default'].create({
         Resolver: CustomResolver
+      });
+    });
+
+    ok(app.__container__.lookup('router:main') instanceof CustomRouter, 'application resolved the correct router');
+  });
+
+  QUnit.test("can specify custom router", function() {
+    var CustomRouter = Router['default'].extend();
+
+    app = run['default'](function() {
+      return Application['default'].create({
+        Router: CustomRouter
       });
     });
 
@@ -6371,6 +6383,18 @@ enifed('ember-htmlbars/tests/attr_nodes/value_test', ['ember-views/views/view', 
           'property is set true');
   });
 
+  QUnit.test("blank property is output", function() {
+    view = EmberView['default'].create({
+      context: { name: '' },
+      template: compile['default']("<input value={{name}}>")
+    });
+    appendView(view);
+
+    equal(view.element.firstChild.tagName, 'INPUT', "input element is created");
+    equal(view.element.firstChild.value, "",
+          'property is set true');
+  });
+
   // jscs:enable validateIndentation
   
 
@@ -11168,6 +11192,26 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
     equal(input.selectionEnd, 3, 'cursor position was not lost');
   });
 
+  QUnit.test("input can be updated multiple times", function() {
+    equal(view.$('input').val(), "hello", "precondition - renders text field with value");
+
+    var $input = view.$('input');
+    var input = $input[0];
+
+    run['default'](null, property_set.set, controller, 'val', '');
+    equal(view.$('input').val(), "", "updates first time");
+
+    // Simulates setting the input to the same value as it already is which won't cause a rerender
+    run['default'](function() {
+      input.value = 'derp';
+    });
+    run['default'](null, property_set.set, controller, 'val', 'derp');
+    equal(view.$('input').val(), "derp", "updates second time");
+
+    run['default'](null, property_set.set, controller, 'val', '');
+    equal(view.$('input').val(), "", "updates third time");
+  });
+
 
   QUnit.module("{{input type='text'}} - static values", {
     setup: function() {
@@ -15051,7 +15095,9 @@ enifed('ember-htmlbars/tests/integration/block_params_test', ['container/registr
   var registry, container, view;
 
   function aliasHelper(params, hash, options, env) {
-    this.appendChild(View['default'], {
+    var view = env.data.view;
+
+    view.appendChild(View['default'], {
       isVirtual: true,
       _morph: options.morph,
       template: options.template,
@@ -16915,7 +16961,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: 'Ember@1.11.0-beta.3',
+        revision: 'Ember@1.11.0-beta.3.6f4cddc3',
         render: function(view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -32381,7 +32427,7 @@ enifed('ember-routing/tests/system/dsl_test', ['ember-routing/system/router', 'e
   });
 
   QUnit.test("should fail when using a reserved route name", function() {
-    var reservedNames = ['array', 'basic', 'object'];
+    var reservedNames = ['array', 'basic', 'object', 'application'];
 
     expect(reservedNames.length * 2);
 
@@ -52139,7 +52185,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, 'Ember@1.11.0-beta.3', 'revision is included in generated template');
+    equal(actual.revision, 'Ember@1.11.0-beta.3.6f4cddc3', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function() {
@@ -62417,7 +62463,7 @@ enifed('ember-views/tests/views/view/is_visible_test.jshint', function () {
   });
 
 });
-enifed('ember-views/tests/views/view/jquery_test', ['ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view'], function (property_get, run, EmberView) {
+enifed('ember-views/tests/views/view/jquery_test', ['ember-metal/property_get', 'ember-views/views/view', 'ember-runtime/tests/utils'], function (property_get, EmberView, utils) {
 
   'use strict';
 
@@ -62430,15 +62476,11 @@ enifed('ember-views/tests/views/view/jquery_test', ['ember-metal/property_get', 
         }
       }).create();
 
-      run['default'](function() {
-        view.append();
-      });
+      utils.runAppend(view);
     },
 
     teardown: function() {
-      run['default'](function() {
-        view.destroy();
-      });
+      utils.runDestroy(view);
     }
   });
 
@@ -62448,9 +62490,7 @@ enifed('ember-views/tests/views/view/jquery_test', ['ember-metal/property_get', 
     equal(view.$(), undefined, 'should return undefined');
     equal(view.$('span'), undefined, 'should undefined if filter passed');
 
-    run['default'](function() {
-      view.destroy();
-    });
+    utils.runDestroy(view);
   });
 
   QUnit.test("returns jQuery object selecting element if provided", function() {
@@ -62474,6 +62514,20 @@ enifed('ember-views/tests/views/view/jquery_test', ['ember-metal/property_get', 
 
     var jquery = view.$('body'); // would normally work if not scoped to view
     equal(jquery.length, 0, 'view.$(body) should have no elements');
+  });
+
+  QUnit.test("asserts for tagless views", function() {
+    var view = EmberView['default'].create({
+      tagName: ''
+    });
+
+    utils.runAppend(view);
+
+    expectAssertion(function() {
+      view.$();
+    }, /You cannot access this.\$\(\) on a component with `tagName: \'\'` specified/);
+
+    utils.runDestroy(view);
   });
 
 });
