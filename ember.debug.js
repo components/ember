@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.3c0daeab
+ * @version   1.12.0-beta.1+canary.26387676
  */
 
 (function() {
@@ -8546,7 +8546,7 @@ enifed('ember-htmlbars/system/render-view', ['exports', 'ember-metal/core', 'emb
   }
 
   function renderHTMLBarsTemplate(view, buffer, template) {
-    Ember['default'].assert("The template being rendered by `" + view + "` was compiled with `" + template.revision + "` which does not match `Ember@1.12.0-beta.1+canary.3c0daeab` (this revision).", template.revision === "Ember@1.12.0-beta.1+canary.3c0daeab");
+    Ember['default'].assert("The template being rendered by `" + view + "` was compiled with `" + template.revision + "` which does not match `Ember@1.12.0-beta.1+canary.26387676` (this revision).", template.revision === "Ember@1.12.0-beta.1+canary.26387676");
 
     var contextualElement = buffer.innerContextualElement();
     var args = view._blockArguments;
@@ -8585,7 +8585,7 @@ enifed('ember-htmlbars/templates/component', ['exports', 'ember-template-compile
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.3c0daeab",
+      revision: "Ember@1.12.0-beta.1+canary.26387676",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8633,7 +8633,7 @@ enifed('ember-htmlbars/templates/empty', ['exports', 'ember-template-compiler/sy
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.3c0daeab",
+      revision: "Ember@1.12.0-beta.1+canary.26387676",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8673,7 +8673,7 @@ enifed('ember-htmlbars/templates/link-to-escaped', ['exports', 'ember-template-c
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.3c0daeab",
+      revision: "Ember@1.12.0-beta.1+canary.26387676",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8721,7 +8721,7 @@ enifed('ember-htmlbars/templates/link-to-unescaped', ['exports', 'ember-template
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.3c0daeab",
+      revision: "Ember@1.12.0-beta.1+canary.26387676",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8770,7 +8770,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     var child0 = (function () {
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.3c0daeab",
+        revision: "Ember@1.12.0-beta.1+canary.26387676",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8814,7 +8814,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1+canary.3c0daeab",
+          revision: "Ember@1.12.0-beta.1+canary.26387676",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8856,7 +8856,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.3c0daeab",
+        revision: "Ember@1.12.0-beta.1+canary.26387676",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8900,7 +8900,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1+canary.3c0daeab",
+          revision: "Ember@1.12.0-beta.1+canary.26387676",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8942,7 +8942,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.3c0daeab",
+        revision: "Ember@1.12.0-beta.1+canary.26387676",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8984,7 +8984,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     })();
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.3c0daeab",
+      revision: "Ember@1.12.0-beta.1+canary.26387676",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -11738,7 +11738,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.3c0daeab
+    @version 1.12.0-beta.1+canary.26387676
   */
 
   if ("undefined" === typeof Ember) {
@@ -11767,10 +11767,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.3c0daeab'
+    @default '1.12.0-beta.1+canary.26387676'
     @static
   */
-  Ember.VERSION = "1.12.0-beta.1+canary.3c0daeab";
+  Ember.VERSION = "1.12.0-beta.1+canary.26387676";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -18642,6 +18642,7 @@ enifed('ember-routing-htmlbars/helpers/link-to', ['exports', 'ember-metal/core',
 
   function linkToHelper(params, hash, options, env) {
     var queryParamsObject;
+    var view = env.data.view;
 
     Ember['default'].assert("You must provide one or more parameters to the link-to helper.", params.length);
 
@@ -18675,6 +18676,8 @@ enifed('ember-routing-htmlbars/helpers/link-to', ['exports', 'ember-metal/core',
 
         if (!lazyValue._isController) {
           while (ControllerMixin['default'].detect(lazyValue.value())) {
+            Ember['default'].deprecate("Providing `{{link-to}}` with a param that is wrapped in a controller is deprecated. Please update `" + view + "` to use `{{link-to \"post\" someController.model}}` instead.");
+
             lazyValue = lazyValue.get("model");
           }
         }
@@ -33513,7 +33516,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     }
 
     return {
-      revision: "Ember@1.12.0-beta.1+canary.3c0daeab",
+      revision: "Ember@1.12.0-beta.1+canary.26387676",
 
       disableComponentGeneration: disableComponentGeneration,
 
@@ -39167,7 +39170,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
 
   var selectOptionDefaultTemplate = {
     isHTMLBars: true,
-    revision: "Ember@1.12.0-beta.1+canary.3c0daeab",
+    revision: "Ember@1.12.0-beta.1+canary.26387676",
     render: function (context, env, contextualElement) {
       var lazyValue = context.getStream("view.label");
 
