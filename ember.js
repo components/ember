@@ -8374,6 +8374,102 @@ enifed("ember-htmlbars/templates/component",
     }());
      __exports__["default"] = template(t);
   });
+enifed("ember-htmlbars/templates/link-to-escaped",
+  ["ember-template-compiler/system/template","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    var template = __dependency1__["default"];
+    var t = (function() {
+      return {
+        isHTMLBars: true,
+        blockParams: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        build: function build(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        render: function render(context, env, contextualElement) {
+          var dom = env.dom;
+          var hooks = env.hooks, content = hooks.content;
+          dom.detectNamespace(contextualElement);
+          var fragment;
+          if (env.useFragmentCache && dom.canClone) {
+            if (this.cachedFragment === null) {
+              fragment = this.build(dom);
+              if (this.hasRendered) {
+                this.cachedFragment = fragment;
+              } else {
+                this.hasRendered = true;
+              }
+            }
+            if (this.cachedFragment) {
+              fragment = dom.cloneNode(this.cachedFragment, true);
+            }
+          } else {
+            fragment = this.build(dom);
+          }
+          if (this.cachedFragment) { dom.repairClonedNode(fragment,[0,1]); }
+          var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
+          content(env, morph0, context, "linkTitle");
+          return fragment;
+        }
+      };
+    }());
+     __exports__["default"] = template(t);
+  });
+enifed("ember-htmlbars/templates/link-to-unescaped",
+  ["ember-template-compiler/system/template","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    var template = __dependency1__["default"];
+    var t = (function() {
+      return {
+        isHTMLBars: true,
+        blockParams: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        build: function build(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        render: function render(context, env, contextualElement) {
+          var dom = env.dom;
+          var hooks = env.hooks, content = hooks.content;
+          dom.detectNamespace(contextualElement);
+          var fragment;
+          if (env.useFragmentCache && dom.canClone) {
+            if (this.cachedFragment === null) {
+              fragment = this.build(dom);
+              if (this.hasRendered) {
+                this.cachedFragment = fragment;
+              } else {
+                this.hasRendered = true;
+              }
+            }
+            if (this.cachedFragment) {
+              fragment = dom.cloneNode(this.cachedFragment, true);
+            }
+          } else {
+            fragment = this.build(dom);
+          }
+          if (this.cachedFragment) { dom.repairClonedNode(fragment,[0,1]); }
+          var morph0 = dom.createUnsafeMorphAt(fragment,0,1,contextualElement);
+          content(env, morph0, context, "linkTitle");
+          return fragment;
+        }
+      };
+    }());
+     __exports__["default"] = template(t);
+  });
 enifed("ember-htmlbars/templates/select",
   ["ember-template-compiler/system/template","exports"],
   function(__dependency1__, __exports__) {
@@ -19275,8 +19371,8 @@ enifed("ember-routing-htmlbars/helpers/action",
     __exports__.actionHelper = actionHelper;
   });
 enifed("ember-routing-htmlbars/helpers/link-to",
-  ["ember-metal/core","ember-routing-views/views/link","ember-metal/streams/utils","ember-runtime/mixins/controller","ember-htmlbars/utils/string","ember-htmlbars","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
+  ["ember-metal/core","ember-routing-views/views/link","ember-metal/streams/utils","ember-runtime/mixins/controller","ember-htmlbars/templates/link-to-escaped","ember-htmlbars/templates/link-to-unescaped","ember-htmlbars","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __exports__) {
     "use strict";
     /**
     @module ember
@@ -19286,10 +19382,10 @@ enifed("ember-routing-htmlbars/helpers/link-to",
     var Ember = __dependency1__["default"];
     // assert
     var LinkView = __dependency2__.LinkView;
-    var read = __dependency3__.read;
     var isStream = __dependency3__.isStream;
     var ControllerMixin = __dependency4__["default"];
-    var escapeExpression = __dependency5__.escapeExpression;
+    var inlineEscapedLinkTo = __dependency5__["default"];
+    var inlineUnescapedLinkTo = __dependency6__["default"];
 
     // We need the HTMLBars view helper from ensure ember-htmlbars.
     // This ensures it is loaded first:
@@ -19586,21 +19682,13 @@ enifed("ember-routing-htmlbars/helpers/link-to",
       if (!options.template) {
         var linkTitle = params.shift();
 
-        if (isStream(linkTitle)) {
-          hash.linkTitle = { stream: linkTitle };
+        if (shouldEscape) {
+          hash.layout = inlineEscapedLinkTo;
+        } else {
+          hash.layout = inlineUnescapedLinkTo;
         }
 
-        options.template = {
-          isHTMLBars: true,
-          render: function() {
-            var value = read(linkTitle);
-            if (value) {
-              return shouldEscape ? escapeExpression(value) : value;
-            } else {
-              return "";
-            }
-          }
-        };
+        hash.linkTitle = linkTitle;
       }
 
       for (var i = 0; i < params.length; i++) {
@@ -20243,13 +20331,7 @@ enifed("ember-routing-views/views/link",
       _setupPathObservers: function(){
         var params = this.params;
 
-        var scheduledRerender = this._wrapAsScheduled(this.rerender);
         var scheduledParamsChanged = this._wrapAsScheduled(this._paramsChanged);
-
-        if (this.linkTitle) {
-          var linkTitle = this.linkTitle.stream || this.linkTitle;
-          subscribe(linkTitle, scheduledRerender, this);
-        }
 
         for (var i = 0; i < params.length; i++) {
           subscribe(params[i], scheduledParamsChanged, this);
