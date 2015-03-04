@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.4
+ * @version   1.11.0-beta.4.4f979be4
  */
 
 (function() {
@@ -12454,7 +12454,7 @@ enifed('ember-htmlbars/tests/helpers/unbound_test.jshint', function () {
   });
 
 });
-enifed('ember-htmlbars/tests/helpers/view_test', ['ember-metal/property_set', 'ember-views/views/view', 'container/registry', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/text_field', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-views/views/container_view', 'ember-views/views/metamorph_view', 'htmlbars-util/safe-string', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-metal/observer', 'ember-runtime/controllers/controller', 'ember-runtime/tests/utils', 'ember-metal/property_get', 'ember-metal/computed'], function (property_set, EmberView, Registry, run, jQuery, TextField, Namespace, EmberObject, ContainerView, _MetamorphView, SafeString, precompile, compile, template, observer, Controller, utils, property_get, computed) {
+enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'container/registry', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/text_field', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-views/views/container_view', 'ember-views/views/metamorph_view', 'htmlbars-util/safe-string', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-metal/observer', 'ember-runtime/controllers/controller', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed'], function (EmberView, Registry, run, jQuery, TextField, Namespace, EmberObject, ContainerView, _MetamorphView, SafeString, precompile, compile, template, observer, Controller, utils, property_set, property_get, computed) {
 
   'use strict';
 
@@ -16961,7 +16961,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: 'Ember@1.11.0-beta.4',
+        revision: 'Ember@1.11.0-beta.4.4f979be4',
         render: function(view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -52185,7 +52185,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, 'Ember@1.11.0-beta.4', 'revision is included in generated template');
+    equal(actual.revision, 'Ember@1.11.0-beta.4.4f979be4', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function() {
