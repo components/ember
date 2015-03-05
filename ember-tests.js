@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.d9752a08
+ * @version   1.12.0-beta.1+canary.c10362b9
  */
 
 (function() {
@@ -17342,7 +17342,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.d9752a08",
+        revision: "Ember@1.12.0-beta.1+canary.c10362b9",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -33407,11 +33407,16 @@ enifed('ember-routing/tests/system/router_test', ['ember-metal/merge', 'ember-me
 
   var registry, container;
 
-  function createRouter(overrides) {
+  function createRouter(overrides, disableSetup) {
     var opts = merge['default']({ container: container }, overrides);
     var routerWithContainer = Router['default'].extend();
+    var router = routerWithContainer.create(opts);
 
-    return routerWithContainer.create(opts);
+    if (!disableSetup) {
+      router.setupRouter();
+    }
+
+    return router;
   }
 
   QUnit.module("Ember Router", {
@@ -33432,15 +33437,24 @@ enifed('ember-routing/tests/system/router_test', ['ember-metal/merge', 'ember-me
   });
 
   QUnit.test("can create a router without a container", function () {
-    createRouter({ container: null });
+    createRouter({ container: null }, true);
 
     ok(true, "no errors were thrown when creating without a container");
   });
 
   QUnit.test("should not create a router.js instance upon init", function () {
-    var router = createRouter();
+    var router = createRouter(null, true);
 
     ok(!router.router);
+  });
+
+  QUnit.test("should not reify location until setupRouter is called", function () {
+    var router = createRouter(null, true);
+    equal(typeof router.location, "string", "location is specified as a string");
+
+    router.setupRouter();
+
+    equal(typeof router.location, "object", "location is reified into an object");
   });
 
   QUnit.test("should destroy its location upon destroying the routers container.", function () {
@@ -52692,7 +52706,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.12.0-beta.1+canary.d9752a08", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.12.0-beta.1+canary.c10362b9", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -53686,7 +53700,7 @@ enifed('ember-testing/tests/helpers_test', ['ember-metal/core', 'ember-metal/run
       App.setupForTesting();
     });
 
-    equal(App.__container__.lookup("router:main").location.implementation, "none");
+    equal(App.__container__.lookup("router:main").location, "none");
   });
 
   QUnit.test("Ember.Application.setupForTesting sets the application to `testing`.", function () {

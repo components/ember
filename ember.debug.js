@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.d9752a08
+ * @version   1.12.0-beta.1+canary.c10362b9
  */
 
 (function() {
@@ -3354,7 +3354,7 @@ enifed('ember-application/ext/controller', ['exports', 'ember-metal/core', 'embe
   exports['default'] = ControllerMixin['default'];
 
 });
-enifed('ember-application/system/application-instance', ['exports', 'ember-metal/property_set', 'ember-runtime/system/object', 'ember-metal/run_loop', 'container/registry'], function (exports, property_set, EmberObject, run, Registry) {
+enifed('ember-application/system/application-instance', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-metal/computed', 'container/registry'], function (exports, property_get, property_set, EmberObject, run, computed, Registry) {
 
   'use strict';
 
@@ -3431,24 +3431,25 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
       this.registry.register("-application-instance:main", this, { instantiate: false });
     },
 
+    router: computed.computed(function () {
+      return this.container.lookup("router:main");
+    }).readOnly(),
+
     /**
-      Instantiates and sets up the router, optionally overriding the default
+      Instantiates and sets up the router, specifically overriding the default
       location. This is useful for manually starting the app in FastBoot or
       testing environments, where trying to modify the URL would be
       inappropriate.
        @param options
       @private
     */
-    setupRouter: function (options) {
-      var router = this.container.lookup("router:main");
+    overrideRouterLocation: function (options) {
+      var location = options && options.location;
+      var router = property_get.get(this, "router");
 
-      var location = options.location;
       if (location) {
         property_set.set(router, "location", location);
       }
-
-      router._setupLocation();
-      router.setupRouter(true);
     },
 
     /**
@@ -3469,18 +3470,31 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
       Tells the router to start routing. The router will ask the location for the
       current URL of the page to determine the initial URL to start routing to.
       To start the app at a specific URL, call `handleURL` instead.
-       Ensure that you have called `setupRouter()` on the instance before using
-      this method.
        @private
     */
     startRouting: function () {
-      var router = this.container.lookup("router:main");
-      if (!router) {
+      var router = property_get.get(this, "router");
+      var isModuleBasedResolver = !!this.registry.resolver.moduleBasedResolver;
+
+      router.startRouting(isModuleBasedResolver);
+      this._didSetupRouter = true;
+    },
+
+    /** @private
+      Sets up the router, initializing the child router and configuring the
+      location before routing begins.
+       Because setup should only occur once, multiple calls to `setupRouter`
+      beyond the first call have no effect.
+    */
+    setupRouter: function () {
+      if (this._didSetupRouter) {
         return;
       }
+      this._didSetupRouter = true;
 
+      var router = property_get.get(this, "router");
       var isModuleBasedResolver = !!this.registry.resolver.moduleBasedResolver;
-      router.startRouting(isModuleBasedResolver);
+      router.setupRouter(isModuleBasedResolver);
     },
 
     /**
@@ -3491,8 +3505,9 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
       @private
     */
     handleURL: function (url) {
-      var router = this.container.lookup("router:main");
+      var router = property_get.get(this, "router");
 
+      this.setupRouter();
       return router.handleURL(url);
     },
 
@@ -3501,7 +3516,6 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
     */
     setupEventDispatcher: function () {
       var dispatcher = this.container.lookup("event_dispatcher:main");
-
       dispatcher.setup(this.customEvents, this.rootElement);
 
       return dispatcher;
@@ -4235,7 +4249,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
           };
         });
 
-        instance.setupRouter({ location: "none" });
+        instance.overrideRouterLocation({ location: "none" });
 
         return instance.handleURL(url).then(function () {
           return renderPromise;
@@ -8546,7 +8560,7 @@ enifed('ember-htmlbars/system/render-view', ['exports', 'ember-metal/core', 'emb
   }
 
   function renderHTMLBarsTemplate(view, buffer, template) {
-    Ember['default'].assert("The template being rendered by `" + view + "` was compiled with `" + template.revision + "` which does not match `Ember@1.12.0-beta.1+canary.d9752a08` (this revision).", template.revision === "Ember@1.12.0-beta.1+canary.d9752a08");
+    Ember['default'].assert("The template being rendered by `" + view + "` was compiled with `" + template.revision + "` which does not match `Ember@1.12.0-beta.1+canary.c10362b9` (this revision).", template.revision === "Ember@1.12.0-beta.1+canary.c10362b9");
 
     var contextualElement = buffer.innerContextualElement();
     var args = view._blockArguments;
@@ -8585,7 +8599,7 @@ enifed('ember-htmlbars/templates/component', ['exports', 'ember-template-compile
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.d9752a08",
+      revision: "Ember@1.12.0-beta.1+canary.c10362b9",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8633,7 +8647,7 @@ enifed('ember-htmlbars/templates/empty', ['exports', 'ember-template-compiler/sy
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.d9752a08",
+      revision: "Ember@1.12.0-beta.1+canary.c10362b9",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8673,7 +8687,7 @@ enifed('ember-htmlbars/templates/link-to-escaped', ['exports', 'ember-template-c
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.d9752a08",
+      revision: "Ember@1.12.0-beta.1+canary.c10362b9",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8721,7 +8735,7 @@ enifed('ember-htmlbars/templates/link-to-unescaped', ['exports', 'ember-template
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.d9752a08",
+      revision: "Ember@1.12.0-beta.1+canary.c10362b9",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8770,7 +8784,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     var child0 = (function () {
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.d9752a08",
+        revision: "Ember@1.12.0-beta.1+canary.c10362b9",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8814,7 +8828,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1+canary.d9752a08",
+          revision: "Ember@1.12.0-beta.1+canary.c10362b9",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8856,7 +8870,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.d9752a08",
+        revision: "Ember@1.12.0-beta.1+canary.c10362b9",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8900,7 +8914,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1+canary.d9752a08",
+          revision: "Ember@1.12.0-beta.1+canary.c10362b9",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8942,7 +8956,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.d9752a08",
+        revision: "Ember@1.12.0-beta.1+canary.c10362b9",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8984,7 +8998,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     })();
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.d9752a08",
+      revision: "Ember@1.12.0-beta.1+canary.c10362b9",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -11738,7 +11752,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.d9752a08
+    @version 1.12.0-beta.1+canary.c10362b9
   */
 
   if ("undefined" === typeof Ember) {
@@ -11767,10 +11781,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.d9752a08'
+    @default '1.12.0-beta.1+canary.c10362b9'
     @static
   */
-  Ember.VERSION = "1.12.0-beta.1+canary.d9752a08";
+  Ember.VERSION = "1.12.0-beta.1+canary.c10362b9";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -23066,7 +23080,6 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
 
     init: function () {
       this._activeViews = {};
-      this._setupLocation();
       this._qpCache = {};
       this._queuedQPChanges = {};
     },
@@ -23090,9 +23103,8 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
     */
     startRouting: function (moduleBasedResolver) {
       var initialURL = property_get.get(this, "initialURL");
-      var location = property_get.get(this, "location");
 
-      if (this.setupRouter(moduleBasedResolver, location)) {
+      if (this.setupRouter(moduleBasedResolver)) {
         if (typeof initialURL === "undefined") {
           initialURL = property_get.get(this, "location").getURL();
         }
@@ -23105,6 +23117,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
 
     setupRouter: function (moduleBasedResolver) {
       this._initRouterJs(moduleBasedResolver);
+      this._setupLocation();
 
       var router = this.router;
       var location = property_get.get(this, "location");
@@ -33516,7 +33529,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     }
 
     return {
-      revision: "Ember@1.12.0-beta.1+canary.d9752a08",
+      revision: "Ember@1.12.0-beta.1+canary.c10362b9",
 
       disableComponentGeneration: disableComponentGeneration,
 
@@ -33722,13 +33735,13 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
 
   function visit(app, url) {
     var router = app.__container__.lookup("router:main");
-    router.location.setURL(url);
 
     if (app._readinessDeferrals > 0) {
       router["initialURL"] = url;
       run['default'](app, "advanceReadiness");
       delete router["initialURL"];
     } else {
+      router.location.setURL(url);
       run['default'](app.__deprecatedInstance__, "handleURL", url);
     }
 
@@ -39170,7 +39183,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
 
   var selectOptionDefaultTemplate = {
     isHTMLBars: true,
-    revision: "Ember@1.12.0-beta.1+canary.d9752a08",
+    revision: "Ember@1.12.0-beta.1+canary.c10362b9",
     render: function (context, env, contextualElement) {
       var lazyValue = context.getStream("view.label");
 
