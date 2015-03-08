@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.730fb0c7
+ * @version   1.12.0-beta.1+canary.b5b8d192
  */
 
 (function() {
@@ -8277,7 +8277,7 @@ enifed('ember-htmlbars/templates/component', ['exports', 'ember-template-compile
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.730fb0c7",
+      revision: "Ember@1.12.0-beta.1+canary.b5b8d192",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8325,7 +8325,7 @@ enifed('ember-htmlbars/templates/empty', ['exports', 'ember-template-compiler/sy
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.730fb0c7",
+      revision: "Ember@1.12.0-beta.1+canary.b5b8d192",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8365,7 +8365,7 @@ enifed('ember-htmlbars/templates/link-to-escaped', ['exports', 'ember-template-c
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.730fb0c7",
+      revision: "Ember@1.12.0-beta.1+canary.b5b8d192",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8413,7 +8413,7 @@ enifed('ember-htmlbars/templates/link-to-unescaped', ['exports', 'ember-template
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.730fb0c7",
+      revision: "Ember@1.12.0-beta.1+canary.b5b8d192",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8462,7 +8462,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     var child0 = (function () {
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.730fb0c7",
+        revision: "Ember@1.12.0-beta.1+canary.b5b8d192",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8506,7 +8506,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1+canary.730fb0c7",
+          revision: "Ember@1.12.0-beta.1+canary.b5b8d192",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8548,7 +8548,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.730fb0c7",
+        revision: "Ember@1.12.0-beta.1+canary.b5b8d192",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8592,7 +8592,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1+canary.730fb0c7",
+          revision: "Ember@1.12.0-beta.1+canary.b5b8d192",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8634,7 +8634,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.730fb0c7",
+        revision: "Ember@1.12.0-beta.1+canary.b5b8d192",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8676,7 +8676,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     })();
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.730fb0c7",
+      revision: "Ember@1.12.0-beta.1+canary.b5b8d192",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -11420,7 +11420,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.730fb0c7
+    @version 1.12.0-beta.1+canary.b5b8d192
   */
 
   if ("undefined" === typeof Ember) {
@@ -11449,10 +11449,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.730fb0c7'
+    @default '1.12.0-beta.1+canary.b5b8d192'
     @static
   */
-  Ember.VERSION = "1.12.0-beta.1+canary.730fb0c7";
+  Ember.VERSION = "1.12.0-beta.1+canary.b5b8d192";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -32976,7 +32976,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     }
 
     return {
-      revision: "Ember@1.12.0-beta.1+canary.730fb0c7",
+      revision: "Ember@1.12.0-beta.1+canary.b5b8d192",
 
       disableComponentGeneration: disableComponentGeneration,
 
@@ -33045,7 +33045,7 @@ enifed('ember-template-compiler/system/template', ['exports'], function (exports
   };
 
 });
-enifed('ember-views', ['exports', 'ember-runtime', 'ember-views/system/jquery', 'ember-views/system/utils', 'ember-views/system/render_buffer', 'ember-views/system/renderer', 'dom-helper', 'ember-views/system/ext', 'ember-views/views/states', 'ember-views/views/core_view', 'ember-views/views/view', 'ember-views/views/container_view', 'ember-views/views/collection_view', 'ember-views/views/component', 'ember-views/system/event_dispatcher', 'ember-views/mixins/view_target_action_support', 'ember-views/component_lookup', 'ember-views/views/checkbox', 'ember-views/mixins/text_support', 'ember-views/views/text_field', 'ember-views/views/text_area', 'ember-views/views/simple_bound_view', 'ember-views/views/metamorph_view', 'ember-views/views/select'], function (exports, Ember, jQuery, utils, RenderBuffer, Renderer, DOMHelper, __dep6__, states, CoreView, View, ContainerView, CollectionView, Component, EventDispatcher, ViewTargetActionSupport, ComponentLookup, Checkbox, TextSupport, TextField, TextArea, SimpleBoundView, _MetamorphView, select) {
+enifed('ember-views', ['exports', 'ember-runtime', 'ember-views/system/jquery', 'ember-views/system/utils', 'ember-views/system/render_buffer', 'ember-views/system/renderer', 'dom-helper', 'ember-views/system/ext', 'ember-views/views/states', 'ember-views/views/core_view', 'ember-views/views/view', 'ember-views/views/container_view', 'ember-views/views/collection_view', 'ember-views/views/component', 'ember-views/system/event_dispatcher', 'ember-views/mixins/view_target_action_support', 'ember-views/component_lookup', 'ember-views/views/checkbox', 'ember-views/mixins/text_support', 'ember-views/views/text_field', 'ember-views/views/text_area', 'ember-views/views/simple_bound_view', 'ember-views/views/metamorph_view', 'ember-views/views/select'], function (exports, Ember, jQuery, utils, RenderBuffer, Renderer, DOMHelper, __dep6__, states, core_view, View, ContainerView, CollectionView, Component, EventDispatcher, ViewTargetActionSupport, ComponentLookup, Checkbox, TextSupport, TextField, TextArea, SimpleBoundView, _MetamorphView, select) {
 
   'use strict';
 
@@ -33069,7 +33069,7 @@ enifed('ember-views', ['exports', 'ember-runtime', 'ember-views/system/jquery', 
   ViewUtils.getViewClientRects = utils.getViewClientRects;
   ViewUtils.getViewBoundingClientRect = utils.getViewBoundingClientRect;
 
-  Ember['default'].CoreView = CoreView['default'];
+  Ember['default'].CoreView = core_view.DeprecatedCoreView;
   Ember['default'].View = View['default'];
   Ember['default'].View.states = states.states;
   Ember['default'].View.cloneStates = states.cloneStates;
@@ -37133,6 +37133,7 @@ enifed('ember-views/views/core_view', ['exports', 'ember-views/system/renderer',
     @class CoreView
     @namespace Ember
     @extends Ember.Object
+    @deprecated Use `Ember.View` instead.
     @uses Ember.Evented
     @uses Ember.ActionHandler
   */
@@ -37253,7 +37254,15 @@ enifed('ember-views/views/core_view', ['exports', 'ember-views/system/renderer',
     isViewClass: true
   });
 
+  var DeprecatedCoreView = CoreView.extend({
+    init: function () {
+            this._super.apply(this, arguments);
+    }
+  });
+
   exports['default'] = CoreView;
+
+  exports.DeprecatedCoreView = DeprecatedCoreView;
 
 });
 enifed('ember-views/views/each', ['exports', 'ember-metal/core', 'ember-runtime/system/string', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-views/views/collection_view', 'ember-metal/binding', 'ember-runtime/mixins/controller', 'ember-runtime/controllers/array_controller', 'ember-runtime/mixins/array', 'ember-metal/observer', 'ember-views/views/metamorph_view'], function (exports, Ember, string, property_get, property_set, CollectionView, ember_metal__binding, ControllerMixin, ArrayController, EmberArray, observer, _MetamorphView) {
@@ -37382,7 +37391,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
 
   var selectOptionDefaultTemplate = {
     isHTMLBars: true,
-    revision: "Ember@1.12.0-beta.1+canary.730fb0c7",
+    revision: "Ember@1.12.0-beta.1+canary.b5b8d192",
     render: function (context, env, contextualElement) {
       var lazyValue = context.getStream("view.label");
 
