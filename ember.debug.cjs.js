@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.b5b8d192
+ * @version   1.12.0-beta.1+canary.f405cbd0
  */
 
 (function() {
@@ -8560,7 +8560,7 @@ enifed('ember-htmlbars/system/render-view', ['exports', 'ember-metal/core', 'emb
   }
 
   function renderHTMLBarsTemplate(view, buffer, template) {
-    Ember['default'].assert("The template being rendered by `" + view + "` was compiled with `" + template.revision + "` which does not match `Ember@1.12.0-beta.1+canary.b5b8d192` (this revision).", template.revision === "Ember@1.12.0-beta.1+canary.b5b8d192");
+    Ember['default'].assert("The template being rendered by `" + view + "` was compiled with `" + template.revision + "` which does not match `Ember@1.12.0-beta.1+canary.f405cbd0` (this revision).", template.revision === "Ember@1.12.0-beta.1+canary.f405cbd0");
 
     var contextualElement = buffer.innerContextualElement();
     var args = view._blockArguments;
@@ -8599,7 +8599,7 @@ enifed('ember-htmlbars/templates/component', ['exports', 'ember-template-compile
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.b5b8d192",
+      revision: "Ember@1.12.0-beta.1+canary.f405cbd0",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8647,7 +8647,7 @@ enifed('ember-htmlbars/templates/empty', ['exports', 'ember-template-compiler/sy
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.b5b8d192",
+      revision: "Ember@1.12.0-beta.1+canary.f405cbd0",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8687,7 +8687,7 @@ enifed('ember-htmlbars/templates/link-to-escaped', ['exports', 'ember-template-c
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.b5b8d192",
+      revision: "Ember@1.12.0-beta.1+canary.f405cbd0",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8735,7 +8735,7 @@ enifed('ember-htmlbars/templates/link-to-unescaped', ['exports', 'ember-template
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.b5b8d192",
+      revision: "Ember@1.12.0-beta.1+canary.f405cbd0",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8784,7 +8784,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     var child0 = (function () {
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.b5b8d192",
+        revision: "Ember@1.12.0-beta.1+canary.f405cbd0",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8828,7 +8828,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1+canary.b5b8d192",
+          revision: "Ember@1.12.0-beta.1+canary.f405cbd0",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8870,7 +8870,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.b5b8d192",
+        revision: "Ember@1.12.0-beta.1+canary.f405cbd0",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8914,7 +8914,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1+canary.b5b8d192",
+          revision: "Ember@1.12.0-beta.1+canary.f405cbd0",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8956,7 +8956,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.b5b8d192",
+        revision: "Ember@1.12.0-beta.1+canary.f405cbd0",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8998,7 +8998,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     })();
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.b5b8d192",
+      revision: "Ember@1.12.0-beta.1+canary.f405cbd0",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -11752,7 +11752,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.b5b8d192
+    @version 1.12.0-beta.1+canary.f405cbd0
   */
 
   if ("undefined" === typeof Ember) {
@@ -11781,10 +11781,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.b5b8d192'
+    @default '1.12.0-beta.1+canary.f405cbd0'
     @static
   */
-  Ember.VERSION = "1.12.0-beta.1+canary.b5b8d192";
+  Ember.VERSION = "1.12.0-beta.1+canary.f405cbd0";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -14870,8 +14870,8 @@ enifed('ember-metal/path_cache', ['exports', 'ember-metal/cache'], function (exp
   exports.getFirstKey = getFirstKey;
   exports.getTailPath = getTailPath;
 
-  var IS_GLOBAL = /^([A-Z$]|([0-9][A-Z$]))/;
-  var IS_GLOBAL_PATH = /^([A-Z$]|([0-9][A-Z$])).*[\.]/;
+  var IS_GLOBAL = /^[A-Z$]/;
+  var IS_GLOBAL_PATH = /^[A-Z$].*[\.]/;
   var HAS_THIS = "this.";
 
   var isGlobalCache = new Cache['default'](1000, function (key) {
@@ -15666,17 +15666,14 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/core', 'ember-metal/
 
     if (!keyName && "string" === typeof obj) {
       keyName = obj;
-      obj = null;
+      obj = Ember['default'].lookup;
     }
 
     Ember['default'].assert("Cannot call get with " + keyName + " key.", !!keyName);
     Ember['default'].assert("Cannot call get with '" + keyName + "' on an undefined object.", obj !== undefined);
 
-    if (obj === null) {
-      var value = _getPath(obj, keyName);
-      Ember['default'].deprecate("Ember.get fetched '" + keyName + "' from the global context. This behavior will change in the future (issue #3852)", !value || obj && obj !== Ember['default'].lookup || path_cache.isPath(keyName) || path_cache.isGlobalPath(keyName + ".") // Add a . to ensure simple paths are matched.
-      );
-      return value;
+    if (!obj) {
+      return _getPath(obj, keyName);
     }
 
     var meta = obj["__ember_meta__"];
@@ -15708,42 +15705,40 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/core', 'ember-metal/
 
   function normalizeTuple(target, path) {
     var hasThis = path_cache.hasThis(path);
-    var isGlobal = !hasThis && path_cache.isGlobalPath(path);
+    var isGlobal = !hasThis && path_cache.isGlobal(path);
     var key;
 
-    if (!target || isGlobal) {
-      target = Ember['default'].lookup;
+    if (!target && !isGlobal) {
+      return [undefined, ""];
     }
 
     if (hasThis) {
       path = path.slice(5);
     }
 
-    Ember['default'].deprecate("normalizeTuple will return '" + path + "' as a non-global. This behavior will change in the future (issue #3852)", target === Ember['default'].lookup || !target || hasThis || isGlobal || !path_cache.isGlobalPath(path + "."));
+    if (!target || isGlobal) {
+      target = Ember['default'].lookup;
+    }
 
-    if (target === Ember['default'].lookup) {
+    if (isGlobal && path_cache.isPath(path)) {
       key = path.match(FIRST_KEY)[0];
       target = get(target, key);
       path = path.slice(key.length + 1);
     }
 
     // must return some kind of path to be valid else other things will break.
-    if (!path || path.length === 0) {
-      throw new EmberError['default']("Path cannot be empty");
-    }
+    validateIsPath(path);
 
     return [target, path];
   }
 
+  function validateIsPath(path) {
+    if (!path || path.length === 0) {
+      throw new EmberError['default']("Object in path " + path + " could not be found or was destroyed.");
+    }
+  }
   function _getPath(root, path) {
     var hasThis, parts, tuple, idx, len;
-
-    // If there is no root and path is a key name, return that
-    // property from the global object.
-    // E.g. get('Ember') -> Ember
-    if (root === null && !path_cache.isPath(path)) {
-      return get(Ember['default'].lookup, path);
-    }
 
     // detect complicated paths and normalize them
     hasThis = path_cache.hasThis(path);
@@ -15798,28 +15793,29 @@ enifed('ember-metal/property_set', ['exports', 'ember-metal/core', 'ember-metal/
     @param {Object} value The value to set
     @return {Object} the passed value.
   */
-  var IS_GLOBAL = /^([A-Z$]|([0-9][A-Z$]))/;
   function set(obj, keyName, value, tolerant) {
     if (typeof obj === "string") {
-      Ember['default'].assert("Path '" + obj + "' must be global if no obj is given.", IS_GLOBAL.test(obj));
+      Ember['default'].assert("Path '" + obj + "' must be global if no obj is given.", path_cache.isGlobalPath(obj));
       value = keyName;
       keyName = obj;
-      obj = null;
+      obj = Ember['default'].lookup;
     }
 
     Ember['default'].assert("Cannot call set with " + keyName + " key.", !!keyName);
 
-    if (!obj) {
+    if (obj === Ember['default'].lookup) {
       return setPath(obj, keyName, value, tolerant);
     }
 
-    var meta = obj["__ember_meta__"];
-    var possibleDesc = obj[keyName];
-    var desc = possibleDesc !== null && typeof possibleDesc === "object" && possibleDesc.isDescriptor ? possibleDesc : undefined;
+    var meta, possibleDesc, desc;
+    if (obj) {
+      meta = obj["__ember_meta__"];
+      possibleDesc = obj[keyName];
+      desc = possibleDesc !== null && typeof possibleDesc === "object" && possibleDesc.isDescriptor ? possibleDesc : undefined;
+    }
 
     var isUnknown, currentValue;
-
-    if (desc === undefined && path_cache.isPath(keyName)) {
+    if ((!obj || desc === undefined) && path_cache.isPath(keyName)) {
       return setPath(obj, keyName, value, tolerant);
     }
 
@@ -15830,7 +15826,7 @@ enifed('ember-metal/property_set', ['exports', 'ember-metal/core', 'ember-metal/
       desc.set(obj, keyName, value);
     } else {
 
-      if (typeof obj === "object" && obj !== null && value !== undefined && obj[keyName] === value) {
+      if (obj !== null && value !== undefined && typeof obj === "object" && obj[keyName] === value) {
         return value;
       }
 
@@ -33533,7 +33529,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     }
 
     return {
-      revision: "Ember@1.12.0-beta.1+canary.b5b8d192",
+      revision: "Ember@1.12.0-beta.1+canary.f405cbd0",
 
       disableComponentGeneration: disableComponentGeneration,
 
@@ -39197,7 +39193,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
 
   var selectOptionDefaultTemplate = {
     isHTMLBars: true,
-    revision: "Ember@1.12.0-beta.1+canary.b5b8d192",
+    revision: "Ember@1.12.0-beta.1+canary.f405cbd0",
     render: function (context, env, contextualElement) {
       var lazyValue = context.getStream("view.label");
 

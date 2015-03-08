@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.b5b8d192
+ * @version   1.12.0-beta.1+canary.f405cbd0
  */
 
 (function() {
@@ -17342,7 +17342,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.b5b8d192",
+        revision: "Ember@1.12.0-beta.1+canary.f405cbd0",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -18862,10 +18862,6 @@ enifed('ember-metal/tests/accessors/get_path_test', ['ember-metal/property_get']
 
   /*globals Foo:true $foo:true */
 
-  function expectGlobalContextDeprecation(assertion) {
-    expectDeprecation(assertion, "Ember.get fetched 'localPathGlobal' from the global context. This behavior will change in the future (issue #3852)");
-  }
-
   var obj;
   var moduleOpts = {
     setup: function () {
@@ -18880,7 +18876,10 @@ enifed('ember-metal/tests/accessors/get_path_test', ['ember-metal/property_get']
             baz: { biff: "BIFF" }
           }
         },
-        falseValue: false
+        falseValue: false,
+        Wuz: {
+          nar: "foo"
+        }
       };
 
       window.Foo = {
@@ -18889,20 +18888,20 @@ enifed('ember-metal/tests/accessors/get_path_test', ['ember-metal/property_get']
         }
       };
 
+      window.aProp = "aPropy";
+
       window.$foo = {
         bar: {
           baz: { biff: "$FOOBIFF" }
         }
       };
-
-      window.localPathGlobal = 5;
     },
 
     teardown: function () {
       obj = undefined;
       window.Foo = undefined;
+      window.aProp = undefined;
       window.$foo = undefined;
-      window.localPathGlobal = undefined;
     }
   };
 
@@ -18932,39 +18931,67 @@ enifed('ember-metal/tests/accessors/get_path_test', ['ember-metal/property_get']
     deepEqual(property_get.get(obj, "this.foo.bar"), obj.foo.bar);
   });
 
-  QUnit.test("[obj, this.Foo.bar] -> (null)", function () {
-    deepEqual(property_get.get(obj, "this.Foo.bar"), undefined);
+  QUnit.test("[obj, this.Foo.bar] -> (undefined)", function () {
+    equal(property_get.get(obj, "this.Foo.bar"), undefined);
   });
 
-  QUnit.test("[obj, falseValue.notDefined] -> (null)", function () {
-    deepEqual(property_get.get(obj, "falseValue.notDefined"), undefined);
+  QUnit.test("[obj, falseValue.notDefined] -> (undefined)", function () {
+    equal(property_get.get(obj, "falseValue.notDefined"), undefined);
   });
 
   // ..........................................................
-  // LOCAL PATHS WITH NO TARGET DEPRECATION
+  // GLOBAL PATHS TREATED LOCAL WITH GET
   //
 
-  QUnit.test("[null, length] returning data is deprecated", function () {
-    expectGlobalContextDeprecation(function () {
-      equal(5, property_get.get(null, "localPathGlobal"));
-    });
+  QUnit.test("[obj, Wuz] -> obj.Wuz", function () {
+    deepEqual(property_get.get(obj, "Wuz"), obj.Wuz);
   });
 
-  QUnit.test("[length] returning data is deprecated", function () {
-    expectGlobalContextDeprecation(function () {
-      equal(5, property_get.get("localPathGlobal"));
-    });
+  QUnit.test("[obj, Wuz.nar] -> obj.Wuz.nar", function () {
+    deepEqual(property_get.get(obj, "Wuz.nar"), obj.Wuz.nar);
+  });
+
+  QUnit.test("[obj, Foo] -> (undefined)", function () {
+    equal(property_get.get(obj, "Foo"), undefined);
+  });
+
+  QUnit.test("[obj, Foo.bar] -> (undefined)", function () {
+    equal(property_get.get(obj, "Foo.bar"), undefined);
+  });
+
+  // ..........................................................
+  // NULL TARGET
+  //
+
+  QUnit.test("[null, Foo] -> Foo", function () {
+    equal(property_get.get(null, "Foo"), Foo);
+  });
+
+  QUnit.test("[null, Foo.bar] -> Foo.bar", function () {
+    deepEqual(property_get.get(null, "Foo.bar"), Foo.bar);
+  });
+
+  QUnit.test("[null, $foo] -> $foo", function () {
+    equal(property_get.get(null, "$foo"), window.$foo);
+  });
+
+  QUnit.test("[null, aProp] -> null", function () {
+    equal(property_get.get(null, "aProp"), null);
   });
 
   // ..........................................................
   // NO TARGET
   //
 
-  QUnit.test("[null, Foo] -> Foo", function () {
+  QUnit.test("[Foo] -> Foo", function () {
     deepEqual(property_get.get("Foo"), Foo);
   });
 
-  QUnit.test("[null, Foo.bar] -> Foo.bar", function () {
+  QUnit.test("[aProp] -> aProp", function () {
+    deepEqual(property_get.get("aProp"), window.aProp);
+  });
+
+  QUnit.test("[Foo.bar] -> Foo.bar", function () {
     deepEqual(property_get.get("Foo.bar"), Foo.bar);
   });
 
@@ -19083,6 +19110,14 @@ enifed('ember-metal/tests/accessors/get_test', ['ember-metal/tests/props_helper'
     expectAssertion(function () {
       property_get.get(undefined, "aProperty.on.aPath");
     }, /Cannot call get with 'aProperty.on.aPath' on an undefined object/);
+  });
+
+  QUnit.test("returns null when fetching a complex local path on a null context", function () {
+    equal(property_get.get(null, "aProperty.on.aPath"), null);
+  });
+
+  QUnit.test("returns null when fetching a simple local path on a null context", function () {
+    equal(property_get.get(null, "aProperty"), null);
   });
 
   QUnit.test("warn on attempts to get a falsy property", function () {
@@ -19504,10 +19539,8 @@ enifed('ember-metal/tests/accessors/normalize_tuple_test', ['ember-metal/propert
   // GLOBAL PATHS
   //
 
-  QUnit.test("[obj, Foo] -> [obj, Foo]", function () {
-    expectDeprecation(function () {
-      deepEqual(property_get.normalizeTuple(obj, "Foo"), [obj, "Foo"]);
-    }, "normalizeTuple will return 'Foo' as a non-global. This behavior will change in the future (issue #3852)");
+  QUnit.test("[obj, Foo] -> [Ember.lookup, Foo]", function () {
+    deepEqual(property_get.normalizeTuple(obj, "Foo"), [Ember.lookup, "Foo"]);
   });
 
   QUnit.test("[obj, Foo.bar] -> [Foo, bar]", function () {
@@ -19522,14 +19555,28 @@ enifed('ember-metal/tests/accessors/normalize_tuple_test', ['ember-metal/propert
   // NO TARGET
   //
 
-  QUnit.test("[null, Foo] -> EXCEPTION", function () {
-    throws(function () {
-      property_get.normalizeTuple(null, "Foo");
-    }, Error);
+  QUnit.test("[null, Foo] -> [Ember.lookup, Foo]", function () {
+    deepEqual(property_get.normalizeTuple(null, "Foo"), [Ember.lookup, "Foo"]);
   });
 
   QUnit.test("[null, Foo.bar] -> [Foo, bar]", function () {
     deepEqual(property_get.normalizeTuple(null, "Foo.bar"), [Foo, "bar"]);
+  });
+
+  QUnit.test("[null, foo] -> [undefined, '']", function () {
+    deepEqual(property_get.normalizeTuple(null, "foo"), [undefined, ""]);
+  });
+
+  QUnit.test("[null, foo.bar] -> [undefined, '']", function () {
+    deepEqual(property_get.normalizeTuple(null, "foo"), [undefined, ""]);
+  });
+
+  QUnit.test("[null, $foo] -> [Ember.lookup, $foo]", function () {
+    deepEqual(property_get.normalizeTuple(null, "$foo"), [Ember.lookup, "$foo"]);
+  });
+
+  QUnit.test("[null, $foo.bar] -> [$foo, bar]", function () {
+    deepEqual(property_get.normalizeTuple(null, "$foo.bar"), [$foo, "bar"]);
   });
 
 });
@@ -19646,12 +19693,9 @@ enifed('ember-metal/tests/accessors/set_path_test', ['ember-metal/property_set',
   });
 
   QUnit.test("[null, bla] gives a proper exception message", function () {
-    var exceptionMessage = "Property set failed: object in path \"bla\" could not be found or was destroyed.";
-    try {
+    expectAssertion(function () {
       property_set.set(null, "bla", "BAM");
-    } catch (ex) {
-      equal(ex.message, exceptionMessage);
-    }
+    }, /You need to provide an object and key to `set`/);
   });
 
   QUnit.test("[obj, bla.bla] gives a proper exception message", function () {
@@ -52706,7 +52750,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.12.0-beta.1+canary.b5b8d192", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.12.0-beta.1+canary.f405cbd0", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
