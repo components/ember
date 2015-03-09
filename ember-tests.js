@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.4.4f979be4
+ * @version   1.11.0-beta.5.1501308c
  */
 
 (function() {
@@ -16961,7 +16961,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: 'Ember@1.11.0-beta.4.4f979be4',
+        revision: 'Ember@1.11.0-beta.5.1501308c',
         render: function(view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -30089,7 +30089,9 @@ enifed('ember-routing-htmlbars/tests/helpers/link-to_test', ['ember-routing-html
       template: compile['default'](template)
     });
 
-    utils.runAppend(view);
+    expectDeprecation(function() {
+      utils.runAppend(view);
+    }, /Providing `{{link-to}}` with a param that is wrapped in a controller is deprecated./);
 
     equal(view.$().text(), 'Text');
   });
@@ -52185,7 +52187,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, 'Ember@1.11.0-beta.4.4f979be4', 'revision is included in generated template');
+    equal(actual.revision, 'Ember@1.11.0-beta.5.1501308c', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function() {
@@ -66202,7 +66204,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember', 'ember-runtime/controllers/
   QUnit.test("The {{link-to}} helper unwraps controllers", function() {
 
     
-      expect(4);
+      expect(5);
     
     Router.map(function() {
       this.route('filter', { path: '/filters/:filter' });
@@ -66230,7 +66232,9 @@ enifed('ember/tests/helpers/link_to_test', ['ember', 'ember-runtime/controllers/
     Ember.TEMPLATES.filter = compile('<p>{{model.filter}}</p>');
     Ember.TEMPLATES.index = compile('{{#link-to "filter" this id="link"}}Filter{{/link-to}}');
 
-    bootApplication();
+    expectDeprecation(function() {
+      bootApplication();
+    }, /Providing `{{link-to}}` with a param that is wrapped in a controller is deprecated./);
 
     Ember.run(function() { router.handleURL("/"); });
 
