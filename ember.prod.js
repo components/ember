@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.4083e291
+ * @version   1.12.0-beta.1+canary.a27163ac
  */
 
 (function() {
@@ -8277,7 +8277,7 @@ enifed('ember-htmlbars/templates/component', ['exports', 'ember-template-compile
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.4083e291",
+      revision: "Ember@1.12.0-beta.1+canary.a27163ac",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8325,7 +8325,7 @@ enifed('ember-htmlbars/templates/empty', ['exports', 'ember-template-compiler/sy
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.4083e291",
+      revision: "Ember@1.12.0-beta.1+canary.a27163ac",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8365,7 +8365,7 @@ enifed('ember-htmlbars/templates/link-to-escaped', ['exports', 'ember-template-c
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.4083e291",
+      revision: "Ember@1.12.0-beta.1+canary.a27163ac",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8413,7 +8413,7 @@ enifed('ember-htmlbars/templates/link-to-unescaped', ['exports', 'ember-template
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.4083e291",
+      revision: "Ember@1.12.0-beta.1+canary.a27163ac",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8462,7 +8462,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     var child0 = (function () {
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.4083e291",
+        revision: "Ember@1.12.0-beta.1+canary.a27163ac",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8506,7 +8506,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1+canary.4083e291",
+          revision: "Ember@1.12.0-beta.1+canary.a27163ac",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8548,7 +8548,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.4083e291",
+        revision: "Ember@1.12.0-beta.1+canary.a27163ac",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8592,7 +8592,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1+canary.4083e291",
+          revision: "Ember@1.12.0-beta.1+canary.a27163ac",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8634,7 +8634,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.4083e291",
+        revision: "Ember@1.12.0-beta.1+canary.a27163ac",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8676,7 +8676,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     })();
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.4083e291",
+      revision: "Ember@1.12.0-beta.1+canary.a27163ac",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -11420,7 +11420,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.4083e291
+    @version 1.12.0-beta.1+canary.a27163ac
   */
 
   if ("undefined" === typeof Ember) {
@@ -11449,10 +11449,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.4083e291'
+    @default '1.12.0-beta.1+canary.a27163ac'
     @static
   */
-  Ember.VERSION = "1.12.0-beta.1+canary.4083e291";
+  Ember.VERSION = "1.12.0-beta.1+canary.a27163ac";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -32975,7 +32975,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     }
 
     return {
-      revision: "Ember@1.12.0-beta.1+canary.4083e291",
+      revision: "Ember@1.12.0-beta.1+canary.a27163ac",
 
       disableComponentGeneration: disableComponentGeneration,
 
@@ -37390,7 +37390,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
 
   var selectOptionDefaultTemplate = {
     isHTMLBars: true,
-    revision: "Ember@1.12.0-beta.1+canary.4083e291",
+    revision: "Ember@1.12.0-beta.1+canary.a27163ac",
     render: function (context, env, contextualElement) {
       var lazyValue = context.getStream("view.label");
 
@@ -39479,6 +39479,49 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-runtime/
     },
 
     /**
+      @private
+       Creates a new DOM element, renders the view into it, then returns the
+      element.
+       By default, the element created and rendered into will be a `BODY` element,
+      since this is the default context that views are rendered into when being
+      inserted directly into the DOM.
+       ```js
+      var element = view.renderToElement();
+      element.tagName; // => "BODY"
+      ```
+       You can override the kind of element rendered into and returned by
+      specifying an optional tag name as the first argument.
+       ```js
+      var element = view.renderToElement('table');
+      element.tagName; // => "TABLE"
+      ```
+       This method is useful if you want to render the view into an element that
+      is not in the document's body. Instead, a new `body` element, detached from
+      the DOM is returned. FastBoot uses this to serialize the rendered view into
+      a string for transmission over the network.
+       ```js
+      app.visit('/').then(function(instance) {
+        var element;
+        Ember.run(function() {
+          element = renderToElement(instance);
+        });
+         res.send(serialize(element));
+      });
+      ```
+       @method renderToElement
+      @param {String} tagName The tag of the element to create and render into. Defaults to "body".
+      @return {HTMLBodyElement} element
+    */
+    renderToElement: function (tagName) {
+      tagName = tagName || "body";
+
+      var element = this.renderer._dom.createElement(tagName);
+
+      this.renderer.appendTo(this, element);
+      return element;
+    },
+
+    /**
       Replaces the content of the specified parent element with this view's
       element. If the view does not have an HTML representation yet,
       the element will be generated automatically.
@@ -39562,7 +39605,8 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-runtime/
 
     /**
       Creates a DOM representation of the view and all of its child views by
-      recursively calling the `render()` method.
+      recursively calling the `render()` method. Once the element is created,
+      it sets the `element` property of the view to the rendered element.
        After the element has been inserted into the DOM, `didInsertElement` will
       be called on this view and all of its child views.
        @method createElement

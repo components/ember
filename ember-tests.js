@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.4083e291
+ * @version   1.12.0-beta.1+canary.a27163ac
  */
 
 (function() {
@@ -17342,7 +17342,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.4083e291",
+        revision: "Ember@1.12.0-beta.1+canary.a27163ac",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -52750,7 +52750,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.12.0-beta.1+canary.4083e291", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.12.0-beta.1+canary.a27163ac", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -64152,6 +64152,83 @@ enifed('ember-views/tests/views/view/render_test.jshint', function () {
   module("JSHint - ember-views/tests/views/view");
   test("ember-views/tests/views/view/render_test.js should pass jshint", function () {
     ok(true, "ember-views/tests/views/view/render_test.js should pass jshint.");
+  });
+
+});
+enifed('ember-views/tests/views/view/render_to_element_test', ['ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler/system/compile'], function (property_get, run, EmberView, compile) {
+
+  'use strict';
+
+  var View, view;
+
+  QUnit.module("EmberView - renderToElement()", {
+    setup: function () {
+      View = EmberView['default'].extend({
+        template: compile['default']("<h1>hello world</h1> goodbye world")
+      });
+    },
+
+    teardown: function () {
+      run['default'](function () {
+        if (!view.isDestroyed) {
+          view.destroy();
+        }
+      });
+    }
+  });
+
+  QUnit.test("should render into and return a body element", function () {
+    view = View.create();
+
+    ok(!property_get.get(view, "element"), "precond - should not have an element");
+
+    var element;
+
+    run['default'](function () {
+      element = view.renderToElement();
+    });
+
+    equal(element.tagName, "BODY", "returns a body element");
+    equal(element.firstChild.tagName, "DIV", "renders the view div");
+    equal(element.firstChild.firstChild.tagName, "H1", "renders the view div");
+    equal(element.firstChild.firstChild.nextSibling.textContent, " goodbye world", "renders the text node");
+  });
+
+  QUnit.test("should create and render into an element with a provided tagName", function () {
+    view = View.create();
+
+    ok(!property_get.get(view, "element"), "precond - should not have an element");
+
+    var element;
+
+    run['default'](function () {
+      element = view.renderToElement("div");
+    });
+
+    equal(element.tagName, "DIV", "returns a body element");
+    equal(element.firstChild.tagName, "DIV", "renders the view div");
+    equal(element.firstChild.firstChild.tagName, "H1", "renders the view div");
+    equal(element.firstChild.firstChild.nextSibling.textContent, " goodbye world", "renders the text node");
+  });
+
+});
+enifed('ember-views/tests/views/view/render_to_element_test.jscs-test', function () {
+
+  'use strict';
+
+  module("JSCS - ember-views/tests/views/view");
+  test("ember-views/tests/views/view/render_to_element_test.js should pass jscs", function () {
+    ok(true, "ember-views/tests/views/view/render_to_element_test.js should pass jscs.");
+  });
+
+});
+enifed('ember-views/tests/views/view/render_to_element_test.jshint', function () {
+
+  'use strict';
+
+  module("JSHint - ember-views/tests/views/view");
+  test("ember-views/tests/views/view/render_to_element_test.js should pass jshint", function () {
+    ok(true, "ember-views/tests/views/view/render_to_element_test.js should pass jshint.");
   });
 
 });
