@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.a27163ac
+ * @version   1.12.0-beta.1+canary.069a2434
  */
 
 (function() {
@@ -3738,7 +3738,7 @@ enifed('ember-application/tests/system/reset_test.jshint', function () {
   });
 
 });
-enifed('ember-application/tests/system/visit_test', ['ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-routing/system/router', 'ember-template-compiler/system/compile'], function (run, Application, ApplicationInstance, Router, compile) {
+enifed('ember-application/tests/system/visit_test', ['ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-routing/system/router', 'ember-views/views/view', 'ember-template-compiler/system/compile'], function (run, Application, ApplicationInstance, Router, View, compile) {
 
   'use strict';
 
@@ -3813,6 +3813,47 @@ enifed('ember-application/tests/system/visit_test', ['ember-metal/run_loop', 'em
 
         run['default'](instance.view, "appendTo", "#qunit-fixture");
         assert.equal(Ember.$("#qunit-fixture > .ember-view h1").text(), "Hello world", "the application was rendered once the promise resolves");
+
+        instance.destroy();
+      }, function (error) {
+        QUnit.start();
+        assert.ok(false, "The visit() promise was rejected: " + error);
+      });
+    });
+
+    QUnit.test("Views created via visit() are not added to the global views hash", function (assert) {
+      QUnit.expect(6);
+      QUnit.stop();
+
+      var app;
+
+      run['default'](function () {
+        app = createApplication();
+        app.instanceInitializer({
+          name: "register-application-template",
+          initialize: function (app) {
+            app.registry.register("template:application", compile['default']("<h1>Hello world</h1> {{view \"child\"}}"));
+            app.registry.register("view:application", View['default'].extend({
+              elementId: "my-cool-app"
+            }));
+            app.registry.register("view:child", View['default'].extend({
+              elementId: "child-view"
+            }));
+          }
+        });
+      });
+
+      assert.equal(Ember.$("#qunit-fixture").children().length, 0, "there are no elements in the fixture element");
+
+      app.visit("/").then(function (instance) {
+        QUnit.start();
+        assert.ok(instance instanceof ApplicationInstance['default'], "promise is resolved with an ApplicationInstance");
+
+        run['default'](instance.view, "appendTo", "#qunit-fixture");
+        assert.equal(Ember.$("#qunit-fixture > #my-cool-app h1").text(), "Hello world", "the application was rendered once the promise resolves");
+        assert.strictEqual(View['default'].views["my-cool-app"], undefined, "view was not registered globally");
+        ok(instance.container.lookup("-view-registry:main")["my-cool-app"] instanceof View['default'], "view was registered on the instance's view registry");
+        ok(instance.container.lookup("-view-registry:main")["child-view"] instanceof View['default'], "child view was registered on the instance's view registry");
 
         instance.destroy();
       }, function (error) {
@@ -17342,7 +17383,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.a27163ac",
+        revision: "Ember@1.12.0-beta.1+canary.069a2434",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -52750,7 +52791,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.12.0-beta.1+canary.a27163ac", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.12.0-beta.1+canary.069a2434", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {

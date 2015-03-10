@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.a27163ac
+ * @version   1.12.0-beta.1+canary.069a2434
  */
 
 (function() {
@@ -3818,6 +3818,10 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
     buildDefaultInstance: function () {
       var instance = this.buildInstance();
 
+      // For the default instance only, set the view registry to the global
+      // Ember.View.views hash for backwards-compatibility.
+      EmberView['default'].views = instance.container.lookup("-view-registry:main");
+
       // TODO2.0: Legacy support for App.__container__
       // and global methods on App that rely on a single,
       // default instance.
@@ -4407,6 +4411,12 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       registry.injection("view", "renderer", "renderer:-dom");
       registry.register("view:select", SelectView['default']);
       registry.register("view:-outlet", outlet.OutletView);
+
+      registry.register("-view-registry:main", { create: function () {
+          return {};
+        } });
+
+      registry.injection("view", "_viewRegistry", "-view-registry:main");
 
       registry.register("view:default", _MetamorphView['default']);
       registry.register("view:toplevel", EmberView['default'].extend());
@@ -8560,7 +8570,7 @@ enifed('ember-htmlbars/system/render-view', ['exports', 'ember-metal/core', 'emb
   }
 
   function renderHTMLBarsTemplate(view, buffer, template) {
-    Ember['default'].assert("The template being rendered by `" + view + "` was compiled with `" + template.revision + "` which does not match `Ember@1.12.0-beta.1+canary.a27163ac` (this revision).", template.revision === "Ember@1.12.0-beta.1+canary.a27163ac");
+    Ember['default'].assert("The template being rendered by `" + view + "` was compiled with `" + template.revision + "` which does not match `Ember@1.12.0-beta.1+canary.069a2434` (this revision).", template.revision === "Ember@1.12.0-beta.1+canary.069a2434");
 
     var contextualElement = buffer.innerContextualElement();
     var args = view._blockArguments;
@@ -8599,7 +8609,7 @@ enifed('ember-htmlbars/templates/component', ['exports', 'ember-template-compile
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.a27163ac",
+      revision: "Ember@1.12.0-beta.1+canary.069a2434",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8647,7 +8657,7 @@ enifed('ember-htmlbars/templates/empty', ['exports', 'ember-template-compiler/sy
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.a27163ac",
+      revision: "Ember@1.12.0-beta.1+canary.069a2434",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8687,7 +8697,7 @@ enifed('ember-htmlbars/templates/link-to-escaped', ['exports', 'ember-template-c
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.a27163ac",
+      revision: "Ember@1.12.0-beta.1+canary.069a2434",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8735,7 +8745,7 @@ enifed('ember-htmlbars/templates/link-to-unescaped', ['exports', 'ember-template
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.a27163ac",
+      revision: "Ember@1.12.0-beta.1+canary.069a2434",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8784,7 +8794,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     var child0 = (function () {
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.a27163ac",
+        revision: "Ember@1.12.0-beta.1+canary.069a2434",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8828,7 +8838,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1+canary.a27163ac",
+          revision: "Ember@1.12.0-beta.1+canary.069a2434",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8870,7 +8880,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.a27163ac",
+        revision: "Ember@1.12.0-beta.1+canary.069a2434",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8914,7 +8924,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1+canary.a27163ac",
+          revision: "Ember@1.12.0-beta.1+canary.069a2434",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8956,7 +8966,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.a27163ac",
+        revision: "Ember@1.12.0-beta.1+canary.069a2434",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8998,7 +9008,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     })();
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.a27163ac",
+      revision: "Ember@1.12.0-beta.1+canary.069a2434",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -11752,7 +11762,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.a27163ac
+    @version 1.12.0-beta.1+canary.069a2434
   */
 
   if ("undefined" === typeof Ember) {
@@ -11781,10 +11791,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.a27163ac'
+    @default '1.12.0-beta.1+canary.069a2434'
     @static
   */
-  Ember.VERSION = "1.12.0-beta.1+canary.a27163ac";
+  Ember.VERSION = "1.12.0-beta.1+canary.069a2434";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -33529,7 +33539,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     }
 
     return {
-      revision: "Ember@1.12.0-beta.1+canary.a27163ac",
+      revision: "Ember@1.12.0-beta.1+canary.069a2434",
 
       disableComponentGeneration: disableComponentGeneration,
 
@@ -39193,7 +39203,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
 
   var selectOptionDefaultTemplate = {
     isHTMLBars: true,
-    revision: "Ember@1.12.0-beta.1+canary.a27163ac",
+    revision: "Ember@1.12.0-beta.1+canary.069a2434",
     render: function (context, env, contextualElement) {
       var lazyValue = context.getStream("view.label");
 
@@ -40179,28 +40189,21 @@ enifed('ember-views/views/states/in_buffer', ['exports', 'ember-views/views/stat
   exports['default'] = inBuffer;
 
 });
-enifed('ember-views/views/states/in_dom', ['exports', 'ember-metal/core', 'ember-metal/platform/create', 'ember-metal/merge', 'ember-metal/error', 'ember-metal/observer', 'ember-views/views/states/has_element'], function (exports, Ember, create, merge, EmberError, observer, hasElement) {
+enifed('ember-views/views/states/in_dom', ['exports', 'ember-metal/platform/create', 'ember-metal/merge', 'ember-metal/error', 'ember-metal/observer', 'ember-views/views/states/has_element'], function (exports, create, merge, EmberError, observer, hasElement) {
 
   'use strict';
 
   var inDOM = create['default'](hasElement['default']);
 
-  var View;
-
   merge['default'](inDOM, {
     enter: function (view) {
-      if (!View) {
-        View = requireModule("ember-views/views/view")["default"];
-      } // ES6TODO: this sucks. Have to avoid cycles...
-
       // Register the view for event handling. This hash is used by
       // Ember.EventDispatcher to dispatch incoming events.
       if (!view.isVirtual) {
-        Ember['default'].assert("Attempted to register a view with an id already in use: " + view.elementId, !View.views[view.elementId]);
-        View.views[view.elementId] = view;
+        view._register();
       }
 
-      Ember['default'].runInDebug(function () {
+      Ember.runInDebug(function () {
         observer.addBeforeObserver(view, "elementId", function () {
           throw new EmberError['default']("Changing a view's elementId after creation is not allowed");
         });
@@ -40208,12 +40211,8 @@ enifed('ember-views/views/states/in_dom', ['exports', 'ember-metal/core', 'ember
     },
 
     exit: function (view) {
-      if (!View) {
-        View = requireModule("ember-views/views/view")["default"];
-      } // ES6TODO: this sucks. Have to avoid cycles...
-
       if (!this.isVirtual) {
-        delete View.views[view.elementId];
+        view._unregister();
       }
     },
 
@@ -41573,6 +41572,10 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-runtime/
       }
 
       this._super.apply(this, arguments);
+
+      if (!this._viewRegistry) {
+        this._viewRegistry = View.views;
+      }
     },
 
     __defineNonEnumerable: function (property) {
@@ -41638,6 +41641,30 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-runtime/
     */
     handleEvent: function (eventName, evt) {
       return this.currentState.handleEvent(this, eventName, evt);
+    },
+
+    /**
+      Registers the view in the view registry, keyed on the view's `elementId`.
+      This is used by the EventDispatcher to locate the view in response to
+      events.
+       This method should only be called once the view has been inserted into the
+      DOM.
+       @method _register
+      @private
+    */
+    _register: function () {
+      Ember['default'].assert("Attempted to register a view with an id already in use: " + this.elementId, !this._viewRegistry[this.elementId]);
+      this._viewRegistry[this.elementId] = this;
+    },
+
+    /**
+      Removes the view from the view registry. This should be called when the
+      view is removed from DOM.
+       @method _unregister
+      @private
+    */
+    _unregister: function () {
+      delete this._viewRegistry[this.elementId];
     },
 
     registerObserver: function (root, path, target, observer) {
