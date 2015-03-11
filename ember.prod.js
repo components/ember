@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.069a2434
+ * @version   1.12.0-beta.1+canary.a6fdd051
  */
 
 (function() {
@@ -8287,7 +8287,7 @@ enifed('ember-htmlbars/templates/component', ['exports', 'ember-template-compile
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.069a2434",
+      revision: "Ember@1.12.0-beta.1+canary.a6fdd051",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8335,7 +8335,7 @@ enifed('ember-htmlbars/templates/empty', ['exports', 'ember-template-compiler/sy
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.069a2434",
+      revision: "Ember@1.12.0-beta.1+canary.a6fdd051",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8375,7 +8375,7 @@ enifed('ember-htmlbars/templates/link-to-escaped', ['exports', 'ember-template-c
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.069a2434",
+      revision: "Ember@1.12.0-beta.1+canary.a6fdd051",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8423,7 +8423,7 @@ enifed('ember-htmlbars/templates/link-to-unescaped', ['exports', 'ember-template
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.069a2434",
+      revision: "Ember@1.12.0-beta.1+canary.a6fdd051",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8472,7 +8472,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     var child0 = (function () {
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.069a2434",
+        revision: "Ember@1.12.0-beta.1+canary.a6fdd051",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8516,7 +8516,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1+canary.069a2434",
+          revision: "Ember@1.12.0-beta.1+canary.a6fdd051",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8558,7 +8558,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.069a2434",
+        revision: "Ember@1.12.0-beta.1+canary.a6fdd051",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8602,7 +8602,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1+canary.069a2434",
+          revision: "Ember@1.12.0-beta.1+canary.a6fdd051",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8644,7 +8644,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.069a2434",
+        revision: "Ember@1.12.0-beta.1+canary.a6fdd051",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8686,7 +8686,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     })();
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.069a2434",
+      revision: "Ember@1.12.0-beta.1+canary.a6fdd051",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -11430,7 +11430,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.069a2434
+    @version 1.12.0-beta.1+canary.a6fdd051
   */
 
   if ("undefined" === typeof Ember) {
@@ -11459,10 +11459,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.069a2434'
+    @default '1.12.0-beta.1+canary.a6fdd051'
     @static
   */
-  Ember.VERSION = "1.12.0-beta.1+canary.069a2434";
+  Ember.VERSION = "1.12.0-beta.1+canary.a6fdd051";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -11633,10 +11633,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 });
 enifed('ember-metal/dependent_keys', ['exports', 'ember-metal/platform/create', 'ember-metal/watching'], function (exports, o_create, watching) {
 
-  'use strict';
-
+  
   exports.addDependentKeys = addDependentKeys;
   exports.removeDependentKeys = removeDependentKeys;
+
+  "REMOVE_USE_STRICT: true";
 
   function keysForDep(depsMeta, depKey) {
     var keys = depsMeta[depKey];
@@ -11967,8 +11968,7 @@ enifed('ember-metal/error', ['exports', 'ember-metal/platform/create'], function
 });
 enifed('ember-metal/events', ['exports', 'ember-metal/core', 'ember-metal/utils', 'ember-metal/platform/create'], function (exports, Ember, utils, create) {
 
-  'use strict';
-
+  
   exports.accumulateListeners = accumulateListeners;
   exports.addListener = addListener;
   exports.suspendListener = suspendListener;
@@ -11980,6 +11980,11 @@ enifed('ember-metal/events', ['exports', 'ember-metal/core', 'ember-metal/utils'
   exports.on = on;
   exports.removeListener = removeListener;
 
+  "REMOVE_USE_STRICT: true";
+
+  /**
+  @module ember-metal
+  */
   var a_slice = [].slice;
 
   /* listener flags */
@@ -13564,8 +13569,7 @@ enifed('ember-metal/merge', ['exports', 'ember-metal/keys'], function (exports, 
 });
 enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge', 'ember-metal/array', 'ember-metal/platform/create', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/expand_properties', 'ember-metal/properties', 'ember-metal/computed', 'ember-metal/binding', 'ember-metal/observer', 'ember-metal/events', 'ember-metal/streams/utils'], function (exports, Ember, merge, array, o_create, property_get, property_set, utils, expandProperties, properties, computed, ember_metal__binding, ember_metal__observer, events, streams__utils) {
 
-  'use strict';
-
+  
   exports.mixin = mixin;
   exports.required = required;
   exports.aliasMethod = aliasMethod;
@@ -13581,6 +13585,13 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
     @param mixins*
     @return obj
   */
+  "REMOVE_USE_STRICT: true";
+
+  /**
+  @module ember
+  @submodule ember-metal
+  */
+
   var REQUIRED;
   var a_slice = [].slice;
 
@@ -14609,8 +14620,7 @@ enifed('ember-metal/platform/create', ['exports', 'ember-metal/platform/define_p
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
   //
-  // REMOVE_USE_STRICT: true
-  //
+  "REMOVE_USE_STRICT: true";
 
   var create;
   // ES5 15.2.3.5
@@ -16848,8 +16858,7 @@ enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, 
 });
 enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platform/create', 'ember-metal/platform/define_property', 'ember-metal/array'], function (exports, Ember, o_create, define_property, array) {
 
-  'use strict';
-
+  
   exports.uuid = uuid;
   exports.generateGuid = generateGuid;
   exports.guidFor = guidFor;
@@ -16876,6 +16885,8 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
     @public
     @return {Number} [description]
    */
+  "REMOVE_USE_STRICT: true";
+
   var _uuid = 0;
   function uuid() {
     return ++_uuid;
@@ -30079,7 +30090,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
   //
-  // REMOVE_USE_STRICT: true
+  "REMOVE_USE_STRICT: true";
 
   /**
     @module ember
@@ -32985,7 +32996,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     }
 
     return {
-      revision: "Ember@1.12.0-beta.1+canary.069a2434",
+      revision: "Ember@1.12.0-beta.1+canary.a6fdd051",
 
       disableComponentGeneration: disableComponentGeneration,
 
@@ -37400,7 +37411,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
 
   var selectOptionDefaultTemplate = {
     isHTMLBars: true,
-    revision: "Ember@1.12.0-beta.1+canary.069a2434",
+    revision: "Ember@1.12.0-beta.1+canary.a6fdd051",
     render: function (context, env, contextualElement) {
       var lazyValue = context.getStream("view.label");
 
