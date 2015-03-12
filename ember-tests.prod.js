@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.a6fdd051
+ * @version   1.12.0-beta.1+canary.5e39827a
  */
 
 (function() {
@@ -19411,7 +19411,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.a6fdd051",
+        revision: "Ember@1.12.0-beta.1+canary.5e39827a",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -39280,7 +39280,7 @@ enifed('ember-runtime/tests/controllers/array_controller_test.jshint', function 
   });
 
 });
-enifed('ember-runtime/tests/controllers/controller_test', ['ember-runtime/controllers/controller', 'ember-runtime/system/service', 'ember-runtime/controllers/object_controller', 'ember-metal/mixin', 'ember-runtime/system/object', 'ember-runtime/system/container', 'ember-runtime/inject', 'ember-metal/property_get'], function (Controller, Service, ObjectController, Mixin, Object, system__container, inject, property_get) {
+enifed('ember-runtime/tests/controllers/controller_test', ['ember-runtime/controllers/controller', 'ember-runtime/system/service', 'ember-runtime/controllers/object_controller', 'ember-runtime/controllers/array_controller', 'ember-metal/mixin', 'ember-runtime/system/object', 'ember-runtime/system/container', 'ember-runtime/inject', 'ember-metal/property_get'], function (Controller, Service, ObjectController, ArrayController, Mixin, Object, system__container, inject, property_get) {
 
   'use strict';
 
@@ -39488,6 +39488,41 @@ enifed('ember-runtime/tests/controllers/controller_test', ['ember-runtime/contro
     }));
 
     registry.register("controller:posts", Controller['default'].extend());
+
+    var postController = container.lookup("controller:post");
+    var postsController = container.lookup("controller:posts");
+
+    equal(postsController, postController.get("postsController"), "controller.posts is injected");
+  });
+
+  QUnit.test("controllers can be injected into ObjectControllers", function () {
+    var registry = new system__container.Registry();
+    var container = registry.container();
+
+    registry.register("controller:post", Controller['default'].extend({
+      postsController: inject['default'].controller("posts")
+    }));
+
+    registry.register("controller:posts", ObjectController['default'].extend());
+
+    var postController = container.lookup("controller:post");
+    var postsController;
+    expectDeprecation(function () {
+      postsController = container.lookup("controller:posts");
+    }, ObjectController.objectControllerDeprecation);
+
+    equal(postsController, postController.get("postsController"), "controller.posts is injected");
+  });
+
+  QUnit.test("controllers can be injected into ArrayControllers", function () {
+    var registry = new system__container.Registry();
+    var container = registry.container();
+
+    registry.register("controller:post", Controller['default'].extend({
+      postsController: inject['default'].controller("posts")
+    }));
+
+    registry.register("controller:posts", ArrayController['default'].extend());
 
     var postController = container.lookup("controller:post");
     var postsController = container.lookup("controller:posts");
@@ -54665,7 +54700,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.12.0-beta.1+canary.a6fdd051", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.12.0-beta.1+canary.5e39827a", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
