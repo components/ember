@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.5e39827a
+ * @version   1.12.0-beta.1+canary.a0554efa
  */
 
 (function() {
@@ -14165,6 +14165,44 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
     }, /must be a subclass or an instance of Ember.View/);
   });
 
+  QUnit.test("Specifying `id` to {{view}} is set on the view.", function () {
+    registry.register("view:derp", EmberView['default'].extend({
+      template: compile['default']("<div id=\"view-id\">{{view.id}}</div><div id=\"view-elementId\">{{view.elementId}}</div>")
+    }));
+
+    view = EmberView['default'].create({
+      container: container,
+      foo: "bar",
+      template: compile['default']("{{view \"derp\" id=view.foo}}")
+    });
+
+    utils.runAppend(view);
+
+    equal(view.$("#bar").length, 1, "it uses the provided id for the views elementId");
+    equal(view.$("#view-id").text(), "bar", "the views id property is set");
+    equal(view.$("#view-elementId").text(), "bar", "the views elementId property is set");
+  });
+
+  QUnit.test("Specifying `id` to {{view}} does not allow bound id changes.", function () {
+    registry.register("view:derp", EmberView['default'].extend({
+      template: compile['default']("<div id=\"view-id\">{{view.id}}</div><div id=\"view-elementId\">{{view.elementId}}</div>")
+    }));
+
+    view = EmberView['default'].create({
+      container: container,
+      foo: "bar",
+      template: compile['default']("{{view \"derp\" id=view.foo}}")
+    });
+
+    utils.runAppend(view);
+
+    equal(view.$("#view-id").text(), "bar", "the views id property is set");
+
+    run['default'](view, property_set.set, view, "foo", "baz");
+
+    equal(view.$("#view-id").text(), "bar", "the views id property is not changed");
+  });
+
 });
 enifed('ember-htmlbars/tests/helpers/view_test.jscs-test', function () {
 
@@ -17383,7 +17421,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.5e39827a",
+        revision: "Ember@1.12.0-beta.1+canary.a0554efa",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -52826,7 +52864,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.12.0-beta.1+canary.5e39827a", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.12.0-beta.1+canary.a0554efa", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
