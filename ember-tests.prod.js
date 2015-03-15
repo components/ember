@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.d96cc9eb
+ * @version   1.12.0-beta.1+canary.ca64b1f3
  */
 
 (function() {
@@ -11024,7 +11024,7 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['ember-views/views/colle
           return ItemPropertyBindingTestItemView;
         }
       },
-      template: compile['default']("{{#collection contentBinding=\"view.content\" tagName=\"ul\" itemViewClass=\"item-property-binding-test-item-view\" itemPropertyBinding=\"view.baz\" preserveContext=false}}{{view.property}}{{/collection}}")
+      template: compile['default']("{{#collection contentBinding=\"view.content\" tagName=\"ul\" itemViewClass=\"item-property-binding-test-item-view\" itemProperty=view.baz preserveContext=false}}{{view.property}}{{/collection}}")
     });
 
     utils.runAppend(view);
@@ -11046,7 +11046,7 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['ember-views/views/colle
     view = EmberView['default'].create({
       baz: "baz",
       content: native_array.A([EmberObject['default'].create(), EmberObject['default'].create(), EmberObject['default'].create()]),
-      template: compile['default']("{{#collection contentBinding=\"view.content\" itemPropertyBinding=\"view.baz\"}}{{view.property}}{{/collection}}")
+      template: compile['default']("{{#collection contentBinding=\"view.content\" itemProperty=view.baz}}{{view.property}}{{/collection}}")
     });
 
     utils.runAppend(view);
@@ -15166,7 +15166,9 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
       snork: "nerd"
     }).create();
 
-    utils.runAppend(view);
+    expectDeprecation(function () {
+      utils.runAppend(view);
+    }, /You're attempting to render a view by passing borfBinding to a view helper without a quoted value, but this syntax is ambiguous. You should either surround borfBinding's value in quotes or remove `Binding` from borfBinding./);
 
     equal(jQuery['default']("#lol").text(), "nerd", "awkward mixed syntax treated like binding");
 
@@ -19449,7 +19451,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.d96cc9eb",
+        revision: "Ember@1.12.0-beta.1+canary.ca64b1f3",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -54738,7 +54740,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.12.0-beta.1+canary.d96cc9eb", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.12.0-beta.1+canary.ca64b1f3", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
