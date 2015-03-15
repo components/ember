@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.223683b5
+ * @version   1.12.0-beta.1+canary.d6f42c2d
  */
 
 (function() {
@@ -19562,7 +19562,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.223683b5",
+        revision: "Ember@1.12.0-beta.1+canary.d6f42c2d",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -54851,7 +54851,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.12.0-beta.1+canary.223683b5", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.12.0-beta.1+canary.d6f42c2d", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -55087,7 +55087,7 @@ enifed('ember-testing/test.jshint', function () {
   });
 
 });
-enifed('ember-testing/tests/acceptance_test', ['ember-metal/run_loop', 'ember-views/system/jquery', 'ember-testing/test', 'ember-testing/adapters/qunit', 'ember-views/views/view', 'ember-testing/initializers', 'ember-application/system/application', 'ember-routing/system/route', 'ember-template-compiler/system/compile', 'ember-routing'], function (run, jQuery, Test, QUnitAdapter, EmberView, __dep5__, EmberApplication, EmberRoute, compile) {
+enifed('ember-testing/tests/acceptance_test', ['ember-metal/run_loop', 'ember-views/system/jquery', 'ember-testing/test', 'ember-testing/adapters/qunit', 'ember-views/views/view', 'ember-testing/initializers', 'ember-application/system/application', 'ember-routing/system/route', 'ember-template-compiler/system/compile', 'ember-runtime/ext/rsvp', 'ember-routing'], function (run, jQuery, Test, QUnitAdapter, EmberView, __dep5__, EmberApplication, EmberRoute, compile, RSVP) {
 
   'use strict';
 
@@ -55150,7 +55150,7 @@ enifed('ember-testing/tests/acceptance_test', ['ember-metal/run_loop', 'ember-vi
       });
 
       Test['default'].registerAsyncHelper("slowHelper", function () {
-        return Test['default'].promise(function (resolve) {
+        return new RSVP['default'].Promise(function (resolve) {
           setTimeout(resolve, 10);
         });
       });
@@ -56367,9 +56367,9 @@ enifed('ember-testing/tests/helpers_test', ['ember-metal/core', 'ember-metal/run
       visit = App.testHelpers.visit;
 
       visit("/").then(function () {
-        expectAssertion(function () {
-          check("#text");
-        }, /must be a checkbox/);
+        check("#text")["catch"](function (error) {
+          ok(/must be a checkbox/.test(error.message));
+        });
       });
     });
 
@@ -56386,9 +56386,9 @@ enifed('ember-testing/tests/helpers_test', ['ember-metal/core', 'ember-metal/run
       uncheck = App.testHelpers.uncheck;
 
       visit("/").then(function () {
-        expectAssertion(function () {
-          uncheck("#text");
-        }, /must be a checkbox/);
+        uncheck("#text")["catch"](function (error) {
+          ok(/must be a checkbox/.test(error.message));
+        });
       });
     });
   }
