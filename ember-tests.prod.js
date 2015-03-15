@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.0196b843
+ * @version   1.12.0-beta.1+canary.fef64881
  */
 
 (function() {
@@ -16,7 +16,6 @@ var mainContext = this;
 
   Ember = this.Ember = this.Ember || {};
   if (typeof Ember === 'undefined') { Ember = {}; };
-  function UNDEFINED() { }
 
   if (typeof Ember.__loader === 'undefined') {
     var registry = {};
@@ -37,12 +36,13 @@ var mainContext = this;
     };
 
     requirejs = eriuqer = requireModule = function(name) {
-      var s = seen[name];
+      var exports = seen[name];
 
-      if (s !== undefined) { return seen[name]; }
-      if (s === UNDEFINED) { return undefined;  }
+      if (exports !== undefined) {
+        return exports;
+      }
 
-      seen[name] = {};
+      exports = seen[name] = {};
 
       if (!registry[name]) {
         throw new Error('Could not find module ' + name);
@@ -52,20 +52,19 @@ var mainContext = this;
       var deps = mod.deps;
       var callback = mod.callback;
       var reified = [];
-      var exports;
       var length = deps.length;
 
       for (var i=0; i<length; i++) {
         if (deps[i] === 'exports') {
-          reified.push(exports = {});
+          reified.push(exports);
         } else {
           reified.push(requireModule(resolve(deps[i], name)));
         }
       }
 
-      var value = length === 0 ? callback.call(this) : callback.apply(this, reified);
+      callback.apply(this, reified);
 
-      return seen[name] = exports || (value === undefined ? UNDEFINED : value);
+      return exports;
     };
 
     function resolve(child, name) {
@@ -19476,7 +19475,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.0196b843",
+        revision: "Ember@1.12.0-beta.1+canary.fef64881",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -54765,7 +54764,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.12.0-beta.1+canary.0196b843", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.12.0-beta.1+canary.fef64881", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
