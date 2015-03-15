@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.ca64b1f3
+ * @version   1.12.0-beta.1+canary.0196b843
  */
 
 (function() {
@@ -12885,7 +12885,7 @@ enifed('ember-htmlbars/tests/helpers/unbound_test.jshint', function () {
   });
 
 });
-enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'container/registry', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/text_field', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-views/views/container_view', 'ember-views/views/metamorph_view', 'htmlbars-util/safe-string', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-metal/observer', 'ember-runtime/controllers/controller', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed'], function (EmberView, Registry, run, jQuery, TextField, Namespace, EmberObject, ContainerView, _MetamorphView, SafeString, precompile, compile, system__template, observer, Controller, utils, property_set, property_get, computed) {
+enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'container/registry', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/text_field', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-views/views/container_view', 'ember-views/views/metamorph_view', 'htmlbars-util/safe-string', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-metal/observer', 'ember-runtime/controllers/controller', 'ember-htmlbars/system/make_bound_helper', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed'], function (EmberView, Registry, run, jQuery, TextField, Namespace, EmberObject, ContainerView, _MetamorphView, SafeString, precompile, compile, system__template, observer, Controller, makeBoundHelper, utils, property_set, property_get, computed) {
 
   'use strict';
 
@@ -12917,6 +12917,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
       registry = new Registry['default']();
       container = registry.container();
       registry.optionsForType("template", { instantiate: false });
+      registry.optionsForType("helper", { instantiate: false });
       registry.register("view:default", _MetamorphView['default']);
       registry.register("view:toplevel", EmberView['default'].extend());
     },
@@ -13284,6 +13285,30 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
     utils.runAppend(view);
 
     ok(jQuery['default']("#foo").hasClass("foo"), "Always applies classbinding without condition");
+  });
+
+  QUnit.test("Should apply a class from a sub expression", function () {
+    registry.register("helper:string-concat", makeBoundHelper['default'](function (params) {
+      return params.join("");
+    }));
+
+    view = EmberView['default'].create({
+      container: container,
+      controller: {
+        type: "btn",
+        size: "large"
+      },
+      template: compile['default']("{{#view id=\"foo\" class=(string-concat type \"-\" size)}} Foo{{/view}}")
+    });
+
+    utils.runAppend(view);
+
+    ok(jQuery['default']("#foo").hasClass("btn-large"), "applies classname from subexpression");
+
+    run['default'](view, view.set, "controller.size", "medium");
+
+    ok(!jQuery['default']("#foo").hasClass("btn-large"), "removes classname from subexpression update");
+    ok(jQuery['default']("#foo").hasClass("btn-medium"), "adds classname from subexpression update");
   });
 
   QUnit.test("Should not apply classes when bound property specified is false", function () {
@@ -17423,7 +17448,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.ca64b1f3",
+        revision: "Ember@1.12.0-beta.1+canary.0196b843",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -52866,7 +52891,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.12.0-beta.1+canary.ca64b1f3", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.12.0-beta.1+canary.0196b843", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
