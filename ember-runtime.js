@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.5.8e5d756e
+ * @version   1.11.0-beta.5.1babb0f3
  */
 
 (function() {
@@ -4947,7 +4947,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.11.0-beta.5.8e5d756e
+    @version 1.11.0-beta.5.1babb0f3
   */
 
   if ('undefined' === typeof Ember) {
@@ -4975,10 +4975,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.11.0-beta.5.8e5d756e'
+    @default '1.11.0-beta.5.1babb0f3'
     @static
   */
-  Ember.VERSION = '1.11.0-beta.5.8e5d756e';
+  Ember.VERSION = '1.11.0-beta.5.1babb0f3';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -5142,7 +5142,7 @@ enifed('ember-metal/dependent_keys', ['exports', 'ember-metal/platform/create', 
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
   //
-  // REMOVE_USE_STRICT: true
+  "REMOVE_USE_STRICT: true";
 
   function keysForDep(depsMeta, depKey) {
     var keys = depsMeta[depKey];
@@ -5597,7 +5597,7 @@ enifed('ember-metal/events', ['exports', 'ember-metal/core', 'ember-metal/utils'
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
   //
-  // REMOVE_USE_STRICT: true
+  "REMOVE_USE_STRICT: true";
 
   /**
   @module ember-metal
@@ -7221,7 +7221,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
   //
-  // REMOVE_USE_STRICT: true
+  "REMOVE_USE_STRICT: true";
 
   /**
   @module ember
@@ -8364,8 +8364,7 @@ enifed('ember-metal/platform/create', ['exports', 'ember-metal/platform/define_p
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
   //
-  // REMOVE_USE_STRICT: true
-  //
+  "REMOVE_USE_STRICT: true";
 
   var create;
   // ES5 15.2.3.5
@@ -10602,7 +10601,7 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
   //
-  // REMOVE_USE_STRICT: true
+  "REMOVE_USE_STRICT: true";
 
   var _uuid = 0;
 
@@ -18853,7 +18852,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
   //
-  // REMOVE_USE_STRICT: true
+  "REMOVE_USE_STRICT: true";
 
   /**
     @module ember

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.5.8e5d756e
+ * @version   1.11.0-beta.5.1babb0f3
  */
 
 (function() {
@@ -10527,7 +10527,7 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['ember-views/views/colle
     equal(view.$('ul li.baz').length, 3, "adds class attribute");
   });
 
-  QUnit.test("should give its item views the classBinding specified by itemClassBinding", function() {
+  QUnit.test("should give its item views the class specified by itemClass", function() {
     var ItemClassBindingTestCollectionView = CollectionView['default'].extend({
       tagName: 'ul',
       content: native_array.A([EmberObject['default'].create({ isBaz: false }), EmberObject['default'].create({ isBaz: true }), EmberObject['default'].create({ isBaz: true })])
@@ -10536,7 +10536,7 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['ember-views/views/colle
     view = EmberView['default'].create({
       itemClassBindingTestCollectionView: ItemClassBindingTestCollectionView,
       isBar: true,
-      template: compile['default']('{{#collection view.itemClassBindingTestCollectionView itemClassBinding="view.isBar"}}foo{{/collection}}')
+      template: compile['default']('{{#collection view.itemClassBindingTestCollectionView itemClass=view.isBar}}foo{{/collection}}')
     });
 
     utils.runAppend(view);
@@ -10547,7 +10547,7 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['ember-views/views/colle
     // to introduce a new keyword that could be used from within `itemClassBinding`. For instance, `itemClassBinding="item.isBaz"`.
   });
 
-  QUnit.test("should give its item views the property specified by itemPropertyBinding", function() {
+  QUnit.test("should give its item views the property specified by itemProperty", function() {
     var ItemPropertyBindingTestItemView = EmberView['default'].extend({
       tagName: 'li'
     });
@@ -10562,7 +10562,7 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['ember-views/views/colle
           return ItemPropertyBindingTestItemView;
         }
       },
-      template: compile['default']('{{#collection contentBinding="view.content" tagName="ul" itemViewClass="item-property-binding-test-item-view" itemPropertyBinding="view.baz" preserveContext=false}}{{view.property}}{{/collection}}')
+      template: compile['default']('{{#collection content=view.content tagName="ul" itemViewClass="item-property-binding-test-item-view" itemProperty=view.baz preserveContext=false}}{{view.property}}{{/collection}}')
     });
 
     utils.runAppend(view);
@@ -10584,7 +10584,7 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['ember-views/views/colle
     view = EmberView['default'].create({
       baz: "baz",
       content: native_array.A([EmberObject['default'].create(), EmberObject['default'].create(), EmberObject['default'].create()]),
-      template: compile['default']('{{#collection contentBinding="view.content" itemPropertyBinding="view.baz"}}{{view.property}}{{/collection}}')
+      template: compile['default']('{{#collection content=view.content itemProperty=view.baz}}{{view.property}}{{/collection}}')
     });
 
     utils.runAppend(view);
@@ -10845,7 +10845,7 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['ember-views/views/colle
       controller: {
         items: items
       },
-      template: compile['default']('{{collection contentBinding="items" itemViewClass="an-item"}}')
+      template: compile['default']('{{collection content=items itemViewClass="an-item"}}')
     });
 
     utils.runAppend(view);
@@ -12041,7 +12041,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
       view = EmberView['default'].create({
         container: container,
         controller: controller,
-        template: templateFor('{{#EACH|this|personController}}{{#view controllerBinding="personController"}}{{name}}{{/view}}{{/each}}', useBlockParams)
+        template: templateFor('{{#EACH|this|personController}}{{#view controller=personController}}{{name}}{{/view}}{{/each}}', useBlockParams)
       });
 
       utils.runAppend(view);
@@ -14482,7 +14482,7 @@ enifed('ember-htmlbars/tests/helpers/unbound_test.jshint', function () {
   });
 
 });
-enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'container/registry', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/text_field', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-views/views/container_view', 'ember-views/views/metamorph_view', 'htmlbars-util/safe-string', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-metal/observer', 'ember-runtime/controllers/controller', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed'], function (EmberView, Registry, run, jQuery, TextField, Namespace, EmberObject, ContainerView, _MetamorphView, SafeString, precompile, compile, system__template, observer, Controller, utils, property_set, property_get, computed) {
+enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'container/registry', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/text_field', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-views/views/container_view', 'ember-views/views/metamorph_view', 'htmlbars-util/safe-string', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-metal/observer', 'ember-runtime/controllers/controller', 'ember-htmlbars/system/make_bound_helper', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed'], function (EmberView, Registry, run, jQuery, TextField, Namespace, EmberObject, ContainerView, _MetamorphView, SafeString, precompile, compile, system__template, observer, Controller, makeBoundHelper, utils, property_set, property_get, computed) {
 
   'use strict';
 
@@ -14514,6 +14514,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
       registry = new Registry['default']();
       container = registry.container();
       registry.optionsForType('template', { instantiate: false });
+      registry.optionsForType('helper', { instantiate: false });
       registry.register('view:default', _MetamorphView['default']);
       registry.register('view:toplevel', EmberView['default'].extend());
     },
@@ -14735,15 +14736,17 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
       snork: "nerd"
     }).create();
 
-    utils.runAppend(view);
+    expectDeprecation(function() {
+      utils.runAppend(view);
+    }, /You're attempting to render a view by passing borfBinding to a view helper without a quoted value, but this syntax is ambiguous. You should either surround borfBinding's value in quotes or remove `Binding` from borfBinding./);
 
     equal(jQuery['default']('#lol').text(), "nerd", "awkward mixed syntax treated like binding");
 
     Ember.warn = oldWarn;
   });
 
-  QUnit.test('"Binding"-suffixed bindings are runloop-synchronized', function() {
-    expect(5);
+  QUnit.test('"Binding"-suffixed bindings are runloop-synchronized [DEPRECATED]', function() {
+    expect(6);
 
     var subview;
 
@@ -14762,7 +14765,10 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
     });
 
     view = View.create();
-    utils.runAppend(view);
+
+    expectDeprecation(function() {
+      utils.runAppend(view);
+    }, /You're attempting to render a view by passing colorBinding to a view helper, but this syntax is deprecated. You should use `color=someValue` instead./);
 
     equal(view.$('h1 .color').text(), 'mauve', 'renders bound value');
 
@@ -14879,6 +14885,30 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
     utils.runAppend(view);
 
     ok(jQuery['default']('#foo').hasClass('foo'), "Always applies classbinding without condition");
+  });
+
+  QUnit.test("Should apply a class from a sub expression", function() {
+    registry.register('helper:string-concat', makeBoundHelper['default'](function(params) {
+      return params.join('');
+    }));
+
+    view = EmberView['default'].create({
+      container: container,
+      controller: {
+        type: 'btn',
+        size: 'large'
+      },
+      template: compile['default']('{{#view id="foo" class=(string-concat type "-" size)}} Foo{{/view}}')
+    });
+
+    utils.runAppend(view);
+
+    ok(jQuery['default']('#foo').hasClass('btn-large'), "applies classname from subexpression");
+
+    run['default'](view, view.set, 'controller.size', 'medium');
+
+    ok(!jQuery['default']('#foo').hasClass('btn-large'), "removes classname from subexpression update");
+    ok(jQuery['default']('#foo').hasClass('btn-medium'), "adds classname from subexpression update");
   });
 
   QUnit.test("Should not apply classes when bound property specified is false", function() {
@@ -15431,7 +15461,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
     view = EmberView['default'].create({
       name: 'myView',
       textField: TextField['default'],
-      template: compile['default']('{{view view.textField valueBinding="view.name"}}')
+      template: compile['default']('{{view view.textField value=view.name}}')
     });
 
     utils.runAppend(view);
@@ -15503,7 +15533,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
         name: 'foo'
       }),
       Subview: Subview,
-      template: compile['default']('<h1>{{view view.Subview colorBinding="color" someControllerBinding="this"}}</h1>')
+      template: compile['default']('<h1>{{view view.Subview color=color someController=this}}</h1>')
     });
 
     view = View.create();
@@ -15618,7 +15648,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
     equal(view.$().text(), 'updated', 'the precompiled template was updated');
   });
 
-  QUnit.test('bindings should be relative to the current context', function() {
+  QUnit.test('bindings should be relative to the current context [DEPRECATED]', function() {
     view = EmberView['default'].create({
       museumOpen: true,
 
@@ -15634,12 +15664,14 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
       template: compile['default']('{{#if view.museumOpen}} {{view view.museumView nameBinding="view.museumDetails.name" dollarsBinding="view.museumDetails.price"}} {{/if}}')
     });
 
-    utils.runAppend(view);
+    expectDeprecation(function() {
+      utils.runAppend(view);
+    }, /You're attempting to render a view by passing .+Binding to a view helper, but this syntax is deprecated/);
 
     equal(trim(view.$().text()), 'Name: SFMoMA Price: $20', 'should print baz twice');
   });
 
-  QUnit.test('bindings should respect keywords', function() {
+  QUnit.test('bindings should respect keywords [DEPRECATED]', function() {
     view = EmberView['default'].create({
       museumOpen: true,
 
@@ -15656,6 +15688,32 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
       }),
 
       template: compile['default']('{{#if view.museumOpen}}{{view view.museumView nameBinding="controller.museumDetails.name" dollarsBinding="controller.museumDetails.price"}}{{/if}}')
+    });
+
+    expectDeprecation(function() {
+      utils.runAppend(view);
+    }, /You're attempting to render a view by passing .+Binding to a view helper, but this syntax is deprecated/);
+
+    equal(trim(view.$().text()), 'Name: SFMoMA Price: $20', 'should print baz twice');
+  });
+
+  QUnit.test('should respect keywords', function() {
+    view = EmberView['default'].create({
+      museumOpen: true,
+
+      controller: {
+        museumOpen: true,
+        museumDetails: EmberObject['default'].create({
+          name: 'SFMoMA',
+          price: 20
+        })
+      },
+
+      museumView: EmberView['default'].extend({
+        template: compile['default']('Name: {{view.name}} Price: ${{view.dollars}}')
+      }),
+
+      template: compile['default']('{{#if view.museumOpen}}{{view view.museumView name=controller.museumDetails.name dollars=controller.museumDetails.price}}{{/if}}')
     });
 
     utils.runAppend(view);
@@ -15760,6 +15818,44 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
     expectAssertion(function() {
       utils.runAppend(view);
     }, /must be a subclass or an instance of Ember.View/);
+  });
+
+  QUnit.test('Specifying `id` to {{view}} is set on the view.', function() {
+    registry.register('view:derp', EmberView['default'].extend({
+      template: compile['default']('<div id="view-id">{{view.id}}</div><div id="view-elementId">{{view.elementId}}</div>')
+    }));
+
+    view = EmberView['default'].create({
+      container: container,
+      foo: 'bar',
+      template: compile['default']('{{view "derp" id=view.foo}}')
+    });
+
+    utils.runAppend(view);
+
+    equal(view.$('#bar').length, 1, 'it uses the provided id for the views elementId');
+    equal(view.$('#view-id').text(), 'bar', 'the views id property is set');
+    equal(view.$('#view-elementId').text(), 'bar', 'the views elementId property is set');
+  });
+
+  QUnit.test('Specifying `id` to {{view}} does not allow bound id changes.', function() {
+    registry.register('view:derp', EmberView['default'].extend({
+      template: compile['default']('<div id="view-id">{{view.id}}</div><div id="view-elementId">{{view.elementId}}</div>')
+    }));
+
+    view = EmberView['default'].create({
+      container: container,
+      foo: 'bar',
+      template: compile['default']('{{view "derp" id=view.foo}}')
+    });
+
+    utils.runAppend(view);
+
+    equal(view.$('#view-id').text(), 'bar', 'the views id property is set');
+
+    run['default'](view, property_set.set, view, 'foo', 'baz');
+
+    equal(view.$('#view-id').text(), 'bar', 'the views id property is not changed');
   });
 
 });
@@ -16492,7 +16588,7 @@ enifed('ember-htmlbars/tests/helpers/yield_test', ['ember-metal/run_loop', 'embe
 
     view = EmberView['default'].create({
       controller: { boundText: "outer", component: component },
-      template: compile['default']('{{#with boundText as item}}{{#view component contentBinding="item"}}{{item}}{{/view}}{{/with}}')
+      template: compile['default']('{{#with boundText as item}}{{#view component content=item}}{{item}}{{/view}}{{/with}}')
     });
 
     utils.runAppend(view);
@@ -17622,7 +17718,7 @@ enifed('ember-htmlbars/tests/integration/select_in_template_test', ['ember-runti
     }
   });
 
-  QUnit.test("works from a template with bindings", function() {
+  QUnit.test("works from a template with bindings [DEPRECATED]", function() {
     var Person = EmberObject['default'].extend({
       id: null,
       firstName: null,
@@ -17663,6 +17759,70 @@ enifed('ember-htmlbars/tests/integration/select_in_template_test', ['ember-runti
       )
     });
 
+    expectDeprecation(function() {
+      utils.runAppend(view);
+    }, /You're attempting to render a view by passing .+Binding to a view helper, but this syntax is deprecated/);
+
+    var select = view.get('select');
+    ok(select.$().length, "Select was rendered");
+    equal(select.$('option').length, 5, "Options were rendered");
+    equal(select.$().text(), "Pick a person:Yehuda KatzTom DalePeter WagenetErik Bryn\n", "Option values were rendered");
+    equal(select.get('selection'), null, "Nothing has been selected");
+
+    run['default'](function() {
+      application.selectedPersonController.set('person', erik);
+    });
+
+    equal(select.get('selection'), erik, "Selection was updated through binding");
+    run['default'](function() {
+      application.peopleController.pushObject(Person.create({ id: 5, firstName: "James", lastName: "Rosen" }));
+    });
+
+    equal(select.$('option').length, 6, "New option was added");
+    equal(select.get('selection'), erik, "Selection was maintained after new option was added");
+  });
+
+  QUnit.test("works from a template", function() {
+    var Person = EmberObject['default'].extend({
+      id: null,
+      firstName: null,
+      lastName: null,
+
+      fullName: computed.computed(function() {
+        return this.get('firstName') + " " + this.get('lastName');
+      }).property('firstName', 'lastName')
+    });
+
+    var erik = Person.create({ id: 4, firstName: 'Erik', lastName: 'Bryn' });
+
+    var application = Namespace['default'].create();
+
+    application.peopleController = ArrayController['default'].create({
+      content: Ember.A([
+        Person.create({ id: 1, firstName: 'Yehuda', lastName: 'Katz' }),
+        Person.create({ id: 2, firstName: 'Tom', lastName: 'Dale' }),
+        Person.create({ id: 3, firstName: 'Peter', lastName: 'Wagenet' }),
+        erik
+      ])
+    });
+
+    application.selectedPersonController = EmberObject['default'].create({
+      person: null
+    });
+
+    view = EmberView['default'].create({
+      app: application,
+      selectView: SelectView['default'],
+      template: compile['default'](
+        '{{view view.selectView viewName="select"' +
+        '    content=view.app.peopleController' +
+        '    optionLabelPath="content.fullName"' +
+        '    optionValuePath="content.id"' +
+        '    prompt="Pick a person:"' +
+        '    selection=view.app.selectedPersonController.person}}'
+      )
+    });
+
     utils.runAppend(view);
 
     var select = view.get('select');
@@ -17693,8 +17853,8 @@ enifed('ember-htmlbars/tests/integration/select_in_template_test', ['ember-runti
       selectView: SelectView['default'],
       template: compile['default'](
         '{{view view.selectView viewName="select"' +
-        '    contentBinding="view.user.options"' +
-        '    selectionBinding="view.user.selectedOption"}}'
+        '    content=view.user.options' +
+        '    selection=view.user.selectedOption}}'
       )
     });
 
@@ -17728,8 +17888,8 @@ enifed('ember-htmlbars/tests/integration/select_in_template_test', ['ember-runti
       selectView: SelectView['default'],
       template: compile['default'](
         '{{view view.selectView viewName="select"' +
-        '    contentBinding="view.proxy"' +
-        '    selectionBinding="view.proxy.selectedOption"}}'
+        '    content=view.proxy' +
+        '    selection=view.proxy.selectedOption}}'
       )
     });
 
@@ -17774,7 +17934,9 @@ enifed('ember-htmlbars/tests/integration/select_in_template_test', ['ember-runti
     equal(selectEl.selectedIndex, 1, "The DOM is updated to reflect the new selection");
   }
 
-  QUnit.test("select element should correctly initialize and update selectedIndex and bound properties when using valueBinding (old xBinding='' syntax)", function() {
+  QUnit.test("select element should correctly initialize and update selectedIndex and bound properties when using valueBinding [DEPRECATED]", function() {
+    expectDeprecation(/You're attempting to render a view by passing .+Binding to a view helper, but this syntax is deprecated./);
+
     testValueBinding(
       '{{view view.selectView viewName="select"' +
       '    contentBinding="view.collection"' +
@@ -17785,7 +17947,7 @@ enifed('ember-htmlbars/tests/integration/select_in_template_test', ['ember-runti
     );
   });
 
-  QUnit.test("select element should correctly initialize and update selectedIndex and bound properties when using valueBinding (new quoteless binding shorthand)", function() {
+  QUnit.test("select element should correctly initialize and update selectedIndex and bound properties when using a bound value", function() {
     testValueBinding(
       '{{view view.selectView viewName="select"' +
       '    content=view.collection' +
@@ -17824,7 +17986,9 @@ enifed('ember-htmlbars/tests/integration/select_in_template_test', ['ember-runti
     equal(select.$('option:eq(1)').prop('selected'), true, "Selected property is set to proper option");
   }
 
-  QUnit.test("select element should correctly initialize and update selectedIndex and bound properties when using selectionBinding (old xBinding='' syntax)", function() {
+  QUnit.test("select element should correctly initialize and update selectedIndex and bound properties when using selectionBinding [DEPRECATED]", function() {
+    expectDeprecation(/You're attempting to render a view by passing .+Binding to a view helper, but this syntax is deprecated./);
+
     testSelectionBinding(
       '{{view view.selectView viewName="select"' +
       '    contentBinding="view.collection"' +
@@ -17835,7 +17999,7 @@ enifed('ember-htmlbars/tests/integration/select_in_template_test', ['ember-runti
     );
   });
 
-  QUnit.test("select element should correctly initialize and update selectedIndex and bound properties when using selectionBinding (new quoteless binding shorthand)", function() {
+  QUnit.test("select element should correctly initialize and update selectedIndex and bound properties when using a bound selection", function() {
     testSelectionBinding(
       '{{view view.selectView viewName="select"' +
       '    content=view.collection' +
@@ -18989,7 +19153,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: 'Ember@1.11.0-beta.5.8e5d756e',
+        revision: 'Ember@1.11.0-beta.5.1babb0f3',
         render: function(view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -38600,7 +38764,7 @@ enifed('ember-runtime/tests/controllers/array_controller_test.jshint', function 
   });
 
 });
-enifed('ember-runtime/tests/controllers/controller_test', ['ember-runtime/controllers/controller', 'ember-runtime/system/service', 'ember-runtime/controllers/object_controller', 'ember-metal/mixin', 'ember-runtime/system/object', 'ember-runtime/system/container', 'ember-runtime/inject', 'ember-metal/property_get'], function (Controller, Service, object_controller, Mixin, Object, system__container, inject, property_get) {
+enifed('ember-runtime/tests/controllers/controller_test', ['ember-runtime/controllers/controller', 'ember-runtime/system/service', 'ember-runtime/controllers/array_controller', 'ember-runtime/controllers/object_controller', 'ember-metal/mixin', 'ember-runtime/system/object', 'ember-runtime/system/container', 'ember-runtime/inject', 'ember-metal/property_get'], function (Controller, Service, ArrayController, object_controller, Mixin, Object, system__container, inject, property_get) {
 
   'use strict';
 
@@ -38815,6 +38979,42 @@ enifed('ember-runtime/tests/controllers/controller_test', ['ember-runtime/contro
 
     equal(postsController, postController.get('postsController'), "controller.posts is injected");
   });
+
+  QUnit.test("controllers can be injected into ObjectControllers", function() {
+    var registry = new system__container.Registry();
+    var container = registry.container();
+
+    registry.register('controller:post', Controller['default'].extend({
+      postsController: inject['default'].controller('posts')
+    }));
+
+    registry.register('controller:posts', object_controller["default"].extend());
+
+    var postController = container.lookup('controller:post');
+    var postsController;
+    expectDeprecation(function() {
+      postsController = container.lookup('controller:posts');
+    }, object_controller.objectControllerDeprecation);
+
+    equal(postsController, postController.get('postsController'), "controller.posts is injected");
+  });
+
+  QUnit.test("controllers can be injected into ArrayControllers", function() {
+    var registry = new system__container.Registry();
+    var container = registry.container();
+
+    registry.register('controller:post', Controller['default'].extend({
+      postsController: inject['default'].controller('posts')
+    }));
+
+    registry.register('controller:posts', ArrayController['default'].extend());
+
+    var postController = container.lookup('controller:post');
+    var postsController = container.lookup('controller:posts');
+
+    equal(postsController, postController.get('postsController'), "controller.posts is injected");
+  });
+
 
   QUnit.test("services can be injected into controllers", function() {
     var registry = new system__container.Registry();
@@ -54061,7 +54261,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, 'Ember@1.11.0-beta.5.8e5d756e', 'revision is included in generated template');
+    equal(actual.revision, 'Ember@1.11.0-beta.5.1babb0f3', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function() {

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.5.8e5d756e
+ * @version   1.11.0-beta.5.1babb0f3
  */
 
 (function() {
@@ -7285,6 +7285,7 @@ enifed('ember-htmlbars/system/merge-view-bindings', ['exports', 'ember-metal/cor
 
       if (mixin.IS_BINDING.test(key)) {
         if (typeof value === 'string') {
+          
           props[key] = view._getBindingForStream(value);
         } else if (utils.isStream(value)) {
           
@@ -7305,7 +7306,7 @@ enifed('ember-htmlbars/system/merge-view-bindings', ['exports', 'ember-metal/cor
   function mergeDOMViewBindings(view, props, hash) {
     
     if (hash.id) {
-      props.elementId = utils.read(hash.id);
+      props.id = props.elementId = utils.read(hash.id);
     }
 
     if (hash.tag) {
@@ -7317,8 +7318,15 @@ enifed('ember-htmlbars/system/merge-view-bindings', ['exports', 'ember-metal/cor
     if (hash['class']) {
       if (typeof hash['class'] === 'string') {
         props.classNames = hash['class'].split(' ');
-      } else {
+      } else if (hash['class']._label) {
+        // label exists for via property paths in the template
+        // but not for streams with nested sub-expressions
         classBindings.push(hash['class']._label);
+      } else {
+        // this stream did not have a label which means that
+        // it is not a simple property path type stream (likely
+        // the result of a sub-expression)
+        classBindings.push(hash['class']);
       }
     }
 
@@ -7334,7 +7342,15 @@ enifed('ember-htmlbars/system/merge-view-bindings', ['exports', 'ember-metal/cor
       props.classNameBindings = classBindings;
 
       for (var i = 0; i < classBindings.length; i++) {
-        var classBinding = class_name_binding.streamifyClassNameBinding(view, classBindings[i]);
+        var initialValue = classBindings[i];
+        var classBinding;
+
+        if (utils.isStream(initialValue)) {
+          classBinding = initialValue;
+        } else {
+          classBinding = class_name_binding.streamifyClassNameBinding(view, initialValue);
+        }
+
         if (utils.isStream(classBinding)) {
           classBindings[i] = classBinding;
         } else {
@@ -7407,7 +7423,7 @@ enifed('ember-htmlbars/templates/component', ['exports', 'ember-template-compile
   exports['default'] = template['default']((function() {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.11.0-beta.5.8e5d756e",
+      revision: "Ember@1.11.0-beta.5.1babb0f3",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -7454,7 +7470,7 @@ enifed('ember-htmlbars/templates/empty', ['exports', 'ember-template-compiler/sy
   exports['default'] = template['default']((function() {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.11.0-beta.5.8e5d756e",
+      revision: "Ember@1.11.0-beta.5.1babb0f3",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -7494,7 +7510,7 @@ enifed('ember-htmlbars/templates/link-to-escaped', ['exports', 'ember-template-c
   exports['default'] = template['default']((function() {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.11.0-beta.5.8e5d756e",
+      revision: "Ember@1.11.0-beta.5.1babb0f3",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -7541,7 +7557,7 @@ enifed('ember-htmlbars/templates/link-to-unescaped', ['exports', 'ember-template
   exports['default'] = template['default']((function() {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.11.0-beta.5.8e5d756e",
+      revision: "Ember@1.11.0-beta.5.1babb0f3",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -7589,7 +7605,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     var child0 = (function() {
       return {
         isHTMLBars: true,
-        revision: "Ember@1.11.0-beta.5.8e5d756e",
+        revision: "Ember@1.11.0-beta.5.1babb0f3",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -7632,7 +7648,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function() {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.11.0-beta.5.8e5d756e",
+          revision: "Ember@1.11.0-beta.5.1babb0f3",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -7672,7 +7688,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       }());
       return {
         isHTMLBars: true,
-        revision: "Ember@1.11.0-beta.5.8e5d756e",
+        revision: "Ember@1.11.0-beta.5.1babb0f3",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -7714,7 +7730,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function() {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.11.0-beta.5.8e5d756e",
+          revision: "Ember@1.11.0-beta.5.1babb0f3",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -7754,7 +7770,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       }());
       return {
         isHTMLBars: true,
-        revision: "Ember@1.11.0-beta.5.8e5d756e",
+        revision: "Ember@1.11.0-beta.5.1babb0f3",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -7794,7 +7810,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     }());
     return {
       isHTMLBars: true,
-      revision: "Ember@1.11.0-beta.5.8e5d756e",
+      revision: "Ember@1.11.0-beta.5.1babb0f3",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -10931,7 +10947,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.11.0-beta.5.8e5d756e
+    @version 1.11.0-beta.5.1babb0f3
   */
 
   if ('undefined' === typeof Ember) {
@@ -10959,10 +10975,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.11.0-beta.5.8e5d756e'
+    @default '1.11.0-beta.5.1babb0f3'
     @static
   */
-  Ember.VERSION = '1.11.0-beta.5.8e5d756e';
+  Ember.VERSION = '1.11.0-beta.5.1babb0f3';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -11126,7 +11142,7 @@ enifed('ember-metal/dependent_keys', ['exports', 'ember-metal/platform/create', 
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
   //
-  // REMOVE_USE_STRICT: true
+  "REMOVE_USE_STRICT: true";
 
   function keysForDep(depsMeta, depKey) {
     var keys = depsMeta[depKey];
@@ -11581,7 +11597,7 @@ enifed('ember-metal/events', ['exports', 'ember-metal/core', 'ember-metal/utils'
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
   //
-  // REMOVE_USE_STRICT: true
+  "REMOVE_USE_STRICT: true";
 
   /**
   @module ember-metal
@@ -13205,7 +13221,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
   //
-  // REMOVE_USE_STRICT: true
+  "REMOVE_USE_STRICT: true";
 
   /**
   @module ember
@@ -14348,8 +14364,7 @@ enifed('ember-metal/platform/create', ['exports', 'ember-metal/platform/define_p
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
   //
-  // REMOVE_USE_STRICT: true
-  //
+  "REMOVE_USE_STRICT: true";
 
   var create;
   // ES5 15.2.3.5
@@ -16586,7 +16601,7 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
   //
-  // REMOVE_USE_STRICT: true
+  "REMOVE_USE_STRICT: true";
 
   var _uuid = 0;
 
@@ -30760,7 +30775,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
   //
-  // REMOVE_USE_STRICT: true
+  "REMOVE_USE_STRICT: true";
 
   /**
     @module ember
@@ -33782,7 +33797,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     var disableComponentGeneration = true;
     
     return {
-      revision: 'Ember@1.11.0-beta.5.8e5d756e',
+      revision: 'Ember@1.11.0-beta.5.1babb0f3',
 
       disableComponentGeneration: disableComponentGeneration,
 
@@ -38265,7 +38280,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
 
   var selectOptionDefaultTemplate = {
     isHTMLBars: true,
-    revision: 'Ember@1.11.0-beta.5.8e5d756e',
+    revision: 'Ember@1.11.0-beta.5.1babb0f3',
     render: function(context, env, contextualElement) {
       var lazyValue = context.getStream('view.label');
 
