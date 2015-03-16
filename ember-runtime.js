@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.22f86fe2
+ * @version   1.12.0-beta.1+canary.1b36c378
  */
 
 (function() {
@@ -4361,7 +4361,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.22f86fe2
+    @version 1.12.0-beta.1+canary.1b36c378
   */
 
   if ("undefined" === typeof Ember) {
@@ -4390,10 +4390,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.22f86fe2'
+    @default '1.12.0-beta.1+canary.1b36c378'
     @static
   */
-  Ember.VERSION = "1.12.0-beta.1+canary.22f86fe2";
+  Ember.VERSION = "1.12.0-beta.1+canary.1b36c378";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -15562,8 +15562,8 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal/property_g
       Remove all elements from the array. This is useful if you
       want to reuse an existing array without having to recreate it.
        ```javascript
-      var colors = ["red", "green", "blue"];
-      color.length();   //  3
+      var colors = ['red', 'green', 'blue'];
+       color.length();   //  3
       colors.clear();   //  []
       colors.length();  //  0
       ```
@@ -15584,9 +15584,9 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal/property_g
       This will use the primitive `replace()` method to insert an object at the
       specified index.
        ```javascript
-      var colors = ["red", "green", "blue"];
-      colors.insertAt(2, "yellow");  // ["red", "green", "yellow", "blue"]
-      colors.insertAt(5, "orange");  // Error: Index out of range
+      var colors = ['red', 'green', 'blue'];
+       colors.insertAt(2, 'yellow');  // ['red', 'green', 'yellow', 'blue']
+      colors.insertAt(5, 'orange');  // Error: Index out of range
       ```
        @method insertAt
       @param {Number} idx index of insert the object at.
@@ -15608,9 +15608,9 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal/property_g
        If you pass a start and length that is beyond the
       length this method will throw an `OUT_OF_RANGE_EXCEPTION`.
        ```javascript
-      var colors = ["red", "green", "blue", "yellow", "orange"];
-      colors.removeAt(0);     // ["green", "blue", "yellow", "orange"]
-      colors.removeAt(2, 2);  // ["green", "blue"]
+      var colors = ['red', 'green', 'blue', 'yellow', 'orange'];
+       colors.removeAt(0);     // ['green', 'blue', 'yellow', 'orange']
+      colors.removeAt(2, 2);  // ['green', 'blue']
       colors.removeAt(4, 2);  // Error: Index out of range
       ```
        @method removeAt
@@ -15640,9 +15640,9 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal/property_g
       Push the object onto the end of the array. Works just like `push()` but it
       is KVO-compliant.
        ```javascript
-      var colors = ["red", "green"];
-      colors.pushObject("black");     // ["red", "green", "black"]
-      colors.pushObject(["yellow"]);  // ["red", "green", ["yellow"]]
+      var colors = ['red', 'green'];
+       colors.pushObject('black');     // ['red', 'green', 'black']
+      colors.pushObject(['yellow']);  // ['red', 'green', ['yellow']]
       ```
        @method pushObject
       @param {*} obj object to push
@@ -15657,8 +15657,8 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal/property_g
       Add the objects in the passed numerable to the end of the array. Defers
       notifying observers of the change until all objects are added.
        ```javascript
-      var colors = ["red"];
-      colors.pushObjects(["yellow", "orange"]);  // ["red", "yellow", "orange"]
+      var colors = ['red'];
+       colors.pushObjects(['yellow', 'orange']);  // ['red', 'yellow', 'orange']
       ```
        @method pushObjects
       @param {Ember.Enumerable} objects the objects to add
@@ -15676,9 +15676,9 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal/property_g
       Pop object from array or nil if none are left. Works just like `pop()` but
       it is KVO-compliant.
        ```javascript
-      var colors = ["red", "green", "blue"];
-      colors.popObject();   // "blue"
-      console.log(colors);  // ["red", "green"]
+      var colors = ['red', 'green', 'blue'];
+       colors.popObject();   // 'blue'
+      console.log(colors);  // ['red', 'green']
       ```
        @method popObject
       @return object
@@ -15698,9 +15698,9 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal/property_g
       Shift an object from start of array or nil if none are left. Works just
       like `shift()` but it is KVO-compliant.
        ```javascript
-      var colors = ["red", "green", "blue"];
-      colors.shiftObject();  // "red"
-      console.log(colors);   // ["green", "blue"]
+      var colors = ['red', 'green', 'blue'];
+       colors.shiftObject();  // 'red'
+      console.log(colors);   // ['green', 'blue']
       ```
        @method shiftObject
       @return object
@@ -15719,9 +15719,9 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal/property_g
       Unshift an object to start of array. Works just like `unshift()` but it is
       KVO-compliant.
        ```javascript
-      var colors = ["red"];
-      colors.unshiftObject("yellow");    // ["yellow", "red"]
-      colors.unshiftObject(["black"]);   // [["black"], "yellow", "red"]
+      var colors = ['red'];
+       colors.unshiftObject('yellow');    // ['yellow', 'red']
+      colors.unshiftObject(['black']);   // [['black'], 'yellow', 'red']
       ```
        @method unshiftObject
       @param {*} obj object to unshift
@@ -15736,9 +15736,9 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal/property_g
       Adds the named objects to the beginning of the array. Defers notifying
       observers until all objects have been added.
        ```javascript
-      var colors = ["red"];
-      colors.unshiftObjects(["black", "white"]);   // ["black", "white", "red"]
-      colors.unshiftObjects("yellow"); // Type Error: 'undefined' is not a function
+      var colors = ['red'];
+       colors.unshiftObjects(['black', 'white']);   // ['black', 'white', 'red']
+      colors.unshiftObjects('yellow'); // Type Error: 'undefined' is not a function
       ```
        @method unshiftObjects
       @param {Ember.Enumerable} objects the objects to add
@@ -15770,8 +15770,8 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal/property_g
       Replace all the receiver's content with content of the argument.
       If argument is an empty array receiver will be cleared.
        ```javascript
-      var colors = ["red", "green", "blue"];
-      colors.setObjects(["black", "white"]);  // ["black", "white"]
+      var colors = ['red', 'green', 'blue'];
+       colors.setObjects(['black', 'white']);  // ['black', 'white']
       colors.setObjects([]);                  // []
       ```
        @method setObjects
@@ -15796,10 +15796,10 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal/property_g
     /**
       Remove all occurrences of an object in the array.
        ```javascript
-      var cities = ["Chicago", "Berlin", "Lima", "Chicago"];
-      cities.removeObject("Chicago");  // ["Berlin", "Lima"]
-      cities.removeObject("Lima");     // ["Berlin"]
-      cities.removeObject("Tokyo")     // ["Berlin"]
+      var cities = ['Chicago', 'Berlin', 'Lima', 'Chicago'];
+       cities.removeObject('Chicago');  // ['Berlin', 'Lima']
+      cities.removeObject('Lima');     // ['Berlin']
+      cities.removeObject('Tokyo')     // ['Berlin']
       ```
        @method removeObject
       @param {*} obj object to remove
@@ -15821,9 +15821,9 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal/property_g
       Push the object onto the end of the array if it is not already
       present in the array.
        ```javascript
-      var cities = ["Chicago", "Berlin"];
-      cities.addObject("Lima");    // ["Chicago", "Berlin", "Lima"]
-      cities.addObject("Berlin");  // ["Chicago", "Berlin", "Lima"]
+      var cities = ['Chicago', 'Berlin'];
+       cities.addObject('Lima');    // ['Chicago', 'Berlin', 'Lima']
+      cities.addObject('Berlin');  // ['Chicago', 'Berlin', 'Lima']
       ```
        @method addObject
       @param {*} obj object to add, if not already present
@@ -15836,7 +15836,6 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal/property_g
 
       return this;
     }
-
   });
 
 });
