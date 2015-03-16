@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.614cfdc1
+ * @version   1.12.0-beta.1+canary.22f86fe2
  */
 
 (function() {
@@ -1056,7 +1056,6 @@ enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_lo
 
   'use strict';
 
-  var slice = [].slice;
   var helpers = {};
   var injectHelpersCallbacks = [];
 
@@ -1291,7 +1290,10 @@ enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_lo
     var meta = helpers[name].meta;
 
     return function () {
-      var args = slice.call(arguments);
+      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
       var lastPromise;
 
       args.unshift(app);
@@ -1457,7 +1459,10 @@ enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_lo
   // of helper chaining
   function protoWrap(proto, name, callback, isAsync) {
     proto[name] = function () {
-      var args = arguments;
+      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
       if (isAsync) {
         return callback.apply(this, args);
       } else {
