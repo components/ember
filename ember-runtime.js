@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.1b36c378
+ * @version   1.12.0-beta.1+canary.06e41ad7
  */
 
 (function() {
@@ -4361,7 +4361,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.1b36c378
+    @version 1.12.0-beta.1+canary.06e41ad7
   */
 
   if ("undefined" === typeof Ember) {
@@ -4390,10 +4390,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.1b36c378'
+    @default '1.12.0-beta.1+canary.06e41ad7'
     @static
   */
-  Ember.VERSION = "1.12.0-beta.1+canary.1b36c378";
+  Ember.VERSION = "1.12.0-beta.1+canary.06e41ad7";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -17575,7 +17575,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
        @method toString
       @return {String} string representation
     */
-    toString: function toString() {
+    toString: function () {
       var hasToStringExtension = typeof this.toStringExtension === "function";
       var extension = hasToStringExtension ? ":" + this.toStringExtension() : "";
       var ret = "<" + this.constructor.toString() + ":" + utils.guidFor(this) + extension + ">";
@@ -17668,7 +17668,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
        @param {Mixin} [mixins]* One or more Mixin classes
       @param {Object} [arguments]* Object containing values to use within the new class
     */
-    extend: function extend() {
+    extend: function () {
       var Class = makeCtor();
       var proto;
       Class.ClassMixin = mixin.Mixin.create(this.ClassMixin);
