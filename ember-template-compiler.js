@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.d6f42c2d
+ * @version   1.12.0-beta.1+canary.18d211ff
  */
 
 (function() {
@@ -132,7 +132,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.d6f42c2d
+    @version 1.12.0-beta.1+canary.18d211ff
   */
 
   if ("undefined" === typeof Ember) {
@@ -161,10 +161,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.d6f42c2d'
+    @default '1.12.0-beta.1+canary.18d211ff'
     @static
   */
-  Ember.VERSION = "1.12.0-beta.1+canary.d6f42c2d";
+  Ember.VERSION = "1.12.0-beta.1+canary.18d211ff";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -590,7 +590,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     }
 
     return {
-      revision: "Ember@1.12.0-beta.1+canary.d6f42c2d",
+      revision: "Ember@1.12.0-beta.1+canary.18d211ff",
 
       disableComponentGeneration: disableComponentGeneration,
 

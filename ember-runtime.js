@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.d6f42c2d
+ * @version   1.12.0-beta.1+canary.18d211ff
  */
 
 (function() {
@@ -4268,32 +4268,6 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     return value;
   });
 
-  /**
-    A computed property which performs a logical `or` on the
-    original values for the provided dependent properties.
-
-    Example
-
-    ```javascript
-    var Hamster = Ember.Object.extend({
-      readyForRain: Ember.computed.or('hasJacket', 'hasUmbrella')
-    });
-
-    var hamster = Hamster.create();
-
-    hamster.get('readyForRain'); // false
-    hamster.set('hasUmbrella', true);
-    hamster.get('readyForRain'); // true
-    hamster.set('hasJacket', 'Yes');
-    hamster.get('readyForRain'); // 'Yes'
-    ```
-
-    @method or
-    @for Ember.computed
-    @param {String} dependentKey*
-    @return {Ember.ComputedProperty} computed property which performs
-    a logical `or` on the values of all the original values for properties.
-  */
   var or = generateComputedWithProperties(function (properties) {
     for (var key in properties) {
       if (properties.hasOwnProperty(key) && properties[key]) {
@@ -4303,31 +4277,6 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     return false;
   });
 
-  /**
-    A computed property that returns the first truthy value
-    from a list of dependent properties.
-
-    Example
-
-    ```javascript
-    var Hamster = Ember.Object.extend({
-      hasClothes: Ember.computed.any('hat', 'shirt')
-    });
-
-    var hamster = Hamster.create();
-
-    hamster.get('hasClothes'); // null
-    hamster.set('shirt', 'Hawaiian Shirt');
-    hamster.get('hasClothes'); // 'Hawaiian Shirt'
-    ```
-
-    @method any
-    @for Ember.computed
-    @param {String} dependentKey*
-    @return {Ember.ComputedProperty} computed property which returns
-    the first truthy value of given list of properties.
-    @deprecated Use `Ember.computed.or` instead.
-  */
   var any = generateComputedWithProperties(function (properties) {
     for (var key in properties) {
       if (properties.hasOwnProperty(key) && properties[key]) {
@@ -4337,31 +4286,6 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     return null;
   });
 
-  /**
-    A computed property that returns the array of values
-    for the provided dependent properties.
-
-    Example
-
-    ```javascript
-    var Hamster = Ember.Object.extend({
-      clothes: Ember.computed.collect('hat', 'shirt')
-    });
-
-    var hamster = Hamster.create();
-
-    hamster.get('clothes'); // [null, null]
-    hamster.set('hat', 'Camp Hat');
-    hamster.set('shirt', 'Camp Shirt');
-    hamster.get('clothes'); // ['Camp Hat', 'Camp Shirt']
-    ```
-
-    @method collect
-    @for Ember.computed
-    @param {String} dependentKey*
-    @return {Ember.ComputedProperty} computed property which maps
-    values of all passed in properties to an array.
-  */
   var collect = generateComputedWithProperties(function (properties) {
     var res = Ember['default'].A();
     for (var key in properties) {
@@ -4374,8 +4298,7 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
       }
     }
     return res;
-  });
-  function oneWay(dependentKey) {
+  });function oneWay(dependentKey) {
     return alias['default'](dependentKey).oneWay();
   }
 
@@ -4441,7 +4364,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.d6f42c2d
+    @version 1.12.0-beta.1+canary.18d211ff
   */
 
   if ("undefined" === typeof Ember) {
@@ -4470,10 +4393,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.d6f42c2d'
+    @default '1.12.0-beta.1+canary.18d211ff'
     @static
   */
-  Ember.VERSION = "1.12.0-beta.1+canary.d6f42c2d";
+  Ember.VERSION = "1.12.0-beta.1+canary.18d211ff";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -4648,6 +4571,9 @@ enifed('ember-metal/dependent_keys', ['exports', 'ember-metal/platform/create', 
   exports.addDependentKeys = addDependentKeys;
   exports.removeDependentKeys = removeDependentKeys;
 
+  // Remove "use strict"; from transpiled module until
+  // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
+  //
   "REMOVE_USE_STRICT: true";
 
   function keysForDep(depsMeta, depKey) {
@@ -4991,11 +4917,11 @@ enifed('ember-metal/events', ['exports', 'ember-metal/core', 'ember-metal/utils'
   exports.on = on;
   exports.removeListener = removeListener;
 
+  // Remove "use strict"; from transpiled module until
+  // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
+  //
   "REMOVE_USE_STRICT: true";
 
-  /**
-  @module ember-metal
-  */
   var a_slice = [].slice;
 
   /* listener flags */
@@ -6589,6 +6515,11 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
   exports.beforeObserver = beforeObserver;
   exports.Mixin = Mixin;
 
+  // Remove "use strict"; from transpiled module until
+  // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
+  //
+  "REMOVE_USE_STRICT: true";
+
   /**
     @method mixin
     @for Ember
@@ -6596,13 +6527,6 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
     @param mixins*
     @return obj
   */
-  "REMOVE_USE_STRICT: true";
-
-  /**
-  @module ember
-  @submodule ember-metal
-  */
-
   var REQUIRED;
   var a_slice = [].slice;
 
@@ -7597,8 +7521,7 @@ enifed('ember-metal/path_cache', ['exports', 'ember-metal/cache'], function (exp
     firstDotIndexCache: firstDotIndexCache,
     firstKeyCache: firstKeyCache,
     tailPathCache: tailPathCache
-  };
-  function isGlobal(path) {
+  };function isGlobal(path) {
     return isGlobalCache.get(path);
   }
 
@@ -9887,6 +9810,11 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
   exports.isArray = isArray;
   exports.canInvoke = canInvoke;
 
+  // Remove "use strict"; from transpiled module until
+  // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
+  //
+  "REMOVE_USE_STRICT: true";
+
   /**
     Generates a universally unique identifier. This method
     is used internally by Ember for assisting with
@@ -9896,8 +9824,6 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
     @public
     @return {Number} [description]
    */
-  "REMOVE_USE_STRICT: true";
-
   var _uuid = 0;
   function uuid() {
     return ++_uuid;
@@ -10024,8 +9950,7 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
   var NEXT_SUPER_PROPERTY = {
     name: "__nextSuper",
     descriptor: undefinedDescriptor
-  };
-  function generateGuid(obj, prefix) {
+  };function generateGuid(obj, prefix) {
     if (!prefix) {
       prefix = GUID_PREFIX;
     }
@@ -12257,8 +12182,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     @param dependentKey
     @param propertyKey
   */
-  var mapProperty = mapBy;
-  function filter(dependentKey, callback) {
+  var mapProperty = mapBy;function filter(dependentKey, callback) {
     var options = {
       initialize: function (array, changeMeta, instanceMeta) {
         instanceMeta.filteredArrayIndexes = new SubArray['default']();
@@ -12313,8 +12237,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     @param value
     @deprecated Use `Ember.computed.filterBy` instead
   */
-  var filterProperty = filterBy;
-  function uniq() {
+  var filterProperty = filterBy;function uniq() {
     var args = a_slice.call(arguments);
 
     args.push({
@@ -12358,8 +12281,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     @return {Ember.ComputedProperty} computes a new array with all the
     unique elements from the dependent array
   */
-  var union = uniq;
-  function intersect() {
+  var union = uniq;function intersect() {
     var args = a_slice.call(arguments);
 
     args.push({
@@ -12875,25 +12797,6 @@ enifed('ember-runtime/controllers/object_controller', ['exports', 'ember-metal/c
 
   var objectControllerDeprecation = "Ember.ObjectController is deprecated, " + "please use Ember.Controller and use `model.propertyName`.";
 
-  /**
-  @module ember
-  @submodule ember-runtime
-  */
-
-  /**
-    `Ember.ObjectController` is part of Ember's Controller layer. It is intended
-    to wrap a single object, proxying unhandled attempts to `get` and `set` to the underlying
-    model object, and to forward unhandled action attempts to its `target`.
-
-    `Ember.ObjectController` derives this functionality from its superclass
-    `Ember.ObjectProxy` and the `Ember.ControllerMixin` mixin.
-
-    @class ObjectController
-    @namespace Ember
-    @extends Ember.ObjectProxy
-    @uses Ember.ControllerMixin
-    @deprecated
-  **/
   exports['default'] = ObjectProxy['default'].extend(ControllerMixin['default'], {
     init: function () {
           }
