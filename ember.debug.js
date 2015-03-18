@@ -38351,9 +38351,8 @@ enifed("ember-views/attr_nodes/attr_node",
     AttrNode.prototype.init = function init(attrName, simpleAttrValue){
       this.isView = true;
 
-      // That these semantics are used is very unfortunate.
       this.tagName = '';
-      this.classNameBindings = [];
+      this.isVirtual = true;
 
       this.attrName = attrName;
       this.attrValue = simpleAttrValue;
@@ -38394,6 +38393,15 @@ enifed("ember-views/attr_nodes/attr_node",
 
       var parent = this._parentView;
       if (parent) { parent.removeChild(this); }
+    };
+
+    AttrNode.prototype.propertyDidChange = function render() {
+    };
+
+    AttrNode.prototype._notifyBecameHidden = function render() {
+    };
+
+    AttrNode.prototype._notifyBecameVisible = function render() {
     };
 
     __exports__["default"] = AttrNode;
