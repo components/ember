@@ -3305,6 +3305,8 @@ enifed('ember-application/ext/controller', ['exports', 'ember-metal/core', 'embe
     needs: [],
 
     init: function () {
+      var _ref;
+
       var needs = property_get.get(this, "needs");
       var length = property_get.get(needs, "length");
 
@@ -3319,7 +3321,7 @@ enifed('ember-application/ext/controller', ['exports', 'ember-metal/core', 'embe
         property_get.get(this, "controllers");
       }
 
-      this._super.apply(this, arguments);
+      (_ref = this)._super.apply(_ref, arguments);
     },
 
     /**
@@ -3408,7 +3410,9 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
     rootElement: null,
 
     init: function () {
-      this._super.apply(this, arguments);
+      var _ref;
+
+      (_ref = this)._super.apply(_ref, arguments);
 
       // Create a per-instance registry that will use the application's registry
       // as a fallback for resolving registrations.
@@ -3526,7 +3530,9 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
       @private
     */
     willDestroy: function () {
-      this._super.apply(this, arguments);
+      var _ref;
+
+      (_ref = this)._super.apply(_ref, arguments);
       run['default'](this.container, "destroy");
     }
   });
@@ -3760,7 +3766,9 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
     autoboot: true,
 
     init: function () {
-      this._super.apply(this, arguments);
+      var _ref;
+
+      (_ref = this)._super.apply(_ref, arguments);
 
       if (!this.$) {
         this.$ = jQuery['default'];
@@ -4214,9 +4222,11 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       @deprecated
     */
     then: function () {
+      var _ref;
+
       Ember['default'].deprecate("Do not use `.then` on an instance of Ember.Application.  Please use the `.ready` hook instead.", false, { url: "http://emberjs.com/guides/deprecations/#toc_deprecate-code-then-code-on-ember-application" });
 
-      this._super.apply(this, arguments);
+      (_ref = this)._super.apply(_ref, arguments);
     }
   });
 
@@ -5210,7 +5220,9 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
 
   exports['default'] = EmberObject['default'].extend({
     init: function () {
-      this._super.apply(this, arguments);
+      var _ref;
+
+      (_ref = this)._super.apply(_ref, arguments);
       this.releaseMethods = native_array.A();
     },
 
@@ -5378,7 +5390,9 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
       @method willDestroy
     */
     willDestroy: function () {
-      this._super.apply(this, arguments);
+      var _ref;
+
+      (_ref = this)._super.apply(_ref, arguments);
       this.releaseMethods.forEach(function (fn) {
         fn();
       });
@@ -19147,7 +19161,9 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
        @method init
     */
     init: function () {
-      this._super.apply(this, arguments);
+      var _ref;
+
+      (_ref = this)._super.apply(_ref, arguments);
 
       Ember['default'].deprecate("Using currentWhen with {{link-to}} is deprecated in favor of `current-when`.", !this.currentWhen);
 
@@ -19196,7 +19212,9 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
     },
 
     afterRender: function () {
-      this._super.apply(this, arguments);
+      var _ref;
+
+      (_ref = this)._super.apply(_ref, arguments);
       this._setupPathObservers();
     },
 
@@ -19744,7 +19762,9 @@ enifed('ember-routing/ext/controller', ['exports', 'ember-metal/core', 'ember-me
     concatenatedProperties: ["queryParams", "_pCacheMeta"],
 
     init: function () {
-      this._super.apply(this, arguments);
+      var _ref;
+
+      (_ref = this)._super.apply(_ref, arguments);
       listenForQueryParamChanges(this);
     },
 
@@ -19956,8 +19976,10 @@ enifed('ember-routing/ext/controller', ['exports', 'ember-metal/core', 'ember-me
       @method transitionTo
     */
     transitionTo: function () {
+      var _ref;
+
       Ember['default'].deprecate("transitionTo is deprecated. Please use transitionToRoute.");
-      return this.transitionToRoute.apply(this, arguments);
+      return (_ref = this).transitionToRoute.apply(_ref, arguments);
     },
 
     /**
@@ -20017,8 +20039,10 @@ enifed('ember-routing/ext/controller', ['exports', 'ember-metal/core', 'ember-me
       @method replaceWith
     */
     replaceWith: function () {
+      var _ref;
+
       Ember['default'].deprecate("replaceWith is deprecated. Please use replaceRoute.");
-      return this.replaceRoute.apply(this, arguments);
+      return (_ref = this).replaceRoute.apply(_ref, arguments);
     }
   });
 
@@ -23226,7 +23250,9 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
     },
 
     replaceWith: function () {
-      return this.transitionTo.apply(this, arguments).method("replace");
+      var _ref;
+
+      return (_ref = this).transitionTo.apply(_ref, arguments).method("replace");
     },
 
     generate: function () {
@@ -23293,11 +23319,13 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
     },
 
     willDestroy: function () {
+      var _ref;
+
       if (this._toplevelView) {
         this._toplevelView.destroy();
         this._toplevelView = null;
       }
-      this._super.apply(this, arguments);
+      (_ref = this)._super.apply(_ref, arguments);
       this.reset();
     },
 
@@ -25937,7 +25965,9 @@ enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/co
     },
 
     arrangedContentDidChange: function () {
-      this._super.apply(this, arguments);
+      var _ref;
+
+      (_ref = this)._super.apply(_ref, arguments);
       this._resetSubControllers();
     },
 
@@ -25963,7 +25993,9 @@ enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/co
     },
 
     init: function () {
-      this._super.apply(this, arguments);
+      var _ref;
+
+      (_ref = this)._super.apply(_ref, arguments);
       this._subControllers = [];
     },
 
@@ -26037,8 +26069,10 @@ enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/co
     },
 
     willDestroy: function () {
+      var _ref;
+
       this._resetSubControllers();
-      this._super.apply(this, arguments);
+      (_ref = this)._super.apply(_ref, arguments);
     }
   });
 
@@ -26354,6 +26388,8 @@ enifed('ember-runtime/ext/function', ['ember-metal/core', 'ember-metal/expand_pr
       @for Function
     */
     FunctionPrototype.observesImmediately = function () {
+      var _ref;
+
       Ember['default'].assert("Immediate observers must observe internal properties only, " + "not properties on other objects.", function checkIsInternalProperty() {
         for (var i = 0, l = arguments.length; i < l; i++) {
           if (arguments[i].indexOf(".") !== -1) {
@@ -26364,7 +26400,7 @@ enifed('ember-runtime/ext/function', ['ember-metal/core', 'ember-metal/expand_pr
       });
 
       // observes handles property expansion
-      return this.observes.apply(this, arguments);
+      return (_ref = this).observes.apply(_ref, arguments);
     };
 
     /**
@@ -27496,9 +27532,11 @@ enifed('ember-runtime/mixins/controller_content_model_alias_deprecation', ['expo
       @since 1.4.0
     */
     willMergeMixin: function (props) {
+      var _ref;
+
       // Calling super is only OK here since we KNOW that
       // there is another Mixin loaded first.
-      this._super.apply(this, arguments);
+      (_ref = this)._super.apply(_ref, arguments);
 
       var modelSpecified = !!props.model;
 
@@ -29821,6 +29859,8 @@ enifed('ember-runtime/mixins/sortable', ['exports', 'ember-metal/core', 'ember-m
     },
 
     destroy: function () {
+      var _ref;
+
       var content = property_get.get(this, "content");
       var sortProperties = property_get.get(this, "sortProperties");
 
@@ -29832,7 +29872,7 @@ enifed('ember-runtime/mixins/sortable', ['exports', 'ember-metal/core', 'ember-m
         }, this);
       }
 
-      return this._super.apply(this, arguments);
+      return (_ref = this)._super.apply(_ref, arguments);
     },
 
     isSorted: computed_macros.notEmpty("sortProperties"),
@@ -29865,6 +29905,8 @@ enifed('ember-runtime/mixins/sortable', ['exports', 'ember-metal/core', 'ember-m
     }),
 
     _contentWillChange: mixin.beforeObserver("content", function () {
+      var _ref;
+
       var content = property_get.get(this, "content");
       var sortProperties = property_get.get(this, "sortProperties");
 
@@ -29876,7 +29918,7 @@ enifed('ember-runtime/mixins/sortable', ['exports', 'ember-metal/core', 'ember-m
         }, this);
       }
 
-      this._super.apply(this, arguments);
+      (_ref = this)._super.apply(_ref, arguments);
     }),
 
     sortPropertiesWillChange: mixin.beforeObserver("sortProperties", function () {
@@ -30356,7 +30398,9 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/core', 'embe
 
     replace: function () {
       if (property_get.get(this, "arrangedContent") === property_get.get(this, "content")) {
-        this._replace.apply(this, arguments);
+        var _ref;
+
+        (_ref = this)._replace.apply(_ref, arguments);
       } else {
         throw new EmberError['default']("Using replace on an arranged ArrayProxy is not allowed.");
       }
@@ -30462,7 +30506,9 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/core', 'embe
     },
 
     init: function () {
-      this._super.apply(this, arguments);
+      var _ref;
+
+      (_ref = this)._super.apply(_ref, arguments);
       this._setupContent();
       this._setupArrangedContent();
     },
@@ -31278,8 +31324,10 @@ enifed('ember-runtime/system/deferred', ['exports', 'ember-metal/core', 'ember-r
 
   var Deferred = EmberObject['default'].extend(DeferredMixin['default'], {
     init: function () {
+      var _ref;
+
       Ember['default'].deprecate("Usage of Ember.Deferred is deprecated.", false, { url: "http://emberjs.com/guides/deprecations/#toc_deprecate-ember-deferredmixin-and-ember-deferred" });
-      this._super.apply(this, arguments);
+      (_ref = this)._super.apply(_ref, arguments);
     }
   });
 
@@ -31306,7 +31354,9 @@ enifed('ember-runtime/system/each_proxy', ['exports', 'ember-metal/core', 'ember
   var EachArray = EmberObject['default'].extend(EmberArray['default'], {
 
     init: function (content, keyName, owner) {
-      this._super.apply(this, arguments);
+      var _ref;
+
+      (_ref = this)._super.apply(_ref, arguments);
       this._keyName = keyName;
       this._owner = owner;
       this._content = content;
@@ -31386,7 +31436,9 @@ enifed('ember-runtime/system/each_proxy', ['exports', 'ember-metal/core', 'ember
   var EachProxy = EmberObject['default'].extend({
 
     init: function (content) {
-      this._super.apply(this, arguments);
+      var _ref;
+
+      (_ref = this)._super.apply(_ref, arguments);
       this._content = content;
       content.addArrayObserver(this);
 
@@ -31607,6 +31659,8 @@ enifed('ember-runtime/system/namespace', ['exports', 'ember-metal/core', 'ember-
     },
 
     destroy: function () {
+      var _ref;
+
       var namespaces = Namespace.NAMESPACES;
       var toString = this.toString();
 
@@ -31615,7 +31669,7 @@ enifed('ember-runtime/system/namespace', ['exports', 'ember-metal/core', 'ember-
         delete Namespace.NAMESPACES_BY_ID[toString];
       }
       namespaces.splice(array.indexOf.call(namespaces, this), 1);
-      this._super.apply(this, arguments);
+      (_ref = this)._super.apply(_ref, arguments);
     }
   });
 
@@ -32216,8 +32270,10 @@ enifed('ember-runtime/system/set', ['exports', 'ember-metal/core', 'ember-metal/
     //
 
     init: function (items) {
+      var _ref;
+
       Ember['default'].deprecate("Ember.Set is deprecated and will be removed in a future release.");
-      this._super.apply(this, arguments);
+      (_ref = this)._super.apply(_ref, arguments);
 
       if (items) {
         this.addObjects(items);
@@ -34984,7 +35040,9 @@ enifed('ember-views/mixins/class_names_support', ['exports', 'ember-metal/core',
     concatenatedProperties: ["classNames", "classNameBindings"],
 
     init: function () {
-      this._super.apply(this, arguments);
+      var _ref;
+
+      (_ref = this)._super.apply(_ref, arguments);
 
       Ember['default'].assert("Only arrays are allowed for 'classNameBindings'", ember_metal__utils.typeOf(this.classNameBindings) === "array");
       this.classNameBindings = native_array.A(this.classNameBindings.slice());
@@ -35145,12 +35203,14 @@ enifed('ember-views/mixins/component_template_deprecation', ['exports', 'ember-m
       @since 1.4.0
     */
     willMergeMixin: function (props) {
+      var _ref;
+
       // must call _super here to ensure that the ActionHandler
       // mixin is setup properly (moves actions -> _actions)
       //
       // Calling super is only OK here since we KNOW that
       // there is another Mixin loaded first.
-      this._super.apply(this, arguments);
+      (_ref = this)._super.apply(_ref, arguments);
 
       var deprecatedProperty, replacementProperty;
       var layoutSpecified = props.layoutName || props.layout || property_get.get(this, "layoutName");
@@ -35380,7 +35440,9 @@ enifed('ember-views/mixins/text_support', ['exports', 'ember-metal/property_get'
     maxlength: null,
 
     init: function () {
-      this._super.apply(this, arguments);
+      var _ref;
+
+      (_ref = this)._super.apply(_ref, arguments);
       this.on("paste", this, this._elementValueDidChange);
       this.on("cut", this, this._elementValueDidChange);
       this.on("input", this, this._elementValueDidChange);
@@ -35618,10 +35680,12 @@ enifed('ember-views/mixins/view_child_views_support', ['exports', 'ember-metal/c
     _childViews: EMPTY_ARRAY,
 
     init: function () {
+      var _ref;
+
       // setup child views. be sure to clone the child views array first
       this._childViews = this._childViews.slice();
 
-      this._super.apply(this, arguments);
+      (_ref = this)._super.apply(_ref, arguments);
     },
 
     appendChild: function (view, options) {
@@ -35802,7 +35866,9 @@ enifed('ember-views/mixins/view_keyword_support', ['exports', 'ember-metal/mixin
 
   var ViewKeywordSupport = mixin.Mixin.create({
     init: function () {
-      this._super.apply(this, arguments);
+      var _ref;
+
+      (_ref = this)._super.apply(_ref, arguments);
 
       if (!this._keywords) {
         this._keywords = create['default'](null);
@@ -35871,10 +35937,12 @@ enifed('ember-views/mixins/view_stream_support', ['exports', 'ember-metal/mixin'
 
   var ViewStreamSupport = mixin.Mixin.create({
     init: function () {
+      var _ref;
+
       this._baseContext = undefined;
       this._contextStream = undefined;
       this._streamBindings = undefined;
-      this._super.apply(this, arguments);
+      (_ref = this)._super.apply(_ref, arguments);
     },
 
     getStream: function (path) {
@@ -36674,9 +36742,11 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-metal/core', 'e
     },
 
     destroy: function () {
+      var _ref;
+
       var rootElement = property_get.get(this, "rootElement");
       jQuery['default'](rootElement).off(".ember", "**").removeClass("ember-application");
-      return this._super.apply(this, arguments);
+      return (_ref = this)._super.apply(_ref, arguments);
     },
 
     toString: function () {
@@ -37581,7 +37651,9 @@ enifed('ember-views/views/bound_component_view', ['exports', 'ember-views/views/
 
   exports['default'] = ContainerView['default'].extend(metamorph_view._Metamorph, {
     init: function () {
-      this._super.apply(this, arguments);
+      var _ref;
+
+      (_ref = this)._super.apply(_ref, arguments);
       var componentNameStream = this._boundComponentOptions.componentNameStream;
       var container = this.container;
       this.componentClassStream = utils.chain(componentNameStream, function () {
@@ -37592,8 +37664,10 @@ enifed('ember-views/views/bound_component_view', ['exports', 'ember-views/views/
       this._updateBoundChildComponent();
     },
     willDestroy: function () {
+      var _ref;
+
       utils.unsubscribe(this.componentClassStream, this._updateBoundChildComponent, this);
-      this._super.apply(this, arguments);
+      (_ref = this)._super.apply(_ref, arguments);
     },
     _updateBoundChildComponent: function () {
       this.replace(0, 1, [this._createNewComponent()]);
@@ -37627,7 +37701,9 @@ enifed('ember-views/views/bound_if_view', ['exports', 'ember-metal/run_loop', 'e
 
   exports['default'] = _MetamorphView['default'].extend(NormalizedRerenderIfNeededSupport['default'], {
     init: function () {
-      this._super.apply(this, arguments);
+      var _ref;
+
+      (_ref = this)._super.apply(_ref, arguments);
 
       var self = this;
 
@@ -37661,7 +37737,9 @@ enifed('ember-views/views/bound_partial_view', ['exports', 'ember-views/views/me
 
   exports['default'] = _MetamorphView['default'].extend(NormalizedRerenderIfNeededSupport['default'], {
     init: function () {
-      this._super.apply(this, arguments);
+      var _ref;
+
+      (_ref = this)._super.apply(_ref, arguments);
 
       var self = this;
 
@@ -37707,12 +37785,16 @@ enifed('ember-views/views/checkbox', ['exports', 'ember-metal/property_get', 'em
     indeterminate: false,
 
     init: function () {
-      this._super.apply(this, arguments);
+      var _ref;
+
+      (_ref = this)._super.apply(_ref, arguments);
       this.on("change", this, this._updateElementValue);
     },
 
     didInsertElement: function () {
-      this._super.apply(this, arguments);
+      var _ref;
+
+      (_ref = this)._super.apply(_ref, arguments);
       property_get.get(this, "element").indeterminate = !!property_get.get(this, "indeterminate");
     },
 
@@ -37771,7 +37853,9 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
        @method init
     */
     init: function () {
-      var ret = this._super.apply(this, arguments);
+      var _ref;
+
+      var ret = (_ref = this)._super.apply(_ref, arguments);
       this._contentDidChange();
       return ret;
     },
@@ -37826,7 +37910,9 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
        @method destroy
     */
     destroy: function () {
-      if (!this._super.apply(this, arguments)) {
+      var _ref;
+
+      if (!(_ref = this)._super.apply(_ref, arguments)) {
         return;
       }
 
@@ -38019,7 +38105,9 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
     }),
 
     init: function () {
-      this._super.apply(this, arguments);
+      var _ref;
+
+      (_ref = this)._super.apply(_ref, arguments);
       this._keywords.view = this;
       property_set.set(this, "context", this);
       property_set.set(this, "controller", this);
@@ -38460,7 +38548,9 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
     },
 
     init: function () {
-      this._super.apply(this, arguments);
+      var _ref;
+
+      (_ref = this)._super.apply(_ref, arguments);
 
       var childViews = property_get.get(this, "childViews");
       Ember['default'].deprecate("Setting `childViews` on a Container is deprecated.", Ember['default'].isEmpty(childViews));
@@ -38789,9 +38879,11 @@ enifed('ember-views/views/core_view', ['exports', 'ember-views/system/renderer',
     },
 
     destroy: function () {
+      var _ref;
+
       var parent = this._parentView;
 
-      if (!this._super.apply(this, arguments)) {
+      if (!(_ref = this)._super.apply(_ref, arguments)) {
         return;
       }
 
@@ -38977,10 +39069,12 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
     defaultTemplate: selectOptionDefaultTemplate,
 
     init: function () {
+      var _ref;
+
       this.labelPathDidChange();
       this.valuePathDidChange();
 
-      this._super.apply(this, arguments);
+      (_ref = this)._super.apply(_ref, arguments);
     },
 
     selected: computed.computed(function () {
@@ -39581,7 +39675,9 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
     },
 
     init: function () {
-      this._super.apply(this, arguments);
+      var _ref;
+
+      (_ref = this)._super.apply(_ref, arguments);
       this.on("didInsertElement", this, this._setDefaults);
       this.on("change", this, this._change);
     }
@@ -40028,7 +40124,9 @@ enifed('ember-views/views/text_area', ['exports', 'ember-metal/property_get', 'e
     }),
 
     init: function () {
-      this._super.apply(this, arguments);
+      var _ref;
+
+      (_ref = this)._super.apply(_ref, arguments);
       this.on("didInsertElement", this, this._updateElementValue);
     }
   });
@@ -41320,11 +41418,13 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-runtime/
       @private
     */
     init: function () {
+      var _ref;
+
       if (!this.isVirtual && !this.elementId) {
         this.elementId = utils.guidFor(this);
       }
 
-      this._super.apply(this, arguments);
+      (_ref = this)._super.apply(_ref, arguments);
 
       if (!this._viewRegistry) {
         this._viewRegistry = View.views;
@@ -41365,11 +41465,13 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-runtime/
        @method destroy
     */
     destroy: function () {
+      var _ref;
+
       // get parentView before calling super because it'll be destroyed
       var nonVirtualParentView = property_get.get(this, "parentView");
       var viewName = this.viewName;
 
-      if (!this._super.apply(this, arguments)) {
+      if (!(_ref = this)._super.apply(_ref, arguments)) {
         return;
       }
 
@@ -41534,7 +41636,9 @@ enifed('ember-views/views/with_view', ['exports', 'ember-metal/property_set', 'e
 
   exports['default'] = _MetamorphView['default'].extend(NormalizedRerenderIfNeededSupport['default'], {
     init: function () {
-      this._super.apply(this, arguments);
+      var _ref;
+
+      (_ref = this)._super.apply(_ref, arguments);
 
       var self = this;
 
@@ -41586,7 +41690,9 @@ enifed('ember-views/views/with_view', ['exports', 'ember-metal/property_set', 'e
     },
 
     willDestroy: function () {
-      this._super.apply(this, arguments);
+      var _ref;
+
+      (_ref = this)._super.apply(_ref, arguments);
 
       if (this._generatedController) {
         this._generatedController.destroy();
