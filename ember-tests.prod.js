@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.95caff58
+ * @version   1.12.0-beta.1+canary.1ba2ceac
  */
 
 (function() {
@@ -19656,7 +19656,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.95caff58",
+        revision: "Ember@1.12.0-beta.1+canary.1ba2ceac",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -20246,7 +20246,7 @@ enifed('ember-metal.jshint', function () {
 
   module("JSHint - .");
   test("ember-metal.js should pass jshint", function () {
-    ok(true, "ember-metal.js should pass jshint.");
+    ok(false, "ember-metal.js should pass jshint.\nember-metal.js: line 87, col 3, 'Descriptor' is defined but never used.\n\n1 error");
   });
 
 });
@@ -54945,7 +54945,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.12.0-beta.1+canary.95caff58", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.12.0-beta.1+canary.1ba2ceac", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {

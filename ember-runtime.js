@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.95caff58
+ * @version   1.12.0-beta.1+canary.1ba2ceac
  */
 
 (function() {
@@ -2218,7 +2218,6 @@ enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/merge', 'embe
   Ember['default'].endPropertyChanges = property_events.endPropertyChanges;
   Ember['default'].changeProperties = property_events.changeProperties;
 
-  Ember['default'].Descriptor = properties.Descriptor;
   Ember['default'].defineProperty = properties.defineProperty;
 
   Ember['default'].set = property_set.set;
@@ -3561,7 +3560,6 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-me
 
     @class ComputedProperty
     @namespace Ember
-    @extends Ember.Descriptor
     @constructor
   */
   function ComputedProperty(config, opts) {
@@ -4363,7 +4361,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.95caff58
+    @version 1.12.0-beta.1+canary.1ba2ceac
   */
 
   if ("undefined" === typeof Ember) {
@@ -4392,10 +4390,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.95caff58'
+    @default '1.12.0-beta.1+canary.1ba2ceac'
     @static
   */
-  Ember.VERSION = "1.12.0-beta.1+canary.95caff58";
+  Ember.VERSION = "1.12.0-beta.1+canary.1ba2ceac";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -7839,13 +7837,6 @@ enifed('ember-metal/properties', ['exports', 'ember-metal/core', 'ember-metal/ut
   /**
     Objects of this type can implement an interface to respond to requests to
     get and set. The default implementation handles simple properties.
-
-    You generally won't need to create or subclass this directly.
-
-    @class Descriptor
-    @namespace Ember
-    @private
-    @constructor
   */
   function Descriptor() {
     this.isDescriptor = true;
