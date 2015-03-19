@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.1ba2ceac
+ * @version   1.12.0-beta.1+canary.8c84524e
  */
 
 (function() {
@@ -4361,7 +4361,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.1ba2ceac
+    @version 1.12.0-beta.1+canary.8c84524e
   */
 
   if ("undefined" === typeof Ember) {
@@ -4390,10 +4390,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.1ba2ceac'
+    @default '1.12.0-beta.1+canary.8c84524e'
     @static
   */
-  Ember.VERSION = "1.12.0-beta.1+canary.1ba2ceac";
+  Ember.VERSION = "1.12.0-beta.1+canary.8c84524e";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -7244,12 +7244,12 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
     return ret;
   };
 
-  REQUIRED = new properties.Descriptor();
+  exports.REQUIRED = REQUIRED = new properties.Descriptor();
   REQUIRED.toString = function () {
     return "(Required Property)";
   };
   function required() {
-    return REQUIRED;
+        return REQUIRED;
   }
 
   function Alias(methodName) {
@@ -13714,11 +13714,12 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
   exports['default'] = mixin.Mixin.create(Enumerable['default'], {
 
     /**
-      Your array must support the `length` property. Your replace methods should
+      __Required.__ You must implement this method to apply this mixin.
+       Your array must support the `length` property. Your replace methods should
       set this property whenever it changes.
        @property {Number} length
     */
-    length: mixin.required(),
+    length: null,
 
     /**
       Returns the object at the given `index`. If the given `index` is negative
@@ -14122,7 +14123,8 @@ enifed('ember-runtime/mixins/comparable', ['exports', 'ember-metal/mixin'], func
   exports['default'] = mixin.Mixin.create({
 
     /**
-      Override to return the result of the comparison of the two parameters. The
+      __Required.__ You must implement this method to apply this mixin.
+       Override to return the result of the comparison of the two parameters. The
       compare method should return:
        - `-1` if `a < b`
       - `0` if `a == b`
@@ -14133,7 +14135,7 @@ enifed('ember-runtime/mixins/comparable', ['exports', 'ember-metal/mixin'], func
       @param b {Object} the second object to compare
       @return {Integer} the result of the comparison
     */
-    compare: mixin.required(Function)
+    compare: null
   });
 
 });
@@ -14225,13 +14227,14 @@ enifed('ember-runtime/mixins/copyable', ['exports', 'ember-metal/property_get', 
 
   exports['default'] = mixin.Mixin.create({
     /**
-      Override to return a copy of the receiver. Default implementation raises
+      __Required.__ You must implement this method to apply this mixin.
+       Override to return a copy of the receiver. Default implementation raises
       an exception.
        @method copy
       @param {Boolean} deep if `true`, a deep copy of the object should be made
       @return {Object} copy of receiver
     */
-    copy: mixin.required(Function),
+    copy: null,
 
     /**
       If the object implements `Ember.Freezable`, then this will return a new
@@ -14390,7 +14393,8 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
   exports['default'] = mixin.Mixin.create({
 
     /**
-      Implement this method to make your class enumerable.
+      __Required.__ You must implement this method to apply this mixin.
+       Implement this method to make your class enumerable.
        This method will be called repeatedly during enumeration. The index value
       will always begin with 0 and increment monotonically. You don't have to
       rely on the index value to determine what object to return, but you should
@@ -14416,7 +14420,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @param {Object} context a context object you can use to maintain state.
       @return {Object} the next object in the iteration or undefined
     */
-    nextObject: mixin.required(Function),
+    nextObject: null,
 
     /**
       Helper method returns the first object from a collection. This is usually
@@ -15541,7 +15545,7 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal/property_g
       @param {Array} objects An array of zero or more objects that should be
         inserted into the array at *idx*
     */
-    replace: mixin.required(),
+    replace: null,
 
     /**
       Remove all elements from the array. This is useful if you
@@ -15841,7 +15845,7 @@ enifed('ember-runtime/mixins/mutable_enumerable', ['exports', 'ember-metal/enume
       @param {Object} object The object to add to the enumerable.
       @return {Object} the passed object
     */
-    addObject: mixin.required(Function),
+    addObject: null,
 
     /**
       Adds each object in the passed enumerable to the receiver.
@@ -15869,7 +15873,7 @@ enifed('ember-runtime/mixins/mutable_enumerable', ['exports', 'ember-metal/enume
       @param {Object} object The object to remove from the enumerable.
       @return {Object} the passed object
     */
-    removeObject: mixin.required(Function),
+    removeObject: null,
 
     /**
       Removes each object in the passed enumerable from the receiver.
@@ -17574,9 +17578,9 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
 
   var ClassMixinProps = {
 
-    ClassMixin: mixin.required(),
+    ClassMixin: mixin.REQUIRED,
 
-    PrototypeMixin: mixin.required(),
+    PrototypeMixin: mixin.REQUIRED,
 
     isClass: true,
 

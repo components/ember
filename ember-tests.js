@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.1ba2ceac
+ * @version   1.12.0-beta.1+canary.8c84524e
  */
 
 (function() {
@@ -17628,7 +17628,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.1ba2ceac",
+        revision: "Ember@1.12.0-beta.1+canary.8c84524e",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -25267,10 +25267,12 @@ enifed('ember-metal/tests/mixin/required_test', ['ember-metal/mixin', 'ember-met
 
   QUnit.module("Module.required", {
     setup: function () {
-      PartialMixin = mixin.Mixin.create({
-        foo: mixin.required(),
-        bar: "BAR"
-      });
+      expectDeprecation(function () {
+        PartialMixin = mixin.Mixin.create({
+          foo: mixin.required(),
+          bar: "BAR"
+        });
+      }, "Ember.required is deprecated as its behavior is inconsistent and unreliable.");
 
       FinalMixin = mixin.Mixin.create({
         foo: "FOO"
@@ -44386,20 +44388,22 @@ enifed('ember-runtime/tests/suites/array/objectAt.jshint', function () {
   });
 
 });
-enifed('ember-runtime/tests/suites/copyable', ['exports', 'ember-runtime/tests/suites/suite', 'ember-metal/mixin', 'ember-runtime/tests/suites/copyable/copy', 'ember-runtime/tests/suites/copyable/frozenCopy'], function (exports, suite, mixin, copyTests, frozenCopyTests) {
+enifed('ember-runtime/tests/suites/copyable', ['exports', 'ember-runtime/tests/suites/suite', 'ember-runtime/tests/suites/copyable/copy', 'ember-runtime/tests/suites/copyable/frozenCopy'], function (exports, suite, copyTests, frozenCopyTests) {
 
   'use strict';
 
   var CopyableTests = suite.Suite.extend({
 
     /**
-      Must be able to create a new object for testing.
+      __Required.__ You must implement this method to apply this mixin.
+       Must be able to create a new object for testing.
        @returns {Object} object
     */
-    newObject: mixin.required(Function),
+    newObject: null,
 
     /**
-      Compares the two passed in objects.  Returns true if the two objects
+      __Required.__ You must implement this method to apply this mixin.
+       Compares the two passed in objects.  Returns true if the two objects
       are logically equivalent.
        @param {Object} a
         First object
@@ -44407,7 +44411,7 @@ enifed('ember-runtime/tests/suites/copyable', ['exports', 'ember-runtime/tests/s
         Second object
        @returns {Boolean}
     */
-    isEqual: mixin.required(Function),
+    isEqual: null,
 
     /**
       Set this to true if you expect the objects you test to be freezable.
@@ -44533,7 +44537,7 @@ enifed('ember-runtime/tests/suites/copyable/frozenCopy.jshint', function () {
   });
 
 });
-enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-runtime/tests/suites/suite', 'ember-runtime/system/object', 'ember-metal/mixin', 'ember-metal/utils', 'ember-metal/computed', 'ember-metal/property_get', 'ember-metal/observer', 'ember-runtime/tests/suites/enumerable/any', 'ember-runtime/tests/suites/enumerable/is_any', 'ember-runtime/tests/suites/enumerable/compact', 'ember-runtime/tests/suites/enumerable/contains', 'ember-runtime/tests/suites/enumerable/every', 'ember-runtime/tests/suites/enumerable/filter', 'ember-runtime/tests/suites/enumerable/find', 'ember-runtime/tests/suites/enumerable/firstObject', 'ember-runtime/tests/suites/enumerable/forEach', 'ember-runtime/tests/suites/enumerable/mapBy', 'ember-runtime/tests/suites/enumerable/invoke', 'ember-runtime/tests/suites/enumerable/lastObject', 'ember-runtime/tests/suites/enumerable/map', 'ember-runtime/tests/suites/enumerable/reduce', 'ember-runtime/tests/suites/enumerable/reject', 'ember-runtime/tests/suites/enumerable/sortBy', 'ember-runtime/tests/suites/enumerable/toArray', 'ember-runtime/tests/suites/enumerable/uniq', 'ember-runtime/tests/suites/enumerable/without'], function (exports, suite, EmberObject, mixin, utils, computed, property_get, observer, anyTests, isAnyTests, compactTests, containsTests, everyTests, filterTests, findTests, firstObjectTests, forEachTests, mapByTests, invokeTests, lastObjectTests, mapTests, reduceTests, rejectTests, sortByTests, toArrayTests, uniqTests, withoutTests) {
+enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-runtime/tests/suites/suite', 'ember-runtime/system/object', 'ember-metal/utils', 'ember-metal/computed', 'ember-metal/property_get', 'ember-metal/observer', 'ember-runtime/tests/suites/enumerable/any', 'ember-runtime/tests/suites/enumerable/is_any', 'ember-runtime/tests/suites/enumerable/compact', 'ember-runtime/tests/suites/enumerable/contains', 'ember-runtime/tests/suites/enumerable/every', 'ember-runtime/tests/suites/enumerable/filter', 'ember-runtime/tests/suites/enumerable/find', 'ember-runtime/tests/suites/enumerable/firstObject', 'ember-runtime/tests/suites/enumerable/forEach', 'ember-runtime/tests/suites/enumerable/mapBy', 'ember-runtime/tests/suites/enumerable/invoke', 'ember-runtime/tests/suites/enumerable/lastObject', 'ember-runtime/tests/suites/enumerable/map', 'ember-runtime/tests/suites/enumerable/reduce', 'ember-runtime/tests/suites/enumerable/reject', 'ember-runtime/tests/suites/enumerable/sortBy', 'ember-runtime/tests/suites/enumerable/toArray', 'ember-runtime/tests/suites/enumerable/uniq', 'ember-runtime/tests/suites/enumerable/without'], function (exports, suite, EmberObject, utils, computed, property_get, observer, anyTests, isAnyTests, compactTests, containsTests, everyTests, filterTests, findTests, firstObjectTests, forEachTests, mapByTests, invokeTests, lastObjectTests, mapTests, reduceTests, rejectTests, sortByTests, toArrayTests, uniqTests, withoutTests) {
 
   'use strict';
 
@@ -44685,14 +44689,15 @@ enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-runtime/tests
 
   var EnumerableTests = suite.Suite.extend({
     /**
-      Implement to return a new enumerable object for testing.  Should accept
+      __Required.__ You must implement this method to apply this mixin.
+       Implement to return a new enumerable object for testing.  Should accept
       either no parameters, a single number (indicating the desired length of
       the collection) or an array of objects.
        @param {Array} content
         An array of items to include in the enumerable optionally.
        @returns {Ember.Enumerable} a new enumerable
     */
-    newObject: mixin.required(Function),
+    newObject: null,
 
     /**
       Implement to return a set of new fixture strings that can be applied to
@@ -44729,14 +44734,15 @@ enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-runtime/tests
     },
 
     /**
-      Implement accept an instance of the enumerable and return an array
+      __Required.__ You must implement this method to apply this mixin.
+       Implement accept an instance of the enumerable and return an array
       containing the objects in the enumerable.  This is used only for testing
       so performance is not important.
        @param {Ember.Enumerable} enumerable
         The enumerable to convert.
        @returns {Array} array of items
     */
-    toArray: mixin.required(Function),
+    toArray: null,
 
     /**
       Implement this method if your object can mutate internally (even if it
@@ -48163,17 +48169,18 @@ enifed('ember-runtime/tests/suites/mutable_enumerable/removeObjects.jshint', fun
   });
 
 });
-enifed('ember-runtime/tests/suites/suite', ['exports', 'ember-runtime/system/object', 'ember-metal/mixin', 'ember-metal/utils', 'ember-metal/property_get', 'ember-metal/enumerable_utils'], function (exports, EmberObject, mixin, utils, property_get, enumerable_utils) {
+enifed('ember-runtime/tests/suites/suite', ['exports', 'ember-runtime/system/object', 'ember-metal/utils', 'ember-metal/property_get', 'ember-metal/enumerable_utils'], function (exports, EmberObject, utils, property_get, enumerable_utils) {
 
   'use strict';
 
   var Suite = EmberObject['default'].extend({
 
     /**
-      Define a name for these tests - all modules are prefixed w/ it.
+      __Required.__ You must implement this method to apply this mixin.
+       Define a name for these tests - all modules are prefixed w/ it.
        @type String
     */
-    name: mixin.required(String),
+    name: null,
 
     /**
       Invoked to actually run the test - overridden by mixins
@@ -49827,7 +49834,7 @@ enifed('ember-runtime/tests/system/object/create_test', ['ember-metal/core', 'em
 
   QUnit.test("creating an object with required properties", function () {
     var ClassA = EmberObject['default'].extend({
-      foo: mixin.required()
+      foo: null // required
     });
 
     var obj = ClassA.createWithMixins({ foo: "FOO" }); // should not throw
@@ -53071,7 +53078,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.12.0-beta.1+canary.1ba2ceac", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.12.0-beta.1+canary.8c84524e", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
