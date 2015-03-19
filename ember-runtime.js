@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.44d5f188
+ * @version   1.12.0-beta.1+canary.4b1a4a35
  */
 
 (function() {
@@ -4363,7 +4363,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.44d5f188
+    @version 1.12.0-beta.1+canary.4b1a4a35
   */
 
   if ("undefined" === typeof Ember) {
@@ -4392,10 +4392,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.44d5f188'
+    @default '1.12.0-beta.1+canary.4b1a4a35'
     @static
   */
-  Ember.VERSION = "1.12.0-beta.1+canary.44d5f188";
+  Ember.VERSION = "1.12.0-beta.1+canary.4b1a4a35";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -12669,9 +12669,7 @@ enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/co
     },
 
     arrangedContentDidChange: function () {
-      var _ref;
-
-      (_ref = this)._super.apply(_ref, arguments);
+      this._super.apply(this, arguments);
       this._resetSubControllers();
     },
 
@@ -12697,9 +12695,7 @@ enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/co
     },
 
     init: function () {
-      var _ref;
-
-      (_ref = this)._super.apply(_ref, arguments);
+      this._super.apply(this, arguments);
       this._subControllers = [];
     },
 
@@ -12773,10 +12769,8 @@ enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/co
     },
 
     willDestroy: function () {
-      var _ref;
-
       this._resetSubControllers();
-      (_ref = this)._super.apply(_ref, arguments);
+      this._super.apply(this, arguments);
     }
   });
 
@@ -13089,11 +13083,9 @@ enifed('ember-runtime/ext/function', ['ember-metal/core', 'ember-metal/expand_pr
       @for Function
     */
     FunctionPrototype.observesImmediately = function () {
-      var _ref;
-
       
       // observes handles property expansion
-      return (_ref = this).observes.apply(_ref, arguments);
+      return this.observes.apply(this, arguments);
     };
 
     /**
@@ -14216,11 +14208,9 @@ enifed('ember-runtime/mixins/controller_content_model_alias_deprecation', ['expo
       @since 1.4.0
     */
     willMergeMixin: function (props) {
-      var _ref;
-
       // Calling super is only OK here since we KNOW that
       // there is another Mixin loaded first.
-      (_ref = this)._super.apply(_ref, arguments);
+      this._super.apply(this, arguments);
 
       var modelSpecified = !!props.model;
 
@@ -16537,8 +16527,6 @@ enifed('ember-runtime/mixins/sortable', ['exports', 'ember-metal/core', 'ember-m
     },
 
     destroy: function () {
-      var _ref;
-
       var content = property_get.get(this, "content");
       var sortProperties = property_get.get(this, "sortProperties");
 
@@ -16550,7 +16538,7 @@ enifed('ember-runtime/mixins/sortable', ['exports', 'ember-metal/core', 'ember-m
         }, this);
       }
 
-      return (_ref = this)._super.apply(_ref, arguments);
+      return this._super.apply(this, arguments);
     },
 
     isSorted: computed_macros.notEmpty("sortProperties"),
@@ -16583,8 +16571,6 @@ enifed('ember-runtime/mixins/sortable', ['exports', 'ember-metal/core', 'ember-m
     }),
 
     _contentWillChange: mixin.beforeObserver("content", function () {
-      var _ref;
-
       var content = property_get.get(this, "content");
       var sortProperties = property_get.get(this, "sortProperties");
 
@@ -16596,7 +16582,7 @@ enifed('ember-runtime/mixins/sortable', ['exports', 'ember-metal/core', 'ember-m
         }, this);
       }
 
-      (_ref = this)._super.apply(_ref, arguments);
+      this._super.apply(this, arguments);
     }),
 
     sortPropertiesWillChange: mixin.beforeObserver("sortProperties", function () {
@@ -17070,9 +17056,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/core', 'embe
 
     replace: function () {
       if (property_get.get(this, "arrangedContent") === property_get.get(this, "content")) {
-        var _ref;
-
-        (_ref = this)._replace.apply(_ref, arguments);
+        this._replace.apply(this, arguments);
       } else {
         throw new EmberError['default']("Using replace on an arranged ArrayProxy is not allowed.");
       }
@@ -17178,9 +17162,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/core', 'embe
     },
 
     init: function () {
-      var _ref;
-
-      (_ref = this)._super.apply(_ref, arguments);
+      this._super.apply(this, arguments);
       this._setupContent();
       this._setupArrangedContent();
     },
@@ -17979,9 +17961,7 @@ enifed('ember-runtime/system/deferred', ['exports', 'ember-metal/core', 'ember-r
 
   var Deferred = EmberObject['default'].extend(DeferredMixin['default'], {
     init: function () {
-      var _ref;
-
-            (_ref = this)._super.apply(_ref, arguments);
+            this._super.apply(this, arguments);
     }
   });
 
@@ -18008,9 +17988,7 @@ enifed('ember-runtime/system/each_proxy', ['exports', 'ember-metal/core', 'ember
   var EachArray = EmberObject['default'].extend(EmberArray['default'], {
 
     init: function (content, keyName, owner) {
-      var _ref;
-
-      (_ref = this)._super.apply(_ref, arguments);
+      this._super.apply(this, arguments);
       this._keyName = keyName;
       this._owner = owner;
       this._content = content;
@@ -18089,9 +18067,7 @@ enifed('ember-runtime/system/each_proxy', ['exports', 'ember-metal/core', 'ember
   var EachProxy = EmberObject['default'].extend({
 
     init: function (content) {
-      var _ref;
-
-      (_ref = this)._super.apply(_ref, arguments);
+      this._super.apply(this, arguments);
       this._content = content;
       content.addArrayObserver(this);
 
@@ -18312,8 +18288,6 @@ enifed('ember-runtime/system/namespace', ['exports', 'ember-metal/core', 'ember-
     },
 
     destroy: function () {
-      var _ref;
-
       var namespaces = Namespace.NAMESPACES;
       var toString = this.toString();
 
@@ -18322,7 +18296,7 @@ enifed('ember-runtime/system/namespace', ['exports', 'ember-metal/core', 'ember-
         delete Namespace.NAMESPACES_BY_ID[toString];
       }
       namespaces.splice(array.indexOf.call(namespaces, this), 1);
-      (_ref = this)._super.apply(_ref, arguments);
+      this._super.apply(this, arguments);
     }
   });
 
@@ -18923,9 +18897,7 @@ enifed('ember-runtime/system/set', ['exports', 'ember-metal/core', 'ember-metal/
     //
 
     init: function (items) {
-      var _ref;
-
-            (_ref = this)._super.apply(_ref, arguments);
+            this._super.apply(this, arguments);
 
       if (items) {
         this.addObjects(items);
