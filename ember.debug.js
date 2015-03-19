@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.8c84524e
+ * @version   1.12.0-beta.1+canary.ee305d2c
  */
 
 (function() {
@@ -8532,7 +8532,7 @@ enifed('ember-htmlbars/system/render-view', ['exports', 'ember-metal/core', 'emb
   }
 
   function renderHTMLBarsTemplate(view, buffer, template) {
-    Ember['default'].assert("The template being rendered by `" + view + "` was compiled with `" + template.revision + "` which does not match `Ember@1.12.0-beta.1+canary.8c84524e` (this revision).", template.revision === "Ember@1.12.0-beta.1+canary.8c84524e");
+    Ember['default'].assert("The template being rendered by `" + view + "` was compiled with `" + template.revision + "` which does not match `Ember@1.12.0-beta.1+canary.ee305d2c` (this revision).", template.revision === "Ember@1.12.0-beta.1+canary.ee305d2c");
 
     var contextualElement = buffer.innerContextualElement();
     var args = view._blockArguments;
@@ -8571,7 +8571,7 @@ enifed('ember-htmlbars/templates/component', ['exports', 'ember-template-compile
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.8c84524e",
+      revision: "Ember@1.12.0-beta.1+canary.ee305d2c",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8619,7 +8619,7 @@ enifed('ember-htmlbars/templates/empty', ['exports', 'ember-template-compiler/sy
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.8c84524e",
+      revision: "Ember@1.12.0-beta.1+canary.ee305d2c",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8659,7 +8659,7 @@ enifed('ember-htmlbars/templates/link-to-escaped', ['exports', 'ember-template-c
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.8c84524e",
+      revision: "Ember@1.12.0-beta.1+canary.ee305d2c",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8707,7 +8707,7 @@ enifed('ember-htmlbars/templates/link-to-unescaped', ['exports', 'ember-template
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.8c84524e",
+      revision: "Ember@1.12.0-beta.1+canary.ee305d2c",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8756,7 +8756,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     var child0 = (function () {
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.8c84524e",
+        revision: "Ember@1.12.0-beta.1+canary.ee305d2c",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8800,7 +8800,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1+canary.8c84524e",
+          revision: "Ember@1.12.0-beta.1+canary.ee305d2c",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8842,7 +8842,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.8c84524e",
+        revision: "Ember@1.12.0-beta.1+canary.ee305d2c",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8886,7 +8886,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1+canary.8c84524e",
+          revision: "Ember@1.12.0-beta.1+canary.ee305d2c",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8928,7 +8928,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.8c84524e",
+        revision: "Ember@1.12.0-beta.1+canary.ee305d2c",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8970,7 +8970,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     })();
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.8c84524e",
+      revision: "Ember@1.12.0-beta.1+canary.ee305d2c",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -9450,12 +9450,12 @@ enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/merge', 'embe
   Ember['default'].metaPath = utils.metaPath;
   Ember['default'].inspect = utils.inspect;
   Ember['default'].typeOf = utils.typeOf;
-  Ember['default'].tryCatchFinally = utils.tryCatchFinally;
+  Ember['default'].tryCatchFinally = utils.deprecatedTryCatchFinally;
   Ember['default'].isArray = utils.isArray;
   Ember['default'].makeArray = utils.makeArray;
   Ember['default'].canInvoke = utils.canInvoke;
   Ember['default'].tryInvoke = utils.tryInvoke;
-  Ember['default'].tryFinally = utils.tryFinally;
+  Ember['default'].tryFinally = utils.deprecatedTryFinally;
   Ember['default'].wrap = utils.wrap;
   Ember['default'].apply = utils.apply;
   Ember['default'].applyStr = utils.applyStr;
@@ -11642,7 +11642,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.8c84524e
+    @version 1.12.0-beta.1+canary.ee305d2c
   */
 
   if ("undefined" === typeof Ember) {
@@ -11671,10 +11671,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.8c84524e'
+    @default '1.12.0-beta.1+canary.ee305d2c'
     @static
   */
-  Ember.VERSION = "1.12.0-beta.1+canary.8c84524e";
+  Ember.VERSION = "1.12.0-beta.1+canary.ee305d2c";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -17696,6 +17696,7 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
     ```
 
     @method tryFinally
+    @deprecated Use JavaScript's native try/finally
     @for Ember
     @param {Function} tryable The function to run the try callback
     @param {Function} finalizer The function to run the finally callback
@@ -17744,6 +17745,11 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
     };
   }
 
+  var deprecatedTryFinally = function () {
+    Ember['default'].deprecate("tryFinally is deprecated. Please use JavaScript's native try/finally.", false);
+    return tryFinally.apply(this, arguments);
+  };
+
   /**
     Provides try/catch/finally functionality, while working
     around Safari's double finally bug.
@@ -17774,6 +17780,7 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
     ```
 
     @method tryCatchFinally
+    @deprecated Use JavaScript's native try/catch/finally instead
     @for Ember
     @param {Function} tryable The function to run the try callback
     @param {Function} catchable The function to run the catchable callback
@@ -17825,6 +17832,11 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
       return finalResult === undefined ? result : finalResult;
     };
   }
+
+  var deprecatedTryCatchFinally = function () {
+    Ember['default'].deprecate("tryCatchFinally is deprecated. Please use JavaScript's native try/catch/finally.", false);
+    return tryCatchFinally.apply(this, arguments);
+  };
 
   // ........................................
   // TYPING & ARRAY MESSAGING
@@ -18002,7 +18014,9 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
   exports.META_DESC = META_DESC;
   exports.EMPTY_META = EMPTY_META;
   exports.tryCatchFinally = tryCatchFinally;
+  exports.deprecatedTryCatchFinally = deprecatedTryCatchFinally;
   exports.tryFinally = tryFinally;
+  exports.deprecatedTryFinally = deprecatedTryFinally;
 
 });
 enifed('ember-metal/watch_key', ['exports', 'ember-metal/core', 'ember-metal/utils', 'ember-metal/platform/define_property', 'ember-metal/properties'], function (exports, Ember, utils, define_property, properties) {
@@ -33395,7 +33409,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     }
 
     return {
-      revision: "Ember@1.12.0-beta.1+canary.8c84524e",
+      revision: "Ember@1.12.0-beta.1+canary.ee305d2c",
 
       disableComponentGeneration: disableComponentGeneration,
 
@@ -38967,7 +38981,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
 
   var selectOptionDefaultTemplate = {
     isHTMLBars: true,
-    revision: "Ember@1.12.0-beta.1+canary.8c84524e",
+    revision: "Ember@1.12.0-beta.1+canary.ee305d2c",
     render: function (context, env, contextualElement) {
       var lazyValue = context.getStream("view.label");
 
