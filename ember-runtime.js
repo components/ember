@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.ee305d2c
+ * @version   1.12.0-beta.1+canary.d9fa5880
  */
 
 (function() {
@@ -4361,7 +4361,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.ee305d2c
+    @version 1.12.0-beta.1+canary.d9fa5880
   */
 
   if ("undefined" === typeof Ember) {
@@ -4390,10 +4390,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.ee305d2c'
+    @default '1.12.0-beta.1+canary.d9fa5880'
     @static
   */
-  Ember.VERSION = "1.12.0-beta.1+canary.ee305d2c";
+  Ember.VERSION = "1.12.0-beta.1+canary.d9fa5880";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -10930,8 +10930,6 @@ enifed('ember-runtime', ['exports', 'ember-metal', 'ember-runtime/core', 'ember-
 	Ember['default'].ObjectProxy = ObjectProxy['default'];
 	Ember['default'].ActionHandler = ActionHandler['default'];
 	Ember['default'].CoreObject = CoreObject['default'];
-	Ember['default'].EachArray = each_proxy.EachArray;
-	Ember['default'].EachProxy = each_proxy.EachProxy;
 	Ember['default'].NativeArray = NativeArray['default'];
 	// ES6TODO: Currently we must rely on the global from ember-metal/core to avoid circular deps
 	// Ember.A = A;
@@ -18065,11 +18063,6 @@ enifed('ember-runtime/system/each_proxy', ['exports', 'ember-metal/core', 'ember
     This is the object instance returned when you get the `@each` property on an
     array. It uses the unknownProperty handler to automatically create
     EachArray instances for property names.
-
-    @private
-    @class EachProxy
-    @namespace Ember
-    @extends Ember.Object
   */
   var EachProxy = EmberObject['default'].extend({
 
