@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.f9a2f373
+ * @version   1.12.0-beta.1+canary.e6ed81d0
  */
 
 (function() {
@@ -19656,7 +19656,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.f9a2f373",
+        revision: "Ember@1.12.0-beta.1+canary.e6ed81d0",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -54952,7 +54952,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.12.0-beta.1+canary.f9a2f373", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.12.0-beta.1+canary.e6ed81d0", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -74135,6 +74135,136 @@ enifed('ember/tests/routing/basic_test', ['ember', 'ember-metal/enumerable_utils
     //debugger;
     //router._setOutlets();
     equal(Ember.$("#qunit-fixture").text(), "A-The index-B-Hello world-C", "second render");
+  });
+
+  QUnit.test("Can render routes with no 'main' outlet and their children", function () {
+    Ember.TEMPLATES.application = compile("<div id=\"application\">{{outlet \"app\"}}</div>");
+    Ember.TEMPLATES.app = compile("<div id=\"app-common\">{{outlet \"common\"}}</div><div id=\"app-sub\">{{outlet \"sub\"}}</div>");
+    Ember.TEMPLATES.common = compile("<div id=\"common\"></div>");
+    Ember.TEMPLATES.sub = compile("<div id=\"sub\"></div>");
+
+    Router.map(function () {
+      this.route("app", { path: "/app" }, function () {
+        this.resource("sub", { path: "/sub" });
+      });
+    });
+
+    App.AppRoute = Ember.Route.extend({
+      renderTemplate: function () {
+        this.render("app", {
+          outlet: "app",
+          into: "application"
+        });
+        this.render("common", {
+          outlet: "common",
+          into: "app"
+        });
+      }
+    });
+
+    App.SubRoute = Ember.Route.extend({
+      renderTemplate: function () {
+        this.render("sub", {
+          outlet: "sub",
+          into: "app"
+        });
+      }
+    });
+
+    bootApplication();
+    handleURL("/app");
+    equal(Ember.$("#app-common #common").length, 1, "Finds common while viewing /app");
+    handleURL("/app/sub");
+    equal(Ember.$("#app-common #common").length, 1, "Finds common while viewing /app/sub");
+    equal(Ember.$("#app-sub #sub").length, 1, "Finds sub while viewing /app/sub");
+  });
+
+  QUnit.test("Tolerates stacked renders", function () {
+    Ember.TEMPLATES.application = compile("{{outlet}}{{outlet \"modal\"}}");
+    Ember.TEMPLATES.index = compile("hi");
+    Ember.TEMPLATES.layer = compile("layer");
+    App.ApplicationRoute = Ember.Route.extend({
+      actions: {
+        openLayer: function () {
+          this.render("layer", {
+            into: "application",
+            outlet: "modal"
+          });
+        },
+        close: function () {
+          this.disconnectOutlet({
+            outlet: "modal",
+            parentView: "application"
+          });
+        }
+      }
+    });
+    bootApplication();
+    equal(Ember.$("#qunit-fixture").text().trim(), "hi");
+    Ember.run(router, "send", "openLayer");
+    equal(Ember.$("#qunit-fixture").text().trim(), "hilayer");
+    Ember.run(router, "send", "openLayer");
+    equal(Ember.$("#qunit-fixture").text().trim(), "hilayer");
+    Ember.run(router, "send", "close");
+    equal(Ember.$("#qunit-fixture").text().trim(), "hi");
+  });
+
+  QUnit.test("Renders child into parent with non-default template name", function () {
+    Ember.TEMPLATES.application = compile("<div class=\"a\">{{outlet}}</div>");
+    Ember.TEMPLATES["exports/root"] = compile("<div class=\"b\">{{outlet}}</div>");
+    Ember.TEMPLATES["exports/index"] = compile("<div class=\"c\"></div>");
+
+    Router.map(function () {
+      this.route("root", function () {});
+    });
+
+    App.RootRoute = Ember.Route.extend({
+      renderTemplate: function () {
+        this.render("exports/root");
+      }
+    });
+
+    App.RootIndexRoute = Ember.Route.extend({
+      renderTemplate: function () {
+        this.render("exports/index");
+      }
+    });
+
+    bootApplication();
+    handleURL("/root");
+    equal(Ember.$("#qunit-fixture .a .b .c").length, 1);
+  });
+
+  QUnit.test("Allows any route to disconnectOutlet another route's templates", function () {
+    Ember.TEMPLATES.application = compile("{{outlet}}{{outlet \"modal\"}}");
+    Ember.TEMPLATES.index = compile("hi");
+    Ember.TEMPLATES.layer = compile("layer");
+    App.ApplicationRoute = Ember.Route.extend({
+      actions: {
+        openLayer: function () {
+          this.render("layer", {
+            into: "application",
+            outlet: "modal"
+          });
+        }
+      }
+    });
+    App.IndexRoute = Ember.Route.extend({
+      actions: {
+        close: function () {
+          this.disconnectOutlet({
+            parentView: "application",
+            outlet: "modal"
+          });
+        }
+      }
+    });
+    bootApplication();
+    equal(Ember.$("#qunit-fixture").text().trim(), "hi");
+    Ember.run(router, "send", "openLayer");
+    equal(Ember.$("#qunit-fixture").text().trim(), "hilayer");
+    Ember.run(router, "send", "close");
+    equal(Ember.$("#qunit-fixture").text().trim(), "hi");
   });
 
   // no-op

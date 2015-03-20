@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.f9a2f373
+ * @version   1.12.0-beta.1+canary.e6ed81d0
  */
 
 (function() {
@@ -8532,7 +8532,7 @@ enifed('ember-htmlbars/system/render-view', ['exports', 'ember-metal/core', 'emb
   }
 
   function renderHTMLBarsTemplate(view, buffer, template) {
-    Ember['default'].assert("The template being rendered by `" + view + "` was compiled with `" + template.revision + "` which does not match `Ember@1.12.0-beta.1+canary.f9a2f373` (this revision).", template.revision === "Ember@1.12.0-beta.1+canary.f9a2f373");
+    Ember['default'].assert("The template being rendered by `" + view + "` was compiled with `" + template.revision + "` which does not match `Ember@1.12.0-beta.1+canary.e6ed81d0` (this revision).", template.revision === "Ember@1.12.0-beta.1+canary.e6ed81d0");
 
     var contextualElement = buffer.innerContextualElement();
     var args = view._blockArguments;
@@ -8571,7 +8571,7 @@ enifed('ember-htmlbars/templates/component', ['exports', 'ember-template-compile
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.f9a2f373",
+      revision: "Ember@1.12.0-beta.1+canary.e6ed81d0",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8619,7 +8619,7 @@ enifed('ember-htmlbars/templates/empty', ['exports', 'ember-template-compiler/sy
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.f9a2f373",
+      revision: "Ember@1.12.0-beta.1+canary.e6ed81d0",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8659,7 +8659,7 @@ enifed('ember-htmlbars/templates/link-to-escaped', ['exports', 'ember-template-c
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.f9a2f373",
+      revision: "Ember@1.12.0-beta.1+canary.e6ed81d0",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8707,7 +8707,7 @@ enifed('ember-htmlbars/templates/link-to-unescaped', ['exports', 'ember-template
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.f9a2f373",
+      revision: "Ember@1.12.0-beta.1+canary.e6ed81d0",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8756,7 +8756,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     var child0 = (function () {
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.f9a2f373",
+        revision: "Ember@1.12.0-beta.1+canary.e6ed81d0",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8800,7 +8800,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1+canary.f9a2f373",
+          revision: "Ember@1.12.0-beta.1+canary.e6ed81d0",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8842,7 +8842,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.f9a2f373",
+        revision: "Ember@1.12.0-beta.1+canary.e6ed81d0",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8886,7 +8886,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1+canary.f9a2f373",
+          revision: "Ember@1.12.0-beta.1+canary.e6ed81d0",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8928,7 +8928,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.f9a2f373",
+        revision: "Ember@1.12.0-beta.1+canary.e6ed81d0",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8970,7 +8970,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     })();
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.f9a2f373",
+      revision: "Ember@1.12.0-beta.1+canary.e6ed81d0",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -11642,7 +11642,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.f9a2f373
+    @version 1.12.0-beta.1+canary.e6ed81d0
   */
 
   if ("undefined" === typeof Ember) {
@@ -11671,10 +11671,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.f9a2f373'
+    @default '1.12.0-beta.1+canary.e6ed81d0'
     @static
   */
-  Ember.VERSION = "1.12.0-beta.1+canary.f9a2f373";
+  Ember.VERSION = "1.12.0-beta.1+canary.e6ed81d0";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -22798,27 +22798,44 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
     disconnectOutlet: function (options) {
       var outletName;
       var parentView;
-      var parent;
       if (!options || typeof options === "string") {
         outletName = options;
       } else {
         outletName = options.outlet;
         parentView = options.parentView;
       }
-
       parentView = parentView && parentView.replace(/\//g, ".");
-      parent = parentRoute(this);
+      outletName = outletName || "main";
+      this._disconnectOutlet(outletName, parentView);
+      for (var i = 0; i < this.router.router.currentHandlerInfos.length; i++) {
+        // This non-local state munging is sadly necessary to maintain
+        // backward compatibility with our existing semantics, which allow
+        // any route to disconnectOutlet things originally rendered by any
+        // other route. This should all get cut in 2.0.
+        this.router.router.currentHandlerInfos[i].handler._disconnectOutlet(outletName, parentView);
+      }
+    },
+
+    _disconnectOutlet: function (outletName, parentView) {
+      var parent = parentRoute(this);
       if (parent && parentView === parent.routeName) {
         parentView = undefined;
       }
-      outletName = outletName || "main";
-
       for (var i = 0; i < this.connections.length; i++) {
         var connection = this.connections[i];
         if (connection.outlet === outletName && connection.into === parentView) {
-          this.connections.splice(i, 1);
+          // This neuters the disconnected outlet such that it doesn't
+          // render anything, but it leaves an entry in the outlet
+          // hierarchy so that any existing other renders that target it
+          // don't suddenly blow up. They will still stick themselves
+          // into its outlets, which won't render anywhere. All of this
+          // statefulness should get the machete in 2.0.
+          this.connections[i] = {
+            into: connection.into,
+            outlet: connection.outlet,
+            name: connection.name
+          };
           run['default'].once(this.router, "_setOutlets");
-          return;
         }
       }
     },
@@ -23148,14 +23165,17 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
 
       for (var i = 0; i < handlerInfos.length; i++) {
         route = handlerInfos[i].handler;
-        var connections = normalizedConnections(route);
+        var connections = route.connections;
         var ownState;
         for (var j = 0; j < connections.length; j++) {
           var appended = appendLiveRoute(liveRoutes, defaultParentState, connections[j]);
           liveRoutes = appended.liveRoutes;
-          if (appended.ownState.render.name === route.routeName) {
+          if (appended.ownState.render.name === route.routeName || appended.ownState.render.outlet === "main") {
             ownState = appended.ownState;
           }
+        }
+        if (connections.length === 0) {
+          ownState = representEmptyRoute(liveRoutes, defaultParentState, route);
         }
         defaultParentState = ownState;
       }
@@ -23987,33 +24007,27 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
     };
   }
 
-  function normalizedConnections(route) {
-    var connections = route.connections;
-    var mainConnections = [];
-    var otherConnections = [];
-
-    for (var i = 0; i < connections.length; i++) {
-      var connection = connections[i];
-      if (connection.outlet === "main") {
-        mainConnections.push(connection);
-      } else {
-        otherConnections.push(connection);
-      }
+  function representEmptyRoute(liveRoutes, defaultParentState, route) {
+    // the route didn't render anything
+    var alreadyAppended = findLiveRoute(liveRoutes, route.routeName);
+    if (alreadyAppended) {
+      // But some other route has already rendered our default
+      // template, so that becomes the default target for any
+      // children we may have.
+      return alreadyAppended;
+    } else {
+      // Create an entry to represent our default template name,
+      // just so other routes can target it and inherit its place
+      // in the outlet hierarchy.
+      defaultParentState.outlets.main = {
+        render: {
+          name: route.routeName,
+          outlet: "main"
+        },
+        outlets: {}
+      };
+      return defaultParentState;
     }
-
-    if (mainConnections.length === 0) {
-      // There's always an entry to represent the route, even if it
-      // doesn't actually render anything into its own
-      // template. This gives other routes a place to target.
-      mainConnections.push({
-        name: route.routeName,
-        outlet: "main"
-      });
-    }
-
-    // We process main connections first, because a main connection may
-    // be targeted by other connections.
-    return mainConnections.concat(otherConnections);
   }
 
   exports['default'] = EmberRouter;
@@ -33402,7 +33416,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     }
 
     return {
-      revision: "Ember@1.12.0-beta.1+canary.f9a2f373",
+      revision: "Ember@1.12.0-beta.1+canary.e6ed81d0",
 
       disableComponentGeneration: disableComponentGeneration,
 
@@ -38976,7 +38990,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
 
   var selectOptionDefaultTemplate = {
     isHTMLBars: true,
-    revision: "Ember@1.12.0-beta.1+canary.f9a2f373",
+    revision: "Ember@1.12.0-beta.1+canary.e6ed81d0",
     render: function (context, env, contextualElement) {
       var lazyValue = context.getStream("view.label");
 
