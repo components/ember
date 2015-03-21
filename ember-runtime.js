@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.d201ae80
+ * @version   1.12.0-beta.1+canary.4fa09ff0
  */
 
 (function() {
@@ -36,6 +36,10 @@ var mainContext = this;
     };
 
     requirejs = eriuqer = requireModule = function(name) {
+      return internalRequire(name, null);
+    }
+
+    function internalRequire(name, referrerName) {
       var exports = seen[name];
 
       if (exports !== undefined) {
@@ -45,7 +49,11 @@ var mainContext = this;
       exports = seen[name] = {};
 
       if (!registry[name]) {
-        throw new Error('Could not find module ' + name);
+        if (referrerName) {
+          throw new Error('Could not find module ' + name + ' required by: ' + referrerName);
+        } else {
+          throw new Error('Could not find module ' + name);
+        }
       }
 
       var mod = registry[name];
@@ -58,7 +66,7 @@ var mainContext = this;
         if (deps[i] === 'exports') {
           reified.push(exports);
         } else {
-          reified.push(requireModule(resolve(deps[i], name)));
+          reified.push(internalRequire(resolve(deps[i], name), name));
         }
       }
 
@@ -4361,7 +4369,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.d201ae80
+    @version 1.12.0-beta.1+canary.4fa09ff0
   */
 
   if ("undefined" === typeof Ember) {
@@ -4390,10 +4398,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.d201ae80'
+    @default '1.12.0-beta.1+canary.4fa09ff0'
     @static
   */
-  Ember.VERSION = "1.12.0-beta.1+canary.d201ae80";
+  Ember.VERSION = "1.12.0-beta.1+canary.4fa09ff0";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
