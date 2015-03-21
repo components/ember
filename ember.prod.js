@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.4fa09ff0
+ * @version   1.12.0-beta.1+canary.0b1a101c
  */
 
 (function() {
@@ -8256,7 +8256,7 @@ enifed('ember-htmlbars/templates/component', ['exports', 'ember-template-compile
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.4fa09ff0",
+      revision: "Ember@1.12.0-beta.1+canary.0b1a101c",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8304,7 +8304,7 @@ enifed('ember-htmlbars/templates/empty', ['exports', 'ember-template-compiler/sy
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.4fa09ff0",
+      revision: "Ember@1.12.0-beta.1+canary.0b1a101c",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8344,7 +8344,7 @@ enifed('ember-htmlbars/templates/link-to-escaped', ['exports', 'ember-template-c
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.4fa09ff0",
+      revision: "Ember@1.12.0-beta.1+canary.0b1a101c",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8392,7 +8392,7 @@ enifed('ember-htmlbars/templates/link-to-unescaped', ['exports', 'ember-template
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.4fa09ff0",
+      revision: "Ember@1.12.0-beta.1+canary.0b1a101c",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8441,7 +8441,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     var child0 = (function () {
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.4fa09ff0",
+        revision: "Ember@1.12.0-beta.1+canary.0b1a101c",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8485,7 +8485,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1+canary.4fa09ff0",
+          revision: "Ember@1.12.0-beta.1+canary.0b1a101c",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8527,7 +8527,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.4fa09ff0",
+        revision: "Ember@1.12.0-beta.1+canary.0b1a101c",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8571,7 +8571,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1+canary.4fa09ff0",
+          revision: "Ember@1.12.0-beta.1+canary.0b1a101c",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8613,7 +8613,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.4fa09ff0",
+        revision: "Ember@1.12.0-beta.1+canary.0b1a101c",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8655,7 +8655,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     })();
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.4fa09ff0",
+      revision: "Ember@1.12.0-beta.1+canary.0b1a101c",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -11317,7 +11317,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.4fa09ff0
+    @version 1.12.0-beta.1+canary.0b1a101c
   */
 
   if ("undefined" === typeof Ember) {
@@ -11346,10 +11346,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.4fa09ff0'
+    @default '1.12.0-beta.1+canary.0b1a101c'
     @static
   */
-  Ember.VERSION = "1.12.0-beta.1+canary.4fa09ff0";
+  Ember.VERSION = "1.12.0-beta.1+canary.0b1a101c";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -32865,7 +32865,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     }
 
     return {
-      revision: "Ember@1.12.0-beta.1+canary.4fa09ff0",
+      revision: "Ember@1.12.0-beta.1+canary.0b1a101c",
 
       disableComponentGeneration: disableComponentGeneration,
 
@@ -37196,7 +37196,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
 
   var selectOptionDefaultTemplate = {
     isHTMLBars: true,
-    revision: "Ember@1.12.0-beta.1+canary.4fa09ff0",
+    revision: "Ember@1.12.0-beta.1+canary.0b1a101c",
     render: function (context, env, contextualElement) {
       var lazyValue = context.getStream("view.label");
 
@@ -38268,13 +38268,87 @@ enifed('ember-views/views/text_area', ['exports', 'ember-metal/property_get', 'e
   });
 
 });
-enifed('ember-views/views/text_field', ['exports', 'ember-views/views/component', 'ember-views/mixins/text_support'], function (exports, Component, TextSupport) {
+enifed('ember-views/views/text_field', ['exports', 'ember-metal/core', 'ember-metal/computed', 'ember-metal/environment', 'ember-metal/platform/create', 'ember-views/views/component', 'ember-views/mixins/text_support'], function (exports, Ember, computed, environment, create, Component, TextSupport) {
 
   'use strict';
 
   /**
   @module ember
   @submodule ember-views
+  */
+  var inputTypeTestElement;
+  var inputTypes = create['default'](null);
+  function canSetTypeOfInput(type) {
+    if (type in inputTypes) {
+      return inputTypes[type];
+    }
+
+    // if running in outside of a browser always return the
+    // original type
+    if (!environment['default'].hasDOM) {
+      inputTypes[type] = type;
+
+      return type;
+    }
+
+    if (!inputTypeTestElement) {
+      inputTypeTestElement = document.createElement("input");
+    }
+
+    try {
+      inputTypeTestElement.type = type;
+    } catch (e) {}
+
+    return inputTypes[type] = inputTypeTestElement.type === type;
+  }
+
+  function getTypeComputed() {
+    if (Ember['default'].FEATURES.isEnabled("new-computed-syntax")) {
+      return computed.computed({
+        get: function () {
+          return "text";
+        },
+
+        set: function (key, value) {
+          var type = "text";
+
+          if (canSetTypeOfInput(value)) {
+            type = value;
+          }
+
+          return type;
+        }
+      });
+    } else {
+      return computed.computed(function (key, value) {
+        var type = "text";
+
+        if (arguments.length > 1 && canSetTypeOfInput(value)) {
+          type = value;
+        }
+
+        return type;
+      });
+    }
+  }
+
+  /**
+
+    The internal class used to create text inputs when the `{{input}}`
+    helper is used with `type` of `text`.
+
+    See [Handlebars.helpers.input](/api/classes/Ember.Handlebars.helpers.html#method_input)  for usage details.
+
+    ## Layout and LayoutName properties
+
+    Because HTML `input` elements are self closing `layout` and `layoutName`
+    properties will not be applied. See [Ember.View](/api/classes/Ember.View.html)'s
+    layout section for more information.
+
+    @class TextField
+    @namespace Ember
+    @extends Ember.Component
+    @uses Ember.TextSupport
   */
   exports['default'] = Component['default'].extend(TextSupport['default'], {
     instrumentDisplay: "{{input type=\"text\"}}",
@@ -38300,7 +38374,7 @@ enifed('ember-views/views/text_field', ['exports', 'ember-views/views/component'
       @type String
       @default "text"
     */
-    type: "text",
+    type: getTypeComputed(),
 
     /**
       The `size` of the text field in characters.
