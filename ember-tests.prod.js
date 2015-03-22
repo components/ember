@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.0b1a101c
+ * @version   1.12.0-beta.1+canary.2eb4edcd
  */
 
 (function() {
@@ -10687,7 +10687,7 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
 
     utils.runAppend(view);
 
-    ok(!view.element.hasAttribute("src"), "src attribute not present");
+    ok(!view.element.firstChild.hasAttribute("src"), "src attribute not present");
   });
 
   QUnit.test("src attribute bound to null is not present", function () {
@@ -10700,7 +10700,7 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
 
     utils.runAppend(view);
 
-    ok(!view.element.hasAttribute("src"), "src attribute not present");
+    ok(!view.element.firstChild.hasAttribute("src"), "src attribute not present");
   });
 
   QUnit.test("specifying `<div {{bind-attr style=userValue}}></div>` is [DEPRECATED]", function () {
@@ -14026,6 +14026,44 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
 
   QUnit.test("checkbox checked property is updated", function () {
     equal(view.$("input").prop("checked"), false, "the checkbox isn't checked yet");
+  });
+
+  QUnit.module("{{input type='text'}} - null/undefined values", {
+    teardown: function () {
+      utils.runDestroy(view);
+    }
+  });
+
+  QUnit.test("placeholder attribute bound to undefined is not present", function () {
+    view = View['default'].extend({
+      controller: {},
+      template: compile['default']("{{input placeholder=someThingNotThere}}")
+    }).create();
+
+    utils.runAppend(view);
+
+    ok(!view.element.childNodes[1].hasAttribute("placeholder"), "attribute not present");
+
+    run['default'](null, property_set.set, view, "controller.someThingNotThere", "foo");
+
+    equal(view.element.childNodes[1].placeholder, "foo", "attribute is present");
+  });
+
+  QUnit.test("placeholder attribute bound to null is not present", function () {
+    view = View['default'].extend({
+      controller: {
+        someNullProperty: null
+      },
+      template: compile['default']("{{input placeholder=someNullProperty}}")
+    }).create();
+
+    utils.runAppend(view);
+
+    ok(!view.element.childNodes[1].hasAttribute("placeholder"), "attribute not present");
+
+    run['default'](null, property_set.set, view, "controller.someNullProperty", "foo");
+
+    equal(view.element.childNodes[1].placeholder, "foo", "attribute is present");
   });
 
 });
@@ -19664,7 +19702,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.0b1a101c",
+        revision: "Ember@1.12.0-beta.1+canary.2eb4edcd",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -54960,7 +54998,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.12.0-beta.1+canary.0b1a101c", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.12.0-beta.1+canary.2eb4edcd", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
