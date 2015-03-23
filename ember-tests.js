@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.60f53a39
+ * @version   1.12.0-beta.1+canary.ad35fd64
  */
 
 (function() {
@@ -17681,7 +17681,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.60f53a39",
+        revision: "Ember@1.12.0-beta.1+canary.ad35fd64",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -37600,7 +37600,7 @@ enifed('ember-runtime/tests/computed/reduce_computed_test.jshint', function () {
   });
 
 });
-enifed('ember-runtime/tests/controllers/array_controller_test', ['ember-metal/core', 'ember-runtime/tests/suites/mutable_array', 'ember-runtime/controllers/array_controller'], function (Ember, MutableArrayTests, ArrayController) {
+enifed('ember-runtime/tests/controllers/array_controller_test', ['ember-metal/core', 'ember-runtime/tests/suites/mutable_array', 'ember-runtime/controllers/array_controller', 'ember-metal/property_set', 'ember-metal/property_get'], function (Ember, MutableArrayTests, ArrayController, property_set, property_get) {
 
   'use strict';
 
@@ -37625,6 +37625,8 @@ enifed('ember-runtime/tests/controllers/array_controller_test', ['ember-metal/co
     }
   }).run();
 
+  QUnit.module("ember-runtime: array_controller");
+
   QUnit.test("defaults its `model` to an empty array", function () {
     var Controller = ArrayController['default'].extend();
     deepEqual(Controller.create().get("model"), [], "`ArrayController` defaults its model to an empty array");
@@ -37636,6 +37638,28 @@ enifed('ember-runtime/tests/controllers/array_controller_test', ['ember-metal/co
     var controller = ArrayController['default'].create();
     controller.pushObject("item");
     equal(controller.get("length"), 1);
+  });
+
+  QUnit.test("works properly when model is set to an Ember.A()", function () {
+    var controller = ArrayController['default'].create();
+
+    property_set.set(controller, "model", Ember['default'].A(["red", "green"]));
+
+    deepEqual(property_get.get(controller, "model"), ["red", "green"], "can set model as an Ember.Array");
+  });
+
+  QUnit.test("works properly when model is set to a plain array", function () {
+    var controller = ArrayController['default'].create();
+
+    if (Ember['default'].EXTEND_PROTOTYPES) {
+      property_set.set(controller, "model", ["red", "green"]);
+
+      deepEqual(property_get.get(controller, "model"), ["red", "green"], "can set model as a plain array");
+    } else {
+      expectAssertion(function () {
+        property_set.set(controller, "model", ["red", "green"]);
+      }, /ArrayController expects `model` to implement the Ember.Array mixin. This can often be fixed by wrapping your model with `Ember\.A\(\)`./);
+    }
   });
 
 });
@@ -53131,7 +53155,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.12.0-beta.1+canary.60f53a39", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.12.0-beta.1+canary.ad35fd64", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.60f53a39
+ * @version   1.12.0-beta.1+canary.ad35fd64
  */
 
 (function() {
@@ -4373,7 +4373,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.60f53a39
+    @version 1.12.0-beta.1+canary.ad35fd64
   */
 
   if ("undefined" === typeof Ember) {
@@ -4402,10 +4402,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.60f53a39'
+    @default '1.12.0-beta.1+canary.ad35fd64'
     @static
   */
-  Ember.VERSION = "1.12.0-beta.1+canary.60f53a39";
+  Ember.VERSION = "1.12.0-beta.1+canary.ad35fd64";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -12608,7 +12608,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
   exports.union = union;
 
 });
-enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/enumerable_utils', 'ember-runtime/system/array_proxy', 'ember-runtime/mixins/sortable', 'ember-runtime/mixins/controller', 'ember-metal/computed', 'ember-metal/error'], function (exports, Ember, property_get, enumerable_utils, ArrayProxy, SortableMixin, ControllerMixin, computed, EmberError) {
+enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/enumerable_utils', 'ember-runtime/system/array_proxy', 'ember-runtime/mixins/sortable', 'ember-runtime/mixins/controller', 'ember-metal/computed', 'ember-metal/error', 'ember-runtime/mixins/array'], function (exports, Ember, property_get, enumerable_utils, ArrayProxy, SortableMixin, ControllerMixin, computed, EmberError, EmberArray) {
 
   'use strict';
 
@@ -12712,7 +12712,12 @@ enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/co
       this._subControllers = [];
     },
 
-    model: computed.computed(function () {
+    model: computed.computed(function (key, value) {
+      if (arguments.length > 1) {
+        
+        return value;
+      }
+
       return Ember['default'].A();
     }),
 
