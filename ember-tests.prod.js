@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.5.56704cfc
+ * @version   1.11.0-beta.5.92ef97e6
  */
 
 (function() {
@@ -5459,6 +5459,13 @@ enifed('ember-debug/tests/main_test', ['ember-metal/core'], function (Ember) {
   'use strict';
 
   QUnit.module('ember-debug');
+
+  QUnit.test('Ember.deprecate throws deprecation with one argument', function() {
+    expect(1);
+
+    throws(function() {
+          });
+  });
 
   QUnit.test('Ember.deprecate throws deprecation if second argument is falsy', function() {
     expect(3);
@@ -11213,7 +11220,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
   var originalLookup = Ember['default'].lookup;
   var lookup;
 
-  QUnit.module("the #each helper [DEPRECATED]", {
+  QUnit.module("the scope changing #each helper [DEPRECATED]", {
     setup: function() {
       Ember['default'].lookup = lookup = { Ember: Ember['default'] };
 
@@ -19153,7 +19160,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: 'Ember@1.11.0-beta.5.56704cfc',
+        revision: 'Ember@1.11.0-beta.5.92ef97e6',
         render: function(view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -54261,7 +54268,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, 'Ember@1.11.0-beta.5.56704cfc', 'revision is included in generated template');
+    equal(actual.revision, 'Ember@1.11.0-beta.5.92ef97e6', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function() {

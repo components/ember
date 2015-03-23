@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.5.56704cfc
+ * @version   1.11.0-beta.5.92ef97e6
  */
 
 (function() {
@@ -1136,7 +1136,11 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/keys'
    */
   function Container(registry, options) {
     this._registry = registry || (function() {
-      Ember['default'].deprecate("A container should only be created for an already instantiated registry. For backward compatibility, an isolated registry will be instantiated just for this container.");
+      Ember['default'].deprecate(
+        "A container should only be created for an already instantiated " +
+        "registry. For backward compatibility, an isolated registry will " +
+        "be instantiated just for this container."
+      );
 
       // TODO - See note above about transpiler import workaround.
       if (!Registry) { Registry = requireModule('container/registry')['default']; }
@@ -1659,7 +1663,11 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
       Ember['default'].assert('Create a container on the registry (with `registry.container()`) before calling `lookup`.', this._defaultContainer);
 
       if (instanceInitializersFeatureEnabled) {
-        Ember['default'].deprecate('`lookup` was called on a Registry. The `initializer` API no longer receives a container, and you should use an `instanceInitializer` to look up objects from the container.', { url: "http://emberjs.com/guides/deprecations#toc_deprecate-access-to-instances-in-initializers" });
+        Ember['default'].deprecate(
+          '`lookup` was called on a Registry. The `initializer` API no longer receives a container, and you should use an `instanceInitializer` to look up objects from the container.',
+          false,
+          { url: "http://emberjs.com/guides/deprecations#toc_access-to-instances-in-initializers" }
+        );
       }
 
       return this._defaultContainer.lookup(fullName, options);
@@ -1669,7 +1677,11 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
       Ember['default'].assert('Create a container on the registry (with `registry.container()`) before calling `lookupFactory`.', this._defaultContainer);
 
       if (instanceInitializersFeatureEnabled) {
-        Ember['default'].deprecate('`lookupFactory` was called on a Registry. The `initializer` API no longer receives a container, and you should use an `instanceInitializer` to look up objects from the container.', { url: "http://emberjs.com/guides/deprecations#toc_deprecate-access-to-instances-in-initializers" });
+        Ember['default'].deprecate(
+          '`lookupFactory` was called on a Registry. The `initializer` API no longer receives a container, and you should use an `instanceInitializer` to look up objects from the container.',
+          false,
+          { url: "http://emberjs.com/guides/deprecations#toc_access-to-instances-in-initializers" }
+        );
       }
 
       return this._defaultContainer.lookupFactory(fullName);
@@ -4394,7 +4406,11 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       @deprecated
     */
     then: function() {
-      Ember['default'].deprecate('Do not use `.then` on an instance of Ember.Application.  Please use the `.ready` hook instead.', false, { url: 'http://emberjs.com/guides/deprecations/#toc_deprecate-code-then-code-on-ember-application' });
+      Ember['default'].deprecate(
+        'Do not use `.then` on an instance of Ember.Application.  Please use the `.ready` hook instead.',
+        false,
+        { url: 'http://emberjs.com/guides/deprecations/#toc_code-then-code-on-ember-application' }
+      );
 
       this._super.apply(this, arguments);
     }
@@ -4636,7 +4652,10 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
     @return {*} the resolved value for a given lookup
   */
   function resolverFor(namespace) {
-    Ember['default'].deprecate('Application.resolver is deprecated in favor of Application.Resolver', !namespace.get('resolver'));
+    Ember['default'].deprecate(
+      'Application.resolver is deprecated in favor of Application.Resolver',
+      !namespace.get('resolver')
+    );
 
     var ResolverClass = namespace.get('resolver') || namespace.get('Resolver') || DefaultResolver['default'];
     var resolver = ResolverClass.create({
@@ -4659,7 +4678,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       if (resolver.normalize) {
         return resolver.normalize(fullName);
       } else {
-        Ember['default'].deprecate('The Resolver should now provide a \'normalize\' function', false);
+        Ember['default'].deprecate('The Resolver should now provide a \'normalize\' function');
         return fullName;
       }
     };
@@ -6492,8 +6511,11 @@ enifed('ember-htmlbars/helpers/collection', ['exports', 'ember-metal/core', 'emb
   function collectionHelper(params, hash, options, env) {
     var path = params[0];
 
-    Ember['default'].deprecate("Using the {{collection}} helper without specifying a class has been" +
-                    " deprecated as the {{each}} helper now supports the same functionality.", path !== 'collection');
+    Ember['default'].deprecate(
+      "Using the {{collection}} helper without specifying a class has been" +
+      " deprecated as the {{each}} helper now supports the same functionality.",
+      path !== 'collection'
+    );
 
     Ember['default'].assert("You cannot pass more than one argument to the collection helper", params.length <= 1);
 
@@ -6908,8 +6930,10 @@ enifed('ember-htmlbars/helpers/template', ['exports', 'ember-metal/core'], funct
   exports.templateHelper = templateHelper;
 
   function templateHelper(params, hash, options, env) {
-    Ember['default'].deprecate("The `template` helper has been deprecated in favor of the `partial` helper." +
-                    " Please use `partial` instead, which will work the same way.");
+    Ember['default'].deprecate(
+      "The `template` helper has been deprecated in favor of the `partial` helper." +
+      " Please use `partial` instead, which will work the same way."
+    );
 
     options.helperName = options.helperName || 'template';
 
@@ -7792,8 +7816,8 @@ enifed('ember-htmlbars/system/render-view', ['exports', 'ember-metal/core', 'emb
   function renderHTMLBarsTemplate(view, buffer, template) {
     Ember['default'].assert(
       'The template being rendered by `' + view + '` was compiled with `' + template.revision +
-      '` which does not match `Ember@1.11.0-beta.5.56704cfc` (this revision).',
-      template.revision === 'Ember@1.11.0-beta.5.56704cfc'
+      '` which does not match `Ember@1.11.0-beta.5.92ef97e6` (this revision).',
+      template.revision === 'Ember@1.11.0-beta.5.92ef97e6'
     );
 
     var contextualElement = buffer.innerContextualElement();
@@ -7833,7 +7857,7 @@ enifed('ember-htmlbars/templates/component', ['exports', 'ember-template-compile
   exports['default'] = template['default']((function() {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.11.0-beta.5.56704cfc",
+      revision: "Ember@1.11.0-beta.5.92ef97e6",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -7880,7 +7904,7 @@ enifed('ember-htmlbars/templates/empty', ['exports', 'ember-template-compiler/sy
   exports['default'] = template['default']((function() {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.11.0-beta.5.56704cfc",
+      revision: "Ember@1.11.0-beta.5.92ef97e6",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -7920,7 +7944,7 @@ enifed('ember-htmlbars/templates/link-to-escaped', ['exports', 'ember-template-c
   exports['default'] = template['default']((function() {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.11.0-beta.5.56704cfc",
+      revision: "Ember@1.11.0-beta.5.92ef97e6",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -7967,7 +7991,7 @@ enifed('ember-htmlbars/templates/link-to-unescaped', ['exports', 'ember-template
   exports['default'] = template['default']((function() {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.11.0-beta.5.56704cfc",
+      revision: "Ember@1.11.0-beta.5.92ef97e6",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8015,7 +8039,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     var child0 = (function() {
       return {
         isHTMLBars: true,
-        revision: "Ember@1.11.0-beta.5.56704cfc",
+        revision: "Ember@1.11.0-beta.5.92ef97e6",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8058,7 +8082,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function() {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.11.0-beta.5.56704cfc",
+          revision: "Ember@1.11.0-beta.5.92ef97e6",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8098,7 +8122,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       }());
       return {
         isHTMLBars: true,
-        revision: "Ember@1.11.0-beta.5.56704cfc",
+        revision: "Ember@1.11.0-beta.5.92ef97e6",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8140,7 +8164,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function() {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.11.0-beta.5.56704cfc",
+          revision: "Ember@1.11.0-beta.5.92ef97e6",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8180,7 +8204,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       }());
       return {
         isHTMLBars: true,
-        revision: "Ember@1.11.0-beta.5.56704cfc",
+        revision: "Ember@1.11.0-beta.5.92ef97e6",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8220,7 +8244,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     }());
     return {
       isHTMLBars: true,
-      revision: "Ember@1.11.0-beta.5.56704cfc",
+      revision: "Ember@1.11.0-beta.5.92ef97e6",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -11367,7 +11391,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.11.0-beta.5.56704cfc
+    @version 1.11.0-beta.5.92ef97e6
   */
 
   if ('undefined' === typeof Ember) {
@@ -11395,10 +11419,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.11.0-beta.5.56704cfc'
+    @default '1.11.0-beta.5.92ef97e6'
     @static
   */
-  Ember.VERSION = '1.11.0-beta.5.56704cfc';
+  Ember.VERSION = '1.11.0-beta.5.92ef97e6';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -13237,7 +13261,10 @@ enifed('ember-metal/map', ['exports', 'ember-metal/utils', 'ember-metal/array', 
       @return {Boolean}
     */
     remove: function(obj, _guid) {
-      Ember.deprecate('Calling `OrderedSet.prototype.remove` has been deprecated, please use `OrderedSet.prototype.delete` instead.', this._silenceRemoveDeprecation);
+      Ember.deprecate(
+        'Calling `OrderedSet.prototype.remove` has been deprecated, please use `OrderedSet.prototype.delete` instead.',
+        this._silenceRemoveDeprecation
+      );
 
       return this["delete"](obj, _guid);
     },
@@ -19101,7 +19128,10 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
     init: function() {
       this._super.apply(this, arguments);
 
-      Ember['default'].deprecate('Using currentWhen with {{link-to}} is deprecated in favor of `current-when`.', !this.currentWhen);
+      Ember['default'].deprecate(
+        'Using currentWhen with {{link-to}} is deprecated in favor of `current-when`.',
+        !this.currentWhen
+      );
 
       // Map desired event name to invoke function
       var eventName = property_get.get(this, 'eventName');
@@ -20086,7 +20116,7 @@ enifed('ember-routing/location/api', ['exports', 'ember-metal/core', 'ember-meta
     */
     registerImplementation: function(name, implementation) {
       Ember['default'].deprecate('Using the Ember.Location.registerImplementation is no longer supported.' +
-                      ' Register your custom location implementation with the container instead.', false);
+                      ' Register your custom location implementation with the container instead.');
 
       this.implementations[name] = implementation;
     },
@@ -26644,7 +26674,9 @@ enifed('ember-runtime/controllers/object_controller', ['exports', 'ember-metal/c
   **/
   exports['default'] = ObjectProxy['default'].extend(ControllerMixin['default'], {
     init: function() {
-      Ember['default'].deprecate(objectControllerDeprecation, this.isGenerated);
+      Ember['default'].deprecate(objectControllerDeprecation, this.isGenerated, {
+        url: 'http://emberjs.com/guides/deprecations/#toc_objectcontroller'
+      });
     }
   });
 
@@ -27324,7 +27356,8 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-metal/core', 'ember-met
         Ember['default'].deprecate(
           string.fmt('You attempted to access `%@` from `%@`, but object proxying is deprecated. ' +
               'Please use `model.%@` instead.', [key, this, key]),
-          !this.isController
+          !this.isController,
+          { url: 'http://emberjs.com/guides/deprecations/#toc_objectcontroller' }
         );
         return property_get.get(content, key);
       }
@@ -27346,7 +27379,8 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-metal/core', 'ember-met
       Ember['default'].deprecate(
         string.fmt('You attempted to set `%@` from `%@`, but object proxying is deprecated. ' +
             'Please use `model.%@` instead.', [key, this, key]),
-        !this.isController
+        !this.isController,
+        { url: 'http://emberjs.com/guides/deprecations/#toc_objectcontroller' }
       );
       return property_set.set(content, key, value);
     }
@@ -27503,7 +27537,7 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/merge', '
           hashName = 'actions';
         } else if (utils.typeOf(props.events) === 'object') {
           Ember.deprecate('Action handlers contained in an `events` object are deprecated in favor' +
-                          ' of putting them in an `actions` object', false);
+                          ' of putting them in an `actions` object');
           hashName = 'events';
         }
 
@@ -28171,7 +28205,7 @@ enifed('ember-runtime/mixins/controller_content_model_alias_deprecation', ['expo
         props.model = props.content;
         delete props['content'];
 
-        Ember['default'].deprecate('Do not specify `content` on a Controller, use `model` instead.', false);
+        Ember['default'].deprecate('Do not specify `content` on a Controller, use `model` instead.');
       }
     }
   });
@@ -28280,7 +28314,11 @@ enifed('ember-runtime/mixins/deferred', ['exports', 'ember-metal/core', 'ember-m
     },
 
     _deferred: computed.computed(function() {
-      Ember['default'].deprecate('Usage of Ember.DeferredMixin or Ember.Deferred is deprecated.', this._suppressDeferredDeprecation, { url: 'http://emberjs.com/guides/deprecations/#toc_deprecate-ember-deferredmixin-and-ember-deferred' });
+      Ember['default'].deprecate(
+        'Usage of Ember.DeferredMixin or Ember.Deferred is deprecated.',
+        this._suppressDeferredDeprecation,
+        { url: 'http://emberjs.com/guides/deprecations/#toc_ember-deferredmixin-and-ember-deferred' }
+      );
 
       return RSVP['default'].defer('Ember: DeferredMixin - ' + this);
     })
@@ -30335,7 +30373,11 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal/core', 'ember
     },
 
     addBeforeObserver: function(key, target, method) {
-      Ember['default'].deprecate('Before observers are deprecated and will be removed in a future release. If you want to keep track of previous values you have to implement it yourself.', false, { url: 'http://emberjs.com/guides/deprecations/#toc_deprecate-beforeobservers' });
+      Ember['default'].deprecate(
+        'Before observers are deprecated and will be removed in a future release. If you want to keep track of previous values you have to implement it yourself.',
+        false,
+        { url: 'http://emberjs.com/guides/deprecations/#toc_beforeobserver' }
+      );
       observer.addBeforeObserver(this, key, target, method);
     },
 
@@ -32358,7 +32400,11 @@ enifed('ember-runtime/system/deferred', ['exports', 'ember-metal/core', 'ember-r
 
   var Deferred = EmberObject['default'].extend(DeferredMixin['default'], {
     init: function() {
-      Ember['default'].deprecate('Usage of Ember.Deferred is deprecated.', false, { url: 'http://emberjs.com/guides/deprecations/#toc_deprecate-ember-deferredmixin-and-ember-deferred' });
+      Ember['default'].deprecate(
+        'Usage of Ember.Deferred is deprecated.',
+        false,
+        { url: 'http://emberjs.com/guides/deprecations/#toc_deferredmixin-and-ember-deferred' }
+      );
       this._super.apply(this, arguments);
     }
   });
@@ -34530,7 +34576,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     var disableComponentGeneration = true;
     
     return {
-      revision: 'Ember@1.11.0-beta.5.56704cfc',
+      revision: 'Ember@1.11.0-beta.5.92ef97e6',
 
       disableComponentGeneration: disableComponentGeneration,
 
@@ -37613,7 +37659,11 @@ enifed('ember-views/streams/utils', ['exports', 'ember-metal/core', 'ember-metal
     if (typeof value === 'string') {
       if (path_cache.isGlobal(value)) {
         viewClass = property_get.get(null, value);
-        Ember['default'].deprecate('Resolved the view "'+value+'" on the global context. Pass a view name to be looked up on the container instead, such as {{view "select"}}.', !viewClass, { url: 'http://emberjs.com/guides/deprecations/#toc_global-lookup-of-views' });
+        Ember['default'].deprecate(
+          'Resolved the view "'+value+'" on the global context. Pass a view name to be looked up on the container instead, such as {{view "select"}}.',
+          !viewClass,
+          { url: 'http://emberjs.com/guides/deprecations/#toc_global-lookup-of-views' }
+        );
       } else {
         Ember['default'].assert("View requires a container to resolve views not passed in through the context", !!container);
         viewClass = container.lookupFactory('view:'+value);
@@ -40260,8 +40310,11 @@ enifed('ember-views/views/metamorph_view', ['exports', 'ember-metal/core', 'embe
 
     init: function() {
       this._super.apply(this, arguments);
-      Ember['default'].deprecate('Supplying a tagName to Metamorph views is unreliable and is deprecated.' +
-                      ' You may be setting the tagName on a Handlebars helper that creates a Metamorph.', !this.tagName);
+      Ember['default'].deprecate(
+        'Supplying a tagName to Metamorph views is unreliable and is deprecated.' +
+        ' You may be setting the tagName on a Handlebars helper that creates a Metamorph.',
+        !this.tagName
+      );
     }
   });
 
@@ -40290,7 +40343,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
 
   var selectOptionDefaultTemplate = {
     isHTMLBars: true,
-    revision: 'Ember@1.11.0-beta.5.56704cfc',
+    revision: 'Ember@1.11.0-beta.5.92ef97e6',
     render: function(context, env, contextualElement) {
       var lazyValue = context.getStream('view.label');
 
@@ -42953,7 +43006,10 @@ enifed('ember', ['ember-metal', 'ember-runtime', 'ember-views', 'ember-routing',
   @module ember
   */
 
-  Ember.deprecate('Usage of Ember is deprecated for Internet Explorer 6 and 7, support will be removed in the next major version.', !environment['default'].userAgent.match(/MSIE [67]/));
+  Ember.deprecate(
+    'Usage of Ember is deprecated for Internet Explorer 6 and 7, support will be removed in the next major version.',
+    !environment['default'].userAgent.match(/MSIE [67]/)
+  );
 
 });
 enifed("htmlbars-util",
