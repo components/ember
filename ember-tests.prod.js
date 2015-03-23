@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.73b4060c
+ * @version   1.12.0-beta.1+canary.60f53a39
  */
 
 (function() {
@@ -8645,11 +8645,18 @@ enifed('ember-htmlbars/tests/attr_nodes/sanitized_test', ['ember-views/views/vie
 
   
     // jscs:disable validateIndentation
+    // jscs:disable disallowTrailingWhitespace
 
     var badTags = [{ tag: "a", attr: "href",
       unquotedTemplate: compile['default']("<a href={{url}}></a>"),
       quotedTemplate: compile['default']("<a href='{{url}}'></a>"),
-      multipartTemplate: compile['default']("<a href='{{protocol}}{{path}}'></a>") }, { tag: "body", attr: "background",
+      multipartTemplate: compile['default']("<a href='{{protocol}}{{path}}'></a>") }, { tag: "base", attr: "href",
+      unquotedTemplate: compile['default']("<base href={{url}} />"),
+      quotedTemplate: compile['default']("<base href='{{url}}'/>"),
+      multipartTemplate: compile['default']("<base href='{{protocol}}{{path}}'/>") }, { tag: "embed", attr: "src",
+      unquotedTemplate: compile['default']("<embed src={{url}} />"),
+      quotedTemplate: compile['default']("<embed src='{{url}}'/>"),
+      multipartTemplate: compile['default']("<embed src='{{protocol}}{{path}}'/>") }, { tag: "body", attr: "background",
       unquotedTemplate: compile['default']("<body background={{url}}></body>"),
       quotedTemplate: compile['default']("<body background='{{url}}'></body>"),
       multipartTemplate: compile['default']("<body background='{{protocol}}{{path}}'></body>") }, { tag: "link", attr: "href",
@@ -19702,7 +19709,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.73b4060c",
+        revision: "Ember@1.12.0-beta.1+canary.60f53a39",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -54998,7 +55005,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.12.0-beta.1+canary.73b4060c", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.12.0-beta.1+canary.60f53a39", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -57677,26 +57684,6 @@ enifed('ember-views/system/renderer.jshint', function () {
   });
 
 });
-enifed('ember-views/system/sanitize_attribute_value.jscs-test', function () {
-
-  'use strict';
-
-  module("JSCS - ember-views/system");
-  test("ember-views/system/sanitize_attribute_value.js should pass jscs", function () {
-    ok(true, "ember-views/system/sanitize_attribute_value.js should pass jscs.");
-  });
-
-});
-enifed('ember-views/system/sanitize_attribute_value.jshint', function () {
-
-  'use strict';
-
-  module("JSHint - ember-views/system");
-  test("ember-views/system/sanitize_attribute_value.js should pass jshint", function () {
-    ok(true, "ember-views/system/sanitize_attribute_value.js should pass jshint.");
-  });
-
-});
 enifed('ember-views/system/utils.jscs-test', function () {
 
   'use strict';
@@ -58834,84 +58821,6 @@ enifed('ember-views/tests/system/render_buffer_test.jshint', function () {
   module("JSHint - ember-views/tests/system");
   test("ember-views/tests/system/render_buffer_test.js should pass jshint", function () {
     ok(true, "ember-views/tests/system/render_buffer_test.js should pass jshint.");
-  });
-
-});
-enifed('ember-views/tests/system/sanitize_attribute_value_test', ['ember-views/system/sanitize_attribute_value', 'ember-htmlbars/utils/string', 'dom-helper'], function (sanitizeAttributeValue, string, DOMHelper) {
-
-  'use strict';
-
-  QUnit.module("ember-views: sanitizeAttributeValue(null, \"href\")");
-
-  var goodProtocols = ["https", "http", "ftp", "tel", "file"];
-  var dom = new DOMHelper['default']();
-
-  for (var i = 0, l = goodProtocols.length; i < l; i++) {
-    buildProtocolTest(goodProtocols[i]);
-  }
-
-  function buildProtocolTest(protocol) {
-    QUnit.test("allows " + protocol + " protocol when element is not provided", function () {
-      expect(1);
-
-      var expected = protocol + "://foo.com";
-      var actual = sanitizeAttributeValue['default'](dom, null, "href", expected);
-
-      equal(actual, expected, "protocol not escaped");
-    });
-  }
-
-  QUnit.test("blocks javascript: protocol", function () {
-    /* jshint scripturl:true */
-
-    expect(1);
-
-    var expected = "javascript:alert(\"foo\")";
-    var actual = sanitizeAttributeValue['default'](dom, null, "href", expected);
-
-    equal(actual, "unsafe:" + expected, "protocol escaped");
-  });
-
-  QUnit.test("blocks blacklisted protocols", function () {
-    /* jshint scripturl:true */
-
-    expect(1);
-
-    var expected = "javascript:alert(\"foo\")";
-    var actual = sanitizeAttributeValue['default'](dom, null, "href", expected);
-
-    equal(actual, "unsafe:" + expected, "protocol escaped");
-  });
-
-  QUnit.test("does not block SafeStrings", function () {
-    /* jshint scripturl:true */
-
-    expect(1);
-
-    var expected = "javascript:alert(\"foo\")";
-    var actual = sanitizeAttributeValue['default'](dom, null, "href", new string.SafeString(expected));
-
-    equal(actual, expected, "protocol unescaped");
-  });
-
-});
-enifed('ember-views/tests/system/sanitize_attribute_value_test.jscs-test', function () {
-
-  'use strict';
-
-  module("JSCS - ember-views/tests/system");
-  test("ember-views/tests/system/sanitize_attribute_value_test.js should pass jscs", function () {
-    ok(true, "ember-views/tests/system/sanitize_attribute_value_test.js should pass jscs.");
-  });
-
-});
-enifed('ember-views/tests/system/sanitize_attribute_value_test.jshint', function () {
-
-  'use strict';
-
-  module("JSHint - ember-views/tests/system");
-  test("ember-views/tests/system/sanitize_attribute_value_test.js should pass jshint", function () {
-    ok(true, "ember-views/tests/system/sanitize_attribute_value_test.js should pass jshint.");
   });
 
 });
@@ -73553,7 +73462,12 @@ enifed("morph-attr/sanitize-attribute-value",
       'BODY': true,
       'LINK': true,
       'IMG': true,
-      'IFRAME': true
+      'IFRAME': true,
+      'BASE': true
+    };
+
+    var badTagsForDataURI = {
+      'EMBED': true
     };
 
     var badAttributes = {
@@ -73562,13 +73476,17 @@ enifed("morph-attr/sanitize-attribute-value",
       'background': true
     };
     __exports__.badAttributes = badAttributes;
+    var badAttributesForDataURI = {
+      'src': true
+    };
+
     function sanitizeAttributeValue(dom, element, attribute, value) {
       var tagName;
 
       if (!element) {
         tagName = null;
       } else {
-        tagName = element.tagName;
+        tagName = element.tagName.toUpperCase();
       }
 
       if (value && value.toHTML) {
@@ -73580,6 +73498,10 @@ enifed("morph-attr/sanitize-attribute-value",
         if (badProtocols[protocol] === true) {
           return 'unsafe:' + value;
         }
+      }
+
+      if (badTagsForDataURI[tagName] && badAttributesForDataURI[attribute]) {
+        return 'unsafe:' + value;
       }
 
       return value;

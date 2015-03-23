@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.73b4060c
+ * @version   1.12.0-beta.1+canary.60f53a39
  */
 
 (function() {
@@ -7508,7 +7508,7 @@ enifed('ember-htmlbars/helpers/yield', ['exports', 'ember-metal/core', 'ember-me
   }
 
 });
-enifed('ember-htmlbars/hooks/attribute', ['exports', 'ember-views/attr_nodes/attr_node', 'ember-metal/error', 'ember-metal/streams/utils', 'ember-views/system/sanitize_attribute_value'], function (exports, AttrNode, EmberError, utils, sanitizeAttributeValue) {
+enifed('ember-htmlbars/hooks/attribute', ['exports', 'ember-views/attr_nodes/attr_node', 'ember-metal/error', 'ember-metal/streams/utils', 'morph-attr/sanitize-attribute-value'], function (exports, AttrNode, EmberError, utils, sanitizeAttributeValue) {
 
   'use strict';
 
@@ -8256,7 +8256,7 @@ enifed('ember-htmlbars/templates/component', ['exports', 'ember-template-compile
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.73b4060c",
+      revision: "Ember@1.12.0-beta.1+canary.60f53a39",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8304,7 +8304,7 @@ enifed('ember-htmlbars/templates/empty', ['exports', 'ember-template-compiler/sy
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.73b4060c",
+      revision: "Ember@1.12.0-beta.1+canary.60f53a39",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8344,7 +8344,7 @@ enifed('ember-htmlbars/templates/link-to-escaped', ['exports', 'ember-template-c
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.73b4060c",
+      revision: "Ember@1.12.0-beta.1+canary.60f53a39",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8392,7 +8392,7 @@ enifed('ember-htmlbars/templates/link-to-unescaped', ['exports', 'ember-template
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.73b4060c",
+      revision: "Ember@1.12.0-beta.1+canary.60f53a39",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8441,7 +8441,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     var child0 = (function () {
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.73b4060c",
+        revision: "Ember@1.12.0-beta.1+canary.60f53a39",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8485,7 +8485,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1+canary.73b4060c",
+          revision: "Ember@1.12.0-beta.1+canary.60f53a39",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8527,7 +8527,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.73b4060c",
+        revision: "Ember@1.12.0-beta.1+canary.60f53a39",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8571,7 +8571,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1+canary.73b4060c",
+          revision: "Ember@1.12.0-beta.1+canary.60f53a39",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8613,7 +8613,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.73b4060c",
+        revision: "Ember@1.12.0-beta.1+canary.60f53a39",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8655,7 +8655,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     })();
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.73b4060c",
+      revision: "Ember@1.12.0-beta.1+canary.60f53a39",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -11321,7 +11321,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.73b4060c
+    @version 1.12.0-beta.1+canary.60f53a39
   */
 
   if ("undefined" === typeof Ember) {
@@ -11350,10 +11350,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.73b4060c'
+    @default '1.12.0-beta.1+canary.60f53a39'
     @static
   */
-  Ember.VERSION = "1.12.0-beta.1+canary.73b4060c";
+  Ember.VERSION = "1.12.0-beta.1+canary.60f53a39";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -32940,7 +32940,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     }
 
     return {
-      revision: "Ember@1.12.0-beta.1+canary.73b4060c",
+      revision: "Ember@1.12.0-beta.1+canary.60f53a39",
 
       disableComponentGeneration: disableComponentGeneration,
 
@@ -35802,68 +35802,6 @@ enifed('ember-views/system/renderer', ['exports', 'ember-metal/core', 'ember-met
   exports['default'] = EmberRenderer;
 
 });
-enifed('ember-views/system/sanitize_attribute_value', ['exports'], function (exports) {
-
-  'use strict';
-
-  exports['default'] = sanitizeAttributeValue;
-  /* jshint scripturl:true */
-
-  var badProtocols = {
-    "javascript:": true,
-    "vbscript:": true
-  };
-
-  var badTags = {
-    "A": true,
-    "BODY": true,
-    "LINK": true,
-    "IMG": true,
-    "IFRAME": true
-  };
-
-  var badAttributes = {
-    "href": true,
-    "src": true,
-    "background": true
-  };function sanitizeAttributeValue(dom, element, attribute, value) {
-    var tagName;
-
-    if (!element) {
-      tagName = null;
-    } else {
-      tagName = element.tagName;
-    }
-
-    if (value && value.toHTML) {
-      return value.toHTML();
-    }
-
-    if ((tagName === null || badTags[tagName]) && badAttributes[attribute]) {
-      // Previously, we relied on creating a new `<a>` element and setting
-      // its `href` in order to get the DOM to parse and extract its protocol.
-      // Naive approaches to URL parsing are susceptible to all sorts of XSS
-      // attacks.
-      //
-      // However, this approach does not work in environments without a DOM,
-      // such as Node & FastBoot. We have extracted the logic for parsing to
-      // the DOM helper, so that in locations without DOM, we can substitute
-      // our own robust URL parsing.
-      //
-      // This will also allow us to use the new `URL` API in browsers that
-      // support it, and skip the process of creating an element entirely.
-      var protocol = dom.protocolForURL(value);
-      if (badProtocols[protocol] === true) {
-        return "unsafe:" + value;
-      }
-    }
-
-    return value;
-  }
-
-  exports.badAttributes = badAttributes;
-
-});
 enifed('ember-views/system/utils', ['exports'], function (exports) {
 
   'use strict';
@@ -37276,7 +37214,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
 
   var selectOptionDefaultTemplate = {
     isHTMLBars: true,
-    revision: "Ember@1.12.0-beta.1+canary.73b4060c",
+    revision: "Ember@1.12.0-beta.1+canary.60f53a39",
     render: function (context, env, contextualElement) {
       var lazyValue = context.getStream("view.label");
 
@@ -40338,7 +40276,12 @@ enifed("morph-attr/sanitize-attribute-value",
       'BODY': true,
       'LINK': true,
       'IMG': true,
-      'IFRAME': true
+      'IFRAME': true,
+      'BASE': true
+    };
+
+    var badTagsForDataURI = {
+      'EMBED': true
     };
 
     var badAttributes = {
@@ -40347,13 +40290,17 @@ enifed("morph-attr/sanitize-attribute-value",
       'background': true
     };
     __exports__.badAttributes = badAttributes;
+    var badAttributesForDataURI = {
+      'src': true
+    };
+
     function sanitizeAttributeValue(dom, element, attribute, value) {
       var tagName;
 
       if (!element) {
         tagName = null;
       } else {
-        tagName = element.tagName;
+        tagName = element.tagName.toUpperCase();
       }
 
       if (value && value.toHTML) {
@@ -40365,6 +40312,10 @@ enifed("morph-attr/sanitize-attribute-value",
         if (badProtocols[protocol] === true) {
           return 'unsafe:' + value;
         }
+      }
+
+      if (badTagsForDataURI[tagName] && badAttributesForDataURI[attribute]) {
+        return 'unsafe:' + value;
       }
 
       return value;
