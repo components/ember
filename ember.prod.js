@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.bb66982c
+ * @version   1.12.0-beta.1+canary.73b4060c
  */
 
 (function() {
@@ -8256,7 +8256,7 @@ enifed('ember-htmlbars/templates/component', ['exports', 'ember-template-compile
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.bb66982c",
+      revision: "Ember@1.12.0-beta.1+canary.73b4060c",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8304,7 +8304,7 @@ enifed('ember-htmlbars/templates/empty', ['exports', 'ember-template-compiler/sy
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.bb66982c",
+      revision: "Ember@1.12.0-beta.1+canary.73b4060c",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8344,7 +8344,7 @@ enifed('ember-htmlbars/templates/link-to-escaped', ['exports', 'ember-template-c
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.bb66982c",
+      revision: "Ember@1.12.0-beta.1+canary.73b4060c",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8392,7 +8392,7 @@ enifed('ember-htmlbars/templates/link-to-unescaped', ['exports', 'ember-template
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.bb66982c",
+      revision: "Ember@1.12.0-beta.1+canary.73b4060c",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8441,7 +8441,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     var child0 = (function () {
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.bb66982c",
+        revision: "Ember@1.12.0-beta.1+canary.73b4060c",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8485,7 +8485,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1+canary.bb66982c",
+          revision: "Ember@1.12.0-beta.1+canary.73b4060c",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8527,7 +8527,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.bb66982c",
+        revision: "Ember@1.12.0-beta.1+canary.73b4060c",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8571,7 +8571,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1+canary.bb66982c",
+          revision: "Ember@1.12.0-beta.1+canary.73b4060c",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8613,7 +8613,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.bb66982c",
+        revision: "Ember@1.12.0-beta.1+canary.73b4060c",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8655,7 +8655,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     })();
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.bb66982c",
+      revision: "Ember@1.12.0-beta.1+canary.73b4060c",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -11321,7 +11321,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.bb66982c
+    @version 1.12.0-beta.1+canary.73b4060c
   */
 
   if ("undefined" === typeof Ember) {
@@ -11350,10 +11350,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.bb66982c'
+    @default '1.12.0-beta.1+canary.73b4060c'
     @static
   */
-  Ember.VERSION = "1.12.0-beta.1+canary.bb66982c";
+  Ember.VERSION = "1.12.0-beta.1+canary.73b4060c";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -18334,7 +18334,7 @@ enifed('ember-routing-htmlbars/helpers/query-params', ['exports', 'ember-metal/c
   }
 
 });
-enifed('ember-routing-htmlbars/helpers/render', ['exports', 'ember-metal/core', 'ember-metal/error', 'ember-runtime/system/string', 'ember-routing/system/generate_controller', 'ember-metal/streams/utils', 'ember-htmlbars/system/merge-view-bindings', 'ember-htmlbars/system/append-templated-view'], function (exports, Ember, EmberError, string, generateController, utils, mergeViewBindings, appendTemplatedView) {
+enifed('ember-routing-htmlbars/helpers/render', ['exports', 'ember-metal/core', 'ember-metal/error', 'ember-runtime/system/string', 'ember-routing/system/generate_controller', 'ember-metal/streams/utils', 'ember-htmlbars/system/merge-view-bindings', 'ember-htmlbars/system/append-templated-view', 'ember-metal/platform/create'], function (exports, Ember, EmberError, string, generateController, utils, mergeViewBindings, appendTemplatedView, create) {
 
   'use strict';
 
@@ -18490,8 +18490,53 @@ enifed('ember-routing-htmlbars/helpers/render', ['exports', 'ember-metal/core', 
       helperName: "render \"" + name + "\""
     };
 
+    impersonateAnOutlet(currentView, view, name);
     mergeViewBindings['default'](currentView, props, hash);
     appendTemplatedView['default'](currentView, options.morph, view, props);
+  }
+
+  // Megahax to make outlets inside the render helper work, until we
+  // can kill that behavior at 2.0.
+  function impersonateAnOutlet(currentView, view, name) {
+    view._childOutlets = Ember['default'].A();
+    view._isOutlet = true;
+    view._outletName = "__ember_orphans__";
+    view._matchOutletName = name;
+    view.setOutletState = function (state) {
+      var ownState;
+      if (state && (ownState = state.outlets[this._matchOutletName])) {
+        this._outletState = {
+          render: { name: "render helper stub" },
+          outlets: create['default'](null)
+        };
+        this._outletState.outlets[ownState.render.outlet] = ownState;
+        ownState.wasUsed = true;
+      } else {
+        this._outletState = null;
+      }
+      for (var i = 0; i < this._childOutlets.length; i++) {
+        var child = this._childOutlets[i];
+        child.setOutletState(this._outletState && this._outletState.outlets[child._outletName]);
+      }
+    };
+
+    var pointer = currentView;
+    var po;
+    while (pointer && !pointer._isOutlet) {
+      pointer = pointer._parentView;
+    }
+    while (pointer && (po = pointer._parentOutlet())) {
+      pointer = po;
+    }
+    if (pointer) {
+      // we've found the toplevel outlet. Subscribe to its
+      // __ember_orphan__ child outlet, which is our hack convention for
+      // stashing outlet state that may target the render helper.
+      pointer._childOutlets.push(view);
+      if (pointer._outletState) {
+        view.setOutletState(pointer._outletState.outlets[view._outletName]);
+      }
+    }
   }
 
 });
@@ -19132,7 +19177,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/contai
   var CoreOutletView = ContainerView['default'].extend({
     init: function () {
       this._super();
-      this._childOutlets = [];
+      this._childOutlets = Ember.A();
       this._outletState = null;
     },
 
@@ -23509,12 +23554,38 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
     if (target) {
       property_set.set(target.outlets, renderOptions.outlet, myState);
     } else {
-            liveRoutes = myState;
+      if (renderOptions.into) {
+        // Megahax time. Post-2.0-breaking-changes, we will just assert
+        // right here that the user tried to target a nonexistent
+        // thing. But for now we still need to support the `render`
+        // helper, and people are allowed to target templates rendered
+        // by the render helper. So instead we defer doing anyting with
+        // these orphan renders until afterRender.
+        appendOrphan(liveRoutes, renderOptions.into, myState);
+      } else {
+        liveRoutes = myState;
+      }
     }
     return {
       liveRoutes: liveRoutes,
       ownState: myState
     };
+  }
+
+  function appendOrphan(liveRoutes, into, myState) {
+    if (!liveRoutes.outlets.__ember_orphans__) {
+      liveRoutes.outlets.__ember_orphans__ = {
+        render: {
+          name: "__ember_orphans__"
+        },
+        outlets: create['default'](null)
+      };
+    }
+    liveRoutes.outlets.__ember_orphans__.outlets[into] = myState;
+    Ember['default'].run.schedule("afterRender", function () {
+      // `wasUsed` gets set by the render helper. See the function
+      // `impersonateAnOutlet`.
+          });
   }
 
   function representEmptyRoute(liveRoutes, defaultParentState, route) {
@@ -32869,7 +32940,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     }
 
     return {
-      revision: "Ember@1.12.0-beta.1+canary.bb66982c",
+      revision: "Ember@1.12.0-beta.1+canary.73b4060c",
 
       disableComponentGeneration: disableComponentGeneration,
 
@@ -37205,7 +37276,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
 
   var selectOptionDefaultTemplate = {
     isHTMLBars: true,
-    revision: "Ember@1.12.0-beta.1+canary.bb66982c",
+    revision: "Ember@1.12.0-beta.1+canary.73b4060c",
     render: function (context, env, contextualElement) {
       var lazyValue = context.getStream("view.label");
 
