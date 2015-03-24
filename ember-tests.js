@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.ad35fd64
+ * @version   1.12.0-beta.1+canary.4cd4c7c9
  */
 
 (function() {
@@ -8656,7 +8656,7 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
     }, /You cannot set `data-bar` manually and via `{{bind-attr}}` helper on the same element/);
   });
 
-  QUnit.test("src attribute bound to undefined is not present", function () {
+  QUnit.test("src attribute bound to undefined is empty", function () {
     var template = compile['default']("<img {{bind-attr src=view.undefinedValue}}>");
 
     view = EmberView['default'].create({
@@ -8666,10 +8666,10 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
 
     utils.runAppend(view);
 
-    ok(!view.element.firstChild.hasAttribute("src"), "src attribute not present");
+    equal(view.element.firstChild.getAttribute("src"), "", "src attribute is empty");
   });
 
-  QUnit.test("src attribute bound to null is not present", function () {
+  QUnit.test("src attribute bound to null is empty", function () {
     var template = compile['default']("<img {{bind-attr src=view.nullValue}}>");
 
     view = EmberView['default'].create({
@@ -8679,7 +8679,44 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
 
     utils.runAppend(view);
 
-    ok(!view.element.firstChild.hasAttribute("src"), "src attribute not present");
+    equal(view.element.firstChild.getAttribute("src"), "", "src attribute is empty");
+  });
+
+  QUnit.test("src attribute will be cleared when the value is set to null or undefined", function () {
+    var template = compile['default']("<img {{bind-attr src=view.value}}>");
+
+    view = EmberView['default'].create({
+      template: template,
+      value: "one"
+    });
+
+    utils.runAppend(view);
+
+    equal(view.element.firstChild.getAttribute("src"), "one", "src attribute is present");
+
+    run['default'](function () {
+      property_set.set(view, "value", "two");
+    });
+
+    equal(view.element.firstChild.getAttribute("src"), "two", "src attribute is present");
+
+    run['default'](function () {
+      property_set.set(view, "value", null);
+    });
+
+    equal(view.element.firstChild.getAttribute("src"), "", "src attribute is empty");
+
+    run['default'](function () {
+      property_set.set(view, "value", "three");
+    });
+
+    equal(view.element.firstChild.getAttribute("src"), "three", "src attribute is present");
+
+    run['default'](function () {
+      property_set.set(view, "value", undefined);
+    });
+
+    equal(view.element.firstChild.getAttribute("src"), "", "src attribute is empty");
   });
 
   QUnit.test("specifying `<div {{bind-attr style=userValue}}></div>` is [DEPRECATED]", function () {
@@ -17681,7 +17718,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.ad35fd64",
+        revision: "Ember@1.12.0-beta.1+canary.4cd4c7c9",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -53155,7 +53192,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.12.0-beta.1+canary.ad35fd64", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.12.0-beta.1+canary.4cd4c7c9", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
