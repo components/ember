@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.101ad44c
+ * @version   1.12.0-beta.1+canary.c4d90114
  */
 
 (function() {
@@ -4373,7 +4373,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.101ad44c
+    @version 1.12.0-beta.1+canary.c4d90114
   */
 
   if ("undefined" === typeof Ember) {
@@ -4402,10 +4402,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.101ad44c'
+    @default '1.12.0-beta.1+canary.c4d90114'
     @static
   */
-  Ember.VERSION = "1.12.0-beta.1+canary.101ad44c";
+  Ember.VERSION = "1.12.0-beta.1+canary.c4d90114";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -9262,7 +9262,10 @@ enifed('ember-metal/streams/simple', ['exports', 'ember-metal/merge', 'ember-met
   function SimpleStream(source) {
     this.init();
     this.source = source;
-    this.dependency = this.addDependency(this.source);
+
+    if (utils.isStream(source)) {
+      source.subscribe(this._didChange, this);
+    }
   }
 
   SimpleStream.prototype = create['default'](Stream['default'].prototype);
@@ -9283,16 +9286,30 @@ enifed('ember-metal/streams/simple', ['exports', 'ember-metal/merge', 'ember-met
     setSource: function (nextSource) {
       var prevSource = this.source;
       if (nextSource !== prevSource) {
-        this.dependency.replace(nextSource);
+        if (utils.isStream(prevSource)) {
+          prevSource.unsubscribe(this._didChange, this);
+        }
+
+        if (utils.isStream(nextSource)) {
+          nextSource.subscribe(this._didChange, this);
+        }
+
         this.source = nextSource;
         this.notify();
       }
+    },
+
+    _didChange: function () {
+      this.notify();
     },
 
     _super$destroy: Stream['default'].prototype.destroy,
 
     destroy: function () {
       if (this._super$destroy()) {
+        if (utils.isStream(this.source)) {
+          this.source.unsubscribe(this._didChange, this);
+        }
         this.source = undefined;
         return true;
       }
@@ -9328,59 +9345,6 @@ enifed('ember-metal/streams/stream', ['exports', 'ember-metal/platform/create', 
     } else {
       stream.subscriberTail = prev;
     }
-
-    stream.maybeDeactivate();
-  };
-
-  function Dependency(dependent, stream, callback, context) {
-    this.next = null;
-    this.prev = null;
-    this.dependent = dependent;
-    this.stream = stream;
-    this.callback = callback;
-    this.context = context;
-    this.unsubscription = null;
-  }
-
-  Dependency.prototype.subscribe = function () {
-    this.unsubscribe = this.stream.subscribe(this.callback, this.context);
-  };
-
-  Dependency.prototype.unsubscribe = function () {
-    this.unsubscription();
-    this.unsubscription = null;
-  };
-
-  Dependency.prototype.removeFrom = function (stream) {
-    var next = this.next;
-    var prev = this.prev;
-
-    if (prev) {
-      prev.next = next;
-    } else {
-      stream.dependencyHead = next;
-    }
-
-    if (next) {
-      next.prev = prev;
-    } else {
-      stream.dependencyTail = prev;
-    }
-
-    if (this.unsubscription) {
-      this.unsubscribe();
-    }
-  };
-
-  Dependency.prototype.replace = function (stream, callback, context) {
-    this.stream = stream;
-    this.callback = callback;
-    this.context = context;
-
-    if (this.unsubscription) {
-      this.unsubscribe();
-      this.subscribe();
-    }
   };
 
   /**
@@ -9402,13 +9366,8 @@ enifed('ember-metal/streams/stream', ['exports', 'ember-metal/platform/create', 
       this.cache = undefined;
       this.subscriberHead = null;
       this.subscriberTail = null;
-      this.dependencyHead = null;
-      this.dependencyTail = null;
-      this.dependency = null;
       this.children = undefined;
       this._label = undefined;
-      this.isActive = false;
-      this.gotValueWhileInactive = false;
     },
 
     get: function (path) {
@@ -9434,97 +9393,16 @@ enifed('ember-metal/streams/stream', ['exports', 'ember-metal/platform/create', 
     },
 
     value: function () {
-      if (!this.isActive) {
-        this.gotValueWhileInactive = true;
-        this.revalidate();
-        return this.valueFn();
-      }
-
       if (this.state === "clean") {
         return this.cache;
       } else if (this.state === "dirty") {
-        this.revalidate();
-        var value = this.valueFn();
         this.state = "clean";
-        this.cache = value;
-        return value;
+        return this.cache = this.valueFn();
       }
       // TODO: Ensure value is never called on a destroyed stream
       // so that we can uncomment this assertion.
       //
       // Ember.assert("Stream error: value was called in an invalid state: " + this.state);
-    },
-
-    addDependency: function (stream, callback, context) {
-      if (!stream || !stream.isStream) {
-        return;
-      }
-
-      if (callback === undefined) {
-        callback = this.notify;
-        context = this;
-      }
-
-      var dependency = new Dependency(this, stream, callback, context);
-
-      if (this.isActive) {
-        dependency.subscribe();
-      }
-
-      if (this.dependencyHead === null) {
-        this.dependencyHead = this.dependencyTail = dependency;
-      } else {
-        var tail = this.dependencyTail;
-        tail.next = dependency;
-        dependency.prev = tail;
-        this.dependencyTail = dependency;
-      }
-
-      return dependency;
-    },
-
-    subscribeDependencies: function () {
-      var dependency = this.dependencyHead;
-      while (dependency) {
-        var next = dependency.next;
-        dependency.subscribe();
-        dependency = next;
-      }
-    },
-
-    unsubscribeDependencies: function () {
-      var dependency = this.dependencyHead;
-      while (dependency) {
-        var next = dependency.next;
-        dependency.unsubscribe();
-        dependency = next;
-      }
-    },
-
-    becameActive: function () {},
-    becameInactive: function () {},
-
-    // This method is invoked when the value function is called and when
-    // a stream becomes active. This allows changes to be made to a stream's
-    // input, and only do any work in response if the stream has subscribers
-    // or if someone actually gets the stream's value.
-    revalidate: function () {},
-
-    maybeActivate: function () {
-      if (this.subscriberHead && !this.isActive) {
-        this.isActive = true;
-        this.subscribeDependencies();
-        this.revalidate();
-        this.becameActive();
-      }
-    },
-
-    maybeDeactivate: function () {
-      if (!this.subscriberHead && this.isActive) {
-        this.isActive = false;
-        this.unsubscribeDependencies();
-        this.becameInactive();
-      }
     },
 
     valueFn: function () {
@@ -9540,8 +9418,7 @@ enifed('ember-metal/streams/stream', ['exports', 'ember-metal/platform/create', 
     },
 
     notifyExcept: function (callbackToSkip, contextToSkip) {
-      if (this.state === "clean" || this.gotValueWhileInactive) {
-        this.gotValueWhileInactive = false;
+      if (this.state === "clean") {
         this.state = "dirty";
         this._notifySubscribers(callbackToSkip, contextToSkip);
       }
@@ -9551,7 +9428,6 @@ enifed('ember-metal/streams/stream', ['exports', 'ember-metal/platform/create', 
       var subscriber = new Subscriber(callback, context, this);
       if (this.subscriberHead === null) {
         this.subscriberHead = this.subscriberTail = subscriber;
-        this.maybeActivate();
       } else {
         var tail = this.subscriberTail;
         tail.next = subscriber;
@@ -9610,8 +9486,6 @@ enifed('ember-metal/streams/stream', ['exports', 'ember-metal/platform/create', 
         }
 
         this.subscriberHead = this.subscriberTail = null;
-        this.maybeDeactivate();
-        this.dependencies = null;
 
         return true;
       }
@@ -9643,7 +9517,7 @@ enifed('ember-metal/streams/stream_binding', ['exports', 'ember-metal/platform/c
     this.senderContext = undefined;
     this.senderValue = undefined;
 
-    this.addDependency(stream, this._onNotify, this);
+    stream.subscribe(this._onNotify, this);
   }
 
   StreamBinding.prototype = create['default'](Stream['default'].prototype);
@@ -9693,6 +9567,15 @@ enifed('ember-metal/streams/stream_binding', ['exports', 'ember-metal/platform/c
       this.state = "clean";
 
       this.notifyExcept(senderCallback, senderContext);
+    },
+
+    _super$destroy: Stream['default'].prototype.destroy,
+
+    destroy: function () {
+      if (this._super$destroy()) {
+        this.stream.unsubscribe(this._onNotify, this);
+        return true;
+      }
     }
   });
 
@@ -9792,15 +9675,17 @@ enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, 
   }
 
   function concat(array, separator) {
+    // TODO: Create subclass ConcatStream < Stream. Defer
+    // subscribing to streams until the value() is called.
     var hasStream = scanArray(array);
     if (hasStream) {
       var i, l;
       var stream = new Stream['default'](function () {
-        return concat(readArray(array), separator);
+        return readArray(array).join(separator);
       });
 
       for (i = 0, l = array.length; i < l; i++) {
-        stream.addDependency(array[i]);
+        subscribe(array[i], stream.notify, stream);
       }
 
       return stream;

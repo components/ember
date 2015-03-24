@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.101ad44c
+ * @version   1.12.0-beta.1+canary.c4d90114
  */
 
 (function() {
@@ -19746,7 +19746,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.101ad44c",
+        revision: "Ember@1.12.0-beta.1+canary.c4d90114",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -55086,7 +55086,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.12.0-beta.1+canary.101ad44c", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.12.0-beta.1+canary.c4d90114", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -57926,6 +57926,159 @@ enifed('ember-views/tests/streams/class_string_for_value_test.jshint', function 
   module("JSHint - ember-views/tests/streams");
   test("ember-views/tests/streams/class_string_for_value_test.js should pass jshint", function () {
     ok(true, "ember-views/tests/streams/class_string_for_value_test.js should pass jshint.");
+  });
+
+});
+enifed('ember-views/tests/streams/key_stream_test', ['ember-metal/property_set', 'ember-metal/streams/stream', 'ember-views/streams/key_stream'], function (property_set, Stream, KeyStream) {
+
+  'use strict';
+
+  var source, object, count;
+
+  function incrementCount() {
+    count++;
+  }
+
+  QUnit.module("KeyStream", {
+    setup: function () {
+      count = 0;
+      object = { name: "mmun" };
+
+      source = new Stream['default'](function () {
+        return object;
+      });
+
+      source.setValue = function (value) {
+        object = value;
+        this.notify();
+      };
+    },
+    teardown: function () {
+      count = undefined;
+      object = undefined;
+      source = undefined;
+    }
+  });
+
+  QUnit.test("can be instantiated manually", function () {
+    var nameStream = new KeyStream['default'](source, "name");
+    equal(nameStream.value(), "mmun", "Stream value is correct");
+  });
+
+  QUnit.test("can be instantiated via `Stream.prototype.get`", function () {
+    var nameStream = source.get("name");
+    equal(nameStream.value(), "mmun", "Stream value is correct");
+  });
+
+  QUnit.test("is notified when the observed object's property is mutated", function () {
+    var nameStream = source.get("name");
+    nameStream.subscribe(incrementCount);
+
+    equal(count, 0, "Subscribers called correct number of times");
+    equal(nameStream.value(), "mmun", "Stream value is correct");
+
+    property_set.set(object, "name", "wycats");
+
+    equal(count, 1, "Subscribers called correct number of times");
+    equal(nameStream.value(), "wycats", "Stream value is correct");
+  });
+
+  QUnit.test("is notified when the source stream's value changes to a new object", function () {
+    var nameStream = source.get("name");
+    nameStream.subscribe(incrementCount);
+
+    equal(count, 0, "Subscribers called correct number of times");
+    equal(nameStream.value(), "mmun", "Stream value is correct");
+
+    object = { name: "wycats" };
+    source.setValue(object);
+
+    equal(count, 1, "Subscribers called correct number of times");
+    equal(nameStream.value(), "wycats", "Stream value is correct");
+
+    property_set.set(object, "name", "kris");
+
+    equal(count, 2, "Subscribers called correct number of times");
+    equal(nameStream.value(), "kris", "Stream value is correct");
+  });
+
+  QUnit.test("is notified when the source stream's value changes to the same object", function () {
+    var nameStream = source.get("name");
+    nameStream.subscribe(incrementCount);
+
+    equal(count, 0, "Subscribers called correct number of times");
+    equal(nameStream.value(), "mmun", "Stream value is correct");
+
+    source.setValue(object);
+
+    equal(count, 1, "Subscribers called correct number of times");
+    equal(nameStream.value(), "mmun", "Stream value is correct");
+
+    property_set.set(object, "name", "kris");
+
+    equal(count, 2, "Subscribers called correct number of times");
+    equal(nameStream.value(), "kris", "Stream value is correct");
+  });
+
+  QUnit.test("is notified when setSource is called with a new stream whose value is a new object", function () {
+    var nameStream = source.get("name");
+    nameStream.subscribe(incrementCount);
+
+    equal(count, 0, "Subscribers called correct number of times");
+    equal(nameStream.value(), "mmun", "Stream value is correct");
+
+    object = { name: "wycats" };
+    nameStream.setSource(new Stream['default'](function () {
+      return object;
+    }));
+
+    equal(count, 1, "Subscribers called correct number of times");
+    equal(nameStream.value(), "wycats", "Stream value is correct");
+
+    property_set.set(object, "name", "kris");
+
+    equal(count, 2, "Subscribers called correct number of times");
+    equal(nameStream.value(), "kris", "Stream value is correct");
+  });
+
+  QUnit.test("is notified when setSource is called with a new stream whose value is the same object", function () {
+    var nameStream = source.get("name");
+    nameStream.subscribe(incrementCount);
+
+    equal(count, 0, "Subscribers called correct number of times");
+    equal(nameStream.value(), "mmun", "Stream value is correct");
+
+    nameStream.setSource(new Stream['default'](function () {
+      return object;
+    }));
+
+    equal(count, 1, "Subscribers called correct number of times");
+    equal(nameStream.value(), "mmun", "Stream value is correct");
+
+    property_set.set(object, "name", "kris");
+
+    equal(count, 2, "Subscribers called correct number of times");
+    equal(nameStream.value(), "kris", "Stream value is correct");
+  });
+
+});
+enifed('ember-views/tests/streams/key_stream_test.jscs-test', function () {
+
+  'use strict';
+
+  module("JSCS - ember-views/tests/streams");
+  test("ember-views/tests/streams/key_stream_test.js should pass jscs", function () {
+    ok(true, "ember-views/tests/streams/key_stream_test.js should pass jscs.");
+  });
+
+});
+enifed('ember-views/tests/streams/key_stream_test.jshint', function () {
+
+  'use strict';
+
+  module("JSHint - ember-views/tests/streams");
+  test("ember-views/tests/streams/key_stream_test.js should pass jshint", function () {
+    ok(true, "ember-views/tests/streams/key_stream_test.js should pass jshint.");
   });
 
 });

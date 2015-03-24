@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.101ad44c
+ * @version   1.12.0-beta.1+canary.c4d90114
  */
 
 (function() {
@@ -8256,7 +8256,7 @@ enifed('ember-htmlbars/templates/component', ['exports', 'ember-template-compile
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.101ad44c",
+      revision: "Ember@1.12.0-beta.1+canary.c4d90114",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8304,7 +8304,7 @@ enifed('ember-htmlbars/templates/empty', ['exports', 'ember-template-compiler/sy
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.101ad44c",
+      revision: "Ember@1.12.0-beta.1+canary.c4d90114",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8344,7 +8344,7 @@ enifed('ember-htmlbars/templates/link-to-escaped', ['exports', 'ember-template-c
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.101ad44c",
+      revision: "Ember@1.12.0-beta.1+canary.c4d90114",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8392,7 +8392,7 @@ enifed('ember-htmlbars/templates/link-to-unescaped', ['exports', 'ember-template
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.101ad44c",
+      revision: "Ember@1.12.0-beta.1+canary.c4d90114",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8441,7 +8441,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     var child0 = (function () {
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.101ad44c",
+        revision: "Ember@1.12.0-beta.1+canary.c4d90114",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8485,7 +8485,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1+canary.101ad44c",
+          revision: "Ember@1.12.0-beta.1+canary.c4d90114",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8527,7 +8527,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.101ad44c",
+        revision: "Ember@1.12.0-beta.1+canary.c4d90114",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8571,7 +8571,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1+canary.101ad44c",
+          revision: "Ember@1.12.0-beta.1+canary.c4d90114",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8613,7 +8613,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.101ad44c",
+        revision: "Ember@1.12.0-beta.1+canary.c4d90114",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8655,7 +8655,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     })();
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1+canary.101ad44c",
+      revision: "Ember@1.12.0-beta.1+canary.c4d90114",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -11321,7 +11321,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.101ad44c
+    @version 1.12.0-beta.1+canary.c4d90114
   */
 
   if ("undefined" === typeof Ember) {
@@ -11350,10 +11350,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.101ad44c'
+    @default '1.12.0-beta.1+canary.c4d90114'
     @static
   */
-  Ember.VERSION = "1.12.0-beta.1+canary.101ad44c";
+  Ember.VERSION = "1.12.0-beta.1+canary.c4d90114";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -16210,7 +16210,10 @@ enifed('ember-metal/streams/simple', ['exports', 'ember-metal/merge', 'ember-met
   function SimpleStream(source) {
     this.init();
     this.source = source;
-    this.dependency = this.addDependency(this.source);
+
+    if (utils.isStream(source)) {
+      source.subscribe(this._didChange, this);
+    }
   }
 
   SimpleStream.prototype = create['default'](Stream['default'].prototype);
@@ -16231,16 +16234,30 @@ enifed('ember-metal/streams/simple', ['exports', 'ember-metal/merge', 'ember-met
     setSource: function (nextSource) {
       var prevSource = this.source;
       if (nextSource !== prevSource) {
-        this.dependency.replace(nextSource);
+        if (utils.isStream(prevSource)) {
+          prevSource.unsubscribe(this._didChange, this);
+        }
+
+        if (utils.isStream(nextSource)) {
+          nextSource.subscribe(this._didChange, this);
+        }
+
         this.source = nextSource;
         this.notify();
       }
+    },
+
+    _didChange: function () {
+      this.notify();
     },
 
     _super$destroy: Stream['default'].prototype.destroy,
 
     destroy: function () {
       if (this._super$destroy()) {
+        if (utils.isStream(this.source)) {
+          this.source.unsubscribe(this._didChange, this);
+        }
         this.source = undefined;
         return true;
       }
@@ -16276,59 +16293,6 @@ enifed('ember-metal/streams/stream', ['exports', 'ember-metal/platform/create', 
     } else {
       stream.subscriberTail = prev;
     }
-
-    stream.maybeDeactivate();
-  };
-
-  function Dependency(dependent, stream, callback, context) {
-    this.next = null;
-    this.prev = null;
-    this.dependent = dependent;
-    this.stream = stream;
-    this.callback = callback;
-    this.context = context;
-    this.unsubscription = null;
-  }
-
-  Dependency.prototype.subscribe = function () {
-    this.unsubscribe = this.stream.subscribe(this.callback, this.context);
-  };
-
-  Dependency.prototype.unsubscribe = function () {
-    this.unsubscription();
-    this.unsubscription = null;
-  };
-
-  Dependency.prototype.removeFrom = function (stream) {
-    var next = this.next;
-    var prev = this.prev;
-
-    if (prev) {
-      prev.next = next;
-    } else {
-      stream.dependencyHead = next;
-    }
-
-    if (next) {
-      next.prev = prev;
-    } else {
-      stream.dependencyTail = prev;
-    }
-
-    if (this.unsubscription) {
-      this.unsubscribe();
-    }
-  };
-
-  Dependency.prototype.replace = function (stream, callback, context) {
-    this.stream = stream;
-    this.callback = callback;
-    this.context = context;
-
-    if (this.unsubscription) {
-      this.unsubscribe();
-      this.subscribe();
-    }
   };
 
   /**
@@ -16350,13 +16314,8 @@ enifed('ember-metal/streams/stream', ['exports', 'ember-metal/platform/create', 
       this.cache = undefined;
       this.subscriberHead = null;
       this.subscriberTail = null;
-      this.dependencyHead = null;
-      this.dependencyTail = null;
-      this.dependency = null;
       this.children = undefined;
       this._label = undefined;
-      this.isActive = false;
-      this.gotValueWhileInactive = false;
     },
 
     get: function (path) {
@@ -16382,97 +16341,16 @@ enifed('ember-metal/streams/stream', ['exports', 'ember-metal/platform/create', 
     },
 
     value: function () {
-      if (!this.isActive) {
-        this.gotValueWhileInactive = true;
-        this.revalidate();
-        return this.valueFn();
-      }
-
       if (this.state === "clean") {
         return this.cache;
       } else if (this.state === "dirty") {
-        this.revalidate();
-        var value = this.valueFn();
         this.state = "clean";
-        this.cache = value;
-        return value;
+        return this.cache = this.valueFn();
       }
       // TODO: Ensure value is never called on a destroyed stream
       // so that we can uncomment this assertion.
       //
       // Ember.assert("Stream error: value was called in an invalid state: " + this.state);
-    },
-
-    addDependency: function (stream, callback, context) {
-      if (!stream || !stream.isStream) {
-        return;
-      }
-
-      if (callback === undefined) {
-        callback = this.notify;
-        context = this;
-      }
-
-      var dependency = new Dependency(this, stream, callback, context);
-
-      if (this.isActive) {
-        dependency.subscribe();
-      }
-
-      if (this.dependencyHead === null) {
-        this.dependencyHead = this.dependencyTail = dependency;
-      } else {
-        var tail = this.dependencyTail;
-        tail.next = dependency;
-        dependency.prev = tail;
-        this.dependencyTail = dependency;
-      }
-
-      return dependency;
-    },
-
-    subscribeDependencies: function () {
-      var dependency = this.dependencyHead;
-      while (dependency) {
-        var next = dependency.next;
-        dependency.subscribe();
-        dependency = next;
-      }
-    },
-
-    unsubscribeDependencies: function () {
-      var dependency = this.dependencyHead;
-      while (dependency) {
-        var next = dependency.next;
-        dependency.unsubscribe();
-        dependency = next;
-      }
-    },
-
-    becameActive: function () {},
-    becameInactive: function () {},
-
-    // This method is invoked when the value function is called and when
-    // a stream becomes active. This allows changes to be made to a stream's
-    // input, and only do any work in response if the stream has subscribers
-    // or if someone actually gets the stream's value.
-    revalidate: function () {},
-
-    maybeActivate: function () {
-      if (this.subscriberHead && !this.isActive) {
-        this.isActive = true;
-        this.subscribeDependencies();
-        this.revalidate();
-        this.becameActive();
-      }
-    },
-
-    maybeDeactivate: function () {
-      if (!this.subscriberHead && this.isActive) {
-        this.isActive = false;
-        this.unsubscribeDependencies();
-        this.becameInactive();
-      }
     },
 
     valueFn: function () {
@@ -16488,8 +16366,7 @@ enifed('ember-metal/streams/stream', ['exports', 'ember-metal/platform/create', 
     },
 
     notifyExcept: function (callbackToSkip, contextToSkip) {
-      if (this.state === "clean" || this.gotValueWhileInactive) {
-        this.gotValueWhileInactive = false;
+      if (this.state === "clean") {
         this.state = "dirty";
         this._notifySubscribers(callbackToSkip, contextToSkip);
       }
@@ -16499,7 +16376,6 @@ enifed('ember-metal/streams/stream', ['exports', 'ember-metal/platform/create', 
       var subscriber = new Subscriber(callback, context, this);
       if (this.subscriberHead === null) {
         this.subscriberHead = this.subscriberTail = subscriber;
-        this.maybeActivate();
       } else {
         var tail = this.subscriberTail;
         tail.next = subscriber;
@@ -16558,8 +16434,6 @@ enifed('ember-metal/streams/stream', ['exports', 'ember-metal/platform/create', 
         }
 
         this.subscriberHead = this.subscriberTail = null;
-        this.maybeDeactivate();
-        this.dependencies = null;
 
         return true;
       }
@@ -16591,7 +16465,7 @@ enifed('ember-metal/streams/stream_binding', ['exports', 'ember-metal/platform/c
     this.senderContext = undefined;
     this.senderValue = undefined;
 
-    this.addDependency(stream, this._onNotify, this);
+    stream.subscribe(this._onNotify, this);
   }
 
   StreamBinding.prototype = create['default'](Stream['default'].prototype);
@@ -16641,6 +16515,15 @@ enifed('ember-metal/streams/stream_binding', ['exports', 'ember-metal/platform/c
       this.state = "clean";
 
       this.notifyExcept(senderCallback, senderContext);
+    },
+
+    _super$destroy: Stream['default'].prototype.destroy,
+
+    destroy: function () {
+      if (this._super$destroy()) {
+        this.stream.unsubscribe(this._onNotify, this);
+        return true;
+      }
     }
   });
 
@@ -16740,15 +16623,17 @@ enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, 
   }
 
   function concat(array, separator) {
+    // TODO: Create subclass ConcatStream < Stream. Defer
+    // subscribing to streams until the value() is called.
     var hasStream = scanArray(array);
     if (hasStream) {
       var i, l;
       var stream = new Stream['default'](function () {
-        return concat(readArray(array), separator);
+        return readArray(array).join(separator);
       });
 
       for (i = 0, l = array.length; i < l; i++) {
-        stream.addDependency(array[i]);
+        subscribe(array[i], stream.notify, stream);
       }
 
       return stream;
@@ -32949,7 +32834,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     }
 
     return {
-      revision: "Ember@1.12.0-beta.1+canary.101ad44c",
+      revision: "Ember@1.12.0-beta.1+canary.c4d90114",
 
       disableComponentGeneration: disableComponentGeneration,
 
@@ -34607,42 +34492,35 @@ enifed('ember-views/streams/key_stream', ['exports', 'ember-metal/core', 'ember-
         
     this.init();
     this.source = source;
-    this.addDependency(source);
     this.obj = undefined;
     this.key = key;
+
+    if (utils.isStream(source)) {
+      source.subscribe(this._didChange, this);
+    }
   }
 
   KeyStream.prototype = create['default'](Stream['default'].prototype);
 
   merge['default'](KeyStream.prototype, {
     valueFn: function () {
-      if (this.obj) {
-        return property_get.get(this.obj, this.key);
-      }
-    },
-
-    revalidate: function () {
       var prevObj = this.obj;
       var nextObj = utils.read(this.source);
 
       if (nextObj !== prevObj) {
         if (prevObj && typeof prevObj === "object") {
-          observer.removeObserver(prevObj, this.key, this, this.notify);
+          observer.removeObserver(prevObj, this.key, this, this._didChange);
+        }
+
+        if (nextObj && typeof nextObj === "object") {
+          observer.addObserver(nextObj, this.key, this, this._didChange);
         }
 
         this.obj = nextObj;
       }
-    },
 
-    becameActive: function () {
-      if (this.obj && typeof this.obj === "object") {
-        observer.addObserver(this.obj, this.key, this, this.notify);
-      }
-    },
-
-    becameInactive: function () {
-      if (this.obj && typeof this.obj === "object") {
-        observer.removeObserver(this.obj, this.key, this, this.notify);
+      if (nextObj) {
+        return property_get.get(nextObj, this.key);
       }
     },
 
@@ -34657,17 +34535,35 @@ enifed('ember-views/streams/key_stream', ['exports', 'ember-metal/core', 'ember-
       var prevSource = this.source;
 
       if (nextSource !== prevSource) {
-        this.dependency.replace(nextSource);
+        if (utils.isStream(prevSource)) {
+          prevSource.unsubscribe(this._didChange, this);
+        }
+
+        if (utils.isStream(nextSource)) {
+          nextSource.subscribe(this._didChange, this);
+        }
 
         this.source = nextSource;
         this.notify();
       }
     },
 
+    _didChange: function () {
+      this.notify();
+    },
+
     _super$destroy: Stream['default'].prototype.destroy,
 
     destroy: function () {
       if (this._super$destroy()) {
+        if (utils.isStream(this.source)) {
+          this.source.unsubscribe(this._didChange, this);
+        }
+
+        if (this.obj && typeof this.obj === "object") {
+          observer.removeObserver(this.obj, this.key, this, this._didChange);
+        }
+
         this.source = undefined;
         this.obj = undefined;
         return true;
@@ -34716,37 +34612,31 @@ enifed('ember-views/streams/should_display', ['exports', 'ember-metal/streams/st
     this.predicateStream = predicateStream;
     this.isTruthyStream = predicateStream.get("isTruthy");
     this.lengthStream = undefined;
-    this.dependency = {
-      predicate: this.addDependency(this.predicateStream),
-      isTruthy: this.addDependency(this.isTruthyStream),
-      length: null
-    };
+    utils.subscribe(this.predicateStream, this.notify, this);
+    utils.subscribe(this.isTruthyStream, this.notify, this);
   }
 
   ShouldDisplayStream.prototype = create['default'](Stream['default'].prototype);
 
-  ShouldDisplayStream.prototype.revalidate = function () {
+  ShouldDisplayStream.prototype.valueFn = function () {
     var oldPredicate = this.oldPredicate;
     var newPredicate = utils.read(this.predicateStream);
     var newIsArray = ember_metal__utils.isArray(newPredicate);
 
     if (newPredicate !== oldPredicate) {
+
       if (this.lengthStream && !newIsArray) {
-        this.dependency.length.removeFrom(this);
-        this.dependency.length = null;
+        utils.unsubscribe(this.lengthStream, this.notify, this);
         this.lengthStream = undefined;
       }
 
       if (!this.lengthStream && newIsArray) {
         this.lengthStream = this.predicateStream.get("length");
-        this.dependency.length = this.addDependency(this.lengthStream);
+        utils.subscribe(this.lengthStream, this.notify, this);
       }
-
       this.oldPredicate = newPredicate;
     }
-  };
 
-  ShouldDisplayStream.prototype.valueFn = function () {
     var truthy = utils.read(this.isTruthyStream);
     if (typeof truthy === "boolean") {
       return truthy;
@@ -34757,7 +34647,7 @@ enifed('ember-views/streams/should_display', ['exports', 'ember-metal/streams/st
       return length !== 0;
     }
 
-    return !!utils.read(this.predicateStream);
+    return !!newPredicate;
   };
 
 });
@@ -37229,7 +37119,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
 
   var selectOptionDefaultTemplate = {
     isHTMLBars: true,
-    revision: "Ember@1.12.0-beta.1+canary.101ad44c",
+    revision: "Ember@1.12.0-beta.1+canary.c4d90114",
     render: function (context, env, contextualElement) {
       var lazyValue = context.getStream("view.label");
 
