@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.4cd4c7c9
+ * @version   1.12.0-beta.1+canary.12fbc86d
  */
 
 (function() {
@@ -19746,7 +19746,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.4cd4c7c9",
+        revision: "Ember@1.12.0-beta.1+canary.12fbc86d",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -33818,6 +33818,26 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 
     expectAssertion(function () {
       tests__utils.runAppend(view);
     }, "The second argument of {{render}} must be a path, e.g. {{render \"post\" post}}.");
+  });
+
+  QUnit.test("{{render}} helper should let view provide its own template", function () {
+    var template = "{{render 'fish'}}";
+    var controller = EmberController['default'].extend({ container: container });
+    view = EmberView['default'].create({
+      controller: controller.create(),
+      template: compile['default'](template)
+    });
+
+    container._registry.register("template:fish", compile['default']("Hello fish!"));
+    container._registry.register("template:other", compile['default']("Hello other!"));
+
+    container._registry.register("view:fish", EmberView['default'].extend({
+      templateName: "other"
+    }));
+
+    tests__utils.runAppend(view);
+
+    equal(view.$().text(), "Hello other!");
   });
 
 });
@@ -55066,7 +55086,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.12.0-beta.1+canary.4cd4c7c9", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.12.0-beta.1+canary.12fbc86d", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
