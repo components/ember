@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.d346ebbb
+ * @version   1.12.0-beta.1+canary.7194ab79
  */
 
 (function() {
@@ -15025,7 +15025,7 @@ enifed('ember-htmlbars/tests/helpers/with_test.jshint', function () {
   });
 
 });
-enifed('ember-htmlbars/tests/helpers/yield_test', ['ember-metal/run_loop', 'ember-views/views/view', 'ember-metal/computed', 'ember-runtime/system/container', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/native_array', 'ember-views/views/component', 'ember-views/views/metamorph_view', 'ember-metal/error', 'ember-htmlbars/helpers', 'ember-htmlbars/system/make-view-helper', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (run, EmberView, computed, system__container, property_get, property_set, native_array, Component, metamorph_view, EmberError, helpers, makeViewHelper, compile, utils) {
+enifed('ember-htmlbars/tests/helpers/yield_test', ['ember-metal/run_loop', 'ember-views/views/view', 'ember-metal/computed', 'ember-runtime/system/container', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/native_array', 'ember-views/views/component', 'ember-metal/error', 'ember-htmlbars/helpers', 'ember-htmlbars/system/make-view-helper', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (run, EmberView, computed, system__container, property_get, property_set, native_array, Component, EmberError, helpers, makeViewHelper, compile, utils) {
 
   'use strict';
 
@@ -15360,8 +15360,8 @@ enifed('ember-htmlbars/tests/helpers/yield_test', ['ember-metal/run_loop', 'embe
     equal(view.$("div > span").text(), "Hello world");
   });
 
-  QUnit.test("yield works inside a conditional in a component that has _Metamorph mixed in", function () {
-    var component = Component['default'].extend(metamorph_view._Metamorph, {
+  QUnit.test("yield works inside a conditional in a component that has Ember._Metamorph mixed in", function () {
+    var component = Component['default'].extend(Ember._Metamorph, {
       item: "inner",
       layout: compile['default']("<p>{{item}}</p>{{#if item}}<p>{{yield}}</p>{{/if}}")
     });
@@ -17758,7 +17758,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.d346ebbb",
+        revision: "Ember@1.12.0-beta.1+canary.7194ab79",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -53252,7 +53252,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.12.0-beta.1+canary.d346ebbb", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.12.0-beta.1+canary.7194ab79", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
