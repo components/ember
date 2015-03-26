@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.c318d50b
+ * @version   1.12.0-beta.1+canary.46b1a3a8
  */
 
 (function() {
@@ -2620,7 +2620,7 @@ enifed('ember-application/tests/system/initializers_test', ['ember-metal/run_loo
     });
   });
 
-  if (Ember.FEATURES.isEnabled("ember-application-initializer-context")) {
+  
     QUnit.test("initializers should be executed in their own context", function () {
       expect(1);
       var MyApplication = Application['default'].extend();
@@ -2640,7 +2640,7 @@ enifed('ember-application/tests/system/initializers_test', ['ember-metal/run_loo
         });
       });
     });
-  }
+  
 
 });
 enifed('ember-application/tests/system/initializers_test.jscs-test', function () {
@@ -2669,11 +2669,11 @@ enifed('ember-application/tests/system/instance_initializers_test', ['ember-meta
 
   var app, initializeContextFeatureEnabled;
 
-  if (Ember.FEATURES.isEnabled("ember-application-initializer-context")) {
+  
     initializeContextFeatureEnabled = true;
-  }
+  
 
-  if (Ember.FEATURES.isEnabled("ember-application-instance-initializers")) {
+  
     QUnit.module("Ember.Application instance initializers", {
       setup: function () {},
 
@@ -3011,7 +3011,7 @@ enifed('ember-application/tests/system/instance_initializers_test', ['ember-meta
         });
       });
     }
-  }
+  
 
 });
 enifed('ember-application/tests/system/instance_initializers_test.jscs-test', function () {
@@ -17758,7 +17758,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.c318d50b",
+        revision: "Ember@1.12.0-beta.1+canary.46b1a3a8",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -21379,7 +21379,7 @@ enifed('ember-metal/tests/computed_test', ['ember-metal/core', 'ember-metal/test
   // improved-cp-syntax
   //
 
-  if (Ember['default'].FEATURES.isEnabled("new-computed-syntax")) {
+  
     QUnit.module("computed - improved cp syntax");
 
     QUnit.test("setter and getters are passed using an object", function () {
@@ -21442,7 +21442,7 @@ enifed('ember-metal/tests/computed_test', ['ember-metal/core', 'ember-metal/test
       testObj.set("sampleCP", "abcd");
       ok(testObj.get("sampleCP") === "set-value", "The return value of the CP was cached");
     });
-  }
+  
 
   // ..........................................................
   // BUGS
@@ -53252,7 +53252,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.12.0-beta.1+canary.c318d50b", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.12.0-beta.1+canary.46b1a3a8", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {

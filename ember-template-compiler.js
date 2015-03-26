@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.c318d50b
+ * @version   1.12.0-beta.1+canary.46b1a3a8
  */
 
 (function() {
@@ -1810,7 +1810,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-me
   */
   function ComputedProperty(config, opts) {
     this.isDescriptor = true;
-    if (Ember.FEATURES.isEnabled("new-computed-syntax")) {
+    
       if (typeof config === "function") {
         config.__ember_arity = config.length;
         this._getter = config;
@@ -1824,14 +1824,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-me
           this._setter.__ember_arity = this._setter.length;
         }
       }
-    } else {
-      config.__ember_arity = config.length;
-      this._getter = config;
-      if (config.__ember_arity > 1) {
-        this._setter = config;
-      }
-    }
-
+    
     this._dependentKeys = undefined;
     this._suspended = undefined;
     this._meta = undefined;
@@ -2281,13 +2274,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-me
 
     var cp = new ComputedProperty(func);
     // jscs:disable
-    if (Ember.FEATURES.isEnabled("new-computed-syntax")) {} else {
-      // jscs:enable
-      if (typeof func !== "function") {
-        throw new EmberError['default']("Computed Property declared without a property function");
-      }
-    }
-
+    
     if (args) {
       cp.property.apply(cp, args);
     }
@@ -2613,7 +2600,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.c318d50b
+    @version 1.12.0-beta.1+canary.46b1a3a8
   */
 
   if ("undefined" === typeof Ember) {
@@ -2642,10 +2629,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.c318d50b'
+    @default '1.12.0-beta.1+canary.46b1a3a8'
     @static
   */
-  Ember.VERSION = "1.12.0-beta.1+canary.c318d50b";
+  Ember.VERSION = "1.12.0-beta.1+canary.46b1a3a8";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -2690,7 +2677,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   Ember.FEATURES = Ember.ENV.FEATURES;
 
   if (!Ember.FEATURES) {
-    Ember.FEATURES = { "features-stripped-test": null, "ember-routing-named-substates": true, "mandatory-setter": true, "ember-htmlbars-component-generation": null, "ember-htmlbars-component-helper": true, "ember-htmlbars-inline-if-helper": true, "ember-htmlbars-attribute-syntax": true, "ember-routing-transitioning-classes": true, "new-computed-syntax": null, "ember-testing-checkbox-helpers": null, "ember-metal-stream": null, "ember-htmlbars-each-with-index": true, "ember-application-instance-initializers": null, "ember-application-initializer-context": null, "ember-router-willtransition": true, "ember-application-visit": null, "ember-views-component-block-info": null, "ember-routing-core-outlet": null, "ember-libraries-isregistered": null }; //jshint ignore:line
+    Ember.FEATURES = { "features-stripped-test": null, "ember-routing-named-substates": true, "mandatory-setter": true, "ember-htmlbars-component-generation": null, "ember-htmlbars-component-helper": true, "ember-htmlbars-inline-if-helper": true, "ember-htmlbars-attribute-syntax": true, "ember-routing-transitioning-classes": true, "new-computed-syntax": true, "ember-testing-checkbox-helpers": null, "ember-metal-stream": null, "ember-htmlbars-each-with-index": true, "ember-application-instance-initializers": true, "ember-application-initializer-context": true, "ember-router-willtransition": true, "ember-application-visit": null, "ember-views-component-block-info": null, "ember-routing-core-outlet": null, "ember-libraries-isregistered": null }; //jshint ignore:line
   }
 
   /**
@@ -9367,7 +9354,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     }
 
     return {
-      revision: "Ember@1.12.0-beta.1+canary.c318d50b",
+      revision: "Ember@1.12.0-beta.1+canary.46b1a3a8",
 
       disableComponentGeneration: disableComponentGeneration,
 
