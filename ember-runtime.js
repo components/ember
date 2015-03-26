@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.47aaf75f
+ * @version   1.12.0-beta.1+canary.0c057e37
  */
 
 (function() {
@@ -4385,7 +4385,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.47aaf75f
+    @version 1.12.0-beta.1+canary.0c057e37
   */
 
   if ("undefined" === typeof Ember) {
@@ -4414,10 +4414,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.47aaf75f'
+    @default '1.12.0-beta.1+canary.0c057e37'
     @static
   */
-  Ember.VERSION = "1.12.0-beta.1+canary.47aaf75f";
+  Ember.VERSION = "1.12.0-beta.1+canary.0c057e37";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -12869,6 +12869,7 @@ enifed('ember-runtime/controllers/object_controller', ['exports', 'ember-metal/c
 
   exports['default'] = ObjectProxy['default'].extend(ControllerMixin['default'], {
     init: function () {
+      this._super();
       Ember['default'].deprecate(objectControllerDeprecation, this.isGenerated);
     }
   });

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.47aaf75f
+ * @version   1.12.0-beta.1+canary.0c057e37
  */
 
 (function() {
@@ -17758,7 +17758,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.47aaf75f",
+        revision: "Ember@1.12.0-beta.1+canary.0c057e37",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -53252,7 +53252,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.12.0-beta.1+canary.47aaf75f", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.12.0-beta.1+canary.0c057e37", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -69257,6 +69257,30 @@ enifed('ember/tests/routing/query_params_test', ['ember', 'ember-metal/computed'
     teardown: function () {
       sharedTeardown();
     }
+  });
+
+  QUnit.test("Single query params can be set on ObjectController [DEPRECATED]", function () {
+    expectDeprecation("Ember.ObjectController is deprecated, please use Ember.Controller and use `model.propertyName`.");
+
+    Router.map(function () {
+      this.route("home", { path: "/" });
+    });
+
+    App.HomeController = Ember.ObjectController.extend({
+      queryParams: ["foo"],
+      foo: "123"
+    });
+
+    bootApplication();
+
+    var controller = container.lookup("controller:home");
+
+    setAndFlush(controller, "foo", "456");
+
+    equal(router.get("location.path"), "/?foo=456");
+
+    setAndFlush(controller, "foo", "987");
+    equal(router.get("location.path"), "/?foo=987");
   });
 
   QUnit.test("Single query params can be set", function () {
