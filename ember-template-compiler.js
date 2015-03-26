@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.5.9e711066
+ * @version   1.11.0-beta.5.e9cfd772
  */
 
 (function() {
@@ -133,7 +133,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.11.0-beta.5.9e711066
+    @version 1.11.0-beta.5.e9cfd772
   */
 
   if ('undefined' === typeof Ember) {
@@ -161,10 +161,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.11.0-beta.5.9e711066'
+    @default '1.11.0-beta.5.e9cfd772'
     @static
   */
-  Ember.VERSION = '1.11.0-beta.5.9e711066';
+  Ember.VERSION = '1.11.0-beta.5.e9cfd772';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -595,7 +595,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     var disableComponentGeneration = true;
     
     return {
-      revision: 'Ember@1.11.0-beta.5.9e711066',
+      revision: 'Ember@1.11.0-beta.5.e9cfd772',
 
       disableComponentGeneration: disableComponentGeneration,
 
@@ -750,33 +750,7 @@ enifed("htmlbars-compiler/compiler",
       return template(compileSpec(string, options));
     }
 
-    __exports__.compile = compile;/*
-     * Compile a string into a template spec string. The template spec is a string
-     * representation of a template. Usually, you would use compileSpec for
-     * pre-compilation of a template on the server.
-     *
-     * Example usage:
-     *
-     *     var templateSpec = compileSpec("Howdy {{name}}");
-     *     // This next step is basically what plain compile does
-     *     var template = new Function("return " + templateSpec)();
-     *
-     * @method compileSpec
-     * @param {String} string An htmlbars template string
-     * @return {Function} A template spec string
-     */
-    function compileSpec(string, options) {
-      var ast = preprocess(string, options);
-      var compiler = new TemplateCompiler(options);
-      var program = compiler.compile(ast);
-      return program;
-    }
-
-    __exports__.compileSpec = compileSpec;function template(program) {
-      return new Function("return " + program)();
-    }
-
-    __exports__.template = template;
+    __exports__.compile = compile;
   });
 enifed("htmlbars-compiler/fragment-javascript-compiler",
   ["./utils","../htmlbars-util/quoting","exports"],
@@ -1360,7 +1334,7 @@ enifed("htmlbars-compiler/hydration-opcode-compiler",
       this.currentDOMChildIndex = -1;
 
       forEach(element.attributes, this.attribute, this);
-      forEach(element.helpers, this.elementHelper, this);
+      forEach(element.modifiers, this.elementModifier, this);
     };
 
     HydrationOpcodeCompiler.prototype.closeElement = function() {
@@ -1467,8 +1441,8 @@ enifed("htmlbars-compiler/hydration-opcode-compiler",
       this.opcode('printAttributeHook', attrMorphNum, this.elementNum);
     };
 
-    HydrationOpcodeCompiler.prototype.elementHelper = function(sexpr) {
-      prepareSexpr(this, sexpr);
+    HydrationOpcodeCompiler.prototype.elementModifier = function(modifier) {
+      prepareSexpr(this, modifier.sexpr);
 
       // If we have a helper in a node, and this element has not been cached, cache it
       if (this.element !== null) {
@@ -1581,7 +1555,7 @@ enifed("htmlbars-compiler/template-compiler",
 
     function TemplateCompiler(options) {
       this.options = options || {};
-      this.revision = this.options.revision || "HTMLBars@v0.11.1";
+      this.revision = this.options.revision || "HTMLBars@v0.11.2";
       this.fragmentOpcodeCompiler = new FragmentOpcodeCompiler();
       this.fragmentCompiler = new FragmentJavaScriptCompiler();
       this.hydrationOpcodeCompiler = new HydrationOpcodeCompiler();
@@ -1855,7 +1829,7 @@ enifed("htmlbars-compiler/template-visitor",
       elementFrame.parentNode = element;
       elementFrame.children = element.children;
       elementFrame.childCount = element.children.length;
-      elementFrame.mustacheCount += element.helpers.length;
+      elementFrame.mustacheCount += element.modifiers.length;
       elementFrame.blankChildTextNodes = [];
 
       var actionArgs = [
@@ -2198,22 +2172,28 @@ enifed("htmlbars-syntax/builders",
       };
     }
 
-    __exports__.buildComment = buildComment;
-    function buildConcat(parts) {
+    __exports__.buildComment = buildComment;function buildConcat(parts) {
       return {
         type: "ConcatStatement",
         parts: parts || []
       };
     }
 
-    __exports__.buildConcat = buildConcat;// Nodes
+    __exports__.buildConcat = buildConcat;function buildElementModifier(sexpr) {
+      return {
+        type: "ElementModifierStatement",
+        sexpr: sexpr
+      };
+    }
 
-    function buildElement(tag, attributes, helpers, children) {
+    __exports__.buildElementModifier = buildElementModifier;// Nodes
+
+    function buildElement(tag, attributes, modifiers, children) {
       return {
         type: "ElementNode",
         tag: tag,
         attributes: attributes || [],
-        helpers: helpers || [],
+        modifiers: modifiers || [],
         children: children || []
       };
     }
@@ -2316,6 +2296,7 @@ enifed("htmlbars-syntax/builders",
       partial: buildPartial,
       comment: buildComment,
       element: buildElement,
+      elementModifier: buildElementModifier,
       component: buildComponent,
       attr: buildAttr,
       text: buildText,
@@ -3877,7 +3858,7 @@ enifed("htmlbars-syntax/token-handlers",
       },
 
       StartTag: function(tag) {
-        var element = buildElement(tag.tagName, tag.attributes, tag.helpers || [], []);
+        var element = buildElement(tag.tagName, tag.attributes, tag.modifiers || [], []);
         element.loc = {
           start: { line: tag.firstLine, column: tag.firstColumn},
           end: { line: null, column: null}
@@ -3903,20 +3884,20 @@ enifed("htmlbars-syntax/token-handlers",
         switch(tokenizer.state) {
           // Tag helpers
           case "tagName":
-            tokenizer.addTagHelper(mustache.sexpr);
+            tokenizer.addElementModifier(mustache);
             tokenizer.state = "beforeAttributeName";
             return;
           case "beforeAttributeName":
-            tokenizer.addTagHelper(mustache.sexpr);
+            tokenizer.addElementModifier(mustache);
             return;
           case "attributeName":
           case "afterAttributeName":
             tokenizer.finalizeAttributeValue();
-            tokenizer.addTagHelper(mustache.sexpr);
+            tokenizer.addElementModifier(mustache);
             tokenizer.state = "beforeAttributeName";
             return;
           case "afterAttributeValueQuoted":
-            tokenizer.addTagHelper(mustache.sexpr);
+            tokenizer.addElementModifier(mustache);
             tokenizer.state = "beforeAttributeName";
             return;
 
@@ -4043,9 +4024,13 @@ enifed("htmlbars-syntax/tokenizer",
       }
     };
 
-    Tokenizer.prototype.addTagHelper = function(helper) {
-      var helpers = this.token.helpers = this.token.helpers || [];
-      helpers.push(helper);
+    Tokenizer.prototype.addElementModifier = function(mustache) {
+      if (!this.token.modifiers) {
+        this.token.modifiers = [];
+      }
+
+      var modifier = builders.elementModifier(mustache.sexpr);
+      this.token.modifiers.push(modifier);
     };
 
     function prepareAttributeValue(attr) {
