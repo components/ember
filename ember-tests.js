@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.feb48c3f
+ * @version   1.12.0-beta.1+canary.d346ebbb
  */
 
 (function() {
@@ -6725,52 +6725,78 @@ enifed('ember-htmlbars/tests/attr_nodes/sanitized_test.jshint', function () {
   });
 
 });
-enifed('ember-htmlbars/tests/attr_nodes/style_test', ['ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-htmlbars/utils/string', 'ember-runtime/tests/utils'], function (EmberView, compile, string, utils) {
+enifed('ember-htmlbars/tests/attr_nodes/style_test', ['ember-metal/core', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-htmlbars/utils/string', 'ember-runtime/tests/utils', 'ember-views/attr_nodes/attr_node'], function (Ember, EmberView, compile, string, utils, attr_node) {
 
   'use strict';
 
-  var view;
+  /* globals EmberDev */
+
+  var view, originalWarn, warnings;
 
   QUnit.module("ember-htmlbars: style attribute", {
+    setup: function () {
+      warnings = [];
+      originalWarn = Ember['default'].warn;
+      Ember['default'].warn = function (message, test) {
+        if (!test) {
+          warnings.push(message);
+        }
+      };
+    },
+
     teardown: function () {
       utils.runDestroy(view);
+      Ember['default'].warn = originalWarn;
     }
   });
 
   
     // jscs:disable validateIndentation
 
-    QUnit.test("specifying `<div style=\"width: {{userValue}}></div>` is [DEPRECATED]", function () {
-      view = EmberView['default'].create({
-        userValue: "42",
-        template: compile['default']("<div style=\"width: {{view.userValue}}\"></div>")
+    if (!EmberDev.runningProdBuild) {
+      QUnit.test("specifying `<div style={{userValue}}></div>` generates a warning", function () {
+        view = EmberView['default'].create({
+          userValue: "width: 42px",
+          template: compile['default']("<div style={{view.userValue}}></div>")
+        });
+
+        utils.runAppend(view);
+
+        deepEqual(warnings, [attr_node.styleWarning]);
       });
 
-      expectDeprecation(function () {
+      QUnit.test("specifying `attributeBindings: [\"style\"]` generates a warning", function () {
+        view = EmberView['default'].create({
+          userValue: "width: 42px",
+          template: compile['default']("<div style={{view.userValue}}></div>")
+        });
+
         utils.runAppend(view);
-      }, /Dynamic content in the `style` attribute is not escaped and may pose a security risk. Please perform a security audit and once verified change from `<div style="foo: {{property}}">` to `<div style="foo: {{{property}}}">/);
+
+        deepEqual(warnings, [attr_node.styleWarning]);
+      });
+    }
+
+    QUnit.test("specifying `<div style={{{userValue}}}></div>` works properly without a warning", function () {
+      view = EmberView['default'].create({
+        userValue: "width: 42px",
+        template: compile['default']("<div style={{{view.userValue}}}></div>")
+      });
+
+      utils.runAppend(view);
+
+      deepEqual(warnings, []);
     });
 
-    QUnit.test("specifying `<div style=\"width: {{{userValue}}}></div>` works properly", function () {
+    QUnit.test("specifying `<div style={{userValue}}></div>` works properly with a SafeString", function () {
       view = EmberView['default'].create({
-        userValue: "42",
-        template: compile['default']("<div style=\"width: {{view.userValue}}\"></div>")
+        userValue: new string.SafeString("width: 42px"),
+        template: compile['default']("<div style={{view.userValue}}></div>")
       });
 
-      expectNoDeprecation(function () {
-        utils.runAppend(view);
-      });
-    });
+      utils.runAppend(view);
 
-    QUnit.test("specifying `<div style=\"width: {{userValue}}></div>` works properly with a SafeString", function () {
-      view = EmberView['default'].create({
-        userValue: new string.SafeString("42"),
-        template: compile['default']("<div style=\"width: {{view.userValue}}\"></div>")
-      });
-
-      expectNoDeprecation(function () {
-        utils.runAppend(view);
-      });
+      deepEqual(warnings, []);
     });
 
     // jscs:enable validateIndentation
@@ -8093,15 +8119,17 @@ enifed('ember-htmlbars/tests/compat/precompile_test.jshint', function () {
   });
 
 });
-enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-views/views/view', 'ember-views/views/metamorph_view', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-metal/computed', 'ember-metal/observer', 'ember-runtime/system/container', 'ember-metal/property_set', 'ember-runtime/tests/utils', 'ember-htmlbars/helpers', 'ember-template-compiler/system/compile'], function (Ember, run, Namespace, EmberView, _MetamorphView, EmberObject, native_array, computed, observer, system__container, property_set, utils, helpers, compile) {
+enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-views/views/view', 'ember-views/views/metamorph_view', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-metal/computed', 'ember-metal/observer', 'ember-runtime/system/container', 'ember-metal/property_set', 'ember-runtime/tests/utils', 'ember-views/attr_nodes/attr_node', 'ember-htmlbars/utils/string', 'ember-htmlbars/helpers', 'ember-template-compiler/system/compile'], function (Ember, run, Namespace, EmberView, _MetamorphView, EmberObject, native_array, computed, observer, system__container, property_set, utils, attr_node, string, helpers, compile) {
 
   'use strict';
 
+  /*globals EmberDev */
   /*jshint newcap:false*/
+
   var view;
 
   var originalLookup = Ember['default'].lookup;
-  var TemplateTests, registry, container, lookup;
+  var TemplateTests, registry, container, lookup, warnings, originalWarn;
 
   /**
     This module specifically tests integration with Handlebars and Ember-specific
@@ -8119,6 +8147,14 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
       registry.optionsForType("template", { instantiate: false });
       registry.register("view:default", _MetamorphView['default']);
       registry.register("view:toplevel", EmberView['default'].extend());
+
+      warnings = [];
+      originalWarn = Ember['default'].warn;
+      Ember['default'].warn = function (message, test) {
+        if (!test) {
+          warnings.push(message);
+        }
+      };
     },
 
     teardown: function () {
@@ -8127,6 +8163,7 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
       registry = container = view = null;
 
       Ember['default'].lookup = lookup = originalLookup;
+      Ember['default'].warn = originalWarn;
       TemplateTests = null;
     }
   });
@@ -8719,26 +8756,29 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
     equal(view.element.firstChild.getAttribute("src"), "", "src attribute is empty");
   });
 
-  QUnit.test("specifying `<div {{bind-attr style=userValue}}></div>` is [DEPRECATED]", function () {
+  if (!EmberDev.runningProdBuild) {
+
+    QUnit.test("specifying `<div {{bind-attr style=userValue}}></div>` triggers a warning", function () {
+      view = EmberView['default'].create({
+        userValue: "42",
+        template: compile['default']("<div {{bind-attr style=view.userValue}}></div>")
+      });
+
+      utils.runAppend(view);
+
+      deepEqual(warnings, [attr_node.styleWarning]);
+    });
+  }
+
+  QUnit.test("specifying `<div {{bind-attr style=userValue}}></div>` works properly with a SafeString", function () {
     view = EmberView['default'].create({
-      userValue: "42",
+      userValue: new string.SafeString("42"),
       template: compile['default']("<div {{bind-attr style=view.userValue}}></div>")
     });
 
-    expectDeprecation(function () {
-      utils.runAppend(view);
-    }, /Dynamic content in the `style` attribute is not escaped and may pose a security risk. Please perform a security audit and once verified change from `<div {{bind-attr style=someProperty}}>` to `<div style={{{someProperty}}}>/);
-  });
+    utils.runAppend(view);
 
-  QUnit.test("specifying `<div {{{bind-attr style=userValue}}}></div>` works properly", function () {
-    view = EmberView['default'].create({
-      userValue: "42",
-      template: compile['default']("<div {{{bind-attr style=view.userValue}}}></div>")
-    });
-
-    expectNoDeprecation(function () {
-      utils.runAppend(view);
-    });
+    deepEqual(warnings, []);
   });
 
 });
@@ -17718,7 +17758,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.feb48c3f",
+        revision: "Ember@1.12.0-beta.1+canary.d346ebbb",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -53212,7 +53252,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.12.0-beta.1+canary.feb48c3f", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.12.0-beta.1+canary.d346ebbb", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
