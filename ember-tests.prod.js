@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.7194ab79
+ * @version   1.12.0-beta.1+canary.c318d50b
  */
 
 (function() {
@@ -17758,7 +17758,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.7194ab79",
+        revision: "Ember@1.12.0-beta.1+canary.c318d50b",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -53098,7 +53098,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.12.0-beta.1+canary.7194ab79", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.12.0-beta.1+canary.c318d50b", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -68571,7 +68571,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember', 'ember-runtime/controllers/
     equal(router.get("location.path"), "/about");
   }
 
-  var aboutDefer;
+  var aboutDefer, otherDefer;
 
   if (!Ember.FEATURES.isEnabled("ember-routing-transitioning-classes")) {
     QUnit.module("The {{link-to}} helper: eager URL updating", {
@@ -68714,6 +68714,13 @@ enifed('ember/tests/helpers/link_to_test', ['ember', 'ember-runtime/controllers/
             }
           });
 
+          App.OtherRoute = Ember.Route.extend({
+            model: function () {
+              otherDefer = Ember.RSVP.defer();
+              return otherDefer.promise;
+            }
+          });
+
           Ember.TEMPLATES.application = compile("{{outlet}}{{link-to 'Index' 'index' id='index-link'}}{{link-to 'About' 'about' id='about-link'}}{{link-to 'Other' 'other' id='other-link'}}");
         });
       },
@@ -68747,6 +68754,85 @@ enifed('ember/tests/helpers/link_to_test', ['ember', 'ember-runtime/controllers/
       assertHasClass("active", $index, true, $about, false, $other, false);
       assertHasClass("ember-transitioning-in", $index, false, $about, true, $other, false);
       assertHasClass("ember-transitioning-out", $index, true, $about, false, $other, false);
+
+      Ember.run(aboutDefer, "resolve");
+
+      assertHasClass("active", $index, false, $about, true, $other, false);
+      assertHasClass("ember-transitioning-in", $index, false, $about, false, $other, false);
+      assertHasClass("ember-transitioning-out", $index, false, $about, false, $other, false);
+    });
+
+    QUnit.test("while a transition is underway with nested link-to's", function () {
+      expect(54);
+
+      Router.map(function () {
+        this.route("parent-route", function () {
+          this.route("about");
+          this.route("other");
+        });
+      });
+
+      App.ParentRouteAboutRoute = Ember.Route.extend({
+        model: function () {
+          aboutDefer = Ember.RSVP.defer();
+          return aboutDefer.promise;
+        }
+      });
+
+      App.ParentRouteOtherRoute = Ember.Route.extend({
+        model: function () {
+          otherDefer = Ember.RSVP.defer();
+          return otherDefer.promise;
+        }
+      });
+
+      Ember.TEMPLATES.application = compile("\n      {{outlet}}\n      {{#link-to 'index' tagName='li'}}\n        {{link-to 'Index' 'index' id='index-link'}}\n      {{/link-to}}\n      {{#link-to 'parent-route.about' tagName='li'}}\n        {{link-to 'About' 'parent-route.about' id='about-link'}}\n      {{/link-to}}\n      {{#link-to 'parent-route.other' tagName='li'}}\n        {{link-to 'Other' 'parent-route.other' id='other-link'}}\n      {{/link-to}}\n    ");
+
+      bootApplication();
+
+      function assertHasClass(className) {
+        var i = 1;
+        while (i < arguments.length) {
+          var $a = arguments[i];
+          var shouldHaveClass = arguments[i + 1];
+          equal($a.hasClass(className), shouldHaveClass, $a.attr("id") + " should " + (shouldHaveClass ? "" : "not ") + "have class " + className);
+          i += 2;
+        }
+      }
+
+      var $index = Ember.$("#index-link");
+      var $about = Ember.$("#about-link");
+      var $other = Ember.$("#other-link");
+
+      Ember.run($about, "click");
+
+      assertHasClass("active", $index, true, $about, false, $other, false);
+      assertHasClass("ember-transitioning-in", $index, false, $about, true, $other, false);
+      assertHasClass("ember-transitioning-out", $index, true, $about, false, $other, false);
+
+      Ember.run(aboutDefer, "resolve");
+
+      assertHasClass("active", $index, false, $about, true, $other, false);
+      assertHasClass("ember-transitioning-in", $index, false, $about, false, $other, false);
+      assertHasClass("ember-transitioning-out", $index, false, $about, false, $other, false);
+
+      Ember.run($other, "click");
+
+      assertHasClass("active", $index, false, $about, true, $other, false);
+      assertHasClass("ember-transitioning-in", $index, false, $about, false, $other, true);
+      assertHasClass("ember-transitioning-out", $index, false, $about, true, $other, false);
+
+      Ember.run(otherDefer, "resolve");
+
+      assertHasClass("active", $index, false, $about, false, $other, true);
+      assertHasClass("ember-transitioning-in", $index, false, $about, false, $other, false);
+      assertHasClass("ember-transitioning-out", $index, false, $about, false, $other, false);
+
+      Ember.run($about, "click");
+
+      assertHasClass("active", $index, false, $about, false, $other, true);
+      assertHasClass("ember-transitioning-in", $index, false, $about, true, $other, false);
+      assertHasClass("ember-transitioning-out", $index, false, $about, false, $other, true);
 
       Ember.run(aboutDefer, "resolve");
 
