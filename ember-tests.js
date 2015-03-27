@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.5.e9cfd772
+ * @version   1.11.0-beta.5.597c03bb
  */
 
 (function() {
@@ -17357,7 +17357,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: 'Ember@1.11.0-beta.5.e9cfd772',
+        revision: 'Ember@1.11.0-beta.5.597c03bb',
         render: function(view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -52662,7 +52662,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, 'Ember@1.11.0-beta.5.e9cfd772', 'revision is included in generated template');
+    equal(actual.revision, 'Ember@1.11.0-beta.5.597c03bb', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function() {
@@ -67835,8 +67835,6 @@ enifed('ember/tests/helpers/link_to_test', ['ember', 'ember-runtime/controllers/
         }
       });
 
-      var asdf = 'foo';
-
       Ember.TEMPLATES.application = compile("{{outlet}} {{#link-to 'index' tagName='li'}} {{link-to 'Index' 'index' id='index-link'}} {{/link-to}} {{#link-to 'parent-route.about' tagName='li'}} {{link-to 'About' 'parent-route.about' id='about-link'}} {{/link-to}} {{#link-to 'parent-route.other' tagName='li'}} {{link-to 'Other' 'parent-route.other' id='other-link'}} {{/link-to}}");
 
       bootApplication();
@@ -67910,7 +67908,7 @@ enifed('ember/tests/helpers/link_to_test.jshint', function () {
 
   module('JSHint - ember/tests/helpers');
   test('ember/tests/helpers/link_to_test.js should pass jshint', function() { 
-    ok(false, 'ember/tests/helpers/link_to_test.js should pass jshint.\nember/tests/helpers/link_to_test.js: line 1871, col 9, \'asdf\' is defined but never used.\n\n1 error'); 
+    ok(true, 'ember/tests/helpers/link_to_test.js should pass jshint.'); 
   });
 
 });
@@ -68019,6 +68017,8 @@ enifed('ember/tests/homepage_example_test.jshint', function () {
 enifed('ember/tests/routing/basic_test', ['ember', 'ember-metal/enumerable_utils', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-views/system/action_manager', 'ember-htmlbars/compat'], function (__dep0__, enumerable_utils, property_get, property_set, ActionManager, EmberHandlebars) {
 
   'use strict';
+
+  var trim = Ember.$.trim;
 
   var compile = EmberHandlebars['default'].compile;
 
@@ -71685,13 +71685,13 @@ enifed('ember/tests/routing/basic_test', ['ember', 'ember-metal/enumerable_utils
       }
     });
     bootApplication();
-    equal(Ember.$('#qunit-fixture').text().trim(), 'hi');
+    equal(trim(Ember.$('#qunit-fixture').text()), 'hi');
     Ember.run(router, 'send', 'openLayer');
-    equal(Ember.$('#qunit-fixture').text().trim(), 'hilayer');
+    equal(trim(Ember.$('#qunit-fixture').text()), 'hilayer');
     Ember.run(router, 'send', 'openLayer');
-    equal(Ember.$('#qunit-fixture').text().trim(), 'hilayer');
+    equal(trim(Ember.$('#qunit-fixture').text()), 'hilayer');
     Ember.run(router, 'send', 'close');
-    equal(Ember.$('#qunit-fixture').text().trim(), 'hi');
+    equal(trim(Ember.$('#qunit-fixture').text()), 'hi');
   });
 
   QUnit.test("Renders child into parent with non-default template name", function() {
@@ -71746,11 +71746,11 @@ enifed('ember/tests/routing/basic_test', ['ember', 'ember-metal/enumerable_utils
       }
     });
     bootApplication();
-    equal(Ember.$('#qunit-fixture').text().trim(), 'hi');
+    equal(trim(Ember.$('#qunit-fixture').text()), 'hi');
     Ember.run(router, 'send', 'openLayer');
-    equal(Ember.$('#qunit-fixture').text().trim(), 'hilayer');
+    equal(trim(Ember.$('#qunit-fixture').text()), 'hilayer');
     Ember.run(router, 'send', 'close');
-    equal(Ember.$('#qunit-fixture').text().trim(), 'hi');
+    equal(trim(Ember.$('#qunit-fixture').text()), 'hi');
   });
 
   QUnit.test("Can render({into:...}) the render helper", function() {
