@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.0c057e37
+ * @version   1.12.0-beta.1+canary.25339bc0
  */
 
 (function() {
@@ -17758,7 +17758,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1+canary.0c057e37",
+        revision: "Ember@1.12.0-beta.1+canary.25339bc0",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -20525,14 +20525,15 @@ enifed('ember-metal/tests/binding/sync_test', ['ember-metal/tests/props_helper',
     run['default'](function () {
       a = {};
 
-      properties.defineProperty(a, "foo", computed.computed(function (key, value) {
-        if (arguments.length === 2) {
+      properties.defineProperty(a, "foo", computed.computed({
+        get: function (key) {
+          getCalled++;
+          return setValue;
+        },
+        set: function (key, value) {
           setCalled++;
           setValue = value;
           return value;
-        } else {
-          getCalled++;
-          return setValue;
         }
       })["volatile"]());
 
@@ -20810,15 +20811,17 @@ enifed('ember-metal/tests/computed_test', ['ember-metal/core', 'ember-metal/test
   });
 
   QUnit.test("defining computed property should invoke property on set", function () {
-
     var obj = {};
     var count = 0;
-    properties.defineProperty(obj, "foo", computed.computed(function (key, value) {
-      if (value !== undefined) {
+    properties.defineProperty(obj, "foo", computed.computed({
+      get: function (key) {
+        return this["__" + key];
+      },
+      set: function (key, value) {
         count++;
         this["__" + key] = "computed " + value;
+        return this["__" + key];
       }
-      return this["__" + key];
     }));
 
     equal(property_set.set(obj, "foo", "bar"), "bar", "should return set value");
@@ -20830,11 +20833,14 @@ enifed('ember-metal/tests/computed_test', ['ember-metal/core', 'ember-metal/test
   QUnit.module("computed should inherit through prototype", {
     setup: function () {
       objA = { __foo: "FOO" };
-      properties.defineProperty(objA, "foo", computed.computed(function (key, value) {
-        if (value !== undefined) {
+      properties.defineProperty(objA, "foo", computed.computed({
+        get: function (key) {
+          return this["__" + key];
+        },
+        set: function (key, value) {
           this["__" + key] = "computed " + value;
+          return this["__" + key];
         }
-        return this["__" + key];
       }));
 
       objB = create['default'](objA);
@@ -20866,11 +20872,14 @@ enifed('ember-metal/tests/computed_test', ['ember-metal/core', 'ember-metal/test
   QUnit.module("redefining computed property to normal", {
     setup: function () {
       objA = { __foo: "FOO" };
-      properties.defineProperty(objA, "foo", computed.computed(function (key, value) {
-        if (value !== undefined) {
+      properties.defineProperty(objA, "foo", computed.computed({
+        get: function (key) {
+          return this["__" + key];
+        },
+        set: function (key, value) {
           this["__" + key] = "computed " + value;
+          return this["__" + key];
         }
-        return this["__" + key];
       }));
 
       objB = create['default'](objA);
@@ -20902,20 +20911,26 @@ enifed('ember-metal/tests/computed_test', ['ember-metal/core', 'ember-metal/test
   QUnit.module("redefining computed property to another property", {
     setup: function () {
       objA = { __foo: "FOO" };
-      properties.defineProperty(objA, "foo", computed.computed(function (key, value) {
-        if (value !== undefined) {
+      properties.defineProperty(objA, "foo", computed.computed({
+        get: function (key) {
+          return this["__" + key];
+        },
+        set: function (key, value) {
           this["__" + key] = "A " + value;
+          return this["__" + key];
         }
-        return this["__" + key];
       }));
 
       objB = create['default'](objA);
       objB.__foo = "FOO";
-      properties.defineProperty(objB, "foo", computed.computed(function (key, value) {
-        if (value !== undefined) {
+      properties.defineProperty(objB, "foo", computed.computed({
+        get: function (key) {
+          return this["__" + key];
+        },
+        set: function (key, value) {
           this["__" + key] = "B " + value;
+          return this["__" + key];
         }
-        return this["__" + key];
       }));
     },
 
@@ -20963,10 +20978,11 @@ enifed('ember-metal/tests/computed_test', ['ember-metal/core', 'ember-metal/test
     setup: function () {
       obj = {};
       count = 0;
-      properties.defineProperty(obj, "foo", computed.computed(function (key, value) {
+      var func = function (key, value) {
         count++;
         return "bar " + count;
-      }));
+      };
+      properties.defineProperty(obj, "foo", computed.computed({ get: func, set: func }));
     },
 
     teardown: function () {
@@ -21057,10 +21073,12 @@ enifed('ember-metal/tests/computed_test', ['ember-metal/core', 'ember-metal/test
 
     var receivedOldValue;
 
-    properties.defineProperty(obj, "plusOne", computed.computed(function (key, value, oldValue) {
-      receivedOldValue = oldValue;
-      return value;
-    }).property("foo"));
+    properties.defineProperty(obj, "plusOne", computed.computed({
+      get: function () {},
+      set: function (key, value, oldValue) {
+        receivedOldValue = oldValue;
+        return value;
+      } }).property("foo"));
 
     set(obj, "plusOne", 1);
     strictEqual(receivedOldValue, undefined, "oldValue should be undefined");
@@ -21077,9 +21095,12 @@ enifed('ember-metal/tests/computed_test', ['ember-metal/core', 'ember-metal/test
       foo: 0
     };
 
-    properties.defineProperty(obj, "plusOne", computed.computed(function (key, value) {
-      equal(arguments.length, 2, "computed property is only invoked with two arguments");
-      return value;
+    properties.defineProperty(obj, "plusOne", computed.computed({
+      get: function () {},
+      set: function (key, value) {
+        equal(arguments.length, 2, "computed property is only invoked with two arguments");
+        return value;
+      }
     }).property("foo"));
 
     set(obj, "plusOne", 1);
@@ -21095,10 +21116,14 @@ enifed('ember-metal/tests/computed_test', ['ember-metal/core', 'ember-metal/test
     setup: function () {
       obj = { bar: "baz" };
       count = 0;
-      properties.defineProperty(obj, "foo", computed.computed(function (key, value) {
+      var getterAndSetter = function (key, value) {
         count++;
         property_get.get(this, "bar");
         return "bar " + count;
+      };
+      properties.defineProperty(obj, "foo", computed.computed({
+        get: getterAndSetter,
+        set: getterAndSetter
       }).property("bar"));
     },
 
@@ -21157,13 +21182,13 @@ enifed('ember-metal/tests/computed_test', ['ember-metal/core', 'ember-metal/test
   });
 
   props_helper.testBoth("circular keys should not blow up", function (get, set) {
-
-    properties.defineProperty(obj, "bar", computed.computed(function (key, value) {
+    var func = function (key, value) {
       count++;
       return "bar " + count;
-    }).property("foo"));
+    };
+    properties.defineProperty(obj, "bar", computed.computed({ get: func, set: func }).property("foo"));
 
-    properties.defineProperty(obj, "foo", computed.computed(function (key, value) {
+    properties.defineProperty(obj, "foo", computed.computed(function (key) {
       count++;
       return "foo " + count;
     }).property("bar"));
@@ -21200,7 +21225,7 @@ enifed('ember-metal/tests/computed_test', ['ember-metal/core', 'ember-metal/test
   });
 
   props_helper.testBoth("can watch multiple dependent keys specified declaratively via brace expansion", function (get, set) {
-    properties.defineProperty(obj, "foo", computed.computed(function (key, value) {
+    properties.defineProperty(obj, "foo", computed.computed(function (key) {
       count++;
       return "foo " + count;
     }).property("qux.{bar,baz}"));
@@ -21224,7 +21249,7 @@ enifed('ember-metal/tests/computed_test', ['ember-metal/core', 'ember-metal/test
 
   props_helper.testBoth("throws assertion if brace expansion notation has spaces", function (get, set) {
     throws(function () {
-      properties.defineProperty(obj, "roo", computed.computed(function (key, value) {
+      properties.defineProperty(obj, "roo", computed.computed(function (key) {
         count++;
         return "roo " + count;
       }).property("fee.{bar, baz,bop , }"));
@@ -21442,6 +21467,15 @@ enifed('ember-metal/tests/computed_test', ['ember-metal/core', 'ember-metal/test
       testObj.set("sampleCP", "abcd");
       ok(testObj.get("sampleCP") === "set-value", "The return value of the CP was cached");
     });
+
+    QUnit.test("Passing a function that acts both as getter and setter is deprecated", function () {
+      var regex = /Using the same function as getter and setter is deprecated/;
+      expectDeprecation(function () {
+        Ember['default'].Object.extend({
+          aInt: computed.computed("a", function (keyName, value, oldValue) {})
+        });
+      }, regex);
+    });
   
 
   // ..........................................................
@@ -21467,12 +21501,14 @@ enifed('ember-metal/tests/computed_test', ['ember-metal/core', 'ember-metal/test
     var obj = {};
     var oldValueIsNoFunction = true;
 
-    properties.defineProperty(obj, "foo", computed.computed(function (key, value, oldValue) {
-      if (typeof oldValue === "function") {
-        oldValueIsNoFunction = false;
+    properties.defineProperty(obj, "foo", computed.computed({
+      get: function () {},
+      set: function (key, value, oldValue) {
+        if (typeof oldValue === "function") {
+          oldValueIsNoFunction = false;
+        }
+        return undefined;
       }
-
-      return undefined;
     }));
 
     get(obj, "foo");
@@ -21488,14 +21524,16 @@ enifed('ember-metal/tests/computed_test', ['ember-metal/core', 'ember-metal/test
       firstName: "Yehuda",
       lastName: "Katz"
     };
-    properties.defineProperty(obj, "fullName", computed.computed(function (key, value) {
-      if (arguments.length > 1) {
+    properties.defineProperty(obj, "fullName", computed.computed({
+      get: function () {
+        return get(this, "firstName") + " " + get(this, "lastName");
+      },
+      set: function (key, value) {
         var values = value.split(" ");
         set(this, "firstName", values[0]);
         set(this, "lastName", values[1]);
         return value;
       }
-      return get(this, "firstName") + " " + get(this, "lastName");
     }).property("firstName", "lastName"));
     var fullNameWillChange = 0;
     var fullNameDidChange = 0;
@@ -21544,12 +21582,14 @@ enifed('ember-metal/tests/computed_test', ['ember-metal/core', 'ember-metal/test
     var obj = {
       foo: 0
     };
-    properties.defineProperty(obj, "plusOne", computed.computed(function (key, value) {
-      if (arguments.length > 1) {
+    properties.defineProperty(obj, "plusOne", computed.computed({
+      get: function (key) {
+        return get(this, "foo") + 1;
+      },
+      set: function (key, value) {
         set(this, "foo", value);
         return value + 1;
       }
-      return get(this, "foo") + 1;
     }).property("foo"));
     var plusOneWillChange = 0;
     var plusOneDidChange = 0;
@@ -21696,8 +21736,13 @@ enifed('ember-metal/tests/computed_test', ['ember-metal/core', 'ember-metal/test
     var obj = {};
     var constantValue = "always `a`";
 
-    properties.defineProperty(obj, "original", computed.computed(function (key, value) {
-      return constantValue;
+    properties.defineProperty(obj, "original", computed.computed({
+      get: function (key) {
+        return constantValue;
+      },
+      set: function (key, value) {
+        return constantValue;
+      }
     }));
     properties.defineProperty(obj, "aliased", alias['default']("original"));
 
@@ -24252,7 +24297,7 @@ enifed('ember-metal/tests/mixin/computed_test', ['ember-metal/property_get', 'em
     equal(property_get.get(obj, "aProp"), "AD", "should define super for D");
 
     obj = {};
-    properties.defineProperty(obj, "aProp", computed.computed(function (key, value) {
+    properties.defineProperty(obj, "aProp", computed.computed(function (key) {
       return "obj";
     }));
     MixinD.apply(obj);
@@ -24267,19 +24312,24 @@ enifed('ember-metal/tests/mixin/computed_test', ['ember-metal/property_get', 'em
     var superSetOccurred = false;
 
     SuperMixin = mixin.Mixin.create({
-      aProp: computed.computed(function (key, val) {
-        if (arguments.length === 1) {
+      aProp: computed.computed({
+        get: function (key) {
           superGetOccurred = true;
-        } else {
+        },
+        set: function (key, value) {
           superSetOccurred = true;
         }
-        return true;
       })
     });
 
     SubMixin = mixin.Mixin.create(SuperMixin, {
-      aProp: computed.computed(function (key, val) {
-        return this._super.apply(this, arguments);
+      aProp: computed.computed({
+        get: function (key) {
+          return this._super.apply(this, arguments);
+        },
+        set: function (key, value) {
+          return this._super.apply(this, arguments);
+        }
       })
     });
 
@@ -24313,12 +24363,18 @@ enifed('ember-metal/tests/mixin/computed_test', ['ember-metal/property_get', 'em
     var cpWasCalled = false;
 
     var MixinB = mixin.Mixin.create({
-      cpWithSetter2: computed.computed(function (k, v) {
-        cpWasCalled = true;
+      cpWithSetter2: computed.computed({
+        get: K,
+        set: function (k, v) {
+          cpWasCalled = true;
+        }
       }),
 
-      cpWithSetter3: computed.computed(function (k, v) {
-        cpWasCalled = true;
+      cpWithSetter3: computed.computed({
+        get: K,
+        set: function (k, v) {
+          cpWasCalled = true;
+        }
       }),
 
       cpWithoutSetter: computed.computed(function (k) {
@@ -26547,11 +26603,13 @@ enifed('ember-metal/tests/observer_test', ['ember-metal/core', 'ember-metal/test
   props_helper.testBoth("setting a cached computed property whose value has changed should trigger", function (get, set) {
     var obj = {};
 
-    properties.defineProperty(obj, "foo", computed.computed(function (key, value) {
-      if (arguments.length === 2) {
+    properties.defineProperty(obj, "foo", computed.computed({
+      get: function () {
+        return get(this, "baz");
+      },
+      set: function (key, value) {
         return value;
       }
-      return get(this, "baz");
     }).property("baz"));
 
     var count = 0;
@@ -26593,11 +26651,13 @@ enifed('ember-metal/tests/observer_test', ['ember-metal/core', 'ember-metal/test
 
       mixin.apply(obj);
 
-      properties.defineProperty(obj, "foo", computed.computed(function (key, value) {
-        if (arguments.length > 1) {
+      properties.defineProperty(obj, "foo", computed.computed({
+        get: function () {
+          return "yes hello this is foo";
+        },
+        set: function (key, value) {
           return value;
         }
-        return "yes hello this is foo";
       }));
 
       equal(get(obj, "foo"), "yes hello this is foo", "precond - computed property returns a value");
@@ -26627,11 +26687,13 @@ enifed('ember-metal/tests/observer_test', ['ember-metal/core', 'ember-metal/test
 
         mixin.apply(obj);
 
-        properties.defineProperty(obj, "foo", computed.computed(function (key, value) {
-          if (arguments.length > 1) {
+        properties.defineProperty(obj, "foo", computed.computed({
+          get: function (key) {
+            return "yes hello this is foo";
+          },
+          set: function (key, value) {
             return value;
           }
-          return "yes hello this is foo";
         }));
 
         equal(get(obj, "foo"), "yes hello this is foo", "precond - computed property returns a value");
@@ -26661,11 +26723,13 @@ enifed('ember-metal/tests/observer_test', ['ember-metal/core', 'ember-metal/test
 
       mixin.apply(obj);
 
-      properties.defineProperty(obj, "foo", computed.computed(function (key, value) {
-        if (arguments.length > 1) {
+      properties.defineProperty(obj, "foo", computed.computed({
+        get: function () {
+          return "yes hello this is foo";
+        },
+        set: function (key, value) {
           return value;
         }
-        return "yes hello this is foo";
       }));
 
       equal(get(obj, "foo"), "yes hello this is foo", "precond - computed property returns a value");
@@ -29355,12 +29419,14 @@ enifed('ember-metal/tests/watching/unwatch_test', ['ember-metal/tests/props_help
   props_helper.testBoth("unwatching a computed property - regular get/set", function (get, set) {
 
     var obj = {};
-    properties.defineProperty(obj, "foo", computed.computed(function (keyName, value) {
-      if (value !== undefined) {
+    properties.defineProperty(obj, "foo", computed.computed({
+      get: function () {
+        return this.__foo;
+      },
+      set: function (keyName, value) {
         this.__foo = value;
+        return this.__foo;
       }
-
-      return this.__foo;
     }));
     addListeners(obj, "foo");
 
@@ -29491,12 +29557,16 @@ enifed('ember-metal/tests/watching/watch_test', ['ember-metal/core', 'ember-meta
 
   props_helper.testBoth("watching a computed property", function (get, set) {
     var obj = {};
-    Ember['default'].defineProperty(obj, "foo", Ember['default'].computed(function (keyName, value) {
-      if (value !== undefined) {
-        this.__foo = value;
+    Ember['default'].defineProperty(obj, "foo", Ember['default'].computed({
+      get: function () {
+        return this.__foo;
+      },
+      set: function (keyName, value) {
+        if (value !== undefined) {
+          this.__foo = value;
+        }
+        return this.__foo;
       }
-
-      return this.__foo;
     }));
     addListeners(obj, "foo");
 
@@ -39622,11 +39692,14 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
 
         // computed property
         _computed: "computed",
-        computed: computed.computed(function (key, value) {
-          if (value !== undefined) {
+        computed: computed.computed({
+          get: function (key) {
+            return this._computed;
+          },
+          set: function (key, value) {
             this._computed = value;
+            return this._computed;
           }
-          return this._computed;
         })["volatile"](),
 
         // method, but not a property
@@ -39706,15 +39779,25 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
         // REGULAR
 
         computedCalls: [],
-        computed: computed.computed(function (key, value) {
-          this.computedCalls.push(value);
-          return "computed";
+        computed: computed.computed({
+          get: function () {
+            this.computedCalls.push("getter-called");
+            return "computed";
+          },
+          set: function (key, value) {
+            this.computedCalls.push(value);
+          }
         })["volatile"](),
 
         computedCachedCalls: [],
-        computedCached: computed.computed(function (key, value) {
-          this.computedCachedCalls.push(value);
-          return "computedCached";
+        computedCached: computed.computed({
+          get: function () {
+            this.computedCachedCalls.push("getter-called");
+            return "computedCached";
+          },
+          set: function (key, value) {
+            this.computedCachedCalls.push(value);
+          }
         }),
 
         // DEPENDENT KEYS
@@ -39722,21 +39805,36 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
         changer: "foo",
 
         dependentCalls: [],
-        dependent: computed.computed(function (key, value) {
-          this.dependentCalls.push(value);
-          return "dependent";
+        dependent: computed.computed({
+          get: function () {
+            this.dependentCalls.push("getter-called");
+            return "dependent";
+          },
+          set: function (key, value) {
+            this.dependentCalls.push(value);
+          }
         }).property("changer")["volatile"](),
 
         dependentFrontCalls: [],
-        dependentFront: computed.computed("changer", function (key, value) {
-          this.dependentFrontCalls.push(value);
-          return "dependentFront";
+        dependentFront: computed.computed("changer", {
+          get: function () {
+            this.dependentFrontCalls.push("getter-called");
+            return "dependentFront";
+          },
+          set: function (key, value) {
+            this.dependentFrontCalls.push(value);
+          }
         })["volatile"](),
 
         dependentCachedCalls: [],
-        dependentCached: computed.computed(function (key, value) {
-          this.dependentCachedCalls.push(value);
-          return "dependentCached";
+        dependentCached: computed.computed({
+          get: function () {
+            this.dependentCachedCalls.push("getter-called!");
+            return "dependentCached";
+          },
+          set: function (key, value) {
+            this.dependentCachedCalls.push(value);
+          }
         }).property("changer"),
 
         // every time it is recomputed, increments call
@@ -39747,26 +39845,31 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
 
         // depends on cached property which depends on another property...
         nestedIncCallCount: 0,
-        nestedInc: computed.computed(function (key, value) {
+        nestedInc: computed.computed(function (key) {
           property_get.get(this, "inc");
           return this.nestedIncCallCount++;
         }).property("inc"),
 
         // two computed properties that depend on a third property
         state: "on",
-        isOn: computed.computed(function (key, value) {
-          if (value !== undefined) {
+        isOn: computed.computed({
+          get: function () {
+            return this.get("state") === "on";
+          },
+          set: function (key, value) {
             this.set("state", "on");
+            return this.get("state") === "on";
           }
-
-          return this.get("state") === "on";
         }).property("state")["volatile"](),
 
-        isOff: computed.computed(function (key, value) {
-          if (value !== undefined) {
+        isOff: computed.computed({
+          get: function () {
+            return this.get("state") === "off";
+          },
+          set: function (key, value) {
             this.set("state", "off");
+            return this.get("state") === "off";
           }
-          return this.get("state") === "off";
         }).property("state")["volatile"]()
 
       });
@@ -40529,12 +40632,14 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test', [
 
     var a = ObservableObject.createWithMixins({
       _b: null,
-      b: computed.computed(function (key, value) {
-        if (value !== undefined) {
+      b: computed.computed({
+        get: function () {
+          return this._b;
+        },
+        set: function (key, value) {
           this._b = value;
           return this;
         }
-        return this._b;
       })["volatile"]()
     });
 
@@ -43356,11 +43461,13 @@ enifed('ember-runtime/tests/mixins/observable_test', ['ember-metal/computed', 'e
     var obj = EmberObject['default'].createWithMixins({
       firstName: "Steve",
       lastName: "Jobs",
-      companyName: computed.computed(function (key, value) {
-        if (value !== undefined) {
+      companyName: computed.computed({
+        get: function () {
+          return "Apple, Inc.";
+        },
+        set: function (key, value) {
           throw exc;
         }
-        return "Apple, Inc.";
       })
     });
 
@@ -49788,11 +49895,13 @@ enifed('ember-runtime/tests/system/object/create_test', ['ember-metal/core', 'em
 
   QUnit.test("calls computed property setters", function () {
     var MyClass = EmberObject['default'].extend({
-      foo: computed.computed(function (key, val) {
-        if (arguments.length === 2) {
-          return val;
+      foo: computed.computed({
+        get: function () {
+          return "this is not the value you're looking for";
+        },
+        set: function (key, value) {
+          return value;
         }
-        return "this is not the value you're looking for";
       })
     });
 
@@ -51343,11 +51452,14 @@ enifed('ember-runtime/tests/system/object_proxy_test', ['ember-metal/observer', 
 
   props_helper.testBoth("should not proxy properties passed to create", function (get, set) {
     var Proxy = ObjectProxy['default'].extend({
-      cp: computed.computed(function (key, value) {
-        if (value) {
+      cp: computed.computed({
+        get: function (key) {
+          return this._cp;
+        },
+        set: function (key, value) {
           this._cp = value;
+          return this._cp;
         }
-        return this._cp;
       })
     });
     var proxy = Proxy.create({
@@ -53252,7 +53364,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.12.0-beta.1+canary.0c057e37", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.12.0-beta.1+canary.25339bc0", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.0c057e37
+ * @version   1.12.0-beta.1+canary.25339bc0
  */
 
 (function() {
@@ -1815,6 +1815,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-me
         config.__ember_arity = config.length;
         this._getter = config;
         if (config.__ember_arity > 1) {
+          Ember.deprecate("Using the same function as getter and setter is deprecated");
           this._setter = config;
         }
       } else {
@@ -2541,25 +2542,29 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
   }
 
   function defaultTo(defaultPath) {
-    return computed.computed(function (key, newValue, cachedValue) {
-      Ember['default'].deprecate("Usage of Ember.computed.defaultTo is deprecated, use `Ember.computed.oneWay` instead.");
-
-      if (arguments.length === 1) {
+    return computed.computed({
+      get: function (key) {
+        Ember['default'].deprecate("Usage of Ember.computed.defaultTo is deprecated, use `Ember.computed.oneWay` instead.");
         return property_get.get(this, defaultPath);
+      },
+
+      set: function (key, newValue, cachedValue) {
+        Ember['default'].deprecate("Usage of Ember.computed.defaultTo is deprecated, use `Ember.computed.oneWay` instead.");
+        return newValue != null ? newValue : property_get.get(this, defaultPath);
       }
-      return newValue != null ? newValue : property_get.get(this, defaultPath);
     });
   }
 
   function deprecatingAlias(dependentKey) {
-    return computed.computed(dependentKey, function (key, value) {
-      Ember['default'].deprecate("Usage of `" + key + "` is deprecated, use `" + dependentKey + "` instead.");
-
-      if (arguments.length > 1) {
+    return computed.computed(dependentKey, {
+      get: function (key) {
+        Ember['default'].deprecate("Usage of `" + key + "` is deprecated, use `" + dependentKey + "` instead.");
+        return property_get.get(this, dependentKey);
+      },
+      set: function (key, value) {
+        Ember['default'].deprecate("Usage of `" + key + "` is deprecated, use `" + dependentKey + "` instead.");
         property_set.set(this, dependentKey, value);
         return value;
-      } else {
-        return property_get.get(this, dependentKey);
       }
     });
   }
@@ -2600,7 +2605,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.0c057e37
+    @version 1.12.0-beta.1+canary.25339bc0
   */
 
   if ("undefined" === typeof Ember) {
@@ -2629,10 +2634,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.0c057e37'
+    @default '1.12.0-beta.1+canary.25339bc0'
     @static
   */
-  Ember.VERSION = "1.12.0-beta.1+canary.0c057e37";
+  Ember.VERSION = "1.12.0-beta.1+canary.25339bc0";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -9354,7 +9359,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     }
 
     return {
-      revision: "Ember@1.12.0-beta.1+canary.0c057e37",
+      revision: "Ember@1.12.0-beta.1+canary.25339bc0",
 
       disableComponentGeneration: disableComponentGeneration,
 
