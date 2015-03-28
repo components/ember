@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1+canary.25339bc0
+ * @version   1.12.0-beta.1+canary.218f6a33
  */
 
 (function() {
@@ -3600,7 +3600,9 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-me
         config.__ember_arity = config.length;
         this._getter = config;
         if (config.__ember_arity > 1) {
-          Ember.deprecate("Using the same function as getter and setter is deprecated");
+          Ember.deprecate("Using the same function as getter and setter is deprecated.", false, {
+            url: "http://emberjs.com/deprecations/v1.x/#toc_deprecate-using-the-same-function-as-getter-and-setter-in-computed-properties"
+          });
           this._setter = config;
         }
       } else {
@@ -4390,7 +4392,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1+canary.25339bc0
+    @version 1.12.0-beta.1+canary.218f6a33
   */
 
   if ("undefined" === typeof Ember) {
@@ -4419,10 +4421,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1+canary.25339bc0'
+    @default '1.12.0-beta.1+canary.218f6a33'
     @static
   */
-  Ember.VERSION = "1.12.0-beta.1+canary.25339bc0";
+  Ember.VERSION = "1.12.0-beta.1+canary.218f6a33";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
