@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0-beta.5
+ * @version   1.11.0
  */
 
 (function() {
@@ -428,13 +428,12 @@ enifed('ember-testing/adapters/qunit', ['exports', 'ember-testing/adapters/adapt
   });
 
 });
-enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get', 'ember-metal/error', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-testing/test'], function (Ember, property_get, EmberError, run, jQuery, Test) {
+enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get', 'ember-metal/error', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-testing/test', 'ember-runtime/ext/rsvp'], function (Ember, property_get, EmberError, run, jQuery, Test, RSVP) {
 
   'use strict';
 
   var helper = Test['default'].registerHelper;
   var asyncHelper = Test['default'].registerAsyncHelper;
-  var countAsync = 0;
 
   function currentRouteName(app) {
     var appController = app.__container__.lookup('controller:application');
@@ -621,12 +620,7 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
   }
 
   function wait(app, value) {
-    return Test['default'].promise(function(resolve) {
-      // If this is the first async promise, kick off the async test
-      if (++countAsync === 1) {
-        Test['default'].adapter.asyncStart();
-      }
-
+    return new RSVP['default'].Promise(function(resolve) {
       // Every 10ms, poll for the async thing to have finished
       var watcher = setInterval(function() {
         var router = app.__container__.lookup('router:main');
@@ -649,11 +643,6 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
         }
         // Stop polling
         clearInterval(watcher);
-
-        // If this is the last async promise, end the async test
-        if (--countAsync === 0) {
-          Test['default'].adapter.asyncEnd();
-        }
 
         // Synchronously resolve the promise
         run['default'](null, resolve, value);
@@ -1306,7 +1295,7 @@ enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_lo
 
     return function() {
       var args = slice.call(arguments);
-      var lastPromise = Test.lastPromise;
+      var lastPromise;
 
       args.unshift(app);
 
@@ -1317,35 +1306,28 @@ enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_lo
         return fn.apply(app, args);
       }
 
-      if (!lastPromise) {
-        // It's the first async helper in current context
-        lastPromise = fn.apply(app, args);
-      } else {
-        // wait for last helper's promise to resolve and then
-        // execute. To be safe, we need to tell the adapter we're going
-        // asynchronous here, because fn may not be invoked before we
-        // return.
-        Test.adapter.asyncStart();
-        run(function() {
-          lastPromise = Test.resolve(lastPromise).then(function() {
-            try {
-              return fn.apply(app, args);
-            } finally {
-              Test.adapter.asyncEnd();
-            }
-          });
-        });
-      }
+      lastPromise = run(function() {
+        return Test.resolve(Test.lastPromise);
+      });
 
-      return lastPromise;
+      // wait for last helper's promise to resolve and then
+      // execute. To be safe, we need to tell the adapter we're going
+      // asynchronous here, because fn may not be invoked before we
+      // return.
+      Test.adapter.asyncStart();
+      return lastPromise.then(function() {
+        return fn.apply(app, args);
+      })["finally"](function() {
+        Test.adapter.asyncEnd();
+      });
     };
   }
 
   function run(fn) {
     if (!emberRun['default'].currentRunLoop) {
-      emberRun['default'](fn);
+      return emberRun['default'](fn);
     } else {
-      fn();
+      return fn();
     }
   }
 
@@ -1509,6 +1491,7 @@ enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_lo
 
   Test.Promise.prototype = create['default'](RSVP['default'].Promise.prototype);
   Test.Promise.prototype.constructor = Test.Promise;
+  Test.Promise.resolve = Test.resolve;
 
   // Patch `then` to isolate async methods
   // specifically `Ember.Test.lastPromise`
@@ -1525,7 +1508,6 @@ enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_lo
   // 1. Set `Ember.Test.lastPromise` to null
   // 2. Invoke method
   // 3. Return the last promise created during method
-  // 4. Restore `Ember.Test.lastPromise` to original value
   function isolate(fn, val) {
     var value, lastPromise;
 
@@ -1535,6 +1517,7 @@ enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_lo
     value = fn(val);
 
     lastPromise = Test.lastPromise;
+    Test.lastPromise = null;
 
     // If the method returned a promise
     // return that promise. If not,
@@ -1542,12 +1525,11 @@ enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_lo
     if ((value && (value instanceof Test.Promise)) || !lastPromise) {
       return value;
     } else {
-      run(function() {
-        lastPromise = Test.resolve(lastPromise).then(function() {
+      return run(function() {
+        return Test.resolve(lastPromise).then(function() {
           return value;
         });
       });
-      return lastPromise;
     }
   }
 
