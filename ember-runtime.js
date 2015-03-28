@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0.e1187f08
+ * @version   1.11.0.72d2409e
  */
 
 (function() {
@@ -1616,7 +1616,7 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
      @property _defaultContainer
      @type Container
      */
-     _defaultContainer: null,
+    _defaultContainer: null,
 
     /**
      Creates a container based on this registry.
@@ -4949,7 +4949,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.11.0.e1187f08
+    @version 1.11.0.72d2409e
   */
 
   if ('undefined' === typeof Ember) {
@@ -4977,10 +4977,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.11.0.e1187f08'
+    @default '1.11.0.72d2409e'
     @static
   */
-  Ember.VERSION = '1.11.0.e1187f08';
+  Ember.VERSION = '1.11.0.72d2409e';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -14448,13 +14448,13 @@ enifed('ember-runtime/ext/rsvp', ['exports', 'ember-metal/core', 'ember-metal/lo
 
     if (Ember['default'].testing && async) { asyncStart(); }
 
-    run['default'].backburner.schedule('actions', function(){
+    run['default'].backburner.schedule('actions', function() {
       if (Ember['default'].testing && async) { asyncEnd(); }
       callback(promise);
     });
   });
 
-  RSVP.Promise.prototype.fail = function(callback, label){
+  RSVP.Promise.prototype.fail = function(callback, label) {
         return this['catch'](callback, label);
   };
 

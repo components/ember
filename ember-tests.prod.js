@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0.e1187f08
+ * @version   1.11.0.72d2409e
  */
 
 (function() {
@@ -7425,8 +7425,8 @@ enifed('ember-htmlbars/tests/attr_nodes/boolean_test', ['ember-views/views/view'
     run['default'](function() { view.appendTo('#qunit-fixture'); });
   }
 
-  
   // jscs:disable validateIndentation
+  
 
   QUnit.module("ember-htmlbars: boolean attribute", {
     teardown: function() {
@@ -7510,9 +7510,8 @@ enifed('ember-htmlbars/tests/attr_nodes/boolean_test', ['ember-views/views/view'
           'boolean property is set false');
   });
 
-
-  // jscs:enable validateIndentation
   
+  // jscs:enable validateIndentation
 
 });
 enifed('ember-htmlbars/tests/attr_nodes/boolean_test.jscs-test', function () {
@@ -7550,8 +7549,8 @@ enifed('ember-htmlbars/tests/attr_nodes/class_test', ['ember-views/views/view', 
     isInlineIfEnabled = true;
   
 
-  
   // jscs:disable validateIndentation
+  
 
   QUnit.module("ember-htmlbars: class attribute", {
     teardown: function() {
@@ -7687,8 +7686,8 @@ enifed('ember-htmlbars/tests/attr_nodes/class_test', ['ember-views/views/view', 
     ok(view.element.firstChild.className, 'r b a c', 'classes are in the right order');
   });
 
-  // jscs:enable validateIndentation
   
+  // jscs:enable validateIndentation
 
 });
 enifed('ember-htmlbars/tests/attr_nodes/class_test.jscs-test', function () {
@@ -8000,8 +7999,8 @@ enifed('ember-htmlbars/tests/attr_nodes/href_test', ['ember-views/views/view', '
     run['default'](function() { view.appendTo('#qunit-fixture'); });
   }
 
-  
   // jscs:disable validateIndentation
+  
 
   QUnit.module("ember-htmlbars: href attribute", {
     teardown: function() {
@@ -8022,8 +8021,8 @@ enifed('ember-htmlbars/tests/attr_nodes/href_test', ['ember-views/views/view', '
                    "attribute is output");
   });
 
-  // jscs:enable validateIndentation
   
+  // jscs:enable validateIndentation
 
 });
 enifed('ember-htmlbars/tests/attr_nodes/href_test.jscs-test', function () {
@@ -8063,8 +8062,8 @@ enifed('ember-htmlbars/tests/attr_nodes/property_test', ['ember-views/views/view
     return input.maxLength === 0;
   }
 
-  
   // jscs:disable validateIndentation
+  
 
   QUnit.module("ember-htmlbars: property", {
     teardown: function() {
@@ -8117,8 +8116,8 @@ enifed('ember-htmlbars/tests/attr_nodes/property_test', ['ember-views/views/view
     ok(true, "no legacy assertion prohibited setting an array");
   });
 
-  // jscs:enable validateIndentation
   
+  // jscs:enable validateIndentation
 
 });
 enifed('ember-htmlbars/tests/attr_nodes/property_test.jscs-test', function () {
@@ -8155,9 +8154,9 @@ enifed('ember-htmlbars/tests/attr_nodes/sanitized_test', ['ember-views/views/vie
     }
   });
 
-  
   // jscs:disable validateIndentation
   // jscs:disable disallowTrailingWhitespace
+  
 
   var badTags = [
     { tag: 'a', attr: 'href',
@@ -8169,12 +8168,12 @@ enifed('ember-htmlbars/tests/attr_nodes/sanitized_test', ['ember-views/views/vie
       unquotedTemplate: compile['default']("<base href={{url}} />"),
       quotedTemplate: compile['default']("<base href='{{url}}'/>"),
       multipartTemplate: compile['default']("<base href='{{protocol}}{{path}}'/>") },
-   
+
     { tag: 'embed', attr: 'src',
       unquotedTemplate: compile['default']("<embed src={{url}} />"),
       quotedTemplate: compile['default']("<embed src='{{url}}'/>"),
       multipartTemplate: compile['default']("<embed src='{{protocol}}{{path}}'/>") },
-   
+
     { tag: 'body', attr: 'background',
       unquotedTemplate: compile['default']("<body background={{url}}></body>"),
       quotedTemplate: compile['default']("<body background='{{url}}'></body>"),
@@ -8264,8 +8263,9 @@ enifed('ember-htmlbars/tests/attr_nodes/sanitized_test', ['ember-views/views/vie
     })(); //jshint ignore:line
   }
 
-  // jscs:enable validateIndentation
   
+  // jscs:enable disallowTrailingWhitespace
+  // jscs:enable validateIndentation
 
 });
 enifed('ember-htmlbars/tests/attr_nodes/sanitized_test.jscs-test', function () {
@@ -8313,8 +8313,8 @@ enifed('ember-htmlbars/tests/attr_nodes/style_test', ['ember-metal/core', 'ember
     }
   });
 
-  
   // jscs:disable validateIndentation
+  
 
   if (!EmberDev.runningProdBuild) {
     QUnit.test('specifying `<div style={{userValue}}></div>` generates a warning', function() {
@@ -8362,8 +8362,8 @@ enifed('ember-htmlbars/tests/attr_nodes/style_test', ['ember-metal/core', 'ember
     deepEqual(warnings, [ ]);
   });
 
-  // jscs:enable validateIndentation
   
+  // jscs:enable validateIndentation
 
 });
 enifed('ember-htmlbars/tests/attr_nodes/style_test.jscs-test', function () {
@@ -8396,8 +8396,8 @@ enifed('ember-htmlbars/tests/attr_nodes/svg_test', ['ember-views/views/view', 'e
     run['default'](function() { view.appendTo('#qunit-fixture'); });
   }
 
-  
   // jscs:disable validateIndentation
+  
 
   QUnit.module("ember-htmlbars: svg attribute", {
     teardown: function() {
@@ -8462,8 +8462,8 @@ enifed('ember-htmlbars/tests/attr_nodes/svg_test', ['ember-views/views/view', 'e
     htmlbars_test_helpers.equalInnerHTML(view.element, '<svg class="red tall"></svg>', "attribute is output");
   });
 
-  // jscs:enable validateIndentation
   
+  // jscs:enable validateIndentation
 
 });
 enifed('ember-htmlbars/tests/attr_nodes/svg_test.jscs-test', function () {
@@ -8496,8 +8496,8 @@ enifed('ember-htmlbars/tests/attr_nodes/value_test', ['ember-views/views/view', 
     run['default'](function() { view.appendTo('#qunit-fixture'); });
   }
 
-  
   // jscs:disable validateIndentation
+  
 
   QUnit.module("ember-htmlbars: value attribute", {
     teardown: function() {
@@ -8543,8 +8543,8 @@ enifed('ember-htmlbars/tests/attr_nodes/value_test', ['ember-views/views/view', 
           'property is set true');
   });
 
-  // jscs:enable validateIndentation
   
+  // jscs:enable validateIndentation
 
 });
 enifed('ember-htmlbars/tests/attr_nodes/value_test.jscs-test', function () {
@@ -10520,8 +10520,8 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['ember-views/views/colle
     var container = registry.container();
 
     var ACollectionView = CollectionView['default'].extend({
-          tagName: 'ul',
-          content: native_array.A(['foo', 'bar', 'baz'])
+      tagName: 'ul',
+      content: native_array.A(['foo', 'bar', 'baz'])
     });
 
     registry.register('view:collectionTest', ACollectionView);
@@ -11901,8 +11901,8 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
   QUnit.test("it supports {{itemViewClass=}} with tagName (DEPRECATED)", function() {
     utils.runDestroy(view);
     view = EmberView['default'].create({
-        template: templateFor('{{each view.people itemViewClass=MyView tagName="ul"}}'),
-        people: people
+      template: templateFor('{{each view.people itemViewClass=MyView tagName="ul"}}'),
+      people: people
     });
 
     expectDeprecation(/Supplying a tagName to Metamorph views is unreliable and is deprecated./);
@@ -14713,7 +14713,7 @@ enifed('ember-htmlbars/tests/helpers/unbound_test.jshint', function () {
   });
 
 });
-enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'container/registry', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/text_field', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-views/views/container_view', 'ember-views/views/metamorph_view', 'htmlbars-util/safe-string', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-metal/observer', 'ember-runtime/controllers/controller', 'ember-htmlbars/system/make_bound_helper', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed'], function (EmberView, Registry, run, jQuery, TextField, Namespace, EmberObject, ContainerView, _MetamorphView, SafeString, precompile, compile, template, observer, Controller, makeBoundHelper, utils, property_set, property_get, computed) {
+enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'container/registry', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/text_field', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-views/views/container_view', 'ember-views/views/metamorph_view', 'htmlbars-util/safe-string', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-metal/observer', 'ember-runtime/controllers/controller', 'ember-htmlbars/system/make_bound_helper', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed'], function (EmberView, Registry, run, jQuery, TextField, Namespace, EmberObject, ContainerView, _MetamorphView, SafeString, precompile, compile, system__template, observer, Controller, makeBoundHelper, utils, property_set, property_get, computed) {
 
   'use strict';
 
@@ -15861,7 +15861,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
 
   QUnit.test('should work with precompiled templates', function() {
     var templateString = precompile['default']('{{view.value}}');
-    var compiledTemplate = template['default'](eval(templateString));
+    var compiledTemplate = system__template['default'](eval(templateString));
 
     view = EmberView['default'].create({
       value: 'rendered',
@@ -19384,7 +19384,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: 'Ember@1.11.0.e1187f08',
+        revision: 'Ember@1.11.0.72d2409e',
         render: function(view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -34174,14 +34174,14 @@ enifed('ember-routing/tests/location/hash_location_test', ['ember-metal/core', '
     var pathname = (tmp.pathname.match(/^\//)) ? tmp.pathname : '/' + tmp.pathname;
 
     return {
-        hash: tmp.hash,
-        host: tmp.host || 'localhost',
-        hostname: tmp.hostname || 'localhost',
-        href: tmp.href,
-        pathname: pathname,
-        port: tmp.port || '',
-        protocol: protocol,
-        search: tmp.search
+      hash: tmp.hash,
+      host: tmp.host || 'localhost',
+      hostname: tmp.hostname || 'localhost',
+      href: tmp.href,
+      pathname: pathname,
+      port: tmp.port || '',
+      protocol: protocol,
+      search: tmp.search
     };
   }
 
@@ -34380,14 +34380,14 @@ enifed('ember-routing/tests/location/history_location_test', ['ember-metal/prope
     var pathname = (tmp.pathname.match(/^\//)) ? tmp.pathname : '/' + tmp.pathname;
 
     return {
-        hash: tmp.hash,
-        host: tmp.host || 'localhost',
-        hostname: tmp.hostname || 'localhost',
-        href: tmp.href,
-        pathname: pathname,
-        port: tmp.port || '',
-        protocol: protocol,
-        search: tmp.search
+      hash: tmp.hash,
+      host: tmp.host || 'localhost',
+      hostname: tmp.hostname || 'localhost',
+      href: tmp.href,
+      pathname: pathname,
+      port: tmp.port || '',
+      protocol: protocol,
+      search: tmp.search
     };
   }
 
@@ -34830,8 +34830,8 @@ enifed('ember-routing/tests/system/dsl_test', ['ember-routing/system/router', 'e
     ok(router.router.recognizer.names['bleep.bloop.blork'], 'parent name was used as base of nested routes');
   });
 
-  
   // jscs:disable validateIndentation
+  
 
   QUnit.test("should add loading and error routes if _isRouterMapResult is true", function() {
     Router.map(function() {
@@ -34859,8 +34859,8 @@ enifed('ember-routing/tests/system/dsl_test', ['ember-routing/system/router', 'e
     ok(!router.router.recognizer.names['blork_error'], 'error route was not added');
   });
 
-  // jscs:enable validateIndentation
   
+  // jscs:enable validateIndentation
 
 });
 enifed('ember-routing/tests/system/dsl_test.jscs-test', function () {
@@ -36986,18 +36986,18 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
   QUnit.test("it throws an error if given fewer or more than two dependent properties", function() {
     throws(function () {
       EmberObject['default'].createWithMixins({
-          array: Ember['default'].A([1,2,3,4,5,6,7]),
-          array2: Ember['default'].A([3,4,5]),
-          diff: reduce_computed_macros.setDiff('array')
+        array: Ember['default'].A([1,2,3,4,5,6,7]),
+        array2: Ember['default'].A([3,4,5]),
+        diff: reduce_computed_macros.setDiff('array')
       });
     }, /requires exactly two dependent arrays/, "setDiff requires two dependent arrays");
 
     throws(function () {
       EmberObject['default'].createWithMixins({
-          array: Ember['default'].A([1,2,3,4,5,6,7]),
-          array2: Ember['default'].A([3,4,5]),
-          array3: Ember['default'].A([7]),
-          diff: reduce_computed_macros.setDiff('array', 'array2', 'array3')
+        array: Ember['default'].A([1,2,3,4,5,6,7]),
+        array2: Ember['default'].A([3,4,5]),
+        array3: Ember['default'].A([7]),
+        diff: reduce_computed_macros.setDiff('array', 'array2', 'array3')
       });
     }, /requires exactly two dependent arrays/, "setDiff requires two dependent arrays");
   });
@@ -38024,7 +38024,7 @@ enifed('ember-runtime/tests/computed/reduce_computed_test', ['ember-metal/core',
 
   QUnit.test("after the first retrieval, array computed properties observe additions to dependent arrays", function() {
     var numbers = property_get.get(obj, 'numbers');
-        // set up observers
+    // set up observers
     var evenNumbers = property_get.get(obj, 'evenNumbers');
 
     run['default'](function() {
@@ -38036,7 +38036,7 @@ enifed('ember-runtime/tests/computed/reduce_computed_test', ['ember-metal/core',
 
   QUnit.test("after the first retrieval, array computed properties observe removals from dependent arrays", function() {
     var numbers = property_get.get(obj, 'numbers');
-        // set up observers
+    // set up observers
     var evenNumbers = property_get.get(obj, 'evenNumbers');
 
     run['default'](function() {
@@ -41744,7 +41744,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test', [
     equal(ObjectA.prop, "propValue");
     ObjectA.endPropertyChanges();
 
-      //end inner nest
+    //end inner nest
     ObjectA.set('prop', 'changePropValue');
     equal(ObjectA.newFoo, "newFooValue");
 
@@ -42081,9 +42081,9 @@ enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['ember-metal/core',
         });
 
         TestNamespace.toObject = EmberObject['default'].createWithMixins({
-            valueBinding: ember_metal__binding.Binding.from('TestNamespace.fromObject.value'),
-            localValue: "originalLocal",
-            relativeBinding: ember_metal__binding.Binding.from('localValue')
+          valueBinding: ember_metal__binding.Binding.from('TestNamespace.fromObject.value'),
+          localValue: "originalLocal",
+          relativeBinding: ember_metal__binding.Binding.from('localValue')
         });
       });
     },
@@ -42389,7 +42389,7 @@ enifed('ember-runtime/tests/legacy_1x/system/object/bindings_test', ['ember-meta
     teardown: function() {
       Ember['default'].lookup = originalLookup;
       TestObject = fromObject = extraObject = null;
-    //  delete TestNamespace;
+      //  delete TestNamespace;
     }
 
   };
@@ -42966,8 +42966,8 @@ enifed('ember-runtime/tests/legacy_1x/system/set_test', ['ember-metal/core', 'em
   });
 
   QUnit.module("Set.pop + Set.copy", {
-  // generate a set with every type of object, but none of the specific
-  // ones we add in the tests below...
+    // generate a set with every type of object, but none of the specific
+    // ones we add in the tests below...
     setup: function() {
       ignoreDeprecation(function() {
         set = new Set['default'](Ember['default'].A([
@@ -45599,8 +45599,7 @@ enifed('ember-runtime/tests/suites/array', ['exports', 'ember-runtime/tests/suit
   'use strict';
 
   var ObserverClass = enumerable.ObserverClass.extend({
-
-     observeArray: function(obj) {
+    observeArray: function(obj) {
       obj.addArrayObserver(this);
       return this;
     },
@@ -54535,7 +54534,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, 'Ember@1.11.0.e1187f08', 'revision is included in generated template');
+    equal(actual.revision, 'Ember@1.11.0.72d2409e', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function() {
@@ -59118,10 +59117,10 @@ enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-me
     Ember['default'].lookup = {
       App: {
         EmptyView: View['default'].extend({
-        tagName: 'kbd',
-        render: function(buf) {
-          buf.push("THIS IS AN EMPTY VIEW");
-        }
+          tagName: 'kbd',
+          render: function(buf) {
+            buf.push("THIS IS AN EMPTY VIEW");
+          }
         })
       }
     };
@@ -67767,7 +67766,7 @@ enifed('ember/tests/helpers/helper_registration_test', ['ember', 'ember-htmlbars
     ok(!helpers['x-borf'], "Container-registered helper doesn't wind up on global helpers hash");
   });
 
-    // need to make `makeBoundHelper` for HTMLBars
+  // need to make `makeBoundHelper` for HTMLBars
   QUnit.test("Bound helpers registered on the container can be late-invoked", function() {
     Ember.TEMPLATES.application = compile("<div id='wrapper'>{{x-reverse}} {{x-reverse foo}}</div>");
 
@@ -67782,8 +67781,8 @@ enifed('ember/tests/helpers/helper_registration_test', ['ember', 'ember-htmlbars
     ok(!helpers['x-reverse'], "Container-registered helper doesn't wind up on global helpers hash");
   });
 
-    // we have unit tests for this in ember-htmlbars/tests/system/lookup-helper
-    // and we are not going to recreate the handlebars helperMissing concept
+  // we have unit tests for this in ember-htmlbars/tests/system/lookup-helper
+  // and we are not going to recreate the handlebars helperMissing concept
   QUnit.test("Undashed helpers registered on the container can not (presently) be invoked", function() {
 
     // Note: the reason we're not allowing undashed helpers is to avoid
