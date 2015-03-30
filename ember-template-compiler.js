@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.6bfe761b
+ * @version   1.13.0-beta.1+canary.e0a31ea1
  */
 
 (function() {
@@ -1910,6 +1910,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-me
   ComputedPropertyPrototype.readOnly = function (readOnly) {
     Ember.deprecate("Passing arguments to ComputedProperty.readOnly() is deprecated.", arguments.length === 0);
     this._readOnly = readOnly === undefined || !!readOnly; // Force to true once this deprecation is gone
+    Ember.assert("Computed properties that define a setter cannot be read-only", !(this._readOnly && this._setter));
     return this;
   };
 
@@ -2608,7 +2609,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1+canary.6bfe761b
+    @version 1.13.0-beta.1+canary.e0a31ea1
   */
 
   if ("undefined" === typeof Ember) {
@@ -2637,10 +2638,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.13.0-beta.1+canary.6bfe761b'
+    @default '1.13.0-beta.1+canary.e0a31ea1'
     @static
   */
-  Ember.VERSION = "1.13.0-beta.1+canary.6bfe761b";
+  Ember.VERSION = "1.13.0-beta.1+canary.e0a31ea1";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -9362,7 +9363,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     }
 
     return {
-      revision: "Ember@1.13.0-beta.1+canary.6bfe761b",
+      revision: "Ember@1.13.0-beta.1+canary.e0a31ea1",
 
       disableComponentGeneration: disableComponentGeneration,
 

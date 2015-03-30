@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.6bfe761b
+ * @version   1.13.0-beta.1+canary.e0a31ea1
  */
 
 (function() {
@@ -17751,7 +17751,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.13.0-beta.1+canary.6bfe761b",
+        revision: "Ember@1.13.0-beta.1+canary.e0a31ea1",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -21637,6 +21637,15 @@ enifed('ember-metal/tests/computed_test', ['ember-metal/core', 'ember-metal/test
 
     ok(cp instanceof properties.Descriptor);
     ok(cp instanceof computed.ComputedProperty);
+  });
+
+  QUnit.test("throws assertion if called over a CP with a setter", function () {
+    expectAssertion(function () {
+      computed.computed({
+        get: function () {},
+        set: function () {}
+      }).readOnly();
+    }, /Computed properties that define a setter cannot be read-only/);
   });
 
   props_helper.testBoth("protects against setting", function (get, set) {
@@ -53356,7 +53365,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.6bfe761b", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.e0a31ea1", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
