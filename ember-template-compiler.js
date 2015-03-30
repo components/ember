@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.f7254431
+ * @version   1.13.0-beta.1+canary.6bfe761b
  */
 
 (function() {
@@ -180,8 +180,9 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/error', 'embe
 
     @method deprecate
     @param {String} message A description of the deprecation.
-    @param {Boolean} test An optional boolean. If falsy, the deprecation
-      will be displayed.
+    @param {Boolean|Function} test An optional boolean. If falsy, the deprecation
+      will be displayed. If this is a function, it will be executed and its return
+      value will be used as condition.
     @param {Object} options An optional object that can be used to pass
       in a `url` to the transition guide on the emberjs.com website.
   */
@@ -2607,7 +2608,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1+canary.f7254431
+    @version 1.13.0-beta.1+canary.6bfe761b
   */
 
   if ("undefined" === typeof Ember) {
@@ -2636,10 +2637,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.13.0-beta.1+canary.f7254431'
+    @default '1.13.0-beta.1+canary.6bfe761b'
     @static
   */
-  Ember.VERSION = "1.13.0-beta.1+canary.f7254431";
+  Ember.VERSION = "1.13.0-beta.1+canary.6bfe761b";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -9361,7 +9362,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     }
 
     return {
-      revision: "Ember@1.13.0-beta.1+canary.f7254431",
+      revision: "Ember@1.13.0-beta.1+canary.6bfe761b",
 
       disableComponentGeneration: disableComponentGeneration,
 
